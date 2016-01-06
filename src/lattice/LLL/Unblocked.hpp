@@ -28,6 +28,8 @@ void ExpandQR
     DEBUG_ONLY(CSE cse("lll::ExpandQR"))
     typedef Base<F> Real;
     const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
     const F* BBuf = B.LockedBuffer();
           F* QRBuf = QR.Buffer();  
     const F* tBuf = t.LockedBuffer();
@@ -43,7 +45,7 @@ void ExpandQR
         applyHouseTimer.Start();
     for( Int orthog=0; orthog<numOrthog; ++orthog )
     {
-        for( Int i=0; i<k; ++i )
+        for( Int i=0; i<Min(k,minDim); ++i )
         {
             // Apply the i'th Householder reflector
     
@@ -82,6 +84,10 @@ void HouseholderStep
 {
     DEBUG_ONLY(CSE cse("lll::HouseholderStep"))
     typedef Base<F> Real;
+    const Int m = QR.Height();
+    const Int n = QR.Width();
+    if( k >= Min(m,n) )
+        return;
 
     // Perform the next step of Householder reduction
     F* QRBuf = QR.Buffer();
@@ -104,10 +110,13 @@ inline Base<F> LogPotential( const Matrix<F>& R )
 {
     DEBUG_ONLY(CSE cse("lll::LogPotential"))
     typedef Base<F> Real;
+    const Int m = R.Height();
     const Int n = R.Width();
+    const Int minDim = Min(m,n);
 
+    // TODO: Carefully check this
     Real logPotential=0;
-    for( Int j=0; j<n; ++j )
+    for( Int j=0; j<minDim; ++j )
         logPotential += 2*(n-j)*Log(Abs(R.Get(j,j)));
     return logPotential;
 }
@@ -157,8 +166,11 @@ bool Step
                 BBuf[i+k*BLDim] = 0;
             for( Int i=0; i<m; ++i )
                 QRBuf[i+k*QRLDim] = 0;
-            t.Set( k, 0, Real(1)/Real(2) );
-            d.Set( k, 0, Real(1) );
+            if( k < Min(m,n) )
+            {
+                t.Set( k, 0, Real(2) );
+                d.Set( k, 0, Real(1) );
+            }
             return true;
         }
 
@@ -167,7 +179,6 @@ bool Step
         if( ctrl.variant == LLL_WEAK )
         {
             const Real rho_km1_km1 = RealPart(QRBuf[(k-1)+(k-1)*QRLDim]);
-            // We should be able to assume R(k-1,k-1) >= 0
             if( rho_km1_km1 > ctrl.zeroTol )
             {
                 F chi = QRBuf[(k-1)+k*QRLDim]/rho_km1_km1;
@@ -201,13 +212,9 @@ bool Step
         else
         {
             vector<F> xBuf(k);
+
             for( Int i=k-1; i>=0; --i )
             {
-                if( Abs(QRBuf[i+i*QRLDim]) <= ctrl.zeroTol )
-                {
-                    xBuf[i] = 0;
-                    continue;
-                }
                 F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
                 if( Abs(RealPart(chi)) > ctrl.eta ||
                     Abs(ImagPart(chi)) > ctrl.eta )
@@ -222,15 +229,16 @@ bool Step
                     chi = 0;
                 xBuf[i] = chi;
             }
+
             blas::Gemv
             ( 'N', m, k,
-              F(-1), BBuf,           BLDim,
+              F(-1), &BBuf[0*BLDim], BLDim,
                      &xBuf[0],       1,
               F(+1), &BBuf[k*BLDim], 1 );
             if( formU )
                 blas::Gemv
                 ( 'N', n, k,
-                  F(-1), UBuf,           ULDim,
+                  F(-1), &UBuf[0*ULDim], ULDim,
                          &xBuf[0],       1,
                   F(+1), &UBuf[k*ULDim], 1 );
             if( formUInv )
@@ -257,7 +265,6 @@ bool Step
             ("  Reorthogonalizing with k=",k,
              " since oldNorm=",oldNorm," and newNorm=",newNorm);
     }
-
     lll::HouseholderStep( k, QR, t, d, ctrl.time );
     return false;
 }
@@ -287,46 +294,68 @@ LLLInfo<Base<F>> UnblockedAlg
     const Int n = B.Width();
     const Int minDim = Min(m,n);
 
-    Int nullity = 0; // This is an assumption if jumpstarting
+    Int numSwaps=0;
+    Int nullity = 0;
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
             LogicError("QR should have been m x n");
         if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t should have been Min(m,n) x 1");
+            LogicError("t was ",t.Height(),", x ",t.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
         if( d.Height() != minDim || d.Width() != 1 )
-            LogicError("d should have been Min(m,n) x 1");
+            LogicError("d was ",d.Height(),", x ",d.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
     }
     else
     {
         Zeros( QR, m, n );
         Zeros( t, minDim, 1 );
         Zeros( d, minDim, 1 );
-
-        // Perform the first step of Householder reduction
-        lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-
-        auto b0 = B(ALL,IR(0));
-        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+        while( true )
         {
-            auto QR0 = QR(ALL,IR(0));
-            Zero( b0 );
-            Zero( QR0 );
-            nullity = 1;
+            // Perform the first step of Householder reduction
+            lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+            lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+            if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+            {
+                auto b0 = B(ALL,IR(0));
+                auto QR0 = QR(ALL,IR(0));
+                Zero( b0 );
+                Zero( QR0 );
+                t.Set( 0, 0, Real(2) );
+                d.Set( 0, 0, Real(1) );
+
+                ColSwap( B, 0, (n-1)-nullity );
+                if( formU )
+                    ColSwap( U, 0, (n-1)-nullity );
+                if( formUInv )
+                    RowSwap( UInv, 0, (n-1)-nullity );
+
+                ++nullity;
+                ++numSwaps;
+            }
+            else
+                break;
+            if( nullity >= n )
+                break;
         }
     }
 
-    Int numSwaps=0;
     Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
-    while( k < n )
+    while( k < n-nullity )
     {
         bool zeroVector =
           lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
         if( zeroVector )
-            nullity = k+1;
-        else
-            nullity = Min(nullity,k);
+        {
+            ColSwap( B, k, (n-1)-nullity );
+            if( formU )
+                ColSwap( U, k, (n-1)-nullity );
+            if( formUInv )
+                RowSwap( UInv, k, (n-1)-nullity );
+            ++nullity;
+            ++numSwaps;
+            continue;
+        }
 
         const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
         const F rho_km1_k = QR.Get(k-1,k);
@@ -334,7 +363,11 @@ LLLInfo<Base<F>> UnblockedAlg
         
         const Real leftTerm = Sqrt(ctrl.delta)*rho_km1_km1;
         const Real rightTerm = lapack::SafeNorm(rho_k_k,rho_km1_k);
-        if( leftTerm <= rightTerm )
+        // NOTE: It is possible that, if delta < 1/2, that rho_k_k could be
+        //       zero and the usual Lovasz condition would be satisifed.
+        //       For this reason, we explicitly force a pivot if R(k,k) is
+        //       deemed to be numerically zero.
+        if( leftTerm <= rightTerm && rho_k_k > ctrl.zeroTol )
         {
             ++k;
         }
@@ -342,30 +375,50 @@ LLLInfo<Base<F>> UnblockedAlg
         {
             ++numSwaps;
             if( ctrl.progress )
-                Output("Dropping from k=",k," to ",Max(k-1,1)," since sqrt(delta)*R(k-1,k-1)=",leftTerm," > ",rightTerm);
+            {
+                if( rho_k_k <= ctrl.zeroTol )
+                    Output("Dropping from k=",k," because R(k,k) ~= 0");
+                else
+                    Output
+                    ("Dropping from k=",k," to ",Max(k-1,1),
+                     " since sqrt(delta)*R(k-1,k-1)=",leftTerm," > ",rightTerm);
+            }
 
             ColSwap( B, k-1, k );
-
             if( formU )
                 ColSwap( U, k-1, k );
             if( formUInv )
                 RowSwap( UInv, k-1, k );
+
             if( k == 1 )
             {
-                // We must reinitialize since we keep k=1
-                lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-                lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                while( true )
                 {
-                    auto b0 = B(ALL,IR(0));
-                    if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+                    // We must reinitialize since we keep k=1
+                    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+                    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                    if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
                     {
+                        auto b0 = B(ALL,IR(0));
                         auto QR0 = QR(ALL,IR(0));
                         Zero( b0 );
                         Zero( QR0 );
-                        nullity = 1;
+                        t.Set( 0, 0, Real(2) );
+                        d.Set( 0, 0, Real(1) );
+
+                        ColSwap( B, 0, (n-1)-nullity );
+                        if( formU )
+                            ColSwap( U, 0, (n-1)-nullity );
+                        if( formUInv )
+                            RowSwap( UInv, 0, (n-1)-nullity );
+                       
+                        ++nullity;
+                        ++numSwaps;
                     }
                     else
-                        nullity = 0;
+                        break;
+                    if( nullity >= n )
+                        break;
                 }
             }
             else
@@ -409,6 +462,9 @@ LLLInfo<Base<F>> UnblockedDeepAlg
 {
     DEBUG_ONLY(CSE cse("lll::UnblockedDeepAlg"))
     typedef Base<F> Real;
+    if( ctrl.delta <= Real(1)/Real(2) )
+        LogicError
+        ("Deep insertion requires delta > 1/2 for handling dependence");
     if( ctrl.time )
     {
         applyHouseTimer.Reset();
@@ -423,15 +479,16 @@ LLLInfo<Base<F>> UnblockedDeepAlg
     const bool alwaysRecomputeNorms = false;
     const Real updateTol = Sqrt(limits::Epsilon<Real>());
 
-    Int nullity = 0; // This is an assumption if jumpstarting
+    Int numSwaps=0;
+    Int nullity = 0;
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
             LogicError("QR should have been m x n");
         if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t should have been Min(m,n) x 1");
+            LogicError("t was ",t.Height(),", x ",t.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
         if( d.Height() != minDim || d.Width() != 1 )
-            LogicError("d should have been Min(m,n) x 1");
+            LogicError("d was ",d.Height(),", x ",d.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
     }
     else
     {
@@ -439,29 +496,52 @@ LLLInfo<Base<F>> UnblockedDeepAlg
         Zeros( d, minDim, 1 );
         Zeros( t, minDim, 1 );
 
-        // Perform the first step of Householder reduction
-        lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-        auto b0 = B(ALL,IR(0));
-        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
-        {
-            auto QR0 = QR(ALL,IR(0));
-            Zero( b0 );
-            Zero( QR0 );
-            nullity = 1;
+        while( true )
+        {   
+            // Perform the first step of Householder reduction
+            lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+            lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+            if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+            {
+                auto b0 = B(ALL,IR(0));
+                auto QR0 = QR(ALL,IR(0));
+                Zero( b0 );
+                Zero( QR0 ); 
+                t.Set( 0, 0, Real(2) );
+                d.Set( 0, 0, Real(1) );
+
+                ColSwap( B, 0, (n-1)-nullity );
+                if( formU )
+                    ColSwap( U, 0, (n-1)-nullity );
+                if( formUInv )
+                    RowSwap( UInv, 0, (n-1)-nullity );
+
+                ++nullity;
+                ++numSwaps;
+            }
+            else
+                break;
+            if( nullity >= n )
+                break;
         }
     }
 
-    Int numSwaps=0;
     Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
-    while( k < n )
+    while( k < n-nullity )
     {
         bool zeroVector =
           lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
         if( zeroVector )
-            nullity = k+1;
-        else
-            nullity = Min(nullity,k);
+        {
+            ColSwap( B, k, (n-1)-nullity );
+            if( formU )
+                ColSwap( U, k, (n-1)-nullity );
+            if( formUInv )
+                RowSwap( UInv, k, (n-1)-nullity );
+            ++nullity;
+            ++numSwaps;
+            continue;
+        }
 
         bool swapped=false;
         // NOTE:
@@ -474,9 +554,10 @@ LLLInfo<Base<F>> UnblockedDeepAlg
         // as "c" should be initialized to || b_k ||^2, not || b'_k ||^2,
         // where || b'_k ||_2 = R(k,k) and || b_k ||_2 = norm(R(1:k,k)),
         // if we count from one.
-        Real origNorm = blas::Nrm2( k+1, QR.LockedBuffer(0,k), 1 );
+        const Int rColHeight = Min(k+1,minDim);
+        Real origNorm = blas::Nrm2( rColHeight, QR.LockedBuffer(0,k), 1 );
         Real partialNorm = origNorm;
-        for( Int i=0; i<k; ++i )
+        for( Int i=0; i<Min(k,minDim); ++i )
         {
             const Real rho_i_i = QR.GetRealPart(i,i);
             const Real leftTerm = Sqrt(ctrl.delta)*rho_i_i;
@@ -491,22 +572,37 @@ LLLInfo<Base<F>> UnblockedDeepAlg
                     DeepColSwap( U, i, k );
                 if( formUInv )
                     DeepRowSwap( UInv, i, k );
+
                 if( i == 0 )
                 {
-                    // We must reinitialize since we keep k=1
-                    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-                    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                    while( true )
                     {
-                        auto b0 = B(ALL,IR(0));
-                        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+                        // We must reinitialize since we keep k=1
+                        lll::ExpandQR
+                        ( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+                        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                        if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
                         {
+                            auto b0 = B(ALL,IR(0));
                             auto QR0 = QR(ALL,IR(0));
                             Zero( b0 );
                             Zero( QR0 );
-                            nullity = 1;
+                            t.Set( 0, 0, Real(2) );
+                            d.Set( 0, 0, Real(1) );
+
+                            ColSwap( B, 0, (n-1)-nullity );
+                            if( formU )
+                                ColSwap( U, 0, (n-1)-nullity );
+                            if( formUInv )
+                                RowSwap( UInv, 0, (n-1)-nullity );
+
+                            ++nullity;
+                            ++numSwaps;
                         }
                         else
-                            nullity = 0;
+                            break;
+                        if( nullity >= n )
+                            break;
                     }
                     k=1;
                 }
@@ -526,7 +622,8 @@ LLLInfo<Base<F>> UnblockedDeepAlg
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol || alwaysRecomputeNorms )
                 {
-                    partialNorm = blas::Nrm2( k-i, QR.LockedBuffer(i+1,k), 1 );
+                    partialNorm = blas::Nrm2
+                    ( rColHeight-(i+1), QR.LockedBuffer(i+1,k), 1 );
                     origNorm = partialNorm;
                 }
                 else
@@ -571,6 +668,9 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
 {
     DEBUG_ONLY(CSE cse("lll::UnblockedDeepReduceAlg"))
     typedef Base<F> Real;
+    if( ctrl.delta <= Real(1)/Real(2) )
+        LogicError
+        ("Deep insertion requires delta > 1/2 for handling dependence");
     if( ctrl.time )
     {
         applyHouseTimer.Reset();
@@ -581,15 +681,16 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
     const Int n = B.Width();
     const Int minDim = Min(m,n);
 
-    Int nullity = 0; // This is an assumption if jumpstarting
+    Int numSwaps = 0;
+    Int nullity = 0;
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
             LogicError("QR should have been m x n");
         if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t should have been Min(m,n) x 1");
+            LogicError("t was ",t.Height(),", x ",t.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
         if( d.Height() != minDim || d.Width() != 1 )
-            LogicError("d should have been Min(m,n) x 1");
+            LogicError("d was ",d.Height(),", x ",d.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
     }
     else
     {
@@ -597,43 +698,67 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
         Zeros( d, minDim, 1 );
         Zeros( t, minDim, 1 );
 
-        // Perform the first step of Householder reduction
-        lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-        auto b0 = B(ALL,IR(0));
-        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+        while( true )
         {
-            auto QR0 = QR(ALL,IR(0));
-            Zero( b0 );
-            Zero( QR0 );
-            nullity = 1;
+            // Perform the first step of Householder reduction
+            lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+            lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+            if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+            {
+                auto b0 = B(ALL,IR(0));
+                auto QR0 = QR(ALL,IR(0));
+                Zero( b0 );
+                Zero( QR0 );
+                t.Set( 0, 0, Real(2) );
+                d.Set( 0, 0, Real(1) );
+
+                ColSwap( B, 0, (n-1)-nullity );
+                if( formU )
+                    ColSwap( U, 0, (n-1)-nullity );
+                if( formUInv )
+                    RowSwap( UInv, 0, (n-1)-nullity );
+
+                ++nullity;
+                ++numSwaps;
+            }
+            else
+                break;
+            if( nullity >= n )
+                break;
         }
     }
 
-    Int numSwaps=0;
     Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
-    while( k < n )
+    while( k < n-nullity )
     {
         bool zeroVector =
           lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
         if( zeroVector )
-            nullity = k+1;
-        else
-            nullity = Min(nullity,k);
+        {
+            ColSwap( B, k, (n-1)-nullity );
+            if( formU )
+                ColSwap( U, k, (n-1)-nullity );
+            if( formUInv )
+                RowSwap( UInv, k, (n-1)-nullity );
+            ++nullity;
+            ++numSwaps;
+            continue;
+        }
 
         bool swapped=false;
-        for( Int i=0; i<k; ++i )
+        const Int rColHeight = Min(k+1,minDim);
+        for( Int i=0; i<Min(k,minDim); ++i )
         {
             // Perform additional reduction before attempting deep insertion
             // and reverse them if the candidate was not chosen 
             // (otherwise |R(i,j)|/R(i,i) can be greater than 1/2 for 
-            // some j > i
-            auto rk = QR( IR(0,k+1), IR(k) );
+            // some j > i)
+            auto rk = QR( IR(0,rColHeight), IR(k) );
             auto rkCopy( rk );
             bool deepReduced = false;
             Matrix<F> x;
-            Zeros( x, k-i, 1 );
-            for( Int l=i; l<k; ++l )
+            Zeros( x, Min(k,minDim)-i, 1 );
+            for( Int l=i; l<Min(k,minDim); ++l )
             {
                 // TODO: Perform this calculation more carefully, perhaps
                 //       with an equivalent of the scaled squaring approach
@@ -657,7 +782,7 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
             const Real rho_i_i = QR.GetRealPart(i,i);
             const Real leftTerm = Sqrt(ctrl.delta)*rho_i_i;
             const Real partialNorm =
-              blas::Nrm2( k-i+1, QR.LockedBuffer(i,k), 1 );
+              blas::Nrm2( rColHeight-i, QR.LockedBuffer(i,k), 1 );
             if( leftTerm > partialNorm )
             {
                 ++numSwaps;
@@ -666,7 +791,7 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
 
                 // Finish applying the deep reductions since they were accepted
                 // TODO: Apply these in a batch instead?
-                for( Int l=i; l<k; ++l )
+                for( Int l=i; l<Min(k,minDim); ++l )
                 {
                     F chi = x.Get(l-i,0);
                     if( Abs(RealPart(chi)) > 0 || Abs(ImagPart(chi)) > 0 )
@@ -695,20 +820,34 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
                     DeepRowSwap( UInv, i, k );
                 if( i == 0 )
                 {
-                    // We must reinitialize since we keep k=1
-                    lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-                    lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                    while( true )
                     {
-                        auto b0 = B(ALL,IR(0));
-                        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+                        // We must reinitialize since we keep k=1
+                        lll::ExpandQR
+                        ( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+                        lll::HouseholderStep( 0, QR, t, d, ctrl.time );
+                        if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
                         {
+                            auto b0 = B(ALL,IR(0));
                             auto QR0 = QR(ALL,IR(0));
                             Zero( b0 );
                             Zero( QR0 );
-                            nullity = 1;
+                            t.Set( 0, 0, Real(2) );
+                            d.Set( 0, 0, Real(1) );
+
+                            ColSwap( B, 0, (n-1)-nullity );
+                            if( formU )
+                                ColSwap( U, 0, (n-1)-nullity );
+                            if( formUInv )
+                                RowSwap( UInv, 0, (n-1)-nullity );
+                       
+                            ++nullity;
+                            ++numSwaps;
                         }
                         else
-                            nullity = 0;
+                            break;
+                        if( nullity >= n )
+                            break;
                     }
                     k=1;
                 }

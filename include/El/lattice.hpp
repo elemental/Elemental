@@ -60,6 +60,23 @@ struct LLLInfo
     Int nullity; 
     Int numSwaps;
     Real logVol;
+
+    template<typename OtherReal>
+    LLLInfo<Real>& operator=( const LLLInfo<OtherReal>& info )
+    {
+        delta = Real(info.delta);
+        eta = Real(info.eta);
+        rank = info.rank;
+        nullity = info.nullity;
+        numSwaps = info.numSwaps;
+        logVol = Real(info.logVol);
+        return *this;
+    }
+    
+    LLLInfo() { }
+    LLLInfo( const LLLInfo<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    LLLInfo( const LLLInfo<OtherReal>& ctrl ) { *this = ctrl; }
 };
 
 // Return the Gaussian estimate of the minimum-length vector
@@ -124,6 +141,34 @@ struct LLLCtrl
     // 'startCol' columns are already processed
     bool jumpstart=false;
     Int startCol=0;
+
+    // We frequently need to convert datatypes, so make this easy
+    template<typename OtherReal>
+    LLLCtrl<Real>& operator=( const LLLCtrl<OtherReal>& ctrl )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        const Real etaMin = Real(1)/Real(2)+Pow(eps,Real(0.9));
+        const Real zeroTolMin = Pow(eps,Real(0.9));
+
+        delta = Real(ctrl.delta);
+        eta = Max(Real(ctrl.eta),etaMin);
+        variant = ctrl.variant; 
+        presort = ctrl.presort;
+        smallestFirst = ctrl.smallestFirst;
+        reorthogTol = Real(ctrl.reorthogTol);
+        numOrthog = ctrl.numOrthog;
+        zeroTol = Max(Real(ctrl.zeroTol),zeroTolMin);
+        progress = ctrl.progress; 
+        time = ctrl.time;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+        return *this;
+    }
+
+    LLLCtrl() { }
+    LLLCtrl( const LLLCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    LLLCtrl( const LLLCtrl<OtherReal>& ctrl ) { *this = ctrl; }
 };
 
 // TODO: Maintain B in BigInt form
@@ -168,8 +213,6 @@ LLLInfo<Base<F>> LLLWithQ
 // Perform a tree reduction of subsets of the original basis in order to 
 // expose parallelism and perform as much work as possible in double-precision
 // (which is often possible even for the SVP Challenge).
-// This will not be substantially faster than the above LLL until Elemental
-// supports different MPFR precisions simultaneously
 template<typename F>
 LLLInfo<Base<F>> RecursiveLLL
 ( Matrix<F>& B,
@@ -299,6 +342,123 @@ Base<F> ShortestVectorEnumeration
         Base<F> normUpperBound,
         Matrix<F>& v,
   bool probabalistic=false );
+
+// Block Korkin-Zolotarev (BKZ) reduction
+// ======================================
+// TODO: Tailor BKZInfo; it is currently a copy of LLLInfo
+template<typename Real>
+struct BKZInfo
+{
+    Real delta;
+    Real eta; 
+    Int rank;
+    Int nullity; 
+    Int numSwaps;
+    Int numEnums;
+    Int numEnumFailures;
+    Real logVol;
+
+    template<typename OtherReal>
+    BKZInfo<Real>& operator=( const BKZInfo<OtherReal>& info )
+    {
+        delta = Real(info.delta);
+        eta = Real(info.eta);
+        rank = info.rank;
+        nullity = info.nullity;
+        numSwaps = info.numSwaps;
+        numEnums = info.numEnums;
+        numEnumFailures = info.numEnumFailures;
+        logVol = Real(info.logVol);
+        return *this;
+    }
+
+    BKZInfo() { }
+    BKZInfo( const BKZInfo<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    BKZInfo( const BKZInfo<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+// TODO: Add (extreme) pruning options
+template<typename Real>
+struct BKZCtrl
+{
+    Int blocksize=20;
+    bool probabalistic=false;
+
+    bool earlyAbort=false;
+    Int numEnumsBeforeAbort=1000; // only used if earlyAbort=true
+
+    LLLCtrl<Real> lllCtrl;
+
+    // We frequently need to convert datatypes, so make this easy
+    template<typename OtherReal>
+    BKZCtrl<Real>& operator=( const BKZCtrl<OtherReal>& ctrl )
+    {
+        blocksize = ctrl.blocksize;
+        probabalistic = ctrl.probabalistic;
+        earlyAbort = ctrl.earlyAbort;
+        numEnumsBeforeAbort = ctrl.numEnumsBeforeAbort;
+        lllCtrl = ctrl.lllCtrl;
+        return *this;
+    }
+    
+    BKZCtrl() { }
+    BKZCtrl( const BKZCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    BKZCtrl( const BKZCtrl<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  Matrix<F>& R,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& R,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZWithQ
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZWithQ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+// Perform a tree reduction of subsets of the original basis in order to 
+// expose parallelism and perform as much work as possible in double-precision
+// (which is often possible even for the SVP Challenge).
+template<typename F>
+BKZInfo<Base<F>> RecursiveBKZ
+( Matrix<F>& B,
+  Int cutoff=10,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+template<typename F>
+BKZInfo<Base<F>> RecursiveBKZ
+( Matrix<F>& B,
+  Matrix<F>& R,
+  Int cutoff=10,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
 
 } // namespace El
 

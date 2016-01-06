@@ -23,9 +23,10 @@ void LatticeImageAndKernel
     //       the best interface is somewhat tricky
     Matrix<F> U, UInv, R;
     auto info = LLL( B, U, UInv, R, ctrl );
-    const Int nullity = info.nullity;
-    K = U(ALL,IR(0,nullity));
-    M = B(ALL,IR(nullity,END));
+    const Int rank = info.rank;
+    const Int n = B.Width();
+    M = B(ALL,IR(0,rank));
+    K = U(ALL,IR(rank,n));
 
     // Reduce the columns of U that corresponded to the kernel
     LLL( K, ctrl );

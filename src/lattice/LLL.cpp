@@ -96,7 +96,7 @@ namespace lll {
 
 // Return the achieved delta and eta reduction properties
 template<typename F>
-inline std::pair<Base<F>,Base<F>>
+std::pair<Base<F>,Base<F>>
 Achieved
 ( const Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
@@ -173,7 +173,7 @@ Achieved
 // Return the log of the absolute value of the determinant of the lattice
 // (the sum of the logs of the nonzero diagonal entries of R)
 template<typename F>
-inline Base<F> LogVolume( const Matrix<F>& R )
+Base<F> LogVolume( const Matrix<F>& R )
 {
     DEBUG_ONLY(CSE cse("lll::LogVolume"))
     typedef Base<F> Real;
@@ -214,8 +214,10 @@ LLLInfo<Base<F>> LLLWithQ
     typedef Base<F> Real;
     if( ctrl.delta < Real(1)/Real(2) )
         LogicError("delta is assumed to be at least 1/2");
-    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
-        LogicError("eta should be in (1/2,sqrt(delta))");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Sqrt(ctrl.delta) )
+        LogicError
+        ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
+         Sqrt(ctrl.delta),")");
 
     const Int n = B.Width();
     if( ctrl.jumpstart )
@@ -302,8 +304,10 @@ LLLWithQ
     typedef Base<F> Real;
     if( ctrl.delta < Real(1)/Real(2) )
         LogicError("delta is assumed to be at least 1/2");
-    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Pow(ctrl.delta,Real(0.5)) )
-        LogicError("eta should be in (1/2,sqrt(delta))");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Sqrt(ctrl.delta) )
+        LogicError
+        ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
+         Sqrt(ctrl.delta),")");
 
     if( ctrl.presort )
     {
@@ -418,16 +422,17 @@ LowerPrecisionMerge
         Copy( cl, bl );
     }
 
-    LLLCtrl<RealLower> ctrlLower;
-    ctrlLower.delta = RealLower(ctrl.delta);
-    ctrlLower.variant = ctrl.variant;
-    ctrlLower.presort = ctrl.presort;
-    ctrlLower.smallestFirst = ctrl.smallestFirst;
-    ctrlLower.reorthogTol = RealLower(ctrl.reorthogTol);
-    ctrlLower.numOrthog = ctrl.numOrthog;
-    ctrlLower.progress = ctrl.progress;
-    ctrlLower.time = ctrl.time;
-
+    LLLCtrl<RealLower> ctrlLower( ctrl );
+    RealLower eps = limits::Epsilon<RealLower>();
+    RealLower minEta = RealLower(1)/RealLower(2)+Pow(eps,RealLower(0.9));
+    if( ctrlLower.eta < minEta )
+    {
+        Output("eps=",eps);
+        Output("ctrlLower.eta=",ctrlLower.eta);
+        Output("Max(",RealLower(ctrl.eta),",",minEta,")=",Max(RealLower(ctrl.eta),minEta));
+        ctrlLower.eta = minEta;
+        Output("ctrlLower.eta new=",ctrlLower.eta);
+    }
     Timer timer;
     Matrix<FLower> RLower;
     if( ctrl.time )
@@ -514,36 +519,29 @@ RecursiveHelper
         }
 
         bool succeeded = false;
+        Int numPrevSwaps = info.numSwaps;
         if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
         {
             try
             {
-                auto mergeInfo =
-                  LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
-                info.delta = Real(mergeInfo.delta);
-                info.eta = Real(mergeInfo.eta);
-                info.numSwaps += mergeInfo.numSwaps;
-                info.rank = mergeInfo.rank;
-                info.nullity = mergeInfo.nullity;
-                info.logVol = Real(mergeInfo.logVol);
+                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
                 succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
         }
         if( !succeeded && 
             PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
         {
             try
             {
-                auto mergeInfo =
-                  LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
-                info.delta = Real(mergeInfo.delta);
-                info.eta = Real(mergeInfo.eta);
-                info.numSwaps += mergeInfo.numSwaps;
-                info.rank = mergeInfo.rank;
-                info.nullity = mergeInfo.nullity;
-                info.logVol = Real(mergeInfo.logVol);
+                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
                 succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
         }
 #ifdef EL_HAVE_QUAD
         if( !succeeded &&
@@ -551,16 +549,12 @@ RecursiveHelper
         {
             try
             {
-                auto mergeInfo =
-                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
-                info.delta = Real(mergeInfo.delta);
-                info.eta = Real(mergeInfo.eta);
-                info.numSwaps += mergeInfo.numSwaps;
-                info.rank = mergeInfo.rank;
-                info.nullity = mergeInfo.nullity;
-                info.logVol = Real(mergeInfo.logVol);
+                info = LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
                 succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
         }
 #endif
 #ifdef EL_HAVE_MPC
@@ -572,17 +566,12 @@ RecursiveHelper
         {
             mpc::SetPrecision( neededPrec );
             try {
-                auto mergeInfo =
-                  LowerPrecisionMerge<F,BigFloat>( CL, CR, B, R, ctrl );
-                info.delta = Real(mergeInfo.delta);
-                info.eta = Real(mergeInfo.eta);
-                info.numSwaps += mergeInfo.numSwaps;
-                info.rank = mergeInfo.rank;
-                info.nullity = mergeInfo.nullity;
-                info.logVol = Real(mergeInfo.logVol);
+                info = LowerPrecisionMerge<F,BigFloat>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
-            catch( std::exception& e ) { Output("e.what()=",e.what()); }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
             mpc::SetPrecision( inputPrec );
         }
 #endif
@@ -606,13 +595,8 @@ RecursiveHelper
                 bl = cl;
             }
             
-            auto mergeInfo = LLL( B, R, ctrl );
-            info.delta = mergeInfo.delta;
-            info.eta = mergeInfo.eta;
-            info.numSwaps += mergeInfo.numSwaps;
-            info.rank = mergeInfo.rank;
-            info.nullity = mergeInfo.nullity;
-            info.logVol = mergeInfo.logVol;
+            info = LLL( B, R, ctrl );
+            info.numSwaps += numPrevSwaps;
         }
     }
     return info;
@@ -693,18 +677,13 @@ RecursiveHelper
         }
 
         bool succeeded = false;
+        Int numPrevSwaps = info.numSwaps;
         if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
         {
             try
             {
-                auto mergeInfo =
-                  LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
-                info.delta = Real(mergeInfo.delta);
-                info.eta = Real(mergeInfo.eta);
-                info.numSwaps += mergeInfo.numSwaps;
-                info.rank = mergeInfo.rank;
-                info.nullity = mergeInfo.nullity;
-                info.logVol = Real(mergeInfo.logVol);
+                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
@@ -713,14 +692,8 @@ RecursiveHelper
         {
             try
             {
-                auto mergeInfo =
-                  LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
-                info.delta = Real(mergeInfo.delta);
-                info.eta = Real(mergeInfo.eta);
-                info.numSwaps += mergeInfo.numSwaps;
-                info.rank = mergeInfo.rank;
-                info.nullity = mergeInfo.nullity;
-                info.logVol = Real(mergeInfo.logVol);
+                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
@@ -730,14 +703,8 @@ RecursiveHelper
         {
             try
             {
-                auto mergeInfo =
-                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
-                info.delta = Real(mergeInfo.delta);
-                info.eta = Real(mergeInfo.eta);
-                info.numSwaps += mergeInfo.numSwaps;
-                info.rank = mergeInfo.rank;
-                info.nullity = mergeInfo.nullity;
-                info.logVol = Real(mergeInfo.logVol);
+                info = LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
@@ -762,13 +729,8 @@ RecursiveHelper
                 bl = cl;
             }
             
-            auto mergeInfo = LLL( B, R, ctrl );
-            info.delta = mergeInfo.delta;
-            info.eta = mergeInfo.eta;
-            info.numSwaps += mergeInfo.numSwaps;
-            info.rank = mergeInfo.rank;
-            info.nullity = mergeInfo.nullity;
-            info.logVol = mergeInfo.logVol;
+            info = LLL( B, R, ctrl );
+            info.numSwaps += numPrevSwaps;
         }
     }
     return info;
@@ -889,7 +851,10 @@ void DeepRowSwap( Matrix<F>& B, Int i, Int k )
     Int cutoff, \
     const LLLCtrl<Base<F>>& ctrl ); \
   template void DeepColSwap( Matrix<F>& B, Int i, Int k ); \
-  template void DeepRowSwap( Matrix<F>& B, Int i, Int k );
+  template void DeepRowSwap( Matrix<F>& B, Int i, Int k ); \
+  template std::pair<Base<F>,Base<F>> lll::Achieved \
+  ( const Matrix<F>& R, const LLLCtrl<Base<F>>& ctrl ); \
+  template Base<F> lll::LogVolume( const Matrix<F>& R );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

@@ -26,6 +26,8 @@ void ExpandBlockQR
 {
     DEBUG_ONLY(CSE cse("lll::ExpandBlockQR"))
     const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
     const F* BBuf = B.LockedBuffer();
           F* QRBuf = QR.Buffer();
     const Base<F>* dBuf = d.LockedBuffer();
@@ -50,19 +52,22 @@ void ExpandBlockQR
             B.LockedBuffer(0,k), 1,
       F(1), z.Buffer(), 1 );
     */
-    z.Resize( k, 1 );
+    const Int numReflect = Min(k,minDim);
+    z.Resize( numReflect, 1 );
     F* zBuf = z.Buffer();
-    for( Int i=0; i<k; ++i )
+    for( Int i=0; i<numReflect; ++i )
         zBuf[i] = BBuf[i+k*BLDim];
-    blas::Trmv( 'L', 'C', 'N', k, V.Buffer(), V.LDim(), z.Buffer(), 1 );
+    blas::Trmv
+    ( 'L', 'C', 'N', numReflect, V.Buffer(), V.LDim(), z.Buffer(), 1 );
     blas::Gemv
-    ( 'C', m-k, k,
-      F(1), V.Buffer(k,0), V.LDim(),
-            B.LockedBuffer(k,k), 1,
+    ( 'C', m-numReflect, numReflect,
+      F(1), V.Buffer(numReflect,0), V.LDim(),
+            B.LockedBuffer(numReflect,k), 1,
       F(1), z.Buffer(), 1 );
 
     blas::Trsv
-    ( 'L', 'N', 'N', k, SInv.LockedBuffer(), SInv.LDim(), z.Buffer(), 1 );
+    ( 'L', 'N', 'N', numReflect,
+      SInv.LockedBuffer(), SInv.LDim(), z.Buffer(), 1 );
 
     // Exploit zeros in upper triangle of V
     /*
@@ -73,19 +78,19 @@ void ExpandBlockQR
       F(1), QR.Buffer(0,k), 1 );
     */
     blas::Gemv
-    ( 'N', m-k, k,
-      F(-1), V.Buffer(k,0), V.LDim(),
+    ( 'N', m-numReflect, numReflect,
+      F(-1), V.Buffer(numReflect,0), V.LDim(),
              z.LockedBuffer(), 1,
-      F(1), &QRBuf[k+k*QRLDim], 1 );
-    blas::Trmv( 'L', 'N', 'N', k, V.Buffer(), V.LDim(), zBuf, 1 );
-    for( Int i=0; i<k; ++i )
+      F(1), &QRBuf[numReflect+k*QRLDim], 1 );
+    blas::Trmv( 'L', 'N', 'N', numReflect, V.Buffer(), V.LDim(), zBuf, 1 );
+    for( Int i=0; i<numReflect; ++i )
         QRBuf[i+k*QRLDim] -= zBuf[i];
 
     if( time )
         applyHouseTimer.Stop();
 
     // Fix the scaling
-    for( Int i=0; i<k; ++i )
+    for( Int i=0; i<numReflect; ++i )
         QRBuf[i+k*QRLDim] *= dBuf[i];
 }
 
@@ -104,6 +109,10 @@ void BlockHouseholderStep
     DEBUG_ONLY(CSE cse("lll::BlockHouseholderStep"))
     typedef Base<F> Real;
     const Int m = QR.Height();
+    const Int n = QR.Width();
+    const Int minDim = Min(m,n);
+    if( k >= minDim )
+        return;
 
     F* QRBuf = QR.Buffer();
     F* VBuf = V.Buffer();
@@ -196,8 +205,11 @@ bool BlockStep
                 BBuf[i+k*BLDim] = 0;
             for( Int i=0; i<m; ++i )
                 QRBuf[i+k*QRLDim] = 0;
-            t.Set( k, 0, Real(1)/Real(2) );
-            d.Set( k, 0, Real(1) );
+            if( k < Min(m,n) )
+            {
+                t.Set( k, 0, Real(2) );
+                d.Set( k, 0, Real(1) );
+            }
             return true;
         }
 
@@ -205,9 +217,10 @@ bool BlockStep
             roundTimer.Start();
         if( ctrl.variant == LLL_WEAK )
         {
-            if( Abs(QRBuf[(k-1)+(k-1)*QRLDim]) > ctrl.zeroTol )
+            const Real rho_km1_km1 = RealPart(QRBuf[(k-1)+(k-1)*QRLDim]);
+            if( Abs(rho_km1_km1) > ctrl.zeroTol )
             {
-                F chi = QRBuf[(k-1)+k*QRLDim]/QRBuf[(k-1)+(k-1)*QRLDim];
+                F chi = QRBuf[(k-1)+k*QRLDim]/rho_km1_km1;
                 if( Abs(RealPart(chi)) > ctrl.eta ||
                     Abs(ImagPart(chi)) > ctrl.eta )
                 {
@@ -238,13 +251,9 @@ bool BlockStep
         else
         {
             vector<F> xBuf(k);
+
             for( Int i=k-1; i>=0; --i )
             {
-                if( Abs(QRBuf[i+i*QRLDim]) <= ctrl.zeroTol )
-                {
-                    xBuf[i] = 0;
-                    continue;
-                }
                 F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
                 if( Abs(RealPart(chi)) > ctrl.eta ||
                     Abs(ImagPart(chi)) > ctrl.eta )
@@ -259,14 +268,17 @@ bool BlockStep
                     chi = 0;
                 xBuf[i] = chi;
             }
+
             blas::Gemv
             ( 'N', m, k,
-              F(-1), BBuf, BLDim, &xBuf[0], 1,
+              F(-1), &BBuf[0*BLDim], BLDim,
+                     &xBuf[0],       1,
               F(+1), &BBuf[k*BLDim], 1 );
             if( formU )
                 blas::Gemv
                 ( 'N', n, k,
-                  F(-1), UBuf, ULDim, &xBuf[0], 1,
+                  F(-1), &UBuf[0*ULDim], ULDim,
+                         &xBuf[0],       1,
                   F(+1), &UBuf[k*ULDim], 1 );
             if( formUInv )
                 blas::Geru
@@ -331,31 +343,54 @@ LLLInfo<Base<F>> BlockedAlg
     Zeros( d, minDim, 1 );
     Zeros( t, minDim, 1 );
 
-    // Perform the first step of Householder reduction
-    lll::ExpandBlockQR( 0, B, QR, V, SInv, d, ctrl.time );
-    lll::BlockHouseholderStep( 0, QR, V, SInv, t, d, ctrl.time );
-    Int nullity = 0;
+    Int nullity=0;
+    Int numSwaps=0;
+    while( true )
     {
-        auto b0 = B(ALL,IR(0));
-        if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+        // Perform the first step of Householder reduction
+        lll::ExpandBlockQR( 0, B, QR, V, SInv, d, ctrl.time );
+        lll::BlockHouseholderStep( 0, QR, V, SInv, t, d, ctrl.time );
+        if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
         {
+            auto b0 = B(ALL,IR(0));
             auto QR0 = QR(ALL,IR(0));
             Zero( b0 );
             Zero( QR0 );
-            nullity = 1;
+            t.Set( 0, 0, Real(2) );
+            d.Set( 0, 0, Real(1) );
+
+            ColSwap( B, 0, (n-1)-nullity );
+            if( formU )
+                ColSwap( U, 0, (n-1)-nullity );
+            if( formUInv )
+                RowSwap( UInv, 0, (n-1)-nullity );
+
+            ++nullity;
+            ++numSwaps;
         }
+        else
+            break;
+        if( nullity >= n )
+            break;
     }
 
-    Int k=1, numSwaps=0;
-    while( k < n )
+    Int k=1;
+    while( k < n-nullity )
     {
         bool zeroVector =
           lll::BlockStep
           ( k, B, U, UInv, QR, V, SInv, t, d, formU, formUInv, ctrl );
         if( zeroVector )
-            nullity = k+1;
-        else
-            nullity = Min(nullity,k);
+        {
+            ColSwap( B, k, (n-1)-nullity );
+            if( formU )
+                ColSwap( U, k, (n-1)-nullity );
+            if( formUInv )
+                RowSwap( UInv, k, (n-1)-nullity );
+            ++nullity;
+            ++numSwaps;
+            continue;
+        }
 
         const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
         const F rho_km1_k = QR.Get(k-1,k);
@@ -363,7 +398,11 @@ LLLInfo<Base<F>> BlockedAlg
 
         const Real leftTerm = Sqrt(ctrl.delta)*rho_km1_km1;
         const Real rightTerm = lapack::SafeNorm(rho_k_k,rho_km1_k);
-        if( leftTerm <= rightTerm )
+        // NOTE: It is possible that, if delta < 1/2, that rho_k_k could be
+        //       zero and the usual Lovasz condition would be satisifed.
+        //       For this reason, we explicitly force a pivot if R(k,k) is
+        //       deemed to be numerically zero.
+        if( leftTerm <= rightTerm && rho_k_k > ctrl.zeroTol )
         {
             ++k;
         }
@@ -371,28 +410,51 @@ LLLInfo<Base<F>> BlockedAlg
         {
             ++numSwaps;
             if( ctrl.progress )
-                Output("Dropping from k=",k," to ",Max(k-1,1)," since sqrt(delta)*R(k-1,k-1)=",leftTerm," > ",rightTerm);
+            {
+                if( rho_k_k <= ctrl.zeroTol )
+                    Output("Dropping from k=",k," because R(k,k) ~= 0");
+                else
+                    Output
+                    ("Dropping from k=",k," to ",Max(k-1,1),
+                     " since sqrt(delta)*R(k-1,k-1)=",leftTerm," > ",rightTerm);
+           }
+
             ColSwap( B, k-1, k );
             if( formU )
                 ColSwap( U, k-1, k );
             if( formUInv )
                 RowSwap( UInv, k-1, k );
+
             if( k == 1 )
             {
-                // We must reinitialize since we keep k=1
-                lll::ExpandBlockQR( 0, B, QR, V, SInv, d, ctrl.time );
-                lll::BlockHouseholderStep( 0, QR, V, SInv, t, d, ctrl.time );
+                while( true )
                 {
-                    auto b0 = B(ALL,IR(0));
-                    if( FrobeniusNorm(b0) <= ctrl.zeroTol )
+                    // We must reinitialize since we keep k=1
+                    lll::ExpandBlockQR( 0, B, QR, V, SInv, d, ctrl.time );
+                    lll::BlockHouseholderStep
+                    ( 0, QR, V, SInv, t, d, ctrl.time );
+                    if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
                     {
+                        auto b0 = B(ALL,IR(0));
                         auto QR0 = QR(ALL,IR(0));
                         Zero( b0 );
                         Zero( QR0 );
-                        nullity = 1;
+                        t.Set( 0, 0, Real(2) );
+                        d.Set( 0, 0, Real(1) );
+
+                        ColSwap( B, 0, (n-1)-nullity );
+                        if( formU )
+                            ColSwap( U, 0, (n-1)-nullity );
+                        if( formUInv )
+                            RowSwap( UInv, 0, (n-1)-nullity );
+
+                        ++nullity;
+                        ++numSwaps;
                     }
                     else
-                        nullity = 0;
+                        break;
+                    if( nullity >= n )
+                        break;
                 }
             }
             else

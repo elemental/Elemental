@@ -39,7 +39,8 @@ Real Helper
     if( m < n )
         LogicError("Expected height(R) >= width(R)");
 
-    const bool progress = true;
+    // TODO: Make these arguments
+    const bool progress = false;
     const bool track = false;
 
     Matrix<Real> S;
@@ -233,7 +234,8 @@ Base<F> ShortVectorEnumeration
     const Real b0Norm = FrobeniusNorm( b0 );
     if( b0Norm < normUpperBound )
     {
-        v = b0;
+        Zeros( v, n, 1 );
+        v.Set( 0, 0, F(1) );
         return b0Norm; 
     }
 
@@ -340,7 +342,7 @@ Base<F> ShortestVectorEnumeration
     if( n == 0 )
         return Real(0);
 
-    Real normUpperBound = FrobeniusNorm( B(ALL,0) );
+    const Real normUpperBound = R.Get(0,0);
     return ShortestVectorEnumeration( B, R, normUpperBound, v, probabalistic );
 }
 
@@ -410,10 +412,10 @@ Base<F> ShortestVectorEnumeration
 #endif
     // TODO: Arbitrary-precision drop?
 
-    auto b0 = B( ALL, IR(0) );
-    const Real b0Norm = FrobeniusNorm(b0);
+    const Real b0Norm = R.Get(0,0);
     Zeros( v, n, 1 );
     v.Set( 0, 0, F(1) );
+
     bool satisfiedBound = ( b0Norm <= normUpperBound ? true : false );
     Real targetNorm = Min(normUpperBound,b0Norm);
 
