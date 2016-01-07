@@ -77,6 +77,8 @@ void TestCorrectness
 template<typename F>
 void TestLQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), AOrig(g);
     Uniform( A, m, n );
 
@@ -115,7 +117,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -137,15 +138,8 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test LQ");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
         TestLQ<double>( testCorrectness, print, m, n, g );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
         TestLQ<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }

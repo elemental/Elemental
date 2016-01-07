@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-#include "El/blas_like/level1/copy_internal.hpp"
+#include "El/blas_like/level1/Copy/internal_impl.hpp"
 
 namespace El {
 

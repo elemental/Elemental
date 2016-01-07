@@ -171,6 +171,18 @@ ElError ElGetSubgraphDist
   ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = CReflect(Dot(*CReflect(A),*CReflect(B))) ) } \
+  /* Unconjugated dot product, vec(A)^T vec(B) */ \
+  ElError ElDotu_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
+  ElError ElDotuDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
+  ElError ElDotuDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* EntrywiseFill */ \
   ElError ElEntrywiseFill_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) (*fill)() ) \
@@ -670,18 +682,6 @@ ElError ElGetSubgraphDist
       DiagonalScaleTrapezoid \
       ( CReflect(side), CReflect(uplo), NORMAL, \
         *CReflect(d), *CReflect(A), offset ) ) } \
-  /* Unconjugated dot product, vec(A)^T vec(B) */ \
-  ElError ElDotu_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \
-  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
-  ElError ElDotuDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
-    CREFLECT(T)* prod ) \
-  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
-  ElError ElDotuDistMultiVec_ ## SIG \
-  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
-    CREFLECT(T)* prod ) \
-  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* Max */ \
   ElError ElMax_ ## SIG \
   ( ElConstMatrix_ ## SIG A, CREFLECT(T)* value ) \

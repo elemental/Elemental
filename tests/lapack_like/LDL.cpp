@@ -61,6 +61,9 @@ void TestLDL
   const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
+
     if( conjugated )
         HermitianUniformSpectrum( A, m, -100, 100 );
     else
@@ -99,7 +102,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -124,15 +126,8 @@ main( int argc, char* argv[] )
         SetLocalTrrkBlocksize<double>( nbLocal );
         SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test LDL",(conjugated?"^H":"^T"));
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
         TestLDL<double>( conjugated, testCorrectness, print, m, g );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
         TestLDL<Complex<double>>( conjugated, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }

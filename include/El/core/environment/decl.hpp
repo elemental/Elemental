@@ -15,10 +15,8 @@ namespace El {
 using std::size_t;
 
 using std::array;
-using std::deque;
 using std::function;
 using std::pair;
-using std::set;
 using std::vector;
 
 using std::make_shared;
@@ -33,6 +31,7 @@ using std::cerr;
 using std::endl;
 using std::ifstream;
 using std::ofstream;
+using std::istream;
 using std::ostream;
 using std::ostringstream;
 
@@ -159,7 +158,10 @@ template<typename T>
 void SwapClear( T& x );
 
 // Reserve memory in a vector without zero-initializing the variables unless
-// valgrind is currently running
+// valgrind is currently running or the datatype *requires* construction.
+//
+// TODO: Introduce a POD attribute for Elemental's types and specialize for
+//       non-POD.
 template<typename T>
 inline void FastResize( vector<T>& v, Int numEntries )
 {
@@ -174,6 +176,14 @@ inline void FastResize( vector<T>& v, Int numEntries )
     v.reserve( numEntries );
 #endif
 }
+#ifdef EL_HAVE_MPC
+inline void FastResize( vector<BigFloat>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<ValueInt<BigFloat>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<Entry<BigFloat>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+#endif
 
 inline void BuildStream( ostringstream& os ) { }
 

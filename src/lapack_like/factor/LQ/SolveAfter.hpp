@@ -39,8 +39,8 @@ void SolveAfter
 
         // Copy B into X
         X.Resize( n, B.Width() );
-        Matrix<F> XT, XB;
-        PartitionDown( X, XT, XB, m );
+        auto XT = X( IR(0,m), ALL );
+        auto XB = X( IR(m,n), ALL );
         XT = B;
         Zero( XB );
 
@@ -87,7 +87,6 @@ void SolveAfter
     DEBUG_ONLY(CSE cse("lq::SolveAfter"))
     const Int m = APre.Height();
     const Int n = APre.Width();
-    const Grid& g = APre.Grid();
     if( m > n )
         LogicError("Must have full row rank");
 
@@ -106,8 +105,8 @@ void SolveAfter
             LogicError("A and B do not conform");
 
         // Copy B into X
-        DistMatrix<F> XT(g), XB(g);
-        PartitionDown( X, XT, XB, m );
+        auto XT = X( IR(0,m), ALL );
+        auto XB = X( IR(m,n), ALL );
         XT = B;
         Zero( XB );
 

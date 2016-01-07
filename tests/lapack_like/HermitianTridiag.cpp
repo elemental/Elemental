@@ -15,7 +15,8 @@ void TestCorrectness
   const DistMatrix<F>& A, 
   const DistMatrix<F,STAR,STAR>& t,
         DistMatrix<F>& AOrig,
-  bool print, bool display )
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -103,6 +104,8 @@ void TestHermitianTridiag
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
 
     //HermitianUniformSpectrum( A, m, -10, 10 );
     Wigner( A, m );
@@ -177,10 +180,26 @@ main( int argc, char* argv[] )
             Output("Will test HermitianTridiag",uploChar);
 
         HermitianTridiagCtrl<double> ctrl_d;
-        HermitianTridiagCtrl<Complex<double>> ctrl_z;
-        ctrl_d.symvCtrl.bsize = ctrl_z.symvCtrl.bsize = nbLocal;
+        ctrl_d.symvCtrl.bsize = nbLocal;
         ctrl_d.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+
+        HermitianTridiagCtrl<Complex<double>> ctrl_z;
+        ctrl_z.symvCtrl.bsize = nbLocal;
         ctrl_z.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+#ifdef EL_HAVE_QUAD
+        HermitianTridiagCtrl<Quad> ctrl_quad;
+        ctrl_quad.symvCtrl.bsize = nbLocal;
+        ctrl_quad.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+
+        HermitianTridiagCtrl<Complex<Quad>> ctrl_complex_quad;
+        ctrl_complex_quad.symvCtrl.bsize = nbLocal;
+        ctrl_complex_quad.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+#endif
+#ifdef EL_HAVE_MPC
+        HermitianTridiagCtrl<BigFloat> ctrl_bf;
+        ctrl_bf.symvCtrl.bsize = nbLocal;
+        ctrl_bf.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+#endif
 
         if( commRank == 0 )
             Output("Normal algorithms:");
@@ -213,6 +232,19 @@ main( int argc, char* argv[] )
         if( testCpx )
             TestHermitianTridiag<Complex<double>>
             ( uplo, m, g, testCorrectness, print, display, ctrl_z );
+#ifdef EL_HAVE_QUAD
+        if( testReal )
+            TestHermitianTridiag<Quad>
+            ( uplo, m, g, testCorrectness, print, display, ctrl_quad );
+        if( testCpx )
+            TestHermitianTridiag<Complex<Quad>>
+            ( uplo, m, g, testCorrectness, print, display, ctrl_complex_quad );
+#endif
+#ifdef EL_HAVE_MPC
+        if( testReal )
+            TestHermitianTridiag<BigFloat>
+            ( uplo, m, g, testCorrectness, print, display, ctrl_bf );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

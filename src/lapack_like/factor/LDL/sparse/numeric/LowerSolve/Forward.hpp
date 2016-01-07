@@ -45,8 +45,8 @@ inline void LowerForwardSolve
     auto& W = X.work;
     const Int numRHS = X.matrix.Width();
     W.Resize( front.Height(), numRHS );
-    Matrix<F> WT, WB;
-    PartitionDown( W, WT, WB, info.size );
+    auto WT = W( IR(0,info.size), ALL );
+    auto WB = W( IR(info.size,END), ALL );
     WT = X.matrix;
     Zero( WB );
 
@@ -113,8 +113,8 @@ inline void LowerForwardSolve
     auto& W = X.work;
     W.SetGrid( grid );
     W.Resize( frontHeight, numRHS );
-    DistMatrix<F,VC,STAR> WT(grid), WB(grid);
-    PartitionDown( W, WT, WB, info.size );
+    auto WT = W( IR(0,info.size), ALL );
+    auto WB = W( IR(info.size,END), ALL );
     WT = X.matrix;
     Zero( WB );
     mpi::Comm comm = W.DistComm();
@@ -223,8 +223,8 @@ inline void LowerForwardSolve
     W.SetGrid( grid );
     W.Align( 0, 0 );
     W.Resize( frontHeight, numRHS );
-    DistMatrix<F> WT(grid), WB(grid);
-    PartitionDown( W, WT, WB, info.size );
+    auto WT = W( IR(0,info.size), ALL );
+    auto WB = W( IR(info.size,END), ALL );
     WT = X.matrix;
     Zero( WB );
     mpi::Comm comm = W.DistComm();

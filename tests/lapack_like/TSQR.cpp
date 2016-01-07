@@ -24,8 +24,7 @@ void TestCorrectness
         Output("  Testing orthogonality of Q...");
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
-    DistMatrix<F> Q_MC_MR( Q );
-    Herk( UPPER, ADJOINT, Real(-1), Q_MC_MR, Real(1), Z );
+    Herk( UPPER, ADJOINT, Real(-1), Q, Real(1), Z );
     Real oneNormError = HermitianOneNorm( UPPER, Z );
     Real infNormError = HermitianInfinityNorm( UPPER, Z );
     Real frobNormError = HermitianFrobeniusNorm( UPPER, Z );

@@ -60,31 +60,6 @@ namespace openblas {
 
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt lda,
-                   Int* B, BlasInt ldb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i+j*ldb] = A[i+j*lda];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = A[i+j*lda];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*ldb] = Conj(A[i+j*lda]);
-    }
-}
-
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, const float* A, BlasInt lda,
                      float* B, BlasInt ldb )
 {
@@ -131,12 +106,52 @@ void omatcopy
     EL_BLAS(zomatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, B, &ldb );
 }
 
-void imatcopy
+template<typename T>
+void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, Int* A, BlasInt lda, BlasInt ldb )
+  T alpha, const T* A, BlasInt lda,
+                 T* B, BlasInt ldb )
 {
-    LogicError("Integer MKL imatcopy not yet supported");
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = A[i+j*lda];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = Conj(A[i+j*lda]);
+    }
 }
+
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, const Int* A, BlasInt lda,
+                   Int* B, BlasInt ldb );
+#ifdef EL_HAVE_QUAD
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Quad alpha, const Quad* A, BlasInt lda,
+                    Quad* B, BlasInt ldb );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt lda,
+                             Complex<Quad>* B, BlasInt ldb );
+#endif
+#ifdef EL_HAVE_MPC
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  BigFloat alpha, const BigFloat* A, BlasInt lda,
+                        BigFloat* B, BlasInt ldb );
+#endif
 
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -181,6 +196,31 @@ void imatcopy
     char trans = OrientationToChar( orientation );
     EL_BLAS(zimatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, &ldb );
 }
+
+template<typename T>
+void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  T alpha, T* A, BlasInt lda, BlasInt ldb )
+{
+    LogicError("This version of imatcopy not yet supported");
+}
+
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Int alpha, Int* A, BlasInt lda, BlasInt ldb );
+#ifdef EL_HAVE_QUAD
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Quad alpha, Quad* A, BlasInt lda, BlasInt ldb );
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<Quad> alpha, Complex<Quad>* A, BlasInt lda, BlasInt ldb );
+#endif
+#ifdef EL_HAVE_MPC
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  BigFloat alpha, BigFloat* A, BlasInt lda, BlasInt ldb );
+#endif
 
 } // namespace openblas
 } // namespace El

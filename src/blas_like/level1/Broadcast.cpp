@@ -95,6 +95,7 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank )
   template void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

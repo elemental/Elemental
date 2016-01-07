@@ -14,8 +14,10 @@ namespace El {
 
 template<typename F>
 void HermitianFromEVD
-( UpperOrLower uplo, Matrix<F>& A,
-  const Matrix<Base<F>>& w, const Matrix<F>& Z )
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  const Matrix<Base<F>>& w,
+  const Matrix<F>& Z )
 {
     DEBUG_ONLY(CSE cse("HermitianFromEVD"))
     Matrix<F> Z1Copy, Y1;
@@ -102,6 +104,8 @@ void HermitianFromEVD
     const ElementalMatrix<F>& Z );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

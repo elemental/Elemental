@@ -129,6 +129,11 @@ void Skeleton
     const QRCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
+// NOTE: These cannot be enabled until there is more general SVD support
+/*
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+*/
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -21,11 +21,12 @@ The [documentation for Elemental](http://libelemental.org/documentation) is buil
 
 ### Unique features
 
-Elemental supports a wide collection of distributed-memory functionality,
-including:
+Elemental supports a wide collection of sequential and distributed-memory
+functionality, including:
 
 **Convex optimization**:
-* Dense and sparse Interior Point Methods for Linear, Quadratic, and Second-Order Cone Programs (**Note: Scalability for sparse IPMs will be lacking until more general sparse matrix distributions are introduced into Elemental**)
+* (Arbitrary-precision) dense and sparse Interior Point Methods for
+  Linear, Quadratic, and Second-Order Cone Programs (**Note: Scalability for sparse IPMs will be lacking until more general sparse matrix distributions are introduced into Elemental**)
     - Basis Pursuit
     - Chebyshev Points
     - Dantzig selectors
@@ -34,27 +35,31 @@ including:
     - Non-negative Least Squares
     - Support Vector Machines
     - (1D) Total Variation
-* Distributed Jordan algebras over products of Second-Order Cones
+* (Arbitrary-precision) Jordan algebras over products of Second-Order Cones
 * Various prototype dense Alternating Direction Method of Multipliers routines
     - Sparse inverse covariance selection
     - Robust Principal Component Analysis
 * Prototype alternating direction Non-negative Matrix Factorization
 
 **Linear algebra**:
-* Dense and sparse-direct (generalized) Least Squares problems
+* (Arbitrary-precision) dense and sparse-direct (generalized) Least Squares
+  problems
     - Least Squares / Minimum Length
     - Tikhonov (and ridge) regression
     - Equality-constrained Least Squares
     - General (Gauss-Markov) Linear Models
 * High-performance pseudospectral computation and visualization
-* Blocked column-pivoted QR via Johnson-Lindenstrauss
-* Quadratic-time low-rank Cholesky and LU modifications
-* Bunch-Kaufman and Bunch-Parlett for accurate symmetric factorization
-* LU and Cholesky with full pivoting
-* Column-pivoted QR and interpolative/skeleton decompositions
-* Quadratically Weighted Dynamic Halley iteration for the polar decomposition
+* (Arbitrary-precision) blocked column-pivoted QR via Johnson-Lindenstrauss
+* (Arbitrary-precision) quadratic-time low-rank Cholesky and LU modifications
+* (Arbitrary-precision) Bunch-Kaufman and Bunch-Parlett for accurate symmetric
+  factorization
+* (Arbitrary-precision) LU and Cholesky with full pivoting
+* (Arbitrary-precision) Column-pivoted QR and
+  interpolative/skeleton decompositions
+* (Arbitrary-precision) Quadratically Weighted Dynamic Halley iteration for
+  the polar decomposition
 * Many algorithms for Singular-Value soft-Thresholding (SVT)
-* Tall-skinny QR decompositions
+* (Arbitrary-precision) Tall-skinny QR decompositions
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
@@ -64,8 +69,8 @@ including:
 **Core data structures**:
 * (1a) Eliminate `DistMultiVec` in favor of the newly extended `DistMatrix`
 * (1b) Extend `DistSparseMatrix` to support elementwise and blockwise 2D distributions
-* (1c) Extend the library to support distributed arbitrary-precision real and complex
-  arithmetic on top of [MPFR](http://www.mpfr.org/) and [MPC](http://www.multiprecision.org/index.php?prog=mpc)
+* (1c) Extend the library to support (distributed) arbitrary-precision complex
+  arithmetic on top of [MPC](http://www.multiprecision.org/index.php?prog=mpc)
 
 **Linear algebra**:
 * (2a) Distributed iterative refinement tailored to two right-hand sides \[weakly depends on (1a)\]
@@ -80,7 +85,7 @@ including:
 * (3c) Distributed sparse semidefinite programs via chordal decompositions \[weakly depends on (3b)\]
 
 **Lattice reduction**:
-* (4a) Distributed [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) and [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) \[weakly depends on (1c)\]
+* (4a) Distributed [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html), Fincke-Pohst SVP solver, and [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1)
 
 Alternatively, see the `TODO` list for a detailed, albeit somewhat outdated,
 list of planned additions.
@@ -96,7 +101,7 @@ which is distributed under the (equally permissive)
 [ParMETIS](http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview), which
 can only be used for research purposes (and can be easily disabled), and 
 [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/), which is 
-distributed under the terms of the GPL (and can be similarly easily disabled).
+distributed under the terms of the [GNU Lesser General Public License, version 2.1 or later](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).
 
 ### Dependencies
 
@@ -105,9 +110,12 @@ distributed under the terms of the GPL (and can be similarly easily disabled).
 * [BLAS](http://netlib.org/blas)
 * [LAPACK](http://netlib.org/lapack)
 * [libflame](http://www.cs.utexas.edu/~flame/web/libFLAME.html) (optional for faster bidiagonal SVDs)
+* Elemental is packed with a greatly modified version of the Alternating
+  Minimum Degree (AMD) reordering and unblocked sparse LDL factorization from
+  [SuiteSparse](http://faculty.cse.tamu.edu/davis/suitesparse.html) (**Note:** The used portions of SuiteSparse are licensed under the [GNU Lesser General Public License, version 2.1 or later](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html))
 
-[OpenBLAS](http://www.openblas.net) is automatically downloaded and installed if 
-no vendor/tuned BLAS/LAPACK is detected.
+[OpenBLAS](http://www.openblas.net) is automatically downloaded and installed
+if no vendor/tuned BLAS/LAPACK is detected.
 
 **Intranodal graph partitioning**
 
@@ -132,7 +140,11 @@ attempts to automatically download and install the library.
 
 **Auxiliary libraries**
 
-* [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/) for quad-precision support (especially for iterative refinement). (**Note:** Users who prefer to use Elemental under the terms of the New BSD License rather than the GPL should disable support for libquadmath during configuration)
+* [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/) for quad-precision support (especially for iterative refinement). (**Note:** libquadmath is licensed under the [GNU Lesser General Public License, version 2.1 or later](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html))
+
+* [MPFR](http://www.mpfr.org/) for arbitrary-precision real arithmetic. (**Note:** MPFR is licensed under the [GNU Lesser General Public License, v3 or later](http://www.gnu.org/copyleft/lesser.html))
+
+* [MPC](http://www.multiprecision.org/index.php?prog=mpc) for arbitrary-precision complex arithmetic. (**Note:** MPC is licensed under the [GNU Lesser General Public License, v3 or later](http://www.gnu.org/copyleft/lesser.html))
 
 **Python interface**
 
@@ -164,7 +176,7 @@ three external interfaces are currently being externally developed:
 **Distributed dense linear algebra**:
 
 * [ELPA](http://elpa.rzg.mpg.de)
-* [NuLAB](https://github.com/solomonik/NuLAB)
+* [CANDMC](https://github.com/solomonik/CANDMC)
 * [PaRSEC/DPLASMA](http://icl.eecs.utk.edu/projectsdev/parsec/index.html)
 * [PLAPACK](http://www.cs.utexas.edu/~plapack)
 * [ScaLAPACK](http://www.netlib.org/scalapack)

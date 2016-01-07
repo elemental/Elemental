@@ -12,7 +12,11 @@
 #ifndef EL_CORE_GRAPH_DECL_HPP
 #define EL_CORE_GRAPH_DECL_HPP
 
+#include <set>
+
 namespace El {
+
+using std::set;
 
 // Forward declaration
 class DistGraph;

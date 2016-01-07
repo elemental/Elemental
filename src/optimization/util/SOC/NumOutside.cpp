@@ -33,7 +33,7 @@ Int NumOutside
         const Int firstInd = firstInds.Get(i,0);
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
-        const Int det = d.Get(i,0);
+        const Real det = d.Get(i,0);
         if( det < Real(0) )
             ++numNonSO;
         i += order;
@@ -119,6 +119,8 @@ Int NumOutside
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace soc

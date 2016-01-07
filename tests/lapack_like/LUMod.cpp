@@ -58,6 +58,8 @@ void TestLUMod
   Int m,
   const Grid& g )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), AOrig(g);
     DistPermutation P(g);
 
@@ -120,7 +122,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -144,12 +145,8 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestLUMod<double>( conjugate, tau, testCorrectness, print, m, g );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
+        TestLUMod<double>
+        ( conjugate, tau, testCorrectness, print, m, g );
         TestLUMod<Complex<double>>
         ( conjugate, tau, testCorrectness, print, m, g );
     }

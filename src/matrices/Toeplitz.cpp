@@ -54,6 +54,7 @@ void Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const vector<T>& a )
   PROTO_TYPES(T,T)
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -14,7 +14,6 @@
 // well-known that this must often be included first.
 #include <mpi.h>
 
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <complex>
@@ -26,15 +25,12 @@
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <set>
 #include <sstream>
-#include <stack>
 #include <stdexcept>
 #include <string>
 #include <random>
-#include <type_traits>
+#include <type_traits> // std::enable_if
 #include <vector>
-#include <iomanip>
 
 // The DEBUG_ONLY and RELEASE_ONLY macros are, to the best of my knowledge, 
 // the only preprocessor names defined by Elemental that is not namespaced 
@@ -65,6 +61,10 @@
 
 // TODO: Think of how to better decouple the following components
 
+#ifdef EL_HAVE_QUADMATH
+#include <quadmath.h>
+#endif
+
 namespace El {
 
 typedef unsigned char byte;
@@ -79,6 +79,10 @@ typedef int Int;
 typedef unsigned Unsigned;
 #endif
 
+#ifdef EL_HAVE_QUAD
+typedef __float128 Quad;
+#endif
+
 } // namespace El
 
 // Declare the intertwined core parts of our library
@@ -88,6 +92,7 @@ typedef unsigned Unsigned;
 #include "El/core/Memory.hpp"
 #include "El/core/Element/decl.hpp"
 #include "El/core/types.hpp"
+#include "El/core/Serialize.hpp"
 #include "El/core/imports/mpi.hpp"
 #include "El/core/imports/choice.hpp"
 #include "El/core/imports/mpi_choice.hpp"
@@ -132,10 +137,7 @@ class DistMatrix;
 // Declare and implement the decoupled parts of the core of the library
 // (perhaps these should be moved into their own directory?)
 #include "El/core/View.hpp"
-#include "El/core/flame_part/Merge.hpp"
-#include "El/core/flame_part/Partition.hpp"
-#include "El/core/flame_part/Repartition.hpp"
-#include "El/core/flame_part/SlidePartition.hpp"
+#include "El/core/FlamePart.hpp"
 #include "El/core/random/decl.hpp"
 #include "El/core/random/impl.hpp"
 

@@ -11,14 +11,37 @@
 namespace El {
 
 template<typename T>
+void Transform2x2
+( Int n,
+  T gamma11, T gamma12, T gamma21, T gamma22, 
+  T* a1, Int inc1,
+  T* a2, Int inc2 )
+{
+    T temp;
+    for( Int i=0; i<n; ++i )
+    {
+        temp = gamma11*a1[i*inc1] + gamma12*a2[i*inc2];
+        a2[i*inc2] = gamma21*a1[i*inc1] + gamma22*a2[i*inc2];
+        a1[i*inc1] = temp;
+    }
+}
+
+template<typename T>
 void Transform2x2( const Matrix<T>& G, Matrix<T>& a1, Matrix<T>& a2 )
 {
     DEBUG_ONLY(CSE cse("Transform2x2"))
-    auto a1Copy( a1 );
-    Scale( G.Get(0,0), a1 );
-    Axpy( G.Get(0,1), a2, a1 );
-    Scale( G.Get(1,1), a2 );
-    Axpy( G.Get(1,0), a1Copy, a2 );
+    T* a1Buf = a1.Buffer();
+    T* a2Buf = a2.Buffer();
+    const Int inc1 = ( a1.Height() == 1 ? a1.LDim() : 1 );
+    const Int inc2 = ( a2.Height() == 1 ? a2.LDim() : 1 );
+    const Int n = ( a1.Height() == 1 ? a1.Width() : a1.Height() );
+
+    const T gamma11 = G.Get(0,0);
+    const T gamma12 = G.Get(0,1);
+    const T gamma21 = G.Get(1,0);
+    const T gamma22 = G.Get(1,1);
+    Transform2x2
+    ( n, gamma11, gamma12, gamma21, gamma22, a1Buf, inc1, a2Buf, inc2 );
 }
 
 template<typename T>
@@ -43,12 +66,12 @@ void Transform2x2
     a2_like_a1->AlignWith( DistData(a1) );
     Copy( a2, *a2_like_a1 );
 
-    // TODO: Consider what happens when one is a row vector and the other is
-    //       a col vector
-
+    // TODO: Generalized axpy?
     Scale( G.GetLocal(0,0), a1 );
-    Scale( G.GetLocal(1,1), a2 );
     Axpy( G.GetLocal(0,1), *a2_like_a1, a1 );
+
+    // TODO: Generalized axpy?
+    Scale( G.GetLocal(1,1), a2 );
     Axpy( G.GetLocal(1,0), *a1_like_a2, a2 );
 }
 
@@ -84,7 +107,6 @@ void Transform2x2Rows
     const Int ALDim = A.LDim();
     const Int nLoc = A.LocalWidth();
 
-    vector<T> buf(nLoc);
     const T gamma11 = G.GetLocal(0,0);
     const T gamma12 = G.GetLocal(0,1);
     const T gamma21 = G.GetLocal(1,0);
@@ -94,34 +116,34 @@ void Transform2x2Rows
     {
         const Int i1Loc = A.LocalRow(i1);
         const Int i2Loc = A.LocalRow(i2);
-        for( Int jLoc=0; jLoc<nLoc; ++jLoc ) 
-            buf[jLoc] = ABuf[i1Loc+jLoc*ALDim];
-        
-        blas::Scal( nLoc, gamma11, &ABuf[i1Loc], ALDim );
-        blas::Axpy( nLoc, gamma12, &ABuf[i2Loc], ALDim, &ABuf[i1Loc], ALDim );
-
-        blas::Scal( nLoc, gamma22, &ABuf[i2Loc], ALDim );
-        blas::Axpy( nLoc, gamma21, buf.data(), 1, &ABuf[i2Loc], ALDim );
+        Transform2x2
+        ( nLoc,
+          gamma11, gamma12, gamma21, gamma22,
+          &ABuf[i1Loc], ALDim, &ABuf[i2Loc], ALDim );
     }
     else if( inFirstRow )
     {
         const Int i1Loc = A.LocalRow(i1);
+        vector<T> buf(nLoc);
         for( Int jLoc=0; jLoc<nLoc; ++jLoc ) 
             buf[jLoc] = ABuf[i1Loc+jLoc*ALDim];
 
         mpi::SendRecv( buf.data(), nLoc, rowOwner2, rowOwner2, A.ColComm() );
 
+        // TODO: Generalized Axpy?
         blas::Scal( nLoc, gamma11, &ABuf[i1Loc], ALDim );
         blas::Axpy( nLoc, gamma12, buf.data(), 1, &ABuf[i1Loc], ALDim );
     }
     else
     {
         const Int i2Loc = A.LocalRow(i2);
+        vector<T> buf(nLoc);
         for( Int jLoc=0; jLoc<nLoc; ++jLoc ) 
             buf[jLoc] = ABuf[i2Loc+jLoc*ALDim];
 
         mpi::SendRecv( buf.data(), nLoc, rowOwner1, rowOwner1, A.ColComm() );
 
+        // TODO: Generalized Axpy?
         blas::Scal( nLoc, gamma22, &ABuf[i2Loc], ALDim );
         blas::Axpy( nLoc, gamma21, buf.data(), 1, &ABuf[i2Loc], ALDim );
     }
@@ -168,15 +190,12 @@ void Transform2x2Cols
     {
         const Int j1Loc = A.LocalCol(j1);
         const Int j2Loc = A.LocalCol(j2);
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )      
-            buf[iLoc] = ABuf[iLoc+j1Loc*ALDim];
 
-        blas::Scal( mLoc, gamma11, &ABuf[j1Loc*ALDim], 1 );
-        blas::Axpy
-        ( mLoc, gamma12, &ABuf[j2Loc*ALDim], 1, &ABuf[j1Loc*ALDim], 1 );
-
-        blas::Scal( mLoc, gamma22, &ABuf[j2Loc*ALDim], 1 );
-        blas::Axpy( mLoc, gamma21, buf.data(), 1, &ABuf[j2Loc*ALDim], 1 );
+        Transform2x2
+        ( mLoc,
+          gamma11, gamma12, gamma21, gamma22,
+          &ABuf[j1Loc*ALDim], 1,
+          &ABuf[j2Loc*ALDim], 1 );
     }
     else if( inFirstCol )
     {
@@ -186,6 +205,7 @@ void Transform2x2Cols
 
         mpi::SendRecv( buf.data(), mLoc, colOwner2, colOwner2, A.RowComm() );
 
+        // TODO: Generalized Axpy?
         blas::Scal( mLoc, gamma11, &ABuf[j1Loc*ALDim], 1 );
         blas::Axpy( mLoc, gamma12, buf.data(), 1, &ABuf[j1Loc*ALDim], 1 );
     }
@@ -197,6 +217,7 @@ void Transform2x2Cols
 
         mpi::SendRecv( buf.data(), mLoc, colOwner1, colOwner1, A.RowComm() );
 
+        // TODO: Generalized Axpy?
         blas::Scal( mLoc, gamma22, &ABuf[j2Loc*ALDim], 1 );
         blas::Axpy( mLoc, gamma21, buf.data(), 1, &ABuf[j2Loc*ALDim], 1 );
     }
@@ -225,6 +246,7 @@ void Transform2x2Cols
           AbstractDistMatrix<T>& A, Int j1, Int j2 );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -81,7 +81,6 @@
 #cmakedefine EL_HAVE_STEADYCLOCK
 #cmakedefine EL_HAVE_NOEXCEPT
 #cmakedefine EL_HAVE_MPI_REDUCE_SCATTER_BLOCK
-#cmakedefine EL_HAVE_MPI_IN_PLACE
 #cmakedefine EL_HAVE_MPI_LONG_LONG
 #cmakedefine EL_HAVE_MPI_LONG_DOUBLE
 #cmakedefine EL_HAVE_MPI_LONG_DOUBLE_COMPLEX

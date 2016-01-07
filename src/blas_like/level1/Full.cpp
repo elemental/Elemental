@@ -28,6 +28,7 @@ Matrix<T> Full( const SparseMatrix<T>& A )
   template Matrix<T> Full( const SparseMatrix<T>& A );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

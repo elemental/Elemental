@@ -302,6 +302,7 @@ int DM::PartialUnionRowRank() const EL_NO_EXCEPT
   BOTH( T,VR,  STAR);
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

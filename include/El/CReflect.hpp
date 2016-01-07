@@ -10,6 +10,8 @@
 #ifndef EL_CREFLECT_C_HPP
 #define EL_CREFLECT_C_HPP
 
+// TODO: Break this file into pieces. It is getting ridiculous.
+
 #define EL_CATCH \
   catch( std::bad_alloc& e ) \
   { El::ReportException(e); return EL_ALLOC_ERROR; } \
@@ -1289,14 +1291,14 @@ inline ElLDLPivotCtrl_d CReflect( const LDLPivotCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline LDLPivotCtrl<float> CReflect( ElLDLPivotCtrl_s ctrlC )
+inline LDLPivotCtrl<float> CReflect( const ElLDLPivotCtrl_s& ctrlC )
 {
     LDLPivotCtrl<float> ctrl;
     ctrl.pivotType = CReflect(ctrlC.pivotType);
     ctrl.gamma = ctrlC.gamma;
     return ctrl;
 }
-inline LDLPivotCtrl<double> CReflect( ElLDLPivotCtrl_d ctrlC )
+inline LDLPivotCtrl<double> CReflect( const ElLDLPivotCtrl_d& ctrlC )
 {
     LDLPivotCtrl<double> ctrl;
     ctrl.pivotType = CReflect(ctrlC.pivotType);
@@ -1644,7 +1646,7 @@ inline ElSpectralBox_d CReflect( const SpectralBox<double>& box )
     return boxC;
 }
 
-inline SpectralBox<float> CReflect( const ElSpectralBox_s boxC )
+inline SpectralBox<float> CReflect( const ElSpectralBox_s& boxC )
 {
     SpectralBox<float> box;
     box.center = CReflect(boxC.center);
@@ -1653,7 +1655,7 @@ inline SpectralBox<float> CReflect( const ElSpectralBox_s boxC )
     return box;
 }
 
-inline SpectralBox<double> CReflect( const ElSpectralBox_d boxC )
+inline SpectralBox<double> CReflect( const ElSpectralBox_d& boxC )
 {
     SpectralBox<double> box;
     box.center = CReflect(boxC.center);
@@ -1740,7 +1742,7 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.checkResiduals = ctrl.checkResiduals;
     return ctrlC;
 }
-inline MehrotraCtrl<float> CReflect( ElMehrotraCtrl_s ctrlC )
+inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
 {
     MehrotraCtrl<float> ctrl;
     ctrl.primalInit    = ctrlC.primalInit;
@@ -1766,7 +1768,7 @@ inline MehrotraCtrl<float> CReflect( ElMehrotraCtrl_s ctrlC )
     ctrl.checkResiduals = ctrlC.checkResiduals;
     return ctrl;
 }
-inline MehrotraCtrl<double> CReflect( ElMehrotraCtrl_d ctrlC )
+inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
 {
     MehrotraCtrl<double> ctrl;
     ctrl.primalInit    = ctrlC.primalInit;
@@ -1819,7 +1821,7 @@ inline ElADMMCtrl_d CReflect( const ADMMCtrl<double>& ctrl )
     ctrlC.print   = ctrl.print;
     return ctrlC;
 }
-inline ADMMCtrl<float> CReflect( ElADMMCtrl_s ctrlC )
+inline ADMMCtrl<float> CReflect( const ElADMMCtrl_s& ctrlC )
 {
     ADMMCtrl<float> ctrl;
     ctrl.rho     = ctrlC.rho;
@@ -1831,7 +1833,7 @@ inline ADMMCtrl<float> CReflect( ElADMMCtrl_s ctrlC )
     ctrl.print   = ctrlC.print;
     return ctrl;
 }
-inline ADMMCtrl<double> CReflect( ElADMMCtrl_d ctrlC )
+inline ADMMCtrl<double> CReflect( const ElADMMCtrl_d& ctrlC )
 {
     ADMMCtrl<double> ctrl;
     ctrl.rho     = ctrlC.rho;
@@ -1869,7 +1871,7 @@ inline ElLPDirectCtrl_d CReflect( const lp::direct::Ctrl<double>& ctrl )
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
-inline lp::direct::Ctrl<float> CReflect( ElLPDirectCtrl_s ctrlC )
+inline lp::direct::Ctrl<float> CReflect( const ElLPDirectCtrl_s& ctrlC )
 {
     lp::direct::Ctrl<float> ctrl(false);
     ctrl.approach     = CReflect(ctrlC.approach);
@@ -1877,7 +1879,7 @@ inline lp::direct::Ctrl<float> CReflect( ElLPDirectCtrl_s ctrlC )
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
-inline lp::direct::Ctrl<double> CReflect( ElLPDirectCtrl_d ctrlC )
+inline lp::direct::Ctrl<double> CReflect( const ElLPDirectCtrl_d& ctrlC )
 {
     lp::direct::Ctrl<double> ctrl(false);
     ctrl.approach     = CReflect(ctrlC.approach);
@@ -1902,14 +1904,14 @@ inline ElLPAffineCtrl_d CReflect( const lp::affine::Ctrl<double>& ctrl )
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
-inline lp::affine::Ctrl<float> CReflect( ElLPAffineCtrl_s ctrlC )
+inline lp::affine::Ctrl<float> CReflect( const ElLPAffineCtrl_s& ctrlC )
 {
     lp::affine::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
-inline lp::affine::Ctrl<double> CReflect( ElLPAffineCtrl_d ctrlC )
+inline lp::affine::Ctrl<double> CReflect( const ElLPAffineCtrl_d& ctrlC )
 {
     lp::affine::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
@@ -1940,14 +1942,14 @@ inline ElQPDirectCtrl_d CReflect( const qp::direct::Ctrl<double>& ctrl )
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
-inline qp::direct::Ctrl<float> CReflect( ElQPDirectCtrl_s ctrlC )
+inline qp::direct::Ctrl<float> CReflect( const ElQPDirectCtrl_s& ctrlC )
 {
     qp::direct::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
-inline qp::direct::Ctrl<double> CReflect( ElQPDirectCtrl_d ctrlC )
+inline qp::direct::Ctrl<double> CReflect( const ElQPDirectCtrl_d& ctrlC )
 {
     qp::direct::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
@@ -1971,14 +1973,14 @@ inline ElQPAffineCtrl_d CReflect( const qp::affine::Ctrl<double>& ctrl )
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
-inline qp::affine::Ctrl<float> CReflect( ElQPAffineCtrl_s ctrlC )
+inline qp::affine::Ctrl<float> CReflect( const ElQPAffineCtrl_s& ctrlC )
 {
     qp::affine::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
-inline qp::affine::Ctrl<double> CReflect( ElQPAffineCtrl_d ctrlC )
+inline qp::affine::Ctrl<double> CReflect( const ElQPAffineCtrl_d& ctrlC )
 {
     qp::affine::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
@@ -2009,14 +2011,14 @@ inline ElSOCPDirectCtrl_d CReflect( const socp::direct::Ctrl<double>& ctrl )
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
-inline socp::direct::Ctrl<float> CReflect( ElSOCPDirectCtrl_s ctrlC )
+inline socp::direct::Ctrl<float> CReflect( const ElSOCPDirectCtrl_s& ctrlC )
 {
     socp::direct::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
-inline socp::direct::Ctrl<double> CReflect( ElSOCPDirectCtrl_d ctrlC )
+inline socp::direct::Ctrl<double> CReflect( const ElSOCPDirectCtrl_d& ctrlC )
 {
     socp::direct::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
@@ -2040,14 +2042,14 @@ inline ElSOCPAffineCtrl_d CReflect( const socp::affine::Ctrl<double>& ctrl )
     ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
     return ctrlC;
 }
-inline socp::affine::Ctrl<float> CReflect( ElSOCPAffineCtrl_s ctrlC )
+inline socp::affine::Ctrl<float> CReflect( const ElSOCPAffineCtrl_s& ctrlC )
 {
     socp::affine::Ctrl<float> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
     ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
     return ctrl;
 }
-inline socp::affine::Ctrl<double> CReflect( ElSOCPAffineCtrl_d ctrlC )
+inline socp::affine::Ctrl<double> CReflect( const ElSOCPAffineCtrl_d& ctrlC )
 {
     socp::affine::Ctrl<double> ctrl;
     ctrl.approach     = CReflect(ctrlC.approach);
@@ -2088,7 +2090,7 @@ inline ElBPADMMCtrl_d CReflect( const bp::ADMMCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline bp::ADMMCtrl<float> CReflect( ElBPADMMCtrl_s ctrlC )
+inline bp::ADMMCtrl<float> CReflect( const ElBPADMMCtrl_s& ctrlC )
 {
     bp::ADMMCtrl<float> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2102,7 +2104,7 @@ inline bp::ADMMCtrl<float> CReflect( ElBPADMMCtrl_s ctrlC )
     return ctrl;
 }
 
-inline bp::ADMMCtrl<double> CReflect( ElBPADMMCtrl_d ctrlC )
+inline bp::ADMMCtrl<double> CReflect( const ElBPADMMCtrl_d& ctrlC )
 {
     bp::ADMMCtrl<double> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2152,7 +2154,7 @@ inline ElBPCtrl_z CReflect( const BPCtrl<Complex<double>>& ctrl )
     return ctrlC;
 }
 
-inline BPCtrl<float> CReflect( ElBPCtrl_s ctrlC )
+inline BPCtrl<float> CReflect( const ElBPCtrl_s& ctrlC )
 {
     BPCtrl<float> ctrl(false);
     ctrl.useIPM      = ctrlC.useIPM;
@@ -2163,7 +2165,7 @@ inline BPCtrl<float> CReflect( ElBPCtrl_s ctrlC )
     return ctrl;
 }
 
-inline BPCtrl<double> CReflect( ElBPCtrl_d ctrlC )
+inline BPCtrl<double> CReflect( const ElBPCtrl_d& ctrlC )
 {
     BPCtrl<double> ctrl(false);
     ctrl.useIPM      = ctrlC.useIPM;
@@ -2174,14 +2176,14 @@ inline BPCtrl<double> CReflect( ElBPCtrl_d ctrlC )
     return ctrl;
 }
 
-inline BPCtrl<Complex<float>> CReflect( ElBPCtrl_c ctrlC )
+inline BPCtrl<Complex<float>> CReflect( const ElBPCtrl_c& ctrlC )
 {
     BPCtrl<Complex<float>> ctrl;
     ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 
-inline BPCtrl<Complex<double>> CReflect( ElBPCtrl_z ctrlC )
+inline BPCtrl<Complex<double>> CReflect( const ElBPCtrl_z& ctrlC )
 {
     BPCtrl<Complex<double>> ctrl;
     ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
@@ -2218,7 +2220,7 @@ inline ElBPDNADMMCtrl_d CReflect( const bpdn::ADMMCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline bpdn::ADMMCtrl<float> CReflect( ElBPDNADMMCtrl_s ctrlC )
+inline bpdn::ADMMCtrl<float> CReflect( const ElBPDNADMMCtrl_s& ctrlC )
 {
     bpdn::ADMMCtrl<float> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2231,7 +2233,7 @@ inline bpdn::ADMMCtrl<float> CReflect( ElBPDNADMMCtrl_s ctrlC )
     return ctrl;
 }
 
-inline bpdn::ADMMCtrl<double> CReflect( ElBPDNADMMCtrl_d ctrlC )
+inline bpdn::ADMMCtrl<double> CReflect( const ElBPDNADMMCtrl_d& ctrlC )
 {
     bpdn::ADMMCtrl<double> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2262,7 +2264,7 @@ inline ElBPDNCtrl_d CReflect( const BPDNCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline BPDNCtrl<float> CReflect( ElBPDNCtrl_s ctrlC )
+inline BPDNCtrl<float> CReflect( const ElBPDNCtrl_s& ctrlC )
 {
     BPDNCtrl<float> ctrl;
     ctrl.useIPM   = ctrlC.useIPM;
@@ -2271,7 +2273,7 @@ inline BPDNCtrl<float> CReflect( ElBPDNCtrl_s ctrlC )
     return ctrl;
 }
 
-inline BPDNCtrl<double> CReflect( ElBPDNCtrl_d ctrlC )
+inline BPDNCtrl<double> CReflect( const ElBPDNCtrl_d& ctrlC )
 {
     BPDNCtrl<double> ctrl;
     ctrl.useIPM   = ctrlC.useIPM;
@@ -2308,7 +2310,7 @@ inline ElNNLSCtrl_d CReflect( const NNLSCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline NNLSCtrl<float> CReflect( ElNNLSCtrl_s ctrlC )
+inline NNLSCtrl<float> CReflect( const ElNNLSCtrl_s& ctrlC )
 {
     NNLSCtrl<float> ctrl;
     ctrl.approach = CReflect(ctrlC.approach);
@@ -2318,7 +2320,7 @@ inline NNLSCtrl<float> CReflect( ElNNLSCtrl_s ctrlC )
     return ctrl;
 }
 
-inline NNLSCtrl<double> CReflect( ElNNLSCtrl_d ctrlC )
+inline NNLSCtrl<double> CReflect( const ElNNLSCtrl_d& ctrlC )
 {
     NNLSCtrl<double> ctrl;
     ctrl.approach = CReflect(ctrlC.approach);
@@ -2346,7 +2348,7 @@ inline ElNMFCtrl_d CReflect( const NMFCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline NMFCtrl<float> CReflect( ElNMFCtrl_s ctrlC )
+inline NMFCtrl<float> CReflect( const ElNMFCtrl_s& ctrlC )
 {
     NMFCtrl<float> ctrl;
     ctrl.nnlsCtrl = CReflect(ctrlC.nnlsCtrl);
@@ -2354,7 +2356,7 @@ inline NMFCtrl<float> CReflect( ElNMFCtrl_s ctrlC )
     return ctrl;
 }
 
-inline NMFCtrl<double> CReflect( ElNMFCtrl_d ctrlC )
+inline NMFCtrl<double> CReflect( const ElNMFCtrl_d& ctrlC )
 {
     NMFCtrl<double> ctrl;
     ctrl.nnlsCtrl = CReflect(ctrlC.nnlsCtrl);
@@ -2395,7 +2397,7 @@ inline ElRPCACtrl_d CReflect( const RPCACtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline RPCACtrl<float> CReflect( const ElRPCACtrl_s ctrlC )
+inline RPCACtrl<float> CReflect( const ElRPCACtrl_s& ctrlC )
 {
     RPCACtrl<float> ctrl;
     ctrl.useALM      = ctrlC.useALM;
@@ -2410,7 +2412,7 @@ inline RPCACtrl<float> CReflect( const ElRPCACtrl_s ctrlC )
     return ctrl;
 }
 
-inline RPCACtrl<double> CReflect( const ElRPCACtrl_d ctrlC )
+inline RPCACtrl<double> CReflect( const ElRPCACtrl_d& ctrlC )
 {
     RPCACtrl<double> ctrl;
     ctrl.useALM      = ctrlC.useALM;
@@ -2452,7 +2454,7 @@ inline ElSparseInvCovCtrl_d CReflect( const SparseInvCovCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline SparseInvCovCtrl<float> CReflect( const ElSparseInvCovCtrl_s ctrlC )
+inline SparseInvCovCtrl<float> CReflect( const ElSparseInvCovCtrl_s& ctrlC )
 {
     SparseInvCovCtrl<float> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2464,7 +2466,7 @@ inline SparseInvCovCtrl<float> CReflect( const ElSparseInvCovCtrl_s ctrlC )
     return ctrl;
 }
 
-inline SparseInvCovCtrl<double> CReflect( const ElSparseInvCovCtrl_d ctrlC )
+inline SparseInvCovCtrl<double> CReflect( const ElSparseInvCovCtrl_d& ctrlC )
 {
     SparseInvCovCtrl<double> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2498,7 +2500,7 @@ inline ElModelFitCtrl_d CReflect( const ModelFitCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline ModelFitCtrl<float> CReflect( const ElModelFitCtrl_s ctrlC )
+inline ModelFitCtrl<float> CReflect( const ElModelFitCtrl_s& ctrlC )
 {
     ModelFitCtrl<float> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2508,7 +2510,7 @@ inline ModelFitCtrl<float> CReflect( const ElModelFitCtrl_s ctrlC )
     return ctrl;
 }
 
-inline ModelFitCtrl<double> CReflect( const ElModelFitCtrl_d ctrlC )
+inline ModelFitCtrl<double> CReflect( const ElModelFitCtrl_d& ctrlC )
 {
     ModelFitCtrl<double> ctrl;
     ctrl.rho      = ctrlC.rho;
@@ -2538,7 +2540,7 @@ inline ElSVMCtrl_d CReflect( const SVMCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline SVMCtrl<float> CReflect( const ElSVMCtrl_s ctrlC )
+inline SVMCtrl<float> CReflect( const ElSVMCtrl_s& ctrlC )
 {
     SVMCtrl<float> ctrl;
     ctrl.useIPM       = ctrlC.useIPM;
@@ -2547,13 +2549,140 @@ inline SVMCtrl<float> CReflect( const ElSVMCtrl_s ctrlC )
     return ctrl;
 }
 
-inline SVMCtrl<double> CReflect( const ElSVMCtrl_d ctrlC )
+inline SVMCtrl<double> CReflect( const ElSVMCtrl_d& ctrlC )
 {
     SVMCtrl<double> ctrl;
     ctrl.useIPM       = ctrlC.useIPM;
     ctrl.modelFitCtrl = CReflect(ctrlC.modelFitCtrl);
     ctrl.ipmCtrl      = CReflect(ctrlC.ipmCtrl);
     return ctrl;
+}
+
+// Lattice
+// -------
+inline ElLLLVariant CReflect( LLLVariant var )
+{ return static_cast<ElLLLVariant>(var); }
+inline LLLVariant CReflect( ElLLLVariant var )
+{ return static_cast<LLLVariant>(var); }
+
+inline LLLInfo<float> CReflect( const ElLLLInfo_s& infoC )
+{
+    LLLInfo<float> info;
+    info.delta = infoC.delta;
+    info.eta = infoC.eta;
+    info.rank = infoC.rank;
+    info.nullity = infoC.nullity;
+    info.numSwaps = infoC.numSwaps;
+    info.logVol = infoC.logVol;
+    return info;
+}
+
+inline LLLInfo<double> CReflect( const ElLLLInfo_d& infoC )
+{
+    LLLInfo<double> info;
+    info.delta = infoC.delta;
+    info.eta = infoC.eta;
+    info.rank = infoC.rank;
+    info.nullity = infoC.nullity;
+    info.numSwaps = infoC.numSwaps;
+    info.logVol = infoC.logVol;
+    return info;
+}
+
+inline ElLLLInfo_s CReflect( const LLLInfo<float>& info )
+{
+    ElLLLInfo_s infoC;
+    infoC.delta = info.delta;
+    infoC.eta = info.eta;
+    infoC.rank = info.rank;
+    infoC.nullity = info.nullity;
+    infoC.numSwaps = info.numSwaps;
+    infoC.logVol = info.logVol;
+    return infoC;
+}
+
+inline ElLLLInfo_d CReflect( const LLLInfo<double>& info )
+{
+    ElLLLInfo_d infoC;
+    infoC.delta = info.delta;
+    infoC.eta = info.eta;
+    infoC.rank = info.rank;
+    infoC.nullity = info.nullity;
+    infoC.numSwaps = info.numSwaps;
+    infoC.logVol = info.logVol;
+    return infoC;
+}
+
+inline LLLCtrl<float> CReflect( const ElLLLCtrl_s& ctrlC )
+{
+    LLLCtrl<float> ctrl;
+    ctrl.delta = ctrlC.delta;
+    ctrl.eta = ctrlC.eta;
+    ctrl.variant = CReflect(ctrlC.variant);
+    ctrl.presort = ctrlC.presort;
+    ctrl.smallestFirst = ctrlC.smallestFirst;
+    ctrl.reorthogTol = ctrlC.reorthogTol;
+    ctrl.numOrthog = ctrlC.numOrthog;
+    ctrl.zeroTol = ctrlC.zeroTol;
+    ctrl.progress = ctrlC.progress;
+    ctrl.time = ctrlC.time;
+    ctrl.jumpstart = ctrlC.jumpstart;
+    ctrl.startCol = ctrlC.startCol;
+    return ctrl;
+}
+
+inline LLLCtrl<double> CReflect( const ElLLLCtrl_d& ctrlC )
+{
+    LLLCtrl<double> ctrl;
+    ctrl.delta = ctrlC.delta;
+    ctrl.eta = ctrlC.eta;
+    ctrl.variant = CReflect(ctrlC.variant);
+    ctrl.presort = ctrlC.presort;
+    ctrl.smallestFirst = ctrlC.smallestFirst;
+    ctrl.reorthogTol = ctrlC.reorthogTol;
+    ctrl.numOrthog = ctrlC.numOrthog;
+    ctrl.zeroTol = ctrlC.zeroTol;
+    ctrl.progress = ctrlC.progress;
+    ctrl.time = ctrlC.time;
+    ctrl.jumpstart = ctrlC.jumpstart;
+    ctrl.startCol = ctrlC.startCol;
+    return ctrl;
+}
+
+inline ElLLLCtrl_s CReflect( const LLLCtrl<float>& ctrl )
+{
+    ElLLLCtrl_s ctrlC;
+    ctrlC.delta = ctrl.delta;
+    ctrlC.eta = ctrl.eta;
+    ctrlC.variant = CReflect(ctrl.variant);
+    ctrlC.presort = ctrl.presort;
+    ctrlC.smallestFirst = ctrl.smallestFirst;
+    ctrlC.reorthogTol = ctrl.reorthogTol;
+    ctrlC.numOrthog = ctrl.numOrthog;
+    ctrlC.zeroTol = ctrl.zeroTol;
+    ctrlC.progress = ctrl.progress;
+    ctrlC.time = ctrl.time;
+    ctrlC.jumpstart = ctrl.jumpstart;
+    ctrlC.startCol = ctrl.startCol;
+    return ctrlC;
+}
+
+inline ElLLLCtrl_d CReflect( const LLLCtrl<double>& ctrl )
+{
+    ElLLLCtrl_d ctrlC;
+    ctrlC.delta = ctrl.delta;
+    ctrlC.eta = ctrl.eta;
+    ctrlC.variant = CReflect(ctrl.variant);
+    ctrlC.presort = ctrl.presort;
+    ctrlC.smallestFirst = ctrl.smallestFirst;
+    ctrlC.reorthogTol = ctrl.reorthogTol;
+    ctrlC.numOrthog = ctrl.numOrthog;
+    ctrlC.zeroTol = ctrl.zeroTol;
+    ctrlC.progress = ctrl.progress;
+    ctrlC.time = ctrl.time;
+    ctrlC.jumpstart = ctrl.jumpstart;
+    ctrlC.startCol = ctrl.startCol;
+    return ctrlC;
 }
 
 } // namespace El

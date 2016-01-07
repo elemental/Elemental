@@ -269,18 +269,27 @@ void HPSDSquareRoot
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-#define PROTO(F) \
+#define PROTO_BASE(F) \
   template void SquareRoot \
   ( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void SquareRoot \
-  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
+  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl );
+
+#define PROTO(F) \
+  PROTO_BASE(F) \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl );
 
+#define PROTO_QUAD PROTO_BASE(Quad)
+#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
+#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
+
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -43,6 +43,8 @@ Base<F> MaxCondition( const ElementalMatrix<F>& A )
   template Base<F> MaxCondition( const ElementalMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -100,6 +100,14 @@ def Complexify(tag):
   elif tag == zTag: return zTag
   else: raise Exception('Invalid tag')
 
+# While for CTypes we should return the underlying value of, e.g., c_int,
+# we cannot/should-not do the same for ComplexDouble
+def ScalarData(alpha):
+  if   type(alpha) is iType: return alpha.value
+  elif type(alpha) is sType: return alpha.value
+  elif type(alpha) is dType: return alpha.value
+  else: return alpha
+
 def TagToType(tag):
   if   tag == iTag: return iType
   elif tag == sTag: return sType

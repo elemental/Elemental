@@ -331,6 +331,7 @@ void Dots
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace soc

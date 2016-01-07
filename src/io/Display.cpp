@@ -332,6 +332,7 @@ void DisplayLocal
   template void Display( const DistSparseMatrix<T>& A, string title );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

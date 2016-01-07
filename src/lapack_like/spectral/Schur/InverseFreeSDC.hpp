@@ -37,9 +37,10 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 
     // Expose A and B in the original and temporary
     Matrix<F> XAlt( 2*n, n );
-    Matrix<F> A, B, AAlt, BAlt;
-    PartitionDown( X, B, A, n );
-    PartitionDown( XAlt, BAlt, AAlt, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL ); 
+    auto BAlt = XAlt( IR(0,n  ), ALL );
+    auto AAlt = XAlt( IR(n,2*n), ALL );
 
     // Flip the sign of A
     A *= -1;
@@ -47,8 +48,9 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
     // Set up the space for explicitly computing the left half of Q
     Matrix<F> t;
     Matrix<Base<F>> d;
-    Matrix<F> Q( 2*n, n ), Q12, Q22;
-    PartitionDown( Q, Q12, Q22, n );
+    Matrix<F> Q( 2*n, n );
+    auto Q12 = Q( IR(0,n  ), ALL );
+    auto Q22 = Q( IR(n,2*n), ALL );
 
     // Run the iterative algorithm
     Int numIts=0;
@@ -110,9 +112,10 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 
     // Expose A and B in the original and temporary
     DistMatrix<F> XAlt( 2*n, n, g );
-    DistMatrix<F> A(g), B(g), AAlt(g), BAlt(g);
-    PartitionDown( X, B, A, n );
-    PartitionDown( XAlt, BAlt, AAlt, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL );
+    auto BAlt = XAlt( IR(0,n  ), ALL );
+    auto AAlt = XAlt( IR(n,2*n), ALL );
 
     // Flip the sign of A
     A *= -1;
@@ -120,8 +123,9 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
     // Set up the space for explicitly computing the left half of Q
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<F> Q( 2*n, n, g ), Q12(g), Q22(g);
-    PartitionDown( Q, Q12, Q22, n );
+    DistMatrix<F> Q( 2*n, n, g );
+    auto Q12 = Q( IR(0,n  ), ALL );
+    auto Q22 = Q( IR(n,2*n), ALL );
 
     // Run the iterative algorithm
     Int numIts=0;
@@ -174,8 +178,8 @@ InverseFreeSignDivide( Matrix<F>& X )
         LogicError("Matrix should be 2n x n");
    
     // Expose A and B, and then copy A
-    Matrix<F> A, B;
-    PartitionDown( X, B, A, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL );
     Matrix<F> ACopy( A );
 
     // Run the inverse-free alternative to Sign
@@ -221,8 +225,8 @@ InverseFreeSignDivide( ElementalMatrix<F>& XPre )
         LogicError("Matrix should be 2n x n");
    
     // Expose A and B, and then copy A
-    DistMatrix<F> A(g), B(g);
-    PartitionDown( X, B, A, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL );
     DistMatrix<F> ACopy( A );
 
     // Run the inverse-free alternative to Sign

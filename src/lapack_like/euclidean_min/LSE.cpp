@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include "El/core/FlamePart.hpp"
+
 // This file implements both dense and sparse-direct solutions of 
 // Equality-constrained Least Squares (LSE):
 //
@@ -101,14 +103,18 @@ void Overwrite
 
     // Partition the relevant matrices
     Zeros( X, n, numRhs );
-    Matrix<F> Y1, Y2;
-    PartitionUp( X, Y1, Y2, p );
-    Matrix<F> T11, T12;
-    PartitionLeft( B, T11, T12, p );
-    Matrix<F> R11, R12, R21, R22;
-    PartitionDownDiagonal( A, R11, R12, R21, R22, n-p );
-    Matrix<F> G1, G2;
-    PartitionDown( C, G1, G2, n-p );
+    auto ind1 = IR(0,n-p);
+    auto ind2 = IR(n-p,END);
+    auto Y1 = X( ind1, ALL );
+    auto Y2 = X( ind2, ALL );
+    auto T11 = B( ALL, ind1 );
+    auto T12 = B( ALL, ind2 );
+    auto R11 = A( ind1, ind1 );
+    auto R12 = A( ind1, ind2 );
+    auto R21 = A( ind2, ind1 );
+    auto R22 = A( ind2, ind2 );
+    auto G1 = C( ind1, ALL );
+    auto G2 = C( ind2, ALL );
 
     // Solve T12 Y2 = D
     Y2 = D; 
@@ -603,6 +609,8 @@ void LSE
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

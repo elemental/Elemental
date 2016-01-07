@@ -34,6 +34,7 @@ void Forsythe( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda )
   ( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

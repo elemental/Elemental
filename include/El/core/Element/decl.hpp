@@ -10,18 +10,7 @@
 #ifndef EL_ELEMENT_DECL_HPP
 #define EL_ELEMENT_DECL_HPP
 
-// For std::enable_if
-#include <type_traits>
-
-#ifdef EL_HAVE_QUADMATH
-#include <quadmath.h>
-#endif
-
 namespace El {
-
-#ifdef EL_HAVE_QUAD
-typedef __float128 Quad;
-#endif
 
 template<typename Real>
 using Complex = std::complex<Real>;
@@ -41,6 +30,37 @@ typedef Complex<Quad> qcomplex;
 // TODO: Decide on how to handle complex BigFloat
 #endif
 
+// While Elemental used to make use of typeid(T).name() for analogues of the
+// below strings, the 'name' property is not guaranteed to exist for all types,
+// such as __float128
+
+template<typename T>
+std::string TypeName()
+{ return typeid(T).name(); }
+
+template<> std::string TypeName<bool>();
+template<> std::string TypeName<char>();
+template<> std::string TypeName<char*>();
+template<> std::string TypeName<const char*>();
+template<> std::string TypeName<std::string>();
+template<> std::string TypeName<unsigned>();
+template<> std::string TypeName<unsigned long>();
+template<> std::string TypeName<unsigned long long>();
+template<> std::string TypeName<int>();
+template<> std::string TypeName<long int>();
+template<> std::string TypeName<long long int>();
+template<> std::string TypeName<float>();
+template<> std::string TypeName<double>();
+template<> std::string TypeName<Complex<float>>();
+template<> std::string TypeName<Complex<double>>();
+#ifdef EL_HAVE_QUAD
+template<> std::string TypeName<Quad>();
+template<> std::string TypeName<Complex<Quad>>();
+#endif
+#ifdef EL_HAVE_MPC
+template<> std::string TypeName<BigFloat>();
+#endif
+
 // For usage in EnableIf
 // =====================
 
@@ -54,6 +74,9 @@ using DisableIf = typename std::enable_if<!Condition::value,T>::type;
 
 // Types that Matrix, DistMatrix, etc. are instantiatable with
 // -----------------------------------------------------------
+template<typename T>
+using IsIntegral = std::is_integral<T>;
+
 template<typename T> struct IsScalar { static const bool value=false; };
 template<> struct IsScalar<Int> { static const bool value=true; };
 template<> struct IsScalar<float> { static const bool value=true; };
@@ -78,6 +101,40 @@ template<> struct IsBlasScalar<Complex<float>>
 { static const bool value=true; };
 template<> struct IsBlasScalar<Complex<double>>
 { static const bool value=true; };
+
+template<typename Real1,typename Real2>
+struct PrecisionIsGreater
+{ static const bool value=false; };
+template<> struct PrecisionIsGreater<double,float>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QUAD
+template<> struct PrecisionIsGreater<Quad,double>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<Quad,float>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_MPC
+// While these aren't necessarily always true, it would be a capitally bad
+// idea to use MPFR without using higher than the available fixed precision
+#ifdef EL_HAVE_QUAD
+template<> struct PrecisionIsGreater<BigFloat,Quad>
+{ static const bool value=true; };
+#endif
+template<> struct PrecisionIsGreater<BigFloat,double>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<BigFloat,float>
+{ static const bool value=true; };
+#endif
+
+template<typename Real,typename RealNew>
+struct ConvertBaseHelper
+{ typedef RealNew type; };
+template<typename Real,typename RealNew>
+struct ConvertBaseHelper<Complex<Real>,RealNew>
+{ typedef Complex<RealNew> type; };
+
+template<typename F,typename RealNew>
+using ConvertBase = typename ConvertBaseHelper<F,RealNew>::type;
 
 // Increase the precision (if possible)
 // ------------------------------------
@@ -160,10 +217,13 @@ template<> struct IsData<BigFloat> { static const bool value=true; };
 // TODO: Move into core/imports/quadmath.hpp?
 #ifdef EL_HAVE_QUAD
 std::ostream& operator<<( std::ostream& os, const Quad& alpha );
+std::istream& operator>>( std::istream& is,       Quad& alpha );
 #endif
 
 template<typename Real>
 std::ostream& operator<<( std::ostream& os, const Complex<Real>& alpha );
+template<typename Real>
+std::istream& operator>>( std::istream& os,       Complex<Real>& alpha );
 
 // Return the real/imaginary part of an element
 // --------------------------------------------
@@ -185,7 +245,7 @@ struct Caster {
 template<typename S,typename T>
 struct Caster<S,Complex<T>,void> {
     static Complex<T> Cast( S alpha )
-    { return Complex<T>( RealPart(alpha), ImagPart(alpha) ); }
+    { return Complex<T>( T(RealPart(alpha)), T(ImagPart(alpha)) ); }
 };
 
 // Set the real/imaginary part of an element
@@ -316,6 +376,17 @@ template<> Complex<Quad> Log( const Complex<Quad>& alpha );
 #ifdef EL_HAVE_MPC
 template<> BigFloat Log( const BigFloat& alpha );
 #endif
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Log2( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad Log2( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Log2( const BigFloat& alpha );
+#endif
+template<typename Integer,typename=EnableIf<IsIntegral<Integer>>,typename=void>
+double Log2( const Integer& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sqrt( const F& alpha );
@@ -465,9 +536,12 @@ Complex<Real> Round( const Complex<Real>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-Int Round( const Int& alpha );
+template<> Int Round( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-Quad Round( const Quad& alpha );
+template<> Quad Round( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Round( const BigFloat& alpha );
 #endif
 
 // Ceiling
@@ -479,9 +553,12 @@ Complex<Real> Ceil( const Complex<Real>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-Int Ceil( const Int& alpha );
+template<> Int Ceil( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-Quad Ceil( const Quad& alpha );
+template<> Quad Ceil( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Ceil( const BigFloat& alpha );
 #endif
 
 // Floor
@@ -493,17 +570,55 @@ Complex<Real> Floor( const Complex<Real>& alpha );
 
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
-Int Floor( const Int& alpha );
+template<> Int Floor( const Int& alpha );
 #ifdef EL_HAVE_QUAD
-Quad Floor( const Quad& alpha );
+template<> Quad Floor( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Floor( const BigFloat& alpha );
 #endif
 
 // Two-norm formation
 // ==================
-// TODO: Move this somewhere more fitting
+// TODO: Move this somewhere more fitting; perhaps in blas_like/
 template<typename F,typename=EnableIf<IsScalar<F>>>
 void UpdateScaledSquare
-( F alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
+( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
+template<typename F,typename=EnableIf<IsScalar<F>>>
+void DowndateScaledSquare
+( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_RELEASE_EXCEPT;
+
+// Pi
+// ==
+template<typename Real>
+Real Pi();
+#ifdef EL_HAVE_QUAD
+template<> Quad Pi<Quad>();
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Pi<BigFloat>();
+BigFloat Pi( mpfr_prec_t prec );
+#endif
+
+// Gamma function (and its natural log)
+// ====================================
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Gamma( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad Gamma( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Gamma( const BigFloat& alpha );
+#endif
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real LogGamma( const Real& alpha );
+#ifdef EL_HAVE_QUAD
+template<> Quad LogGamma( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat LogGamma( const BigFloat& alpha );
+#endif
 
 } // namespace El
 

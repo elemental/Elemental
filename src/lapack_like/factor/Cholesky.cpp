@@ -63,29 +63,45 @@ void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
         cholesky::ReverseUVar3( A );
 }
 
+namespace cholesky {
+
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+void ScaLAPACKHelper( UpperOrLower uplo, AbstractDistMatrix<F>& A )
+{
+    AssertScaLAPACKSupport();
+#ifdef EL_HAVE_SCALAPACK
+    // TODO: Add support for optionally timing the proxy redistribution
+    DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> ABlockProx( A );
+    auto& ABlock = ABlockProx.Get();
+
+    const Int n = ABlock.Height();
+    const int bHandle = blacs::Handle( ABlock );
+    const int context = blacs::GridInit( bHandle, ABlock );
+    auto descA = FillDesc( ABlock, context );
+
+    const char uploChar = UpperOrLowerToChar( uplo );
+    scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
+
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
+#endif
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void ScaLAPACKHelper( UpperOrLower uplo, AbstractDistMatrix<F>& A )
+{
+    RuntimeError("There is no ScaLAPACK support for this datatype");
+}
+
+} // anonymous namespace
+
 template<typename F> 
 void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
 {
     DEBUG_ONLY(CSE cse("Cholesky"))
     if( scalapack )
     {
-        AssertScaLAPACKSupport();
-#ifdef EL_HAVE_SCALAPACK
-        // TODO: Add support for optionally timing the proxy redistribution
-        DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> ABlockProx( A );
-        auto& ABlock = ABlockProx.Get();
-
-        const Int n = ABlock.Height();
-        const int bHandle = blacs::Handle( ABlock );
-        const int context = blacs::GridInit( bHandle, ABlock );
-        auto descA = FillDesc( ABlock, context );
-
-        const char uploChar = UpperOrLowerToChar( uplo );
-        scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
-
-        blacs::FreeGrid( context );
-        blacs::FreeHandle( bHandle );
-#endif
+        cholesky::ScaLAPACKHelper( uplo, A );
     }
     else
     {
@@ -190,7 +206,7 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
         qr::ExplicitTriang( A );
 }
 
-#define PROTO(F) \
+#define PROTO_BASE(F) \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A ); \
   template void Cholesky \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack ); \
@@ -212,8 +228,6 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
     AbstractDistMatrix<F>& T, \
     Base<F> alpha, \
     AbstractDistMatrix<F>& V ); \
-  template void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, \
@@ -233,7 +247,18 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
     const DistPermutation& p, \
           AbstractDistMatrix<F>& B ); 
 
+#define PROTO(F) \
+  PROTO_BASE(F) \
+  template void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A ); \
+  template void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+
+#define PROTO_QUAD PROTO_BASE(Quad)
+#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
+#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
+
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

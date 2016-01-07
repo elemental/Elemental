@@ -9,41 +9,40 @@
 #include "El.hpp"
 #ifdef EL_HAVE_MPC
 
+namespace {
+
+size_t numLimbs;
+
+} // anonymous namespace
+
 namespace El {
 namespace mpc {
 
 mpfr_prec_t Precision()
 { return mpfr_get_default_prec(); }
 
-void SetPrecision( mpfr_prec_t precision )
-{ mpfr_set_default_prec( precision ); }
+size_t NumLimbs()
+{ return ::numLimbs; }
+
+void SetPrecision( mpfr_prec_t prec )
+{
+    static bool previouslySet = false;
+    if( previouslySet && prec == mpfr_get_default_prec() )
+        return;
+
+    if( previouslySet )
+        mpi::DestroyBigFloatFamily();
+    mpfr_set_default_prec( prec ); 
+    ::numLimbs = (prec-1) / GMP_NUMB_BITS + 1;
+    mpi::CreateBigFloatFamily();
+    previouslySet = true;
+}
 
 mpfr_rnd_t RoundingMode()
 { return mpfr_get_default_rounding_mode(); }
 
-byte* Serialize( Int n, const BigFloat* x, byte* buf )
-{
-    DEBUG_ONLY(CSE cse("mpc::Serialize"))
-    for( Int j=0; j<n; ++j )
-        buf = x[j].Serialize( buf );
-    return buf;
-}
-
-// We assume that the BigFloat's in x are already constructed
-byte* Deserialize( Int n, byte* buf, BigFloat* x )
-{
-    DEBUG_ONLY(CSE cse("mpc::Deserialize"))
-    for( Int j=0; j<n; ++j )
-        buf = x[j].Deserialize( buf );
-    return buf;
-}
-const byte* Deserialize( Int n, const byte* buf, BigFloat* x )
-{
-    DEBUG_ONLY(CSE cse("mpc::Deserialize"))
-    for( Int j=0; j<n; ++j )
-        buf = x[j].Deserialize( buf );
-    return buf;
-}
+Int BinaryToDecimalPrecision( mpfr_prec_t prec )
+{ return Int(Floor(prec*std::log10(2.))); }
 
 } // namespace mpc
 } // namespace El

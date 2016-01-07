@@ -14,7 +14,7 @@ namespace El {
 
 namespace bp {
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 void Helper
 ( const Matrix<Real>& A, 
   const Matrix<Real>& b, 
@@ -33,6 +33,25 @@ void Helper
         bp::ADMM( A, b, x, ctrl.admmCtrl );
 }
 
+template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+void Helper
+( const Matrix<Real>& A, 
+  const Matrix<Real>& b, 
+        Matrix<Real>& x,
+  const BPCtrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("bp::Helper"))
+    if( ctrl.useIPM )
+    {
+        if( ctrl.useSOCP )
+            bp::SOCPIPM( A, b, x, ctrl.socpIPMCtrl );
+        else
+            bp::LPIPM( A, b, x, ctrl.lpIPMCtrl );
+    }
+    else
+        LogicError("ADMM BasisPursuit not available for this datatype");
+}
+
 template<typename Real>
 void Helper
 ( const Matrix<Complex<Real>>& A, 
@@ -44,7 +63,7 @@ void Helper
     bp::SOCPIPM( A, b, x, ctrl.ipmCtrl );
 }
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 void Helper
 ( const ElementalMatrix<Real>& A, 
   const ElementalMatrix<Real>& b, 
@@ -61,6 +80,25 @@ void Helper
     }
     else
         bp::ADMM( A, b, x, ctrl.admmCtrl );
+}
+
+template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+void Helper
+( const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& b, 
+        ElementalMatrix<Real>& x,
+  const BPCtrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("bp::Helper"))
+    if( ctrl.useIPM )
+    {
+        if( ctrl.useSOCP )
+            bp::SOCPIPM( A, b, x, ctrl.socpIPMCtrl );
+        else
+            bp::LPIPM( A, b, x, ctrl.lpIPMCtrl );
+    }
+    else
+        LogicError("ADMM BasisPursuit not available for this datatype");
 }
 
 template<typename Real>
@@ -185,6 +223,8 @@ void BP
     const BPCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

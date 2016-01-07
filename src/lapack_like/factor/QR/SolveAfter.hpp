@@ -56,8 +56,8 @@ void SolveAfter
 
         // Copy B into X
         X.Resize( m, B.Width() );
-        Matrix<F> XT, XB;
-        PartitionDown( X, XT, XB, n );
+        auto XT = X( IR(0,n), ALL );
+        auto XB = X( IR(n,m), ALL );
         XT = B;
         Zero( XB );
 
@@ -87,7 +87,6 @@ void SolveAfter
     DEBUG_ONLY(CSE cse("qr::SolveAfter"))
     const Int m = APre.Height();
     const Int n = APre.Width();
-    const Grid& g = APre.Grid();
     if( m < n )
         LogicError("Must have full column rank");
 
@@ -126,8 +125,8 @@ void SolveAfter
     else
     {
         // Copy B into X
-        DistMatrix<F> XT(g), XB(g);
-        PartitionDown( X, XT, XB, n );
+        auto XT = X( IR(0,n), ALL );
+        auto XB = X( IR(n,m), ALL );
         XT = B;
         Zero( XB );
 

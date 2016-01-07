@@ -8,6 +8,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+
+#include <algorithm>
+#include <iomanip>
+#include <set>
+#include <stack>
+
 #ifdef EL_HAVE_QT5
  #include <QApplication>
 #endif
@@ -49,24 +55,39 @@ Int spacesPerIndent=2;
 Int localSymvIntBlocksize = 64;
 Int localSymvFloatBlocksize = 64;
 Int localSymvDoubleBlocksize = 64;
-#ifdef EL_HAVE_QUAD
-Int localSymvQuadBlocksize = 64;
-#endif
 Int localSymvComplexFloatBlocksize = 64;
 Int localSymvComplexDoubleBlocksize = 64;
 #ifdef EL_HAVE_QUAD
+Int localSymvQuadBlocksize = 64;
 Int localSymvComplexQuadBlocksize = 64;
+#endif
+#ifdef EL_HAVE_MPC
+Int localSymvBigFloatBlocksize = 64;
 #endif
 
 Int localTrr2kFloatBlocksize = 64;
 Int localTrr2kDoubleBlocksize = 64;
 Int localTrr2kComplexFloatBlocksize = 64;
 Int localTrr2kComplexDoubleBlocksize = 64;
+#ifdef EL_HAVE_QUAD
+Int localTrr2kQuadBlocksize = 64;
+Int localTrr2kComplexQuadBlocksize = 64;
+#endif
+#ifdef EL_HAVE_MPC
+Int localTrr2kBigFloatBlocksize = 64;
+#endif
 
 Int localTrrkFloatBlocksize = 64;
 Int localTrrkDoubleBlocksize = 64;
 Int localTrrkComplexFloatBlocksize = 64;
 Int localTrrkComplexDoubleBlocksize = 64;
+#ifdef EL_HAVE_QUAD
+Int localTrrkQuadBlocksize = 64;
+Int localTrrkComplexQuadBlocksize = 64;
+#endif
+#ifdef EL_HAVE_MPC
+Int localTrrkBigFloatBlocksize = 64;
+#endif
 
 // Qt5
 // ===
@@ -132,11 +153,6 @@ void PrintConfig( ostream& os )
       "  Have MPI_Reducescatter_block: YES\n"
 #else
       "  Have MPI_Reducescatter_block: NO\n"
-#endif
-#ifdef EL_HAVE_MPI_IN_PLACE
-      "  Have MPI_IN_PLACE:            YES\n"
-#else
-      "  Have MPI_IN_PLACE:            NO\n"
 #endif
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
       "  AllReduce ReduceScatterBlock: YES\n"
@@ -372,9 +388,6 @@ void Initialize( int& argc, char**& argv )
     // Build the default grid
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
-    // Create the types and ops
-    mpi::CreateCustom();
-
     const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
     // TODO: Allow for switching on/off reproducibility?
     //const long secs = time(NULL);
@@ -383,10 +396,14 @@ void Initialize( int& argc, char**& argv )
     ::generator.seed( seed );
     srand( seed );
 #ifdef EL_HAVE_MPC
-    mpfr_set_default_prec( 256 );
+    mpc::SetPrecision( 256 );
     gmp_randinit_default( ::gmpRandState );
     gmp_randseed_ui( ::gmpRandState, seed );
 #endif
+
+    // Create the types and ops
+    // NOTE: mpc::SetPrecision created the BigFloat types
+    mpi::CreateCustom();
 }
 
 void Finalize()
@@ -696,12 +713,6 @@ template<>
 void SetLocalSymvBlocksize<double>( Int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
-#ifdef EL_HAVE_QUAD
-template<>
-void SetLocalSymvBlocksize<Quad>( Int blocksize )
-{ ::localSymvQuadBlocksize = blocksize; }
-#endif
-
 template<>
 void SetLocalSymvBlocksize<Complex<float>>( Int blocksize )
 { ::localSymvComplexFloatBlocksize = blocksize; }
@@ -712,8 +723,18 @@ void SetLocalSymvBlocksize<Complex<double>>( Int blocksize )
 
 #ifdef EL_HAVE_QUAD
 template<>
+void SetLocalSymvBlocksize<Quad>( Int blocksize )
+{ ::localSymvQuadBlocksize = blocksize; }
+
+template<>
 void SetLocalSymvBlocksize<Complex<Quad>>( Int blocksize )
 { ::localSymvComplexQuadBlocksize = blocksize; }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+void SetLocalSymvBlocksize<BigFloat>( Int blocksize )
+{ ::localSymvBigFloatBlocksize = blocksize; }
 #endif
 
 template<>
@@ -728,12 +749,6 @@ template<>
 Int LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
-#ifdef EL_HAVE_QUAD
-template<>
-Int LocalSymvBlocksize<Quad>()
-{ return ::localSymvQuadBlocksize; }
-#endif
-
 template<>
 Int LocalSymvBlocksize<Complex<float>>()
 { return ::localSymvComplexFloatBlocksize; }
@@ -744,8 +759,18 @@ Int LocalSymvBlocksize<Complex<double>>()
 
 #ifdef EL_HAVE_QUAD
 template<>
+Int LocalSymvBlocksize<Quad>()
+{ return ::localSymvQuadBlocksize; }
+
+template<>
 Int LocalSymvBlocksize<Complex<Quad>>()
 { return ::localSymvComplexQuadBlocksize; }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+Int LocalSymvBlocksize<BigFloat>()
+{ return ::localSymvBigFloatBlocksize; }
 #endif
 
 template<>
@@ -764,6 +789,22 @@ template<>
 void SetLocalTrr2kBlocksize<Complex<double>>( Int blocksize )
 { ::localTrr2kComplexDoubleBlocksize = blocksize; }
 
+#ifdef EL_HAVE_QUAD
+template<>
+void SetLocalTrr2kBlocksize<Quad>( Int blocksize )
+{ ::localTrr2kQuadBlocksize = blocksize; }
+
+template<>
+void SetLocalTrr2kBlocksize<Complex<Quad>>( Int blocksize )
+{ ::localTrr2kComplexQuadBlocksize = blocksize; }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+void SetLocalTrr2kBlocksize<BigFloat>( Int blocksize )
+{ ::localTrr2kBigFloatBlocksize = blocksize; }
+#endif
+
 template<>
 Int LocalTrr2kBlocksize<float>()
 { return ::localTrr2kFloatBlocksize; }
@@ -779,6 +820,22 @@ Int LocalTrr2kBlocksize<Complex<float>>()
 template<>
 Int LocalTrr2kBlocksize<Complex<double>>()
 { return ::localTrr2kComplexDoubleBlocksize; }
+
+#ifdef EL_HAVE_QUAD
+template<>
+Int LocalTrr2kBlocksize<Quad>()
+{ return ::localTrr2kQuadBlocksize; }
+
+template<>
+Int LocalTrr2kBlocksize<Complex<Quad>>()
+{ return ::localTrr2kComplexQuadBlocksize; }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+Int LocalTrr2kBlocksize<BigFloat>()
+{ return ::localTrr2kBigFloatBlocksize; }
+#endif
 
 template<>
 void SetLocalTrrkBlocksize<float>( Int blocksize )
@@ -796,6 +853,22 @@ template<>
 void SetLocalTrrkBlocksize<Complex<double>>( Int blocksize )
 { ::localTrrkComplexDoubleBlocksize = blocksize; }
 
+#ifdef EL_HAVE_QUAD
+template<>
+void SetLocalTrrkBlocksize<Quad>( Int blocksize )
+{ ::localTrrkQuadBlocksize = blocksize; }
+
+template<>
+void SetLocalTrrkBlocksize<Complex<Quad>>( Int blocksize )
+{ ::localTrrkComplexQuadBlocksize = blocksize; }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+void SetLocalTrrkBlocksize<BigFloat>( Int blocksize )
+{ ::localTrrkBigFloatBlocksize = blocksize; }
+#endif
+
 template<>
 Int LocalTrrkBlocksize<float>()
 { return ::localTrrkFloatBlocksize; }
@@ -811,6 +884,22 @@ Int LocalTrrkBlocksize<Complex<float>>()
 template<>
 Int LocalTrrkBlocksize<Complex<double>>()
 { return ::localTrrkComplexDoubleBlocksize; }
+
+#ifdef EL_HAVE_QUAD
+template<>
+Int LocalTrrkBlocksize<Quad>()
+{ return ::localTrrkQuadBlocksize; }
+
+template<>
+Int LocalTrrkBlocksize<Complex<Quad>>()
+{ return ::localTrrkComplexQuadBlocksize; }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+Int LocalTrrkBlocksize<BigFloat>()
+{ return ::localTrrkBigFloatBlocksize; }
+#endif
 
 template<typename T>
 bool IsSorted( const vector<T>& x )

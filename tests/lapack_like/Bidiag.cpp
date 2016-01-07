@@ -106,6 +106,8 @@ void TestBidiag
   bool print,
   bool display )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
 
@@ -148,7 +150,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -172,13 +173,16 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            Output("Double-precision:");
         TestBidiag<double>( m, n, g, testCorrectness, print, display );
-
-        if( commRank == 0 )
-            Output("Double-precision complex:");
         TestBidiag<Complex<double>>( m, n, g, testCorrectness, print, display );
+
+#ifdef EL_HAVE_QUAD
+        TestBidiag<Quad>( m, n, g, testCorrectness, print, display );
+        TestBidiag<Complex<Quad>>( m, n, g, testCorrectness, print, display );
+#endif
+#ifdef EL_HAVE_MPC
+        TestBidiag<BigFloat>( m, n, g, testCorrectness, print, display );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

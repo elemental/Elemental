@@ -76,6 +76,17 @@
 // but the parallel algorithm is greatly simplified. Furthermore, the QR
 // factorization can easily be patched up with an independent Givens rotation
 // for each swap.
+//
+// Henri Cohen's "A course in computational algebraic number theory" was also
+// heavily consulted for extending LLL to support linearly-dependent columns
+// (and its extension to computing integer kernels).
+//
+// Lastly, insights from the excellent survey paper
+//
+//   Damien Stehle, "Floating-Point LLL: Theoretical and Practical Aspects" 
+//
+// are slowly being incorporated.
+//
 
 namespace El {
 
@@ -83,699 +94,19 @@ static Timer applyHouseTimer, roundTimer, formSInvTimer;
 
 namespace lll {
 
-// Put the k'th column of B into the k'th column of QR and then rotate
-// said column with the first k-1 (scaled) Householder reflectors.
-//
-// TODO: Maintain the reflectors in an accumulated form
-
+// Return the achieved delta and eta reduction properties
 template<typename F>
-void ExpandQR
-( Int k,
-  const Matrix<F>& B,
-        Matrix<F>& QR,
-  const Matrix<F>& t,
-  const Matrix<Base<F>>& d,
-  bool time )
+std::pair<Base<F>,Base<F>>
+Achieved
+( const Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::ExpandQR"))
+    DEBUG_ONLY(CSE cse("lll::Achieved"))
     typedef Base<F> Real;
-    const Int m = B.Height();
-    const F* BBuf = B.LockedBuffer();
-          F* QRBuf = QR.Buffer();  
-    const F* tBuf = t.LockedBuffer();
-    const Base<F>* dBuf = d.LockedBuffer();
-    const Int BLDim = B.LDim();
-    const Int QRLDim = QR.LDim();
-
-    // Copy in the k'th column of B
-    for( Int i=0; i<m; ++i )
-        QRBuf[i+k*QRLDim] = BBuf[i+k*BLDim];
-
-    if( time )
-        applyHouseTimer.Start();
-    for( Int i=0; i<k; ++i )
-    {
-        // Apply the i'th Householder reflector
-
-        // Temporarily replace QR(i,i) with 1
-        const Real alpha = RealPart(QRBuf[i+i*QRLDim]);
-        QRBuf[i+i*QRLDim] = 1;
-
-        const F innerProd =
-          blas::Dot
-          ( m-i,
-            &QRBuf[i+i*QRLDim], 1,
-            &QRBuf[i+k*QRLDim], 1 );
-        blas::Axpy
-        ( m-i, -tBuf[i]*innerProd,
-          &QRBuf[i+i*QRLDim], 1,
-          &QRBuf[i+k*QRLDim], 1 );
-
-        // Fix the scaling
-        QRBuf[i+k*QRLDim] *= dBuf[i];
-
-        // Restore H(i,i)
-        QRBuf[i+i*QRLDim] = alpha; 
-    }
-    if( time )
-        applyHouseTimer.Stop();
-}
-
-template<typename F>
-void HouseholderStep
-( Int k,
-  const Matrix<F>& B,
-        Matrix<F>& QR,
-        Matrix<F>& t,
-        Matrix<Base<F>>& d,
-        Base<F> zeroTol,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("lll::HouseholderStep"))
-    typedef Base<F> Real;
-
-    lll::ExpandQR( k, B, QR, t, d, time );
-
-    F* QRBuf = QR.Buffer();
-    const Int QRLDim = QR.LDim();
-
-    // Perform the next step of Householder reduction
-    F& rhokk = QRBuf[k+k*QRLDim]; 
-    auto qr21 = QR( IR(k+1,END), IR(k) );
-    F tau = LeftReflector( rhokk, qr21 );
-    t.Set( k, 0, tau );
-    if( RealPart(rhokk) < Real(0) )
-    {
-        d.Set( k, 0, -1 );
-        rhokk *= -1;
-    }
-    else
-        d.Set( k, 0, +1 );
-    if( RealPart(rhokk) < zeroTol )
-        throw SingularMatrixException();
-}
-
-// NOTE: It is assumed that delta is valid
-template<typename F>
-void Step
-( Int k,
-  Matrix<F>& B,
-  Matrix<F>& U,
-  Matrix<F>& UInv,
-  Matrix<F>& QR,
-  Matrix<F>& t,
-  Matrix<Base<F>>& d,
-  Base<F> delta,
-  Base<F> loopTol,
-  Base<F> zeroTol,
-  bool formU,
-  bool formUInv,
-  bool weak,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("lll::Step"))
-    typedef Base<F> Real;
-    const Int m = B.Height();
-    const Int n = B.Width();
-
-    vector<F> xBuf(k);
-
-    F* BBuf = B.Buffer();
-    F* UBuf = U.Buffer();
-    F* UInvBuf = UInv.Buffer();
-    F* QRBuf = QR.Buffer();
-    const Int BLDim = B.LDim();
-    const Int ULDim = U.LDim();
-    const Int UInvLDim = UInv.LDim();
-    const Int QRLDim = QR.LDim();
-
-    while( true ) 
-    {
-        lll::ExpandQR( k, B, QR, t, d, time );
-
-        if( time )
-            roundTimer.Start();
-        const Int lowestIndex = ( weak ? Max(k-1,0) : 0 );
-        for( Int i=k-1; i>=lowestIndex; --i )
-        {
-            const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
-            xBuf[i] = chi;
-            if( Abs(chi) > Real(1)/Real(2) )
-                blas::Axpy
-                ( i, -chi,
-                  &QRBuf[i*QRLDim], 1,
-                  &QRBuf[k*QRLDim], 1 );
-        }
-
-        const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-        blas::Gemv
-        ( 'N', m, k,
-          F(-1), BBuf, BLDim, &xBuf[0], 1,
-          F(+1), &BBuf[k*BLDim], 1 );
-        if( formU )
-            blas::Gemv
-            ( 'N', n, k,
-              F(-1), UBuf, ULDim, &xBuf[0], 1,
-              F(+1), &UBuf[k*ULDim], 1 );
-        if( formUInv )
-            blas::Geru
-            ( k, n,
-              F(1), &xBuf[0],    1,
-                    &UInvBuf[k], UInvLDim,
-                    &UInvBuf[0], UInvLDim );
-        const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-        if( time )
-            roundTimer.Stop();
-
-        if( newNorm*newNorm > loopTol*oldNorm*oldNorm )
-        {
-            break;
-        }
-        else if( progress )
-            Output
-            ("  Reorthogonalizing with k=",k,
-             " since oldNorm=",oldNorm," and newNorm=",newNorm);
-    }
-
-    lll::HouseholderStep( k, B, QR, t, d, zeroTol, time );
-}
-
-// Assume that V is m x n and SInv is n x n with, the first k columns of V
-// and the first k rows and columns of SInv, up to date. 
-template<typename F>
-void ExpandBlockQR
-( Int k,
-  const Matrix<F>& B,
-        Matrix<F>& QR,
-        Matrix<F>& V,
-        Matrix<F>& SInv,
-  const Matrix<Base<F>>& d,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("lll::ExpandBlockQR"))
-    const Int m = B.Height();
-    const F* BBuf = B.LockedBuffer();
-          F* QRBuf = QR.Buffer();
-    const Base<F>* dBuf = d.LockedBuffer();
-    const Int BLDim = B.LDim();
-    const Int QRLDim = QR.LDim();
-
-    // Copy in the k'th column of B
-    for( Int i=0; i<m; ++i )
-        QRBuf[i+k*QRLDim] = BBuf[i+k*BLDim];
-
-    // Apply the first k Householder reflectors
-    Matrix<F> z;
-
-    if( time )
-        applyHouseTimer.Start();
-    // Exploit zeros in upper triangle of V
-    /*
-    Zeros( z, k, 1 );
-    blas::Gemv
-    ( 'C', m, k,
-      F(1), V.Buffer(), V.LDim(),
-            B.LockedBuffer(0,k), 1,
-      F(1), z.Buffer(), 1 );
-    */
-    z.Resize( k, 1 );
-    F* zBuf = z.Buffer();
-    for( Int i=0; i<k; ++i )
-        zBuf[i] = BBuf[i+k*BLDim];
-    blas::Trmv( 'L', 'C', 'N', k, V.Buffer(), V.LDim(), z.Buffer(), 1 );
-    blas::Gemv
-    ( 'C', m-k, k,
-      F(1), V.Buffer(k,0), V.LDim(),
-            B.LockedBuffer(k,k), 1,
-      F(1), z.Buffer(), 1 );
-
-    blas::Trsv
-    ( 'L', 'N', 'N', k, SInv.LockedBuffer(), SInv.LDim(), z.Buffer(), 1 );
-
-    // Exploit zeros in upper triangle of V
-    /*
-    blas::Gemv
-    ( 'N', m, k,
-      F(-1), V.Buffer(), V.LDim(),
-             z.LockedBuffer(), 1,
-      F(1), QR.Buffer(0,k), 1 );
-    */
-    blas::Gemv
-    ( 'N', m-k, k,
-      F(-1), V.Buffer(k,0), V.LDim(),
-             z.LockedBuffer(), 1,
-      F(1), &QRBuf[k+k*QRLDim], 1 );
-    blas::Trmv( 'L', 'N', 'N', k, V.Buffer(), V.LDim(), zBuf, 1 );
-    for( Int i=0; i<k; ++i )
-        QRBuf[i+k*QRLDim] -= zBuf[i];
-
-    if( time )
-        applyHouseTimer.Stop();
-
-    // Fix the scaling
-    for( Int i=0; i<k; ++i )
-        QRBuf[i+k*QRLDim] *= dBuf[i];
-}
-
-// Thus, only V(:,k) and SInv(0:k,k) needs to be computed in order to 
-// apply the block Householder transform I - V inv(S) V^H
-template<typename F>
-void BlockHouseholderStep
-( Int k,
-  const Matrix<F>& B,
-        Matrix<F>& QR,
-        Matrix<F>& V,
-        Matrix<F>& SInv,
-        Matrix<F>& t,
-        Matrix<Base<F>>& d,
-        Base<F> zeroTol,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("lll::BlockHouseholderStep"))
-    typedef Base<F> Real;
-    const Int m = B.Height();
-
-    F* QRBuf = QR.Buffer();
-    F* VBuf = V.Buffer();
-    F* SInvBuf = SInv.Buffer();
-    const Int QRLDim = QR.LDim();
-    const Int VLDim = V.LDim();
-    const Int SInvLDim = SInv.LDim();
-
-    lll::ExpandBlockQR( k, B, QR, V, SInv, d, time );
-
-    // Perform the next step of Householder reduction
-    F& rhokk = QRBuf[k+k*QRLDim]; 
-    auto qr21 = QR( IR(k+1,END), IR(k) );
-    F tau = LeftReflector( rhokk, qr21 );
-    t.Set( k, 0, tau );
-    if( RealPart(rhokk) < Real(0) )
-    {
-        d.Set( k, 0, -1 );
-        rhokk *= -1;
-    }
-    else
-        d.Set( k, 0, +1 );
-    if( RealPart(rhokk) < zeroTol )
-        throw SingularMatrixException();
-
-    // Form the k'th column of V 
-    for( Int i=0; i<k; ++i )
-        VBuf[i+k*VLDim] = 0;
-    VBuf[k+k*VLDim] = 1;
-    for( Int i=k+1; i<m; ++i )
-        VBuf[i+k*VLDim] = QRBuf[i+k*QRLDim];
-
-    // Form the k'th row of SInv
-    if( time )
-        formSInvTimer.Start();
-    /*
-    blas::Gemv
-    ( 'C', m, k,
-      F(1), VBuf, VLDim, &VBuf[k*VLDim], 1,
-      F(0), &SInvBuf[k], SInvLDim );
-    */
-    blas::Gemv
-    ( 'C', m-k, k,
-      F(1), &VBuf[k], VLDim, &VBuf[k+k*VLDim], 1,
-      F(0), &SInvBuf[k], SInvLDim );
-    SInvBuf[k+k*SInvLDim] = F(1)/t.Get(k,0);
-    if( time )
-        formSInvTimer.Stop();
-}
-
-// NOTE: It is assumed that delta is valid
-template<typename F>
-void BlockStep
-( Int k,
-  Matrix<F>& B,
-  Matrix<F>& U,
-  Matrix<F>& UInv,
-  Matrix<F>& QR,
-  Matrix<F>& V,
-  Matrix<F>& SInv,
-  Matrix<F>& t,
-  Matrix<Base<F>>& d,
-  Base<F> delta,
-  Base<F> loopTol,
-  Base<F> zeroTol,
-  bool formU,
-  bool formUInv,
-  bool weak,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("lll::BlockStep"))
-    typedef Base<F> Real;
-    const Int m = B.Height();
-    const Int n = B.Width();
-
-    vector<F> xBuf(k);
-
-    F* BBuf = B.Buffer();
-    F* UBuf = U.Buffer();
-    F* UInvBuf = UInv.Buffer();
-    F* QRBuf = QR.Buffer();
-    const Int BLDim = B.LDim();
-    const Int ULDim = U.LDim();
-    const Int UInvLDim = UInv.LDim();
-    const Int QRLDim = QR.LDim();
-
-    while( true ) 
-    {
-        lll::ExpandBlockQR( k, B, QR, V, SInv, d, time );
-
-        if( time )
-            roundTimer.Start();
-        const Int lowestIndex = ( weak ? Max(k-1,0) : 0 );
-        for( Int i=k-1; i>=lowestIndex; --i )
-        {
-            const F chi = Round(QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim]);
-            xBuf[i] = chi;
-            if( Abs(chi) > Real(1)/Real(2) )
-                blas::Axpy
-                ( i, -chi,
-                  &QRBuf[i*QRLDim], 1,
-                  &QRBuf[k*QRLDim], 1 ); 
-        }
-
-        const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-        blas::Gemv
-        ( 'N', m, k,
-          F(-1), BBuf, BLDim, &xBuf[0], 1,
-          F(+1), &BBuf[k*BLDim], 1 );
-        if( formU )
-            blas::Gemv
-            ( 'N', n, k,
-              F(-1), UBuf, ULDim, &xBuf[0], 1,
-              F(+1), &UBuf[k*ULDim], 1 );
-        if( formUInv )
-            blas::Geru
-            ( k, n,
-              F(1), &xBuf[0],    1,
-                    &UInvBuf[k], UInvLDim,
-                    &UInvBuf[0], UInvLDim );
-        const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-        if( time )
-            roundTimer.Stop();
-
-        if( newNorm*newNorm > loopTol*oldNorm*oldNorm )
-        {
-            break;
-        }
-        else if( progress )
-            Output
-            ("  Reorthogonalizing with k=",k,
-             " since oldNorm=",oldNorm," and newNorm=",newNorm);
-    }
-
-    lll::BlockHouseholderStep( k, B, QR, V, SInv, t, d, zeroTol, time );
-}
-
-template<typename F>
-Int UnblockedAlg
-( Matrix<F>& B,
-  Matrix<F>& U,
-  Matrix<F>& UInv,
-  Matrix<F>& QR,
-  Base<F> delta,
-  Base<F> loopTol,
-  bool formU,
-  bool formUInv,
-  bool weak,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("lll::UnblockedAlg"))
-    typedef Base<F> Real;
-    if( time )
-    {
-        applyHouseTimer.Reset();
-        roundTimer.Reset();
-    }
-
-    Real zeroTol = Pow(limits::Epsilon<Real>(),Real(0.5));
-
-    const Int m = B.Height();
-    const Int n = B.Width();
-    const Int minDim = Min(m,n);
-    Matrix<F> t;
-    Matrix<Real> d;
-    Zeros( QR, m, n );
-    Zeros( d, minDim, 1 );
-    Zeros( t, minDim, 1 );
-
-    // Perform the first step of Householder reduction
-    lll::HouseholderStep( 0, B, QR, t, d, zeroTol, time );
-
-    Int k=1, numBacktrack=0;
-    while( k < n )
-    {
-        lll::Step
-        ( k, B, U, UInv, QR, t, d,
-          delta, loopTol, zeroTol, 
-          formU, formUInv, weak, progress, time );
-
-        const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
-        const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
-        const Real s = bNorm*bNorm - rTNorm*rTNorm;
-        const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
-        if( delta*rho_km1_km1*rho_km1_km1 <= s )
-        {
-            ++k;
-        }
-        else
-        {
-            ++numBacktrack;
-            if( progress )
-                Output("Dropping from k=",k," to ",Max(k-1,1));
-            ColSwap( B, k-1, k );
-            if( formU )
-                ColSwap( U, k-1, k );
-            if( formUInv )
-                RowSwap( UInv, k-1, k );
-            if( k == 1 )
-            {
-                // We must reinitialize since we keep k=1
-                lll::HouseholderStep( 0, B, QR, t, d, zeroTol, time );
-            }
-            else
-            {
-                k = k-1; 
-            }
-        }
-    }
-
-    if( time )
-    {
-        Output("  Apply Householder time: ",applyHouseTimer.Total());
-        Output("  Round time:             ",roundTimer.Total());
-    }
-
-    return numBacktrack;
-}
-
-template<typename F>
-Int BlockedAlg
-( Matrix<F>& B,
-  Matrix<F>& U,
-  Matrix<F>& UInv,
-  Matrix<F>& QR,
-  Base<F> delta,
-  Base<F> loopTol,
-  bool formU,
-  bool formUInv,
-  bool weak,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("lll::BlockedAlg"))
-    typedef Base<F> Real;
-    if( time )
-    {
-        applyHouseTimer.Reset();
-        roundTimer.Reset();
-        formSInvTimer.Reset();
-    }
-
-    Real zeroTol = Pow(limits::Epsilon<Real>(),Real(0.5));
-
-    const Int m = B.Height();
-    const Int n = B.Width();
-    const Int minDim = Min(m,n);
-    Matrix<F> V, SInv, t;
-    Matrix<Real> d;
-    Zeros( QR, m, n );
-    Zeros( V, m, minDim );
-    Zeros( SInv, minDim, minDim );
-    Zeros( d, minDim, 1 );
-    Zeros( t, minDim, 1 );
-
-    // Perform the first step of Householder reduction
-    lll::BlockHouseholderStep( 0, B, QR, V, SInv, t, d, zeroTol, time );
-
-    Int k=1, numBacktrack=0;
-    while( k < n )
-    {
-        lll::BlockStep
-        ( k, B, U, UInv, QR, V, SInv, t, d,
-          delta, loopTol, zeroTol,
-          formU, formUInv, weak, progress, time );
-
-        const Real bNorm = FrobeniusNorm( B(ALL,IR(k)) );
-        const Real rTNorm = FrobeniusNorm( QR(IR(0,k-1),IR(k)) );
-        const Real s = bNorm*bNorm - rTNorm*rTNorm;
-        const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
-        if( delta*rho_km1_km1*rho_km1_km1 <= s )
-        {
-            ++k;
-        }
-        else
-        {
-            ++numBacktrack;
-            if( progress )
-                Output("Dropping from k=",k," to ",Max(k-1,1));
-            ColSwap( B, k-1, k );
-            if( formU )
-                ColSwap( U, k-1, k );
-            if( formUInv )
-                RowSwap( UInv, k-1, k );
-            if( k == 1 )
-            {
-                // We must reinitialize since we keep k=1
-                lll::BlockHouseholderStep
-                ( 0, B, QR, V, SInv, t, d, zeroTol, time );
-            }
-            else
-            {
-                k = k-1; 
-            }
-        }
-    }
-
-    if( time )
-    {
-        Output("  Apply Householder time: ",applyHouseTimer.Total());
-        Output("  Form SInv time:         ",formSInvTimer.Total());
-        Output("  Round time:             ",roundTimer.Total());
-    }
-
-    return numBacktrack;
-}
-
-} // namespace lll
-
-template<typename F>
-Int LLL
-( Matrix<F>& B,
-  Matrix<F>& U,
-  Matrix<F>& UInv,
-  Matrix<F>& QR,
-  Base<F> delta,
-  Base<F> loopTol,
-  bool weak,
-  bool presort,
-  bool smallestFirst,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("LLL"))
-    typedef Base<F> Real;
-    if( delta > Real(1) )
-        LogicError("delta is assumed to be at most 1");
-
-    const Int n = B.Width();
-    Identity( U, n, n ); 
-    Identity( UInv, n, n );
-
-    if( presort )
-    {
-        QRCtrl<Real> ctrl;
-        ctrl.smallestFirst = smallestFirst;
-
-        auto BCopy = B;
-        Matrix<F> t;
-        Matrix<Real> d;
-        Permutation Omega;
-        // TODO: Add support for qr::ProxyHouseholder as well
-        El::QR( BCopy, t, d, Omega, ctrl );
-        Omega.PermuteCols( B );
-        Omega.PermuteCols( U );
-        Omega.PermuteRows( UInv );
-    }
-
-    const bool useBlocked = false;
-    const bool formU = true;
-    const bool formUInv = true;
-    if( useBlocked )
-        return lll::BlockedAlg
-          ( B, U, UInv, QR, delta, loopTol,
-            formU, formUInv, weak, progress, time );
-    else
-        return lll::UnblockedAlg
-          ( B, U, UInv, QR, delta, loopTol,
-            formU, formUInv, weak, progress, time );
-}
-
-template<typename F>
-Int LLL
-( Matrix<F>& B,
-  Matrix<F>& QR,
-  Base<F> delta,
-  Base<F> loopTol,
-  bool weak,
-  bool presort,
-  bool smallestFirst,
-  bool progress,
-  bool time )
-{
-    DEBUG_ONLY(CSE cse("LLL"))
-    typedef Base<F> Real;
-    if( delta > Real(1) )
-        LogicError("delta is assumed to be at most 1");
-
-    if( presort )
-    {
-        QRCtrl<Real> ctrl;
-        ctrl.smallestFirst = smallestFirst;
-
-        auto BCopy = B;
-        Matrix<F> t;
-        Matrix<Real> d;
-        Permutation Omega;
-        // TODO: Add support for qr::ProxyHouseholder as well
-        El::QR( BCopy, t, d, Omega, ctrl );
-        Omega.PermuteCols( B );
-    }
-
-    const bool useBlocked = false;
-    const bool formU = false;
-    const bool formUInv = false;
-    Matrix<F> U, UInv;
-    if( useBlocked )
-        return lll::BlockedAlg
-          ( B, U, UInv, QR, delta, loopTol,
-            formU, formUInv, weak, progress, time );
-    else
-        return lll::UnblockedAlg
-          ( B, U, UInv, QR, delta, loopTol,
-            formU, formUInv, weak, progress, time );
-}
-
-template<typename F>
-Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
-{
-    DEBUG_ONLY(CSE cse("LLLDelta"))
-    typedef Base<F> Real;
-    const Int m = QR.Height();
-    const Int n = QR.Width();
+    const Int m = R.Height();
+    const Int n = R.Width();
     const Int minDim = Min(m,n);
 
-    auto QRTop = QR( IR(0,minDim), ALL );
-    auto R = QRTop;
-    MakeTrapezoidal( UPPER, R );
-    
     // Find the maximum delta such that
     //
     //   delta R(k,k)^2 <= R(k+1,k+1)^2 + |R(k,k+1)|^2
@@ -784,13 +115,13 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
     //
     // TODO: Decide if m < n requires checking the k=m-1 case.
     //
-    if( n <= 1 )
-        return 1; // the best-possible delta
     Matrix<F> z;
     Real delta = limits::Max<Real>();
     for( Int i=0; i<minDim-1; ++i )
     {
         const Real rho_i_i = R.GetRealPart(i,i);
+        if( Abs(rho_i_i) <= ctrl.zeroTol )
+            continue;
         const Real rho_i_ip1 = Abs(R.Get(i,i+1));
         const Real rho_ip1_ip1 = R.GetRealPart(i+1,i+1);
 
@@ -800,63 +131,727 @@ Base<F> LLLDelta( const Matrix<F>& QR, bool weak )
         delta = Min(delta,deltaBound);
     }
 
-    // Ensure that
+    // Ensure that, for all 0 <= l < Min(m,n) and l < k < n,
     //
-    //    | R(l,k) | <= 0.5 | R(l,l) | for all 0 <= l < k < Min(m,n),
+    //    | R(l,k) | <= phi(F) eta R(l,l),
     //
     // unless a weak reduction was requested in which case k=l+1.
     //
     // TODO: Decide if m < n requires checking the k=m-1 case.
     //
-    // NOTE: This does not seem to hold for complex LLL reductions,
-    //       so sqrt(2)/2 is used instead.
-    const Real bound = 
-      ( IsComplex<F>::value ? Real(1)/Sqrt(Real(2)) : Real(1)/Real(2) );
-    Real maxRatio = 0;
-    if( weak )
+    // NOTE: phi(F) is 1 for real F and sqrt(2) for complex F.
+    //
+    Real eta = 0;
+    if( ctrl.variant == LLL_WEAK )
     {
         for( Int i=0; i<minDim-1; ++i )
-            maxRatio = Max(maxRatio,Abs(R.Get(i,i+1)/R.Get(i,i)));
+        {
+            const F rho_ii = R.Get(i,i);
+            if( Abs(rho_ii) <= ctrl.zeroTol )
+                continue;
+            else
+                eta = Max(eta,Abs(R.Get(i,i+1)/rho_ii));
+        }
     }
     else
     {
-        auto diagR = GetDiagonal(R);
-        DiagonalSolve( LEFT, NORMAL, diagR, R );
-        ShiftDiagonal( R, F(-1) );
-        maxRatio = MaxNorm( R );
+        for( Int i=0; i<minDim-1; ++i )
+        {
+            const F rho_ii = R.Get(i,i);
+            if( Abs(rho_ii) <= ctrl.zeroTol )
+                continue;
+            else
+                for( Int j=i+1; j<n; ++j )
+                    eta = Max(eta,Abs(R.Get(i,j)/rho_ii));
+        }
     }
-    if( maxRatio > bound+Pow(limits::Epsilon<Real>(),Real(3)/Real(4)) )
-        return 0; // the worst-possible delta
+    eta /= ( IsComplex<F>::value ? Sqrt(Real(2)) : Real(1) );
 
-    return delta;
+    return std::make_pair(delta,eta);
+}
+
+// Return the log of the absolute value of the determinant of the lattice
+// (the sum of the logs of the nonzero diagonal entries of R)
+template<typename F>
+Base<F> LogVolume( const Matrix<F>& R )
+{
+    DEBUG_ONLY(CSE cse("lll::LogVolume"))
+    typedef Base<F> Real;
+    const Int m = R.Height();
+    const Int n = R.Width();
+    const Int minDim = Min(m,n);
+
+    Real logVol = 0;
+    for( Int j=0; j<minDim; ++j )
+    {
+        Real rho_j_j = R.GetRealPart(j,j);
+        if( rho_j_j > Real(0) )
+            logVol += Log(rho_j_j);
+    }
+    return logVol;
+}
+
+} // namespace lll
+
+} // namespace El
+
+#include "./LLL/Unblocked.hpp"
+#include "./LLL/Blocked.hpp"
+
+namespace El {
+
+template<typename F>
+LLLInfo<Base<F>> LLLWithQ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLLWithQ"))
+    typedef Base<F> Real;
+    if( ctrl.delta < Real(1)/Real(2) )
+        LogicError("delta is assumed to be at least 1/2");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Sqrt(ctrl.delta) )
+        LogicError
+        ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
+         Sqrt(ctrl.delta),")");
+
+    const Int n = B.Width();
+    if( ctrl.jumpstart )
+    {
+        if( U.Height() != n || U.Width() != n )
+            LogicError("U should have been n x n on input");
+        if( UInv.Height() != n || UInv.Width() != n )
+            LogicError("UInv should have been n x n on input");
+    }
+    else
+    {
+        Identity( U, n, n ); 
+        Identity( UInv, n, n );
+    }
+
+    if( ctrl.presort )
+    {
+        if( ctrl.jumpstart )
+            LogicError("Cannot combine jumpstarting with presorting");
+        QRCtrl<Real> qrCtrl;
+        qrCtrl.smallestFirst = ctrl.smallestFirst;
+
+        auto BCopy = B;
+        Matrix<F> tPre;
+        Matrix<Real> dPre;
+        Permutation Omega;
+        // TODO: Add support for qr::ProxyHouseholder as well
+        El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
+        Omega.PermuteCols( B );
+        Omega.PermuteCols( U );
+        Omega.PermuteRows( UInv );
+    }
+
+    const bool useBlocked = false;
+    const bool formU = true;
+    const bool formUInv = true;
+    if( useBlocked )
+    {
+        return lll::BlockedAlg( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+    }
+    else
+    {
+        if( ctrl.variant == LLL_DEEP_REDUCE )
+            return lll::UnblockedDeepReduceAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        else if( ctrl.variant == LLL_DEEP )
+            return lll::UnblockedDeepAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        else
+            return lll::UnblockedAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+    }
+}
+
+template<typename F>
+LLLInfo<Base<F>> LLL
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& UInv,
+  Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart from this interface");
+    typedef Base<F> Real;
+    Matrix<F> t;
+    Matrix<Real> d;
+    auto info = LLLWithQ( B, U, UInv, R, t, d, ctrl );
+    MakeTrapezoidal( UPPER, R );
+    return info;
+}
+
+template<typename F>
+LLLInfo<Base<F>>
+LLLWithQ
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLLWithQ"))
+    typedef Base<F> Real;
+    if( ctrl.delta < Real(1)/Real(2) )
+        LogicError("delta is assumed to be at least 1/2");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Sqrt(ctrl.delta) )
+        LogicError
+        ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
+         Sqrt(ctrl.delta),")");
+
+    if( ctrl.presort )
+    {
+        if( ctrl.jumpstart )
+            LogicError("Cannot combine jumpstarting with presorting");
+
+        QRCtrl<Real> qrCtrl;
+        qrCtrl.smallestFirst = ctrl.smallestFirst;
+
+        auto BCopy = B;
+        Matrix<F> tPre;
+        Matrix<Real> dPre;
+        Permutation Omega;
+        // TODO: Add support for qr::ProxyHouseholder as well
+        El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
+        Omega.PermuteCols( B );
+    }
+
+    const bool useBlocked = false;
+    const bool formU = false;
+    const bool formUInv = false;
+    Matrix<F> U, UInv;
+    if( useBlocked )
+    {
+        return lll::BlockedAlg( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+    }
+    else
+    {
+        if( ctrl.variant == LLL_DEEP_REDUCE )
+            return lll::UnblockedDeepReduceAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        else if( ctrl.variant == LLL_DEEP )
+            return lll::UnblockedDeepAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        else
+            return lll::UnblockedAlg
+                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+    }
+}
+
+template<typename F>
+LLLInfo<Base<F>>
+LLL
+( Matrix<F>& B,
+  Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart from this interface");
+    typedef Base<F> Real;
+    Matrix<F> t;
+    Matrix<Real> d;
+    auto info = LLLWithQ( B, R, t, d, ctrl );
+    MakeTrapezoidal( UPPER, R );
+    return info;
+}
+
+// Emulate the flavor of quicksort/mergesort by recursively splitting the 
+// vectors in half, applying LLL to each half, and merging the halves
+// by running LLL on the interwoven reduced basis vectors
+// (notice that this should allow the highest levels to often run at a lower
+//  precision since the reduced basis vectors are likely to be much smaller, 
+//  especially with SVP challenge lattices).
+//
+// C.f. The analogue of Lehmer's version of Euclid's algorithm that Schnorr
+// mentions at the end of "Progress on LLL and Lattice Reduction".
+//
+// NOTE: Until Complex<BigFloat> exists, we must have different implementations
+//       for real and complex F
+
+// TODO: Provide a way to display when changing precision without showing
+//       all of the backtracks and deep insertions.
+
+namespace lll {
+
+template<typename F,typename RealLower>
+LLLInfo<RealLower>
+LowerPrecisionMerge
+( const Matrix<F>& CL,
+  const Matrix<F>& CR,
+        Matrix<F>& B,
+        Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("lll::LowerPrecisionMerge"))
+    typedef ConvertBase<F,RealLower> FLower;
+    const string typeString = TypeName<RealLower>();
+
+    const Int n = B.Width();
+    const Int firstHalf = n-(n/2);
+
+    if( ctrl.progress || ctrl.time )
+        Output("  Dropping to " + typeString);
+    Matrix<FLower> BLower;
+    BLower.Resize( B.Height(), n );
+    // Interleave CL and CR to reform B before running LLL again
+    // NOTE: This does not seem to make a substantial difference
+    for( Int jSub=0; jSub<n/2; ++jSub )
+    {
+        auto cl = CL( ALL, IR(jSub) );
+        auto cr = CR( ALL, IR(jSub) );
+        auto bl = BLower( ALL, IR(2*jSub) );
+        auto br = BLower( ALL, IR(2*jSub+1) );
+        Copy( cl, bl );
+        Copy( cr, br );
+    }
+    if( firstHalf > n/2 )
+    {
+        auto cl = CL( ALL, IR(firstHalf-1) );
+        auto bl = BLower( ALL, IR(n-1) );
+        Copy( cl, bl );
+    }
+
+    LLLCtrl<RealLower> ctrlLower( ctrl );
+    RealLower eps = limits::Epsilon<RealLower>();
+    RealLower minEta = RealLower(1)/RealLower(2)+Pow(eps,RealLower(0.9));
+    ctrlLower.eta = Max(minEta,ctrlLower.eta);
+    Timer timer;
+    Matrix<FLower> RLower;
+    if( ctrl.time )
+        timer.Start();
+    auto infoLower = LLL( BLower, RLower, ctrlLower );
+    if( ctrl.time )
+        Output("  " + typeString + " LLL took ",timer.Stop()," seconds");
+    Copy( BLower, B );
+    Copy( RLower, R );
+    return infoLower;
+}
+
+template<typename Real>
+LLLInfo<Real>
+RecursiveHelper
+( Matrix<Real>& B,
+  Matrix<Real>& R,
+  Int numShuffles,
+  Int cutoff,
+  const LLLCtrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
+    typedef Real F;
+    const Int n = B.Width();
+    if( n < cutoff )
+        return LLL( B, R, ctrl );
+    Timer timer;
+
+    LLLInfo<Real> info;
+    info.numSwaps = 0;
+    for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
+    {
+        if( ctrl.progress || ctrl.time )
+            Output("Shuffle=",shuffle);
+        auto C( B ); 
+
+        const Int firstHalf = n-(n/2);
+        auto CL = C( ALL, IR(0,firstHalf) );
+        auto CR = C( ALL, IR(firstHalf,n) );
+
+        double leftTime, rightTime;
+        if( ctrl.time )
+            timer.Start();
+        auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
+        if( ctrl.time )
+        {
+            leftTime = timer.Stop(); 
+            timer.Start();
+        }
+        auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+        if( ctrl.time )
+            rightTime = timer.Stop();
+        info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
+        if( ctrl.progress || ctrl.time )
+        {
+            Output("n=",n);
+            Output("  left swaps=",leftInfo.numSwaps);
+            Output("  right swaps=",rightInfo.numSwaps);
+        }
+        if( ctrl.time )
+        {
+            Output("  left time:  ",leftTime," seconds");
+            Output("  right time: ",rightTime," seconds");
+        }
+        const Real CLOneNorm = OneNorm( CL );
+        const Real CROneNorm = OneNorm( CR );
+        const Real CLMaxNorm = MaxNorm( CL );
+        const Real CRMaxNorm = MaxNorm( CR );
+        if( ctrl.progress )
+        {
+            Output("  || C_L ||_1 = ",CLOneNorm);
+            Output("  || C_R ||_1 = ",CROneNorm);
+            Output("  || C_L ||_max = ",CLMaxNorm);
+            Output("  || C_R ||_max = ",CRMaxNorm);
+        }
+
+        const Real COneNorm = Max(CLOneNorm,CROneNorm);
+        const Real fudge = 1.5; // TODO: Make tunable
+        const Int neededPrec = Int(Ceil(Log2(COneNorm)*fudge));
+        if( ctrl.progress || ctrl.time )
+        {
+            Output("  || C ||_1 = ",COneNorm);
+            Output("  Needed precision: ",neededPrec);
+        }
+
+        bool succeeded = false;
+        Int numPrevSwaps = info.numSwaps;
+        if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+        {
+            try
+            {
+                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+        }
+        if( !succeeded && 
+            PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+        {
+            try
+            {
+                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+        }
+#ifdef EL_HAVE_QUAD
+        if( !succeeded &&
+            PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+        {
+            try
+            {
+                info = LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+        }
+#endif
+#ifdef EL_HAVE_MPC
+        // Only move down to a lower-precision MPFR type if the jump is
+        // substantial. The current value has been naively chosen.
+        const mpfr_prec_t minPrecDiff = 32;
+        mpfr_prec_t inputPrec = mpc::Precision();
+        if( !succeeded && neededPrec <= inputPrec-minPrecDiff )
+        {
+            mpc::SetPrecision( neededPrec );
+            try {
+                info = LowerPrecisionMerge<F,BigFloat>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+            mpc::SetPrecision( inputPrec );
+        }
+#endif
+
+        if( !succeeded )
+        {
+            // Interleave CL and CR to reform B before running LLL again
+            for( Int jSub=0; jSub<n/2; ++jSub )
+            {
+                auto cl = CL( ALL, IR(jSub) );
+                auto cr = CR( ALL, IR(jSub) ); 
+                auto bl = B( ALL, IR(2*jSub) );
+                auto br = B( ALL, IR(2*jSub+1) );
+                bl = cl;
+                br = cr;
+            }
+            if( firstHalf > n/2 )
+            {
+                auto cl = CL( ALL, IR(firstHalf-1) );
+                auto bl = B( ALL, IR(n-1) ); 
+                bl = cl;
+            }
+            
+            info = LLL( B, R, ctrl );
+            info.numSwaps += numPrevSwaps;
+        }
+    }
+    return info;
+}
+
+// Same as the above, but with the Complex<BigFloat> datatype avoided
+template<typename Real>
+LLLInfo<Real>
+RecursiveHelper
+( Matrix<Complex<Real>>& B,
+  Matrix<Complex<Real>>& R,
+  Int numShuffles,
+  Int cutoff,
+  const LLLCtrl<Real>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
+    typedef Complex<Real> F;
+    const Int n = B.Width();
+    if( n < cutoff )
+        return LLL( B, R, ctrl );
+    Timer timer;
+
+    LLLInfo<Real> info;
+    info.numSwaps = 0;
+    for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
+    {
+        if( ctrl.progress || ctrl.time )
+            Output("Shuffle=",shuffle);
+        auto C( B ); 
+
+        const Int firstHalf = n-(n/2);
+        auto CL = C( ALL, IR(0,firstHalf) );
+        auto CR = C( ALL, IR(firstHalf,n) );
+
+        double leftTime, rightTime;
+        if( ctrl.time )
+            timer.Start();
+        auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
+        if( ctrl.time )
+        {
+            leftTime = timer.Stop(); 
+            timer.Start();
+        }
+        auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+        if( ctrl.time )
+            rightTime = timer.Stop();
+        info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
+        if( ctrl.progress || ctrl.time )
+        {
+            Output("n=",n);
+            Output("  left swaps=",leftInfo.numSwaps);
+            Output("  right swaps=",rightInfo.numSwaps);
+        }
+        if( ctrl.time )
+        {
+            Output("  left time:  ",leftTime," seconds");
+            Output("  right time: ",rightTime," seconds");
+        }
+        const Real CLOneNorm = OneNorm( CL );
+        const Real CROneNorm = OneNorm( CR );
+        const Real CLMaxNorm = MaxNorm( CL );
+        const Real CRMaxNorm = MaxNorm( CR );
+        if( ctrl.progress )
+        {
+            Output("  || C_L ||_1 = ",CLOneNorm);
+            Output("  || C_R ||_1 = ",CROneNorm);
+            Output("  || C_L ||_max = ",CLMaxNorm);
+            Output("  || C_R ||_max = ",CRMaxNorm);
+        }
+
+        const Real COneNorm = Max(CLOneNorm,CROneNorm);
+        const Real fudge = 1.5; // TODO: Make tunable
+        const Int neededPrec = Int(Ceil(Log2(COneNorm)*fudge));
+        if( ctrl.progress || ctrl.time )
+        {
+            Output("  || C ||_1 = ",COneNorm);
+            Output("  Needed precision: ",neededPrec);
+        }
+
+        bool succeeded = false;
+        Int numPrevSwaps = info.numSwaps;
+        if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+        {
+            try
+            {
+                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+        if( !succeeded && 
+            PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+        {
+            try
+            {
+                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+#ifdef EL_HAVE_QUAD
+        if( !succeeded &&
+            PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+        {
+            try
+            {
+                info = LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+#endif
+
+        if( !succeeded )
+        {
+            // Interleave CL and CR to reform B before running LLL again
+            for( Int jSub=0; jSub<n/2; ++jSub )
+            {
+                auto cl = CL( ALL, IR(jSub) );
+                auto cr = CR( ALL, IR(jSub) ); 
+                auto bl = B( ALL, IR(2*jSub) );
+                auto br = B( ALL, IR(2*jSub+1) );
+                bl = cl;
+                br = cr;
+            }
+            if( firstHalf > n/2 )
+            {
+                auto cl = CL( ALL, IR(firstHalf-1) );
+                auto bl = B( ALL, IR(n-1) ); 
+                bl = cl;
+            }
+            
+            info = LLL( B, R, ctrl );
+            info.numSwaps += numPrevSwaps;
+        }
+    }
+    return info;
+}
+
+} // namespace lll
+
+template<typename F>
+LLLInfo<Base<F>>
+RecursiveLLL
+( Matrix<F>& B,
+  Int cutoff,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("RecursiveLLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart LLL from this interface");
+    Matrix<F> R;
+    return RecursiveLLL( B, R, cutoff, ctrl );
+}
+
+template<typename F>
+LLLInfo<Base<F>>
+RecursiveLLL
+( Matrix<F>& B,
+  Matrix<F>& R,
+  Int cutoff,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("RecursiveLLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart LLL from this interface");
+    // TODO: Make this runtime-tunable
+    Int numShuffles = 1;
+    return lll::RecursiveHelper( B, R, numShuffles, cutoff, ctrl );
+}
+
+template<typename F>
+LLLInfo<Base<F>>
+LLL
+( Matrix<F>& B,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart LLL from this interface");
+    Matrix<F> R;
+    return LLL( B, R, ctrl );
+}
+
+template<typename F>
+void DeepColSwap( Matrix<F>& B, Int i, Int k )
+{
+    const Int m = B.Height();
+    auto bi = B( ALL, IR(i) );
+    auto bk = B( ALL, IR(k) );
+    auto bkCopy( bk );
+
+    F* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+    for( Int l=k-1; l>=i; --l )
+        blas::Copy( m, &BBuf[l*BLDim], 1, &BBuf[(l+1)*BLDim], 1 );
+
+    bi = bkCopy;
+}
+
+template<typename F>
+void DeepRowSwap( Matrix<F>& B, Int i, Int k )
+{
+    const Int n = B.Width();
+    auto bi = B( IR(i), ALL );
+    auto bk = B( IR(k), ALL );
+    auto bkCopy( bk );
+
+    F* BBuf = B.Buffer();
+    const Int BLDim = B.LDim();
+    for( Int l=k-1; l>=i; --l )
+        blas::Copy( n, &BBuf[l], BLDim, &BBuf[l+1], BLDim );
+
+    bi = bkCopy;
 }
 
 #define PROTO(F) \
-  template Int LLL \
+  template LLLInfo<Base<F>> LLL \
+  ( Matrix<F>& B, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> LLL \
+  ( Matrix<F>& B, \
+    Matrix<F>& R, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> LLL \
+  ( Matrix<F>& B, \
+    Matrix<F>& U, \
+    Matrix<F>& UInv, \
+    Matrix<F>& R, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> LLLWithQ \
   ( Matrix<F>& B, \
     Matrix<F>& QR, \
-    Base<F> delta, \
-    Base<F> loopTol, \
-    bool weak, \
-    bool presort, \
-    bool smallestFirst, \
-    bool progress, \
-    bool time ); \
-  template Int LLL \
+    Matrix<F>& t, \
+    Matrix<Base<F>>& d, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> LLLWithQ \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
     Matrix<F>& UInv, \
     Matrix<F>& QR, \
-    Base<F> delta, \
-    Base<F> loopTol, \
-    bool weak, \
-    bool presort, \
-    bool smallestFirst, \
-    bool progress, \
-    bool time ); \
-  template Base<F> LLLDelta( const Matrix<F>& QR, bool weak );
+    Matrix<F>& t, \
+    Matrix<Base<F>>& d, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> RecursiveLLL \
+  ( Matrix<F>& B, \
+    Int cutoff, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> RecursiveLLL \
+  ( Matrix<F>& B, \
+    Matrix<F>& R, \
+    Int cutoff, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template void DeepColSwap( Matrix<F>& B, Int i, Int k ); \
+  template void DeepRowSwap( Matrix<F>& B, Int i, Int k ); \
+  template std::pair<Base<F>,Base<F>> lll::Achieved \
+  ( const Matrix<F>& R, const LLLCtrl<Base<F>>& ctrl ); \
+  template Base<F> lll::LogVolume( const Matrix<F>& R );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

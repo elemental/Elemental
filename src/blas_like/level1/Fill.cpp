@@ -80,6 +80,7 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
   template void Fill( DistSparseMatrix<T>& A, T alpha );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

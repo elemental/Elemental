@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include "El/core/FlamePart.hpp"
+
 #include "./ApplyPacked/Util.hpp"
 #include "./ExpandPacked/LV.hpp"
 
@@ -46,6 +48,8 @@ void ExpandPackedReflectors
     Int offset, ElementalMatrix<F>& H, const ElementalMatrix<F>& t );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

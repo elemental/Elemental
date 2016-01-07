@@ -68,10 +68,9 @@ GolubReinsch
     auto B( A );
     if( m >= n )
     {
-        DistMatrix<F> AT(g), AB(g);
-        DistMatrix<F,VC,STAR> UT_VC_STAR(g), UB_VC_STAR(g);
-        PartitionDown( A, AT, AB, n );
-        PartitionDown( U_VC_STAR, UT_VC_STAR, UB_VC_STAR, n );
+        auto AT = A( IR(0,n  ), ALL );
+        auto AB = A( IR(n,END), ALL );
+        auto UT_VC_STAR = U_VC_STAR( IR(0,n), ALL );
         AT = UT_VC_STAR;
         Zero( AB );
         Adjoint( VAdj_STAR_VC, V );
@@ -79,8 +78,8 @@ GolubReinsch
     else
     {
         auto VAdjL_STAR_VC = VAdj_STAR_VC( IR(0,k), IR(0,m) );
-        DistMatrix<F> VT(g), VB(g);
-        PartitionDown( V, VT, VB, m );
+        auto VT = V( IR(0,m  ), ALL );
+        auto VB = V( IR(m,END), ALL );
         Adjoint( VAdjL_STAR_VC, VT );
         Zero( VB );
     }
@@ -170,8 +169,8 @@ GolubReinschFlame
     if( m >= n )
     {
         auto UT_VC_STAR = U_VC_STAR( IR(0,n), IR(0,k) );
-        DistMatrix<F> AT(g), AB(g);
-        PartitionDown( A, AT, AB, n );
+        auto AT = A( IR(0,n), ALL );
+        auto AB = A( IR(n,END), ALL );
         AT = UT_VC_STAR;
         Zero( AB );
         V = V_VC_STAR;
@@ -179,8 +178,8 @@ GolubReinschFlame
     else
     {
         auto VT_VC_STAR = V_VC_STAR( IR(0,m), IR(0,k) );
-        DistMatrix<F> VT(g), VB(g);
-        PartitionDown( V, VT, VB, m );
+        auto VT = V( IR(0,m  ), ALL );
+        auto VB = V( IR(m,END), ALL ); 
         VT = VT_VC_STAR;
         Zero( VB );
     }

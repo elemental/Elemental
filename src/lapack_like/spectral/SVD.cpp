@@ -143,6 +143,82 @@ void SVD
 #endif
 }
 
+namespace svd {
+
+template<typename F>
+void TSQR
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& sPre )
+{
+    DEBUG_ONLY(CSE cse("svd::TSQR"))
+
+    DistMatrixReadWriteProxy<F,F,VC,STAR> AProx( APre );
+    DistMatrixWriteProxy<Base<F>,Base<F>,CIRC,CIRC> sProx( sPre );
+    auto& A = AProx.Get();
+    auto& s = sProx.Get();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    if( m < n )
+        LogicError("svd::TSQR assumes m >= n");
+    const Int minDim = Min(m,n);
+    s.Resize( minDim, 1 );
+
+    const Int p = mpi::Size( A.ColComm() );
+    if( p == 1 )
+    {
+        SVD( A, s );
+        return; 
+    }
+
+    qr::TreeData<F> treeData;
+    treeData.QR0 = A.LockedMatrix();
+    QR( treeData.QR0, treeData.t0, treeData.d0 );
+    qr::ts::Reduce( A, treeData );
+    if( A.ColRank() == 0 )
+        SVD( qr::ts::RootQR(A,treeData), s.Matrix() );
+    qr::ts::Scatter( A, treeData );
+}
+
+template<typename F>
+void TSQR
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& sPre,
+  ElementalMatrix<F>& VPre )
+{
+    DEBUG_ONLY(CSE cse("svd::TSQR"))
+
+    DistMatrixReadWriteProxy<F,F,VC,STAR> AProx( APre );
+    DistMatrixWriteProxy<Base<F>,Base<F>,CIRC,CIRC> sProx( sPre );
+    DistMatrixWriteProxy<F,F,CIRC,CIRC> VProx( VPre );
+    auto& A = AProx.Get();
+    auto& s = sProx.Get();
+    auto& V = VProx.Get();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    if( m < n )
+        LogicError("svd::TSQR assumes m >= n");
+    const Int minDim = Min(m,n);
+    s.Resize( minDim, 1 );
+    V.Resize( minDim, minDim );
+
+    const Int p = mpi::Size( A.ColComm() );
+    if( p == 1 )
+    {
+        SVD( A, s, V );
+        return;
+    }
+
+    qr::TreeData<F> treeData;
+    treeData.QR0 = A.LockedMatrix();
+    QR( treeData.QR0, treeData.t0, treeData.d0 );
+    qr::ts::Reduce( A, treeData );
+    if( A.ColRank() == 0 )
+        SVD( qr::ts::RootQR(A,treeData), s.Matrix(), V.Matrix() );
+    qr::ts::Scatter( A, treeData );
+}
+
+} // namespace svd
+
 #define PROTO(F) \
   template void SVD \
   ( Matrix<F>& A, \
@@ -168,7 +244,14 @@ void SVD
   ( DistMatrix<F,MC,MR,BLOCK>& A, \
     Matrix<Base<F>>& s, \
     DistMatrix<F,MC,MR,BLOCK>& U, \
-    DistMatrix<F,MC,MR,BLOCK>& VH );
+    DistMatrix<F,MC,MR,BLOCK>& VH ); \
+  template void svd::TSQR \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& s ); \
+  template void svd::TSQR \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<Base<F>>& s, \
+    ElementalMatrix<F>& V );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -21,7 +21,6 @@
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 
-#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {
@@ -39,9 +38,11 @@ inline void FrontVanillaLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
     Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
@@ -54,8 +55,8 @@ inline void FrontIntraPivLowerForwardSolve
         Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
-    Matrix<F> XT, XB;
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n),   ALL );
     P.PermuteRows( XT );
     FrontVanillaLowerForwardSolve( L, X );
 }
@@ -72,9 +73,11 @@ inline void FrontBlockLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(ATL) XT
     Matrix<F> YT( XT );
@@ -101,8 +104,9 @@ FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
         const F* LValBuf = front.LSparse.LockedValueBuffer();
         const Int* LColBuf = front.LSparse.LockedTargetBuffer();
         const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
-        Matrix<F> WT, WB;
-        PartitionDown( W, WT, WB, n );
+
+        auto WT = W( IR(0,n),   ALL );
+        auto WB = W( IR(n,END), ALL );
 
         const bool onLeft = true;
         suite_sparse::ldl::LSolveMulti
@@ -243,9 +247,8 @@ inline void FrontIntraPivLowerForwardSolve
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
 
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X, singleL11AllGather );
@@ -265,6 +268,7 @@ inline void FrontVanillaLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -272,11 +276,11 @@ inline void FrontVanillaLowerForwardSolve
         return;
     }
 
-    // Separate the top and bottom portions of X and L
-    const Int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(LT) XT
     // TODO: Replace with TrsmLLNMedium?
@@ -300,6 +304,7 @@ inline void FrontVanillaLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(XPre,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -310,10 +315,10 @@ inline void FrontVanillaLowerForwardSolve
     DistMatrix<F> X( XPre );
 
     // Separate the top and bottom portions of X and L
-    const Int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(LT) XT
     // TODO: Replace with TrsmLLNMedium?
@@ -333,9 +338,8 @@ inline void FrontIntraPivLowerForwardSolve
 {
     DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
 
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X );
@@ -357,6 +361,7 @@ inline void FrontFastLowerForwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -365,10 +370,10 @@ inline void FrontFastLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := LT XT
     DistMatrix<F,STAR,STAR> XT_STAR_STAR( XT );
@@ -390,9 +395,8 @@ inline void FrontFastIntraPivLowerForwardSolve
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
@@ -412,6 +416,7 @@ inline void FrontFastLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -420,11 +425,10 @@ inline void FrontFastLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // Get ready for the local multiply
     DistMatrix<F,MR,STAR> XT_MR_STAR(g);
@@ -463,9 +467,8 @@ inline void FrontFastIntraPivLowerForwardSolve
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
@@ -485,6 +488,7 @@ inline void FrontFastLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -493,10 +497,10 @@ inline void FrontFastLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := LT XT
     DistMatrix<F> YT( XT );
@@ -514,9 +518,8 @@ inline void FrontFastIntraPivLowerForwardSolve
 {
     DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
 
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
@@ -538,6 +541,7 @@ inline void FrontBlockLowerForwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -546,10 +550,10 @@ inline void FrontBlockLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(ATL) XT
     DistMatrix<F,STAR,STAR> XT_STAR_STAR( XT );
@@ -577,6 +581,7 @@ inline void FrontBlockLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -585,11 +590,10 @@ inline void FrontBlockLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // Get ready for the local multiply
     DistMatrix<F,MR,STAR> XT_MR_STAR(g);
@@ -632,6 +636,7 @@ inline void FrontBlockLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -640,10 +645,10 @@ inline void FrontBlockLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(ATL) XT
     DistMatrix<F> Z( XT );

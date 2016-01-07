@@ -47,13 +47,14 @@ void TwoSidedTrsm
   const DistMatrix<F,STAR,STAR>& B )
 { TwoSidedTrsm( uplo, diag, A.Matrix(), B.LockedMatrix() ); }
 
-template<typename F>
-void TwoSidedTrsm
+namespace twotrsm {
+
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+void ScaLAPACKHelper
 ( UpperOrLower uplo, UnitOrNonUnit diag,
         DistMatrix<F,MC,MR,BLOCK>& A,
   const DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
     if( diag == UNIT )
         LogicError("ScaLAPACK does not support unit-diagonal two-sided TRSM");
     // NOTE: ScaLAPACK additionally assumes that the diagonal of the triangular
@@ -71,6 +72,27 @@ void TwoSidedTrsm
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
 #endif
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void ScaLAPACKHelper
+( UpperOrLower uplo, UnitOrNonUnit diag,
+        DistMatrix<F,MC,MR,BLOCK>& A,
+  const DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    LogicError("ScaLAPACK does not support this datatype");
+}
+
+} // namespace twotrsm
+
+template<typename F>
+void TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag,
+        DistMatrix<F,MC,MR,BLOCK>& A,
+  const DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    twotrsm::ScaLAPACKHelper( uplo, diag, A, B );
 }
 
 #define PROTO(F) \
@@ -92,6 +114,8 @@ void TwoSidedTrsm
     const DistMatrix<F,MC,MR,BLOCK>& B );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

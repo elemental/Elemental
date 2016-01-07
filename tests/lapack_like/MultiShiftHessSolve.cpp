@@ -86,6 +86,8 @@ void TestHessenberg
   bool display,
   const Grid& g )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F,VC,STAR> H(g);
     DistMatrix<F,STAR,VR> X(g), Y(g);
     DistMatrix<F,VR,STAR> shifts(g);
@@ -121,7 +123,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -145,13 +146,8 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            Output("Double-precision:");
         TestHessenberg<double>
         ( uplo, orient, m, n, testCorrectness, print, display, grid );
-
-        if( commRank == 0 )
-            Output("Double-precision complex:");
         TestHessenberg<Complex<double>>
         ( uplo, orient, m, n, testCorrectness, print, display, grid );
     }

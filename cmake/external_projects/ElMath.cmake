@@ -69,10 +69,29 @@ if(MATH_LIBS)
     message(STATUS "Using Intel MKL via ${MATH_LIBS}")
   endif()
   unset(CMAKE_REQUIRED_LIBRARIES)
+# NOTE:
+# There is a bug in MKL such that, if the following line is used,
+# there is sometimes an error of the form
+#
+#   Intel MKL FATAL ERROR: Cannot load libmkl_avx2.so or libmkl_def.so.
+#
+# when running the executable. Should this occur, manually specify
+#
+#   MATH_LIBS="-L/path/to/mkl/libs -lmkl_rt"
+#
+# e.g.,
+#
+#   MATH_LIBS="-L/opt/intel/mkl/lib/intel64 -lmkl_rt"
+#       
+# Due to this error, as well as the fact that there is no simple support for
+# the ILP64 interface (which is needed when EL_USE_64BIT_BLAS_INTS is enabled),
+# the "-mkl=" detection is now disabled (by the 'AND FALSE' clause).
 elseif(NOT EL_DISABLE_MKL AND
+       NOT EL_USE_64BIT_BLAS_INTS AND
        NOT EL_PREFER_OPENBLAS AND
        NOT EL_PREFER_APPLE_MATH AND
-       NOT EL_PREFER_BLIS_LAPACK)
+       NOT EL_PREFER_BLIS_LAPACK AND
+       FALSE)
   if(EL_HYBRID)
     set(MKL_LIBS "-mkl=parallel")
     message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
@@ -104,19 +123,6 @@ elseif(NOT EL_DISABLE_MKL AND
     unset(CMAKE_REQUIRED_LIBRARIES)
 
     if(NOT EL_FOUND_MKL)
-      # NOTE: There is a bug in MKL such that, if the following line is used,
-      #       there is sometimes an error of the form
-      #
-      #   Intel MKL FATAL ERROR: Cannot load libmkl_avx2.so or libmkl_def.so.
-      #
-      #        when running the executable. Should this occur, manually specify
-      #
-      #   MATH_LIBS="-L/path/to/mkl/libs -lmkl_rt"
-      #
-      #        e.g.,
-      #
-      #   MATH_LIBS="-L/opt/intel/mkl/lib/intel64 -lmkl_rt"
-      #       
       set(MKL_LIBS "-mkl=sequential")
       message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
       set(CMAKE_REQUIRED_FLAGS ${MKL_LIBS})
@@ -138,7 +144,7 @@ elseif(NOT EL_DISABLE_MKL AND
   endif()
 endif()
 
-if(APPLE)
+if(APPLE AND NOT EL_USE_64BIT_BLAS_INTS)
   # Check for Accelerate
   # ^^^^^^^^^^^^^^^^^^^^
   message(STATUS "Testing for LAPACK support via Accelerate")
@@ -180,11 +186,14 @@ endif()
 
 # Check for reference BLAS/LAPACK
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-find_package(LAPACK)
-if(LAPACK_FOUND AND NOT MATH_LIBS_AT_CONFIG)
-  if(MSVC OR NOT FORTRAN_WORKS OR 
-    (EL_DISABLE_OPENBLAS AND EL_DISABLE_BLIS_LAPACK))
-    set(MATH_LIBS_AT_CONFIG "${LAPACK_LINKER_FLAGS};${LAPACK_LIBRARIES}")
+# TODO: Enable support for 64-bit integer version
+if(NOT EL_USE_64BIT_BLAS_INTS)
+  find_package(LAPACK)
+  if(LAPACK_FOUND AND NOT MATH_LIBS_AT_CONFIG)
+    if(MSVC OR NOT FORTRAN_WORKS OR 
+      (EL_DISABLE_OPENBLAS AND EL_DISABLE_BLIS_LAPACK))
+      set(MATH_LIBS_AT_CONFIG "${LAPACK_LINKER_FLAGS};${LAPACK_LIBRARIES}")
+    endif()
   endif()
 endif()
 
@@ -360,7 +369,6 @@ if(NOT EL_DISABLE_QUAD)
       set(EL_HAVE_QUAD TRUE)
       list(APPEND MATH_LIBS ${QUADMATH_LIB})
       list(APPEND MATH_LIBS_AT_CONFIG ${QUADMATH_LIB})
-      message(WARNING "The usage of libquadmath effectively moves the Elemental build from the permissive New BSD License to the GPL; if this is not acceptable, it is necessary to reconfigure with the 'EL_DISABLE_QUAD=ON' option")
     else()
       message(WARNING "Found libquadmath but could not use it in C++")
     endif()
@@ -368,39 +376,72 @@ if(NOT EL_DISABLE_QUAD)
   endif()
 endif()
 
-# Check for MPFR *and* MPC support
-# ================================
+# Check for GMP, MPFR, *and* MPC support
+# ======================================
 if(NOT EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
   message("Disabling MPFR since MPI_LONG_LONG was not detected")
 endif()
 if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
-  # TODO: See if this requirement could be lowered
-  find_package(MPFR 3.1.0)
-  if(MPFR_FOUND)
-    set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES})
-    set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES})
-    set(MPFR_CODE
-      "#include \"mpfr.h\"
+  find_package(GMP 6.0.0)
+  if(GMP_FOUND)
+    set(CMAKE_REQUIRED_LIBRARIES ${GMP_LIBRARIES})
+    set(CMAKE_REQUIRED_INCLUDES ${GMP_INCLUDES})
+    set(GMP_CODE
+      "#include \"gmp.h\"
        int main( int argc, char* argv[] )
        {
-           mpfr_t a;
-           mpfr_prec_t prec = 256;
-           mpfr_init2( a, prec );
+           gmp_randstate_t randState;
+           gmp_randinit_default( randState );
+           const long seed = 1024;
+           gmp_randseed_ui( randState, seed );
            return 0;
        }")
-    check_cxx_source_compiles("${MPFR_CODE}" EL_HAVE_MPFR)
-    if(NOT EL_HAVE_MPFR)
-      message(WARNING "Found MPFR but could not successfully compile with it")
+    check_cxx_source_compiles("${GMP_CODE}" EL_HAVE_GMP)
+    if(NOT EL_HAVE_GMP)
+      message(WARNING "Found GMP but could not successfully compile with it")
     endif()
     unset(CMAKE_REQUIRED_LIBRARIES)
     unset(CMAKE_REQUIRED_INCLUDES)
   endif()
 
-  if(EL_HAVE_MPFR)
+  if(EL_HAVE_GMP)
+    # TODO: See if this requirement could be lowered
+    find_package(MPFR 3.1.0)
+    if(MPFR_FOUND)
+      set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+      set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES} ${GMP_INCLUDES})
+      set(MPFR_CODE
+        "#include \"mpfr.h\"
+         int main( int argc, char* argv[] )
+         {
+             mpfr_t a;
+             mpfr_prec_t prec = 256;
+             mpfr_init2( a, prec );
+  
+             /* Also test that GMP links */
+             gmp_randstate_t randState;
+             gmp_randinit_default( randState );
+             const long seed = 1024;
+             gmp_randseed_ui( randState, seed );
+             
+             return 0;
+         }")
+      check_cxx_source_compiles("${MPFR_CODE}" EL_HAVE_MPFR)
+      if(NOT EL_HAVE_MPFR)
+        message(WARNING "Found MPFR but could not successfully compile with it")
+      endif()
+      unset(CMAKE_REQUIRED_LIBRARIES)
+      unset(CMAKE_REQUIRED_INCLUDES)
+    endif()
+  endif()
+
+  if(EL_HAVE_GMP AND EL_HAVE_MPFR)
     find_package(MPC 1.0.0)
     if(MPC_FOUND) 
-      set(CMAKE_REQUIRED_LIBRARIES ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
-      set(CMAKE_REQUIRED_INCLUDES ${MPC_INCLUDES} ${MPFR_INCLUDES})
+      set(CMAKE_REQUIRED_LIBRARIES
+        ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+      set(CMAKE_REQUIRED_INCLUDES
+        ${MPC_INCLUDES} ${MPFR_INCLUDES} ${GMP_INCLUDES})
       set(MPC_CODE
         "#include \"mpc.h\" 
         int main( int argc, char* argv[] )
@@ -408,14 +449,23 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
             mpc_t a;
             mpfr_prec_t prec = 256;
             mpc_init2( a, prec );
+            
+            /* Also test that GMP links */
+            gmp_randstate_t randState;
+            gmp_randinit_default( randState );
+            const long seed = 1024;
+            gmp_randseed_ui( randState, seed );
+            
             return 0;
         }")
       check_cxx_source_compiles("${MPC_CODE}" EL_HAVE_MPC)
       if(EL_HAVE_MPC)
-        list(APPEND MATH_LIBS ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
-        list(APPEND MATH_LIBS_AT_CONFIG ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
-        message(STATUS "Including ${MPFR_INCLUDES} and ${MPC_INCLUDES} to add support for MPFR and MPC")
-        include_directories(${MPFR_INCLUDES} ${MPC_INCLUDES})
+        list(APPEND MATH_LIBS
+          ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+        list(APPEND MATH_LIBS_AT_CONFIG
+          ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+        message(STATUS "Including ${MPFR_INCLUDES}, ${MPC_INCLUDES}, and ${GMP_INCLUDES} to add support for GMP, MPFR, and MPC")
+        include_directories(${GMP_INCLUDES} ${MPFR_INCLUDES} ${MPC_INCLUDES})
       else()
         message(WARNING "Found MPC but could not successfully compile with it")
       endif()

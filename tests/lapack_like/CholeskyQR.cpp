@@ -22,24 +22,24 @@ void TestCorrectness
 
     // Form I - Q^H Q
     if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of Q..." << endl;
+        Output("  Testing orthogonality of Q");
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
-    Herk( UPPER, ADJOINT, F(-1), Q_MC_MR, F(1), Z );
+    Herk( UPPER, ADJOINT, Base<F>(-1), Q_MC_MR, Base<F>(1), Z );
     Real oneNormOfError = HermitianOneNorm( UPPER, Z );
     Real infNormOfError = HermitianInfinityNorm( UPPER, Z );
     Real frobNormOfError = HermitianFrobeniusNorm( UPPER, Z );
     if( g.Rank() == 0 )
     {
-        cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
-             << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+        Output("    ||Q^H Q - I||_1  = ",oneNormOfError);
+        Output("    ||Q^H Q - I||_oo = ",infNormOfError);
+        Output("    ||Q^H Q - I||_F  = ",frobNormOfError);
     }
 
     // Form A - Q R
     if( g.Rank() == 0 )
-        cout << "  Testing if A = QR..." << endl;
+        Output("  Testing if A = QR");
     const Real oneNormOfA = OneNorm( A );
     const Real infNormOfA = InfinityNorm( A );
     const Real frobNormOfA = FrobeniusNorm( A );
@@ -49,20 +49,25 @@ void TestCorrectness
     frobNormOfError = FrobeniusNorm( A );
     if( g.Rank() == 0 )
     {
-        cout << "    ||A||_1       = " << oneNormOfA << "\n"
-             << "    ||A||_oo      = " << infNormOfA << "\n"
-             << "    ||A||_F       = " << frobNormOfA << "\n"
-             << "    ||A - QR||_1  = " << oneNormOfError << "\n"
-             << "    ||A - QR||_oo = " << infNormOfError << "\n"
-             << "    ||A - QR||_F  = " << frobNormOfError << endl;
+        Output("    ||A||_1       = ",oneNormOfA);
+        Output("    ||A||_oo      = ",infNormOfA);
+        Output("    ||A||_F       = ",frobNormOfA);
+        Output("    ||A - QR||_1  = ",oneNormOfError);
+        Output("    ||A - QR||_oo = ",infNormOfError);
+        Output("    ||A - QR||_F  = ",frobNormOfError);
     }
 }
 
 template<typename F>
 void TestQR
-( bool testCorrectness, bool print,
-  Int m, Int n, const Grid& g )
+( bool testCorrectness,
+  bool print,
+  Int m,
+  Int n,
+  const Grid& g )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F,VC,STAR> A(g), Q(g);
     DistMatrix<F,STAR,STAR> R(g);
 
@@ -72,10 +77,7 @@ void TestQR
     Q = A;
 
     if( g.Rank() == 0 )
-    {
-        cout << "  Starting Cholesky QR factorization...";
-        cout.flush();
-    }
+        Output("  Starting Cholesky QR factorization");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     qr::Cholesky( Q, R );
@@ -85,11 +87,7 @@ void TestQR
     const double nD = double(n);
     const double gFlops = (2.*mD*nD*nD + 1./3.*nD*nD*nD)/(1.e9*runTime);
     if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+        Output("  Time: ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( Q, "Q" );
@@ -104,7 +102,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -122,16 +119,9 @@ main( int argc, char* argv[] )
         const Grid g( comm, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            cout << "Will test CholeskyQR" << endl;
 
-        if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
         TestQR<double>( testCorrectness, print, m, n, g );
-
-        if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
-        TestQR<double>( testCorrectness, print, m, n, g );
+        TestQR<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }
 

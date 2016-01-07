@@ -52,8 +52,10 @@ namespace bpdn {
 
 template<typename Real>
 void IPM
-( const Matrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,           Matrix<Real>& x,
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
+        Real lambda,
+        Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::IPM"))
@@ -110,8 +112,10 @@ void IPM
 
 template<typename Real>
 void IPM
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, 
-        Real lambda,                       ElementalMatrix<Real>& x,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
+        Real lambda,
+        ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::IPM"))
@@ -168,8 +172,10 @@ void IPM
 
 template<typename Real>
 void IPM
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,                 Matrix<Real>& x,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, 
+        Real lambda,
+        Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::IPM"))
@@ -235,8 +241,10 @@ void IPM
 
 template<typename Real>
 void IPM
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
-        Real lambda,                     DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, 
+        Real lambda,
+        DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bpdn::IPM"))

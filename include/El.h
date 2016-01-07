@@ -30,10 +30,10 @@
 #include "El/core/DistSparseMatrix.h"
 #include "El/core/DistMultiVec.h"
 #include "El/core/View.h"
-#include "El/core/flame_part/Merge.h"
-#include "El/core/flame_part/Partition.h"
-#include "El/core/flame_part/Repartition.h"
-#include "El/core/flame_part/SlidePartition.h"
+#include "El/core/FlamePart/Merge.h"
+#include "El/core/FlamePart/Partition.h"
+#include "El/core/FlamePart/Repartition.h"
+#include "El/core/FlamePart/SlidePartition.h"
 
 #include "El/io.h"
 

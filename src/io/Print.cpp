@@ -174,12 +174,6 @@ void Print( const vector<T>& x, string title, ostream& os )
   template void Print \
   ( const DistSparseMatrix<T>& A, string title, ostream& os );
 
-#define PROTO_BIGFLOAT \
-  template void Print \
-  ( const vector<BigFloat>& x, string title, ostream& os ); \
-  template void Print \
-  ( const Matrix<BigFloat>& A, string title, ostream& os );
-
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

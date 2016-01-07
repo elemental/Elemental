@@ -448,19 +448,54 @@ template<typename Real>
 void TaggedSend( const Real* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { 
-    DEBUG_ONLY(CSE cse("mpi::Send"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend"))
     SafeMpi( 
       MPI_Send
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm )
     );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedSend( const T* buf, int count, int to, int tag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedTaggedSend"))
+    std::vector<byte> packedBuf;
+    Serialize( count, buf, packedBuf );
+    SafeMpi( 
+      MPI_Send( packedBuf.data(), count, TypeMap<T>(), to, tag, comm.comm )
+    );
+}
+template<>
+void TaggedSend( const BigFloat* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend [BigFloat]"))
+    PackedTaggedSend( buf, count, to, tag, comm );
+}
+template<>
+void TaggedSend
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend [ValueInt<BigFloat>]"))
+    PackedTaggedSend( buf, count, to, tag, comm );
+}
+template<>
+void TaggedSend
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend [Entry<BigFloat>]"))
+    PackedTaggedSend( buf, count, to, tag, comm );
+}
+#endif
 
 template<typename Real>
 void TaggedSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("mpi::Send"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Send
@@ -497,6 +532,44 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
         tag, comm.comm, &request ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedISend
+( const T* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedTaggedISend"))
+    LogicError
+    ("Elemental does not yet support non-blocking BigFloat communication");
+}
+
+template<>
+void TaggedISend
+( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedISend [BigFloat]"))
+    PackedTaggedISend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISend
+( const ValueInt<BigFloat>* buf, int count, int to, int tag,
+  Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedISend [ValueInt<BigFloat>]"))
+    PackedTaggedISend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISend
+( const Entry<BigFloat>* buf, int count, int to, int tag,
+  Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedISend [Entry<BigFloat>]"))
+    PackedTaggedISend( buf, count, to, tag, comm, request );
+}
+#endif
 
 template<typename Real>
 void TaggedISend
@@ -544,6 +617,44 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
         tag, comm.comm, &request ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedISSend
+( const T* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedISSend"))
+    LogicError
+    ("Elemental does not yet support non-blocking BigFloat communication");
+}
+
+template<>
+void TaggedISSend
+( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ISSend [BigFloat]"))
+    PackedTaggedISSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISSend
+( const ValueInt<BigFloat>* buf, int count, int to, int tag,
+  Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ISSend [ValueInt<BigFloat>]"))
+    PackedTaggedISSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISSend
+( const Entry<BigFloat>* buf, int count, int to, int tag,
+  Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ISSend [Entry<BigFloat>]"))
+    PackedTaggedISSend( buf, count, to, tag, comm, request );
+}
+#endif
 
 template<typename Real>
 void TaggedISSend
@@ -579,11 +690,49 @@ template<typename Real>
 void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("mpi::Recv"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv"))
     Status status;
     SafeMpi
     ( MPI_Recv( buf, count, TypeMap<Real>(), from, tag, comm.comm, &status ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedRecv( T* buf, int count, int from, int tag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedTaggedRecv"))
+    std::vector<byte> packedBuf;
+    ReserveSerialized( count, buf, packedBuf );
+    Status status;
+    SafeMpi
+    ( MPI_Recv
+      ( packedBuf.data(), count, TypeMap<T>(), from, tag,
+        comm.comm, &status ) );
+    Deserialize( count, packedBuf, buf );
+}
+
+template<>
+void TaggedRecv( BigFloat* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv [BigFloat]"))
+    PackedTaggedRecv( buf, count, from, tag, comm );
+}
+template<>
+void TaggedRecv
+( ValueInt<BigFloat>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv [ValueInt<BigFloat>]"))
+    PackedTaggedRecv( buf, count, from, tag, comm );
+}
+template<>
+void TaggedRecv( Entry<BigFloat>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv [Entry<BigFloat>]"))
+    PackedTaggedRecv( buf, count, from, tag, comm );
+}
+#endif
 
 template<typename Real>
 void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
@@ -621,11 +770,49 @@ void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, Request& request )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("mpi::IRecv"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRecv"))
     SafeMpi
     ( MPI_Irecv
       ( buf, count, TypeMap<Real>(), from, tag, comm.comm, &request ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedIRecv
+( T* buf, int count, int from, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedTaggedIRecv"))
+    LogicError
+    ("Elemental does not yet support non-blocking BigFloat communication");
+}
+
+template<>
+void TaggedIRecv
+( BigFloat* buf, int count, int from, int tag, Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [BigFloat]"))
+    PackedTaggedIRecv( buf, count, from, tag, comm, request );
+}
+template<>
+void TaggedIRecv
+( ValueInt<BigFloat>* buf, int count, int from, int tag,
+  Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [ValueInt<BigFloat>]"))
+    PackedTaggedIRecv( buf, count, from, tag, comm, request );
+}
+template<>
+void TaggedIRecv
+( Entry<BigFloat>* buf, int count, int from, int tag,
+  Comm comm, Request& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [Entry<BigFloat>]"))
+    PackedTaggedIRecv( buf, count, from, tag, comm, request );
+}
+#endif
 
 template<typename Real>
 void TaggedIRecv
@@ -665,7 +852,7 @@ void TaggedSendRecv
         Real* rbuf, int rc, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("mpi::SendRecv"))
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv"))
     Status status;
     SafeMpi
     ( MPI_Sendrecv
@@ -673,6 +860,50 @@ EL_NO_RELEASE_EXCEPT
         rbuf,                    rc, TypeMap<Real>(), from, rtag, 
         comm.comm, &status ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedSendRecv
+( const T* sbuf, int sc, int to,   int stag,
+        T* rbuf, int rc, int from, int rtag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedTaggedSendRecv"))
+    Status status;
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( sc, sbuf, packedSend );
+    ReserveSerialized( rc, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Sendrecv
+      ( packedSend.data(), sc, TypeMap<T>(), to,   stag,
+        packedRecv.data(), rc, TypeMap<T>(), from, rtag, 
+        comm.comm, &status ) );
+    Deserialize( rc, packedRecv, rbuf );
+}
+
+template<>
+void TaggedSendRecv
+( const BigFloat* sbuf, int sc, int to,   int stag,
+        BigFloat* rbuf, int rc, int from, int rtag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [BigFloat]"))
+    PackedTaggedSendRecv( sbuf, sc, to, stag, rbuf, rc, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( const ValueInt<BigFloat>* sbuf, int sc, int to,   int stag,
+        ValueInt<BigFloat>* rbuf, int rc, int from, int rtag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [ValueInt<BigFloat>]"))
+    PackedTaggedSendRecv( sbuf, sc, to, stag, rbuf, rc, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( const Entry<BigFloat>* sbuf, int sc, int to,   int stag,
+        Entry<BigFloat>* rbuf, int rc, int from, int rtag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [Entry<BigFloat>]"))
+    PackedTaggedSendRecv( sbuf, sc, to, stag, rbuf, rc, from, rtag, comm );
+}
+#endif
 
 template<typename Real>
 void TaggedSendRecv
@@ -730,6 +961,50 @@ EL_NO_RELEASE_EXCEPT
     ( MPI_Sendrecv_replace
       ( buf, count, TypeMap<Real>(), to, stag, from, rtag, comm.comm, &status ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedSendRecv
+( T* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedTaggedSendRecv"))
+    std::vector<byte> packedBuf;
+    ReserveSerialized( count, buf, packedBuf );
+    Status status;
+    SafeMpi
+    ( MPI_Sendrecv_replace
+      ( packedBuf.data(), count, TypeMap<T>(), to, stag, from, rtag,
+        comm.comm, &status ) );
+    Deserialize( count, packedBuf, buf );
+}
+
+template<>
+void TaggedSendRecv
+( BigFloat* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [BigFloat]"))
+    PackedTaggedSendRecv( buf, count, to, stag, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( ValueInt<BigFloat>* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [ValueInt<BigFloat>]"))
+    PackedTaggedSendRecv( buf, count, to, stag, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( Entry<BigFloat>* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [Entry<BigFloat>]"))
+    PackedTaggedSendRecv( buf, count, to, stag, from, rtag, comm );
+}
+#endif
 
 template<typename Real>
 void TaggedSendRecv
@@ -762,10 +1037,48 @@ void Broadcast( Real* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Broadcast"))
-    if( Size(comm) == 1 )
+    if( Size(comm) == 1 || count == 0 )
         return;
     SafeMpi( MPI_Bcast( buf, count, TypeMap<Real>(), root, comm.comm ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedBroadcast( T* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedBroadcast"))
+    if( Size(comm) == 1 || count == 0 )
+        return;
+    std::vector<byte> packedBuf;
+    Serialize( count, buf, packedBuf );
+    SafeMpi(
+      MPI_Bcast( packedBuf.data(), count, TypeMap<T>(), root, comm.comm )
+    );
+    Deserialize( count, packedBuf, buf );
+}
+
+template<>
+void Broadcast( BigFloat* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Broadcast [BigFloat]"))
+    PackedBroadcast( buf, count, root, comm );
+}
+template<>
+void Broadcast( ValueInt<BigFloat>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Broadcast [ValueInt<BigFloat>]"))
+    PackedBroadcast( buf, count, root, comm );
+}
+template<>
+void Broadcast( Entry<BigFloat>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Broadcast [Entry<BigFloat>]"))
+    PackedBroadcast( buf, count, root, comm );
+}
+#endif
 
 template<typename Real>
 void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
@@ -796,6 +1109,38 @@ void IBroadcast( Real* buf, int count, int root, Comm comm, Request& request )
     LogicError("Elemental was not configured with non-blocking support");
 #endif
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedIBroadcast
+( T* buf, int count, int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedIBroadcast"))
+    LogicError
+    ("Elemental does not yet support non-blocking BigFloat communication");
+}
+
+template<>
+void IBroadcast
+( BigFloat* buf, int count, int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast [BigFloat]"))
+    PackedIBroadcast( buf, count, root, comm, request );
+}
+template<>
+void IBroadcast
+( ValueInt<BigFloat>* buf, int count, int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast [ValueInt<BigFloat>]"))
+    PackedIBroadcast( buf, count, root, comm, request );
+}
+template<>
+void IBroadcast
+( Entry<BigFloat>* buf, int count, int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast [Entry<BigFloat>]"))
+    PackedIBroadcast( buf, count, root, comm, request );
+}
+#endif
 
 template<typename Real>
 void IBroadcast
@@ -832,6 +1177,59 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
         rbuf,                    rc, TypeMap<Real>(), root, comm.comm ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedGather
+( const T* sbuf, int sc,
+        T* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedGather"))
+    const int commSize = mpi::Size(comm);
+    const int commRank = mpi::Rank(comm);
+    const int totalRecv = rc*commSize;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( sc, sbuf, packedSend );
+
+    if( commRank == root )
+        ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Gather
+      ( packedSend.data(), sc, TypeMap<T>(),
+        packedRecv.data(), rc, TypeMap<T>(), root, comm.comm ) );
+    if( commRank == root )
+        Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void Gather
+( const BigFloat* sbuf, int sc,
+        BigFloat* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [BigFloat]"))
+    PackedGather( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Gather
+( const ValueInt<BigFloat>* sbuf, int sc,
+        ValueInt<BigFloat>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [ValueInt<BigFloat>]"))
+    PackedGather( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Gather
+( const Entry<BigFloat>* sbuf, int sc,
+        Entry<BigFloat>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [Entry<BigFloat>]"))
+    PackedGather( sbuf, sc, rbuf, rc, root, comm );
+}
+#endif
 
 template<typename Real>
 void Gather
@@ -869,6 +1267,44 @@ void IGather
     LogicError("Elemental was not configured with non-blocking support");
 #endif
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedIGather
+( const T* sbuf, int sc,
+        T* rbuf, int rc, int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedIGather"))
+    LogicError
+    ("Elemental does not yet support non-blocking BigFloat communication");
+}
+
+template<>
+void IGather
+( const BigFloat* sbuf, int sc,
+        BigFloat* rbuf, int rc, int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IGather [BigFloat]"))
+    PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
+}
+template<>
+void IGather
+( const ValueInt<BigFloat>* sbuf, int sc,
+        ValueInt<BigFloat>* rbuf, int rc,
+  int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IGather [ValueInt<BigFloat>]"))
+    PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
+}
+template<>
+void IGather
+( const Entry<BigFloat>* sbuf, int sc,
+        Entry<BigFloat>* rbuf, int rc,
+  int root, Comm comm, Request& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IGather [Entry<BigFloat>]"))
+    PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
+}
+#endif
 
 template<typename Real>
 void IGather
@@ -914,6 +1350,71 @@ EL_NO_RELEASE_EXCEPT
         root, 
         comm.comm ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedGather
+( const T* sbuf, int sc,
+        T* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedGather"))
+    const int commSize = mpi::Size(comm);
+    const int commRank = mpi::Rank(comm);
+    int totalRecv=0;
+    if( commRank == root )
+        totalRecv = rcs[commSize-1]+rds[commSize-1];
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( sc, sbuf, packedSend );
+
+    if( commRank == root )
+        ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Gatherv
+      ( packedSend.data(),
+        sc,
+        TypeMap<T>(),
+        packedRecv.data(),
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
+        TypeMap<T>(),
+        root,
+        comm.comm ) );
+    if( commRank == root )
+        Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void Gather
+( const BigFloat* sbuf, int sc,
+        BigFloat* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [BigFloat]"))
+    PackedGather( sbuf, sc, rbuf, rcs, rds, root, comm );
+}
+template<>
+void Gather
+( const ValueInt<BigFloat>* sbuf, int sc,
+        ValueInt<BigFloat>* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [ValueInt<BigFloat>]"))
+    PackedGather( sbuf, sc, rbuf, rcs, rds, root, comm );
+}
+template<>
+void Gather
+( const Entry<BigFloat>* sbuf, int sc,
+        Entry<BigFloat>* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [Entry<BigFloat>]"))
+    PackedGather( sbuf, sc, rbuf, rcs, rds, root, comm );
+}
+#endif
 
 template<typename Real>
 void Gather
@@ -977,6 +1478,56 @@ EL_NO_RELEASE_EXCEPT
         rbuf,                    rc, TypeMap<Real>(), comm.comm ) );
 #endif
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedAllGather
+( const T* sbuf, int sc,
+        T* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedAllGather"))
+    const int commSize = mpi::Size(comm);
+    const int totalRecv = rc*commSize;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( sc, sbuf, packedSend );
+
+    ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Allgather
+      ( packedSend.data(), sc, TypeMap<T>(),
+        packedRecv.data(), rc, TypeMap<T>(), comm.comm ) );
+    Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void AllGather
+( const BigFloat* sbuf, int sc,
+        BigFloat* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllGather [BigFloat]"))
+    PackedAllGather( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllGather
+( const ValueInt<BigFloat>* sbuf, int sc,
+        ValueInt<BigFloat>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllGather [ValueInt<BigFloat>]"))
+    PackedAllGather( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllGather
+( const Entry<BigFloat>* sbuf, int sc,
+        Entry<BigFloat>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllGather [Entry<BigFloat>]"))
+    PackedAllGather( sbuf, sc, rbuf, rc, comm );
+}
+#endif
 
 template<typename Real>
 void AllGather
@@ -1042,6 +1593,62 @@ EL_NO_RELEASE_EXCEPT
         comm.comm ) );
 #endif
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedAllGather
+( const T* sbuf, int sc,
+        T* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedAllgather"))
+    const int commSize = mpi::Size(comm);
+    const int totalRecv = rcs[commSize-1]+rds[commSize-1];
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( sc, sbuf, packedSend );
+
+    ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Allgatherv
+      ( packedSend.data(),
+        sc,
+        TypeMap<T>(),
+        packedRecv.data(),
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
+        TypeMap<T>(),
+        comm.comm ) );
+    Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void AllGather
+( const BigFloat* sbuf, int sc,
+        BigFloat* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Allgather [BigFloat]"))
+    PackedAllGather( sbuf, sc, rbuf, rcs, rds, comm );
+}
+template<>
+void AllGather
+( const ValueInt<BigFloat>* sbuf, int sc,
+        ValueInt<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Allgather [ValueInt<BigFloat>]"))
+    PackedAllGather( sbuf, sc, rbuf, rcs, rds, comm );
+}
+template<>
+void AllGather
+( const Entry<BigFloat>* sbuf, int sc,
+        Entry<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Allgather [Entry<BigFloat>]"))
+    PackedAllGather( sbuf, sc, rbuf, rcs, rds, comm );
+}
+#endif
 
 template<typename Real>
 void AllGather
@@ -1105,6 +1712,58 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
         rbuf,                    rc, TypeMap<Real>(), root, comm.comm ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedScatter
+( const T* sbuf, int sc,
+        T* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedScatter"))
+    const int commSize = mpi::Size(comm);
+    const int commRank = mpi::Rank(comm);
+    const int totalSend = sc*commSize;
+
+    std::vector<byte> packedSend, packedRecv;
+    if( commRank == root )
+        Serialize( totalSend, sbuf, packedSend );
+
+    ReserveSerialized( rc, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Scatter
+      ( packedSend.data(), sc, TypeMap<T>(),
+        packedRecv.data(), rc, TypeMap<T>(), root, comm.comm ) );
+    Deserialize( rc, packedRecv, rbuf );
+}
+
+template<>
+void Scatter
+( const BigFloat* sbuf, int sc,
+        BigFloat* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [BigFloat]"))
+    PackedScatter( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Scatter
+( const ValueInt<BigFloat>* sbuf, int sc,
+        ValueInt<BigFloat>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [ValueInt<BigFloat>]"))
+    PackedScatter( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Scatter
+( const Entry<BigFloat>* sbuf, int sc,
+        Entry<BigFloat>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [Entry<BigFloat>]"))
+    PackedScatter( sbuf, sc, rbuf, rc, root, comm );
+}
+#endif
 
 template<typename Real>
 void Scatter
@@ -1136,20 +1795,10 @@ EL_NO_RELEASE_EXCEPT
     const int commRank = Rank( comm );
     if( commRank == root )
     {
-#ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scatter
           ( buf,          sc, TypeMap<Real>(), 
             MPI_IN_PLACE, rc, TypeMap<Real>(), root, comm.comm ) );
-#else
-        const int commSize = Size( comm );
-        vector<Real> sendBuf( sc*commSize );
-        MemCopy( sendBuf.data(), buf, sc*commSize );
-        SafeMpi
-        ( MPI_Scatter
-          ( sendBuf.data(), sc, TypeMap<Real>(), 
-            buf,            rc, TypeMap<Real>(), root, comm.comm ) );
-#endif
     }
     else
     {
@@ -1159,6 +1808,52 @@ EL_NO_RELEASE_EXCEPT
             buf, rc, TypeMap<Real>(), root, comm.comm ) );
     }
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedScatter( T* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedScatter"))
+    const int commSize = mpi::Size(comm);
+    const int commRank = mpi::Rank(comm);
+    const int totalSend = sc*commSize;
+
+    // TODO: Use in-place option?
+
+    std::vector<byte> packedSend, packedRecv;
+    if( commRank == root )
+        Serialize( totalSend, buf, packedSend );
+
+    ReserveSerialized( rc, buf, packedRecv );
+    SafeMpi
+    ( MPI_Scatter
+      ( packedSend.data(), sc, TypeMap<T>(),
+        packedRecv.data(), rc, TypeMap<T>(), root, comm.comm ) );
+    Deserialize( rc, packedRecv, buf );
+}
+
+template<>
+void Scatter( BigFloat* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [BigFloat]"))
+    PackedScatter( buf, sc, rc, root, comm );
+}
+template<>
+void Scatter( ValueInt<BigFloat>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [ValueInt<BigFloat>]"))
+    PackedScatter( buf, sc, rc, root, comm );
+}
+template<>
+void Scatter( Entry<BigFloat>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [Entry<BigFloat>]"))
+    PackedScatter( buf, sc, rc, root, comm );
+}
+#endif
 
 template<typename Real>
 void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
@@ -1169,37 +1864,15 @@ EL_NO_RELEASE_EXCEPT
     if( commRank == root )
     {
 #ifdef EL_AVOID_COMPLEX_MPI
-# ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scatter
           ( buf,          2*sc, TypeMap<Real>(), 
             MPI_IN_PLACE, 2*rc, TypeMap<Real>(), root, comm.comm ) );
-# else
-        const int commSize = Size( comm );
-        vector<Complex<Real>> sendBuf;
-        FastResize( sendBuf, sc*commSize );
-        MemCopy( sendBuf.data(), buf, sc*commSize );
-        SafeMpi
-        ( MPI_Scatter
-          ( sendBuf.data(), 2*sc, TypeMap<Real>(),          
-            buf,            2*rc, TypeMap<Real>(), root, comm.comm ) );
-# endif
 #else
-# ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scatter
           ( buf,          sc, TypeMap<Complex<Real>>(), 
             MPI_IN_PLACE, rc, TypeMap<Complex<Real>>(), root, comm.comm ) );
-# else
-        const int commSize = Size( comm );
-        vector<Complex<Real>> sendBuf;
-        FastResize( sendBuf, sc*commSize );
-        MemCopy( sendBuf.data(), buf, sc*commSize );
-        SafeMpi
-        ( MPI_Scatter
-          ( sendBuf.data(), sc, TypeMap<Complex<Real>>(),
-            buf,            rc, TypeMap<Complex<Real>>(), root, comm.comm ) );
-# endif
 #endif
     }
     else
@@ -1230,6 +1903,56 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
         rbuf,                    rc, TypeMap<Real>(), comm.comm ) );
 }
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedAllToAll
+( const T* sbuf, int sc,
+        T* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedAllToAll"))
+    const int commSize = mpi::Size( comm );
+    const int totalSend = sc*commSize;
+    const int totalRecv = rc*commSize;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( totalSend, sbuf, packedSend );
+    ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Alltoall
+      ( packedSend.data(), sc, TypeMap<T>(),
+        packedRecv.data(), rc, TypeMap<T>(), comm.comm ) );
+    Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void AllToAll
+( const BigFloat* sbuf, int sc,
+        BigFloat* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [BigFloat]"))
+    PackedAllToAll( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllToAll
+( const ValueInt<BigFloat>* sbuf, int sc,
+        ValueInt<BigFloat>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [ValueInt<BigFloat>]"))
+    PackedAllToAll( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllToAll
+( const Entry<BigFloat>* sbuf, int sc,
+        Entry<BigFloat>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [Entry<BigFloat>]"))
+    PackedAllToAll( sbuf, sc, rbuf, rc, comm );
+}
+#endif
 
 template<typename Real>
 void AllToAll
@@ -1270,6 +1993,60 @@ EL_NO_RELEASE_EXCEPT
         TypeMap<Real>(),
         comm.comm ) );
 }
+
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedAllToAll
+( const T* sbuf, const int* scs, const int* sds,
+        T* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedAllToAll"))
+    const int commSize = mpi::Size( comm );
+    const int totalSend = scs[commSize-1]+sds[commSize-1];
+    const int totalRecv = rcs[commSize-1]+rds[commSize-1];
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( totalSend, sbuf, packedSend );
+    ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Alltoallv
+      ( packedSend.data(),
+        const_cast<int*>(scs), const_cast<int*>(sds), TypeMap<T>(),
+        packedRecv.data(),
+        const_cast<int*>(rcs), const_cast<int*>(rds), TypeMap<T>(),
+        comm.comm ) );
+    Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void AllToAll
+( const BigFloat* sbuf, const int* scs, const int* sds,
+        BigFloat* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [BigFloat]"))
+    PackedAllToAll( sbuf, scs, sds, rbuf, rcs, rds, comm );
+}
+template<>
+void AllToAll
+( const ValueInt<BigFloat>* sbuf, const int* scs, const int* sds,
+        ValueInt<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [ValueInt<BigFloat>]"))
+    PackedAllToAll( sbuf, scs, sds, rbuf, rcs, rds, comm );
+}
+template<>
+void AllToAll
+( const Entry<BigFloat>* sbuf, const int* scs, const int* sds,
+        Entry<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [Entry<BigFloat>]"))
+    PackedAllToAll( sbuf, scs, sds, rbuf, rcs, rds, comm );
+}
+#endif
 
 template<typename Real>
 void AllToAll
@@ -1355,6 +2132,68 @@ EL_NO_RELEASE_EXCEPT
         opC, root, comm.comm ) );
 }
 
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedReduce
+( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedReduce"))
+    if( count == 0 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    const int commRank = mpi::Rank(comm);
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( count, sbuf, packedSend );
+
+    if( commRank == root )
+        ReserveSerialized( count, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Reduce
+      ( packedSend.data(), packedRecv.data(), count, TypeMap<T>(),
+        opC, root, comm.comm ) );
+    if( commRank == root )
+        Deserialize( count, packedRecv, rbuf );
+}
+
+template<>
+void Reduce
+( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [BigFloat]"))
+    PackedReduce( sbuf, rbuf, count, op, root, comm );
+}
+template<>
+void Reduce
+( const ValueInt<BigFloat>* sbuf,
+        ValueInt<BigFloat>* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [ValueInt<BigFloat>]"))
+    PackedReduce( sbuf, rbuf, count, op, root, comm );
+}
+template<>
+void Reduce
+( const Entry<BigFloat>* sbuf,
+        Entry<BigFloat>* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [Entry<BigFloat>]"))
+    PackedReduce( sbuf, rbuf, count, op, root, comm );
+}
+#endif
+
 template<typename Real>
 void Reduce
 ( const Complex<Real>* sbuf, 
@@ -1439,25 +2278,74 @@ EL_NO_RELEASE_EXCEPT
     const int commRank = Rank( comm );
     if( commRank == root )
     {
-#ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Reduce
           ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, root, 
             comm.comm ) );
-#else
-        vector<Real> sendBuf( count );
-        MemCopy( sendBuf.data(), buf, count );
-        SafeMpi
-        ( MPI_Reduce
-          ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, root, 
-            comm.comm ) );
-#endif
     }
     else
         SafeMpi
         ( MPI_Reduce
           ( buf, 0, count, TypeMap<Real>(), opC, root, comm.comm ) );
 }
+
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedReduce( T* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedReduce"))
+    if( count == 0 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    // TODO: Use in-place option?
+
+    const int commRank = mpi::Rank(comm);
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( count, buf, packedSend );
+
+    if( commRank == root )
+        ReserveSerialized( count, buf, packedRecv );
+    SafeMpi
+    ( MPI_Reduce
+      ( packedSend.data(), packedRecv.data(), count, TypeMap<T>(),
+        opC, root, comm.comm ) );
+    if( commRank == root )
+        Deserialize( count, packedRecv, buf );
+}
+
+template<>
+void Reduce( BigFloat* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [BigFloat]"))
+    PackedReduce( buf, count, op, root, comm );
+}
+template<>
+void Reduce( ValueInt<BigFloat>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [ValueInt<BigFloat>]"))
+    PackedReduce( buf, count, op, root, comm );
+}
+template<>
+void Reduce( Entry<BigFloat>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [Entry<BigFloat>]"))
+    PackedReduce( buf, count, op, root, comm );
+}
+#endif
 
 template<typename Real>
 void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
@@ -1480,20 +2368,10 @@ EL_NO_RELEASE_EXCEPT
         {
             if( commRank == root )
             {
-# ifdef EL_HAVE_MPI_IN_PLACE
                 SafeMpi
                 ( MPI_Reduce
                   ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, 
                     root, comm.comm ) );
-# else
-                vector<Complex<Real>> sendBuf;
-                FastResize( sendBuf, count );
-                MemCopy( sendBuf.data(), buf, count );
-                SafeMpi
-                ( MPI_Reduce
-                  ( sendBuf.data(), buf, 2*count, TypeMap<Real>(), opC, 
-                    root, comm.comm ) );
-# endif
             }
             else
                 SafeMpi
@@ -1504,20 +2382,10 @@ EL_NO_RELEASE_EXCEPT
         {
             if( commRank == root )
             {
-# ifdef EL_HAVE_MPI_IN_PLACE
                 SafeMpi
                 ( MPI_Reduce
                   ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                     root, comm.comm ) );
-# else
-                vector<Complex<Real>> sendBuf;
-                FastResize( sendBuf, count );
-                MemCopy( sendBuf.data(), buf, count );
-                SafeMpi
-                ( MPI_Reduce
-                  ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
-                    root, comm.comm ) );
-# endif
             }
             else
                 SafeMpi
@@ -1528,20 +2396,10 @@ EL_NO_RELEASE_EXCEPT
 #else
         if( commRank == root )
         {
-# ifdef EL_HAVE_MPI_IN_PLACE
             SafeMpi
             ( MPI_Reduce
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 root, comm.comm ) );
-# else
-            vector<Complex<Real>> sendBuf;
-            FastResize( sendBuf, count );
-            MemCopy( sendBuf.data(), buf, count );
-            SafeMpi
-            ( MPI_Reduce
-              ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
-                root, comm.comm ) );
-# endif
         }
         else
             SafeMpi
@@ -1580,6 +2438,65 @@ EL_NO_RELEASE_EXCEPT
             comm.comm ) );
     }
 }
+
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedAllReduce
+( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedAllReduce"))
+    if( count == 0 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( count, sbuf, packedSend );
+
+    ReserveSerialized( count, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Allreduce
+      ( packedSend.data(), packedRecv.data(), count, TypeMap<T>(),
+        opC, comm.comm ) );
+    Deserialize( count, packedRecv, rbuf );
+}
+
+template<>
+void AllReduce
+( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [BigFloat]"))
+    PackedAllReduce( sbuf, rbuf, count, op, comm );
+}
+template<>
+void AllReduce
+( const ValueInt<BigFloat>* sbuf,
+        ValueInt<BigFloat>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [ValueInt<BigFloat>]"))
+    PackedAllReduce( sbuf, rbuf, count, op, comm );
+}
+template<>
+void AllReduce
+( const Entry<BigFloat>* sbuf,
+        Entry<BigFloat>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [Entry<BigFloat>]"))
+    PackedAllReduce( sbuf, rbuf, count, op, comm );
+}
+#endif
 
 template<typename Real>
 void AllReduce
@@ -1652,18 +2569,63 @@ EL_NO_RELEASE_EXCEPT
     else
         opC = op.op;
 
-#ifdef EL_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Allreduce
       ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
-#else
-    vector<Real> sendBuf( count );
-    MemCopy( sendBuf.data(), buf, count );
+}
+
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedAllReduce( T* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedAllReduce"))
+    if( count == 0 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( count, buf, packedSend );
+
+    ReserveSerialized( count, buf, packedRecv );
     SafeMpi
     ( MPI_Allreduce
-      ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, comm.comm ) );
-#endif
+      ( packedSend.data(), packedRecv.data(), count, TypeMap<T>(),
+        opC, comm.comm ) );
+    Deserialize( count, packedRecv, buf );
 }
+
+template<>
+void AllReduce( BigFloat* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [BigFloat]"))
+    PackedAllReduce( buf, count, op, comm );
+}
+template<>
+void AllReduce( ValueInt<BigFloat>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [ValueInt<BigFloat>]"))
+    PackedAllReduce( buf, count, op, comm );
+}
+template<>
+void AllReduce( Entry<BigFloat>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [Entry<BigFloat>]"))
+    PackedAllReduce( buf, count, op, comm );
+}
+#endif
 
 template<typename Real>
 void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
@@ -1682,52 +2644,22 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
-# ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
-# else
-        vector<Complex<Real>> sendBuf;
-        FastResize( sendBuf, count );
-        MemCopy( sendBuf.data(), buf, count );
-        SafeMpi
-        ( MPI_Allreduce
-          ( sendBuf.data(), buf, 2*count, TypeMap<Real>(), opC, 
-            comm.comm ) );
-# endif
     }
     else
     {
-# ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), 
             opC, comm.comm ) );
-# else
-        vector<Complex<Real>> sendBuf;
-        FastResize( sendBuf, count );
-        MemCopy( sendBuf.data(), buf, count );
-        SafeMpi
-        ( MPI_Allreduce
-          ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), 
-            opC, comm.comm ) );
-# endif
     }
 #else
-# ifdef EL_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Allreduce
       ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
         comm.comm ) );
-# else
-    vector<Complex<Real>> sendBuf;
-    FastResize( sendBuf, count );
-    MemCopy( sendBuf.data(), buf, count );
-    SafeMpi
-    ( MPI_Allreduce
-      ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
-        comm.comm ) );
-# endif
 #endif
 }
 
@@ -1741,6 +2673,8 @@ void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
+    if( rc == 0 )
+        return;
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
@@ -1766,12 +2700,81 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedReduceScatter( T* sbuf, T* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedReduceScatter"))
+    if( rc == 0 )
+        return;
+    const int commSize = mpi::Size(comm);
+    const int totalSend = rc*commSize;
+    const int totalRecv = rc;
+
+    // TODO: Add AllReduce approach via EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#if defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( totalSend, sbuf, packedSend );
+
+    ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( packedSend.data(), packedRecv.data(), rc, TypeMap<T>(),
+        opC, comm.comm ) );
+
+    Deserialize( totalRecv, packedRecv, rbuf );
+#else
+    Reduce( sbuf, totalSend, op, 0, comm );
+    Scatter( sbuf, rc, rbuf, rc, 0, comm );
+#endif
+}
+
+template<>
+void ReduceScatter( BigFloat* sbuf, BigFloat* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [BigFloat]"))
+    PackedReduceScatter( sbuf, rbuf, rc, op, comm );
+}
+template<>
+void ReduceScatter
+( ValueInt<BigFloat>* sbuf,
+  ValueInt<BigFloat>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [ValueInt<BigFloat>]"))
+    PackedReduceScatter( sbuf, rbuf, rc, op, comm );
+}
+template<>
+void ReduceScatter
+( Entry<BigFloat>* sbuf,
+  Entry<BigFloat>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [Entry<BigFloat>]"))
+    PackedReduceScatter( sbuf, rbuf, rc, op, comm );
+}
+#endif
+
 template<typename Real>
 void ReduceScatter
 ( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
+    if( rc == 0 )
+        return;
     MPI_Op opC;
     if( op == SUM )
         opC = SumOp<Complex<Real>>().op; 
@@ -1820,7 +2823,7 @@ void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
-    if( Size(comm) == 1 )
+    if( rc == 0 || Size(comm) == 1 )
         return;
 
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
@@ -1839,18 +2842,9 @@ EL_NO_RELEASE_EXCEPT
         opC = MinOp<Real>().op;
     else
         opC = op.op;
-# ifdef EL_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, rc, TypeMap<Real>(), opC, comm.comm ) );
-# else
-    const int commSize = Size( comm );
-    vector<Real> sendBuf( rc*commSize );
-    MemCopy( sendBuf.data(), buf, rc*commSize );
-    SafeMpi
-    ( MPI_Reduce_scatter_block
-      ( sendBuf.data(), buf, rc, TypeMap<Real>(), opC, comm.comm ) );
-# endif
 #else
     const int commSize = Size( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
@@ -1858,13 +2852,76 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedReduceScatter( T* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedReduceScatter"))
+    if( rc == 0 )
+        return;
+    const int commSize = mpi::Size(comm);
+    const int totalSend = rc*commSize;
+    const int totalRecv = rc;
+
+    // TODO: Add AllReduce approach via EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#if defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( totalSend, buf, packedSend );
+
+    ReserveSerialized( totalRecv, buf, packedRecv );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( packedSend.data(), packedRecv.data(), rc, TypeMap<T>(),
+        opC, comm.comm ) );
+
+    Deserialize( totalRecv, packedRecv, buf );
+#else
+    Reduce( buf, totalSend, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
+#endif
+}
+
+template<>
+void ReduceScatter( BigFloat* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [BigFloat]"))
+    PackedReduceScatter( buf, rc, op, comm );
+}
+template<>
+void ReduceScatter( ValueInt<BigFloat>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [ValueInt<BigFloat>]"))
+    PackedReduceScatter( buf, rc, op, comm );
+}
+template<>
+void ReduceScatter( Entry<BigFloat>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [Entry<BigFloat>]"))
+    PackedReduceScatter( buf, rc, op, comm );
+}
+#endif
+
 // TODO: Handle case where op is not summation
 template<typename Real>
 void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
-    if( Size(comm) == 1 )
+    if( rc == 0 || Size(comm) == 1 )
         return;
 
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
@@ -1880,33 +2937,13 @@ EL_NO_RELEASE_EXCEPT
     else
         opC = op.op;
 # ifdef EL_AVOID_COMPLEX_MPI
-#  ifdef EL_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
-#  else 
-    const int commSize = Size( comm );
-    vector<Complex<Real>> sendBuf;
-    FastResize( sendBuf, rc*commSize );
-    MemCopy( sendBuf.data(), buf, rc*commSize );
-    SafeMpi
-    ( MPI_Reduce_scatter_block
-      ( sendBuf.data(), buf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
-#  endif
 # else
-#  ifdef EL_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
-#  else
-    const int commSize = Size( comm );
-    vector<Complex<Real>> sendBuf;
-    FastResize( sendBuf, rc*commSize );
-    MemCopy( sendBuf.data(), buf, rc*commSize );
-    SafeMpi
-    ( MPI_Reduce_scatter_block
-      ( sendBuf.data(), buf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
-#  endif
 # endif
 #else
     const int commSize = Size( comm );
@@ -1941,6 +2978,68 @@ EL_NO_RELEASE_EXCEPT
       ( const_cast<Real*>(sbuf), 
         rbuf, const_cast<int*>(rcs), TypeMap<Real>(), opC, comm.comm ) );
 }
+
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedReduceScatter
+( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedReduceScatter"))
+    const int commRank = mpi::Rank(comm);
+    const int commSize = mpi::Size(comm);
+    int totalSend=0;
+    for( int q=0; q<commSize; ++q )
+        totalSend += rcs[q];
+    const int totalRecv = rcs[commRank];
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( totalSend, sbuf, packedSend );
+    ReserveSerialized( totalRecv, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Reduce_scatter
+      ( packedSend.data(), packedRecv.data(), const_cast<int*>(rcs),
+        TypeMap<T>(), opC, comm.comm ) );
+    Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void ReduceScatter
+( const BigFloat* sbuf, BigFloat* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [BigFloat]"))
+    PackedReduceScatter( sbuf, rbuf, rcs, op, comm );
+}
+template<>
+void ReduceScatter
+( const ValueInt<BigFloat>* sbuf,
+        ValueInt<BigFloat>* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [ValueInt<BigFloat>]"))
+    PackedReduceScatter( sbuf, rbuf, rcs, op, comm );
+}
+template<>
+void ReduceScatter
+( const Entry<BigFloat>* sbuf,
+        Entry<BigFloat>* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [Entry<BigFloat>]"))
+    PackedReduceScatter( sbuf, rbuf, rcs, op, comm );
+}
+#endif
 
 template<typename Real>
 void ReduceScatter
@@ -2031,6 +3130,63 @@ EL_NO_RELEASE_EXCEPT
     }
 }
 
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedScan( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedScan"))
+    if( count == 0 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( count, sbuf, packedSend );
+    ReserveSerialized( count, rbuf, packedRecv );
+    SafeMpi
+    ( MPI_Scan
+      ( packedSend.data(), packedRecv.data(), count, TypeMap<T>(),
+        opC, comm.comm ) );
+    Deserialize( count, packedRecv, rbuf );
+}
+
+template<>
+void Scan
+( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [BigFloat]"))
+    PackedScan( sbuf, rbuf, count, op, comm );
+}
+template<>
+void Scan
+( const ValueInt<BigFloat>* sbuf,
+        ValueInt<BigFloat>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [ValueInt<BigFloat>]"))
+    PackedScan( sbuf, rbuf, count, op, comm );
+}
+template<>
+void Scan
+( const Entry<BigFloat>* sbuf,
+        Entry<BigFloat>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [Entry<BigFloat>]"))
+    PackedScan( sbuf, rbuf, count, op, comm );
+}
+#endif
+
 template<typename Real>
 void Scan
 ( const Complex<Real>* sbuf, 
@@ -2110,19 +3266,63 @@ EL_NO_RELEASE_EXCEPT
         else
             opC = op.op;
 
-#ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scan
           ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
-#else
-        vector<Real> sendBuf( count );
-        MemCopy( sendBuf.data(), buf, count );
-        SafeMpi
-        ( MPI_Scan
-          ( sendBuf.data(), buf, count, TypeMap<Real>(), opC, comm.comm ) );
-#endif
     }
 }
+
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedScan( T* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedScan"))
+    if( count == 0 )
+        return;
+
+    MPI_Op opC;
+    if( op == SUM )
+        opC = SumOp<T>().op; 
+    else if( op == MAX )
+        opC = MaxOp<T>().op;
+    else if( op == MIN )
+        opC = MinOp<T>().op;
+    else
+        opC = op.op;
+
+    std::vector<byte> packedSend, packedRecv;
+    Serialize( count, buf, packedSend );
+    ReserveSerialized( count, buf, packedRecv );
+    SafeMpi
+    ( MPI_Scan
+      ( packedSend.data(), packedRecv.data(), count, TypeMap<T>(),
+        opC, comm.comm ) );
+    Deserialize( count, packedRecv, buf );
+}
+
+template<>
+void Scan( BigFloat* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [BigFloat]"))
+    PackedScan( buf, count, op, comm );
+}
+template<>
+void Scan( ValueInt<BigFloat>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [ValueInt<BigFloat>]"))
+    PackedScan( buf, count, op, comm );
+}
+template<>
+void Scan( Entry<BigFloat>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [Entry<BigFloat>]"))
+    PackedScan( buf, count, op, comm );
+}
+#endif
 
 template<typename Real>
 void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
@@ -2140,52 +3340,22 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-# ifdef EL_HAVE_MPI_IN_PLACE
             SafeMpi
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
-# else
-            vector<Complex<Real>> sendBuf;
-            FastResize( sendBuf, count );
-            MemCopy( sendBuf.data(), buf, count );
-            SafeMpi
-            ( MPI_Scan
-              ( sendBuf.data(), buf, 2*count, TypeMap<Real>(), opC, 
-                comm.comm ) );
-# endif
         }
         else
         {
-# ifdef EL_HAVE_MPI_IN_PLACE
             SafeMpi
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 comm.comm ) );
-# else
-            vector<Complex<Real>> sendBuf;
-            FastResize( sendBuf, count );
-            MemCopy( sendBuf.data(), buf, count );
-            SafeMpi
-            ( MPI_Scan
-              ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
-                comm.comm ) );
-# endif
         }
 #else
-# ifdef EL_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scan
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
             comm.comm ) );
-# else
-        vector<Complex<Real>> sendBuf;
-        FastResize( sendBuf, count );
-        MemCopy( sendBuf.data(), buf, count );
-        SafeMpi
-        ( MPI_Scan
-          ( sendBuf.data(), buf, count, TypeMap<Complex<Real>>(), opC, 
-            comm.comm ) );
-# endif
 #endif
     }
 }
@@ -2420,38 +3590,35 @@ MPI_PROTO(unsigned long)
 MPI_PROTO(long long int)
 MPI_PROTO(unsigned long long)
 #endif
-MPI_PROTO(float)
-MPI_PROTO(double)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(Quad)
-#endif
-MPI_PROTO(Complex<float>)
-MPI_PROTO(Complex<double>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(Complex<Quad>)
-#endif
-
 MPI_PROTO(ValueInt<Int>)
-MPI_PROTO(ValueInt<float>)
-MPI_PROTO(ValueInt<double>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(ValueInt<Quad>)
-#endif
-MPI_PROTO(ValueInt<Complex<float>>)
-MPI_PROTO(ValueInt<Complex<double>>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(ValueInt<Complex<Quad>>)
-#endif
 MPI_PROTO(Entry<Int>)
+MPI_PROTO(float)
+MPI_PROTO(Complex<float>)
+MPI_PROTO(ValueInt<float>)
+MPI_PROTO(ValueInt<Complex<float>>)
 MPI_PROTO(Entry<float>)
-MPI_PROTO(Entry<double>)
-#ifdef EL_HAVE_QUAD
-MPI_PROTO(Entry<Quad>)
-#endif
 MPI_PROTO(Entry<Complex<float>>)
+MPI_PROTO(double)
+MPI_PROTO(Complex<double>)
+MPI_PROTO(ValueInt<double>)
+MPI_PROTO(ValueInt<Complex<double>>)
+MPI_PROTO(Entry<double>)
 MPI_PROTO(Entry<Complex<double>>)
 #ifdef EL_HAVE_QUAD
+MPI_PROTO(Quad)
+MPI_PROTO(Complex<Quad>)
+MPI_PROTO(ValueInt<Quad>)
+MPI_PROTO(ValueInt<Complex<Quad>>)
+MPI_PROTO(Entry<Quad>)
 MPI_PROTO(Entry<Complex<Quad>>)
+#endif
+#ifdef EL_HAVE_MPC
+MPI_PROTO(BigFloat)
+// TODO: MPI_PROTO(Complex<BigFloat>)
+MPI_PROTO(ValueInt<BigFloat>)
+// TODO: MPI_PROTO(ValueInt<Complex<BigFloat>>)
+MPI_PROTO(Entry<BigFloat>)
+// TODO: MPI_PROTO(Entry<Complex<BigFloat>>)
 #endif
 
 #define PROTO(T) \
@@ -2463,6 +3630,9 @@ MPI_PROTO(Entry<Complex<Quad>>)
     const vector<int>& recvCounts, \
     const vector<int>& recvDispls, \
           Comm comm ) EL_NO_RELEASE_EXCEPT;
+
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace mpi

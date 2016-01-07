@@ -15,6 +15,7 @@ int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
 
     try
     {
@@ -39,7 +40,7 @@ main( int argc, char* argv[] )
             w *= 1/wNorm;
         }
         Real offset = SampleNormal();
-        mpi::Broadcast( offset, 0 );
+        mpi::Broadcast( offset, 0, comm );
 
         // Draw each example (row) from a Gaussian perturbation of a point
         // lying on the hyperplane
@@ -60,7 +61,7 @@ main( int argc, char* argv[] )
                       { return alpha >= 0 ? Real(1) : Real(-1); }; 
         EntrywiseMap( q, function<Real(Real)>(sgnMap) );
 
-        if( mpi::Rank() == 0 )
+        if( mpi::Rank(comm) == 0 )
             Output("offset=",offset);
         if( print )
         {
@@ -83,7 +84,7 @@ main( int argc, char* argv[] )
         auto wSVM = View( wHatSVM, 0, 0, n, 1 );
         const Real offsetSVM = -wHatSVM.Get(n,0);
         const Real wSVMNorm = FrobeniusNorm( wSVM );
-        if( mpi::Rank() == 0 )
+        if( mpi::Rank(comm) == 0 )
             Output
             ("|| wSVM ||_2=",wSVMNorm,"\n",
              "margin      =",Real(2)/wSVMNorm,"\n",
@@ -101,7 +102,7 @@ main( int argc, char* argv[] )
             Print( qSVM, "qSVM" );
         qSVM -= q;
         const Real numWrong = OneNorm(qSVM) / Real(2);
-        if( mpi::Rank() == 0 )
+        if( mpi::Rank(comm) == 0 )
             Output("ratio misclassified: ",numWrong,"/",m);
     }
     catch( exception& e ) { ReportException(e); }

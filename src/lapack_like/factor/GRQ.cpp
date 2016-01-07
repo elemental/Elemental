@@ -101,6 +101,8 @@ void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
   ( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

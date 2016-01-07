@@ -56,6 +56,8 @@ void TestCholeskyMod
   Int n, 
   Base<F> alpha )
 {
+    if( mpi::Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     Matrix<F> T, A;
     HermitianUniformSpectrum( T, m, 1e-9, 10 );
     if( testCorrectness )
@@ -101,8 +103,6 @@ int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -120,16 +120,9 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test CholeskyMod",uploChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
         TestCholeskyMod<double>
         ( testCorrectness, print, uplo, m, n, alpha );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
         TestCholeskyMod<Complex<double>>
         ( testCorrectness, print, uplo, m, n, alpha );
     }

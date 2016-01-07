@@ -92,7 +92,8 @@ LN
             // w(k+1:end) := -conj(s) H(k+1:end,k) + c H(k+1:end,k+1)
             W.Set( k+1, j, -Conj(s)*W.Get(k+1,j)+c*(etakp1kp1-mu) );
             blas::Scal( m-(k+2), -Conj(s), W.Buffer(k+2,j), 1 );
-            blas::Axpy( m-(k+2), c, hB.LockedBuffer(), 1, W.Buffer(k+2,j), 1 );
+            blas::Axpy
+            ( m-(k+2), F(c), hB.LockedBuffer(), 1, W.Buffer(k+2,j), 1 );
         }
     }
     // Divide x(end) by L(end,end)
@@ -185,7 +186,7 @@ UN
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
             blas::Scal( k-1, -Conj(s), W.Buffer(0,j), 1 );
-            blas::Axpy( k-1, c, hT.LockedBuffer(), 1, W.Buffer(0,j), 1 );
+            blas::Axpy( k-1, F(c), hT.LockedBuffer(), 1, W.Buffer(0,j), 1 );
             W.Set( k-1, j, -Conj(s)*W.Get(k-1,j)+c*(etakm1km1-mu) );
         }
     }
@@ -310,8 +311,8 @@ LN
             W.Set( k+1, jLoc, -Conj(s)*W.Get(k+1,jLoc)+c*(etakp1kp1-mu) );
             blas::Scal( m-(k+2), -Conj(s), W.Buffer(k+2,jLoc), 1 );
             blas::Axpy
-            ( m-(k+2), c, hB_STAR_STAR.LockedBuffer(), 1, 
-                          W.Buffer(k+2,jLoc),          1 );
+            ( m-(k+2), F(c), hB_STAR_STAR.LockedBuffer(), 1, 
+                             W.Buffer(k+2,jLoc),          1 );
         }
     }
     // Divide x(end) by L(end,end)
@@ -426,8 +427,8 @@ UN
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
             blas::Scal( k-1, -Conj(s), W.Buffer(0,jLoc), 1 );
-            blas::Axpy( k-1, c, hT_STAR_STAR.LockedBuffer(), 1, 
-                                W.Buffer(0,jLoc),            1 );
+            blas::Axpy( k-1, F(c), hT_STAR_STAR.LockedBuffer(), 1, 
+                                   W.Buffer(0,jLoc),            1 );
             W.Set( k-1, jLoc, -Conj(s)*W.Get(k-1,jLoc)+c*(etakm1km1-mu) );
         }
     }
@@ -524,6 +525,8 @@ void MultiShiftHessSolve
           ElementalMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

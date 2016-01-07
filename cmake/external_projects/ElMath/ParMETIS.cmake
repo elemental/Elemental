@@ -48,7 +48,7 @@ if(USE_FOUND_PARMETIS)
 
 elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
   if(NOT DEFINED PARMETIS_URL)
-    set(PARMETIS_URL https://github.com/poulson/parmetis.git)
+    set(PARMETIS_URL https://github.com/scibuilder/parmetis.git)
   endif()
   message(STATUS "Will pull ParMETIS from ${PARMETIS_URL}")
 

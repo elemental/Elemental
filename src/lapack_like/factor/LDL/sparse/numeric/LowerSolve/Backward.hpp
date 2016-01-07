@@ -60,8 +60,9 @@ inline void LowerBackwardSolve
         // Set up a workspace for the child
         auto& childW = X.children[c]->work;
         childW.Resize( front.children[c]->Height(), numRHS );
-        Matrix<F> childWT, childWB; 
-        PartitionDown( childW, childWT, childWB, info.children[c]->size );
+        const Int childSize = info.children[c]->size;
+        auto childWT = childW( IR(0,childSize), ALL );
+        auto childWB = childW( IR(childSize,END), ALL );
         childWT = X.children[c]->matrix;
 
         // Update the child's workspace
@@ -125,8 +126,9 @@ inline void LowerBackwardSolve
     auto& childW = X.child->work;
     childW.SetGrid( childGrid );
     childW.Resize( childFrontHeight, numRHS );
-    DistMatrix<F,VC,STAR> childWT(childGrid), childWB(childGrid);
-    PartitionDown( childW, childWT, childWB, info.child->size );
+    const Int childSize = info.child->size;
+    auto childWT = childW( IR(0,childSize), ALL );
+    auto childWB = childW( IR(childSize,END), ALL );
     childWT = X.child->matrix;
 
     // Compute the metadata for updating the children
@@ -228,8 +230,9 @@ inline void LowerBackwardSolve
     childW.SetGrid( childGrid );
     childW.Align( 0, 0 );
     childW.Resize( childFrontHeight, numRHS );
-    DistMatrix<F> childWT(childGrid), childWB(childGrid);
-    PartitionDown( childW, childWT, childWB, info.child->size );
+    const Int childSize = info.child->size;
+    auto childWT = childW( IR(0,childSize), ALL );
+    auto childWB = childW( IR(childSize,END), ALL );
     childWT = X.child->matrix;
 
     // Set up the metadata for the child updates

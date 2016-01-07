@@ -26,7 +26,7 @@ if(METIS_FOUND)
 
 elseif(NOT EL_PREVENT_METIS_DOWNLOAD)
   if(NOT DEFINED METIS_URL)
-    set(METIS_URL https://github.com/poulson/Metis.git)
+    set(METIS_URL https://github.com/scibuilder/Metis.git)
   endif()
   message(STATUS "Will pull METIS from ${METIS_URL}")
 

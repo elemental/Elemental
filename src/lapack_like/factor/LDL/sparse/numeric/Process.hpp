@@ -21,7 +21,6 @@
 #ifndef EL_LDL_PROCESS_HPP
 #define EL_LDL_PROCESS_HPP
 
-#include "ElSuiteSparse/ldl.hpp"
 #include "./ProcessFront.hpp"
 
 namespace El {

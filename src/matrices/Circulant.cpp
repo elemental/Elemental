@@ -16,7 +16,9 @@ void Circulant( Matrix<T>& A, const vector<T>& a )
     DEBUG_ONLY(CSE cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-    auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
+    // NOTE: gcc (Ubuntu 5.2.1-22ubuntu2) 5.2.1 20151010 segfaults here
+    //       if the return type of the lambda is not manually specified.
+    auto circFill = [&]( Int i, Int j ) -> T { return a[Mod(i-j,n)]; };
     IndexDependentFill( A, function<T(Int,Int)>(circFill) );
 }
 
@@ -26,7 +28,7 @@ void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
     DEBUG_ONLY(CSE cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-    auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
+    auto circFill = [&]( Int i, Int j ) -> T { return a[Mod(i-j,n)]; };
     IndexDependentFill( A, function<T(Int,Int)>(circFill) );
 }
 
@@ -35,6 +37,7 @@ void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
   template void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

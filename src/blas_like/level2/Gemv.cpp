@@ -126,14 +126,15 @@ void LocalGemv
       beta,                    y.Matrix() );
 }
 
-template<typename T>
-void Gemv
+namespace gemv {
+
+template<typename T,typename=EnableIf<IsBlasScalar<T>>>
+void ScaLAPACKHelper
 ( Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR,BLOCK>& A,
            const DistMatrix<T,MC,MR,BLOCK>& x,
   T beta,        DistMatrix<T,MC,MR,BLOCK>& y )
 {
-    DEBUG_ONLY(CSE cse("Gemv"))
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int m = A.Height();
@@ -154,6 +155,29 @@ void Gemv
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
 #endif
+}
+
+template<typename T,typename=DisableIf<IsBlasScalar<T>>,typename=void>
+void ScaLAPACKHelper
+( Orientation orientation,
+  T alpha, const DistMatrix<T,MC,MR,BLOCK>& A,
+           const DistMatrix<T,MC,MR,BLOCK>& x,
+  T beta,        DistMatrix<T,MC,MR,BLOCK>& y )
+{
+    LogicError("ScaLAPACK does not support this datatype");
+}
+
+} // namespace gemv
+
+template<typename T>
+void Gemv
+( Orientation orientation,
+  T alpha, const DistMatrix<T,MC,MR,BLOCK>& A,
+           const DistMatrix<T,MC,MR,BLOCK>& x,
+  T beta,        DistMatrix<T,MC,MR,BLOCK>& y )
+{
+    DEBUG_ONLY(CSE cse("Gemv"))
+    gemv::ScaLAPACKHelper( orientation, alpha, A, x, beta, y );
 }
 
 template<>
@@ -245,6 +269,7 @@ void Gemv
     T beta,        ElementalMatrix<T>& y );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

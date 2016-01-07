@@ -163,6 +163,7 @@ Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
   template Base<T> InfinityNorm( const DistSparseMatrix<T>& A );
 
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

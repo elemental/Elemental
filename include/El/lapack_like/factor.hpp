@@ -687,7 +687,7 @@ void QR
 // NOTE: This is a ScaLAPACK wrapper, and ScaLAPACK uses a different convention
 //       for Householder transformations (that includes identity matrices,
 //       which are not representable as Householder transformations)
-template<typename F>
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   DistMatrix<F,MR,STAR,BLOCK>& t );

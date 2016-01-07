@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+#include <algorithm>
+
 namespace El {
 
 // Sort each column of the real matrix X
@@ -110,6 +112,8 @@ TaggedSort( const ElementalMatrix<Real>& x, SortType sort )
   ( const ElementalMatrix<Real>& x, SortType sort );
 
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El

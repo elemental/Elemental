@@ -84,6 +84,8 @@ void TestQR
   const Grid& g,
   bool scalapack )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
@@ -137,7 +139,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try
@@ -164,15 +165,8 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test QR");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
         TestQR<double>( testCorrectness, print, m, n, g, scalapack );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
         TestQR<Complex<double>>( testCorrectness, print, m, n, g, scalapack );
     }
     catch( exception& e ) { ReportException(e); }

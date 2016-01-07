@@ -109,6 +109,8 @@ void Read
   ( AbstractDistMatrix<T>& A, const string filename, \
     FileFormat format, bool sequential );
 
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
 } // namespace El
