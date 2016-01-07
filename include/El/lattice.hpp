@@ -142,6 +142,36 @@ struct LLLCtrl
     bool jumpstart=false;
     Int startCol=0;
 
+    // In case of conversion from BigFloat to BigFloat with different precision
+    LLLCtrl<Real>& operator=( const LLLCtrl<Real>& ctrl )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        const Real etaMin = Real(1)/Real(2)+Pow(eps,Real(0.9));
+        const Real zeroTolMin = Pow(eps,Real(0.9));
+
+        delta = Real(ctrl.delta);
+        // NOTE: This does *not* seem to be equivalent to Max if the precisions
+        //       are different
+        eta = Real(ctrl.eta);
+        if( eta < etaMin )
+            eta = etaMin;
+        variant = ctrl.variant; 
+        presort = ctrl.presort;
+        smallestFirst = ctrl.smallestFirst;
+        reorthogTol = Real(ctrl.reorthogTol);
+        numOrthog = ctrl.numOrthog;
+        // NOTE: This does *not* seem to be equivalent to Max if the precisions
+        //       are different
+        zeroTol = Real(ctrl.zeroTol);
+        if( zeroTol < zeroTolMin )
+            zeroTol = zeroTolMin;
+        progress = ctrl.progress; 
+        time = ctrl.time;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+        return *this;
+    }
+
     // We frequently need to convert datatypes, so make this easy
     template<typename OtherReal>
     LLLCtrl<Real>& operator=( const LLLCtrl<OtherReal>& ctrl )
@@ -151,13 +181,13 @@ struct LLLCtrl
         const Real zeroTolMin = Pow(eps,Real(0.9));
 
         delta = Real(ctrl.delta);
-        eta = Max(Real(ctrl.eta),etaMin);
+        eta = Max(etaMin,Real(ctrl.eta));
         variant = ctrl.variant; 
         presort = ctrl.presort;
         smallestFirst = ctrl.smallestFirst;
         reorthogTol = Real(ctrl.reorthogTol);
         numOrthog = ctrl.numOrthog;
-        zeroTol = Max(Real(ctrl.zeroTol),zeroTolMin);
+        zeroTol = Max(zeroTolMin,Real(ctrl.zeroTol));
         progress = ctrl.progress; 
         time = ctrl.time;
         jumpstart = ctrl.jumpstart;

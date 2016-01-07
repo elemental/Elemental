@@ -472,14 +472,7 @@ LowerPrecisionMerge
     BKZCtrl<RealLower> ctrlLower( ctrl );
     RealLower eps = limits::Epsilon<RealLower>();
     RealLower minEta = RealLower(1)/RealLower(2)+Pow(eps,RealLower(0.9));
-    if( ctrlLower.lllCtrl.eta < minEta )
-    {
-        Output("eps=",eps);
-        Output("ctrlLower.lllCtrl.eta=",ctrlLower.lllCtrl.eta);
-        Output("Max(",RealLower(ctrl.lllCtrl.eta),",",minEta,")=",Max(RealLower(ctrl.lllCtrl.eta),minEta));
-        ctrlLower.lllCtrl.eta = minEta;
-        Output("ctrlLower.lllCtrl.eta new=",ctrlLower.lllCtrl.eta);
-    }
+    ctrlLower.lllCtrl.eta = Max(minEta,ctrlLower.lllCtrl.eta);
     Timer timer;
     Matrix<FLower> RLower;
     if( ctrl.lllCtrl.time )

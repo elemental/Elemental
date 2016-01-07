@@ -425,14 +425,7 @@ LowerPrecisionMerge
     LLLCtrl<RealLower> ctrlLower( ctrl );
     RealLower eps = limits::Epsilon<RealLower>();
     RealLower minEta = RealLower(1)/RealLower(2)+Pow(eps,RealLower(0.9));
-    if( ctrlLower.eta < minEta )
-    {
-        Output("eps=",eps);
-        Output("ctrlLower.eta=",ctrlLower.eta);
-        Output("Max(",RealLower(ctrl.eta),",",minEta,")=",Max(RealLower(ctrl.eta),minEta));
-        ctrlLower.eta = minEta;
-        Output("ctrlLower.eta new=",ctrlLower.eta);
-    }
+    ctrlLower.eta = Max(minEta,ctrlLower.eta);
     Timer timer;
     Matrix<FLower> RLower;
     if( ctrl.time )
