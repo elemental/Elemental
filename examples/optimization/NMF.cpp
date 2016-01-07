@@ -49,8 +49,13 @@ main( int argc, char* argv[] )
         ctrl.nnlsCtrl.socpCtrl.mehrotraCtrl.time = false;
         ctrl.maxIter = maxIter;
 
+        Timer timer;
         DistMatrix<Real> Y;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         NMF( A, X, Y, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
 
         if( print )
         {
@@ -62,7 +67,10 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, ADJOINT, Real(-1), X, Y, Real(1), A );
         const Real ENorm = FrobeniusNorm( A );
         if( mpi::Rank() == 0 )
+        {
+            Output("NMF time: ",timer.Total()," secs");
             Output("|| A - X Y^H ||_F / || A ||_F = ",ENorm/ANorm);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

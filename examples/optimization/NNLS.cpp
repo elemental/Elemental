@@ -76,8 +76,13 @@ main( int argc, char* argv[] )
             Print( X, "X" );
         */
 
+        Timer timer;
         DistMatrix<Real> X;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         NNLS( A, B, X );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
         {
             Print( B, "B" );
@@ -93,7 +98,10 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, TRANSPOSE, Real(-1), B, X, Real(1), A );
         const Real ENorm = FrobeniusNorm( A );
         if( mpi::Rank() == 0 )
+        {
+            Output("NNLS time: ",timer.Total(),"secs");
             Output("|| A - B X' ||_2 / || A ||_2 = ",ENorm/ANorm);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

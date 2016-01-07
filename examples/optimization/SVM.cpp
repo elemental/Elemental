@@ -79,17 +79,25 @@ main( int argc, char* argv[] )
         ctrl.modelFitCtrl.inv = inv;
         ctrl.modelFitCtrl.progress = progress;
 
+        Timer timer;
         DistMatrix<Real> wHatSVM;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         SVM( G, q, gamma, wHatSVM, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         auto wSVM = View( wHatSVM, 0, 0, n, 1 );
         const Real offsetSVM = -wHatSVM.Get(n,0);
         const Real wSVMNorm = FrobeniusNorm( wSVM );
-        if( mpi::Rank(comm) == 0 )
+        if( mpi::Rank() == 0 )
+        {
+            Output("SVM time: ",timer.Total()," secs");
             Output
             ("|| wSVM ||_2=",wSVMNorm,"\n",
              "margin      =",Real(2)/wSVMNorm,"\n",
              "offsetSVM   =",offsetSVM,"\n",
              "offsetSVM / || wSVM ||_2=",offsetSVM/wSVMNorm);
+        }
         if( print )
             Print( wSVM, "wSVM" );
 

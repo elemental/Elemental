@@ -143,8 +143,13 @@ main( int argc, char* argv[] )
         ctrl.rho = rho;
         ctrl.tol = tol;
 
+        Timer timer;
         DistMatrix<C> L, S;
+        if( commRank == 0 )
+            timer.Start();
         RPCA( M, L, S, ctrl );
+        if( commRank == 0 )
+            timer.Stop();
 
         if( display )
         {
@@ -165,10 +170,13 @@ main( int argc, char* argv[] )
         const double frobLDiff = FrobeniusNorm( L );
         const double frobSDiff = FrobeniusNorm( S );
         if( commRank == 0 )
+        {
+            Output("RPCA time: ",timer.Total()," secs");
             Output
             ("Error in decomposition:\n",
              "  || L - LTrue ||_F / || LTrue ||_F = ",frobLDiff/frobLTrue,"\n",
              "  || S - STrue ||_F / || STrue ||_F = ",frobSDiff/frobSTrue,"\n");
+        }
 
         if( display )
         {
