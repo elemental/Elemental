@@ -46,12 +46,12 @@ inline Real Max( const Real& alpha=Real(1) )
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Min( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::min(); }
+// NOTE: These implementations do not use std::numeric_limits<Real>::lowest()
+//       because said routine does not seem to be provided by recent Intel
+//       implementations of C++11
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Lowest( const Real& alpha=Real(1) )
-{ return std::numeric_limits<Real>::lowest(); }
-// NOTE: These specializations are included because of
-//       numeric_limits<int>::lowest now existing with recent Intel
-//       implementations of C++11
+{ return -std::numeric_limits<Real>::max(); }
 #ifdef EL_USE_64BIT_INTS
 template<> inline long long Lowest<long long>( const long long& alpha )
 { return LLONG_MIN; }
