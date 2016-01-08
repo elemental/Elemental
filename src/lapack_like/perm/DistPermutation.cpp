@@ -739,10 +739,17 @@ void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
         auto data = colMeta_.find( key );
         if( data == colMeta_.end() )
         {
+// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+#ifdef EL_HAVE_STD_EMPLACE
             colMeta_.emplace
             ( std::piecewise_construct,
               std::forward_as_tuple(key),
               std::forward_as_tuple(perm_,invPerm_,align,comm) );
+#else
+            auto newPair =
+              std::make_pair(key,PermutationMeta(perm_,invPerm_,align,comm));
+            colMeta_.insert( newPair );
+#endif
             data = colMeta_.find( key );
         }
         // TODO: Move El::PermuteCols into this class
@@ -814,10 +821,17 @@ void DistPermutation::InversePermuteCols
         auto data = colMeta_.find( key );
         if( data == colMeta_.end() )
         {
+// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+#ifdef EL_HAVE_STD_EMPLACE
             colMeta_.emplace
             ( std::piecewise_construct,
               std::forward_as_tuple(key),
               std::forward_as_tuple(perm_,invPerm_,align,comm) );
+#else
+            auto newPair =
+              std::make_pair(key,PermutationMeta(perm_,invPerm_,align,comm));
+            colMeta_.insert( newPair );
+#endif
             data = colMeta_.find( key );
         }
         // TODO: Move El::PermuteCols into this class
@@ -888,10 +902,17 @@ void DistPermutation::PermuteRows( AbstractDistMatrix<T>& A, Int offset ) const
         auto data = rowMeta_.find( key );
         if( data == rowMeta_.end() )
         {
+// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+#ifdef EL_HAVE_STD_EMPLACE
             rowMeta_.emplace
             ( std::piecewise_construct,
               std::forward_as_tuple(key),
               std::forward_as_tuple(perm_,invPerm_,align,comm) );
+#else
+            auto newPair =
+              std::make_pair(key,PermutationMeta(perm_,invPerm_,align,comm));
+            rowMeta_.insert( newPair );
+#endif
             data = rowMeta_.find( key );
         }
         // TODO: Move El::PermuteRows into this class
@@ -963,10 +984,17 @@ void DistPermutation::InversePermuteRows
         auto data = rowMeta_.find( key );
         if( data == rowMeta_.end() )
         {
+// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+#ifdef EL_HAVE_STD_EMPLACE
             rowMeta_.emplace
             ( std::piecewise_construct,
               std::forward_as_tuple(key),
               std::forward_as_tuple(perm_,invPerm_,align,comm) );
+#else
+            auto newPair =
+              std::make_pair(key,PermutationMeta(perm_,invPerm_,align,comm));
+            rowMeta_.insert( newPair );
+#endif
             data = rowMeta_.find( key );
         }
         // TODO: Move El::PermuteRows into this class

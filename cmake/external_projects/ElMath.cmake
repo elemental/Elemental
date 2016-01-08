@@ -376,6 +376,40 @@ if(NOT EL_DISABLE_QUAD)
   endif()
 endif()
 
+# Check for QD
+# ============
+if(NOT EL_DISABLE_QD)
+  find_package(QD)
+  if(QD_FOUND)
+    set(CMAKE_REQUIRED_LIBRARIES ${QD_LIBRARIES})
+    set(CMAKE_REQUIRED_INCLUDES ${QD_INCLUDES})
+    set(QD_CODE
+      "#include <iostream>
+       #include \"qd/qd_real.h\"
+       int main( int argc, char* argv[] )
+       {
+           double a1=1., a2=2., b1=3., b2=4.;
+           dd_real a(a1,a2), b(b1,b2);
+           dd_real c = a*b;
+           std::cout << \"c=\" << c << std::endl;
+           qd_real d(a1,a2,b1,b2);
+           std::cout << \"d=\" << d << std::endl;
+       }")
+    check_cxx_source_compiles("${QD_CODE}" EL_HAVE_QD)
+    if(NOT EL_HAVE_QD)
+      message(WARNING "Found QD but could not successfully compile with it")
+    endif()
+    unset(CMAKE_REQUIRED_LIBRARIES)
+    unset(CMAKE_REQUIRED_INCLUDES)
+  endif()
+  if(EL_HAVE_QD)
+    list(APPEND MATH_LIBS ${QD_LIBRARIES})
+    list(APPEND MATH_LIBS_AT_CONFIG ${QD_LIBRARIES})
+    message(STATUS "Including ${QD_INCLUDES} to add support for QD")
+    include_directories(${QD_INCLUDES})
+  endif()
+endif()
+
 # Check for GMP, MPFR, *and* MPC support
 # ======================================
 if(NOT EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
