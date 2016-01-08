@@ -10,6 +10,8 @@
 #ifndef EL_LIMITS_HPP
 #define EL_LIMITS_HPP
 
+#include <climits> // for INT_MIN et al. due to the Intel C++11 limitations
+
 namespace El {
 namespace limits {
 
@@ -47,6 +49,16 @@ inline Real Min( const Real& alpha=Real(1) )
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Lowest( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::lowest(); }
+// NOTE: These specializations are included because of
+//       numeric_limits<int>::lowest now existing with recent Intel
+//       implementations of C++11
+#ifdef EL_USE_64BIT_INTS
+template<> inline long long Lowest<long long>( const long long& alpha )
+{ return LLONG_MIN; }
+#else
+template<> inline int Lowest<int>( const int& alpha )
+{ return INT_MIN; }
+#endif
 
 // NOTE: There is disagreement of a factor of two between
 //       Demmel/LAPACK-style 'epsilon' and Higham/STL-style 'epsilon'.
