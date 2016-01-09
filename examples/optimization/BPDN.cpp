@@ -66,7 +66,12 @@ main( int argc, char* argv[] )
         ctrl.admmCtrl.progress = progress;
 
         DistMatrix<Real> z;
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         BPDN( A, b, lambda, z, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
             Print( z, "z" );
         const Real zOneNorm = OneNorm( z );
@@ -75,11 +80,14 @@ main( int argc, char* argv[] )
         Gemv( NORMAL, Real(-1), A, z, Real(1), b );
         const Real rTwoNorm = FrobeniusNorm( b );
         if( mpi::Rank() == 0 )
+        {
+            Output("BPDN time: ",timer.Total()," secs");
             Output
             ("|| A z - b ||_2 = ",rTwoNorm,"\n",
              "|| b ||_2 = ",bTwoNorm,"\n",
              "|| z ||_1 = ",zOneNorm,"\n",
              "|| z ||_0 = ",zZeroNorm,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

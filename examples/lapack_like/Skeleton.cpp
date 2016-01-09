@@ -48,7 +48,12 @@ main( int argc, char* argv[] )
         }
         DistPermutation PR(g), PC(g);
         DistMatrix<C> Z(g);
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         Skeleton( A, PR, PC, Z, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         const Int rank = Z.Height();
         if( print )
         {
@@ -82,9 +87,12 @@ main( int argc, char* argv[] )
             Print( A, "A - A_C Z A_R" );
 
         if( mpi::Rank() == 0 )
+        {
+            Output("Skeleton time: ",timer.Total()," secs");
             Output
             ("|| A ||_F = ",frobA,"\n",
              "|| A - A_C Z A_R ||_F / || A ||_F = ",frobError/frobA);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

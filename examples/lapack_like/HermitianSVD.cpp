@@ -89,13 +89,20 @@ main( int argc, char* argv[] )
         //
         DistMatrix<R,VR,STAR> s( g );
         DistMatrix<C> U( g ), V( g );
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         HermitianSVD( LOWER, H, s, U, V ); // only use lower half of H
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
         {
             Print( s, "Singular values of H" );
             Print( U, "Left singular vectors of H" );
             Print( V, "Right singular vectors of H" );
         }
+        if( mpi::Rank() == 0 )
+            Output("HermitianSVD time: ",timer.Total()," secs");
     }
     catch( exception& e ) { ReportException(e); }
 
