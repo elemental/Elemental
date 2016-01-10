@@ -88,6 +88,7 @@ typedef __float128 Quad;
 // Declare the intertwined core parts of our library
 #include "El/core/imports/valgrind.hpp"
 #include "El/core/imports/omp.hpp"
+#include "El/core/imports/qd.hpp"
 #include "El/core/imports/mpc.hpp"
 #include "El/core/Memory.hpp"
 #include "El/core/Element/decl.hpp"

@@ -15,21 +15,52 @@ bool BooleanCoinFlip()
 
 Int CoinFlip() { return ( BooleanCoinFlip() ? 1 : -1 ); }
 
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble SampleUniform( DoubleDouble a, DoubleDouble b )
+{
+    DoubleDouble sample;
+    // TODO: Use a better random number generator
+#ifdef EL_HAVE_CXX11RANDOM
+    std::mt19937& gen = Generator();
+    std::uniform_real_distribution<double> uni((double)a,(double)b);
+    sample = uni(gen);
+#else
+    sample = (DoubleDouble(rand())/(DoubleDouble(RAND_MAX)+1))*(b-a) + a;
+#endif
+    return sample;
+}
+
+template<>
+QuadDouble SampleUniform( QuadDouble a, QuadDouble b )
+{
+    QuadDouble sample;
+    // TODO: Use a better random number generator
+#ifdef EL_HAVE_CXX11RANDOM
+    std::mt19937& gen = Generator();
+    std::uniform_real_distribution<double> uni((double)a,(double)b);
+    sample = uni(gen);
+#else
+    sample = (QuadDouble(rand())/(QuadDouble(RAND_MAX)+1))*(b-a) + a;
+#endif
+    return sample;
+}
+
+#endif
+
 #ifdef EL_HAVE_QUAD
 template<>
 Quad SampleUniform( Quad a, Quad b )
 {
     Quad sample;
-
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
     std::uniform_real_distribution<long double> 
       uni((long double)a,(long double)b);
     sample = uni(gen);
 #else
-    sample = (Real(rand())/(Real(RAND_MAX)+1))*(b-a) + a;
+    sample = (Quad(rand())/(Quad(RAND_MAX)+1))*(b-a) + a;
 #endif
-
     return sample;
 }
 
@@ -48,14 +79,14 @@ Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b )
       imagUni((long double)ImagPart(a),(long double)ImagPart(b));
     SetImagPart( sample, Quad(imagUni(gen)) );
 #else
-    Real aReal = RealPart(a);
-    Real aImag = ImagPart(a);
-    Real bReal = RealPart(b);
-    Real bImag = ImagPart(b);
-    Real realPart = (Real(rand())/(Real(RAND_MAX)+1))*(bReal-aReal) + aReal;
+    Quad aReal = RealPart(a);
+    Quad aImag = ImagPart(a);
+    Quad bReal = RealPart(b);
+    Quad bImag = ImagPart(b);
+    Quad realPart = (Quad(rand())/(Quad(RAND_MAX)+1))*(bReal-aReal) + aReal;
     SetRealPart( sample, realPart );
 
-    Real imagPart = (Real(rand())/(Real(RAND_MAX)+1))*(bImag-aImag) + aImag;
+    Quad imagPart = (Quad(rand())/(Quad(RAND_MAX)+1))*(bImag-aImag) + aImag;
     SetImagPart( sample, imagPart );
 #endif
 
@@ -92,6 +123,72 @@ Int SampleUniform<Int>( Int a, Int b )
     return a + (rand() % (b-a));
 #endif
 }
+
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble SampleNormal( DoubleDouble mean, DoubleDouble stddev )
+{
+    DoubleDouble sample;
+
+#ifdef EL_HAVE_CXX11RANDOM
+    // TODO: Use a better RNG
+    std::mt19937& gen = Generator();
+    std::normal_distribution<double> normal((double)mean,(double)stddev);
+    sample = normal(gen);
+#else
+    // Run Marsiglia's polar method
+    // ============================
+    // NOTE: Half of the generated samples are thrown away in the case that
+    //       F is real.
+    while( true )
+    {
+        const DoubleDouble U = SampleUniform<DoubleDouble>(-1,1);
+        const DoubleDouble V = SampleUniform<DoubleDouble>(-1,1);
+        const DoubleDouble S = Sqrt(U*U+V*V);
+        if( S > DoubleDouble(0) && S < DoubleDouble(1) )
+        {
+            const DoubleDouble W = Sqrt(-2*Log(S)/S);
+            sample = mean + stddev*U*W;
+            break;
+        }
+    }
+#endif
+
+    return sample;
+}
+
+template<>
+QuadDouble SampleNormal( QuadDouble mean, QuadDouble stddev )
+{
+    QuadDouble sample;
+
+#ifdef EL_HAVE_CXX11RANDOM
+    // TODO: Use a better RNG
+    std::mt19937& gen = Generator();
+    std::normal_distribution<double> normal((double)mean,(double)stddev);
+    sample = normal(gen);
+#else
+    // Run Marsiglia's polar method
+    // ============================
+    // NOTE: Half of the generated samples are thrown away in the case that
+    //       F is real.
+    while( true )
+    {
+        const QuadDouble U = SampleUniform<QuadDouble>(-1,1);
+        const QuadDouble V = SampleUniform<QuadDouble>(-1,1);
+        const QuadDouble S = Sqrt(U*U+V*V);
+        if( S > QuadDouble(0) && S < QuadDouble(1) )
+        {
+            const QuadDouble W = Sqrt(-2*Log(S)/S);
+            sample = mean + stddev*U*W;
+            break;
+        }
+    }
+#endif
+
+    return sample;
+}
+#endif
 
 #ifdef EL_HAVE_QUAD
 template<>
@@ -193,52 +290,8 @@ BigFloat SampleNormal( BigFloat mean, BigFloat stddev )
 }
 #endif // ifdef EL_HAVE_MPC
 
-template<>
-float SampleBall<float>( float center, float radius )
-{ return SampleUniform<float>(center-radius,center+radius); }
-
-template<>
-double SampleBall<double>( double center, double radius )
-{ return SampleUniform<double>(center-radius,center+radius); }
-
-template<>
-Complex<float> SampleBall<Complex<float>>( Complex<float> center, float radius )
-{
-    const float r = SampleUniform<float>(0,radius);
-    const float angle = SampleUniform<float>(0.f,float(2*Pi<float>()));
-    return center + Complex<float>(r*cos(angle),r*sin(angle));
-}
-
-template<>
-Complex<double>
-SampleBall<Complex<double>>( Complex<double> center, double radius )
-{
-    const double r = SampleUniform<double>(0,radius);
-    const double angle = SampleUniform<double>(0.,2*Pi<double>());
-    return center + Complex<double>(r*cos(angle),r*sin(angle));
-}
-
-#ifdef EL_HAVE_QUAD
-template<>
-Quad SampleBall<Quad>( Quad center, Quad radius )
-{ return SampleUniform<Quad>(center-radius,center+radius); }
-
-template<>
-Complex<Quad> SampleBall<Complex<Quad>>( Complex<Quad> center, Quad radius )
-{
-    const Quad r = SampleUniform<Quad>(0,radius);
-    const Quad angle = SampleUniform<Quad>(0.f,Quad(2*Pi<Quad>()));
-    return center + Complex<Quad>(r*Cos(angle),r*Sin(angle));
-}
-#endif
-
-#ifdef EL_HAVE_MPC
-template<>
-BigFloat SampleBall<BigFloat>( BigFloat center, BigFloat radius )
-{ return SampleUniform<BigFloat>(center-radius,center+radius); }
-#endif
-
-// I'm not certain if there is any good way to define this
+// There is likely to be a significantly better way to define this;
+// the current implementation is simply a placeholder
 template<>
 Int SampleBall<Int>( Int center, Int radius )
 {

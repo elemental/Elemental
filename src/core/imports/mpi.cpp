@@ -3604,6 +3604,14 @@ MPI_PROTO(ValueInt<double>)
 MPI_PROTO(ValueInt<Complex<double>>)
 MPI_PROTO(Entry<double>)
 MPI_PROTO(Entry<Complex<double>>)
+#ifdef EL_HAVE_QD
+MPI_PROTO(DoubleDouble)
+MPI_PROTO(QuadDouble)
+MPI_PROTO(ValueInt<DoubleDouble>)
+MPI_PROTO(ValueInt<QuadDouble>)
+MPI_PROTO(Entry<DoubleDouble>)
+MPI_PROTO(Entry<QuadDouble>)
+#endif
 #ifdef EL_HAVE_QUAD
 MPI_PROTO(Quad)
 MPI_PROTO(Complex<Quad>)
@@ -3631,6 +3639,8 @@ MPI_PROTO(Entry<BigFloat>)
     const vector<int>& recvDispls, \
           Comm comm ) EL_NO_RELEASE_EXCEPT;
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

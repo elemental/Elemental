@@ -553,6 +553,16 @@ template void Axpy
 ( BlasInt n, Int alpha,
   const Int* x, BlasInt incx,
         Int* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template void Axpy
+( BlasInt n, DoubleDouble alpha, 
+  const DoubleDouble* x, BlasInt incx,
+        DoubleDouble* y, BlasInt incy );
+template void Axpy
+( BlasInt n, QuadDouble alpha, 
+  const QuadDouble* x, BlasInt incx,
+        QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Axpy
 ( BlasInt n, Quad alpha, 
@@ -604,6 +614,16 @@ template void Copy
 ( BlasInt n,
   const Int* x, BlasInt incx,
         Int* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template void Copy
+( BlasInt n,
+  const DoubleDouble* x, BlasInt incx, 
+        DoubleDouble* y, BlasInt incy );
+template void Copy
+( BlasInt n,
+  const QuadDouble* x, BlasInt incx, 
+        QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Copy
 ( BlasInt n,
@@ -669,6 +689,16 @@ template dcomplex Dot
 ( BlasInt n,
   const dcomplex* x, BlasInt incx,
   const dcomplex* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template DoubleDouble Dot
+( BlasInt n,
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble* y, BlasInt incy );
+template QuadDouble Dot
+( BlasInt n,
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad Dot
 ( BlasInt n,
@@ -721,6 +751,16 @@ template dcomplex Dotu
 ( BlasInt n,
   const dcomplex* x, BlasInt incx,
   const dcomplex* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template DoubleDouble Dotu
+( BlasInt n,
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble* y, BlasInt incy );
+template QuadDouble Dotu
+( BlasInt n,
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad Dotu
 ( BlasInt n,
@@ -756,6 +796,10 @@ Base<F> Nrm2( BlasInt n, const F* x, BlasInt incx )
 }
 template float Nrm2( BlasInt n, const float* x, BlasInt incx );
 template float Nrm2( BlasInt n, const scomplex* x, BlasInt incx );
+#ifdef EL_HAVE_QD
+template DoubleDouble Nrm2( BlasInt n, const DoubleDouble* x, BlasInt incx );
+template QuadDouble Nrm2( BlasInt n, const QuadDouble* x, BlasInt incx );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad Nrm2( BlasInt n, const Quad* x, BlasInt incx );
 template Quad Nrm2( BlasInt n, const Complex<Quad>* x, BlasInt incx );
@@ -787,6 +831,10 @@ BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx )
     return maxAbsInd;
 }
 template BlasInt MaxInd( BlasInt n, const Int* x, BlasInt incx );
+#ifdef EL_HAVE_QD
+template BlasInt MaxInd( BlasInt n, const DoubleDouble* x, BlasInt incx );
+template BlasInt MaxInd( BlasInt n, const QuadDouble* x, BlasInt incx );
+#endif
 #ifdef EL_HAVE_QUAD
 template BlasInt MaxInd( BlasInt n, const Quad* x, BlasInt incx );
 template BlasInt MaxInd( BlasInt n, const Complex<Quad>* x, BlasInt incx );
@@ -859,6 +907,12 @@ Complex<Real> Givens
         return *c*phi + *s*gamma;
     }
 }
+#ifdef EL_HAVE_QD
+template DoubleDouble Givens
+( DoubleDouble phi, DoubleDouble gamma, DoubleDouble* c, DoubleDouble* s );
+template QuadDouble Givens
+( QuadDouble phi, QuadDouble gamma, QuadDouble* c, QuadDouble* s );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad Givens( Quad phi, Quad gamma, Quad* c, Quad* s );
 template Complex<Quad> Givens
@@ -913,6 +967,18 @@ void Rot
         x[i*incx] = temp;
     }
 }
+#ifdef EL_HAVE_QD
+template void Rot
+( BlasInt n,
+  DoubleDouble* x, BlasInt incx,
+  DoubleDouble* y, BlasInt incy,
+  DoubleDouble c, DoubleDouble s );
+template void Rot
+( BlasInt n,
+  QuadDouble* x, BlasInt incx,
+  QuadDouble* y, BlasInt incy,
+  QuadDouble c, QuadDouble s );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Rot
 ( BlasInt n,
@@ -965,6 +1031,12 @@ void Scal( BlasInt n, T alpha, T* x, BlasInt incx )
         x[j*incx] *= alpha;
 }
 template void Scal( BlasInt n, Int alpha, Int* x, BlasInt incx );
+#ifdef EL_HAVE_QD
+template void Scal
+( BlasInt n, DoubleDouble alpha, DoubleDouble* x, BlasInt incx );
+template void Scal
+( BlasInt n, QuadDouble alpha, QuadDouble* x, BlasInt incx );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Scal
 ( BlasInt n, Quad alpha, Quad* x, BlasInt incx );
@@ -1011,6 +1083,10 @@ Base<F> Nrm1( BlasInt n, const F* x, BlasInt incx )
 }
 template float Nrm1( BlasInt n, const float* x, BlasInt incx );
 template float Nrm1( BlasInt n, const scomplex* x, BlasInt incx );
+#ifdef EL_HAVE_QD
+template DoubleDouble Nrm1( BlasInt n, const DoubleDouble* x, BlasInt incx );
+template QuadDouble Nrm1( BlasInt n, const QuadDouble* x, BlasInt incx );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad Nrm1( BlasInt n, const Quad* x, BlasInt incx );
 template Quad Nrm1( BlasInt n, const Complex<Quad>* x, BlasInt incx );
@@ -1035,6 +1111,12 @@ void Swap( BlasInt n, T* x, BlasInt incx, T* y, BlasInt incy )
     }
 }
 template void Swap( BlasInt n, Int* x, BlasInt incx, Int* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template void Swap
+( BlasInt n, DoubleDouble* x, BlasInt incx, DoubleDouble* y, BlasInt incy );
+template void Swap
+( BlasInt n, QuadDouble* x, BlasInt incx, QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Swap( BlasInt n, Quad* x, BlasInt incx, Quad* y, BlasInt incy );
 template void Swap
@@ -1108,6 +1190,18 @@ template void Gemv
   Int alpha, const Int* A, BlasInt ALDim,
              const Int* x, BlasInt incx, 
   Int beta,        Int* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template void Gemv
+( char trans, BlasInt m, BlasInt n, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
+                      const DoubleDouble* x, BlasInt incx, 
+  DoubleDouble beta,        DoubleDouble* y, BlasInt incy );
+template void Gemv
+( char trans, BlasInt m, BlasInt n, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
+                    const QuadDouble* x, BlasInt incx, 
+  QuadDouble beta,        QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
@@ -1182,6 +1276,18 @@ template void Ger
   Int alpha, const Int* x, BlasInt incx, 
              const Int* y, BlasInt incy, 
                    Int* A, BlasInt ALDim );
+#ifdef EL_HAVE_QD
+template void Ger
+( BlasInt m, BlasInt n, 
+  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx, 
+                      const DoubleDouble* y, BlasInt incy, 
+                            DoubleDouble* A, BlasInt ALDim );
+template void Ger
+( BlasInt m, BlasInt n, 
+  QuadDouble alpha, const QuadDouble* x, BlasInt incx, 
+                    const QuadDouble* y, BlasInt incy, 
+                          QuadDouble* A, BlasInt ALDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Ger
 ( BlasInt m, BlasInt n, 
@@ -1248,6 +1354,20 @@ template void Geru
   const Int* x, BlasInt incx, 
   const Int* y, BlasInt incy, 
         Int* A, BlasInt ALDim );
+#ifdef EL_HAVE_QD
+template void Geru
+( BlasInt m, BlasInt n, 
+  DoubleDouble alpha,
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble* y, BlasInt incy, 
+        DoubleDouble* A, BlasInt ALDim );
+template void Geru
+( BlasInt m, BlasInt n, 
+  QuadDouble alpha,
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble* y, BlasInt incy, 
+        QuadDouble* A, BlasInt ALDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Geru
 ( BlasInt m, BlasInt n, 
@@ -1354,6 +1474,18 @@ template void Hemv
   Int alpha, const Int* A, BlasInt ALDim, 
              const Int* x, BlasInt incx, 
   Int beta,        Int* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template void Hemv
+( char uplo, BlasInt m, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+                      const DoubleDouble* x, BlasInt incx, 
+  DoubleDouble beta,        DoubleDouble* y, BlasInt incy );
+template void Hemv
+( char uplo, BlasInt m, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+                    const QuadDouble* x, BlasInt incx, 
+  QuadDouble beta,        QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Hemv
 ( char uplo, BlasInt m, 
@@ -1425,6 +1557,16 @@ template void Her
 ( char uplo, BlasInt m,
   Int alpha, const Int* x, BlasInt incx, 
                    Int* A, BlasInt ALDim );
+#ifdef EL_HAVE_QD
+template void Her
+( char uplo, BlasInt m, 
+  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx,
+                            DoubleDouble* A, BlasInt ALDim );
+template void Her
+( char uplo, BlasInt m, 
+  QuadDouble alpha, const QuadDouble* x, BlasInt incx,
+                          QuadDouble* A, BlasInt ALDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Her
 ( char uplo, BlasInt m, 
@@ -1488,6 +1630,18 @@ template void Her2
   Int alpha, const Int* x, BlasInt incx, 
              const Int* y, BlasInt incy, 
                    Int* A, BlasInt ALDim );
+#ifdef EL_HAVE_QD
+template void Her2
+( char uplo, BlasInt m, 
+  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx, 
+                      const DoubleDouble* y, BlasInt incy, 
+                            DoubleDouble* A, BlasInt ALDim );
+template void Her2
+( char uplo, BlasInt m, 
+  QuadDouble alpha, const QuadDouble* x, BlasInt incx, 
+                    const QuadDouble* y, BlasInt incy, 
+                          QuadDouble* A, BlasInt ALDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Her2
 ( char uplo, BlasInt m, 
@@ -1587,6 +1741,18 @@ template void Symv
   Int alpha, const Int* A, BlasInt ALDim, 
              const Int* x, BlasInt incx, 
   Int beta,        Int* y, BlasInt incy );
+#ifdef EL_HAVE_QD
+template void Symv
+( char uplo, BlasInt m, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+                      const DoubleDouble* x, BlasInt incx, 
+  DoubleDouble beta,        DoubleDouble* y, BlasInt incy );
+template void Symv
+( char uplo, BlasInt m, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+                    const QuadDouble* x, BlasInt incx, 
+  QuadDouble beta,        QuadDouble* y, BlasInt incy );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Symv
 ( char uplo, BlasInt m, 
@@ -1664,6 +1830,16 @@ template void Syr
 ( char uplo, BlasInt m,
   Int alpha, const Int* x, BlasInt incx, 
                    Int* A, BlasInt ALDim );
+#ifdef EL_HAVE_QD
+template void Syr
+( char uplo, BlasInt m, 
+  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx,
+                            DoubleDouble* A, BlasInt ALDim );
+template void Syr
+( char uplo, BlasInt m, 
+  QuadDouble alpha, const QuadDouble* x, BlasInt incx,
+                          QuadDouble* A, BlasInt ALDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Syr
 ( char uplo, BlasInt m, 
@@ -1736,6 +1912,18 @@ template void Syr2
   Int alpha, const Int* x, BlasInt incx,
              const Int* y, BlasInt incy, 
                    Int* A, BlasInt ALDim );
+#ifdef EL_HAVE_QD
+template void Syr2
+( char uplo, BlasInt m, 
+  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx, 
+                      const DoubleDouble* y, BlasInt incy, 
+                            DoubleDouble* A, BlasInt ALDim );
+template void Syr2
+( char uplo, BlasInt m, 
+  QuadDouble alpha, const QuadDouble* x, BlasInt incx, 
+                    const QuadDouble* y, BlasInt incy, 
+                          QuadDouble* A, BlasInt ALDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Syr2
 ( char uplo, BlasInt m, 
@@ -1896,6 +2084,16 @@ template void Trmv
 ( char uplo, char trans, char diag, BlasInt m,
   const Int* A, BlasInt ALDim,
         Int* x, BlasInt incx );
+#ifdef EL_HAVE_QD
+template void Trmv
+( char uplo, char trans, char diag, BlasInt m,
+  const DoubleDouble* A, BlasInt ALDim,
+        DoubleDouble* x, BlasInt incx );
+template void Trmv
+( char uplo, char trans, char diag, BlasInt m,
+  const QuadDouble* A, BlasInt ALDim,
+        QuadDouble* x, BlasInt incx );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Trmv
 ( char uplo, char trans, char diag, BlasInt m,
@@ -2019,6 +2217,16 @@ void Trsv
         }
     }
 }
+#ifdef EL_HAVE_QD
+template void Trsv
+( char uplo, char trans, char diag, BlasInt m,
+  const DoubleDouble* A, BlasInt ALDim,
+        DoubleDouble* x, BlasInt incx );
+template void Trsv
+( char uplo, char trans, char diag, BlasInt m,
+  const QuadDouble* A, BlasInt ALDim,
+        QuadDouble* x, BlasInt incx );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Trsv
 ( char uplo, char trans, char diag, BlasInt m,
@@ -2209,6 +2417,20 @@ template void Gemm
   Int alpha, const Int* A, BlasInt ALDim,
              const Int* B, BlasInt BLDim,
   Int beta,        Int* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void Gemm
+( char transA, char transB,
+  BlasInt m, BlasInt n, BlasInt k, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
+                      const DoubleDouble* B, BlasInt BLDim,
+  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+template void Gemm
+( char transA, char transB,
+  BlasInt m, BlasInt n, BlasInt k, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
+                    const QuadDouble* B, BlasInt BLDim,
+  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Gemm
 ( char transA, char transB,
@@ -2481,6 +2703,18 @@ template void Hemm
   Int alpha, const Int* A, BlasInt ALDim, 
              const Int* B, BlasInt BLDim,
   Int beta,        Int* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void Hemm
+( char side, char uplo, BlasInt m, BlasInt n,
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+                      const DoubleDouble* B, BlasInt BLDim,
+  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+template void Hemm
+( char side, char uplo, BlasInt m, BlasInt n,
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+                    const QuadDouble* B, BlasInt BLDim,
+  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
@@ -2620,6 +2854,20 @@ template void Her2k
   Int alpha, const Int* A, BlasInt ALDim, 
              const Int* B, BlasInt BLDim,
   Int beta,        Int* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void Her2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+                      const DoubleDouble* B, BlasInt BLDim,
+  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+template void Her2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+                    const QuadDouble* B, BlasInt BLDim,
+  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Her2k
 ( char uplo, char trans,
@@ -2757,6 +3005,18 @@ template void Herk
   BlasInt n, BlasInt k, 
   Int alpha, const Int* A, BlasInt ALDim, 
   Int beta,        Int* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void Herk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+template void Herk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Herk
 ( char uplo, char trans,
@@ -2906,6 +3166,18 @@ template void Symm
   Int alpha, const Int* A, BlasInt ALDim, 
              const Int* B, BlasInt BLDim,
   Int beta,        Int* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void Symm
+( char side, char uplo, BlasInt m, BlasInt n,
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+                      const DoubleDouble* B, BlasInt BLDim,
+  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+template void Symm
+( char side, char uplo, BlasInt m, BlasInt n,
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+                    const QuadDouble* B, BlasInt BLDim,
+  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
@@ -3040,6 +3312,20 @@ template void Syr2k
   Int alpha, const Int* A, BlasInt ALDim, 
              const Int* B, BlasInt BLDim,
   Int beta,        Int* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void Syr2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+                      const DoubleDouble* B, BlasInt BLDim,
+  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+template void Syr2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+                    const QuadDouble* B, BlasInt BLDim,
+  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Syr2k
 ( char uplo, char trans,
@@ -3171,6 +3457,18 @@ template void Syrk
   BlasInt n, BlasInt k, 
   Int alpha, const Int* A, BlasInt ALDim, 
   Int beta,        Int* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void Syrk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
+  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+template void Syrk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
+  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Syrk
 ( char uplo, char trans,
@@ -3310,6 +3608,18 @@ void Trmm
         }
     }
 }
+#ifdef EL_HAVE_QD
+template void Trmm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
+                            DoubleDouble* B, BlasInt BLDim );
+template void Trmm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
+                          QuadDouble* B, BlasInt BLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Trmm
 ( char side, char uplo, char trans, char unit,
@@ -3621,6 +3931,18 @@ void Trsm
         }
     }
 }
+#ifdef EL_HAVE_QD
+template void Trsm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
+                            DoubleDouble* B, BlasInt BLDim );
+template void Trsm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
+                          QuadDouble* B, BlasInt BLDim );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Trsm
 ( char side, char uplo, char trans, char unit,

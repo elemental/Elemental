@@ -34,11 +34,11 @@ using ExponentType = typename ExponentTypeHelper<Real>::type;
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline ExponentType<Real> MaxExponent( const Real& alpha=Real(1) )
-{ return std::numeric_limits<Real>::max_exponent(); }
+{ return std::numeric_limits<Real>::max_exponent; }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline ExponentType<Real> MinExponent( const Real& alpha=Real(1) )
-{ return std::numeric_limits<Real>::min_exponent(); }
+{ return std::numeric_limits<Real>::min_exponent; }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Max( const Real& alpha=Real(1) )
@@ -89,6 +89,66 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline bool IsFinite( const Real& alpha )
 { return std::isfinite(alpha); }
 
+#ifdef EL_HAVE_QD
+template<>
+inline ExponentType<DoubleDouble> MaxExponent<DoubleDouble>
+( const DoubleDouble& alpha )
+{ return MaxExponent<double>(); }
+template<>
+inline ExponentType<DoubleDouble> MinExponent<DoubleDouble>
+( const DoubleDouble& alpha )
+{ return MinExponent<double>(); }
+
+template<> inline DoubleDouble Max<DoubleDouble>( const DoubleDouble& alpha )
+{ return dd_real::_max; }
+template<> inline DoubleDouble Min<DoubleDouble>( const DoubleDouble& alpha )
+{ return dd_real::_min_normalized; }
+template<> inline DoubleDouble Lowest<DoubleDouble>( const DoubleDouble& alpha )
+{ return -dd_real::_max; }
+
+template<> inline DoubleDouble Precision( const DoubleDouble& alpha )
+{ return dd_real::_eps; }
+template<> inline DoubleDouble Epsilon( const DoubleDouble& alpha )
+{ return dd_real::_eps/double(2); }
+
+template<> inline DoubleDouble Infinity<DoubleDouble>
+( const DoubleDouble& alpha )
+{ return dd_real::_inf; }
+
+template<>
+inline bool IsFinite( const DoubleDouble& alpha )
+{ return alpha.isfinite(); }
+
+template<>
+inline ExponentType<QuadDouble> MaxExponent<QuadDouble>
+( const QuadDouble& alpha )
+{ return MaxExponent<double>(); }
+template<>
+inline ExponentType<QuadDouble> MinExponent<QuadDouble>
+( const QuadDouble& alpha )
+{ return MinExponent<double>(); }
+
+template<> inline QuadDouble Max<QuadDouble>( const QuadDouble& alpha )
+{ return qd_real::_max; }
+template<> inline QuadDouble Min<QuadDouble>( const QuadDouble& alpha )
+{ return qd_real::_min_normalized; }
+template<> inline QuadDouble Lowest<QuadDouble>( const QuadDouble& alpha )
+{ return -qd_real::_max; }
+
+template<> inline QuadDouble Precision( const QuadDouble& alpha )
+{ return qd_real::_eps; }
+template<> inline QuadDouble Epsilon( const QuadDouble& alpha )
+{ return qd_real::_eps/double(2); }
+
+template<> inline QuadDouble Infinity<QuadDouble>
+( const QuadDouble& alpha )
+{ return qd_real::_inf; }
+
+template<>
+inline bool IsFinite( const QuadDouble& alpha )
+{ return alpha.isfinite(); }
+#endif
+
 #ifdef EL_HAVE_QUAD
 template<>
 inline ExponentType<Quad> MaxExponent<Quad>( const Quad& alpha )
@@ -122,7 +182,6 @@ template<> inline Quad Infinity<Quad>( const Quad& alpha )
 template<>
 inline bool IsFinite( const Quad& alpha )
 { return finiteq(alpha) != 0; }
-
 #endif // ifdef EL_HAVE_QUAD
 
 #ifdef EL_HAVE_MPC
@@ -187,7 +246,6 @@ inline BigFloat Infinity<BigFloat>( const BigFloat& alpha )
 template<>
 inline bool IsFinite( const BigFloat& alpha )
 { return mpfr_number_p( alpha.LockedPointer() ) != 0; }
-
 #endif // ifdef EL_HAVE_MPC
 
 } // namespace limits

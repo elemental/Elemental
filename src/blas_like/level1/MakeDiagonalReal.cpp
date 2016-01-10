@@ -48,6 +48,8 @@ void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset )
   template void MakeDiagonalReal( Matrix<T>& A, Int offset ); \
   template void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

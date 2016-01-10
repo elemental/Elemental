@@ -183,6 +183,19 @@ F SampleNormal( F mean, Base<F> stddev )
     return sample;
 }
 
+template<typename F>
+F SampleBall( F center, Base<F> radius )
+{
+    typedef Base<F> Real;
+    const Real r = SampleUniform<Real>(0,radius);
+    const Real angle = SampleUniform<Real>(0,Real(2*Pi<Real>()));
+    return center + F(r*Cos(angle),r*Sin(angle));
+}
+
+template<typename Real,typename>
+Real SampleBall( Real center, Real radius )
+{ return SampleUniform<Real>(center-radius,center+radius); }
+
 } // namespace El
 
 #endif // ifndef EL_RANDOM_IMPL_HPP

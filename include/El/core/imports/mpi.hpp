@@ -125,6 +125,12 @@ template<typename T> Op UserCommOp();
 
 template<typename Real> inline Op MaxOp() EL_NO_EXCEPT { return MAX; }
 template<typename Real> inline Op MinOp() EL_NO_EXCEPT { return MIN; }
+#ifdef EL_HAVE_QD
+template<> Op MaxOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MinOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MaxOp<QuadDouble>() EL_NO_EXCEPT;
+template<> Op MinOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op MaxOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinOp<Quad>() EL_NO_EXCEPT;
@@ -135,6 +141,10 @@ template<> Op MinOp<BigFloat>() EL_NO_EXCEPT;
 #endif
 
 template<typename T> inline Op SumOp() EL_NO_EXCEPT { return SUM; }
+#ifdef EL_HAVE_QD
+template<> Op SumOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op SumOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op SumOp<Quad>() EL_NO_EXCEPT;
 template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT;
@@ -151,6 +161,12 @@ template<> Op MaxLocOp<float>() EL_NO_EXCEPT;
 template<> Op MinLocOp<float>() EL_NO_EXCEPT;
 template<> Op MaxLocOp<double>() EL_NO_EXCEPT;
 template<> Op MinLocOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Op MaxLocOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MinLocOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MaxLocOp<QuadDouble>() EL_NO_EXCEPT;
+template<> Op MinLocOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinLocOp<Quad>() EL_NO_EXCEPT;
@@ -168,6 +184,12 @@ template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<float>() EL_NO_EXCEPT;
 template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Op MaxLocPairOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<QuadDouble>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT;
@@ -1324,6 +1346,10 @@ template<> Datatype TypeMap<float>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<float>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<double>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<double>>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Datatype TypeMap<DoubleDouble>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<Quad>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT;
@@ -1337,6 +1363,10 @@ template<> Datatype TypeMap<ValueInt<float>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<float>>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<double>>>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Datatype TypeMap<ValueInt<DoubleDouble>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<ValueInt<QuadDouble>>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<Quad>>>() EL_NO_EXCEPT;
@@ -1350,6 +1380,10 @@ template<> Datatype TypeMap<Entry<float>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<float>>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<double>>>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Datatype TypeMap<Entry<DoubleDouble>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Entry<QuadDouble>>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<Quad>>>() EL_NO_EXCEPT;

@@ -199,14 +199,21 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Testing with integers:");
         DistMatrixTest<Int>( m, n, g, print );
-
         if( commRank == 0 )
             Output("Testing with floats:");
         DistMatrixTest<float>( m, n, g, print );
-
         if( commRank == 0 )
             Output("Testing with doubles:");
         DistMatrixTest<double>( m, n, g, print );
+
+#ifdef EL_HAVE_QD
+        if( commRank == 0 )
+            Output("Testing with DoubleDouble:");
+        DistMatrixTest<DoubleDouble>( m, n, g, print );
+        if( commRank == 0 )
+            Output("Testing with QuadDouble:");
+        DistMatrixTest<QuadDouble>( m, n, g, print );
+#endif
 
 #ifdef EL_HAVE_QUAD
         if( commRank == 0 )
@@ -217,7 +224,6 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Testing with single-precision complex:");
         DistMatrixTest<Complex<float>>( m, n, g, print );
-        
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
         DistMatrixTest<Complex<double>>( m, n, g, print );

@@ -694,6 +694,8 @@ void Matrix<T>::Resize_( Int height, Int width, Int ldim )
 }
 
 #define PROTO(T) template class Matrix<T>;
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

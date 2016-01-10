@@ -818,6 +818,8 @@ ElementalMatrix<T>::ShallowSwap( ElementalMatrix<T>& A )
  #define PROTO(T) template class ElementalMatrix<T>;
 #endif
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

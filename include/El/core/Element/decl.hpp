@@ -53,6 +53,10 @@ template<> std::string TypeName<float>();
 template<> std::string TypeName<double>();
 template<> std::string TypeName<Complex<float>>();
 template<> std::string TypeName<Complex<double>>();
+#ifdef EL_HAVE_QD
+template<> std::string TypeName<DoubleDouble>();
+template<> std::string TypeName<QuadDouble>();
+#endif
 #ifdef EL_HAVE_QUAD
 template<> std::string TypeName<Quad>();
 template<> std::string TypeName<Complex<Quad>>();
@@ -83,6 +87,10 @@ template<> struct IsScalar<float> { static const bool value=true; };
 template<> struct IsScalar<double> { static const bool value=true; };
 template<> struct IsScalar<Complex<float>> { static const bool value=true; };
 template<> struct IsScalar<Complex<double>> { static const bool value=true; };
+#ifdef EL_HAVE_QD
+template<> struct IsScalar<DoubleDouble> { static const bool value=true; };
+template<> struct IsScalar<QuadDouble> { static const bool value=true; };
+#endif
 #ifdef EL_HAVE_QUAD
 template<> struct IsScalar<Quad> { static const bool value=true; };
 template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
@@ -107,7 +115,27 @@ struct PrecisionIsGreater
 { static const bool value=false; };
 template<> struct PrecisionIsGreater<double,float>
 { static const bool value=true; };
+#ifdef EL_HAVE_QD
+template<> struct PrecisionIsGreater<DoubleDouble,double>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<DoubleDouble,float>
+{ static const bool value=true; };
 #ifdef EL_HAVE_QUAD
+template<> struct PrecisionIsGreater<QuadDouble,Quad>
+{ static const bool value=true; };
+#endif
+template<> struct PrecisionIsGreater<QuadDouble,DoubleDouble>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<QuadDouble,double>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<QuadDouble,float>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_QUAD
+#ifdef EL_HAVE_QD
+template<> struct PrecisionIsGreater<Quad,DoubleDouble>
+{ static const bool value=true; };
+#endif
 template<> struct PrecisionIsGreater<Quad,double>
 { static const bool value=true; };
 template<> struct PrecisionIsGreater<Quad,float>
@@ -116,6 +144,12 @@ template<> struct PrecisionIsGreater<Quad,float>
 #ifdef EL_HAVE_MPC
 // While these aren't necessarily always true, it would be a capitally bad
 // idea to use MPFR without using higher than the available fixed precision
+#ifdef EL_HAVE_QD
+template<> struct PrecisionIsGreater<BigFloat,QuadDouble>
+{ static const bool value=true; };
+template<> struct PrecisionIsGreater<BigFloat,DoubleDouble>
+{ static const bool value=true; };
+#endif
 #ifdef EL_HAVE_QUAD
 template<> struct PrecisionIsGreater<BigFloat,Quad>
 { static const bool value=true; };
@@ -143,6 +177,7 @@ template<> struct PromoteHelper<float> { typedef double type; };
 #ifdef EL_HAVE_QUAD
 template<> struct PromoteHelper<double> { typedef Quad type; };
 #endif
+// TODO: More promotion operations, e.g., Quad -> BigFloat
 
 template<typename Real> struct PromoteHelper<Complex<Real>>
 { typedef Complex<typename PromoteHelper<Real>::type> type; };
@@ -190,6 +225,7 @@ struct CanBidirectionalCast
 // A superset of the above that includes pointers to the above, as well
 // as 'int' (which is different than Int if 64-bit integers are enabled)
 // ---------------------------------------------------------------------
+// TODO: Reuse IsScalar
 template<typename T> struct IsData { static const bool value=false; };
 template<typename T> struct IsData<T*> { static const bool value=true; };
 template<typename T> struct IsData<const T*> { static const bool value=true; };
@@ -201,6 +237,10 @@ template<> struct IsData<float> { static const bool value=true; };
 template<> struct IsData<double> { static const bool value=true; };
 template<> struct IsData<Complex<float>> { static const bool value=true; };
 template<> struct IsData<Complex<double>> { static const bool value=true; };
+#ifdef EL_HAVE_QD
+template<> struct IsData<DoubleDouble> { static const bool value=true; };
+template<> struct IsData<QuadDouble> { static const bool value=true; };
+#endif
 #ifdef EL_HAVE_QUAD
 template<> struct IsData<Quad> { static const bool value=true; };
 template<> struct IsData<Complex<Quad>> { static const bool value=true; };
@@ -301,6 +341,10 @@ template<> Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta );
 // Note: Unnecessary overflow may occur for complex values, please see SafeAbs
 template<typename T,typename=EnableIf<IsScalar<T>>>
 Base<T> Abs( const T& alpha ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Abs( const DoubleDouble& alpha ) EL_NO_EXCEPT;
+template<> QuadDouble Abs( const QuadDouble& alpha ) EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Abs( const Quad& alpha ) EL_NO_EXCEPT;
 template<> Quad Abs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
@@ -339,6 +383,10 @@ BigFloat Sgn( const BigFloat& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 // ==============
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Exp( const F& alpha ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Exp( const DoubleDouble& alpha ) EL_NO_EXCEPT;
+template<> QuadDouble Exp( const QuadDouble& alpha ) EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Exp( const Quad& alpha ) EL_NO_EXCEPT;
 template<> Complex<Quad> Exp( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
@@ -355,20 +403,33 @@ F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT;
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Pow( const F& alpha, const int& beta ) EL_NO_EXCEPT;
 #endif
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Pow
+( const DoubleDouble& alpha, const DoubleDouble& beta ) EL_NO_EXCEPT;
+template<>
+QuadDouble Pow
+( const QuadDouble& alpha, const QuadDouble& beta ) EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Pow( const Quad& alpha, const Quad& beta ) EL_NO_EXCEPT;
-template<> Complex<Quad> Pow
+template<>
+Complex<Quad> Pow
 ( const Complex<Quad>& alpha, const Complex<Quad>& beta ) EL_NO_EXCEPT;
-template<> Complex<Quad> Pow
-( const Complex<Quad>& alpha, const Quad& beta ) EL_NO_EXCEPT;
+template<>
+Complex<Quad> Pow( const Complex<Quad>& alpha, const Quad& beta ) EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
-template<> BigFloat Pow
-( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT;
+template<>
+BigFloat Pow( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT;
 #endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Log( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Log( const DoubleDouble& alpha );
+template<> QuadDouble Log( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Log( const Quad& alpha );
 template<> Complex<Quad> Log( const Complex<Quad>& alpha );
@@ -379,6 +440,10 @@ template<> BigFloat Log( const BigFloat& alpha );
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Log2( const Real& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Log2( const DoubleDouble& alpha );
+template<> QuadDouble Log2( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Log2( const Quad& alpha );
 #endif
@@ -390,6 +455,10 @@ double Log2( const Integer& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sqrt( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Sqrt( const DoubleDouble& alpha );
+template<> QuadDouble Sqrt( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Sqrt( const Quad& alpha );
 template<> Complex<Quad> Sqrt( const Complex<Quad>& alpha );
@@ -402,6 +471,10 @@ template<> BigFloat Sqrt( const BigFloat& alpha );
 // =======================
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Cos( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Cos( const DoubleDouble& alpha );
+template<> QuadDouble Cos( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Cos( const Quad& alpha );
 template<> Complex<Quad> Cos( const Complex<Quad>& alpha );
@@ -412,6 +485,10 @@ template<> BigFloat Cos( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sin( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Sin( const DoubleDouble& alpha );
+template<> QuadDouble Sin( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Sin( const Quad& alpha );
 template<> Complex<Quad> Sin( const Complex<Quad>& alpha );
@@ -422,6 +499,10 @@ template<> BigFloat Sin( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Tan( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Tan( const DoubleDouble& alpha );
+template<> QuadDouble Tan( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Tan( const Quad& alpha );
 template<> Complex<Quad> Tan( const Complex<Quad>& alpha );
@@ -432,6 +513,10 @@ template<> BigFloat Tan( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Acos( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Acos( const DoubleDouble& alpha );
+template<> QuadDouble Acos( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Acos( const Quad& alpha );
 template<> Complex<Quad> Acos( const Complex<Quad>& alpha );
@@ -442,6 +527,10 @@ template<> BigFloat Acos( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Asin( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Asin( const DoubleDouble& alpha );
+template<> QuadDouble Asin( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Asin( const Quad& alpha );
 template<> Complex<Quad> Asin( const Complex<Quad>& alpha );
@@ -452,6 +541,10 @@ template<> BigFloat Asin( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Atan( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Atan( const DoubleDouble& alpha );
+template<> QuadDouble Atan( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Atan( const Quad& alpha );
 template<> Complex<Quad> Atan( const Complex<Quad>& alpha );
@@ -462,19 +555,25 @@ template<> BigFloat Atan( const BigFloat& alpha );
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Atan2( const Real& y, const Real& x );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Atan2( const DoubleDouble& y, const DoubleDouble& x );
+template<> QuadDouble Atan2( const QuadDouble& y, const QuadDouble& x );
+#endif
 #ifdef EL_HAVE_QUAD
-template<>
-Quad Atan2( const Quad& y, const Quad& x );
+template<> Quad Atan2( const Quad& y, const Quad& x );
 #endif
 #ifdef EL_HAVE_MPC
-template<>
-BigFloat Atan2( const BigFloat& y, const BigFloat& x );
+template<> BigFloat Atan2( const BigFloat& y, const BigFloat& x );
 #endif
 
 // Hyperbolic functions
 // ====================
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Cosh( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Cosh( const DoubleDouble& alpha );
+template<> QuadDouble Cosh( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Cosh( const Quad& alpha );
 template<> Complex<Quad> Cosh( const Complex<Quad>& alpha );
@@ -485,6 +584,10 @@ template<> BigFloat Cosh( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sinh( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Sinh( const DoubleDouble& alpha );
+template<> QuadDouble Sinh( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Sinh( const Quad& alpha );
 template<> Complex<Quad> Sinh( const Complex<Quad>& alpha );
@@ -495,6 +598,10 @@ template<> BigFloat Sinh( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Tanh( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Tanh( const DoubleDouble& alpha );
+template<> QuadDouble Tanh( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Tanh( const Quad& alpha );
 template<> Complex<Quad> Tanh( const Complex<Quad>& alpha );
@@ -505,6 +612,10 @@ template<> BigFloat Tanh( const BigFloat& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Acosh( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Acosh( const DoubleDouble& alpha );
+template<> QuadDouble Acosh( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Acosh( const Quad& alpha );
 template<> Complex<Quad> Acosh( const Complex<Quad>& alpha );
@@ -512,6 +623,10 @@ template<> Complex<Quad> Acosh( const Complex<Quad>& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Asinh( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Asinh( const DoubleDouble& alpha );
+template<> QuadDouble Asinh( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Asinh( const Quad& alpha );
 template<> Complex<Quad> Asinh( const Complex<Quad>& alpha );
@@ -519,6 +634,10 @@ template<> Complex<Quad> Asinh( const Complex<Quad>& alpha );
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Atanh( const F& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Atanh( const DoubleDouble& alpha );
+template<> QuadDouble Atanh( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Atanh( const Quad& alpha );
 template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
@@ -537,6 +656,10 @@ Complex<Real> Round( const Complex<Real>& alpha );
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
 template<> Int Round( const Int& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Round( const DoubleDouble& alpha );
+template<> QuadDouble Round( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Round( const Quad& alpha );
 #endif
@@ -554,6 +677,10 @@ Complex<Real> Ceil( const Complex<Real>& alpha );
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
 template<> Int Ceil( const Int& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Round( const DoubleDouble& alpha );
+template<> QuadDouble Round( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Ceil( const Quad& alpha );
 #endif
@@ -571,6 +698,10 @@ Complex<Real> Floor( const Complex<Real>& alpha );
 // Full specializations
 // ^^^^^^^^^^^^^^^^^^^^
 template<> Int Floor( const Int& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Floor( const DoubleDouble& alpha );
+template<> QuadDouble Floor( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Floor( const Quad& alpha );
 #endif
@@ -592,6 +723,10 @@ void DowndateScaledSquare
 // ==
 template<typename Real>
 Real Pi();
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Pi<DoubleDouble>();
+template<> QuadDouble Pi<QuadDouble>();
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Pi<Quad>();
 #endif
@@ -604,6 +739,10 @@ BigFloat Pi( mpfr_prec_t prec );
 // ====================================
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Gamma( const Real& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Gamma( const DoubleDouble& alpha );
+template<> QuadDouble Gamma( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Gamma( const Quad& alpha );
 #endif
@@ -613,6 +752,10 @@ template<> BigFloat Gamma( const BigFloat& alpha );
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real LogGamma( const Real& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble LogGamma( const DoubleDouble& alpha );
+template<> QuadDouble LogGamma( const QuadDouble& alpha );
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad LogGamma( const Quad& alpha );
 #endif

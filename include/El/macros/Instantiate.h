@@ -20,6 +20,18 @@
 # define PROTO_DOUBLE PROTO_REAL(double)
 #endif
 
+#if defined(EL_HAVE_QD) && defined(EL_ENABLE_DOUBLEDOUBLE)
+#ifndef PROTO_DOUBLEDOUBLE
+# define PROTO_DOUBLEDOUBLE PROTO_REAL(DoubleDouble)
+#endif
+#endif
+
+#if defined(EL_HAVE_QD) && defined(EL_ENABLE_QUADDOUBLE)
+#ifndef PROTO_QUADDOUBLE
+# define PROTO_QUADDOUBLE PROTO_REAL(QuadDouble)
+#endif
+#endif
+
 #if defined(EL_HAVE_QUAD) && defined(EL_ENABLE_QUAD)
 #ifndef PROTO_QUAD
 # define PROTO_QUAD PROTO_REAL(Quad)
@@ -59,6 +71,12 @@ PROTO_FLOAT
 # if !defined(EL_NO_DOUBLE_PROTO)
 PROTO_DOUBLE
 # endif
+#if defined(EL_ENABLE_DOUBLEDOUBLE) && defined(EL_HAVE_QD)
+PROTO_DOUBLEDOUBLE
+#endif
+#if defined(EL_ENABLE_QUADDOUBLE) && defined(EL_HAVE_QD)
+PROTO_QUADDOUBLE
+#endif
 #if defined(EL_ENABLE_QUAD) && defined(EL_HAVE_QUAD)
 PROTO_QUAD
 #endif

@@ -136,6 +136,16 @@ template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Int alpha, const Int* A, BlasInt lda,
                    Int* B, BlasInt ldb );
+#ifdef EL_HAVE_QD
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt lda,
+                            DoubleDouble* B, BlasInt ldb );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  QuadDouble alpha, const QuadDouble* A, BlasInt lda,
+                          QuadDouble* B, BlasInt ldb );
+#endif
 #ifdef EL_HAVE_QUAD
 template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -208,6 +218,14 @@ void imatcopy
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Int alpha, Int* A, BlasInt lda, BlasInt ldb );
+#ifdef EL_HAVE_QD
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  DoubleDouble alpha, DoubleDouble* A, BlasInt lda, BlasInt ldb );
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  QuadDouble alpha, QuadDouble* A, BlasInt lda, BlasInt ldb );
+#endif
 #ifdef EL_HAVE_QUAD
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,

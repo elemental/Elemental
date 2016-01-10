@@ -331,6 +331,8 @@ void DisplayLocal
   template void Display( const SparseMatrix<T>& A, string title ); \
   template void Display( const DistSparseMatrix<T>& A, string title );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

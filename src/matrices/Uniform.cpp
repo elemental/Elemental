@@ -77,6 +77,8 @@ void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
   template void Uniform \
   ( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

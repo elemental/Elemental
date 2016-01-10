@@ -445,6 +445,7 @@ double MachineOverflowThreshold<double>()
 // Safely compute norms
 // ====================
 
+// TODO: Pass in const references instead
 template<typename Real>
 Real SafeNorm( Real alpha, Real beta )
 {
@@ -455,6 +456,10 @@ Real SafeNorm( Real alpha, Real beta )
     return scale*Sqrt(scaledSquare);
 }
 template float SafeNorm( float alpha, float beta );
+#ifdef EL_HAVE_QD
+template DoubleDouble SafeNorm( DoubleDouble alpha, DoubleDouble beta );
+template QuadDouble SafeNorm( QuadDouble alpha, QuadDouble beta );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( Quad alpha, Quad beta );
 #endif
@@ -465,6 +470,7 @@ template BigFloat SafeNorm( BigFloat alpha, BigFloat beta );
 double SafeNorm( double alpha, double beta )
 { return EL_LAPACK(dlapy2)( &alpha, &beta ); }
 
+// TODO: Pass in const references instead
 template<typename Real>
 Real SafeNorm( Real alpha, Real beta, Real gamma )
 {
@@ -476,6 +482,12 @@ Real SafeNorm( Real alpha, Real beta, Real gamma )
     return scale*Sqrt(scaledSquare);
 }
 template float SafeNorm( float alpha, float beta, float gamma );
+#ifdef EL_HAVE_QD
+template DoubleDouble
+SafeNorm( DoubleDouble alpha, DoubleDouble beta, DoubleDouble gamma );
+template QuadDouble
+SafeNorm( QuadDouble alpha, QuadDouble beta, QuadDouble gamma );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( Quad alpha, Quad beta, Quad gamma );
 #endif
@@ -532,6 +544,14 @@ void Copy
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
   const Int* A, BlasInt lda, Int* B, BlasInt ldb );
+#ifdef EL_HAVE_QD
+template void Copy
+( char uplo, BlasInt m, BlasInt n, 
+  const DoubleDouble* A, BlasInt lda, DoubleDouble* B, BlasInt ldb );
+template void Copy
+( char uplo, BlasInt m, BlasInt n, 
+  const QuadDouble* A, BlasInt lda, QuadDouble* B, BlasInt ldb );
+#endif
 #ifdef EL_HAVE_QUAD
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
@@ -593,6 +613,12 @@ Complex<Real> Givens
     //       zrotg-like implementation
     return blas::Givens( phi, gamma, c, s );
 }
+#ifdef EL_HAVE_QD
+template DoubleDouble Givens
+( DoubleDouble phi, DoubleDouble gamma, DoubleDouble* c, DoubleDouble* s );
+template QuadDouble Givens
+( QuadDouble phi, QuadDouble gamma, QuadDouble* c, QuadDouble* s );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad Givens( Quad phi, Quad gamma, Quad* c, Quad* s );
 template Complex<Quad> Givens
