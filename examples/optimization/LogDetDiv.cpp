@@ -37,9 +37,17 @@ main( int argc, char* argv[] )
             Print( A, "A" );
             Print( B, "B" );
         }
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         const double logDetDiv = LogDetDiv( LOWER, A, B );
         if( mpi::Rank() == 0 )
+            timer.Stop();
+        if( mpi::Rank() == 0 )
+        {
+            Output("LogDetDiv time: ",timer.Total(),"secs");
             Output("LogDetDiv(A,B) = ",logDetDiv);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

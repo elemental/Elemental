@@ -50,6 +50,7 @@ main( int argc, char* argv[] )
         // Make a backup of S before we overwrite it within the eigensolver
         auto SCopy( S );
 
+        Timer timer;
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
         //
@@ -57,7 +58,11 @@ main( int argc, char* argv[] )
         //           'Tuning' section of the README for details.
         DistMatrix<Real,VR,STAR> wImag;
         DistMatrix<C> X;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         SkewHermitianEig( LOWER, S, wImag, X, ASCENDING );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
 
         if( print )
         {
@@ -80,10 +85,13 @@ main( int argc, char* argv[] )
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( mpi::Rank() == 0 )
+        {
+            Output("SkewHermitionEig time: ",timer.Total()," secs");
             Output
             ("|| H ||_F = ",frobS,"\n",
              "|| H X - X Omega ||_F / || A ||_F = ",frobResid/frobS,"\n",
              "|| X X^H - I ||_F = ",frobOrthog/frobS,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 
