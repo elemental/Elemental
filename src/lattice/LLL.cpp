@@ -536,13 +536,27 @@ RecursiveHelper
             catch( std::exception& e )
             { Output("e.what()=",e.what()); }
         }
-#ifdef EL_HAVE_QUAD
-        if( !succeeded &&
-            PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+#ifdef EL_HAVE_QD
+        if( !succeeded && 
+            PrecisionIsGreater<Real,DoubleDouble>::value && neededPrec <= 106 )
         {
             try
             {
-                info = LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                info =
+                  LowerPrecisionMerge<F,DoubleDouble>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+        }
+        if( !succeeded && 
+            PrecisionIsGreater<Real,QuadDouble>::value && neededPrec <= 212 )
+        {
+            try
+            {
+                info =
+                  LowerPrecisionMerge<F,QuadDouble>( CL, CR, B, R, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -690,6 +704,7 @@ RecursiveHelper
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
+        // There is not yet support for Complex<{Quad,Double}Double>
 #ifdef EL_HAVE_QUAD
         if( !succeeded &&
             PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
@@ -702,7 +717,6 @@ RecursiveHelper
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
 #endif
-
         if( !succeeded )
         {
             // Interleave CL and CR to reform B before running LLL again
@@ -850,6 +864,8 @@ void DeepRowSwap( Matrix<F>& B, Int i, Int k )
   template Base<F> lll::LogVolume( const Matrix<F>& R );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

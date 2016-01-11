@@ -268,6 +268,8 @@ void Gemv
              const ElementalMatrix<T>& x, \
     T beta,        ElementalMatrix<T>& y );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

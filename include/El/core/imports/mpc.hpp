@@ -73,6 +73,10 @@ public:
     BigFloat( const long long int& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const double& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const long double& a, mpfr_prec_t prec=mpc::Precision() );
+#ifdef EL_HAVE_QD
+    BigFloat( const DoubleDouble& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const QuadDouble& a, mpfr_prec_t prec=mpc::Precision() );
+#endif
 #ifdef EL_HAVE_QUAD
     BigFloat( const Quad& a, mpfr_prec_t prec=mpc::Precision() );
 #endif
@@ -89,6 +93,10 @@ public:
 #ifdef EL_HAVE_QUAD
     BigFloat& operator=( const Quad& a );
 #endif
+#ifdef EL_HAVE_QD
+    BigFloat& operator=( const DoubleDouble& a );
+    BigFloat& operator=( const QuadDouble& a );
+#endif
     BigFloat& operator=( const long double& a );
     BigFloat& operator=( const double& a );
     BigFloat& operator=( const int& a );
@@ -99,9 +107,16 @@ public:
     BigFloat& operator=( const unsigned long long& a );
     BigFloat& operator=( BigFloat&& a );
 
+    BigFloat& operator+=( const double& a );
     BigFloat& operator+=( const BigFloat& a );
+
+    BigFloat& operator-=( const double& a );
     BigFloat& operator-=( const BigFloat& a );
+
+    BigFloat& operator*=( const double& a );
     BigFloat& operator*=( const BigFloat& a );
+
+    BigFloat& operator/=( const double& a );
     BigFloat& operator/=( const BigFloat& a );
 
     // Negation
@@ -133,6 +148,10 @@ public:
     explicit operator float() const;
     explicit operator double() const;
     explicit operator long double() const;
+#ifdef EL_HAVE_QD
+    explicit operator DoubleDouble() const;
+    explicit operator QuadDouble() const;
+#endif
 #ifdef EL_HAVE_QUAD
     explicit operator Quad() const;
 #endif

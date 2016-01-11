@@ -207,9 +207,13 @@ void QR
 
 #define PROTO_QUAD PROTO_BASE(Quad)
 #define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
+#define PROTO_DOUBLEDOUBLE PROTO_BASE(DoubleDouble)
+#define PROTO_QUADDOUBLE PROTO_BASE(QuadDouble)
 #define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

@@ -445,6 +445,8 @@ DistMatrix<T,U,V> LockedMerge2x2
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR)
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

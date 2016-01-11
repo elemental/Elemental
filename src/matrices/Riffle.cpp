@@ -160,6 +160,8 @@ void RiffleDecay( ElementalMatrix<F>& A, Int n )
   template void RiffleDecay( ElementalMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

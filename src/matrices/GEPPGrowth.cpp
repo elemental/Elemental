@@ -49,6 +49,8 @@ void GEPPGrowth( ElementalMatrix<T>& A, Int n )
   template void GEPPGrowth( Matrix<T>& A, Int n ); \
   template void GEPPGrowth( ElementalMatrix<T>& A, Int n );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

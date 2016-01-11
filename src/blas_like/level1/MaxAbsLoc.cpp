@@ -500,6 +500,8 @@ Entry<Base<T>> SymmetricMaxAbsLoc
   template Entry<Base<T>> SymmetricMaxAbsLoc \
   ( UpperOrLower uplo, const DistSparseMatrix<T>& x );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

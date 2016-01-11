@@ -57,6 +57,8 @@ void Ones( DistSparseMatrix<T>& A, Int m, Int n )
   template void Ones( SparseMatrix<T>& A, Int m, Int n ); \
   template void Ones( DistSparseMatrix<T>& A, Int m, Int n );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

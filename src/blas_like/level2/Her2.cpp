@@ -38,6 +38,8 @@ void Her2
     const ElementalMatrix<T>& x, const ElementalMatrix<T>& y, \
           ElementalMatrix<T>& A );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

@@ -44,6 +44,8 @@ void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t )
   template void Gear( Matrix<T>& G, Int n, Int s, Int t ); \
   template void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

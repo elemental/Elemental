@@ -533,6 +533,8 @@ void LockedRepartitionDownDiagonal
     ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, \
     ElementalMatrix<T>& A22, Int bsize );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

@@ -174,13 +174,46 @@ using ConvertBase = typename ConvertBaseHelper<F,RealNew>::type;
 // ------------------------------------
 template<typename F> struct PromoteHelper { typedef F type; };
 template<> struct PromoteHelper<float> { typedef double type; };
-#ifdef EL_HAVE_QUAD
+#ifdef EL_HAVE_QD
+template<> struct PromoteHelper<double> { typedef DoubleDouble type; };
+template<> struct PromoteHelper<DoubleDouble> { typedef QuadDouble type; };
+ #ifdef EL_HAVE_MPC
+template<> struct PromoteHelper<QuadDouble> { typedef BigFloat type; };
+ #endif
+#else
+ #ifdef EL_HAVE_QUAD
 template<> struct PromoteHelper<double> { typedef Quad type; };
+  #ifdef EL_HAVE_MPC
+template<> struct PromoteHelper<Quad> { typedef BigFloat type; };
+  #endif
+ #elif defined(EL_HAVE_MPC)
+template<> struct PromoteHelper<double> { typedef BigFloat type; };
+ #endif
 #endif
-// TODO: More promotion operations, e.g., Quad -> BigFloat
 
+// Until we have full Complex support (e.g., Complex<BigFloat>) we cannot
+// trivially extend the above to complex data. We therefore explicitly
+// avoid a conversion from a supported complex type to a nonsupported type.
+// But note that this breaks the assumption that
+//
+//   Base<Promote<Complex<Real>>> = Promote<Real>.
+//
 template<typename Real> struct PromoteHelper<Complex<Real>>
 { typedef Complex<typename PromoteHelper<Real>::type> type; };
+#ifdef EL_HAVE_QD
+template<> struct PromoteHelper<Complex<double>>
+{ typedef Complex<double> type; };
+#else
+ #ifdef EL_HAVE_QUAD
+  #ifdef EL_HAVE_MPC
+template<> struct PromoteHelper<Complex<Quad>>
+{ typedef Complex<Quad> type; };
+  #endif
+ #elif defined(EL_HAVE_MPC)
+template<> struct PromoteHelper<Complex<double>>
+{ typedef Complex<double> type; };
+ #endif
+#endif
 
 template<typename F> using Promote = typename PromoteHelper<F>::type;
 
@@ -678,8 +711,8 @@ Complex<Real> Ceil( const Complex<Real>& alpha );
 // ^^^^^^^^^^^^^^^^^^^^
 template<> Int Ceil( const Int& alpha );
 #ifdef EL_HAVE_QD
-template<> DoubleDouble Round( const DoubleDouble& alpha );
-template<> QuadDouble Round( const QuadDouble& alpha );
+template<> DoubleDouble Ceil( const DoubleDouble& alpha );
+template<> QuadDouble Ceil( const QuadDouble& alpha );
 #endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Ceil( const Quad& alpha );

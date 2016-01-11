@@ -48,6 +48,8 @@ void ImagPart
   ( const BlockMatrix<T>& A, \
           BlockMatrix<Base<T>>& AImag );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

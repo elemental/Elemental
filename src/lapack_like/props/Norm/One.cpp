@@ -270,6 +270,8 @@ Base<F> OneNorm( const DistSparseMatrix<F>& A )
   template Base<T> OneNorm( const SparseMatrix<T>& A ); \
   template Base<T> OneNorm( const DistSparseMatrix<T>& A );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

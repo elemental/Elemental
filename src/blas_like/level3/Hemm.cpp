@@ -39,6 +39,8 @@ void Hemm
     T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
     T beta,        ElementalMatrix<T>& C );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

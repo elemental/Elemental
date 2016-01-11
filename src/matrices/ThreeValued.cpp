@@ -41,6 +41,8 @@ void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p )
   template void ThreeValued \
   ( AbstractDistMatrix<T>& A, Int m, Int n, double p );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

@@ -94,6 +94,8 @@ void JordanCholesky( DistSparseMatrix<T>& A, Int n )
   template void JordanCholesky( SparseMatrix<T>& A, Int n ); \
   template void JordanCholesky( DistSparseMatrix<T>& A, Int n );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

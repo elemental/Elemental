@@ -245,6 +245,8 @@ void Transform2x2Cols
   ( const AbstractDistMatrix<T>& G, \
           AbstractDistMatrix<T>& A, Int j1, Int j2 );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

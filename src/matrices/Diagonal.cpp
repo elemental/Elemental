@@ -141,6 +141,8 @@ void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d )
   PROTO_TYPES(S,Base<S>) \
   PROTO_TYPES(S,S)
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

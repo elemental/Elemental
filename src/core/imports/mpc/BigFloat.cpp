@@ -124,6 +124,49 @@ BigFloat::BigFloat( const long double& a, mpfr_prec_t prec )
     mpfr_set_ld( Pointer(), a, mpc::RoundingMode() ); 
 }
 
+#ifdef EL_HAVE_QD
+BigFloat::BigFloat( const DoubleDouble& a, mpfr_prec_t prec )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::BigFloat [DoubleDouble]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    mpfr_init2( Pointer(), prec );
+    // Set to the high portion
+    mpfr_set_d( Pointer(), a.x[0], mpc::RoundingMode() );
+    // Add in the low portion 
+    *this += a.x[1];
+
+#ifdef EL_TEST_ROUNDTRIPS
+    DEBUG_ONLY(
+      // Try a round-trip
+      DoubleDouble b = DoubleDouble(*this);
+      if( a != b )
+          LogicError("a=",a,", b=",b,", a-b=",a-b,", BF=",*this);
+    )    
+#endif
+}
+
+BigFloat::BigFloat( const QuadDouble& a, mpfr_prec_t prec )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::BigFloat [QuadDouble]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    mpfr_init2( Pointer(), prec );
+    // Set to the high portion
+    mpfr_set_d( Pointer(), a.x[0], mpc::RoundingMode() );
+    // Add in the low portions 
+    for( Int j=1; j<4; ++j )
+        *this += a.x[j];
+
+#ifdef EL_TEST_ROUNDTRIPS
+    DEBUG_ONLY(
+      // Try a round-trip
+      QuadDouble b = QuadDouble(*this);
+      if( a != b )
+          LogicError("a=",a,", b=",b,", a-b=",a-b,", BF=",*this);
+    )    
+#endif
+}
+#endif
+
 #ifdef EL_HAVE_QUAD
 BigFloat::BigFloat( const Quad& a, mpfr_prec_t prec )
 {
@@ -252,6 +295,49 @@ BigFloat& BigFloat::operator=( const long double& a )
     return *this;
 }
 
+#ifdef EL_HAVE_QD
+BigFloat& BigFloat::operator=( const DoubleDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator= [DoubleDouble]"))
+
+    // Set to the high bits
+    mpfr_set_d( Pointer(), a.x[0], mpc::RoundingMode() );
+    // Add in the low bits
+    *this += a.x[1];
+
+#ifdef EL_TEST_ROUNDTRIPS
+    DEBUG_ONLY(
+      // Try a round-trip
+      DoubleDouble b = DoubleDouble(*this);
+      if( a != b )
+          LogicError("a=",a,", b=",b,", a-b=",a-b,", BF=",*this);
+    )    
+#endif
+    return *this;
+}
+
+BigFloat& BigFloat::operator=( const QuadDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator= [QuadDouble]"))
+
+    // Set to the high bits
+    mpfr_set_d( Pointer(), a.x[0], mpc::RoundingMode() );
+    // Add in the low bits
+    for( Int j=1; j<4; ++j )
+        *this += a.x[j];
+
+#ifdef EL_TEST_ROUNDTRIPS
+    DEBUG_ONLY(
+      // Try a round-trip
+      DoubleDouble b = DoubleDouble(*this);
+      if( a != b )
+          LogicError("a=",a,", b=",b,", a-b=",a-b,", BF=",*this);
+    )    
+#endif
+    return *this;
+}
+#endif
+
 #ifdef EL_HAVE_QUAD
 BigFloat& BigFloat::operator=( const Quad& a )
 {
@@ -284,10 +370,24 @@ BigFloat& BigFloat::operator=( BigFloat&& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator+=( const double& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [double]"))
+    mpfr_add_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
 BigFloat& BigFloat::operator+=( const BigFloat& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator+= [BigFloat]"))
     mpfr_add( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator-=( const double& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [double]"))
+    mpfr_sub_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
     return *this;
 }
 
@@ -298,10 +398,24 @@ BigFloat& BigFloat::operator-=( const BigFloat& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator*=( const double& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [double]"))
+    mpfr_mul_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
 BigFloat& BigFloat::operator*=( const BigFloat& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator*= [BigFloat]"))
     mpfr_mul( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator/=( const double& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [double]"))
+    mpfr_div_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
     return *this;
 }
 
@@ -421,9 +535,42 @@ BigFloat::operator double() const
 BigFloat::operator long double() const
 { return mpfr_get_ld( LockedPointer(), mpc::RoundingMode() ); }
 
+#ifdef EL_HAVE_QD
+BigFloat::operator DoubleDouble() const
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator DoubleDouble"))
+    // Successively subtract out the highest bits of the mantissa
+    // TODO: Decide what the correct rounding mode is for bitwise roundtrips
+    BigFloat alpha(*this);
+    DoubleDouble beta;
+    beta.x[0] = double(alpha);
+    alpha -= beta.x[0];
+    beta.x[1] = double(alpha);
+    return beta;
+}
+
+BigFloat::operator QuadDouble() const
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator QuadDouble"))
+    // Successively subtract out the highest bits of the mantissa
+    // TODO: Decide what the correct rounding mode is for bitwise roundtrips
+    BigFloat alpha(*this);
+    QuadDouble beta;
+    beta.x[0] = double(alpha);
+    alpha -= beta.x[0];
+    beta.x[1] = double(alpha);
+    alpha -= beta.x[1];
+    beta.x[2] = double(alpha);
+    alpha -= beta.x[2];
+    beta.x[3] = double(alpha);
+    return beta;
+}
+#endif
+
 #ifdef EL_HAVE_QUAD
 BigFloat::operator Quad() const
 {
+    DEBUG_ONLY(CSE cse("BigFloat::operator Quad"))
 #ifdef EL_HAVE_MPFR_FLOAT128
     return mpfr_get_float128( LockedPointer(), mpc::RoundingMode() );
 #else

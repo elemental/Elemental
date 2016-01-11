@@ -188,6 +188,10 @@ template struct SafeProduct<float>;
 template struct SafeProduct<double>;
 template struct SafeProduct<Complex<float>>;
 template struct SafeProduct<Complex<double>>;
+#ifdef EL_HAVE_QD
+template struct SafeProduct<DoubleDouble>;
+template struct SafeProduct<QuadDouble>;
+#endif
 #ifdef EL_HAVE_QUAD
 template struct SafeProduct<Quad>;
 template struct SafeProduct<Complex<Quad>>;
