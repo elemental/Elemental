@@ -178,12 +178,12 @@ template<typename F,typename>
 F Exp( const F& alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
 
 template<typename F,typename T,typename,typename>
-F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT
+F Pow( const F& alpha, const T& beta )
 { return std::pow(alpha,beta); }
 
 #ifdef EL_USE_64BIT_INTS
 template<typename F,typename>
-F Pow( const F& alpha, const int& beta ) EL_NO_EXCEPT
+F Pow( const F& alpha, const int& beta )
 { return Pow(alpha,F(beta)); }
 #endif
 

@@ -28,6 +28,10 @@ mpfr_prec_t Precision();
 size_t NumLimbs();
 void SetPrecision( mpfr_prec_t precision );
 
+int NumIntBits();
+int NumIntLimbs();
+void SetMinIntBits( int minIntBits );
+
 Int BinaryToDecimalPrecision( mpfr_prec_t precision );
 
 // NOTE: These should only be called internally
@@ -37,6 +41,192 @@ void FreeMPI();
 mpfr_rnd_t RoundingMode();
 
 } // namespace mpc
+
+class BigInt {
+private:
+    mpz_t mpzInt_;
+
+public:
+    mpz_ptr Pointer();
+    mpz_srcptr LockedPointer() const;
+    void SetNumLimbs( int numLimbs );
+    void SetMinBits( int minBits );
+    int NumLimbs() const;
+    int NumBits() const;
+
+    BigInt();
+    BigInt( const BigInt& a, int numBits=mpc::NumIntBits() );
+    BigInt( const unsigned& a, int numBits=mpc::NumIntBits() );
+    BigInt( const unsigned long& a, int numBits=mpc::NumIntBits() );
+    BigInt( const unsigned long long& a, int numBits=mpc::NumIntBits() );
+    BigInt( const int& a, int numBits=mpc::NumIntBits() );
+    BigInt( const long int& a, int numBits=mpc::NumIntBits() );
+    BigInt( const long long int& a, int numBits=mpc::NumIntBits() );
+    BigInt( const double& a, int numBits=mpc::NumIntBits() );
+    BigInt( const char* str, int base, int numBits=mpc::NumIntBits() );
+    BigInt( const std::string& str, int base, int numBits=mpc::NumIntBits() );
+    BigInt( BigInt&& a );
+    ~BigInt();
+
+    void Zero();
+
+    BigInt& operator=( const BigInt& a );
+    BigInt& operator=( const unsigned& a );
+    BigInt& operator=( const unsigned long& a );
+    BigInt& operator=( const unsigned long long& a );
+    BigInt& operator=( const int& a );
+    BigInt& operator=( const long int& a );
+    BigInt& operator=( const long long int& a );
+    BigInt& operator=( const double& a );
+    BigInt& operator=( BigInt&& a );
+
+    BigInt& operator+=( const unsigned& a );
+    BigInt& operator+=( const unsigned long& a );
+    BigInt& operator+=( const BigInt& a );
+
+    BigInt& operator-=( const unsigned& a );
+    BigInt& operator-=( const unsigned long& a );
+    BigInt& operator-=( const BigInt& a );
+
+    BigInt& operator*=( const int& a );
+    BigInt& operator*=( const long int& a );
+    BigInt& operator*=( const unsigned& a );
+    BigInt& operator*=( const unsigned long& a );
+    BigInt& operator*=( const BigInt& a );
+
+    BigInt& operator/=( const BigInt& a );
+
+    // Negation
+    BigInt operator-() const;
+
+    // Identity map
+    BigInt operator+() const;
+
+    // Analogue of bit-shifting left
+    BigInt& operator<<=( const int& a );
+    BigInt& operator<<=( const long int& a );
+    BigInt& operator<<=( const unsigned& a ); 
+    BigInt& operator<<=( const unsigned long& a );
+
+    // Analogue of bit-shifting right
+    BigInt& operator>>=( const int& a );
+    BigInt& operator>>=( const long int& a );
+    BigInt& operator>>=( const unsigned& a ); 
+    BigInt& operator>>=( const unsigned long& a );
+
+    // Casting
+    explicit operator bool() const;
+    explicit operator int() const;
+    explicit operator long() const;
+    explicit operator long long() const;
+    explicit operator unsigned() const;
+    explicit operator unsigned long() const;
+    explicit operator unsigned long long() const;
+    explicit operator float() const;
+    explicit operator double() const;
+    explicit operator long double() const;
+#ifdef EL_HAVE_QUAD
+    explicit operator Quad() const;
+#endif
+#ifdef EL_HAVE_QD
+    explicit operator DoubleDouble() const;
+    explicit operator QuadDouble() const;
+#endif
+
+    size_t SerializedSize( int numLimbs=mpc::NumIntLimbs() ) const;
+          byte* Serialize( byte* buf, int numLimbs=mpc::NumIntLimbs() ) const;
+          byte* Deserialize( byte* buf, int numLimbs=mpc::NumIntLimbs() );
+    const byte* Deserialize( const byte* buf, int numLimbs=mpc::NumIntLimbs() );
+
+    size_t ThinSerializedSize() const;
+          byte* ThinSerialize( byte* buf ) const;
+          byte* ThinDeserialize( byte* buf );
+    const byte* ThinDeserialize( const byte* buf );
+
+    friend BigInt operator%( const BigInt& a, const BigInt& b );
+    friend BigInt operator%( const BigInt& a, const unsigned& b );
+    friend BigInt operator%( const BigInt& a, const unsigned long& b );
+    friend bool operator<( const BigInt& a, const BigInt& b );
+    friend bool operator<( const BigInt& a, const int& b );
+    friend bool operator<( const BigInt& a, const long int& b );
+    friend bool operator<( const int& a, const BigInt& b );
+    friend bool operator<( const long int& a, const BigInt& b );
+    friend bool operator>( const BigInt& a, const BigInt& b );
+    friend bool operator>( const BigInt& a, const int& b );
+    friend bool operator>( const BigInt& a, const long int& b );
+    friend bool operator>( const int& a, const BigInt& b );
+    friend bool operator>( const long int& a, const BigInt& b );
+    friend bool operator<=( const BigInt& a, const BigInt& b );
+    friend bool operator<=( const BigInt& a, const int& b );
+    friend bool operator<=( const BigInt& a, const long int& b );
+    friend bool operator<=( const int& a, const BigInt& b );
+    friend bool operator<=( const long int& a, const BigInt& b );
+    friend bool operator>=( const BigInt& a, const BigInt& b );
+    friend bool operator>=( const BigInt& a, const int& b );
+    friend bool operator>=( const BigInt& a, const long int& b );
+    friend bool operator>=( const int& a, const BigInt& b );
+    friend bool operator>=( const long int& a, const BigInt& b );
+    friend bool operator==( const BigInt& a, const BigInt& b );
+    friend bool operator==( const BigInt& a, const int& b );
+    friend bool operator==( const BigInt& a, const long int& b );
+    friend bool operator==( const int& a, const BigInt& b );
+    friend bool operator==( const long int& a, const BigInt& b );
+};
+
+BigInt operator+( const BigInt& a, const BigInt& b );
+BigInt operator-( const BigInt& a, const BigInt& b );
+BigInt operator*( const BigInt& a, const BigInt& b );
+BigInt operator/( const BigInt& a, const BigInt& b );
+
+BigInt operator%( const BigInt& a, const BigInt& b );
+BigInt operator%( const BigInt& a, const unsigned& b );
+BigInt operator%( const BigInt& a, const unsigned long& b );
+
+BigInt operator<<( const BigInt& a, const int& b );
+BigInt operator<<( const BigInt& a, const long int& b );
+BigInt operator<<( const BigInt& a, const unsigned& b );
+BigInt operator<<( const BigInt& a, const unsigned long& b );
+
+BigInt operator>>( const BigInt& a, const int& b );
+BigInt operator>>( const BigInt& a, const long int& b );
+BigInt operator>>( const BigInt& a, const unsigned& b );
+BigInt operator>>( const BigInt& a, const unsigned long& b );
+
+bool operator<( const BigInt& a, const BigInt& b );
+bool operator<( const BigInt& a, const int& b );
+bool operator<( const BigInt& a, const long int& b );
+bool operator<( const int& a, const BigInt& b );
+bool operator<( const long int& a, const BigInt& b );
+bool operator>( const BigInt& a, const BigInt& b );
+bool operator>( const BigInt& a, const int& b );
+bool operator>( const BigInt& a, const long int& b );
+bool operator>( const int& a, const BigInt& b );
+bool operator>( const long int& a, const BigInt& b );
+bool operator<=( const BigInt& a, const BigInt& b );
+bool operator<=( const BigInt& a, const int& b );
+bool operator<=( const BigInt& a, const long int& b );
+bool operator<=( const int& a, const BigInt& b );
+bool operator<=( const long int& a, const BigInt& b );
+bool operator>=( const BigInt& a, const BigInt& b );
+bool operator>=( const BigInt& a, const int& b );
+bool operator>=( const BigInt& a, const long int& b );
+bool operator>=( const int& a, const BigInt& b );
+bool operator>=( const long int& a, const BigInt& b );
+bool operator==( const BigInt& a, const BigInt& b );
+bool operator==( const BigInt& a, const int& b );
+bool operator==( const BigInt& a, const long int& b );
+bool operator==( const int& a, const BigInt& b );
+bool operator==( const long int& a, const BigInt& b );
+bool operator!=( const BigInt& a, const BigInt& b );
+bool operator!=( const BigInt& a, const int& b );
+bool operator!=( const BigInt& a, const long int& b );
+bool operator!=( const int& a, const BigInt& b );
+bool operator!=( const long int& a, const BigInt& b );
+
+std::ostream& operator<<( std::ostream& os, const BigInt& alpha );
+std::istream& operator>>( std::istream& is,       BigInt& alpha );
+
+// BigRational class based upon mpq?
 
 // Since MPFR chose to have mpfr_t be a typedef to an array of length 1,
 // it is unnecessarily difficult to use with the STL. The following thus
@@ -65,6 +255,7 @@ public:
     //       constructors which accept an integer and an (optional) precision
     BigFloat();
     BigFloat( const BigFloat& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const BigInt& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const unsigned& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const unsigned long& a, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( const unsigned long long& a, mpfr_prec_t prec=mpc::Precision() );
@@ -80,8 +271,7 @@ public:
 #ifdef EL_HAVE_QUAD
     BigFloat( const Quad& a, mpfr_prec_t prec=mpc::Precision() );
 #endif
-    BigFloat
-    ( const char* str, int base, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const char* str, int base, mpfr_prec_t prec=mpc::Precision() );
     BigFloat
     ( const std::string& str, int base, mpfr_prec_t prec=mpc::Precision() );
     BigFloat( BigFloat&& a );
@@ -90,6 +280,7 @@ public:
     void Zero();
 
     BigFloat& operator=( const BigFloat& a );
+    BigFloat& operator=( const BigInt& a );
 #ifdef EL_HAVE_QUAD
     BigFloat& operator=( const Quad& a );
 #endif
@@ -107,16 +298,36 @@ public:
     BigFloat& operator=( const unsigned long long& a );
     BigFloat& operator=( BigFloat&& a );
 
+    BigFloat& operator+=( const unsigned& a );
+    BigFloat& operator+=( const unsigned long& a );
+    BigFloat& operator+=( const int& a );
+    BigFloat& operator+=( const long int& a );
     BigFloat& operator+=( const double& a );
+    BigFloat& operator+=( const BigInt& a );
     BigFloat& operator+=( const BigFloat& a );
 
+    BigFloat& operator-=( const unsigned& a );
+    BigFloat& operator-=( const unsigned long& a );
+    BigFloat& operator-=( const int& a );
+    BigFloat& operator-=( const long int& a );
     BigFloat& operator-=( const double& a );
+    BigFloat& operator-=( const BigInt& a );
     BigFloat& operator-=( const BigFloat& a );
 
+    BigFloat& operator*=( const unsigned& a );
+    BigFloat& operator*=( const unsigned long& a );
+    BigFloat& operator*=( const int& a );
+    BigFloat& operator*=( const long int& a );
     BigFloat& operator*=( const double& a );
+    BigFloat& operator*=( const BigInt& a );
     BigFloat& operator*=( const BigFloat& a );
 
+    BigFloat& operator/=( const unsigned& a );
+    BigFloat& operator/=( const unsigned long& a );
+    BigFloat& operator/=( const int& a );
+    BigFloat& operator/=( const long int& a );
     BigFloat& operator/=( const double& a );
+    BigFloat& operator/=( const BigInt& a );
     BigFloat& operator/=( const BigFloat& a );
 
     // Negation
@@ -155,12 +366,14 @@ public:
 #ifdef EL_HAVE_QUAD
     explicit operator Quad() const;
 #endif
+    explicit operator BigInt() const;
 
     size_t SerializedSize() const;
           byte* Serialize( byte* buf ) const;
           byte* Deserialize( byte* buf );
     const byte* Deserialize( const byte* buf );
 
+    // Comparisons with BigInt via mpfr_cmp_z?
     friend bool operator<( const BigFloat& a, const BigFloat& b );
     friend bool operator>( const BigFloat& a, const BigFloat& b );
     friend bool operator<=( const BigFloat& a, const BigFloat& b );

@@ -177,6 +177,13 @@ inline void FastResize( vector<T>& v, Int numEntries )
 #endif
 }
 #ifdef EL_HAVE_MPC
+inline void FastResize( vector<BigInt>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<ValueInt<BigInt>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<Entry<BigInt>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+
 inline void FastResize( vector<BigFloat>& v, Int numEntries )
 { v.resize( numEntries ); }
 inline void FastResize( vector<ValueInt<BigFloat>>& v, Int numEntries )

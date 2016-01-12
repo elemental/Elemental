@@ -17,11 +17,13 @@ extern "C" {
 // Level 1 BLAS
 // ============
 void EL_BLAS(saxpy)
-( const BlasInt* n, const float* alpha, const float* x, const BlasInt* incx,
-                                              float* y, const BlasInt* incy );
+( const BlasInt* n, const float* alpha,
+  const float* x, const BlasInt* incx,
+  float* y, const BlasInt* incy );
 void EL_BLAS(daxpy)
-( const BlasInt* n, const double* alpha, const double* x, const BlasInt* incx,
-                                               double* y, const BlasInt* incy );
+( const BlasInt* n, const double* alpha,
+  const double* x, const BlasInt* incx,
+        double* y, const BlasInt* incy );
 void EL_BLAS(caxpy)
 ( const BlasInt* n, const scomplex* alpha,
   const scomplex* x, const BlasInt* incx,
@@ -32,24 +34,30 @@ void EL_BLAS(zaxpy)
         dcomplex* y, const BlasInt* incy );
 
 void EL_BLAS(scopy)
-( const BlasInt* n, const float* x, const BlasInt* incx,
-                          float* y, const BlasInt* incy );
+( const BlasInt* n,
+  const float* x, const BlasInt* incx,
+        float* y, const BlasInt* incy );
 void EL_BLAS(dcopy)
-( const BlasInt* n, const double* x, const BlasInt* incx,
-                          double* y, const BlasInt* incy );
+( const BlasInt* n,
+  const double* x, const BlasInt* incx,
+        double* y, const BlasInt* incy );
 void EL_BLAS(ccopy)
-( const BlasInt* n, const scomplex* x, const BlasInt* incx,
-                          scomplex* y, const BlasInt* incy );
+( const BlasInt* n,
+  const scomplex* x, const BlasInt* incx,
+        scomplex* y, const BlasInt* incy );
 void EL_BLAS(zcopy)
-( const BlasInt* n, const dcomplex* x, const BlasInt* incx,
-                          dcomplex* y, const BlasInt* incy );
+( const BlasInt* n,
+  const dcomplex* x, const BlasInt* incx,
+        dcomplex* y, const BlasInt* incy );
 
 float EL_BLAS(sdot)
-( const BlasInt* n, const float* x, const BlasInt* incx,
-                    const float* y, const BlasInt* incy );
+( const BlasInt* n,
+  const float* x, const BlasInt* incx,
+  const float* y, const BlasInt* incy );
 double EL_BLAS(ddot)
-( const BlasInt* n, const double* x, const BlasInt* incx,
-                    const double* y, const BlasInt* incy );
+( const BlasInt* n,
+  const double* x, const BlasInt* incx,
+  const double* y, const BlasInt* incy );
 // To avoid the compatibility issue, we simply handroll our own complex dots
 float  EL_BLAS(snrm2) 
 ( const BlasInt* n, const float   * x, const BlasInt* incx );
@@ -575,6 +583,10 @@ template void Axpy
 #endif
 #ifdef EL_HAVE_MPC
 template void Axpy
+( BlasInt n, BigInt alpha, 
+  const BigInt* x, BlasInt incx,
+        BigInt* y, BlasInt incy );
+template void Axpy
 ( BlasInt n, BigFloat alpha, 
   const BigFloat* x, BlasInt incx,
         BigFloat* y, BlasInt incy );
@@ -635,6 +647,10 @@ template void Copy
         Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
+template void Copy
+( BlasInt n,
+  const BigInt* x, BlasInt incx, 
+        BigInt* y, BlasInt incy );
 template void Copy
 ( BlasInt n,
   const BigFloat* x, BlasInt incx, 
@@ -710,6 +726,10 @@ template Complex<Quad> Dot
   const Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
+template BigInt Dot
+( BlasInt n,
+  const BigInt* x, BlasInt incx, 
+  const BigInt* y, BlasInt incy );
 template BigFloat Dot
 ( BlasInt n,
   const BigFloat* x, BlasInt incx, 
@@ -772,6 +792,10 @@ template Complex<Quad> Dotu
   const Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
+template BigInt Dotu
+( BlasInt n,
+  const BigInt* x, BlasInt incx, 
+  const BigInt* y, BlasInt incy );
 template BigFloat Dotu
 ( BlasInt n,
   const BigFloat* x, BlasInt incx, 
@@ -840,6 +864,7 @@ template BlasInt MaxInd( BlasInt n, const Quad* x, BlasInt incx );
 template BlasInt MaxInd( BlasInt n, const Complex<Quad>* x, BlasInt incx );
 #endif
 #ifdef EL_HAVE_MPC
+template BlasInt MaxInd( BlasInt n, const BigInt* x, BlasInt incx );
 template BlasInt MaxInd( BlasInt n, const BigFloat* x, BlasInt incx );
 #endif
 
@@ -1045,6 +1070,8 @@ template void Scal
 #endif
 #ifdef EL_HAVE_MPC
 template void Scal
+( BlasInt n, BigInt alpha, BigInt* x, BlasInt incx );
+template void Scal
 ( BlasInt n, BigFloat alpha, BigFloat* x, BlasInt incx );
 #endif
 
@@ -1092,6 +1119,7 @@ template Quad Nrm1( BlasInt n, const Quad* x, BlasInt incx );
 template Quad Nrm1( BlasInt n, const Complex<Quad>* x, BlasInt incx );
 #endif
 #ifdef EL_HAVE_MPC
+template BigInt Nrm1( BlasInt n, const BigInt* x, BlasInt incx );
 template BigFloat Nrm1( BlasInt n, const BigFloat* x, BlasInt incx );
 #endif
 
@@ -1123,6 +1151,8 @@ template void Swap
 ( BlasInt n, Complex<Quad>* x, BlasInt incx, Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
+template void Swap
+( BlasInt n, BigInt* x, BlasInt incx, BigInt* y, BlasInt incy );
 template void Swap
 ( BlasInt n, BigFloat* x, BlasInt incx, BigFloat* y, BlasInt incy );
 #endif
@@ -1217,6 +1247,11 @@ template void Gemv
 #ifdef EL_HAVE_MPC
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim,
+                const BigInt* x, BlasInt incx, 
+  BigInt beta,        BigInt* y, BlasInt incy );
+template void Gemv
+( char trans, BlasInt m, BlasInt n, 
   BigFloat alpha, const BigFloat* A, BlasInt ALDim,
                   const BigFloat* x, BlasInt incx, 
   BigFloat beta,        BigFloat* y, BlasInt incy );
@@ -1303,6 +1338,11 @@ template void Ger
 #ifdef EL_HAVE_MPC
 template void Ger
 ( BlasInt m, BlasInt n, 
+  BigInt alpha, const BigInt* x, BlasInt incx, 
+                const BigInt* y, BlasInt incy, 
+                      BigInt* A, BlasInt ALDim );
+template void Ger
+( BlasInt m, BlasInt n, 
   BigFloat alpha, const BigFloat* x, BlasInt incx, 
                   const BigFloat* y, BlasInt incy, 
                         BigFloat* A, BlasInt ALDim );
@@ -1383,6 +1423,12 @@ template void Geru
         Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
+template void Geru
+( BlasInt m, BlasInt n, 
+  BigInt alpha,
+  const BigInt* x, BlasInt incx, 
+  const BigInt* y, BlasInt incy, 
+        BigInt* A, BlasInt ALDim );
 template void Geru
 ( BlasInt m, BlasInt n, 
   BigFloat alpha,
@@ -1501,6 +1547,11 @@ template void Hemv
 #ifdef EL_HAVE_MPC
 template void Hemv
 ( char uplo, BlasInt m, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+                const BigInt* x, BlasInt incx, 
+  BigInt beta,        BigInt* y, BlasInt incy );
+template void Hemv
+( char uplo, BlasInt m, 
   BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
                   const BigFloat* x, BlasInt incx, 
   BigFloat beta,        BigFloat* y, BlasInt incy );
@@ -1579,6 +1630,10 @@ template void Her
 #ifdef EL_HAVE_MPC
 template void Her
 ( char uplo, BlasInt m, 
+  BigInt alpha, const BigInt* x, BlasInt incx,
+                      BigInt* A, BlasInt ALDim );
+template void Her
+( char uplo, BlasInt m, 
   BigFloat alpha, const BigFloat* x, BlasInt incx,
                         BigFloat* A, BlasInt ALDim );
 #endif
@@ -1655,6 +1710,11 @@ template void Her2
                              Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
+template void Her2
+( char uplo, BlasInt m, 
+  BigInt alpha, const BigInt* x, BlasInt incx, 
+                const BigInt* y, BlasInt incy, 
+                      BigInt* A, BlasInt ALDim );
 template void Her2
 ( char uplo, BlasInt m, 
   BigFloat alpha, const BigFloat* x, BlasInt incx, 
@@ -1768,6 +1828,11 @@ template void Symv
 #ifdef EL_HAVE_MPC
 template void Symv
 ( char uplo, BlasInt m, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+                const BigInt* x, BlasInt incx, 
+  BigInt beta,        BigInt* y, BlasInt incy );
+template void Symv
+( char uplo, BlasInt m, 
   BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
                   const BigFloat* x, BlasInt incx, 
   BigFloat beta,        BigFloat* y, BlasInt incy );
@@ -1851,6 +1916,10 @@ template void Syr
                              Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
+template void Syr
+( char uplo, BlasInt m, 
+  BigInt alpha, const BigInt* x, BlasInt incx,
+                      BigInt* A, BlasInt ALDim );
 template void Syr
 ( char uplo, BlasInt m, 
   BigFloat alpha, const BigFloat* x, BlasInt incx,
@@ -1937,6 +2006,11 @@ template void Syr2
                              Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
+template void Syr2
+( char uplo, BlasInt m, 
+  BigInt alpha, const BigInt* x, BlasInt incx, 
+                const BigInt* y, BlasInt incy, 
+                      BigInt* A, BlasInt ALDim );
 template void Syr2
 ( char uplo, BlasInt m, 
   BigFloat alpha, const BigFloat* x, BlasInt incx, 
@@ -2105,6 +2179,10 @@ template void Trmv
         Complex<Quad>* x, BlasInt incx );
 #endif
 #ifdef EL_HAVE_MPC
+template void Trmv
+( char uplo, char trans, char diag, BlasInt m,
+  const BigInt* A, BlasInt ALDim,
+        BigInt* x, BlasInt incx );
 template void Trmv
 ( char uplo, char trans, char diag, BlasInt m,
   const BigFloat* A, BlasInt ALDim,
@@ -2449,6 +2527,12 @@ template void Gemm
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim,
+                const BigInt* B, BlasInt BLDim,
+  BigInt beta,        BigInt* C, BlasInt CLDim );
+template void Gemm
+( char transA, char transB,
+  BlasInt m, BlasInt n, BlasInt k, 
   BigFloat alpha, const BigFloat* A, BlasInt ALDim,
                   const BigFloat* B, BlasInt BLDim,
   BigFloat beta,        BigFloat* C, BlasInt CLDim );
@@ -2730,6 +2814,11 @@ template void Hemm
 #ifdef EL_HAVE_MPC
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+                const BigInt* B, BlasInt BLDim,
+  BigInt beta,        BigInt* C, BlasInt CLDim );
+template void Hemm
+( char side, char uplo, BlasInt m, BlasInt n,
   BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
                   const BigFloat* B, BlasInt BLDim,
   BigFloat beta,        BigFloat* C, BlasInt CLDim );
@@ -2886,6 +2975,12 @@ template void Her2k
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+                const BigInt* B, BlasInt BLDim,
+  BigInt beta,        BigInt* C, BlasInt CLDim );
+template void Her2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
   BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
                   const BigFloat* B, BlasInt BLDim,
   BigFloat beta,        BigFloat* C, BlasInt CLDim );
@@ -3030,6 +3125,11 @@ template void Herk
   Quad beta,        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
+template void Herk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+  BigInt beta,        BigInt* C, BlasInt CLDim );
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
@@ -3193,6 +3293,11 @@ template void Symm
 #ifdef EL_HAVE_MPC
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+                const BigInt* B, BlasInt BLDim,
+  BigInt beta,        BigInt* C, BlasInt CLDim );
+template void Symm
+( char side, char uplo, BlasInt m, BlasInt n,
   BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
                   const BigFloat* B, BlasInt BLDim,
   BigFloat beta,        BigFloat* C, BlasInt CLDim );
@@ -3344,6 +3449,12 @@ template void Syr2k
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+                const BigInt* B, BlasInt BLDim,
+  BigInt beta,        BigInt* C, BlasInt CLDim );
+template void Syr2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
   BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
                   const BigFloat* B, BlasInt BLDim,
   BigFloat beta,        BigFloat* C, BlasInt CLDim );
@@ -3485,6 +3596,11 @@ template void Syrk
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
+  BigInt alpha, const BigInt* A, BlasInt ALDim, 
+  BigInt beta,        BigInt* C, BlasInt CLDim );
+template void Syrk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
   BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
   BigFloat beta,        BigFloat* C, BlasInt CLDim );
 #endif
@@ -3608,6 +3724,11 @@ void Trmm
         }
     }
 }
+template void Trmm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  Int alpha, const Int* A, BlasInt ALDim,
+                   Int* B, BlasInt BLDim );
 #ifdef EL_HAVE_QD
 template void Trmm
 ( char side, char uplo, char trans, char unit,
@@ -3633,6 +3754,11 @@ template void Trmm
                              Complex<Quad>* B, BlasInt BLDim );
 #endif
 #ifdef EL_HAVE_MPC
+template void Trmm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  BigInt alpha, const BigInt* A, BlasInt ALDim,
+                      BigInt* B, BlasInt BLDim );
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,

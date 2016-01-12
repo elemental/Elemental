@@ -60,6 +60,14 @@ BigFloat::BigFloat( const BigFloat& a, mpfr_prec_t prec )
     )
 }
 
+BigFloat::BigFloat( const BigInt& a, mpfr_prec_t prec )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::BigFloat [BigInt]"))
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    mpfr_init2( Pointer(), prec );
+    mpfr_set_z( Pointer(), a.LockedPointer(), mpc::RoundingMode() ); 
+}
+
 BigFloat::BigFloat( const unsigned& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned]"))
@@ -239,6 +247,13 @@ BigFloat& BigFloat::operator=( const BigFloat& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator=( const BigInt& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator= [BigInt]"))
+    mpfr_set_z( Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
 BigFloat& BigFloat::operator=( const unsigned& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator= [unsigned]"))
@@ -370,10 +385,45 @@ BigFloat& BigFloat::operator=( BigFloat&& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator+=( const unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [unsigned]"))
+    mpfr_add_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator+=( const unsigned long& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [unsigned long]"))
+    mpfr_add_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator+=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [int]"))
+    mpfr_add_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator+=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [long int]"))
+    mpfr_add_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
 BigFloat& BigFloat::operator+=( const double& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator+= [double]"))
     mpfr_add_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator+=( const BigInt& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [BigInt]"))
+    mpfr_add_z( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
@@ -384,10 +434,45 @@ BigFloat& BigFloat::operator+=( const BigFloat& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator-=( const unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [unsigned]"))
+    mpfr_sub_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator-=( const unsigned long& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [unsigned long]"))
+    mpfr_sub_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator-=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [int]"))
+    mpfr_sub_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator-=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [long int]"))
+    mpfr_sub_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
 BigFloat& BigFloat::operator-=( const double& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator-= [double]"))
     mpfr_sub_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator-=( const BigInt& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [BigInt]"))
+    mpfr_sub_z( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
@@ -398,10 +483,45 @@ BigFloat& BigFloat::operator-=( const BigFloat& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator*=( const unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [unsigned]"))
+    mpfr_mul_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator*=( const unsigned long& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [unsigned long]"))
+    mpfr_mul_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator*=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [int]"))
+    mpfr_mul_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator*=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [long int]"))
+    mpfr_mul_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
 BigFloat& BigFloat::operator*=( const double& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator*= [double]"))
     mpfr_mul_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator*=( const BigInt& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [BigInt]"))
+    mpfr_mul_z( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
@@ -412,10 +532,45 @@ BigFloat& BigFloat::operator*=( const BigFloat& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator/=( const unsigned& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [unsigned]"))
+    mpfr_div_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator/=( const unsigned long& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [unsigned long]"))
+    mpfr_div_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator/=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [int]"))
+    mpfr_div_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator/=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [long int]"))
+    mpfr_div_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
 BigFloat& BigFloat::operator/=( const double& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator/= [double]"))
     mpfr_div_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator/=( const BigInt& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [BigInt]"))
+    mpfr_div_z( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
@@ -593,10 +748,17 @@ BigFloat::operator Quad() const
 }
 #endif
 
+BigFloat::operator BigInt() const
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator BigInt"))
+    BigInt alpha;
+    mpfr_get_z( alpha.Pointer(), LockedPointer(), mpc::RoundingMode() );
+    return alpha;
+}
+
 size_t BigFloat::SerializedSize() const
 {
     DEBUG_ONLY(CSE cse("BigFloat::SerializedSize"))
-    // TODO: Decide whether alignments need to be considered.
     return sizeof(mpfr_prec_t)+
            sizeof(mpfr_sign_t)+
            sizeof(mpfr_exp_t)+
@@ -610,7 +772,6 @@ byte* BigFloat::Serialize( byte* buf ) const
     //       they are known a priori (as long as the user does not fiddle
     //       with SetPrecision)
     // 
-    // TODO: Decide whether alignments need to be considered.
 
     std::memcpy( buf, &mpfrFloat_->_mpfr_prec, sizeof(mpfr_prec_t) );
     buf += sizeof(mpfr_prec_t);
@@ -619,7 +780,6 @@ byte* BigFloat::Serialize( byte* buf ) const
     std::memcpy( buf, &mpfrFloat_->_mpfr_exp, sizeof(mpfr_exp_t) );
     buf += sizeof(mpfr_exp_t);
 
-    // TODO: Avoid this integer computation
     std::memcpy( buf, mpfrFloat_->_mpfr_d, numLimbs_*sizeof(mp_limb_t) );
     buf += numLimbs_*sizeof(mp_limb_t);
 

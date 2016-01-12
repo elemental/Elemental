@@ -66,9 +66,11 @@ Int localSymvQuadBlocksize = 64;
 Int localSymvComplexQuadBlocksize = 64;
 #endif
 #ifdef EL_HAVE_MPC
+Int localSymvBigIntBlocksize = 64;
 Int localSymvBigFloatBlocksize = 64;
 #endif
 
+Int localTrr2kIntBlocksize = 64;
 Int localTrr2kFloatBlocksize = 64;
 Int localTrr2kDoubleBlocksize = 64;
 Int localTrr2kComplexFloatBlocksize = 64;
@@ -82,9 +84,11 @@ Int localTrr2kQuadBlocksize = 64;
 Int localTrr2kComplexQuadBlocksize = 64;
 #endif
 #ifdef EL_HAVE_MPC
+Int localTrr2kBigIntBlocksize = 64;
 Int localTrr2kBigFloatBlocksize = 64;
 #endif
 
+Int localTrrkIntBlocksize = 64;
 Int localTrrkFloatBlocksize = 64;
 Int localTrrkDoubleBlocksize = 64;
 Int localTrrkComplexFloatBlocksize = 64;
@@ -98,6 +102,7 @@ Int localTrrkQuadBlocksize = 64;
 Int localTrrkComplexQuadBlocksize = 64;
 #endif
 #ifdef EL_HAVE_MPC
+Int localTrrkBigIntBlocksize = 64;
 Int localTrrkBigFloatBlocksize = 64;
 #endif
 
@@ -408,6 +413,7 @@ void Initialize( int& argc, char**& argv )
     ::generator.seed( seed );
     srand( seed );
 #ifdef EL_HAVE_MPC
+    mpc::SetMinIntBits( 256 );
     mpc::SetPrecision( 256 );
     gmp_randinit_default( ::gmpRandState );
     gmp_randseed_ui( ::gmpRandState, seed );
@@ -754,6 +760,10 @@ void SetLocalSymvBlocksize<Complex<Quad>>( Int blocksize )
 
 #ifdef EL_HAVE_MPC
 template<>
+void SetLocalSymvBlocksize<BigInt>( Int blocksize )
+{ ::localSymvBigIntBlocksize = blocksize; }
+
+template<>
 void SetLocalSymvBlocksize<BigFloat>( Int blocksize )
 { ::localSymvBigFloatBlocksize = blocksize; }
 #endif
@@ -799,9 +809,16 @@ Int LocalSymvBlocksize<Complex<Quad>>()
 
 #ifdef EL_HAVE_MPC
 template<>
+Int LocalSymvBlocksize<BigInt>()
+{ return ::localSymvBigIntBlocksize; }
+template<>
 Int LocalSymvBlocksize<BigFloat>()
 { return ::localSymvBigFloatBlocksize; }
 #endif
+
+template<>
+void SetLocalTrr2kBlocksize<Int>( Int blocksize )
+{ ::localTrr2kIntBlocksize = blocksize; }
 
 template<>
 void SetLocalTrr2kBlocksize<float>( Int blocksize )
@@ -841,9 +858,16 @@ void SetLocalTrr2kBlocksize<Complex<Quad>>( Int blocksize )
 
 #ifdef EL_HAVE_MPC
 template<>
+void SetLocalTrr2kBlocksize<BigInt>( Int blocksize )
+{ ::localTrr2kBigIntBlocksize = blocksize; }
+template<>
 void SetLocalTrr2kBlocksize<BigFloat>( Int blocksize )
 { ::localTrr2kBigFloatBlocksize = blocksize; }
 #endif
+
+template<>
+Int LocalTrr2kBlocksize<Int>()
+{ return ::localTrr2kIntBlocksize; }
 
 template<>
 Int LocalTrr2kBlocksize<float>()
@@ -883,9 +907,16 @@ Int LocalTrr2kBlocksize<Complex<Quad>>()
 
 #ifdef EL_HAVE_MPC
 template<>
+Int LocalTrr2kBlocksize<BigInt>()
+{ return ::localTrr2kBigIntBlocksize; }
+template<>
 Int LocalTrr2kBlocksize<BigFloat>()
 { return ::localTrr2kBigFloatBlocksize; }
 #endif
+
+template<>
+void SetLocalTrrkBlocksize<Int>( Int blocksize )
+{ ::localTrrkIntBlocksize = blocksize; }
 
 template<>
 void SetLocalTrrkBlocksize<float>( Int blocksize )
@@ -925,9 +956,16 @@ void SetLocalTrrkBlocksize<Complex<Quad>>( Int blocksize )
 
 #ifdef EL_HAVE_MPC
 template<>
+void SetLocalTrrkBlocksize<BigInt>( Int blocksize )
+{ ::localTrrkBigIntBlocksize = blocksize; }
+template<>
 void SetLocalTrrkBlocksize<BigFloat>( Int blocksize )
 { ::localTrrkBigFloatBlocksize = blocksize; }
 #endif
+
+template<>
+Int LocalTrrkBlocksize<Int>()
+{ return ::localTrrkIntBlocksize; }
 
 template<>
 Int LocalTrrkBlocksize<float>()
@@ -966,6 +1004,9 @@ Int LocalTrrkBlocksize<Complex<Quad>>()
 #endif
 
 #ifdef EL_HAVE_MPC
+template<>
+Int LocalTrrkBlocksize<BigInt>()
+{ return ::localTrrkBigIntBlocksize; }
 template<>
 Int LocalTrrkBlocksize<BigFloat>()
 { return ::localTrrkBigFloatBlocksize; }

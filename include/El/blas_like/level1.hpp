@@ -1579,6 +1579,12 @@ void RotateCols( Base<F> c, F s, AbstractDistMatrix<F>& A, Int j1, Int j2 );
 // Round each entry to the nearest integer
 template<typename T>
 void Round( Matrix<T>& A );
+template<>
+void Round( Matrix<Int>& A );
+#ifdef EL_HAVE_MPC
+template<>
+void Round( Matrix<BigInt>& A );
+#endif
 template<typename T>
 void Round( AbstractDistMatrix<T>& A );
 template<typename T>

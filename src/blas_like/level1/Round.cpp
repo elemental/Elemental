@@ -29,6 +29,12 @@ template<>
 void Round( Matrix<Int>& A )
 { }
 
+#ifdef EL_HAVE_MPC
+template<>
+void Round( Matrix<BigInt>& A )
+{ }
+#endif
+
 template<typename T>
 void Round( AbstractDistMatrix<T>& A )
 { Round( A.Matrix() ); }
@@ -45,6 +51,7 @@ void Round( DistMultiVec<T>& A )
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 

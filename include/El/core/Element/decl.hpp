@@ -79,7 +79,11 @@ using DisableIf = typename std::enable_if<!Condition::value,T>::type;
 // Types that Matrix, DistMatrix, etc. are instantiatable with
 // -----------------------------------------------------------
 template<typename T>
-using IsIntegral = std::is_integral<T>;
+struct IsIntegral { static const bool value = std::is_integral<T>::value; };
+#ifdef EL_HAVE_MPC
+template<>
+struct IsIntegral<BigInt> { static const bool value = true; };
+#endif
 
 template<typename T> struct IsScalar { static const bool value=false; };
 template<> struct IsScalar<Int> { static const bool value=true; };
@@ -96,6 +100,7 @@ template<> struct IsScalar<Quad> { static const bool value=true; };
 template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
 #endif
 #ifdef EL_HAVE_MPC
+template<> struct IsScalar<BigInt> { static const bool value=true; };
 template<> struct IsScalar<BigFloat> { static const bool value=true; };
 #endif
 
@@ -279,6 +284,7 @@ template<> struct IsData<Quad> { static const bool value=true; };
 template<> struct IsData<Complex<Quad>> { static const bool value=true; };
 #endif
 #ifdef EL_HAVE_MPC
+template<> struct IsData<BigInt> { static const bool value=true; };
 template<> struct IsData<BigFloat> { static const bool value=true; };
 #endif
 
@@ -383,6 +389,7 @@ template<> Quad Abs( const Quad& alpha ) EL_NO_EXCEPT;
 template<> Quad Abs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> BigInt Abs( const BigInt& alpha ) EL_NO_EXCEPT;
 template<> BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT;
 #endif
 
@@ -409,6 +416,8 @@ Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Sgn( const Real& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 #ifdef EL_HAVE_MPC
+// TODO: Continue adding BigInt support
+BigInt Sgn( const BigInt& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 BigFloat Sgn( const BigFloat& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 #endif
 
@@ -431,30 +440,31 @@ template<> BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT;
 template<typename F,typename T,
          typename=EnableIf<IsScalar<F>>,
          typename=EnableIf<IsScalar<T>>>
-F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT;
+F Pow( const F& alpha, const T& beta );
 #ifdef EL_USE_64BIT_INTS
 template<typename F,typename=EnableIf<IsScalar<F>>>
-F Pow( const F& alpha, const int& beta ) EL_NO_EXCEPT;
+F Pow( const F& alpha, const int& beta );
 #endif
 #ifdef EL_HAVE_QD
 template<>
-DoubleDouble Pow
-( const DoubleDouble& alpha, const DoubleDouble& beta ) EL_NO_EXCEPT;
+DoubleDouble Pow( const DoubleDouble& alpha, const DoubleDouble& beta );
 template<>
-QuadDouble Pow
-( const QuadDouble& alpha, const QuadDouble& beta ) EL_NO_EXCEPT;
+QuadDouble Pow( const QuadDouble& alpha, const QuadDouble& beta );
 #endif
 #ifdef EL_HAVE_QUAD
-template<> Quad Pow( const Quad& alpha, const Quad& beta ) EL_NO_EXCEPT;
+template<> Quad Pow( const Quad& alpha, const Quad& beta );
 template<>
-Complex<Quad> Pow
-( const Complex<Quad>& alpha, const Complex<Quad>& beta ) EL_NO_EXCEPT;
+Complex<Quad> Pow( const Complex<Quad>& alpha, const Complex<Quad>& beta );
 template<>
-Complex<Quad> Pow( const Complex<Quad>& alpha, const Quad& beta ) EL_NO_EXCEPT;
+Complex<Quad> Pow( const Complex<Quad>& alpha, const Quad& beta );
 #endif
 #ifdef EL_HAVE_MPC
 template<>
-BigFloat Pow( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT;
+BigFloat Pow( const BigFloat& alpha, const BigFloat& beta );
+template<>
+BigInt Pow( const BigInt& alpha, const BigInt& beta );
+BigInt Pow( const BigInt& alpha, const unsigned& beta );
+BigInt Pow( const BigInt& alpha, const unsigned long& beta );
 #endif
 
 template<typename F,typename=EnableIf<IsScalar<F>>>
@@ -697,6 +707,7 @@ template<> QuadDouble Round( const QuadDouble& alpha );
 template<> Quad Round( const Quad& alpha );
 #endif
 #ifdef EL_HAVE_MPC
+template<> BigInt Round( const BigInt& alpha );
 template<> BigFloat Round( const BigFloat& alpha );
 #endif
 
@@ -718,6 +729,7 @@ template<> QuadDouble Ceil( const QuadDouble& alpha );
 template<> Quad Ceil( const Quad& alpha );
 #endif
 #ifdef EL_HAVE_MPC
+template<> BigInt Ceil( const BigInt& alpha );
 template<> BigFloat Ceil( const BigFloat& alpha );
 #endif
 
@@ -739,6 +751,7 @@ template<> QuadDouble Floor( const QuadDouble& alpha );
 template<> Quad Floor( const Quad& alpha );
 #endif
 #ifdef EL_HAVE_MPC
+template<> BigInt Floor( const BigInt& alpha );
 template<> BigFloat Floor( const BigFloat& alpha );
 #endif
 

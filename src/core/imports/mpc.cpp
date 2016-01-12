@@ -12,6 +12,7 @@
 namespace {
 
 size_t numLimbs;
+int numIntLimbs;
 
 } // anonymous namespace
 
@@ -37,6 +38,26 @@ void SetPrecision( mpfr_prec_t prec )
     mpi::CreateBigFloatFamily();
     previouslySet = true;
 }
+
+void SetMinIntBits( int numBits )
+{ 
+    static bool previouslySet = false;
+    const int numIntLimbsNew = (numBits+(GMP_NUMB_BITS-1)) / GMP_NUMB_BITS;
+    if( previouslySet && ::numIntLimbs == numIntLimbsNew ) 
+        return;
+
+    if( previouslySet )
+        mpi::DestroyBigIntFamily();
+    ::numIntLimbs = numIntLimbsNew;
+    mpi::CreateBigIntFamily();
+    previouslySet = true;
+}
+
+int NumIntBits()
+{ return ::numIntLimbs*GMP_NUMB_BITS; }
+
+int NumIntLimbs()
+{ return ::numIntLimbs; }
 
 mpfr_rnd_t RoundingMode()
 { return mpfr_get_default_rounding_mode(); }

@@ -196,6 +196,7 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, r, order );
 
+/*
         if( commRank == 0 )
             Output("Testing with integers:");
         DistMatrixTest<Int>( m, n, g, print );
@@ -233,8 +234,17 @@ main( int argc, char* argv[] )
             Output("Testing with quad-precision complex:");
         DistMatrixTest<Complex<Quad>>( m, n, g, print );
 #endif
+*/
 
 #ifdef EL_HAVE_MPC
+        if( commRank == 0 )
+            Output("Testing with BigInt (with default=256-bit precision):");
+        DistMatrixTest<BigInt>( m, n, g, print );
+        mpc::SetMinIntBits( 512 );
+        if( commRank == 0 )
+            Output("Testing with BigInt (with 512-bit precision):");
+        DistMatrixTest<BigInt>( m, n, g, print );
+
         if( commRank == 0 )
             Output("Testing with BigFloat (with default=256-bit precision):");
         DistMatrixTest<BigFloat>( m, n, g, print );

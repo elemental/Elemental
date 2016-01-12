@@ -17,7 +17,7 @@ Int CoinFlip() { return ( BooleanCoinFlip() ? 1 : -1 ); }
 
 #ifdef EL_HAVE_QD
 template<>
-DoubleDouble SampleUniform( DoubleDouble a, DoubleDouble b )
+DoubleDouble SampleUniform( const DoubleDouble& a, const DoubleDouble& b )
 {
     DoubleDouble sample;
     // TODO: Use a better random number generator
@@ -32,7 +32,7 @@ DoubleDouble SampleUniform( DoubleDouble a, DoubleDouble b )
 }
 
 template<>
-QuadDouble SampleUniform( QuadDouble a, QuadDouble b )
+QuadDouble SampleUniform( const QuadDouble& a, const QuadDouble& b )
 {
     QuadDouble sample;
     // TODO: Use a better random number generator
@@ -50,7 +50,7 @@ QuadDouble SampleUniform( QuadDouble a, QuadDouble b )
 
 #ifdef EL_HAVE_QUAD
 template<>
-Quad SampleUniform( Quad a, Quad b )
+Quad SampleUniform( const Quad& a, const Quad& b )
 {
     Quad sample;
 #ifdef EL_HAVE_CXX11RANDOM
@@ -65,7 +65,7 @@ Quad SampleUniform( Quad a, Quad b )
 }
 
 template<>
-Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b )
+Complex<Quad> SampleUniform( const Complex<Quad>& a, const Complex<Quad>& b )
 {
     Complex<Quad> sample;
 
@@ -96,7 +96,19 @@ Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b )
 
 #ifdef EL_HAVE_MPC
 template<>
-BigFloat SampleUniform( BigFloat a, BigFloat b )
+BigInt SampleUniform( const BigInt& a, const BigInt& b )
+{
+    BigInt sample; 
+    gmp_randstate_t randState;
+    mpc::RandomState( randState );
+
+    mpz_urandomb( sample.Pointer(), randState, sample.NumBits() );
+
+    return a + sample*(b-a);
+}
+
+template<>
+BigFloat SampleUniform( const BigFloat& a, const BigFloat& b )
 {
     BigFloat sample; 
     gmp_randstate_t randState;
@@ -113,7 +125,7 @@ BigFloat SampleUniform( BigFloat a, BigFloat b )
 #endif // ifdef EL_HAVE_MPC
 
 template<>
-Int SampleUniform<Int>( Int a, Int b )
+Int SampleUniform<Int>( const Int& a, const Int& b )
 {
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
@@ -123,10 +135,12 @@ Int SampleUniform<Int>( Int a, Int b )
     return a + (rand() % (b-a));
 #endif
 }
+// TODO: BigInt version?
 
 #ifdef EL_HAVE_QD
 template<>
-DoubleDouble SampleNormal( DoubleDouble mean, DoubleDouble stddev )
+DoubleDouble
+SampleNormal( const DoubleDouble& mean, const DoubleDouble& stddev )
 {
     DoubleDouble sample;
 
@@ -158,7 +172,7 @@ DoubleDouble SampleNormal( DoubleDouble mean, DoubleDouble stddev )
 }
 
 template<>
-QuadDouble SampleNormal( QuadDouble mean, QuadDouble stddev )
+QuadDouble SampleNormal( const QuadDouble& mean, const QuadDouble& stddev )
 {
     QuadDouble sample;
 
@@ -192,7 +206,7 @@ QuadDouble SampleNormal( QuadDouble mean, QuadDouble stddev )
 
 #ifdef EL_HAVE_QUAD
 template<>
-Quad SampleNormal( Quad mean, Quad stddev )
+Quad SampleNormal( const Quad& mean, const Quad& stddev )
 {
     Quad sample;
 
@@ -224,7 +238,7 @@ Quad SampleNormal( Quad mean, Quad stddev )
 }
 
 template<>
-Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev )
+Complex<Quad> SampleNormal( const Complex<Quad>& mean, const Quad& stddev )
 {
     Complex<Quad> sample;
     stddev = stddev / Sqrt(Quad(2));
@@ -265,7 +279,7 @@ Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev )
 
 #ifdef EL_HAVE_MPC
 template<>
-BigFloat SampleNormal( BigFloat mean, BigFloat stddev )
+BigFloat SampleNormal( const BigFloat& mean, const BigFloat& stddev )
 {
     BigFloat sample;
 
@@ -289,14 +303,5 @@ BigFloat SampleNormal( BigFloat mean, BigFloat stddev )
     return sample;
 }
 #endif // ifdef EL_HAVE_MPC
-
-// There is likely to be a significantly better way to define this;
-// the current implementation is simply a placeholder
-template<>
-Int SampleBall<Int>( Int center, Int radius )
-{
-    const double u = SampleBall<double>( center, radius );
-    return std::lround(u);
-}
 
 } // namespace El

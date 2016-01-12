@@ -300,6 +300,11 @@ template void omatcopy
 #ifdef EL_HAVE_MPC
 template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
+  BigInt alpha,
+  const BigInt* A, BlasInt lda,
+        BigInt* B, BlasInt ldb );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha,
   const BigFloat* A, BlasInt lda,
         BigFloat* B, BlasInt ldb );
@@ -422,6 +427,11 @@ template void omatcopy
 #ifdef EL_HAVE_MPC
 template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
+  BigInt alpha,
+  const BigInt* A, BlasInt lda, BlasInt stridea,
+        BigInt* B, BlasInt ldb, BlasInt strideb );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha,
   const BigFloat* A, BlasInt lda, BlasInt stridea,
         BigFloat* B, BlasInt ldb, BlasInt strideb );
@@ -501,6 +511,9 @@ template void imatcopy
   Complex<Quad> alpha, Complex<Quad>* A, BlasInt lda, BlasInt ldb );
 #endif
 #ifdef EL_HAVE_MPC
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  BigInt alpha, BigInt* A, BlasInt lda, BlasInt ldb );
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha, BigFloat* A, BlasInt lda, BlasInt ldb );
