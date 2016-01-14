@@ -29,10 +29,10 @@ void BigInt::SetNumLimbs( int numLimbs )
 }
 
 int BigInt::NumLimbs() const
-{ return mpzInt_->_mp_size; }
+{ return abs(mpzInt_->_mp_size); }
 
 int BigInt::NumBits() const
-{ return mpzInt_->_mp_size*GMP_NUMB_BITS; }
+{ return NumLimbs()*GMP_NUMB_BITS; }
 
 BigInt::BigInt()
 {
@@ -447,18 +447,17 @@ BigInt::operator Quad() const
 size_t BigInt::ThinSerializedSize() const
 {
     DEBUG_ONLY(CSE cse("BigInt::ThinSerializedSize"))
-    return sizeof(int) + sizeof(mp_limb_t)*mpzInt_->_mp_size;
+    return sizeof(int) + sizeof(mp_limb_t)*NumLimbs();
 }
 
 size_t BigInt::SerializedSize( int numLimbs ) const
 {
     DEBUG_ONLY(
       CSE cse("BigInt::SerializedSize");
-      if( numLimbs < mpzInt_->_mp_size )
+      if( numLimbs < NumLimbs() )
           LogicError
-          ("Upper bound of numLimbs=",numLimbs," < ",mpzInt_->_mp_size);
+          ("Upper bound of numLimbs=",numLimbs," < ",NumLimbs());
     )
-    Output("serialized size: ",sizeof(int)+sizeof(mp_limb_t)*numLimbs);
     return sizeof(int) + sizeof(mp_limb_t)*numLimbs; 
 }
 
@@ -471,9 +470,9 @@ byte* BigInt::ThinSerialize( byte* buf ) const
     std::memcpy( buf, &mpzInt_->_mp_size, sizeof(int) );
     buf += sizeof(int);
 
-    const int numLimbs = mpzInt_->_mp_size;
+    const int numLimbs = abs(mpzInt_->_mp_size);
     std::memcpy( buf, mpzInt_->_mp_d, numLimbs*sizeof(mp_limb_t) );
-    buf += sizeof(mp_limb_t);
+    buf += numLimbs*sizeof(mp_limb_t);
 
     return buf;
 }
@@ -482,14 +481,10 @@ byte* BigInt::Serialize( byte* buf, int numLimbs ) const
 {
     DEBUG_ONLY(
       CSE cse("BigInt::Serialize");
-      if( numLimbs < mpzInt_->_mp_size )
+      if( numLimbs < NumLimbs() )
           LogicError
-          ("Upper bound of numLimbs=",numLimbs," < ",mpzInt_->_mp_size);
+          ("Upper bound of numLimbs=",numLimbs," < ",NumLimbs());
     )
-
-    Output("Serializing with numLimbs=",numLimbs,", GMP_NUMB_BITS=",GMP_NUMB_BITS);
-
-    Output("_mp_size=",mpzInt_->_mp_size,", _mp_alloc=",mpzInt_->_mp_alloc);
 
     // NOTE: We don't have to necessarily serialize the precisions, as
     //       they are known a priori (as long as the user does not fiddle
@@ -497,7 +492,7 @@ byte* BigInt::Serialize( byte* buf, int numLimbs ) const
     std::memcpy( buf, &mpzInt_->_mp_size, sizeof(int) );
     buf += sizeof(int);
 
-    const int numUsedLimbs = mpzInt_->_mp_size;
+    const int numUsedLimbs = abs(mpzInt_->_mp_size);
     std::memcpy( buf, mpzInt_->_mp_d, numUsedLimbs*sizeof(mp_limb_t) );
     buf += numLimbs*sizeof(mp_limb_t);
 
@@ -507,14 +502,15 @@ byte* BigInt::Serialize( byte* buf, int numLimbs ) const
 const byte* BigInt::ThinDeserialize( const byte* buf )
 {
     DEBUG_ONLY(CSE cse("BigInt::ThinDeserialize"))
-    int numLimbsDynamic;
-    std::memcpy( &numLimbsDynamic, buf, sizeof(int) );
+    int signedNumLimbsDynamic;
+    std::memcpy( &signedNumLimbsDynamic, buf, sizeof(int) );
     buf += sizeof(int);
 
     // TODO: Avoid the realloc2 call?
+    const int numLimbsDynamic = abs(signedNumLimbsDynamic);
     const int precDynamic = numLimbsDynamic*GMP_NUMB_BITS;
     mpz_realloc2( mpzInt_, precDynamic );
-    mpzInt_->_mp_size = numLimbsDynamic;
+    mpzInt_->_mp_size = signedNumLimbsDynamic;
     std::memcpy( mpzInt_->_mp_d, buf, numLimbsDynamic*sizeof(mp_limb_t) );
     buf += numLimbsDynamic*sizeof(mp_limb_t);
 
@@ -524,12 +520,11 @@ const byte* BigInt::ThinDeserialize( const byte* buf )
 const byte* BigInt::Deserialize( const byte* buf, int numLimbs )
 {
     DEBUG_ONLY(CSE cse("BigInt::Deserialize"))
-    int numLimbsDynamic;
-    std::memcpy( &numLimbsDynamic, buf, sizeof(int) );
+    int signedNumLimbsDynamic;
+    std::memcpy( &signedNumLimbsDynamic, buf, sizeof(int) );
     buf += sizeof(int);
 
-    Output("Deserializing with numLimbs=",numLimbs);
-
+    const int numLimbsDynamic = abs(signedNumLimbsDynamic);
     DEBUG_ONLY(
       if( numLimbsDynamic > numLimbs )
           LogicError("numLimbsDynamic=",numLimbsDynamic,", numLimbs=",numLimbs);
@@ -538,9 +533,9 @@ const byte* BigInt::Deserialize( const byte* buf, int numLimbs )
     // TODO: Avoid the realloc2 call?
     const int prec = numLimbs*GMP_NUMB_BITS;
     mpz_realloc2( mpzInt_, prec );
-    mpzInt_->_mp_size = numLimbsDynamic;
+    mpzInt_->_mp_size = signedNumLimbsDynamic;
     std::memcpy( mpzInt_->_mp_d, buf, numLimbsDynamic*sizeof(mp_limb_t) );
-    buf += numLimbsDynamic*sizeof(mp_limb_t);
+    buf += numLimbs*sizeof(mp_limb_t);
 
     return buf;
 }

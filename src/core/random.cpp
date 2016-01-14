@@ -101,10 +101,9 @@ BigInt SampleUniform( const BigInt& a, const BigInt& b )
     BigInt sample; 
     gmp_randstate_t randState;
     mpc::RandomState( randState );
-
-    mpz_urandomb( sample.Pointer(), randState, sample.NumBits() );
-
-    return a + sample*(b-a);
+    
+    mpz_urandomb( sample.Pointer(), randState, b.NumBits() );
+    return a+Mod(sample,b-a);
 }
 
 template<>
@@ -241,17 +240,18 @@ template<>
 Complex<Quad> SampleNormal( const Complex<Quad>& mean, const Quad& stddev )
 {
     Complex<Quad> sample;
-    stddev = stddev / Sqrt(Quad(2));
+    Quad stddevAdj = stddev;
+    stddevAdj /= Sqrt(Quad(2));
 
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
 
     std::normal_distribution<long double> 
-      realNormal( (long double)RealPart(mean), (long double)stddev );
+      realNormal( (long double)RealPart(mean), (long double)stddevAdj );
     SetRealPart( sample, Quad(realNormal(gen)) );
 
     std::normal_distribution<long double>
-      imagNormal( (long double)ImagPart(mean), (long double)stddev );
+      imagNormal( (long double)ImagPart(mean), (long double)stddevAdj );
     SetImagPart( sample, Quad(imagNormal(gen)) );
 #else
     // Run Marsiglia's polar method
@@ -266,8 +266,8 @@ Complex<Quad> SampleNormal( const Complex<Quad>& mean, const Quad& stddev )
         if( S > Quad(0) && S < Quad(1) )
         {
             const Quad W = Sqrt(-2*Log(S)/S);
-            SetRealPart( sample, RealPart(mean) + stddev*U*W );
-            SetImagPart( sample, ImagPart(mean) + stddev*V*W );
+            SetRealPart( sample, RealPart(mean) + stddevAdj*U*W );
+            SetImagPart( sample, ImagPart(mean) + stddevAdj*V*W );
             break;
         }
     }

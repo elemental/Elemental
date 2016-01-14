@@ -1123,6 +1123,7 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(CSE cse("mpi::PackedTaggedSendRecv"))
     std::vector<byte> packedBuf;
     ReserveSerialized( count, buf, packedBuf );
+    Serialize( count, buf, packedBuf );
     Status status;
     SafeMpi
     ( MPI_Sendrecv_replace

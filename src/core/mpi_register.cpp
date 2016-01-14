@@ -190,7 +190,7 @@ void CreateBigIntType()
 {
     BigInt alpha;
     const auto packedSize = alpha.SerializedSize();
-    const auto numLimbs = alpha.NumLimbs();
+    const int numLimbs = mpc::NumIntLimbs();
 
     mpi::Datatype typeList[3];
     typeList[0] = mpi::TypeMap<int>();
