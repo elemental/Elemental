@@ -13,27 +13,30 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& Z )
+  const ElementalMatrix<F>& X )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
-    const Int n = Z.Height();
-    const Int k = Z.Width();
+    const Int n = X.Height();
+    const Int k = X.Width();
     
-    // X := AZ
-    DistMatrix<F> X( Z );
-    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, X );
-    // Find the residual X-ZW = AZ-ZW
-    DistMatrix<F> ZW( Z );
+    // Find the residual R = AX-XW
+    DistMatrix<F> R( X );
+    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, R );
+    DistMatrix<F> XW( X );
     DistMatrix<F> w( g );
     GetDiagonal( A, w );
-    DiagonalScale( RIGHT, NORMAL, w, ZW );
-    X -= ZW;
-    // Find the Frobenius norms of A and AZ-ZW
+    DiagonalScale( RIGHT, NORMAL, w, XW );
+    R -= XW;
+    // Find the Frobenius norms of A and AX-XW
     Real frobNormA = FrobeniusNorm( A );
-    Real frobNormE = FrobeniusNorm( X );
+    Real frobNormR = FrobeniusNorm( R );
+    // Find condition number
+    Real condX = Condition( X );
     if( g.Rank() == 0 )
-        Output("    ||A Z - Z W||_F / ||A||_F = ",frobNormE/frobNormA);
+        Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
+    if( g.Rank() == 0 )
+        Output("    cond(X) = ", condX);
 }
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
@@ -42,45 +45,44 @@ void TestTriangEig
   bool print,
   Int m, 
   const Grid& g,
-  bool scalapack )
+  bool repeated )
 {
     typedef Base<F> Real;
-    DistMatrix<F,U,V> A(g), AOrig(g), Z(g);
+    DistMatrix<F,U,V> A(g), AOrig(g), X(g);
     DistMatrix<F,S,STAR> w(g);
     if( g.Rank() == 0 )
         Output("Testing with ",TypeName<F>());
 
-    // TODO: option to construct matrix with repeated eigenvalues
+    // Random triangular matrix is LU factor of Gaussian matrix
     DistMatrix<F,U,V> B(g);
     Gaussian( B, m, m );
     LU( B );
     Transpose( B, A );
     MakeTrapezoidal( UPPER, A, 0 );
-    if( testCorrectness ) {
+    if( repeated )
+    {
+        F repeatList[4];
+	for(Int i=0; i<4; ++i)
+	    repeatList[i] = A.Get(i,i);
+	for(Int i=0; i<m; ++i)
+	{
+	    if( i%5 < 4 )
+	        A.Set(i,i,repeatList[i%5]);
+	}    
+    }
+    if( testCorrectness )
+    {
         AOrig = A;
 	GetDiagonal( A, w );
     }
     if( print )
         Print( A, "A" );
 
-    if( scalapack && U == MC && V == MR )
-    {
-#if 0 // TODO: option to test ScaLAPACK. I am not sure why this does
-      // not compile successfully.
-      DistMatrix<F,MC,MR,BLOCK> ABlock( A ), ZBlock(g);
-      const double startTime = mpi::Time();
-      TriangEig( ABlock, ZBlock );
-      const double runTime = mpi::Time() - startTime;
-      if( g.Rank() == 0 )
-	Output("  ScaLAPACK TriangEig time: ",runTime);
-#endif
-    }
-
     if( g.Rank() == 0 )
         Output("  Starting triangular eigensolver...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    TriangEig( A, Z );
+    TriangEig( A, X );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
@@ -88,10 +90,10 @@ void TestTriangEig
     if( print )
     {
         Print( w, "eigenvalues:" );
-	Print( Z, "eigenvectors:" );
+	Print( X, "eigenvectors:" );
     }
     if( testCorrectness )
-        TestCorrectness( print, AOrig, Z );
+        TestCorrectness( print, AOrig, X );
 }
 
 int 
@@ -108,16 +110,12 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-#ifdef EL_HAVE_SCALAPACK
-        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
-#else
-        const bool scalapack = false;
-#endif
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
+        const bool repeated = Input("--repeated","test matrices with repeated eigenvalues?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -133,11 +131,11 @@ main( int argc, char* argv[] )
         if( testReal )
             TestTriangEig<double>
             ( testCorrectness, print,
-              n, g, scalapack );
+              n, g, repeated );
         if( testCpx )
             TestTriangEig<Complex<double>>
             ( testCorrectness, print,
-              n, g, scalapack );
+              n, g, repeated );
 
         // Also test with non-standard distributions
         if( commRank == 0 )
@@ -145,11 +143,11 @@ main( int argc, char* argv[] )
         if( testReal )
             TestTriangEig<double,MR,MC,MC>
             ( testCorrectness, print,
-              n, g, scalapack );
+              n, g, repeated );
         if( testCpx )
             TestTriangEig<Complex<double>,MR,MC,MC>
             ( testCorrectness, print,
-              n, g, scalapack );
+              n, g, repeated );
     }
     catch( exception& e ) { ReportException(e); }
 

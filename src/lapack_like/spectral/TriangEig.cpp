@@ -30,10 +30,21 @@ DiagonalBlockSolve
     const Int n = T.Height();
     const Int ldim = T.LDim();
     const Int numShifts = shifts.Height();
+
+    const Base<F> eps = lapack::MachineEpsilon<Base<F>>(); 
+    
     for( Int j=1; j<numShifts; ++j )
     {
         ShiftDiagonal( T, -shifts.Get(j,0) );
+
         // TODO: Handle small diagonal entries in the usual manner
+	auto minDiag = 2*Sqrt(eps)*Abs(shifts.Get(j,0));
+	for( Int i=0; i<Min(n,j); ++i)
+	{
+	    if( Abs(T.Get(i,i))<minDiag )
+		T.Set(i,i,F(minDiag));
+	}
+	
         blas::Trsv
         ( uploChar, orientChar, 'N', Min(n,j), 
           T.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
@@ -79,6 +90,14 @@ TriangEig( Matrix<F>& U, Matrix<F>& X )
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
     }
     FillDiagonal( X, F(1) ); 
+
+    // Normalize eigenvectors
+    for( Int k=1; k<m; ++k )
+    {
+        auto Xcol = View( X, IR(0,k+1), IR(k,k+1) );
+	Scale( F(1)/Nrm2(Xcol), Xcol );
+    }
+
 }
 
 template<typename F>
@@ -87,6 +106,7 @@ TriangEig
 ( const ElementalMatrix<F>& UPre, 
         ElementalMatrix<F>& XPre ) 
 {
+
     DEBUG_ONLY(CSE cse("TriangEig"))
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
@@ -145,6 +165,14 @@ TriangEig
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
     }
     FillDiagonal( X, F(1) );
+    
+    // Normalize eigenvectors
+    for( Int k=1; k<m; ++k )
+    {
+        auto Xcol = View( X, IR(0,k+1), IR(k,k+1) );
+	Scale( F(1)/Nrm2(Xcol), Xcol );
+    }
+
 }
 
 #define PROTO(F) \
