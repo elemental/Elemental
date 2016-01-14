@@ -39,6 +39,13 @@ MemCopy( T* dest, const T* source, size_t numEntries )
 }
 #ifdef EL_HAVE_MPC
 inline void
+MemCopy( BigInt* dest, const BigInt* source, size_t numEntries )
+{
+    for( size_t k=0; k<numEntries; ++k )
+        dest[k] = source[k];
+}
+
+inline void
 MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries )
 {
     for( size_t k=0; k<numEntries; ++k )
@@ -58,6 +65,19 @@ MemSwap( T* a, T* b, T* temp, size_t numEntries )
     MemCopy( b, temp, numEntries );
 }
 #ifdef EL_HAVE_MPC
+inline void
+MemSwap( BigInt* a, BigInt* b, BigInt* temp, size_t numEntries )
+{
+    // NOTE: This is the same as above for now
+
+    // temp := a
+    MemCopy( temp, a, numEntries );
+    // a := b
+    MemCopy( a, b, numEntries );
+    // b := temp
+    MemCopy( b, temp, numEntries );
+}
+
 inline void
 MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries )
 {
@@ -84,6 +104,15 @@ StridedMemCopy
 #ifdef EL_HAVE_MPC
 inline void
 StridedMemCopy
+(       BigInt* dest,   Int destStride,
+  const BigInt* source, Int sourceStride, Int numEntries )
+{
+    for( Int k=0; k<numEntries; ++k )
+        dest[destStride*k] = source[sourceStride*k];
+}
+
+inline void
+StridedMemCopy
 (       BigFloat* dest,   Int destStride,
   const BigFloat* source, Int sourceStride, Int numEntries )
 {
@@ -100,6 +129,12 @@ MemZero( T* buffer, size_t numEntries )
     std::memset( buffer, 0, numEntries*sizeof(T) );
 }
 #ifdef EL_HAVE_MPC
+inline void MemZero( BigInt* buffer, size_t numEntries )
+{
+    for( size_t k=0; k<numEntries; ++k )
+        buffer[k].Zero();
+}
+
 inline void MemZero( BigFloat* buffer, size_t numEntries )
 {
     for( size_t k=0; k<numEntries; ++k )

@@ -49,6 +49,12 @@ Int GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs );
 // still returns a result in [0,b). Note that b is assumed to be non-negative.
 Int Mod( Int a, Int b );
 Int Mod_( Int a, Int b ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_MPC
+BigInt Mod( const BigInt& a, const BigInt& b );
+BigInt Mod( const BigInt& a, const unsigned& b );
+BigInt Mod( const BigInt& a, const unsigned long& b );
+BigInt Mod_( const BigInt& a, const BigInt& b );
+#endif
 
 Int Shift( Int rank, Int firstRank, Int numProcs );
 Int Shift_( Int rank, Int firstRank, Int numProcs ) EL_NO_EXCEPT;

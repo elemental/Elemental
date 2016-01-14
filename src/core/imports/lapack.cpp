@@ -563,6 +563,9 @@ template void Copy
 #ifdef EL_HAVE_MPC
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
+  const BigInt* A, BlasInt lda, BigInt* B, BlasInt ldb );
+template void Copy
+( char uplo, BlasInt m, BlasInt n, 
   const BigFloat* A, BlasInt lda, BigFloat* B, BlasInt ldb );
 #endif
 

@@ -58,6 +58,10 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     {
         if( commRank == 0 )
             Output("PASSED");
+        if( print )
+            Print( A, "A" );
+        if( print ) 
+            Print( B, "B" );
     }
     else
     {
@@ -79,7 +83,10 @@ void CheckAll( Int m, Int n, const Grid& g, bool print )
     mpi::Broadcast( colAlign, 0, g.Comm() );
     mpi::Broadcast( rowAlign, 0, g.Comm() );
     A.Align( colAlign, rowAlign );
-    Uniform( A, m, n );
+
+    const T center = 0;
+    const Base<T> radius = 5;
+    Uniform( A, m, n, center, radius );
 
     {
       DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC(g);
@@ -235,6 +242,14 @@ main( int argc, char* argv[] )
 #endif
 
 #ifdef EL_HAVE_MPC
+        if( commRank == 0 )
+            Output("Testing with BigInt (with default=256-bit precision):");
+        DistMatrixTest<BigInt>( m, n, g, print );
+        mpc::SetMinIntBits( 512 );
+        if( commRank == 0 )
+            Output("Testing with BigInt (with 512-bit precision):");
+        DistMatrixTest<BigInt>( m, n, g, print );
+
         if( commRank == 0 )
             Output("Testing with BigFloat (with default=256-bit precision):");
         DistMatrixTest<BigFloat>( m, n, g, print );

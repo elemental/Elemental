@@ -38,6 +38,12 @@
 #endif
 #endif
 
+#if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGINT)
+#ifndef PROTO_BIGINT
+# define PROTO_BIGINT PROTO_INT(BigInt)
+#endif
+#endif
+
 #if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGFLOAT)
 #ifndef PROTO_BIGFLOAT
 # define PROTO_BIGFLOAT PROTO_REAL(BigFloat)
@@ -62,6 +68,9 @@
 
 #ifndef EL_NO_INT_PROTO
 PROTO_INT(Int)
+#if defined(EL_ENABLE_BIGINT) && defined(EL_HAVE_MPC)
+PROTO_BIGINT
+#endif
 #endif
 
 #ifndef EL_NO_REAL_PROTO

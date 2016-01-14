@@ -156,6 +156,15 @@ Quad Abs( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 
 #ifdef EL_HAVE_MPC
 template<>
+BigInt Abs( const BigInt& alpha ) EL_NO_EXCEPT
+{
+    BigInt absAlpha;
+    absAlpha.SetMinBits( alpha.NumBits() );
+    mpz_abs( absAlpha.Pointer(), alpha.LockedPointer() );
+    return absAlpha;
+}
+
+template<>
 BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
 {
     BigFloat absAlpha;
@@ -177,6 +186,18 @@ Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT
 #endif
 
 #ifdef EL_HAVE_MPC
+BigInt Sgn( const BigInt& alpha, bool symmetric ) EL_NO_EXCEPT
+{
+    const int numBits = alpha.NumBits();
+    const int result = mpz_cmp_si( alpha.LockedPointer(), 0 );
+    if( result < 0 )
+        return BigInt(-1,numBits);
+    else if( result > 0 || !symmetric )
+        return BigInt(1,numBits);
+    else
+        return BigInt(0,numBits);
+}
+
 BigFloat Sgn( const BigFloat& alpha, bool symmetric ) EL_NO_EXCEPT
 {
     mpfr_prec_t prec = alpha.Precision();
@@ -234,23 +255,20 @@ BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT
 #ifdef EL_HAVE_QD
 template<>
 DoubleDouble Pow( const DoubleDouble& alpha, const DoubleDouble& beta )
-EL_NO_EXCEPT
 { return pow(alpha,beta); }
 
 template<>
 QuadDouble Pow( const QuadDouble& alpha, const QuadDouble& beta )
-EL_NO_EXCEPT
 { return pow(alpha,beta); }
 #endif
 
 #ifdef EL_HAVE_QUAD
 template<>
-Quad Pow( const Quad& alpha, const Quad& beta ) EL_NO_EXCEPT
+Quad Pow( const Quad& alpha, const Quad& beta )
 { return powq(alpha,beta); }
 
 template<>
-Complex<Quad> Pow
-( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre ) EL_NO_EXCEPT
+Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre )
 {
     __complex128 alpha, beta;
     __real__(alpha) = alphaPre.real();
@@ -263,8 +281,7 @@ Complex<Quad> Pow
 }
 
 template<>
-Complex<Quad> Pow
-( const Complex<Quad>& alphaPre, const Quad& betaPre ) EL_NO_EXCEPT
+Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Quad& betaPre )
 {
     __complex128 alpha, beta;
     __real__(alpha) = alphaPre.real();
@@ -279,7 +296,32 @@ Complex<Quad> Pow
 
 #ifdef EL_HAVE_MPC
 template<>
-BigFloat Pow( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT
+BigInt Pow( const BigInt& alpha, const BigInt& beta )
+{
+    BigInt gamma;
+    gamma.SetMinBits( alpha.NumBits() );
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), (unsigned long)(beta) );
+    return gamma;
+}
+
+BigInt Pow( const BigInt& alpha, const unsigned& beta )
+{
+    BigInt gamma;
+    gamma.SetMinBits( alpha.NumBits() );
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    return gamma;
+}
+
+BigInt Pow( const BigInt& alpha, const unsigned long& beta )
+{
+    BigInt gamma;
+    gamma.SetMinBits( alpha.NumBits() );
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    return gamma;
+}
+
+template<>
+BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
 {
     BigFloat gamma;
     gamma.SetPrecision( alpha.Precision() );
@@ -897,6 +939,8 @@ Quad Round( const Quad& alpha ) { return rintq(alpha); }
 #endif
 #ifdef EL_HAVE_MPC
 template<>
+BigInt Round( const BigInt& alpha ) { return alpha; }
+template<>
 BigFloat Round( const BigFloat& alpha )
 { 
     BigFloat alphaRound;
@@ -920,6 +964,8 @@ template<> Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 #endif
 #ifdef EL_HAVE_MPC
 template<>
+BigInt Ceil( const BigInt& alpha ) { return alpha; }
+template<>
 BigFloat Ceil( const BigFloat& alpha )
 {
     BigFloat alphaCeil;
@@ -942,6 +988,8 @@ template<> QuadDouble Floor( const QuadDouble& alpha )
 template<> Quad Floor( const Quad& alpha ) { return floorq(alpha); }
 #endif
 #ifdef EL_HAVE_MPC
+template<>
+BigInt Floor( const BigInt& alpha ) { return alpha; }
 template<> BigFloat Floor( const BigFloat& alpha )
 {
     BigFloat alphaFloor;
