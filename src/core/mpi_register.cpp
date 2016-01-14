@@ -1423,7 +1423,7 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
         err = MPI_Type_contiguous( 4, MPI_DOUBLE, &::QuadDoubleType );
         if( err != MPI_SUCCESS )
             RuntimeError("MPI_Type_contiguous returned with err=",err);
-        err = MPI_Type_commit( &::DoubleDoubleType );
+        err = MPI_Type_commit( &::QuadDoubleType );
         if( err != MPI_SUCCESS )
             RuntimeError("MPI_Type_commit returned with err=",err);
     }
