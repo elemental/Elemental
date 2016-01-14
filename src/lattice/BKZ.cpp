@@ -559,7 +559,7 @@ RecursiveHelper
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
         const Real fudge = 1.5; // TODO: Make tunable
-        const Int neededPrec = Int(Ceil(Log2(COneNorm)*fudge));
+        const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
         {
             Output("  || C ||_1 = ",COneNorm);
@@ -568,7 +568,8 @@ RecursiveHelper
 
         bool succeeded = false;
         Int numPrevSwaps = info.numSwaps;
-        if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+        if( MantissaIsLonger<Real,float>::value &&
+            MantissaBits<float>::value >= neededPrec )
         {
             try
             {
@@ -580,7 +581,8 @@ RecursiveHelper
             { Output("e.what()=",e.what()); }
         }
         if( !succeeded && 
-            PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+            MantissaIsLonger<Real,double>::value &&
+            MantissaBits<double>::value >= neededPrec )
         {
             try
             {
@@ -593,7 +595,8 @@ RecursiveHelper
         }
 #ifdef EL_HAVE_QD
         if( !succeeded &&
-            PrecisionIsGreater<Real,DoubleDouble>::value && neededPrec <= 106 )
+            MantissaIsLonger<Real,DoubleDouble>::value &&
+            MantissaBits<DoubleDouble>::value >= neededPrec )
         {
             try
             {
@@ -606,7 +609,8 @@ RecursiveHelper
             { Output("e.what()=",e.what()); }
         }
         if( !succeeded &&
-            PrecisionIsGreater<Real,QuadDouble>::value && neededPrec <= 212 )
+            MantissaIsLonger<Real,QuadDouble>::value &&
+            MantissaBits<QuadDouble>::value >= neededPrec )
         {
             try
             {
@@ -739,7 +743,7 @@ RecursiveHelper
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
         const Real fudge = 1.5; // TODO: Make tunable
-        const Int neededPrec = Int(Ceil(Log2(COneNorm)*fudge));
+        const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
         {
             Output("  || C ||_1 = ",COneNorm);
@@ -748,7 +752,8 @@ RecursiveHelper
 
         bool succeeded = false;
         Int numPrevSwaps = info.numSwaps;
-        if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+        if( MantissaIsLonger<Real,float>::value &&
+            MantissaBits<float>::value >= neededPrec )
         {
             try
             {
@@ -758,7 +763,8 @@ RecursiveHelper
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
         if( !succeeded && 
-            PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+            MantissaIsLonger<Real,double>::value &&
+            MantissaBits<double>::value >= neededPrec )
         {
             try
             {
@@ -770,7 +776,8 @@ RecursiveHelper
         // There is not yet support for Complex<{Quad,Double}Double>
 #ifdef EL_HAVE_QUAD
         if( !succeeded &&
-            PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+            MantissaIsLonger<Real,Quad>::value &&
+            MantissaBits<Quad>::value >= neededPrec )
         {
             try
             {

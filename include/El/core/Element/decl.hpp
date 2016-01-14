@@ -115,56 +115,6 @@ template<> struct IsBlasScalar<Complex<float>>
 template<> struct IsBlasScalar<Complex<double>>
 { static const bool value=true; };
 
-template<typename Real1,typename Real2>
-struct PrecisionIsGreater
-{ static const bool value=false; };
-template<> struct PrecisionIsGreater<double,float>
-{ static const bool value=true; };
-#ifdef EL_HAVE_QD
-template<> struct PrecisionIsGreater<DoubleDouble,double>
-{ static const bool value=true; };
-template<> struct PrecisionIsGreater<DoubleDouble,float>
-{ static const bool value=true; };
-#ifdef EL_HAVE_QUAD
-template<> struct PrecisionIsGreater<QuadDouble,Quad>
-{ static const bool value=true; };
-#endif
-template<> struct PrecisionIsGreater<QuadDouble,DoubleDouble>
-{ static const bool value=true; };
-template<> struct PrecisionIsGreater<QuadDouble,double>
-{ static const bool value=true; };
-template<> struct PrecisionIsGreater<QuadDouble,float>
-{ static const bool value=true; };
-#endif
-#ifdef EL_HAVE_QUAD
-#ifdef EL_HAVE_QD
-template<> struct PrecisionIsGreater<Quad,DoubleDouble>
-{ static const bool value=true; };
-#endif
-template<> struct PrecisionIsGreater<Quad,double>
-{ static const bool value=true; };
-template<> struct PrecisionIsGreater<Quad,float>
-{ static const bool value=true; };
-#endif
-#ifdef EL_HAVE_MPC
-// While these aren't necessarily always true, it would be a capitally bad
-// idea to use MPFR without using higher than the available fixed precision
-#ifdef EL_HAVE_QD
-template<> struct PrecisionIsGreater<BigFloat,QuadDouble>
-{ static const bool value=true; };
-template<> struct PrecisionIsGreater<BigFloat,DoubleDouble>
-{ static const bool value=true; };
-#endif
-#ifdef EL_HAVE_QUAD
-template<> struct PrecisionIsGreater<BigFloat,Quad>
-{ static const bool value=true; };
-#endif
-template<> struct PrecisionIsGreater<BigFloat,double>
-{ static const bool value=true; };
-template<> struct PrecisionIsGreater<BigFloat,float>
-{ static const bool value=true; };
-#endif
-
 template<typename Real,typename RealNew>
 struct ConvertBaseHelper
 { typedef RealNew type; };

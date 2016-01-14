@@ -72,6 +72,7 @@ struct DoubleDouble : public dd_real
     DoubleDouble operator^( int n ) { return dd_real::operator^(n); }
 
     // Casting
+    explicit operator unsigned() const { return to_int(*this); }
     explicit operator int() const { return to_int(*this); }
     explicit operator float() const { return to_double(*this); }
     explicit operator double() const { return to_double(*this); }
@@ -167,6 +168,7 @@ struct QuadDouble : public qd_real
     QuadDouble operator^( int n ) const { return qd_real::operator^(n); }
 
     // Casting
+    explicit operator unsigned() const { return to_int(*this); }
     explicit operator int() const { return to_int(*this); }
     explicit operator float() const { return to_double(*this); }
     explicit operator double() const { return to_double(*this); }

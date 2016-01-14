@@ -183,8 +183,9 @@ Base<F> ShortVectorEnumeration
 
     const Real BOneNorm = OneNorm( B );
     const Real fudge = 1.5; // TODO: Make tunable
-    const Int neededPrec = Int(Ceil(Log2(BOneNorm)*fudge));
-    if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
+    if( MantissaIsLonger<Real,float>::value &&
+        MantissaBits<float>::value >= neededPrec )
     {
         typedef float RealLower;
         typedef ConvertBase<F,RealLower> FLower;
@@ -194,11 +195,13 @@ Base<F> ShortVectorEnumeration
         Copy( R, RLower );
         RealLower result =
           ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
+          ( BLower, RLower, RealLower(normUpperBound),
+            vLower, probabalistic );
         Copy( vLower, v );
         return Real(result);
     }
-    else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+    if( MantissaIsLonger<Real,double>::value &&
+        MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
         typedef ConvertBase<F,RealLower> FLower;
@@ -208,12 +211,48 @@ Base<F> ShortVectorEnumeration
         Copy( R, RLower );
         RealLower result =
           ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
+          ( BLower, RLower, RealLower(normUpperBound),
+            vLower, probabalistic );
         Copy( vLower, v );
         return Real(result);
     }
+#ifdef EL_HAVE_QD
+    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+        MantissaBits<DoubleDouble>::value >= neededPrec )
+    {
+        typedef DoubleDouble RealLower;
+        typedef ConvertBase<F,RealLower> FLower;
+        // TODO: Switch to read/write proxies
+        Matrix<FLower> BLower, RLower, vLower;
+        Copy( B, BLower );
+        Copy( R, RLower );
+        RealLower result =
+          ShortVectorEnumeration
+          ( BLower, RLower, RealLower(normUpperBound),
+            vLower, probabalistic );
+        Copy( vLower, v );
+        return Real(result);
+    }
+    if( MantissaIsLonger<Real,QuadDouble>::value &&
+        MantissaBits<QuadDouble>::value >= neededPrec )
+    {
+        typedef QuadDouble RealLower;
+        typedef ConvertBase<F,RealLower> FLower;
+        // TODO: Switch to read/write proxies
+        Matrix<FLower> BLower, RLower, vLower;
+        Copy( B, BLower );
+        Copy( R, RLower );
+        RealLower result =
+          ShortVectorEnumeration
+          ( BLower, RLower, RealLower(normUpperBound),
+            vLower, probabalistic );
+        Copy( vLower, v );
+        return Real(result);
+    }
+#endif
 #ifdef EL_HAVE_QUAD
-    else if( PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+    if( MantissaIsLonger<Real,Quad>::value &&
+        MantissaBits<Quad>::value >= neededPrec )
     {
         typedef Quad RealLower;
         typedef ConvertBase<F,RealLower> FLower;
@@ -223,7 +262,8 @@ Base<F> ShortVectorEnumeration
         Copy( R, RLower );
         RealLower result =
           ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
+          ( BLower, RLower, RealLower(normUpperBound),
+            vLower, probabalistic );
         Copy( vLower, v );
         return Real(result);
     }
@@ -365,8 +405,9 @@ Base<F> ShortestVectorEnumeration
 
     const Real BOneNorm = OneNorm( B );
     const Real fudge = 1.5; // TODO: Make tunable
-    const Int neededPrec = Int(Ceil(Log2(BOneNorm)*fudge)); 
-    if( PrecisionIsGreater<Real,float>::value && neededPrec <= 24 )
+    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge)); 
+    if( MantissaIsLonger<Real,float>::value &&
+        MantissaBits<float>::value >= neededPrec )
     {
         typedef float RealLower;
         typedef ConvertBase<F,RealLower> FLower;
@@ -380,7 +421,8 @@ Base<F> ShortestVectorEnumeration
         Copy( vLower, v );
         return Real(result);
     }
-    else if( PrecisionIsGreater<Real,double>::value && neededPrec <= 53 )
+    if( MantissaIsLonger<Real,double>::value &&
+        MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
         typedef ConvertBase<F,RealLower> FLower;
@@ -394,8 +436,41 @@ Base<F> ShortestVectorEnumeration
         Copy( vLower, v );
         return Real(result);
     }
+#ifdef EL_HAVE_QD
+    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+        MantissaBits<DoubleDouble>::value >= neededPrec )
+    {
+        typedef DoubleDouble RealLower;
+        typedef ConvertBase<F,RealLower> FLower;
+        // TODO: Switch to read/write proxies
+        Matrix<FLower> BLower, RLower, vLower;
+        Copy( B, BLower );
+        Copy( R, RLower );
+        RealLower result =
+          ShortestVectorEnumeration
+          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
+        Copy( vLower, v );
+        return Real(result);
+    }
+    if( MantissaIsLonger<Real,QuadDouble>::value &&
+        MantissaBits<QuadDouble>::value >= neededPrec )
+    {
+        typedef QuadDouble RealLower;
+        typedef ConvertBase<F,RealLower> FLower;
+        // TODO: Switch to read/write proxies
+        Matrix<FLower> BLower, RLower, vLower;
+        Copy( B, BLower );
+        Copy( R, RLower );
+        RealLower result =
+          ShortestVectorEnumeration
+          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
+        Copy( vLower, v );
+        return Real(result);
+    }
+#endif
 #ifdef EL_HAVE_QUAD
-    else if( PrecisionIsGreater<Real,Quad>::value && neededPrec <= 113 )
+    if( MantissaIsLonger<Real,Quad>::value &&
+        MantissaBits<Quad>::value >= neededPrec )
     {
         typedef Quad RealLower;
         typedef ConvertBase<F,RealLower> FLower;

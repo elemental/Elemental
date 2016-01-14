@@ -13,6 +13,38 @@
 #include <climits> // for INT_MIN et al. due to the Intel C++11 limitations
 
 namespace El {
+
+template<typename Real>
+struct MantissaBits;
+template<> struct MantissaBits<float>
+{ static const unsigned value = 24; };
+template<> struct MantissaBits<double>
+{ static const unsigned value = 53; };
+#ifdef EL_HAVE_QD
+template<> struct MantissaBits<DoubleDouble>
+{ static const unsigned value = 106; };
+template<> struct MantissaBits<QuadDouble>
+{ static const unsigned value = 212; };
+#endif
+#ifdef EL_HAVE_QUAD
+template<> struct MantissaBits<Quad>
+{ static const unsigned value = 113; };
+#endif
+
+template<typename Real1,typename Real2>
+struct MantissaIsLonger
+{ static const bool value =
+    MantissaBits<Real1>::value >
+    MantissaBits<Real2>::value; };
+#ifdef EL_HAVE_MPC
+// While this isn't necessarily always true, it would be a capitally bad
+// idea to use MPFR without using higher than the available fixed precision
+template<typename Real2> struct MantissaIsLonger<BigFloat,Real2>
+{ static const bool value = true; };
+template<> struct MantissaIsLonger<BigFloat,BigFloat>
+{ static const bool value = false; };
+#endif
+
 namespace limits {
 
 // TODO: Extend this list of functions as needed
