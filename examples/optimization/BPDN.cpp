@@ -35,8 +35,8 @@ main( int argc, char* argv[] )
     try
     {
         // TODO: Extend to add options for IPM
-        const Int m = Input("--m","height of matrix",100);
-        const Int n = Input("--n","width of matrix",200);
+        const Int m = Input("--m","height of matrix",35);
+        const Int n = Input("--n","width of matrix",50);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
         const Real lambda = Input("--lambda","one-norm coefficient",Real(1));
         const Real rho = Input("--rho","augmented Lagrangian param.",Real(1));
