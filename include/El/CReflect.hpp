@@ -1115,25 +1115,36 @@ inline PolarCtrl CReflect( const ElPolarCtrl& ctrlC )
 }
 
 /* SVDCtrl */
+inline ElSVDApproach CReflect( SVDApproach approach )
+{ return static_cast<ElSVDApproach>( approach ); }
+
+inline SVDApproach CReflect( ElSVDApproach approach )
+{ return static_cast<SVDApproach>( approach ); }
+
 inline SVDCtrl<float> CReflect( const ElSVDCtrl_s& ctrlC )
 {
     SVDCtrl<float> ctrl;
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.overwrite = ctrlC.overwrite;
+
     ctrl.seqQR = ctrlC.seqQR;
     ctrl.valChanRatio = ctrlC.valChanRatio;
     ctrl.fullChanRatio = ctrlC.fullChanRatio;
-    ctrl.thresholded = ctrlC.thresholded;
     ctrl.relative = ctrlC.relative;
     ctrl.tol = ctrlC.tol;
+
     return ctrl;
 }
 
 inline SVDCtrl<double> CReflect( const ElSVDCtrl_d& ctrlC )
 {
     SVDCtrl<double> ctrl;
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.overwrite = ctrlC.overwrite;
+
     ctrl.seqQR = ctrlC.seqQR;
     ctrl.valChanRatio = ctrlC.valChanRatio;
     ctrl.fullChanRatio = ctrlC.fullChanRatio;
-    ctrl.thresholded = ctrlC.thresholded;
     ctrl.relative = ctrlC.relative;
     ctrl.tol = ctrlC.tol;
     return ctrl;
@@ -1142,10 +1153,12 @@ inline SVDCtrl<double> CReflect( const ElSVDCtrl_d& ctrlC )
 inline ElSVDCtrl_s CReflect( const SVDCtrl<float>& ctrl )
 {
     ElSVDCtrl_s ctrlC;
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.overwrite = ctrl.overwrite;
+
     ctrlC.seqQR = ctrl.seqQR;
     ctrlC.valChanRatio = ctrl.valChanRatio;
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
-    ctrlC.thresholded = ctrl.thresholded;
     ctrlC.relative = ctrl.relative;
     ctrlC.tol = ctrl.tol;
     return ctrlC;
@@ -1154,10 +1167,12 @@ inline ElSVDCtrl_s CReflect( const SVDCtrl<float>& ctrl )
 inline ElSVDCtrl_d CReflect( const SVDCtrl<double>& ctrl )
 {
     ElSVDCtrl_d ctrlC;
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.overwrite = ctrl.overwrite;
+
     ctrlC.seqQR = ctrl.seqQR;
     ctrlC.valChanRatio = ctrl.valChanRatio;
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
-    ctrlC.thresholded = ctrl.thresholded;
     ctrlC.relative = ctrl.relative;
     ctrlC.tol = ctrl.tol;
     return ctrlC;

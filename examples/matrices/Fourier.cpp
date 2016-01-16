@@ -41,10 +41,9 @@ main( int argc, char* argv[] )
                 Display( AMid, "Middle block" );
             if( print )
                 Print( AMid, "Middle block" );
-            auto AMidCopy = AMid;
              
             DistMatrix<double,VR,STAR> s;
-            SVD( AMidCopy, s );
+            SVD( AMid, s );
             Print( s, "singular values of middle block" );
         }
     }

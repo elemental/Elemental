@@ -92,7 +92,7 @@ main( int argc, char* argv[] )
         Timer timer;
         if( mpi::Rank() == 0 )
             timer.Start();
-        HermitianSVD( LOWER, H, s, U, V ); // only use lower half of H
+        HermitianSVD( LOWER, H, U, s, V ); // only use lower half of H
         if( mpi::Rank() == 0 )
             timer.Stop();
         if( print )

@@ -14,9 +14,8 @@ template<typename F>
 Base<F> TwoNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("TwoNorm"))
-    Matrix<F> B( A );
     Matrix<Base<F>> s;
-    SVD( B, s );
+    SVD( A, s );
     return InfinityNorm( s );
 }
 
@@ -24,9 +23,8 @@ template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HermitianTwoNorm"))
-    Matrix<F> B( A );
     Matrix<Base<F>> s;
-    HermitianSVD( uplo, B, s );
+    HermitianSVD( uplo, A, s );
     return InfinityNorm( s );
 }
 
@@ -37,7 +35,9 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
     Matrix<F> B( A );
     Matrix<Base<F>> s;
     MakeSymmetric( uplo, B );
-    SVD( B, s );
+    SVDCtrl<Base<F>> ctrl;
+    ctrl.overwrite = true;
+    SVD( B, s, ctrl );
     return MaxNorm( s );
 }
 
@@ -45,9 +45,8 @@ template<typename F>
 Base<F> TwoNorm( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("TwoNorm"))
-    DistMatrix<F> B( A );
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
-    SVD( B, s );
+    SVD( A, s );
     return InfinityNorm( s );
 }
 
@@ -55,9 +54,8 @@ template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("HermitianTwoNorm"))
-    DistMatrix<F> B( A );
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
-    HermitianSVD( uplo, B, s );
+    HermitianSVD( uplo, A, s );
     return InfinityNorm( s );
 }
 
@@ -68,7 +66,9 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A )
     DistMatrix<F> B( A );
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
-    SVD( B, s );
+    SVDCtrl<Base<F>> ctrl;
+    ctrl.overwrite = true;
+    SVD( B, s, ctrl );
     return MaxNorm( s );
 }
 

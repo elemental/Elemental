@@ -99,20 +99,24 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
 /* SVDCtrl */
 ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl )
 {
+    ctrl->approach = EL_THIN_SVD;
+    ctrl->overwrite = false;
+
     ctrl->seqQR = false;
     ctrl->valChanRatio = 1.2;
     ctrl->fullChanRatio = 1.5;
-    ctrl->thresholded = false;
     ctrl->relative = true;
     ctrl->tol = 0;
     return EL_SUCCESS;
 }
 ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
 {
+    ctrl->approach = EL_THIN_SVD;
+    ctrl->overwrite = false;
+
     ctrl->seqQR = false;
     ctrl->valChanRatio = 1.2;
     ctrl->fullChanRatio = 1.5;
-    ctrl->thresholded = false;
     ctrl->relative = true;
     ctrl->tol = 0;
     return EL_SUCCESS;
@@ -486,66 +490,95 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   /* Compute the singular values
      --------------------------- */ \
   ElError ElSingularValues_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s ) \
+  ( ElConstMatrix_ ## SIG A, \
+    ElMatrix_ ## SIGBASE s ) \
   { EL_TRY( SVD( *CReflect(A), *CReflect(s) ) ) } \
   ElError ElSingularValuesDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIGBASE s ) \
   { EL_TRY( SVD( *CReflect(A), *CReflect(s) ) ) } \
   /* Expert versions
      ^^^^^^^^^^^^^^^ */ \
   ElError ElSingularValuesXDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIGBASE s, \
     ElSVDCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( SVD( *CReflect(A), *CReflect(s), CReflect(ctrl) ) ) } \
   ElError ElTSQRSingularValues_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIGBASE s ) \
   { EL_TRY( svd::TSQR( *CReflect(A), *CReflect(s) ) ) } \
   /* Compute the full SVD
      -------------------- */ \
   ElError ElSVD_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, ElMatrix_ ## SIG V ) \
-  { EL_TRY( SVD( *CReflect(A), *CReflect(s), *CReflect(V) ) ) } \
+  ( ElConstMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG U, \
+    ElMatrix_ ## SIGBASE s, \
+    ElMatrix_ ## SIG V ) \
+  { EL_TRY( SVD( *CReflect(A), *CReflect(U), *CReflect(s), *CReflect(V) ) ) } \
   ElError ElSVDDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG U, \
+    ElDistMatrix_ ## SIGBASE s, \
     ElDistMatrix_ ## SIG V ) \
-  { EL_TRY( SVD( *CReflect(A), *CReflect(s), *CReflect(V) ) ) } \
+  { EL_TRY( SVD( *CReflect(A), *CReflect(U), *CReflect(s), *CReflect(V) ) ) } \
   /* Expert versions
      ^^^^^^^^^^^^^^^ */ \
   ElError ElSVDX_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, ElMatrix_ ## SIG V, \
+  ( ElConstMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG U, \
+    ElMatrix_ ## SIGBASE s, \
+    ElMatrix_ ## SIG V, \
     ElSVDCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY(SVD( *CReflect(A), *CReflect(s), *CReflect(V), CReflect(ctrl) )) } \
+  { EL_TRY(SVD( *CReflect(A), *CReflect(U), *CReflect(s), *CReflect(V), \
+      CReflect(ctrl) )) } \
   ElError ElSVDXDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
-    ElDistMatrix_ ## SIG V, ElSVDCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY(SVD( *CReflect(A), *CReflect(s), *CReflect(V), CReflect(ctrl) )) } \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG U, \
+    ElDistMatrix_ ## SIGBASE s, \
+    ElDistMatrix_ ## SIG V, \
+    ElSVDCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY(SVD( *CReflect(A), *CReflect(U), *CReflect(s), *CReflect(V), \
+      CReflect(ctrl) )) } \
   ElError ElTSQRSVD_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, \
+  ( ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG U, \
     ElDistMatrix_ ## SIGBASE s, \
     ElDistMatrix_ ## SIG V ) \
-  { EL_TRY( svd::TSQR( *CReflect(A), *CReflect(s), *CReflect(V) ) ) } \
+  { EL_TRY( svd::TSQR( *CReflect(A), \
+      *CReflect(U), *CReflect(s), *CReflect(V) ) ) } \
   /* Hermitian Singular Value Decomposition
      ====================================== */ \
   /* Compute the singular values
      --------------------------- */ \
   ElError ElHermitianSingularValues_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s ) \
+  ( ElUpperOrLower uplo, \
+    ElConstMatrix_ ## SIG A, \
+    ElMatrix_ ## SIGBASE s ) \
   { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), *CReflect(s) ) ) } \
   ElError ElHermitianSingularValuesDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
+  ( ElUpperOrLower uplo, \
+    ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIGBASE s ) \
   { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), *CReflect(s) ) ) } \
   /* Compute the full SVD
      -------------------- */ \
   ElError ElHermitianSVD_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, \
-    ElMatrix_ ## SIG U, ElMatrix_ ## SIG V ) \
+  ( ElUpperOrLower uplo, \
+    ElConstMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG U, \
+    ElMatrix_ ## SIGBASE s, \
+    ElMatrix_ ## SIG V ) \
   { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), \
-      *CReflect(s), *CReflect(U), *CReflect(V) ) ) } \
+      *CReflect(U), *CReflect(s), *CReflect(V) ) ) } \
   ElError ElHermitianSVDDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
-    ElDistMatrix_ ## SIG U, ElDistMatrix_ ## SIG V ) \
+  ( ElUpperOrLower uplo, \
+    ElConstDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG U, \
+    ElDistMatrix_ ## SIGBASE s, \
+    ElDistMatrix_ ## SIG V ) \
   { EL_TRY( HermitianSVD( CReflect(uplo), *CReflect(A), \
-      *CReflect(s), *CReflect(U), *CReflect(V) ) ) } \
+      *CReflect(U), *CReflect(s), *CReflect(V) ) ) } \
   /* Product Lanczos
      =============== */ \
   ElError ElProductLanczosSparse_ ## SIG \

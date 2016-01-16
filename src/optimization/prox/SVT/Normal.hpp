@@ -19,11 +19,12 @@ Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CSE cse("svt::Normal"))
     typedef Base<F> Real;
-    Matrix<F> U( A );
-    Matrix<Real> s;
-    Matrix<F> V;
 
-    SVD( U, s, V );
+    Matrix<F> U, V;
+    Matrix<Real> s;
+    SVDCtrl<Real> ctrl;
+    ctrl.overwrite = true;
+    SVD( A, U, s, V, ctrl );
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
@@ -35,16 +36,16 @@ template<typename F>
 Int Normal( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CSE cse("svt::Normal"))
+    typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    typedef Base<F> Real;
-    DistMatrix<F> U( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
-    DistMatrix<F> V( A.Grid() );
-
-    SVD( U, s, V );
+    DistMatrix<F> U( A.Grid() ), V( A.Grid() );
+    SVDCtrl<Real> ctrl;
+    ctrl.overwrite = true;
+    SVD( A, U, s, V );
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );

@@ -11,10 +11,10 @@ using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( const DistMatrix<F,VC,  STAR>& U,
+(       DistMatrix<F,VC,  STAR>& A,
+  const DistMatrix<F,VC,  STAR>& U,
   const DistMatrix<Base<F>,STAR,STAR>& s,
   const DistMatrix<F,STAR,STAR>& V,
-        DistMatrix<F,VC,  STAR>& A,
   bool print )
 {
     typedef Base<F> Real;
@@ -88,13 +88,12 @@ void TestSVD
     Uniform( A, m, n );
     if( print )
         Print( A, "A" );
-    U = A;
 
     if( g.Rank() == 0 )
         Output("  Starting TSQR factorization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    svd::TSQR( U, s, V );
+    svd::TSQR( A, U, s, V );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
@@ -106,7 +105,7 @@ void TestSVD
         Print( V, "V" );
     }
     if( testCorrectness )
-        TestCorrectness( U, s, V, A, print );
+        TestCorrectness( A, U, s, V, print );
 }
 
 int 

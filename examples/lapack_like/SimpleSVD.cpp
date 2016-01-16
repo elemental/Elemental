@@ -22,10 +22,9 @@ int main()
     Timer timer;
     DistMatrix<C> U, V;
     DistMatrix<Real,VR,STAR> s;
-    U = A;
     if( mpi::Rank() == 0 )
         timer.Start();
-    SVD( U, s, V );
+    SVD( A, U, s, V );
     if( mpi::Rank() == 0 )
         timer.Stop();
     const Real twoNormA = MaxNorm( s );

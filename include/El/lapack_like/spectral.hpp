@@ -460,9 +460,32 @@ void SkewHermitianEig
 
 // Singular Value Decomposition
 // ============================
+
+enum SVDApproach {
+  // If A is m x n, return A = U S V^H, where U is m x min(m,n) and 
+  // V is n x min(m,n).
+  THIN_SVD,
+
+  // If A is m x n and rank k, return A = U S V^H, where U is m x k and 
+  // V is n x k.
+  COMPACT_SVD,
+
+  // If A is m x n, return A = U S V^H, where U is m x m and V is n x n.
+  FULL_SVD,
+
+  // If the sufficiently small singular triplets should be thrown away.
+  // When thresholded, a cross-product algorithm is used. This is often
+  // advantageous since tridiagonal eigensolvers tend to have faster 
+  // parallel implementations than bidiagonal SVD's.
+  THRESHOLDED_SVD
+};
+
 template<typename Real>
 struct SVDCtrl 
 {
+    SVDApproach approach=THIN_SVD;
+    bool overwrite=false;
+
     // Bidiagonal SVD options
     // ----------------------
 
@@ -488,12 +511,6 @@ struct SVDCtrl
     // NOTE: Currently only supported when computing both singular values
     //       and vectors
 
-    // If the sufficiently small singular triplets should be thrown away.
-    // When thresholded, a cross-product algorithm is used. This is often
-    // advantageous since tridiagonal eigensolvers tend to have faster 
-    // parallel implementations than bidiagonal SVD's.
-    bool thresholded=false;
-
     // If the tolerance should be relative to the largest singular value
     bool relative=true;
 
@@ -505,82 +522,172 @@ struct SVDCtrl
 // Compute the singular values
 // ---------------------------
 template<typename F>
-void SVD( Matrix<F>& A, Matrix<Base<F>>& s );
-template<typename F>
 void SVD
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
+(       Matrix<F>& A,
+        Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
-( DistMatrix<F,MC,MR,BLOCK>& A,
-  Matrix<Base<F>>& s );
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       DistMatrix<F,MC,MR,BLOCK>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
 void TSQR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s );
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s,
+  bool overwrite=false );
+template<typename F>
+void TSQR
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s );
 
 } // namespace svd
-
-template<typename F>
-void HermitianSVD
-( UpperOrLower uplo,
-  Matrix<F>& A,
-  Matrix<Base<F>>& s );
-template<typename F>
-void HermitianSVD
-( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s );
 
 // Compute the full SVD
 // --------------------
 template<typename F>
 void SVD
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V, 
+(       Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V,
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
-( DistMatrix<F,MC,MR,BLOCK>& A,
-  Matrix<Base<F>>& s,
-  DistMatrix<F,MC,MR,BLOCK>& U,
-  DistMatrix<F,MC,MR,BLOCK>& VH );
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& U,
+        Matrix<Base<F>>& s,
+        DistMatrix<F,MC,MR,BLOCK>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& U,
+        Matrix<Base<F>>& s,
+        DistMatrix<F,MC,MR,BLOCK>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
 void TSQR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s,
-  ElementalMatrix<F>& V );
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s,
+        ElementalMatrix<F>& V );
 
 } // namespace svd
 
+// Hermitian SVD
+// =============
+
+// Compute the singular values
+// ---------------------------
 template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
-  Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& U,
-  Matrix<F>& V );
+        Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  bool overwrite=false );
 template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s,
-  ElementalMatrix<F>& U, 
-  ElementalMatrix<F>& V );
+  const Matrix<F>& A,
+        Matrix<Base<F>>& s );
+
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s,
+  bool overwrite=false );
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s );
+
+// Compute the full SVD
+// --------------------
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+        Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  bool overwrite=false );
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V );
+
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U, 
+        ElementalMatrix<Base<F>>& s,
+        ElementalMatrix<F>& V,
+  bool overwrite=false );
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U, 
+        ElementalMatrix<Base<F>>& s,
+        ElementalMatrix<F>& V );
 
 // Lanczos
 // =======

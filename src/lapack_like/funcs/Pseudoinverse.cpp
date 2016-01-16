@@ -19,18 +19,19 @@ template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("Pseudoinverse"))
+    typedef Base<F> Real;
 
     // Get the SVD of A
-    typedef Base<F> Real;
     Matrix<Real> s;
     Matrix<F> U, V;
-    U = A;
-    SVD( U, s, V );
+    SVDCtrl<Real> ctrl;
+    ctrl.overwrite = true;
+    SVD( A, U, s, V );
 
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to k ||A||_2 eps
-        const Int k = Max( A.Height(), A.Width() );
+        const Int k = Max( U.Height(), V.Height() );
         const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
@@ -52,9 +53,9 @@ void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
+    typedef Base<F> Real;
 
     // Get the EVD of A
-    typedef Base<F> Real;
     Matrix<Real> w;
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
@@ -62,7 +63,7 @@ void HermitianPseudoinverse
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to n ||A||_2 eps
-        const Int n = A.Height();
+        const Int n = Z.Height();
         const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;
@@ -80,22 +81,23 @@ template<typename F>
 void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("Pseudoinverse"))
+    typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
+    const Grid& g = A.Grid();
 
     // Get the SVD of A
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);
-    U = A;
-    SVD( U, s, V );
+    SVDCtrl<Real> ctrl;
+    ctrl.overwrite = true;
+    SVD( A, U, s, V, ctrl );
 
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to k ||A||_2 eps
-        const Int k = Max( A.Height(), A.Width() );
+        const Int k = Max( U.Height(), V.Height() );
         const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
@@ -117,13 +119,13 @@ void HermitianPseudoinverse
 ( UpperOrLower uplo, ElementalMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
+    typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
+    const Grid& g = A.Grid();
 
     // Get the EVD of A
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
@@ -131,7 +133,7 @@ void HermitianPseudoinverse
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to n ||A||_2 eps
-        const Int n = A.Height();
+        const Int n = Z.Height();
         const Real eps = limits::Epsilon<Real>();
         const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;

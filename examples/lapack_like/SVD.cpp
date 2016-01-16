@@ -66,10 +66,9 @@ main( int argc, char* argv[] )
 
         // Compute just the singular values 
         DistMatrix<Real,VR,STAR> sOnly(g);
-        auto U( A );
         if( commRank == 0 )
             timer.Start();
-        SVD( U, sOnly );
+        SVD( A, sOnly );
         if( commRank == 0 )
             Output("  SingularValues time: ",timer.Stop());
 
@@ -89,29 +88,28 @@ main( int argc, char* argv[] )
         if( testDecomp )
         {
             // Compute the SVD of A 
-            DistMatrix<C> V(g);
+            DistMatrix<C> U(g), V(g);
             DistMatrix<Real,VR,STAR> s(g);
-            U = A;
             if( commRank == 0 )
                 timer.Start();
-            SVD( U, s, V );
+            SVD( A, U, s, V );
             if( commRank == 0 )
                 Output("  SVD time: ",timer.Stop());
             if( print )
             {
                 Print( U, "U" );
-                Print( V, "V" );
                 Print( s, "s" );
+                Print( V, "V" );
             }
 
             if( scalapack )
             {
                 DistMatrix<C,MC,MR,BLOCK> ABlock( A );
-                DistMatrix<C,MC,MR,BLOCK> UBlock(g), VHBlock(g);
+                DistMatrix<C,MC,MR,BLOCK> UBlock(g), VBlock(g);
                 Matrix<Real> sBlock;
                 if( commRank == 0 )
                     timer.Start();
-                SVD( ABlock, sBlock, UBlock, VHBlock );
+                SVD( ABlock, UBlock, sBlock, VBlock );
                 if( commRank == 0 )
                     Output("  ScaLAPACK SVD time: ",timer.Stop());
                 if( commRank == 0 && print )

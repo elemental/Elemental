@@ -80,9 +80,21 @@ inline bool operator!=( const Op& a, const Op& b ) EL_NO_EXCEPT
 typedef MPI_Aint Aint;
 typedef MPI_Datatype Datatype;
 typedef MPI_Errhandler ErrorHandler;
-typedef MPI_Request Request;
 typedef MPI_Status Status;
 typedef MPI_User_function UserFunction;
+
+template<typename T>
+struct Request
+{
+    Request() { }
+
+    MPI_Request backend;
+
+    vector<byte> buffer;
+    bool receivingPacked=false;
+    int recvCount;
+    T* unpackedRecvBuf;
+};
 
 // Standard constants
 const int ANY_SOURCE = MPI_ANY_SOURCE;
@@ -106,7 +118,6 @@ const Comm COMM_WORLD = MPI_COMM_WORLD;
 const ErrorHandler ERRORS_RETURN = MPI_ERRORS_RETURN;
 const ErrorHandler ERRORS_ARE_FATAL = MPI_ERRORS_ARE_FATAL;
 const Group GROUP_EMPTY = MPI_GROUP_EMPTY;
-const Request REQUEST_NULL = MPI_REQUEST_NULL;
 const Op MAX = MPI_MAX;
 const Op MIN = MPI_MIN;
 const Op MAXLOC = MPI_MAXLOC;
@@ -283,12 +294,66 @@ void Translate
 
 // Utilities
 void Barrier( Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
-void Wait( Request& request ) EL_NO_RELEASE_EXCEPT;
-void Wait( Request& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-void WaitAll( int numRequests, Request* requests ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
+void Wait( Request<T>& request ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
+void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
+void WaitAll( int numRequests, Request<T>* requests ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
 void WaitAll
-( int numRequests, Request* requests, Status* statuses ) EL_NO_RELEASE_EXCEPT;
-bool Test( Request& request ) EL_NO_RELEASE_EXCEPT;
+( int numRequests, Request<T>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+#ifdef EL_HAVE_MPC
+template<>
+void Wait( Request<BigInt>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<BigInt>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<ValueInt<BigInt>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<ValueInt<BigInt>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<Entry<BigInt>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<Entry<BigInt>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<BigFloat>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<BigFloat>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<ValueInt<BigFloat>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<ValueInt<BigFloat>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<Entry<BigFloat>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<Entry<BigFloat>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+#endif
+template<typename T>
+bool Test( Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 bool IProbe
 ( int source, int tag, Comm comm, Status& status ) EL_NO_RELEASE_EXCEPT;
 
@@ -359,115 +424,171 @@ void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // -----------------
 template<typename Real>
 void TaggedISend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
-EL_NO_RELEASE_EXCEPT;
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 // NOTE: The following simply throws an exception since I believe that the
 //       buffer needs to persist despite being temporary internally
 template<>
 void TaggedISend
-( const BigInt* buf, int count, int to, int tag, Comm comm, Request& request )
-EL_NO_RELEASE_EXCEPT;
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISend
-( const ValueInt<BigInt>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
-EL_NO_RELEASE_EXCEPT;
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISend
-( const Entry<BigInt>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
-EL_NO_RELEASE_EXCEPT;
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
 
 template<>
 void TaggedISend
-( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISend
-( const Entry<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT;
 #endif
 template<typename Real>
 void TaggedISend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void ISend( const T* buf, int count, int to, Comm comm, Request& request )
+void ISend( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one
 template<typename T>
-void TaggedISend( T b, int to, int tag, Comm comm, Request& request )
+void TaggedISend( T b, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one and the tag is irrelevant
 template<typename T>
-void ISend( T b, int to, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
+void ISend( T b, int to, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
+
+// Non-blocking ready-mode send
+// ----------------------------
+template<typename Real>
+void TaggedIRSend
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
+#ifdef EL_HAVE_MPC
+// NOTE: The following simply throws an exception since I believe that the
+//       buffer needs to persist despite being temporary internally
+template<>
+void TaggedIRSend
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+
+template<>
+void TaggedIRSend
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
+#endif
+template<typename Real>
+void TaggedIRSend
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
+
+// If the tag is irrelevant
+template<typename T>
+void IRSend( const T* buf, int count, int to, Comm comm, Request<T>& request )
+EL_NO_RELEASE_EXCEPT;
+
+// If the send count is one
+template<typename T>
+void TaggedIRSend( T b, int to, int tag, Comm comm, Request<T>& request )
+EL_NO_RELEASE_EXCEPT;
+
+// If the send count is one and the tag is irrelevant
+template<typename T>
+void IRSend( T b, int to, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking synchronous Send
 // -----------------------------
 template<typename Real>
 void TaggedISSend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
 void TaggedISSend
-( const BigInt* buf, int count, int to, int tag, Comm comm, Request& request )
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISSend
-( const ValueInt<BigInt>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISSend
-( const Entry<BigInt>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request )
 EL_NO_RELEASE_EXCEPT;
 
 template<>
 void TaggedISSend
-( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISSend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISSend
-( const Entry<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT;
 #endif
 template<typename Real>
 void TaggedISSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void ISSend( const T* buf, int count, int to, Comm comm, Request& request )
+void ISSend( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one
 template<typename T>
-void TaggedISSend( T b, int to, int tag, Comm comm, Request& request )
+void TaggedISSend( T b, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one and the tag is irrelevant
 template<typename T>
-void ISSend( T b, int to, Comm comm, Request& request )
+void ISSend( T b, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // Recv
@@ -526,54 +647,54 @@ T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 // NOTE: The following simply throws an exception since I believe that the
 //       buffer needs to persist despite being temporary internally
 template<>
 void TaggedIRecv
 ( BigInt* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedIRecv
 ( ValueInt<BigInt>* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedIRecv
 ( Entry<BigInt>* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
 
 template<>
 void TaggedIRecv
 ( BigFloat* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedIRecv
 ( ValueInt<BigFloat>* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<ValueInt<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedIRecv
 ( Entry<BigFloat>* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Entry<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
 #endif
 template<typename Real>
 void TaggedIRecv
 ( Complex<Real>* buf, int count, int from, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void IRecv( T* buf, int count, int from, Comm comm, Request& request )
+void IRecv( T* buf, int count, int from, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one
 template<typename T>
-T TaggedIRecv( int from, int tag, Comm comm, Request& request )
+T TaggedIRecv( int from, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one and the tag is irrelevant
 template<typename T>
-T IRecv( int from, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
+T IRecv( int from, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // SendRecv
 // --------
@@ -725,35 +846,40 @@ void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // ----------------------
 template<typename Real>
 void IBroadcast
-( Real* buf, int count, int root, Comm comm, Request& request );
+( Real* buf, int count, int root, Comm comm, Request<Real>& request );
 #ifdef EL_HAVE_MPC
 template<>
 void IBroadcast
-( BigInt* buf, int count, int root, Comm comm, Request& request );
+( BigInt* buf, int count, int root, Comm comm, Request<BigInt>& request );
 template<>
 void IBroadcast
-( ValueInt<BigInt>* buf, int count, int root, Comm comm, Request& request );
+( ValueInt<BigInt>* buf, int count, int root, Comm comm,
+  Request<ValueInt<BigInt>>& request );
 template<>
 void IBroadcast
-( Entry<BigInt>* buf, int count, int root, Comm comm, Request& request );
+( Entry<BigInt>* buf, int count, int root, Comm comm,
+  Request<Entry<BigInt>>& request );
 
 template<>
 void IBroadcast
-( BigFloat* buf, int count, int root, Comm comm, Request& request );
+( BigFloat* buf, int count, int root, Comm comm, Request<BigFloat>& request );
 template<>
 void IBroadcast
-( ValueInt<BigFloat>* buf, int count, int root, Comm comm, Request& request );
+( ValueInt<BigFloat>* buf, int count, int root, Comm comm,
+  Request<ValueInt<BigFloat>>& request );
 template<>
 void IBroadcast
-( Entry<BigFloat>* buf, int count, int root, Comm comm, Request& request );
+( Entry<BigFloat>* buf, int count, int root, Comm comm,
+  Request<Entry<BigFloat>>& request );
 #endif
 template<typename Real>
 void IBroadcast
-( Complex<Real>* buf, int count, int root, Comm comm, Request& request );
+( Complex<Real>* buf, int count, int root, Comm comm,
+  Request<Complex<Real>>& request );
 
 // If the message length is one
 template<typename T>
-void IBroadcast( T& b, int root, Comm comm, Request& request );
+void IBroadcast( T& b, int root, Comm comm, Request<T>& request );
 
 // Gather
 // ------
@@ -808,42 +934,52 @@ void  Gather
 template<typename Real>
 void IGather
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, int root, Comm comm, Request& request );
+        Real* rbuf, int rc, int root, Comm comm,
+  Request<Real>& request );
 #ifdef EL_HAVE_MPC
 template<>
 void IGather
 ( const BigInt* sbuf, int sc,
-        BigInt* rbuf, int rc, int root, Comm comm, Request& request );
+        BigInt* rbuf, int rc, int root, Comm comm,
+  Request<BigInt>& request );
 template<>
 void IGather
 ( const ValueInt<BigInt>* sbuf, int sc,
         ValueInt<BigInt>* rbuf, int rc,
-  int root, Comm comm, Request& request );
+  int root, Comm comm,
+  Request<ValueInt<BigInt>>& request );
 template<>
 void IGather
 ( const Entry<BigInt>* sbuf, int sc,
         Entry<BigInt>* rbuf, int rc,
-  int root, Comm comm, Request& request );
+  int root, Comm comm,
+  Request<Entry<BigInt>>& request );
 
 template<>
 void IGather
 ( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc, int root, Comm comm, Request& request );
+        BigFloat* rbuf, int rc,
+  int root, Comm comm,
+  Request<BigFloat>& request );
 template<>
 void IGather
 ( const ValueInt<BigFloat>* sbuf, int sc,
         ValueInt<BigFloat>* rbuf, int rc,
-  int root, Comm comm, Request& request );
+  int root, Comm comm,
+  Request<ValueInt<BigFloat>>& request );
 template<>
 void IGather
 ( const Entry<BigFloat>* sbuf, int sc,
         Entry<BigFloat>* rbuf, int rc,
-  int root, Comm comm, Request& request );
+  int root, Comm comm,
+  Request<Entry<BigFloat>>& request );
 #endif
 template<typename Real>
 void IGather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, int root, Comm comm, Request& request );
+        Complex<Real>* rbuf, int rc,
+  int root, Comm comm,
+  Request<Complex<Real>>& request );
 
 // Gather with variable recv sizes
 // -------------------------------

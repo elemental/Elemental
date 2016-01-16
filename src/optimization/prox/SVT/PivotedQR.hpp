@@ -26,6 +26,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+
     Matrix<F> ACopy( A ), t;
     Matrix<Real> d;
     Permutation Omega;
@@ -35,15 +36,16 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     QR( ACopy, t, d, Omega, qrCtrl );
     auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
-    Matrix<F> U( ACopyUpper ), V;
-    Matrix<Real> s;
-    MakeTrapezoidal( UPPER, U );
+    Matrix<F> R( ACopyUpper );
+    MakeTrapezoidal( UPPER, R );
 
+    Matrix<F> U, V;
+    Matrix<Real> s;
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.thresholded = true;
+    svdCtrl.approach = THRESHOLDED_SVD;
     svdCtrl.tol = tau;
     svdCtrl.relative = relative;
-    SVD( U, s, V, svdCtrl );
+    SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
@@ -86,15 +88,16 @@ Int PivotedQR
     QR( ACopy, t, d, Omega, qrCtrl );
     auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
-    DistMatrix<F> U( ACopyUpper ), V(g);
-    DistMatrix<Real,VR,STAR> s(g);
-    MakeTrapezoidal( UPPER, U );
+    DistMatrix<F> R( ACopyUpper );
+    MakeTrapezoidal( UPPER, R );
 
+    DistMatrix<F> U(g), V(g);
+    DistMatrix<Real,VR,STAR> s(g);
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.thresholded = true;
+    svdCtrl.approach = THRESHOLDED_SVD;
     svdCtrl.tol = tau;
     svdCtrl.relative = relative;
-    SVD( U, s, V, svdCtrl );
+    SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );

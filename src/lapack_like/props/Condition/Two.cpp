@@ -15,9 +15,8 @@ Base<F> TwoCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("TwoCondition"))
     typedef Base<F> Real;
-    Matrix<F> B( A );
     Matrix<Real> s;
-    SVD( B, s );
+    SVD( A, s );
 
     Real cond = 1;
     const Int numVals = s.Height();
@@ -31,9 +30,8 @@ Base<F> TwoCondition( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("TwoCondition"))
     typedef Base<F> Real;
-    DistMatrix<F> B( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
-    SVD( B, s );
+    SVD( A, s );
 
     Real cond = 1;
     const Int numVals = s.Height();

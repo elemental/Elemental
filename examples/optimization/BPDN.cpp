@@ -17,7 +17,15 @@ using namespace El;
 // which is equivalent to minimizing || A x - b ||_2 subject to 
 // || x ||_1 <= t for some t >= 0.
 
+#ifdef EL_HAVE_MPC
+typedef BigFloat Real;
+#elif defined(EL_HAVE_QD)
+typedef QuadDouble Real;
+#elif defined(EL_HAVE_QUAD)
+typedef Quad Real;
+#else
 typedef double Real;
+#endif
 
 int 
 main( int argc, char* argv[] )
@@ -30,18 +38,29 @@ main( int argc, char* argv[] )
         const Int m = Input("--m","height of matrix",100);
         const Int n = Input("--n","width of matrix",200);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
-        const Real lambda = Input("--lambda","one-norm coefficient",1.);
-        const Real rho = Input("--rho","augmented Lagrangian param.",1.);
-        const Real alpha = Input("--alpha","over-relaxation",1.2);
-        const Real absTol = Input("--absTol","absolute tolerance",1e-6);
-        const Real relTol = Input("--relTol","relative tolerance",1e-4);
+        const Real lambda = Input("--lambda","one-norm coefficient",Real(1));
+        const Real rho = Input("--rho","augmented Lagrangian param.",Real(1));
+        const Real alpha = Input("--alpha","over-relaxation",Real(1.2));
+        const Real absTol = Input("--absTol","absolute tolerance",Real(1e-6));
+        const Real relTol = Input("--relTol","relative tolerance",Real(1e-4));
         const bool inv = Input("--inv","use explicit inverse",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool useIPM = Input("--useIPM","use Interior Point?",true);
         const bool print = Input("--print","print matrices",false);
+        const Real softThresh =
+          Input("--softThresh","soft threshold",Real(1e-14));
+        const bool relativeSoftThresh =
+          Input("--relativeSoftThresh","relative soft threshold?",true);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         DistMatrix<Real> A, b;
         Uniform( A, m, n );
@@ -74,6 +93,9 @@ main( int argc, char* argv[] )
             timer.Stop();
         if( print )
             Print( z, "z" );
+        SoftThreshold( z, softThresh, relativeSoftThresh );
+        if( print )
+            Print( z, "SoftThresh(z)" );
         const Real zOneNorm = OneNorm( z );
         const Int  zZeroNorm = ZeroNorm( z );
         const Real bTwoNorm = FrobeniusNorm( b );
