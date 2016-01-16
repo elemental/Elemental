@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson.
    All rights reserved.
 
    Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
