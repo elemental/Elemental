@@ -2069,13 +2069,15 @@ void Syr2
 // TODO: Add correctness tests
 template<typename T>
 void Trmv
-( char uplo, char trans, char diag, BlasInt m,
+( char uplo, char trans, char diag,
+  BlasInt m,
   const T* A, BlasInt ALDim,
         T* x, BlasInt incx )
 {
+    const bool lower = ( std::toupper(uplo) == 'L' );
     const bool conj = ( std::toupper(trans) == 'C' );
     const bool unitDiag = ( std::toupper(diag) == 'U' );
-    if( uplo == LOWER )
+    if( lower )
     {
         if( std::toupper(trans) == 'N' )
         {
@@ -2779,8 +2781,10 @@ void Hemm
                 for( BlasInt l=j+1; l<n; ++l )
                     C[i+j*CLDim] += alpha*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
     }
-    else
-        LogicError("Unsuported Hemm option");
+    DEBUG_ONLY(
+      else
+          LogicError("Unsuported Hemm option");
+    )
 }
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
@@ -3258,8 +3262,10 @@ void Symm
                 for( BlasInt l=j+1; l<n; ++l )
                     C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[j+l*ALDim];
     }
-    else
-        LogicError("Unsuported Hemm option");
+    DEBUG_ONLY(
+      else
+          LogicError("Unsuported Symm option");
+    )
 }
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
@@ -3649,78 +3655,34 @@ void Trmm
                  T* B, BlasInt BLDim )
 {
     const bool onLeft = ( std::toupper(side) == 'L' );
-    const bool lower = ( std::toupper(uplo) == 'L' );
     const bool conjugate = ( std::toupper(trans) == 'C' );
-    //const bool unitDiag = ( std::toupper(unit) == 'U' );
 
     // Scale B
     for( BlasInt j=0; j<n; ++j )
         for( BlasInt i=0; i<m; ++i )
             B[i+j*BLDim] *= alpha;
 
+    // TODO: Legitimate blocked implementations...it seems offensive to
+    //       repeatedly stream all of the triangular matrix through memory
+    //       for each row/column of B
+
     if( onLeft )
     {
-        if( std::toupper(trans) == 'N' )
-        {
-            if( lower )
-            {
-                LogicError("This option not yet supported");
-            }
-            else
-            {
-                LogicError("This option not yet supported");
-            }
-        }
-        else if( conjugate )
-        {
-            if( lower )
-            {
-                LogicError("This option not yet supported");
-            }
-            else
-            {
-                LogicError("This option not yet supported");
-            }
-        }
-        else
-        {
-            if( lower )
-            {
-                LogicError("This option not yet supported");
-            }
-            else
-            {
-                LogicError("This option not yet supported");
-            }
-        }
+        for( BlasInt j=0; j<n; ++j )
+            Trmv( uplo, trans, unit, m, A, ALDim, &B[j*BLDim], 1 );
     }
     else
     {
-        if( std::toupper(trans) == 'N' )
+        char newTrans = ( std::toupper(trans) == 'N' ? 'T' : 'N' );
+        for( BlasInt i=0; i<m; ++i )
         {
-            if( lower )
-            {
-                // TODO 
-                LogicError("This option is not yet supported");
-            }
-            else
-            {
-                // TODO 
-                LogicError("This option is not yet supported");
-            }
-        }
-        else
-        {
-            if( lower )
-            {
-                // TODO 
-                LogicError("This option is not yet supported");
-            }
-            else
-            {
-                // TODO 
-                LogicError("This option is not yet supported");
-            }
+            if( conjugate )
+                for( Int j=0; j<n; ++j )
+                    B[i+j*BLDim] = Conj(B[i+j*BLDim]);
+            Trmv( uplo, newTrans, unit, n, A, ALDim, &B[i], BLDim );
+            if( conjugate )
+                for( Int j=0; j<n; ++j )
+                    B[i+j*BLDim] = Conj(B[i+j*BLDim]);
         }
     }
 }

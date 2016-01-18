@@ -78,9 +78,14 @@ void TestCorrectness
 
 template<typename F>
 void TestSVD
-( bool testCorrectness, bool print,
-  Int m, Int n, const Grid& g )
+( const Grid& g,
+  Int m,
+  Int n,
+  bool testCorrectness,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F,VC,STAR> A(g), U(g);
     DistMatrix<Base<F>,STAR,STAR> s(g);
     DistMatrix<F,STAR,STAR> V(g); 
@@ -113,7 +118,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
+    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -134,13 +139,11 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test TSSVD");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestSVD<double>( testCorrectness, print, m, n, g );
+        TestSVD<float>( g, m, n, testCorrectness, print );
+        TestSVD<Complex<float>>( g, m, n, testCorrectness, print );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
-        TestSVD<Complex<double>>( testCorrectness, print, m, n, g );
+        TestSVD<double>( g, m, n, testCorrectness, print );
+        TestSVD<Complex<double>>( g, m, n, testCorrectness, print );
     }
     catch( exception& e ) { ReportException(e); }
 

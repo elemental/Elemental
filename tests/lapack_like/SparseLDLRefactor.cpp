@@ -11,6 +11,8 @@
 #include "El.hpp"
 using namespace El;
 
+// TODO: Extend this driver to test with several different datatypes
+
 template<typename F>
 void MakeFrontsUniform( ldl::Front<F>& front )
 {
