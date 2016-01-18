@@ -1,0 +1,102 @@
+/*
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
+*/
+#include "El.hpp"
+
+namespace El {
+
+// TODO: LLL control structures and avoiding computation of UInv and R
+template<typename F>
+bool LatticeCoordinates
+( const Matrix<F>& B,
+  const Matrix<F>& y,
+        Matrix<F>& x ) 
+{
+    DEBUG_ONLY(CSE cse("LatticeCoordinates"))
+    typedef Base<F> Real;
+    const Int m = B.Height();
+    const Int n = B.Width();
+    if( FrobeniusNorm(y) == Real(0) )
+    {
+        Zeros( x, n, 1 );
+        return true;
+    }
+    
+    Matrix<F> BRed( B );
+    // NOTE: UBInv and RB are not used
+    Matrix<F> UB, UBInv, RB;
+    auto infoB = LLL( BRed, UB, UBInv, RB );
+    auto MB = BRed( ALL, IR(infoB.nullity,n) );
+
+    Matrix<F> A;
+    Zeros( A, m, infoB.rank+1 );
+    {
+        auto AL = A( ALL, IR(0,infoB.rank) ); 
+        auto aR = A( ALL, IR(infoB.rank) );
+        AL = MB;
+        aR = y;
+    }
+    // Reduce A in-place
+    // NOTE: UAInv and RA are not used
+    Matrix<F> UA, UAInv, RA;
+    auto infoA = LLL( A, UA, UAInv, RA );
+    if( infoA.nullity != 1 )
+        return false;
+
+    // Solve for x_M such that M_B x_M = y
+    // NOTE: The first column of U_A should hold the coordinates of the single
+    //       member of the null-space of (the original) A
+    Matrix<F> xM;
+    xM = UA( IR(0,infoA.rank), IR(0) );
+    if( UA.Get(infoA.rank,0) == F(1) )
+        xM *= F(-1);
+    DEBUG_ONLY(
+      else if( UA.Get(infoA.rank,0) != F(-1) )
+          RuntimeError("Invalid member of null space");
+    )
+
+    // Map xM back to the original coordinates using the portion of the 
+    // unimodular transformation of B (U_B) which produced the image of B 
+    auto UBM = UB( ALL, IR(infoB.nullity,n) );
+    Zeros( x, n, 1 );
+    Gemv( NORMAL, F(1), UBM, xM, F(0), x );
+    
+    if( infoB.nullity != 0 )
+    {
+        Matrix<F> C;
+        Zeros( C, m, infoB.nullity+1 );
+        auto CL = C( ALL, IR(0,infoB.nullity) );
+        auto cR = C( ALL, IR(infoB.nullity) );
+
+        // Reduce the kernel of B
+        CL = UB( ALL, IR(0,infoB.nullity) );
+        LLL( CL );
+
+        // Attempt to reduce the (reduced) kernel out of the coordinates
+        cR = x;
+        LLL( C );
+        x = cR;
+    }
+
+    return true;
+}
+
+#define PROTO(F) \
+  template bool LatticeCoordinates \
+  ( const Matrix<F>& B, \
+    const Matrix<F>& y, \
+          Matrix<F>& x );
+
+#define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include "El/macros/Instantiate.h"
+
+} // namespace El

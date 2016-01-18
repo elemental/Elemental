@@ -108,22 +108,22 @@ EL_EXPORT ElError ElLLLFull_z
 /* Lattice image and kernel
    ======================== */
 EL_EXPORT ElError ElLatticeImageAndKernel_s
-( ElMatrix_s B, ElMatrix_s M, ElMatrix_s K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_s B, ElMatrix_s M, ElMatrix_s K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeImageAndKernel_d
-( ElMatrix_d B, ElMatrix_d M, ElMatrix_d K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_d B, ElMatrix_d M, ElMatrix_d K, ElLLLCtrl_d ctrl );
 EL_EXPORT ElError ElLatticeImageAndKernel_c
-( ElMatrix_c B, ElMatrix_c M, ElMatrix_c K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_c B, ElMatrix_c M, ElMatrix_c K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeImageAndKernel_z
-( ElMatrix_z B, ElMatrix_z M, ElMatrix_z K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_z B, ElMatrix_z M, ElMatrix_z K, ElLLLCtrl_d ctrl );
 
 EL_EXPORT ElError ElLatticeKernel_s
-( ElMatrix_s B, ElMatrix_s K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_s B, ElMatrix_s K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeKernel_d
-( ElMatrix_d B, ElMatrix_d K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_d B, ElMatrix_d K, ElLLLCtrl_d ctrl );
 EL_EXPORT ElError ElLatticeKernel_c
-( ElMatrix_c B, ElMatrix_c K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_c B, ElMatrix_c K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeKernel_z
-( ElMatrix_z B, ElMatrix_z K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_z B, ElMatrix_z K, ElLLLCtrl_d ctrl );
 
 /* Search for Z-dependence
    ======================= */

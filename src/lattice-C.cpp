@@ -82,14 +82,14 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
       *infoC = CReflect(info); \
     ) } \
   ElError ElLatticeImageAndKernel_ ## SIG \
-  ( ElMatrix_ ## SIG B, \
+  ( ElConstMatrix_ ## SIG B, \
     ElMatrix_ ## SIG M, \
     ElMatrix_ ## SIG K, \
     ElLLLCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LatticeImageAndKernel( \
       *CReflect(B), *CReflect(M), *CReflect(K), CReflect(ctrl) ) ) } \
   ElError ElLatticeKernel_ ## SIG \
-  ( ElMatrix_ ## SIG B, \
+  ( ElConstMatrix_ ## SIG B, \
     ElMatrix_ ## SIG K, \
     ElLLLCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LatticeKernel( *CReflect(B), *CReflect(K), CReflect(ctrl) ) ) } \

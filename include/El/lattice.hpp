@@ -255,7 +255,7 @@ LLLInfo<Base<F>> RecursiveLLL
   Int cutoff=10,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-// Overwrite B, fill M with its (quasi-reduced) image of B, and fill K with the
+// Fill M with its (quasi-reduced) image of B, and fill K with the
 // LLL-reduced basis for the kernel of B.
 //
 // This is essentially Algorithm 2.7.1 from Cohen's
@@ -265,18 +265,18 @@ LLLInfo<Base<F>> RecursiveLLL
 // 
 template<typename F>
 void LatticeImageAndKernel
-( Matrix<F>& B,
-  Matrix<F>& M,
-  Matrix<F>& K,
+( const Matrix<F>& B,
+        Matrix<F>& M,
+        Matrix<F>& K,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-// Overwrite B and fill K with the LLL-reduced basis for the kernel of B.
+// Fill K with the LLL-reduced basis for the kernel of B.
 // This will eventually mirror Algorithm 2.7.2 from Cohen's
 // "A course in computational algebraic number theory".
 template<typename F>
 void LatticeKernel
-( Matrix<F>& B,
-  Matrix<F>& K,
+( const Matrix<F>& B,
+        Matrix<F>& K,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // Search for Z-dependence
@@ -489,6 +489,16 @@ BKZInfo<Base<F>> RecursiveBKZ
   Matrix<F>& R,
   Int cutoff=10,
   const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+// Lattice coordinates
+// ===================
+// Seek the coordinates x in Z^n of a vector y within a lattice B, i.e.,
+//
+//     B x = y.
+//
+// Return 'true' if such coordinates could be found and 'false' otherwise.
+template<typename F>
+bool LatticeCoordinates( const Matrix<F>& B, const Matrix<F>& y, Matrix<F>& x );
 
 } // namespace El
 

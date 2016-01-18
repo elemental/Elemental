@@ -622,6 +622,21 @@ RecursiveHelper
             catch( std::exception& e )
             { Output("e.what()=",e.what()); }
         }
+#elif defined(EL_HAVE_QUAD)
+        if( !succeeded &&
+            MantissaIsLonger<Real,Quad>::value &&
+            MantissaBits<Quad>::value >= neededPrec )
+        {
+            try
+            {
+                info =
+                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                info.numSwaps += numPrevSwaps;
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+        }
 #endif
 #ifdef EL_HAVE_MPC
         // Only move down to a lower-precision MPFR type if the jump is
