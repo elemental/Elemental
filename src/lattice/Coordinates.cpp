@@ -10,7 +10,6 @@
 
 namespace El {
 
-// TODO: LLL control structures and avoiding computation of UInv and R
 template<typename F>
 bool LatticeCoordinates
 ( const Matrix<F>& B,
@@ -28,9 +27,8 @@ bool LatticeCoordinates
     }
     
     Matrix<F> BRed( B );
-    // NOTE: UBInv and RB are not used
-    Matrix<F> UB, UBInv, RB;
-    auto infoB = LLL( BRed, UB, UBInv, RB );
+    Matrix<F> UB, RB;
+    auto infoB = LLL( BRed, UB, RB );
     auto MB = BRed( ALL, IR(infoB.nullity,n) );
 
     Matrix<F> A;
@@ -42,9 +40,8 @@ bool LatticeCoordinates
         aR = y;
     }
     // Reduce A in-place
-    // NOTE: UAInv and RA are not used
-    Matrix<F> UA, UAInv, RA;
-    auto infoA = LLL( A, UA, UAInv, RA );
+    Matrix<F> UA, RA;
+    auto infoA = LLL( A, UA, RA );
     if( infoA.nullity != 1 )
         return false;
 

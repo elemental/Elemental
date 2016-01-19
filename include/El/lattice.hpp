@@ -218,7 +218,6 @@ template<typename F>
 LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
@@ -234,7 +233,6 @@ template<typename F>
 LLLInfo<Base<F>> LLLWithQ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -251,6 +249,13 @@ LLLInfo<Base<F>> RecursiveLLL
 template<typename F>
 LLLInfo<Base<F>> RecursiveLLL
 ( Matrix<F>& B,
+  Matrix<F>& R,
+  Int cutoff=10,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+template<typename F>
+LLLInfo<Base<F>> RecursiveLLL
+( Matrix<F>& B,
+  Matrix<F>& U,
   Matrix<F>& R,
   Int cutoff=10,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
@@ -453,7 +458,6 @@ template<typename F>
 BKZInfo<Base<F>> BKZ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& R,
   const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
 
@@ -469,7 +473,6 @@ template<typename F>
 BKZInfo<Base<F>> BKZWithQ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -486,6 +489,13 @@ BKZInfo<Base<F>> RecursiveBKZ
 template<typename F>
 BKZInfo<Base<F>> RecursiveBKZ
 ( Matrix<F>& B,
+  Matrix<F>& R,
+  Int cutoff=10,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+template<typename F>
+BKZInfo<Base<F>> RecursiveBKZ
+( Matrix<F>& B,
+  Matrix<F>& U,
   Matrix<F>& R,
   Int cutoff=10,
   const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );

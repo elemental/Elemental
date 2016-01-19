@@ -93,16 +93,16 @@ EL_EXPORT ElError ElLLLFormR_z
 ( ElMatrix_z B, ElMatrix_z R, ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 
 EL_EXPORT ElError ElLLLFull_s
-( ElMatrix_s B, ElMatrix_s U, ElMatrix_s UInv, ElMatrix_s R,
+( ElMatrix_s B, ElMatrix_s U, ElMatrix_s R,
   ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFull_d
-( ElMatrix_d B, ElMatrix_d U, ElMatrix_d UInv, ElMatrix_d R,
+( ElMatrix_d B, ElMatrix_d U, ElMatrix_d R,
   ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 EL_EXPORT ElError ElLLLFull_c
-( ElMatrix_c B, ElMatrix_c U, ElMatrix_c UInv, ElMatrix_c R,
+( ElMatrix_c B, ElMatrix_c U, ElMatrix_c R,
   ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFull_z
-( ElMatrix_z B, ElMatrix_z U, ElMatrix_z UInv, ElMatrix_z R,
+( ElMatrix_z B, ElMatrix_z U, ElMatrix_z R,
   ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 
 /* Lattice image and kernel

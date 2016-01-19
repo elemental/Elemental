@@ -71,14 +71,12 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
   ElError ElLLLFull_ ## SIG \
   ( ElMatrix_ ## SIG B, \
     ElMatrix_ ## SIG U, \
-    ElMatrix_ ## SIG UInv, \
     ElMatrix_ ## SIG R, \
     ElLLLCtrl_ ## SIGBASE ctrl, \
     ElLLLInfo_ ## SIGBASE * infoC ) \
   { EL_TRY( \
       auto info = \
-        LLL( *CReflect(B), *CReflect(U), *CReflect(UInv), *CReflect(R), \
-             CReflect(ctrl) ); \
+        LLL( *CReflect(B), *CReflect(U), *CReflect(R), CReflect(ctrl) ); \
       *infoC = CReflect(info); \
     ) } \
   ElError ElLatticeImageAndKernel_ ## SIG \

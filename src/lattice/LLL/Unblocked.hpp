@@ -127,12 +127,10 @@ bool Step
 ( Int k,
   Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   bool formU,
-  bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::Step"))
@@ -143,11 +141,9 @@ bool Step
 
     F* BBuf = B.Buffer();
     F* UBuf = U.Buffer();
-    F* UInvBuf = UInv.Buffer();
     F* QRBuf = QR.Buffer();
     const Int BLDim = B.LDim();
     const Int ULDim = U.LDim();
-    const Int UInvLDim = UInv.LDim();
     const Int QRLDim = QR.LDim();
 
     while( true ) 
@@ -201,11 +197,6 @@ bool Step
                         ( n, -chi,
                           &UBuf[(k-1)*ULDim], 1,
                           &UBuf[ k   *ULDim], 1 );
-                    if( formUInv )
-                        blas::Axpy
-                        ( n, chi,
-                          &UInvBuf[k  ], UInvLDim,
-                          &UInvBuf[k-1], UInvLDim );
                 }
             }
         }
@@ -241,12 +232,6 @@ bool Step
                   F(-1), &UBuf[0*ULDim], ULDim,
                          &xBuf[0],       1,
                   F(+1), &UBuf[k*ULDim], 1 );
-            if( formUInv )
-                blas::Geru
-                ( k, n,
-                  F(1), &xBuf[0],    1,
-                        &UInvBuf[k], UInvLDim,
-                        &UInvBuf[0], UInvLDim );
         }
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )
@@ -274,12 +259,10 @@ template<typename F>
 LLLInfo<Base<F>> UnblockedAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   bool formU,
-  bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::UnblockedAlg"))
@@ -327,8 +310,6 @@ LLLInfo<Base<F>> UnblockedAlg
                 ColSwap( B, 0, (n-1)-nullity );
                 if( formU )
                     ColSwap( U, 0, (n-1)-nullity );
-                if( formUInv )
-                    RowSwap( UInv, 0, (n-1)-nullity );
 
                 ++nullity;
                 ++numSwaps;
@@ -343,15 +324,12 @@ LLLInfo<Base<F>> UnblockedAlg
     Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
     while( k < n-nullity )
     {
-        bool zeroVector =
-          lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        bool zeroVector = lll::Step( k, B, U, QR, t, d, formU, ctrl );
         if( zeroVector )
         {
             ColSwap( B, k, (n-1)-nullity );
             if( formU )
                 ColSwap( U, k, (n-1)-nullity );
-            if( formUInv )
-                RowSwap( UInv, k, (n-1)-nullity );
             ++nullity;
             ++numSwaps;
             continue;
@@ -387,8 +365,6 @@ LLLInfo<Base<F>> UnblockedAlg
             ColSwap( B, k-1, k );
             if( formU )
                 ColSwap( U, k-1, k );
-            if( formUInv )
-                RowSwap( UInv, k-1, k );
 
             if( k == 1 )
             {
@@ -409,8 +385,6 @@ LLLInfo<Base<F>> UnblockedAlg
                         ColSwap( B, 0, (n-1)-nullity );
                         if( formU )
                             ColSwap( U, 0, (n-1)-nullity );
-                        if( formUInv )
-                            RowSwap( UInv, 0, (n-1)-nullity );
                        
                         ++nullity;
                         ++numSwaps;
@@ -452,12 +426,10 @@ template<typename F>
 LLLInfo<Base<F>> UnblockedDeepAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   bool formU,
-  bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::UnblockedDeepAlg"))
@@ -513,8 +485,6 @@ LLLInfo<Base<F>> UnblockedDeepAlg
                 ColSwap( B, 0, (n-1)-nullity );
                 if( formU )
                     ColSwap( U, 0, (n-1)-nullity );
-                if( formUInv )
-                    RowSwap( UInv, 0, (n-1)-nullity );
 
                 ++nullity;
                 ++numSwaps;
@@ -529,15 +499,12 @@ LLLInfo<Base<F>> UnblockedDeepAlg
     Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
     while( k < n-nullity )
     {
-        bool zeroVector =
-          lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        bool zeroVector = lll::Step( k, B, U, QR, t, d, formU, ctrl );
         if( zeroVector )
         {
             ColSwap( B, k, (n-1)-nullity );
             if( formU )
                 ColSwap( U, k, (n-1)-nullity );
-            if( formUInv )
-                RowSwap( UInv, k, (n-1)-nullity );
             ++nullity;
             ++numSwaps;
             continue;
@@ -570,8 +537,6 @@ LLLInfo<Base<F>> UnblockedDeepAlg
                 DeepColSwap( B, i, k );
                 if( formU )
                     DeepColSwap( U, i, k );
-                if( formUInv )
-                    DeepRowSwap( UInv, i, k );
 
                 if( i == 0 )
                 {
@@ -593,8 +558,6 @@ LLLInfo<Base<F>> UnblockedDeepAlg
                             ColSwap( B, 0, (n-1)-nullity );
                             if( formU )
                                 ColSwap( U, 0, (n-1)-nullity );
-                            if( formUInv )
-                                RowSwap( UInv, 0, (n-1)-nullity );
 
                             ++nullity;
                             ++numSwaps;
@@ -658,12 +621,10 @@ template<typename F>
 LLLInfo<Base<F>> UnblockedDeepReduceAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   bool formU,
-  bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::UnblockedDeepReduceAlg"))
@@ -715,8 +676,6 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
                 ColSwap( B, 0, (n-1)-nullity );
                 if( formU )
                     ColSwap( U, 0, (n-1)-nullity );
-                if( formUInv )
-                    RowSwap( UInv, 0, (n-1)-nullity );
 
                 ++nullity;
                 ++numSwaps;
@@ -731,15 +690,12 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
     Int k = ( ctrl.jumpstart ? Max(ctrl.startCol,1) : 1 );
     while( k < n-nullity )
     {
-        bool zeroVector =
-          lll::Step( k, B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        bool zeroVector = lll::Step( k, B, U, QR, t, d, formU, ctrl );
         if( zeroVector )
         {
             ColSwap( B, k, (n-1)-nullity );
             if( formU )
                 ColSwap( U, k, (n-1)-nullity );
-            if( formUInv )
-                RowSwap( UInv, k, (n-1)-nullity );
             ++nullity;
             ++numSwaps;
             continue;
@@ -805,19 +761,12 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
                             ( n, -chi,
                               U.Buffer(0,l), 1,
                               U.Buffer(0,k), 1 );
-                        if( formUInv ) 
-                            blas::Axpy
-                            ( n, chi,
-                              UInv.Buffer(k,0), UInv.LDim(),
-                              UInv.Buffer(l,0), UInv.LDim() );
                     }
                 }
 
                 DeepColSwap( B, i, k );
                 if( formU )
                     DeepColSwap( U, i, k );
-                if( formUInv )
-                    DeepRowSwap( UInv, i, k );
                 if( i == 0 )
                 {
                     while( true )
@@ -838,8 +787,6 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
                             ColSwap( B, 0, (n-1)-nullity );
                             if( formU )
                                 ColSwap( U, 0, (n-1)-nullity );
-                            if( formUInv )
-                                RowSwap( UInv, 0, (n-1)-nullity );
                        
                             ++nullity;
                             ++numSwaps;

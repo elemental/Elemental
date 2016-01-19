@@ -30,8 +30,8 @@ Int ZDependenceSearch
     Transpose( z, bLastRow );
     Scale( NSqrt, bLastRow );
 
-    Matrix<F> UInv, R;
-    auto info = LLL( B, U, UInv, R, ctrl );
+    Matrix<F> R;
+    auto info = LLL( B, U, R, ctrl );
 
     return info.nullity;
 }

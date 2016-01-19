@@ -33,7 +33,6 @@ template<typename F>
 BKZInfo<Base<F>> BKZWithQ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -51,11 +50,11 @@ BKZInfo<Base<F>> BKZWithQ
     const bool progress = true;
 
     Int numSwaps=0;
-    auto lllInfo = LLLWithQ( B, U, UInv, QR, t, d, ctrl.lllCtrl );
+    auto lllInfo = LLLWithQ( B, U, QR, t, d, ctrl.lllCtrl );
     numSwaps = lllInfo.numSwaps;
 
     Int z=0, j=-1; 
-    Matrix<F> BTmp, UTmp, UInvTmp, QRTmp, tTmp;
+    Matrix<F> BTmp, UTmp, QRTmp, tTmp;
     Matrix<Base<F>> dTmp;
     Int numEnums=0, numEnumFailures=0;
     while( z < n-1 ) 
@@ -83,12 +82,10 @@ BKZInfo<Base<F>> BKZWithQ
             const auto subInd = IR(0,h+1);
             auto BSub = B( ALL, subInd );
             auto USub = U( subInd, subInd );
-            auto UInvSub = UInv( subInd, subInd ); 
             auto QRSub = QR( ALL, subInd );
             auto tSub = t( subInd, ALL );
             auto dSub = d( subInd, ALL );
-            lllInfo =
-              LLLWithQ( BSub, USub, UInvSub, QRSub, tSub, dSub, subLLLCtrl );
+            lllInfo = LLLWithQ( BSub, USub, QRSub, tSub, dSub, subLLLCtrl );
             numSwaps += lllInfo.numSwaps;
         }
         else
@@ -122,8 +119,7 @@ BKZInfo<Base<F>> BKZWithQ
             //
             //   [B_L,B_R] = \tilde{B} [U^{-1}_L, U^{-1}_R].
             //
-            // The initializations of the expanded U and UInv are simpler to
-            // derive.
+            // The initializations of the expanded U is simpler to derive.
  
             BTmp.Resize( m, h+2 );
             {
@@ -137,7 +133,6 @@ BKZInfo<Base<F>> BKZWithQ
                 BTmpR = BR;
             }
             Zeros( UTmp, h+2, h+2 );
-            Zeros( UInvTmp, h+2, h+2 );
             {
                 auto UTL = U( IR(0,j), IR(0,j) );
                 auto UTR = U( IR(0,j), IR(j,h+1) );
@@ -152,20 +147,6 @@ BKZInfo<Base<F>> BKZWithQ
                 UTmpBL = UBL;
                 UTmpBR = UBR;
                 UTmp.Set( j, j, F(1) );
-
-                auto UInvTL = UInv( IR(0,j), IR(0,j) );
-                auto UInvTR = UInv( IR(0,j), IR(j,h+1) );
-                auto UInvBL = UInv( IR(j,h+1), IR(0,j) );
-                auto UInvBR = UInv( IR(j,h+1), IR(j,h+1) );
-                auto UInvTmpTL = UInvTmp( IR(0,j), IR(0,j) );
-                auto UInvTmpTR = UInvTmp( IR(0,j), IR(j+1,h+2) );
-                auto UInvTmpBL = UInvTmp( IR(j+1,h+2), IR(0,j) );
-                auto UInvTmpBR = UInvTmp( IR(j+1,h+2), IR(j+1,h+2) );
-                UInvTmpTL = UInvTL;
-                UInvTmpTR = UInvTR;
-                UInvTmpBL = UInvBL;
-                UInvTmpBR = UInvBR;
-                UInvTmp.Set( j, j, F(1) );
             }
             QRTmp.Resize( m, h+2 );
             {
@@ -188,8 +169,7 @@ BKZInfo<Base<F>> BKZWithQ
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
             subLLLCtrl.startCol = j;
-            lllInfo =
-              LLLWithQ( BTmp, UTmp, UInvTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
+            lllInfo = LLLWithQ( BTmp, UTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
             numSwaps += lllInfo.numSwaps;
             {
                 // The last column of BTmp should be all zeros now
@@ -207,19 +187,11 @@ BKZInfo<Base<F>> BKZWithQ
                 USubB = UTmpB;
                 auto USub_k = U( IR(j,k+1), IR(0,h+1) );
                 Geru( F(1), v, uTmpM, USub_k );
-
-                auto UInvSubL = UInv( IR(0,h+1), IR(0,j) );
-                auto UInvSubR = UInv( IR(0,h+1), IR(j,h+1) );
-                auto UInvTmpL = UInvTmp( IR(0,h+1), IR(0,j) ); 
-                auto uInvTmpM = UInvTmp( IR(0,h+1), IR(j) );
-                auto UInvTmpR = UInvTmp( IR(0,h+1), IR(j+1,h+2) );
-                UInvSubL = UInvTmpL;
-                UInvSubR = UInvTmpR;
             }
             // Returning the QR factorization doesn't work without explicitly
             // forming Q due to the first column of BTmp being removed
             subLLLCtrl.startCol = 0;
-            lllInfo = LLLWithQ( B, U, UInv, QR, t, d, ctrl.lllCtrl );
+            lllInfo = LLLWithQ( B, U, QR, t, d, ctrl.lllCtrl );
         }
 
         if( ctrl.earlyAbort && numEnums >= ctrl.numEnumsBeforeAbort )
@@ -229,7 +201,7 @@ BKZInfo<Base<F>> BKZWithQ
     // Perform a final pass to get the full LLL info
     // NOTE: This could be replaced in favor of manually computing the 
     //       returned LLL info but should be cheap relative to the above BKZ
-    lllInfo = LLLWithQ( B, U, UInv, QR, t, d, ctrl.lllCtrl );
+    lllInfo = LLLWithQ( B, U, QR, t, d, ctrl.lllCtrl );
     numSwaps += lllInfo.numSwaps;
 
     BKZInfo<Real> info;
@@ -248,7 +220,6 @@ template<typename F>
 BKZInfo<Base<F>> BKZ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& R,
   const BKZCtrl<Base<F>>& ctrl )
 {
@@ -256,7 +227,7 @@ BKZInfo<Base<F>> BKZ
     typedef Base<F> Real;
     Matrix<F> t;
     Matrix<Real> d;
-    auto info = BKZWithQ( B, U, UInv, R, t, d, ctrl );
+    auto info = BKZWithQ( B, U, R, t, d, ctrl );
     MakeTrapezoidal( UPPER, R );
     return info;
 }
@@ -489,16 +460,26 @@ template<typename Real>
 BKZInfo<Real>
 RecursiveHelper
 ( Matrix<Real>& B,
+  Matrix<Real>& U,
   Matrix<Real>& R,
   Int numShuffles,
   Int cutoff,
+  bool maintainU,
   const BKZCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bkz::RecursiveHelper"))
+    if( maintainU )
+        LogicError("Recursive BKZ does not yet support computing U");
+
     typedef Real F;
     const Int n = B.Width();
     if( n < cutoff )
-        return BKZ( B, R, ctrl );
+    {
+        if( maintainU )
+            return BKZ( B, U, R, ctrl );
+        else
+            return BKZ( B, R, ctrl );
+    }
     Timer timer;
 
     // Reduce the entire matrix with LLL before attempting BKZ.
@@ -688,16 +669,26 @@ template<typename Real>
 BKZInfo<Real>
 RecursiveHelper
 ( Matrix<Complex<Real>>& B,
+  Matrix<Complex<Real>>& U,
   Matrix<Complex<Real>>& R,
   Int numShuffles,
   Int cutoff,
+  bool maintainU,
   const BKZCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bkz::RecursiveHelper"))
+    if( maintainU )
+        LogicError("Recursive BKZ does not yet support computing U");
+
     typedef Complex<Real> F;
     const Int n = B.Width();
     if( n < cutoff )
-        return BKZ( B, R, ctrl );
+    {
+        if( maintainU )
+            return BKZ( B, U, R, ctrl );
+        else
+            return BKZ( B, R, ctrl );
+    }
     Timer timer;
 
     // Reduce the entire matrix with LLL before attempting BKZ.
@@ -855,7 +846,27 @@ RecursiveBKZ
     DEBUG_ONLY(CSE cse("RecursiveBKZ"))
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
-    return bkz::RecursiveHelper( B, R, numShuffles, cutoff, ctrl );
+    Matrix<F> U;
+    bool maintainU=false;
+    return bkz::RecursiveHelper
+      ( B, U, R, numShuffles, cutoff, maintainU, ctrl );
+}
+
+template<typename F>
+BKZInfo<Base<F>>
+RecursiveBKZ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& R,
+  Int cutoff,
+  const BKZCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("RecursiveBKZ"))
+    // TODO: Make this runtime-tunable
+    Int numShuffles = 1;
+    bool maintainU=true;
+    return bkz::RecursiveHelper
+      ( B, U, R, numShuffles, cutoff, maintainU, ctrl );
 }
 
 template<typename F>
@@ -880,7 +891,6 @@ BKZ
   template BKZInfo<Base<F>> BKZ \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
-    Matrix<F>& UInv, \
     Matrix<F>& R, \
     const BKZCtrl<Base<F>>& ctrl ); \
   template BKZInfo<Base<F>> BKZWithQ \
@@ -892,7 +902,6 @@ BKZ
   template BKZInfo<Base<F>> BKZWithQ \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
-    Matrix<F>& UInv, \
     Matrix<F>& QR, \
     Matrix<F>& t, \
     Matrix<Base<F>>& d, \
@@ -903,6 +912,12 @@ BKZ
     const BKZCtrl<Base<F>>& ctrl ); \
   template BKZInfo<Base<F>> RecursiveBKZ \
   ( Matrix<F>& B, \
+    Matrix<F>& R, \
+    Int cutoff, \
+    const BKZCtrl<Base<F>>& ctrl ); \
+  template BKZInfo<Base<F>> RecursiveBKZ \
+  ( Matrix<F>& B, \
+    Matrix<F>& U, \
     Matrix<F>& R, \
     Int cutoff, \
     const BKZCtrl<Base<F>>& ctrl );

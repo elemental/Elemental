@@ -165,14 +165,12 @@ bool BlockStep
 ( Int k,
   Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& V,
   Matrix<F>& SInv,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   bool formU,
-  bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::BlockStep"))
@@ -183,11 +181,9 @@ bool BlockStep
 
     F* BBuf = B.Buffer();
     F* UBuf = U.Buffer();
-    F* UInvBuf = UInv.Buffer();
     F* QRBuf = QR.Buffer();
     const Int BLDim = B.LDim();
     const Int ULDim = U.LDim();
-    const Int UInvLDim = UInv.LDim();
     const Int QRLDim = QR.LDim();
 
     while( true ) 
@@ -238,11 +234,6 @@ bool BlockStep
                         ( n, -chi,
                           &UBuf[(k-1)*ULDim], 1,
                           &UBuf[k*ULDim], 1 );
-                    if( formUInv )
-                        blas::Axpy
-                        ( n, chi,
-                          &UInvBuf[k], UInvLDim,
-                          &UInvBuf[k-1], UInvLDim );
                 }
                 else
                     chi = 0;
@@ -280,12 +271,6 @@ bool BlockStep
                   F(-1), &UBuf[0*ULDim], ULDim,
                          &xBuf[0],       1,
                   F(+1), &UBuf[k*ULDim], 1 );
-            if( formUInv )
-                blas::Geru
-                ( k, n,
-                  F(1), &xBuf[0],    1,
-                        &UInvBuf[k], UInvLDim,
-                        &UInvBuf[0], UInvLDim );
         }
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )
@@ -314,12 +299,10 @@ template<typename F>
 LLLInfo<Base<F>> BlockedAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   bool formU,
-  bool formUInv,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::BlockedAlg"))
@@ -362,8 +345,6 @@ LLLInfo<Base<F>> BlockedAlg
             ColSwap( B, 0, (n-1)-nullity );
             if( formU )
                 ColSwap( U, 0, (n-1)-nullity );
-            if( formUInv )
-                RowSwap( UInv, 0, (n-1)-nullity );
 
             ++nullity;
             ++numSwaps;
@@ -378,15 +359,12 @@ LLLInfo<Base<F>> BlockedAlg
     while( k < n-nullity )
     {
         bool zeroVector =
-          lll::BlockStep
-          ( k, B, U, UInv, QR, V, SInv, t, d, formU, formUInv, ctrl );
+          lll::BlockStep( k, B, U, QR, V, SInv, t, d, formU, ctrl );
         if( zeroVector )
         {
             ColSwap( B, k, (n-1)-nullity );
             if( formU )
                 ColSwap( U, k, (n-1)-nullity );
-            if( formUInv )
-                RowSwap( UInv, k, (n-1)-nullity );
             ++nullity;
             ++numSwaps;
             continue;
@@ -422,8 +400,6 @@ LLLInfo<Base<F>> BlockedAlg
             ColSwap( B, k-1, k );
             if( formU )
                 ColSwap( U, k-1, k );
-            if( formUInv )
-                RowSwap( UInv, k-1, k );
 
             if( k == 1 )
             {
@@ -445,8 +421,6 @@ LLLInfo<Base<F>> BlockedAlg
                         ColSwap( B, 0, (n-1)-nullity );
                         if( formU )
                             ColSwap( U, 0, (n-1)-nullity );
-                        if( formUInv )
-                            RowSwap( UInv, 0, (n-1)-nullity );
 
                         ++nullity;
                         ++numSwaps;

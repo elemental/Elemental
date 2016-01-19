@@ -204,7 +204,6 @@ template<typename F>
 LLLInfo<Base<F>> LLLWithQ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -224,13 +223,10 @@ LLLInfo<Base<F>> LLLWithQ
     {
         if( U.Height() != n || U.Width() != n )
             LogicError("U should have been n x n on input");
-        if( UInv.Height() != n || UInv.Width() != n )
-            LogicError("UInv should have been n x n on input");
     }
     else
     {
         Identity( U, n, n ); 
-        Identity( UInv, n, n );
     }
 
     if( ctrl.presort )
@@ -248,27 +244,22 @@ LLLInfo<Base<F>> LLLWithQ
         El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
         Omega.PermuteCols( B );
         Omega.PermuteCols( U );
-        Omega.PermuteRows( UInv );
     }
 
     const bool useBlocked = false;
     const bool formU = true;
-    const bool formUInv = true;
     if( useBlocked )
     {
-        return lll::BlockedAlg( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        return lll::BlockedAlg( B, U, QR, t, d, formU, ctrl );
     }
     else
     {
         if( ctrl.variant == LLL_DEEP_REDUCE )
-            return lll::UnblockedDeepReduceAlg
-                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+            return lll::UnblockedDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
         else if( ctrl.variant == LLL_DEEP )
-            return lll::UnblockedDeepAlg
-                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+            return lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrl );
         else
-            return lll::UnblockedAlg
-                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+            return lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
     }
 }
 
@@ -276,7 +267,6 @@ template<typename F>
 LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
@@ -286,7 +276,7 @@ LLLInfo<Base<F>> LLL
     typedef Base<F> Real;
     Matrix<F> t;
     Matrix<Real> d;
-    auto info = LLLWithQ( B, U, UInv, R, t, d, ctrl );
+    auto info = LLLWithQ( B, U, R, t, d, ctrl );
     MakeTrapezoidal( UPPER, R );
     return info;
 }
@@ -328,23 +318,19 @@ LLLWithQ
 
     const bool useBlocked = false;
     const bool formU = false;
-    const bool formUInv = false;
-    Matrix<F> U, UInv;
+    Matrix<F> U;
     if( useBlocked )
     {
-        return lll::BlockedAlg( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+        return lll::BlockedAlg( B, U, QR, t, d, formU, ctrl );
     }
     else
     {
         if( ctrl.variant == LLL_DEEP_REDUCE )
-            return lll::UnblockedDeepReduceAlg
-                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+            return lll::UnblockedDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
         else if( ctrl.variant == LLL_DEEP )
-            return lll::UnblockedDeepAlg
-                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+            return lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrl );
         else
-            return lll::UnblockedAlg
-                   ( B, U, UInv, QR, t, d, formU, formUInv, ctrl );
+            return lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
     }
 }
 
@@ -390,7 +376,9 @@ LowerPrecisionMerge
 ( const Matrix<F>& CL,
   const Matrix<F>& CR,
         Matrix<F>& B,
+        Matrix<F>& U,
         Matrix<F>& R,
+        bool maintainU,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::LowerPrecisionMerge"))
@@ -430,11 +418,25 @@ LowerPrecisionMerge
     Matrix<FLower> RLower;
     if( ctrl.time )
         timer.Start();
-    auto infoLower = LLL( BLower, RLower, ctrlLower );
+    LLLInfo<RealLower> infoLower;
+    Matrix<FLower> UNewLower;
+    if( maintainU )
+        infoLower = LLL( BLower, UNewLower, RLower, ctrlLower );
+    else
+        infoLower = LLL( BLower, RLower, ctrlLower );
     if( ctrl.time )
         Output("  " + typeString + " LLL took ",timer.Stop()," seconds");
     Copy( BLower, B );
     Copy( RLower, R );
+
+    if( maintainU )
+    {
+        Matrix<F> UNew;
+        Copy( UNewLower, UNew );
+        auto UCopy( U );
+        Gemm( NORMAL, NORMAL, F(1), UCopy, UNew, F(0), U );
+    }
+
     return infoLower;
 }
 
@@ -442,16 +444,24 @@ template<typename Real>
 LLLInfo<Real>
 RecursiveHelper
 ( Matrix<Real>& B,
+  Matrix<Real>& U,
   Matrix<Real>& R,
   Int numShuffles,
   Int cutoff,
+  bool maintainU,
   const LLLCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
+
     typedef Real F;
     const Int n = B.Width();
     if( n < cutoff )
-        return LLL( B, R, ctrl );
+    {
+        if( maintainU )
+            return LLL( B, U, R, ctrl );
+        else
+            return LLL( B, R, ctrl );
+    }
     Timer timer;
 
     LLLInfo<Real> info;
@@ -463,21 +473,51 @@ RecursiveHelper
         auto C( B ); 
 
         const Int firstHalf = n-(n/2);
-        auto CL = C( ALL, IR(0,firstHalf) );
-        auto CR = C( ALL, IR(firstHalf,n) );
+        Range<Int> indL(0,firstHalf), indR(firstHalf,n);
+        auto CL = C( ALL, indL );
+        auto CR = C( ALL, indR );
 
-        double leftTime, rightTime;
+        double leftTime;
         if( ctrl.time )
             timer.Start();
-        auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
+        LLLInfo<Real> leftInfo;
+        if( maintainU )
+        {
+            Matrix<F> ULNew, RL;
+            leftInfo = RecursiveLLL( CL, ULNew, RL, cutoff, ctrl );
+
+            auto UL = U( indL, indL );
+            auto ULCopy( UL );
+            Gemm( NORMAL, NORMAL, F(1), ULCopy, ULNew, F(0), UL );
+        }
+        else
+        {
+            leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
+        }
         if( ctrl.time )
         {
             leftTime = timer.Stop(); 
             timer.Start();
         }
-        auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+
+        double rightTime;
+        LLLInfo<Real> rightInfo;
+        if( maintainU )
+        {
+            Matrix<F> URNew, RR;
+            rightInfo = RecursiveLLL( CR, URNew, RR, cutoff, ctrl );
+
+            auto UR = U( indR, indR );
+            auto URCopy( UR );
+            Gemm( NORMAL, NORMAL, F(1), URCopy, URNew, F(0), UR );
+        }
+        else
+        {
+            rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+        }
         if( ctrl.time )
             rightTime = timer.Stop();
+
         info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
         if( ctrl.progress || ctrl.time )
         {
@@ -494,6 +534,7 @@ RecursiveHelper
         const Real CROneNorm = OneNorm( CR );
         const Real CLMaxNorm = MaxNorm( CL );
         const Real CRMaxNorm = MaxNorm( CR );
+        // TODO: Incorporate norm of U if maintaining U
         if( ctrl.progress )
         {
             Output("  || C_L ||_1 = ",CLOneNorm);
@@ -518,7 +559,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info = LowerPrecisionMerge<F,float>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -531,7 +573,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info = LowerPrecisionMerge<F,double>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -546,7 +589,8 @@ RecursiveHelper
             try
             {
                 info =
-                  LowerPrecisionMerge<F,DoubleDouble>( CL, CR, B, R, ctrl );
+                  LowerPrecisionMerge<F,DoubleDouble>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -560,7 +604,8 @@ RecursiveHelper
             try
             {
                 info =
-                  LowerPrecisionMerge<F,QuadDouble>( CL, CR, B, R, ctrl );
+                  LowerPrecisionMerge<F,QuadDouble>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -575,7 +620,8 @@ RecursiveHelper
             try
             {
                 info =
-                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                  LowerPrecisionMerge<F,Quad>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -592,7 +638,8 @@ RecursiveHelper
         {
             mpc::SetPrecision( neededPrec );
             try {
-                info = LowerPrecisionMerge<F,BigFloat>( CL, CR, B, R, ctrl );
+                info = LowerPrecisionMerge<F,BigFloat>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -607,21 +654,52 @@ RecursiveHelper
             // Interleave CL and CR to reform B before running LLL again
             for( Int jSub=0; jSub<n/2; ++jSub )
             {
-                auto cl = CL( ALL, IR(jSub) );
-                auto cr = CR( ALL, IR(jSub) ); 
-                auto bl = B( ALL, IR(2*jSub) );
-                auto br = B( ALL, IR(2*jSub+1) );
-                bl = cl;
-                br = cr;
+                auto cL = CL( ALL, IR(jSub) );
+                auto cR = CR( ALL, IR(jSub) ); 
+                auto bL = B( ALL, IR(2*jSub) );
+                auto bR = B( ALL, IR(2*jSub+1) );
+                bL = cL;
+                bR = cR;
             }
             if( firstHalf > n/2 )
             {
-                auto cl = CL( ALL, IR(firstHalf-1) );
-                auto bl = B( ALL, IR(n-1) ); 
-                bl = cl;
+                auto cL = CL( ALL, IR(firstHalf-1) );
+                auto bL = B( ALL, IR(n-1) ); 
+                bL = cL;
             }
-            
-            info = LLL( B, R, ctrl );
+
+            if( maintainU )
+            {
+                auto UCopy( U );
+                auto UL = U( ALL, indL );
+                auto UR = U( ALL, indR );
+                auto UCopyL = UCopy( ALL, indL );
+                auto UCopyR = UCopy( ALL, indR );
+                for( Int jSub=0; jSub<n/2; ++jSub )
+                {
+                    auto uCopyL = UCopyL( ALL, IR(jSub) );
+                    auto uCopyR = UCopyR( ALL, IR(jSub) );
+                    auto uL = UL( ALL, IR(2*jSub) );
+                    auto uR = UR( ALL, IR(2*jSub+1) );
+                    uL = uCopyL;
+                    uR = uCopyR;
+                }
+                if( firstHalf > n/2 )
+                {
+                    auto uCopyL = UCopyL( ALL, IR(firstHalf-1) );
+                    auto uL = U( ALL, IR(n-1) );
+                    uL = uCopyL;
+                }
+
+                auto ctrlMod( ctrl );
+                ctrlMod.jumpstart = true;
+                ctrlMod.startCol = 0;
+                info = LLL( B, U, R, ctrlMod );
+            }
+            else
+            {
+                info = LLL( B, R, ctrl );
+            }
             info.numSwaps += numPrevSwaps;
         }
     }
@@ -633,16 +711,24 @@ template<typename Real>
 LLLInfo<Real>
 RecursiveHelper
 ( Matrix<Complex<Real>>& B,
+  Matrix<Complex<Real>>& U,
   Matrix<Complex<Real>>& R,
   Int numShuffles,
   Int cutoff,
+  bool maintainU,
   const LLLCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
+
     typedef Complex<Real> F;
     const Int n = B.Width();
     if( n < cutoff )
-        return LLL( B, R, ctrl );
+    {
+        if( maintainU )
+            return LLL( B, U, R, ctrl );
+        else
+            return LLL( B, R, ctrl );
+    }
     Timer timer;
 
     LLLInfo<Real> info;
@@ -654,21 +740,51 @@ RecursiveHelper
         auto C( B ); 
 
         const Int firstHalf = n-(n/2);
-        auto CL = C( ALL, IR(0,firstHalf) );
-        auto CR = C( ALL, IR(firstHalf,n) );
+        Range<Int> indL(0,firstHalf), indR(firstHalf,n);
+        auto CL = C( ALL, indL );
+        auto CR = C( ALL, indR );
 
-        double leftTime, rightTime;
+        double leftTime;
         if( ctrl.time )
             timer.Start();
-        auto leftInfo = RecursiveLLL( CL, cutoff, ctrl ); 
+        LLLInfo<Real> leftInfo;
+        if( maintainU )
+        {
+            Matrix<F> ULNew, RL;
+            leftInfo = RecursiveLLL( CL, ULNew, RL, cutoff, ctrl );
+
+            auto UL = U( indL, indL );
+            auto ULCopy( UL );
+            Gemm( NORMAL, NORMAL, F(1), ULCopy, ULNew, F(0), UL );
+        }
+        else
+        {
+            leftInfo = RecursiveLLL( CL, cutoff, ctrl );
+        }
         if( ctrl.time )
         {
-            leftTime = timer.Stop(); 
+            leftTime = timer.Stop();
             timer.Start();
         }
-        auto rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+
+        double rightTime;
+        LLLInfo<Real> rightInfo;
+        if( maintainU )
+        {
+            Matrix<F> URNew, RR;
+            rightInfo = RecursiveLLL( CR, URNew, RR, cutoff, ctrl );
+
+            auto UR = U( indR, indR );
+            auto URCopy( UR );
+            Gemm( NORMAL, NORMAL, F(1), URCopy, URNew, F(0), UR );
+        }
+        else
+        {
+            rightInfo = RecursiveLLL( CR, cutoff, ctrl );
+        }
         if( ctrl.time )
             rightTime = timer.Stop();
+
         info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
         if( ctrl.progress || ctrl.time )
         {
@@ -681,6 +797,7 @@ RecursiveHelper
             Output("  left time:  ",leftTime," seconds");
             Output("  right time: ",rightTime," seconds");
         }
+        // TODO: Incorporate U norm
         const Real CLOneNorm = OneNorm( CL );
         const Real CROneNorm = OneNorm( CR );
         const Real CLMaxNorm = MaxNorm( CL );
@@ -709,7 +826,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info = LowerPrecisionMerge<F,float>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
@@ -720,7 +838,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info = LowerPrecisionMerge<F,double>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
@@ -733,7 +852,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                info = LowerPrecisionMerge<F,Quad>
+                  ( CL, CR, B, U, R, maintainU, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
@@ -757,8 +877,39 @@ RecursiveHelper
                 auto bl = B( ALL, IR(n-1) ); 
                 bl = cl;
             }
-            
-            info = LLL( B, R, ctrl );
+
+            if( maintainU )
+            {
+                auto UCopy( U );
+                auto UL = U( ALL, indL );
+                auto UR = U( ALL, indR );
+                auto UCopyL = UCopy( ALL, indL );
+                auto UCopyR = UCopy( ALL, indR );
+                for( Int jSub=0; jSub<n/2; ++jSub )
+                {
+                    auto uCopyL = UCopyL( ALL, IR(jSub) );
+                    auto uCopyR = UCopyR( ALL, IR(jSub) );
+                    auto uL = UL( ALL, IR(2*jSub) );
+                    auto uR = UR( ALL, IR(2*jSub+1) );
+                    uL = uCopyL;
+                    uR = uCopyR;
+                }
+                if( firstHalf > n/2 )
+                {
+                    auto uCopyL = UCopyL( ALL, IR(firstHalf-1) );
+                    auto uL = U( ALL, IR(n-1) );
+                    uL = uCopyL;
+                }
+
+                auto ctrlMod( ctrl );
+                ctrlMod.jumpstart = true;
+                ctrlMod.startCol = 0;
+                info = LLL( B, U, R, ctrlMod );
+            }
+            else
+            {
+                info = LLL( B, R, ctrl );
+            }
             info.numSwaps += numPrevSwaps;
         }
     }
@@ -777,8 +928,13 @@ RecursiveLLL
     DEBUG_ONLY(CSE cse("RecursiveLLL"))
     if( ctrl.jumpstart && ctrl.startCol > 0 )
         LogicError("Cannot jumpstart LLL from this interface");
-    Matrix<F> R;
-    return RecursiveLLL( B, R, cutoff, ctrl );
+
+    // TODO: Make this runtime-tunable
+    Int numShuffles = 1;
+    Matrix<F> U, R;
+    bool maintainU=false;
+    return lll::RecursiveHelper
+      ( B, U, R, numShuffles, cutoff, maintainU, ctrl );
 }
 
 template<typename F>
@@ -792,9 +948,33 @@ RecursiveLLL
     DEBUG_ONLY(CSE cse("RecursiveLLL"))
     if( ctrl.jumpstart && ctrl.startCol > 0 )
         LogicError("Cannot jumpstart LLL from this interface");
+
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
-    return lll::RecursiveHelper( B, R, numShuffles, cutoff, ctrl );
+    Matrix<F> U;
+    bool maintainU=false;
+    return lll::RecursiveHelper
+      ( B, U, R, numShuffles, cutoff, maintainU, ctrl );
+}
+
+template<typename F>
+LLLInfo<Base<F>>
+RecursiveLLL
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& R,
+  Int cutoff,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("RecursiveLLL"))
+    if( ctrl.jumpstart && ctrl.startCol > 0 )
+        LogicError("Cannot jumpstart LLL from this interface");
+
+    // TODO: Make this runtime-tunable
+    Int numShuffles = 1;
+    bool maintainU=true;
+    return lll::RecursiveHelper
+      ( B, U, R, numShuffles, cutoff, maintainU, ctrl );
 }
 
 template<typename F>
@@ -853,7 +1033,6 @@ void DeepRowSwap( Matrix<F>& B, Int i, Int k )
   template LLLInfo<Base<F>> LLL \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
-    Matrix<F>& UInv, \
     Matrix<F>& R, \
     const LLLCtrl<Base<F>>& ctrl ); \
   template LLLInfo<Base<F>> LLLWithQ \
@@ -865,7 +1044,6 @@ void DeepRowSwap( Matrix<F>& B, Int i, Int k )
   template LLLInfo<Base<F>> LLLWithQ \
   ( Matrix<F>& B, \
     Matrix<F>& U, \
-    Matrix<F>& UInv, \
     Matrix<F>& QR, \
     Matrix<F>& t, \
     Matrix<Base<F>>& d, \
@@ -876,6 +1054,12 @@ void DeepRowSwap( Matrix<F>& B, Int i, Int k )
     const LLLCtrl<Base<F>>& ctrl ); \
   template LLLInfo<Base<F>> RecursiveLLL \
   ( Matrix<F>& B, \
+    Matrix<F>& R, \
+    Int cutoff, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template LLLInfo<Base<F>> RecursiveLLL \
+  ( Matrix<F>& B, \
+    Matrix<F>& U, \
     Matrix<F>& R, \
     Int cutoff, \
     const LLLCtrl<Base<F>>& ctrl ); \

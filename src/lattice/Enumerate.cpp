@@ -293,9 +293,8 @@ Base<F> ShortVectorEnumeration
         //  'v' can be returned relative to the original lattice basis
         auto BNew( B );
         auto RNew( R );
-        Matrix<F> U, UInv;
+        Matrix<F> U;
         Identity( U, n, n );
-        Identity( UInv, n, n );
 
         Int numTrials = 10*n; // TODO: Make this tunable; probability is 1/n
         for( Int trial=0; trial<numTrials; ++trial )
@@ -336,23 +335,15 @@ Base<F> ShortVectorEnumeration
                     auto uj = U(ALL,j);
                     auto uc = U(ALL,c);
                     Axpy( scale, uc, uj );
- 
-                    auto uinvj = UInv(j,ALL);
-                    auto uinvc = UInv(c,ALL);
-                    Axpy( -scale, uj, uc );
                 }
 
-                // TODO: Extend LLLCtrl to support accumulating into the
-                //       unimodular matrices (e.g., bool accumulateUnimodular).
-                //       Until then, we explicitly accumulate here.
-                // TODO: Provide a way to avoid computing U 
                 // NOTE: The LLL does not need to be particularly powerful
                 LLLCtrl<Real> ctrl;
                 ctrl.jumpstart = true; 
                 ctrl.startCol = 0;
                 if( time )
                     timer.Start();
-                LLL( BNew, U, UInv, RNew, ctrl );
+                LLL( BNew, U, RNew, ctrl );
                 if( time )
                     Output("  Fix-up LLL: ",timer.Stop()," seconds");
             }

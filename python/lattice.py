@@ -81,11 +81,11 @@ lib.ElLLLFormR_z.argtypes = \
 
 lib.ElLLLFull_s.argtypes = \
 lib.ElLLLFull_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,
+  [c_void_p,c_void_p,c_void_p,
    LLLCtrl_s,POINTER(LLLInfo_s)]
 lib.ElLLLFull_d.argtypes = \
 lib.ElLLLFull_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,
+  [c_void_p,c_void_p,c_void_p,
    LLLCtrl_d,POINTER(LLLInfo_d)]
 
 (LLL_LATTICE_ONLY,LLL_FORM_R,LLL_FULL)=(0,1,2)
@@ -102,12 +102,11 @@ def LLL(B,mode=LLL_LATTICE_ONLY,ctrl=None):
 
   if type(B) is Matrix:
     U = Matrix(B.tag)
-    UInv = Matrix(B.tag)
     R = Matrix(B.tag)
 
     args = [B.obj,ctrl,pointer(info)]
     argsFormR = [B.obj,R.obj,ctrl,pointer(info)]
-    argsFull = [B.obj,U.obj,UInv.obj,R.obj,ctrl,pointer(info)]
+    argsFull = [B.obj,U.obj,R.obj,ctrl,pointer(info)]
 
     if   B.tag == sTag:
       if   mode==LLL_FULL:   lib.ElLLLFull_s(*argsFull)
@@ -128,7 +127,7 @@ def LLL(B,mode=LLL_LATTICE_ONLY,ctrl=None):
     else: DataExcept()
 
     if mode==LLL_FULL:
-      return U, UInv, R, info
+      return U, R, info
     elif mode==LLL_FORM_R:
       return R, info
     else:

@@ -19,11 +19,9 @@ void LatticeImageAndKernel
 {
     DEBUG_ONLY(CSE cse("LatticeImageAndKernel"))
 
-    // NOTE: UInv and R don't actually need to be formed...but deciding on 
-    //       the best interface is somewhat tricky
     Matrix<F> BCopy( B );
-    Matrix<F> U, UInv, R;
-    auto info = LLL( BCopy, U, UInv, R, ctrl );
+    Matrix<F> U, R;
+    auto info = LLL( BCopy, U, R, ctrl );
     const Int rank = info.rank;
     const Int n = B.Width();
     M = BCopy(ALL,IR(0,rank));
