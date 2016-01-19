@@ -49,6 +49,8 @@ typedef struct
     float delta;
     float eta;
     ElLLLVariant variant;
+    bool recursive;
+    ElInt cutoff;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
@@ -66,6 +68,8 @@ typedef struct
     double delta;
     double eta;
     ElLLLVariant variant;
+    bool recursive;
+    ElInt cutoff;
     bool presort;
     bool smallestFirst;
     double reorthogTol;

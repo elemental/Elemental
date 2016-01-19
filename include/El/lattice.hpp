@@ -116,6 +116,8 @@ struct LLLCtrl
     Real eta=Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9));
 
     LLLVariant variant=LLL_NORMAL;
+    bool recursive=false;
+    Int cutoff=10;
 
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
     // (in the manner suggested by Wubben et al.) can greatly decrease
@@ -156,6 +158,8 @@ struct LLLCtrl
         if( eta < etaMin )
             eta = etaMin;
         variant = ctrl.variant; 
+        recursive = ctrl.recursive;
+        cutoff = ctrl.cutoff;
         presort = ctrl.presort;
         smallestFirst = ctrl.smallestFirst;
         reorthogTol = Real(ctrl.reorthogTol);
@@ -183,6 +187,8 @@ struct LLLCtrl
         delta = Real(ctrl.delta);
         eta = Max(etaMin,Real(ctrl.eta));
         variant = ctrl.variant; 
+        recursive = ctrl.recursive;
+        cutoff = ctrl.cutoff;
         presort = ctrl.presort;
         smallestFirst = ctrl.smallestFirst;
         reorthogTol = Real(ctrl.reorthogTol);
@@ -236,28 +242,6 @@ LLLInfo<Base<F>> LLLWithQ
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
-  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
-
-// Perform a tree reduction of subsets of the original basis in order to 
-// expose parallelism and perform as much work as possible in double-precision
-// (which is often possible even for the SVP Challenge).
-template<typename F>
-LLLInfo<Base<F>> RecursiveLLL
-( Matrix<F>& B,
-  Int cutoff=10,
-  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
-template<typename F>
-LLLInfo<Base<F>> RecursiveLLL
-( Matrix<F>& B,
-  Matrix<F>& R,
-  Int cutoff=10,
-  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
-template<typename F>
-LLLInfo<Base<F>> RecursiveLLL
-( Matrix<F>& B,
-  Matrix<F>& U,
-  Matrix<F>& R,
-  Int cutoff=10,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // Fill M with its (quasi-reduced) image of B, and fill K with the
@@ -413,12 +397,14 @@ struct BKZInfo
     BKZInfo( const BKZInfo<OtherReal>& ctrl ) { *this = ctrl; }
 };
 
-// TODO: Add (extreme) pruning options
 template<typename Real>
 struct BKZCtrl
 {
     Int blocksize=20;
     bool probabalistic=false;
+    // TODO: Add ability to tune the bounding function
+
+    bool recursive=false;
 
     bool earlyAbort=false;
     Int numEnumsBeforeAbort=1000; // only used if earlyAbort=true
@@ -476,28 +462,6 @@ BKZInfo<Base<F>> BKZWithQ
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
-  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
-
-// Perform a tree reduction of subsets of the original basis in order to 
-// expose parallelism and perform as much work as possible in double-precision
-// (which is often possible even for the SVP Challenge).
-template<typename F>
-BKZInfo<Base<F>> RecursiveBKZ
-( Matrix<F>& B,
-  Int cutoff=10,
-  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
-template<typename F>
-BKZInfo<Base<F>> RecursiveBKZ
-( Matrix<F>& B,
-  Matrix<F>& R,
-  Int cutoff=10,
-  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
-template<typename F>
-BKZInfo<Base<F>> RecursiveBKZ
-( Matrix<F>& B,
-  Matrix<F>& U,
-  Matrix<F>& R,
-  Int cutoff=10,
   const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
 
 // Lattice coordinates

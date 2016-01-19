@@ -76,6 +76,8 @@ int main( int argc, char* argv[] )
         lllCtrl.delta = delta;
         lllCtrl.eta = eta;
         lllCtrl.variant = static_cast<LLLVariant>(varInt);
+        lllCtrl.recursive = recursive;
+        lllCtrl.cutoff = cutoff;
         lllCtrl.presort = presort;
         lllCtrl.smallestFirst = smallestFirst;
         lllCtrl.progress = progress;
@@ -83,15 +85,12 @@ int main( int argc, char* argv[] )
 
         BKZCtrl<Real> ctrl;
         ctrl.blocksize = blocksize;
+        ctrl.recursive = recursive;
         ctrl.lllCtrl = lllCtrl;
 
         const double startTime = mpi::Time();
-        BKZInfo<Real> info;
         Matrix<Real> R;
-        if( recursive )
-            info = RecursiveBKZ( B, R, cutoff, ctrl );
-        else
-            info = BKZ( B, R, ctrl );
+        auto info = BKZ( B, R, ctrl );
         const double runTime = mpi::Time() - startTime;
         Output
         ("  BKZ(",blocksize,",",delta,",",eta,") took ",runTime," seconds"); 

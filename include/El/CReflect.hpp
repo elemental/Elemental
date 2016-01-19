@@ -2634,6 +2634,8 @@ inline LLLCtrl<float> CReflect( const ElLLLCtrl_s& ctrlC )
     ctrl.delta = ctrlC.delta;
     ctrl.eta = ctrlC.eta;
     ctrl.variant = CReflect(ctrlC.variant);
+    ctrl.recursive = ctrlC.recursive;
+    ctrl.cutoff = ctrlC.cutoff;
     ctrl.presort = ctrlC.presort;
     ctrl.smallestFirst = ctrlC.smallestFirst;
     ctrl.reorthogTol = ctrlC.reorthogTol;
@@ -2652,6 +2654,8 @@ inline LLLCtrl<double> CReflect( const ElLLLCtrl_d& ctrlC )
     ctrl.delta = ctrlC.delta;
     ctrl.eta = ctrlC.eta;
     ctrl.variant = CReflect(ctrlC.variant);
+    ctrl.recursive = ctrlC.recursive;
+    ctrl.cutoff = ctrlC.cutoff;
     ctrl.presort = ctrlC.presort;
     ctrl.smallestFirst = ctrlC.smallestFirst;
     ctrl.reorthogTol = ctrlC.reorthogTol;
@@ -2670,6 +2674,8 @@ inline ElLLLCtrl_s CReflect( const LLLCtrl<float>& ctrl )
     ctrlC.delta = ctrl.delta;
     ctrlC.eta = ctrl.eta;
     ctrlC.variant = CReflect(ctrl.variant);
+    ctrlC.recursive = ctrl.recursive;
+    ctrlC.cutoff = ctrl.cutoff;
     ctrlC.presort = ctrl.presort;
     ctrlC.smallestFirst = ctrl.smallestFirst;
     ctrlC.reorthogTol = ctrl.reorthogTol;
@@ -2688,6 +2694,8 @@ inline ElLLLCtrl_d CReflect( const LLLCtrl<double>& ctrl )
     ctrlC.delta = ctrl.delta;
     ctrlC.eta = ctrl.eta;
     ctrlC.variant = CReflect(ctrl.variant);
+    ctrlC.recursive = ctrl.recursive;
+    ctrlC.cutoff = ctrl.cutoff;
     ctrlC.presort = ctrl.presort;
     ctrlC.smallestFirst = ctrl.smallestFirst;
     ctrlC.reorthogTol = ctrl.reorthogTol;

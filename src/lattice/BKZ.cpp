@@ -42,6 +42,12 @@ BKZInfo<Base<F>> BKZWithQ
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
+    if( ctrl.recursive && Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n )
+    {
+        //return RecursiveBKZWithQ( B, U, QR, t, d, ctrl );
+        Output("Warning: Computation of U not yet supported for recursive BKZ");
+    }
+
     if( ctrl.blocksize < 2 )
         LogicError("BKZ requires a blocksize of at least 2");
     if( m < n )
@@ -245,6 +251,9 @@ BKZWithQ
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
+    if( ctrl.recursive && Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n )
+        return RecursiveBKZWithQ( B, QR, t, d, ctrl );
+
     if( ctrl.blocksize < 2 )
         LogicError("BKZ requires a blocksize of at least 2");
     if( m < n )
@@ -408,7 +417,9 @@ LowerPrecisionMerge
 ( const Matrix<F>& CL,
   const Matrix<F>& CR,
         Matrix<F>& B,
-        Matrix<F>& R,
+        Matrix<F>& QR,
+        Matrix<F>& t,
+        Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bkz::LowerPrecisionMerge"))
@@ -426,33 +437,38 @@ LowerPrecisionMerge
     // NOTE: This does not seem to make a substantial difference
     for( Int jSub=0; jSub<n/2; ++jSub )
     {
-        auto cl = CL( ALL, IR(jSub) );
-        auto cr = CR( ALL, IR(jSub) );
-        auto bl = BLower( ALL, IR(2*jSub) );
-        auto br = BLower( ALL, IR(2*jSub+1) );
-        Copy( cl, bl );
-        Copy( cr, br );
+        auto cL = CL( ALL, IR(jSub) );
+        auto cR = CR( ALL, IR(jSub) );
+        auto bL = BLower( ALL, IR(2*jSub) );
+        auto bR = BLower( ALL, IR(2*jSub+1) );
+        Copy( cL, bL );
+        Copy( cR, bR );
     }
     if( firstHalf > n/2 )
     {
-        auto cl = CL( ALL, IR(firstHalf-1) );
-        auto bl = BLower( ALL, IR(n-1) );
-        Copy( cl, bl );
+        auto cL = CL( ALL, IR(firstHalf-1) );
+        auto bL = BLower( ALL, IR(n-1) );
+        Copy( cL, bL );
     }
 
     BKZCtrl<RealLower> ctrlLower( ctrl );
+    ctrlLower.recursive = false;
+    ctrlLower.lllCtrl.recursive = false;
     RealLower eps = limits::Epsilon<RealLower>();
     RealLower minEta = RealLower(1)/RealLower(2)+Pow(eps,RealLower(0.9));
     ctrlLower.lllCtrl.eta = Max(minEta,ctrlLower.lllCtrl.eta);
     Timer timer;
-    Matrix<FLower> RLower;
+    Matrix<FLower> QRLower, tLower;
+    Matrix<RealLower> dLower;
     if( ctrl.lllCtrl.time )
         timer.Start();
-    auto infoLower = BKZ( BLower, RLower, ctrlLower );
+    auto infoLower = BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
     if( ctrl.lllCtrl.time )
         Output("  " + typeString + " BKZ took ",timer.Stop()," seconds");
     Copy( BLower, B );
-    Copy( RLower, R );
+    Copy( QRLower, QR );
+    Copy( tLower, t ); 
+    Copy( dLower, d );
     return infoLower;
 }
 
@@ -461,9 +477,10 @@ BKZInfo<Real>
 RecursiveHelper
 ( Matrix<Real>& B,
   Matrix<Real>& U,
-  Matrix<Real>& R,
+  Matrix<Real>& QR,
+  Matrix<Real>& t,
+  Matrix<Real>& d,
   Int numShuffles,
-  Int cutoff,
   bool maintainU,
   const BKZCtrl<Real>& ctrl )
 {
@@ -473,12 +490,15 @@ RecursiveHelper
 
     typedef Real F;
     const Int n = B.Width();
-    if( n < cutoff )
+    if( n <= Max(ctrl.lllCtrl.cutoff,ctrl.blocksize) )
     {
+        auto ctrlMod( ctrl );
+        ctrlMod.recursive = false;
+        ctrlMod.lllCtrl.recursive = false;
         if( maintainU )
-            return BKZ( B, U, R, ctrl );
+            return BKZWithQ( B, U, QR, t, d, ctrlMod );
         else
-            return BKZ( B, R, ctrl );
+            return BKZWithQ( B, QR, t, d, ctrlMod );
     }
     Timer timer;
 
@@ -486,7 +506,9 @@ RecursiveHelper
     // Deep reductions should probably not be used due to the expense.
     BKZInfo<Real> info;
     info.numSwaps = 0;
-    auto lllInfo = RecursiveLLL( B, R, cutoff, ctrl.lllCtrl );
+    auto lllCtrlMod( ctrl.lllCtrl );
+    lllCtrlMod.recursive = true;
+    auto lllInfo = LLL( B, QR, lllCtrlMod );
     info.numSwaps += lllInfo.numSwaps;
 
     const Real BOneNorm = OneNorm( B );
@@ -499,21 +521,34 @@ RecursiveHelper
         auto C( B ); 
 
         const Int firstHalf = n-(n/2);
-        auto CL = C( ALL, IR(0,firstHalf) );
-        auto CR = C( ALL, IR(firstHalf,n) );
+        Range<Int> indL(0,firstHalf), indR(firstHalf,n);
+        auto CL = C( ALL, indL );
+        auto CR = C( ALL, indR );
 
-        double leftTime, rightTime;
+        double leftTime;
         if( ctrl.lllCtrl.time )
             timer.Start();
-        auto leftInfo = RecursiveBKZ( CL, cutoff, ctrl ); 
-        if( ctrl.lllCtrl.time )
+        BKZInfo<Real> leftInfo;
         {
-            leftTime = timer.Stop(); 
-            timer.Start();
+            Matrix<Real> QRL, tL;
+            Matrix<Real> dL;
+            leftInfo = RecursiveBKZWithQ( CL, QRL, tL, dL, ctrl ); 
         }
-        auto rightInfo = RecursiveBKZ( CR, cutoff, ctrl );
+        if( ctrl.lllCtrl.time )
+            leftTime = timer.Stop(); 
+
+        double rightTime;
+        if( ctrl.lllCtrl.time )
+            timer.Start();
+        BKZInfo<Real> rightInfo;
+        {
+            Matrix<Real> QRR, tR;
+            Matrix<Real> dR;
+            rightInfo = RecursiveBKZWithQ( CR, QRR, tR, dR, ctrl );
+        }
         if( ctrl.lllCtrl.time )
             rightTime = timer.Stop();
+
         info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
         if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
         {
@@ -554,7 +589,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info =
+                  LowerPrecisionMerge<F,float>( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -567,7 +603,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info =
+                  LowerPrecisionMerge<F,double>( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -582,7 +619,8 @@ RecursiveHelper
             try
             {
                 info =
-                  LowerPrecisionMerge<F,DoubleDouble>( CL, CR, B, R, ctrl );
+                  LowerPrecisionMerge<F,DoubleDouble>
+                  ( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -596,7 +634,8 @@ RecursiveHelper
             try
             {
                 info =
-                  LowerPrecisionMerge<F,QuadDouble>( CL, CR, B, R, ctrl );
+                  LowerPrecisionMerge<F,QuadDouble>
+                  ( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -611,7 +650,7 @@ RecursiveHelper
             try
             {
                 info =
-                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                  LowerPrecisionMerge<F,Quad>( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -628,7 +667,8 @@ RecursiveHelper
         {
             mpc::SetPrecision( neededPrec );
             try {
-                info = LowerPrecisionMerge<F,BigFloat>( CL, CR, B, R, ctrl );
+                info =
+                  LowerPrecisionMerge<F,BigFloat>( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             }
@@ -657,7 +697,10 @@ RecursiveHelper
                 bl = cl;
             }
             
-            info = BKZ( B, R, ctrl );
+            auto ctrlMod( ctrl );
+            ctrlMod.recursive = false;
+            ctrlMod.lllCtrl.recursive = false;
+            info = BKZWithQ( B, QR, t, d, ctrlMod );
             info.numSwaps += numPrevSwaps;
         }
     }
@@ -670,9 +713,10 @@ BKZInfo<Real>
 RecursiveHelper
 ( Matrix<Complex<Real>>& B,
   Matrix<Complex<Real>>& U,
-  Matrix<Complex<Real>>& R,
+  Matrix<Complex<Real>>& QR,
+  Matrix<Complex<Real>>& t,
+  Matrix<Real>& d,
   Int numShuffles,
-  Int cutoff,
   bool maintainU,
   const BKZCtrl<Real>& ctrl )
 {
@@ -682,12 +726,15 @@ RecursiveHelper
 
     typedef Complex<Real> F;
     const Int n = B.Width();
-    if( n < cutoff )
+    if( n <= Max(ctrl.lllCtrl.cutoff,ctrl.blocksize) )
     {
+        auto ctrlMod( ctrl );
+        ctrlMod.recursive = false;
+        ctrlMod.lllCtrl.recursive = false;
         if( maintainU )
-            return BKZ( B, U, R, ctrl );
+            return BKZWithQ( B, U, QR, t, d, ctrlMod );
         else
-            return BKZ( B, R, ctrl );
+            return BKZWithQ( B, QR, t, d, ctrlMod );
     }
     Timer timer;
 
@@ -695,7 +742,9 @@ RecursiveHelper
     // Deep reductions should probably not be used due to the expense.
     BKZInfo<Real> info;
     info.numSwaps = 0;
-    auto lllInfo = RecursiveLLL( B, R, cutoff, ctrl.lllCtrl );
+    auto lllCtrlMod( ctrl.lllCtrl );
+    lllCtrlMod.recursive = true;
+    auto lllInfo = LLL( B, QR, lllCtrlMod );
     info.numSwaps += lllInfo.numSwaps;
 
     const Real BOneNorm = OneNorm( B );
@@ -711,18 +760,30 @@ RecursiveHelper
         auto CL = C( ALL, IR(0,firstHalf) );
         auto CR = C( ALL, IR(firstHalf,n) );
 
-        double leftTime, rightTime;
+        double leftTime;
         if( ctrl.lllCtrl.time )
             timer.Start();
-        auto leftInfo = RecursiveBKZ( CL, cutoff, ctrl ); 
-        if( ctrl.lllCtrl.time )
+        LLLInfo<Real> leftInfo;
         {
-            leftTime = timer.Stop(); 
-            timer.Start();
+            Matrix<Complex<Real>> QRL, tL;
+            Matrix<Real> dL;
+            leftInfo = RecursiveBKZWithQ( CL, QRL, tL, dL, ctrl ); 
         }
-        auto rightInfo = RecursiveBKZ( CR, cutoff, ctrl );
+        if( ctrl.lllCtrl.time )
+            leftTime = timer.Stop(); 
+
+        double rightTime;
+        if( ctrl.lllCtrl.time )
+            timer.Start();
+        LLLInfo<Real> rightInfo;
+        {
+            Matrix<Complex<Real>> QRR, tR;
+            Matrix<Real> dR;
+            rightInfo = RecursiveBKZWithQ( CR, QRR, tR, dR, ctrl );
+        }
         if( ctrl.lllCtrl.time )
             rightTime = timer.Stop();
+
         info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
         if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
         {
@@ -763,7 +824,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,float>( CL, CR, B, R, ctrl );
+                info =
+                  LowerPrecisionMerge<F,float>( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
@@ -774,7 +836,8 @@ RecursiveHelper
         {
             try
             {
-                info = LowerPrecisionMerge<F,double>( CL, CR, B, R, ctrl );
+                info =
+                  LowerPrecisionMerge<F,double>( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
@@ -788,7 +851,7 @@ RecursiveHelper
             try
             {
                 info =
-                  LowerPrecisionMerge<F,Quad>( CL, CR, B, R, ctrl );
+                  LowerPrecisionMerge<F,Quad>( CL, CR, B, QR, t, d, ctrl );
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
@@ -814,7 +877,10 @@ RecursiveHelper
                 bl = cl;
             }
             
-            info = BKZ( B, R, ctrl );
+            auto ctrlMod( ctrl );
+            ctrlMod.recursive = false;
+            ctrlMod.lllCtrl.recursive = false;
+            info = BKZWithQ( B, QR, t, d, ctrlMod );
             info.numSwaps += numPrevSwaps;
         }
     }
@@ -825,48 +891,36 @@ RecursiveHelper
 
 template<typename F>
 BKZInfo<Base<F>>
-RecursiveBKZ
+RecursiveBKZWithQ
 ( Matrix<F>& B,
-  Int cutoff,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RecursiveBKZ"))
-    Matrix<F> R;
-    return RecursiveBKZ( B, R, cutoff, ctrl );
-}
-
-template<typename F>
-BKZInfo<Base<F>>
-RecursiveBKZ
-( Matrix<F>& B,
-  Matrix<F>& R,
-  Int cutoff,
-  const BKZCtrl<Base<F>>& ctrl )
-{
-    DEBUG_ONLY(CSE cse("RecursiveBKZ"))
+    DEBUG_ONLY(CSE cse("RecursiveBKZWithQ"))
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
     Matrix<F> U;
     bool maintainU=false;
-    return bkz::RecursiveHelper
-      ( B, U, R, numShuffles, cutoff, maintainU, ctrl );
+    return bkz::RecursiveHelper( B, U, QR, t, d, numShuffles, maintainU, ctrl );
 }
 
 template<typename F>
 BKZInfo<Base<F>>
-RecursiveBKZ
+RecursiveBKZWithQ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& R,
-  Int cutoff,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RecursiveBKZ"))
+    DEBUG_ONLY(CSE cse("RecursiveBKZWithQ"))
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
     bool maintainU=true;
-    return bkz::RecursiveHelper
-      ( B, U, R, numShuffles, cutoff, maintainU, ctrl );
+    return bkz::RecursiveHelper( B, U, QR, t, d, numShuffles, maintainU, ctrl );
 }
 
 template<typename F>
@@ -905,21 +959,6 @@ BKZ
     Matrix<F>& QR, \
     Matrix<F>& t, \
     Matrix<Base<F>>& d, \
-    const BKZCtrl<Base<F>>& ctrl ); \
-  template BKZInfo<Base<F>> RecursiveBKZ \
-  ( Matrix<F>& B, \
-    Int cutoff, \
-    const BKZCtrl<Base<F>>& ctrl ); \
-  template BKZInfo<Base<F>> RecursiveBKZ \
-  ( Matrix<F>& B, \
-    Matrix<F>& R, \
-    Int cutoff, \
-    const BKZCtrl<Base<F>>& ctrl ); \
-  template BKZInfo<Base<F>> RecursiveBKZ \
-  ( Matrix<F>& B, \
-    Matrix<F>& U, \
-    Matrix<F>& R, \
-    Int cutoff, \
     const BKZCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
