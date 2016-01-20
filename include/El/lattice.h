@@ -56,6 +56,7 @@ typedef struct
     float reorthogTol;
     ElInt numOrthog;
     float zeroTol;
+    float blockingThresh;
     bool progress;
     bool time;
     bool jumpstart;
@@ -75,6 +76,7 @@ typedef struct
     double reorthogTol;
     ElInt numOrthog;
     double zeroTol;
+    float blockingThresh;
     bool progress;
     bool time;
     bool jumpstart;

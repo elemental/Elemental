@@ -89,12 +89,23 @@ void HouseholderStep
     if( k >= Min(m,n) )
         return;
 
+    if( time )
+        houseStepTimer.Start();
+
     // Perform the next step of Householder reduction
     F* QRBuf = QR.Buffer();
     const Int QRLDim = QR.LDim();
     F& rhokk = QRBuf[k+k*QRLDim]; 
+    if( time )
+        houseViewTimer.Start();
     auto qr21 = QR( IR(k+1,END), IR(k) );
+    if( time )
+        houseViewTimer.Stop();
+    if( time )
+        houseReflectTimer.Start();
     F tau = LeftReflector( rhokk, qr21 );
+    if( time )
+        houseReflectTimer.Stop();
     t.Set( k, 0, tau );
     if( RealPart(rhokk) < Real(0) )
     {
@@ -103,6 +114,9 @@ void HouseholderStep
     }
     else
         d.Set( k, 0, +1 );
+
+    if( time )
+        houseStepTimer.Stop();
 }
 
 template<typename F>
@@ -139,6 +153,9 @@ bool Step
     const Int n = B.Width();
     const Real eps = limits::Epsilon<Real>();
 
+    if( ctrl.time )
+        stepTimer.Start();
+
     F* BBuf = B.Buffer();
     F* UBuf = U.Buffer();
     F* QRBuf = QR.Buffer();
@@ -167,6 +184,8 @@ bool Step
                 t.Set( k, 0, Real(2) );
                 d.Set( k, 0, Real(1) );
             }
+            if( ctrl.time )
+                stepTimer.Stop();
             return true;
         }
 
@@ -204,6 +223,7 @@ bool Step
         {
             vector<F> xBuf(k);
 
+            Int numNonzero=0;
             for( Int i=k-1; i>=0; --i )
             {
                 F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
@@ -215,23 +235,45 @@ bool Step
                     ( i+1, -chi,
                       &QRBuf[i*QRLDim], 1,
                       &QRBuf[k*QRLDim], 1 );
+                    ++numNonzero;
                 }
                 else
                     chi = 0;
                 xBuf[i] = chi;
             }
-
-            blas::Gemv
-            ( 'N', m, k,
-              F(-1), &BBuf[0*BLDim], BLDim,
-                     &xBuf[0],       1,
-              F(+1), &BBuf[k*BLDim], 1 );
-            if( formU )
+            const float nonzeroRatio = float(numNonzero)/float(k); 
+            if( nonzeroRatio >= ctrl.blockingThresh )
+            {
                 blas::Gemv
-                ( 'N', n, k,
-                  F(-1), &UBuf[0*ULDim], ULDim,
+                ( 'N', m, k,
+                  F(-1), &BBuf[0*BLDim], BLDim,
                          &xBuf[0],       1,
-                  F(+1), &UBuf[k*ULDim], 1 );
+                  F(+1), &BBuf[k*BLDim], 1 );
+                if( formU )
+                    blas::Gemv
+                    ( 'N', n, k,
+                      F(-1), &UBuf[0*ULDim], ULDim,
+                             &xBuf[0],       1,
+                      F(+1), &UBuf[k*ULDim], 1 );
+            }
+            else
+            {
+                for( Int i=k-1; i>=0; --i )
+                {
+                    const F chi = xBuf[i];
+                    if( chi == F(0) )
+                        continue;
+                    blas::Axpy
+                    ( m, -chi,
+                      &BBuf[i*BLDim], 1,
+                      &BBuf[k*BLDim], 1 );
+                    if( formU )
+                        blas::Axpy
+                        ( n, -chi,
+                          &UBuf[i*ULDim], 1,
+                          &UBuf[k*ULDim], 1 );
+                }
+            }
         }
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )
@@ -251,6 +293,8 @@ bool Step
              " since oldNorm=",oldNorm," and newNorm=",newNorm);
     }
     lll::HouseholderStep( k, QR, t, d, ctrl.time );
+    if( ctrl.time )
+        stepTimer.Stop();
     return false;
 }
 
@@ -269,6 +313,10 @@ LLLInfo<Base<F>> UnblockedAlg
     typedef Base<F> Real;
     if( ctrl.time )
     {
+        stepTimer.Reset();
+        houseStepTimer.Reset();
+        houseViewTimer.Reset();
+        houseReflectTimer.Reset();
         applyHouseTimer.Reset();
         roundTimer.Reset();
     }
@@ -404,8 +452,12 @@ LLLInfo<Base<F>> UnblockedAlg
 
     if( ctrl.time )
     {
-        Output("  Apply Householder time: ",applyHouseTimer.Total());
-        Output("  Round time:             ",roundTimer.Total());
+        Output("  Step time:              ",stepTimer.Total());
+        Output("    Householder step time:  ",houseStepTimer.Total());
+        Output("      view time:              ",houseViewTimer.Total());
+        Output("      reflect time:           ",houseReflectTimer.Total());
+        Output("    Apply Householder time: ",applyHouseTimer.Total());
+        Output("    Round time:             ",roundTimer.Total());
     }
 
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
@@ -439,6 +491,10 @@ LLLInfo<Base<F>> UnblockedDeepAlg
         ("Deep insertion requires delta > 1/2 for handling dependence");
     if( ctrl.time )
     {
+        stepTimer.Reset();
+        houseStepTimer.Reset();
+        houseViewTimer.Reset();
+        houseReflectTimer.Reset();
         applyHouseTimer.Reset();
         roundTimer.Reset();
     }
@@ -599,8 +655,12 @@ LLLInfo<Base<F>> UnblockedDeepAlg
 
     if( ctrl.time )
     {
-        Output("  Apply Householder time: ",applyHouseTimer.Total());
-        Output("  Round time:             ",roundTimer.Total());
+        Output("  Step time:              ",stepTimer.Total());
+        Output("    Householder step time:  ",houseStepTimer.Total());
+        Output("      view time:              ",houseViewTimer.Total());
+        Output("      reflect time:           ",houseReflectTimer.Total());
+        Output("    Apply Householder time: ",applyHouseTimer.Total());
+        Output("    Round time:             ",roundTimer.Total());
     }
 
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
@@ -634,6 +694,10 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
         ("Deep insertion requires delta > 1/2 for handling dependence");
     if( ctrl.time )
     {
+        stepTimer.Reset();
+        houseStepTimer.Reset();
+        houseViewTimer.Reset();
+        houseReflectTimer.Reset();
         applyHouseTimer.Reset();
         roundTimer.Reset();
     }
@@ -817,8 +881,12 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
 
     if( ctrl.time )
     {
-        Output("  Apply Householder time: ",applyHouseTimer.Total());
-        Output("  Round time:             ",roundTimer.Total());
+        Output("  Step time:              ",stepTimer.Total());
+        Output("    Householder step time:  ",houseStepTimer.Total());
+        Output("      view time:              ",houseViewTimer.Total());
+        Output("      reflect time:           ",houseReflectTimer.Total());
+        Output("    Apply Householder time: ",applyHouseTimer.Total());
+        Output("    Round time:             ",roundTimer.Total());
     }
 
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);

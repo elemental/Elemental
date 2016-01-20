@@ -2641,6 +2641,7 @@ inline LLLCtrl<float> CReflect( const ElLLLCtrl_s& ctrlC )
     ctrl.reorthogTol = ctrlC.reorthogTol;
     ctrl.numOrthog = ctrlC.numOrthog;
     ctrl.zeroTol = ctrlC.zeroTol;
+    ctrl.blockingThresh = ctrlC.blockingThresh;
     ctrl.progress = ctrlC.progress;
     ctrl.time = ctrlC.time;
     ctrl.jumpstart = ctrlC.jumpstart;
@@ -2661,6 +2662,7 @@ inline LLLCtrl<double> CReflect( const ElLLLCtrl_d& ctrlC )
     ctrl.reorthogTol = ctrlC.reorthogTol;
     ctrl.numOrthog = ctrlC.numOrthog;
     ctrl.zeroTol = ctrlC.zeroTol;
+    ctrl.blockingThresh = ctrlC.blockingThresh;
     ctrl.progress = ctrlC.progress;
     ctrl.time = ctrlC.time;
     ctrl.jumpstart = ctrlC.jumpstart;
@@ -2681,6 +2683,7 @@ inline ElLLLCtrl_s CReflect( const LLLCtrl<float>& ctrl )
     ctrlC.reorthogTol = ctrl.reorthogTol;
     ctrlC.numOrthog = ctrl.numOrthog;
     ctrlC.zeroTol = ctrl.zeroTol;
+    ctrlC.blockingThresh = ctrl.blockingThresh;
     ctrlC.progress = ctrl.progress;
     ctrlC.time = ctrl.time;
     ctrlC.jumpstart = ctrl.jumpstart;
@@ -2701,6 +2704,7 @@ inline ElLLLCtrl_d CReflect( const LLLCtrl<double>& ctrl )
     ctrlC.reorthogTol = ctrl.reorthogTol;
     ctrlC.numOrthog = ctrl.numOrthog;
     ctrlC.zeroTol = ctrl.zeroTol;
+    ctrlC.blockingThresh = ctrl.blockingThresh;
     ctrlC.progress = ctrl.progress;
     ctrlC.time = ctrl.time;
     ctrlC.jumpstart = ctrl.jumpstart;

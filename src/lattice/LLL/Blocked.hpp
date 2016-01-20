@@ -243,6 +243,7 @@ bool BlockStep
         {
             vector<F> xBuf(k);
 
+            Int numNonzero=0;
             for( Int i=k-1; i>=0; --i )
             {
                 F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
@@ -254,23 +255,45 @@ bool BlockStep
                     ( i+1, -chi,
                       &QRBuf[i*QRLDim], 1,
                       &QRBuf[k*QRLDim], 1 );
+                    ++numNonzero;
                 }
                 else
                     chi = 0;
                 xBuf[i] = chi;
             }
-
-            blas::Gemv
-            ( 'N', m, k,
-              F(-1), &BBuf[0*BLDim], BLDim,
-                     &xBuf[0],       1,
-              F(+1), &BBuf[k*BLDim], 1 );
-            if( formU )
+            const float nonzeroRatio = float(numNonzero)/float(k); 
+            if( nonzeroRatio >= ctrl.blockingThresh )
+            {
                 blas::Gemv
-                ( 'N', n, k,
-                  F(-1), &UBuf[0*ULDim], ULDim,
+                ( 'N', m, k,
+                  F(-1), &BBuf[0*BLDim], BLDim,
                          &xBuf[0],       1,
-                  F(+1), &UBuf[k*ULDim], 1 );
+                  F(+1), &BBuf[k*BLDim], 1 );
+                if( formU )
+                    blas::Gemv
+                    ( 'N', n, k,
+                      F(-1), &UBuf[0*ULDim], ULDim,
+                             &xBuf[0],       1,
+                      F(+1), &UBuf[k*ULDim], 1 );
+            }
+            else
+            {
+                for( Int i=k-1; i>=0; --i )
+                {
+                    const F chi = xBuf[i];
+                    if( chi == F(0) )
+                        continue;
+                    blas::Axpy
+                    ( m, -chi,
+                      &BBuf[i*BLDim], 1,
+                      &BBuf[k*BLDim], 1 );
+                    if( formU )
+                        blas::Axpy
+                        ( n, -chi,
+                          &UBuf[i*ULDim], 1,
+                          &UBuf[k*ULDim], 1 );
+                }
+            }
         }
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )

@@ -136,6 +136,10 @@ struct LLLCtrl
     // then it is interpreted as a zero vector (and forced to zero)
     Real zeroTol=Pow(limits::Epsilon<Real>(),Real(0.9));
 
+    // Exploit the sparsity in the size reduction Axpy's unless at least the 
+    // following percentage of reductions were non-trivial
+    float blockingThresh = 0.5f;
+
     bool progress=false;
     bool time=false;
 
@@ -169,6 +173,7 @@ struct LLLCtrl
         zeroTol = Real(ctrl.zeroTol);
         if( zeroTol < zeroTolMin )
             zeroTol = zeroTolMin;
+        blockingThresh = ctrl.blockingThresh;
         progress = ctrl.progress; 
         time = ctrl.time;
         jumpstart = ctrl.jumpstart;
@@ -194,6 +199,7 @@ struct LLLCtrl
         reorthogTol = Real(ctrl.reorthogTol);
         numOrthog = ctrl.numOrthog;
         zeroTol = Max(zeroTolMin,Real(ctrl.zeroTol));
+        blockingThresh = ctrl.blockingThresh;
         progress = ctrl.progress; 
         time = ctrl.time;
         jumpstart = ctrl.jumpstart;

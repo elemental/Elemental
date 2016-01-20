@@ -90,7 +90,10 @@
 
 namespace El {
 
-static Timer applyHouseTimer, roundTimer, formSInvTimer;
+static Timer stepTimer, houseStepTimer,
+       houseViewTimer, houseReflectTimer,
+       applyHouseTimer, roundTimer,
+       formSInvTimer;
 
 namespace lll {
 

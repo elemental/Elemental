@@ -26,6 +26,7 @@ ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
     ctrl->reorthogTol = 0;
     ctrl->numOrthog = 1;
     ctrl->zeroTol = Pow(eps,0.9f);
+    ctrl->blockingThresh = 0.5f;
     ctrl->progress = false;
     ctrl->time = false;
     ctrl->jumpstart = false;
@@ -47,6 +48,7 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ctrl->reorthogTol = 0;
     ctrl->numOrthog = 1;
     ctrl->zeroTol = Pow(eps,0.9f);
+    ctrl->blockingThresh = 0.5f;
     ctrl->progress = false;
     ctrl->time = false;
     ctrl->jumpstart = false;
