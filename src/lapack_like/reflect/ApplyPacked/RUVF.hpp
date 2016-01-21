@@ -6,7 +6,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_APPLYPACKEDREFLECTORS_RUVF_HPP
 #define EL_APPLYPACKEDREFLECTORS_RUVF_HPP
 

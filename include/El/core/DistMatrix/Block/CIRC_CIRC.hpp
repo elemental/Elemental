@@ -6,7 +6,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_DISTMATRIX_BLOCKCYCLIC_CIRC_CIRC_DECL_HPP
 #define EL_DISTMATRIX_BLOCKCYCLIC_CIRC_CIRC_DECL_HPP
 

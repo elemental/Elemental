@@ -8,7 +8,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_CORE_DISTMULTIVEC_DECL_HPP
 #define EL_CORE_DISTMULTIVEC_DECL_HPP
 

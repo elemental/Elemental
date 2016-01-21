@@ -8,7 +8,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_FACTOR_LDL_SPARSE_SYMBOLIC_NODEINFO_HPP
 #define EL_FACTOR_LDL_SPARSE_SYMBOLIC_NODEINFO_HPP
 
