@@ -1,3 +1,7 @@
+/***
+* 
+* TSVD Based off of implementation by Andreas Noack. See: http://github.com/andreasnoack/TSVD.jl
+*/
 #pragma once
 #include <tuple>
 
@@ -6,10 +10,49 @@ namespace El {
 template< typename Real>
 Real CopySign(const Real& x, const Real& y){ return y >= Real(0) ? Abs(x): -Abs(x); }
 
+struct BidiagInfo {
+    Int numVecsReorth;
+}; //struct BidiagInfo
+
+template< typename F>
+struct BidiagCtrl {
+    bool reorthIn=false;
+    Base<F> reorthogTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7)),
+    Base<F> convValTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7)),
+    Base<F> convVecTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.5)),
+    bool partialProject=false;
+}; //end struct BidiagCtrl
+
+template< typename F>
+Int reorth( DistMatrix<F>& Q,
+            Int j,
+            std::vector<Base<F>>& termList,
+            const BidiagCtrl<F>& ctrl,
+            DistMatrix<F>& x,
+            Matrix<Base<F>>& diagList){
+    //TODO: Make batch with Gemv
+    Int numVecsReorth = 0;
+    termList.emplace_back( Real( 1));
+    for( Int i = 0; i < j; ++i){
+        auto vi = Q(ALL, IR(i));
+        Axpy( -Dot(qi, x), qi, x);
+        termList[i] = eps;
+        numVecsReorth++;
+    }
+    alpha = Nrm2( x);
+    diagList.Set(j,0,alpha);
+    Scale(Real(1)/alpha, v);
+    auto qj = Q(ALL,IR(j));
+    qj = x;
+    return numVecsReorth;
+}
+
+
+
 template< typename F, 
           typename ForwardOperator,
           typename AdjointOperator>
-void
+BidiagInfo
 BidiagLanczos(
     Int m,
     Int n, 
@@ -17,34 +60,29 @@ BidiagLanczos(
     const AdjointOperator& AAdj,
     Int steps,
     Base<F> tau,
-    std::vector<Base<F>>& alphaList,
-    std::vector<Base<F>>& betaList,
+    Matrix<Base<F>>& mainDiag,
+    Matrix<Base<F>>& superDiag,
     DistMatrix<F>& U,
     DistMatrix<F>& V,
     //Base<F>& normA, //can be an estimate?
     std::vector<Base<F>>& muList,
     std::vector<Base<F>>& nuList,
-    bool reorthIn,
-    Base<F> tolError,
-    bool partialProject=false){
+    const BidiagCtrl& control){
     typedef Base<F> Real;
     typename DistMatrix<F> DM;
     const Real eps = limits::Epsilon<Real>();
 
-    bool reorthB = reorthIn;
-    Int nReorth = 0;
-    Int nReorthVec = 0;
-    muList.reserve( steps);
-    nuList.reserve( steps);
-    Int iter = alphaList.size()-1;
-    DM u = U(ALL, IR(iter+1));
-    DM v = V(ALL, IR(iter));
-    Real beta = betaList[iter];
+    bool reorthB = control.reorthIn;
+    Int numVecsReorth = 0;
+    Int iter = mainDiag.size()-1;
+    std::vector< Base<F>> maxMuList, maxNuList;
+    maxMuList.reserve(steps);
+    maxNuList.reserve(steps);
 
-    
-    std::vector< Int> reorth_nu;
-    if( partialProject){ reorth_nu.reserve( steps); }
+    DM v = V( ALL, IR(iter));
+    DM u = U( ALL, IR(iter+1));
     DM vOld( v);
+    Real beta = superDiag[iter];
     for( Int j = iter+1; j <= iter+steps; ++j)
     {
         vOld = v;
@@ -53,95 +91,50 @@ BidiagLanczos(
         Axpy( -beta, vOld, v);
         Real alpha = Nrm2(v);
         //run omega recurrence
-        reorth_nu.clear();
+        bool foundInaccurate = false;
         for(Int i = 0; i < j; ++i)
         {
-            Real nu = betaList[i]*muList[i+1] + 
-                      alphaList[i]*muList[i] - beta*nuList[i];
+            Real nu = superDiag.Get(i,0)*muList[i+1] + 
+                      mainDiag.Get(i,0)*muList[i] - beta*nuList[i];
             nu = (nu + CopySign(tau, nu))/alpha;
-            if( partialProject && Abs(v) > tolError) { 
-                reorth_nu.emplace_back( i);
-            }
+            foundInaccurate |= (Abs(nu) > ctrl.reorthogTol); 
             nuList[i] = nu;
         }
         Real maxElt = *std::max_element( nuList.begin(), nuList.end(), Abs);
         maxNuList.emplace_back( maxElt);
-    }
-    nuList.emplace_back( Real(1));
-    if (reorth_b || reorthNu.size()>0){
-        if( partialProject){
-            for( Int i: reorth_nu){
-                auto vi = V(ALL, IR(i));
-                Axpy( -Dot(vi, v), vi, v);
-                nuList[i] = 2*eps;
-                nReorthVecs++;
-            }
-        } else { //full reorthogalization
-             for( Int i = 0; i < j; ++i){
-                auto vi = V(ALL, IR(i));
-                Axpy( -Dot(vi, v), vi, v);
-                nuList[i] = eps;
-                nReorthVecs++;
-            }
+        if( reorthB || foundInaccurate ){
+            numVecsReorth += reorth( V, j, nuList, ctrl, v, mainDiag);
         }
-        alpha = Nrm2( v);
-        reorth_b = !reorth_b;
-    }
-    alphaList.emplace_back(alpha);
-    Scale(Real(1)/alpha, v);
-    auto vj = V(ALL,IR(j));
-    vj = v;
 
-    //The u step
-    uOld = u;
-    u = v;
-    // apply the operator
-    A(u);
-    Axpy(-alpha, uOld, u);
-    beta = Nrm2( u);
+        //The u step
+        uOld = u;
+        u = v;
+        // apply the operator
+        A(u);
+        Axpy(-alpha, uOld, u);
+        beta = Nrm2( u);
 
-    //compute omega recurrence
-    std::vector< Int> reorth_mu;
-    if( partialProject){ reorth_mu.reserve( steps); }
-    for( Int i = 0; i <= j; ++i){
-        Real mu = alphaList[i]*nuList[i] - alpha*muList[i];
-        if (i > 0){
-            mu += betaList[i-1]*nuList[i-1];
-        }
-        mu = (mu + CopySign(tau, mu))/beta;
-        if( partialProject && Abs(mu) > tolError){
-            reorth_mu.emplace_back( i);
-        }
-        muList[ i] = mu;
-    }
-    Real maxElt = *std::max_element( muList.begin(), muList.end(), Abs);
-    maxMuList.emplace_back( maxElt);
-    muList.emplace_back( 1);
-    
-    if (reorth_b || reorthMu.size()>0){
-        if( partialProject){
-            for( Int i: reorth_mu){
-                auto ui = U(ALL, IR(i));
-                Axpy( -Dot(ui, u), ui, u);
-                muList[i] = 2*eps;
-                nReorthVecs++;
+        //compute omega recurrence
+        foundInaccurate=false;
+        for( Int i = 0; i <= j; ++i){
+            Real mu = mainDiag.Get(i,0)*nuList[i] - alpha*muList[i];
+            if (i > 0){
+                mu += superDiag.Get(i-1, 0)*nuList[i-1];
             }
-        } else { //full reorthogalization
-             for( Int i = 0; i < j; ++i){
-                auto ui = U(ALL, IR(i));
-                Axpy( -Dot(ui, u), ui, u);
-                muList[i] = eps;
-                nReorthVecs++;
-            }
+            mu = (mu + CopySign(tau, mu))/beta;
+            foundInaccurate |= (Abs(mu) > ctrl.reorthogTol); 
+            muList[ i] = mu;
         }
-        alpha = Nrm2( u);
-        reorth_b = !reorth_b;
-        nReorth++;
+        Real maxElt = *std::max_element( muList.begin(), muList.end(), Abs);
+        maxMuList.emplace_back( maxElt);
+        muList.emplace_back( 1);
+        if( reorth_b || foundInaccurate){
+            numVecsReorth += reorth( U, j, muList, ctrl, u, superDiag); 
+        }
     }
-    betaList.emplace_back(beta);
-    Scale(Real(1)/beta, u);
-    auto uj = U(ALL,IR(j));
-    uj = u;
+    Bidiag info;
+    info.numVecsReorth = numVecsReorth;
+    return info;
 }
 
 
@@ -158,58 +151,82 @@ tsvd(
       const ForwardOperator& A,
       const AdjointOperator& AAdj,
       Int nVals, 
-      Int maxIter, 
       DistMatrix<F>& initialVec, 
-      Base<F> tolConv=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7)),
-      Base<F> tolError=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7)),
-      ) //requires InfiniteCharacteristic<F> && ForwardOperator::ScalarType is F
+      Int maxIter=Min(1000,Max(m,n)),
+      const BidiagCtrl<F>& ctrl=BidiagCtrl<F>()) //requires InfiniteCharacteristic<F> && ForwardOperator::ScalarType is F
       {
         typedef DistMatrix<F> DM;
+        typedef Matrix<Base<F>> RealMatrix;
         typedef Base<F> Real;
         const Grid& g = initialVec.Grid();
+        //1) Compute nu, a tolerance for reorthoganlization
         auto tau = InfinityNorm(A); //TODO: Impl this?
-        DM z( g);
-        Zeros(z, 1,1);
-        Int steps = 5;
-        Real initNorm = Nrm2(initial_vec);
-        DM v( initialVec);
-        AAdj( v);
-        Scale(Real(1)/initNorm, v);       
-        Real alpha = Nrm2(v);
-        Scale(Real(1)/alpha, v);
-        DM V( n, 1, g);
-        Fill( V, Real(1));
-        //TODO: Make this the right size upfront?
-        DM alphaList( 1, 1, g); //TODO: make this a Matrix<Real>
         
+        Real initNorm = Nrm2(initialVec);
+        Scale(Real(1)/initNorm, initialVec);       
+        DM V( n, maxIter, g);
+        auto v = V(ALL, 0);
+        v = initialVec;
+        AAdj( v); //v = A'initialVec;
+        Real alpha = Nrm2(v); //record the norm, for reorth.
+        Scale(Real(1)/alpha, v); //make v a unit vector
         Real nu = 1 + tau/alpha; //think of nu = 1+\epsilon
-        DM u( v);
-        A( u);
-        DM uOld( initVec); //TODO: similar?
-        Scale(Real(1)/initNorm, initVec);       
-        Axpy(-alpha, uOld, u);
-        Real beta = FrobeniusNorm(u);
-        Scale(Real(1)/beta,u);
-
-        DM U(g);
-        HCat(uOld, u, U);
-        //TODO: Make this the right size upfront
-        DM betaList( 1, 1, g); //TODO: make this a Matrix<Real>
+        
+        DM U(m, maxIter, g);
+        auto u0 = U(ALL, 0);
+        auto u1 = U(ALL, 1);
+        u0 = initialVec;
+        u1 = v;
+        A( u1);
+        Axpy(-alpha, u0, u1);
+        Real beta = Nrm2(u1);
+        Scale(Real(1)/beta,u1);
         Real mu = tau/beta;
-        std::vector< Real> maxMuList; 
-        std::vector< Real> maxNuList; 
-        maxMuList.reserve(maxIter);
-        maxNuList.reserve(maxIter);
-        ///TODO: Implement the rest.
-        BidiagLanczos( m, n, A, AAdj, numSteps, 
-                       tau, alphaList, betaList, U, V, 
-                       muList, nuList, 
-                       reorthIn, tolError);
-        for( 
 
 
+        RealMatrix mainDiag( maxIter+1, 1); //TODO: make this a Matrix<Real>
+        RealMatrix superDiag( maxIter, 1, g); //TODO: make this a Matrix<Real>
+        //TODO: Implement the rest.
+        std::vector<Base<F>> muList, nuList;
+        muList.reserve( maxIter);
+        nuList.reserve( maxIter);
+        muList.push_back( mu);
+        muList.push_back( 1);
+        nuList.push_back( 1);
+       
+        MatrixReal sOld( maxIter+1, 1);
+        Int blockSize = Max(nVals, 50);
+        for(Int i = 0; i < maxIter; i+=blockSize){
+            Int numSteps = Min(blockSize,maxIter-i); 
+            BidiagLanczos
+            ( m, n, A, AAdj, numSteps, 
+              tau, mainDiag, superDiag, U, V, 
+              muList, nuList, ctrl);
+            auto s = mainDiag;
+            auto superDiagCopy = superDiag;
+            MatrixReal VT(i+numSteps,nVals);
+            MatrixReal U(nVals,i+numSteps);
+            lapack::BidiagQRAlg
+            (
+             'U', i+numSteps, nVals, nVals,
+             s.Buffer(), superDiagCopy.Buffer(), 
+             VT.Buffer(), VT.LDim(),
+             U.Buffer(), U.LDim());
+
+            Real beta = superDiag.Get(i+numSteps-1,0);
+            bool converged=true;
+            for(Int j = 0; j < nVals; ++j){
+                if( Abs(s.Get(j,0) - sOld.Get(j,0)) > ctrl.convValTol){
+                    converged = false;
+                }
+                if( beta*Abs(VT.Get(j, i+numSteps)) > ctrl.convVecTol){
+                    converged = false;
+                }
+                if( beta*Abs(U.Get(i+numSteps, j)) > ctrl.convVecTol){
+                    converged=false;
+                }
+            }
+            sOld = s;
+        }
 }
 } //end namespace El
-
-
-
