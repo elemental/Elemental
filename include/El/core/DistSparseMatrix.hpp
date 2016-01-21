@@ -186,7 +186,7 @@ public:
     Int Col( Int localInd ) const EL_NO_RELEASE_EXCEPT;
     T Value( Int localInd ) const EL_NO_RELEASE_EXCEPT;
     T Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT;
-    void Set( Int row, Int col, T val) const EL_NO_RELEASE_EXCEPT;
+    void Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT;
     Int RowOffset( Int localRow ) const EL_NO_RELEASE_EXCEPT;
     Int Offset( Int localRow, Int col ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int localRow ) const EL_NO_RELEASE_EXCEPT;
