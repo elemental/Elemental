@@ -29,6 +29,8 @@ struct DoubleDouble : public dd_real
 {
     DoubleDouble() { }
     DoubleDouble( int a ) : dd_real(a) { }
+    // TODO: Perform a more accurate conversion
+    DoubleDouble( long long int a ): dd_real(double(a)) { }
     DoubleDouble( double a ) : dd_real(a) { }
     DoubleDouble( const dd_real& a ) : dd_real(a) { }
 #ifdef EL_HAVE_QUAD
@@ -40,10 +42,13 @@ struct DoubleDouble : public dd_real
     { dd_real::operator=(a); return *this; }
     DoubleDouble& operator=( double a )
     { dd_real::operator=(a); return *this; }
+    DoubleDouble& operator=( int a )
+    { dd_real::operator=(a); return *this; }
+    // TODO: Perform a more accurate conversion
+    DoubleDouble& operator=( long long int a )
+    { dd_real::operator=(double(a)); return *this; }
     DoubleDouble& operator=( const char* s )
     { dd_real::operator=(s); return *this; }
-    DoubleDouble& operator=( Int a )
-    { *this = double(a); return *this; }
 
     DoubleDouble& operator+=( double a )
     { dd_real::operator+=(a); return *this; }
@@ -115,6 +120,8 @@ struct QuadDouble : public qd_real
 {
     QuadDouble() { }
     QuadDouble( int a ) : qd_real(a) { }
+    // TODO: Perform a more accurate conversion
+    QuadDouble( long long int a ) : qd_real(double(a)) { }
     QuadDouble( double a ) : qd_real(a) { }
     QuadDouble( const dd_real& a ) : qd_real(a) { } 
     QuadDouble( const qd_real& a ) : qd_real(a) { } 
@@ -129,10 +136,13 @@ struct QuadDouble : public qd_real
     { qd_real::operator=(a); return *this; }
     QuadDouble& operator=( double a )
     { qd_real::operator=(a); return *this; }
+    QuadDouble& operator=( int a )
+    { qd_real::operator=(a); return *this; }
+    // TODO: Perform a more accurate conversion
+    QuadDouble& operator=( long long int a )
+    { qd_real::operator=(double(a)); return *this; }
     QuadDouble& operator=( const char* s )
     { qd_real::operator=(s); return *this; }
-    QuadDouble& operator=( Int a )
-    { *this = double(a); return *this; }
 
     QuadDouble& operator+=( double a )
     { qd_real::operator+=(a); return *this; }

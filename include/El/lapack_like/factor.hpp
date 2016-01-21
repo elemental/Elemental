@@ -510,7 +510,7 @@ void LUMod
   const Matrix<F>& u,
   const Matrix<F>& v,
   bool conjugate=true,
-  Base<F> tau=0.1 );
+  Base<F> tau=Base<F>(1)/Base<F>(10) );
 template<typename F>
 void LUMod
 (       ElementalMatrix<F>& A,
@@ -518,7 +518,7 @@ void LUMod
   const ElementalMatrix<F>& u,
   const ElementalMatrix<F>& v, 
   bool conjugate=true,
-  Base<F> tau=0.1 );
+  Base<F> tau=Base<F>(1)/Base<F>(10) );
 
 namespace lu {
 
@@ -658,7 +658,7 @@ struct QRCtrl
     Int maxRank=0;
 
     bool adaptive=false;
-    Real tol=0;
+    Real tol=Real(0);
 
     bool alwaysRecomputeNorms=false;
 
