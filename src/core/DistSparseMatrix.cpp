@@ -617,7 +617,7 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template< typename T>
-T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
+T DistSparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 {
     Int index = Offset( row, col);
     if( index < 0 || index >= Int(vals_.size())){ return T(0); }
@@ -625,7 +625,7 @@ T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 }
 
 template< typename T>
-void SparseMatrix<T>::Set( Int row, Int col, T val) const EL_NO_RELEASE_EXCEPT
+void DistSparseMatrix<T>::Set( Int row, Int col, T val) const EL_NO_RELEASE_EXCEPT
 {
     QueueUpdate( row, col, val);
     ProcessQueues();
