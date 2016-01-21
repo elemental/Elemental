@@ -38,7 +38,7 @@ DiagonalBlockSolve
         ShiftDiagonal( T, -shifts.Get(j,0) );
 
         // TODO: Handle small diagonal entries in the usual manner
-	auto minDiag = 2*Sqrt(eps)*Abs(shifts.Get(j,0));
+	auto minDiag = 2*eps*Abs(shifts.Get(j,0));
 	for( Int i=0; i<Min(n,j); ++i)
 	{
 	    if( Abs(T.Get(i,i))<minDiag )
