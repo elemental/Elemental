@@ -121,6 +121,8 @@ public:
     Int Row( Int index ) const EL_NO_RELEASE_EXCEPT;
     Int Col( Int index ) const EL_NO_RELEASE_EXCEPT;
     T Value( Int index ) const EL_NO_RELEASE_EXCEPT;
+    T Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT;
+    void Set( Int row, Int col, T val) const EL_NO_RELEASE_EXCEPT;
     Int RowOffset( Int row ) const EL_NO_RELEASE_EXCEPT;
     Int Offset( Int row, Int col ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT;
