@@ -333,7 +333,9 @@ template< typename T>
 T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 {
     Int index = Offset( row, col);
-    if( index < 0 || index >= Int(vals_.size())){ return T(0); }
+    if( Source(index) != row || Target(index) != col){
+            return T(0); 
+    }
     return Value( Offset( row, col)); 
 }
 
