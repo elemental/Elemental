@@ -148,13 +148,16 @@ template< typename F,
           typename ForwardOperator,
           typename AdjointOperator>
 inline Int 
-tsvd( 
+TSVD( 
       Int m,
       Int n, 
       const ForwardOperator& A,
       const AdjointOperator& AAdj,
-      Int nVals, 
-      DistMatrix<F>& initialVec, 
+      Int nVals,
+      AbstractDistMatrix<F>& U,
+      AbstractDistMatrix<F>& S,
+      AbstractDistMatrix<F>& V,
+      AbstractDistMatrix<F>& initialVec, //should be of length m 
       Int maxIter=Int(1000),
       const BidiagCtrl<F>& ctrl=BidiagCtrl<F>()) //requires InfiniteCharacteristic<F> && ForwardOperator::ScalarType is F
       {
@@ -168,17 +171,17 @@ tsvd(
         
         Real initNorm = Nrm2(initialVec);
         Scale(Real(1)/initNorm, initialVec);       
-        DM V( n, maxIter, g);
-        auto v = V(ALL, 0);
+        DM Vtilde( n, maxIter, g);
+        auto v = Vtilde(ALL, 0);
         v = initialVec;
         AAdj( v); //v = A'initialVec;
         Real alpha = Nrm2(v); //record the norm, for reorth.
         Scale(Real(1)/alpha, v); //make v a unit vector
         Real nu = 1 + tau/alpha; //think of nu = 1+\epsilon
         
-        DM U(m, maxIter, g);
-        auto u0 = U(ALL, 0);
-        auto u1 = U(ALL, 1);
+        DM Utilde(m, maxIter, g);
+        auto u0 = Utilde(ALL, 0);
+        auto u1 = Utilde(ALL, 1);
         u0 = initialVec;
         u1 = v;
         A( u1);
@@ -188,9 +191,8 @@ tsvd(
         Real mu = tau/beta;
 
 
-        RealMatrix mainDiag( maxIter+1, 1); //TODO: make this a Matrix<Real>
-        RealMatrix superDiag( maxIter, 1, g); //TODO: make this a Matrix<Real>
-        //TODO: Implement the rest.
+        RealMatrix mainDiag( maxIter+1, 1); 
+        RealMatrix superDiag( maxIter, 1, g); 
         std::vector<Base<F>> muList, nuList;
         muList.reserve( maxIter);
         nuList.reserve( maxIter);
@@ -201,21 +203,20 @@ tsvd(
         RealMatrix sOld( maxIter+1, 1);
         Int blockSize = Max(nVals, 50);
         for(Int i = 0; i < maxIter; i+=blockSize){
-            Int numSteps = Min(blockSize,maxIter-i); 
+            Int numSteps = Min( blockSize, maxIter-i); 
             BidiagLanczos
             ( m, n, A, AAdj, numSteps, 
-              tau, mainDiag, superDiag, U, V, 
+              tau, mainDiag, superDiag, Utilde, Vtilde, 
               muList, nuList, ctrl);
             auto s = mainDiag;
             auto superDiagCopy = superDiag;
-            RealMatrix VT(i+numSteps,nVals);
-            RealMatrix U(nVals,i+numSteps);
+            RealMatrix VTHat(i+numSteps,nVals);
+            RealMatrix UHat(nVals,i+numSteps);
             lapack::BidiagQRAlg
-            (
-             'U', i+numSteps, nVals, nVals,
-             s.Buffer(), superDiagCopy.Buffer(), 
-             VT.Buffer(), VT.LDim(),
-             U.Buffer(), U.LDim());
+            ( 'U', i+numSteps, nVals, nVals,
+              s.Buffer(), superDiagCopy.Buffer(), 
+              VTHat.Buffer(), VTHat.LDim(),
+              UHat.Buffer(), UHat.LDim());
 
             Real beta = superDiag.Get(i+numSteps-1,0);
             bool converged=true;
@@ -223,14 +224,47 @@ tsvd(
                 if( Abs(s.Get(j,0) - sOld.Get(j,0)) > ctrl.convValTol){
                     converged = false;
                 }
-                if( beta*Abs(VT.Get(j, i+numSteps)) > ctrl.convVecTol){
+                if( beta*Abs(VTHat.Get(j, i+numSteps)) > ctrl.convVecTol){
                     converged = false;
                 }
-                if( beta*Abs(U.Get(i+numSteps, j)) > ctrl.convVecTol){
+                if( beta*Abs(UHat.Get(i+numSteps, j)) > ctrl.convVecTol){
                     converged=false;
                 }
+            }
+            if( converged){ 
+                El::Gemm(El::NORMAL, El::ADJOINT, Real(1), Vtilde, VTHat, Real(0), V);
+                El::Gemm(El::NORMAL,  El::NORMAL, Real(1), Utilde,  UHat, Real(0), U);
+                DistMatrix<F,STAR,STAR> S_STAR_STAR( S.Grid());
+                S_STAR_STAR.LockedAttach( S.Height(), S.Width(), S.Buffer(), S.LDim() );
+                Copy(S_STAR_STAR, S);
+                return i+numSteps; 
             }
             sOld = s;
         }
 }
+
+/**
+* TSVD don't provide initial guess.
+*/
+template< typename F, 
+          typename ForwardOperator,
+          typename AdjointOperator>
+inline Int 
+TSVD( 
+      Int m,
+      Int n, 
+      const ForwardOperator& A,
+      const AdjointOperator& AAdj,
+      Int nVals,
+      AbstractDistMatrix<F>& U,
+      AbstractDistMatrix<F>& S,
+      AbstractDistMatrix<F>& V,
+      Int maxIter=Int(1000),
+      const BidiagCtrl<F>& ctrl=BidiagCtrl<F>()) {
+    DistMatrix<F> initialVec(U.Grid());
+    F center = rand();
+    Uniform( initialVec, m, 1, center);
+    return TSVD(m ,n, A, AAdj, nVals, U,S,V, initialVec, maxIter, ctrl);
+}
+
 } //end namespace El
