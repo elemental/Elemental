@@ -620,7 +620,7 @@ template< typename T>
 T DistSparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 {
     Int index = Offset( row, col);
-    if( Source(index) != row || Target(index) != col){
+    if( Row(index) != row || Col(index) != col){
             return T(0); 
     }
     return Value( Offset( row, col)); 
