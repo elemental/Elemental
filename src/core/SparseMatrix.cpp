@@ -342,6 +342,7 @@ T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 template< typename T>
 void SparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
 {
+    QueueZero( row, col);
     QueueUpdate( row, col, val);
     ProcessQueues();
 }
