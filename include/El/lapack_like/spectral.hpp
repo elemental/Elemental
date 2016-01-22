@@ -1016,5 +1016,6 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 
 #include "./spectral/Lanczos.hpp"
 #include "./spectral/ProductLanczos.hpp"
+#include "./spectral/TSVD.hpp"
 
 #endif // ifndef EL_SPECTRAL_HPP

@@ -17,12 +17,13 @@ struct BidiagInfo {
 template< typename F>
 struct BidiagCtrl {
     bool reorthIn=false;
-    Base<F> reorthogTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7)),
-    Base<F> convValTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7)),
-    Base<F> convVecTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.5)),
+    Base<F> reorthogTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7));
+    Base<F> convValTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.7));
+    Base<F> convVecTol=Pow(limits::Epsilon<Base<F>>(), Base<F>(.5));
     bool partialProject=false;
 }; //end struct BidiagCtrl
 
+//TODO: Make batch with Gemv
 template< typename F>
 Int reorth( DistMatrix<F>& Q,
             Int j,
@@ -30,18 +31,19 @@ Int reorth( DistMatrix<F>& Q,
             const BidiagCtrl<F>& ctrl,
             DistMatrix<F>& x,
             Matrix<Base<F>>& diagList){
-    //TODO: Make batch with Gemv
+    typedef Base<F> Real;
+    const Real eps = limits::Epsilon<Real>();
     Int numVecsReorth = 0;
     termList.emplace_back( Real( 1));
     for( Int i = 0; i < j; ++i){
-        auto vi = Q(ALL, IR(i));
+        auto qi = Q(ALL, IR(i));
         Axpy( -Dot(qi, x), qi, x);
         termList[i] = eps;
         numVecsReorth++;
     }
-    alpha = Nrm2( x);
+    Real alpha = Nrm2( x);
     diagList.Set(j,0,alpha);
-    Scale(Real(1)/alpha, v);
+    Scale(Real(1)/alpha, x);
     auto qj = Q(ALL,IR(j));
     qj = x;
     return numVecsReorth;
@@ -67,12 +69,12 @@ BidiagLanczos(
     //Base<F>& normA, //can be an estimate?
     std::vector<Base<F>>& muList,
     std::vector<Base<F>>& nuList,
-    const BidiagCtrl& control){
+    const BidiagCtrl<F>& ctrl){
     typedef Base<F> Real;
-    typename DistMatrix<F> DM;
+    typedef DistMatrix<F> DM;
     const Real eps = limits::Epsilon<Real>();
 
-    bool reorthB = control.reorthIn;
+    bool reorthB = ctrl.reorthIn;
     Int numVecsReorth = 0;
     Int iter = mainDiag.size()-1;
     std::vector< Base<F>> maxMuList, maxNuList;
@@ -82,6 +84,7 @@ BidiagLanczos(
     DM v = V( ALL, IR(iter));
     DM u = U( ALL, IR(iter+1));
     DM vOld( v);
+    DM uOld( u);
     Real beta = superDiag[iter];
     for( Int j = iter+1; j <= iter+steps; ++j)
     {
@@ -125,14 +128,14 @@ BidiagLanczos(
             foundInaccurate |= (Abs(mu) > ctrl.reorthogTol); 
             muList[ i] = mu;
         }
-        Real maxElt = *std::max_element( muList.begin(), muList.end(), Abs);
+        maxElt = *std::max_element( muList.begin(), muList.end(), Abs);
         maxMuList.emplace_back( maxElt);
         muList.emplace_back( 1);
-        if( reorth_b || foundInaccurate){
+        if( reorthB || foundInaccurate){
             numVecsReorth += reorth( U, j, muList, ctrl, u, superDiag); 
         }
     }
-    Bidiag info;
+    BidiagInfo info;
     info.numVecsReorth = numVecsReorth;
     return info;
 }
@@ -152,12 +155,13 @@ tsvd(
       const AdjointOperator& AAdj,
       Int nVals, 
       DistMatrix<F>& initialVec, 
-      Int maxIter=Min(1000,Max(m,n)),
+      Int maxIter=Int(1000),
       const BidiagCtrl<F>& ctrl=BidiagCtrl<F>()) //requires InfiniteCharacteristic<F> && ForwardOperator::ScalarType is F
       {
         typedef DistMatrix<F> DM;
         typedef Matrix<Base<F>> RealMatrix;
         typedef Base<F> Real;
+        maxIter = Min(maxIter,Min(m,n));
         const Grid& g = initialVec.Grid();
         //1) Compute nu, a tolerance for reorthoganlization
         auto tau = InfinityNorm(A); //TODO: Impl this?
@@ -194,7 +198,7 @@ tsvd(
         muList.push_back( 1);
         nuList.push_back( 1);
        
-        MatrixReal sOld( maxIter+1, 1);
+        RealMatrix sOld( maxIter+1, 1);
         Int blockSize = Max(nVals, 50);
         for(Int i = 0; i < maxIter; i+=blockSize){
             Int numSteps = Min(blockSize,maxIter-i); 
@@ -204,8 +208,8 @@ tsvd(
               muList, nuList, ctrl);
             auto s = mainDiag;
             auto superDiagCopy = superDiag;
-            MatrixReal VT(i+numSteps,nVals);
-            MatrixReal U(nVals,i+numSteps);
+            RealMatrix VT(i+numSteps,nVals);
+            RealMatrix U(nVals,i+numSteps);
             lapack::BidiagQRAlg
             (
              'U', i+numSteps, nVals, nVals,
