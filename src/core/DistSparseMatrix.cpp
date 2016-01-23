@@ -616,6 +616,24 @@ EL_NO_RELEASE_EXCEPT
     return vals_[localInd];
 }
 
+template< typename T>
+T DistSparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
+{
+    Int index = Offset( row, col);
+    if( Row(index) != row || Col(index) != col){
+            return T(0); 
+    }
+    return Value( Offset( row, col)); 
+}
+
+template< typename T>
+void DistSparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
+{
+    QueueZero( row, col);
+    QueueUpdate( row, col, val);
+    ProcessQueues();
+}
+
 template<typename T>
 Int* DistSparseMatrix<T>::SourceBuffer() EL_NO_EXCEPT
 { return distGraph_.SourceBuffer(); }

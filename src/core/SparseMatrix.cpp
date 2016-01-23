@@ -329,6 +329,24 @@ T SparseMatrix<T>::Value( Int index ) const EL_NO_RELEASE_EXCEPT
     return vals_[index];
 }
 
+template< typename T>
+T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
+{
+    Int index = Offset( row, col);
+    if( Row(index) != row || Col(index) != col){
+            return T(0); 
+    }
+    return Value( Offset( row, col)); 
+}
+
+template< typename T>
+void SparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
+{
+    QueueZero( row, col);
+    QueueUpdate( row, col, val);
+    ProcessQueues();
+}
+
 template<typename T>
 Int* SparseMatrix<T>::SourceBuffer() EL_NO_EXCEPT
 { return graph_.SourceBuffer(); }
