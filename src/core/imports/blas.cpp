@@ -1620,8 +1620,9 @@ void Hemv
 template<typename T>
 void Her
 ( char uplo, BlasInt m,
-  Base<T> alpha, const T* x, BlasInt incx,
-                       T* A, BlasInt ALDim )
+  Base<T> alpha,
+  const T* x, BlasInt incx,
+        T* A, BlasInt ALDim )
 {
     if( std::toupper(uplo) == 'L' )
     {
@@ -3683,8 +3684,9 @@ template<typename T>
 void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  T alpha, const T* A, BlasInt ALDim,
-                 T* B, BlasInt BLDim )
+  T alpha,
+  const T* A, BlasInt ALDim,
+        T* B, BlasInt BLDim )
 {
     const bool onLeft = ( std::toupper(side) == 'L' );
     const bool conjugate = ( std::toupper(trans) == 'C' );
@@ -3721,49 +3723,57 @@ void Trmm
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt ALDim,
-                   Int* B, BlasInt BLDim );
+  Int alpha,
+  const Int* A, BlasInt ALDim,
+        Int* B, BlasInt BLDim );
 #ifdef EL_HAVE_QD
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
-                            DoubleDouble* B, BlasInt BLDim );
+  DoubleDouble alpha,
+  const DoubleDouble* A, BlasInt ALDim,
+        DoubleDouble* B, BlasInt BLDim );
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
-                          QuadDouble* B, BlasInt BLDim );
+  QuadDouble alpha,
+  const QuadDouble* A, BlasInt ALDim,
+        QuadDouble* B, BlasInt BLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Quad alpha, const Quad* A, BlasInt ALDim,
-                    Quad* B, BlasInt BLDim );
+  Quad alpha,
+  const Quad* A, BlasInt ALDim,
+        Quad* B, BlasInt BLDim );
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim,
-                             Complex<Quad>* B, BlasInt BLDim );
+  Complex<Quad> alpha,
+  const Complex<Quad>* A, BlasInt ALDim,
+        Complex<Quad>* B, BlasInt BLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  BigInt alpha, const BigInt* A, BlasInt ALDim,
-                      BigInt* B, BlasInt BLDim );
+  BigInt alpha,
+  const BigInt* A, BlasInt ALDim,
+        BigInt* B, BlasInt BLDim );
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim,
-                        BigFloat* B, BlasInt BLDim );
+  BigFloat alpha,
+  const BigFloat* A, BlasInt ALDim,
+        BigFloat* B, BlasInt BLDim );
 #endif
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  float alpha, const float* A, BlasInt ALDim,
-                     float* B, BlasInt BLDim )
+  float alpha,
+  const float* A, BlasInt ALDim,
+        float* B, BlasInt BLDim )
 {
     const char fixedTrans = ( std::toupper(trans) == 'C' ? 'T' : trans );    
     EL_BLAS(strmm)
@@ -3772,8 +3782,9 @@ void Trmm
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  double alpha, const double* A, BlasInt ALDim,
-                      double* B, BlasInt BLDim )
+  double alpha,
+  const double* A, BlasInt ALDim,
+        double* B, BlasInt BLDim )
 {
     const char fixedTrans = ( std::toupper(trans) == 'C' ? 'T' : trans );    
     EL_BLAS(dtrmm)
@@ -3782,8 +3793,9 @@ void Trmm
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* A, BlasInt ALDim,
-                        scomplex* B, BlasInt BLDim )
+  scomplex alpha,
+  const scomplex* A, BlasInt ALDim,
+        scomplex* B, BlasInt BLDim )
 {
     EL_BLAS(ctrmm)
     ( &side, &uplo, &trans, &unit, &m, &n, &alpha, A, &ALDim, B, &BLDim );
@@ -3791,20 +3803,21 @@ void Trmm
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim,
-                        dcomplex* B, BlasInt BLDim )
+  dcomplex alpha,
+  const dcomplex* A, BlasInt ALDim,
+        dcomplex* B, BlasInt BLDim )
 {
     EL_BLAS(ztrmm)
     ( &side, &uplo, &trans, &unit, &m, &n, &alpha, A, &ALDim, B, &BLDim );
 }
 
-// TODO: Add correctness tests
 template<typename F>
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  F alpha, const F* A, BlasInt ALDim,
-                 F* B, BlasInt BLDim )
+  F alpha,
+  const F* A, BlasInt ALDim,
+        F* B, BlasInt BLDim )
 {
     const bool onLeft = ( std::toupper(side) == 'L' );
     const bool lower = ( std::toupper(uplo) == 'L' );
@@ -4055,39 +4068,45 @@ void Trsm
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
-                            DoubleDouble* B, BlasInt BLDim );
+  DoubleDouble alpha,
+  const DoubleDouble* A, BlasInt ALDim,
+        DoubleDouble* B, BlasInt BLDim );
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
-                          QuadDouble* B, BlasInt BLDim );
+  QuadDouble alpha,
+  const QuadDouble* A, BlasInt ALDim,
+        QuadDouble* B, BlasInt BLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Quad alpha, const Quad* A, BlasInt ALDim,
-                    Quad* B, BlasInt BLDim );
+  Quad alpha,
+  const Quad* A, BlasInt ALDim,
+        Quad* B, BlasInt BLDim );
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim,
-                             Complex<Quad>* B, BlasInt BLDim );
+  Complex<Quad> alpha,
+  const Complex<Quad>* A, BlasInt ALDim,
+        Complex<Quad>* B, BlasInt BLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim,
-                        BigFloat* B, BlasInt BLDim );
+  BigFloat alpha,
+  const BigFloat* A, BlasInt ALDim,
+        BigFloat* B, BlasInt BLDim );
 #endif
 
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  float alpha, const float* A, BlasInt ALDim,
-                     float* B, BlasInt BLDim )
+  float alpha,
+  const float* A, BlasInt ALDim,
+        float* B, BlasInt BLDim )
 {
     const char fixedTrans = ( std::toupper(trans) == 'C' ? 'T' : trans );
     EL_BLAS(strsm)
@@ -4097,8 +4116,9 @@ void Trsm
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  double alpha, const double* A, BlasInt ALDim,
-                      double* B, BlasInt BLDim )
+  double alpha,
+  const double* A, BlasInt ALDim,
+        double* B, BlasInt BLDim )
 {
     const char fixedTrans = ( std::toupper(trans) == 'C' ? 'T' : trans );
     EL_BLAS(dtrsm)
@@ -4108,8 +4128,9 @@ void Trsm
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* A, BlasInt ALDim,
-                        scomplex* B, BlasInt BLDim )
+  scomplex alpha,
+  const scomplex* A, BlasInt ALDim,
+        scomplex* B, BlasInt BLDim )
 {
     EL_BLAS(ctrsm)
     ( &side, &uplo, &trans, &unit, &m, &n, &alpha, A, &ALDim, B, &BLDim );
@@ -4118,8 +4139,9 @@ void Trsm
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim,
-                        dcomplex* B, BlasInt BLDim )
+  dcomplex alpha,
+  const dcomplex* A, BlasInt ALDim,
+        dcomplex* B, BlasInt BLDim )
 {
     EL_BLAS(ztrsm)
     ( &side, &uplo, &trans, &unit, &m, &n, &alpha, A, &ALDim, B, &BLDim );

@@ -34,6 +34,10 @@ main( int argc, char* argv[] )
     {
         QueryLimits<float>( "Single-precision:" );
         QueryLimits<double>( "Double-precision:" );
+#ifdef EL_HAVE_QD
+        QueryLimits<DoubleDouble>( "DoubleDouble:" );
+        QueryLimits<QuadDouble>( "QuadDouble:" );
+#endif
 #ifdef EL_HAVE_QUAD
         QueryLimits<Quad>( "Quad-precision:" );
 #endif
