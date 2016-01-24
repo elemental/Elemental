@@ -57,7 +57,7 @@ void TestCholesky
   Int nbLocal,
   bool print,
   bool printDiag,
-  bool testCorrectness,
+  bool correctness,
   bool scalapack )
 {
     if( g.Rank() == 0 )
@@ -68,7 +68,7 @@ void TestCholesky
     SetLocalTrrkBlocksize<F>( nbLocal );
 
     HermitianUniformSpectrum( A, m, 1e-9, 10 );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -104,7 +104,7 @@ void TestCholesky
     }
     if( printDiag )
         Print( GetRealPartOfDiagonal(A), "diag(A)" );
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( pivot, uplo, A, p, AOrig );
 }
 
@@ -124,7 +124,7 @@ main( int argc, char* argv[] )
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool pivot = Input("--pivot","use pivoting?",false);
-        const bool testCorrectness = Input
+        const bool correctness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool printDiag = Input("--printDiag","print diag of fact?",false);
@@ -155,57 +155,57 @@ main( int argc, char* argv[] )
         if( scalapack )
             TestCholesky<float>
             ( g, uplo, pivot, m, nbLocal,
-              print, printDiag, testCorrectness, true );
+              print, printDiag, correctness, true );
         TestCholesky<float>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
 
         if( scalapack )
             TestCholesky<Complex<float>>
             ( g, uplo, pivot, m, nbLocal,
-              print, printDiag, testCorrectness, true );
+              print, printDiag, correctness, true );
         TestCholesky<Complex<float>>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
 
         if( scalapack )
             TestCholesky<double>
             ( g, uplo, pivot, m, nbLocal,
-              print, printDiag, testCorrectness, true );
+              print, printDiag, correctness, true );
         TestCholesky<double>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
 
         if( scalapack )
             TestCholesky<Complex<double>>
             ( g, uplo, pivot, m, nbLocal,
-              print, printDiag, testCorrectness, true );
+              print, printDiag, correctness, true );
         TestCholesky<Complex<double>>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
 
 #ifdef EL_HAVE_QD
         TestCholesky<DoubleDouble>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
         TestCholesky<QuadDouble>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestCholesky<Quad>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
         TestCholesky<Complex<Quad>>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestCholesky<BigFloat>
         ( g, uplo, pivot, m, nbLocal,
-          print, printDiag, testCorrectness, false );
+          print, printDiag, correctness, false );
 #endif
     }
     catch( exception& e ) { ReportException(e); }
