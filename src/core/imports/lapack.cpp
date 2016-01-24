@@ -445,9 +445,8 @@ double MachineOverflowThreshold<double>()
 // Safely compute norms
 // ====================
 
-// TODO: Pass in const references instead
 template<typename Real>
-Real SafeNorm( Real alpha, Real beta )
+Real SafeNorm( const Real& alpha, const Real& beta )
 {
     Real scale = 0;
     Real scaledSquare = 1;
@@ -455,24 +454,30 @@ Real SafeNorm( Real alpha, Real beta )
     UpdateScaledSquare( beta, scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
-template float SafeNorm( float alpha, float beta );
+template float SafeNorm( const float& alpha, const float& beta );
 #ifdef EL_HAVE_QD
-template DoubleDouble SafeNorm( DoubleDouble alpha, DoubleDouble beta );
-template QuadDouble SafeNorm( QuadDouble alpha, QuadDouble beta );
+template DoubleDouble SafeNorm
+( const DoubleDouble& alpha, const DoubleDouble& beta );
+template QuadDouble SafeNorm
+( const QuadDouble& alpha, const QuadDouble& beta );
 #endif
 #ifdef EL_HAVE_QUAD
-template Quad SafeNorm( Quad alpha, Quad beta );
+template Quad SafeNorm
+( const Quad& alpha, const Quad& beta );
 #endif
 #ifdef EL_HAVE_MPC
-template BigFloat SafeNorm( BigFloat alpha, BigFloat beta );
+template BigFloat SafeNorm
+( const BigFloat& alpha, const BigFloat& beta );
 #endif
 
-double SafeNorm( double alpha, double beta )
+double SafeNorm( const double& alpha, const double& beta )
 { return EL_LAPACK(dlapy2)( &alpha, &beta ); }
 
-// TODO: Pass in const references instead
 template<typename Real>
-Real SafeNorm( Real alpha, Real beta, Real gamma )
+Real SafeNorm
+( const Real& alpha,
+  const Real& beta,
+  const Real& gamma )
 {
     Real scale = 0;
     Real scaledSquare = 1;
@@ -481,21 +486,39 @@ Real SafeNorm( Real alpha, Real beta, Real gamma )
     UpdateScaledSquare( gamma, scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
-template float SafeNorm( float alpha, float beta, float gamma );
+template float SafeNorm
+( const float& alpha,
+  const float& beta,
+  const float& gamma );
 #ifdef EL_HAVE_QD
 template DoubleDouble
-SafeNorm( DoubleDouble alpha, DoubleDouble beta, DoubleDouble gamma );
+SafeNorm
+( const DoubleDouble& alpha,
+  const DoubleDouble& beta,
+  const DoubleDouble& gamma );
 template QuadDouble
-SafeNorm( QuadDouble alpha, QuadDouble beta, QuadDouble gamma );
+SafeNorm
+( const QuadDouble& alpha,
+  const QuadDouble& beta,
+  const QuadDouble& gamma );
 #endif
 #ifdef EL_HAVE_QUAD
-template Quad SafeNorm( Quad alpha, Quad beta, Quad gamma );
+template Quad SafeNorm
+( const Quad& alpha,
+  const Quad& beta,
+  const Quad& gamma );
 #endif
 #ifdef EL_HAVE_MPC
-template BigFloat SafeNorm( BigFloat alpha, BigFloat beta, BigFloat gamma );
+template BigFloat SafeNorm
+( const BigFloat& alpha,
+  const BigFloat& beta,
+  const BigFloat& gamma );
 #endif
 
-double SafeNorm( double alpha, double beta, double gamma )
+double SafeNorm
+( const double& alpha,
+  const double& beta,
+  const double& gamma )
 { return EL_LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
 
 template<typename Real>
@@ -589,20 +612,24 @@ void Copy
 // Safely compute Givens rotations (using Demmel and Kahan's algorithm)
 // ====================================================================
 
-float Givens( float phi, float gamma, float* c, float* s )
+float Givens
+( const float& phi, const float& gamma, float* c, float* s )
 { float rho; EL_LAPACK(slartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
-double Givens( double phi, double gamma, double* c, double* s )
+double Givens
+( const double& phi, const double& gamma, double* c, double* s )
 { double rho; EL_LAPACK(dlartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
-scomplex Givens( scomplex phi, scomplex gamma, float* c, scomplex* s )
+scomplex Givens
+( const scomplex& phi, const scomplex& gamma, float* c, scomplex* s )
 { scomplex rho; EL_LAPACK(clartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
-dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s )
+dcomplex Givens
+( const dcomplex& phi, const dcomplex& gamma, double* c, dcomplex* s )
 { dcomplex rho; EL_LAPACK(zlartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
 template<typename Real>
-Real Givens( Real phi, Real gamma, Real* c, Real* s )
+Real Givens( const Real& phi, const Real& gamma, Real* c, Real* s )
 {
     // TODO: Switch to the approach of LAPACK's dlartg instead of the
     //       zrotg-like implementation
@@ -610,7 +637,10 @@ Real Givens( Real phi, Real gamma, Real* c, Real* s )
 }
 template<typename Real>
 Complex<Real> Givens
-( Complex<Real> phi, Complex<Real> gamma, Real* c, Complex<Real>* s )
+( const Complex<Real>& phi,
+  const Complex<Real>& gamma,
+  Real* c,
+  Complex<Real>* s )
 {
     // TODO: Switch to the approach of LAPACK's zlartg instead of the
     //       zrotg-like implementation
@@ -618,18 +648,33 @@ Complex<Real> Givens
 }
 #ifdef EL_HAVE_QD
 template DoubleDouble Givens
-( DoubleDouble phi, DoubleDouble gamma, DoubleDouble* c, DoubleDouble* s );
+( const DoubleDouble& phi,
+  const DoubleDouble& gamma,
+  DoubleDouble* c,
+  DoubleDouble* s );
 template QuadDouble Givens
-( QuadDouble phi, QuadDouble gamma, QuadDouble* c, QuadDouble* s );
+( const QuadDouble& phi,
+  const QuadDouble& gamma,
+  QuadDouble* c,
+  QuadDouble* s );
 #endif
 #ifdef EL_HAVE_QUAD
-template Quad Givens( Quad phi, Quad gamma, Quad* c, Quad* s );
+template Quad Givens
+( const Quad& phi, const Quad& gamma,
+  Quad* c,
+  Quad* s );
 template Complex<Quad> Givens
-( Complex<Quad> phi, Complex<Quad> gamma, Quad* c, Complex<Quad>* s );
+( const Complex<Quad>& phi,
+  const Complex<Quad>& gamma,
+  Quad* c,
+  Complex<Quad>* s );
 #endif
 #ifdef EL_HAVE_MPC
 template BigFloat Givens
-( BigFloat phi, BigFloat gamma, BigFloat* c, BigFloat* s );
+( const BigFloat& phi,
+  const BigFloat& gamma,
+  BigFloat* c,
+  BigFloat* s );
 #endif
 
 // Compute the EVD of a symmetric tridiagonal matrix

@@ -85,17 +85,27 @@ void Copy
 // =====================================================
 
 template<typename Real>
-Real SafeNorm( Real alpha, Real beta );
-double SafeNorm( double alpha, double beta );
+Real SafeNorm( const Real& alpha, const Real& beta );
+double SafeNorm( const double& alpha, const double& beta );
 
 template<typename Real>
-Real SafeNorm( Real alpha, Real beta, Real gamma );
-double SafeNorm( double alpha, double beta, double gamma );
+Real SafeNorm
+( const Real& alpha,
+  const Real& beta,
+  const Real& gamma );
+double SafeNorm
+( const double& alpha,
+  const double& beta,
+  const double& gamma );
 
 template<typename Real>
-Real SafeNorm( const Complex<Real>& alpha, const Real& beta );
+Real SafeNorm
+( const Complex<Real>& alpha,
+  const Real& beta );
 template<typename Real>
-Real SafeNorm( const Real& alpha, const Complex<Real>& beta );
+Real SafeNorm
+( const Real& alpha,
+  const Complex<Real>& beta );
 
 // Givens rotations
 // ================
@@ -110,15 +120,38 @@ Real SafeNorm( const Real& alpha, const Complex<Real>& beta );
 //
 
 template<typename Real>
-Real Givens( Real phi, Real gamma, Real* c, Real* s );
+Real Givens
+( const Real& phi,
+  const Real& gamma,
+        Real* c,
+        Real* s );
 template<typename Real>
 Complex<Real> Givens
-( Complex<Real> phi, Complex<Real> gamma, Real* c, Complex<Real>* s );
+( const Complex<Real>& phi,
+  const Complex<Real>& gamma,
+  Real* c,
+  Complex<Real>* s );
 
-float    Givens( float    phi, float    gamma, float * c, float   * s );
-double   Givens( double   phi, double   gamma, double* c, double  * s );
-scomplex Givens( scomplex phi, scomplex gamma, float * c, scomplex* s );
-dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s );
+float    Givens
+( const float& phi,
+  const float& gamma,
+  float* c,
+  float* s );
+double   Givens
+( const double& phi,
+  const double& gamma,
+  double* c,
+  double* s );
+scomplex Givens
+( const scomplex& phi,
+  const scomplex& gamma,
+  float* c,
+  scomplex* s );
+dcomplex Givens
+( const dcomplex& phi,
+  const dcomplex& gamma,
+  double* c,
+  dcomplex* s );
 
 // Compute the eigen-values/pairs of a symmetric tridiagonal matrix
 // ================================================================

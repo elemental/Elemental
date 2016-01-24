@@ -890,8 +890,10 @@ BlasInt MaxInd( BlasInt n, const dcomplex* x, BlasInt incx )
 
 template<typename Real>
 Real Givens
-( Real phi, Real gamma,
-  Real* c, Real* s )
+( const Real& phi,
+  const Real& gamma,
+  Real* c,
+  Real* s )
 {
     Real phiAbs = Abs(phi);
     if( phiAbs == Real(0) )
@@ -912,8 +914,10 @@ Real Givens
 }
 template<typename Real>
 Complex<Real> Givens
-( Complex<Real> phi, Complex<Real> gamma,
-  Real* c, Complex<Real>* s )
+( const Complex<Real>& phi,
+  const Complex<Real>& gamma,
+  Real* c,
+  Complex<Real>* s )
 {
     Real phiAbs = Abs(phi);
     if( phiAbs == Real(0) )
@@ -934,46 +938,74 @@ Complex<Real> Givens
 }
 #ifdef EL_HAVE_QD
 template DoubleDouble Givens
-( DoubleDouble phi, DoubleDouble gamma, DoubleDouble* c, DoubleDouble* s );
+( const DoubleDouble& phi,
+  const DoubleDouble& gamma,
+  DoubleDouble* c,
+  DoubleDouble* s );
 template QuadDouble Givens
-( QuadDouble phi, QuadDouble gamma, QuadDouble* c, QuadDouble* s );
+( const QuadDouble& phi,
+  const QuadDouble& gamma,
+  QuadDouble* c,
+  QuadDouble* s );
 #endif
 #ifdef EL_HAVE_QUAD
-template Quad Givens( Quad phi, Quad gamma, Quad* c, Quad* s );
+template Quad Givens
+( const Quad& phi,
+  const Quad& gamma,
+  Quad* c,
+  Quad* s );
 template Complex<Quad> Givens
-( Complex<Quad> phi, Complex<Quad> gamma, Quad* c, Complex<Quad>* s );
+( const Complex<Quad>& phi,
+  const Complex<Quad>& gamma,
+  Quad* c,
+  Complex<Quad>* s );
 #endif
 #ifdef EL_HAVE_MPC
 template BigFloat Givens
-( BigFloat phi, BigFloat gamma, BigFloat* c, BigFloat* s );
+( const BigFloat& phi,
+  const BigFloat& gamma,
+  BigFloat* c,
+  BigFloat* s );
 #endif
 
 float Givens
-( float phi, float gamma,
-  float* c, float* s )
+( const float& phi,
+  const float& gamma,
+  float* c,
+  float* s )
 {
-    EL_BLAS(srotg)( &phi, &gamma, c, s );
+    float phiCopy=phi, gammaCopy=gamma;
+    EL_BLAS(srotg)( &phiCopy, &gammaCopy, c, s );
     return phi;
 }
 double Givens
-( double phi, double gamma,
-  double* c, double* s )
+( const double& phi,
+  const double& gamma,
+  double* c,
+  double* s )
 {
-    EL_BLAS(drotg)( &phi, &gamma, c, s );
+    double phiCopy=phi, gammaCopy=gamma;
+    EL_BLAS(drotg)( &phiCopy, &gammaCopy, c, s );
     return phi;
 }
 scomplex Givens
-( scomplex phi, scomplex gamma,
-  float* c, scomplex* s )
+( const scomplex& phi,
+  const scomplex& gamma,
+  float* c,
+  scomplex* s )
 {
-    EL_BLAS(crotg)( &phi, &gamma, c, s );
+    scomplex phiCopy=phi, gammaCopy=gamma;
+    EL_BLAS(crotg)( &phiCopy, &gammaCopy, c, s );
     return phi;
 }
 dcomplex Givens
-( dcomplex phi, dcomplex gamma,
-  double* c, dcomplex* s )
+( const dcomplex& phi,
+  const dcomplex& gamma,
+  double* c,
+  dcomplex* s )
 {
-    EL_BLAS(zrotg)( &phi, &gamma, c, s );
+    dcomplex phiCopy=phi, gammaCopy=gamma;
+    EL_BLAS(zrotg)( &phiCopy, &gammaCopy, c, s );
     return phi;
 }
 
