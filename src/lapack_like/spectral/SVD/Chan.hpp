@@ -20,7 +20,8 @@ ChanUpper
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
-  double heightRatio=1.5 )
+  double heightRatio=1.5,
+  bool compact=false )
 {
     DEBUG_ONLY(
       CSE cse("svd::ChanUpper");
@@ -37,7 +38,7 @@ ChanUpper
     {
         DistMatrix<F> R(g);
         qr::Explicit( A, R );
-        svd::GolubReinsch( R, s, V );
+        svd::GolubReinsch( R, s, V, compact );
         // Unfortunately, extra memory is used in forming A := A R,
         // where A has been overwritten with the Q from the QR factorization
         // of the original state of A, and R has been overwritten with the U 
@@ -45,11 +46,11 @@ ChanUpper
         //
         // Perhaps this should be broken into pieces.
         auto ACopy( A );
-        Gemm( NORMAL, NORMAL, F(1), ACopy, R, F(0), A );
+        Gemm( NORMAL, NORMAL, F(1), ACopy, R, A );
     }
     else
     {
-        svd::GolubReinsch( A, s, V );
+        svd::GolubReinsch( A, s, V, compact );
     }
 }
 
@@ -59,14 +60,15 @@ ChanUpper
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
-  double heightRatio=1.5 )
+  double heightRatio=1.5,
+  bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::ChanUpper"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& V = VProx.Get();
-    ChanUpper( A, s, V, heightRatio );
+    ChanUpper( A, s, V, heightRatio, compact );
 }
 
 template<typename F>
@@ -74,7 +76,8 @@ inline void
 ChanUpper
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
-  double heightRatio=1.2 )
+  double heightRatio=1.2,
+  bool compact=false )
 {
     DEBUG_ONLY(
       CSE cse("svd::ChanUpper");    
@@ -85,11 +88,11 @@ ChanUpper
     if( A.Height() >= heightRatio*A.Width() )
     {
         qr::ExplicitTriang( A );
-        GolubReinsch( A, s );
+        GolubReinsch( A, s, compact );
     }
     else
     {
-        GolubReinsch( A, s );
+        GolubReinsch( A, s, compact );
     }
 }
 
@@ -98,12 +101,13 @@ inline void
 ChanUpper
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
-  double heightRatio=1.2 )
+  double heightRatio=1.2,
+  bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::ChanUpper"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    ChanUpper( A, s, heightRatio );
+    ChanUpper( A, s, heightRatio, compact );
 }
 
 //----------------------------------------------------------------------------//
@@ -117,7 +121,8 @@ Chan
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
-  double heightRatio=1.5 )
+  double heightRatio=1.5,
+  bool compact=false )
 {
     DEBUG_ONLY(
       CSE cse("svd::Chan");
@@ -135,14 +140,14 @@ Chan
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
-        svd::ChanUpper( A, s, V, heightRatio );
+        svd::ChanUpper( A, s, V, heightRatio, compact );
     }
     else
     {
         // Explicit formation of the Q from an LQ factorization is not yet
         // optimized
         Adjoint( A, V );
-        svd::ChanUpper( V, s, A, heightRatio );
+        svd::ChanUpper( V, s, A, heightRatio, compact );
     }
 
     // Rescale the singular values if necessary
@@ -156,14 +161,15 @@ Chan
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
-  double heightRatio=1.5 )
+  double heightRatio=1.5,
+  bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& V = VProx.Get();
-    Chan( A, s, V, heightRatio );
+    Chan( A, s, V, heightRatio, compact );
 }
 
 //----------------------------------------------------------------------------//
@@ -175,7 +181,8 @@ inline void
 Chan
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
-  double heightRatio=1.2 )
+  double heightRatio=1.2,
+  bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))
 
@@ -189,7 +196,7 @@ Chan
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
-        svd::ChanUpper( A, s, heightRatio );
+        svd::ChanUpper( A, s, heightRatio, compact );
     }
     else
     {
@@ -197,7 +204,7 @@ Chan
         // optimized
         DistMatrix<F> AAdj( A.Grid() );
         Adjoint( A, AAdj );
-        svd::ChanUpper( AAdj, s, heightRatio );
+        svd::ChanUpper( AAdj, s, heightRatio, compact );
     }
 
     // Rescale the singular values if necessary
@@ -210,12 +217,13 @@ inline void
 Chan
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
-  double heightRatio=1.2 )
+  double heightRatio=1.2,
+  bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    Chan( A, s, heightRatio );
+    Chan( A, s, heightRatio, compact );
 }
 
 } // namespace svd

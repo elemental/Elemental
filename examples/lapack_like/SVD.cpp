@@ -22,7 +22,9 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
+        const Int rank = Input("--rank","rank of matrix",10);
         const Int blocksize = Input("--blocksize","algorithmic blocksize",32);
+        const bool compact = Input("--compact","compact SVD?",false);
 #ifdef EL_HAVE_SCALAPACK
         const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
         const Int mb = Input("--mb","block height",32);
@@ -50,25 +52,33 @@ main( int argc, char* argv[] )
         {
             timer.Start();
             Matrix<Real> sSeq;
-            Matrix<C> ASeq; 
-            Uniform( ASeq, m, n );
-            SVD( ASeq, sSeq );
+            Matrix<C> XSeq, YSeq, ASeq; 
+            Uniform( XSeq, m, rank );
+            Uniform( YSeq, rank, n );
+            Gemm( NORMAL, NORMAL, C(1), XSeq, YSeq, ASeq );
+            SVDCtrl<Real> seqCtrl;
+            seqCtrl.approach = ( compact ? COMPACT_SVD : THIN_SVD );
+            SVD( ASeq, sSeq, seqCtrl );
             Output("Sequential SingularValues: ",timer.Stop());
         }
 
         Grid g( mpi::COMM_WORLD );
         if( commRank == 0 )
             Output("Grid is ",g.Height()," x ",g.Width());
-        DistMatrix<C> A(g);
-        Uniform( A, m, n );
+        DistMatrix<C> A(g), X(g), Y(g);
+        Uniform( X, m, rank );
+        Uniform( Y, rank, n );
+        Gemm( NORMAL, NORMAL, C(1), X, Y, A );
         if( print )
             Print( A, "A" );
 
         // Compute just the singular values 
+        SVDCtrl<Real> ctrl;
+        ctrl.approach = ( compact ? COMPACT_SVD : THIN_SVD );
         DistMatrix<Real,VR,STAR> sOnly(g);
         if( commRank == 0 )
             timer.Start();
-        SVD( A, sOnly );
+        SVD( A, sOnly, ctrl );
         if( commRank == 0 )
             Output("  SingularValues time: ",timer.Stop());
 
@@ -78,7 +88,7 @@ main( int argc, char* argv[] )
             Matrix<Real> sBlock;
             if( commRank == 0 )
                 timer.Start();
-            SVD( ABlock, sBlock );
+            SVD( ABlock, sBlock, ctrl );
             if( commRank == 0 )
                 Output("  ScaLAPACK SingularValues time: ",timer.Stop());
             if( commRank == 0 && print )
@@ -92,7 +102,7 @@ main( int argc, char* argv[] )
             DistMatrix<Real,VR,STAR> s(g);
             if( commRank == 0 )
                 timer.Start();
-            SVD( A, U, s, V );
+            SVD( A, U, s, V, ctrl );
             if( commRank == 0 )
                 Output("  SVD time: ",timer.Stop());
             if( print )
@@ -109,7 +119,7 @@ main( int argc, char* argv[] )
                 Matrix<Real> sBlock;
                 if( commRank == 0 )
                     timer.Start();
-                SVD( ABlock, UBlock, sBlock, VBlock );
+                SVD( ABlock, UBlock, sBlock, VBlock, ctrl );
                 if( commRank == 0 )
                     Output("  ScaLAPACK SVD time: ",timer.Stop());
                 if( commRank == 0 && print )
@@ -124,6 +134,8 @@ main( int argc, char* argv[] )
 
             DiagonalScale( RIGHT, NORMAL, s, U );
             Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
+            if( print )
+                Print( A, "A - U s V'" );
             const Real maxNormE = MaxNorm( A );
             const Real frobNormE = FrobeniusNorm( A );
             const Real eps = limits::Epsilon<Real>();

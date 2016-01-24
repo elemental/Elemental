@@ -13,8 +13,8 @@
 
 namespace El {
 
-// Grab the full SVD of the general matrix A, A = U diag(s) V^H
-// ============================================================
+// Grab the SVD of the general matrix A, A = U diag(s) V^H
+// =======================================================
 
 template<typename F>
 void SVD
@@ -40,6 +40,7 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
+    typedef Base<F> Real;
     if( !ctrl.overwrite )
     {
         auto ACopy( A );
@@ -64,8 +65,28 @@ void SVD
     }
     else if( ctrl.approach == COMPACT_SVD )
     {
-        // TODO: Extend THIN_SVD approach with a boolean?
-        LogicError("This option not yet supported");
+        // TODO: Avoid computing singular vectors of zero modes
+        U = A;
+        if( ctrl.seqQR )
+            svd::QRSVD( U, s, V );
+        else
+            svd::DivideAndConquerSVD( U, s, V );
+        const Int m = A.Height();
+        const Int n = A.Width();
+        const Int numSingVals = s.Height();
+        const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+        Int rank = numSingVals;
+        for( Int j=0; j<numSingVals; ++j )
+        {
+            if( s.Get(j,0) <= thresh )
+            {
+                rank = j;
+                break;
+            }
+        }
+        U.Resize( m, rank );
+        s.Resize( rank, 1 ); 
+        V.Resize( n, rank );
     }
     else // ctrl.approach == FULL_SVD
     {
@@ -117,15 +138,11 @@ void SVD
         else
             svd::Thresholded( U, s, V, ctrl.tol, ctrl.relative );
     }
-    else if( ctrl.approach == THIN_SVD )
+    else if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
     {
+        bool compact = ( ctrl.approach == COMPACT_SVD );
         Copy( A, U );
-        svd::Chan( U, s, V, ctrl.fullChanRatio );
-    }
-    else if( ctrl.approach == COMPACT_SVD )
-    {
-        // TODO
-        LogicError("This option is not yet supported");
+        svd::Chan( U, s, V, ctrl.fullChanRatio, compact );
     }
     else // ctrl.approach == FULL_SVD
     {
@@ -157,8 +174,7 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
-    if( ctrl.approach != THIN_SVD )
-        LogicError("Only the THIN_SVD option is currently supported");
+    typedef Base<F> Real;
 
     Matrix<F> AMod;
     if( ctrl.overwrite )
@@ -166,10 +182,31 @@ void SVD
     else
         AMod = A;
 
-    const Int m = AMod.Height();
-    const Int n = AMod.Width();
-    s.Resize( Min(m,n), 1 );
-    lapack::SVD( m, n, AMod.Buffer(), AMod.LDim(), s.Buffer() );
+    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    {
+        const Int m = AMod.Height();
+        const Int n = AMod.Width();
+        s.Resize( Min(m,n), 1 );
+        lapack::SVD( m, n, AMod.Buffer(), AMod.LDim(), s.Buffer() );
+
+        if( ctrl.approach == COMPACT_SVD )
+        {
+            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            Int rank = Min(m,n); 
+            for( Int j=0; j<Min(m,n); ++j )
+            {
+                if( s.Get(j,0) <= thresh )
+                {
+                    rank = j;
+                    break;
+                }
+            }
+            s.Resize( rank, 1 );
+        }
+    }
+    else
+        LogicError
+        ("Only Thin and Compact singular value options currently supported");
 }
 
 template<typename F>
@@ -179,11 +216,16 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
-    if( ctrl.approach != THIN_SVD )
-        LogicError("Only the THIN_SVD option is currently supported");
 
-    DistMatrix<F> ACopy( A );
-    svd::Chan( ACopy, s, ctrl.valChanRatio );
+    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    {
+        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        DistMatrix<F> ACopy( A );
+        svd::Chan( ACopy, s, ctrl.valChanRatio, compact );
+    }
+    else
+        LogicError
+        ("Only Thin and Compact singular value options currently supported");
 }
 
 template<typename F>
@@ -193,10 +235,23 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
-    if( ctrl.approach != THIN_SVD )
-        LogicError("Only the THIN_SVD option is currently supported");
+    if( !ctrl.overwrite )
+    {
+        auto ctrlMod( ctrl );
+        ctrlMod.overwrite = true;
+        DistMatrix<F> ACopy( A ); 
+        SVD( ACopy, s, ctrlMod );
+        return;
+    }
 
-    svd::Chan( A, s, ctrl.valChanRatio );
+    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    {
+        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        svd::Chan( A, s, ctrl.valChanRatio, compact );
+    }
+    else
+        LogicError
+        ("Only Thin and Compact singular value options currently supported");
 }
 
 template<typename F>
@@ -219,6 +274,7 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
+    typedef Base<F> Real;
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     DistMatrix<F,MC,MR,BLOCK> AMod( A.Grid() );
@@ -226,22 +282,42 @@ void SVD
         View( AMod, A );
     else
         AMod = A;
-
     const int m = AMod.Height();
     const int n = AMod.Width();
     const int k = Min(m,n);
 
-    const int bHandle = blacs::Handle( AMod );
-    const int context = blacs::GridInit( bHandle, AMod );
-    auto descAMod = FillDesc( AMod, context );
+    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    {
+        const int bHandle = blacs::Handle( AMod );
+        const int context = blacs::GridInit( bHandle, AMod );
+        auto descAMod = FillDesc( AMod, context );
 
-    s.Resize( k, 1 );
-    scalapack::SingularValues
-    ( m, n, AMod.Buffer(), descAMod.data(), s.Buffer() ); 
+        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        s.Resize( k, 1 );
+        scalapack::SingularValues
+        ( m, n, AMod.Buffer(), descAMod.data(), s.Buffer() ); 
+        if( compact )
+        {
+            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            Int rank = k;
+            for( Int j=0; j<k; ++j )
+            {
+                if( s.Get(j,0) <= thresh )
+                {
+                    rank = j;
+                    break;
+                }
+            }
+            s.Resize( rank, 1 );
+        }
 
-    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
+        // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+        blacs::FreeGrid( context );
+        blacs::FreeHandle( bHandle );
+    }
+    else
+        LogicError
+        ("Only Thin and Compact singular value options currently supported");
 #endif
 }
 
@@ -269,6 +345,7 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD"))
+    typedef Base<F> Real;
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     DistMatrix<F,MC,MR,BLOCK> AMod( A.Grid() );
@@ -280,29 +357,54 @@ void SVD
     const int m = AMod.Height();
     const int n = AMod.Width();
     const int k = Min(m,n);
-    Zeros( U, m, k );
-    DistMatrix<F,MC,MR,BLOCK> VH( AMod.Grid() );
-    Zeros( VH, k, n );
 
-    const int bHandle = blacs::Handle( AMod );
-    const int context = blacs::GridInit( bHandle, AMod );
-    auto descAMod = FillDesc( AMod, context );
-    auto descU = FillDesc( U, context );
-    auto descVH = FillDesc( VH, context );
+    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    {
+        Zeros( U, m, k );
+        DistMatrix<F,MC,MR,BLOCK> VH( AMod.Grid() );
+        Zeros( VH, k, n );
 
-    s.Resize( k, 1 );
-    scalapack::SVD
-    ( m, n,
-      AMod.Buffer(), descAMod.data(),
-      s.Buffer(),
-      U.Buffer(), descU.data(),
-      VH.Buffer(), descVH.data() ); 
+        const int bHandle = blacs::Handle( AMod );
+        const int context = blacs::GridInit( bHandle, AMod );
+        auto descAMod = FillDesc( AMod, context );
+        auto descU = FillDesc( U, context );
+        auto descVH = FillDesc( VH, context );
 
-    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
+        s.Resize( k, 1 );
+        scalapack::SVD
+        ( m, n,
+          AMod.Buffer(), descAMod.data(),
+          s.Buffer(),
+          U.Buffer(), descU.data(),
+          VH.Buffer(), descVH.data() ); 
 
-    Adjoint( VH, V );
+        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        if( compact )
+        {
+            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            Int rank = k;
+            for( Int j=0; j<k; ++j )
+            {
+                if( s.Get(j,0) <= thresh )
+                {
+                    rank = j;
+                    break;
+                }
+            }
+            s.Resize( rank, 1 );
+            U.Resize( m, rank );
+            VH.Resize( rank, n );
+        }
+
+        // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+        blacs::FreeGrid( context );
+        blacs::FreeHandle( bHandle );
+
+        Adjoint( VH, V );
+    }
+    else
+        LogicError
+        ("Only Thin and Compact singular value options currently supported");
 #endif
 }
 
