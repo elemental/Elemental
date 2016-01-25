@@ -18,6 +18,7 @@ template<typename F>
 inline void
 ChanUpper
 ( DistMatrix<F>& A,
+  DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   double heightRatio=1.5,
@@ -25,7 +26,7 @@ ChanUpper
 {
     DEBUG_ONLY(
       CSE cse("svd::ChanUpper");
-      AssertSameGrids( A, s, V );
+      AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( heightRatio <= 1.0 )
@@ -38,19 +39,17 @@ ChanUpper
     {
         DistMatrix<F> R(g);
         qr::Explicit( A, R );
-        svd::GolubReinsch( R, s, V, compact );
-        // Unfortunately, extra memory is used in forming A := A R,
-        // where A has been overwritten with the Q from the QR factorization
-        // of the original state of A, and R has been overwritten with the U 
-        // from the SVD of the R from the QR factorization of A
-        //
-        // Perhaps this should be broken into pieces.
-        auto ACopy( A );
-        Gemm( NORMAL, NORMAL, F(1), ACopy, R, A );
+        // (A,R) now holds a QR factorization of the original A
+
+        svd::GolubReinsch( R, U, s, V, compact );
+        R = U;
+        // (R,s,V) holds an SVD of the R from the QR fact. of the original A
+
+        Gemm( NORMAL, NORMAL, F(1), A, R, U );
     }
     else
     {
-        svd::GolubReinsch( A, s, V, compact );
+        svd::GolubReinsch( A, U, s, V, compact );
     }
 }
 
@@ -58,6 +57,7 @@ template<typename F>
 inline void
 ChanUpper
 ( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   double heightRatio=1.5,
@@ -65,10 +65,12 @@ ChanUpper
 {
     DEBUG_ONLY(CSE cse("svd::ChanUpper"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    ChanUpper( A, s, V, heightRatio, compact );
+    ChanUpper( A, U, s, V, heightRatio, compact );
 }
 
 template<typename F>
@@ -119,6 +121,7 @@ template<typename F>
 inline void
 Chan
 ( DistMatrix<F>& A,
+  DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   double heightRatio=1.5,
@@ -126,7 +129,7 @@ Chan
 {
     DEBUG_ONLY(
       CSE cse("svd::Chan");
-      AssertSameGrids( A, s, V );
+      AssertSameGrids( A, U, s, V );
       if( heightRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
@@ -140,14 +143,14 @@ Chan
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
-        svd::ChanUpper( A, s, V, heightRatio, compact );
+        svd::ChanUpper( A, U, s, V, heightRatio, compact );
     }
     else
     {
-        // Explicit formation of the Q from an LQ factorization is not yet
-        // optimized
-        Adjoint( A, V );
-        svd::ChanUpper( V, s, A, heightRatio, compact );
+        // TODO: Avoid the explicit copy by explicitly forming the Q from LQ
+        DistMatrix<F> AAdj(A.Grid());
+        Adjoint( A, AAdj );
+        svd::ChanUpper( AAdj, V, s, U, heightRatio, compact );
     }
 
     // Rescale the singular values if necessary
@@ -159,6 +162,7 @@ template<typename F>
 inline void
 Chan
 ( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   double heightRatio=1.5,
@@ -166,10 +170,12 @@ Chan
 {
     DEBUG_ONLY(CSE cse("svd::Chan"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    Chan( A, s, V, heightRatio, compact );
+    Chan( A, U, s, V, heightRatio, compact );
 }
 
 //----------------------------------------------------------------------------//

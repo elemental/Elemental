@@ -18,6 +18,7 @@ template<typename F>
 inline void
 GolubReinsch
 ( DistMatrix<F>& A,
+  DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   bool compact=false )
@@ -49,6 +50,7 @@ GolubReinsch
     DistMatrix<F,VC,STAR> U_VC_STAR( g );
     U_VC_STAR.AlignWith( A );
     Identity( U_VC_STAR, m, k );
+
     DistMatrix<F,STAR,VC> VAdj_STAR_VC( g );
     VAdj_STAR_VC.AlignWith( V );
     Identity( VAdj_STAR_VC, k, n );
@@ -82,23 +84,22 @@ GolubReinsch
         d_STAR_STAR.Resize( rank, 1 );
         VAdj_STAR_VC.Resize( rank, n );
     }
+    // Copy out the appropriate subset of the singular values
+    Copy( d_STAR_STAR, s );
 
-    // Make a copy of A (for the Householder vectors) and pull the necessary 
-    // portions of U and VAdj into a standard matrix dist.
-    auto B( A );
     if( m >= n )
     {
-        A.Resize( m, rank );
-        auto AT = A( IR(0,n  ), ALL );
-        auto AB = A( IR(n,END), ALL );
+        U.Resize( m, rank );
+        auto UT = U( IR(0,n  ), ALL );
+        auto UB = U( IR(n,END), ALL );
         auto UT_VC_STAR = U_VC_STAR( IR(0,n), ALL );
-        AT = UT_VC_STAR;
-        Zero( AB );
+        UT = UT_VC_STAR;
+        Zero( UB );
         Adjoint( VAdj_STAR_VC, V );
     }
     else
     {
-        A = U_VC_STAR;
+        U = U_VC_STAR;
         auto VAdjL_STAR_VC = VAdj_STAR_VC( IR(0,rank), IR(0,m) );
         auto VT = V( IR(0,m  ), ALL );
         auto VB = V( IR(m,END), ALL );
@@ -107,27 +108,27 @@ GolubReinsch
     }
 
     // Backtransform U and V
-    bidiag::ApplyQ( LEFT, NORMAL, B, tQ, A );
-    bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
-
-    // Copy out the appropriate subset of the singular values
-    Copy( d_STAR_STAR, s );
+    bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
+    bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
 }
 
 template<typename F>
 inline void
 GolubReinsch
 ( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    GolubReinsch( A, s, V, compact );
+    GolubReinsch( A, U, s, V, compact );
 }
 
 #ifdef EL_HAVE_FLA_BSVD
@@ -135,6 +136,7 @@ template<typename F>
 inline void
 GolubReinschFlame
 ( DistMatrix<F>& A,
+  DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   bool compact=false )
@@ -204,23 +206,22 @@ GolubReinschFlame
         d_STAR_STAR.Resize( rank, 1 );
         VAdj_STAR_VC.Resize( rank, n );
     }
+    // Copy out the appropriate subset of the singular values
+    Copy( d_STAR_STAR, s );
 
-    // Make a copy of A (for the Householder vectors) and pull the necessary 
-    // portions of U and V into a standard matrix dist.
-    auto B( A );
     if( m >= n )
     {
-        A.Resize( m, rank );
+        u.Resize( m, rank );
         auto UT_VC_STAR = U_VC_STAR( IR(0,n), IR(0,rank) );
-        auto AT = A( IR(0,n), ALL );
-        auto AB = A( IR(n,END), ALL );
-        AT = UT_VC_STAR;
-        Zero( AB );
+        auto UT = U( IR(0,n), ALL );
+        auto UB = U( IR(n,END), ALL );
+        UT = UT_VC_STAR;
+        Zero( UB );
         V = V_VC_STAR;
     }
     else
     {
-        A = U_VC_STAR;
+        u = U_VC_STAR;
         auto VT_VC_STAR = V_VC_STAR( IR(0,m), IR(0,rank) );
         auto VT = V( IR(0,m  ), ALL );
         auto VB = V( IR(m,END), ALL ); 
@@ -229,51 +230,53 @@ GolubReinschFlame
     }
 
     // Backtransform U and V
-    bidiag::ApplyQ( LEFT, NORMAL, B, tQ, A );
-    bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
-
-    // Copy out the appropriate subset of the singular values
-    Copy( d_STAR_STAR, s );
+    bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
+    bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
 }
 
 template<typename F>
 inline void
 GolubReinschFlame
 ( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    GolubReinschFlame( A, s, V, compact );
+    GolubReinschFlame( A, U, s, V, compact );
 }
 
 template<>
 inline void
 GolubReinsch
 ( ElementalMatrix<double>& A,
+  ElementalMatrix<double>& U,
   ElementalMatrix<double>& s, 
   ElementalMatrix<double>& V,
   bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-    GolubReinschFlame( A, s, V, compact );
+    GolubReinschFlame( A, U, s, V, compact );
 }
 
 template<>
 inline void
 GolubReinsch
 ( ElementalMatrix<Complex<double>>& A,
+  ElementalMatrix<Complex<double>>& U,
   ElementalMatrix<double>& s, 
   ElementalMatrix<Complex<double>>& V,
   bool compact=false )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-    GolubReinschFlame( A, s, V, compact );
+    GolubReinschFlame( A, U, s, V, compact );
 }
 #endif // EL_HAVE_FLA_BSVD
 

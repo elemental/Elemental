@@ -166,8 +166,7 @@ void SVD
     else if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
     {
         bool compact = ( ctrl.approach == COMPACT_SVD );
-        Copy( A, U );
-        svd::Chan( U, s, V, ctrl.fullChanRatio, compact );
+        svd::Chan( A, U, s, V, ctrl.fullChanRatio, compact );
     }
     else // ctrl.approach == FULL_SVD
     {
