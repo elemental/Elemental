@@ -1392,27 +1392,40 @@ void DivideAndConquerSVD
   float* A, BlasInt ldA, 
   float* s,
   float* U, BlasInt ldu,
-  float* VTrans, BlasInt ldvt )
+  float* VTrans, BlasInt ldvt,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobz='S';
+    const char jobz = ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     float workDummy;
     const BlasInt k = Min(m,n);
     vector<BlasInt> iWork(8*k);
 
     EL_LAPACK(sgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, &workDummy, &workSize,
-      iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt,
+      &workDummy, &workSize,
+      iWork.data(),
+      &info );
 
     workSize = workDummy;
     vector<float> work(workSize);
     EL_LAPACK(sgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, work.data(), &workSize,
-      iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt,
+      work.data(), &workSize,
+      iWork.data(),
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1424,27 +1437,40 @@ void DivideAndConquerSVD
   double* A, BlasInt ldA, 
   double* s,
   double* U, BlasInt ldu,
-  double* VTrans, BlasInt ldvt )
+  double* VTrans, BlasInt ldvt,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobz='S';
+    const char jobz = ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     double workDummy;
     const BlasInt k = Min(m,n);
     vector<BlasInt> iWork(8*k);
 
     EL_LAPACK(dgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, &workDummy, &workSize,
-      iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt,
+      &workDummy, &workSize,
+      iWork.data(),
+      &info );
 
     workSize = workDummy;
     vector<double> work(workSize);
     EL_LAPACK(dgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, work.data(), &workSize,
-      iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt,
+      work.data(), &workSize,
+      iWork.data(),
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1456,13 +1482,14 @@ void DivideAndConquerSVD
   scomplex* A, BlasInt ldA, 
   float* s,
   scomplex* U, BlasInt ldu,
-  scomplex* VH, BlasInt ldva )
+  scomplex* VH, BlasInt ldva,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobz='S';
+    const char jobz = ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     const BlasInt k = Min(m,n);
     const BlasInt K = Max(m,n);
@@ -1472,14 +1499,28 @@ void DivideAndConquerSVD
 
     scomplex workDummy;
     EL_LAPACK(cgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, &workDummy, &workSize,
-      rWork.data(), iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva,
+      &workDummy, &workSize,
+      rWork.data(),
+      iWork.data(),
+      &info );
 
     workSize = workDummy.real();
     vector<scomplex> work(workSize);
     EL_LAPACK(cgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, work.data(), &workSize,
-      rWork.data(), iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva,
+      work.data(), &workSize,
+      rWork.data(),
+      iWork.data(),
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1491,13 +1532,14 @@ void DivideAndConquerSVD
   dcomplex* A, BlasInt ldA, 
   double* s,
   dcomplex* U, BlasInt ldu,
-  dcomplex* VH, BlasInt ldva )
+  dcomplex* VH, BlasInt ldva,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobz='S';
+    const char jobz = ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     dcomplex workDummy;
     const BlasInt k = Min(m,n);
@@ -1507,14 +1549,28 @@ void DivideAndConquerSVD
     vector<BlasInt> iWork(8*k);
 
     EL_LAPACK(zgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, &workDummy, &workSize,
-      rWork.data(), iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva,
+      &workDummy, &workSize,
+      rWork.data(),
+      iWork.data(),
+      &info );
 
     workSize = workDummy.real();
     vector<dcomplex> work(workSize);
     EL_LAPACK(zgesdd)
-    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, work.data(), &workSize,
-      rWork.data(), iWork.data(), &info );
+    ( &jobz, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva,
+      work.data(), &workSize,
+      rWork.data(),
+      iWork.data(),
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1529,25 +1585,37 @@ void QRSVD
   float* A, BlasInt ldA, 
   float* s,
   float* U, BlasInt ldu,
-  float* VTrans, BlasInt ldvt )
+  float* VTrans, BlasInt ldvt,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU='S', jobVT='S';
+    const char jobU= ( thin ? 'S' : 'A' ),
+               jobVT= ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     float workDummy;
 
     EL_LAPACK(sgesvd)
-    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
-      &workDummy, &workSize, &info );
+    ( &jobU, &jobVT, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt, 
+      &workDummy, &workSize,
+      &info );
 
     workSize = workDummy;
     vector<float> work(workSize);
     EL_LAPACK(sgesvd)
-    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
-      work.data(), &workSize, &info );
+    ( &jobU, &jobVT, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt, 
+      work.data(), &workSize,
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1559,25 +1627,37 @@ void QRSVD
   double* A, BlasInt ldA, 
   double* s,
   double* U, BlasInt ldu,
-  double* VTrans, BlasInt ldvt )
+  double* VTrans, BlasInt ldvt,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU='S', jobVT='S';
+    const char jobU= ( thin ? 'S' : 'A' ),
+               jobVT= ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     double workDummy;
 
     EL_LAPACK(dgesvd)
-    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
-      &workDummy, &workSize, &info );
+    ( &jobU, &jobVT, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt, 
+      &workDummy, &workSize,
+      &info );
 
     workSize = workDummy;
     vector<double> work(workSize);
     EL_LAPACK(dgesvd)
-    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
-      work.data(), &workSize, &info );
+    ( &jobU, &jobVT, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VTrans, &ldvt, 
+      work.data(), &workSize,
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1589,27 +1669,41 @@ void QRSVD
   scomplex* A, BlasInt ldA, 
   float* s,
   scomplex* U, BlasInt ldu,
-  scomplex* VH, BlasInt ldva )
+  scomplex* VH, BlasInt ldva,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU='S', jobVH='S';
+    const char jobU= ( thin ? 'S' : 'A' ),
+               jobVH= ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     const BlasInt k = Min(m,n);
     vector<float> rWork(5*k);
 
     scomplex workDummy;
     EL_LAPACK(cgesvd)
-    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
-      &workDummy, &workSize, rWork.data(), &info );
+    ( &jobU, &jobVH, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva, 
+      &workDummy, &workSize,
+      rWork.data(),
+      &info );
 
     workSize = workDummy.real();
     vector<scomplex> work(workSize);
     EL_LAPACK(cgesvd)
-    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
-      work.data(), &workSize, rWork.data(), &info );
+    ( &jobU, &jobVH, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva, 
+      work.data(), &workSize,
+      rWork.data(),
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1621,27 +1715,41 @@ void QRSVD
   dcomplex* A, BlasInt ldA, 
   double* s,
   dcomplex* U, BlasInt ldu,
-  dcomplex* VH, BlasInt ldva )
+  dcomplex* VH, BlasInt ldva,
+  bool thin )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU='S', jobVH='S';
+    const char jobU= ( thin ? 'S' : 'A' ),
+               jobVH= ( thin ? 'S' : 'A' );
     BlasInt workSize=-1, info;
     dcomplex workDummy;
     const BlasInt k = Min(m,n);
     vector<double> rWork(5*k);
 
     EL_LAPACK(zgesvd)
-    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
-      &workDummy, &workSize, rWork.data(), &info );
+    ( &jobU, &jobVH, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva, 
+      &workDummy, &workSize,
+      rWork.data(),
+      &info );
 
     workSize = workDummy.real();
     vector<dcomplex> work(workSize);
     EL_LAPACK(zgesvd)
-    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
-      work.data(), &workSize, rWork.data(), &info );
+    ( &jobU, &jobVH, &m, &n,
+      A, &ldA,
+      s,
+      U, &ldu,
+      VH, &ldva, 
+      work.data(), &workSize,
+      rWork.data(),
+      &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )

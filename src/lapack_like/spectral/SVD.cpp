@@ -55,42 +55,67 @@ void SVD
         U = A;
         svd::Thresholded( U, s, V, ctrl.tol, ctrl.relative );
     }
-    else if( ctrl.approach == THIN_SVD )
+    else if( ctrl.approach == THIN_SVD ||
+             ctrl.approach == FULL_SVD ||
+             ctrl.approach == COMPACT_SVD )
     {
-        U = A;
-        if( ctrl.seqQR )
-            svd::QRSVD( U, s, V );
-        else
-            svd::DivideAndConquerSVD( U, s, V );
-    }
-    else if( ctrl.approach == COMPACT_SVD )
-    {
-        // TODO: Avoid computing singular vectors of zero modes
-        U = A;
-        if( ctrl.seqQR )
-            svd::QRSVD( U, s, V );
-        else
-            svd::DivideAndConquerSVD( U, s, V );
         const Int m = A.Height();
         const Int n = A.Width();
-        const Int numSingVals = s.Height();
-        const Real thresh = Max(m,n)*limits::Epsilon<Real>();
-        Int rank = numSingVals;
-        for( Int j=0; j<numSingVals; ++j )
+        const Int k = Min(m,n);
+        const bool thin = ( ctrl.approach == THIN_SVD );
+        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        s.Resize( k, 1 );
+        Matrix<F> VAdj;
+        if( thin || compact )
         {
-            if( s.Get(j,0) <= thresh )
-            {
-                rank = j;
-                break;
-            }
+            U.Resize( m, k );
+            VAdj.Resize( k, n );
         }
-        U.Resize( m, rank );
-        s.Resize( rank, 1 ); 
-        V.Resize( n, rank );
-    }
-    else // ctrl.approach == FULL_SVD
-    {
-        LogicError("This option not yet supported");
+        else
+        {
+            U.Resize( m, m );
+            VAdj.Resize( n, n );
+        }
+
+        if( ctrl.seqQR )
+        {
+            lapack::QRSVD
+            ( m, n,
+              A.Buffer(), A.LDim(),
+              s.Buffer(),
+              U.Buffer(), U.LDim(),
+              VAdj.Buffer(), VAdj.LDim(),
+              (thin||compact) );
+        }
+        else
+        {
+            lapack::DivideAndConquerSVD
+            ( m, n,
+              A.Buffer(), A.LDim(),
+              s.Buffer(),
+              U.Buffer(), U.LDim(),
+              VAdj.Buffer(), VAdj.LDim(),
+              (thin||compact) );
+        }
+
+        if( compact )
+        {
+            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            Int rank = k;
+            for( Int j=0; j<k; ++j )
+            {
+                if( s.Get(j,0) <= thresh )
+                {
+                    rank = j;
+                    break;
+                }
+            }
+            U.Resize( m, rank );
+            s.Resize( rank, 1 );
+            VAdj.Resize( rank, n );
+        }
+
+        Adjoint( VAdj, V );
     }
 }
 
@@ -182,7 +207,9 @@ void SVD
     else
         AMod = A;
 
-    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    if( ctrl.approach == THIN_SVD ||
+        ctrl.approach == COMPACT_SVD ||
+        ctrl.approach == FULL_SVD )
     {
         const Int m = AMod.Height();
         const Int n = AMod.Width();
@@ -204,9 +231,6 @@ void SVD
             s.Resize( rank, 1 );
         }
     }
-    else
-        LogicError
-        ("Only Thin and Compact singular value options currently supported");
 }
 
 template<typename F>
@@ -217,15 +241,14 @@ void SVD
 {
     DEBUG_ONLY(CSE cse("SVD"))
 
-    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    if( ctrl.approach == THIN_SVD ||
+        ctrl.approach == COMPACT_SVD ||
+        ctrl.approach == FULL_SVD )
     {
         const bool compact = ( ctrl.approach == COMPACT_SVD );
         DistMatrix<F> ACopy( A );
         svd::Chan( ACopy, s, ctrl.valChanRatio, compact );
     }
-    else
-        LogicError
-        ("Only Thin and Compact singular value options currently supported");
 }
 
 template<typename F>
@@ -244,14 +267,13 @@ void SVD
         return;
     }
 
-    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    if( ctrl.approach == THIN_SVD ||
+        ctrl.approach == COMPACT_SVD ||
+        ctrl.approach == FULL_SVD )
     {
         const bool compact = ( ctrl.approach == COMPACT_SVD );
         svd::Chan( A, s, ctrl.valChanRatio, compact );
     }
-    else
-        LogicError
-        ("Only Thin and Compact singular value options currently supported");
 }
 
 template<typename F>
@@ -286,7 +308,9 @@ void SVD
     const int n = AMod.Width();
     const int k = Min(m,n);
 
-    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    if( ctrl.approach == THIN_SVD ||
+        ctrl.approach == COMPACT_SVD ||
+        ctrl.approach == FULL_SVD )
     {
         const int bHandle = blacs::Handle( AMod );
         const int context = blacs::GridInit( bHandle, AMod );
@@ -315,9 +339,6 @@ void SVD
         blacs::FreeGrid( context );
         blacs::FreeHandle( bHandle );
     }
-    else
-        LogicError
-        ("Only Thin and Compact singular value options currently supported");
 #endif
 }
 
@@ -500,7 +521,22 @@ void TSQR
     if( U.ColRank() == 0 )
     {
         Matrix<F>& rootQR = qr::ts::RootQR(U,treeData);
-        svd::QRSVD( rootQR, s.Matrix(), V.Matrix() );
+        const Int mRoot = rootQR.Height();
+        const Int nRoot = rootQR.Width();
+        const Int kRoot = Min(m,n);
+
+        Matrix<F> URoot, VAdjRoot;
+        URoot.Resize( mRoot, kRoot );
+        VAdjRoot.Resize( kRoot, nRoot );
+        lapack::QRSVD
+        ( mRoot, nRoot,
+          rootQR.Buffer(), rootQR.LDim(),
+          s.Buffer(),
+          URoot.Buffer(), URoot.LDim(),
+          VAdjRoot.Buffer(), VAdjRoot.LDim() );
+
+        rootQR = URoot; 
+        Adjoint( VAdjRoot, V.Matrix() );
     }
     qr::ts::Scatter( U, treeData );
 }

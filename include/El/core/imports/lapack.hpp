@@ -325,33 +325,65 @@ void HermitianEig
 // ========================================================================
 
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, float* A, BlasInt ldA, 
-  float* s, float* U, BlasInt ldU, float* VT, BlasInt ldVT );
+( BlasInt m, BlasInt n,
+  float* A, BlasInt ldA, 
+  float* s,
+  float* U, BlasInt ldU,
+  float* VT, BlasInt ldVT,
+  bool thin=true );
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, double* A, BlasInt ldA, 
-  double* s, double* U, BlasInt ldU, double* VT, BlasInt ldVT );
+( BlasInt m, BlasInt n,
+  double* A, BlasInt ldA, 
+  double* s,
+  double* U, BlasInt ldU,
+  double* VT, BlasInt ldVT,
+  bool thin=true );
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, 
-  float* s, scomplex* U, BlasInt ldU, scomplex* VH, BlasInt ldVH );
+( BlasInt m, BlasInt n,
+  scomplex* A, BlasInt ldA, 
+  float* s,
+  scomplex* U, BlasInt ldU,
+  scomplex* VH, BlasInt ldVH,
+  bool thin=true );
 void DivideAndConquerSVD
-( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, 
-  double* s, dcomplex* U, BlasInt ldU, dcomplex* VH, BlasInt ldVH );
+( BlasInt m, BlasInt n,
+  dcomplex* A, BlasInt ldA, 
+  double* s,
+  dcomplex* U, BlasInt ldU,
+  dcomplex* VH, BlasInt ldVH,
+  bool thin=true );
 
 // Compute the SVD of a general matrix using the QR algorithm
 // ==========================================================
 
 void QRSVD
-( BlasInt m, BlasInt n, float* A, BlasInt ldA, 
-  float* s, float* U, BlasInt ldU, float* VT, BlasInt ldVT );
+( BlasInt m, BlasInt n,
+  float* A, BlasInt ldA, 
+  float* s,
+  float* U, BlasInt ldU,
+  float* VT, BlasInt ldVT,
+  bool thin=true );
 void QRSVD
-( BlasInt m, BlasInt n, double* A, BlasInt ldA, 
-  double* s, double* U, BlasInt ldU, double* VT, BlasInt ldVT );
+( BlasInt m, BlasInt n,
+  double* A, BlasInt ldA, 
+  double* s,
+  double* U, BlasInt ldU,
+  double* VT, BlasInt ldVT,
+  bool thin=true );
 void QRSVD
-( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, 
-  float* s, scomplex* U, BlasInt ldU, scomplex* VH, BlasInt ldVH );
+( BlasInt m, BlasInt n,
+  scomplex* A, BlasInt ldA, 
+  float* s,
+  scomplex* U, BlasInt ldU,
+  scomplex* VH, BlasInt ldVH,
+  bool thin=true );
 void QRSVD
-( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, 
-  double* s, dcomplex* U, BlasInt ldU, dcomplex* VH, BlasInt ldVH );
+( BlasInt m, BlasInt n,
+  dcomplex* A, BlasInt ldA, 
+  double* s,
+  dcomplex* U, BlasInt ldU,
+  dcomplex* VH, BlasInt ldVH,
+  bool thin=true );
 
 // Compute the singular values of a general matrix (using the QR algorithm)
 // ========================================================================
