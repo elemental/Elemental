@@ -148,7 +148,7 @@ main( int argc, char* argv[] )
             const Real VOrthErr = HermitianMaxNorm( LOWER, E );
 
             // Compare the singular values from both methods
-            if( approach == THRESHOLDED_SVD || approach == COMPACT_SVD )
+            if( approach == PRODUCT_SVD || approach == COMPACT_SVD )
             {
                 // The length of s may vary based upon numerical cutoffs
                 const Int sLen = s.Height();

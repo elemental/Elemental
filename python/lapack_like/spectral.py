@@ -885,6 +885,8 @@ def Eig(A):
 # Singular value decomposition
 # ============================
 
+(THIN_SVD,COMPACT_SVD,FULL_SVD,PRODUCT_SVD)=(0,1,2,3)
+
 class SVDCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),
               ("overwrite",bType),

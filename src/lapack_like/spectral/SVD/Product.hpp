@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SVD_THRESHOLDED_HPP
-#define EL_SVD_THRESHOLDED_HPP
+#ifndef EL_SVD_PRODUCT_HPP
+#define EL_SVD_PRODUCT_HPP
 
 // TODO: Use a relative-truncated HermitianEig for relative thresholding
 
@@ -18,14 +18,14 @@ namespace svd {
 // =========================
 
 template<typename F>
-inline void TallAbsoluteThresholded
+inline void TallAbsoluteProduct
 ( Matrix<F>& A,
   Matrix<Base<F>>& s,
   Matrix<F>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallAbsoluteThresholded");
+      CSE cse("svd::TallAbsoluteProduct");
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
@@ -79,14 +79,14 @@ inline void TallAbsoluteThresholded
 }
 
 template<typename F>
-inline void TallRelativeThresholded
+inline void TallRelativeProduct
 ( Matrix<F>& A,
   Matrix<Base<F>>& s,
   Matrix<F>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallRelativeThresholded");
+      CSE cse("svd::TallRelativeProduct");
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
@@ -135,30 +135,30 @@ inline void TallRelativeThresholded
 }
 
 template<typename F>
-inline void TallThresholded
+inline void TallProduct
 ( Matrix<F>& A,
   Matrix<Base<F>>& s,
   Matrix<F>& V, 
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeThresholded( A, s, V, tol );
+        TallRelativeProduct( A, s, V, tol );
     else
-        TallAbsoluteThresholded( A, s, V, tol );
+        TallAbsoluteProduct( A, s, V, tol );
 }
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallAbsoluteThresholded");
+      CSE cse("svd::TallAbsoluteProduct");
       AssertSameGrids( A, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -217,30 +217,30 @@ TallAbsoluteThresholded
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   Base<F> tol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteProduct"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& V = VProx.Get();
-    TallAbsoluteThresholded( A, s, V, tol );
+    TallAbsoluteProduct( A, s, V, tol );
 }
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallRelativeThresholded");
+      CSE cse("svd::TallRelativeProduct");
       AssertSameGrids( A, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -295,45 +295,45 @@ TallRelativeThresholded
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   Base<F> relTol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallRelativeProduct"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& V = VProx.Get();
-    TallRelativeThresholded( A, s, V, relTol );
+    TallRelativeProduct( A, s, V, relTol );
 }
 
 template<typename F>
-inline void TallThresholded
+inline void TallProduct
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& V,
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeThresholded( A, s, V, tol );
+        TallRelativeProduct( A, s, V, tol );
     else
-        TallAbsoluteThresholded( A, s, V, tol );
+        TallAbsoluteProduct( A, s, V, tol );
 }
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( DistMatrix<F,VC,STAR>& A,
   DistMatrix<Base<F>,STAR,STAR>& s, 
   DistMatrix<F,STAR,STAR>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallAbsoluteThresholded");
+      CSE cse("svd::TallAbsoluteProduct");
       AssertSameGrids( A, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -395,30 +395,30 @@ TallAbsoluteThresholded
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( DistMatrix<F,VC,STAR>& A,
   ElementalMatrix<Base<F>>& sPre, 
   ElementalMatrix<F>& VPre,
   Base<F> tol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteProduct"))
     DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
     DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
     auto& s = sProx.Get();
     auto& V = VProx.Get();
-    TallAbsoluteThresholded( A, s, V, tol );
+    TallAbsoluteProduct( A, s, V, tol );
 }
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( DistMatrix<F,VC,STAR>& A,
   DistMatrix<Base<F>,STAR,STAR>& s, 
   DistMatrix<F,STAR,STAR>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallRelativeThresholded");
+      CSE cse("svd::TallRelativeProduct");
       AssertSameGrids( A, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -476,45 +476,45 @@ TallRelativeThresholded
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( DistMatrix<F,VC,STAR>& A,
   ElementalMatrix<Base<F>>& sPre, 
   ElementalMatrix<F>& VPre,
   Base<F> relTol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallRelativeProduct"))
     DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
     DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
     auto& s = sProx.Get();
     auto& V = VProx.Get();
-    TallRelativeThresholded( A, s, V, relTol );
+    TallRelativeProduct( A, s, V, relTol );
 }
 
 template<typename F>
-void TallThresholded
+void TallProduct
 ( DistMatrix<F,VC,STAR>& A,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& V,
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeThresholded( A, s, V, tol );
+        TallRelativeProduct( A, s, V, tol );
     else
-        TallAbsoluteThresholded( A, s, V, tol );
+        TallAbsoluteProduct( A, s, V, tol );
 }
 
 template<typename F>
 inline void
-WideAbsoluteThresholded
+WideAbsoluteProduct
 ( Matrix<F>& A,
   Matrix<Base<F>>& s,
   Matrix<F>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideAbsoluteThresholded");
+      CSE cse("svd::WideAbsoluteProduct");
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -570,14 +570,14 @@ WideAbsoluteThresholded
 
 template<typename F>
 inline void
-WideRelativeThresholded
+WideRelativeProduct
 ( Matrix<F>& A,
   Matrix<Base<F>>& s,
   Matrix<F>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideThresholded");
+      CSE cse("svd::WideProduct");
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( relTol < 0 )
@@ -627,30 +627,30 @@ WideRelativeThresholded
 }
 
 template<typename F>
-inline void WideThresholded
+inline void WideProduct
 ( Matrix<F>& A,
   Matrix<Base<F>>& s,
   Matrix<F>& V, 
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideProduct"))
     if( relative )
-        WideRelativeThresholded( A, s, V, tol );
+        WideRelativeProduct( A, s, V, tol );
     else
-        WideAbsoluteThresholded( A, s, V, tol );
+        WideAbsoluteProduct( A, s, V, tol );
 }
 
 template<typename F>
 inline void
-WideAbsoluteThresholded
+WideAbsoluteProduct
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideAbsoluteThresholded");
+      CSE cse("svd::WideAbsoluteProduct");
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -710,30 +710,30 @@ WideAbsoluteThresholded
 
 template<typename F>
 inline void
-WideAbsoluteThresholded
+WideAbsoluteProduct
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   Base<F> tol )
 {
-    DEBUG_ONLY(CSE cse("svd::WideAbsoluteThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideAbsoluteProduct"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& V = VProx.Get();
-    WideAbsoluteThresholded( A, s, V, tol );
+    WideAbsoluteProduct( A, s, V, tol );
 }
 
 template<typename F>
 inline void
-WideRelativeThresholded
+WideRelativeProduct
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideRelativeThresholded");
+      CSE cse("svd::WideRelativeProduct");
       AssertSameGrids( A, s, V );
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
@@ -789,79 +789,79 @@ WideRelativeThresholded
 
 template<typename F>
 inline void
-WideRelativeThresholded
+WideRelativeProduct
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   Base<F> relTol )
 {
-    DEBUG_ONLY(CSE cse("svd::WideRelativeThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideRelativeProduct"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& V = VProx.Get();
-    WideRelativeThresholded( A, s, V, relTol );
+    WideRelativeProduct( A, s, V, relTol );
 }
 
 template<typename F>
-inline void WideThresholded
+inline void WideProduct
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& V,
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideProduct"))
     if( relative )
-        WideRelativeThresholded( A, s, V, tol );
+        WideRelativeProduct( A, s, V, tol );
     else
-        WideAbsoluteThresholded( A, s, V, tol );
+        WideAbsoluteProduct( A, s, V, tol );
 }
 
-// NOTE: [* ,VR] WideThresholded would produce U with different distribution
+// NOTE: [* ,VR] WideProduct would produce U with different distribution
 //       than A. It makes more sense to overwrite A with V'.
 
 template<typename F>
-void Thresholded
+void Product
 ( Matrix<F>& A,
   Matrix<Base<F>>& s,
   Matrix<F>& V, 
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::Thresholded"))
+    DEBUG_ONLY(CSE cse("svd::Product"))
     if( A.Height() >= A.Width() )
-        TallThresholded( A, s, V, tol, relative );
+        TallProduct( A, s, V, tol, relative );
     else
-        WideThresholded( A, s, V, tol, relative );
+        WideProduct( A, s, V, tol, relative );
 }
 
 template<typename F>
-void Thresholded
+void Product
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& V,
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::Thresholded"))
+    DEBUG_ONLY(CSE cse("svd::Product"))
     if( A.Height() >= A.Width() )
-        TallThresholded( A, s, V, tol, relative );
+        TallProduct( A, s, V, tol, relative );
     else
-        WideThresholded( A, s, V, tol, relative );
+        WideProduct( A, s, V, tol, relative );
 }
 
 // Compute singular values
 // =======================
 
 template<typename F>
-inline void TallAbsoluteThresholded
+inline void TallAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallAbsoluteThresholded");
+      CSE cse("svd::TallAbsoluteProduct");
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
@@ -903,13 +903,13 @@ inline void TallAbsoluteThresholded
 }
 
 template<typename F>
-inline void TallRelativeThresholded
+inline void TallRelativeProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallRelativeThresholded");
+      CSE cse("svd::TallRelativeProduct");
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
@@ -941,28 +941,28 @@ inline void TallRelativeThresholded
 }
 
 template<typename F>
-inline void TallThresholded
+inline void TallProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeThresholded( A, s, tol );
+        TallRelativeProduct( A, s, tol );
     else
-        TallAbsoluteThresholded( A, s, tol );
+        TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallAbsoluteThresholded");
+      CSE cse("svd::TallAbsoluteProduct");
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1009,26 +1009,26 @@ TallAbsoluteThresholded
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteProduct"))
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    TallAbsoluteThresholded( A, s, tol );
+    TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallRelativeThresholded");
+      CSE cse("svd::TallRelativeProduct");
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1065,40 +1065,40 @@ TallRelativeThresholded
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallRelativeProduct"))
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    TallRelativeThresholded( A, s, relTol );
+    TallRelativeProduct( A, s, relTol );
 }
 
 template<typename F>
-inline void TallThresholded
+inline void TallProduct
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeThresholded( A, s, tol );
+        TallRelativeProduct( A, s, tol );
     else
-        TallAbsoluteThresholded( A, s, tol );
+        TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& s, 
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallAbsoluteThresholded");
+      CSE cse("svd::TallAbsoluteProduct");
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1146,27 +1146,27 @@ TallAbsoluteThresholded
 
 template<typename F>
 inline void
-TallAbsoluteThresholded
+TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         ElementalMatrix<Base<F>>& sPre, 
   Base<F> tol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteProduct"))
     typedef Base<F> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
-    TallAbsoluteThresholded( A, s, tol );
+    TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& s, 
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::TallRelativeThresholded");
+      CSE cse("svd::TallRelativeProduct");
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1205,41 +1205,41 @@ TallRelativeThresholded
 
 template<typename F>
 inline void
-TallRelativeThresholded
+TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         ElementalMatrix<Base<F>>& sPre, 
   Base<F> relTol )
 {
-    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallRelativeProduct"))
     typedef Base<F> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
-    TallRelativeThresholded( A, s, relTol );
+    TallRelativeProduct( A, s, relTol );
 }
 
 template<typename F>
-void TallThresholded
+void TallProduct
 ( const DistMatrix<F,VC,STAR>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeThresholded( A, s, tol );
+        TallRelativeProduct( A, s, tol );
     else
-        TallAbsoluteThresholded( A, s, tol );
+        TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
 inline void
-WideAbsoluteThresholded
+WideAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideAbsoluteThresholded");
+      CSE cse("svd::WideAbsoluteProduct");
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -1282,13 +1282,13 @@ WideAbsoluteThresholded
 
 template<typename F>
 inline void
-WideRelativeThresholded
+WideRelativeProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideThresholded");
+      CSE cse("svd::WideProduct");
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( relTol < 0 )
@@ -1320,28 +1320,28 @@ WideRelativeThresholded
 }
 
 template<typename F>
-inline void WideThresholded
+inline void WideProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideProduct"))
     if( relative )
-        WideRelativeThresholded( A, s, tol );
+        WideRelativeProduct( A, s, tol );
     else
-        WideAbsoluteThresholded( A, s, tol );
+        WideAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
 inline void
-WideAbsoluteThresholded
+WideAbsoluteProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideAbsoluteThresholded");
+      CSE cse("svd::WideAbsoluteProduct");
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -1388,26 +1388,26 @@ WideAbsoluteThresholded
 
 template<typename F>
 inline void
-WideAbsoluteThresholded
+WideAbsoluteProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
 {
-    DEBUG_ONLY(CSE cse("svd::WideAbsoluteThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideAbsoluteProduct"))
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    WideAbsoluteThresholded( A, s, tol );
+    WideAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
 inline void
-WideRelativeThresholded
+WideRelativeProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
     DEBUG_ONLY(
-      CSE cse("svd::WideRelativeThresholded");
+      CSE cse("svd::WideRelativeProduct");
       AssertSameGrids( A, s );
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
@@ -1444,60 +1444,60 @@ WideRelativeThresholded
 
 template<typename F>
 inline void
-WideRelativeThresholded
+WideRelativeProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
-    DEBUG_ONLY(CSE cse("svd::WideRelativeThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideRelativeProduct"))
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    WideRelativeThresholded( A, s, relTol );
+    WideRelativeProduct( A, s, relTol );
 }
 
 template<typename F>
-inline void WideThresholded
+inline void WideProduct
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
+    DEBUG_ONLY(CSE cse("svd::WideProduct"))
     if( relative )
-        WideRelativeThresholded( A, s, tol );
+        WideRelativeProduct( A, s, tol );
     else
-        WideAbsoluteThresholded( A, s, tol );
+        WideAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void Thresholded
+void Product
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::Thresholded"))
+    DEBUG_ONLY(CSE cse("svd::Product"))
     if( A.Height() >= A.Width() )
-        TallThresholded( A, s, tol, relative );
+        TallProduct( A, s, tol, relative );
     else
-        WideThresholded( A, s, tol, relative );
+        WideProduct( A, s, tol, relative );
 }
 
 template<typename F>
-void Thresholded
+void Product
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
-    DEBUG_ONLY(CSE cse("svd::Thresholded"))
+    DEBUG_ONLY(CSE cse("svd::Product"))
     if( A.Height() >= A.Width() )
-        TallThresholded( A, s, tol, relative );
+        TallProduct( A, s, tol, relative );
     else
-        WideThresholded( A, s, tol, relative );
+        WideProduct( A, s, tol, relative );
 }
 
 } // namespace svd
 } // namespace El
 
-#endif // ifndef EL_SVD_THRESHOLDED_HPP
+#endif // ifndef EL_SVD_PRODUCT_HPP

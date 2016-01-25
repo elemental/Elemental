@@ -476,7 +476,7 @@ enum SVDApproach {
   // When thresholded, a cross-product algorithm is used. This is often
   // advantageous since tridiagonal eigensolvers tend to have faster 
   // parallel implementations than bidiagonal SVD's.
-  THRESHOLDED_SVD
+  PRODUCT_SVD
 };
 
 template<typename Real>

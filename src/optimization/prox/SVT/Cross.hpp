@@ -23,7 +23,7 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
     Matrix<Real> s;
     Matrix<F> V;
     SVDCtrl<Real> ctrl;
-    ctrl.approach = THRESHOLDED_SVD;
+    ctrl.approach = PRODUCT_SVD;
     ctrl.tol = tau;
     ctrl.relative = relative;
     SVD( A, U, s, V, ctrl );
@@ -48,7 +48,7 @@ Int Cross( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     DistMatrix<F> U( A.Grid() ), V( A.Grid() );
     SVDCtrl<Real> ctrl;
-    ctrl.approach = THRESHOLDED_SVD;
+    ctrl.approach = PRODUCT_SVD;
     ctrl.tol = tau;
     ctrl.relative = relative;
     SVD( A, U, s, V, ctrl );
@@ -71,7 +71,7 @@ Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
     DistMatrix<F,STAR,STAR> V( A.Grid() );
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = THRESHOLDED_SVD;
+    ctrl.approach = PRODUCT_SVD;
     ctrl.tol = tau;
     ctrl.relative = relative;
     SVD( A, U, s, V, ctrl );

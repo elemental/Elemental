@@ -860,7 +860,7 @@ typedef enum {
   EL_THIN_SVD,
   EL_COMPACT_SVD,
   EL_FULL_SVD,
-  EL_THRESHOLDED_SVD
+  EL_PRODUCT_SVD
 } ElSVDApproach;
 
 /* SVDCtrl */

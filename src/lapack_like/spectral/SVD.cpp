@@ -9,7 +9,7 @@
 #include "El.hpp"
 
 #include "./SVD/Chan.hpp"
-#include "./SVD/Thresholded.hpp"
+#include "./SVD/Product.hpp"
 
 namespace El {
 
@@ -50,10 +50,10 @@ void SVD
         return;
     }
 
-    if( ctrl.approach == THRESHOLDED_SVD )
+    if( ctrl.approach == PRODUCT_SVD )
     {
         U = A;
-        svd::Thresholded( U, s, V, ctrl.tol, ctrl.relative );
+        svd::Product( U, s, V, ctrl.tol, ctrl.relative );
     }
     else if( ctrl.approach == THIN_SVD ||
              ctrl.approach == FULL_SVD ||
@@ -101,7 +101,15 @@ void SVD
         if( compact )
         {
             const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
-            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            if( ctrl.tol != Real(0) )
+            {
+                if( ctrl.relative )
+                    thresh = twoNorm*ctrl.tol;
+                else
+                    thresh = ctrl.tol;
+            }
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
@@ -153,20 +161,20 @@ void SVD
         return;
     }
 
-    if( ctrl.approach == THRESHOLDED_SVD )
+    if( ctrl.approach == PRODUCT_SVD )
     {
         Copy( A, U );
         if( U.ColDist() == VC && U.RowDist() == STAR )
         {
             auto& UCast = static_cast<DistMatrix<F,VC,STAR>&>( U );
-            svd::Thresholded( UCast, s, V, ctrl.tol, ctrl.relative );
+            svd::Product( UCast, s, V, ctrl.tol, ctrl.relative );
         }
         else
-            svd::Thresholded( U, s, V, ctrl.tol, ctrl.relative );
+            svd::Product( U, s, V, ctrl.tol, ctrl.relative );
     }
     else
     {
-        svd::Chan( A, U, s, V, ctrl.fullChanRatio, ctrl.approach );
+        svd::Chan( A, U, s, V, ctrl );
     }
 }
 
@@ -180,9 +188,9 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD [const Matrix values]"))
-    if( ctrl.approach == THRESHOLDED_SVD )
+    if( ctrl.approach == PRODUCT_SVD )
     {
-        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
+        svd::Product( A, s, ctrl.tol, ctrl.relative );
     }
     else
     {
@@ -220,7 +228,15 @@ void SVD
         if( ctrl.approach == COMPACT_SVD )
         {
             const Real twoNorm = ( Min(m,n)==0 ? Real(0) : s.Get(0,0) );
-            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            if( ctrl.tol != Real(0) )
+            {
+                if( ctrl.relative )
+                    thresh = twoNorm*ctrl.tol;
+                else
+                    thresh = ctrl.tol;
+            }
             Int rank = Min(m,n); 
             for( Int j=0; j<Min(m,n); ++j )
             {
@@ -235,7 +251,7 @@ void SVD
     }
     else
     {
-        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
+        svd::Product( A, s, ctrl.tol, ctrl.relative );
     }
 }
 
@@ -252,11 +268,11 @@ void SVD
         ctrl.approach == FULL_SVD )
     {
         DistMatrix<F> ACopy( A );
-        svd::Chan( ACopy, s, ctrl.valChanRatio, ctrl.approach );
+        svd::Chan( ACopy, s, ctrl );
     }
     else
     {
-        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
+        svd::Product( A, s, ctrl.tol, ctrl.relative );
     }
 }
 
@@ -267,9 +283,9 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD [ElementalMatrix values]"))
-    if( ctrl.approach == THRESHOLDED_SVD )
+    if( ctrl.approach == PRODUCT_SVD )
     {
-        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
+        svd::Product( A, s, ctrl.tol, ctrl.relative );
         return;
     }
 
@@ -281,7 +297,7 @@ void SVD
         SVD( ACopy, s, ctrlMod );
         return;
     }
-    svd::Chan( A, s, ctrl.valChanRatio, ctrl.approach );
+    svd::Chan( A, s, ctrl );
 }
 
 template<typename F>
@@ -291,8 +307,8 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD [const BlockMatrix values]"))
-    if( ctrl.approach == THRESHOLDED_SVD )
-        LogicError("Block thresholded SVD not yet supported");
+    if( ctrl.approach == PRODUCT_SVD )
+        LogicError("Block product SVD not yet supported");
 
     DistMatrix<F,MC,MR,BLOCK> ACopy( A );
     auto ctrlMod( ctrl );
@@ -334,7 +350,15 @@ void SVD
         if( compact )
         {
             const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
-            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            if( ctrl.tol != Real(0) )
+            {
+                if( ctrl.relative )
+                    thresh = twoNorm*ctrl.tol;
+                else
+                    thresh = ctrl.tol;
+            }
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
@@ -352,7 +376,7 @@ void SVD
         blacs::FreeHandle( bHandle );
     }
     else
-        LogicError("Block thresholded SVD not yet supported");
+        LogicError("Block product SVD not yet supported");
 #endif
 }
 
@@ -417,7 +441,15 @@ void SVD
         if( compact )
         {
             const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
-            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            if( ctrl.tol != Real(0) )
+            {
+                if( ctrl.relative )
+                    thresh = twoNorm*ctrl.tol;
+                else
+                    thresh = ctrl.tol;
+            }
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {

@@ -12,37 +12,27 @@ namespace El {
 
 // Replace A with its pseudoinverse
 
-// TODO: Avoid unnecessary work for backtransformation with zero singular
-//       values
-
 template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CSE cse("Pseudoinverse"))
     typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real eps = limits::Epsilon<Real>();
 
     // Get the SVD of A
     Matrix<Real> s;
     Matrix<F> U, V;
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
-    SVD( A, U, s, V );
+    ctrl.approach = COMPACT_SVD;
+    ctrl.relative = true;
+    ctrl.tol = ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
+    SVD( A, U, s, V, ctrl );
 
-    if( tolerance == Real(0) )
-    {
-        // Set the tolerance equal to k ||A||_2 eps
-        const Int k = Max( U.Height(), V.Height() );
-        const Real eps = limits::Epsilon<Real>();
-        const Real twoNorm = MaxNorm( s );
-        tolerance = k*twoNorm*eps;
-    }
-    // Invert above the tolerance
-    auto sigmaMap = 
-      [=]( Real sigma ) { return ( sigma < tolerance ? Real(0) : 1/sigma ); };
-    EntrywiseMap( s, function<Real(Real)>(sigmaMap) );
-
-    // Scale U with the singular values, U := U Sigma
-    DiagonalScale( RIGHT, NORMAL, s, U );
+    // Scale U with the inverted (nonzero) singular values, U := U / Sigma
+    DiagonalSolve( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
     Gemm( NORMAL, ADJOINT, F(1), V, U, A );
@@ -56,6 +46,7 @@ void HermitianPseudoinverse
     typedef Base<F> Real;
 
     // Get the EVD of A
+    // TODO: Use a relative eigenvalue lower bound
     Matrix<Real> w;
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
@@ -85,30 +76,25 @@ void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
+
+    const Int m = A.Height();
+    const Int n = A.Width();
     const Grid& g = A.Grid();
+
+    const Real eps = limits::Epsilon<Real>();
 
     // Get the SVD of A
     DistMatrix<Real,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
+    ctrl.approach = COMPACT_SVD;
+    ctrl.relative = true;
+    ctrl.tol = ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
     SVD( A, U, s, V, ctrl );
 
-    if( tolerance == Real(0) )
-    {
-        // Set the tolerance equal to k ||A||_2 eps
-        const Int k = Max( U.Height(), V.Height() );
-        const Real eps = limits::Epsilon<Real>();
-        const Real twoNorm = MaxNorm( s );
-        tolerance = k*twoNorm*eps;
-    }
-    // Invert above the tolerance
-    auto sigmaMap = 
-      [=]( Real sigma ) { return ( sigma < tolerance ? Real(0) : 1/sigma ); };
-    EntrywiseMap( s, function<Real(Real)>(sigmaMap) );
-
-    // Scale U with the singular values, U := U Sigma
-    DiagonalScale( RIGHT, NORMAL, s, U );
+    // Scale U with the inverted (nonzero) singular values, U := U / Sigma
+    DiagonalSolve( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
     Gemm( NORMAL, ADJOINT, F(1), V, U, A );
@@ -126,6 +112,7 @@ void HermitianPseudoinverse
     const Grid& g = A.Grid();
 
     // Get the EVD of A
+    // TODO: Use a relative eigenvalue lower-bound
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );

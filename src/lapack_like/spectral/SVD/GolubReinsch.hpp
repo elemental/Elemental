@@ -21,7 +21,7 @@ GolubReinsch
   DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
-  bool compact=false )
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch [DistMatrix Decomp]"))
     const Int m = A.Height();
@@ -68,10 +68,19 @@ GolubReinsch
       ULoc.Buffer(), ULoc.LDim() );
 
     Int rank = k;
+    const bool compact = ( ctrl.approach == COMPACT_SVD );
     if( compact )
     {
         const Real twoNorm = ( k==0 ? Real(0) : d_STAR_STAR.Get(0,0) );
-        const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
         for( Int j=0; j<k; ++j ) 
         {
             if( d_STAR_STAR.Get(j,0) <= thresh )
@@ -120,7 +129,7 @@ GolubReinsch
   ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
-  bool compact=false )
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch [ElementalMatrix Decomp]"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -129,7 +138,7 @@ GolubReinsch
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    GolubReinsch( A, U, s, V, compact );
+    GolubReinsch( A, U, s, V, ctrl );
 }
 
 #ifdef EL_HAVE_FLA_BSVD
@@ -140,7 +149,7 @@ GolubReinschFlame
   DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
-  bool compact=false )
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinschFlame [DistMatrix Decomp]"))
     const Int m = A.Height();
@@ -191,10 +200,19 @@ GolubReinschFlame
     }
 
     Int rank = k;
+    const bool compact = ( ctrl.approach == COMPACT_SVD );
     if( compact )
     {
         const Real twoNorm = ( k==0 ? Real(0) : d_STAR_STAR.Get(0,0) );
-        const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
         for( Int j=0; j<k; ++j ) 
         {
             if( d_STAR_STAR.Get(j,0) <= thresh )
@@ -243,7 +261,7 @@ GolubReinschFlame
   ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
-  bool compact=false )
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinschFlame [ElementalMatrix Decomp]"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -252,7 +270,7 @@ GolubReinschFlame
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    GolubReinschFlame( A, U, s, V, compact );
+    GolubReinschFlame( A, U, s, V, ctrl );
 }
 
 template<>
@@ -262,10 +280,10 @@ GolubReinsch
   ElementalMatrix<double>& U,
   ElementalMatrix<double>& s, 
   ElementalMatrix<double>& V,
-  bool compact=false )
+  const SVDCtrl<double>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch<double> [ElementalMatrix Decomp]"))
-    GolubReinschFlame( A, U, s, V, compact );
+    GolubReinschFlame( A, U, s, V, ctrl );
 }
 
 template<>
@@ -275,12 +293,12 @@ GolubReinsch
   ElementalMatrix<Complex<double>>& U,
   ElementalMatrix<double>& s, 
   ElementalMatrix<Complex<double>>& V,
-  bool compact=false )
+  const SVDCtrl<double>& ctrl )
 {
     DEBUG_ONLY(
       CSE cse("svd::GolubReinsch<Complex<double>> [ElementalMatrix Decomp]")
     )
-    GolubReinschFlame( A, U, s, V, compact );
+    GolubReinschFlame( A, U, s, V, ctrl );
 }
 #endif // EL_HAVE_FLA_BSVD
 
@@ -289,7 +307,7 @@ inline void
 GolubReinsch
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s,
-  bool compact=false )
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch [DistMatrix values]"))
     typedef Base<F> Real;
@@ -319,10 +337,19 @@ GolubReinsch
 
     // Compute the singular values of the bidiagonal matrix via DQDS
     lapack::BidiagDQDS( k, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer() );
+    const bool compact = ( ctrl.approach == COMPACT_SVD );
     if( compact )
     {
         const Real twoNorm = ( k==0 ? Real(0) : d_STAR_STAR.Get(0,0) );
-        const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
         Int rank = k;
         for( Int j=0; j<k; ++j )
         {
@@ -344,12 +371,12 @@ inline void
 GolubReinsch
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s,
-  bool compact=false )
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch [ElementalMatrix values]"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    GolubReinsch( A, s, compact );
+    GolubReinsch( A, s, ctrl );
 }
 
 } // namespace svd

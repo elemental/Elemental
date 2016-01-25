@@ -41,7 +41,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     Matrix<F> U, V;
     Matrix<Real> s;
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.approach = THRESHOLDED_SVD;
+    svdCtrl.approach = PRODUCT_SVD;
     svdCtrl.tol = tau;
     svdCtrl.relative = relative;
     SVD( R, U, s, V, svdCtrl );
@@ -93,7 +93,7 @@ Int PivotedQR
     DistMatrix<F> U(g), V(g);
     DistMatrix<Real,VR,STAR> s(g);
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.approach = THRESHOLDED_SVD;
+    svdCtrl.approach = PRODUCT_SVD;
     svdCtrl.tol = tau;
     svdCtrl.relative = relative;
     SVD( R, U, s, V, svdCtrl );
