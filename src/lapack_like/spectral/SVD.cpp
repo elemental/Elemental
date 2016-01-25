@@ -24,7 +24,7 @@ void SVD
         Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [const Matrix Decomp]"))
     auto ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -39,7 +39,7 @@ void SVD
       Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [Matrix Decomp]"))
     typedef Base<F> Real;
     if( !ctrl.overwrite )
     {
@@ -100,7 +100,8 @@ void SVD
 
         if( compact )
         {
-            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
+            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
@@ -127,7 +128,7 @@ void SVD
         ElementalMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [const ElementalMatrix Decomp]"))
     DistMatrix<F> ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -142,7 +143,7 @@ void SVD
         ElementalMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [ElementalMatrix Decomp]"))
     if( !ctrl.overwrite )
     {
         DistMatrix<F> ACopy( A );
@@ -163,15 +164,9 @@ void SVD
         else
             svd::Thresholded( U, s, V, ctrl.tol, ctrl.relative );
     }
-    else if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    else
     {
-        bool compact = ( ctrl.approach == COMPACT_SVD );
-        svd::Chan( A, U, s, V, ctrl.fullChanRatio, compact );
-    }
-    else // ctrl.approach == FULL_SVD
-    {
-        // TODO
-        LogicError("This option is not yet supported");
+        svd::Chan( A, U, s, V, ctrl.fullChanRatio, ctrl.approach );
     }
 }
 
@@ -184,11 +179,18 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
-    auto ACopy( A );
-    auto ctrlMod( ctrl );
-    ctrlMod.overwrite = true;
-    SVD( ACopy, s, ctrlMod );
+    DEBUG_ONLY(CSE cse("SVD [const Matrix values]"))
+    if( ctrl.approach == THRESHOLDED_SVD )
+    {
+        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
+    }
+    else
+    {
+        auto ACopy( A );
+        auto ctrlMod( ctrl );
+        ctrlMod.overwrite = true;
+        SVD( ACopy, s, ctrlMod );
+    }
 }
 
 template<typename F>
@@ -197,7 +199,7 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [Matrix values]"))
     typedef Base<F> Real;
 
     Matrix<F> AMod;
@@ -217,7 +219,8 @@ void SVD
 
         if( ctrl.approach == COMPACT_SVD )
         {
-            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            const Real twoNorm = ( Min(m,n)==0 ? Real(0) : s.Get(0,0) );
+            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             Int rank = Min(m,n); 
             for( Int j=0; j<Min(m,n); ++j )
             {
@@ -230,6 +233,10 @@ void SVD
             s.Resize( rank, 1 );
         }
     }
+    else
+    {
+        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
+    }
 }
 
 template<typename F>
@@ -238,15 +245,18 @@ void SVD
         ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [const ElementalMatrix values]"))
 
     if( ctrl.approach == THIN_SVD ||
         ctrl.approach == COMPACT_SVD ||
         ctrl.approach == FULL_SVD )
     {
-        const bool compact = ( ctrl.approach == COMPACT_SVD );
         DistMatrix<F> ACopy( A );
-        svd::Chan( ACopy, s, ctrl.valChanRatio, compact );
+        svd::Chan( ACopy, s, ctrl.valChanRatio, ctrl.approach );
+    }
+    else
+    {
+        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
     }
 }
 
@@ -256,7 +266,13 @@ void SVD
         ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [ElementalMatrix values]"))
+    if( ctrl.approach == THRESHOLDED_SVD )
+    {
+        svd::Thresholded( A, s, ctrl.tol, ctrl.relative );
+        return;
+    }
+
     if( !ctrl.overwrite )
     {
         auto ctrlMod( ctrl );
@@ -265,14 +281,7 @@ void SVD
         SVD( ACopy, s, ctrlMod );
         return;
     }
-
-    if( ctrl.approach == THIN_SVD ||
-        ctrl.approach == COMPACT_SVD ||
-        ctrl.approach == FULL_SVD )
-    {
-        const bool compact = ( ctrl.approach == COMPACT_SVD );
-        svd::Chan( A, s, ctrl.valChanRatio, compact );
-    }
+    svd::Chan( A, s, ctrl.valChanRatio, ctrl.approach );
 }
 
 template<typename F>
@@ -281,7 +290,10 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [const BlockMatrix values]"))
+    if( ctrl.approach == THRESHOLDED_SVD )
+        LogicError("Block thresholded SVD not yet supported");
+
     DistMatrix<F,MC,MR,BLOCK> ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -294,7 +306,7 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [BlockMatrix values]"))
     typedef Base<F> Real;
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
@@ -321,7 +333,8 @@ void SVD
         ( m, n, AMod.Buffer(), descAMod.data(), s.Buffer() ); 
         if( compact )
         {
-            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
+            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
@@ -338,6 +351,8 @@ void SVD
         blacs::FreeGrid( context );
         blacs::FreeHandle( bHandle );
     }
+    else
+        LogicError("Block thresholded SVD not yet supported");
 #endif
 }
 
@@ -349,7 +364,7 @@ void SVD
         DistMatrix<F,MC,MR,BLOCK>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [const BlockMatrix Decomp]"))
     DistMatrix<F,MC,MR,BLOCK> ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -364,7 +379,7 @@ void SVD
         DistMatrix<F,MC,MR,BLOCK>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD"))
+    DEBUG_ONLY(CSE cse("SVD [BlockMatrix Decomp]"))
     typedef Base<F> Real;
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
@@ -401,7 +416,8 @@ void SVD
         const bool compact = ( ctrl.approach == COMPACT_SVD );
         if( compact )
         {
-            const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
+            const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {

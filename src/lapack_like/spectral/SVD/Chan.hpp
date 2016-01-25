@@ -22,34 +22,63 @@ ChanUpper
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   double heightRatio=1.5,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
     DEBUG_ONLY(
-      CSE cse("svd::ChanUpper");
+      CSE cse("svd::ChanUpper [DistMatrix Decomp]");
       AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( heightRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
+    const bool compact = ( approach == COMPACT_SVD );
+
     if( m > heightRatio*n )
     {
+        DistMatrix<F,MD,STAR> t(g);
+        DistMatrix<Real,MD,STAR> d(g);
+        QR( A, t, d );
+
         DistMatrix<F> R(g);
-        qr::Explicit( A, R );
-        // (A,R) now holds a QR factorization of the original A
+        auto AT = A( IR(0,n), IR(0,n) );
+        R = AT;
+        MakeTrapezoidal( UPPER, R );
 
-        svd::GolubReinsch( R, U, s, V, compact );
-        R = U;
-        // (R,s,V) holds an SVD of the R from the QR fact. of the original A
-
-        Gemm( NORMAL, NORMAL, F(1), A, R, U );
+        if( approach == FULL_SVD )
+        {
+            Identity( U, m, m );
+            auto UTL = U( IR(0,n), IR(0,n) );
+            svd::GolubReinsch( R, UTL, s, V, false );
+            qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+        }
+        else
+        {
+            Zeros( U, m, n );
+            auto UT = U( IR(0,n), IR(0,n) );
+            svd::GolubReinsch( R, UT, s, V, compact );
+            const Int rank = UT.Width();
+            U.Resize( m, rank );
+            // (U,s,V) holds an SVD of the R from the QR fact. of the original A
+            qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+        }
     }
     else
     {
-        svd::GolubReinsch( A, U, s, V, compact );
+        if( approach == FULL_SVD )
+        {
+            Identity( U, m, m );
+            auto UL = U( IR(0,m), IR(0,n) );  
+            svd::GolubReinsch( A, UL, s, V, false );
+        }
+        else
+        {
+            svd::GolubReinsch( A, U, s, V, compact );
+        }
     }
 }
 
@@ -61,16 +90,16 @@ ChanUpper
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   double heightRatio=1.5,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
-    DEBUG_ONLY(CSE cse("svd::ChanUpper"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DEBUG_ONLY(CSE cse("svd::ChanUpper [ElementalMatrix Decomp]"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    ChanUpper( A, U, s, V, heightRatio, compact );
+    ChanUpper( A, U, s, V, heightRatio, approach );
 }
 
 template<typename F>
@@ -79,14 +108,15 @@ ChanUpper
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
     DEBUG_ONLY(
-      CSE cse("svd::ChanUpper");    
+      CSE cse("svd::ChanUpper [DistMatrix values]");
       AssertSameGrids( A, s );
       if( heightRatio <= 1.0 )
           LogicError("Nonsensical switchpoint");
     )
+    const bool compact = ( approach == COMPACT_SVD );
     if( A.Height() >= heightRatio*A.Width() )
     {
         qr::ExplicitTriang( A );
@@ -104,12 +134,12 @@ ChanUpper
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
-    DEBUG_ONLY(CSE cse("svd::ChanUpper"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DEBUG_ONLY(CSE cse("svd::ChanUpper [ElementalMatrix values]"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    ChanUpper( A, s, heightRatio, compact );
+    ChanUpper( A, s, heightRatio, approach );
 }
 
 //----------------------------------------------------------------------------//
@@ -125,14 +155,15 @@ Chan
   ElementalMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   double heightRatio=1.5,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
     DEBUG_ONLY(
-      CSE cse("svd::Chan");
+      CSE cse("svd::Chan [DistMatrix Decomp]");
       AssertSameGrids( A, U, s, V );
       if( heightRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
+
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );
@@ -143,14 +174,14 @@ Chan
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
-        svd::ChanUpper( A, U, s, V, heightRatio, compact );
+        svd::ChanUpper( A, U, s, V, heightRatio, approach );
     }
     else
     {
         // TODO: Avoid the explicit copy by explicitly forming the Q from LQ
         DistMatrix<F> AAdj(A.Grid());
         Adjoint( A, AAdj );
-        svd::ChanUpper( AAdj, V, s, U, heightRatio, compact );
+        svd::ChanUpper( AAdj, V, s, U, heightRatio, approach );
     }
 
     // Rescale the singular values if necessary
@@ -166,16 +197,16 @@ Chan
   ElementalMatrix<Base<F>>& s, 
   ElementalMatrix<F>& VPre,
   double heightRatio=1.5,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
-    DEBUG_ONLY(CSE cse("svd::Chan"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DEBUG_ONLY(CSE cse("svd::Chan [ElementalMatrix Decomp]"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    Chan( A, U, s, V, heightRatio, compact );
+    Chan( A, U, s, V, heightRatio, approach );
 }
 
 //----------------------------------------------------------------------------//
@@ -188,9 +219,9 @@ Chan
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
-    DEBUG_ONLY(CSE cse("svd::Chan"))
+    DEBUG_ONLY(CSE cse("svd::Chan [DistMatrix values]"))
 
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
@@ -202,7 +233,7 @@ Chan
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
-        svd::ChanUpper( A, s, heightRatio, compact );
+        svd::ChanUpper( A, s, heightRatio, approach );
     }
     else
     {
@@ -210,7 +241,7 @@ Chan
         // optimized
         DistMatrix<F> AAdj( A.Grid() );
         Adjoint( A, AAdj );
-        svd::ChanUpper( AAdj, s, heightRatio, compact );
+        svd::ChanUpper( AAdj, s, heightRatio, approach );
     }
 
     // Rescale the singular values if necessary
@@ -224,12 +255,12 @@ Chan
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   double heightRatio=1.2,
-  bool compact=false )
+  SVDApproach approach=THIN_SVD )
 {
-    DEBUG_ONLY(CSE cse("svd::Chan"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DEBUG_ONLY(CSE cse("svd::Chan [ElementalMatrix values]"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    Chan( A, s, heightRatio, compact );
+    Chan( A, s, heightRatio, approach );
 }
 
 } // namespace svd

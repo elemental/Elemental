@@ -14,6 +14,9 @@
 namespace El {
 namespace svd {
 
+// Compute singular triplets
+// =========================
+
 template<typename F>
 inline void TallAbsoluteThresholded
 ( Matrix<F>& A,
@@ -35,7 +38,7 @@ inline void TallAbsoluteThresholded
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
-        tol = m*frobNorm*eps;
+        tol = m*frobNorm*Sqrt(eps);
     }
     if( tol >= frobNorm )
     {
@@ -90,7 +93,13 @@ inline void TallRelativeThresholded
           LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
+    const Int m = A.Height();
     const Int n = A.Width();
+    if( relTol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        relTol = m*Sqrt(eps);
+    }
 
     // C := A^H A
     Matrix<F> C;
@@ -163,7 +172,7 @@ TallAbsoluteThresholded
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
-        tol = m*frobNorm*eps;
+        tol = m*frobNorm*Sqrt(eps);
     }
     if( tol >= frobNorm )
     {
@@ -238,7 +247,14 @@ TallRelativeThresholded
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
+    const Int m = A.Height();
     const Int n = A.Width();
+    if( relTol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        relTol = m*Sqrt(eps);
+    }
 
     // C := A^H A
     typedef Base<F> Real;
@@ -254,15 +270,15 @@ TallRelativeThresholded
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
     for( Int i=0; i<n; ++i )
     {
-        const Real sigma = Sqrt(s_STAR_STAR.GetLocal(i,0));
-        if( sigma <= relTol*twoNorm )
+        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s_STAR_STAR.Resize( i, 1 );
             V.Resize( n, i );
             break;
         }
         else
-            s_STAR_STAR.SetLocal( i, 0, sigma );
+            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
     }
     Copy( s_STAR_STAR, s );
 
@@ -332,7 +348,7 @@ TallAbsoluteThresholded
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
-        tol = m*frobNorm*eps;
+        tol = m*frobNorm*Sqrt(eps);
     }
     if( tol >= frobNorm )
     {
@@ -409,8 +425,14 @@ TallRelativeThresholded
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    if( relTol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        relTol = m*Sqrt(eps);
+    }
 
     // C := A^H A
     typedef Base<F> Real;
@@ -427,15 +449,15 @@ TallRelativeThresholded
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
     for( Int i=0; i<n; ++i )
     {
-        const Real sigma = Sqrt(s.GetLocal(i,0));
-        if( sigma < relTol*twoNorm )
+        const Real lambda = s.GetLocal(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
             V.Resize( n, i );
             break;
         }
         else
-            s.SetLocal( i, 0, sigma );
+            s.SetLocal( i, 0, Sqrt(lambda) );
     }
     const int k = s.Height();
 
@@ -505,7 +527,7 @@ WideAbsoluteThresholded
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
-        tol = n*frobNorm*eps;
+        tol = n*frobNorm*Sqrt(eps);
     }
     if( tol >= frobNorm )
     {
@@ -563,6 +585,12 @@ WideRelativeThresholded
     )
     typedef Base<F> Real;
     const Int m = A.Height();
+    const Int n = A.Width();
+    if( relTol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        relTol = n*Sqrt(eps);
+    }
 
     // C := A A^H
     Matrix<F> C;
@@ -576,15 +604,15 @@ WideRelativeThresholded
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
     for( Int i=0; i<m; ++i )
     {
-        const Real sigma = Sqrt(s.Get(i,0));
-        if( sigma <= relTol*twoNorm )
+        const Real lambda = s.Get(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
             U.Resize( m, i );
             break;
         }
         else
-            s.Set( i, 0, sigma );
+            s.Set( i, 0, Sqrt(lambda) );
     }
 
     // (Sigma V) := A^H U
@@ -636,7 +664,7 @@ WideAbsoluteThresholded
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
-        tol = n*frobNorm*eps;
+        tol = n*frobNorm*Sqrt(eps);
     }
     if( tol >= frobNorm )
     {
@@ -712,7 +740,14 @@ WideRelativeThresholded
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
     const Int m = A.Height();
+    const Int n = A.Width();
+    if( relTol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        relTol = n*Sqrt(eps);
+    }
 
     // C := A A^H
     typedef Base<F> Real;
@@ -729,15 +764,15 @@ WideRelativeThresholded
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
     for( Int i=0; i<m; ++i )
     {
-        const Real sigma = Sqrt(s_STAR_STAR.GetLocal(i,0));
-        if( sigma <= relTol*twoNorm )
+        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s_STAR_STAR.Resize( i, 1 );
             U.Resize( m, i );
             break;
         }
         else
-            s_STAR_STAR.SetLocal( i, 0, sigma );
+            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
     }
     Copy( s_STAR_STAR, s );
 
@@ -814,6 +849,652 @@ void Thresholded
         TallThresholded( A, s, V, tol, relative );
     else
         WideThresholded( A, s, V, tol, relative );
+}
+
+// Compute singular values
+// =======================
+
+template<typename F>
+inline void TallAbsoluteThresholded
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  Base<F> tol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::TallAbsoluteThresholded");
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        tol = m*frobNorm*Sqrt(eps);
+    }
+    if( tol >= frobNorm )
+    {
+        s.Resize( 0, 1 );
+        return;
+    }
+
+    // C := A^H A
+    Matrix<F> C;
+    Herk( LOWER, ADJOINT, Real(1), A, C );
+
+    // [Sigma^2] := eig(C), where each sigma > tol
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    
+    // Sigma := sqrt(Sigma^2)
+    const Int k = s.Height();
+    for( Int i=0; i<k; ++i )
+        s.Set( i, 0, Sqrt(s.Get(i,0)) );
+}
+
+template<typename F>
+inline void TallRelativeThresholded
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  Base<F> relTol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::TallRelativeThresholded");
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
+    const Int n = A.Width();
+
+    // C := A^H A
+    Matrix<F> C;
+    Herk( LOWER, ADJOINT, Real(1), A, C );
+
+    // [Sigma^2] := eig(C)
+    HermitianEig( LOWER, C, s, DESCENDING );
+    const Real twoNorm = Sqrt(MaxNorm(s));
+    
+    // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
+    for( Int i=0; i<n; ++i )
+    {
+        const Real sigma = Sqrt(s.Get(i,0));
+        if( sigma <= relTol*twoNorm )
+        {
+            s.Resize( i, 1 );
+            break;
+        }
+        else
+            s.Set( i, 0, sigma );
+    }
+}
+
+template<typename F>
+inline void TallThresholded
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  Base<F> tol,
+  bool relative )
+{
+    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    if( relative )
+        TallRelativeThresholded( A, s, tol );
+    else
+        TallAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+inline void
+TallAbsoluteThresholded
+( const DistMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::TallAbsoluteThresholded");
+      AssertSameGrids( A, s );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        tol = m*frobNorm*Sqrt(eps);
+    }
+    if( tol >= frobNorm )
+    {
+        s.Resize( 0, 1 );
+        return;
+    }
+
+    // C := A^H A
+    const Grid& g = A.Grid();
+    DistMatrix<F> C(g);
+    Herk( LOWER, ADJOINT, Real(1), A, C );
+
+    // [Sigma^2] := eig(C), where each sigma > tol
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    
+    // Sigma := sqrt(Sigma^2)
+    {
+        const Int localHeight = s.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
+    }
+}
+
+template<typename F>
+inline void
+TallAbsoluteThresholded
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+    TallAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+inline void
+TallRelativeThresholded
+( const DistMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> relTol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::TallRelativeThresholded");
+      AssertSameGrids( A, s );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    const Int n = A.Width();
+
+    // C := A^H A
+    typedef Base<F> Real;
+    const Grid& g = A.Grid();
+    DistMatrix<F> C(g);
+    Herk( LOWER, ADJOINT, Real(1), A, C );
+
+    // [Sigma^2] := eig(C)
+    HermitianEig( LOWER, C, s, DESCENDING );
+    const Real twoNorm = Sqrt(MaxNorm(s));
+
+    // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
+    DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
+    for( Int i=0; i<n; ++i )
+    {
+        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
+        {
+            s_STAR_STAR.Resize( i, 1 );
+            break;
+        }
+        else
+            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
+    }
+    Copy( s_STAR_STAR, s );
+}
+
+template<typename F>
+inline void
+TallRelativeThresholded
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> relTol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+    TallRelativeThresholded( A, s, relTol );
+}
+
+template<typename F>
+inline void TallThresholded
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol,
+  bool relative )
+{
+    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    if( relative )
+        TallRelativeThresholded( A, s, tol );
+    else
+        TallAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+inline void
+TallAbsoluteThresholded
+( const DistMatrix<F,VC,STAR>& A,
+        DistMatrix<Base<F>,STAR,STAR>& s, 
+  Base<F> tol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::TallAbsoluteThresholded");
+      AssertSameGrids( A, s );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    typedef Base<F> Real;
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        tol = m*frobNorm*Sqrt(eps);
+    }
+    if( tol >= frobNorm )
+    {
+        s.Resize( 0, 1 );
+        return;
+    }
+
+    // C := A^H A
+    const Grid& g = A.Grid();
+    DistMatrix<F,STAR,STAR> C(g);
+    Zeros( C, n, n );
+    Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
+    El::AllReduce( C, A.ColComm() );
+
+    // [Sigma^2] := eig(C), where each sigma > tol
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    const int k = s.Height();
+    
+    // Sigma := sqrt(Sigma^2)
+    for( Int i=0; i<k; ++i )
+        s.SetLocal( i, 0, Sqrt(s.GetLocal(i,0)) );
+}
+
+template<typename F>
+inline void
+TallAbsoluteThresholded
+( const DistMatrix<F,VC,STAR>& A,
+        ElementalMatrix<Base<F>>& sPre, 
+  Base<F> tol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallAbsoluteThresholded"))
+    typedef Base<F> Real;
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
+    auto& s = sProx.Get();
+    TallAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+inline void
+TallRelativeThresholded
+( const DistMatrix<F,VC,STAR>& A,
+        DistMatrix<Base<F>,STAR,STAR>& s, 
+  Base<F> relTol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::TallRelativeThresholded");
+      AssertSameGrids( A, s );
+      if( A.Height() < A.Width() )
+          LogicError("A must be at least as tall as it is wide");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    // C := A^H A
+    typedef Base<F> Real;
+    const Grid& g = A.Grid();
+    DistMatrix<F,STAR,STAR> C(g);
+    Zeros( C, n, n );
+    Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
+    El::AllReduce( C, A.ColComm() );
+
+    // [V,Sigma^2] := eig(C)
+    HermitianEig( LOWER, C, s, DESCENDING );
+    const Real twoNorm = Sqrt(MaxNorm(s));
+    
+    // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
+    for( Int i=0; i<n; ++i )
+    {
+        const Real lambda = s.GetLocal(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
+        {
+            s.Resize( i, 1 );
+            break;
+        }
+        else
+            s.SetLocal( i, 0, Sqrt(lambda) );
+    }
+    const int k = s.Height();
+}
+
+template<typename F>
+inline void
+TallRelativeThresholded
+( const DistMatrix<F,VC,STAR>& A,
+        ElementalMatrix<Base<F>>& sPre, 
+  Base<F> relTol )
+{
+    DEBUG_ONLY(CSE cse("svd::TallRelativeThresholded"))
+    typedef Base<F> Real;
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
+    auto& s = sProx.Get();
+    TallRelativeThresholded( A, s, relTol );
+}
+
+template<typename F>
+void TallThresholded
+( const DistMatrix<F,VC,STAR>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol,
+  bool relative )
+{
+    DEBUG_ONLY(CSE cse("svd::TallThresholded"))
+    if( relative )
+        TallRelativeThresholded( A, s, tol );
+    else
+        TallAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+inline void
+WideAbsoluteThresholded
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  Base<F> tol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::WideAbsoluteThresholded");
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        tol = n*frobNorm*Sqrt(eps);
+    }
+    if( tol >= frobNorm )
+    {
+        s.Resize( 0, 1 );
+        return;
+    }
+
+    // C := A A^H
+    Matrix<F> C;
+    Herk( LOWER, NORMAL, Real(1), A, C );
+
+    // [Sigma^2] := eig(C), where each sigma > tol
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    
+    // Sigma := sqrt(Sigma^2)
+    const Int k = s.Height();
+    for( Int i=0; i<k; ++i )
+        s.Set( i, 0, Sqrt(s.Get(i,0)) );
+}
+
+template<typename F>
+inline void
+WideRelativeThresholded
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  Base<F> relTol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::WideThresholded");
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
+    const Int m = A.Height();
+
+    // C := A A^H
+    Matrix<F> C;
+    Herk( LOWER, NORMAL, Real(1), A, C );
+
+    // [Sigma^2] := eig(C)
+    HermitianEig( LOWER, C, s, DESCENDING );
+    const Real twoNorm = Sqrt(MaxNorm(s));
+    
+    // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
+    for( Int i=0; i<m; ++i )
+    {
+        const Real lambda = s.Get(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
+        {
+            s.Resize( i, 1 );
+            break;
+        }
+        else
+            s.Set( i, 0, Sqrt(lambda) );
+    }
+}
+
+template<typename F>
+inline void WideThresholded
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  Base<F> tol,
+  bool relative )
+{
+    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
+    if( relative )
+        WideRelativeThresholded( A, s, tol );
+    else
+        WideAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+inline void
+WideAbsoluteThresholded
+( const DistMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::WideAbsoluteThresholded");
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( tol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    const Int m = A.Height();
+    const Int n = A.Width();
+
+    typedef Base<F> Real;
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        tol = n*frobNorm*Sqrt(eps);
+    }
+    if( tol >= frobNorm )
+    {
+        s.Resize( 0, 1 );
+        return;
+    }
+
+    // C := A A^H
+    const Grid& g = A.Grid();
+    DistMatrix<F> C( g );
+    Herk( LOWER, NORMAL, Real(1), A, C );
+
+    // [Sigma^2] := eig(C), where each sigma > tol
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    // NOTE: While the square of the Frobenius norm should be a strict upper
+    //       bound with exact computation, it has been observed that it can
+    //       be lower than the finite-precision result in practice
+    subset.upperBound = 2*frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    
+    // Sigma := sqrt(Sigma^2)
+    {
+        const Int localHeight = s.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
+    }
+}
+
+template<typename F>
+inline void
+WideAbsoluteThresholded
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol )
+{
+    DEBUG_ONLY(CSE cse("svd::WideAbsoluteThresholded"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+    WideAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+inline void
+WideRelativeThresholded
+( const DistMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> relTol )
+{
+    DEBUG_ONLY(
+      CSE cse("svd::WideRelativeThresholded");
+      AssertSameGrids( A, s );
+      if( A.Width() < A.Height() )
+          LogicError("A must be at least as wide as it is tall");
+      if( relTol < 0 )
+          LogicError("negative threshold does not make sense");
+    )
+    const Int m = A.Height();
+
+    // C := A A^H
+    typedef Base<F> Real;
+    const Grid& g = A.Grid();
+    DistMatrix<F> C( g );
+    Herk( LOWER, NORMAL, Real(1), A, C );
+
+    // [Sigma^2] := eig(C)
+    HermitianEig( LOWER, C, s, DESCENDING );
+    const Real twoNorm = Sqrt(MaxNorm(s));
+    
+    // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
+    DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
+    for( Int i=0; i<m; ++i )
+    {
+        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
+        {
+            s_STAR_STAR.Resize( i, 1 );
+            break;
+        }
+        else
+            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
+    }
+    Copy( s_STAR_STAR, s );
+}
+
+template<typename F>
+inline void
+WideRelativeThresholded
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> relTol )
+{
+    DEBUG_ONLY(CSE cse("svd::WideRelativeThresholded"))
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.GetLocked();
+    WideRelativeThresholded( A, s, relTol );
+}
+
+template<typename F>
+inline void WideThresholded
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol,
+  bool relative )
+{
+    DEBUG_ONLY(CSE cse("svd::WideThresholded"))
+    if( relative )
+        WideRelativeThresholded( A, s, tol );
+    else
+        WideAbsoluteThresholded( A, s, tol );
+}
+
+template<typename F>
+void Thresholded
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  Base<F> tol,
+  bool relative )
+{
+    DEBUG_ONLY(CSE cse("svd::Thresholded"))
+    if( A.Height() >= A.Width() )
+        TallThresholded( A, s, tol, relative );
+    else
+        WideThresholded( A, s, tol, relative );
+}
+
+template<typename F>
+void Thresholded
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  Base<F> tol,
+  bool relative )
+{
+    DEBUG_ONLY(CSE cse("svd::Thresholded"))
+    if( A.Height() >= A.Width() )
+        TallThresholded( A, s, tol, relative );
+    else
+        WideThresholded( A, s, tol, relative );
 }
 
 } // namespace svd

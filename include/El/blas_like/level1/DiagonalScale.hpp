@@ -27,6 +27,10 @@ void DiagonalScale
     const Int ALDim = A.LDim();
     if( side == LEFT )
     {
+        DEBUG_ONLY(
+          if( d.Height() != m )
+              LogicError("Invalid left diagonal scaling dimension");
+        )
         for( Int i=0; i<m; ++i )
         {
             const T delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
@@ -36,6 +40,10 @@ void DiagonalScale
     }
     else
     {
+        DEBUG_ONLY(
+          if( d.Height() != n )
+              LogicError("Invalid right diagonal scaling dimension");
+        )
         for( Int j=0; j<n; ++j )
         {
             const T delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
@@ -114,8 +122,10 @@ void DiagonalScale
     const TDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
-        if( d.Height() != A.Height() )
-            LogicError("The size of d must match the height of A");
+        DEBUG_ONLY(
+          if( d.Height() != A.Height() )
+              LogicError("The size of d must match the height of A");
+        )
         for( Int k=0; k<numEntries; ++k )
         {
             const Int i = rowBuf[k];
@@ -125,8 +135,10 @@ void DiagonalScale
     }
     else
     {
-        if( d.Height() != A.Width() )
-            LogicError("The size of d must match the width of A");
+        DEBUG_ONLY(
+          if( d.Height() != A.Width() )
+              LogicError("The size of d must match the width of A");
+        )
         for( Int k=0; k<numEntries; ++k )
         {
             const Int j = colBuf[k];

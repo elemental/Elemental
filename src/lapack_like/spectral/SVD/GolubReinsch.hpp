@@ -23,7 +23,7 @@ GolubReinsch
   DistMatrix<F>& V,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch [DistMatrix Decomp]"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -70,7 +70,8 @@ GolubReinsch
     Int rank = k;
     if( compact )
     {
-        const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+        const Real twoNorm = ( k==0 ? Real(0) : d_STAR_STAR.Get(0,0) );
+        const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
         for( Int j=0; j<k; ++j ) 
         {
             if( d_STAR_STAR.Get(j,0) <= thresh )
@@ -121,7 +122,7 @@ GolubReinsch
   ElementalMatrix<F>& VPre,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch [ElementalMatrix Decomp]"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
@@ -141,7 +142,7 @@ GolubReinschFlame
   DistMatrix<F>& V,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame [DistMatrix Decomp]"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -192,7 +193,8 @@ GolubReinschFlame
     Int rank = k;
     if( compact )
     {
-        const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+        const Real twoNorm = ( k==0 ? Real(0) : d_STAR_STAR.Get(0,0) );
+        const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
         for( Int j=0; j<k; ++j ) 
         {
             if( d_STAR_STAR.Get(j,0) <= thresh )
@@ -243,7 +245,7 @@ GolubReinschFlame
   ElementalMatrix<F>& VPre,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame [ElementalMatrix Decomp]"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
@@ -262,7 +264,7 @@ GolubReinsch
   ElementalMatrix<double>& V,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch<double> [ElementalMatrix Decomp]"))
     GolubReinschFlame( A, U, s, V, compact );
 }
 
@@ -275,7 +277,9 @@ GolubReinsch
   ElementalMatrix<Complex<double>>& V,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_ONLY(
+      CSE cse("svd::GolubReinsch<Complex<double>> [ElementalMatrix Decomp]")
+    )
     GolubReinschFlame( A, U, s, V, compact );
 }
 #endif // EL_HAVE_FLA_BSVD
@@ -287,7 +291,7 @@ GolubReinsch
   ElementalMatrix<Base<F>>& s,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch [DistMatrix values]"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -317,7 +321,8 @@ GolubReinsch
     lapack::BidiagDQDS( k, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer() );
     if( compact )
     {
-        const Real thresh = Max(m,n)*limits::Epsilon<Real>();
+        const Real twoNorm = ( k==0 ? Real(0) : d_STAR_STAR.Get(0,0) );
+        const Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
         Int rank = k;
         for( Int j=0; j<k; ++j )
         {
@@ -341,7 +346,7 @@ GolubReinsch
   ElementalMatrix<Base<F>>& s,
   bool compact=false )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_ONLY(CSE cse("svd::GolubReinsch [ElementalMatrix values]"))
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     GolubReinsch( A, s, compact );

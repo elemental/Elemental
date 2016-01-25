@@ -28,6 +28,10 @@ void DiagonalSolve
     const FDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
+        DEBUG_ONLY(
+          if( d.Height() != m )
+              LogicError("Invalid left diagonal solve dimension");
+        )
         for( Int i=0; i<m; ++i )
         {
             const F delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
@@ -40,6 +44,10 @@ void DiagonalSolve
     }
     else
     {
+        DEBUG_ONLY(
+          if( d.Height() != n )
+              LogicError("Invalid right diagonal solve dimension");
+        )
         for( Int j=0; j<n; ++j )
         {
             const F delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
@@ -63,6 +71,11 @@ void SymmetricDiagonalSolve
     F* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
     const Real* dBuf = d.LockedBuffer();
+
+    DEBUG_ONLY(
+      if( d.Height() != n )
+          LogicError("Invalid symmetric diagonal solve dimension");
+    )
 
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i ) 

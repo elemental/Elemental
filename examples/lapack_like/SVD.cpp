@@ -24,7 +24,7 @@ main( int argc, char* argv[] )
         const Int n = Input("--width","width of matrix",100);
         const Int rank = Input("--rank","rank of matrix",10);
         const Int blocksize = Input("--blocksize","algorithmic blocksize",32);
-        const bool compact = Input("--compact","compact SVD?",false);
+        const Int approachInt = Input("--approach","SVD approach",0);
 #ifdef EL_HAVE_SCALAPACK
         const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
         const Int mb = Input("--mb","block height",32);
@@ -34,12 +34,18 @@ main( int argc, char* argv[] )
         const Int mb = 32;
         const Int nb = 32;
 #endif
+        // Options for thresholded SVD
+        const bool relative = Input("--relative","relative thresholding?",true);
+        const Real tol = Input("--tol","threshold tol",Real(0));
 
         const bool testSeq = Input("--testSeq","test sequential SVD?",false);
         const bool testDecomp = Input("--testDecomp","test full SVD?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+
+        const SVDApproach approach = static_cast<SVDApproach>(approachInt);
+        const bool compact = ( approach == COMPACT_SVD );
 
         SetBlocksize( blocksize );
         SetDefaultBlockHeight( mb );
@@ -57,7 +63,9 @@ main( int argc, char* argv[] )
             Uniform( YSeq, rank, n );
             Gemm( NORMAL, NORMAL, C(1), XSeq, YSeq, ASeq );
             SVDCtrl<Real> seqCtrl;
-            seqCtrl.approach = ( compact ? COMPACT_SVD : THIN_SVD );
+            seqCtrl.approach = approach;
+            seqCtrl.relative = relative;
+            seqCtrl.tol = tol;
             SVD( ASeq, sSeq, seqCtrl );
             Output("Sequential SingularValues: ",timer.Stop());
         }
@@ -74,15 +82,19 @@ main( int argc, char* argv[] )
 
         // Compute just the singular values 
         SVDCtrl<Real> ctrl;
-        ctrl.approach = ( compact ? COMPACT_SVD : THIN_SVD );
+        ctrl.approach = approach;
+        ctrl.relative = relative;
+        ctrl.tol = tol;
         DistMatrix<Real,VR,STAR> sOnly(g);
         if( commRank == 0 )
             timer.Start();
         SVD( A, sOnly, ctrl );
         if( commRank == 0 )
             Output("  SingularValues time: ",timer.Stop());
+        if( print )
+            Print( sOnly, "sOnly" );
 
-        if( scalapack )
+        if( scalapack && (approach == THIN_SVD || approach == COMPACT_SVD) )
         {
             DistMatrix<C,MC,MR,BLOCK> ABlock( A );
             Matrix<Real> sBlock;
@@ -112,7 +124,7 @@ main( int argc, char* argv[] )
                 Print( V, "V" );
             }
 
-            if( scalapack )
+            if( scalapack && (approach == THIN_SVD || approach == COMPACT_SVD) )
             {
                 DistMatrix<C,MC,MR,BLOCK> ABlock( A );
                 DistMatrix<C,MC,MR,BLOCK> UBlock(g), VBlock(g);
@@ -126,18 +138,44 @@ main( int argc, char* argv[] )
                     Print( sBlock, "s from ScaLAPACK" ); 
             }
 
+            // Check that U and V are unitary
+            DistMatrix<C> E(g);
+            Identity( E, U.Width(), U.Width() );
+            Herk( LOWER, ADJOINT, Real(-1), U, Real(1), E );
+            const Real UOrthErr = HermitianMaxNorm( LOWER, E );
+            Identity( E, V.Width(), V.Width() );
+            Herk( LOWER, ADJOINT, Real(-1), V, Real(1), E );
+            const Real VOrthErr = HermitianMaxNorm( LOWER, E );
+
             // Compare the singular values from both methods
-            sOnly -= s;
+            if( approach == THRESHOLDED_SVD || approach == COMPACT_SVD )
+            {
+                // The length of s may vary based upon numerical cutoffs
+                const Int sLen = s.Height();
+                const Int sOnlyLen = sOnly.Height();
+                const Int minLen = Min(sLen,sOnlyLen);
+ 
+                auto sT = s( IR(0,minLen), ALL );
+                auto sOnlyT = sOnly( IR(0,minLen), ALL );
+                sOnlyT -= sT;
+            }
+            else
+            {
+                sOnly -= s;
+            }
             const Real singValDiff = FrobeniusNorm( sOnly );
             const Real twoNormA = MaxNorm( s );
             const Real maxNormA = MaxNorm( A );
-
-            DiagonalScale( RIGHT, NORMAL, s, U );
-            Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
+            const Int numSingVals = s.Height();
+            auto UL = U( ALL, IR(0,numSingVals) );
+            auto VL = V( ALL, IR(0,numSingVals) );
+            DiagonalScale( RIGHT, NORMAL, s, UL );
+            E = A;
+            Gemm( NORMAL, ADJOINT, C(-1), UL, VL, C(1), E );
             if( print )
-                Print( A, "A - U s V'" );
-            const Real maxNormE = MaxNorm( A );
-            const Real frobNormE = FrobeniusNorm( A );
+                Print( E, "A - U S V'" );
+            const Real maxNormE = MaxNorm( E );
+            const Real frobNormE = FrobeniusNorm( E );
             const Real eps = limits::Epsilon<Real>();
             const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
 
@@ -145,6 +183,8 @@ main( int argc, char* argv[] )
             {
                 Output("|| A ||_max   = ",maxNormA);
                 Output("|| A ||_2     = ",twoNormA);
+                Output("|| I - U^H U ||_max = ",UOrthErr);
+                Output("|| I - V^H V ||_max = ",VOrthErr);
                 Output("||A - U Sigma V^H||_max = ",maxNormE);
                 Output("||A - U Sigma V^H||_F   = ",frobNormE);
                 Output
