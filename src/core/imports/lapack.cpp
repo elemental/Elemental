@@ -1586,14 +1586,14 @@ void QRSVD
   float* s,
   float* U, BlasInt ldu,
   float* VTrans, BlasInt ldvt,
-  bool thin )
+  bool thin, bool avoidU, bool avoidV )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU= ( thin ? 'S' : 'A' ),
-               jobVT= ( thin ? 'S' : 'A' );
+    const char jobU= ( avoidU ? 'N' : ( thin ? 'S' : 'A' ) ),
+               jobVT= ( avoidV ? 'N' : ( thin ? 'S' : 'A' ) );
     BlasInt workSize=-1, info;
     float workDummy;
 
@@ -1628,14 +1628,14 @@ void QRSVD
   double* s,
   double* U, BlasInt ldu,
   double* VTrans, BlasInt ldvt,
-  bool thin )
+  bool thin, bool avoidU, bool avoidV )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU= ( thin ? 'S' : 'A' ),
-               jobVT= ( thin ? 'S' : 'A' );
+    const char jobU= ( avoidU ? 'N' : ( thin ? 'S' : 'A' ) ),
+               jobVT= ( avoidV ? 'N' : ( thin ? 'S' : 'A' ) );
     BlasInt workSize=-1, info;
     double workDummy;
 
@@ -1670,14 +1670,14 @@ void QRSVD
   float* s,
   scomplex* U, BlasInt ldu,
   scomplex* VH, BlasInt ldva,
-  bool thin )
+  bool thin, bool avoidU, bool avoidV )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU= ( thin ? 'S' : 'A' ),
-               jobVH= ( thin ? 'S' : 'A' );
+    const char jobU= ( avoidU ? 'N' : ( thin ? 'S' : 'A' ) ),
+               jobVH= ( avoidV ? 'N' : ( thin ? 'S' : 'A' ) );
     BlasInt workSize=-1, info;
     const BlasInt k = Min(m,n);
     vector<float> rWork(5*k);
@@ -1716,14 +1716,14 @@ void QRSVD
   double* s,
   dcomplex* U, BlasInt ldu,
   dcomplex* VH, BlasInt ldva,
-  bool thin )
+  bool thin, bool avoidU, bool avoidV )
 {
     DEBUG_ONLY(CSE cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobU= ( thin ? 'S' : 'A' ),
-               jobVH= ( thin ? 'S' : 'A' );
+    const char jobU= ( avoidU ? 'N' : ( thin ? 'S' : 'A' ) ),
+               jobVH= ( avoidV ? 'N' : ( thin ? 'S' : 'A' ) );
     BlasInt workSize=-1, info;
     dcomplex workDummy;
     const BlasInt k = Min(m,n);

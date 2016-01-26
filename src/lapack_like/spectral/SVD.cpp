@@ -13,8 +13,6 @@
 
 namespace El {
 
-// TODO: Begin making use of 'avoidComputingU' and 'avoidComputingV'
-
 // Grab the SVD of the general matrix A, A = U diag(s) V^H
 // =======================================================
 
@@ -43,7 +41,7 @@ void SVD
 {
     DEBUG_ONLY(CSE cse("SVD [Matrix Decomp]"))
     typedef Base<F> Real;
-    if( !ctrl.overwrite )
+    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
     {
         auto ACopy( A );
         auto ctrlMod( ctrl );
@@ -51,11 +49,19 @@ void SVD
         SVD( ACopy, U, s, V, ctrlMod );
         return;
     }
+    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
+    {
+        SVD( A, s, ctrl );
+        return;
+    }
 
     if( ctrl.approach == PRODUCT_SVD )
     {
-        U = A;
-        svd::Product( U, s, V, ctrl.tol, ctrl.relative );
+        // TODO: switch to control structure
+        svd::Product
+        ( A, U, s, V,
+          ctrl.tol, ctrl.relative,
+          ctrl.avoidComputingU, ctrl.avoidComputingV );
     }
     else if( ctrl.approach == THIN_SVD ||
              ctrl.approach == FULL_SVD ||
@@ -66,31 +72,43 @@ void SVD
         const Int k = Min(m,n);
         const bool thin = ( ctrl.approach == THIN_SVD );
         const bool compact = ( ctrl.approach == COMPACT_SVD );
+        const bool avoidU = ctrl.avoidComputingU;
+        const bool avoidV = ctrl.avoidComputingV;
         s.Resize( k, 1 );
         Matrix<F> VAdj;
-        if( thin || compact )
-        {
-            U.Resize( m, k );
-            VAdj.Resize( k, n );
-        }
-        else
-        {
-            U.Resize( m, m );
-            VAdj.Resize( n, n );
-        }
 
         if( ctrl.seqQR )
         {
+            if( thin || compact )
+            {
+                if( !avoidU ) U.Resize( m, k );
+                if( !avoidV ) VAdj.Resize( k, n );
+            }
+            else
+            {
+                if( !avoidU ) U.Resize( m, m );
+                if( !avoidV ) VAdj.Resize( n, n );
+            }
             lapack::QRSVD
             ( m, n,
               A.Buffer(), A.LDim(),
               s.Buffer(),
               U.Buffer(), U.LDim(),
               VAdj.Buffer(), VAdj.LDim(),
-              (thin||compact) );
+              (thin||compact), avoidU, avoidV );
         }
         else
         {
+            if( thin || compact )
+            {
+                U.Resize( m, k );
+                VAdj.Resize( k, n );
+            }
+            else
+            {
+                U.Resize( m, m );
+                VAdj.Resize( n, n );
+            }
             lapack::DivideAndConquerSVD
             ( m, n,
               A.Buffer(), A.LDim(),
@@ -121,12 +139,11 @@ void SVD
                     break;
                 }
             }
-            U.Resize( m, rank );
             s.Resize( rank, 1 );
-            VAdj.Resize( rank, n );
+            if( !avoidU ) U.Resize( m, rank );
+            if( !avoidV ) VAdj.Resize( rank, n );
         }
-
-        Adjoint( VAdj, V );
+        if( !avoidV ) Adjoint( VAdj, V );
     }
 }
 
@@ -154,7 +171,7 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD [ElementalMatrix Decomp]"))
-    if( !ctrl.overwrite )
+    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
     {
         DistMatrix<F> ACopy( A );
         auto ctrlMod( ctrl );
@@ -162,17 +179,28 @@ void SVD
         SVD( ACopy, U, s, V, ctrlMod );
         return;
     }
+    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
+    {
+        SVD( A, s, ctrl );
+        return;
+    }
 
     if( ctrl.approach == PRODUCT_SVD )
     {
-        Copy( A, U );
+        // TODO: Switch to using control structure
         if( U.ColDist() == VC && U.RowDist() == STAR )
         {
             auto& UCast = static_cast<DistMatrix<F,VC,STAR>&>( U );
-            svd::Product( UCast, s, V, ctrl.tol, ctrl.relative );
+            svd::Product
+            ( A, UCast, s, V,
+              ctrl.tol, ctrl.relative,
+              ctrl.avoidComputingU, ctrl.avoidComputingV );
         }
         else
-            svd::Product( U, s, V, ctrl.tol, ctrl.relative );
+            svd::Product
+            ( A, U, s, V,
+              ctrl.tol, ctrl.relative,
+              ctrl.avoidComputingU, ctrl.avoidComputingV );
     }
     else
     {

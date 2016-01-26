@@ -362,28 +362,28 @@ void QRSVD
   float* s,
   float* U, BlasInt ldU,
   float* VT, BlasInt ldVT,
-  bool thin=true );
+  bool thin=true, bool avoidU=false, bool avoidV=false );
 void QRSVD
 ( BlasInt m, BlasInt n,
   double* A, BlasInt ldA, 
   double* s,
   double* U, BlasInt ldU,
   double* VT, BlasInt ldVT,
-  bool thin=true );
+  bool thin=true, bool avoidU=false, bool avoidV=false );
 void QRSVD
 ( BlasInt m, BlasInt n,
   scomplex* A, BlasInt ldA, 
   float* s,
   scomplex* U, BlasInt ldU,
   scomplex* VH, BlasInt ldVH,
-  bool thin=true );
+  bool thin=true, bool avoidU=false, bool avoidV=false );
 void QRSVD
 ( BlasInt m, BlasInt n,
   dcomplex* A, BlasInt ldA, 
   double* s,
   dcomplex* U, BlasInt ldU,
   dcomplex* VH, BlasInt ldVH,
-  bool thin=true );
+  bool thin=true, bool avoidU=false, bool avoidV=false );
 
 // Compute the singular values of a general matrix (using the QR algorithm)
 // ========================================================================

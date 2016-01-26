@@ -37,47 +37,80 @@ ChanUpper
     const Int n = A.Width();
     const double heightRatio = ctrl.fullChanRatio;
     const SVDApproach approach = ctrl.approach;
-
-    if( m > heightRatio*n )
+    const bool avoidU = ctrl.avoidComputingU;
+    const bool avoidV = ctrl.avoidComputingV;
+    if( avoidU && avoidV )
     {
-        DistMatrix<F,MD,STAR> t(g);
-        DistMatrix<Real,MD,STAR> d(g);
-        QR( A, t, d );
+        SVD( A, s, ctrl );
+        return;
+    }
 
-        DistMatrix<F> R(g);
-        auto AT = A( IR(0,n), IR(0,n) );
-        R = AT;
-        MakeTrapezoidal( UPPER, R );
-
-        if( approach == FULL_SVD )
+    if( avoidU )
+    {
+        if( m > heightRatio*n )
         {
-            Identity( U, m, m );
-            auto UTL = U( IR(0,n), IR(0,n) );
-            svd::GolubReinsch( R, UTL, s, V, ctrl );
-            qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+            DistMatrix<F,MD,STAR> t(g);
+            DistMatrix<Real,MD,STAR> d(g);
+            QR( A, t, d );
+
+            DistMatrix<F> R(g);
+            auto AT = A( IR(0,n), IR(0,n) );
+            R = AT;
+            MakeTrapezoidal( UPPER, R );
+
+            // NOTE: This is only appropriate because U is not formed
+            svd::GolubReinsch( R, U, s, V, ctrl );
         }
         else
         {
-            Zeros( U, m, n );
-            auto UT = U( IR(0,n), IR(0,n) );
-            svd::GolubReinsch( R, UT, s, V, ctrl );
-            const Int rank = UT.Width();
-            U.Resize( m, rank );
-            // (U,s,V) holds an SVD of the R from the QR fact. of the original A
-            qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+            // NOTE: This is only appropriate because U is not formed
+            svd::GolubReinsch( A, U, s, V, ctrl );
         }
     }
     else
     {
-        if( approach == FULL_SVD )
+        // This branch handles (avoidU,avoidV) in {(false,false),(false,true)}
+        if( m > heightRatio*n )
         {
-            Identity( U, m, m );
-            auto UL = U( IR(0,m), IR(0,n) );  
-            svd::GolubReinsch( A, UL, s, V, ctrl );
+            DistMatrix<F,MD,STAR> t(g);
+            DistMatrix<Real,MD,STAR> d(g);
+            QR( A, t, d );
+
+            DistMatrix<F> R(g);
+            auto AT = A( IR(0,n), IR(0,n) );
+            R = AT;
+            MakeTrapezoidal( UPPER, R );
+
+            if( approach == FULL_SVD )
+            {
+                Identity( U, m, m );
+                auto UTL = U( IR(0,n), IR(0,n) );
+                svd::GolubReinsch( R, UTL, s, V, ctrl );
+                qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+            }
+            else
+            {
+                Zeros( U, m, n );
+                auto UT = U( IR(0,n), IR(0,n) );
+                svd::GolubReinsch( R, UT, s, V, ctrl );
+                const Int rank = UT.Width();
+                U.Resize( m, rank );
+                // (U,s,V) holds an SVD of the R from the QR fact. of original A
+                qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+            }
         }
         else
         {
-            svd::GolubReinsch( A, U, s, V, ctrl );
+            if( approach == FULL_SVD )
+            {
+                Identity( U, m, m );
+                auto UL = U( IR(0,m), IR(0,n) );  
+                svd::GolubReinsch( A, UL, s, V, ctrl );
+            }
+            else
+            {
+                svd::GolubReinsch( A, U, s, V, ctrl );
+            }
         }
     }
 }
@@ -176,7 +209,10 @@ Chan
         // TODO: Avoid the explicit copy by explicitly forming the Q from LQ
         DistMatrix<F> AAdj(A.Grid());
         Adjoint( A, AAdj );
-        svd::ChanUpper( AAdj, V, s, U, ctrl );
+        auto ctrlMod( ctrl );
+        ctrlMod.avoidComputingU = ctrl.avoidComputingV;
+        ctrlMod.avoidComputingV = ctrl.avoidComputingU;
+        svd::ChanUpper( AAdj, V, s, U, ctrlMod );
     }
 
     // Rescale the singular values if necessary

@@ -19,10 +19,12 @@ namespace svd {
 
 template<typename F>
 inline void TallAbsoluteProduct
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V,
-  Base<F> tol )
+( const Matrix<F>& A,
+        Matrix<F>& U, 
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  Base<F> tol,
+  bool avoidU )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallAbsoluteProduct");
@@ -42,7 +44,7 @@ inline void TallAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        A.Resize( m, 0 );        
+        U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return;
@@ -67,23 +69,28 @@ inline void TallAbsoluteProduct
     for( Int i=0; i<k; ++i )
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
-    // Y := A V
-    Matrix<F> Y;
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    if( avoidU )
+    {
+        // Y := A V
+        Matrix<F> Y;
+        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
-    // Set each column of A to be the corresponding normalized column of Y
-    A = Y;
-    Matrix<Base<F>> colNorms;
-    ColumnTwoNorms( A, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
+        // Set each column of U to be the corresponding normalized column of Y
+        U = Y;
+        Matrix<Base<F>> colNorms;
+        ColumnTwoNorms( U, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, U );
+    }
 }
 
 template<typename F>
 inline void TallRelativeProduct
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V,
-  Base<F> relTol )
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  Base<F> relTol,
+  bool avoidU )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallRelativeProduct");
@@ -123,43 +130,50 @@ inline void TallRelativeProduct
             s.Set( i, 0, sigma );
     }
 
-    // Y := A V
-    Matrix<F> Y;
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    if( avoidU )
+    {
+        // Y := A V
+        Matrix<F> Y;
+        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
-    // Set each column of A to be the corresponding normalized column of Y
-    A = Y;
-    Matrix<Base<F>> colNorms;
-    ColumnTwoNorms( A, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
+        // Set each column of U to be the corresponding normalized column of Y
+        U = Y;
+        Matrix<Base<F>> colNorms;
+        ColumnTwoNorms( U, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, U );
+    }
 }
 
 template<typename F>
 inline void TallProduct
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V, 
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V, 
   Base<F> tol,
-  bool relative )
+  bool relative,
+  bool avoidU )
 {
     DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeProduct( A, s, V, tol );
+        TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
-        TallAbsoluteProduct( A, s, V, tol );
+        TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
 inline void
 TallAbsoluteProduct
-( DistMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  DistMatrix<F>& V,
-  Base<F> tol )
+( const DistMatrix<F>& A,
+        DistMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        DistMatrix<F>& V,
+  Base<F> tol,
+  bool avoidU )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallAbsoluteProduct");
-      AssertSameGrids( A, s, V );
+      AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
@@ -176,7 +190,7 @@ TallAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        A.Resize( m, 0 );        
+        U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return;
@@ -204,44 +218,53 @@ TallAbsoluteProduct
             s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
-    // Y := A V
-    DistMatrix<F> Y(g);
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    if( avoidU )
+    {
+        // Y := A V
+        DistMatrix<F> Y(g);
+        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
-    // Set each column of A to be the corresponding normalized column of Y
-    A = Y;
-    DistMatrix<Real,MR,STAR> colNorms(g);
-    ColumnTwoNorms( A, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
+        // Set each column of U to be the corresponding normalized column of Y
+        U = Y;
+        DistMatrix<Real,MR,STAR> colNorms(g);
+        ColumnTwoNorms( U, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, U );
+    }
 }
 
 template<typename F>
 inline void
 TallAbsoluteProduct
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
-  Base<F> tol )
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<F>& UPre,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& VPre,
+  Base<F> tol,
+  bool avoidU )
 {
     DEBUG_ONLY(CSE cse("svd::TallAbsoluteProduct"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
-    auto& A = AProx.Get();
+    auto& A = AProx.GetLocked();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallAbsoluteProduct( A, s, V, tol );
+    TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
 inline void
 TallRelativeProduct
-( DistMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  DistMatrix<F>& V,
-  Base<F> relTol )
+( const DistMatrix<F>& A,
+        DistMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        DistMatrix<F>& V,
+  Base<F> relTol,
+  bool avoidU )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallRelativeProduct");
-      AssertSameGrids( A, s, V );
+      AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
@@ -282,59 +305,70 @@ TallRelativeProduct
     }
     Copy( s_STAR_STAR, s );
 
-    // Y := A V
-    DistMatrix<F> Y(g);
-    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+    if( avoidU )
+    {
+        // Y := A V
+        DistMatrix<F> Y(g);
+        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
-    // Set each column of A to be the corresponding normalized column of Y
-    A = Y;
-    DistMatrix<Real,MR,STAR> colNorms(g);
-    ColumnTwoNorms( A, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
+        // Set each column of U to be the corresponding normalized column of Y
+        U = Y;
+        DistMatrix<Real,MR,STAR> colNorms(g);
+        ColumnTwoNorms( U, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, U );
+    }
 }
 
 template<typename F>
 inline void
 TallRelativeProduct
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
-  Base<F> relTol )
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<F>& UPre,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& VPre,
+  Base<F> relTol,
+  bool avoidU )
 {
     DEBUG_ONLY(CSE cse("svd::TallRelativeProduct"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
-    auto& A = AProx.Get();
+    auto& A = AProx.GetLocked();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallRelativeProduct( A, s, V, relTol );
+    TallRelativeProduct( A, U, s, V, relTol, avoidU );
 }
 
 template<typename F>
 inline void TallProduct
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V,
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
   Base<F> tol,
-  bool relative )
+  bool relative,
+  bool avoidU )
 {
     DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeProduct( A, s, V, tol );
+        TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
-        TallAbsoluteProduct( A, s, V, tol );
+        TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
 inline void
 TallAbsoluteProduct
-( DistMatrix<F,VC,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& s, 
-  DistMatrix<F,STAR,STAR>& V,
-  Base<F> tol )
+( const DistMatrix<F,VC,STAR>& A,
+        DistMatrix<F,VC,STAR>& U,
+        DistMatrix<Base<F>,STAR,STAR>& s, 
+        DistMatrix<F,STAR,STAR>& V,
+  Base<F> tol,
+  bool avoidU )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallAbsoluteProduct");
-      AssertSameGrids( A, s, V );
+      AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
@@ -352,7 +386,7 @@ TallAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        A.Resize( m, 0 );        
+        U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return;
@@ -380,46 +414,55 @@ TallAbsoluteProduct
     for( Int i=0; i<k; ++i )
         s.SetLocal( i, 0, Sqrt(s.GetLocal(i,0)) );
 
-    // Y := A V
-    DistMatrix<F,VC,STAR> Y(g);
-    Y.AlignWith( A );
-    Zeros( Y, m, k );
-    LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+    if( avoidU )
+    {
+        // Y := A V
+        DistMatrix<F,VC,STAR> Y(g);
+        Y.AlignWith( A );
+        Zeros( Y, m, k );
+        LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
 
-    // Set each column of A to be the corresponding normalized column of Y
-    A = Y;
-    DistMatrix<Real,STAR,STAR> colNorms(g);
-    ColumnTwoNorms( A, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
+        // Set each column of U to be the corresponding normalized column of Y
+        U = Y;
+        DistMatrix<Real,STAR,STAR> colNorms(g);
+        ColumnTwoNorms( U, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, U );
+    }
 }
 
 template<typename F>
 inline void
 TallAbsoluteProduct
-( DistMatrix<F,VC,STAR>& A,
-  ElementalMatrix<Base<F>>& sPre, 
-  ElementalMatrix<F>& VPre,
-  Base<F> tol )
+( const DistMatrix<F,VC,STAR>& A,
+        ElementalMatrix<F>& UPre,
+        ElementalMatrix<Base<F>>& sPre, 
+        ElementalMatrix<F>& VPre,
+  Base<F> tol,
+  bool avoidU )
 {
     DEBUG_ONLY(CSE cse("svd::TallAbsoluteProduct"))
+    DistMatrixWriteProxy<F,F,VC,STAR> UProx( UPre );
     DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
     DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
     auto& s = sProx.Get();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallAbsoluteProduct( A, s, V, tol );
+    TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
 inline void
 TallRelativeProduct
-( DistMatrix<F,VC,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& s, 
-  DistMatrix<F,STAR,STAR>& V,
-  Base<F> relTol )
+( const DistMatrix<F,VC,STAR>& A,
+        DistMatrix<F,VC,STAR>& U,
+        DistMatrix<Base<F>,STAR,STAR>& s, 
+        DistMatrix<F,STAR,STAR>& V,
+  Base<F> relTol,
+  bool avoidU )
 {
     DEBUG_ONLY(
       CSE cse("svd::TallRelativeProduct");
-      AssertSameGrids( A, s, V );
+      AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
@@ -461,57 +504,68 @@ TallRelativeProduct
     }
     const int k = s.Height();
 
-    // Y := A V
-    DistMatrix<F,VC,STAR> Y(g);
-    Y.AlignWith( A );
-    Zeros( Y, m, k );
-    LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+    if( avoidU )
+    {
+        // Y := A V
+        DistMatrix<F,VC,STAR> Y(g);
+        Y.AlignWith( A );
+        Zeros( Y, m, k );
+        LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
 
-    // Set each column of A to be the corresponding normalized column of Y
-    A = Y;
-    DistMatrix<Real,STAR,STAR> colNorms(g);
-    ColumnTwoNorms( A, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, A );
+        // Set each column of U to be the corresponding normalized column of Y
+        U = Y;
+        DistMatrix<Real,STAR,STAR> colNorms(g);
+        ColumnTwoNorms( U, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, U );
+    }
 }
 
 template<typename F>
 inline void
 TallRelativeProduct
-( DistMatrix<F,VC,STAR>& A,
-  ElementalMatrix<Base<F>>& sPre, 
-  ElementalMatrix<F>& VPre,
-  Base<F> relTol )
+( const DistMatrix<F,VC,STAR>& A,
+        ElementalMatrix<F>& UPre,
+        ElementalMatrix<Base<F>>& sPre, 
+        ElementalMatrix<F>& VPre,
+  Base<F> relTol,
+  bool avoidU )
 {
     DEBUG_ONLY(CSE cse("svd::TallRelativeProduct"))
     DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
+    DistMatrixWriteProxy<F,F,VC,STAR> UProx( UPre );
     DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
     auto& s = sProx.Get();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallRelativeProduct( A, s, V, relTol );
+    TallRelativeProduct( A, U, s, V, relTol, avoidU );
 }
 
 template<typename F>
 void TallProduct
-( DistMatrix<F,VC,STAR>& A,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V,
+( const DistMatrix<F,VC,STAR>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
   Base<F> tol,
-  bool relative )
+  bool relative,
+  bool avoidU )
 {
     DEBUG_ONLY(CSE cse("svd::TallProduct"))
     if( relative )
-        TallRelativeProduct( A, s, V, tol );
+        TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
-        TallAbsoluteProduct( A, s, V, tol );
+        TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
 inline void
 WideAbsoluteProduct
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V,
-  Base<F> tol )
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  Base<F> tol,
+  bool avoidV )
 {
     DEBUG_ONLY(
       CSE cse("svd::WideAbsoluteProduct");
@@ -531,7 +585,7 @@ WideAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        A.Resize( m, 0 );        
+        U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return;
@@ -542,7 +596,6 @@ WideAbsoluteProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
-    Matrix<F> U;
     HermitianEigSubset<Real> subset;
     subset.rangeSubset = true;
     subset.lowerBound = tol*tol;
@@ -557,24 +610,27 @@ WideAbsoluteProduct
     for( Int i=0; i<k; ++i )
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
-    // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    if( avoidV )
+    {
+        // (Sigma V) := A^H U
+        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Normalize each column of Sigma V
-    Matrix<Base<F>> colNorms;
-    ColumnTwoNorms( V, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
-
-    A = U;
+        // Normalize each column of Sigma V
+        Matrix<Base<F>> colNorms;
+        ColumnTwoNorms( V, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+    }
 }
 
 template<typename F>
 inline void
 WideRelativeProduct
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V,
-  Base<F> relTol )
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  Base<F> relTol,
+  bool avoidV )
 {
     DEBUG_ONLY(
       CSE cse("svd::WideProduct");
@@ -597,7 +653,6 @@ WideRelativeProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
-    Matrix<F> U;
     HermitianEig( LOWER, C, s, U, DESCENDING );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
@@ -615,39 +670,44 @@ WideRelativeProduct
             s.Set( i, 0, Sqrt(lambda) );
     }
 
-    // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    if( avoidV )
+    {
+        // (Sigma V) := A^H U
+        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Normalize each column of Sigma V
-    Matrix<Base<F>> colNorms;
-    ColumnTwoNorms( V, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
-
-    A = U;
+        // Normalize each column of Sigma V
+        Matrix<Base<F>> colNorms;
+        ColumnTwoNorms( V, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+    }
 }
 
 template<typename F>
 inline void WideProduct
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V, 
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V, 
   Base<F> tol,
-  bool relative )
+  bool relative,
+  bool avoidV )
 {
     DEBUG_ONLY(CSE cse("svd::WideProduct"))
     if( relative )
-        WideRelativeProduct( A, s, V, tol );
+        WideRelativeProduct( A, U, s, V, tol, avoidV );
     else
-        WideAbsoluteProduct( A, s, V, tol );
+        WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
 template<typename F>
 inline void
 WideAbsoluteProduct
-( DistMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  DistMatrix<F>& V,
-  Base<F> tol )
+( const DistMatrix<F>& A,
+        DistMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        DistMatrix<F>& V,
+  Base<F> tol,
+  bool avoidV )
 {
     DEBUG_ONLY(
       CSE cse("svd::WideAbsoluteProduct");
@@ -668,7 +728,7 @@ WideAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        A.Resize( m, 0 );        
+        U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return;
@@ -680,7 +740,6 @@ WideAbsoluteProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
-    DistMatrix<F> U(g);
     HermitianEigSubset<Real> subset;
     subset.rangeSubset = true;
     subset.lowerBound = tol*tol;
@@ -697,44 +756,51 @@ WideAbsoluteProduct
             s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
-    // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    if( avoidV )
+    {
+        // (Sigma V) := A^H U
+        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Normalize each column of Sigma V
-    DistMatrix<Real,MR,STAR> colNorms(g);
-    ColumnTwoNorms( V, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
-
-    A = U;
+        // Normalize each column of Sigma V
+        DistMatrix<Real,MR,STAR> colNorms(g);
+        ColumnTwoNorms( V, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+    }
 }
 
 template<typename F>
 inline void
 WideAbsoluteProduct
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
-  Base<F> tol )
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<F>& UPre,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& VPre,
+  Base<F> tol,
+  bool avoidV )
 {
     DEBUG_ONLY(CSE cse("svd::WideAbsoluteProduct"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
-    auto& A = AProx.Get();
+    auto& A = AProx.GetLocked();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    WideAbsoluteProduct( A, s, V, tol );
+    WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
 template<typename F>
 inline void
 WideRelativeProduct
-( DistMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  DistMatrix<F>& V,
-  Base<F> relTol )
+( const DistMatrix<F>& A,
+        DistMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        DistMatrix<F>& V,
+  Base<F> relTol,
+  bool avoidV )
 {
     DEBUG_ONLY(
       CSE cse("svd::WideRelativeProduct");
-      AssertSameGrids( A, s, V );
+      AssertSameGrids( A, U, s, V );
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( relTol < 0 )
@@ -756,7 +822,6 @@ WideRelativeProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
-    DistMatrix<F> U(g);
     HermitianEig( LOWER, C, s, U, DESCENDING );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
@@ -776,79 +841,96 @@ WideRelativeProduct
     }
     Copy( s_STAR_STAR, s );
 
-    // (Sigma V) := A^H U
-    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+    if( avoidV )
+    {
+        // (Sigma V) := A^H U
+        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
-    // Normalize each column of Sigma V
-    DistMatrix<Real,MR,STAR> colNorms(g);
-    ColumnTwoNorms( V, colNorms );
-    DiagonalSolve( RIGHT, NORMAL, colNorms, V );
-
-    A = U;
+        // Normalize each column of Sigma V
+        DistMatrix<Real,MR,STAR> colNorms(g);
+        ColumnTwoNorms( V, colNorms );
+        DiagonalSolve( RIGHT, NORMAL, colNorms, V );
+    }
 }
 
 template<typename F>
 inline void
 WideRelativeProduct
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
-  Base<F> relTol )
+( const ElementalMatrix<F>& APre,
+        ElementalMatrix<F>& UPre,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& VPre,
+  Base<F> relTol,
+  bool avoidV )
 {
     DEBUG_ONLY(CSE cse("svd::WideRelativeProduct"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
-    auto& A = AProx.Get();
+    auto& A = AProx.GetLocked();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    WideRelativeProduct( A, s, V, relTol );
+    WideRelativeProduct( A, U, s, V, relTol, avoidV );
 }
 
 template<typename F>
 inline void WideProduct
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V,
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
   Base<F> tol,
-  bool relative )
+  bool relative,
+  bool avoidV )
 {
     DEBUG_ONLY(CSE cse("svd::WideProduct"))
     if( relative )
-        WideRelativeProduct( A, s, V, tol );
+        WideRelativeProduct( A, U, s, V, tol, avoidV );
     else
-        WideAbsoluteProduct( A, s, V, tol );
+        WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
 // NOTE: [* ,VR] WideProduct would produce U with different distribution
 //       than A. It makes more sense to overwrite A with V'.
+// TODO: Update the above note and the following routines now that A is not
+//       overwritten
 
 template<typename F>
 void Product
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V, 
+( const Matrix<F>& A,
+        Matrix<F>& U, 
+        Matrix<Base<F>>& s,
+        Matrix<F>& V, 
   Base<F> tol,
-  bool relative )
+  bool relative,
+  bool avoidU,
+  bool avoidV )
 {
     DEBUG_ONLY(CSE cse("svd::Product"))
+    // TODO: If m(A) >=~ n(A) but avoidV requested, find a way to make use of it
     if( A.Height() >= A.Width() )
-        TallProduct( A, s, V, tol, relative );
+        TallProduct( A, U, s, V, tol, relative, avoidU );
     else
-        WideProduct( A, s, V, tol, relative );
+        WideProduct( A, U, s, V, tol, relative, avoidV );
 }
 
 template<typename F>
 void Product
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V,
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
   Base<F> tol,
-  bool relative )
+  bool relative,
+  bool avoidU,
+  bool avoidV )
 {
     DEBUG_ONLY(CSE cse("svd::Product"))
+    // TODO: If m(A) >=~ n(A) but avoidV requested, find a way to make use of it
     if( A.Height() >= A.Width() )
-        TallProduct( A, s, V, tol, relative );
+        TallProduct( A, U, s, V, tol, relative, avoidU );
     else
-        WideProduct( A, s, V, tol, relative );
+        WideProduct( A, U, s, V, tol, relative, avoidV );
 }
 
 // Compute singular values

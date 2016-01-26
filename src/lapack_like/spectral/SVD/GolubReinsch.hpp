@@ -29,6 +29,13 @@ GolubReinsch
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
+    const bool avoidU = ctrl.avoidComputingU;
+    const bool avoidV = ctrl.avoidComputingV;
+    if( avoidU && avoidV )
+    {
+        SVD( A, s, ctrl );
+        return;
+    }
 
     // Bidiagonalize A
     const Grid& g = A.Grid();
@@ -41,19 +48,26 @@ GolubReinsch
 
     // NOTE: lapack::BidiagQRAlg expects e to be of length k
     typedef Base<F> Real;
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               eHat_STAR_STAR( k, 1, g );
+    DistMatrix<Real,STAR,STAR>
+      d_STAR_STAR( d_MD_STAR ),
+      eHat_STAR_STAR( k, 1, g );
     auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), ALL );
     e_STAR_STAR = e_MD_STAR;
 
     // Initialize U and VAdj to the appropriate identity matrices
     DistMatrix<F,VC,STAR> U_VC_STAR( g );
-    U_VC_STAR.AlignWith( A );
-    Identity( U_VC_STAR, m, k );
+    if( !avoidU )
+    {
+        U_VC_STAR.AlignWith( A );
+        Identity( U_VC_STAR, m, k );
+    }
 
     DistMatrix<F,STAR,VC> VAdj_STAR_VC( g );
-    VAdj_STAR_VC.AlignWith( V );
-    Identity( VAdj_STAR_VC, k, n );
+    if( !avoidV )
+    {
+        VAdj_STAR_VC.AlignWith( V );
+        Identity( VAdj_STAR_VC, k, n );
+    }
 
     // TODO: If compact SVD, identify the rank with DQDS first?
 
@@ -90,36 +104,42 @@ GolubReinsch
             }
         }
 
-        U_VC_STAR.Resize( m, rank );
         d_STAR_STAR.Resize( rank, 1 );
-        VAdj_STAR_VC.Resize( rank, n );
+        if( !avoidU ) U_VC_STAR.Resize( m, rank );
+        if( !avoidV ) VAdj_STAR_VC.Resize( rank, n );
     }
     // Copy out the appropriate subset of the singular values
     Copy( d_STAR_STAR, s );
 
     if( m >= n )
     {
-        U.Resize( m, rank );
-        auto UT = U( IR(0,n  ), ALL );
-        auto UB = U( IR(n,END), ALL );
-        auto UT_VC_STAR = U_VC_STAR( IR(0,n), ALL );
-        UT = UT_VC_STAR;
-        Zero( UB );
-        Adjoint( VAdj_STAR_VC, V );
+        if( !avoidU )
+        {
+            U.Resize( m, rank );
+            auto UT = U( IR(0,n  ), ALL );
+            auto UB = U( IR(n,END), ALL );
+            auto UT_VC_STAR = U_VC_STAR( IR(0,n), ALL );
+            UT = UT_VC_STAR;
+            Zero( UB );
+        }
+        if( !avoidV ) Adjoint( VAdj_STAR_VC, V );
     }
     else
     {
-        U = U_VC_STAR;
-        auto VAdjL_STAR_VC = VAdj_STAR_VC( IR(0,rank), IR(0,m) );
-        auto VT = V( IR(0,m  ), ALL );
-        auto VB = V( IR(m,END), ALL );
-        Adjoint( VAdjL_STAR_VC, VT );
-        Zero( VB );
+        if( !avoidU ) U = U_VC_STAR;
+        if( !avoidV )
+        {
+            auto VAdjL_STAR_VC = VAdj_STAR_VC( IR(0,rank), IR(0,m) );
+            auto VT = V( IR(0,m  ), ALL );
+            auto VB = V( IR(m,END), ALL );
+            Adjoint( VAdjL_STAR_VC, VT );
+            Zero( VB );
+        }
     }
 
     // Backtransform U and V
-    bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
-    bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
 }
 
 template<typename F>
@@ -156,6 +176,13 @@ GolubReinschFlame
     const Int n = A.Width();
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const bool avoidU = ctrl.avoidComputingU;
+    const bool avoidV = ctrl.avoidComputingV;
+    if( avoidU && avoidV )
+    {
+        SVD( A, s, ctrl );
+        return;
+    }
 
     // Bidiagonalize A
     const Grid& g = A.Grid();
@@ -169,15 +196,22 @@ GolubReinschFlame
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
     typedef Base<F> Real;
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( e_MD_STAR );
+    DistMatrix<Real,STAR,STAR>
+      d_STAR_STAR( d_MD_STAR ),
+      e_STAR_STAR( e_MD_STAR );
 
-    // Initialize U and VAdj to the appropriate identity matrices
+    // Initialize U and V to the appropriate identity matrices
     DistMatrix<F,VC,STAR> U_VC_STAR(g), V_VC_STAR(g);
-    U_VC_STAR.AlignWith( A );
-    V_VC_STAR.AlignWith( V );
-    Identity( U_VC_STAR, m, k );
-    Identity( V_VC_STAR, n, k );
+    if( !avoidU )
+    {
+        U_VC_STAR.AlignWith( A );
+        Identity( U_VC_STAR, m, k );
+    }
+    if( !avoidV )
+    {
+        V_VC_STAR.AlignWith( V );
+        Identity( V_VC_STAR, n, k );
+    }
 
     // Since libFLAME, to the best of my current knowledge, only supports the
     // upper-bidiagonal case, we may instead work with the adjoint in the 
@@ -222,36 +256,42 @@ GolubReinschFlame
             }
         }
 
-        U_VC_STAR.Resize( m, rank );
         d_STAR_STAR.Resize( rank, 1 );
-        VAdj_STAR_VC.Resize( rank, n );
+        if( !avoidU ) U_VC_STAR.Resize( m, rank );
+        if( !avoidV ) V_VC_STAR.Resize( n, rank );
     }
     // Copy out the appropriate subset of the singular values
     Copy( d_STAR_STAR, s );
 
     if( m >= n )
     {
-        u.Resize( m, rank );
-        auto UT_VC_STAR = U_VC_STAR( IR(0,n), IR(0,rank) );
-        auto UT = U( IR(0,n), ALL );
-        auto UB = U( IR(n,END), ALL );
-        UT = UT_VC_STAR;
-        Zero( UB );
-        V = V_VC_STAR;
+        if( !avoidU )
+        {
+            U.Resize( m, rank );
+            auto UT_VC_STAR = U_VC_STAR( IR(0,n), IR(0,rank) );
+            auto UT = U( IR(0,n), ALL );
+            auto UB = U( IR(n,END), ALL );
+            UT = UT_VC_STAR;
+            Zero( UB );
+        }
+        if( !avoidV ) V = V_VC_STAR;
     }
     else
     {
-        u = U_VC_STAR;
-        auto VT_VC_STAR = V_VC_STAR( IR(0,m), IR(0,rank) );
-        auto VT = V( IR(0,m  ), ALL );
-        auto VB = V( IR(m,END), ALL ); 
-        VT = VT_VC_STAR;
-        Zero( VB );
+        if( !avoidU ) U = U_VC_STAR;
+        if( !avoidV )
+        {
+            auto VT_VC_STAR = V_VC_STAR( IR(0,m), IR(0,rank) );
+            auto VT = V( IR(0,m  ), ALL );
+            auto VB = V( IR(m,END), ALL ); 
+            VT = VT_VC_STAR;
+            Zero( VB );
+        }
     }
 
     // Backtransform U and V
-    bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
-    bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
 }
 
 template<typename F>
@@ -330,8 +370,9 @@ GolubReinsch
     //
     // NOTE: lapack::BidiagDQDS expects e to be of length k
     typedef Base<F> Real;
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               eHat_STAR_STAR( k, 1, g );
+    DistMatrix<Real,STAR,STAR>
+      d_STAR_STAR( d_MD_STAR ),
+      eHat_STAR_STAR( k, 1, g );
     auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), ALL );
     e_STAR_STAR = e_MD_STAR;
 
