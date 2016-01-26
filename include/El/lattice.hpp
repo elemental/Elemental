@@ -264,6 +264,14 @@ void LatticeImageAndKernel
         Matrix<F>& K,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
+// Fill K with the LLL-reduced basis for the image of B.
+// TODO: Make this faster than LatticeImageAndKernel
+template<typename F>
+void LatticeImage
+( const Matrix<F>& B,
+        Matrix<F>& M,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
 // Fill K with the LLL-reduced basis for the kernel of B.
 // This will eventually mirror Algorithm 2.7.2 from Cohen's
 // "A course in computational algebraic number theory".

@@ -34,9 +34,23 @@ void LatticeImageAndKernel
     // as suggested by Cohen, we can simply solve a least squares problem
     //
     // NOTE: 'R' is reused for the least squares solution
+    // TODO: Support other options than just "Babai rounding", e.g.,
+    //       Nulling and Cancelling (with optimal ordering)
     LeastSquares( NORMAL, K, M, R );
     Round( R );
     Gemm( NORMAL, NORMAL, F(-1), K, R, F(1), M );
+}
+
+template<typename F>
+void LatticeImage
+( const Matrix<F>& B,
+        Matrix<F>& M,
+  const LLLCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("LatticeImage"))
+    // TODO: Avoid computing the kernel?
+    Matrix<F> K;
+    LatticeImageAndKernel( B, M, K, ctrl );
 }
 
 template<typename F>
@@ -57,6 +71,10 @@ void LatticeKernel
   ( const Matrix<F>& B, \
           Matrix<F>& M, \
           Matrix<F>& K, \
+    const LLLCtrl<Base<F>>& ctrl ); \
+  template void LatticeImage \
+  ( const Matrix<F>& B, \
+          Matrix<F>& M, \
     const LLLCtrl<Base<F>>& ctrl ); \
   template void LatticeKernel \
   ( const Matrix<F>& B, \

@@ -121,6 +121,15 @@ EL_EXPORT ElError ElLatticeImageAndKernel_c
 EL_EXPORT ElError ElLatticeImageAndKernel_z
 ( ElConstMatrix_z B, ElMatrix_z M, ElMatrix_z K, ElLLLCtrl_d ctrl );
 
+EL_EXPORT ElError ElLatticeImage_s
+( ElConstMatrix_s B, ElMatrix_s M, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeImage_d
+( ElConstMatrix_d B, ElMatrix_d M, ElLLLCtrl_d ctrl );
+EL_EXPORT ElError ElLatticeImage_c
+( ElConstMatrix_c B, ElMatrix_c M, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeImage_z
+( ElConstMatrix_z B, ElMatrix_z M, ElLLLCtrl_d ctrl );
+
 EL_EXPORT ElError ElLatticeKernel_s
 ( ElConstMatrix_s B, ElMatrix_s K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeKernel_d

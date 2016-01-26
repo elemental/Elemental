@@ -92,6 +92,11 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ElLLLCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( LatticeImageAndKernel( \
       *CReflect(B), *CReflect(M), *CReflect(K), CReflect(ctrl) ) ) } \
+  ElError ElLatticeImage_ ## SIG \
+  ( ElConstMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG M, \
+    ElLLLCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( LatticeImage( *CReflect(B), *CReflect(M), CReflect(ctrl) ) ) } \
   ElError ElLatticeKernel_ ## SIG \
   ( ElConstMatrix_ ## SIG B, \
     ElMatrix_ ## SIG K, \

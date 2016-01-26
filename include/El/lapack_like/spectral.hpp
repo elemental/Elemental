@@ -688,6 +688,40 @@ void HermitianSVD
         ElementalMatrix<Base<F>>& s,
         ElementalMatrix<F>& V );
 
+// Image and kernel
+// ================
+// Return orthonormal bases for the image and/or kernel of a matrix
+// TODO: Provide support for various algorithms (e.g., RRQR vs. SVD)
+
+template<typename F>
+void ImageAndKernel
+( const Matrix<F>& A,
+        Matrix<F>& M,
+        Matrix<F>& K );
+template<typename F>
+void ImageAndKernel
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& M,
+        ElementalMatrix<F>& K );
+
+template<typename F>
+void Image
+( const Matrix<F>& A,
+        Matrix<F>& M );
+template<typename F>
+void Image
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& M );
+
+template<typename F>
+void Kernel
+( const Matrix<F>& A,
+        Matrix<F>& K );
+template<typename F>
+void Kernel
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& K );
+
 // Lanczos
 // =======
 // Form the Lanczos decomposition

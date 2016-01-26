@@ -168,6 +168,29 @@ def LatticeImageAndKernel(B,ctrl=None):
     return M, K
   else: TypeExcept()
 
+lib.ElLatticeImage_s.argtypes = \
+lib.ElLatticeImage_c.argtypes = \
+  [c_void_p,c_void_p,LLLCtrl_s]
+lib.ElLatticeImage_d.argtypes = \
+lib.ElLatticeImage_z.argtypes = \
+  [c_void_p,c_void_p,LLLCtrl_d]
+
+def LatticeImage(B,ctrl=None):
+  if ctrl==None:
+    if   B.tag == sTag or B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag or B.tag == zTag: ctrl = LLLCtrl_d()
+
+  if type(B) is Matrix:
+    M = Matrix(B.tag)
+    args = [B.obj,M.obj,ctrl]
+    if   B.tag == sTag: lib.ElLatticeImage_s(*args)
+    elif B.tag == dTag: lib.ElLatticeImage_d(*args)
+    elif B.tag == cTag: lib.ElLatticeImage_c(*args)
+    elif B.tag == zTag: lib.ElLatticeImage_z(*args)
+    else: DataExcept()
+    return M
+  else: TypeExcept()
+
 lib.ElLatticeKernel_s.argtypes = \
 lib.ElLatticeKernel_c.argtypes = \
   [c_void_p,c_void_p,LLLCtrl_s]
