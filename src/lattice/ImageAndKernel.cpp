@@ -62,8 +62,16 @@ void LatticeKernel
     DEBUG_ONLY(CSE cse("LatticeKernel"))
     // TODO: Take the shortcuts suggested in Algorithm 2.7.2 of Henri Cohen's
     //       "A course in computational algebraic number theory".
-    Matrix<F> M;
-    LatticeImageAndKernel( B, M, K, ctrl );
+
+    Matrix<F> BCopy( B );
+    Matrix<F> U, R;
+    auto info = LLL( BCopy, U, R, ctrl );
+    const Int rank = info.rank;
+    const Int n = B.Width();
+    K = U(ALL,IR(rank,n));
+
+    // Reduce the columns of U that corresponded to the kernel
+    LLL( K, ctrl );
 }
 
 #define PROTO(F) \
