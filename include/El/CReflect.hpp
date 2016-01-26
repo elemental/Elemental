@@ -1125,6 +1125,8 @@ inline SVDCtrl<float> CReflect( const ElSVDCtrl_s& ctrlC )
     SVDCtrl<float> ctrl;
     ctrl.approach = CReflect(ctrlC.approach);
     ctrl.overwrite = ctrlC.overwrite;
+    ctrl.avoidComputingU = ctrlC.avoidComputingU;
+    ctrl.avoidComputingV = ctrlC.avoidComputingV;
 
     ctrl.seqQR = ctrlC.seqQR;
     ctrl.valChanRatio = ctrlC.valChanRatio;
@@ -1140,6 +1142,8 @@ inline SVDCtrl<double> CReflect( const ElSVDCtrl_d& ctrlC )
     SVDCtrl<double> ctrl;
     ctrl.approach = CReflect(ctrlC.approach);
     ctrl.overwrite = ctrlC.overwrite;
+    ctrl.avoidComputingU = ctrlC.avoidComputingU;
+    ctrl.avoidComputingV = ctrlC.avoidComputingV;
 
     ctrl.seqQR = ctrlC.seqQR;
     ctrl.valChanRatio = ctrlC.valChanRatio;
@@ -1154,6 +1158,8 @@ inline ElSVDCtrl_s CReflect( const SVDCtrl<float>& ctrl )
     ElSVDCtrl_s ctrlC;
     ctrlC.approach = CReflect(ctrl.approach);
     ctrlC.overwrite = ctrl.overwrite;
+    ctrlC.avoidComputingU = ctrl.avoidComputingU;
+    ctrlC.avoidComputingV = ctrl.avoidComputingV;
 
     ctrlC.seqQR = ctrl.seqQR;
     ctrlC.valChanRatio = ctrl.valChanRatio;
@@ -1168,6 +1174,8 @@ inline ElSVDCtrl_d CReflect( const SVDCtrl<double>& ctrl )
     ElSVDCtrl_d ctrlC;
     ctrlC.approach = CReflect(ctrl.approach);
     ctrlC.overwrite = ctrl.overwrite;
+    ctrlC.avoidComputingU = ctrl.avoidComputingU;
+    ctrlC.avoidComputingV = ctrl.avoidComputingV;
 
     ctrlC.seqQR = ctrl.seqQR;
     ctrlC.valChanRatio = ctrl.valChanRatio;

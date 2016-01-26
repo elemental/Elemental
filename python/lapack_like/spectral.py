@@ -890,6 +890,8 @@ def Eig(A):
 class SVDCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),
               ("overwrite",bType),
+              ("avoidComputingU",bType),
+              ("avoidComputingV",bType),
               ("seqQR",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
@@ -900,6 +902,8 @@ class SVDCtrl_s(ctypes.Structure):
 class SVDCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),
               ("overwrite",bType),
+              ("avoidComputingU",bType),
+              ("avoidComputingV",bType),
               ("seqQR",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),

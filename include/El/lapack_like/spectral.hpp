@@ -483,7 +483,9 @@ template<typename Real>
 struct SVDCtrl 
 {
     SVDApproach approach=THIN_SVD;
-    bool overwrite=false;
+    bool overwrite=false; // Allow 'A' to be overwritten computing A = U S V^H
+    bool avoidComputingU=false; // Avoid computing 'U' in A = U S V^H
+    bool avoidComputingV=false; // Avoid computing 'V' in A = U S V^H
 
     // Bidiagonal SVD options
     // ----------------------

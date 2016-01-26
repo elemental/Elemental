@@ -101,6 +101,8 @@ ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl )
 {
     ctrl->approach = EL_THIN_SVD;
     ctrl->overwrite = false;
+    ctrl->avoidComputingU = false;
+    ctrl->avoidComputingV = false;
 
     ctrl->seqQR = false;
     ctrl->valChanRatio = 1.2;
@@ -113,6 +115,8 @@ ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
 {
     ctrl->approach = EL_THIN_SVD;
     ctrl->overwrite = false;
+    ctrl->avoidComputingU = false;
+    ctrl->avoidComputingV = false;
 
     ctrl->seqQR = false;
     ctrl->valChanRatio = 1.2;

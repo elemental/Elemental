@@ -13,6 +13,8 @@
 
 namespace El {
 
+// TODO: Begin making use of 'avoidComputingU' and 'avoidComputingV'
+
 // Grab the SVD of the general matrix A, A = U diag(s) V^H
 // =======================================================
 

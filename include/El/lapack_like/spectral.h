@@ -867,6 +867,8 @@ typedef enum {
 typedef struct {
   ElSVDApproach approach;
   bool overwrite;
+  bool avoidComputingU;
+  bool avoidComputingV;
 
   bool seqQR;
   double valChanRatio;
@@ -879,6 +881,8 @@ EL_EXPORT ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
 typedef struct {
   ElSVDApproach approach;
   bool overwrite;
+  bool avoidComputingU;
+  bool avoidComputingV;
 
   bool seqQR;
   double valChanRatio;
