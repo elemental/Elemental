@@ -23,6 +23,9 @@ using namespace El;
 
 Int numElemInits = 0;
 bool elemInitializedMpi = false;
+#ifdef EL_HAVE_QD
+unsigned oldControlWord=0;
+#endif
 
 std::stack<Int> blocksizeStack;
 Grid* defaultGrid = 0;
@@ -405,6 +408,11 @@ void Initialize( int& argc, char**& argv )
     // Build the default grid
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
+#ifdef EL_HAVE_QD
+    // TODO: Enable and disable when entering routines using QD
+    fpu_fix_start( &::oldControlWord );
+#endif
+
     const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
     // TODO: Allow for switching on/off reproducibility?
     //const long secs = time(NULL);
@@ -469,6 +477,11 @@ void Finalize()
 
         while( ! ::blocksizeStack.empty() )
             ::blocksizeStack.pop();
+
+#ifdef EL_HAVE_QD
+        // TODO: Enable and disable when entering routines using QD
+        fpu_fix_end( &::oldControlWord );
+#endif
 
 #ifdef EL_HAVE_MPC
         gmp_randclear( ::gmpRandState );
