@@ -15,6 +15,45 @@
 
 namespace El {
 
+struct DistGraphMultMeta
+{
+    bool ready;
+    // NOTE: The 'send' and 'recv' roles reverse for adjoint multiplication
+    Int numRecvInds;
+    vector<int> sendSizes, sendOffs,
+                recvSizes, recvOffs;
+    vector<Int> sendInds, colOffs;
+
+    DistGraphMultMeta() : ready(false), numRecvInds(0) { }
+
+    void Clear()
+    {
+        ready = false;
+        numRecvInds = 0;
+        SwapClear( sendSizes );
+        SwapClear( recvSizes );
+        SwapClear( sendOffs );
+        SwapClear( recvOffs );
+        SwapClear( sendInds );
+        SwapClear( colOffs );
+    }
+
+    const DistGraphMultMeta& operator=( const DistGraphMultMeta& meta )
+    {
+        ready = meta.ready;
+        numRecvInds = meta.numRecvInds;
+        sendSizes = meta.sendSizes;
+        sendOffs = meta.sendOffs;
+        recvSizes = meta.recvSizes;
+        recvOffs = meta.recvOffs;
+        sendInds = meta.sendInds;
+        colOffs = meta.colOffs;
+        return *this;
+    }
+};
+
+
+
 using std::set;
 
 // Forward declare ldl::DistFront
@@ -133,6 +172,10 @@ public:
     // Return the ratio of the maximum number of local edges to the 
     // total number of edges divided by the number of processes
     double Imbalance() const EL_NO_RELEASE_EXCEPT;
+
+    mutable DistGraphMultMeta multMeta;
+    DistGraphMultMeta InitializeMultMeta() const;
+
 
     void AssertConsistent() const;
     void AssertLocallyConsistent() const;

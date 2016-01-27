@@ -221,8 +221,7 @@ void ColumnTwoNorms
     // =========================================================
     Zeros( norms, A.Width(), 1 );
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
-
+    const auto& meta = A.LockedDistGraph().multMeta;
     // Pack the send values 
     // --------------------
     vector<Real> sendVals( meta.numRecvInds, 0 );
@@ -276,7 +275,7 @@ void ColumnMaxNorms
     // =========================================================
     Zeros( norms, A.Width(), 1 );
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
+    const auto& meta = A.LockedDistGraph().multMeta;
 
     // Pack the send values 
     // --------------------

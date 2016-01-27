@@ -156,19 +156,28 @@ void Multiply
 template<typename T>
 void Multiply
 ( Orientation orientation,
-  T alpha,
-  const DistSparseMatrix<T>& A,
-  const DistMultiVec<T>& X,
-  T beta,
-        DistMultiVec<T>& Y );
+  T alpha, const Graph& A, const Matrix<T>& X,
+  T beta,                        Matrix<T>& Y );
+
+
 template<typename T>
 void Multiply
 ( Orientation orientation,
   T alpha,
   const DistSparseMatrix<T>& A,
-  const AbstractDistMatrix<T>& X,
+  const DistMultiVec<T>& X,
   T beta,
-        AbstractDistMatrix<T>& Y );
+        DistMultiVec<T>& Y );
+
+
+template<typename T>
+void Multiply
+( Orientation orientation,
+  T alpha,
+  const DistGraph& A,
+  const DistMultiVec<T>& X,
+  T beta,
+        DistMultiVec<T>& Y );
 
 // MultiShiftQuasiTrsm
 // ===================
@@ -180,7 +189,6 @@ template<typename Real>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   Complex<Real> alpha,
-  const Matrix<Real>& A,
   const Matrix<Complex<Real>>& shifts,
         Matrix<Real>& BReal, Matrix<Real>& BImag );
 template<typename F>
