@@ -10,12 +10,13 @@
 
 namespace El {
 
-// A :=  Z Omega Z^T, where Omega is complex-valued and diagonal
+// A := Z Omega Z^H, where Omega is complex-valued and diagonal
 
 template<typename Real>
 void NormalFromEVD
 (       Matrix<Complex<Real>>& A,
-  const Matrix<Complex<Real>>& w, const Matrix<Complex<Real>>& Z )
+  const Matrix<Complex<Real>>& w,
+  const Matrix<Complex<Real>>& Z )
 {
     DEBUG_ONLY(CSE cse("NormalFromEVD"))
     typedef Complex<Real> C;

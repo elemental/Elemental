@@ -10,7 +10,7 @@
 
 namespace El {
 
-// A :=  Z Omega Z^T, where Omega is diagonal and real-valued
+// A := Z Omega Z^H, where Omega is diagonal and real-valued
 
 template<typename F>
 void HermitianFromEVD
