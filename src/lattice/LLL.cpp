@@ -337,9 +337,39 @@ LLLWithQ
     else
     {
         if( ctrl.variant == LLL_DEEP_REDUCE )
-            return lll::UnblockedDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
+        {
+            // Start with standard LLL
+            auto infoReg = lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
+
+            // Move up from standard to deep
+            auto ctrlMod( ctrl );
+            ctrlMod.jumpstart = true;
+            ctrlMod.startCol = 0;
+            auto infoDeep =
+              lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+
+            // Move up from deep insertion to deep reduction
+            auto infoDeepRed =
+              lll::UnblockedDeepReduceAlg( B, U, QR, t, d, formU, ctrlMod ); 
+
+            infoDeepRed.numSwaps += infoReg.numSwaps + infoDeep.numSwaps;
+            return infoDeepRed;
+        }
         else if( ctrl.variant == LLL_DEEP )
-            return lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrl );
+        {
+            // Start with standard LLL
+            auto infoReg = lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
+
+            // Move from standard to deep insertion
+            auto ctrlMod( ctrl );
+            ctrlMod.jumpstart = true;
+            ctrlMod.startCol = 0;
+            auto infoDeep =
+              lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+
+            infoDeep.numSwaps += infoReg.numSwaps;
+            return infoDeep;
+        }
         else
             return lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
     }
@@ -966,13 +996,16 @@ RecursiveLLLWithQ
 {
     DEBUG_ONLY(CSE cse("RecursiveLLLWithQ"))
     if( ctrl.jumpstart && ctrl.startCol > 0 )
-        LogicError("Cannot jumpstart LLL from this interface");
+        Output("Warning: Recursive LLL ignores jumpstarts");
+    auto ctrlMod( ctrl );
+    ctrlMod.jumpstart = false;
 
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
     Matrix<F> U;
     bool maintainU=false;
-    return lll::RecursiveHelper( B, U, QR, t, d, numShuffles, maintainU, ctrl );
+    return
+      lll::RecursiveHelper( B, U, QR, t, d, numShuffles, maintainU, ctrlMod );
 }
 
 template<typename F>
@@ -987,13 +1020,15 @@ RecursiveLLLWithQ
 {
     DEBUG_ONLY(CSE cse("RecursiveLLL"))
     if( ctrl.jumpstart && ctrl.startCol > 0 )
-        LogicError("Cannot jumpstart LLL from this interface");
+        Output("Warning: Recursive LLL ignores jumpstarts");
+    auto ctrlMod( ctrl );
+    ctrlMod.jumpstart = false;
 
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
     bool maintainU=true;
     return lll::RecursiveHelper
-      ( B, U, QR, t, d, numShuffles, maintainU, ctrl );
+      ( B, U, QR, t, d, numShuffles, maintainU, ctrlMod );
 }
 
 template<typename F>

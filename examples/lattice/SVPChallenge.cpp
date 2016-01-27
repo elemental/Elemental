@@ -86,6 +86,7 @@ int main( int argc, char* argv[] )
         BKZCtrl<Real> ctrl;
         ctrl.blocksize = blocksize;
         ctrl.recursive = recursive;
+        // TODO: Incorporate probabilistic BKZ enums?
         ctrl.lllCtrl = lllCtrl;
 
         const double startTime = mpi::Time();
@@ -130,7 +131,7 @@ int main( int argc, char* argv[] )
             ("SVP Challenge NOT solved via BKZ: || b_0 ||_2=",b0Norm,
              " > targetRatio*GH(L)=",challenge);
 
-        if( !succeeded )
+        if( !succeeded || fullEnum )
         {
             Matrix<F> v;
             Timer timer;

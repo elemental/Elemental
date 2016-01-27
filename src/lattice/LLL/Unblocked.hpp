@@ -330,11 +330,17 @@ LLLInfo<Base<F>> UnblockedAlg
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
-            LogicError("QR should have been m x n");
+            LogicError
+            ("QR was ",QR.Height()," x ",QR.Width()," and should have been ",
+             m," x ",n);
         if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t was ",t.Height(),", x ",t.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
+            LogicError
+            ("t was ",t.Height(),", x ",t.Width()," and should have been ",
+             "Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
         if( d.Height() != minDim || d.Width() != 1 )
-            LogicError("d was ",d.Height(),", x ",d.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
+            LogicError
+            ("d was ",d.Height(),", x ",d.Width()," and should have been ",
+             "Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
     }
     else
     {
@@ -512,11 +518,17 @@ LLLInfo<Base<F>> UnblockedDeepAlg
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
-            LogicError("QR should have been m x n");
+            LogicError
+            ("QR was ",QR.Height()," x ",QR.Width()," and should have been ",
+             m," x ",n);
         if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t was ",t.Height(),", x ",t.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
+            LogicError
+            ("t was ",t.Height(),", x ",t.Width()," and should have been ",
+             "Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
         if( d.Height() != minDim || d.Width() != 1 )
-            LogicError("d was ",d.Height(),", x ",d.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
+            LogicError
+            ("d was ",d.Height(),", x ",d.Width()," and should have been ",
+             "Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
     }
     else
     {
@@ -711,11 +723,17 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
-            LogicError("QR should have been m x n");
+            LogicError
+            ("QR was ",QR.Height()," x ",QR.Width()," and should have been ",
+             m," x ",n);
         if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t was ",t.Height(),", x ",t.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
+            LogicError
+            ("t was ",t.Height(),", x ",t.Width()," and should have been ",
+             "Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
         if( d.Height() != minDim || d.Width() != 1 )
-            LogicError("d was ",d.Height(),", x ",d.Width()," and should have been Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
+            LogicError
+            ("d was ",d.Height(),", x ",d.Width()," and should have been ",
+             "Min(m,n)=Min(",m,",",n,")=",Min(m,n)," x 1");
     }
     else
     {

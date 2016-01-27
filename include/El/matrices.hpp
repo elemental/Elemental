@@ -665,6 +665,20 @@ void Uniform( DistMultiVec<T>& X, Int m, Int n, T center=0, Base<T> radius=1 );
 // Lattice bases
 // =============
 
+// AjtaiTypeBasis
+// --------------
+// Generalization of of the Ajtai-type bases of dimension d described in
+// Subsection 3.4 of Nguyen and Stehle's "LLL on the Average". Note that we
+// use the transpose of their scheme and generalize to complex arithmetic by
+// preserving real diagonal entries but sampling the off-diagonal from the
+// unit ball of radius B_{i,i}/2.
+//
+// NOTE: Be careful of overflow for modest values of n and alpha
+template<typename F>
+void AjtaiTypeBasis( Matrix<F>& A, Int n, Base<F> alpha );
+template<typename F>
+void AjtaiTypeBasis( AbstractDistMatrix<F>& A, Int n, Base<F> alpha );
+
 // KnapsackTypeBasis
 // -----------------
 // See Subsection 3.4 of Nguyen and Stehle's "LLL on the Average".

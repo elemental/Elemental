@@ -80,11 +80,14 @@ BKZInfo<Base<F>> BKZWithQ
         if( bkz::TrivialCoordinates(v) )        
         {
             if( progress )
-                Output("  Trivial enumeration for j=",j,", z=",z);
+                Output
+                ("  Trivial enumeration for window of size ",k+1-j,
+                 " with j=",j,", z=",z);
             ++z;
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
             subLLLCtrl.startCol = h-1;
+            subLLLCtrl.recursive = false;
             const auto subInd = IR(0,h+1);
             auto BSub = B( ALL, subInd );
             auto USub = U( subInd, subInd );
@@ -97,7 +100,9 @@ BKZInfo<Base<F>> BKZWithQ
         else
         {
             if( progress )
-                Output("  Nontrivial enumeration for j=",j,", z=",z);
+                Output
+                ("  Nontrivial enumeration for window of size ",k+1-j,
+                 " with j=",j,", z=",z);
             ++numEnumFailures;
             z = 0;
             Matrix<F> bNew;
@@ -175,6 +180,7 @@ BKZInfo<Base<F>> BKZWithQ
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
             subLLLCtrl.startCol = j;
+            subLLLCtrl.recursive = false;
             lllInfo = LLLWithQ( BTmp, UTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
             numSwaps += lllInfo.numSwaps;
             {
@@ -197,7 +203,7 @@ BKZInfo<Base<F>> BKZWithQ
             // Returning the QR factorization doesn't work without explicitly
             // forming Q due to the first column of BTmp being removed
             subLLLCtrl.startCol = 0;
-            lllInfo = LLLWithQ( B, U, QR, t, d, ctrl.lllCtrl );
+            lllInfo = LLLWithQ( B, U, QR, t, d, subLLLCtrl );
         }
 
         if( ctrl.earlyAbort && numEnums >= ctrl.numEnumsBeforeAbort )
@@ -207,7 +213,10 @@ BKZInfo<Base<F>> BKZWithQ
     // Perform a final pass to get the full LLL info
     // NOTE: This could be replaced in favor of manually computing the 
     //       returned LLL info but should be cheap relative to the above BKZ
-    lllInfo = LLLWithQ( B, U, QR, t, d, ctrl.lllCtrl );
+    LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+    subLLLCtrl.jumpstart = true;
+    subLLLCtrl.startCol = n-1;
+    lllInfo = LLLWithQ( B, U, QR, t, d, subLLLCtrl );
     numSwaps += lllInfo.numSwaps;
 
     BKZInfo<Real> info;
@@ -286,11 +295,14 @@ BKZWithQ
         if( bkz::TrivialCoordinates(v) )        
         {
             if( progress )
-                Output("  Trivial enumeration for j=",j,", z=",z);
+                Output
+                ("  Trivial enumeration for window of size ",k+1-j,
+                 " with j=",j,", z=",z);
             ++z;
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
             subLLLCtrl.startCol = h-1;
+            subLLLCtrl.recursive = false;
             const auto subInd = IR(0,h+1);
             auto BSub = B( ALL, subInd );
             auto QRSub = QR( ALL, subInd );
@@ -302,7 +314,9 @@ BKZWithQ
         else
         {
             if( progress )
-                Output("  Nontrivial enumeration for j=",j,", z=",z);
+                Output
+                ("  Nontrivial enumeration for window of size ",k+1-j,
+                 " with j=",j,", z=",z);
             ++numEnumFailures;
             z = 0;
             Matrix<F> bNew;
@@ -341,6 +355,7 @@ BKZWithQ
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
             subLLLCtrl.startCol = j;
+            subLLLCtrl.recursive = false;
             auto lllInfo = LLLWithQ( BTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
             numSwaps += lllInfo.numSwaps;
             {
@@ -352,7 +367,7 @@ BKZWithQ
             // Returning the QR factorization doesn't work without explicitly
             // forming Q due to the first column of BTmp being removed
             subLLLCtrl.startCol = 0;
-            lllInfo = LLLWithQ( B, QR, t, d, ctrl.lllCtrl );
+            lllInfo = LLLWithQ( B, QR, t, d, subLLLCtrl );
         }
 
         if( ctrl.earlyAbort && numEnums >= ctrl.numEnumsBeforeAbort )
@@ -362,7 +377,11 @@ BKZWithQ
     // Perform a final pass to get the full LLL info
     // NOTE: This could be replaced in favor of manually computing the 
     //       returned LLL info but should be cheap relative to the above BKZ
-    lllInfo = LLLWithQ( B, QR, t, d, ctrl.lllCtrl );
+    LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+    subLLLCtrl.jumpstart = true;
+    subLLLCtrl.startCol = n-1;
+    subLLLCtrl.recursive = false;
+    lllInfo = LLLWithQ( B, QR, t, d, subLLLCtrl );
     numSwaps += lllInfo.numSwaps;
 
     BKZInfo<Real> info;

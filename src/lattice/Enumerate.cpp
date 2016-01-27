@@ -285,7 +285,7 @@ Base<F> ShortVectorEnumeration
         // TODO: Add support for different bounding functions
         Matrix<Real> upperBounds(n,1);
         for( Int j=0; j<n; ++j )
-            upperBounds.Set( j, 0, Sqrt(Real(n)/Real(j+1))*normUpperBound );
+            upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
 
         // Since we will manually build up a (weakly) pseudorandom
         // unimodular matrix so that the probabalistic enumerations traverse
@@ -308,6 +308,8 @@ Base<F> ShortVectorEnumeration
                 Output("  Probabalistic enumeration: ",timer.Stop()," seconds");
             if( result < normUpperBound )
             {
+                if( progress )
+                    Output("Found lattice member with norm ",result);
                 if( trial > 0 )
                 {
                     auto vCopy( v );
@@ -341,6 +343,7 @@ Base<F> ShortVectorEnumeration
                 LLLCtrl<Real> ctrl;
                 ctrl.jumpstart = true; 
                 ctrl.startCol = 0;
+                ctrl.recursive = false;
                 if( time )
                     timer.Start();
                 LLL( BNew, U, RNew, ctrl );
