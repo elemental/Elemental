@@ -543,6 +543,26 @@ void Multiply
       beta,  Y.Buffer(),       Y.LDim() );
 }
 
+
+template<typename T>
+void Multiply
+( Orientation orientation, 
+  T alpha, const Graph<T>& A, const Matrix<T>& X,
+  T beta,                            Matrix<T>& Y )
+{
+    DEBUG_ONLY(
+      CSE cse("Multiply");
+      if( X.Width() != Y.Width() )
+          LogicError("X and Y must have the same width");
+    )
+    MultiplyCSR
+    ( orientation, A.Height(), A.Width(), X.Width(),
+      alpha, A.LockedOffsetBuffer(), 
+             A.LockedTargetBuffer(), 
+             X.LockedBuffer(), X.LDim(),
+      beta,  Y.Buffer(),       Y.LDim() );
+}
+
 template<typename T>
 void Multiply
 ( Orientation orientation, 
