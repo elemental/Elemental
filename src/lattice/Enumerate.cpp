@@ -189,32 +189,42 @@ Base<F> ShortVectorEnumeration
     {
         typedef float RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound),
-            vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound),
+                vLower, probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
     if( MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound),
-            vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound),
+                vLower, probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
 #ifdef EL_HAVE_QD
     if( MantissaIsLonger<Real,DoubleDouble>::value &&
@@ -222,32 +232,42 @@ Base<F> ShortVectorEnumeration
     {
         typedef DoubleDouble RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound),
-            vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound),
+                vLower, probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
     if( MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
         typedef QuadDouble RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound),
-            vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound),
+                vLower, probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
 #endif
 #ifdef EL_HAVE_QUAD
@@ -256,16 +276,21 @@ Base<F> ShortVectorEnumeration
     {
         typedef Quad RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound),
-            vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound),
+                vLower, probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
 #endif
     // TODO: Arbitrary-precision drop?
@@ -283,9 +308,54 @@ Base<F> ShortVectorEnumeration
     if( probabalistic )
     {
         // TODO: Add support for different bounding functions
+        const bool linear = false;
         Matrix<Real> upperBounds(n,1);
-        for( Int j=0; j<n; ++j )
-            upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
+        if( linear )
+        {
+            for( Int j=0; j<n; ++j )
+                upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
+        }
+        else
+        {
+            // See the n=140 column of Table 1 from Yoshinori Aono's
+            // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
+            // Pruning Coefficients".
+            Matrix<Real> s(17,1);
+            s.Set( 0, 0, Real(0.1318) ); 
+            s.Set( 1, 0, Real(0.1859) );
+            s.Set( 2, 0, Real(0.2240) ); 
+            s.Set( 3, 0, Real(0.2326) );
+            s.Set( 4, 0, Real(0.2336) );
+            s.Set( 5, 0, Real(0.2565) );
+            s.Set( 6, 0, Real(0.2871) );
+            s.Set( 7, 0, Real(0.3353) );
+            s.Set( 8, 0, Real(0.3978) );
+            s.Set( 9, 0, Real(0.4860) );
+            s.Set( 10, 0, Real(0.5808) );
+            s.Set( 11, 0, Real(0.6936) );
+            s.Set( 12, 0, Real(0.8241) );
+            s.Set( 13, 0, Real(0.9191) );
+            s.Set( 14, 0, Real(1) );
+            s.Set( 15, 0, Real(1) );
+            s.Set( 16, 0, Real(1) );
+            for( Int j=0; j<n; ++j )
+            {
+                const Real percent = Real(j+1)/Real(n);
+                const Real realIndex = percent*16;
+                const Int floorIndex = Int(Floor(realIndex));
+                const Int ceilIndex = Int(Ceil(realIndex));
+                const Real indexFrac = realIndex-floorIndex;
+                DEBUG_ONLY(
+                  if( ceilIndex > 16 )
+                      LogicError("Invalid ceiling index of ",ceilIndex);
+                )
+                // TODO: Use spline instead of linear interpolation?
+                const Real floorVal = s.Get(floorIndex,0);
+                const Real ceilVal = s.Get(ceilIndex,0);
+                const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
+                upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
+            }
+        }
 
         // Since we will manually build up a (weakly) pseudorandom
         // unimodular matrix so that the probabalistic enumerations traverse
@@ -405,30 +475,42 @@ Base<F> ShortestVectorEnumeration
     {
         typedef float RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortestVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortestVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
     if( MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortestVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortestVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
 #ifdef EL_HAVE_QD
     if( MantissaIsLonger<Real,DoubleDouble>::value &&
@@ -436,30 +518,42 @@ Base<F> ShortestVectorEnumeration
     {
         typedef DoubleDouble RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortestVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortestVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
     if( MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
         typedef QuadDouble RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortestVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortestVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
 #endif
 #ifdef EL_HAVE_QUAD
@@ -468,15 +562,21 @@ Base<F> ShortestVectorEnumeration
     {
         typedef Quad RealLower;
         typedef ConvertBase<F,RealLower> FLower;
-        // TODO: Switch to read/write proxies
-        Matrix<FLower> BLower, RLower, vLower;
-        Copy( B, BLower );
-        Copy( R, RLower );
-        RealLower result =
-          ShortestVectorEnumeration
-          ( BLower, RLower, RealLower(normUpperBound), vLower, probabalistic );
-        Copy( vLower, v );
-        return Real(result);
+        try
+        {
+            // TODO: Switch to read/write proxies
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            RealLower result =
+              ShortestVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                probabalistic );
+            Copy( vLower, v );
+            return Real(result);
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
     }
 #endif
     // TODO: Arbitrary-precision drop?

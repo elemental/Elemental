@@ -24,8 +24,13 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const string filename =
-          Input("--filename","input file",string("SVPChallenge40.txt"));
+        const string inputBasisFile =
+          Input("--inputBasisFile","input basis file",string("SVPChallenge40.txt"));
+        const string outputBasisFile = 
+          Input("--outputBasisFile","output basis file",string("BKZ"));
+        const string shortestVecFile = 
+          Input
+          ("--shortestVecFile","shortest vector file",string("shortest"));
         const Real delta = Input("--delta","delta for LLL",Real(0.99));
         const Real eta =
           Input
@@ -62,11 +67,11 @@ int main( int argc, char* argv[] )
         if( trans )
         {
             Matrix<Real> BTrans;
-            Read( BTrans, filename );
+            Read( BTrans, inputBasisFile );
             Transpose( BTrans, B ); 
         }
         else
-            Read( B, filename );
+            Read( B, inputBasisFile );
         const Real BOrigOne = OneNorm( B ); 
         Output("|| B_orig ||_1 = ",BOrigOne);
         if( print )
@@ -110,6 +115,7 @@ int main( int argc, char* argv[] )
             Print( B, "B" ); 
             Print( R, "R" );
         }
+        Write( B, outputBasisFile, ASCII, "BKZ" );
         const Real BOneNorm = OneNorm( B );
         Output("|| B ||_1 = ",BOneNorm);
 
@@ -125,6 +131,7 @@ int main( int argc, char* argv[] )
             ("SVP Challenge solved via BKZ: || b_0 ||_2=",b0Norm,
              " <= targetRatio*GH(L)=",challenge);
             succeeded = true;
+            Write( b0, shortestVecFile, ASCII, "b0" );
         }
         else
             Output
@@ -156,6 +163,7 @@ int main( int argc, char* argv[] )
                 const Real xNorm = FrobeniusNorm( x );
                 Output("|| x ||_2 = ",xNorm);
                 Output("Claimed || x ||_2 = ",result);
+                Write( x, shortestVecFile, ASCII, "x" );
             }
             else
                 Output("Enumeration failed after ",timer.Stop()," seconds");
