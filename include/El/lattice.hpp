@@ -414,13 +414,38 @@ template<typename Real>
 struct BKZCtrl
 {
     Int blocksize=20;
-    bool probabalistic=false;
-    // TODO: Add ability to tune the bounding function
-
-    bool recursive=false;
+    bool time=false;
+    bool progress=false;
 
     bool earlyAbort=false;
     Int numEnumsBeforeAbort=1000; // only used if earlyAbort=true
+
+    bool skipInitialLLL=false;
+    bool jumpstart=false;
+
+    // TODO: Add ability to tune the bounding function
+    bool probabalistic=false;
+    // Rather than running LLL after a productive enumeration, one could run
+    // BKZ with a smaller blocksize (perhaps with early abort)
+    bool subBKZ=true;
+    function<Int(Int)> subBlocksizeFunc =
+      function<Int(Int)>( []( Int bsize ) { return Max(bsize/2,Int(1)); } );
+    bool subEarlyAbort = true;
+    Int subNumEnumsBeforeAbort = 100;
+
+    // This seems to be *more* expensive but lead to higher quality (perhaps).
+    // Note that this is different from GNR recursion and uses a tree method
+    // with shuffling at each merge.
+    bool recursive=false;
+
+    bool logFailedEnums=false;
+    std::string failedEnumFile="BKZFailedEnums.txt";
+
+    bool logStreakSizes=false;
+    std::string streakSizesFile="BKZStreakSizes.txt";
+
+    bool logNontrivialCoords=false;
+    std::string nontrivialCoordsFile="BKZNontrivialCoords.txt";
 
     LLLCtrl<Real> lllCtrl;
 
@@ -429,9 +454,29 @@ struct BKZCtrl
     BKZCtrl<Real>& operator=( const BKZCtrl<OtherReal>& ctrl )
     {
         blocksize = ctrl.blocksize;
-        probabalistic = ctrl.probabalistic;
+        time = ctrl.time;
+        progress = ctrl.progress;
+
         earlyAbort = ctrl.earlyAbort;
         numEnumsBeforeAbort = ctrl.numEnumsBeforeAbort;
+
+        skipInitialLLL = ctrl.skipInitialLLL;
+
+        probabalistic = ctrl.probabalistic;
+        subBKZ = ctrl.subBKZ;
+        subBlocksizeFunc = ctrl.subBlocksizeFunc;
+        subEarlyAbort = ctrl.subEarlyAbort;
+        subNumEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+
+        recursive = ctrl.recursive;
+
+        logFailedEnums = ctrl.logFailedEnums;
+        logStreakSizes = ctrl.logStreakSizes;
+        logNontrivialCoords = ctrl.logNontrivialCoords;
+        failedEnumFile = ctrl.failedEnumFile;
+        streakSizesFile = ctrl.streakSizesFile;
+        nontrivialCoordsFile = ctrl.nontrivialCoordsFile;
+
         lllCtrl = ctrl.lllCtrl;
         return *this;
     }

@@ -41,11 +41,28 @@ int main( int argc, char* argv[] )
         const bool presort = Input("--presort","presort columns?",false);
         const bool smallestFirst =
           Input("--smallestFirst","sort smallest first?",true);
-        const bool recursive = Input("--recursive","try recursive LLL?",true);
+        const bool recursiveLLL = Input("--recursiveLLL","recursive LLL?",true);
+        const bool recursiveBKZ =
+          Input("--recursiveBKZ","recursive BKZ?",false);
         const Int cutoff = Input("--cutoff","recursive cutoff",10);
-        const bool progress = Input("--progress","print progress?",false); 
-        const bool time = Input("--time","time LLL?",false);
+        const bool earlyAbort = Input("--earlyAbort","early abort BKZ?",false);
+        const bool subBKZ =
+          Input("--subBKZ","use BKZ w/ lower blocksize for subproblems?",true);
+        const bool subEarlyAbort =
+          Input("--subEarlyAbort","early abort subproblem?",false);
+        const bool timeLLL = Input("--timeLLL","time LLL?",false);
+        const bool timeBKZ = Input("--timeBKZ","time BKZ?",true);
+        const bool progressLLL =
+          Input("--progressLLL","print LLL progress?",false); 
+        const bool progressBKZ =
+          Input("--progressBKZ","print BKZ progress?",false); 
         const bool print = Input("--print","output all matrices?",true);
+        const bool logFailedEnums =
+          Input("--logFailedEnums","log failed enumerations in BKZ?",false);
+        const bool logStreakSizes = 
+          Input("--logStreakSizes","log enum streak sizes in BKZ?",false);
+        const bool logNontrivialCoords =
+          Input("--logNontrivialCoords","log nontrivial enum coords?",false);
         const Real targetRatio =
           Input("--targetRatio","targeted ratio of GH(L)",Real(1.05));
         const bool probEnum =
@@ -77,22 +94,27 @@ int main( int argc, char* argv[] )
         if( print )
             Print( B, "BOrig" );
 
-        LLLCtrl<Real> lllCtrl;
-        lllCtrl.delta = delta;
-        lllCtrl.eta = eta;
-        lllCtrl.variant = static_cast<LLLVariant>(varInt);
-        lllCtrl.recursive = recursive;
-        lllCtrl.cutoff = cutoff;
-        lllCtrl.presort = presort;
-        lllCtrl.smallestFirst = smallestFirst;
-        lllCtrl.progress = progress;
-        lllCtrl.time = time;
-
         BKZCtrl<Real> ctrl;
         ctrl.blocksize = blocksize;
-        ctrl.recursive = recursive;
+        ctrl.time = timeBKZ;
+        ctrl.progress = progressBKZ;
+        ctrl.recursive = recursiveBKZ;
         // TODO: Incorporate probabilistic BKZ enums?
-        ctrl.lllCtrl = lllCtrl;
+        ctrl.earlyAbort = earlyAbort;
+        ctrl.subBKZ = subBKZ;
+        ctrl.subEarlyAbort = subEarlyAbort;
+        ctrl.logFailedEnums = logFailedEnums;
+        ctrl.logStreakSizes = logStreakSizes;
+        ctrl.logNontrivialCoords = logNontrivialCoords;
+        ctrl.lllCtrl.delta = delta;
+        ctrl.lllCtrl.eta = eta;
+        ctrl.lllCtrl.variant = static_cast<LLLVariant>(varInt);
+        ctrl.lllCtrl.recursive = recursiveLLL;
+        ctrl.lllCtrl.cutoff = cutoff;
+        ctrl.lllCtrl.presort = presort;
+        ctrl.lllCtrl.smallestFirst = smallestFirst;
+        ctrl.lllCtrl.progress = progressLLL;
+        ctrl.lllCtrl.time = timeLLL;
 
         const double startTime = mpi::Time();
         Matrix<Real> R;
@@ -140,6 +162,8 @@ int main( int argc, char* argv[] )
 
         if( !succeeded || fullEnum )
         {
+            // TODO: Provide support for enumerating over the first, say,
+            //       2/3 of the vectors
             Matrix<F> v;
             Timer timer;
             timer.Start();

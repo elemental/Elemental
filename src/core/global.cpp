@@ -659,6 +659,12 @@ DEBUG_ONLY(
         if( omp_get_thread_num() != 0 )
             return;
 #endif
+        const size_t maxStackSize = 300;
+        if( ::callStack.size() > maxStackSize )
+        {
+            DumpCallStack();
+            return;
+        }
         ::callStack.push(s); 
         if( ::tracingEnabled )
         {

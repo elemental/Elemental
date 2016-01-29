@@ -439,18 +439,18 @@ LowerPrecisionMerge
     // NOTE: This does not seem to make a substantial difference
     for( Int jSub=0; jSub<n/2; ++jSub )
     {
-        auto cl = CL( ALL, IR(jSub) );
-        auto cr = CR( ALL, IR(jSub) );
-        auto bl = BLower( ALL, IR(2*jSub) );
-        auto br = BLower( ALL, IR(2*jSub+1) );
-        Copy( cl, bl );
-        Copy( cr, br );
+        auto cL = CL( ALL, IR(jSub) );
+        auto cR = CR( ALL, IR(jSub) );
+        auto bL = BLower( ALL, IR(2*jSub) );
+        auto bR = BLower( ALL, IR(2*jSub+1) );
+        Copy( cL, bL );
+        Copy( cR, bR );
     }
     if( firstHalf > n/2 )
     {
-        auto cl = CL( ALL, IR(firstHalf-1) );
-        auto bl = BLower( ALL, IR(n-1) );
-        Copy( cl, bl );
+        auto cL = CL( ALL, IR(firstHalf-1) );
+        auto bL = BLower( ALL, IR(n-1) );
+        Copy( cL, bL );
     }
 
     LLLCtrl<RealLower> ctrlLower( ctrl );
@@ -688,22 +688,25 @@ RecursiveHelper
         }
 #endif
 #ifdef EL_HAVE_MPC
-        // Only move down to a lower-precision MPFR type if the jump is
-        // substantial. The current value has been naively chosen.
-        const mpfr_prec_t minPrecDiff = 32;
-        mpfr_prec_t inputPrec = mpc::Precision();
-        if( !succeeded && neededPrec <= inputPrec-minPrecDiff )
+        if( !succeeded && !IsFixedPrecision<Real>::value )
         {
-            mpc::SetPrecision( neededPrec );
-            try {
-                info = LowerPrecisionMerge<F,BigFloat>
-                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
+            // Only move down to a lower-precision MPFR type if the jump is
+            // substantial. The current value has been naively chosen.
+            const mpfr_prec_t minPrecDiff = 32;
+            mpfr_prec_t inputPrec = mpc::Precision();
+            if( neededPrec <= inputPrec-minPrecDiff )
+            {
+                mpc::SetPrecision( neededPrec );
+                try {
+                    info = LowerPrecisionMerge<F,BigFloat>
+                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
+                    info.numSwaps += numPrevSwaps;
+                    succeeded = true;
+                }
+                catch( std::exception& e )
+                { Output("e.what()=",e.what()); }
+                mpc::SetPrecision( inputPrec );
             }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-            mpc::SetPrecision( inputPrec );
         }
 #endif
 
@@ -726,6 +729,10 @@ RecursiveHelper
                 bL = cL;
             }
 
+            auto ctrlMod( ctrl );
+            ctrlMod.jumpstart = true;
+            ctrlMod.startCol = 0;
+            ctrlMod.recursive = false;
             if( maintainU )
             {
                 auto UCopy( U );
@@ -749,14 +756,11 @@ RecursiveHelper
                     uL = uCopyL;
                 }
 
-                auto ctrlMod( ctrl );
-                ctrlMod.jumpstart = true;
-                ctrlMod.startCol = 0;
                 info = LLLWithQ( B, U, QR, t, d, ctrlMod );
             }
             else
             {
-                info = LLLWithQ( B, QR, t, d, ctrl );
+                info = LLLWithQ( B, QR, t, d, ctrlMod );
             }
             info.numSwaps += numPrevSwaps;
         }
@@ -926,25 +930,30 @@ RecursiveHelper
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
 #endif
+
         if( !succeeded )
         {
             // Interleave CL and CR to reform B before running LLL again
             for( Int jSub=0; jSub<n/2; ++jSub )
             {
-                auto cl = CL( ALL, IR(jSub) );
-                auto cr = CR( ALL, IR(jSub) ); 
-                auto bl = B( ALL, IR(2*jSub) );
-                auto br = B( ALL, IR(2*jSub+1) );
-                bl = cl;
-                br = cr;
+                auto cL = CL( ALL, IR(jSub) );
+                auto cR = CR( ALL, IR(jSub) ); 
+                auto bL = B( ALL, IR(2*jSub) );
+                auto bR = B( ALL, IR(2*jSub+1) );
+                bL = cL;
+                bR = cR;
             }
             if( firstHalf > n/2 )
             {
-                auto cl = CL( ALL, IR(firstHalf-1) );
-                auto bl = B( ALL, IR(n-1) ); 
-                bl = cl;
+                auto cL = CL( ALL, IR(firstHalf-1) );
+                auto bL = B( ALL, IR(n-1) ); 
+                bL = cL;
             }
 
+            auto ctrlMod( ctrl );
+            ctrlMod.jumpstart = true;
+            ctrlMod.startCol = 0;
+            ctrlMod.recursive = false;
             if( maintainU )
             {
                 auto UCopy( U );
@@ -968,14 +977,11 @@ RecursiveHelper
                     uL = uCopyL;
                 }
 
-                auto ctrlMod( ctrl );
-                ctrlMod.jumpstart = true;
-                ctrlMod.startCol = 0;
                 info = LLLWithQ( B, U, QR, t, d, ctrlMod );
             }
             else
             {
-                info = LLLWithQ( B, QR, t, d, ctrl );
+                info = LLLWithQ( B, QR, t, d, ctrlMod );
             }
             info.numSwaps += numPrevSwaps;
         }

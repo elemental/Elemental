@@ -14,6 +14,15 @@
 namespace El {
 
 template<typename Real>
+struct IsFixedPrecision
+{ static const bool value=true; };
+#ifdef EL_HAVE_MPC
+template<>
+struct IsFixedPrecision<BigFloat>
+{ static const bool value=false; };
+#endif
+
+template<typename Real>
 struct MantissaBits;
 template<> struct MantissaBits<float>
 { static const unsigned value = 24; };

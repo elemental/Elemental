@@ -42,32 +42,266 @@ BKZInfo<Base<F>> BKZWithQ
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
-    if( ctrl.recursive && Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n )
+
+    const Real BOneNorm = OneNorm(B);
+    const Real fudge = 1.5; // TODO: Make tunable
+    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
+
+    if( MantissaIsLonger<Real,float>::value &&
+        MantissaBits<float>::value >= neededPrec )
+    {
+        try
+        {
+            typedef float RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, ULower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( U, ULower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( ULower, U );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+    if( MantissaIsLonger<Real,double>::value &&
+        MantissaBits<double>::value >= neededPrec )
+    {
+        try
+        {
+            typedef double RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, ULower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( U, ULower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( ULower, U );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+#ifdef EL_HAVE_QD
+    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+        MantissaBits<DoubleDouble>::value >= neededPrec )
+    {
+        try
+        {
+            typedef DoubleDouble RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, ULower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( U, ULower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( ULower, U );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+    if( MantissaIsLonger<Real,QuadDouble>::value &&
+        MantissaBits<QuadDouble>::value >= neededPrec )
+    {
+        try
+        {
+            typedef QuadDouble RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, ULower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( U, ULower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( ULower, U );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+#endif
+#ifdef EL_HAVE_QUAD
+    if( MantissaIsLonger<Real,Quad>::value &&
+        MantissaBits<Quad>::value >= neededPrec )
+    {
+        try
+        {
+            typedef Quad RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, ULower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( U, ULower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( ULower, U );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+#endif
+#ifdef EL_HAVE_MPC
+    if( !IsFixedPrecision<Real>::value )
+    {
+        const mpfr_prec_t minPrecDiff = 32;
+        mpfr_prec_t inputPrec = mpc::Precision();
+        if( neededPrec <= inputPrec-minPrecDiff )
+        {
+            mpc::SetPrecision( neededPrec );
+            try
+            {
+                Matrix<F> BLower, ULower, QRLower, tLower;
+                Matrix<Real> dLower;
+                BKZCtrl<Real> ctrlLower( ctrl );
+                Copy( B, BLower );
+                Copy( U, ULower );
+                Copy( QR, QRLower );
+                Copy( t, tLower );
+                Copy( d, dLower );
+                auto infoLower =
+                  BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+                mpc::SetPrecision( inputPrec );
+                BKZInfo<Real> info( infoLower );
+                Copy( BLower, B );
+                Copy( ULower, U );
+                Copy( QRLower, QR );
+                Copy( tLower, t );
+                Copy( dLower, d );
+                return info;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+            mpc::SetPrecision( inputPrec );
+        }
+    }
+#endif
+
+    if( ctrl.recursive &&
+        Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n &&
+        !ctrl.jumpstart )
     {
         //return RecursiveBKZWithQ( B, U, QR, t, d, ctrl );
         Output("Warning: Computation of U not yet supported for recursive BKZ");
     }
 
-    if( ctrl.blocksize < 2 )
-        LogicError("BKZ requires a blocksize of at least 2");
-    if( m < n )
-        LogicError("If height(B) < width(B), call LLL first");
+    // TODO: Add optional logging
+
+    // While classical BKZ requires a blocksize of at least 2, it is useful
+    // to interpret BKZ(1) as LLL.
+    if( ctrl.blocksize < 1 )
+        LogicError("BKZ requires a blocksize of at least 1");
+    if( ctrl.blocksize == 1 )
+    {
+        auto lllCtrl( ctrl.lllCtrl );
+        if( ctrl.jumpstart )
+        {
+            lllCtrl.jumpstart = true;
+            lllCtrl.startCol = 0;
+        }
+        auto lllInfo = LLLWithQ( B, U, QR, t, d, lllCtrl );
+        BKZInfo<Real> info;
+        info.delta = lllInfo.delta;
+        info.eta = lllInfo.eta;
+        info.rank = lllInfo.rank;
+        info.nullity = lllInfo.nullity;
+        info.numSwaps = lllInfo.numSwaps;
+        info.numEnums = 0;
+        info.numEnumFailures = 0;
+        info.logVol = lllInfo.logVol;
+        return info;
+    }
 
     const bool progress = true;
 
     Int numSwaps=0;
-    auto lllInfo = LLLWithQ( B, U, QR, t, d, ctrl.lllCtrl );
-    numSwaps = lllInfo.numSwaps;
+    LLLInfo<Real> lllInfo;
+    // TODO: Decide on the best way to handle this in the presense of recursion
+    //if( ctrl.skipInitialLLL )
+    if( false )
+    {
+        Identity( U, n, n );
+        QR = B;
+        El::QR( QR, t, d );
+    }
+    else
+    {
+        auto lllCtrl( ctrl.lllCtrl );
+        if( ctrl.jumpstart )
+        {
+            lllCtrl.jumpstart = true;
+            lllCtrl.startCol = 0;
+        }
+        lllInfo = LLLWithQ( B, U, QR, t, d, lllCtrl );
+        numSwaps = lllInfo.numSwaps;
+    }
+    // The zero columns should be at the end of B
+    const Int rank = lllInfo.rank;
+
+    // TODO:
+    // Instead of using the classical LLL reduction between BKZ recalls,
+    // instead follow GNR's suggestion and use a recursive aborted BKZ
 
     Int z=0, j=-1; 
     Matrix<F> BTmp, UTmp, QRTmp, tTmp;
     Matrix<Base<F>> dTmp;
     Int numEnums=0, numEnumFailures=0;
-    while( z < n-1 ) 
+    const Int indent = PushIndent(); 
+    while( z < rank-1 ) 
     {
-        j = Mod(j+1,n);
-        const Int k = Min(j+ctrl.blocksize-1,n-1);
-        const Int h = Min(k+1,n-1); 
+        j = Mod(j+1,rank);
+        const Int k = Min(j+ctrl.blocksize-1,rank-1);
+        const Int h = Min(k+1,rank-1); 
         
         Matrix<F> v;
         {
@@ -81,27 +315,51 @@ BKZInfo<Base<F>> BKZWithQ
         {
             if( progress )
                 Output
-                ("  Trivial enumeration for window of size ",k+1-j,
+                ("Trivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
             ++z;
-            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-            subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = h-1;
-            subLLLCtrl.recursive = false;
             const auto subInd = IR(0,h+1);
             auto BSub = B( ALL, subInd );
             auto USub = U( subInd, subInd );
             auto QRSub = QR( ALL, subInd );
             auto tSub = t( subInd, ALL );
             auto dSub = d( subInd, ALL );
-            lllInfo = LLLWithQ( BSub, USub, QRSub, tSub, dSub, subLLLCtrl );
-            numSwaps += lllInfo.numSwaps;
+            if( ctrl.subBKZ )
+            {
+                BKZCtrl<Real> subCtrl( ctrl );
+                subCtrl.jumpstart = true;
+                // Only if we insist on only one level of recursion
+                subCtrl.subBKZ = false;
+                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
+                subCtrl.earlyAbort = ctrl.subEarlyAbort;
+                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+                subCtrl.recursive = false;
+                subCtrl.logFailedEnums = false;
+                subCtrl.logStreakSizes = false;
+                subCtrl.logNontrivialCoords = false;
+                subCtrl.lllCtrl.jumpstart = false;
+                subCtrl.lllCtrl.recursive = false;
+                if( progress )
+                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
+                auto bkzInfo =
+                  BKZWithQ( BSub, USub, QRSub, tSub, dSub, subCtrl );
+                numSwaps += bkzInfo.numSwaps;
+            }
+            else
+            {
+                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+                subLLLCtrl.jumpstart = true;
+                subLLLCtrl.startCol = h-1;
+                subLLLCtrl.recursive = false;
+                lllInfo = LLLWithQ( BSub, USub, QRSub, tSub, dSub, subLLLCtrl );
+                numSwaps += lllInfo.numSwaps;
+            }
         }
         else
         {
             if( progress )
                 Output
-                ("  Nontrivial enumeration for window of size ",k+1-j,
+                ("Nontrivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
             ++numEnumFailures;
             z = 0;
@@ -177,12 +435,36 @@ BKZInfo<Base<F>> BKZWithQ
                 dTmpT = dT;
             }
 
-            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-            subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = j;
-            subLLLCtrl.recursive = false;
-            lllInfo = LLLWithQ( BTmp, UTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
-            numSwaps += lllInfo.numSwaps;
+            if( ctrl.subBKZ )
+            {
+                BKZCtrl<Real> subCtrl( ctrl );
+                subCtrl.jumpstart = true;
+                // Only if we insist on only one level of recursion
+                subCtrl.subBKZ = false;
+                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
+                subCtrl.earlyAbort = ctrl.subEarlyAbort;
+                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+                subCtrl.recursive = false;
+                subCtrl.logFailedEnums = false;
+                subCtrl.logStreakSizes = false;
+                subCtrl.logNontrivialCoords = false;
+                subCtrl.lllCtrl.jumpstart = false;
+                subCtrl.lllCtrl.recursive = false;
+                if( progress )
+                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
+                auto bkzInfo =
+                  BKZWithQ( BTmp, UTmp, QRTmp, tTmp, dTmp, subCtrl );
+                numSwaps += bkzInfo.numSwaps;
+            }
+            else
+            {
+                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+                subLLLCtrl.jumpstart = true;
+                subLLLCtrl.startCol = j;
+                subLLLCtrl.recursive = false;
+                lllInfo = LLLWithQ( BTmp, UTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
+                numSwaps += lllInfo.numSwaps;
+            }
             {
                 // The last column of BTmp should be all zeros now
                 auto BL = B( ALL, IR(0,h+1) );
@@ -202,13 +484,18 @@ BKZInfo<Base<F>> BKZWithQ
             }
             // Returning the QR factorization doesn't work without explicitly
             // forming Q due to the first column of BTmp being removed
+            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+            subLLLCtrl.jumpstart = true;
             subLLLCtrl.startCol = 0;
+            subLLLCtrl.recursive = false;
+            // TODO: Use the full rank pieces?
             lllInfo = LLLWithQ( B, U, QR, t, d, subLLLCtrl );
         }
 
         if( ctrl.earlyAbort && numEnums >= ctrl.numEnumsBeforeAbort )
             break;
     }
+    SetIndent( indent );
 
     // Perform a final pass to get the full LLL info
     // NOTE: This could be replaced in favor of manually computing the 
@@ -260,29 +547,254 @@ BKZWithQ
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
-    if( ctrl.recursive && Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n )
+
+    const Real BOneNorm = OneNorm(B);
+    const Real fudge = 1.5; // TODO: Make tunable
+    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
+    Output("|| B ||_1 = ",BOneNorm);
+    Output("neededPrec = ",neededPrec);
+
+    if( MantissaIsLonger<Real,float>::value &&
+        MantissaBits<float>::value >= neededPrec )
+    {
+        try
+        {
+            typedef float RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+    if( MantissaIsLonger<Real,double>::value &&
+        MantissaBits<double>::value >= neededPrec )
+    {
+        try
+        {
+            typedef double RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+#ifdef EL_HAVE_QD
+    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+        MantissaBits<DoubleDouble>::value >= neededPrec )
+    {
+        try
+        {
+            typedef DoubleDouble RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+    if( MantissaIsLonger<Real,QuadDouble>::value &&
+        MantissaBits<QuadDouble>::value >= neededPrec )
+    {
+        try
+        {
+            typedef QuadDouble RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+#endif
+#ifdef EL_HAVE_QUAD
+    if( MantissaIsLonger<Real,Quad>::value &&
+        MantissaBits<Quad>::value >= neededPrec )
+    {
+        try
+        {
+            typedef Quad RealLower;
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+            BKZInfo<Real> info( infoLower );
+            Copy( BLower, B );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            return info;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+#endif
+#ifdef EL_HAVE_MPC
+    if( !IsFixedPrecision<Real>::value )
+    {
+        const mpfr_prec_t minPrecDiff = 32;
+        mpfr_prec_t inputPrec = mpc::Precision();
+        if( neededPrec <= inputPrec-minPrecDiff )
+        {
+            mpc::SetPrecision( neededPrec );
+            try
+            {
+                Matrix<F> BLower, QRLower, tLower;
+                Matrix<Real> dLower;
+                BKZCtrl<Real> ctrlLower( ctrl );
+                Copy( B, BLower );
+                Copy( QR, QRLower );
+                Copy( t, tLower );
+                Copy( d, dLower );
+                auto infoLower =
+                  BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+                mpc::SetPrecision( inputPrec );
+                BKZInfo<Real> info( infoLower );
+                Copy( BLower, B );
+                Copy( QRLower, QR );
+                Copy( tLower, t );
+                Copy( dLower, d );
+                return info;
+            }
+            catch( std::exception& e )
+            { Output("e.what()=",e.what()); }
+            mpc::SetPrecision( inputPrec );
+        }
+    }
+#endif
+
+    if( ctrl.recursive &&
+        Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n &&
+        !ctrl.jumpstart )
         return RecursiveBKZWithQ( B, QR, t, d, ctrl );
 
-    if( ctrl.blocksize < 2 )
-        LogicError("BKZ requires a blocksize of at least 2");
-    if( m < n )
-        LogicError("If height(B) < width(B), call LLL first");
+    // While classical BKZ requires a blocksize of at least 2, it is useful
+    // to interpret BKZ(1) as LLL.
+    if( ctrl.blocksize < 1 )
+        LogicError("BKZ requires a blocksize of at least 1");
+    if( ctrl.blocksize == 1 )
+    {
+        auto lllCtrl( ctrl.lllCtrl );
+        if( ctrl.jumpstart )
+        {
+            lllCtrl.jumpstart = true;
+            lllCtrl.startCol = 0;
+        }
+        auto lllInfo = LLLWithQ( B, QR, t, d, lllCtrl );
+        BKZInfo<Real> info;
+        info.delta = lllInfo.delta;
+        info.eta = lllInfo.eta;
+        info.rank = lllInfo.rank;
+        info.nullity = lllInfo.nullity;
+        info.numSwaps = lllInfo.numSwaps;
+        info.numEnums = 0;
+        info.numEnumFailures = 0;
+        info.logVol = lllInfo.logVol;
+        return info;
+    }
 
     const bool progress = true;
 
     Int numSwaps=0;
-    auto lllInfo = LLLWithQ( B, QR, t, d, ctrl.lllCtrl );
-    numSwaps = lllInfo.numSwaps;
+    LLLInfo<Real> lllInfo;
+    if( ctrl.skipInitialLLL )
+    {
+        QR = B;
+        El::QR( QR, t, d );
+    }
+    else
+    {
+        auto lllCtrl( ctrl.lllCtrl );
+        if( ctrl.jumpstart )
+        {
+            lllCtrl.jumpstart = true;
+            lllCtrl.startCol = 0;
+        }
+        lllInfo = LLLWithQ( B, QR, t, d, lllCtrl );
+        numSwaps = lllInfo.numSwaps;
+    }
+    // The zero columns should be at the end of B
+    const Int rank = lllInfo.rank;
+  
+    ofstream failedEnumFile, streakSizesFile, nontrivialCoordsFile;
+    if( ctrl.logFailedEnums )
+        failedEnumFile.open( ctrl.failedEnumFile.c_str() );
+    if( ctrl.logStreakSizes )
+        streakSizesFile.open( ctrl.streakSizesFile.c_str() );
+    if( ctrl.logNontrivialCoords )
+        nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
     Int z=0, j=-1; 
     Matrix<F> BTmp, QRTmp, tTmp;
     Matrix<Base<F>> dTmp;
     Int numEnums=0, numEnumFailures=0;
-    while( z < n-1 ) 
+    const Int indent = PushIndent(); 
+    while( z < rank-1 ) 
     {
-        j = Mod(j+1,n);
-        const Int k = Min(j+ctrl.blocksize-1,n-1);
-        const Int h = Min(k+1,n-1); 
+        // TODO: Decide how to periodically use a recursive BKZ to 
+        //       behave more like merge sort than bubble sort
+        j = Mod(j+1,rank);
+        const Int k = Min(j+ctrl.blocksize-1,rank-1);
+        const Int h = Min(k+1,rank-1); 
 
         Matrix<F> v;
         {
@@ -296,28 +808,62 @@ BKZWithQ
         {
             if( progress )
                 Output
-                ("  Trivial enumeration for window of size ",k+1-j,
+                ("Trivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
             ++z;
-            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-            subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = h-1;
-            subLLLCtrl.recursive = false;
             const auto subInd = IR(0,h+1);
             auto BSub = B( ALL, subInd );
             auto QRSub = QR( ALL, subInd );
             auto tSub = t( subInd, ALL );
             auto dSub = d( subInd, ALL );
-            lllInfo = LLLWithQ( BSub, QRSub, tSub, dSub, subLLLCtrl );
-            numSwaps += lllInfo.numSwaps;
+            if( ctrl.subBKZ )
+            {
+                BKZCtrl<Real> subCtrl( ctrl );
+                subCtrl.jumpstart = true;
+                // Only if we insist on only one level of recursion
+                subCtrl.subBKZ = false;
+                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
+                subCtrl.earlyAbort = ctrl.subEarlyAbort;
+                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+                subCtrl.recursive = false;
+                subCtrl.logFailedEnums = false;
+                subCtrl.logStreakSizes = false;
+                subCtrl.logNontrivialCoords = false;
+                subCtrl.lllCtrl.jumpstart = false;
+                subCtrl.lllCtrl.recursive = false;
+                if( progress )
+                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
+                auto bkzInfo = BKZWithQ( BSub, QRSub, tSub, dSub, subCtrl );
+                numSwaps += bkzInfo.numSwaps;
+            }
+            else
+            {
+                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+                subLLLCtrl.jumpstart = true;
+                subLLLCtrl.startCol = h-1;
+                subLLLCtrl.recursive = false;
+                lllInfo = LLLWithQ( BSub, QRSub, tSub, dSub, subLLLCtrl );
+                numSwaps += lllInfo.numSwaps;
+            }
         }
         else
         {
             if( progress )
                 Output
-                ("  Nontrivial enumeration for window of size ",k+1-j,
+                ("Nontrivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
             ++numEnumFailures;
+            if( ctrl.logFailedEnums )
+                failedEnumFile << j << endl;
+            if( ctrl.logStreakSizes )
+                streakSizesFile << z << endl;
+            if( ctrl.logNontrivialCoords )
+            {
+                for( Int e=0; e<k+1-j; ++e )
+                    nontrivialCoordsFile << v.Get(e,0) << " ";
+                nontrivialCoordsFile << endl;
+            }
+
             z = 0;
             Matrix<F> bNew;
             Zeros( bNew, m, 1 );
@@ -352,12 +898,35 @@ BKZWithQ
                 dTmpT = dT;
             }
 
-            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-            subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = j;
-            subLLLCtrl.recursive = false;
-            auto lllInfo = LLLWithQ( BTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
-            numSwaps += lllInfo.numSwaps;
+            if( ctrl.subBKZ )
+            {
+                BKZCtrl<Real> subCtrl( ctrl );
+                subCtrl.jumpstart = true;
+                // Only if we insist on only one level of recursion
+                subCtrl.subBKZ = false;
+                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
+                subCtrl.earlyAbort = ctrl.subEarlyAbort;
+                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+                subCtrl.recursive = false;
+                subCtrl.logFailedEnums = false;
+                subCtrl.logStreakSizes = false;
+                subCtrl.logNontrivialCoords = false;
+                subCtrl.lllCtrl.jumpstart = false;
+                subCtrl.lllCtrl.recursive = false;
+                if( progress )
+                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
+                auto bkzInfo = BKZWithQ( BTmp, QRTmp, tTmp, dTmp, subCtrl );
+                numSwaps += bkzInfo.numSwaps;
+            }
+            else
+            {
+                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+                subLLLCtrl.jumpstart = true;
+                subLLLCtrl.startCol = j;
+                subLLLCtrl.recursive = false;
+                auto lllInfo = LLLWithQ( BTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
+                numSwaps += lllInfo.numSwaps;
+            }
             {
                 // The last column of BTmp should be all zeros now
                 auto BL = B( ALL, IR(0,h+1) );
@@ -366,13 +935,18 @@ BKZWithQ
             }
             // Returning the QR factorization doesn't work without explicitly
             // forming Q due to the first column of BTmp being removed
+            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+            subLLLCtrl.jumpstart = true;
             subLLLCtrl.startCol = 0;
+            subLLLCtrl.recursive = false;
+            // TODO: Use the full rank pieces?
             lllInfo = LLLWithQ( B, QR, t, d, subLLLCtrl );
         }
 
         if( ctrl.earlyAbort && numEnums >= ctrl.numEnumsBeforeAbort )
             break;
     }
+    SetIndent( indent );
 
     // Perform a final pass to get the full LLL info
     // NOTE: This could be replaced in favor of manually computing the 
@@ -383,6 +957,13 @@ BKZWithQ
     subLLLCtrl.recursive = false;
     lllInfo = LLLWithQ( B, QR, t, d, subLLLCtrl );
     numSwaps += lllInfo.numSwaps;
+
+    if( ctrl.logFailedEnums )
+        failedEnumFile.close();
+    if( ctrl.logStreakSizes )
+        streakSizesFile.close();
+    if( ctrl.logNontrivialCoords )
+        nontrivialCoordsFile.close();
 
     BKZInfo<Real> info;
     info.delta = lllInfo.delta;
@@ -678,22 +1259,26 @@ RecursiveHelper
         }
 #endif
 #ifdef EL_HAVE_MPC
-        // Only move down to a lower-precision MPFR type if the jump is
-        // substantial. The current value has been naively chosen.
-        const mpfr_prec_t minPrecDiff = 32;
-        mpfr_prec_t inputPrec = mpc::Precision();
-        if( !succeeded && neededPrec <= inputPrec-minPrecDiff )
+        if( !succeeded && !IsFixedPrecision<Real>::value )
         {
-            mpc::SetPrecision( neededPrec );
-            try {
-                info =
-                  LowerPrecisionMerge<F,BigFloat>( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
+            // Only move down to a lower-precision MPFR type if the jump is
+            // substantial. The current value has been naively chosen.
+            const mpfr_prec_t minPrecDiff = 32;
+            mpfr_prec_t inputPrec = mpc::Precision();
+            if( neededPrec <= inputPrec-minPrecDiff )
+            {
+                mpc::SetPrecision( neededPrec );
+                try {
+                    info =
+                      LowerPrecisionMerge<F,BigFloat>
+                      ( CL, CR, B, QR, t, d, ctrl );
+                    info.numSwaps += numPrevSwaps;
+                    succeeded = true;
+                }
+                catch( std::exception& e )
+                { Output("e.what()=",e.what()); }
+                mpc::SetPrecision( inputPrec );
             }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-            mpc::SetPrecision( inputPrec );
         }
 #endif
 
@@ -874,6 +1459,29 @@ RecursiveHelper
                 info.numSwaps += numPrevSwaps;
                 succeeded = true;
             } catch( std::exception& e ) { Output("e.what()=",e.what()); }
+        }
+#endif
+#ifdef EL_HAVE_MPC
+        if( !succeeded && !IsFixedPrecision<Real>::value )
+        {
+            // Only move down to a lower-precision MPFR type if the jump is
+            // substantial. The current value has been naively chosen.
+            const mpfr_prec_t minPrecDiff = 32;
+            mpfr_prec_t inputPrec = mpc::Precision();
+            if( neededPrec <= inputPrec-minPrecDiff )
+            {
+                mpc::SetPrecision( neededPrec );
+                try {
+                    info =
+                      LowerPrecisionMerge<F,BigFloat>
+                      ( CL, CR, B, QR, t, d, ctrl );
+                    info.numSwaps += numPrevSwaps;
+                    succeeded = true;
+                }
+                catch( std::exception& e )
+                { Output("e.what()=",e.what()); }
+                mpc::SetPrecision( inputPrec );
+            }
         }
 #endif
 
