@@ -50,6 +50,8 @@ BKZInfo<Base<F>> BKZWithQ
     if( MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to float");
         try
         {
             typedef float RealLower;
@@ -78,6 +80,8 @@ BKZInfo<Base<F>> BKZWithQ
     if( MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to double");
         try
         {
             typedef double RealLower;
@@ -107,6 +111,8 @@ BKZInfo<Base<F>> BKZWithQ
     if( MantissaIsLonger<Real,DoubleDouble>::value &&
         MantissaBits<DoubleDouble>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to DoubleDouble");
         try
         {
             typedef DoubleDouble RealLower;
@@ -135,6 +141,8 @@ BKZInfo<Base<F>> BKZWithQ
     if( MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to QuadDouble");
         try
         {
             typedef QuadDouble RealLower;
@@ -165,6 +173,8 @@ BKZInfo<Base<F>> BKZWithQ
     if( MantissaIsLonger<Real,Quad>::value &&
         MantissaBits<Quad>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to Quad");
         try
         {
             typedef Quad RealLower;
@@ -198,6 +208,8 @@ BKZInfo<Base<F>> BKZWithQ
         mpfr_prec_t inputPrec = mpc::Precision();
         if( neededPrec <= inputPrec-minPrecDiff )
         {
+            if( ctrl.progress )
+                Output("Dropping to precision=",neededPrec);
             mpc::SetPrecision( neededPrec );
             try
             {
@@ -210,7 +222,8 @@ BKZInfo<Base<F>> BKZWithQ
                 Copy( t, tLower );
                 Copy( d, dLower );
                 auto infoLower =
-                  BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+                  BKZWithQ
+                  ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
                 mpc::SetPrecision( inputPrec );
                 BKZInfo<Real> info( infoLower );
                 Copy( BLower, B );
@@ -262,8 +275,6 @@ BKZInfo<Base<F>> BKZWithQ
         return info;
     }
 
-    const bool progress = true;
-
     Int numSwaps=0;
     LLLInfo<Real> lllInfo;
     // TODO: Decide on the best way to handle this in the presense of recursion
@@ -283,18 +294,25 @@ BKZInfo<Base<F>> BKZWithQ
             lllCtrl.startCol = 0;
         }
         lllInfo = LLLWithQ( B, U, QR, t, d, lllCtrl );
+        if( ctrl.progress )
+            Output("Initial LLL applied ",lllInfo.numSwaps," swaps");
         numSwaps = lllInfo.numSwaps;
     }
     // The zero columns should be at the end of B
     const Int rank = lllInfo.rank;
 
-    // TODO:
-    // Instead of using the classical LLL reduction between BKZ recalls,
-    // instead follow GNR's suggestion and use a recursive aborted BKZ
+    ofstream failedEnumFile, streakSizesFile, nontrivialCoordsFile;
+    if( ctrl.logFailedEnums )
+    {
+        Output("Opening failedEnumFile");
+        failedEnumFile.open( ctrl.failedEnumFile.c_str() );
+    }
+    if( ctrl.logStreakSizes )
+        streakSizesFile.open( ctrl.streakSizesFile.c_str() );
+    if( ctrl.logNontrivialCoords )
+        nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
     Int z=0, j=-1; 
-    Matrix<F> BTmp, UTmp, QRTmp, tTmp;
-    Matrix<Base<F>> dTmp;
     Int numEnums=0, numEnumFailures=0;
     const Int indent = PushIndent(); 
     while( z < rank-1 ) 
@@ -304,195 +322,160 @@ BKZInfo<Base<F>> BKZWithQ
         const Int h = Min(k+1,rank-1); 
         
         Matrix<F> v;
-        {
-            auto BEnum = B( ALL, IR(j,k+1) );
-            auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
-            ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
-            ++numEnums;
-        }
+        auto BEnum = B( ALL, IR(j,k+1) );
+        auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
+        const Real oldProjNorm = QR.Get(j,j);
+        const Real minProjNorm =
+          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
+        ++numEnums;
 
-        if( bkz::TrivialCoordinates(v) )        
+        const bool keepMin =
+          ( Sqrt(ctrl.lllCtrl.delta)*oldProjNorm > minProjNorm );
+
+        if( keepMin )
         {
-            if( progress )
-                Output
-                ("Trivial enumeration for window of size ",k+1-j,
-                 " with j=",j,", z=",z);
-            ++z;
-            const auto subInd = IR(0,h+1);
-            auto BSub = B( ALL, subInd );
-            auto USub = U( subInd, subInd );
-            auto QRSub = QR( ALL, subInd );
-            auto tSub = t( subInd, ALL );
-            auto dSub = d( subInd, ALL );
-            if( ctrl.subBKZ )
+            if( ctrl.progress )
             {
-                BKZCtrl<Real> subCtrl( ctrl );
-                subCtrl.jumpstart = true;
-                // Only if we insist on only one level of recursion
-                subCtrl.subBKZ = false;
-                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
-                subCtrl.earlyAbort = ctrl.subEarlyAbort;
-                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
-                subCtrl.recursive = false;
-                subCtrl.logFailedEnums = false;
-                subCtrl.logStreakSizes = false;
-                subCtrl.logNontrivialCoords = false;
-                subCtrl.lllCtrl.jumpstart = false;
-                subCtrl.lllCtrl.recursive = false;
-                if( progress )
-                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
-                auto bkzInfo =
-                  BKZWithQ( BSub, USub, QRSub, tSub, dSub, subCtrl );
-                numSwaps += bkzInfo.numSwaps;
-            }
-            else
-            {
-                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-                subLLLCtrl.jumpstart = true;
-                subLLLCtrl.startCol = h-1;
-                subLLLCtrl.recursive = false;
-                lllInfo = LLLWithQ( BSub, USub, QRSub, tSub, dSub, subLLLCtrl );
-                numSwaps += lllInfo.numSwaps;
-            }
-        }
-        else
-        {
-            if( progress )
                 Output
                 ("Nontrivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
+                Print( v, "v" );
+                Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm);
+            }
+
             ++numEnumFailures;
+            if( ctrl.logFailedEnums )
+                failedEnumFile << j << endl;
+            if( ctrl.logStreakSizes )
+                streakSizesFile << z << endl;
+            if( ctrl.logNontrivialCoords )
+            {
+                for( Int e=0; e<k+1-j; ++e )
+                    nontrivialCoordsFile << v.Get(e,0) << " ";
+                nontrivialCoordsFile << endl;
+            }
             z = 0;
-            Matrix<F> bNew;
-            Zeros( bNew, m, 1 );
-            Gemv( NORMAL, F(1), B(ALL,IR(j,k+1)), v, bNew );
 
-            // The following code looks rather complicated but is due to 
-            // running LLL on the extended basis
-            //
-            //   (b_0,b_1,...,b_{j-1},\sum_{i=j}^{k} v_i,b_j,...,b_h)
-            //
-            // using the fact that, if
-            //
-            //   [B_L,b,B_R] [a,[G_T;g_M;G_R]] = [0,\tilde{B}],
-            // 
-            // then
-            //
-            //   [B_L,B_R] U = \tilde{B},
-            //
-            // where U = [G_T;G_R] + b g_M. Furthermore, if
-            //
-            //   [B_L,b,B_R] = [0,\tilde{B}] [q; U^{-1}_L, r, U^{-1}_R],
-            //
-            // then
-            //
-            //   [B_L,B_R] = \tilde{B} [U^{-1}_L, U^{-1}_R].
-            //
-            // The initializations of the expanded U is simpler to derive.
- 
-            BTmp.Resize( m, h+2 );
+            // Find a unimodular matrix W such that v^T W = [1,0,...,0]
+            // and then invert it
+            Matrix<F> vTrans, W, Rv;
+            Transpose( v, vTrans );
+            LLL( vTrans, W, Rv );
+            if( vTrans.Get(0,0) == F(1) )
             {
-                auto BL = B( ALL, IR(0,j) );
-                auto BR = B( ALL, IR(j,h+1) );
-                auto BTmpL = BTmp( ALL, IR(0,j)     );
-                auto bTmpM = BTmp( ALL, IR(j)       );
-                auto BTmpR = BTmp( ALL, IR(j+1,h+2) );
-                BTmpL = BL;
-                bTmpM = bNew;
-                BTmpR = BR;
+                // Do nothing 
             }
-            Zeros( UTmp, h+2, h+2 );
+            else if( vTrans.Get(0,0) == F(-1) )
             {
-                auto UTL = U( IR(0,j), IR(0,j) );
-                auto UTR = U( IR(0,j), IR(j,h+1) );
-                auto UBL = U( IR(j,h+1), IR(0,j) );
-                auto UBR = U( IR(j,h+1), IR(j,h+1) );
-                auto UTmpTL = UTmp( IR(0,j), IR(0,j) );
-                auto UTmpTR = UTmp( IR(0,j), IR(j+1,h+2) );
-                auto UTmpBL = UTmp( IR(j+1,h+2), IR(0,j) );
-                auto UTmpBR = UTmp( IR(j+1,h+2), IR(j+1,h+2) );
-                UTmpTL = UTL;
-                UTmpTR = UTR;
-                UTmpBL = UBL;
-                UTmpBR = UBR;
-                UTmp.Set( j, j, F(1) );
-            }
-            QRTmp.Resize( m, h+2 );
-            {
-                auto QRL = QR( ALL, IR(0,j) );
-                auto QRTmpL = QRTmp( ALL, IR(0,j) );
-                QRTmpL = QRL;
-            }
-            tTmp.Resize( Min(m,h+2), 1 );
-            dTmp.Resize( Min(m,h+2), 1 );
-            {
-                auto tT = t( IR(0,j), ALL );
-                auto tTmpT = tTmp( IR(0,j), ALL );
-                tTmpT = tT;
-
-                auto dT = d( IR(0,j), ALL );
-                auto dTmpT = dTmp( IR(0,j), ALL );
-                dTmpT = dT;
-            }
-
-            if( ctrl.subBKZ )
-            {
-                BKZCtrl<Real> subCtrl( ctrl );
-                subCtrl.jumpstart = true;
-                // Only if we insist on only one level of recursion
-                subCtrl.subBKZ = false;
-                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
-                subCtrl.earlyAbort = ctrl.subEarlyAbort;
-                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
-                subCtrl.recursive = false;
-                subCtrl.logFailedEnums = false;
-                subCtrl.logStreakSizes = false;
-                subCtrl.logNontrivialCoords = false;
-                subCtrl.lllCtrl.jumpstart = false;
-                subCtrl.lllCtrl.recursive = false;
-                if( progress )
-                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
-                auto bkzInfo =
-                  BKZWithQ( BTmp, UTmp, QRTmp, tTmp, dTmp, subCtrl );
-                numSwaps += bkzInfo.numSwaps;
+                auto w0 = W( ALL, IR(0) );
+                w0 *= Real(-1);
             }
             else
             {
-                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-                subLLLCtrl.jumpstart = true;
-                subLLLCtrl.startCol = j;
-                subLLLCtrl.recursive = false;
-                lllInfo = LLLWithQ( BTmp, UTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
-                numSwaps += lllInfo.numSwaps;
+                Print( v, "v" );
+                Print( vTrans, "vTrans" );
+                Print( W, "W" );
+                LogicError("Invalid result of LLL on enumeration coefficients");
             }
+            Matrix<F> WInv( W );
+            Inverse( WInv );
+            Round( WInv );
+            // Ensure that we have computed the exact inverse
+            Matrix<F> WProd;
+            Identity( WProd, k+1-j, k+1-j );
+            Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
+            const Real WErr = FrobeniusNorm( WProd );
+            if( WErr != Real(0) )
             {
-                // The last column of BTmp should be all zeros now
-                auto BL = B( ALL, IR(0,h+1) );
-                auto BTmpL = BTmp( ALL, IR(0,h+1) );
-                BL = BTmpL;
+                Print( W, "W" );
+                Print( WInv, "invW" );
+                LogicError("Did not compute exact inverse of W");
             }
-            {
-                auto USubT = U( IR(0,j), IR(0,h+1) );
-                auto USubB = U( IR(j,h+1), IR(0,h+1) );
-                auto UTmpT = UTmp( IR(0,j), IR(0,h+1) );
-                auto uTmpM = UTmp( IR(j), IR(0,h+1) );
-                auto UTmpB = UTmp( IR(j+1,h+2), IR(0,h+1) );
-                USubT = UTmpT;
-                USubB = UTmpB;
-                auto USub_k = U( IR(j,k+1), IR(0,h+1) );
-                Geru( F(1), v, uTmpM, USub_k );
-            }
-            // Returning the QR factorization doesn't work without explicitly
-            // forming Q due to the first column of BTmp being removed
-            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-            subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = 0;
-            subLLLCtrl.recursive = false;
-            // TODO: Use the full rank pieces?
-            lllInfo = LLLWithQ( B, U, QR, t, d, subLLLCtrl );
+
+            auto USub = U(ALL,IR(j,k+1));
+            auto BSub = B(ALL,IR(j,k+1));
+            auto BSubCopy( BSub );
+            auto USubCopy( USub );
+            Gemm( NORMAL, TRANSPOSE, F(1), BSubCopy, WInv, BSub );
+            Gemm( NORMAL, TRANSPOSE, F(1), USubCopy, WInv, USub );
+        }
+        else
+        {
+            if( ctrl.progress )
+                Output
+                ("Trivial enumeration for window of size ",k+1-j,
+                 " with j=",j,", z=",z);
         }
 
-        if( ctrl.earlyAbort && numEnums >= ctrl.numEnumsBeforeAbort )
+        Matrix<F> W;
+        Identity( W, h+1, h+1 );
+        
+        bool changed = false;
+        const auto subInd = IR(0,h+1);
+        auto BSub = B( ALL, subInd );
+        auto QRSub = QR( ALL, subInd );
+        auto tSub = t( subInd, ALL );
+        auto dSub = d( subInd, ALL );
+        if( ctrl.subBKZ )
+        {
+            BKZCtrl<Real> subCtrl( ctrl );
+            // TODO: Reeenable
+            //subCtrl.time = false;
+            //subCtrl.progress = false;
+            subCtrl.jumpstart = true;
+            // Only if we insist on only one level of recursion
+            subCtrl.subBKZ = false;
+            subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
+            subCtrl.earlyAbort = ctrl.subEarlyAbort;
+            subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+            subCtrl.recursive = false;
+            subCtrl.logFailedEnums = false;
+            subCtrl.logStreakSizes = false;
+            subCtrl.logNontrivialCoords = false;
+            subCtrl.lllCtrl.jumpstart = false;
+            subCtrl.lllCtrl.recursive = false;
+            if( ctrl.progress )
+              Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
+            auto bkzInfo =
+              BKZWithQ( BSub, W, QRSub, tSub, dSub, subCtrl );
+            if( ctrl.progress )
+              Output
+              ("  ",bkzInfo.numSwaps," swaps and ",
+               bkzInfo.numEnumFailures," failed enums");
+            if( bkzInfo.numSwaps != 0 || bkzInfo.numEnumFailures != 0 )
+                changed = true;
+            numSwaps += bkzInfo.numSwaps;
+        }
+        else
+        {
+            LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
+            subLLLCtrl.jumpstart = true;
+            subLLLCtrl.startCol = ( keepMin ? j : h-1 );
+            subLLLCtrl.recursive = false;
+            lllInfo = LLLWithQ( BSub, W, QRSub, tSub, dSub, subLLLCtrl );
+            if( lllInfo.numSwaps != 0 )
+                changed = true;
+            numSwaps += lllInfo.numSwaps;
+        }
+        if( !keepMin )
+        {
+            if( changed )
+            {
+                if( ctrl.progress )
+                    Output("  Subproblem changed");
+                // TODO: Output this j into a file
+                z = 0;
+            }
+            else
+                ++z;
+        }
+        auto USub = U( ALL, subInd );
+        auto USubCopy( USub );
+        Gemm( NORMAL, NORMAL, F(1), USubCopy, W, USub );
+
+        if( ctrl.earlyAbort &&
+            numEnums >= ctrl.numEnumsBeforeAbort &&
+            j == rank-1 )
             break;
     }
     SetIndent( indent );
@@ -503,8 +486,18 @@ BKZInfo<Base<F>> BKZWithQ
     LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
     subLLLCtrl.jumpstart = true;
     subLLLCtrl.startCol = n-1;
+    subLLLCtrl.recursive = false;
     lllInfo = LLLWithQ( B, U, QR, t, d, subLLLCtrl );
+    if( lllInfo.numSwaps != 0 )
+        LogicError("Final LLL performed ",lllInfo.numSwaps," swaps");
     numSwaps += lllInfo.numSwaps;
+
+    if( ctrl.logFailedEnums )
+        failedEnumFile.close();
+    if( ctrl.logStreakSizes )
+        streakSizesFile.close();
+    if( ctrl.logNontrivialCoords )
+        nontrivialCoordsFile.close();
 
     BKZInfo<Real> info;
     info.delta = lllInfo.delta;
@@ -535,8 +528,7 @@ BKZInfo<Base<F>> BKZ
 }
 
 template<typename F>
-BKZInfo<Base<F>>
-BKZWithQ
+BKZInfo<Base<F>> BKZWithQ
 ( Matrix<F>& B,
   Matrix<F>& QR,
   Matrix<F>& t,
@@ -551,12 +543,12 @@ BKZWithQ
     const Real BOneNorm = OneNorm(B);
     const Real fudge = 1.5; // TODO: Make tunable
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
-    Output("|| B ||_1 = ",BOneNorm);
-    Output("neededPrec = ",neededPrec);
 
     if( MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to float");
         try
         {
             typedef float RealLower;
@@ -583,6 +575,8 @@ BKZWithQ
     if( MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to double");
         try
         {
             typedef double RealLower;
@@ -610,6 +604,8 @@ BKZWithQ
     if( MantissaIsLonger<Real,DoubleDouble>::value &&
         MantissaBits<DoubleDouble>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to DoubleDouble");
         try
         {
             typedef DoubleDouble RealLower;
@@ -636,6 +632,8 @@ BKZWithQ
     if( MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to QuadDouble");
         try
         {
             typedef QuadDouble RealLower;
@@ -664,6 +662,8 @@ BKZWithQ
     if( MantissaIsLonger<Real,Quad>::value &&
         MantissaBits<Quad>::value >= neededPrec )
     {
+        if( ctrl.progress )
+            Output("Dropping to Quad");
         try
         {
             typedef Quad RealLower;
@@ -695,6 +695,8 @@ BKZWithQ
         mpfr_prec_t inputPrec = mpc::Precision();
         if( neededPrec <= inputPrec-minPrecDiff )
         {
+            if( ctrl.progress )
+                Output("Dropping to precision=",neededPrec);
             mpc::SetPrecision( neededPrec );
             try
             {
@@ -706,7 +708,8 @@ BKZWithQ
                 Copy( t, tLower );
                 Copy( d, dLower );
                 auto infoLower =
-                  BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+                  BKZWithQ
+                  ( BLower, QRLower, tLower, dLower, ctrlLower );
                 mpc::SetPrecision( inputPrec );
                 BKZInfo<Real> info( infoLower );
                 Copy( BLower, B );
@@ -726,6 +729,8 @@ BKZWithQ
         Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n &&
         !ctrl.jumpstart )
         return RecursiveBKZWithQ( B, QR, t, d, ctrl );
+
+    // TODO: Add optional logging
 
     // While classical BKZ requires a blocksize of at least 2, it is useful
     // to interpret BKZ(1) as LLL.
@@ -752,11 +757,11 @@ BKZWithQ
         return info;
     }
 
-    const bool progress = true;
-
     Int numSwaps=0;
     LLLInfo<Real> lllInfo;
-    if( ctrl.skipInitialLLL )
+    // TODO: Decide on the best way to handle this in the presense of recursion
+    //if( ctrl.skipInitialLLL )
+    if( false )
     {
         QR = B;
         El::QR( QR, t, d );
@@ -770,88 +775,55 @@ BKZWithQ
             lllCtrl.startCol = 0;
         }
         lllInfo = LLLWithQ( B, QR, t, d, lllCtrl );
+        if( ctrl.progress )
+            Output("Initial LLL applied ",lllInfo.numSwaps," swaps");
         numSwaps = lllInfo.numSwaps;
     }
     // The zero columns should be at the end of B
     const Int rank = lllInfo.rank;
-  
+
     ofstream failedEnumFile, streakSizesFile, nontrivialCoordsFile;
     if( ctrl.logFailedEnums )
+    {
+        Output("Opening failedEnumFile");
         failedEnumFile.open( ctrl.failedEnumFile.c_str() );
+    }
     if( ctrl.logStreakSizes )
         streakSizesFile.open( ctrl.streakSizesFile.c_str() );
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
     Int z=0, j=-1; 
-    Matrix<F> BTmp, QRTmp, tTmp;
-    Matrix<Base<F>> dTmp;
     Int numEnums=0, numEnumFailures=0;
     const Int indent = PushIndent(); 
     while( z < rank-1 ) 
     {
-        // TODO: Decide how to periodically use a recursive BKZ to 
-        //       behave more like merge sort than bubble sort
         j = Mod(j+1,rank);
         const Int k = Min(j+ctrl.blocksize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
-
+        
         Matrix<F> v;
-        {
-            auto BEnum = B( ALL, IR(j,k+1) );
-            auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
-            ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
-            ++numEnums;
-        }
+        auto BEnum = B( ALL, IR(j,k+1) );
+        auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
+        const Real oldProjNorm = QR.Get(j,j);
+        const Real minProjNorm =
+          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
+        ++numEnums;
 
-        if( bkz::TrivialCoordinates(v) )        
+        const bool keepMin =
+          ( Sqrt(ctrl.lllCtrl.delta)*oldProjNorm > minProjNorm );
+
+        if( keepMin )
         {
-            if( progress )
-                Output
-                ("Trivial enumeration for window of size ",k+1-j,
-                 " with j=",j,", z=",z);
-            ++z;
-            const auto subInd = IR(0,h+1);
-            auto BSub = B( ALL, subInd );
-            auto QRSub = QR( ALL, subInd );
-            auto tSub = t( subInd, ALL );
-            auto dSub = d( subInd, ALL );
-            if( ctrl.subBKZ )
+            if( ctrl.progress )
             {
-                BKZCtrl<Real> subCtrl( ctrl );
-                subCtrl.jumpstart = true;
-                // Only if we insist on only one level of recursion
-                subCtrl.subBKZ = false;
-                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
-                subCtrl.earlyAbort = ctrl.subEarlyAbort;
-                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
-                subCtrl.recursive = false;
-                subCtrl.logFailedEnums = false;
-                subCtrl.logStreakSizes = false;
-                subCtrl.logNontrivialCoords = false;
-                subCtrl.lllCtrl.jumpstart = false;
-                subCtrl.lllCtrl.recursive = false;
-                if( progress )
-                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
-                auto bkzInfo = BKZWithQ( BSub, QRSub, tSub, dSub, subCtrl );
-                numSwaps += bkzInfo.numSwaps;
-            }
-            else
-            {
-                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-                subLLLCtrl.jumpstart = true;
-                subLLLCtrl.startCol = h-1;
-                subLLLCtrl.recursive = false;
-                lllInfo = LLLWithQ( BSub, QRSub, tSub, dSub, subLLLCtrl );
-                numSwaps += lllInfo.numSwaps;
-            }
-        }
-        else
-        {
-            if( progress )
                 Output
                 ("Nontrivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
+                Print( v, "v" );
+                Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm);
+            }
+
             ++numEnumFailures;
             if( ctrl.logFailedEnums )
                 failedEnumFile << j << endl;
@@ -863,87 +835,118 @@ BKZWithQ
                     nontrivialCoordsFile << v.Get(e,0) << " ";
                 nontrivialCoordsFile << endl;
             }
-
             z = 0;
-            Matrix<F> bNew;
-            Zeros( bNew, m, 1 );
-            Gemv( NORMAL, F(1), B(ALL,IR(j,k+1)), v, bNew );
 
-            BTmp.Resize( m, h+2 );
+            // Find a unimodular matrix W such that v^T W = [1,0,...,0]
+            // and then invert it
+            Matrix<F> vTrans, W, Rv;
+            Transpose( v, vTrans );
+            LLL( vTrans, W, Rv );
+            if( vTrans.Get(0,0) == F(1) )
             {
-                auto BL = B( ALL, IR(0,j) );
-                auto BR = B( ALL, IR(j,h+1) );
-                auto BTmpL = BTmp( ALL, IR(0,j)     );
-                auto bTmpM = BTmp( ALL, IR(j)       );
-                auto BTmpR = BTmp( ALL, IR(j+1,h+2) );
-                BTmpL = BL;
-                bTmpM = bNew;
-                BTmpR = BR;
+                // Do nothing 
             }
-            QRTmp.Resize( m, h+2 );
+            else if( vTrans.Get(0,0) == F(-1) )
             {
-                auto QRL = QR( ALL, IR(0,j) );
-                auto QRTmpL = QRTmp( ALL, IR(0,j) );
-                QRTmpL = QRL;
-            }
-            tTmp.Resize( Min(m,h+2), 1 );
-            dTmp.Resize( Min(m,h+2), 1 );
-            {
-                auto tT = t( IR(0,j), ALL );
-                auto tTmpT = tTmp( IR(0,j), ALL );
-                tTmpT = tT;
-
-                auto dT = d( IR(0,j), ALL );
-                auto dTmpT = dTmp( IR(0,j), ALL );
-                dTmpT = dT;
-            }
-
-            if( ctrl.subBKZ )
-            {
-                BKZCtrl<Real> subCtrl( ctrl );
-                subCtrl.jumpstart = true;
-                // Only if we insist on only one level of recursion
-                subCtrl.subBKZ = false;
-                subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
-                subCtrl.earlyAbort = ctrl.subEarlyAbort;
-                subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
-                subCtrl.recursive = false;
-                subCtrl.logFailedEnums = false;
-                subCtrl.logStreakSizes = false;
-                subCtrl.logNontrivialCoords = false;
-                subCtrl.lllCtrl.jumpstart = false;
-                subCtrl.lllCtrl.recursive = false;
-                if( progress )
-                  Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
-                auto bkzInfo = BKZWithQ( BTmp, QRTmp, tTmp, dTmp, subCtrl );
-                numSwaps += bkzInfo.numSwaps;
+                auto w0 = W( ALL, IR(0) );
+                w0 *= Real(-1);
             }
             else
             {
-                LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
-                subLLLCtrl.jumpstart = true;
-                subLLLCtrl.startCol = j;
-                subLLLCtrl.recursive = false;
-                auto lllInfo = LLLWithQ( BTmp, QRTmp, tTmp, dTmp, subLLLCtrl );
-                numSwaps += lllInfo.numSwaps;
+                Print( v, "v" );
+                Print( vTrans, "vTrans" );
+                Print( W, "W" );
+                LogicError("Invalid result of LLL on enumeration coefficients");
             }
+            Matrix<F> WInv( W );
+            Inverse( WInv );
+            Round( WInv );
+            // Ensure that we have computed the exact inverse
+            Matrix<F> WProd;
+            Identity( WProd, k+1-j, k+1-j );
+            Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
+            const Real WErr = FrobeniusNorm( WProd );
+            if( WErr != Real(0) )
             {
-                // The last column of BTmp should be all zeros now
-                auto BL = B( ALL, IR(0,h+1) );
-                auto BTmpL = BTmp( ALL, IR(0,h+1) );
-                BL = BTmpL;
+                Print( W, "W" );
+                Print( WInv, "invW" );
+                LogicError("Did not compute exact inverse of W");
             }
-            // Returning the QR factorization doesn't work without explicitly
-            // forming Q due to the first column of BTmp being removed
+
+            auto BSub = B(ALL,IR(j,k+1));
+            auto BSubCopy( BSub );
+            Gemm( NORMAL, TRANSPOSE, F(1), BSubCopy, WInv, BSub );
+        }
+        else
+        {
+            if( ctrl.progress )
+                Output
+                ("Trivial enumeration for window of size ",k+1-j,
+                 " with j=",j,", z=",z);
+        }
+        
+        bool changed = false;
+        const auto subInd = IR(0,h+1);
+        auto BSub = B( ALL, subInd );
+        auto QRSub = QR( ALL, subInd );
+        auto tSub = t( subInd, ALL );
+        auto dSub = d( subInd, ALL );
+        if( ctrl.subBKZ )
+        {
+            BKZCtrl<Real> subCtrl( ctrl );
+            // TODO: Reeenable
+            //subCtrl.time = false;
+            //subCtrl.progress = false;
+            subCtrl.jumpstart = true;
+            // Only if we insist on only one level of recursion
+            subCtrl.subBKZ = false;
+            subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
+            subCtrl.earlyAbort = ctrl.subEarlyAbort;
+            subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+            subCtrl.recursive = false;
+            subCtrl.logFailedEnums = false;
+            subCtrl.logStreakSizes = false;
+            subCtrl.logNontrivialCoords = false;
+            subCtrl.lllCtrl.jumpstart = false;
+            subCtrl.lllCtrl.recursive = false;
+            if( ctrl.progress )
+              Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
+            auto bkzInfo = BKZWithQ( BSub, QRSub, tSub, dSub, subCtrl );
+            if( ctrl.progress )
+              Output
+              ("  ",bkzInfo.numSwaps," swaps and ",
+               bkzInfo.numEnumFailures," failed enums");
+            if( bkzInfo.numSwaps != 0 || bkzInfo.numEnumFailures != 0 )
+                changed = true;
+            numSwaps += bkzInfo.numSwaps;
+        }
+        else
+        {
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = 0;
+            subLLLCtrl.startCol = ( keepMin ? j : h-1 );
             subLLLCtrl.recursive = false;
-            // TODO: Use the full rank pieces?
-            lllInfo = LLLWithQ( B, QR, t, d, subLLLCtrl );
+            lllInfo = LLLWithQ( BSub, QRSub, tSub, dSub, subLLLCtrl );
+            if( lllInfo.numSwaps != 0 )
+                changed = true;
+            numSwaps += lllInfo.numSwaps;
+        }
+        if( !keepMin )
+        {
+            if( changed )
+            {
+                if( ctrl.progress )
+                    Output("  Subproblem changed");
+                // TODO: Output this j into a file
+                z = 0;
+            }
+            else
+                ++z;
         }
 
-        if( ctrl.earlyAbort && numEnums >= ctrl.numEnumsBeforeAbort )
+        if( ctrl.earlyAbort &&
+            numEnums >= ctrl.numEnumsBeforeAbort &&
+            j == rank-1 )
             break;
     }
     SetIndent( indent );
@@ -956,6 +959,8 @@ BKZWithQ
     subLLLCtrl.startCol = n-1;
     subLLLCtrl.recursive = false;
     lllInfo = LLLWithQ( B, QR, t, d, subLLLCtrl );
+    if( lllInfo.numSwaps != 0 )
+        LogicError("Final LLL performed ",lllInfo.numSwaps," swaps");
     numSwaps += lllInfo.numSwaps;
 
     if( ctrl.logFailedEnums )
@@ -1110,9 +1115,6 @@ RecursiveHelper
     lllCtrlMod.recursive = true;
     auto lllInfo = LLL( B, QR, lllCtrlMod );
     info.numSwaps += lllInfo.numSwaps;
-
-    const Real BOneNorm = OneNorm( B );
-    Output("|| B ||_1 = ",BOneNorm);
 
     for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
     {
@@ -1350,9 +1352,6 @@ RecursiveHelper
     lllCtrlMod.recursive = true;
     auto lllInfo = LLL( B, QR, lllCtrlMod );
     info.numSwaps += lllInfo.numSwaps;
-
-    const Real BOneNorm = OneNorm( B );
-    Output("|| B ||_1 = ",BOneNorm);
 
     for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
     {

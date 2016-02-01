@@ -539,7 +539,7 @@ RecursiveHelper
             Matrix<Real> dL;
             leftInfo = RecursiveLLLWithQ( CL, ULNew, QRL, tL, dL, ctrl );
 
-            auto UL = U( indL, indL );
+            auto UL = U( ALL, indL );
             auto ULCopy( UL );
             Gemm( NORMAL, NORMAL, F(1), ULCopy, ULNew, F(0), UL );
         }
@@ -563,7 +563,7 @@ RecursiveHelper
             Matrix<Real> dR;
             rightInfo = RecursiveLLLWithQ( CR, URNew, QRR, tR, dR, ctrl );
 
-            auto UR = U( indR, indR );
+            auto UR = U( ALL, indR );
             auto URCopy( UR );
             Gemm( NORMAL, NORMAL, F(1), URCopy, URNew, F(0), UR );
         }
@@ -819,7 +819,7 @@ RecursiveHelper
             Matrix<Real> dL;
             leftInfo = RecursiveLLLWithQ( CL, ULNew, QRL, tL, dL, ctrl );
 
-            auto UL = U( indL, indL );
+            auto UL = U( ALL, indL );
             auto ULCopy( UL );
             Gemm( NORMAL, NORMAL, F(1), ULCopy, ULNew, F(0), UL );
         }
@@ -843,7 +843,7 @@ RecursiveHelper
             Matrix<Real> dR;
             rightInfo = RecursiveLLLWithQ( CR, URNew, QRR, tR, dR, ctrl );
 
-            auto UR = U( indR, indR );
+            auto UR = U( ALL, indR );
             auto URCopy( UR );
             Gemm( NORMAL, NORMAL, F(1), URCopy, URNew, F(0), UR );
         }

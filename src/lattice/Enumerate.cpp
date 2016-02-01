@@ -170,6 +170,7 @@ Base<F> ShortVectorEnumeration
 {
     DEBUG_ONLY(CSE cse("ShortVectorEnumeration"))
     typedef Base<F> Real;
+    const Int m = B.Height();
     const Int n = B.Width();
     v.Resize( n, 1 );
 
@@ -361,33 +362,16 @@ Base<F> ShortVectorEnumeration
         // unimodular matrix so that the probabalistic enumerations traverse
         // different paths, we must keep track of the unimodular matrix so that
         //  'v' can be returned relative to the original lattice basis
-        auto BNew( B );
         auto RNew( R );
         Matrix<F> U;
-        Identity( U, n, n );
 
         Int numTrials = 10*n; // TODO: Make this tunable; probability is 1/n
         for( Int trial=0; trial<numTrials; ++trial )
         {
-            if( progress )
-                Output("Starting trial ",trial);
-            if( time )
-                timer.Start();
-            Real result = svp::BoundedEnumeration( RNew, upperBounds, v );
-            if( time )
-                Output("  Probabalistic enumeration: ",timer.Stop()," seconds");
-            if( result < normUpperBound )
-            {
-                if( progress )
-                    Output("Found lattice member with norm ",result);
-                if( trial > 0 )
-                {
-                    auto vCopy( v );
-                    Gemv( NORMAL, F(1), U, vCopy, F(0), v );
-                }
-                return result;
-            }
-            else
+            Matrix<F> BNew, RNew, U;
+            BNew = B;
+            Identity( U, n, n );
+            if( trial != 0 )
             {
                 // Apply a small random unimodular transformation to B
                 const Int numCombines = n;
@@ -409,16 +393,44 @@ Base<F> ShortVectorEnumeration
                     Axpy( scale, uc, uj );
                 }
 
-                // NOTE: The LLL does not need to be particularly powerful
-                LLLCtrl<Real> ctrl;
-                ctrl.jumpstart = true; 
-                ctrl.startCol = 0;
+                // The BKZ does not need to be particularly powerful
+                BKZCtrl<Real> ctrl;
+                ctrl.jumpstart = true; // accumulate into U
+                ctrl.blocksize = 10;
                 ctrl.recursive = false;
+                ctrl.lllCtrl.recursive = false;
                 if( time )
                     timer.Start();
-                LLL( BNew, U, RNew, ctrl );
+                BKZ( BNew, U, RNew, ctrl );
                 if( time )
-                    Output("  Fix-up LLL: ",timer.Stop()," seconds");
+                    Output("  Fix-up BKZ: ",timer.Stop()," seconds");
+            }
+            RNew = BNew;
+            qr::ExplicitTriang( RNew ); 
+
+            if( progress )
+                Output("Starting trial ",trial);
+            if( time )
+                timer.Start();
+            Real result = svp::BoundedEnumeration( RNew, upperBounds, v );
+            if( time )
+                Output("  Probabalistic enumeration: ",timer.Stop()," seconds");
+            if( result < normUpperBound )
+            {
+                if( progress )
+                    Output("Found lattice member with norm ",result);
+                if( trial > 0 )
+                {
+                    auto vCopy( v );
+                    Gemv( NORMAL, F(1), U, vCopy, F(0), v );
+                }
+                if( progress )
+                {
+                    Matrix<F> b;
+                    Zeros( b, m, 1 );
+                    Gemv( NORMAL, F(1), B, v, F(0), b );
+                }
+                return result;
             }
         }
         return 2*normUpperBound+1; // return a value above the upper bound

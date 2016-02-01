@@ -119,22 +119,6 @@ void HouseholderStep
         houseStepTimer.Stop();
 }
 
-template<typename F>
-inline Base<F> LogPotential( const Matrix<F>& R )
-{
-    DEBUG_ONLY(CSE cse("lll::LogPotential"))
-    typedef Base<F> Real;
-    const Int m = R.Height();
-    const Int n = R.Width();
-    const Int minDim = Min(m,n);
-
-    // TODO: Carefully check this
-    Real logPotential=0;
-    for( Int j=0; j<minDim; ++j )
-        logPotential += 2*(n-j)*Log(Abs(R.Get(j,j)));
-    return logPotential;
-}
-
 // Return true if the new column is a zero vector
 template<typename F>
 bool Step
@@ -391,7 +375,7 @@ LLLInfo<Base<F>> UnblockedAlg
 
         const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
         const F rho_km1_k = QR.Get(k-1,k);
-        const Real rho_k_k = QR.GetRealPart(k,k); 
+        const Real rho_k_k = ( k >= m ? Real(0) : QR.GetRealPart(k,k) ); 
         
         const Real leftTerm = Sqrt(ctrl.delta)*rho_km1_km1;
         const Real rightTerm = lapack::SafeNorm(rho_k_k,rho_km1_k);

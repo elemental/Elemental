@@ -18,6 +18,12 @@ void DeepColSwap( Matrix<F>& B, Int i, Int k );
 template<typename F>
 void DeepRowSwap( Matrix<F>& B, Int i, Int k );
 
+// Lattice Log Potential
+// =====================
+// NOTE: This operates on the Gaussian Normal Form (R from QR)
+template<typename F>
+Base<F> LatticeLogPotential( const Matrix<F>& R );
+
 // Lenstra-Lenstra-Lovasz (LLL) lattice reduction
 // ==============================================
 // A reduced basis, say D, is an LLL(delta) reduction of an m x n matrix B if
