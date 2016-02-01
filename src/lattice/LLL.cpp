@@ -602,7 +602,7 @@ RecursiveHelper
         }
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 1.5; // TODO: Make tunable
+        const Real fudge = 2; // TODO: Make tunable
         const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.progress || ctrl.time )
         {
@@ -882,7 +882,7 @@ RecursiveHelper
         }
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 1.5; // TODO: Make tunable
+        const Real fudge = 2; // TODO: Make tunable
         const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.progress || ctrl.time )
         {

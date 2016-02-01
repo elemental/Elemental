@@ -421,6 +421,7 @@ Base<F> ShortVectorEnumeration
                     Output("Found lattice member with norm ",result);
                 if( trial > 0 )
                 {
+                    Print( v, "vInner" );
                     auto vCopy( v );
                     Gemv( NORMAL, F(1), U, vCopy, F(0), v );
                 }
@@ -429,6 +430,8 @@ Base<F> ShortVectorEnumeration
                     Matrix<F> b;
                     Zeros( b, m, 1 );
                     Gemv( NORMAL, F(1), B, v, F(0), b );
+                    Print( v, "v" );
+                    Print( b, "b" );
                 }
                 return result;
             }

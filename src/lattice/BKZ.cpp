@@ -44,7 +44,7 @@ BKZInfo<Base<F>> BKZWithQ
     const Int n = B.Width();
 
     const Real BOneNorm = OneNorm(B);
-    const Real fudge = 1.5; // TODO: Make tunable
+    const Real fudge = 2; // TODO: Make tunable
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
 
     if( MantissaIsLonger<Real,float>::value &&
@@ -419,9 +419,8 @@ BKZInfo<Base<F>> BKZWithQ
         if( ctrl.subBKZ )
         {
             BKZCtrl<Real> subCtrl( ctrl );
-            // TODO: Reeenable
-            //subCtrl.time = false;
-            //subCtrl.progress = false;
+            subCtrl.time = false;
+            subCtrl.progress = false;
             subCtrl.jumpstart = true;
             // Only if we insist on only one level of recursion
             subCtrl.subBKZ = false;
@@ -541,7 +540,7 @@ BKZInfo<Base<F>> BKZWithQ
     const Int n = B.Width();
 
     const Real BOneNorm = OneNorm(B);
-    const Real fudge = 1.5; // TODO: Make tunable
+    const Real fudge = 2; // TODO: Make tunable
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
 
     if( MantissaIsLonger<Real,float>::value &&
@@ -894,9 +893,8 @@ BKZInfo<Base<F>> BKZWithQ
         if( ctrl.subBKZ )
         {
             BKZCtrl<Real> subCtrl( ctrl );
-            // TODO: Reeenable
-            //subCtrl.time = false;
-            //subCtrl.progress = false;
+            subCtrl.time = false;
+            subCtrl.progress = false;
             subCtrl.jumpstart = true;
             // Only if we insist on only one level of recursion
             subCtrl.subBKZ = false;
@@ -1176,7 +1174,7 @@ RecursiveHelper
         }
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 1.5; // TODO: Make tunable
+        const Real fudge = 2; // TODO: Make tunable
         const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
         {
@@ -1412,7 +1410,7 @@ RecursiveHelper
         }
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 1.5; // TODO: Make tunable
+        const Real fudge = 2; // TODO: Make tunable
         const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
         {
