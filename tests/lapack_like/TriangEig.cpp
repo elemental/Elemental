@@ -33,10 +33,11 @@ void TestCorrectness
     Real frobNormR = FrobeniusNorm( R );
     // Find condition number
     Real condX = Condition( X );
-    if( g.Rank() == 0 )
+    if( g.Rank() == 0 ) {
         Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
-    if( g.Rank() == 0 )
-        Output("    cond(X) = ", condX);
+	Output("    cond(X) = ", condX);
+    }
+      
 }
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>

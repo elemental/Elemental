@@ -224,6 +224,14 @@ void MultiShiftTrsm
   F alpha, const ElementalMatrix<F>& U, const ElementalMatrix<F>& shifts,
   ElementalMatrix<F>& X );
 
+// SafeMultiShiftTrsm
+// ==================
+template<typename F>
+void SafeMultiShiftTrsm
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  F alpha, Matrix<F>& U, const Matrix<F>& shifts,
+  Matrix<F>& X, Matrix<F>& scales );
+  
 // QuasiTrsm
 // =========
 template<typename F>

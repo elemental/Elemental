@@ -54,6 +54,9 @@ DiagonalBlockSolve
 
 } // namespace triang_eig
 
+#if 0
+  // OLD VERSION
+  // TOOD: remove this
 template<typename F>
 inline void
 TriangEig( Matrix<F>& U, Matrix<F>& X ) 
@@ -100,6 +103,70 @@ TriangEig( Matrix<F>& U, Matrix<F>& X )
 
 }
 
+#else
+  // NEW VERSION
+  // TOOD: make this work
+template<typename F>
+inline void
+TriangEig( Matrix<F>& U, Matrix<F>& X ) 
+{
+    DEBUG_ONLY(CSE cse("TriangEig"))
+    const Int n = U.Height();
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( n, bsize );
+
+    Matrix<F> shifts;
+    GetDiagonal( U, shifts );
+
+    Matrix<F> scalings;
+    Ones( scalings, n, 1 );
+    
+    // TODO: Handle near and exact singularity
+
+    // Make X the negative of the strictly upper triangle of  U
+    X = U;
+    MakeTrapezoidal( UPPER, X, 1 );
+    Scale( F(-1), X );
+
+    // TODO: blocked algorithm to get BLAS 3
+    for( Int k=n-1; k>=0; --k )
+    {
+        const Range<Int> ind0( 0, k   ),
+	                 ind1( k, k+1 );
+
+	auto U01 = U( ind0, ind1 );
+	auto U11 = U( ind1, ind1 );
+	
+    }
+    
+    for( Int k=kLast; k>=0; k-=bsize )
+    {
+        const Int nb = Min(bsize,n-k);
+
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
+
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
+
+        auto X0 = X( ind0, IR(k,END) );
+        auto X1 = X( ind1, IR(k,END) );
+
+        triang_eig::DiagonalBlockSolve( U11, shifts(IR(k,END),ALL), X1 );
+        Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+    }
+    FillDiagonal( X, F(1) ); 
+
+    // Normalize eigenvectors
+    for( Int k=1; k<n; ++k )
+    {
+        auto Xcol = View( X, IR(0,k+1), IR(k,k+1) );
+	Scale( F(1)/Nrm2(Xcol), Xcol );
+    }
+
+}
+#endif
+  
 template<typename F>
 inline void
 TriangEig
