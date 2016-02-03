@@ -20,6 +20,57 @@ void MultiplyCSR
   T alpha,
   const Int* rowOffsets,
   const Int* colIndices,
+  const T*   x,
+  T beta,
+        T*   y )
+{
+    DEBUG_ONLY(CSE cse("MultiplyCSR"))
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            T sum = 0;
+            const Int eStart = rowOffsets[i];
+            const Int eStop = rowOffsets[i+1];
+            for( Int e=eStart; e<eStop; ++e )
+                sum += x[colIndices[e]];
+            y[i] = alpha*sum + beta*y[i];
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int j=0; j<n; ++j )
+            y[j] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    y[colIndices[e]] += alpha*x[i];
+            }
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    y[colIndices[e]] += alpha*x[i];
+            }
+        }
+    }
+}
+
+template<typename T>
+void MultiplyCSR
+( Orientation orientation, Int m, Int n,
+  T alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
   const T*   values,
   const T*   x,
   T beta,
@@ -74,6 +125,9 @@ void MultiplyCSR
     }
 #endif
 }
+
+
+
 
 template<>
 void MultiplyCSR<Int>
@@ -232,6 +286,76 @@ void MultiplyCSR<Complex<Quad>>
     }
 }
 #endif // ifdef EL_HAVE_QUAD
+template<typename T>
+void MultiplyCSR
+( Orientation orientation, Int m, Int n, Int numRHS,
+  T alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const T*   X, Int ldX,
+  T beta,
+        T*   Y, Int ldY )
+{
+    DEBUG_ONLY(CSE cse("MultiplyCSR"))
+    if( numRHS == 1 )
+    {
+        MultiplyCSR
+        ( orientation, m, n, alpha,
+          rowOffsets, colIndices, X, beta, Y );
+        return;
+    }
+
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            for( Int k=0; k<numRHS; ++k )
+            {
+                T sum = 0;
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    sum += X[colIndices[e]+k*ldX];
+                Y[i+k*ldY] = alpha*sum + beta*Y[i+k*ldY];
+            }
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int k=0; k<numRHS; ++k )
+            for( Int j=0; j<n; ++j )
+                Y[j+k*ldY] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                {
+                    T prod = alpha;
+                    for( Int k=0; k<numRHS; ++k )
+                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];
+                }
+            }
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                {
+                    T prod = alpha;
+                    for( Int k=0; k<numRHS; ++k )
+                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];
+                }
+            }
+        }
+    }
+}
 
 template<typename T>
 void MultiplyCSR
@@ -299,6 +423,76 @@ void MultiplyCSR
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
                         Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
+                }
+            }
+        }
+    }
+}
+template<typename T>
+void MultiplyCSRInterX
+( Orientation orientation, Int m, Int n, Int numRHS,
+  T alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const T*   X,
+  T beta,
+        T*   Y, Int ldY )
+{
+    DEBUG_ONLY(CSE cse("MultiplyCSRInterX"))
+    if( numRHS == 1 )
+    {
+        MultiplyCSR
+        ( orientation, m, n, alpha,
+          rowOffsets, colIndices, X, beta, Y );
+        return;
+    }
+
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            for( Int k=0; k<numRHS; ++k )
+            {
+                T sum = 0;
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    sum += X[colIndices[e]*numRHS+k];
+                Y[i+k*ldY] = alpha*sum + beta*Y[i+k*ldY];
+            }
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int k=0; k<numRHS; ++k )
+            for( Int j=0; j<n; ++j )
+                Y[j+k*ldY] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                {
+                    T prod = alpha;
+                    for( Int k=0; k<numRHS; ++k )
+                        Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];
+                }
+            }
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                {
+                    T prod = alpha;
+                    for( Int k=0; k<numRHS; ++k )
+                        Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];
                 }
             }
         }
@@ -377,23 +571,165 @@ void MultiplyCSRInterX
     }
 }
 
+ template<typename T>
+ void MultiplyCSRInterY
+         ( Orientation orientation, Int m, Int n, Int numRHS,
+           T alpha,
+           const Int* rowOffsets,
+           const Int* colIndices,
+           const T*   X, Int ldX,
+           T beta,
+           T*   Y )
+ {
+     DEBUG_ONLY(CSE cse("MultiplyCSRInterY"))
+     if( numRHS == 1 )
+     {
+         MultiplyCSR
+                 ( orientation, m, n, alpha,
+                   rowOffsets, colIndices, X, beta, Y );
+         return;
+     }
+
+     if( orientation == NORMAL )
+     {
+         for( Int i=0; i<m; ++i )
+         {
+             for( Int k=0; k<numRHS; ++k )
+             {
+                 T sum = 0;
+                 const Int eStart = rowOffsets[i];
+                 const Int eStop = rowOffsets[i+1];
+                 for( Int e=eStart; e<eStop; ++e )
+                     sum += X[colIndices[e]+k*ldX];
+                 Y[i*numRHS+k] = alpha*sum + beta*Y[i*numRHS+k];
+             }
+         }
+     }
+     else
+     {
+         const bool conj = ( orientation == ADJOINT );
+         for( Int k=0; k<numRHS; ++k )
+             for( Int j=0; j<n; ++j )
+                 Y[j*numRHS+k] *= beta;
+         if( conj )
+         {
+             for( Int i=0; i<m; ++i )
+             {
+                 const Int eStart = rowOffsets[i];
+                 const Int eStop = rowOffsets[i+1];
+                 for( Int e=eStart; e<eStop; ++e )
+                 {
+                     T prod = alpha;
+                     for( Int k=0; k<numRHS; ++k )
+                         Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];
+                 }
+             }
+         }
+         else
+         {
+             for( Int i=0; i<m; ++i )
+             {
+                 const Int eStart = rowOffsets[i];
+                 const Int eStop = rowOffsets[i+1];
+                 for( Int e=eStart; e<eStop; ++e )
+                 {
+                     T prod = alpha;
+                     for( Int k=0; k<numRHS; ++k )
+                         Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];
+                 }
+             }
+         }
+     }
+ }
+
+ template<typename T>
+ void MultiplyCSRInterY
+         ( Orientation orientation, Int m, Int n, Int numRHS,
+           T alpha,
+           const Int* rowOffsets,
+           const Int* colIndices,
+           const T*   values,
+           const T*   X, Int ldX,
+           T beta,
+           T*   Y )
+ {
+     DEBUG_ONLY(CSE cse("MultiplyCSRInterY"))
+     if( numRHS == 1 )
+     {
+         MultiplyCSR
+                 ( orientation, m, n, alpha,
+                   rowOffsets, colIndices, values, X, beta, Y );
+         return;
+     }
+
+     if( orientation == NORMAL )
+     {
+         for( Int i=0; i<m; ++i )
+         {
+             for( Int k=0; k<numRHS; ++k )
+             {
+                 T sum = 0;
+                 const Int eStart = rowOffsets[i];
+                 const Int eStop = rowOffsets[i+1];
+                 for( Int e=eStart; e<eStop; ++e )
+                     sum += values[e]*X[colIndices[e]+k*ldX];
+                 Y[i*numRHS+k] = alpha*sum + beta*Y[i*numRHS+k];
+             }
+         }
+     }
+     else
+     {
+         const bool conj = ( orientation == ADJOINT );
+         for( Int k=0; k<numRHS; ++k )
+             for( Int j=0; j<n; ++j )
+                 Y[j*numRHS+k] *= beta;
+         if( conj )
+         {
+             for( Int i=0; i<m; ++i )
+             {
+                 const Int eStart = rowOffsets[i];
+                 const Int eStop = rowOffsets[i+1];
+                 for( Int e=eStart; e<eStop; ++e )
+                 {
+                     T prod = alpha*Conj(values[e]);
+                     for( Int k=0; k<numRHS; ++k )
+                         Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];
+                 }
+             }
+         }
+         else
+         {
+             for( Int i=0; i<m; ++i )
+             {
+                 const Int eStart = rowOffsets[i];
+                 const Int eStop = rowOffsets[i+1];
+                 for( Int e=eStart; e<eStop; ++e )
+                 {
+                     T prod = alpha*values[e];
+                     for( Int k=0; k<numRHS; ++k )
+                         Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];
+                 }
+             }
+         }
+     }
+ }
+
 template<typename T>
-void MultiplyCSRInterY
+void MultiplyCSRInter
 ( Orientation orientation, Int m, Int n, Int numRHS,
   T alpha,
   const Int* rowOffsets,
   const Int* colIndices,
-  const T*   values,
-  const T*   X, Int ldX,
+  const T*   X,
   T beta,
         T*   Y )
 {
-    DEBUG_ONLY(CSE cse("MultiplyCSRInterY"))
+    DEBUG_ONLY(CSE cse("MultiplyCSRInter"))
     if( numRHS == 1 )
     {
         MultiplyCSR
-        ( orientation, m, n, alpha, 
-          rowOffsets, colIndices, values, X, beta, Y );
+        ( orientation, m, n, alpha,
+          rowOffsets, colIndices, X, beta, Y );
         return;
     }
 
@@ -407,7 +743,7 @@ void MultiplyCSRInterY
                 const Int eStart = rowOffsets[i];
                 const Int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
-                    sum += values[e]*X[colIndices[e]+k*ldX];
+                    sum += X[colIndices[e]*numRHS+k];
                 Y[i*numRHS+k] = alpha*sum + beta*Y[i*numRHS+k];
             }
         }
@@ -415,8 +751,8 @@ void MultiplyCSRInterY
     else
     {
         const bool conj = ( orientation == ADJOINT );
-        for( Int k=0; k<numRHS; ++k )
-            for( Int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
+            for( Int k=0; k<numRHS; ++k )
                 Y[j*numRHS+k] *= beta;
         if( conj )
         {
@@ -426,9 +762,9 @@ void MultiplyCSRInterY
                 const Int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
                 {
-                    T prod = alpha*Conj(values[e]);
+                    T prod = alpha;
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];         
+                        Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k];
                 }
             }
         }
@@ -440,14 +776,13 @@ void MultiplyCSRInterY
                 const Int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
                 {
-                    T prod = alpha*values[e];
+                    T prod = alpha;
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];         
+                        Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k];
                 }
             }
         }
     }
-}
 
 template<typename T>
 void MultiplyCSRInter
@@ -464,7 +799,7 @@ void MultiplyCSRInter
     if( numRHS == 1 )
     {
         MultiplyCSR
-        ( orientation, m, n, alpha, 
+        ( orientation, m, n, alpha,
           rowOffsets, colIndices, values, X, beta, Y );
         return;
     }
@@ -514,7 +849,7 @@ void MultiplyCSRInter
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k]; 
+                        Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k];
                 }
             }
         }
