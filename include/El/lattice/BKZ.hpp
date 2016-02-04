@@ -324,7 +324,7 @@ BKZInfo<Base<F>> BKZWithQ
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
+          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
         ++numEnums;
 
         const bool keepMin =
@@ -801,7 +801,7 @@ BKZInfo<Base<F>> BKZWithQ
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
+          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
         ++numEnums;
 
         const bool keepMin =

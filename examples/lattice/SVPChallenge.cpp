@@ -65,8 +65,10 @@ int main( int argc, char* argv[] )
           Input("--logNontrivialCoords","log nontrivial enum coords?",false);
         const Real targetRatio =
           Input("--targetRatio","targeted ratio of GH(L)",Real(1.05));
+        const bool probBKZEnum =
+          Input("--probBKZEnum","probabalistic enumeration *within* BKZ?",false);
         const bool probEnum =
-          Input("--probEnum","probabalistic enumeration?",true);
+          Input("--probEnum","probabalistic enumeration *after* BKZ?",true);
         const bool fullEnum = Input("--fullEnum","SVP via full enum?",false);
         const bool trans = Input("--transpose","transpose input?",true);
 #ifdef EL_HAVE_MPC
@@ -99,7 +101,7 @@ int main( int argc, char* argv[] )
         ctrl.time = timeBKZ;
         ctrl.progress = progressBKZ;
         ctrl.recursive = recursiveBKZ;
-        // TODO: Incorporate probabilistic BKZ enums?
+        ctrl.enumCtrl.probabalistic = probBKZEnum;
         ctrl.earlyAbort = earlyAbort;
         ctrl.subBKZ = subBKZ;
         ctrl.subEarlyAbort = subEarlyAbort;
@@ -168,12 +170,14 @@ int main( int argc, char* argv[] )
             Timer timer;
             timer.Start();
             Real result;
+            EnumCtrl<Real> enumCtrl;
+            enumCtrl.probabalistic = probEnum;
             if( fullEnum )
               result = 
-                ShortestVectorEnumeration( B, R, challenge, v, probEnum );
+                ShortestVectorEnumeration( B, R, challenge, v, enumCtrl );
             else
               result = 
-                ShortVectorEnumeration( B, R, challenge, v, probEnum );
+                ShortVectorEnumeration( B, R, challenge, v, enumCtrl );
             if( result < challenge )
             {
                 Output("Enumeration: ",timer.Stop()," seconds");
