@@ -67,7 +67,7 @@ namespace El {
 static Timer stepTimer, houseStepTimer,
        houseViewTimer, houseReflectTimer,
        applyHouseTimer, roundTimer,
-       formSInvTimer;
+       formSInvTimer, formQRTimer;
 
 namespace lll {
 
@@ -173,6 +173,7 @@ Base<F> LogVolume( const Matrix<F>& R )
 } // namespace El
 
 #include "El/lattice/LLL/Left.hpp"
+#include "El/lattice/LLL/Right.hpp"
 
 namespace El {
 
@@ -231,7 +232,9 @@ LLLInfo<Base<F>> LLLWithQ
         return lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
     else if( ctrl.variant == LLL_DEEP )
         return lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
-    else
+    else if ( ctrl.rightLooking )
+		return lll::RightAlg( B, U, QR, t, d, formU, ctrl );
+	else
         return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
 }
 
@@ -326,7 +329,9 @@ LLLWithQ
         infoDeep.numSwaps += infoReg.numSwaps;
         return infoDeep;
     }
-    else
+    else if ( ctrl.rightLooking )
+		return lll::RightAlg( B, U, QR, t, d, formU, ctrl );
+	else
         return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
 }
 
@@ -557,7 +562,7 @@ RecursiveHelper
         }
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 2; // TODO: Make tunable
+        const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
         const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.progress || ctrl.time )
         {
@@ -837,7 +842,7 @@ RecursiveHelper
         }
 
         const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 2; // TODO: Make tunable
+        const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
         const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
         if( ctrl.progress || ctrl.time )
         {

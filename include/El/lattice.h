@@ -50,6 +50,8 @@ typedef struct
     ElLLLVariant variant;
     bool recursive;
     ElInt cutoff;
+	bool rightLooking;
+    float precisionFudge;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
@@ -70,6 +72,8 @@ typedef struct
     ElLLLVariant variant;
     bool recursive;
     ElInt cutoff;
+	bool rightLooking;
+    double precisionFudge;
     bool presort;
     bool smallestFirst;
     double reorthogTol;

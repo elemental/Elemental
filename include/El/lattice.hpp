@@ -124,6 +124,10 @@ struct LLLCtrl
     bool recursive=false;
     Int cutoff=10;
 
+    bool rightLooking=false;
+	
+    Real precisionFudge=Real(2);
+	
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
     // (in the manner suggested by Wubben et al.) can greatly decrease
     // the number of swaps within LLL in some circumstances
@@ -166,6 +170,8 @@ struct LLLCtrl
         eta = Real(ctrl.eta);
         if( eta < etaMin )
             eta = etaMin;
+        rightLooking = ctrl.rightLooking;
+        precisionFudge = Real(ctrl.precisionFudge);
         variant = ctrl.variant; 
         recursive = ctrl.recursive;
         cutoff = ctrl.cutoff;
@@ -196,6 +202,8 @@ struct LLLCtrl
 
         delta = Real(ctrl.delta);
         eta = Max(etaMin,Real(ctrl.eta));
+        rightLooking = ctrl.rightLooking;
+        precisionFudge = Real(ctrl.precisionFudge);
         variant = ctrl.variant; 
         recursive = ctrl.recursive;
         cutoff = ctrl.cutoff;
