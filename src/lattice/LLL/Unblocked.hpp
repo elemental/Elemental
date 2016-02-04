@@ -207,11 +207,12 @@ bool Step
         else
         {
             vector<F> xBuf(k);
-            Int numNonzero;
-            // TODO: Possible infinite-loop detection?
-            do
+            // NOTE: Unless LLL is being aggressively executed in low precision,
+            //       this loop should only need to be executed once
+            const Int maxSizeReductions = 128;
+            for( Int reduce=0; reduce<maxSizeReductions; ++reduce )
             {
-                numNonzero = 0;
+                Int numNonzero = 0;
                 for( Int i=k-1; i>=0; --i )
                 {
                     F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
@@ -229,6 +230,8 @@ bool Step
                         chi = 0;
                     xBuf[i] = chi;
                 }
+                if( numNonzero == 0 )
+                    break;
 
                 const float nonzeroRatio = float(numNonzero)/float(k); 
                 if( nonzeroRatio >= ctrl.blockingThresh )
@@ -264,7 +267,6 @@ bool Step
                     }
                 }
             }
-            while( numNonzero != 0 );
         }
         const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )
