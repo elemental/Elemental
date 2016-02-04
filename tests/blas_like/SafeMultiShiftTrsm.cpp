@@ -33,7 +33,7 @@ void TestSafeMultiShiftTrsm
     if( side == LEFT )
     {
         HermitianUniformSpectrum( A, m, -5, 5 );
-        Uniform( shifts, n, 1, F(0), Real(1) );
+        Uniform( shifts, n, 1, F(0), Real(10) );
     }
     else
     {
@@ -67,7 +67,6 @@ void TestSafeMultiShiftTrsm
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
         Output("  Finished after ",runTime," seconds");
-#endif
     if( print )
     {
         Print( X, "X" );

@@ -26,8 +26,6 @@ LUNBlock
       if( shifts.Height() != X.Width() )
           LogicError("Incompatible number of shifts");
     )
-    const char uploChar = 'U';
-    const char orientChar = 'N';
     auto diag = GetDiagonal(U);
     const Int n = U.Height();
     const Int ldim = U.LDim();
@@ -40,65 +38,129 @@ LUNBlock
     const Real ovfl = lapack::MachineOverflowThreshold<Real>();
     const Real ulp  = lapack::MachinePrecision<Real>();
     const Real smlnum = std::max( unfl/ulp, 1/(ovfl*ulp) );
-    const Real bignum = (1-ulp)/smlnum;
+    const Real bignum = 1/smlnum;
     
     // Default scale is 1
     Ones( scales, numShifts, 1 );
 
+    // Compute infinity norms of columns (excluding diagonal)
+    // TODO: scale cnorm if an entry is bigger than bignum/2
+    Matrix<Real> cnorm( n, 1 );
+    cnorm.Set( 0, 0, Real(0) );
+    for( Int j=1; j<n; ++j )
+    {
+        cnorm.Set( j, 0, MaxNorm( U(IR(0,j),IR(j)) ) );
+    }
+
     // Iterate through RHS's
     for( Int j=0; j<numShifts; ++j )
     {
+
+        // Initialize system
         ShiftDiagonal( U, -shifts.Get(j,0) );
 	auto xj = X( ALL, IR(j) );
 
-	// Backward substitution
-	for( Int i=n-1; i>=0; --i)
+	// Estimate growth of entries in triangular solve
+	//   Note: See "Robust Triangular Solves for Use in Condition
+	//   Estimation" by Edward Anderson for explanation of bounds.
+	const Real maxXj = std::max( MaxNorm(xj), 2*smlnum );
+	Real invGi = 1/maxXj;
+	Real invMi = invGi;
+	for( Int i=n-1; i>=0; --i )
 	{
-
-	    // Check if division causes overflow
-	    const Real AbsUii = SafeAbs( U.Get(i,i) );
-	    const Real AbsXij = SafeAbs( xj.Get(i,0) );
-	    if( AbsUii > smlnum )
+	    const Real absUii = SafeAbs( U.Get(i,i) );
+	    if( invGi<=smlnum || invMi<=smlnum || absUii<=smlnum )
 	    {
-	        if( AbsUii<=1 && AbsXij>=AbsUii*bignum )
+	        invGi = 0;
+	        break;
+	    }
+	    invMi = std::min( invMi, absUii*invGi );
+	    invGi *= absUii/(absUii+cnorm.Get(i,0));
+	}
+	invGi = std::min( invGi, invMi );
+
+	// Call TRSV if estimated growth is not too large
+	if( invGi > smlnum )
+	{
+	  blas::Trsv
+	  ( 'U', 'N', 'N', n,
+	    U.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
+	}
+
+	// Perform backward substitution if estimated growth is large
+	else
+	{
+	    Real Gi = maxXj;
+	    for( Int i=n-1; i>=0; --i )
+	    {
+
+		// Perform division and check for overflow
+		const Real absUii = SafeAbs( U.Get(i,i) );
+		Real absXij = SafeAbs( xj.Get(i,0) );
+		if( absUii > smlnum )
 		{
-		    // Set overflowing entry to 1/U[i,i]
-		    Real s = 1/AbsXij;
-		    scales.Set( j, 0, s*scales.Get(j,0) );
-		    xj *= s;
+		    if( absUii<=1 && absXij>=absUii*bignum )
+		    {
+			// Set overflowing entry to 1/U[i,i]
+		        const Real s = 1/absXij;
+			scales.Set( j, 0, s*scales.Get(j,0) );
+			xj *= s;
+			Gi *= s;
+		    }
+		    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
 		}
-		xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
-	    }
-	    else if( AbsUii > 0 )
-	    {
-	        if( AbsXij >= AbsUii*bignum )
+		else if( absUii > 0 )
 		{
-		    // Set overflowing entry to bignum
-		    Real s = AbsUii*bignum/AbsXij;
-		    scales.Set( j, 0, s*scales.Get(j,0) );
-		    xj *= s;
+		    if( absXij >= absUii*bignum )
+		    {
+			// Set overflowing entry to bignum
+		        const Real s = absUii*bignum/absXij;
+			scales.Set( j, 0, s*scales.Get(j,0) );
+			xj *= s;
+			Gi *= s;
+		    }
+		    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
 		}
-		xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
-	    }
-	    else
-	    {
-	        // Set overflowing entry to 1
-		scales.Set( j, 0, F(0) );
-		Zero( xj );
-		xj.Set( i, 0, F(1) );
-	    }
+		else
+		{
+		    // Set overflowing entry to 1
+		    scales.Set( j, 0, F(0) );
+		    Zero( xj );
+		    Gi = 0;
+		    xj.Set( i, 0, F(1) );
+		}
 
-	    // TODO: handle case to prevent overflow in axpy
+		// Perform AXPY and check for overflow
+		// Note: G(i+1) <= G(i) + | Xij | * cnorm(i)
+		if( i > 0 )
+	        {
+		    absXij = SafeAbs( xj.Get(i,0) );
+		    if( absXij >= 1 &&
+			cnorm.Get(i,0) >= (bignum-Gi)/absXij )
+		    {
+		        const Real s = 0.5/absXij;
+			scales.Set( j, 0, s*scales.Get(j,0) );
+			xj *= s;
+			Gi *= s;
+		    }
+		    else if( absXij < 1 &&
+			     absXij*cnorm.Get(i,0) >= bignum-Gi )
+		    {
+		        scales.Set( j, 0, F(0.5)*scales.Get(j,0) );
+			xj *= 0.5;
+			Gi *= 0.5;
+		    }
+		    auto U01 = U( IR(0,i), IR(i) );
+		    auto X1  = X( IR(0,i), IR(j) );
+		    Axpy( -xj.Get(i,0), U01, X1 );
+		    Gi += absXij * cnorm.Get(i,0);
+		}
 
-	    if( i > 0 )
-	    {
-	        auto U01 = U( IR(0,i), IR(i) );
-		auto X1  = X( IR(0,i), IR(j) );
-		Axpy( -xj.Get(i,0), U01, X1 );
 	    }
 
 	}
 
+	// Reset matrix diagonal
         SetDiagonal( U, diag );
     }
 }
@@ -116,7 +178,24 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
 
     Ones( scales, n, 1 );
     Matrix<F> scalesUpdate;
-    
+#if 0
+    // Compute infinity norms of columns (excluding diagonal)
+    // TODO: scale cnorm if an entry is bigger than bignum/2
+    Matrix<Real> cnorm( m, 1 );
+    cnorm.Set( 0, 0, Real(0) );
+    for( Int j=1; j<m; ++j )
+    {
+        cnorm.Set( j, 0, MaxNorm( U(IR(0,j),IR(j)) ) );
+    }
+
+    Matrix<Real> grow( n, 1 );
+    for( Int j=0; j<n; ++j )
+    {
+      grow.Set( j, 0, MaxNorm( X(ALL,IR(j)) );
+    }
+#endif
+	
+    // Perform block triangular solve
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
@@ -132,10 +211,14 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
         auto X1 = X( ind1, ALL );
 	auto X2 = X( ind2, ALL );
 
+	// Perform triangular solve on diagonal block
+	// TODO: only perform scaling if scalesUpdate<1
 	LUNBlock( U11, shifts, X1, scalesUpdate );
 	DiagonalScale( LEFT, NORMAL, scalesUpdate, scales );
 	DiagonalScale( RIGHT, NORMAL, scalesUpdate, X0 );
 	DiagonalScale( RIGHT, NORMAL, scalesUpdate, X2 );
+
+	// Update RHS's with GEMM
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
     }
 }
