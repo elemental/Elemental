@@ -66,7 +66,7 @@ inline bool IsSymmetric( const Graph& graph )
     {
         const Int source = graph.Source(e);
         const Int target = graph.Target(e);
-        if( source <= numSources && target <= numSources )
+        if( source < numSources && target < numSources )
         {
             if( !graph.EdgeExists(target,source) )
                 isSymmetric = false;
