@@ -36,7 +36,7 @@ int main( int argc, char* argv[] )
           Input
           ("--eta","eta for LLL",
            Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9)));
-        const Int varInt = Input("--variant","0: weak LLL, 1: normal LLL, 2: deep insertion LLL, 3: deep reduction LLL",2);
+        const Int varInt = Input("--variant","0: weak LLL, 1: normal LLL, 2: deep insertion LLL, 3: deep reduction LLL",1);
         const Int blocksize = Input("--blocksize","BKZ blocksize",20);
         const bool presort = Input("--presort","presort columns?",false);
         const bool smallestFirst =
