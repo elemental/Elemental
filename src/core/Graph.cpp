@@ -339,6 +339,18 @@ Int Graph::Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
     return it-targetBuf;
 }
 
+bool Graph::EdgeExists( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("Graph::EdgeExists"))
+    if( source == END ) source = numSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
+    Int index = Offset( source, target );
+    if( Source(index) != source || Target(index) != target )
+        return false;
+    else
+        return true;
+}
+
 Int Graph::NumConnections( Int source ) const EL_NO_RELEASE_EXCEPT
 {
     if( source == END ) source = numSources_ - 1;

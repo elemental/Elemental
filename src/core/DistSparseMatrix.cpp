@@ -616,22 +616,42 @@ EL_NO_RELEASE_EXCEPT
     return vals_[localInd];
 }
 
-template< typename T>
-T DistSparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
+template<typename T>
+T DistSparseMatrix<T>::GetLocal( Int localRow, Int col )
+const EL_NO_RELEASE_EXCEPT
 {
-    Int index = Offset( row, col);
-    if( Row(index) != row || Col(index) != col){
-            return T(0); 
-    }
-    return Value( Offset( row, col)); 
+    if( localRow == END ) localRow = LocalHeight() - 1;
+    if( col == END ) col = distGraph_.numTargets_ - 1;
+    Int index = Offset( localRow, col );
+    if( Row(index) != GlobalRow(localRow) || Col(index) != col )
+        return T(0); 
+    else
+        return Value( index ); 
 }
 
-template< typename T>
-void DistSparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
+template<typename T>
+void DistSparseMatrix<T>::Set( Int row, Int col, T val ) EL_NO_RELEASE_EXCEPT
 {
-    QueueZero( row, col);
-    QueueUpdate( row, col, val);
-    ProcessQueues();
+    if( row == END ) row = distGraph_.numSources_ - 1;
+    if( col == END ) col = distGraph_.numTargets_ - 1;
+    // NOTE: This routine currently behaves passively
+    const Int firstLocalRow = FirstLocalRow();
+    const Int localHeight = LocalHeight();
+    if( row >= firstLocalRow && row < firstLocalRow+localHeight )
+    {
+        const Int localRow = row - firstLocalRow;
+        Int index = Offset( localRow, col );
+        if( Row(index) == row && Col(index) == col )
+        {
+            vals_[index] = val;
+        }
+        else
+        {
+            QueueLocalUpdate( localRow, col, val );
+            ProcessLocalQueues();
+        }
+        ProcessQueues();
+    }
 }
 
 template<typename T>

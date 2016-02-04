@@ -180,6 +180,7 @@ bool Step
             const Real rho_km1_km1 = RealPart(QRBuf[(k-1)+(k-1)*QRLDim]);
             if( rho_km1_km1 > ctrl.zeroTol )
             {
+                // TODO: Add while loop?
                 F chi = QRBuf[(k-1)+k*QRLDim]/rho_km1_km1;
                 if( Abs(RealPart(chi)) > ctrl.eta ||
                     Abs(ImagPart(chi)) > ctrl.eta )
@@ -206,56 +207,64 @@ bool Step
         else
         {
             vector<F> xBuf(k);
-
-            Int numNonzero=0;
-            for( Int i=k-1; i>=0; --i )
+            // NOTE: Unless LLL is being aggressively executed in low precision,
+            //       this loop should only need to be executed once
+            const Int maxSizeReductions = 128;
+            for( Int reduce=0; reduce<maxSizeReductions; ++reduce )
             {
-                F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
-                if( Abs(RealPart(chi)) > ctrl.eta ||
-                    Abs(ImagPart(chi)) > ctrl.eta )
-                {
-                    chi = Round(chi);
-                    blas::Axpy
-                    ( i+1, -chi,
-                      &QRBuf[i*QRLDim], 1,
-                      &QRBuf[k*QRLDim], 1 );
-                    ++numNonzero;
-                }
-                else
-                    chi = 0;
-                xBuf[i] = chi;
-            }
-            const float nonzeroRatio = float(numNonzero)/float(k); 
-            if( nonzeroRatio >= ctrl.blockingThresh )
-            {
-                blas::Gemv
-                ( 'N', m, k,
-                  F(-1), &BBuf[0*BLDim], BLDim,
-                         &xBuf[0],       1,
-                  F(+1), &BBuf[k*BLDim], 1 );
-                if( formU )
-                    blas::Gemv
-                    ( 'N', n, k,
-                      F(-1), &UBuf[0*ULDim], ULDim,
-                             &xBuf[0],       1,
-                      F(+1), &UBuf[k*ULDim], 1 );
-            }
-            else
-            {
+                Int numNonzero = 0;
                 for( Int i=k-1; i>=0; --i )
                 {
-                    const F chi = xBuf[i];
-                    if( chi == F(0) )
-                        continue;
-                    blas::Axpy
-                    ( m, -chi,
-                      &BBuf[i*BLDim], 1,
-                      &BBuf[k*BLDim], 1 );
-                    if( formU )
+                    F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
+                    if( Abs(RealPart(chi)) > ctrl.eta ||
+                        Abs(ImagPart(chi)) > ctrl.eta )
+                    {
+                        chi = Round(chi);
                         blas::Axpy
-                        ( n, -chi,
-                          &UBuf[i*ULDim], 1,
-                          &UBuf[k*ULDim], 1 );
+                        ( i+1, -chi,
+                          &QRBuf[i*QRLDim], 1,
+                          &QRBuf[k*QRLDim], 1 );
+                        ++numNonzero;
+                    }
+                    else
+                        chi = 0;
+                    xBuf[i] = chi;
+                }
+                if( numNonzero == 0 )
+                    break;
+
+                const float nonzeroRatio = float(numNonzero)/float(k); 
+                if( nonzeroRatio >= ctrl.blockingThresh )
+                {
+                    blas::Gemv
+                    ( 'N', m, k,
+                      F(-1), &BBuf[0*BLDim], BLDim,
+                             &xBuf[0],       1,
+                      F(+1), &BBuf[k*BLDim], 1 );
+                    if( formU )
+                        blas::Gemv
+                        ( 'N', n, k,
+                          F(-1), &UBuf[0*ULDim], ULDim,
+                                 &xBuf[0],       1,
+                          F(+1), &UBuf[k*ULDim], 1 );
+                }
+                else
+                {
+                    for( Int i=k-1; i>=0; --i )
+                    {
+                        const F chi = xBuf[i];
+                        if( chi == F(0) )
+                            continue;
+                        blas::Axpy
+                        ( m, -chi,
+                          &BBuf[i*BLDim], 1,
+                          &BBuf[k*BLDim], 1 );
+                        if( formU )
+                            blas::Axpy
+                            ( n, -chi,
+                              &UBuf[i*ULDim], 1,
+                              &UBuf[k*ULDim], 1 );
+                    }
                 }
             }
         }
@@ -775,6 +784,7 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
             // and reverse them if the candidate was not chosen 
             // (otherwise |R(i,j)|/R(i,i) can be greater than 1/2 for 
             // some j > i)
+            // TODO: Add a while loop version for low-precision reduction
             auto rk = QR( IR(0,rColHeight), IR(k) );
             auto rkCopy( rk );
             bool deepReduced = false;
