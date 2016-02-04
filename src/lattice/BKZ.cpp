@@ -40,7 +40,6 @@ BKZInfo<Base<F>> BKZWithQ
 {
     DEBUG_ONLY(CSE cse("BKZWithQ"))
     typedef Base<F> Real;
-    const Int m = B.Height();
     const Int n = B.Width();
 
     const Real BOneNorm = OneNorm(B);
@@ -536,7 +535,6 @@ BKZInfo<Base<F>> BKZWithQ
 {
     DEBUG_ONLY(CSE cse("BKZWithQ"))
     typedef Base<F> Real;
-    const Int m = B.Height();
     const Int n = B.Width();
 
     const Real BOneNorm = OneNorm(B);

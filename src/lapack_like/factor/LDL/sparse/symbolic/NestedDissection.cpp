@@ -55,6 +55,26 @@ void AMDOrder
 #endif
 }
 
+inline bool IsSymmetric( const Graph& graph )
+{
+    DEBUG_ONLY(CSE cse("IsSymmetric"))
+    // NOTE: We only check within the numSources x numSources upper-left
+    const Int numSources = graph.NumSources();
+    const Int numEdges = graph.NumEdges();
+    bool isSymmetric = true;
+    for( Int e=0; e<numEdges; ++e  )
+    {
+        const Int source = graph.Source(e);
+        const Int target = graph.Target(e);
+        if( source <= numSources && target <= numSources )
+        {
+            if( !graph.EdgeExists(target,source) )
+                isSymmetric = false;
+        }
+    }
+    return isSymmetric;
+}
+
 inline void
 NestedDissectionRecursion
 ( const Graph& graph, 
@@ -142,6 +162,14 @@ NestedDissectionRecursion
     }
     else
     {
+        DEBUG_ONLY(
+          if( !IsSymmetric(graph) )
+          {
+              Print( graph, "graph" );
+              LogicError("Graph was not symmetric");
+          }
+        )
+
         // Partition the graph and construct the inverse map
         Graph leftChild, rightChild;
         vector<Int> map;
@@ -149,6 +177,23 @@ NestedDissectionRecursion
         vector<Int> invMap( numSources );
         for( Int s=0; s<numSources; ++s )
             invMap[map[s]] = s;
+
+        DEBUG_ONLY(
+          if( !IsSymmetric(leftChild) )
+          {
+              Print( graph, "graph" );
+              Print( leftChild, "leftChild" );
+              LogicError("Left child was not symmetric");
+          }
+        )
+        DEBUG_ONLY(
+          if( !IsSymmetric(rightChild) )
+          {
+              Print( graph, "graph" );
+              Print( rightChild, "rightChild" );
+              LogicError("Right child was not symmetric");
+          }
+        )
 
         // Mostly compute this node of the local separator tree
         // (we will finish computing the separator indices soon)

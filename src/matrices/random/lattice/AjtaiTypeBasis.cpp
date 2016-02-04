@@ -66,7 +66,6 @@ void AjtaiTypeBasis( AbstractDistMatrix<T>& APre, Int n, Base<T> alpha )
             const Int j = A.GlobalCol( jLoc );
             for( Int iLoc=0; iLoc<ALocHeight; ++iLoc )
             {
-                const Int i = A.GlobalRow( iLoc );
                 A.SetLocal
                 ( iLoc, jLoc, SampleUniform<T>(T(0),d.Get(j,0)/Real(2)) );
             }

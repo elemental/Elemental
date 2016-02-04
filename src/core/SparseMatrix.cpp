@@ -332,19 +332,30 @@ T SparseMatrix<T>::Value( Int index ) const EL_NO_RELEASE_EXCEPT
 template< typename T>
 T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 {
-    Int index = Offset( row, col);
-    if( Row(index) != row || Col(index) != col){
-            return T(0); 
-    }
-    return Value( Offset( row, col)); 
+    if( row == END ) row = graph_.numSources_ - 1;
+    if( col == END ) col = graph_.numTargets_ - 1; 
+    Int index = Offset( row, col );
+    if( Row(index) != row || Col(index) != col )
+        return T(0); 
+    else
+        return Value( index );
 }
 
 template< typename T>
 void SparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
 {
-    QueueZero( row, col);
-    QueueUpdate( row, col, val);
-    ProcessQueues();
+    if( row == END ) row = graph_.numSources_ - 1;
+    if( col == END ) col = graph_.numTargets_ - 1; 
+    Int index = Offset( row, col );  
+    if( Row(index) == row && Col(index) == col )
+    {
+        vals_[index] = val; 
+    }
+    else
+    {
+        QueueUpdate( row, col, val );
+        ProcessQueues();
+    }
 }
 
 template<typename T>

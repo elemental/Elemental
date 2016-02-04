@@ -104,6 +104,8 @@ public:
     Int Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int source ) const EL_NO_RELEASE_EXCEPT;
 
+    bool EdgeExists( Int source, Int target ) const EL_NO_RELEASE_EXCEPT;
+
     void AssertConsistent() const;
 
 private:
