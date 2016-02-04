@@ -293,7 +293,7 @@ bool Step
 
 // Consider explicitly returning both Q and R rather than just R (in 'QR')
 template<typename F>
-LLLInfo<Base<F>> UnblockedAlg
+LLLInfo<Base<F>> LeftAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& QR,
@@ -302,7 +302,7 @@ LLLInfo<Base<F>> UnblockedAlg
   bool formU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::UnblockedAlg"))
+    DEBUG_ONLY(CSE cse("lll::LeftAlg"))
     typedef Base<F> Real;
     if( ctrl.time )
     {
@@ -474,7 +474,7 @@ LLLInfo<Base<F>> UnblockedAlg
 }
 
 template<typename F>
-LLLInfo<Base<F>> UnblockedDeepAlg
+LLLInfo<Base<F>> LeftDeepAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& QR,
@@ -483,7 +483,7 @@ LLLInfo<Base<F>> UnblockedDeepAlg
   bool formU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::UnblockedDeepAlg"))
+    DEBUG_ONLY(CSE cse("lll::LeftDeepAlg"))
     typedef Base<F> Real;
     if( ctrl.delta <= Real(1)/Real(2) )
         LogicError
@@ -683,7 +683,7 @@ LLLInfo<Base<F>> UnblockedDeepAlg
 }
 
 template<typename F>
-LLLInfo<Base<F>> UnblockedDeepReduceAlg
+LLLInfo<Base<F>> LeftDeepReduceAlg
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& QR,
@@ -692,7 +692,7 @@ LLLInfo<Base<F>> UnblockedDeepReduceAlg
   bool formU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::UnblockedDeepReduceAlg"))
+    DEBUG_ONLY(CSE cse("lll::LeftDeepReduceAlg"))
     typedef Base<F> Real;
     if( ctrl.delta <= Real(1)/Real(2) )
         LogicError

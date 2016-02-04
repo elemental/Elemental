@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_LATTICE_LLL_HPP
+#define EL_LATTICE_LLL_HPP
 
 // The implementations of Householder-based LLL in this file are extensions of
 // the algorithm discussed in:
@@ -23,33 +24,6 @@
 // Householder QR factorization is now incorrect, and so it must be refreshed.
 // This implementation fixes said issue via a call to lll::HouseholderStep
 // with k=0.
-//
-// Furthermore, an analogue of the above algorithm which maintains an 
-// accumulated set of Householder transformations, using a so-called 
-// UT Transform,
-//
-//   Thierry Joffrain, Tze Meng Low, Enrique S. Quintana-Orti, and 
-//   Robert van de Geijn,
-//   "Accumulating Householder Transforms, Revisited",
-//   ACM Transactions on Mathematical Software, Vol. 32, No. 2, pp. 169--179,
-//   2006.
-//
-// However, it can be seen that the k'th iteration of the accumulated algorithm
-// requires
-//
-//     6 k ( m - k/2 )
-//
-// operations, whereas the standard algorithm only requires
-//
-//     4 k ( m - k/2 )
-// 
-// operations. For this reason, there is not a clear benefit to using the
-// accumulated algorithm for LLL in a sequential setting since the transition
-// from level 1 to level 2 BLAS does not warrant the 50% increase in work.
-// However, the situation might be significantly different in a distributed
-// setting, where each inner product would involve a non-trivial amount of
-// latency. Also, future work on 'greedy' variants of LLL may further swing
-// the tide towards accumulated transforms.
 //
 // Also, the following paper was consulted for more general factorization
 // viewpoints:
@@ -198,8 +172,7 @@ Base<F> LogVolume( const Matrix<F>& R )
 
 } // namespace El
 
-#include "./LLL/Unblocked.hpp"
-#include "./LLL/Blocked.hpp"
+#include "El/lattice/LLL/Left.hpp"
 
 namespace El {
 
@@ -253,21 +226,13 @@ LLLInfo<Base<F>> LLLWithQ
         Omega.PermuteCols( U );
     }
 
-    const bool useBlocked = false;
     const bool formU = true;
-    if( useBlocked )
-    {
-        return lll::BlockedAlg( B, U, QR, t, d, formU, ctrl );
-    }
+    if( ctrl.variant == LLL_DEEP_REDUCE )
+        return lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
+    else if( ctrl.variant == LLL_DEEP )
+        return lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
     else
-    {
-        if( ctrl.variant == LLL_DEEP_REDUCE )
-            return lll::UnblockedDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
-        else if( ctrl.variant == LLL_DEEP )
-            return lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrl );
-        else
-            return lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
-    }
+        return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
 }
 
 template<typename F>
@@ -327,52 +292,42 @@ LLLWithQ
         Omega.PermuteCols( B );
     }
 
-    const bool useBlocked = false;
     const bool formU = false;
     Matrix<F> U;
-    if( useBlocked )
+    if( ctrl.variant == LLL_DEEP_REDUCE )
     {
-        return lll::BlockedAlg( B, U, QR, t, d, formU, ctrl );
+        // Start with standard LLL
+        auto infoReg = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+
+        // Move up from standard to deep
+        auto ctrlMod( ctrl );
+        ctrlMod.jumpstart = true;
+        ctrlMod.startCol = 0;
+        auto infoDeep = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+
+        // Move up from deep insertion to deep reduction
+        auto infoDeepRed =
+          lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrlMod ); 
+
+        infoDeepRed.numSwaps += infoReg.numSwaps + infoDeep.numSwaps;
+        return infoDeepRed;
+    }
+    else if( ctrl.variant == LLL_DEEP )
+    {
+        // Start with standard LLL
+        auto infoReg = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+
+        // Move from standard to deep insertion
+        auto ctrlMod( ctrl );
+        ctrlMod.jumpstart = true;
+        ctrlMod.startCol = 0;
+        auto infoDeep = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+
+        infoDeep.numSwaps += infoReg.numSwaps;
+        return infoDeep;
     }
     else
-    {
-        if( ctrl.variant == LLL_DEEP_REDUCE )
-        {
-            // Start with standard LLL
-            auto infoReg = lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
-
-            // Move up from standard to deep
-            auto ctrlMod( ctrl );
-            ctrlMod.jumpstart = true;
-            ctrlMod.startCol = 0;
-            auto infoDeep =
-              lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
-
-            // Move up from deep insertion to deep reduction
-            auto infoDeepRed =
-              lll::UnblockedDeepReduceAlg( B, U, QR, t, d, formU, ctrlMod ); 
-
-            infoDeepRed.numSwaps += infoReg.numSwaps + infoDeep.numSwaps;
-            return infoDeepRed;
-        }
-        else if( ctrl.variant == LLL_DEEP )
-        {
-            // Start with standard LLL
-            auto infoReg = lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
-
-            // Move from standard to deep insertion
-            auto ctrlMod( ctrl );
-            ctrlMod.jumpstart = true;
-            ctrlMod.startCol = 0;
-            auto infoDeep =
-              lll::UnblockedDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
-
-            infoDeep.numSwaps += infoReg.numSwaps;
-            return infoDeep;
-        }
-        else
-            return lll::UnblockedAlg( B, U, QR, t, d, formU, ctrl );
-    }
+        return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
 }
 
 template<typename F>
@@ -1082,43 +1037,6 @@ void DeepRowSwap( Matrix<F>& B, Int i, Int k )
     bi = bkCopy;
 }
 
-#define PROTO(F) \
-  template LLLInfo<Base<F>> LLL \
-  ( Matrix<F>& B, \
-    const LLLCtrl<Base<F>>& ctrl ); \
-  template LLLInfo<Base<F>> LLL \
-  ( Matrix<F>& B, \
-    Matrix<F>& R, \
-    const LLLCtrl<Base<F>>& ctrl ); \
-  template LLLInfo<Base<F>> LLL \
-  ( Matrix<F>& B, \
-    Matrix<F>& U, \
-    Matrix<F>& R, \
-    const LLLCtrl<Base<F>>& ctrl ); \
-  template LLLInfo<Base<F>> LLLWithQ \
-  ( Matrix<F>& B, \
-    Matrix<F>& QR, \
-    Matrix<F>& t, \
-    Matrix<Base<F>>& d, \
-    const LLLCtrl<Base<F>>& ctrl ); \
-  template LLLInfo<Base<F>> LLLWithQ \
-  ( Matrix<F>& B, \
-    Matrix<F>& U, \
-    Matrix<F>& QR, \
-    Matrix<F>& t, \
-    Matrix<Base<F>>& d, \
-    const LLLCtrl<Base<F>>& ctrl ); \
-  template void DeepColSwap( Matrix<F>& B, Int i, Int k ); \
-  template void DeepRowSwap( Matrix<F>& B, Int i, Int k ); \
-  template std::pair<Base<F>,Base<F>> lll::Achieved \
-  ( const Matrix<F>& R, const LLLCtrl<Base<F>>& ctrl ); \
-  template Base<F> lll::LogVolume( const Matrix<F>& R );
-
-#define EL_NO_INT_PROTO
-#define EL_ENABLE_DOUBLEDOUBLE
-#define EL_ENABLE_QUADDOUBLE
-#define EL_ENABLE_QUAD
-#define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
-
 } // namespace El
+
+#endif // ifndef EL_LATTICE_LLL_HPP

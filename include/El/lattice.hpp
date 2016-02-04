@@ -540,4 +540,7 @@ bool LatticeCoordinates( const Matrix<F>& B, const Matrix<F>& y, Matrix<F>& x );
 
 } // namespace El
 
+#include "El/lattice/LLL.hpp"
+#include "El/lattice/BKZ.hpp"
+
 #endif // ifndef EL_LATTICE_HPP

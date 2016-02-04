@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_LATTICE_BKZ_HPP
+#define EL_LATTICE_BKZ_HPP
 
 namespace El {
 
@@ -249,11 +250,9 @@ BKZInfo<Base<F>> BKZWithQ
 
     // TODO: Add optional logging
 
-    // While classical BKZ requires a blocksize of at least 2, it is useful
-    // to interpret BKZ(1) as LLL.
-    if( ctrl.blocksize < 1 )
-        LogicError("BKZ requires a blocksize of at least 1");
-    if( ctrl.blocksize == 1 )
+    if( ctrl.blocksize < 2 )
+        LogicError("BKZ requires a blocksize of at least 2");
+    if( ctrl.blocksize == 2 )
     {
         auto lllCtrl( ctrl.lllCtrl );
         if( ctrl.jumpstart )
@@ -729,11 +728,9 @@ BKZInfo<Base<F>> BKZWithQ
 
     // TODO: Add optional logging
 
-    // While classical BKZ requires a blocksize of at least 2, it is useful
-    // to interpret BKZ(1) as LLL.
-    if( ctrl.blocksize < 1 )
-        LogicError("BKZ requires a blocksize of at least 1");
-    if( ctrl.blocksize == 1 )
+    if( ctrl.blocksize < 2 )
+        LogicError("BKZ requires a blocksize of at least 2");
+    if( ctrl.blocksize == 2 )
     {
         auto lllCtrl( ctrl.lllCtrl );
         if( ctrl.jumpstart )
@@ -1556,39 +1553,6 @@ BKZ
     return BKZ( B, R, ctrl );
 }
 
-#define PROTO(F) \
-  template BKZInfo<Base<F>> BKZ \
-  ( Matrix<F>& B, \
-    const BKZCtrl<Base<F>>& ctrl ); \
-  template BKZInfo<Base<F>> BKZ \
-  ( Matrix<F>& B, \
-    Matrix<F>& R, \
-    const BKZCtrl<Base<F>>& ctrl ); \
-  template BKZInfo<Base<F>> BKZ \
-  ( Matrix<F>& B, \
-    Matrix<F>& U, \
-    Matrix<F>& R, \
-    const BKZCtrl<Base<F>>& ctrl ); \
-  template BKZInfo<Base<F>> BKZWithQ \
-  ( Matrix<F>& B, \
-    Matrix<F>& QR, \
-    Matrix<F>& t, \
-    Matrix<Base<F>>& d, \
-    const BKZCtrl<Base<F>>& ctrl ); \
-  template BKZInfo<Base<F>> BKZWithQ \
-  ( Matrix<F>& B, \
-    Matrix<F>& U, \
-    Matrix<F>& QR, \
-    Matrix<F>& t, \
-    Matrix<Base<F>>& d, \
-    const BKZCtrl<Base<F>>& ctrl );
-
-#define EL_NO_INT_PROTO
-#define EL_NO_COMPLEX_PROTO // until we have complex enumeration support
-#define EL_ENABLE_DOUBLEDOUBLE
-#define EL_ENABLE_QUADDOUBLE
-#define EL_ENABLE_QUAD
-#define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
-
 } // namespace El
+
+#endif // ifndef EL_LATTICE_BKZ_HPP
