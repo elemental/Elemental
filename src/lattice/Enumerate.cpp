@@ -31,17 +31,14 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Helper
 ( const Matrix<Real>& R,
   const Matrix<Real>& u,
-        Matrix<Real>& v )
+        Matrix<Real>& v,
+  const EnumCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svp::pruned_enum::Helper"))
     const Int m = R.Height();
     const Int n = R.Width();
     if( m < n )
         LogicError("Expected height(R) >= width(R)");
-
-    // TODO: Make these arguments
-    const bool progress = false;
-    const bool track = false;
 
     Matrix<Real> S;
     Zeros( S, n+1, n );
@@ -102,8 +99,6 @@ Real Helper
             else
             {
                 // Move down the tree
-                if( track )
-                    Output("  Moving down to k=",k-1," since rho_k=",rho_k," < u(n-1-k)=",uBuf[(n-1)-k]);
                 --k;
                 indexBuf[k] = Max(indexBuf[k],indexBuf[k+1]);
                 for( Int i=indexBuf[k+1]; i>=k+1; --i )
@@ -118,15 +113,13 @@ Real Helper
         else
         {
             // Move up the tree
-            if( track )
-                Output("  Moving up to k=",k+1," since rho_k=",rho_k," >= u(n-1-k)=",uBuf[(n-1)-k]);
             ++k;
             if( k == n )
                 return 2*u.Get(n-1,0)+1; // An arbitrary value > than u(n-1)
             indexBuf[k] = k; // indicate that (i,j) are not synchronized
             if( k >= lastNonzero )
             {
-                if( progress )
+                if( ctrl.innerProgress )
                     Output("lastNonzero: ",k);
                 lastNonzero = k;
                 vBuf[k] += Real(1);
@@ -151,10 +144,11 @@ template<typename F>
 Base<F> BoundedEnumeration
 ( const Matrix<F>& R,
   const Matrix<Base<F>>& u,
-        Matrix<F>& v )
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svp::BoundedEnumeration"))
-    return pruned_enum::Helper( R, u, v );
+    return pruned_enum::Helper( R, u, v, ctrl );
 }
 
 } // namespace svp
@@ -166,7 +160,7 @@ Base<F> ShortVectorEnumeration
   const Matrix<F>& R,
         Base<F> normUpperBound,
         Matrix<F>& v,
-  bool probabalistic )
+  const EnumCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ShortVectorEnumeration"))
     typedef Base<F> Real;
@@ -179,12 +173,8 @@ Base<F> ShortVectorEnumeration
     if( n == 0 )
         return Real(0);
 
-    const bool time = true;
-    const bool progress = true;
-
     const Real BOneNorm = OneNorm( B );
-    const Real fudge = 1.5; // TODO: Make tunable
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
+    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
     if( MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
@@ -198,8 +188,7 @@ Base<F> ShortVectorEnumeration
             Copy( R, RLower );
             RealLower result =
               ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound),
-                vLower, probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrl );
             Copy( vLower, v );
             return Real(result);
         }
@@ -217,10 +206,11 @@ Base<F> ShortVectorEnumeration
             Matrix<FLower> BLower, RLower, vLower;
             Copy( B, BLower );
             Copy( R, RLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
             RealLower result =
               ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound),
-                vLower, probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                ctrlLower );
             Copy( vLower, v );
             return Real(result);
         }
@@ -239,10 +229,11 @@ Base<F> ShortVectorEnumeration
             Matrix<FLower> BLower, RLower, vLower;
             Copy( B, BLower );
             Copy( R, RLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
             RealLower result =
               ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound),
-                vLower, probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower, 
+                ctrlLower );
             Copy( vLower, v );
             return Real(result);
         }
@@ -260,10 +251,11 @@ Base<F> ShortVectorEnumeration
             Matrix<FLower> BLower, RLower, vLower;
             Copy( B, BLower );
             Copy( R, RLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
             RealLower result =
               ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound),
-                vLower, probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                ctrlLower );
             Copy( vLower, v );
             return Real(result);
         }
@@ -283,10 +275,11 @@ Base<F> ShortVectorEnumeration
             Matrix<FLower> BLower, RLower, vLower;
             Copy( B, BLower );
             Copy( R, RLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
             RealLower result =
               ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound),
-                vLower, probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower,
+                ctrlLower );
             Copy( vLower, v );
             return Real(result);
         }
@@ -306,12 +299,10 @@ Base<F> ShortVectorEnumeration
     }
 
     Timer timer;
-    if( probabalistic )
+    if( ctrl.probabalistic )
     {
-        // TODO: Add support for different bounding functions
-        const bool linear = false;
         Matrix<Real> upperBounds(n,1);
-        if( linear )
+        if( ctrl.linearBounding )
         {
             for( Int j=0; j<n; ++j )
                 upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
@@ -365,8 +356,7 @@ Base<F> ShortVectorEnumeration
         auto RNew( R );
         Matrix<F> U;
 
-        Int numTrials = 10*n; // TODO: Make this tunable; probability is 1/n
-        for( Int trial=0; trial<numTrials; ++trial )
+        for( Int trial=0; trial<ctrl.numTrials; ++trial )
         {
             Matrix<F> BNew, RNew, U;
             BNew = B;
@@ -381,7 +371,7 @@ Base<F> ShortVectorEnumeration
                     const Int scale = SampleUniform( Int(-5), Int(5) );
                     if( c == j || scale == 0 )
                         continue; // if scale=-1, we could have singularity
-                    if( progress )
+                    if( ctrl.progress )
                         Output("  B(:,",j,") += ",scale,"*B(:,",c,")");
 
                     auto bj = BNew( ALL, j );
@@ -399,33 +389,34 @@ Base<F> ShortVectorEnumeration
                 ctrl.blocksize = 10;
                 ctrl.recursive = false;
                 ctrl.lllCtrl.recursive = false;
-                if( time )
+                if( ctrl.time )
                     timer.Start();
                 BKZ( BNew, U, RNew, ctrl );
-                if( time )
+                if( ctrl.time )
                     Output("  Fix-up BKZ: ",timer.Stop()," seconds");
             }
             RNew = BNew;
             qr::ExplicitTriang( RNew ); 
 
-            if( progress )
+            if( ctrl.progress )
                 Output("Starting trial ",trial);
-            if( time )
+            if( ctrl.time )
                 timer.Start();
-            Real result = svp::BoundedEnumeration( RNew, upperBounds, v );
-            if( time )
+            Real result = svp::BoundedEnumeration( RNew, upperBounds, v, ctrl );
+            if( ctrl.time )
                 Output("  Probabalistic enumeration: ",timer.Stop()," seconds");
             if( result < normUpperBound )
             {
-                if( progress )
+                if( ctrl.progress )
                     Output("Found lattice member with norm ",result);
                 if( trial > 0 )
                 {
-                    Print( v, "vInner" );
+                    if( ctrl.progress )
+                        Print( v, "vInner" );
                     auto vCopy( v );
                     Gemv( NORMAL, F(1), U, vCopy, F(0), v );
                 }
-                if( progress )
+                if( ctrl.progress )
                 {
                     Matrix<F> b;
                     Zeros( b, m, 1 );
@@ -443,7 +434,7 @@ Base<F> ShortVectorEnumeration
         Matrix<Real> upperBounds;
         Zeros( upperBounds, n, 1 );
         Fill( upperBounds, normUpperBound );
-        return svp::BoundedEnumeration( R, upperBounds, v );
+        return svp::BoundedEnumeration( R, upperBounds, v, ctrl );
     }
 }
 
@@ -452,7 +443,7 @@ Base<F> ShortestVectorEnumeration
 ( const Matrix<F>& B,
   const Matrix<F>& R,
         Matrix<F>& v,
-  bool probabalistic )
+  const EnumCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ShortestVectorEnumeration"))
     typedef Base<F> Real;
@@ -462,7 +453,7 @@ Base<F> ShortestVectorEnumeration
         return Real(0);
 
     const Real normUpperBound = R.Get(0,0);
-    return ShortestVectorEnumeration( B, R, normUpperBound, v, probabalistic );
+    return ShortestVectorEnumeration( B, R, normUpperBound, v, ctrl );
 }
 
 // NOTE: This norm upper bound is *inclusive* so that setting it to || b_0 ||_2
@@ -473,7 +464,7 @@ Base<F> ShortestVectorEnumeration
   const Matrix<F>& R,
         Base<F> normUpperBound,
         Matrix<F>& v,
-  bool probabalistic )
+  const EnumCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("ShortestVectorEnumeration"))
     typedef Base<F> Real;
@@ -483,8 +474,7 @@ Base<F> ShortestVectorEnumeration
         return Real(0);
 
     const Real BOneNorm = OneNorm( B );
-    const Real fudge = 1.5; // TODO: Make tunable
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge)); 
+    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge)); 
     if( MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
@@ -498,8 +488,7 @@ Base<F> ShortestVectorEnumeration
             Copy( R, RLower );
             RealLower result =
               ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrl );
             Copy( vLower, v );
             return Real(result);
         }
@@ -519,8 +508,7 @@ Base<F> ShortestVectorEnumeration
             Copy( R, RLower );
             RealLower result =
               ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrl );
             Copy( vLower, v );
             return Real(result);
         }
@@ -541,8 +529,7 @@ Base<F> ShortestVectorEnumeration
             Copy( R, RLower );
             RealLower result =
               ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrl );
             Copy( vLower, v );
             return Real(result);
         }
@@ -562,8 +549,7 @@ Base<F> ShortestVectorEnumeration
             Copy( R, RLower );
             RealLower result =
               ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrl );
             Copy( vLower, v );
             return Real(result);
         }
@@ -585,8 +571,7 @@ Base<F> ShortestVectorEnumeration
             Copy( R, RLower );
             RealLower result =
               ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                probabalistic );
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrl );
             Copy( vLower, v );
             return Real(result);
         }
@@ -607,7 +592,7 @@ Base<F> ShortestVectorEnumeration
     {
         Matrix<F> vCand;
         Real result =
-          ShortVectorEnumeration( B, R, targetNorm, vCand, probabalistic );
+          ShortVectorEnumeration( B, R, targetNorm, vCand, ctrl );
         if( result < targetNorm )
         {
             v = vCand;
@@ -625,24 +610,25 @@ Base<F> ShortestVectorEnumeration
   template Base<F> svp::BoundedEnumeration \
   ( const Matrix<F>& R, \
     const Matrix<Base<F>>& u, \
-          Matrix<F>& v ); \
+          Matrix<F>& v, \
+    const EnumCtrl<Base<F>>& ctrl ); \
   template Base<F> ShortVectorEnumeration \
   ( const Matrix<F>& B, \
     const Matrix<F>& R, \
           Base<F> normUpperBound, \
           Matrix<F>& v, \
-    bool probabalistic ); \
+    const EnumCtrl<Base<F>>& ctrl ); \
   template Base<F> ShortestVectorEnumeration \
   ( const Matrix<F>& B, \
     const Matrix<F>& R, \
           Matrix<F>& v, \
-    bool probabalistic ); \
+    const EnumCtrl<Base<F>>& ctrl ); \
   template Base<F> ShortestVectorEnumeration \
   ( const Matrix<F>& B, \
     const Matrix<F>& R, \
           Base<F> normUpperBound, \
           Matrix<F>& v, \
-    bool probabalistic );
+    const EnumCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

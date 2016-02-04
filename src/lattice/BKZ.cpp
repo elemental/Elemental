@@ -250,11 +250,9 @@ BKZInfo<Base<F>> BKZWithQ
 
     // TODO: Add optional logging
 
-    // While classical BKZ requires a blocksize of at least 2, it is useful
-    // to interpret BKZ(1) as LLL.
-    if( ctrl.blocksize < 1 )
-        LogicError("BKZ requires a blocksize of at least 1");
-    if( ctrl.blocksize == 1 )
+    if( ctrl.blocksize < 2 )
+        LogicError("BKZ requires a blocksize of at least 2");
+    if( ctrl.blocksize == 2 )
     {
         auto lllCtrl( ctrl.lllCtrl );
         if( ctrl.jumpstart )
@@ -326,7 +324,7 @@ BKZInfo<Base<F>> BKZWithQ
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
+          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
         ++numEnums;
 
         const bool keepMin =
@@ -731,11 +729,9 @@ BKZInfo<Base<F>> BKZWithQ
 
     // TODO: Add optional logging
 
-    // While classical BKZ requires a blocksize of at least 2, it is useful
-    // to interpret BKZ(1) as LLL.
-    if( ctrl.blocksize < 1 )
-        LogicError("BKZ requires a blocksize of at least 1");
-    if( ctrl.blocksize == 1 )
+    if( ctrl.blocksize < 2 )
+        LogicError("BKZ requires a blocksize of at least 2");
+    if( ctrl.blocksize == 2 )
     {
         auto lllCtrl( ctrl.lllCtrl );
         if( ctrl.jumpstart )
@@ -806,7 +802,7 @@ BKZInfo<Base<F>> BKZWithQ
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.probabalistic );
+          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
         ++numEnums;
 
         const bool keepMin =

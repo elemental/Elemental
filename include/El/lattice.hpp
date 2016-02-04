@@ -328,6 +328,41 @@ Int AlgebraicRelationSearch
 // Schnorr-Euchner enumeration
 // ===========================
 
+template<typename Real>
+struct EnumCtrl
+{
+    bool probabalistic=false;
+    // TODO: Add ability to further tune the bounding function
+    bool linearBounding=false;
+    Int numTrials=1000;
+
+    Real fudge=Real(1.5); // fudge factor for number of bits of precision
+
+    bool time=true;
+    bool progress=true;
+
+    // For monitoring the core (bounded) enumeration procedure
+    bool innerProgress=false;
+
+    template<typename OtherReal>
+    EnumCtrl<Real>& operator=( const EnumCtrl<OtherReal>& ctrl )
+    {
+        probabalistic = ctrl.probabalistic;
+        linearBounding = ctrl.linearBounding;
+        numTrials = ctrl.numTrials;
+        fudge = Real(ctrl.fudge);
+        time = ctrl.time;
+        progress = ctrl.progress;
+        innerProgress = ctrl.innerProgress;
+        return *this;
+    }
+
+    EnumCtrl() { }
+    EnumCtrl( const EnumCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    EnumCtrl( const EnumCtrl<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
 namespace svp {
 
 // If successful, fills 'v' with the integer coordinates of the columns of 
@@ -345,7 +380,8 @@ template<typename F>
 Base<F> BoundedEnumeration
 ( const Matrix<F>& R,
   const Matrix<Base<F>>& u,
-        Matrix<F>& v );
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
 
 } // namespace svp
 
@@ -359,7 +395,7 @@ Base<F> ShortVectorEnumeration
   const Matrix<F>& R,
         Base<F> normUpperBound,
         Matrix<F>& v,
-  bool probabalistic=false );
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
 
 // Given a reduced lattice B and its Gaussian Normal Form, R, find the shortest
 // member of the lattice (with the shortest vector given by B v).
@@ -370,7 +406,7 @@ Base<F> ShortestVectorEnumeration
 ( const Matrix<F>& B,
   const Matrix<F>& R,
         Matrix<F>& v,
-  bool probabalistic=false );
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
 // If an upper-bound on the shortest vector which is better than || b_0 ||_2 is
 // available
 template<typename F>
@@ -379,7 +415,7 @@ Base<F> ShortestVectorEnumeration
   const Matrix<F>& R,
         Base<F> normUpperBound,
         Matrix<F>& v,
-  bool probabalistic=false );
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
 
 // Block Korkin-Zolotarev (BKZ) reduction
 // ======================================
@@ -429,13 +465,13 @@ struct BKZCtrl
     bool skipInitialLLL=false;
     bool jumpstart=false;
 
-    // TODO: Add ability to tune the bounding function
-    bool probabalistic=false;
+    EnumCtrl<Real> enumCtrl;
+
     // Rather than running LLL after a productive enumeration, one could run
     // BKZ with a smaller blocksize (perhaps with early abort)
     bool subBKZ=true;
     function<Int(Int)> subBlocksizeFunc =
-      function<Int(Int)>( []( Int bsize ) { return Max(bsize/2,Int(1)); } );
+      function<Int(Int)>( []( Int bsize ) { return Max(bsize/2,Int(2)); } );
     bool subEarlyAbort = true;
     Int subNumEnumsBeforeAbort = 100;
 
@@ -468,7 +504,8 @@ struct BKZCtrl
 
         skipInitialLLL = ctrl.skipInitialLLL;
 
-        probabalistic = ctrl.probabalistic;
+        enumCtrl = ctrl.enumCtrl;
+
         subBKZ = ctrl.subBKZ;
         subBlocksizeFunc = ctrl.subBlocksizeFunc;
         subEarlyAbort = ctrl.subEarlyAbort;
