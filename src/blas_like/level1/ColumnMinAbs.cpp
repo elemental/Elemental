@@ -186,7 +186,7 @@ void ColumnMinAbs
     Zeros( mins, A.Width(), 1 );
     Fill( mins, limits::Max<Real>() );
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
+    const auto& meta = A.LockedDistGraph().multMeta;
 
     // Pack the send values 
     // --------------------
@@ -242,7 +242,7 @@ void ColumnMinAbsNonzero
     // =========================================================
     mins = upperBounds;
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
+    const auto& meta = A.LockedDistGraph().multMeta;
 
     // Pack the send values 
     // --------------------

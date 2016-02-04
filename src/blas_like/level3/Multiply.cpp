@@ -783,6 +783,7 @@ void MultiplyCSRInter
             }
         }
     }
+}
 
 template<typename T>
 void MultiplyCSRInter
@@ -882,8 +883,8 @@ void Multiply
 template<typename T>
 void Multiply
 ( Orientation orientation, 
-  T alpha, const Graph<T>& A, const Matrix<T>& X,
-  T beta,                            Matrix<T>& Y )
+  T alpha, const Graph& A, const Matrix<T>& X,
+  T beta,                        Matrix<T>& Y )
 {
     DEBUG_ONLY(
       CSE cse("Multiply");
@@ -891,12 +892,145 @@ void Multiply
           LogicError("X and Y must have the same width");
     )
     MultiplyCSR
-    ( orientation, A.Height(), A.Width(), X.Width(),
+    ( orientation, A.NumSources(), A.NumTargets(), X.Width(),
       alpha, A.LockedOffsetBuffer(), 
              A.LockedTargetBuffer(), 
              X.LockedBuffer(), X.LDim(),
       beta,  Y.Buffer(),       Y.LDim() );
 }
+
+ template<typename T>
+void Multiply
+( Orientation orientation,
+        T alpha,
+  const DistGraph& A,
+  const DistMultiVec<T>& X,
+        T beta,
+        DistMultiVec<T>& Y )
+{
+    DEBUG_ONLY(
+      CSE cse("Multiply");
+      if( X.Width() != Y.Width() )
+          LogicError("X and Y must have the same width");
+      if( !mpi::Congruent( A.Comm(), X.Comm() ) ||
+          !mpi::Congruent( X.Comm(), Y.Comm() ) )
+          LogicError("Communicators did not match");
+    )
+
+    const bool time = false;
+
+    mpi::Comm comm = A.Comm();
+    const int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    // TODO: Use sequential implementation if commSize = 1?
+
+    Timer totalTimer, timer;
+    if( time && commRank == 0 )
+        totalTimer.Start();
+
+    // Y := beta Y
+    Y *= beta;
+
+    const auto meta = A.InitializeMultMeta();
+
+    // Convert the sizes and offsets to be compatible with the current width
+    const Int b = X.Width();
+    vector<int> recvSizes=meta.recvSizes,
+                recvOffs=meta.recvOffs,
+                sendSizes=meta.sendSizes,
+                sendOffs=meta.sendOffs;
+    for( int q=0; q<commSize; ++q )
+    {
+        recvSizes[q] *= b;
+        recvOffs[q] *= b;
+        sendSizes[q] *= b;
+        sendOffs[q] *= b;
+    }
+
+    if( orientation == NORMAL )
+    {
+        if( A.NumSources() != Y.Height() )
+            LogicError("A and Y must have the same height");
+        if( A.NumTargets() != X.Height() )
+            LogicError("The width of A must match the height of X");
+
+        // Pack the send values
+        const Int numSendInds = meta.sendInds.size();
+        const Int firstLocalRow = X.FirstLocalRow();
+        vector<T> sendVals;
+        FastResize( sendVals, numSendInds*b );
+        const T* XBuffer = X.LockedMatrix().LockedBuffer();
+        const Int ldX = X.LockedMatrix().LDim();
+        for( Int s=0; s<numSendInds; ++s )
+        {
+            const Int i = meta.sendInds[s];
+            const Int iLoc = i - firstLocalRow;
+            for( Int t=0; t<b; ++t )
+                sendVals[s*b+t] = XBuffer[iLoc+t*ldX];
+        }
+
+        // Now send them
+        vector<T> recvVals( meta.numRecvInds*b );
+        mpi::AllToAll
+        ( sendVals.data(), sendSizes.data(), sendOffs.data(),
+          recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
+
+        // Perform the local multiply-accumulate, y := alpha A x + y
+        if( time && commRank == 0 )
+            timer.Start();
+        MultiplyCSRInterX
+        ( NORMAL, A.NumLocalSources(), meta.numRecvInds, b,
+          alpha, A.LockedOffsetBuffer(),
+                 meta.colOffs.data(),
+                 recvVals.data(),
+          T(1),  Y.Matrix().Buffer(), Y.Matrix().LDim() );
+        if( time && commRank == 0 )
+            Output("  MultiplyCSRInterX time: ",timer.Stop());
+    }
+    else
+    {
+        if( A.NumSources() != Y.Height() )
+            LogicError("The width of A must match the height of Y");
+        if( A.NumTargets() != X.Height() )
+            LogicError("The height of A must match the height of X");
+
+        // Form and pack the updates to Y
+        if( time && commRank == 0 )
+            timer.Start();
+        vector<T> sendVals( meta.numRecvInds*b, 0 );
+        MultiplyCSRInterY
+        ( orientation, A.NumLocalSources(), meta.numRecvInds, b,
+          alpha, A.LockedOffsetBuffer(),
+                 meta.colOffs.data(),
+                 X.LockedMatrix().LockedBuffer(), X.LockedMatrix().LDim(),
+          T(1),  sendVals.data() );
+        if( time && commRank == 0 )
+            Output("  MultiplyCSRInterY time: ",timer.Stop());
+
+        // Inject the updates to Y into the network
+        const Int numRecvInds = meta.sendInds.size();
+        vector<T> recvVals;
+        FastResize( recvVals, numRecvInds*b );
+        mpi::AllToAll
+        ( sendVals.data(), recvSizes.data(), recvOffs.data(),
+          recvVals.data(), sendSizes.data(), sendOffs.data(), comm );
+
+        // Accumulate the received indices onto Y
+        const Int firstLocalRow = Y.FirstLocalRow();
+        T* YBuffer = Y.Matrix().Buffer();
+        const Int ldY = Y.Matrix().LDim();
+        for( Int s=0; s<numRecvInds; ++s )
+        {
+            const Int i = meta.sendInds[s];
+            const Int iLoc = i - firstLocalRow;
+            for( Int t=0; t<b; ++t )
+                YBuffer[iLoc+t*ldY] += recvVals[s*b+t];
+        }
+    }
+    if( time && commRank == 0 )
+        Output("Multiply total time: ",totalTimer.Stop());
+}
+
 
 template<typename T>
 void Multiply
@@ -929,12 +1063,12 @@ void Multiply
 
     // Y := beta Y
     Y *= beta;
-
-    A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
+    
+    const auto meta = A.InitializeMultMeta();
 
     // Convert the sizes and offsets to be compatible with the current width
     const Int b = X.Width();
+    //TODO: These copies are unecessary irrelevant clean this up.
     vector<int> recvSizes=meta.recvSizes,
                 recvOffs=meta.recvOffs,
                 sendSizes=meta.sendSizes,
