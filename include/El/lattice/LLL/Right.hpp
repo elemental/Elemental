@@ -298,8 +298,12 @@ bool RightStep
                         chi = 0;
                     xBuf[i] = chi;
                 }
+				
                 if( numNonzero == 0 )
+				{
+					cout << "Number of reduce loops = " << reduce << endl;
                     break;
+				}
 
                 const float nonzeroRatio = float(numNonzero)/float(k); 
                 if( nonzeroRatio >= ctrl.blockingThresh )
@@ -381,6 +385,7 @@ LLLInfo<Base<F>> RightAlg
         houseReflectTimer.Reset();
         applyHouseTimer.Reset();
         roundTimer.Reset();
+		formQRTimer.Reset();
     }
 
 	// TODO: Make tunable
@@ -451,6 +456,7 @@ LLLInfo<Base<F>> RightAlg
                 d.Set( 0, 0, Real(1) );
 
                 ColSwap( B, 0, (n-1)-nullity );
+				ColSwap( QR, 0, (n-1)-nullity );
                 if( formU )
                     ColSwap( U, 0, (n-1)-nullity );
 
@@ -472,7 +478,7 @@ LLLInfo<Base<F>> RightAlg
 	Int hPanelEnd = k;
 	bool useHouseholder = true;
     while( k < n-nullity )
-    {
+    {		
 		if (hPanelEnd - hPanelStart >= H_BLOCK_SIZE)
 		{
 			// Apply panel of Householder matrices to right
@@ -487,9 +493,11 @@ LLLInfo<Base<F>> RightAlg
 		}
 	
         bool zeroVector = lll::RightStep( k, B, U, QR, t, d, formU, hPanelStart, useHouseholder, ctrl );
+		
         if( zeroVector )
         {
             ColSwap( B, k, (n-1)-nullity );
+			ColSwap( QR, k, (n-1)-nullity );
             if( formU )
                 ColSwap( U, k, (n-1)-nullity );
             ++nullity;
@@ -508,8 +516,11 @@ LLLInfo<Base<F>> RightAlg
 		
 		auto rCol = QR( IR(0,k+1), IR(k) );
 		Base<F> rnorm = El::FrobeniusNorm(rCol);
-		if (ctrl.progress)
+		if (ctrl.progress) {
+			cout << "k=" << k << ": ||b_k|| = " << colNorms.Get(k, 0) << endl;
+			cout << "k=" << k << ": ||r_k|| = " << rnorm << endl;
 			cout << "k=" << k << ": (||b_k|| - ||r_k||)/||b_k|| = " << (colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) << endl;
+		}
 		
 		if ((colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) >= thresh)
 		{
