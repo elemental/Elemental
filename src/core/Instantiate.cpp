@@ -7,4 +7,9 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #define EL_INSTANTIATE_MEMORY
+#define EL_INSTANTIATE_MATRIX
+#define EL_INSTANTIATE_SPARSEMATRIX
+#define EL_INSTANTIATE_DISTSPARSEMATRIX
+#define EL_INSTANTIATE_DISTMULTIVEC
+#define EL_INSTANTIATE_VIEW
 #include "El.hpp"
