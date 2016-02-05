@@ -130,4 +130,6 @@ private:
 
 } // namespace El
 
+#include "El/core/DistMultiVec/impl.hpp"
+
 #endif // ifndef EL_CORE_DISTMULTIVEC_DECL_HPP

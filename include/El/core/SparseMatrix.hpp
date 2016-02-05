@@ -150,4 +150,6 @@ private:
 
 } // namespace El
 
+#include "El/core/SparseMatrix/impl.hpp"
+
 #endif // ifndef EL_CORE_SPARSEMATRIX_DECL_HPP

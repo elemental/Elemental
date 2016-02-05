@@ -89,7 +89,7 @@ typedef __float128 Quad;
 #include "El/core/imports/omp.hpp"
 #include "El/core/imports/qd.hpp"
 #include "El/core/imports/mpc.hpp"
-#include "El/core/Memory.hpp"
+
 #include "El/core/Element/decl.hpp"
 #include "El/core/types.hpp"
 #include "El/core/Serialize.hpp"
@@ -109,6 +109,8 @@ typedef __float128 Quad;
 #include "El/core/imports/scalapack.hpp"
 
 #include "El/core/limits.hpp"
+
+#include "El/core/Memory.hpp"
 
 namespace El {
 

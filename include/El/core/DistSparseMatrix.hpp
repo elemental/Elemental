@@ -225,4 +225,6 @@ private:
 
 } // namespace El
 
+#include "El/core/DistSparseMatrix/impl.hpp"
+
 #endif // ifndef EL_CORE_DISTSPARSEMATRIX_DECL_HPP

@@ -206,4 +206,6 @@ private:
 
 } // namespace El
 
+#include "El/core/Matrix/impl.hpp"
+
 #endif // ifndef EL_MATRIX_HPP

@@ -38,4 +38,6 @@ public:
 
 } // namespace El
 
+#include "El/core/Memory/impl.hpp"
+
 #endif // ifndef EL_MEMORY_HPP

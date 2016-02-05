@@ -198,7 +198,6 @@ LLLInfo<Base<F>> LLLWithQ
         ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
          Sqrt(ctrl.delta),")");
 
-
     if( ctrl.jumpstart )
     {
         if( U.Height() != n || U.Width() != n )
