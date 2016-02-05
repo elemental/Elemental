@@ -1900,10 +1900,6 @@ void Zero( DistMultiVec<T>& A );
 
 } // namespace El
 
-#include "./level1/Adjoint.hpp"
-#include "./level1/AdjointAxpy.hpp"
-#include "./level1/AdjointAxpyContract.hpp"
-#include "./level1/AdjointContract.hpp"
 #include "./level1/Axpy.hpp"
 #include "./level1/AxpyTrapezoid.hpp"
 #include "./level1/Contract.hpp"
@@ -1929,6 +1925,8 @@ void Zero( DistMultiVec<T>& A );
 #include "./level1/Shift.hpp"
 #include "./level1/ShiftDiagonal.hpp"
 #include "./level1/Transpose.hpp"
+#include "./level1/TransposeAxpy.hpp"
+#include "./level1/TransposeAxpyContract.hpp"
 #include "./level1/TransposeContract.hpp"
 #include "./level1/UpdateDiagonal.hpp"
 #include "./level1/UpdateMappedDiagonal.hpp"

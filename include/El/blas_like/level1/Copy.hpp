@@ -495,6 +495,54 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     }
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void Copy \
+  ( const Matrix<T>& A, Matrix<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK>& B, \
+    bool includingViewers ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( DistMatrix<T,CIRC,CIRC,BLOCK>& B, bool includingViewers ); \
+  EL_EXTERN template void Copy \
+  ( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( const DistSparseMatrix<T>& ADist, int root ); \
+  EL_EXTERN template void Copy \
+  ( const DistMultiVec<T>& A, DistMultiVec<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const DistMultiVec<T>& XDist, Matrix<T>& X ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( const DistMultiVec<T>& XDist, int root );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include "El/macros/Instantiate.h"
+
+#undef EL_EXTERN
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_COPY_HPP

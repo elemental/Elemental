@@ -475,7 +475,7 @@ template<typename T>
 void SparseMatrix<T>::AssertConsistent() const
 { graph_.AssertConsistent(); }
 
-#ifdef EL_INSTANTIATE_SPARSEMATRIX
+#ifdef EL_INSTANTIATE_CORE
 # define EL_EXTERN
 #else
 # define EL_EXTERN extern

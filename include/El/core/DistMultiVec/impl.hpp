@@ -411,7 +411,7 @@ void DistMultiVec<T>::ProcessQueues()
         matBuf[(entry.i-firstLocalRow)+entry.j*matLDim] += entry.value;
 }
 
-#ifdef EL_INSTANTIATE_DISTMULTIVEC
+#ifdef EL_INSTANTIATE_CORE
 # define EL_EXTERN
 #else
 # define EL_EXTERN extern

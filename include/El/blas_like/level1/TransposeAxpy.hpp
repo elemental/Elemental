@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_BLAS_TRANSPOSEAXPY_HPP
+#define EL_BLAS_TRANSPOSEAXPY_HPP
 
 namespace El {
 
@@ -155,27 +156,79 @@ void TransposeAxpy
     B.ProcessQueues();
 }
 
+template<typename T,typename S>
+void AdjointAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
+{
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
+    TransposeAxpy( alphaS, X, Y, true );
+}
+
+template<typename T,typename S>
+void AdjointAxpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
+{
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
+    TransposeAxpy( alphaS, X, Y, true );
+}
+
+template<typename T,typename S>
+void AdjointAxpy
+( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
+{
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
+    TransposeAxpy( alphaS, X, Y, true );
+}
+
+template<typename T,typename S>
+void AdjointAxpy
+( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
+{
+    DEBUG_ONLY(CSE cse("AdjointAxpy"))
+    TransposeAxpy( alphaS, X, Y, true );
+}
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
 #define PROTO_TYPES(T,S) \
-  template void TransposeAxpy \
+  EL_EXTERN template void TransposeAxpy \
   (       S alpha, \
     const Matrix<T>& A, \
           Matrix<T>& B, \
           bool conjugate ); \
-  template void TransposeAxpy \
+  EL_EXTERN template void TransposeAxpy \
   (       S alpha, \
     const ElementalMatrix<T>& A, \
           ElementalMatrix<T>& B, \
           bool conjugate ); \
-  template void TransposeAxpy \
+  EL_EXTERN template void TransposeAxpy \
   (       S alpha, \
     const SparseMatrix<T>& A, \
           SparseMatrix<T>& B, \
           bool conjugate ); \
-  template void TransposeAxpy \
+  EL_EXTERN template void TransposeAxpy \
   (       S alpha, \
     const DistSparseMatrix<T>& A, \
           DistSparseMatrix<T>& B, \
-          bool conjugate );
+          bool conjugate ); \
+  EL_EXTERN template void AdjointAxpy \
+  (       S alpha, \
+    const Matrix<T>& A, \
+          Matrix<T>& B ); \
+  EL_EXTERN template void AdjointAxpy \
+  (       S alpha, \
+    const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B ); \
+  EL_EXTERN template void AdjointAxpy \
+  (       S alpha, \
+    const SparseMatrix<T>& A, \
+          SparseMatrix<T>& B ); \
+  EL_EXTERN template void AdjointAxpy \
+  (       S alpha, \
+    const DistSparseMatrix<T>& A, \
+          DistSparseMatrix<T>& B );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 
@@ -195,4 +248,8 @@ void TransposeAxpy
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
+#undef EL_EXTERN
+
 } // namespace El
+
+#endif // ifndef EL_BLAS_TRANSPOSEAXPY_HPP

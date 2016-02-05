@@ -887,7 +887,7 @@ template<typename T>
 bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 { return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
-#ifdef EL_INSTANTIATE_DISTSPARSEMATRIX
+#ifdef EL_INSTANTIATE_CORE
 # define EL_EXTERN
 #else
 # define EL_EXTERN extern

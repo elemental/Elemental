@@ -721,7 +721,7 @@ inline void LockedView
     LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
 }
 
-#ifdef EL_INSTANTIATE_VIEW
+#ifdef EL_INSTANTIATE_CORE
 # define EL_EXTERN
 #else
 # define EL_EXTERN extern

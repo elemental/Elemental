@@ -692,7 +692,7 @@ void Matrix<T>::Resize_( Int height, Int width, Int ldim )
     }
 }
 
-#ifdef EL_INSTANTIATE_MATRIX
+#ifdef EL_INSTANTIATE_CORE
 # define EL_EXTERN
 #else
 # define EL_EXTERN extern

@@ -115,7 +115,7 @@ void Memory<G>::Empty()
     size_ = 0;
 }
 
-#ifdef EL_INSTANTIATE_MEMORY
+#ifdef EL_INSTANTIATE_CORE
 # define EL_EXTERN
 #else
 # define EL_EXTERN extern
