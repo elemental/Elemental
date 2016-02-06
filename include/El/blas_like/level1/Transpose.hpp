@@ -280,7 +280,8 @@ void Transpose
 ( const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate )
 {
     DEBUG_ONLY(CSE cse("Transpose"))
-    Zeros( B, A.Width(), A.Height() );
+    B.Resize( A.Width(), A.Height() );
+    Zero( B, false );
     TransposeAxpy( T(1), A, B, conjugate );
 }
 
@@ -290,7 +291,8 @@ void Transpose
 {
     DEBUG_ONLY(CSE cse("Transpose"))
     B.SetComm( A.Comm() );
-    Zeros( B, A.Width(), A.Height() );
+    B.Resize( A.Width(), A.Height() );
+    Zero( B, false );
     TransposeAxpy( T(1), A, B, conjugate );
 }
 

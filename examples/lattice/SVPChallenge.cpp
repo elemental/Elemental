@@ -63,6 +63,8 @@ int main( int argc, char* argv[] )
           Input("--logStreakSizes","log enum streak sizes in BKZ?",false);
         const bool logNontrivialCoords =
           Input("--logNontrivialCoords","log nontrivial enum coords?",false);
+        const bool checkpoint =
+          Input("--checkpoint","checkpoint each tour?",true);
         const Real targetRatio =
           Input("--targetRatio","targeted ratio of GH(L)",Real(1.05));
         const bool probBKZEnum =
@@ -108,6 +110,7 @@ int main( int argc, char* argv[] )
         ctrl.logFailedEnums = logFailedEnums;
         ctrl.logStreakSizes = logStreakSizes;
         ctrl.logNontrivialCoords = logNontrivialCoords;
+        ctrl.checkpointEachTour = checkpoint;
         ctrl.lllCtrl.delta = delta;
         ctrl.lllCtrl.eta = eta;
         ctrl.lllCtrl.variant = static_cast<LLLVariant>(varInt);

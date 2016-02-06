@@ -8,6 +8,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef EL_SPARSEMATRIX_IMPL_HPP
+#define EL_SPARSEMATRIX_IMPL_HPP
 
 namespace El {
 
@@ -492,3 +494,5 @@ void SparseMatrix<T>::AssertConsistent() const
 #undef EL_EXTERN
 
 } // namespace El
+
+#endif // ifndef EL_SPARSEMATRIX_IMPL_HPP

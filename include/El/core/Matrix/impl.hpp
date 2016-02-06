@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef EL_MATRIX_IMPL_HPP
+#define EL_MATRIX_IMPL_HPP
 
 namespace El {
 
@@ -709,3 +711,5 @@ void Matrix<T>::Resize_( Int height, Int width, Int ldim )
 #undef EL_EXTERN
 
 } // namespace El
+
+#endif // ifndef EL_MATRIX_IMPL_HPP

@@ -250,7 +250,8 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
     T* BBuf = B.Buffer();
     const Int BLDim = B.LDim();
     
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     for( Int e=0; e<numEntries; ++e )
         BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = Caster<S,T>::Cast(AValBuf[e]);
 }
@@ -276,7 +277,8 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumLocalEntries();
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     B.Reserve( numEntries );
     for( Int e=0; e<numEntries; ++e )
         B.QueueUpdate( A.Row(e), A.Col(e), Caster<S,T>::Cast(A.Value(e)) );
@@ -367,7 +369,8 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     B.Reserve( mLoc*n );
     for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {
@@ -388,7 +391,8 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     const Int nLoc = A.LocalWidth();
     mpi::Comm comm = A.Grid().Comm();
     B.SetComm( comm );
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     B.Reserve( mLoc*nLoc );
     for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {

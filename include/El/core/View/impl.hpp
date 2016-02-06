@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef EL_VIEW_IMPL_HPP
+#define EL_VIEW_IMPL_HPP
 
 namespace El {
 
@@ -16,7 +18,7 @@ namespace El {
 // -------------------
 
 template<typename T>
-inline void View( Matrix<T>& A, Matrix<T>& B )
+void View( Matrix<T>& A, Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("View"))
     if( B.Locked() )
@@ -27,14 +29,14 @@ inline void View( Matrix<T>& A, Matrix<T>& B )
 }
 
 template<typename T>
-inline void LockedView( Matrix<T>& A, const Matrix<T>& B )
+void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
     DEBUG_ONLY(CSE cse("LockedView"))
     A.LockedAttach( B.Height(), B.Width(), B.LockedBuffer(), B.LDim() );
 }
 
 template<typename T>
-inline Matrix<T> View( Matrix<T>& B )
+Matrix<T> View( Matrix<T>& B )
 {
     Matrix<T> A;
     View( A, B );
@@ -42,7 +44,7 @@ inline Matrix<T> View( Matrix<T>& B )
 }
 
 template<typename T>
-inline Matrix<T> LockedView( const Matrix<T>& B )
+Matrix<T> LockedView( const Matrix<T>& B )
 {
     Matrix<T> A;
     LockedView( A, B );
@@ -53,7 +55,7 @@ inline Matrix<T> LockedView( const Matrix<T>& B )
 // ----------
 
 template<typename T>
-inline void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B )
+void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
       CSE cse("View");
@@ -70,7 +72,7 @@ inline void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 ( ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
     DEBUG_ONLY(
@@ -85,7 +87,7 @@ inline void LockedView
 // Return by value
 // ^^^^^^^^^^^^^^^
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
+DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
 {
     DistMatrix<T,U,V> A(B.Grid());
     View( A, B );
@@ -93,7 +95,7 @@ inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
 }
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
+DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
 {
     DistMatrix<T,U,V> A(B.Grid());
     LockedView( A, B );
@@ -103,7 +105,7 @@ inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
 // BlockMatrix
 // -----------
 template<typename T>
-inline void View
+void View
 ( BlockMatrix<T>& A,
   ElementalMatrix<T>& B )
 {
@@ -124,7 +126,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       BlockMatrix<T>& A,
   const ElementalMatrix<T>& B )
 {
@@ -138,7 +140,7 @@ inline void LockedView
 }
 
 template<typename T>
-inline void View
+void View
 ( ElementalMatrix<T>& A,
   BlockMatrix<T>& B )
 {
@@ -160,7 +162,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       ElementalMatrix<T>& A,
   const BlockMatrix<T>& B )
 {
@@ -179,7 +181,7 @@ inline void LockedView
 // AbstractDistMatrix
 // ------------------
 template<typename T>
-inline void View
+void View
 ( AbstractDistMatrix<T>& A,
   AbstractDistMatrix<T>& B )
 {
@@ -212,7 +214,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       AbstractDistMatrix<T>& A,
   const AbstractDistMatrix<T>& B )
 {
@@ -251,7 +253,7 @@ inline void LockedView
 // -------------------
 
 template<typename T>
-inline void View
+void View
 ( Matrix<T>& A,
   Matrix<T>& B,
   Int i, Int j,
@@ -276,7 +278,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       Matrix<T>& A,
   const Matrix<T>& B,
   Int i, Int j,
@@ -298,7 +300,7 @@ inline void LockedView
 }
 
 template<typename T>
-inline void View
+void View
 ( Matrix<T>& A,
   Matrix<T>& B,
   Range<Int> I, Range<Int> J )
@@ -311,7 +313,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       Matrix<T>& A,
   const Matrix<T>& B,
   Range<Int> I, Range<Int> J )
@@ -327,7 +329,7 @@ inline void LockedView
 // ^^^^^^^^^^^^^^^
 
 template<typename T>
-inline Matrix<T> View( Matrix<T>& B, Int i, Int j, Int height, Int width )
+Matrix<T> View( Matrix<T>& B, Int i, Int j, Int height, Int width )
 {
     Matrix<T> A;
     View( A, B, i, j, height, width );
@@ -335,7 +337,7 @@ inline Matrix<T> View( Matrix<T>& B, Int i, Int j, Int height, Int width )
 }
 
 template<typename T>
-inline Matrix<T> LockedView
+Matrix<T> LockedView
 ( const Matrix<T>& B, Int i, Int j, Int height, Int width )
 {
     Matrix<T> A;
@@ -344,7 +346,7 @@ inline Matrix<T> LockedView
 }
 
 template<typename T>
-inline Matrix<T> View
+Matrix<T> View
 ( Matrix<T>& B, Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
@@ -355,7 +357,7 @@ inline Matrix<T> View
 }
 
 template<typename T>
-inline Matrix<T> LockedView
+Matrix<T> LockedView
 ( const Matrix<T>& B, Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
@@ -369,7 +371,7 @@ inline Matrix<T> LockedView
 // ---------------
 
 template<typename T>
-inline void View
+void View
 ( ElementalMatrix<T>& A,
   ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
@@ -408,7 +410,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       ElementalMatrix<T>& A,
   const ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
@@ -436,7 +438,7 @@ inline void LockedView
 }
 
 template<typename T>
-inline void View
+void View
 ( ElementalMatrix<T>& A,
   ElementalMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
@@ -449,7 +451,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       ElementalMatrix<T>& A,
   const ElementalMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
@@ -465,7 +467,7 @@ inline void LockedView
 // ^^^^^^^^^^^^^^^
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V> View
+DistMatrix<T,U,V> View
 ( DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
 {
     DistMatrix<T,U,V> A(B.Grid());
@@ -474,7 +476,7 @@ inline DistMatrix<T,U,V> View
 }
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V> LockedView
+DistMatrix<T,U,V> LockedView
 ( const DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
 {
     DistMatrix<T,U,V> A(B.Grid());
@@ -483,7 +485,7 @@ inline DistMatrix<T,U,V> LockedView
 }
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V> View
+DistMatrix<T,U,V> View
 ( DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
@@ -494,7 +496,7 @@ inline DistMatrix<T,U,V> View
 }
  
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V> LockedView
+DistMatrix<T,U,V> LockedView
 ( const DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
@@ -508,7 +510,7 @@ inline DistMatrix<T,U,V> LockedView
 // -----------
 
 template<typename T>
-inline void View
+void View
 ( BlockMatrix<T>& A,
   BlockMatrix<T>& B,
   Int i,
@@ -538,7 +540,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       BlockMatrix<T>& A,
   const BlockMatrix<T>& B,
   Int i, Int j, Int height, Int width )
@@ -557,7 +559,7 @@ inline void LockedView
 }
 
 template<typename T>
-inline void View
+void View
 ( BlockMatrix<T>& A,
   BlockMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
@@ -570,7 +572,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       BlockMatrix<T>& A,
   const BlockMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
@@ -586,7 +588,7 @@ inline void LockedView
 // ^^^^^^^^^^^^^^^
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK> View
+DistMatrix<T,U,V,BLOCK> View
 ( DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width )
 {
     DistMatrix<T,U,V,BLOCK> A(B.Grid());
@@ -595,7 +597,7 @@ inline DistMatrix<T,U,V,BLOCK> View
 }
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK> LockedView
+DistMatrix<T,U,V,BLOCK> LockedView
 ( const DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width )
 {
     DistMatrix<T,U,V,BLOCK> A(B.Grid());
@@ -604,7 +606,7 @@ inline DistMatrix<T,U,V,BLOCK> LockedView
 }
 
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK> View
+DistMatrix<T,U,V,BLOCK> View
 ( DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
@@ -615,7 +617,7 @@ inline DistMatrix<T,U,V,BLOCK> View
 }
  
 template<typename T,Dist U,Dist V>
-inline DistMatrix<T,U,V,BLOCK> LockedView
+DistMatrix<T,U,V,BLOCK> LockedView
 ( const DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
@@ -628,7 +630,7 @@ inline DistMatrix<T,U,V,BLOCK> LockedView
 // AbstractDistMatrix
 // ------------------
 template<typename T>
-inline void View
+void View
 ( AbstractDistMatrix<T>& A,
   AbstractDistMatrix<T>& B,
   Int i, Int j, Int height, Int width )
@@ -662,7 +664,7 @@ inline void View
 }
 
 template<typename T>
-inline void View
+void LockedView
 (       AbstractDistMatrix<T>& A,
   const AbstractDistMatrix<T>& B,
   Int i, Int j, Int height, Int width )
@@ -673,30 +675,30 @@ inline void View
     {
         auto& ACast = static_cast<ElementalMatrix<T>&>(A);
         auto& BCast = static_cast<const ElementalMatrix<T>&>(B);
-        View( ACast, BCast, i, j, height, width );
+        LockedView( ACast, BCast, i, j, height, width );
     } 
     else if( AWrap == ELEMENT && BWrap == BLOCK )
     {
         auto& ACast = static_cast<ElementalMatrix<T>&>(A);
         auto& BCast = static_cast<const BlockMatrix<T>&>(B);
-        View( ACast, BCast, i, j, height, width );
+        LockedView( ACast, BCast, i, j, height, width );
     }
     else if( AWrap == BLOCK && BWrap == ELEMENT )
     {
         auto& ACast = static_cast<BlockMatrix<T>&>(A);
         auto& BCast = static_cast<const ElementalMatrix<T>&>(B);
-        View( ACast, BCast, i, j, height, width );
+        LockedView( ACast, BCast, i, j, height, width );
     }
     else
     {
         auto& ACast = static_cast<BlockMatrix<T>&>(A);
         auto& BCast = static_cast<const BlockMatrix<T>&>(B);
-        View( ACast, BCast, i, j, height, width );
+        LockedView( ACast, BCast, i, j, height, width );
     }
 }
 
 template<typename T>
-inline void View
+void View
 ( AbstractDistMatrix<T>& A,
   AbstractDistMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
@@ -709,7 +711,7 @@ inline void View
 }
 
 template<typename T>
-inline void LockedView
+void LockedView
 (       AbstractDistMatrix<T>& A,
   const AbstractDistMatrix<T>& B, 
   Range<Int> I, Range<Int> J )
@@ -831,7 +833,7 @@ inline void LockedView
   ( AbstractDistMatrix<T>& A, \
     AbstractDistMatrix<T>& B, \
     Int i, Int j, Int height, Int width ); \
-  EL_EXTERN template void View \
+  EL_EXTERN template void LockedView \
   (       AbstractDistMatrix<T>& A, \
     const AbstractDistMatrix<T>& B, \
     Int i, Int j, Int height, Int width ); \
@@ -854,3 +856,5 @@ inline void LockedView
 #undef EL_EXTERN
 
 } // namespace El
+
+#endif // ifndef EL_VIEW_IMPL_HPP

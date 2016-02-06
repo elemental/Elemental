@@ -64,12 +64,12 @@
 
 namespace El {
 
+namespace lll {
+
 static Timer stepTimer, houseStepTimer,
        houseViewTimer, houseReflectTimer,
        applyHouseTimer, roundTimer,
        formSInvTimer;
-
-namespace lll {
 
 // Return the achieved delta and eta reduction properties
 template<typename F>
