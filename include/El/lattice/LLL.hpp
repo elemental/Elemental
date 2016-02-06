@@ -67,7 +67,8 @@ namespace El {
 static Timer stepTimer, houseStepTimer,
        houseViewTimer, houseReflectTimer,
        applyHouseTimer, roundTimer,
-       formSInvTimer, formQRTimer;
+       formSInvTimer, formQRTimer,
+	   applyGivensTimer;
 
 namespace lll {
 
