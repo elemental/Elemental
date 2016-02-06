@@ -17,7 +17,6 @@
 #include <El/blas_like/level1/DiagonalScaleTrapezoid.hpp>
 #include <El/blas_like/level1/DiagonalSolve.hpp>
 #include <El/blas_like/level1/Dot.hpp>
-#include <El/blas_like/level1/Dotu.hpp>
 #include <El/blas_like/level1/EntrywiseFill.hpp>
 #include <El/blas_like/level1/EntrywiseMap.hpp>
 #include <El/blas_like/level1/FillDiagonal.hpp>
@@ -40,5 +39,6 @@
 #include <El/blas_like/level1/UpdateDiagonal.hpp>
 #include <El/blas_like/level1/UpdateMappedDiagonal.hpp>
 #include <El/blas_like/level1/UpdateSubmatrix.hpp>
+#include <El/blas_like/level1/Zero.hpp>
 
 #endif // ifndef EL_BLAS1_IMPL_HPP
