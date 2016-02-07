@@ -584,8 +584,7 @@ void Multiply
     Y *= beta;
 
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
-
+    const auto& meta = A.LockedDistGraph().multMeta;
     // Convert the sizes and offsets to be compatible with the current width
     const Int b = X.Width();
     vector<int> recvSizes=meta.recvSizes,
