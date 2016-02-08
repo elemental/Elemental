@@ -189,6 +189,7 @@ template<typename Real>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   Complex<Real> alpha,
+  const Matrix<Real>&A,
   const Matrix<Complex<Real>>& shifts,
         Matrix<Real>& BReal, Matrix<Real>& BImag );
 template<typename F>

@@ -1315,7 +1315,7 @@ void Mehrotra
         // ------------------------
         JOrig = JStatic;
         JOrig.FreezeSparsity();
-        JOrig.multMeta = JStatic.multMeta;
+        JOrig.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
         FinishKKT( m, n, s, z, JOrig );
         KKTRHS( rc, rb, rh, rmu, z, d );
 
@@ -1325,7 +1325,7 @@ void Mehrotra
         {
             J = JOrig;
             J.FreezeSparsity();
-            J.multMeta = JStatic.multMeta;
+            J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
             UpdateDiagonal( J, Real(1), regTmp );
 
             if( commRank == 0 && ctrl.time )
