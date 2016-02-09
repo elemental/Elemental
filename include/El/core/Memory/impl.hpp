@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+
+namespace El {
 
 namespace {
 
@@ -24,8 +25,6 @@ static void Delete( G*& ptr )
 }
 
 } // anonymous namespace
-
-namespace El {
 
 template<typename G>
 Memory<G>::Memory()
@@ -116,13 +115,20 @@ void Memory<G>::Empty()
     size_ = 0;
 }
 
-#define PROTO(T) template class Memory<T>;
+#ifdef EL_INSTANTIATE_CORE
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
 
+#define PROTO(T) EL_EXTERN template class Memory<T>;
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
+
+#undef EL_EXTERN
 
 } // namespace El

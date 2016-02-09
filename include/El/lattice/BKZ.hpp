@@ -13,6 +13,8 @@ namespace El {
 
 namespace bkz {
 
+static Timer enumTimer, bkzTimer;
+
 template<typename F>
 bool TrivialCoordinates( const Matrix<F>& v )
 {
@@ -248,6 +250,12 @@ BKZInfo<Base<F>> BKZWithQ
         Output("Warning: Computation of U not yet supported for recursive BKZ");
     }
 
+    if( ctrl.time )
+    {
+        bkz::enumTimer.Reset();
+        bkz::bkzTimer.Reset();
+    }
+
     // TODO: Add optional logging
 
     if( ctrl.blocksize < 2 )
@@ -260,7 +268,11 @@ BKZInfo<Base<F>> BKZWithQ
             lllCtrl.jumpstart = true;
             lllCtrl.startCol = 0;
         }
+        if( ctrl.time )
+            bkz::bkzTimer.Start();
         auto lllInfo = LLLWithQ( B, U, QR, t, d, lllCtrl );
+        if( ctrl.time )
+            Output("Initial LLL time: ",bkz::bkzTimer.Stop()," seconds");
         BKZInfo<Real> info;
         info.delta = lllInfo.delta;
         info.eta = lllInfo.eta;
@@ -291,22 +303,29 @@ BKZInfo<Base<F>> BKZWithQ
             lllCtrl.jumpstart = true;
             lllCtrl.startCol = 0;
         }
+        if( ctrl.time )
+            bkz::bkzTimer.Start();
         lllInfo = LLLWithQ( B, U, QR, t, d, lllCtrl );
         if( ctrl.progress )
             Output("Initial LLL applied ",lllInfo.numSwaps," swaps");
+        if( ctrl.time )
+            Output("Initial LLL time: ",bkz::bkzTimer.Stop()," seconds");
         numSwaps = lllInfo.numSwaps;
     }
     // The zero columns should be at the end of B
     const Int rank = lllInfo.rank;
 
-    ofstream failedEnumFile, streakSizesFile, nontrivialCoordsFile;
+    ofstream failedEnumFile, streakSizesFile,
+             normsFile, projNormsFile,
+             nontrivialCoordsFile;
     if( ctrl.logFailedEnums )
-    {
-        Output("Opening failedEnumFile");
         failedEnumFile.open( ctrl.failedEnumFile.c_str() );
-    }
     if( ctrl.logStreakSizes )
         streakSizesFile.open( ctrl.streakSizesFile.c_str() );
+    if( ctrl.logNorms )
+        normsFile.open( ctrl.normsFile.c_str() );
+    if( ctrl.logProjNorms )
+        projNormsFile.open( ctrl.projNormsFile.c_str() );
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
@@ -318,13 +337,34 @@ BKZInfo<Base<F>> BKZWithQ
         j = Mod(j+1,rank);
         const Int k = Min(j+ctrl.blocksize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
+        if( ctrl.checkpoint )
+          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        if( j == 0 )
+        {
+            if( ctrl.logNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    normsFile << FrobeniusNorm(B(ALL,IR(j))) << " ";    
+                normsFile << endl;
+            }
+            if( ctrl.logProjNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    projNormsFile << QR.Get(j,j) << " ";    
+                projNormsFile << endl;
+            }
+        }
         
         Matrix<F> v;
         auto BEnum = B( ALL, IR(j,k+1) );
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
+        if( ctrl.time )
+            bkz::enumTimer.Start();
         const Real minProjNorm =
           ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
+        if( ctrl.time )
+            Output("Enum time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
 
         const bool keepMin =
@@ -414,6 +454,8 @@ BKZInfo<Base<F>> BKZWithQ
         auto QRSub = QR( ALL, subInd );
         auto tSub = t( subInd, ALL );
         auto dSub = d( subInd, ALL );
+        if( ctrl.time )
+            bkz::bkzTimer.Start();
         if( ctrl.subBKZ )
         {
             BKZCtrl<Real> subCtrl( ctrl );
@@ -429,6 +471,9 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;
             subCtrl.logNontrivialCoords = false;
+            subCtrl.logNorms = false;
+            subCtrl.logProjNorms = false;
+            subCtrl.checkpoint = false;
             subCtrl.lllCtrl.jumpstart = false;
             subCtrl.lllCtrl.recursive = false;
             if( ctrl.progress )
@@ -454,6 +499,8 @@ BKZInfo<Base<F>> BKZWithQ
                 changed = true;
             numSwaps += lllInfo.numSwaps;
         }
+        if( ctrl.time )
+            Output("BKZ time: ",bkz::bkzTimer.Stop()," seconds");
         if( !keepMin )
         {
             if( changed )
@@ -493,8 +540,18 @@ BKZInfo<Base<F>> BKZWithQ
         failedEnumFile.close();
     if( ctrl.logStreakSizes )
         streakSizesFile.close();
+    if( ctrl.logNorms )
+        normsFile.close();
+    if( ctrl.logProjNorms )
+        projNormsFile.close();
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.close();
+
+    if( ctrl.time )
+    {
+        Output("Total enumeration time: ",bkz::enumTimer.Total()," seconds");
+        Output("Total sub-BKZ time:     ",bkz::bkzTimer.Total()," seconds");
+    }
 
     BKZInfo<Real> info;
     info.delta = lllInfo.delta;
@@ -726,6 +783,12 @@ BKZInfo<Base<F>> BKZWithQ
         !ctrl.jumpstart )
         return RecursiveBKZWithQ( B, QR, t, d, ctrl );
 
+    if( ctrl.time )
+    {
+        bkz::enumTimer.Reset();
+        bkz::bkzTimer.Reset();
+    }
+
     // TODO: Add optional logging
 
     if( ctrl.blocksize < 2 )
@@ -738,7 +801,11 @@ BKZInfo<Base<F>> BKZWithQ
             lllCtrl.jumpstart = true;
             lllCtrl.startCol = 0;
         }
+        if( ctrl.time )
+            bkz::bkzTimer.Start();
         auto lllInfo = LLLWithQ( B, QR, t, d, lllCtrl );
+        if( ctrl.time )
+            Output("Initial LLL time: ",bkz::bkzTimer.Stop()," seconds");
         BKZInfo<Real> info;
         info.delta = lllInfo.delta;
         info.eta = lllInfo.eta;
@@ -768,7 +835,11 @@ BKZInfo<Base<F>> BKZWithQ
             lllCtrl.jumpstart = true;
             lllCtrl.startCol = 0;
         }
+        if( ctrl.time )
+            bkz::bkzTimer.Start();
         lllInfo = LLLWithQ( B, QR, t, d, lllCtrl );
+        if( ctrl.time )
+            Output("Initial LLL time: ",bkz::bkzTimer.Stop()," seconds");
         if( ctrl.progress )
             Output("Initial LLL applied ",lllInfo.numSwaps," swaps");
         numSwaps = lllInfo.numSwaps;
@@ -776,14 +847,17 @@ BKZInfo<Base<F>> BKZWithQ
     // The zero columns should be at the end of B
     const Int rank = lllInfo.rank;
 
-    ofstream failedEnumFile, streakSizesFile, nontrivialCoordsFile;
+    ofstream failedEnumFile, streakSizesFile,
+             normsFile, projNormsFile,
+             nontrivialCoordsFile;
     if( ctrl.logFailedEnums )
-    {
-        Output("Opening failedEnumFile");
         failedEnumFile.open( ctrl.failedEnumFile.c_str() );
-    }
     if( ctrl.logStreakSizes )
         streakSizesFile.open( ctrl.streakSizesFile.c_str() );
+    if( ctrl.logNorms )
+        normsFile.open( ctrl.normsFile.c_str() );
+    if( ctrl.logProjNorms )
+        projNormsFile.open( ctrl.projNormsFile.c_str() );
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
@@ -795,13 +869,34 @@ BKZInfo<Base<F>> BKZWithQ
         j = Mod(j+1,rank);
         const Int k = Min(j+ctrl.blocksize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
+        if( ctrl.checkpoint )
+          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        if( j == 0 )
+        {
+            if( ctrl.logNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    normsFile << FrobeniusNorm(B(ALL,IR(j))) << " ";    
+                normsFile << endl;
+            }
+            if( ctrl.logProjNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    projNormsFile << QR.Get(j,j) << " ";             
+                projNormsFile << endl;
+            }
+        }
         
         Matrix<F> v;
         auto BEnum = B( ALL, IR(j,k+1) );
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
+        if( ctrl.time )
+            bkz::enumTimer.Start();
         const Real minProjNorm =
           ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
+        if( ctrl.time )
+            Output("Enum time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
 
         const bool keepMin =
@@ -885,6 +980,8 @@ BKZInfo<Base<F>> BKZWithQ
         auto QRSub = QR( ALL, subInd );
         auto tSub = t( subInd, ALL );
         auto dSub = d( subInd, ALL );
+        if( ctrl.time )
+            bkz::bkzTimer.Start();
         if( ctrl.subBKZ )
         {
             BKZCtrl<Real> subCtrl( ctrl );
@@ -900,6 +997,9 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;
             subCtrl.logNontrivialCoords = false;
+            subCtrl.logNorms = false;
+            subCtrl.logProjNorms = false;
+            subCtrl.checkpoint = false;
             subCtrl.lllCtrl.jumpstart = false;
             subCtrl.lllCtrl.recursive = false;
             if( ctrl.progress )
@@ -924,6 +1024,8 @@ BKZInfo<Base<F>> BKZWithQ
                 changed = true;
             numSwaps += lllInfo.numSwaps;
         }
+        if( ctrl.time )
+            Output("BKZ time: ",bkz::bkzTimer.Stop()," seconds");
         if( !keepMin )
         {
             if( changed )
@@ -962,6 +1064,16 @@ BKZInfo<Base<F>> BKZWithQ
         streakSizesFile.close();
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.close();
+    if( ctrl.logNorms )
+        normsFile.close();
+    if( ctrl.logProjNorms )
+        projNormsFile.close();
+
+    if( ctrl.time )
+    {
+        Output("Total enumeration time: ",bkz::enumTimer.Total()," seconds");
+        Output("Total sub-BKZ time:     ",bkz::bkzTimer.Total()," seconds");
+    }
 
     BKZInfo<Real> info;
     info.delta = lllInfo.delta;

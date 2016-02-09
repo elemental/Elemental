@@ -64,12 +64,12 @@
 
 namespace El {
 
+namespace lll {
+
 static Timer stepTimer, houseStepTimer,
        houseViewTimer, houseReflectTimer,
        applyHouseTimer, roundTimer,
        formSInvTimer;
-
-namespace lll {
 
 // Return the achieved delta and eta reduction properties
 template<typename F>
@@ -197,7 +197,6 @@ LLLInfo<Base<F>> LLLWithQ
         LogicError
         ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
          Sqrt(ctrl.delta),")");
-
 
     if( ctrl.jumpstart )
     {

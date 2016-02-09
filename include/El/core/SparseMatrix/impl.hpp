@@ -8,7 +8,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp" 
+#ifndef EL_SPARSEMATRIX_IMPL_HPP
+#define EL_SPARSEMATRIX_IMPL_HPP
+
 namespace El {
 
 // Constructors and destructors
@@ -475,8 +477,13 @@ template<typename T>
 void SparseMatrix<T>::AssertConsistent() const
 { graph_.AssertConsistent(); }
 
-#define PROTO(T) template class SparseMatrix<T>;
+#ifdef EL_INSTANTIATE_CORE
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
 
+#define PROTO(T) EL_EXTERN template class SparseMatrix<T>;
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
@@ -484,4 +491,8 @@ void SparseMatrix<T>::AssertConsistent() const
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
+#undef EL_EXTERN
+
 } // namespace El
+
+#endif // ifndef EL_SPARSEMATRIX_IMPL_HPP

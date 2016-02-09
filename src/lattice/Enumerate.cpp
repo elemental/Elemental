@@ -289,13 +289,12 @@ Base<F> ShortVectorEnumeration
 #endif
     // TODO: Arbitrary-precision drop?
 
-    auto b0 = B( ALL, IR(0) );
-    const Real b0Norm = FrobeniusNorm( b0 );
-    if( b0Norm < normUpperBound )
+    const Real b0ProjNorm = R.Get(0,0);
+    if( b0ProjNorm < normUpperBound )
     {
         Zeros( v, n, 1 );
         v.Set( 0, 0, F(1) );
-        return b0Norm; 
+        return b0ProjNorm; 
     }
 
     Timer timer;

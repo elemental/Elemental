@@ -19,7 +19,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
 
 namespace El {
 
@@ -832,7 +831,8 @@ void DistSparseMatrix<T>::MappedSources
 template<typename T>
 void DistSparseMatrix<T>::MappedTargets
 ( const DistMap& reordering, 
-  vector<Int>& mappedTargets, vector<Int>& colOffs ) const
+  vector<Int>& mappedTargets,
+  vector<Int>& colOffs ) const
 {
     DEBUG_ONLY(CSE cse("DistSparseMatrix::MappedTargets"))
     if( mappedTargets.size() != 0 && colOffs.size() != 0 ) 
@@ -887,13 +887,20 @@ template<typename T>
 bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 { return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
-#define PROTO(T) template class DistSparseMatrix<T>;
+#ifdef EL_INSTANTIATE_CORE
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
 
+#define PROTO(T) EL_EXTERN template class DistSparseMatrix<T>;
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
+
+#undef EL_EXTERN
 
 } // namespace El
