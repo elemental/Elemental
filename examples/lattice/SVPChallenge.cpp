@@ -50,7 +50,7 @@ void Enrich( Matrix<F>& B, const Matrix<F>& v )
     Matrix<F> WProd;
     Identity( WProd, n, n );
     Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
-    const BigFloat WErr = FrobeniusNorm( WProd );
+    const F WErr = FrobeniusNorm( WProd );
     if( WErr != F(0) )
     {
         Print( W, "W" );
