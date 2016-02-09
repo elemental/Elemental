@@ -18,6 +18,50 @@ typedef double F;
 #endif
 typedef Base<F> Real;
 
+// Push B v into the first column of B via a unimodular transformation
+template<typename F>
+void Enrich( Matrix<F>& B, const Matrix<F>& v )
+{
+    const Int n = B.Width();
+
+    Matrix<F> vTrans, W, Rv;
+    Transpose( v, vTrans );
+    LLL( vTrans, W, Rv );
+    if( vTrans.Get(0,0) == F(1) )
+    {
+        // Do nothing 
+    }
+    else if( vTrans.Get(0,0) == F(-1) )
+    {
+        auto w0 = W( ALL, IR(0) );
+        w0 *= F(-1);
+    }
+    else
+    {
+        Print( v, "v" );
+        Print( vTrans, "vTrans" );
+        Print( W, "W" );
+        LogicError("Invalid result of LLL on enumeration coefficients");
+    }
+    Matrix<F> WInv( W );
+    Inverse( WInv );
+    Round( WInv );
+    // Ensure that we have computed the exact inverse
+    Matrix<F> WProd;
+    Identity( WProd, n, n );
+    Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
+    const BigFloat WErr = FrobeniusNorm( WProd );
+    if( WErr != F(0) )
+    {
+        Print( W, "W" );
+        Print( WInv, "invW" );
+        LogicError("Did not compute exact inverse of W");
+    }
+
+    auto BCopy( B );
+    Gemm( NORMAL, TRANSPOSE, F(1), BCopy, WInv, B );
+}
+
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -26,6 +70,7 @@ int main( int argc, char* argv[] )
     {
         const string inputBasisFile =
           Input("--inputBasisFile","input basis file",string("SVPChallenge40.txt"));
+        const bool trans = Input("--transpose","transpose input?",true);
         const string outputBasisFile = 
           Input("--outputBasisFile","output basis file",string("BKZ"));
         const string shortestVecFile = 
@@ -46,6 +91,8 @@ int main( int argc, char* argv[] )
           Input("--recursiveBKZ","recursive BKZ?",false);
         const Int cutoff = Input("--cutoff","recursive cutoff",10);
         const bool earlyAbort = Input("--earlyAbort","early abort BKZ?",false);
+        const Int numEnumsBeforeAbort =
+          Input("--numEnumsBeforeAbort","num enums before early aborting",1000);
         const bool subBKZ =
           Input("--subBKZ","use BKZ w/ lower blocksize for subproblems?",true);
         const bool subEarlyAbort =
@@ -63,6 +110,9 @@ int main( int argc, char* argv[] )
           Input("--logStreakSizes","log enum streak sizes in BKZ?",false);
         const bool logNontrivialCoords =
           Input("--logNontrivialCoords","log nontrivial enum coords?",false);
+        const bool logNorms = Input("--logNorms","log norms of B?",true);
+        const bool logProjNorms =
+          Input("--logProjNorms","log proj norms of B?",true);
         const bool checkpoint =
           Input("--checkpoint","checkpoint each tour?",true);
         const Real targetRatio =
@@ -72,7 +122,10 @@ int main( int argc, char* argv[] )
         const bool probEnum =
           Input("--probEnum","probabalistic enumeration *after* BKZ?",true);
         const bool fullEnum = Input("--fullEnum","SVP via full enum?",false);
-        const bool trans = Input("--transpose","transpose input?",true);
+        const bool enumOnSubset = Input("--enumOnSubset","enum on subset?",false);
+        const Int subsetStart = Input("--subsetStart","start of subset",0);
+        const Int subsetSize = Input("--subsetSize","num cols in subset",60);
+        const bool doubleCycle = Input("--doubleCycle","cycle last vectors?",false);
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec =
           Input("--prec","MPFR precision",mpfr_prec_t(1024));
@@ -93,6 +146,8 @@ int main( int argc, char* argv[] )
         }
         else
             Read( B, inputBasisFile );
+        const Int m = B.Height();
+        const Int n = B.Width();
         const Real BOrigOne = OneNorm( B ); 
         Output("|| B_orig ||_1 = ",BOrigOne);
         if( print )
@@ -105,12 +160,15 @@ int main( int argc, char* argv[] )
         ctrl.recursive = recursiveBKZ;
         ctrl.enumCtrl.probabalistic = probBKZEnum;
         ctrl.earlyAbort = earlyAbort;
+        ctrl.numEnumsBeforeAbort = numEnumsBeforeAbort;
         ctrl.subBKZ = subBKZ;
         ctrl.subEarlyAbort = subEarlyAbort;
         ctrl.logFailedEnums = logFailedEnums;
         ctrl.logStreakSizes = logStreakSizes;
         ctrl.logNontrivialCoords = logNontrivialCoords;
-        ctrl.checkpointEachTour = checkpoint;
+        ctrl.logNorms = logNorms;
+        ctrl.logProjNorms = logProjNorms;
+        ctrl.checkpoint = checkpoint;
         ctrl.lllCtrl.delta = delta;
         ctrl.lllCtrl.eta = eta;
         ctrl.lllCtrl.variant = static_cast<LLLVariant>(varInt);
@@ -165,39 +223,96 @@ int main( int argc, char* argv[] )
             ("SVP Challenge NOT solved via BKZ: || b_0 ||_2=",b0Norm,
              " > targetRatio*GH(L)=",challenge);
 
-        if( !succeeded || fullEnum )
+        if( !succeeded || fullEnum || (enumOnSubset && subsetStart != 0) )
         {
-            // TODO: Provide support for enumerating over the first, say,
-            //       2/3 of the vectors
-            Matrix<F> v;
+            const Int start = ( enumOnSubset ? subsetStart : 0 ); 
+            const Int numCols = ( enumOnSubset ? subsetSize : n );
+            const Range<Int> subInd( start, start+numCols );
+            auto BSub = B( ALL, subInd );
+            auto RSub = R( subInd, subInd );
+
+            const Real target = ( start == 0 ? challenge : RSub.Get(0,0) );
+
             Timer timer;
-            timer.Start();
-            Real result;
-            EnumCtrl<Real> enumCtrl;
-            enumCtrl.probabalistic = probEnum;
-            if( fullEnum )
-              result = 
-                ShortestVectorEnumeration( B, R, challenge, v, enumCtrl );
-            else
-              result = 
-                ShortVectorEnumeration( B, R, challenge, v, enumCtrl );
-            if( result < challenge )
+            if( enumOnSubset && doubleCycle && subsetSize >= 2 )
             {
-                Output("Enumeration: ",timer.Stop()," seconds");
-                Print( B, "B" );
-                Print( v, "v" );
-                const Int m = B.Height();
-                Matrix<Real> x;
-                Zeros( x, m, 1 );
-                Gemv( NORMAL, Real(1), B, v, Real(0), x );
-                Print( x, "x" );
-                const Real xNorm = FrobeniusNorm( x );
-                Output("|| x ||_2 = ",xNorm);
-                Output("Claimed || x ||_2 = ",result);
-                Write( x, shortestVecFile, ASCII, "x" );
+                Matrix<double> v;
+                EnumCtrl<double> enumCtrl;
+                enumCtrl.probabalistic = probEnum;
+                enumCtrl.numTrials = 1;
+
+                Matrix<double> BSubSwap;
+                Zeros( BSubSwap, m, subsetSize );
+                auto BL = B( ALL, IR(start,start+subsetSize-2) );
+                auto BSubSwapL = BSubSwap( ALL, IR(0,subsetSize-2) );
+                Copy( BL, BSubSwapL );
+                for( Int j=start+subsetSize-2; j<n-1; ++j )
+                {
+                    auto bj = B( ALL, IR(j) ); 
+                    auto bSubSwapj = BSubSwap( ALL, IR(subsetSize-2) );
+                    Copy( bj, bSubSwapj );
+                    for( Int k=j+1; k<n-1; ++k )
+                    {
+                        auto bk = B( ALL, IR(k) );
+                        auto bSubSwapk = BSubSwap( ALL, IR(subsetSize-1) ); 
+                        Copy( bk, bSubSwapk );
+                        Matrix<double> RSubSwap( BSubSwap );
+                        Output("Cycling with j=",j,", k=",k);
+                        qr::ExplicitTriang( RSubSwap );
+                        timer.Start();
+                        Real result =
+                          ShortestVectorEnumeration
+                          ( BSubSwap, RSubSwap, double(target), v, enumCtrl );
+                        Output("Enumeration: ",timer.Stop()," seconds");
+                        if( result < RSubSwap.Get(0,0)-double(0.001) )
+                        {
+                            Print( BSubSwap, "BSubSwap" );
+                            Print( v, "v" );
+                            Matrix<double> x;
+                            Zeros( x, m, 1 );
+                            Gemv( NORMAL, 1., BSubSwap, v, 0., x );
+                            Print( x, "x" );
+                            const double xNorm = FrobeniusNorm( x );
+                            Output("|| x ||_2 = ",xNorm);
+                            Output("Claimed || x ||_2 = ",result);
+                            Write( x, shortestVecFile, ASCII, "x" );
+                        }
+                    }
+                }
             }
             else
-                Output("Enumeration failed after ",timer.Stop()," seconds");
+            {
+                Matrix<F> v;
+                EnumCtrl<Real> enumCtrl;
+                enumCtrl.probabalistic = probEnum;
+                timer.Start();
+                Real result;
+                if( fullEnum )
+                  result = 
+                    ShortestVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+                else
+                  result = 
+                    ShortVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+                Output("Enumeration: ",timer.Stop()," seconds");
+                if( result < target )
+                {
+                    Print( BSub, "BSub" );
+                    Print( v, "v" );
+                    Matrix<Real> x;
+                    Zeros( x, m, 1 );
+                    Gemv( NORMAL, Real(1), BSub, v, Real(0), x );
+                    Print( x, "x" );
+                    const Real xNorm = FrobeniusNorm( x );
+                    Output("|| x ||_2 = ",xNorm);
+                    Output("Claimed || x ||_2 = ",result);
+                    Write( x, shortestVecFile, ASCII, "x" );
+
+                    Enrich( BSub, v );
+                    Print( B, "BNew" );
+                }
+                else
+                    Output("Enumeration failed after ",timer.Stop()," seconds");
+            }
         }
     }
     catch( std::exception& e ) { ReportException(e); }

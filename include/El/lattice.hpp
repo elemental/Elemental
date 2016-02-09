@@ -489,7 +489,13 @@ struct BKZCtrl
     bool logNontrivialCoords=false;
     std::string nontrivialCoordsFile="BKZNontrivialCoords.txt";
 
-    bool checkpointEachTour=false;
+    bool logNorms=false;
+    std::string normsFile="BKZNorms.txt";
+
+    bool logProjNorms=false;
+    std::string projNormsFile="BKZProjNorms.txt";
+
+    bool checkpoint=false;
     FileFormat checkpointFormat=ASCII;
     std::string checkpointFileBase="BKZCheckpoint";
 
@@ -520,10 +526,14 @@ struct BKZCtrl
         logFailedEnums = ctrl.logFailedEnums;
         logStreakSizes = ctrl.logStreakSizes;
         logNontrivialCoords = ctrl.logNontrivialCoords;
-        checkpointEachTour = ctrl.checkpointEachTour;
+        logNorms = ctrl.logNorms;
+        logProjNorms = ctrl.logProjNorms;
+        checkpoint = ctrl.checkpoint;
         failedEnumFile = ctrl.failedEnumFile;
         streakSizesFile = ctrl.streakSizesFile;
         nontrivialCoordsFile = ctrl.nontrivialCoordsFile;
+        normsFile = ctrl.normsFile;
+        projNormsFile = ctrl.projNormsFile;
         checkpointFileBase = ctrl.checkpointFileBase;
         checkpointFormat = ctrl.checkpointFormat;
 

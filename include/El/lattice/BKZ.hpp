@@ -315,14 +315,17 @@ BKZInfo<Base<F>> BKZWithQ
     // The zero columns should be at the end of B
     const Int rank = lllInfo.rank;
 
-    ofstream failedEnumFile, streakSizesFile, nontrivialCoordsFile;
+    ofstream failedEnumFile, streakSizesFile,
+             normsFile, projNormsFile,
+             nontrivialCoordsFile;
     if( ctrl.logFailedEnums )
-    {
-        Output("Opening failedEnumFile");
         failedEnumFile.open( ctrl.failedEnumFile.c_str() );
-    }
     if( ctrl.logStreakSizes )
         streakSizesFile.open( ctrl.streakSizesFile.c_str() );
+    if( ctrl.logNorms )
+        normsFile.open( ctrl.normsFile.c_str() );
+    if( ctrl.logProjNorms )
+        projNormsFile.open( ctrl.projNormsFile.c_str() );
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
@@ -334,8 +337,23 @@ BKZInfo<Base<F>> BKZWithQ
         j = Mod(j+1,rank);
         const Int k = Min(j+ctrl.blocksize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
-        if( j == 0 && ctrl.checkpointEachTour )
-            Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        if( ctrl.checkpoint )
+          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        if( j == 0 )
+        {
+            if( ctrl.logNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    normsFile << FrobeniusNorm(B(ALL,IR(j))) << " ";    
+                normsFile << endl;
+            }
+            if( ctrl.logProjNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    projNormsFile << QR.Get(j,j) << " ";    
+                projNormsFile << endl;
+            }
+        }
         
         Matrix<F> v;
         auto BEnum = B( ALL, IR(j,k+1) );
@@ -453,7 +471,9 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;
             subCtrl.logNontrivialCoords = false;
-            subCtrl.checkpointEachTour = false;
+            subCtrl.logNorms = false;
+            subCtrl.logProjNorms = false;
+            subCtrl.checkpoint = false;
             subCtrl.lllCtrl.jumpstart = false;
             subCtrl.lllCtrl.recursive = false;
             if( ctrl.progress )
@@ -520,6 +540,10 @@ BKZInfo<Base<F>> BKZWithQ
         failedEnumFile.close();
     if( ctrl.logStreakSizes )
         streakSizesFile.close();
+    if( ctrl.logNorms )
+        normsFile.close();
+    if( ctrl.logProjNorms )
+        projNormsFile.close();
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.close();
 
@@ -823,14 +847,17 @@ BKZInfo<Base<F>> BKZWithQ
     // The zero columns should be at the end of B
     const Int rank = lllInfo.rank;
 
-    ofstream failedEnumFile, streakSizesFile, nontrivialCoordsFile;
+    ofstream failedEnumFile, streakSizesFile,
+             normsFile, projNormsFile,
+             nontrivialCoordsFile;
     if( ctrl.logFailedEnums )
-    {
-        Output("Opening failedEnumFile");
         failedEnumFile.open( ctrl.failedEnumFile.c_str() );
-    }
     if( ctrl.logStreakSizes )
         streakSizesFile.open( ctrl.streakSizesFile.c_str() );
+    if( ctrl.logNorms )
+        normsFile.open( ctrl.normsFile.c_str() );
+    if( ctrl.logProjNorms )
+        projNormsFile.open( ctrl.projNormsFile.c_str() );
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
@@ -842,8 +869,23 @@ BKZInfo<Base<F>> BKZWithQ
         j = Mod(j+1,rank);
         const Int k = Min(j+ctrl.blocksize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
-        if( j == 0 && ctrl.checkpointEachTour )
-            Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        if( ctrl.checkpoint )
+          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        if( j == 0 )
+        {
+            if( ctrl.logNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    normsFile << FrobeniusNorm(B(ALL,IR(j))) << " ";    
+                normsFile << endl;
+            }
+            if( ctrl.logProjNorms )
+            {
+                for( Int j=0; j<n; ++j )
+                    projNormsFile << QR.Get(j,j) << " ";             
+                projNormsFile << endl;
+            }
+        }
         
         Matrix<F> v;
         auto BEnum = B( ALL, IR(j,k+1) );
@@ -955,7 +997,9 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;
             subCtrl.logNontrivialCoords = false;
-            subCtrl.checkpointEachTour = false;
+            subCtrl.logNorms = false;
+            subCtrl.logProjNorms = false;
+            subCtrl.checkpoint = false;
             subCtrl.lllCtrl.jumpstart = false;
             subCtrl.lllCtrl.recursive = false;
             if( ctrl.progress )
@@ -1020,6 +1064,10 @@ BKZInfo<Base<F>> BKZWithQ
         streakSizesFile.close();
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.close();
+    if( ctrl.logNorms )
+        normsFile.close();
+    if( ctrl.logProjNorms )
+        projNormsFile.close();
 
     if( ctrl.time )
     {

@@ -29,7 +29,7 @@ bool LatticeCoordinates
     Matrix<F> BRed( B );
     Matrix<F> UB, RB;
     auto infoB = LLL( BRed, UB, RB );
-    auto MB = BRed( ALL, IR(infoB.nullity,n) );
+    auto MB = BRed( ALL, IR(0,infoB.rank) );
 
     Matrix<F> A;
     Zeros( A, m, infoB.rank+1 );
@@ -46,39 +46,42 @@ bool LatticeCoordinates
         return false;
 
     // Solve for x_M such that M_B x_M = y
-    // NOTE: The first column of U_A should hold the coordinates of the single
+    // NOTE: The last column of U_A should hold the coordinates of the single
     //       member of the null-space of (the original) A
     Matrix<F> xM;
-    xM = UA( IR(0,infoA.rank), IR(0) );
-    if( UA.Get(infoA.rank,0) == F(1) )
+    xM = UA( IR(0,infoA.rank), IR(infoB.rank) );
+    if( UA.Get(infoA.rank,infoB.rank) == F(1) )
         xM *= F(-1);
     DEBUG_ONLY(
-      else if( UA.Get(infoA.rank,0) != F(-1) )
+      else if( UA.Get(infoA.rank,infoB.rank) != F(-1) )
           RuntimeError("Invalid member of null space");
     )
 
     // Map xM back to the original coordinates using the portion of the 
     // unimodular transformation of B (U_B) which produced the image of B 
-    auto UBM = UB( ALL, IR(infoB.nullity,n) );
+    auto UBM = UB( ALL, IR(0,infoB.rank) );
     Zeros( x, n, 1 );
     Gemv( NORMAL, F(1), UBM, xM, F(0), x );
     
+    /*
     if( infoB.nullity != 0 )
     {
         Matrix<F> C;
         Zeros( C, m, infoB.nullity+1 );
-        auto CL = C( ALL, IR(0,infoB.nullity) );
-        auto cR = C( ALL, IR(infoB.nullity) );
+        auto cL = C( ALL, IR(infoB.rank-1) );
+        auto CR = C( ALL, IR(infoB.rank,END) );
 
         // Reduce the kernel of B
-        CL = UB( ALL, IR(0,infoB.nullity) );
-        LLL( CL );
+        CR = UB( ALL, IR(infoB.rank,END) );
+        LLL( CR );
 
         // Attempt to reduce the (reduced) kernel out of the coordinates
-        cR = x;
+        // TODO: Which column to grab from the result?!?
+        cL = x;
         LLL( C );
-        x = cR;
+        x = cL;
     }
+    */
 
     return true;
 }
