@@ -22,7 +22,10 @@ void RightGivensStep
   Int GivensFirstCol,
   Int GivensLastCol, 
   bool time )
-{
+{		
+	if( time )
+		formGivensTimer.Start();
+
     DEBUG_ONLY(CSE cse("lll::RightGivensStep"))
     typedef Base<F> Real;
     const Int m = QR.Height();
@@ -31,15 +34,12 @@ void RightGivensStep
 	const Int gActSize = GivensLastCol - GivensFirstCol + 1;
 	const Int colIx = gBlockSize - (GivensLastCol - k) - 1;
 	
-//	cout << "gActSize = " << gActSize << endl;
-//	cout << "GivensLastCol = " << GivensLastCol << endl;
-//	cout << "k = " << k << endl;
-//	cout << "gBlockSize = " << gBlockSize << endl;
-//	cout << "colIx = " << colIx << endl;
-	
     if( k == Min(m,n)-1 )
 	{
-        const Real rho_k = QR.GetRealPart(k,k);
+//		if( time )
+//			formGivensTimer.Start();
+        
+		const Real rho_k = QR.GetRealPart(k,k);
 		if (rho_k < Real(0))
 		{
 			QR.Set(k, k, -QR.Get(k,k));
@@ -48,27 +48,49 @@ void RightGivensStep
 			{
 				GivensBlock.Set(i, colIx, -GivensBlock.Get(i,colIx));
 			}
-		}	
+		}
+		
+		if( time )
+			formGivensTimer.Stop();
+		
 		return;
 	}
 	else if( k >= Min(m,n) )
+	{
+		if( time )
+			formGivensTimer.Stop();
 		return;
+	}
 		
     // Perform one Givens rotation to rows j, j+1
 	Real c; F s;
+	// G * [x w] = [r u], r, v > 0
+	//     [y z]   [0 v]
+	F x = QR.Get(k,k); F y = QR.Get(k+1,k);
+	F w = QR.Get(k,k+1); F z = QR.Get(k+1,k+1);
 	
-	lapack::Givens( QR.Get(k,k), QR.Get(k+1,k), &c, &s );
+	lapack::Givens( x, y, &c, &s );
+	Matrix<F> G1(2,2);
+	c = Sgn(RealPart(x))*Abs(c);
+	s = Sgn(RealPart(y))*Abs(s);
+	Real sgn = Sgn(RealPart(-Conj(s)*w+c*z));
+	
+	G1.Set(0,0,c);
+	G1.Set(0,1,s);
+	G1.Set(1,0,-sgn*Conj(s));
+	G1.Set(1,1,sgn*c);
 	
 	auto RR = QR( IR(k,k+2), IR(k, GivensLastCol+1) );
-	RotateRows( c, s, RR, 0, 1);
+	Transform2x2Rows(G1, RR, 0, 1);
+//	RotateRows( c, s, RR, 0, 1);
 	
 	auto G = GivensBlock( IR(gBlockSize-gActSize, END), IR(colIx, colIx+2) );
-	RotateCols( c, s, G, 0, 1);
+	Transform2x2Cols(G1, G, 0, 1);
+//	RotateCols( c, s, G, 0, 1);
 	
-	const Real rho_k = QR.GetRealPart(k,k); 
+/*	const Real rho_k = QR.GetRealPart(k,k); 
 	if (rho_k < Real(0))
 	{
-//		cout << "Negate first row" << endl;
 		for (Int i=k; i < GivensLastCol+1; i++)
 		{
 			QR.Set(k, i, -QR.Get(k,i));
@@ -81,7 +103,6 @@ void RightGivensStep
 	const Real rho_k1 = QR.GetRealPart(k+1,k+1); 
 	if (rho_k1 < Real(0))
 	{
-//		cout << "Negate second row" << endl;
 		for (Int i=k+1; i < GivensLastCol+1; i++)
 		{
 			QR.Set(k+1, i, -QR.Get(k+1,i));
@@ -91,6 +112,9 @@ void RightGivensStep
 			GivensBlock.Set(i, colIx+1, -GivensBlock.Get(i,colIx+1));
 		}
 	}
+*/	
+	if( time )
+		formGivensTimer.Stop();
 }
 
 template<typename F>
@@ -108,7 +132,7 @@ void RightNegateRow
 
 	const Real rho_k = QR.GetRealPart(k,k); 
 	if (rho_k < Real(0))
-	{
+	{		
 		for (Int i=k; i < n; i++)
 		{
 			QR.Set(k, i, -QR.Get(k, i));
@@ -243,7 +267,8 @@ bool RightStep
   Int GivensFirstCol,
   Int GivensLastCol,
   bool useHouseholder,
-  const LLLCtrl<Base<F>>& ctrl )
+  const LLLCtrl<Base<F>>& ctrl,
+  bool& updateCol   )
 {
     DEBUG_ONLY(CSE cse("lll::RightStep"))
     typedef Base<F> Real;
@@ -353,6 +378,8 @@ bool RightStep
                     break;
 				}
 
+				updateCol = true;
+				
                 const float nonzeroRatio = float(numNonzero)/float(k); 
                 if( nonzeroRatio >= ctrl.blockingThresh )
                 {
@@ -425,7 +452,7 @@ LLLInfo<Base<F>> RightAlg
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   bool formU,
-  const LLLCtrl<Base<F>>& ctrl )
+  const LLLCtrl<Base<F>>& ctrl)
 {
     DEBUG_ONLY(CSE cse("lll::RightAlg"))
     typedef Base<F> Real;
@@ -439,11 +466,16 @@ LLLInfo<Base<F>> RightAlg
         roundTimer.Reset();
 		formQRTimer.Reset();
 		applyGivensTimer.Reset();
+		copyGivensTimer.Reset();
+		formGivensTimer.Reset();
+		colNormTimer.Reset();
+		LLLTimer.Reset();
+		
+		LLLTimer.Start();
     }
 
 	// TODO: Make tunable
 	const int H_BLOCK_SIZE = 32;
-	const int G_BLOCK_SIZE = 4;
 	const Base<F> thresh = Pow(limits::Epsilon<Real>(),Real(0.5));
 	if (ctrl.progress)
 		cout << "thresh = " << thresh << endl;
@@ -453,10 +485,15 @@ LLLInfo<Base<F>> RightAlg
     const Int n = B.Width();
     const Int minDim = Min(m,n);
 	
+	const int G_BLOCK_SIZE = Min(ctrl.givensBlockSize, minDim);
+	
 	QR = Matrix<F>(B);
 	Matrix<Base<F>> colNorms;
 	Zeros( colNorms, n, 1 );
 	
+	if( ctrl.time )
+		colNormTimer.Start();
+		
 	// Obtain norms of all columns
 	for (Int i=0; i<n; i++)
 	{
@@ -464,6 +501,9 @@ LLLInfo<Base<F>> RightAlg
 		colNorms.Set( i, 0, El::FrobeniusNorm(col) );
 	}
 
+	if( ctrl.time )
+		colNormTimer.Stop();
+	
     Int numSwaps=0;
     Int nullity = 0;
 	Int numColFactored = 0;
@@ -536,6 +576,7 @@ LLLInfo<Base<F>> RightAlg
 	Int hPanelStart = ( ctrl.jumpstart ? Max(ctrl.startCol,0) : 0 );
 	Int hPanelEnd = k;
 	bool useHouseholder = true;
+	bool updateCol = false;
     while( k < n-nullity )
     {
 		if (hPanelEnd - hPanelStart >= H_BLOCK_SIZE)
@@ -551,8 +592,9 @@ LLLInfo<Base<F>> RightAlg
 			hPanelStart = hPanelEnd;
 		}
 	
+		updateCol = false;
         bool zeroVector = lll::RightStep( k, B, U, QR, t, d, formU, 
-			hPanelStart, GivensBlock, GivensFirstCol, GivensLastCol, useHouseholder, ctrl );
+			hPanelStart, GivensBlock, GivensFirstCol, GivensLastCol, useHouseholder, ctrl, updateCol );
 		
         if( zeroVector )
         {
@@ -569,55 +611,72 @@ LLLInfo<Base<F>> RightAlg
 			
             continue;
         }
-
-		// Update column norm
-		auto col = B( ALL, IR(k) );
-		colNorms.Set( k, 0, El::FrobeniusNorm(col) );
 		
-		auto rCol = QR( IR(0,k+1), IR(k) );
-		Base<F> rnorm = El::FrobeniusNorm(rCol);
-		if (ctrl.progress) {
-			cout << "k=" << k << ": ||b_k|| = " << colNorms.Get(k, 0) << endl;
-			cout << "k=" << k << ": ||r_k|| = " << rnorm << endl;
-			cout << "k=" << k << ": (||b_k|| - ||r_k||)/||b_k|| = " << (colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) << endl;
-		}
-		
-		if ((colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) >= thresh)
+		if (updateCol)
 		{
-			// Dump Givens to the right
-			if (GivensLastCol > 0)
-			{
-				if( ctrl.time )
-					applyGivensTimer.Start();
+			if( ctrl.time )
+				colNormTimer.Start();
 				
-				const Int startIx = G_BLOCK_SIZE-(GivensLastCol - GivensFirstCol) - 1;
-				auto G = GivensBlock(IR(startIx, END), IR(startIx, END));
-				auto QR1 = QR(IR(GivensFirstCol, GivensLastCol+1), IR(GivensLastCol+1, END));
-				Matrix<F> R;
-				Copy(QR1, R);
+			// Update column norm
+			auto col = B( ALL, IR(k) );
+			colNorms.Set( k, 0, El::FrobeniusNorm(col) );
+			
+			auto rCol = QR( IR(0,k+1), IR(k) );
+			Base<F> rnorm = El::FrobeniusNorm(rCol);
+			
+			if( ctrl.time )
+				colNormTimer.Stop();
 				
-				Gemm(ADJOINT, NORMAL, F(1), G, R, QR1);
-				
-				Identity(GivensBlock, G_BLOCK_SIZE, G_BLOCK_SIZE); // Todo: Change only relevant submatrix to identity.
-				
-				GivensLastCol = k;
-				GivensFirstCol = k-1;
-				
-				if( ctrl.time )
-					applyGivensTimer.Stop();
+			if (ctrl.progress) {
+				cout << "k=" << k << ": ||b_k|| = " << colNorms.Get(k, 0) << endl;
+				cout << "k=" << k << ": ||r_k|| = " << rnorm << endl;
+				cout << "k=" << k << ": (||b_k|| - ||r_k||)/||b_k|| = " << (colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) << endl;
 			}
-		
-			if (ctrl.progress)
-				cout << "reortho after " << numSwaps  << " swaps" << endl;
 			
-			if ( ctrl.time )
-				formQRTimer.Start();
+			if ((colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) >= thresh)
+			{
+				// Dump Givens to the right
+				if (GivensLastCol > 0)
+				{
+					if( ctrl.time )
+						applyGivensTimer.Start();
+					
+					const Int startIx = G_BLOCK_SIZE-(GivensLastCol - GivensFirstCol) - 1;
+					auto G = GivensBlock(IR(startIx, END), IR(startIx, END));
+					auto QR1 = QR(IR(GivensFirstCol, GivensLastCol+1), IR(GivensLastCol+1, END));
+					
+					if( ctrl.time )
+						copyGivensTimer.Start();
+					
+					Matrix<F> R;
+					Copy(QR1, R);
+					
+					if( ctrl.time )
+						copyGivensTimer.Stop();
+					
+					Gemm(ADJOINT, NORMAL, F(1), G, R, QR1);
+					
+					Identity(GivensBlock, G_BLOCK_SIZE, G_BLOCK_SIZE); // Todo: Change only relevant submatrix to identity.
+					
+					GivensLastCol = k;
+					GivensFirstCol = k-1;
+					
+					if( ctrl.time )
+						applyGivensTimer.Stop();
+				}
+			
+				if (ctrl.progress)
+					cout << "Redoing QR after " << numSwaps  << " swaps" << endl;
 				
-			QR = Matrix<F>(B);
-			El::QR(QR, t, d);
-			
-			if ( ctrl.time )
-				formQRTimer.Stop();
+				if ( ctrl.time )
+					formQRTimer.Start();
+					
+				QR = Matrix<F>(B);
+				El::QR(QR, t, d);
+				
+				if ( ctrl.time )
+					formQRTimer.Stop();
+			}
 		}
 		
 		numColFactored = Max(numColFactored, k+1);
@@ -650,8 +709,12 @@ LLLInfo<Base<F>> RightAlg
 				const Int startIx = G_BLOCK_SIZE-(GivensLastCol - GivensFirstCol) - 1;
 				auto G = GivensBlock(IR(startIx, END), IR(startIx, END));
 				auto QR1 = QR(IR(GivensFirstCol, GivensLastCol+1), IR(GivensLastCol+1, END));
+				if( ctrl.time )
+					copyGivensTimer.Start();
 				Matrix<F> R;
 				Copy(QR1, R);
+				if( ctrl.time )
+					copyGivensTimer.Stop();
 				
 				Gemm(ADJOINT, NORMAL, F(1), G, R, QR1);
 				
@@ -692,8 +755,12 @@ LLLInfo<Base<F>> RightAlg
 				const Int startIx = G_BLOCK_SIZE-(GivensLastCol - GivensFirstCol) - 1;
 				auto G = GivensBlock(IR(startIx, END), IR(startIx, END));
 				auto QR1 = QR(IR(GivensFirstCol, GivensLastCol+1), IR(GivensLastCol+1, END));
+				if( ctrl.time )
+					copyGivensTimer.Start();
 				Matrix<F> R;
 				Copy(QR1, R);
+				if( ctrl.time )
+					copyGivensTimer.Stop();
 				
 				Gemm(ADJOINT, NORMAL, F(1), G, R, QR1);
 				
@@ -723,14 +790,21 @@ LLLInfo<Base<F>> RightAlg
                      " since sqrt(delta)*R(k-1,k-1)=",leftTerm," > ",rightTerm);
             }
 
+			
             ColSwap( B, k-1, k );
 			ColSwap( QR, k-1, k);
 			QR.Set(k,k,F(0)); // This entry doesn't exist in R
+			
+			if( ctrl.time )
+				colNormTimer.Start();
 			
 			// Update column norms
 			Base<F> tmp = colNorms.Get(k, 0);
 			colNorms.Set( k, 0, colNorms.Get(k-1, 0) );
 			colNorms.Set( k-1, 0, tmp );
+			
+			if( ctrl.time )
+				colNormTimer.Stop();
 			
             if( formU )
                 ColSwap( U, k-1, k );
@@ -782,14 +856,20 @@ LLLInfo<Base<F>> RightAlg
 	
     if( ctrl.time )
     {
+		LLLTimer.Stop();
+	
         Output("  Step time:              ",stepTimer.Total());
         Output("    Householder step time:  ",houseStepTimer.Total());
         Output("      view time:              ",houseViewTimer.Total());
         Output("      reflect time:           ",houseReflectTimer.Total());
         Output("    Apply Householder time: ",applyHouseTimer.Total());
         Output("    Round time:             ",roundTimer.Total());
-		Output("    Form QR time:           ",formQRTimer.Total());
-		Output("    Apply Givens time:      ",applyGivensTimer.Total());   
+		Output("  Form QR time:           ",formQRTimer.Total());
+	    Output("  Apply Givens time:      ",applyGivensTimer.Total());  
+		Output("  Copy Givens time:       ",copyGivensTimer.Total());
+		Output("  Form Givens time:       ",formGivensTimer.Total());
+		Output("  ColNorm time:           ",colNormTimer.Total());
+		Output("Total LLL time:           ",LLLTimer.Total());
     }
 
     std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);

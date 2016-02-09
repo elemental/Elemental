@@ -68,7 +68,9 @@ static Timer stepTimer, houseStepTimer,
        houseViewTimer, houseReflectTimer,
        applyHouseTimer, roundTimer,
        formSInvTimer, formQRTimer,
-	   applyGivensTimer;
+	   applyGivensTimer, copyGivensTimer,
+	   formGivensTimer, colNormTimer,
+	   LLLTimer;
 
 namespace lll {
 
@@ -396,6 +398,7 @@ LowerPrecisionMerge
         Output("  Dropping to " + typeString);
     Matrix<FLower> BLower;
     BLower.Resize( B.Height(), n );
+	
     // Interleave CL and CR to reform B before running LLL again
     // NOTE: This does not seem to make a substantial difference
     for( Int jSub=0; jSub<n/2; ++jSub )
@@ -413,7 +416,7 @@ LowerPrecisionMerge
         auto bL = BLower( ALL, IR(n-1) );
         Copy( cL, bL );
     }
-
+	
     LLLCtrl<RealLower> ctrlLower( ctrl );
     ctrlLower.recursive = false;
     RealLower eps = limits::Epsilon<RealLower>();
@@ -672,7 +675,7 @@ RecursiveHelper
 #endif
 
         if( !succeeded )
-        {
+        {		
             // Interleave CL and CR to reform B before running LLL again
             for( Int jSub=0; jSub<n/2; ++jSub )
             {
@@ -689,7 +692,7 @@ RecursiveHelper
                 auto bL = B( ALL, IR(n-1) ); 
                 bL = cL;
             }
-
+			
             auto ctrlMod( ctrl );
             ctrlMod.jumpstart = true;
             ctrlMod.startCol = 0;
@@ -716,7 +719,7 @@ RecursiveHelper
                     auto uL = U( ALL, IR(n-1) );
                     uL = uCopyL;
                 }
-
+				
                 info = LLLWithQ( B, U, QR, t, d, ctrlMod );
             }
             else
@@ -893,7 +896,7 @@ RecursiveHelper
 #endif
 
         if( !succeeded )
-        {
+        {			
             // Interleave CL and CR to reform B before running LLL again
             for( Int jSub=0; jSub<n/2; ++jSub )
             {
@@ -910,7 +913,7 @@ RecursiveHelper
                 auto bL = B( ALL, IR(n-1) ); 
                 bL = cL;
             }
-
+			
             auto ctrlMod( ctrl );
             ctrlMod.jumpstart = true;
             ctrlMod.startCol = 0;

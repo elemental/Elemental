@@ -52,6 +52,7 @@ typedef struct
     ElInt cutoff;
 	bool rightLooking;
     float precisionFudge;
+	ElInt givensBlockSize;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
@@ -74,6 +75,7 @@ typedef struct
     ElInt cutoff;
 	bool rightLooking;
     double precisionFudge;
+	ElInt givensBlockSize;
     bool presort;
     bool smallestFirst;
     double reorthogTol;
