@@ -10,8 +10,23 @@
 namespace El {
 namespace safemstrsm {
 
-template<typename F>
+/* Determine machine dependent parameters to control overflow
+ *   Note: LAPACK uses more complicated parameters to handle 
+ *   issues that can happen on Cray machines.
+ */
+template<typename Real>
 inline void
+OverflowParameters( Real& smlnum, Real& bignum )
+{
+    const Real unfl = lapack::MachineSafeMin<Real>();
+    const Real ovfl = lapack::MachineOverflowThreshold<Real>();
+    const Real ulp  = lapack::MachinePrecision<Real>();
+    smlnum = std::max( unfl/ulp, 1/(ovfl*ulp) );
+    bignum = 1/smlnum;
+}
+  
+template<typename F>
+void
 LUNBlock
 (       Matrix<F>& U,
   const Matrix<F>& shifts,
@@ -31,20 +46,14 @@ LUNBlock
     const Int ldim = U.LDim();
     const Int numShifts = shifts.Height();
 
-    // Determine machine dependent parameters to control overflow
-    //   Note: LAPACK uses more complicated parameters to handle 
-    //   issues that can happen on Cray machines.
-    const Real unfl = lapack::MachineSafeMin<Real>();
-    const Real ovfl = lapack::MachineOverflowThreshold<Real>();
-    const Real ulp  = lapack::MachinePrecision<Real>();
-    const Real smlnum = std::max( unfl/ulp, 1/(ovfl*ulp) );
-    const Real bignum = 1/smlnum;
+    Real smlnum, bignum;
+    OverflowParameters<Real>( smlnum, bignum );
     
     // Default scale is 1
     Ones( scales, numShifts, 1 );
 
-    // Compute infinity norms of columns (excluding diagonal)
-    // TODO: scale cnorm if an entry is bigger than bignum/2
+    // Compute infinity norms of columns of U (excluding diagonal)
+    // TODO: scale cnorm if an entry is bigger than bignum
     Matrix<Real> cnorm( n, 1 );
     cnorm.Set( 0, 0, Real(0) );
     for( Int j=1; j<n; ++j )
@@ -56,15 +65,25 @@ LUNBlock
     for( Int j=0; j<numShifts; ++j )
     {
 
-        // Initialize system
+        // Initialize triangular system
         ShiftDiagonal( U, -shifts.Get(j,0) );
 	auto xj = X( ALL, IR(j) );
+
+	// Determine largest entry of RHS
+	Real xjMax = MaxNorm( xj );
+	if( xjMax >= bignum )
+	{
+	    const Real s = 0.5*bignum/xjMax;
+	    xj *= s;
+	    xjMax *= s;
+	    scales.Set( j, 0, s*scales.Get(j,0) );
+	}
+	xjMax = std::max( xjMax, 2*smlnum );
 
 	// Estimate growth of entries in triangular solve
 	//   Note: See "Robust Triangular Solves for Use in Condition
 	//   Estimation" by Edward Anderson for explanation of bounds.
-	const Real maxXj = std::max( MaxNorm(xj), 2*smlnum );
-	Real invGi = 1/maxXj;
+	Real invGi = 1/xjMax;
 	Real invMi = invGi;
 	for( Int i=n-1; i>=0; --i )
 	{
@@ -90,7 +109,6 @@ LUNBlock
 	// Perform backward substitution if estimated growth is large
 	else
 	{
-	    Real Gi = maxXj;
 	    for( Int i=n-1; i>=0; --i )
 	    {
 
@@ -101,11 +119,11 @@ LUNBlock
 		{
 		    if( absUii<=1 && absXij>=absUii*bignum )
 		    {
-			// Set overflowing entry to 1/U[i,i]
-		        const Real s = 1/absXij;
+			// Set overflowing entry to 0.5/U[i,i]
+		        const Real s = 0.5/absXij;
 			scales.Set( j, 0, s*scales.Get(j,0) );
 			xj *= s;
-			Gi *= s;
+			xjMax *= s;
 		    }
 		    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
 		}
@@ -113,47 +131,58 @@ LUNBlock
 		{
 		    if( absXij >= absUii*bignum )
 		    {
-			// Set overflowing entry to bignum
-		        const Real s = absUii*bignum/absXij;
+			// Set overflowing entry to bignum/2
+		        const Real s = 0.5*absUii*bignum/absXij;
 			scales.Set( j, 0, s*scales.Get(j,0) );
 			xj *= s;
-			Gi *= s;
+			xjMax *= s;
 		    }
 		    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
 		}
 		else
 		{
-		    // Set overflowing entry to 1
-		    scales.Set( j, 0, F(0) );
-		    Zero( xj );
-		    Gi = 0;
+		    // TODO: maybe this tolerance should be loosened to
+		    //   | Xij | >= || A || * eps
+		    if( absXij >= smlnum )
+		    {
+		        scales.Set( j, 0, F(0) );
+			Zero( xj );
+			xjMax = 0;
+		    }
 		    xj.Set( i, 0, F(1) );
 		}
 
-		// Perform AXPY and check for overflow
-		// Note: G(i+1) <= G(i) + | Xij | * cnorm(i)
 		if( i > 0 )
 	        {
+
+		    // Check for possible overflows in AXPY
+		    // Note: G(i+1) <= G(i) + | Xij | * cnorm(i)
 		    absXij = SafeAbs( xj.Get(i,0) );
 		    if( absXij >= 1 &&
-			cnorm.Get(i,0) >= (bignum-Gi)/absXij )
+			cnorm.Get(i,0) >= (bignum-xjMax)/absXij )
 		    {
-		        const Real s = 0.5/absXij;
+		        const Real s = 0.25/absXij;
 			scales.Set( j, 0, s*scales.Get(j,0) );
 			xj *= s;
-			Gi *= s;
+			xjMax *= s;
+			absXij *= s;
 		    }
 		    else if( absXij < 1 &&
-			     absXij*cnorm.Get(i,0) >= bignum-Gi )
+			     absXij*cnorm.Get(i,0) >= bignum-xjMax )
 		    {
-		        scales.Set( j, 0, F(0.5)*scales.Get(j,0) );
-			xj *= 0.5;
-			Gi *= 0.5;
+		        const Real s = 0.25;
+		        scales.Set( j, 0, s*scales.Get(j,0) );
+			xj *= s;
+			xjMax *= s;
+			absXij *= s;
 		    }
+		    xjMax += absXij * cnorm.Get(i,0);
+
+		    // AXPY
 		    auto U01 = U( IR(0,i), IR(i) );
 		    auto X1  = X( IR(0,i), IR(j) );
 		    Axpy( -xj.Get(i,0), U01, X1 );
-		    Gi += absXij * cnorm.Get(i,0);
+
 		}
 
 	    }
@@ -166,34 +195,40 @@ LUNBlock
 }
 
 template<typename F>
-inline void
+void
 LUN( Matrix<F>& U, const Matrix<F>& shifts,
      Matrix<F>& X, Matrix<F>& scales ) 
 {
+    typedef Base<F> Real;
+
     DEBUG_ONLY(CSE cse("safemstrsm::LUN"))
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
 
-    Ones( scales, n, 1 );
-    Matrix<F> scalesUpdate;
-#if 0
-    // Compute infinity norms of columns (excluding diagonal)
-    // TODO: scale cnorm if an entry is bigger than bignum/2
-    Matrix<Real> cnorm( m, 1 );
-    cnorm.Set( 0, 0, Real(0) );
-    for( Int j=1; j<m; ++j )
-    {
-        cnorm.Set( j, 0, MaxNorm( U(IR(0,j),IR(j)) ) );
-    }
+    Real smlnum, bignum;
+    OverflowParameters<Real>( smlnum, bignum );
 
-    Matrix<Real> grow( n, 1 );
+    Ones( scales, n, 1 );
+    Matrix<F> scalesUpdate( n, 1 );
+
+    // Determine largest entry of each RHS
+    Matrix<Real> XMax( n, 1 );
     for( Int j=0; j<n; ++j )
     {
-      grow.Set( j, 0, MaxNorm( X(ALL,IR(j)) );
+        auto xj = X( ALL, IR(j) );
+	Real xjMax = MaxNorm( xj );
+	if( xjMax >= bignum )
+	{
+	    const Real s = 0.5*bignum/xjMax;
+	    xj *= s;
+	    xjMax *= s;
+	    scales.Set( j, 0, s*scales.Get(j,0) );
+	}
+	xjMax = std::max( xjMax, 2*smlnum );
+        XMax.Set( j, 0, xjMax );
     }
-#endif
 	
     // Perform block triangular solve
     for( Int k=kLast; k>=0; k-=bsize )
@@ -212,14 +247,68 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
 	auto X2 = X( ind2, ALL );
 
 	// Perform triangular solve on diagonal block
-	// TODO: only perform scaling if scalesUpdate<1
 	LUNBlock( U11, shifts, X1, scalesUpdate );
-	DiagonalScale( LEFT, NORMAL, scalesUpdate, scales );
-	DiagonalScale( RIGHT, NORMAL, scalesUpdate, X0 );
-	DiagonalScale( RIGHT, NORMAL, scalesUpdate, X2 );
 
-	// Update RHS's with GEMM
-        Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+	// Apply scalings on RHS
+	for( Int j=0; j<n; ++j )
+	{
+	    const Real sj = scalesUpdate.GetRealPart(j,0);
+	    if( sj < 1 )
+	    {
+	        scales.Set( j, 0, sj*scales.Get(j,0) );
+	        auto X0j = X0( ALL, IR(j) );
+	        auto X2j = X2( ALL, IR(j) );
+		X0j *= sj;
+		X2j *= sj;
+		XMax.Set( j, 0, sj*XMax.Get(j,0) );
+	    }
+	}
+
+	if( k > 0 )
+	{
+
+	    // Compute infinity norms of columns in U01
+	    // Note: nb*cnorm is the sum of infinity norms
+	    // TODO: scale cnorm if an entry is bigger than bignum
+	    Real cnorm = 0;
+	    for( Int j=0; j<nb; ++j )
+	    {
+	        cnorm += MaxNorm( U01(ALL,IR(j)) ) / nb;
+	    }
+
+	    // Check for possible overflows in GEMM
+	    // Note: G(i+1) <= G(i) + nb*cnorm*|| X1[:,j] ||_infty
+	    for( Int j=0; j<n; ++j )
+	    {
+		auto xj = X( ALL, IR(j) );
+	        Real xjMax = XMax.Get(j,0);
+		Real X1Max = MaxNorm( X1(ALL,IR(j)) );
+		if( X1Max >= 1 &&
+		    cnorm >= (bignum-xjMax)/X1Max/nb )
+		{
+		    const Real s = 0.5/X1Max/nb;
+		    scales.Set( j, 0, s*scales.Get(j,0) );
+		    xj *= s;
+		    xjMax *= s;
+		    X1Max *= s;
+		}
+		else if( X1Max < 1 &&
+			 cnorm*X1Max >= (bignum-xjMax)/nb )
+		{
+		    const Real s = 0.5/nb;
+		    scales.Set( j, 0, s*scales.Get(j,0) );
+		    xj *= s;
+		    xjMax *= s;
+		    X1Max *= s;
+		}
+		xjMax += nb*cnorm*X1Max;
+		XMax.Set( j, 0, xjMax );
+	    }
+
+	    // Update RHS with GEMM
+	    Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+	
+	}
     }
 }
 

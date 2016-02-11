@@ -107,6 +107,8 @@ void TestSafeMultiShiftTrsm
     Real maxErr = 0;
     Real maxRelErr = 0;
     Real minScales = 1;
+    Real maxNorm, minNorm;
+    const Real smlnum = std::sqrt( lapack::MachineSafeMin<Real>() );
     if( side == LEFT )
     {
         for( Int j=0; j<n; ++j )
@@ -124,6 +126,8 @@ void TestSafeMultiShiftTrsm
 	    maxErr = std::max( maxErr, RjNrm2 );
 	    maxRelErr = std::max( maxRelErr, currErr );
 	    minScales = std::min( minScales, Abs(scales.Get(j,0)) );
+	    minNorm = j>0 ? std::min( minNorm, XjNrm2 ) : XjNrm2;
+	    maxNorm = j>0 ? std::max( maxNorm, XjNrm2 ) : XjNrm2;
 	}
     }
     // TODO: side == RIGHT
@@ -133,9 +137,11 @@ void TestSafeMultiShiftTrsm
     if( g.Rank() == 0 )
     {
         Output("  || A ||_F = ",AFrob);
-	Output("  min( sj ) = ",minScales);
 	Output("  max( || Aj xj - bj sj ||_2 ) = ",maxErr);
 	Output("  max( || Aj xj - bj sj ||_2 / || Aj ||_F || xj ||_2 ) = ",maxRelErr);
+	Output("  max( || xj ||_2 ) = ",maxNorm);
+	Output("  min( || xj ||_2 ) = ",minNorm);
+	Output("  min( sj ) = ",minScales);
     }
 }
 
