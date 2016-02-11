@@ -462,6 +462,13 @@ struct BKZCtrl
     bool earlyAbort=false;
     Int numEnumsBeforeAbort=1000; // only used if earlyAbort=true
 
+    bool variableBlocksize=false;
+    function<Int(Int)> blocksizeFunc;
+
+    bool variableProbEnum=false;
+    function<bool(Int)> probEnumFunc;
+    function<Int(Int)> numTrialsFunc;
+
     bool skipInitialLLL=false;
     bool jumpstart=false;
 
@@ -511,6 +518,13 @@ struct BKZCtrl
 
         earlyAbort = ctrl.earlyAbort;
         numEnumsBeforeAbort = ctrl.numEnumsBeforeAbort;
+
+        variableBlocksize = ctrl.variableBlocksize;
+        blocksizeFunc = ctrl.blocksizeFunc;
+
+        variableProbEnum = ctrl.variableProbEnum;
+        probEnumFunc = ctrl.probEnumFunc;
+        numTrialsFunc = ctrl.numTrialsFunc;
 
         skipInitialLLL = ctrl.skipInitialLLL;
 
@@ -592,9 +606,18 @@ BKZInfo<Base<F>> BKZWithQ
 template<typename F>
 bool LatticeCoordinates( const Matrix<F>& B, const Matrix<F>& y, Matrix<F>& x );
 
+// Enrich a lattice with a particular vector
+// =========================================
+// Push B v into the first column of B via a unimodular transformation
+template<typename F>
+void EnrichLattice( Matrix<F>& B, const Matrix<F>& v );
+template<typename F>
+void EnrichLattice( Matrix<F>& B, Matrix<F>& U, const Matrix<F>& v );
+
 } // namespace El
 
 #include "El/lattice/LLL.hpp"
+#include "El/lattice/Enrich.hpp"
 #include "El/lattice/BKZ.hpp"
 
 #endif // ifndef EL_LATTICE_HPP

@@ -10,50 +10,6 @@
 #ifdef EL_HAVE_MPC
 using namespace El;
 
-// Push B v into the first column of B via a unimodular transformation
-template<typename F>
-void Enrich( Matrix<F>& B, const Matrix<F>& v )
-{
-    const Int n = B.Width();
-
-    Matrix<F> vTrans, W, Rv;
-    Transpose( v, vTrans );
-    LLL( vTrans, W, Rv );
-    if( vTrans.Get(0,0) == F(1) )
-    {
-        // Do nothing 
-    }
-    else if( vTrans.Get(0,0) == F(-1) )
-    {
-        auto w0 = W( ALL, IR(0) );
-        w0 *= F(-1);
-    }
-    else
-    {
-        Print( v, "v" );
-        Print( vTrans, "vTrans" );
-        Print( W, "W" );
-        LogicError("Invalid result of LLL on enumeration coefficients");
-    }
-    Matrix<F> WInv( W );
-    Inverse( WInv );
-    Round( WInv );
-    // Ensure that we have computed the exact inverse
-    Matrix<F> WProd;
-    Identity( WProd, n, n );
-    Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
-    const BigFloat WErr = FrobeniusNorm( WProd );
-    if( WErr != F(0) )
-    {
-        Print( W, "W" );
-        Print( WInv, "invW" );
-        LogicError("Did not compute exact inverse of W");
-    }
-
-    auto BCopy( B );
-    Gemm( NORMAL, TRANSPOSE, F(1), BCopy, WInv, B );
-}
-
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -108,7 +64,7 @@ int main( int argc, char* argv[] )
         {
             const Int subsetSize = ySub.Height();
             auto BSub = B( ALL, IR(subsetStart,subsetStart+subsetSize) );
-            Enrich( BSub, ySub );
+            EnrichLattice( BSub, ySub );
             Print( B, "BNew" );
         }
         else if( insertViaLLL )
@@ -135,7 +91,7 @@ int main( int argc, char* argv[] )
             if( inLattice )
             {
                 Print( xSub, "xSub" );
-                Enrich( BSub, xSub );
+                EnrichLattice( BSub, xSub );
                 Print( B, "BNew" );
             }
             else 

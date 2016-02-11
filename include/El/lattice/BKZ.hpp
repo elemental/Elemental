@@ -335,7 +335,10 @@ BKZInfo<Base<F>> BKZWithQ
     while( z < rank-1 ) 
     {
         j = Mod(j+1,rank);
-        const Int k = Min(j+ctrl.blocksize-1,rank-1);
+        Int bsize = ctrl.blocksize;
+        if( ctrl.variableBlocksize )
+            bsize = ctrl.blocksizeFunc(j);
+        const Int k = Min(j+bsize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
         if( ctrl.checkpoint )
           Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
@@ -357,12 +360,19 @@ BKZInfo<Base<F>> BKZWithQ
         
         Matrix<F> v;
         auto BEnum = B( ALL, IR(j,k+1) );
+        auto UEnum = U( ALL, IR(j,k+1) );
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
         if( ctrl.time )
             bkz::enumTimer.Start();
+        auto enumCtrl = ctrl.enumCtrl;
+        if( ctrl.variableProbEnum )
+        {
+            enumCtrl.probabalistic = ctrl.probEnumFunc(j);
+            enumCtrl.numTrials = ctrl.numTrialsFunc(j);
+        }
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
+          ShortestVectorEnumeration( BEnum, QREnum, v, enumCtrl );
         if( ctrl.time )
             Output("Enum time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
@@ -394,48 +404,7 @@ BKZInfo<Base<F>> BKZWithQ
             }
             z = 0;
 
-            // Find a unimodular matrix W such that v^T W = [1,0,...,0]
-            // and then invert it
-            Matrix<F> vTrans, W, Rv;
-            Transpose( v, vTrans );
-            LLL( vTrans, W, Rv );
-            if( vTrans.Get(0,0) == F(1) )
-            {
-                // Do nothing 
-            }
-            else if( vTrans.Get(0,0) == F(-1) )
-            {
-                auto w0 = W( ALL, IR(0) );
-                w0 *= Real(-1);
-            }
-            else
-            {
-                Print( v, "v" );
-                Print( vTrans, "vTrans" );
-                Print( W, "W" );
-                LogicError("Invalid result of LLL on enumeration coefficients");
-            }
-            Matrix<F> WInv( W );
-            Inverse( WInv );
-            Round( WInv );
-            // Ensure that we have computed the exact inverse
-            Matrix<F> WProd;
-            Identity( WProd, k+1-j, k+1-j );
-            Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
-            const Real WErr = FrobeniusNorm( WProd );
-            if( WErr != Real(0) )
-            {
-                Print( W, "W" );
-                Print( WInv, "invW" );
-                LogicError("Did not compute exact inverse of W");
-            }
-
-            auto USub = U(ALL,IR(j,k+1));
-            auto BSub = B(ALL,IR(j,k+1));
-            auto BSubCopy( BSub );
-            auto USubCopy( USub );
-            Gemm( NORMAL, TRANSPOSE, F(1), BSubCopy, WInv, BSub );
-            Gemm( NORMAL, TRANSPOSE, F(1), USubCopy, WInv, USub );
+            EnrichLattice( BEnum, UEnum, v );
         }
         else
         {
@@ -467,6 +436,8 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
             subCtrl.earlyAbort = ctrl.subEarlyAbort;
             subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+            subCtrl.variableBlocksize = false;
+            subCtrl.variableProbEnum = false;
             subCtrl.recursive = false;
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;
@@ -499,6 +470,9 @@ BKZInfo<Base<F>> BKZWithQ
                 changed = true;
             numSwaps += lllInfo.numSwaps;
         }
+        auto USub = U( ALL, subInd );
+        auto USubCopy( USub );
+        Gemm( NORMAL, NORMAL, F(1), USubCopy, W, USub );
         if( ctrl.time )
             Output("BKZ time: ",bkz::bkzTimer.Stop()," seconds");
         if( !keepMin )
@@ -513,10 +487,6 @@ BKZInfo<Base<F>> BKZWithQ
             else
                 ++z;
         }
-        auto USub = U( ALL, subInd );
-        auto USubCopy( USub );
-        Gemm( NORMAL, NORMAL, F(1), USubCopy, W, USub );
-
         if( ctrl.earlyAbort &&
             numEnums >= ctrl.numEnumsBeforeAbort &&
             j == rank-1 )
@@ -867,7 +837,10 @@ BKZInfo<Base<F>> BKZWithQ
     while( z < rank-1 ) 
     {
         j = Mod(j+1,rank);
-        const Int k = Min(j+ctrl.blocksize-1,rank-1);
+        Int bsize = ctrl.blocksize;
+        if( ctrl.variableBlocksize )
+            bsize = ctrl.blocksizeFunc(j);
+        const Int k = Min(j+bsize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
         if( ctrl.checkpoint )
           Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
@@ -893,8 +866,14 @@ BKZInfo<Base<F>> BKZWithQ
         const Real oldProjNorm = QR.Get(j,j);
         if( ctrl.time )
             bkz::enumTimer.Start();
+        auto enumCtrl = ctrl.enumCtrl;
+        if( ctrl.variableProbEnum )
+        {
+            enumCtrl.probabalistic = ctrl.probEnumFunc(j);
+            enumCtrl.numTrials = ctrl.numTrialsFunc(j);
+        }
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, ctrl.enumCtrl );
+          ShortestVectorEnumeration( BEnum, QREnum, v, enumCtrl );
         if( ctrl.time )
             Output("Enum time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
@@ -926,45 +905,7 @@ BKZInfo<Base<F>> BKZWithQ
             }
             z = 0;
 
-            // Find a unimodular matrix W such that v^T W = [1,0,...,0]
-            // and then invert it
-            Matrix<F> vTrans, W, Rv;
-            Transpose( v, vTrans );
-            LLL( vTrans, W, Rv );
-            if( vTrans.Get(0,0) == F(1) )
-            {
-                // Do nothing 
-            }
-            else if( vTrans.Get(0,0) == F(-1) )
-            {
-                auto w0 = W( ALL, IR(0) );
-                w0 *= Real(-1);
-            }
-            else
-            {
-                Print( v, "v" );
-                Print( vTrans, "vTrans" );
-                Print( W, "W" );
-                LogicError("Invalid result of LLL on enumeration coefficients");
-            }
-            Matrix<F> WInv( W );
-            Inverse( WInv );
-            Round( WInv );
-            // Ensure that we have computed the exact inverse
-            Matrix<F> WProd;
-            Identity( WProd, k+1-j, k+1-j );
-            Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
-            const Real WErr = FrobeniusNorm( WProd );
-            if( WErr != Real(0) )
-            {
-                Print( W, "W" );
-                Print( WInv, "invW" );
-                LogicError("Did not compute exact inverse of W");
-            }
-
-            auto BSub = B(ALL,IR(j,k+1));
-            auto BSubCopy( BSub );
-            Gemm( NORMAL, TRANSPOSE, F(1), BSubCopy, WInv, BSub );
+            EnrichLattice( BEnum, v );
         }
         else
         {
@@ -993,6 +934,8 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.blocksize = ctrl.subBlocksizeFunc(ctrl.blocksize);
             subCtrl.earlyAbort = ctrl.subEarlyAbort;
             subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+            subCtrl.variableBlocksize = false;
+            subCtrl.variableProbEnum = false;
             subCtrl.recursive = false;
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;

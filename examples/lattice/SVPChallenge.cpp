@@ -18,50 +18,6 @@ typedef double F;
 #endif
 typedef Base<F> Real;
 
-// Push B v into the first column of B via a unimodular transformation
-template<typename F>
-void Enrich( Matrix<F>& B, const Matrix<F>& v )
-{
-    const Int n = B.Width();
-
-    Matrix<F> vTrans, W, Rv;
-    Transpose( v, vTrans );
-    LLL( vTrans, W, Rv );
-    if( vTrans.Get(0,0) == F(1) )
-    {
-        // Do nothing 
-    }
-    else if( vTrans.Get(0,0) == F(-1) )
-    {
-        auto w0 = W( ALL, IR(0) );
-        w0 *= F(-1);
-    }
-    else
-    {
-        Print( v, "v" );
-        Print( vTrans, "vTrans" );
-        Print( W, "W" );
-        LogicError("Invalid result of LLL on enumeration coefficients");
-    }
-    Matrix<F> WInv( W );
-    Inverse( WInv );
-    Round( WInv );
-    // Ensure that we have computed the exact inverse
-    Matrix<F> WProd;
-    Identity( WProd, n, n );
-    Gemm( NORMAL, NORMAL, F(-1), W, WInv, F(1), WProd );
-    const F WErr = FrobeniusNorm( WProd );
-    if( WErr != F(0) )
-    {
-        Print( W, "W" );
-        Print( WInv, "invW" );
-        LogicError("Did not compute exact inverse of W");
-    }
-
-    auto BCopy( B );
-    Gemm( NORMAL, TRANSPOSE, F(1), BCopy, WInv, B );
-}
-
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -83,6 +39,8 @@ int main( int argc, char* argv[] )
            Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9)));
         const Int varInt = Input("--variant","0: weak LLL, 1: normal LLL, 2: deep insertion LLL, 3: deep reduction LLL",1);
         const Int blocksize = Input("--blocksize","BKZ blocksize",20);
+        const bool variableBsize = Input("--variableBsize","variable blocksize?",false);
+        const bool variableProbEnum = Input("--variableProbEnum","variable probabalistic enum?",false);
         const bool presort = Input("--presort","presort columns?",false);
         const bool smallestFirst =
           Input("--smallestFirst","sort smallest first?",true);
@@ -119,6 +77,9 @@ int main( int argc, char* argv[] )
           Input("--targetRatio","targeted ratio of GH(L)",Real(1.05));
         const bool probBKZEnum =
           Input("--probBKZEnum","probabalistic enumeration *within* BKZ?",false);
+        const bool timeEnum = Input("--timeEnum","time enum?",true);
+        const bool innerEnumProgress =
+          Input("--innerEnumProgress","inner enum progress?",false);
         const bool probEnum =
           Input("--probEnum","probabalistic enumeration *after* BKZ?",true);
         const bool fullEnum = Input("--fullEnum","SVP via full enum?",false);
@@ -153,12 +114,51 @@ int main( int argc, char* argv[] )
         if( print )
             Print( B, "BOrig" );
 
+        auto blocksizeLambda =
+          [&]( Int j )
+          {
+              if( j == 0 )
+                  return 112;
+              else if( j == 1 )
+                  return 98;
+              else if( j <= 5 )
+                  return 66 - j;
+              else if( j <= 10 )
+                  return 60;
+              else if( j <= 20 )
+                  return 55;
+              else if( j <= 50 )
+                  return 50;
+              else
+                  return 40;
+          };
+        auto probEnumLambda = 
+          [&]( Int j )
+          {
+              if( j <= 1 )
+                  return true;
+              else
+                  return false;
+          };
+        auto numTrialsLambda =
+          [&]( Int j )
+          {
+              return 5;
+          };
+
         BKZCtrl<Real> ctrl;
         ctrl.blocksize = blocksize;
+        ctrl.variableBlocksize = variableBsize;
+        ctrl.blocksizeFunc = function<Int(Int)>(blocksizeLambda);
+        ctrl.variableProbEnum = variableProbEnum;
+        ctrl.probEnumFunc = function<bool(Int)>(probEnumLambda);
+        ctrl.numTrialsFunc = function<Int(Int)>(numTrialsLambda);
         ctrl.time = timeBKZ;
         ctrl.progress = progressBKZ;
         ctrl.recursive = recursiveBKZ;
         ctrl.enumCtrl.probabalistic = probBKZEnum;
+        ctrl.enumCtrl.time = timeEnum;
+        ctrl.enumCtrl.innerProgress = innerEnumProgress; 
         ctrl.earlyAbort = earlyAbort;
         ctrl.numEnumsBeforeAbort = numEnumsBeforeAbort;
         ctrl.subBKZ = subBKZ;
@@ -307,7 +307,7 @@ int main( int argc, char* argv[] )
                     Output("Claimed || x ||_2 = ",result);
                     Write( x, shortestVecFile, ASCII, "x" );
 
-                    Enrich( BSub, v );
+                    EnrichLattice( BSub, v );
                     Print( B, "BNew" );
                 }
                 else
