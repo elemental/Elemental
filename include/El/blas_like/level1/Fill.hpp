@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_BLAS_FILL_HPP
+#define EL_BLAS_FILL_HPP
 
 namespace El {
 
@@ -43,7 +44,8 @@ void Fill( SparseMatrix<T>& A, T alpha )
     DEBUG_ONLY(CSE cse("Fill"))
     const Int m = A.Height();
     const Int n = A.Width();
-    Zeros( A, m, n );
+    A.Resize( m, n );
+    Zero( A );
     if( alpha != T(0) )
     {
         A.Reserve( m*n ); 
@@ -60,7 +62,8 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
     DEBUG_ONLY(CSE cse("Fill"))
     const Int m = A.Height();
     const Int n = A.Width();
-    Zeros( A, m, n );
+    A.Resize( m, n );
+    Zero( A );
     if( alpha != T(0) ) 
     {
         const Int localHeight = A.LocalHeight();
@@ -71,6 +74,12 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
         A.ProcessLocalQueues();
     }
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
 
 #define PROTO(T) \
   template void Fill( Matrix<T>& A, T alpha ); \
@@ -86,4 +95,8 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
+#undef EL_EXTERN
+
 } // namespace El
+
+#endif // ifndef EL_BLAS_FILL_HPP
