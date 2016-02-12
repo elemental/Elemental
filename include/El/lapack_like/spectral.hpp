@@ -512,6 +512,9 @@ struct SVDCtrl
     bool avoidComputingU=false; // Avoid computing 'U' in A = U S V^H
     bool avoidComputingV=false; // Avoid computing 'V' in A = U S V^H
 
+    bool time=false;
+    bool avoidLibflame=false;
+
     // Bidiagonal SVD options
     // ----------------------
 
@@ -543,8 +546,6 @@ struct SVDCtrl
     // The numerical tolerance for the thresholding. If this value is kept at
     // zero, then a value is automatically chosen based upon the matrix
     Real tol=0; 
-
-    bool time=false;
 };
 
 // Compute the singular values

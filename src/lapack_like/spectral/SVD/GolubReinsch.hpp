@@ -357,7 +357,10 @@ GolubReinsch
   const SVDCtrl<double>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svd::GolubReinsch<double> [ElementalMatrix Decomp]"))
-    GolubReinschFlame( A, U, s, V, ctrl );
+    if( ctrl.avoidLibflame )
+        GolubReinsch( A, U, s, V, ctrl );
+    else
+        GolubReinschFlame( A, U, s, V, ctrl );
 }
 
 template<>
@@ -372,7 +375,10 @@ GolubReinsch
     DEBUG_ONLY(
       CSE cse("svd::GolubReinsch<Complex<double>> [ElementalMatrix Decomp]")
     )
-    GolubReinschFlame( A, U, s, V, ctrl );
+    if( ctrl.avoidLibflame )
+        GolubReinsch( A, U, s, V, ctrl );
+    else
+        GolubReinschFlame( A, U, s, V, ctrl );
 }
 #endif // EL_HAVE_FLA_BSVD
 

@@ -892,12 +892,13 @@ class SVDCtrl_s(ctypes.Structure):
               ("overwrite",bType),
               ("avoidComputingU",bType),
               ("avoidComputingV",bType),
+              ("time",bType),
+              ("avoidLibflame",bType),
               ("seqQR",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
               ("relative",bType),
-              ("tol",sType),
-              ("time",bType)]
+              ("tol",sType)]
   def __init__(self):
     lib.ElSVDCtrlDefault_s(pointer(self))
 class SVDCtrl_d(ctypes.Structure):
@@ -905,12 +906,13 @@ class SVDCtrl_d(ctypes.Structure):
               ("overwrite",bType),
               ("avoidComputingU",bType),
               ("avoidComputingV",bType),
+              ("time",bType),
+              ("avoidLibflame",bType),
               ("seqQR",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
               ("relative",bType),
-              ("tol",dType),
-              ("time",bType)]
+              ("tol",dType)]
   def __init__(self):
     lib.ElSVDCtrlDefault_d(pointer(self))
 
