@@ -124,13 +124,13 @@ int main( int argc, char* argv[] )
               else if( j <= 5 )
                   return 66 - j;
               else if( j <= 10 )
-                  return 60;
+                  return 62;
               else if( j <= 20 )
-                  return 55;
+                  return 60;
               else if( j <= 50 )
-                  return 50;
+                  return 55;
               else
-                  return 40;
+                  return 45;
           };
         auto probEnumLambda = 
           [&]( Int j )
