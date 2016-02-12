@@ -31,6 +31,7 @@ GolubReinsch
     const char uplo = ( m>=n ? 'U' : 'L' );
     const bool avoidU = ctrl.avoidComputingU;
     const bool avoidV = ctrl.avoidComputingV;
+    const Grid& g = A.Grid();
     if( avoidU && avoidV )
     {
         SVD( A, s, ctrl );
@@ -38,9 +39,13 @@ GolubReinsch
     }
 
     // Bidiagonalize A
-    const Grid& g = A.Grid();
+    Timer timer;
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     Bidiag( A, tP, tQ );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
     // Grab copies of the diagonal and sub/super-diagonal of A
     auto d_MD_STAR = GetRealPartOfDiagonal(A);
@@ -75,11 +80,19 @@ GolubReinsch
     // rotations into our local portion of U and VAdj
     Matrix<F>& ULoc = U_VC_STAR.Matrix();
     Matrix<F>& VAdjLoc = VAdj_STAR_VC.Matrix();
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     lapack::BidiagQRAlg
     ( uplo, k, VAdjLoc.Width(), ULoc.Height(),
       d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
       VAdjLoc.Buffer(), VAdjLoc.LDim(), 
       ULoc.Buffer(), ULoc.LDim() );
+    if( ctrl.time )
+    {
+        mpi::Barrier( g.Comm() );
+        if( g.Rank() == 0 )
+            Output("BidiagQRAlg: ",timer.Stop()," seconds");
+    }
 
     Int rank = k;
     const bool compact = ( ctrl.approach == COMPACT_SVD );
@@ -138,8 +151,12 @@ GolubReinsch
     }
 
     // Backtransform U and V
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
     if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
 }
 
 template<typename F>
@@ -178,6 +195,7 @@ GolubReinschFlame
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const bool avoidU = ctrl.avoidComputingU;
     const bool avoidV = ctrl.avoidComputingV;
+    const Grid& g = A.Grid();
     if( avoidU && avoidV )
     {
         SVD( A, s, ctrl );
@@ -185,9 +203,13 @@ GolubReinschFlame
     }
 
     // Bidiagonalize A
-    const Grid& g = A.Grid();
+    Timer timer;
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     Bidiag( A, tP, tQ );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
     // Grab copies of the diagonal and sub/super-diagonal of A
     auto d_MD_STAR = GetRealPartOfDiagonal(A);
@@ -216,6 +238,8 @@ GolubReinschFlame
     // Since libFLAME, to the best of my current knowledge, only supports the
     // upper-bidiagonal case, we may instead work with the adjoint in the 
     // lower-bidiagonal case.
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     if( m >= n )
     {
         flame::BidiagSVD
@@ -231,6 +255,12 @@ GolubReinschFlame
           d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           V_VC_STAR.Buffer(), V_VC_STAR.LDim(),
           U_VC_STAR.Buffer(), U_VC_STAR.LDim() );
+    }
+    if( ctrl.time )
+    {
+        mpi::Barrier( g.Comm() );
+        if( g.Rank() == 0 )
+            Output("BidiagQRAlg: ",timer.Stop()," seconds");
     }
 
     Int rank = k;
@@ -290,8 +320,12 @@ GolubReinschFlame
     }
 
     // Backtransform U and V
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
     if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
 }
 
 template<typename F>
@@ -355,11 +389,16 @@ GolubReinsch
     const Int n = A.Width();
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const Grid& g = A.Grid();
 
     // Bidiagonalize A
-    const Grid& g = A.Grid();
+    Timer timer;
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     Bidiag( A, tP, tQ );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
     // Grab copies of the diagonal and sub/super-diagonal of A
     auto d_MD_STAR = GetRealPartOfDiagonal(A);
@@ -377,7 +416,11 @@ GolubReinsch
     e_STAR_STAR = e_MD_STAR;
 
     // Compute the singular values of the bidiagonal matrix via DQDS
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
     lapack::BidiagDQDS( k, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer() );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("DQDS: ",timer.Stop()," seconds");
     const bool compact = ( ctrl.approach == COMPACT_SVD );
     if( compact )
     {

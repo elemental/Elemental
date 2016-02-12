@@ -543,6 +543,8 @@ struct SVDCtrl
     // The numerical tolerance for the thresholding. If this value is kept at
     // zero, then a value is automatically chosen based upon the matrix
     Real tol=0; 
+
+    bool time=false;
 };
 
 // Compute the singular values

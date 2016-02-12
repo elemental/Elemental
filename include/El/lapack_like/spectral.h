@@ -875,6 +875,8 @@ typedef struct {
   double fullChanRatio;
   bool relative;
   float tol;
+
+  bool time;
 } ElSVDCtrl_s;
 EL_EXPORT ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
 
@@ -889,6 +891,8 @@ typedef struct {
   double fullChanRatio;
   bool relative;
   double tol;
+
+  bool time;
 } ElSVDCtrl_d;
 EL_EXPORT ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl );
 

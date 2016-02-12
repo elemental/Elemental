@@ -1134,6 +1134,8 @@ inline SVDCtrl<float> CReflect( const ElSVDCtrl_s& ctrlC )
     ctrl.relative = ctrlC.relative;
     ctrl.tol = ctrlC.tol;
 
+    ctrl.time = ctrlC.time;
+
     return ctrl;
 }
 
@@ -1150,6 +1152,9 @@ inline SVDCtrl<double> CReflect( const ElSVDCtrl_d& ctrlC )
     ctrl.fullChanRatio = ctrlC.fullChanRatio;
     ctrl.relative = ctrlC.relative;
     ctrl.tol = ctrlC.tol;
+
+    ctrl.time = ctrlC.time;
+
     return ctrl;
 }
 
@@ -1166,6 +1171,9 @@ inline ElSVDCtrl_s CReflect( const SVDCtrl<float>& ctrl )
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
     ctrlC.relative = ctrl.relative;
     ctrlC.tol = ctrl.tol;
+
+    ctrlC.time = ctrl.time;
+
     return ctrlC;
 }
 
@@ -1182,6 +1190,9 @@ inline ElSVDCtrl_d CReflect( const SVDCtrl<double>& ctrl )
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
     ctrlC.relative = ctrl.relative;
     ctrlC.tol = ctrl.tol;
+
+    ctrlC.time = ctrl.time;
+
     return ctrlC;
 }
 

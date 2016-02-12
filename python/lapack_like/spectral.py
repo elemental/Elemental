@@ -896,7 +896,8 @@ class SVDCtrl_s(ctypes.Structure):
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
               ("relative",bType),
-              ("tol",sType)]
+              ("tol",sType),
+              ("time",bType)]
   def __init__(self):
     lib.ElSVDCtrlDefault_s(pointer(self))
 class SVDCtrl_d(ctypes.Structure):
@@ -908,7 +909,8 @@ class SVDCtrl_d(ctypes.Structure):
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
               ("relative",bType),
-              ("tol",dType)]
+              ("tol",dType),
+              ("time",bType)]
   def __init__(self):
     lib.ElSVDCtrlDefault_d(pointer(self))
 
