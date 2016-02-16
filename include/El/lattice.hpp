@@ -328,13 +328,19 @@ Int AlgebraicRelationSearch
 // Schnorr-Euchner enumeration
 // ===========================
 
+namespace EnumTypeNS {
+enum EnumType {
+    FULL_ENUM,
+    GNR_ENUM,
+    YSPARSE_ENUM
+};
+}
+using namespace EnumTypeNS;
+
 template<typename Real>
 struct EnumCtrl
 {
-    bool probabalistic=false;
-    // TODO: Add ability to further tune the bounding function
-    bool linearBounding=false;
-    Int numTrials=1000;
+    EnumType enumType=FULL_ENUM;
 
     Real fudge=Real(1.5); // fudge factor for number of bits of precision
 
@@ -344,16 +350,52 @@ struct EnumCtrl
     // For monitoring the core (bounded) enumeration procedure
     bool innerProgress=false;
 
+    // GNR_ENUM
+    // --------
+    // TODO: Add ability to further tune the bounding function
+    bool linearBounding=false;
+    Int numTrials=1000;
+
+    // YSPARSE_ENUM
+    // ------------
+    Int phaseLength=10;
+
+    bool customStartIndex=false; 
+    Int startIndex;
+
+    bool customMaxInfNorms=false;
+    vector<Int> maxInfNorms;
+
+    bool customMaxOneNorms=false;
+    vector<Int> maxOneNorms; 
+
+    Int progressLevel=0;
+
     template<typename OtherReal>
     EnumCtrl<Real>& operator=( const EnumCtrl<OtherReal>& ctrl )
     {
-        probabalistic = ctrl.probabalistic;
-        linearBounding = ctrl.linearBounding;
-        numTrials = ctrl.numTrials;
+        enumType = ctrl.enumType;
         fudge = Real(ctrl.fudge);
         time = ctrl.time;
         progress = ctrl.progress;
         innerProgress = ctrl.innerProgress;
+
+        // GNR_ENUM
+        // --------
+        linearBounding = ctrl.linearBounding;
+        numTrials = ctrl.numTrials;
+
+        // YSPARSE_ENUM
+        // ------------
+        phaseLength = ctrl.phaseLength;
+        customStartIndex = ctrl.customStartIndex;
+        startIndex = ctrl.startIndex;
+        customMaxInfNorms = ctrl.customMaxInfNorms;
+        maxInfNorms = ctrl.maxInfNorms;
+        customMaxOneNorms = ctrl.customMaxOneNorms;
+        maxOneNorms = ctrl.maxOneNorms;
+        progressLevel = ctrl.progressLevel;
+
         return *this;
     }
 
@@ -382,6 +424,36 @@ Base<F> BoundedEnumeration
   const Matrix<Base<F>>& u,
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+// Convert to/from the so-called "y-sparse" representation of
+//
+//   Dan Ding, Guizhen Zhu, Yang Yu, and Zhongxiang Zheng,
+//   "A fast phase-based enumeration algorithm for SVP challenge through
+//    y-sparse representations of short lattice vectors"
+
+template<typename F>
+void CoordinatesToSparse
+( const Matrix<F>& R, const Matrix<F>& v, Matrix<F>& y );
+template<typename F>
+void SparseToCoordinates
+( const Matrix<F>& R, const Matrix<F>& y, Matrix<F>& v );
+
+template<typename F>
+Base<F> CoordinatesToNorm( const Matrix<F>& R, const Matrix<F>& v );
+template<typename F>
+Base<F> SparseToNorm( const Matrix<F>& R, const Matrix<F>& y );
+
+template<typename Real>
+Real PhaseEnumeration
+( const Matrix<Real>& B,
+  const Matrix<Real>& R,
+        Real normUpperBound,
+        Int startIndex,
+        Int phaseLength,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& maxOneNorms,
+        Matrix<Real>& v,
+        Int progressLevel=0 );
 
 } // namespace svp
 
@@ -465,9 +537,8 @@ struct BKZCtrl
     bool variableBlocksize=false;
     function<Int(Int)> blocksizeFunc;
 
-    bool variableProbEnum=false;
-    function<bool(Int)> probEnumFunc;
-    function<Int(Int)> numTrialsFunc;
+    bool variableEnumType=false;
+    function<EnumType(Int)> enumTypeFunc;
 
     bool skipInitialLLL=false;
     bool jumpstart=false;
@@ -522,9 +593,8 @@ struct BKZCtrl
         variableBlocksize = ctrl.variableBlocksize;
         blocksizeFunc = ctrl.blocksizeFunc;
 
-        variableProbEnum = ctrl.variableProbEnum;
-        probEnumFunc = ctrl.probEnumFunc;
-        numTrialsFunc = ctrl.numTrialsFunc;
+        variableEnumType = ctrl.variableEnumType;
+        enumTypeFunc = ctrl.enumTypeFunc;
 
         skipInitialLLL = ctrl.skipInitialLLL;
 

@@ -366,11 +366,8 @@ BKZInfo<Base<F>> BKZWithQ
         if( ctrl.time )
             bkz::enumTimer.Start();
         auto enumCtrl = ctrl.enumCtrl;
-        if( ctrl.variableProbEnum )
-        {
-            enumCtrl.probabalistic = ctrl.probEnumFunc(j);
-            enumCtrl.numTrials = ctrl.numTrialsFunc(j);
-        }
+        if( ctrl.variableEnumType )
+            enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Real minProjNorm =
           ShortestVectorEnumeration( BEnum, QREnum, v, enumCtrl );
         if( ctrl.time )
@@ -437,7 +434,7 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.earlyAbort = ctrl.subEarlyAbort;
             subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
             subCtrl.variableBlocksize = false;
-            subCtrl.variableProbEnum = false;
+            subCtrl.variableEnumType = false;
             subCtrl.recursive = false;
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;
@@ -867,11 +864,8 @@ BKZInfo<Base<F>> BKZWithQ
         if( ctrl.time )
             bkz::enumTimer.Start();
         auto enumCtrl = ctrl.enumCtrl;
-        if( ctrl.variableProbEnum )
-        {
-            enumCtrl.probabalistic = ctrl.probEnumFunc(j);
-            enumCtrl.numTrials = ctrl.numTrialsFunc(j);
-        }
+        if( ctrl.variableEnumType )
+            enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Real minProjNorm =
           ShortestVectorEnumeration( BEnum, QREnum, v, enumCtrl );
         if( ctrl.time )
@@ -935,7 +929,7 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.earlyAbort = ctrl.subEarlyAbort;
             subCtrl.numEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
             subCtrl.variableBlocksize = false;
-            subCtrl.variableProbEnum = false;
+            subCtrl.variableEnumType = false;
             subCtrl.recursive = false;
             subCtrl.logFailedEnums = false;
             subCtrl.logStreakSizes = false;

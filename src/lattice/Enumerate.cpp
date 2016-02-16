@@ -12,6 +12,324 @@ namespace El {
 
 namespace svp {
 
+template<typename F>
+void CoordinatesToSparse( const Matrix<F>& R, const Matrix<F>& v, Matrix<F>& y )
+{
+    DEBUG_ONLY(CSE cse("svp::CoordinatesToSparse"))
+    const Int n = R.Height();
+    Zeros( y, n, 1 );
+    Gemv( NORMAL, F(1), R, v, F(0), y );
+    auto r = GetDiagonal( R );
+    DiagonalSolve( LEFT, NORMAL, r, y );
+    Round( y );
+}
+
+template<typename F>
+void SparseToCoordinates( const Matrix<F>& R, const Matrix<F>& y, Matrix<F>& v )
+{
+    DEBUG_ONLY(CSE cse("svp::SparseToCoordinates"))
+    typedef Base<F> Real;
+    const Int n = R.Height();
+    v.Resize( n, 1 );
+
+    // A custom rounded analogue of an upper-triangular solve
+    const F* RBuf = R.LockedBuffer();
+    const F* yBuf = y.LockedBuffer();
+          F* vBuf = v.Buffer();
+    const Int RLDim = R.LDim();
+    for( Int j=n-1; j>=0; --j )
+    {
+        Real tau = 0;
+        for( Int k=j+1; k<n; ++k ) 
+            tau += RBuf[j+k*RLDim]*vBuf[k];
+        tau /= RBuf[j+j*RLDim];
+        vBuf[j] = yBuf[j] - Round(tau);
+    }
+}
+
+template<typename F>
+Base<F> CoordinatesToNorm( const Matrix<F>& R, const Matrix<F>& v )
+{
+    DEBUG_ONLY(CSE cse("svp::CoordinatesToNorm"))
+    Matrix<F> z( v );
+    Trmv( UPPER, NORMAL, NON_UNIT, R, z );
+    return FrobeniusNorm( z );
+}
+
+template<typename F>
+Base<F> SparseToNormLowerBound( const Matrix<F>& R, const Matrix<F>& y )
+{
+    DEBUG_ONLY(CSE cse("svp::SparseToNormLowerBound"))
+    typedef Base<F> Real;
+    const Int n = R.Height();
+    const F* RBuf = R.LockedBuffer();
+    const F* yBuf = y.LockedBuffer();
+    const Int RLDim = R.LDim();
+
+    Real lowerBoundSquared = 0;
+    for( Int j=0; j<n; ++j )
+    {
+        if( yBuf[j] != F(0) )
+        {
+            const Real arg = (Abs(yBuf[j])-Real(0.5))*RealPart(RBuf[j+j*RLDim]);
+            lowerBoundSquared += Pow(arg,Real(2));
+        }
+    }
+    return Sqrt(lowerBoundSquared);
+}
+
+template<typename F>
+Base<F> SparseToNorm( const Matrix<F>& R, const Matrix<F>& y )
+{
+    DEBUG_ONLY(CSE cse("svp::SparseToNorm"))
+    const Int n = R.Height();
+    Matrix<F> v;
+    SparseToCoordinates( R, y, v );
+    return CoordinatesToNorm( R, v );
+}
+
+template<typename Real>
+void PhaseEnumerationBottom
+( const Matrix<Real>& B,
+  const Matrix<Real>& R,
+        Matrix<Real>& y,
+        Matrix<Real>& v,
+        Real& normUpperBound,
+        bool& foundVector,
+        Int lastPhaseBeg,
+        Int beg,
+        Int minInf,
+        Int maxInf,
+        Int minOne,
+        Int maxOne,
+        bool zeroSoFar )
+{
+    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationBottom"))
+    const Int m = B.Height();
+    const Int n = B.Width();
+          Real* yBuf = y.Buffer();
+
+    if( beg == lastPhaseBeg && minOne == 0 && minInf == 0 )
+    {
+        SparseToCoordinates( R, y, v );
+        const Real bNorm = CoordinatesToNorm( R, v );
+
+        if( bNorm < normUpperBound && bNorm != Real(0) )
+        {
+            Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
+            Print( y, "y" );
+            Print( v, "v" );
+
+            Matrix<Real> b;
+            Zeros( b, m, 1 );
+            Gemv( NORMAL, Real(1), B, v, Real(0), b );
+            Print( b, "b" );
+
+            normUpperBound = bNorm;
+            foundVector = true;
+        }
+    }
+
+    // TODO: Accept as an input?
+    Real baseOneNorm = 0;
+    for( Int j=lastPhaseBeg; j<beg; ++j )
+        baseOneNorm += Abs(yBuf[j]);
+
+    // TODO: Accept as an input?
+    Real baseInfNorm = 0;
+    for( Int j=lastPhaseBeg; j<beg; ++j )
+        baseInfNorm = Max(Abs(yBuf[j]),baseInfNorm);
+
+    for( Int i=beg; i<n; ++i )
+    {
+        for( Int beta=-maxInf; beta<=maxInf; ++beta )
+        {
+            // Save a factor of two by demanding that the first entry is +
+            if( beta == 0 || (zeroSoFar && beta<0) )
+                continue;
+
+            Real newOneNorm = baseOneNorm + Abs(beta);
+            Real newInfNorm = Max(baseInfNorm,Real(Abs(beta)));
+            if( minOne <= newOneNorm && newOneNorm <= maxOne &&
+                minInf <= newInfNorm && newInfNorm <= maxInf )
+            {
+                yBuf[i] = beta;
+
+                SparseToCoordinates( R, y, v );
+                const Real bNorm = CoordinatesToNorm( R, v );
+
+                if( bNorm < normUpperBound && bNorm != Real(0) )
+                {
+                    Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
+                    Print( y, "y" );
+                    Print( v, "v" );
+
+                    Matrix<Real> b;
+                    Zeros( b, m, 1 );
+                    Gemv( NORMAL, Real(1), B, v, Real(0), b );
+                    Print( b, "b" );
+
+                    normUpperBound = bNorm;
+                    foundVector = true;
+                }
+
+                if( newOneNorm < maxOne && i != n-1 )
+                    PhaseEnumerationBottom
+                    ( B, R, y, v, normUpperBound, foundVector, lastPhaseBeg,
+                      i+1, minInf, maxInf, minOne, maxOne, false );
+
+                yBuf[i] = 0;
+            }
+        }
+    }
+}
+
+template<typename Real>
+void PhaseEnumerationInner
+( const Matrix<Real>& B,
+  const Matrix<Real>& R,
+        Matrix<Real>& y,
+        Matrix<Real>& v,
+        Real& normUpperBound,
+        bool& foundVector,
+        Int phaseLength,
+        Int phase,
+        Int beg,
+        Int end,
+  const vector<Int>& minInfNorms,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
+  const vector<Int>& maxOneNorms,
+  bool zeroSoFar,
+  Int progressLevel )
+{
+    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationInner"))
+    const Int n = R.Height();
+    Real* yBuf = y.Buffer();
+
+    const Int phaseBeg = Max(end-phaseLength,0);
+    const Int nextPhaseEnd = Min(end+phaseLength,n);
+
+    if( end >= n )
+    {
+        PhaseEnumerationBottom
+        ( B, R, y, v, normUpperBound, foundVector, beg, beg,
+          minInfNorms.back(), maxInfNorms.back(),
+          minOneNorms.back(), maxOneNorms.back(),
+          zeroSoFar );
+        return;
+    }
+
+    if( beg == phaseBeg && minInfNorms[phase] == 0 && minOneNorms[phase] == 0 )
+    {
+        // This phase can be all zeroes, so move to the next phase
+        PhaseEnumerationInner
+        ( B, R, y, v, normUpperBound, foundVector, phaseLength,
+          phase+1, end, nextPhaseEnd,
+          minInfNorms, maxInfNorms, minOneNorms, maxOneNorms, zeroSoFar,
+          progressLevel );
+    }
+
+    Int baseOneNorm = 0;
+    for( Int j=phaseBeg; j<beg; ++j ) 
+        baseOneNorm += Int(Abs(yBuf[j])); 
+
+    Int baseInfNorm = 0;
+    for( Int j=phaseBeg; j<beg; ++j ) 
+        baseInfNorm = Max( baseInfNorm, Int(Abs(yBuf[j])) );
+
+    for( Int i=beg; i<end; ++i )
+    {
+        for( Int beta=-maxInfNorms[phase]; beta<=maxInfNorms[phase]; ++beta )
+        {
+            // Save a factor of two by ensuring that the first entry is +
+            if( beta == 0 || (zeroSoFar && beta<0) )
+                continue;
+
+            const Int phaseOneNorm = baseOneNorm + Int(Abs(beta));
+            const Int phaseInfNorm = Max( baseInfNorm, Int(Abs(beta)) );
+            if( phaseOneNorm <= maxOneNorms[phase] )
+            {
+                if( phase < progressLevel )
+                    Output("phase ",phase,": y[",i,"]=",beta);
+                
+                yBuf[i] = beta;
+
+                if( phaseOneNorm >= minOneNorms[phase] &&
+                    phaseOneNorm <= maxOneNorms[phase] &&
+                    phaseInfNorm >= minInfNorms[phase] )
+                {
+                    // Fix y[i] = beta and move to the next phase
+                    PhaseEnumerationInner
+                    ( B, R, y, v, normUpperBound, foundVector, phaseLength,
+                      phase+1, end, nextPhaseEnd,
+                      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                      false, progressLevel );
+                }
+                if( phaseOneNorm < maxOneNorms[phase] )
+                {
+                    // Fix y[i] = beta and move to y[i+1]
+                    PhaseEnumerationInner
+                    ( B, R, y, v, normUpperBound, foundVector, phaseLength,
+                      phase, i+1, end,
+                      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                      false, progressLevel );
+                }
+
+                yBuf[i] = 0;
+            }
+        }
+    }
+}
+
+template<typename Real>
+Real PhaseEnumeration
+( const Matrix<Real>& B,
+  const Matrix<Real>& R,
+        Real normUpperBound,
+        Int startIndex,
+        Int phaseLength,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& maxOneNorms,
+        Matrix<Real>& v,
+        Int progressLevel )
+{
+    DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
+    const Int n = R.Height();
+    if( n <= 1 )
+        return 2*normUpperBound + 1;
+
+    // TODO: Make starting index modifiable
+    const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
+    if( numPhases != Int(maxInfNorms.size()) )
+        LogicError("Invalid length of maxInfNorms");
+    if( numPhases != Int(maxOneNorms.size()) )
+        LogicError("Invalid length of maxOneNorms");
+
+    Matrix<Real> y;
+    Zeros( y, n, 1 );
+
+    // TODO: Make these values modifiable
+    vector<Int> minInfNorms(numPhases,0), minOneNorms(numPhases,0);
+
+    // TODO: Loop and increase bands for min and max one and inf norms?
+
+    Int phase=0;
+    Int beg=startIndex;
+    Int end=Min(beg+phaseLength,n);
+    bool foundVector = false;
+    bool zeroSoFar = true;
+    PhaseEnumerationInner
+    ( B, R, y, v, normUpperBound, foundVector, phaseLength, phase, beg, end,
+      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms, zeroSoFar,
+      progressLevel );
+
+    if( foundVector )
+        return normUpperBound;
+    else
+        return 2*normUpperBound+1;
+}
+
 // See Algorithm 2 from:
 //
 //   Nicolas Gama, Phong Q. Nguyen, and Oded Regev,
@@ -296,9 +614,9 @@ Base<F> ShortVectorEnumeration
         v.Set( 0, 0, F(1) );
         return b0ProjNorm; 
     }
-
     Timer timer;
-    if( ctrl.probabalistic )
+
+    if( ctrl.enumType == GNR_ENUM )
     {
         Matrix<Real> upperBounds(n,1);
         if( ctrl.linearBounding )
@@ -411,7 +729,17 @@ Base<F> ShortVectorEnumeration
                 if( trial > 0 )
                 {
                     if( ctrl.progress )
+                    {
                         Print( v, "vInner" );
+                        Matrix<F> y;
+                        Zeros( y, RNew.Height(), 1 );
+                        Gemv( NORMAL, F(1), RNew, v, F(0), y );
+                        auto rNew = GetDiagonal( RNew );
+                        DiagonalSolve( LEFT, NORMAL, rNew, y );
+                        Print( y, "yBef" );
+                        Round( y );
+                        Print( y, "y" );
+                    }
                     auto vCopy( v );
                     Gemv( NORMAL, F(1), U, vCopy, F(0), v );
                 }
@@ -427,6 +755,26 @@ Base<F> ShortVectorEnumeration
             }
         }
         return 2*normUpperBound+1; // return a value above the upper bound
+    }
+    else if( ctrl.enumType == YSPARSE_ENUM )
+    {
+        const Int phaseLength = ctrl.phaseLength;
+        const Int startIndex =
+          ( ctrl.customStartIndex ? ctrl.startIndex : Max(n/2-1,0) );
+
+        const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
+
+        vector<Int> maxInfNorms(numPhases,1), maxOneNorms(numPhases,1);
+        if( numPhases >= 1 ) maxOneNorms[numPhases-1] = 2;
+
+        if( ctrl.customMaxInfNorms )
+            maxInfNorms = ctrl.maxInfNorms;
+        if( ctrl.customMaxOneNorms )
+            maxOneNorms = ctrl.maxOneNorms;
+
+        return svp::PhaseEnumeration
+          ( B, R, normUpperBound, startIndex, phaseLength,
+            maxInfNorms, maxOneNorms, v, ctrl.progressLevel );
     }
     else
     {
@@ -606,6 +954,24 @@ Base<F> ShortestVectorEnumeration
 }
 
 #define PROTO(F) \
+  template void svp::CoordinatesToSparse \
+  ( const Matrix<F>& R, const Matrix<F>& v, Matrix<F>& y ); \
+  template void svp::SparseToCoordinates \
+  ( const Matrix<F>& R, const Matrix<F>& y, Matrix<F>& v ); \
+  template Base<F> svp::CoordinatesToNorm \
+  ( const Matrix<F>& R, const Matrix<F>& v ); \
+  template Base<F> svp::SparseToNorm \
+  ( const Matrix<F>& R, const Matrix<F>& y ); \
+  template Base<F> svp::PhaseEnumeration \
+  ( const Matrix<F>& B, \
+    const Matrix<F>& R, \
+          Base<F> normUpperBound, \
+          Int startIndex, \
+          Int phaseLength, \
+    const vector<Int>& maxInfNorms, \
+    const vector<Int>& maxOneNorms, \
+          Matrix<F>& v, \
+          Int progressLevel ); \
   template Base<F> svp::BoundedEnumeration \
   ( const Matrix<F>& R, \
     const Matrix<Base<F>>& u, \

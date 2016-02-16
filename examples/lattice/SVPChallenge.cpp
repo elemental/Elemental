@@ -40,7 +40,11 @@ int main( int argc, char* argv[] )
         const Int varInt = Input("--variant","0: weak LLL, 1: normal LLL, 2: deep insertion LLL, 3: deep reduction LLL",1);
         const Int blocksize = Input("--blocksize","BKZ blocksize",20);
         const bool variableBsize = Input("--variableBsize","variable blocksize?",false);
-        const bool variableProbEnum = Input("--variableProbEnum","variable probabalistic enum?",false);
+        const bool variableEnumType = Input("--variableEnumType","variable enum type?",false);
+        const Int phaseLength =
+          Input("--phaseLength","YSPARSE_ENUM phase length",10);
+        const Int progressLevel =
+          Input("--progressLevel","YSPARSE_ENUM progress level",4);
         const bool presort = Input("--presort","presort columns?",false);
         const bool smallestFirst =
           Input("--smallestFirst","sort smallest first?",true);
@@ -75,8 +79,6 @@ int main( int argc, char* argv[] )
           Input("--checkpoint","checkpoint each tour?",true);
         const Real targetRatio =
           Input("--targetRatio","targeted ratio of GH(L)",Real(1.05));
-        const bool probBKZEnum =
-          Input("--probBKZEnum","probabalistic enumeration *within* BKZ?",false);
         const bool timeEnum = Input("--timeEnum","time enum?",true);
         const bool innerEnumProgress =
           Input("--innerEnumProgress","inner enum progress?",false);
@@ -117,12 +119,8 @@ int main( int argc, char* argv[] )
         auto blocksizeLambda =
           [&]( Int j )
           {
-              if( j == 0 )
-                  return 112;
-              else if( j == 1 )
-                  return 98;
-              else if( j <= 5 )
-                  return 66 - j;
+              if( j <= 3 )
+                  return 146;
               else if( j <= 10 )
                   return 62;
               else if( j <= 20 )
@@ -132,33 +130,28 @@ int main( int argc, char* argv[] )
               else
                   return 45;
           };
-        auto probEnumLambda = 
+        auto enumTypeLambda = 
           [&]( Int j )
           {
-              if( j <= 1 )
-                  return true;
+              if( j <= 3 )
+                  return YSPARSE_ENUM;
               else
-                  return false;
+                  return FULL_ENUM;
           };
-        auto numTrialsLambda =
-          [&]( Int j )
-          {
-              return 5;
-          };
-
         BKZCtrl<Real> ctrl;
         ctrl.blocksize = blocksize;
         ctrl.variableBlocksize = variableBsize;
         ctrl.blocksizeFunc = function<Int(Int)>(blocksizeLambda);
-        ctrl.variableProbEnum = variableProbEnum;
-        ctrl.probEnumFunc = function<bool(Int)>(probEnumLambda);
-        ctrl.numTrialsFunc = function<Int(Int)>(numTrialsLambda);
+        ctrl.variableEnumType = variableEnumType;
+        ctrl.enumTypeFunc = function<EnumType(Int)>(enumTypeLambda);
         ctrl.time = timeBKZ;
         ctrl.progress = progressBKZ;
         ctrl.recursive = recursiveBKZ;
-        ctrl.enumCtrl.probabalistic = probBKZEnum;
+        ctrl.enumCtrl.enumType = FULL_ENUM;
         ctrl.enumCtrl.time = timeEnum;
         ctrl.enumCtrl.innerProgress = innerEnumProgress; 
+        ctrl.enumCtrl.phaseLength = phaseLength;
+        ctrl.enumCtrl.progressLevel = progressLevel;
         ctrl.earlyAbort = earlyAbort;
         ctrl.numEnumsBeforeAbort = numEnumsBeforeAbort;
         ctrl.subBKZ = subBKZ;
@@ -178,6 +171,30 @@ int main( int argc, char* argv[] )
         ctrl.lllCtrl.smallestFirst = smallestFirst;
         ctrl.lllCtrl.progress = progressLLL;
         ctrl.lllCtrl.time = timeLLL;
+
+        ctrl.enumCtrl.customMaxInfNorms = true;
+        ctrl.enumCtrl.customMaxOneNorms = true;
+        const Int startIndex = Max(n/2-1,0);
+        const Int numPhases = ((n-startIndex)+phaseLength-1) / phaseLength;
+        ctrl.enumCtrl.maxInfNorms.resize( numPhases, 1 );
+        ctrl.enumCtrl.maxOneNorms.resize( numPhases );
+        // NOTE: This is tailored to SVP 146 where the ranges are
+        // 0: [72,82)
+        // 1: [82,92)
+        // 2: [92,102)
+        // 3: [102,112)
+        // 4: [112,122)
+        // 5: [122,132)
+        // 6: [132,142)
+        // 7: [142,146)
+        ctrl.enumCtrl.maxOneNorms[0] = 0;
+        ctrl.enumCtrl.maxOneNorms[1] = 0;
+        ctrl.enumCtrl.maxOneNorms[2] = 1;
+        ctrl.enumCtrl.maxOneNorms[3] = 1;
+        ctrl.enumCtrl.maxOneNorms[4] = 1;
+        ctrl.enumCtrl.maxOneNorms[5] = 1;
+        ctrl.enumCtrl.maxOneNorms[6] = 2;
+        ctrl.enumCtrl.maxOneNorms[7] = 2;
 
         const double startTime = mpi::Time();
         Matrix<Real> R;
@@ -238,7 +255,7 @@ int main( int argc, char* argv[] )
             {
                 Matrix<double> v;
                 EnumCtrl<double> enumCtrl;
-                enumCtrl.probabalistic = probEnum;
+                enumCtrl.enumType = ( probEnum ? GNR_ENUM : FULL_ENUM );
                 enumCtrl.numTrials = 1;
 
                 Matrix<double> BSubSwap;
@@ -284,7 +301,7 @@ int main( int argc, char* argv[] )
             {
                 Matrix<F> v;
                 EnumCtrl<Real> enumCtrl;
-                enumCtrl.probabalistic = probEnum;
+                enumCtrl.enumType = ( probEnum ? GNR_ENUM : FULL_ENUM );
                 timer.Start();
                 Real result;
                 if( fullEnum )
