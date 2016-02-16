@@ -17,8 +17,8 @@ void CoordinatesToSparse( const Matrix<F>& R, const Matrix<F>& v, Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::CoordinatesToSparse"))
     const Int n = R.Height();
-    Zeros( y, n, 1 );
-    Gemv( NORMAL, F(1), R, v, F(0), y );
+    y = v;
+    Trmv( UPPER, NORMAL, NON_UNIT, R, y );
     auto r = GetDiagonal( R );
     DiagonalSolve( LEFT, NORMAL, r, y );
     Round( y );
@@ -118,7 +118,19 @@ void PhaseEnumerationBottom
         {
             Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
             Print( y, "y" );
+            Print( R, "R" );
             Print( v, "v" );
+            Print( B, "B" );
+
+            // Check that the reverse transformation holds
+            Matrix<Real> yCheck;
+            CoordinatesToSparse( R, v, yCheck );
+            yCheck -= y;
+            if( FrobeniusNorm(yCheck) != Real(0) )
+            {
+                Print( yCheck, "eCheck" );
+                LogicError("Invalid sparse transformation");
+            }
 
             Matrix<Real> b;
             Zeros( b, m, 1 );
@@ -162,7 +174,19 @@ void PhaseEnumerationBottom
                 {
                     Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
                     Print( y, "y" );
+                    Print( R, "R" );
                     Print( v, "v" );
+                    Print( B, "B" );
+
+                    // Check that the reverse transformation holds
+                    Matrix<Real> yCheck;
+                    CoordinatesToSparse( R, v, yCheck );
+                    yCheck -= y;
+                    if( FrobeniusNorm(yCheck) != Real(0) )
+                    {
+                        Print( yCheck, "eCheck" );
+                        LogicError("Invalid sparse transformation");
+                    }
 
                     Matrix<Real> b;
                     Zeros( b, m, 1 );
@@ -732,12 +756,7 @@ Base<F> ShortVectorEnumeration
                     {
                         Print( v, "vInner" );
                         Matrix<F> y;
-                        Zeros( y, RNew.Height(), 1 );
-                        Gemv( NORMAL, F(1), RNew, v, F(0), y );
-                        auto rNew = GetDiagonal( RNew );
-                        DiagonalSolve( LEFT, NORMAL, rNew, y );
-                        Print( y, "yBef" );
-                        Round( y );
+                        svp::CoordinatesToSparse( RNew, v, y );
                         Print( y, "y" );
                     }
                     auto vCopy( v );
