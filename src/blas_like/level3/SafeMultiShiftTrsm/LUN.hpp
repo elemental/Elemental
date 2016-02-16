@@ -21,7 +21,7 @@ OverflowParameters( Real& smlnum, Real& bignum )
     const Real unfl = lapack::MachineSafeMin<Real>();
     const Real ovfl = lapack::MachineOverflowThreshold<Real>();
     const Real ulp  = lapack::MachinePrecision<Real>();
-    smlnum = std::max( unfl/ulp, 1/(ovfl*ulp) );
+    smlnum = Max( unfl/ulp, 1/(ovfl*ulp) );
     bignum = 1/smlnum;
 }
   
@@ -78,7 +78,7 @@ LUNBlock
 	    xjMax *= s;
 	    scales.Set( j, 0, s*scales.Get(j,0) );
 	}
-	xjMax = std::max( xjMax, 2*smlnum );
+	xjMax = Max( xjMax, 2*smlnum );
 
 	// Estimate growth of entries in triangular solve
 	//   Note: See "Robust Triangular Solves for Use in Condition
@@ -93,10 +93,13 @@ LUNBlock
 	        invGi = 0;
 	        break;
 	    }
-	    invMi = std::min( invMi, absUii*invGi );
-	    invGi *= absUii/(absUii+cnorm.Get(i,0));
+	    invMi = Min( invMi, absUii*invGi );
+	    if( i > 0 )
+	    {
+	        invGi *= absUii/(absUii+cnorm.Get(i,0));
+	    }
 	}
-	invGi = std::min( invGi, invMi );
+	invGi = Min( invGi, invMi );
 
 	// Call TRSV if estimated growth is not too large
 	if( invGi > smlnum )
@@ -226,7 +229,7 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
 	    xjMax *= s;
 	    scales.Set( j, 0, s*scales.Get(j,0) );
 	}
-	xjMax = std::max( xjMax, 2*smlnum );
+	xjMax = Max( xjMax, 2*smlnum );
         XMax.Set( j, 0, xjMax );
     }
 	
@@ -312,17 +315,20 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
     }
 }
 
-#if 0
-  // TODO: template specialization for elemental matrices
 template<typename F>
 inline void
 LUN
 ( const ElementalMatrix<F>& UPre, 
   const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre ) 
+        ElementalMatrix<F>& XPre,
+        ElementalMatrix<F>& scalesPre ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUN"))
 
+#if 1
+    // TODO: implementation for elemental matrices
+    LogicError("Not yet implemented for elemental matrices");
+#else
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
@@ -370,8 +376,8 @@ LUN
         U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
     }
-}
 #endif
+}
   
 } // namespace safemstrsm
 } // namespace El

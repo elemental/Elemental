@@ -300,7 +300,24 @@ EL_EXPORT ElError ElSafeMultiShiftTrsm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElMatrix_z A, ElConstMatrix_z shifts, 
                         ElMatrix_z B, ElMatrix_z scales );
-  
+
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_s
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
+               ElDistMatrix_s B, ElDistMatrix_s scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_d
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d shifts, 
+                ElDistMatrix_d B, ElDistMatrix_d scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_c
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
+                       ElDistMatrix_c B, ElDistMatrix_c scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_z
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
+                        ElDistMatrix_z B, ElDistMatrix_z scales );
+
 /* QuasiTrsm
    ========= */
 EL_EXPORT ElError ElQuasiTrsm_s

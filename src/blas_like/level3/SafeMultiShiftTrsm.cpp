@@ -28,40 +28,31 @@ void SafeMultiShiftTrsm
         LogicError("This option is not yet supported");
 }
 
-#if 0
-  // TODO: template specialization for elemental matrices
 template<typename F>
 void SafeMultiShiftTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const ElementalMatrix<F>& U, const ElementalMatrix<F>& shifts, 
-  ElementalMatrix<F>& X )
+  F alpha, const ElementalMatrix<F>& A, const ElementalMatrix<F>& shifts, 
+  ElementalMatrix<F>& B, ElementalMatrix<F>& scales )
 {
-    DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
-    X *= alpha;
-    if( side == LEFT && uplo == UPPER )
+    DEBUG_ONLY(CSE cse("SafeMultiShiftTrsm"))
+    B *= alpha;
+    if( side == LEFT && uplo == UPPER && orientation == NORMAL)
     {
-        if( orientation == NORMAL )
-            mstrsm::LUN( U, shifts, X );
-        else
-            mstrsm::LUT( orientation, U, shifts, X );
+        safemstrsm::LUN( A, shifts, B, scales );
     }
     else
         LogicError("This option is not yet supported");
 }
-#endif
   
 #define PROTO(F) \
   template void SafeMultiShiftTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, Matrix<F>& U, const Matrix<F>& shifts, \
-    Matrix<F>& X, Matrix<F>& scales );
-#if 0
-  // TODO: template specialization for elemental matrices
+    F alpha, Matrix<F>& A, const Matrix<F>& shifts, \
+    Matrix<F>& B, Matrix<F>& scales ); \
   template void SafeMultiShiftTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const ElementalMatrix<F>& U, \
-    const ElementalMatrix<F>& shifts, ElementalMatrix<F>& X );
-#endif
+    F alpha, const ElementalMatrix<F>& A, const ElementalMatrix<F>& shifts, \
+    ElementalMatrix<F>& B, ElementalMatrix<F>& scales );
   
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

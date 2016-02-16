@@ -9,6 +9,158 @@
 #include "El.hpp"
 using namespace El;
 
+// Tests with local matrices
+// TODO: replace this with tests for distributed matrices
+#if 1
+
+template<typename F>
+void TestCorrectness
+( bool print,
+  const Matrix<F>& A,
+  const Matrix<F>& X )
+{
+    typedef Base<F> Real;
+    const Int n = X.Height();
+    const Int k = X.Width();
+    
+    // Find the residual R = AX-XW
+    Matrix<F> R( X );
+    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, R );
+    Matrix<F> XW( X );
+    Matrix<F> w;
+    GetDiagonal( A, w );
+    DiagonalScale( RIGHT, NORMAL, w, XW );
+    R -= XW;
+    // Find the Frobenius norms of A and AX-XW
+    Real frobNormA = FrobeniusNorm( A );
+    Real frobNormR = FrobeniusNorm( R );
+    // Find condition number
+    Real condX = Condition( X );
+    Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
+    Output("    cond(X) = ", condX);
+      
+}
+
+template<typename F>
+void TestTriangEig
+( bool testCorrectness,
+  bool print,
+  Int m, 
+  string testMatrix )
+{
+    Matrix<F> A, AOrig, X;
+    Matrix<F> w;
+    Output("Testing with ",TypeName<F>());
+
+    for( Int i=0; i<testMatrix.length(); ++i )
+    {
+        testMatrix[i] = std::tolower( testMatrix[i] );
+    }
+    
+    // Generate test matrix
+    if( testMatrix == "grcar" )
+    {
+        Matrix<Complex<Base<F>>> d;
+	Grcar( A, m );
+	Schur( A, d );
+	MakeTrapezoidal( UPPER, A, 0 );
+    }
+    else if( testMatrix == "repeated" )
+    {
+        // LU factorization of Gaussian matrix
+        Matrix<F> B;
+	Gaussian( B, m, m );
+	LU( B );
+	Transpose( B, A );
+	MakeTrapezoidal( UPPER, A, 0 );
+
+	// 4/5 of eigenvalues are repeated
+	F repeatList[4];
+	for(Int i=0; i<Min(4,m); ++i)
+	{
+	    repeatList[i] = A.Get(i,i);
+	}
+	for(Int i=0; i<m; ++i)
+	{
+	    if( i%5 < 4 )
+	    {
+	        A.Set(i,i,repeatList[i%5]);
+	    }
+	}    
+    }
+    else
+    {
+        // LU factorization of Gaussian matrix
+        Matrix<F> B;
+	Gaussian( B, m, m );
+	LU( B );
+	Transpose( B, A );
+	MakeTrapezoidal( UPPER, A, 0 );
+    }
+    
+    if( testCorrectness )
+    {
+        AOrig = A;
+	GetDiagonal( A, w );
+    }
+    if( print )
+        Print( A, "A" );
+
+    Output("  Starting triangular eigensolver...");
+    const double startTime = mpi::Time();
+    TriangEig( A, X );
+    const double runTime = mpi::Time() - startTime;
+    Output("  Time = ",runTime," seconds");
+    if( print )
+    {
+        Print( w, "eigenvalues:" );
+	Print( X, "eigenvectors:" );
+    }
+    if( testCorrectness )
+        TestCorrectness( print, AOrig, X );
+}
+
+int 
+main( int argc, char* argv[] )
+{
+    Environment env( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
+
+    try
+    {
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
+        const Int n = Input("--height","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",true);
+        const bool print = Input("--print","print matrices?",false);
+        const bool testReal = Input("--testReal","test real matrices?",true);
+        const bool testCpx = Input("--testCpx","test complex matrices?",true);
+	std::string testMatrix = Input("--testMatrix","test matrix (gaussian, repeated, grcar)","gaussian");
+        ProcessInput();
+        PrintInputReport();
+
+        SetBlocksize( nb );
+        ComplainIfDebug();
+
+        if( testReal )
+            TestTriangEig<double>
+            ( testCorrectness, print,
+              n, testMatrix );
+        if( testCpx )
+            TestTriangEig<Complex<double>>
+            ( testCorrectness, print,
+              n, testMatrix );
+    }
+    catch( exception& e ) { ReportException(e); }
+
+    return 0;
+}
+
+// Tests with distributed matrices
+// TODO: restore this
+#else
+
 template<typename F>
 void TestCorrectness
 ( bool print,
@@ -154,3 +306,5 @@ main( int argc, char* argv[] )
 
     return 0;
 }
+
+#endif
