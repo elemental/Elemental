@@ -14,6 +14,21 @@ using namespace El;
 #if 1
 
 template<typename F>
+void FoxLiSchurFactor( Matrix<F>& A, Int m )
+{
+    LogicError( "Fox-Li matrix is a complex matrix" );
+}
+template<typename Real>
+void FoxLiSchurFactor( Matrix<Complex<Real>>& A, Int m )
+{
+    Matrix<Complex<Real>> B;
+    FoxLi( B, m, Real(-0.179) );
+    A = ( B );
+    Schur( A, B );
+    MakeTrapezoidal( UPPER, A, 0 );
+}
+
+template<typename F>
 void TestCorrectness
 ( bool print,
   const Matrix<F>& A,
@@ -46,56 +61,74 @@ void TestTriangEig
 ( bool testCorrectness,
   bool print,
   Int m, 
-  string testMatrix )
+  Int testMatrix )
 {
+    typedef Base<F> Real;
+
     Matrix<F> A, AOrig, X;
     Matrix<F> w;
-    Output("Testing with ",TypeName<F>());
 
-    for( Int i=0; i<testMatrix.length(); ++i )
-    {
-        testMatrix[i] = std::tolower( testMatrix[i] );
-    }
-    
     // Generate test matrix
-    if( testMatrix == "grcar" )
+    switch( testMatrix )
     {
-        Matrix<Complex<Base<F>>> d;
-	Grcar( A, m );
-	Schur( A, d );
-	MakeTrapezoidal( UPPER, A, 0 );
-    }
-    else if( testMatrix == "repeated" )
-    {
-        // LU factorization of Gaussian matrix
-        Matrix<F> B;
-	Gaussian( B, m, m );
-	LU( B );
-	Transpose( B, A );
-	MakeTrapezoidal( UPPER, A, 0 );
 
-	// 4/5 of eigenvalues are repeated
-	F repeatList[4];
-	for(Int i=0; i<Min(4,m); ++i)
-	{
-	    repeatList[i] = A.Get(i,i);
+    case 0:
+        {
+	    // LU factorization of Gaussian matrix
+	    Matrix<F> B;
+	    Gaussian( B, m, m );
+	    LU( B );
+	    Transpose( B, A );
+	    MakeTrapezoidal( UPPER, A, 0 );
+	    break;
 	}
-	for(Int i=0; i<m; ++i)
-	{
-	    if( i%5 < 4 )
+
+    case 1:
+        {
+	    // LU factorization of Gaussian matrix
+	    Matrix<F> B;
+	    Gaussian( B, m, m );
+	    LU( B );
+	    Transpose( B, A );
+	    MakeTrapezoidal( UPPER, A, 0 );
+
+	    // 4/5 of eigenvalues are repeated
+	    F repeatList[4];
+	    for(Int i=0; i<Min(4,m); ++i)
 	    {
-	        A.Set(i,i,repeatList[i%5]);
+		repeatList[i] = A.Get(i,i);
 	    }
-	}    
-    }
-    else
-    {
-        // LU factorization of Gaussian matrix
-        Matrix<F> B;
-	Gaussian( B, m, m );
-	LU( B );
-	Transpose( B, A );
-	MakeTrapezoidal( UPPER, A, 0 );
+	    for(Int i=0; i<m; ++i)
+	    {
+		if( i%5 < 4 )
+		{
+		    A.Set(i,i,repeatList[i%5]);
+		}
+	    }    
+	    break;
+	}
+
+    case 2:
+        {
+	    // Schur factorization of Fox-Li matrix
+	    FoxLiSchurFactor( A, m );
+	    break;
+	}
+	
+    case 3:
+        {
+	    // Schur factorization of Grcar matrix
+	    Matrix<Complex<Real>> d;
+	    Grcar( A, m );
+	    Schur( A, d );
+	    MakeTrapezoidal( UPPER, A, 0 );
+	    break;
+	}
+	
+    default:
+        LogicError("Unknown test matrix");
+	break;
+
     }
     
     if( testCorrectness )
@@ -136,7 +169,7 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
-	std::string testMatrix = Input("--testMatrix","test matrix (gaussian, repeated, grcar)","gaussian");
+	const Int testMatrix = Input("--testMatrix","test matrix (0=Gaussian,1=GaussianRepeated,2=Fox-Li,3=Grcar)",0);
         ProcessInput();
         PrintInputReport();
 
