@@ -325,58 +325,71 @@ LUN
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUN"))
 
-#if 1
-    // TODO: implementation for elemental matrices
-    LogicError("Not yet implemented for elemental matrices");
-#else
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( m, bsize );
+
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
+    DistMatrixReadWriteProxy<F,F,VR,STAR> scalesProx( scalesPre );
     auto& U = UProx.GetLocked();
     auto& shifts = shiftsProx.GetLocked();
     auto& X = XProx.Get();
-
+    auto& scales = scalesProx.Get();
+    Ones( scales, n, 1 );
+    
     const Grid& g = U.Grid();
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-
-    const Int m = X.Height();
-    const Int bsize = Blocksize();
-    const Int kLast = LastOffset( m, bsize );
-
+    DistMatrix<F,VR,  STAR> scalesUpdate_VR_STAR(g);
+    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR(g);
+    
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const Range<Int> ind0( 0, k    ),
-                         ind1( k, k+nb );
+        const Range<Int> ind0( 0   , k    ),
+	                 ind1( k   , k+nb ),
+	                 ind2( k+nb, END  );
 
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
         auto X0 = X( ind0, ALL );
         auto X1 = X( ind1, ALL );
+	auto X2 = X( ind2, ALL );
 
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR = X1; // X1[* ,VR] <- X1[MC,MR]
+	scalesUpdate_VR_STAR.AlignWith( shifts );
         LUN
         ( U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), 
-          X1_STAR_VR.Matrix() );
+          X1_STAR_VR.Matrix(), scalesUpdate_VR_STAR.Matrix() );
 
         X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1 = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
+
+	// X0[MC,MR] := X0[MC,MR]*diag(scalesUpdate[MR,*])
+	// X2[MC,MR] := X2[MC,MR]*diag(scalesUpdate[MR,*])
+	// scales[VR,*] := diag(scalesUpdate[VR,*])*scales[VR,*]
+	scalesUpdate_MR_STAR.AlignWith( X0 );
+	scalesUpdate_MR_STAR = scalesUpdate_VR_STAR;
+	DiagonalScale( RIGHT, NORMAL, scalesUpdate_MR_STAR, X0 );
+	DiagonalScale( RIGHT, NORMAL, scalesUpdate_MR_STAR, X2 );
+	DiagonalScale( LEFT,  NORMAL, scalesUpdate_VR_STAR, scales );
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
     }
-#endif
 }
   
 } // namespace safemstrsm

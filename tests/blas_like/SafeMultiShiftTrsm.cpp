@@ -20,14 +20,9 @@ void TestSafeMultiShiftTrsm
   const Grid& g )
 {
     typedef Base<F> Real;
-#if 0
-    // TODO: test distributed matrices
+
     DistMatrix<F> A(g), B(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g), scales(g);
-#else
-    Matrix<F> A, B;
-    Matrix<F> shifts, scales;
-#endif
 
     // Generate test matrices
     if( side == LEFT )
@@ -46,17 +41,17 @@ void TestSafeMultiShiftTrsm
     {
         Print( A, "A" );
         Print( shifts, "shifts" );
-	Output( "alpha\n",alpha,"\n" );
+	if( g.Rank() == 0 )
+	    Output( "alpha\n",alpha,"\n" );
         Print( B, "B" );
     }
 
+    auto modShifts( shifts );
+    if( orientation == ADJOINT )
+        Conjugate( modShifts );
+    
     // Perform SafeMultiShiftTrsm
-#if 0
-    // TODO: test distributed matrices
-    DistMatrix<F> X(B);
-#else
-    Matrix<F> X(B);
-#endif
+    X = B;
     if( g.Rank() == 0 )
         Output("  Starting SafeMultiShiftTrsm");
     mpi::Barrier( g.Comm() );
@@ -74,7 +69,7 @@ void TestSafeMultiShiftTrsm
     }
 
     // Compute residual
-    Matrix<F> R(B);
+    DistMatrix<F> R(B);
     if( side == LEFT )
     {
         DiagonalScale( RIGHT, NORMAL, scales, R );
@@ -83,7 +78,7 @@ void TestSafeMultiShiftTrsm
 	{
 	    auto xj = X( ALL, IR(j) );
 	    auto rj = R( ALL, IR(j) );
-	    Axpy( -shifts.Get(j,0), xj, rj );
+	    Axpy( -modShifts.Get(j,0), xj, rj );
 	}
     }
     else
@@ -94,13 +89,13 @@ void TestSafeMultiShiftTrsm
 	{
 	    auto xi = X( IR(i), ALL );
 	    auto ri = R( IR(i), ALL );
-	    Axpy( -shifts.Get(i,0), xi, ri );
+	    Axpy( -modShifts.Get(i,0), xi, ri );
 	}
     }
 
     // Compute maximum relative error
-    const Matrix<F> diag = GetDiagonal( A );
-    Matrix<F> shiftedDiag( diag );
+    const DistMatrix<F> diag = GetDiagonal( A );
+    DistMatrix<F> shiftedDiag( diag );
     FillDiagonal( A, F(0) );
     const Real AOffFrob = FrobeniusNorm( A );
     SetDiagonal( A, diag );
@@ -108,7 +103,7 @@ void TestSafeMultiShiftTrsm
     Real maxRelErr = 0;
     Real minScales = 1;
     Real maxNorm, minNorm;
-    const Real smlnum = std::sqrt( lapack::MachineSafeMin<Real>() );
+    const Real smlnum = Sqrt( lapack::MachineSafeMin<Real>() );
     if( side == LEFT )
     {
         for( Int j=0; j<n; ++j )
@@ -121,13 +116,13 @@ void TestSafeMultiShiftTrsm
 	      shiftedDiag.Update( i, 0, shifts.Get(j,0) );
 	    }
 	    const Real AjDiagFrob = Nrm2( shiftedDiag );
-	    const Real AjFrob = std::sqrt( AOffFrob*AOffFrob + AjDiagFrob*AjDiagFrob );
+	    const Real AjFrob = Sqrt( AOffFrob*AOffFrob + AjDiagFrob*AjDiagFrob );
 	    const Real currErr = RjNrm2/(AjFrob*XjNrm2);
-	    maxErr = std::max( maxErr, RjNrm2 );
-	    maxRelErr = std::max( maxRelErr, currErr );
-	    minScales = std::min( minScales, Abs(scales.Get(j,0)) );
-	    minNorm = j>0 ? std::min( minNorm, XjNrm2 ) : XjNrm2;
-	    maxNorm = j>0 ? std::max( maxNorm, XjNrm2 ) : XjNrm2;
+	    maxErr = Max( maxErr, RjNrm2 );
+	    maxRelErr = Max( maxRelErr, currErr );
+	    minScales = Min( minScales, Abs(scales.Get(j,0)) );
+	    minNorm = j>0 ? Min( minNorm, XjNrm2 ) : XjNrm2;
+	    maxNorm = j>0 ? Max( maxNorm, XjNrm2 ) : XjNrm2;
 	}
     }
     // TODO: side == RIGHT
