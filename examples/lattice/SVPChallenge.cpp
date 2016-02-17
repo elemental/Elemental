@@ -119,9 +119,7 @@ int main( int argc, char* argv[] )
         auto blocksizeLambda =
           [&]( Int j )
           {
-              if( j == 0 )
-                  return 90;
-              else if( j <= 3 )
+              if( j <= 3 )
                   return 146;
               else if( j <= 10 )
                   return 62;
@@ -135,7 +133,7 @@ int main( int argc, char* argv[] )
         auto enumTypeLambda = 
           [&]( Int j )
           {
-              if( j == 1 || j == 2 )
+              if( j <= 3 )
                   return YSPARSE_ENUM;
               else
                   return FULL_ENUM;

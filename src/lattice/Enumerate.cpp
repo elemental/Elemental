@@ -791,16 +791,30 @@ Base<F> ShortVectorEnumeration
         if( ctrl.customMaxOneNorms )
             maxOneNorms = ctrl.maxOneNorms;
 
-        return svp::PhaseEnumeration
+        if( ctrl.progress )
+            Output("Starting YSPARSE_ENUM(",n,")");
+        if( ctrl.time )
+            timer.Start();
+        Real result = svp::PhaseEnumeration
           ( B, R, normUpperBound, startIndex, phaseLength,
             maxInfNorms, maxOneNorms, v, ctrl.progressLevel );
+        if( ctrl.time )
+            Output("YSPARSE_ENUM(",n,"): ",timer.Stop()," seconds");
+        return result;
     }
     else
     {
         Matrix<Real> upperBounds;
         Zeros( upperBounds, n, 1 );
         Fill( upperBounds, normUpperBound );
-        return svp::BoundedEnumeration( R, upperBounds, v, ctrl );
+        if( ctrl.progress )
+            Output("Starting FULL_ENUM(",n,")");
+        if( ctrl.time )
+            timer.Start();
+        Real result = svp::BoundedEnumeration( R, upperBounds, v, ctrl );
+        if( ctrl.time )
+            Output("FULL_ENUM(",n,"): ",timer.Stop()," seconds");
+        return result;
     }
 }
 
@@ -964,6 +978,9 @@ Base<F> ShortestVectorEnumeration
             v = vCand;
             targetNorm = result;
             satisfiedBound = true;
+            // Y-sparse enumeration does not benefit from repetition
+            if( ctrl.enumType == YSPARSE_ENUM ) 
+                return result;
         }
         else if( satisfiedBound )
             return targetNorm;
