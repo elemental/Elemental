@@ -109,28 +109,34 @@ void PhaseEnumerationBottom
     const Int n = B.Width();
           Real* yBuf = y.Buffer();
 
+    Matrix<Real> vCand;
+
     if( beg == lastPhaseBeg && minOne == 0 && minInf == 0 )
     {
-        SparseToCoordinates( R, y, v );
-        const Real bNorm = CoordinatesToNorm( R, v );
+        SparseToCoordinates( R, y, vCand );
+        const Real bNorm = CoordinatesToNorm( R, vCand );
 
         if( bNorm < normUpperBound && bNorm != Real(0) )
         {
             Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
             Print( y, "y" );
             Print( R, "R" );
-            Print( v, "v" );
-            Print( B, "B" );
-
+      
             // Check that the reverse transformation holds
             Matrix<Real> yCheck;
-            CoordinatesToSparse( R, v, yCheck );
+            CoordinatesToSparse( R, vCand, yCheck );
             yCheck -= y;
             if( FrobeniusNorm(yCheck) != Real(0) )
             {
+                Print( vCand, "vCand" );
                 Print( yCheck, "eCheck" );
                 LogicError("Invalid sparse transformation");
             }
+
+            Copy( vCand, v );
+
+            Print( v, "v" );
+            Print( B, "B" );
 
             Matrix<Real> b;
             Zeros( b, m, 1 );
@@ -167,26 +173,30 @@ void PhaseEnumerationBottom
             {
                 yBuf[i] = beta;
 
-                SparseToCoordinates( R, y, v );
-                const Real bNorm = CoordinatesToNorm( R, v );
+                SparseToCoordinates( R, y, vCand );
+                const Real bNorm = CoordinatesToNorm( R, vCand );
 
                 if( bNorm < normUpperBound && bNorm != Real(0) )
                 {
                     Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
                     Print( y, "y" );
                     Print( R, "R" );
-                    Print( v, "v" );
-                    Print( B, "B" );
 
                     // Check that the reverse transformation holds
                     Matrix<Real> yCheck;
-                    CoordinatesToSparse( R, v, yCheck );
+                    CoordinatesToSparse( R, vCand, yCheck );
                     yCheck -= y;
                     if( FrobeniusNorm(yCheck) != Real(0) )
                     {
+                        Print( vCand, "vCand" );
                         Print( yCheck, "eCheck" );
                         LogicError("Invalid sparse transformation");
                     }
+
+                    Copy( vCand, v );
+
+                    Print( v, "v" );
+                    Print( B, "B" );
 
                     Matrix<Real> b;
                     Zeros( b, m, 1 );
