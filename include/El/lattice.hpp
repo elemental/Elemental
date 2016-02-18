@@ -350,6 +350,9 @@ struct EnumCtrl
     // For monitoring the core (bounded) enumeration procedure
     bool innerProgress=false;
 
+    // Explicitly transpose 'N' to encourage unit-stride access
+    bool explicitTranspose=true;
+
     // GNR_ENUM
     // --------
     // TODO: Add ability to further tune the bounding function
@@ -379,6 +382,7 @@ struct EnumCtrl
         time = ctrl.time;
         progress = ctrl.progress;
         innerProgress = ctrl.innerProgress;
+        explicitTranspose = ctrl.explicitTranspose;
 
         // GNR_ENUM
         // --------
@@ -419,8 +423,9 @@ namespace svp {
 // NOTE: There is not currently a complex implementation, though algorithms
 //       exist.
 template<typename F>
-Base<F> BoundedEnumeration
-( const Matrix<F>& R,
+Base<F> GNREnumeration
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
   const Matrix<Base<F>>& u,
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
@@ -433,20 +438,37 @@ Base<F> BoundedEnumeration
 
 template<typename F>
 void CoordinatesToSparse
-( const Matrix<F>& R, const Matrix<F>& v, Matrix<F>& y );
+( const Matrix<F>& N, const Matrix<F>& v, Matrix<F>& y );
 template<typename F>
-void SparseToCoordinates
-( const Matrix<F>& R, const Matrix<F>& y, Matrix<F>& v );
+void TransposedCoordinatesToSparse
+( const Matrix<F>& NTrans, const Matrix<F>& v, Matrix<F>& y );
 
 template<typename F>
-Base<F> CoordinatesToNorm( const Matrix<F>& R, const Matrix<F>& v );
+void SparseToCoordinates
+( const Matrix<F>& N, const Matrix<F>& y, Matrix<F>& v );
 template<typename F>
-Base<F> SparseToNorm( const Matrix<F>& R, const Matrix<F>& y );
+void TransposedSparseToCoordinates
+( const Matrix<F>& NTrans, const Matrix<F>& y, Matrix<F>& v );
+
+template<typename F>
+Base<F> CoordinatesToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& v );
+template<typename F>
+Base<F> TransposedCoordinatesToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& v );
+
+template<typename F>
+Base<F> SparseToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& y );
+template<typename F>
+Base<F> TransposedSparseToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& y );
 
 template<typename Real>
 Real PhaseEnumeration
 ( const Matrix<Real>& B,
-  const Matrix<Real>& R,
+  const Matrix<Real>& d,
+  const Matrix<Real>& N,
         Real normUpperBound,
         Int startIndex,
         Int phaseLength,
