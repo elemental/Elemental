@@ -16,7 +16,6 @@ template<typename F>
 void CoordinatesToSparse( const Matrix<F>& R, const Matrix<F>& v, Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::CoordinatesToSparse"))
-    const Int n = R.Height();
     y = v;
     Trmv( UPPER, NORMAL, NON_UNIT, R, y );
     auto r = GetDiagonal( R );
@@ -25,12 +24,24 @@ void CoordinatesToSparse( const Matrix<F>& R, const Matrix<F>& v, Matrix<F>& y )
 }
 
 template<typename F>
+void BatchCoordinatesToSparse
+( const Matrix<F>& R, const Matrix<F>& V, Matrix<F>& Y )
+{
+    DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToSparse"))
+    Y = V;
+    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R, Y );
+    auto r = GetDiagonal( R );
+    DiagonalSolve( LEFT, NORMAL, r, Y );
+    Round( Y );
+}
+
+template<typename F>
 void SparseToCoordinates( const Matrix<F>& R, const Matrix<F>& y, Matrix<F>& v )
 {
     DEBUG_ONLY(CSE cse("svp::SparseToCoordinates"))
-    typedef Base<F> Real;
     const Int n = R.Height();
-    v.Resize( n, 1 );
+
+    v = y;
 
     // A custom rounded analogue of an upper-triangular solve
     const F* RBuf = R.LockedBuffer();
@@ -39,11 +50,87 @@ void SparseToCoordinates( const Matrix<F>& R, const Matrix<F>& y, Matrix<F>& v )
     const Int RLDim = R.LDim();
     for( Int j=n-1; j>=0; --j )
     {
-        Real tau = 0;
+        F tau = 0;
         for( Int k=j+1; k<n; ++k ) 
             tau += RBuf[j+k*RLDim]*vBuf[k];
-        tau /= RBuf[j+j*RLDim];
-        vBuf[j] = yBuf[j] - Round(tau);
+        tau /= RealPart(RBuf[j+j*RLDim]);
+        vBuf[j] -= Round(tau);
+    }
+}
+
+// TODO: Optimize this routine by changing the loop order?
+template<typename F>
+void BatchSparseToCoordinatesUnblocked
+( const Matrix<F>& R, const Matrix<F>& Y, Matrix<F>& V )
+{
+    DEBUG_ONLY(CSE cse("svp::BatchSparseToCoordinatesUnblocked"))
+    const Int n = R.Height();
+    const Int numRHS = Y.Width();
+
+    // A custom rounded analogue of an upper-triangular solve
+    const F* RBuf = R.LockedBuffer();
+    const F* YBuf = Y.LockedBuffer();
+          F* VBuf = V.Buffer();
+    const Int RLDim = R.LDim();
+    const Int YLDim = Y.LDim();
+    const Int VLDim = V.LDim();
+    for( Int l=0; l<numRHS; ++l )
+    {
+              F* vBuf = &VBuf[l*VLDim];
+        const F* yBuf = &YBuf[l*YLDim];
+        for( Int j=n-1; j>=0; --j )
+        {
+            F tau = 0;
+            for( Int k=j+1; k<n; ++k ) 
+                tau += RBuf[j+k*RLDim]*vBuf[k];
+            tau /= RealPart(RBuf[j+j*RLDim]);
+            vBuf[j] = yBuf[j] + Round(vBuf[j]-tau); 
+        }
+    }
+}
+
+// TODO: Optimize this routine
+template<typename F>
+void BatchSparseToCoordinates
+( const Matrix<F>& R, const Matrix<F>& Y, Matrix<F>& V, Int blocksize )
+{
+    DEBUG_ONLY(CSE cse("svp::BatchSparseToCoordinates"))
+    const Int n = R.Height();
+    const Int numRHS = Y.Width();
+
+    // TODO: Test the relative performance of this branch
+    if( numRHS == 1 )
+    {
+        SparseToCoordinates( R, Y, V );
+        return;
+    }
+
+    Zeros( V, n, numRHS );
+
+    // A temporary matrix
+    Matrix<F> S0;
+
+    auto r = GetDiagonal(R);
+
+    for( Int i=0; i<n; i+=blocksize )
+    { 
+        const Int nb = Min(n-i,blocksize);
+        const Range<Int> ind0(0,i), ind1(i,i+nb);
+        
+        auto r0 = r( ind0, ALL );
+        auto R01 = R( ind0, ind1 );
+        auto R11 = R( ind1, ind1 );
+        auto Y1 = Y( ind1, ALL );
+        auto V0 = V( ind0, ALL );
+        auto V1 = V( ind1, ALL );
+
+        BatchSparseToCoordinatesUnblocked( R11, Y1, V1 );
+        if( i+nb < n )
+        {
+            Gemm( NORMAL, NORMAL, F(1), R01, V1, S0 );
+            DiagonalSolve( LEFT, NORMAL, r0, S0 );
+            V0 -= S0; 
+        }
     }
 }
 
@@ -57,6 +144,23 @@ Base<F> CoordinatesToNorm( const Matrix<F>& R, const Matrix<F>& v )
 }
 
 template<typename F>
+Matrix<Base<F>> BatchCoordinatesToNorms
+( const Matrix<F>& R, const Matrix<F>& V )
+{
+    DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToNorms"))
+    typedef Base<F> Real;
+    Matrix<F> Z( V );
+    // TODO: Decide whether this branch is necessary or not...
+    if( V.Width() == 1 )
+        Trmv( UPPER, NORMAL, NON_UNIT, R, Z );
+    else
+        Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R, Z );
+    Matrix<Real> colNorms;
+    ColumnTwoNorms( Z, colNorms );
+    return colNorms;
+}
+
+template<typename F>
 Base<F> SparseToNormLowerBound( const Matrix<F>& R, const Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::SparseToNormLowerBound"))
@@ -66,12 +170,14 @@ Base<F> SparseToNormLowerBound( const Matrix<F>& R, const Matrix<F>& y )
     const F* yBuf = y.LockedBuffer();
     const Int RLDim = R.LDim();
 
+    const Real oneHalf = Real(1)/Real(2);
+
     Real lowerBoundSquared = 0;
     for( Int j=0; j<n; ++j )
     {
         if( yBuf[j] != F(0) )
         {
-            const Real arg = (Abs(yBuf[j])-Real(0.5))*RealPart(RBuf[j+j*RLDim]);
+            const Real arg = (Abs(yBuf[j])-oneHalf)*RealPart(RBuf[j+j*RLDim]);
             lowerBoundSquared += Pow(arg,Real(2));
         }
     }
@@ -79,84 +185,154 @@ Base<F> SparseToNormLowerBound( const Matrix<F>& R, const Matrix<F>& y )
 }
 
 template<typename F>
+Matrix<Base<F>> BatchSparseToNormLowerBound
+( const Matrix<F>& R, const Matrix<F>& Y )
+{
+    DEBUG_ONLY(CSE cse("svp::BatchSparseToNormLowerBound"))
+    typedef Base<F> Real;
+    const Int numRHS = Y.Width();
+    Matrix<Real> normBounds;
+    Zeros( normBounds, numRHS, 1 );
+    for( Int j=0; j<numRHS; ++j )
+        normBounds.Set( j, 0, SparseToNormLowerBound(R,Y(ALL,IR(j))) );
+    return normBounds;
+}
+
+template<typename F>
 Base<F> SparseToNorm( const Matrix<F>& R, const Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::SparseToNorm"))
-    const Int n = R.Height();
     Matrix<F> v;
     SparseToCoordinates( R, y, v );
     return CoordinatesToNorm( R, v );
 }
 
-template<typename Real>
-void PhaseEnumerationBottom
-( const Matrix<Real>& B,
-  const Matrix<Real>& R,
-        Matrix<Real>& y,
-        Matrix<Real>& v,
-        Real& normUpperBound,
-        bool& foundVector,
-        Int lastPhaseBeg,
-        Int beg,
-        Int minInf,
-        Int maxInf,
-        Int minOne,
-        Int maxOne,
-        bool zeroSoFar )
+template<typename F>
+Matrix<Base<F>> BatchSparseToNorm
+( const Matrix<F>& R, const Matrix<F>& Y, Int blocksize )
 {
-    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationBottom"))
-    const Int m = B.Height();
-    const Int n = B.Width();
-          Real* yBuf = y.Buffer();
+    DEBUG_ONLY(CSE cse("svp::BatchSparseToNorm"))
+    Matrix<F> V;
+    BatchSparseToCoordinates( R, Y, V, blocksize );
+    return BatchCoordinatesToNorms( R, V );
+}
 
-    Matrix<Real> vCand;
+template<typename Real>
+class PhaseEnumerationCache
+{
+private:
+    const Matrix<Real>& B_;
+    const Matrix<Real>& R_;
+    Real normUpperBound_;
+    bool foundVector_=false;
 
-    if( beg == lastPhaseBeg && minOne == 0 && minInf == 0 )
-    {
-        SparseToCoordinates( R, y, vCand );
-        const Real bNorm = CoordinatesToNorm( R, vCand );
+    Int numQueued_=0;
+    Matrix<Real> Y_;
+    Matrix<Real> VCand_;
+    Matrix<Real> v_;
+    Int blocksize_=32;
 
-        if( bNorm < normUpperBound && bNorm != Real(0) )
-        {
-            Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
-            Print( y, "y" );
-            Print( R, "R" );
-      
-            // Check that the reverse transformation holds
-            Matrix<Real> yCheck;
-            CoordinatesToSparse( R, vCand, yCheck );
-            yCheck -= y;
-            if( FrobeniusNorm(yCheck) != Real(0) )
-            {
-                Print( vCand, "vCand" );
-                Print( yCheck, "eCheck" );
-                LogicError("Invalid sparse transformation");
-            }
+public:
 
-            Copy( vCand, v );
-
-            Print( v, "v" );
-            Print( B, "B" );
-
-            Matrix<Real> b;
-            Zeros( b, m, 1 );
-            Gemv( NORMAL, Real(1), B, v, Real(0), b );
-            Print( b, "b" );
-
-            normUpperBound = bNorm;
-            foundVector = true;
-        }
+    PhaseEnumerationCache
+    ( const Matrix<Real>& B,
+      const Matrix<Real>& R,
+      Real normUpperBound, 
+      Int batchSize=1000,
+      Int blocksize=32 )
+    : B_(B),
+      R_(R),
+      normUpperBound_(normUpperBound),
+      foundVector_(false),
+      numQueued_(0),
+      blocksize_(blocksize)
+    { 
+        Zeros( Y_, R.Height(), batchSize );   
     }
 
-    // TODO: Accept as an input?
-    Real baseOneNorm = 0;
-    for( Int j=lastPhaseBeg; j<beg; ++j )
-        baseOneNorm += Abs(yBuf[j]);
+    bool FoundVector() const { return foundVector_; }
+    const Matrix<Real>& BestVector() const { return v_; }
+    Real NormUpperBound() const { return normUpperBound_; }
 
-    // TODO: Accept as an input?
-    Real baseInfNorm = 0;
-    for( Int j=lastPhaseBeg; j<beg; ++j )
-        baseInfNorm = Max(Abs(yBuf[j]),baseInfNorm);
+    void Flush()
+    {
+        const Int m = B_.Height();
+        if( numQueued_ == 0 )
+            return;
+
+        auto YActive = Y_( ALL, IR(0,numQueued_) );
+
+        BatchSparseToCoordinates( R_, YActive, VCand_, blocksize_ );
+        auto colNorms = BatchCoordinatesToNorms( R_, VCand_ );
+        for( Int j=0; j<numQueued_; ++j )
+        {
+            const Real bNorm = colNorms.Get(j,0);
+            if( bNorm < normUpperBound_ && bNorm != Real(0) )
+            {
+                auto y = YActive(ALL,IR(j));
+                auto vCand = VCand_(ALL,IR(j));
+
+                Output("normUpperBound=",normUpperBound_,", bNorm=",bNorm);
+                Print( y, "y" );
+                Print( R_, "R" );
+
+                // Check that the reverse transformation holds
+                Matrix<Real> yCheck;
+                CoordinatesToSparse( R_, vCand, yCheck );
+                yCheck -= y;
+                if( FrobeniusNorm(yCheck) != Real(0) )
+                {
+                    Print( vCand, "vCand" );
+                    Print( yCheck, "eCheck" );
+                    LogicError("Invalid sparse transformation");
+                }
+
+                Copy( vCand, v_ );
+
+                Print( v_, "v" );
+                Print( B_, "B" );
+
+                Matrix<Real> b;
+                Zeros( b, m, 1 );
+                Gemv( NORMAL, Real(1), B_, v_, Real(0), b );
+                Print( b, "b" );
+
+                normUpperBound_ = bNorm;
+                foundVector_ = true;
+            }
+        }
+        numQueued_ = 0;
+    }
+
+    void Enqueue( const Matrix<Real>& y )
+    {
+        auto yQueue = Y_(ALL,IR(numQueued_));
+        yQueue = y;
+        if( numQueued_ == blocksize_-1 )
+            Flush();
+        else
+            ++numQueued_;
+    }
+
+    ~PhaseEnumerationCache() { }
+};
+
+template<typename Real>
+void PhaseEnumerationBottom
+( PhaseEnumerationCache<Real>& cache,
+  Matrix<Real>& y,
+  Int beg,
+  Int minInf,
+  Int maxInf,
+  Int minOne,
+  Int maxOne,
+  Real baseOneNorm,
+  Real baseInfNorm,
+  bool zeroSoFar )
+{
+    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationBottom"))
+    const Int n = y.Height();
+          Real* yBuf = y.Buffer();
 
     for( Int i=beg; i<n; ++i )
     {
@@ -173,44 +349,13 @@ void PhaseEnumerationBottom
             {
                 yBuf[i] = beta;
 
-                SparseToCoordinates( R, y, vCand );
-                const Real bNorm = CoordinatesToNorm( R, vCand );
+                cache.Enqueue( y );
 
-                if( bNorm < normUpperBound && bNorm != Real(0) )
-                {
-                    Output("normUpperBound=",normUpperBound,", bNorm=",bNorm);
-                    Print( y, "y" );
-                    Print( R, "R" );
-
-                    // Check that the reverse transformation holds
-                    Matrix<Real> yCheck;
-                    CoordinatesToSparse( R, vCand, yCheck );
-                    yCheck -= y;
-                    if( FrobeniusNorm(yCheck) != Real(0) )
-                    {
-                        Print( vCand, "vCand" );
-                        Print( yCheck, "eCheck" );
-                        LogicError("Invalid sparse transformation");
-                    }
-
-                    Copy( vCand, v );
-
-                    Print( v, "v" );
-                    Print( B, "B" );
-
-                    Matrix<Real> b;
-                    Zeros( b, m, 1 );
-                    Gemv( NORMAL, Real(1), B, v, Real(0), b );
-                    Print( b, "b" );
-
-                    normUpperBound = bNorm;
-                    foundVector = true;
-                }
-
-                if( newOneNorm < maxOne && i != n-1 )
+                if( newOneNorm < maxOne && i < n-1 )
                     PhaseEnumerationBottom
-                    ( B, R, y, v, normUpperBound, foundVector, lastPhaseBeg,
-                      i+1, minInf, maxInf, minOne, maxOne, false );
+                    ( cache, y,
+                      i+1, minInf, maxInf, minOne, maxOne,
+                      newOneNorm, newInfNorm, false );
 
                 yBuf[i] = 0;
             }
@@ -220,12 +365,8 @@ void PhaseEnumerationBottom
 
 template<typename Real>
 void PhaseEnumerationInner
-( const Matrix<Real>& B,
-  const Matrix<Real>& R,
+(       PhaseEnumerationCache<Real>& cache,
         Matrix<Real>& y,
-        Matrix<Real>& v,
-        Real& normUpperBound,
-        bool& foundVector,
         Int phaseLength,
         Int phase,
         Int beg,
@@ -234,11 +375,13 @@ void PhaseEnumerationInner
   const vector<Int>& maxInfNorms,
   const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
+        Int baseOneNorm,
+        Int baseInfNorm,
   bool zeroSoFar,
   Int progressLevel )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationInner"))
-    const Int n = R.Height();
+    const Int n = y.Height();
     Real* yBuf = y.Buffer();
 
     const Int phaseBeg = Max(end-phaseLength,0);
@@ -246,11 +389,18 @@ void PhaseEnumerationInner
 
     if( end >= n )
     {
+        const Int minInf = minInfNorms.back(); 
+        const Int maxInf = maxInfNorms.back();
+        const Int minOne = minOneNorms.back();
+        const Int maxOne = maxOneNorms.back();
+        // Enqueue the zero phase if it is admissible
+        if( minInf == Int(0) && minOne == Int(0) )
+            cache.Enqueue( y );
+
         PhaseEnumerationBottom
-        ( B, R, y, v, normUpperBound, foundVector, beg, beg,
-          minInfNorms.back(), maxInfNorms.back(),
-          minOneNorms.back(), maxOneNorms.back(),
-          zeroSoFar );
+        ( cache, y, beg,
+          minInf, maxInf, minOne, maxOne,
+          Real(0), Real(0), zeroSoFar );
         return;
     }
 
@@ -258,19 +408,11 @@ void PhaseEnumerationInner
     {
         // This phase can be all zeroes, so move to the next phase
         PhaseEnumerationInner
-        ( B, R, y, v, normUpperBound, foundVector, phaseLength,
+        ( cache, y, phaseLength,
           phase+1, end, nextPhaseEnd,
-          minInfNorms, maxInfNorms, minOneNorms, maxOneNorms, zeroSoFar,
-          progressLevel );
+          minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+          Int(0), Int(0), zeroSoFar, progressLevel );
     }
-
-    Int baseOneNorm = 0;
-    for( Int j=phaseBeg; j<beg; ++j ) 
-        baseOneNorm += Int(Abs(yBuf[j])); 
-
-    Int baseInfNorm = 0;
-    for( Int j=phaseBeg; j<beg; ++j ) 
-        baseInfNorm = Max( baseInfNorm, Int(Abs(yBuf[j])) );
 
     for( Int i=beg; i<end; ++i )
     {
@@ -295,19 +437,19 @@ void PhaseEnumerationInner
                 {
                     // Fix y[i] = beta and move to the next phase
                     PhaseEnumerationInner
-                    ( B, R, y, v, normUpperBound, foundVector, phaseLength,
+                    ( cache, y, phaseLength,
                       phase+1, end, nextPhaseEnd,
                       minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
-                      false, progressLevel );
+                      Int(0), Int(0), false, progressLevel );
                 }
                 if( phaseOneNorm < maxOneNorms[phase] )
                 {
                     // Fix y[i] = beta and move to y[i+1]
                     PhaseEnumerationInner
-                    ( B, R, y, v, normUpperBound, foundVector, phaseLength,
+                    ( cache, y, phaseLength,
                       phase, i+1, end,
                       minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
-                      false, progressLevel );
+                      phaseOneNorm, phaseInfNorm, false, progressLevel );
                 }
 
                 yBuf[i] = 0;
@@ -340,28 +482,39 @@ Real PhaseEnumeration
     if( numPhases != Int(maxOneNorms.size()) )
         LogicError("Invalid length of maxOneNorms");
 
-    Matrix<Real> y;
-    Zeros( y, n, 1 );
-
     // TODO: Make these values modifiable
     vector<Int> minInfNorms(numPhases,0), minOneNorms(numPhases,0);
 
     // TODO: Loop and increase bands for min and max one and inf norms?
 
+    //const Int batchSize = 2000;
+    const Int batchSize = 1;
+    const Int blocksize = 32;
+    PhaseEnumerationCache<Real>
+      cache( B, R, normUpperBound, batchSize, blocksize );
+
     Int phase=0;
     Int beg=startIndex;
     Int end=Min(beg+phaseLength,n);
-    bool foundVector = false;
+    Matrix<Real> y;
+    Zeros( y, n, 1 );
     bool zeroSoFar = true;
     PhaseEnumerationInner
-    ( B, R, y, v, normUpperBound, foundVector, phaseLength, phase, beg, end,
-      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms, zeroSoFar,
-      progressLevel );
+    ( cache, y, phaseLength, phase, beg, end,
+      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+      Int(0), Int(0), zeroSoFar, progressLevel );
 
-    if( foundVector )
-        return normUpperBound;
+    cache.Flush();
+
+    if( cache.FoundVector() )
+    {
+        y = cache.BestVector();
+        return cache.NormUpperBound();
+    }
     else
+    {
         return 2*normUpperBound+1;
+    }
 }
 
 // See Algorithm 2 from:
