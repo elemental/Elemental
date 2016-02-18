@@ -70,7 +70,6 @@ void SparseToCoordinates( const Matrix<F>& N, const Matrix<F>& y, Matrix<F>& v )
         vBuf[j] -= Round(tau);
     }
 }
-
 template<typename F>
 void TransposedSparseToCoordinates
 ( const Matrix<F>& NTrans, const Matrix<F>& y, Matrix<F>& v )
@@ -386,7 +385,7 @@ public:
       const Matrix<Real>& N,
       Real normUpperBound, 
       Int batchSize=1000,
-      Int blocksize=32,
+      Int blocksize=16,
       bool useTranspose=true )
     : B_(B),
       d_(d),
@@ -483,42 +482,64 @@ template<typename Real>
 void PhaseEnumerationBottom
 ( PhaseEnumerationCache<Real>& cache,
   Matrix<Real>& y,
-  Int beg,
-  Int minInf,
-  Int maxInf,
-  Int minOne,
-  Int maxOne,
-  Int baseOneNorm,
-  Int baseInfNorm,
-  bool zeroSoFar )
+  const Int& beg,
+  const Int& minInf,
+  const Int& maxInf,
+  const Int& minOne,
+  const Int& maxOne,
+  const Int& baseOneNorm,
+  const Int& baseInfNorm,
+  const bool& zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationBottom"))
     const Int n = y.Height();
           Real* yBuf = y.Buffer();
 
-    for( Int i=beg; i<n; ++i )
+    const Int bound = Min(maxInf,maxOne-baseOneNorm);
+    for( Int absBeta=1; absBeta<=bound; ++absBeta )
     {
-        for( Int beta=-maxInf; beta<=maxInf; ++beta )
+        const Int newOneNorm = baseOneNorm + absBeta;
+        const Int newInfNorm = Max(baseInfNorm,absBeta);
+
+        if( newOneNorm >= minOne && newInfNorm >= minInf )
         {
-            // Save a factor of two by demanding that the first entry is +
-            if( beta == 0 || (zeroSoFar && beta<0) )
-                continue;
-
-            const Int absBeta = Abs(beta);
-            Int newOneNorm = baseOneNorm + absBeta;
-            Int newInfNorm = Max(baseInfNorm,absBeta);
-            if( minOne <= newOneNorm && newOneNorm <= maxOne &&
-                minInf <= newInfNorm && newInfNorm <= maxInf )
+            // We can insert +-|beta| into any position and be admissible,
+            // so enqueue each possibility
+            for( Int i=beg; i<n; ++i )
             {
-                yBuf[i] = beta;
-
+                yBuf[i] = absBeta;
                 cache.Enqueue( y );
 
-                if( newOneNorm < maxOne && i < n-1 )
+                if( !zeroSoFar )
+                {
+                    yBuf[i] = -absBeta;
+                    cache.Enqueue( y );
+                }
+
+                yBuf[i] = 0;
+            }
+        }
+
+        if( newOneNorm < maxOne )
+        {
+            // We can insert +-|beta| into any position and still have room
+            // left for the one norm bound, so do so and then recurse
+            for( Int i=beg; i<n-1; ++i )
+            {
+                yBuf[i] = absBeta;
+                PhaseEnumerationBottom
+                ( cache, y,
+                  i+1, minInf, maxInf, minOne, maxOne,
+                  newOneNorm, newInfNorm, false );
+
+                if( !zeroSoFar )
+                {
+                    yBuf[i] = -absBeta;
                     PhaseEnumerationBottom
                     ( cache, y,
                       i+1, minInf, maxInf, minOne, maxOne,
                       newOneNorm, newInfNorm, false );
+                }
 
                 yBuf[i] = 0;
             }
@@ -530,18 +551,18 @@ template<typename Real>
 void PhaseEnumerationInner
 (       PhaseEnumerationCache<Real>& cache,
         Matrix<Real>& y,
-        Int phaseLength,
-        Int phase,
-        Int beg,
-        Int end,
+  const Int& phaseLength,
+  const Int& phase,
+  const Int& beg,
+  const Int& end,
   const vector<Int>& minInfNorms,
   const vector<Int>& maxInfNorms,
   const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
-        Int baseOneNorm,
-        Int baseInfNorm,
-  bool zeroSoFar,
-  Int progressLevel )
+  const Int& baseOneNorm,
+  const Int& baseInfNorm,
+  const bool& zeroSoFar,
+  const Int& progressLevel )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationInner"))
     const Int n = y.Height();
@@ -573,50 +594,79 @@ void PhaseEnumerationInner
         PhaseEnumerationInner
         ( cache, y, phaseLength,
           phase+1, end, nextPhaseEnd,
-          minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+          minInfNorms, maxInfNorms,
+          minOneNorms, maxOneNorms,
           Int(0), Int(0), zeroSoFar, progressLevel );
     }
 
-    for( Int i=beg; i<end; ++i )
+    const Int bound = Min(maxInfNorms[phase],maxOneNorms[phase]-baseOneNorm);
+    for( Int absBeta=1; absBeta<=bound; ++absBeta ) 
     {
-        for( Int beta=-maxInfNorms[phase]; beta<=maxInfNorms[phase]; ++beta )
+        const Int phaseOneNorm = baseOneNorm + absBeta;
+        const Int phaseInfNorm = Max( baseInfNorm, absBeta );
+
+        if( phaseOneNorm >= minOneNorms[phase] &&
+            phaseInfNorm >= minInfNorms[phase] )
         {
-            // Save a factor of two by ensuring that the first entry is +
-            if( beta == 0 || (zeroSoFar && beta<0) )
-                continue;
+            // We could insert +-|beta| into any position and still have
+            // an admissible choice for the current phase, so procede to
+            // the next phase with each such choice
 
-            const Int absBeta = Abs(beta);
-
-            const Int phaseOneNorm = baseOneNorm + absBeta;
-            const Int phaseInfNorm = Max( baseInfNorm, absBeta );
-            if( phaseOneNorm <= maxOneNorms[phase] )
+            for( Int i=beg; i<end; ++i )
             {
+                // Fix y[i] = +|beta| and move to the next phase
+                yBuf[i] = absBeta;
                 if( phase < progressLevel )
-                    Output("phase ",phase,": y[",i,"]=",beta);
-                
-                yBuf[i] = beta;
+                    Output("phase ",phase,": y[",i,"]=",absBeta);
+                PhaseEnumerationInner
+                ( cache, y, phaseLength,
+                  phase+1, end, nextPhaseEnd,
+                  minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                  Int(0), Int(0), false, progressLevel );
 
-                if( phaseOneNorm >= minOneNorms[phase] &&
-                    phaseOneNorm <= maxOneNorms[phase] &&
-                    phaseInfNorm >= minInfNorms[phase] )
+                if( !zeroSoFar )
                 {
-                    // Fix y[i] = beta and move to the next phase
+                    // Fix y[i] = -|beta| and move to the next phase
+                    yBuf[i] = -absBeta;
+                    if( phase < progressLevel )
+                        Output("phase ",phase,": y[",i,"]=",-absBeta);
                     PhaseEnumerationInner
                     ( cache, y, phaseLength,
                       phase+1, end, nextPhaseEnd,
                       minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
                       Int(0), Int(0), false, progressLevel );
                 }
-                if( phaseOneNorm < maxOneNorms[phase] )
+                
+                yBuf[i] = 0;
+            }
+        }
+
+        if( phaseOneNorm < maxOneNorms[phase] )
+        {
+            // Inserting +-|beta| into any position still leaves us with
+            // room in the current phase
+
+            for( Int i=beg; i<end; ++i )
+            {
+                // Fix y[i] = +|beta| and move to y[i+1]
+                yBuf[i] = absBeta;
+                PhaseEnumerationInner
+                ( cache, y, phaseLength,
+                  phase, i+1, end,
+                  minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                  phaseOneNorm, phaseInfNorm, false, progressLevel );
+
+                if( !zeroSoFar )
                 {
-                    // Fix y[i] = beta and move to y[i+1]
+                    // Fix y[i] = -|beta| and move to y[i+1]
+                    yBuf[i] = -absBeta;
                     PhaseEnumerationInner
                     ( cache, y, phaseLength,
                       phase, i+1, end,
                       minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
                       phaseOneNorm, phaseInfNorm, false, progressLevel );
                 }
-
+               
                 yBuf[i] = 0;
             }
         }
@@ -656,7 +706,7 @@ Real PhaseEnumeration
     // NOTE: This does not seem to have a substantial impact on performance...
     const Int batchSize = 2000;
     //const Int batchSize = 1;
-    const Int blocksize = 32;
+    const Int blocksize = 16;
     const bool useTranspose = true;
     PhaseEnumerationCache<Real>
       cache( B, d, N, normUpperBound, batchSize, blocksize, useTranspose );
