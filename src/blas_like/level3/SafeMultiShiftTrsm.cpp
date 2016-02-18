@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2015, Jack Poulson and Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -25,7 +25,9 @@ void SafeMultiShiftTrsm
         safemstrsm::LUN( A, shifts, B, scales );
     }
     else
+    {
         LogicError("This option is not yet supported");
+    }
 }
 
 template<typename F>

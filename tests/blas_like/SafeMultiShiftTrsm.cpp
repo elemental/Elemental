@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2015, Jack Poulson and Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -41,8 +41,8 @@ void TestSafeMultiShiftTrsm
     {
         Print( A, "A" );
         Print( shifts, "shifts" );
-	if( g.Rank() == 0 )
-	    Output( "alpha\n",alpha,"\n" );
+        if( g.Rank() == 0 )
+            Output( "alpha\n",alpha,"\n" );
         Print( B, "B" );
     }
 
@@ -57,7 +57,7 @@ void TestSafeMultiShiftTrsm
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     SafeMultiShiftTrsm( side, uplo, orientation,
-			alpha, A, shifts, X, scales );
+                        alpha, A, shifts, X, scales );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
@@ -65,7 +65,7 @@ void TestSafeMultiShiftTrsm
     if( print )
     {
         Print( X, "X" );
-	Print( scales, "scales" );
+        Print( scales, "scales" );
     }
 
     // Compute residual
@@ -74,23 +74,23 @@ void TestSafeMultiShiftTrsm
     {
         DiagonalScale( RIGHT, NORMAL, scales, R );
         Gemm( orientation, NORMAL, F(1), A, X, -alpha, R );
-	for( Int j=0; j<n; ++j )
-	{
-	    auto xj = X( ALL, IR(j) );
-	    auto rj = R( ALL, IR(j) );
-	    Axpy( -modShifts.Get(j,0), xj, rj );
-	}
+        for( Int j=0; j<n; ++j )
+        {
+            auto xj = X( ALL, IR(j) );
+            auto rj = R( ALL, IR(j) );
+            Axpy( -modShifts.Get(j,0), xj, rj );
+        }
     }
     else
     {
         DiagonalScale( LEFT, NORMAL, scales, R );
         Gemm( NORMAL, orientation, F(1), X, A, -alpha, R );
-	for( Int i=0; i<m; ++i )
-	{
-	    auto xi = X( IR(i), ALL );
-	    auto ri = R( IR(i), ALL );
-	    Axpy( -modShifts.Get(i,0), xi, ri );
-	}
+        for( Int i=0; i<m; ++i )
+        {
+            auto xi = X( IR(i), ALL );
+            auto ri = R( IR(i), ALL );
+            Axpy( -modShifts.Get(i,0), xi, ri );
+        }
     }
 
     // Compute maximum relative error
@@ -107,23 +107,23 @@ void TestSafeMultiShiftTrsm
     if( side == LEFT )
     {
         for( Int j=0; j<n; ++j )
-	{
-	    const Real RjNrm2 = Nrm2( R(ALL,IR(j)) );
-	    const Real XjNrm2 = Nrm2( X(ALL,IR(j)) );
-	    shiftedDiag = diag;
-	    for( Int i=0; i<m; ++i )
-	    {
-	      shiftedDiag.Update( i, 0, shifts.Get(j,0) );
-	    }
-	    const Real AjDiagFrob = Nrm2( shiftedDiag );
-	    const Real AjFrob = Sqrt( AOffFrob*AOffFrob + AjDiagFrob*AjDiagFrob );
-	    const Real currErr = RjNrm2/(AjFrob*XjNrm2);
-	    maxErr = Max( maxErr, RjNrm2 );
-	    maxRelErr = Max( maxRelErr, currErr );
-	    minScales = Min( minScales, Abs(scales.Get(j,0)) );
-	    minNorm = j>0 ? Min( minNorm, XjNrm2 ) : XjNrm2;
-	    maxNorm = j>0 ? Max( maxNorm, XjNrm2 ) : XjNrm2;
-	}
+        {
+            const Real RjNrm2 = Nrm2( R(ALL,IR(j)) );
+            const Real XjNrm2 = Nrm2( X(ALL,IR(j)) );
+            shiftedDiag = diag;
+            for( Int i=0; i<m; ++i )
+            {
+              shiftedDiag.Update( i, 0, shifts.Get(j,0) );
+            }
+            const Real AjDiagFrob = Nrm2( shiftedDiag );
+            const Real AjFrob = Sqrt( AOffFrob*AOffFrob + AjDiagFrob*AjDiagFrob );
+            const Real currErr = RjNrm2/(AjFrob*XjNrm2);
+            maxErr = Max( maxErr, RjNrm2 );
+            maxRelErr = Max( maxRelErr, currErr );
+            minScales = Min( minScales, Abs(scales.Get(j,0)) );
+            minNorm = j>0 ? Min( minNorm, XjNrm2 ) : XjNrm2;
+            maxNorm = j>0 ? Max( maxNorm, XjNrm2 ) : XjNrm2;
+        }
     }
     // TODO: side == RIGHT
 
@@ -132,11 +132,11 @@ void TestSafeMultiShiftTrsm
     if( g.Rank() == 0 )
     {
         Output("  || A ||_F = ",AFrob);
-	Output("  max( || Aj xj - bj sj ||_2 ) = ",maxErr);
-	Output("  max( || Aj xj - bj sj ||_2 / || Aj ||_F || xj ||_2 ) = ",maxRelErr);
-	Output("  max( || xj ||_2 ) = ",maxNorm);
-	Output("  min( || xj ||_2 ) = ",minNorm);
-	Output("  min( sj ) = ",minScales);
+        Output("  max( || Aj xj - bj sj ||_2 ) = ",maxErr);
+        Output("  max( || Aj xj - bj sj ||_2 / || Aj ||_F || xj ||_2 ) = ",maxRelErr);
+        Output("  max( || xj ||_2 ) = ",maxNorm);
+        Output("  min( || xj ||_2 ) = ",minNorm);
+        Output("  min( sj ) = ",minScales);
     }
 }
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2015, Jack Poulson and Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -16,7 +16,7 @@ using namespace El;
 template<typename F>
 void FoxLiSchurFactor( Matrix<F>& A, Int m )
 {
-    LogicError( "Fox-Li matrix is a complex matrix" );
+    LogicError( "Fox-Li matrix is complex" );
 }
 template<typename Real>
 void FoxLiSchurFactor( Matrix<Complex<Real>>& A, Int m )
@@ -74,67 +74,67 @@ void TestTriangEig
 
     case 0:
         {
-	    // LU factorization of Gaussian matrix
-	    Matrix<F> B;
-	    Gaussian( B, m, m );
-	    LU( B );
-	    Transpose( B, A );
-	    MakeTrapezoidal( UPPER, A, 0 );
-	    break;
-	}
+            // LU factorization of Gaussian matrix
+            Matrix<F> B;
+            Gaussian( B, m, m );
+            LU( B );
+            Transpose( B, A );
+            MakeTrapezoidal( UPPER, A, 0 );
+            break;
+        }
 
     case 1:
         {
-	    // LU factorization of Gaussian matrix
-	    Matrix<F> B;
-	    Gaussian( B, m, m );
-	    LU( B );
-	    Transpose( B, A );
-	    MakeTrapezoidal( UPPER, A, 0 );
+            // LU factorization of Gaussian matrix
+            Matrix<F> B;
+            Gaussian( B, m, m );
+            LU( B );
+            Transpose( B, A );
+            MakeTrapezoidal( UPPER, A, 0 );
 
-	    // 4/5 of eigenvalues are repeated
-	    F repeatList[4];
-	    for(Int i=0; i<Min(4,m); ++i)
-	    {
-		repeatList[i] = A.Get(i,i);
-	    }
-	    for(Int i=0; i<m; ++i)
-	    {
-		if( i%5 < 4 )
-		{
-		    A.Set(i,i,repeatList[i%5]);
-		}
-	    }    
-	    break;
-	}
+            // 4/5 of eigenvalues are repeated
+            F repeatList[4];
+            for(Int i=0; i<Min(4,m); ++i)
+            {
+                repeatList[i] = A.Get(i,i);
+            }
+            for(Int i=0; i<m; ++i)
+            {
+                if( i%5 < 4 )
+                {
+                    A.Set(i,i,repeatList[i%5]);
+                }
+            }    
+            break;
+        }
 
     case 2:
         {
-	    // Schur factorization of Fox-Li matrix
-	    FoxLiSchurFactor( A, m );
-	    break;
-	}
-	
+            // Schur factorization of Fox-Li matrix
+            FoxLiSchurFactor( A, m );
+            break;
+        }
+        
     case 3:
         {
-	    // Schur factorization of Grcar matrix
-	    Matrix<Complex<Real>> d;
-	    Grcar( A, m );
-	    Schur( A, d );
-	    MakeTrapezoidal( UPPER, A, 0 );
-	    break;
-	}
-	
+            // Schur factorization of Grcar matrix
+            Matrix<Complex<Real>> d;
+            Grcar( A, m );
+            Schur( A, d );
+            MakeTrapezoidal( UPPER, A, 0 );
+            break;
+        }
+        
     default:
         LogicError("Unknown test matrix");
-	break;
+        break;
 
     }
     
     if( testCorrectness )
     {
         AOrig = A;
-	GetDiagonal( A, w );
+        GetDiagonal( A, w );
     }
     if( print )
         Print( A, "A" );
@@ -147,7 +147,7 @@ void TestTriangEig
     if( print )
     {
         Print( w, "eigenvalues:" );
-	Print( X, "eigenvectors:" );
+        Print( X, "eigenvectors:" );
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, X );
@@ -169,7 +169,7 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
-	const Int testMatrix = Input("--testMatrix","test matrix (0=Gaussian,1=GaussianRepeated,2=Fox-Li,3=Grcar)",0);
+        const Int testMatrix = Input("--testMatrix","test matrix (0=Gaussian,1=GaussianRepeated,2=Fox-Li,3=Grcar)",0);
         ProcessInput();
         PrintInputReport();
 
@@ -220,7 +220,7 @@ void TestCorrectness
     Real condX = Condition( X );
     if( g.Rank() == 0 ) {
         Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
-	Output("    cond(X) = ", condX);
+        Output("    cond(X) = ", condX);
     }
       
 }
@@ -248,18 +248,18 @@ void TestTriangEig
     if( repeated )
     {
         F repeatList[4];
-	for(Int i=0; i<4; ++i)
-	    repeatList[i] = A.Get(i,i);
-	for(Int i=0; i<m; ++i)
-	{
-	    if( i%5 < 4 )
-	        A.Set(i,i,repeatList[i%5]);
-	}    
+        for(Int i=0; i<4; ++i)
+            repeatList[i] = A.Get(i,i);
+        for(Int i=0; i<m; ++i)
+        {
+            if( i%5 < 4 )
+                A.Set(i,i,repeatList[i%5]);
+        }    
     }
     if( testCorrectness )
     {
         AOrig = A;
-	GetDiagonal( A, w );
+        GetDiagonal( A, w );
     }
     if( print )
         Print( A, "A" );
@@ -276,7 +276,7 @@ void TestTriangEig
     if( print )
     {
         Print( w, "eigenvalues:" );
-	Print( X, "eigenvectors:" );
+        Print( X, "eigenvectors:" );
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, X );
