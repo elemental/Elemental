@@ -65,7 +65,7 @@ functionality, including:
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
 
 **Lattice reduction**:
-* [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html)
+* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to linearly-dependent bases
 * Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1)
  incorporating ["y-sparse" enumeration](https://eprint.iacr.org/2014/980)
 * Integer images/kernels and relation-finding
