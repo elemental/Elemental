@@ -11,6 +11,7 @@
 
 #include <El/blas_like/level1/AllReduce.hpp>
 #include <El/blas_like/level1/Axpy.hpp>
+#include <El/blas_like/level1/AxpyContract.hpp>
 #include <El/blas_like/level1/AxpyTrapezoid.hpp>
 #include <El/blas_like/level1/Broadcast.hpp>
 #include <El/blas_like/level1/Conjugate.hpp>

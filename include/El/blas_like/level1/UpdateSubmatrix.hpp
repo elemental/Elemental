@@ -72,13 +72,13 @@ void UpdateSubmatrix
 #endif
 
 #define PROTO(T) \
-  template void UpdateSubmatrix \
+  EL_EXTERN template void UpdateSubmatrix \
   (       Matrix<T>& A, \
     const vector<Int>& I, \
     const vector<Int>& J, \
           T alpha, \
     const Matrix<T>& ASub ); \
-  template void UpdateSubmatrix \
+  EL_EXTERN template void UpdateSubmatrix \
   (       AbstractDistMatrix<T>& A, \
     const vector<Int>& I, \
     const vector<Int>& J, \

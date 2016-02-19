@@ -52,8 +52,10 @@ void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset )
 #endif
 
 #define PROTO(T) \
-  template void ConjugateDiagonal( Matrix<T>& A, Int offset ); \
-  template void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset );
+  EL_EXTERN template void ConjugateDiagonal \
+  ( Matrix<T>& A, Int offset ); \
+  EL_EXTERN template void ConjugateDiagonal \
+  ( AbstractDistMatrix<T>& A, Int offset );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

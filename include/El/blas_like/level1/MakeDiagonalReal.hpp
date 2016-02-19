@@ -52,8 +52,10 @@ void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset )
 #endif
 
 #define PROTO(T) \
-  template void MakeDiagonalReal( Matrix<T>& A, Int offset ); \
-  template void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset );
+  EL_EXTERN template void MakeDiagonalReal \
+  ( Matrix<T>& A, Int offset ); \
+  EL_EXTERN template void MakeDiagonalReal \
+  ( AbstractDistMatrix<T>& A, Int offset );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

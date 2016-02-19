@@ -89,9 +89,9 @@ void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 #endif
 
 #define PROTO(T) \
-  template void AllReduce \
+  EL_EXTERN template void AllReduce \
   ( Matrix<T>& A, mpi::Comm comm, mpi::Op op ); \
-  template void AllReduce \
+  EL_EXTERN template void AllReduce \
   ( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op );
 
 #define EL_ENABLE_DOUBLEDOUBLE

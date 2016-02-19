@@ -79,13 +79,13 @@ void Hadamard
 #endif
 
 #define PROTO(T) \
-  template void Hadamard \
+  EL_EXTERN template void Hadamard \
   ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
-  template void Hadamard \
+  EL_EXTERN template void Hadamard \
   ( const ElementalMatrix<T>& A, \
     const ElementalMatrix<T>& B, \
           ElementalMatrix<T>& C ); \
-  template void Hadamard \
+  EL_EXTERN template void Hadamard \
   ( const DistMultiVec<T>& A, \
     const DistMultiVec<T>& B, \
           DistMultiVec<T>& C );

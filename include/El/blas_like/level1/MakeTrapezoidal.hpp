@@ -126,13 +126,13 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 #endif
 
 #define PROTO(T) \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, Matrix<T>& A, Int offset ); \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset ); \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, SparseMatrix<T>& A, Int offset ); \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset );
 
 #define EL_ENABLE_DOUBLEDOUBLE

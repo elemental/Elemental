@@ -166,12 +166,12 @@ void UpdateMappedDiagonal
 #endif
 
 #define PROTO(T) \
-  template void UpdateMappedDiagonal \
+  EL_EXTERN template void UpdateMappedDiagonal \
   (       Matrix<T>& A, \
     const Matrix<T>& d, \
           function<void(T&,T)> func, \
           Int offset ); \
-  template void UpdateMappedDiagonal \
+  EL_EXTERN template void UpdateMappedDiagonal \
   (       SparseMatrix<T>& A, \
     const Matrix<T>& d, \
           function<void(T&,T)> func, \

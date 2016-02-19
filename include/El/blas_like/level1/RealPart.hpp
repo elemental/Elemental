@@ -48,10 +48,11 @@ void RealPart
 #endif
 
 #define PROTO(T) \
-  template void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal ); \
-  template void RealPart \
+  EL_EXTERN template void RealPart \
+  ( const Matrix<T>& A, Matrix<Base<T>>& AReal ); \
+  EL_EXTERN template void RealPart \
   ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal ); \
-  template void RealPart \
+  EL_EXTERN template void RealPart \
   ( const BlockMatrix<T>& A, \
           BlockMatrix<Base<T>>& AReal );
 

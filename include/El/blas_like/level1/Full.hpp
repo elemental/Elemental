@@ -31,7 +31,7 @@ Matrix<T> Full( const SparseMatrix<T>& A )
 #endif
 
 #define PROTO(T) \
-  template Matrix<T> Full( const SparseMatrix<T>& A );
+  EL_EXTERN template Matrix<T> Full( const SparseMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

@@ -69,9 +69,9 @@ void ConjugateSubmatrix
 #endif
 
 #define PROTO(T) \
-  template void ConjugateSubmatrix \
+  EL_EXTERN template void ConjugateSubmatrix \
   ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J ); \
-  template void ConjugateSubmatrix \
+  EL_EXTERN template void ConjugateSubmatrix \
   ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -98,8 +98,10 @@ void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank )
 #endif
 
 #define PROTO(T) \
-  template void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank ); \
-  template void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank );
+  EL_EXTERN template void Broadcast \
+  ( Matrix<T>& A, mpi::Comm comm, int rank ); \
+  EL_EXTERN template void Broadcast \
+  ( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

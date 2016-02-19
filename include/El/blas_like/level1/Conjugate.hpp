@@ -60,10 +60,14 @@ void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 #endif
 
 #define PROTO(T) \
-  template void Conjugate( Matrix<T>& A ); \
-  template void Conjugate( const Matrix<T>& A, Matrix<T>& B ); \
-  template void Conjugate( AbstractDistMatrix<T>& A ); \
-  template void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
+  EL_EXTERN template void Conjugate \
+  ( Matrix<T>& A ); \
+  EL_EXTERN template void Conjugate \
+  ( const Matrix<T>& A, Matrix<T>& B ); \
+  EL_EXTERN template void Conjugate \
+  ( AbstractDistMatrix<T>& A ); \
+  EL_EXTERN template void Conjugate \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

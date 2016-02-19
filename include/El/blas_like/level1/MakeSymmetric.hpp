@@ -214,18 +214,22 @@ void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
 #endif
 
 #define PROTO(T) \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, Matrix<T>& A, bool conjugate ); \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate ); \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate ); \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate ); \
-  template void MakeHermitian( UpperOrLower uplo, Matrix<T>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A );
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, Matrix<T>& A ); \
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, ElementalMatrix<T>& A ); \
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, SparseMatrix<T>& A ); \
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, DistSparseMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

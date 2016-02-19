@@ -48,10 +48,11 @@ void ImagPart
 #endif
 
 #define PROTO(T) \
-  template void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag ); \
-  template void ImagPart \
+  EL_EXTERN template void ImagPart \
+  ( const Matrix<T>& A, Matrix<Base<T>>& AImag ); \
+  EL_EXTERN template void ImagPart \
   ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag ); \
-  template void ImagPart \
+  EL_EXTERN template void ImagPart \
   ( const BlockMatrix<T>& A, \
           BlockMatrix<Base<T>>& AImag );
 

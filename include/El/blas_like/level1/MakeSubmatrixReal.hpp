@@ -73,9 +73,9 @@ void MakeSubmatrixReal
 #endif
 
 #define PROTO(T) \
-  template void MakeSubmatrixReal \
+  EL_EXTERN template void MakeSubmatrixReal \
   ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J ); \
-  template void MakeSubmatrixReal \
+  EL_EXTERN template void MakeSubmatrixReal \
   ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 
 #define EL_ENABLE_DOUBLEDOUBLE

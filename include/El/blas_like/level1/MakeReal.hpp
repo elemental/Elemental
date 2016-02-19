@@ -42,8 +42,8 @@ void MakeReal( AbstractDistMatrix<T>& A )
 #endif
 
 #define PROTO(T) \
-  template void MakeReal( Matrix<T>& A ); \
-  template void MakeReal( AbstractDistMatrix<T>& A ); 
+  EL_EXTERN template void MakeReal( Matrix<T>& A ); \
+  EL_EXTERN template void MakeReal( AbstractDistMatrix<T>& A ); 
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

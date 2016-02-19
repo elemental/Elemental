@@ -116,13 +116,13 @@ void ShiftDiagonal
 #endif
 
 #define PROTO(T) \
-  template void ShiftDiagonal \
+  EL_EXTERN template void ShiftDiagonal \
   ( Matrix<T>& A, T alpha, Int offset ); \
-  template void ShiftDiagonal \
+  EL_EXTERN template void ShiftDiagonal \
   ( AbstractDistMatrix<T>& A, T alpha, Int offset ); \
-  template void ShiftDiagonal \
+  EL_EXTERN template void ShiftDiagonal \
   ( SparseMatrix<T>& A, T alpha, Int offset, bool existingDiag ); \
-  template void ShiftDiagonal \
+  EL_EXTERN template void ShiftDiagonal \
   ( DistSparseMatrix<T>& A, T alpha, Int offset, bool existingDiag );
 
 #define EL_ENABLE_DOUBLEDOUBLE

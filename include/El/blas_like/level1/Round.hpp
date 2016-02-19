@@ -51,9 +51,9 @@ void Round( DistMultiVec<T>& A )
 #endif
 
 #define PROTO(T) \
-  template void Round( Matrix<T>& A ); \
-  template void Round( AbstractDistMatrix<T>& A ); \
-  template void Round( DistMultiVec<T>& A );
+  EL_EXTERN template void Round( Matrix<T>& A ); \
+  EL_EXTERN template void Round( AbstractDistMatrix<T>& A ); \
+  EL_EXTERN template void Round( DistMultiVec<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

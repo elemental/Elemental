@@ -82,11 +82,11 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
 #endif
 
 #define PROTO(T) \
-  template void Fill( Matrix<T>& A, T alpha ); \
-  template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
-  template void Fill( DistMultiVec<T>& A, T alpha ); \
-  template void Fill( SparseMatrix<T>& A, T alpha ); \
-  template void Fill( DistSparseMatrix<T>& A, T alpha );
+  EL_EXTERN template void Fill( Matrix<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( DistMultiVec<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( SparseMatrix<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( DistSparseMatrix<T>& A, T alpha );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

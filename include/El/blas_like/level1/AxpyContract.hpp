@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_BLAS_AXPYCONTRACT_HPP
+#define EL_BLAS_AXPYCONTRACT_HPP
 
 namespace El {
 
@@ -474,12 +475,18 @@ void AxpyContract
     LogicError("This routine is not yet written");
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
 #define PROTO(T) \
-  template void AxpyContract \
+  EL_EXTERN template void AxpyContract \
   ( T alpha, \
     const ElementalMatrix<T>& A, \
           ElementalMatrix<T>& B ); \
-  template void AxpyContract \
+  EL_EXTERN template void AxpyContract \
   ( T alpha, \
     const BlockMatrix<T>& A, \
           BlockMatrix<T>& B );
@@ -491,4 +498,8 @@ void AxpyContract
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
+#undef EL_EXTERN
+
 } // namespace El
+
+#endif // ifndef EL_BLAS_AXPYCONTRACT_HPP

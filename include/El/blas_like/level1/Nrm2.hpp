@@ -62,9 +62,9 @@ Base<F> Nrm2( const DistMultiVec<F>& x )
 #endif
 
 #define PROTO(F) \
-  template Base<F> Nrm2( const Matrix<F>& x ); \
-  template Base<F> Nrm2( const AbstractDistMatrix<F>& x ); \
-  template Base<F> Nrm2( const DistMultiVec<F>& x );
+  EL_EXTERN template Base<F> Nrm2( const Matrix<F>& x ); \
+  EL_EXTERN template Base<F> Nrm2( const AbstractDistMatrix<F>& x ); \
+  EL_EXTERN template Base<F> Nrm2( const DistMultiVec<F>& x );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
