@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_BLAS_CONCATENATE_HPP
+#define EL_BLAS_CONCATENATE_HPP
 
 namespace El {
 
@@ -23,7 +24,8 @@ void HCat
     const Int nA = A.Width();
     const Int nB = B.Width();
 
-    Zeros( C, m, nA+nB );
+    C.Resize( m, nA+nB );
+    Zero( C );
     auto CL = C( IR(0,m), IR(0,nA)     );
     auto CR = C( IR(0,m), IR(nA,nA+nB) );
     CL = A;
@@ -43,7 +45,8 @@ void VCat
     const Int mB = B.Height();
     const Int n = A.Width();
 
-    Zeros( C, mA+mB, n );
+    C.Resize( mA+mB, n );
+    Zero( C );
     auto CT = C( IR(0,mA),     IR(0,n) );
     auto CB = C( IR(mA,mA+mB), IR(0,n) );
     CT = A;
@@ -66,7 +69,8 @@ inline void HCat
     DistMatrixWriteProxy<T,T,MC,MR> CProx( CPre );
     auto& C = CProx.Get();
 
-    Zeros( C, m, nA+nB );
+    C.Resize( m, nA+nB );
+    Zero( C );
     auto CL = C( IR(0,m), IR(0,nA)     );
     auto CR = C( IR(0,m), IR(nA,nA+nB) );
     CL = A;
@@ -89,7 +93,8 @@ void VCat
     DistMatrixWriteProxy<T,T,MC,MR> CProx( CPre );
     auto& C = CProx.Get();
 
-    Zeros( C, mA+mB, n );
+    C.Resize( mA+mB, n );
+    Zero( C );
     auto CT = C( IR(0,mA),     IR(0,n) );
     auto CB = C( IR(mA,mA+mB), IR(0,n) );
     CT = A;
@@ -112,7 +117,8 @@ void HCat
     
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesB = B.NumEntries();
-    Zeros( C, m, nA+nB );
+    C.Resize( m, nA+nB );
+    Zero( C );
     C.Reserve( numEntriesA+numEntriesB ); 
     for( Int e=0; e<numEntriesA; ++e )
         C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
@@ -137,7 +143,8 @@ void VCat
     
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesB = B.NumEntries();
-    Zeros( C, mA+mB, n );
+    C.Resize( mA+mB, n );
+    Zero( C );
     C.Reserve( numEntriesA+numEntriesB ); 
     for( Int e=0; e<numEntriesA; ++e )
         C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
@@ -167,7 +174,8 @@ void HCat
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesB = B.NumLocalEntries();
     C.SetComm( A.Comm() );
-    Zeros( C, m, nA+nB );
+    C.Resize( m, nA+nB );
+    Zero( C );
     C.Reserve( numEntriesA+numEntriesB ); 
     const Int firstLocalRow = C.FirstLocalRow();
     for( Int e=0; e<numEntriesA; ++e )
@@ -198,7 +206,8 @@ void VCat
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesB = B.NumLocalEntries();
     C.SetComm( A.Comm() );
-    Zeros( C, mA+mB, n );
+    C.Resize( mA+mB, n );
+    Zero( C );
     C.Reserve( numEntriesA+numEntriesB, numEntriesA+numEntriesB );
     for( Int e=0; e<numEntriesA; ++e )
         C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
@@ -223,7 +232,8 @@ void HCat
     mpi::Comm comm = A.Comm();
 
     C.SetComm( comm );
-    Zeros( C, m, nA+nB );
+    C.Resize( m, nA+nB );
+    Zero( C );
 
     const Int localHeight = C.LocalHeight();
     const auto& ALoc = A.LockedMatrix();
@@ -252,7 +262,8 @@ void VCat
     const Int n = A.Width();
 
     C.SetComm( A.Comm() );
-    Zeros( C, mA+mB, n );
+    C.Resize( mA+mB, n );
+    Zero( C );
     C.Reserve( (mLocA+mLocB)*n );
     for( Int iLoc=0; iLoc<mLocA; ++iLoc )
     {
@@ -269,44 +280,50 @@ void VCat
     C.ProcessQueues();
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
 #define PROTO(T) \
-  template void HCat \
+  EL_EXTERN template void HCat \
   ( const Matrix<T>& A, \
     const Matrix<T>& B, \
           Matrix<T>& C ); \
-  template void VCat \
+  EL_EXTERN template void VCat \
   ( const Matrix<T>& A, \
     const Matrix<T>& B, \
           Matrix<T>& C ); \
-  template void HCat \
+  EL_EXTERN template void HCat \
   ( const ElementalMatrix<T>& A, \
     const ElementalMatrix<T>& B, \
           ElementalMatrix<T>& C ); \
-  template void VCat \
+  EL_EXTERN template void VCat \
   ( const ElementalMatrix<T>& A, \
     const ElementalMatrix<T>& B, \
           ElementalMatrix<T>& C ); \
-  template void HCat \
+  EL_EXTERN template void HCat \
   ( const SparseMatrix<T>& A, \
     const SparseMatrix<T>& B, \
           SparseMatrix<T>& C ); \
-  template void VCat \
+  EL_EXTERN template void VCat \
   ( const SparseMatrix<T>& A, \
     const SparseMatrix<T>& B, \
           SparseMatrix<T>& C ); \
-  template void HCat \
+  EL_EXTERN template void HCat \
   ( const DistSparseMatrix<T>& A, \
     const DistSparseMatrix<T>& B, \
           DistSparseMatrix<T>& C ); \
-  template void VCat \
+  EL_EXTERN template void VCat \
   ( const DistSparseMatrix<T>& A, \
     const DistSparseMatrix<T>& B, \
           DistSparseMatrix<T>& C ); \
-  template void HCat \
+  EL_EXTERN template void HCat \
   ( const DistMultiVec<T>& A, \
     const DistMultiVec<T>& B, \
           DistMultiVec<T>& C ); \
-  template void VCat \
+  EL_EXTERN template void VCat \
   ( const DistMultiVec<T>& A, \
     const DistMultiVec<T>& B, \
           DistMultiVec<T>& C );
@@ -316,6 +333,10 @@ void VCat
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
+
+#endif // ifndef EL_BLAS_CONCATENATE_HPP

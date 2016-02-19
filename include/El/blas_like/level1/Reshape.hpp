@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_BLAS_RESHAPE_HPP
+#define EL_BLAS_RESHAPE_HPP
 
 namespace El {
 
@@ -25,7 +26,8 @@ void Reshape
         ("Reshape from ",m," x ",n," to ",mNew," x ",nNew,
          " did not preserve the total number of entries");
 
-    Zeros( B, mNew, nNew );
+    B.Resize( mNew, nNew );
+    Zero( B );
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
@@ -67,7 +69,8 @@ void Reshape
          " did not preserve the total number of entries");
 
     B.SetGrid( g ); 
-    Zeros( B, mNew, nNew );
+    B.Resize( mNew, nNew );
+    Zero( B );
     
     B.Reserve( mLocal*nLocal );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
@@ -108,7 +111,8 @@ void Reshape
         ("Reshape from ",m," x ",n," to ",mNew," x ",nNew,
          " did not preserve the total number of entries");
 
-    Zeros( B, mNew, nNew );
+    B.Resize( mNew, nNew );
+    Zero( B );
     B.Reserve( numEntries );
 
     // Insert the nonzeros
@@ -148,7 +152,8 @@ void Reshape
          " did not preserve the total number of entries");
 
     B.SetComm( A.Comm() );
-    Zeros( B, mNew, nNew );
+    B.Resize( mNew, nNew );
+    Zero( B );
 
     B.Reserve( numEntries );
     for( Int e=0; e<numEntries; ++e )
@@ -170,33 +175,40 @@ DistSparseMatrix<T> Reshape( Int mNew, Int nNew, const DistSparseMatrix<T>& A )
     return B;
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
 #define PROTO(T) \
-  template void Reshape \
+  EL_EXTERN template void Reshape \
   (       Int mNew, \
           Int nNew, \
     const Matrix<T>& A, \
           Matrix<T>& B ); \
-  template Matrix<T> Reshape( Int mNew, Int nNew, const Matrix<T>& A ); \
-  template void Reshape \
+  EL_EXTERN template Matrix<T> Reshape \
+  ( Int mNew, Int nNew, const Matrix<T>& A ); \
+  EL_EXTERN template void Reshape \
   (       Int mNew, \
           Int nNew, \
     const AbstractDistMatrix<T>& A, \
           AbstractDistMatrix<T>& B ); \
-  template DistMatrix<T> Reshape \
+  EL_EXTERN template DistMatrix<T> Reshape \
   ( Int mNew, Int nNew, const AbstractDistMatrix<T>& A ); \
-  template void Reshape \
+  EL_EXTERN template void Reshape \
   (       Int mNew, \
           Int nNew, \
     const SparseMatrix<T>& A, \
           SparseMatrix<T>& B ); \
-  template SparseMatrix<T> Reshape \
+  EL_EXTERN template SparseMatrix<T> Reshape \
   ( Int mNew, Int nNew, const SparseMatrix<T>& A ); \
-  template void Reshape \
+  EL_EXTERN template void Reshape \
   (       Int mNew, \
           Int nNew, \
     const DistSparseMatrix<T>& A, \
           DistSparseMatrix<T>& B ); \
-  template DistSparseMatrix<T> Reshape \
+  EL_EXTERN template DistSparseMatrix<T> Reshape \
   ( Int mNew, Int nNew, const DistSparseMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
@@ -206,4 +218,8 @@ DistSparseMatrix<T> Reshape( Int mNew, Int nNew, const DistSparseMatrix<T>& A )
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
+#undef EL_EXTERN
+
 } // namespace El
+
+#endif // ifndef EL_BLAS_RESHAPE_HPP

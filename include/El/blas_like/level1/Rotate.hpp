@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_BLAS_ROTATE_HPP
+#define EL_BLAS_ROTATE_HPP
 
 namespace El {
 
@@ -86,18 +87,24 @@ void RotateCols( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 )
     Transform2x2Cols( G, A, i1, i2 );
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
 #define PROTO(F) \
-  template void Rotate \
+  EL_EXTERN template void Rotate \
   ( Base<F> c, F s, Matrix<F>& a1, Matrix<F>& a2 ); \
-  template void Rotate \
+  EL_EXTERN template void Rotate \
   ( Base<F> c, F s, AbstractDistMatrix<F>& a1, AbstractDistMatrix<F>& a2 ); \
-  template void RotateRows \
+  EL_EXTERN template void RotateRows \
   ( Base<F> c, F s, Matrix<F>& A, Int i1, Int i2 ); \
-  template void RotateRows \
+  EL_EXTERN template void RotateRows \
   ( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 ); \
-  template void RotateCols \
+  EL_EXTERN template void RotateCols \
   ( Base<F> c, F s, Matrix<F>& A, Int j1, Int j2 ); \
-  template void RotateCols \
+  EL_EXTERN template void RotateCols \
   ( Base<F> c, F s, AbstractDistMatrix<F>& A, Int j1, Int j2 );
 
 #define EL_NO_INT_PROTO
@@ -107,4 +114,8 @@ void RotateCols( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 )
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 
+#undef EL_EXTERN
+
 } // namespace El
+
+#endif // ifndef EL_BLAS_ROTATE_HPP

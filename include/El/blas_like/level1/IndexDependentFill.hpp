@@ -40,6 +40,27 @@ void IndexDependentFill
     }
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void IndexDependentFill \
+  ( Matrix<T>& A, function<T(Int,Int)> func ); \
+  EL_EXTERN template void IndexDependentFill \
+  ( AbstractDistMatrix<T>& A, function<T(Int,Int)> func );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_INDEXDEPENDENTFILL_HPP

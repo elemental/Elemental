@@ -496,7 +496,7 @@ void AxpyContract
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 
