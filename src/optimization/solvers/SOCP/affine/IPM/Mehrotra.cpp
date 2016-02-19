@@ -1348,7 +1348,7 @@ void Mehrotra
       cutoffSparse );
     const Int kSparse = sparseFirstInds.Height();
 
-    DistSparseMultMeta metaOrig;
+    DistGraphMultMeta metaOrig;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -1563,7 +1563,7 @@ void Mehrotra
         try
         {
             // Cache the metadata for the finalized JOrig
-            JOrig.multMeta = meta;
+            JOrig.LockedDistGraph().multMeta = meta;
             J = JOrig;
             J.FreezeSparsity();
             UpdateDiagonal( J, Real(1), regTmp );
@@ -1580,7 +1580,7 @@ void Mehrotra
                 Output("Equilibration: ",timer.Stop()," secs");
 
             // Cache the metadata for the finalized J
-            J.multMeta = meta;
+            J.LockedDistGraph().multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
             JFront.Pull
