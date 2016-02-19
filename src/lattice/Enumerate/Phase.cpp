@@ -14,16 +14,22 @@ namespace svp {
 
 // NOTE: This accepts the N from the Q(DN), not R from QR, where R=DN
 template<typename F>
-void CoordinatesToSparse( const Matrix<F>& N, const Matrix<F>& v, Matrix<F>& y )
+void CoordinatesToSparse
+( const Matrix<F>& N,
+  const Matrix<F>& v,
+        Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::CoordinatesToSparse"))
     y = v;
     Trmv( UPPER, NORMAL, UNIT, N, y );
     Round( y );
 }
+
 template<typename F>
 void TransposedCoordinatesToSparse
-( const Matrix<F>& NTrans, const Matrix<F>& v, Matrix<F>& y )
+( const Matrix<F>& NTrans,
+  const Matrix<F>& v,
+        Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::TransposedCoordinatesToSparse"))
     y = v;
@@ -33,16 +39,21 @@ void TransposedCoordinatesToSparse
 
 template<typename F>
 void BatchCoordinatesToSparse
-( const Matrix<F>& N, const Matrix<F>& V, Matrix<F>& Y )
+( const Matrix<F>& N,
+  const Matrix<F>& V,
+        Matrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToSparse"))
     Y = V;
     Trmm( LEFT, UPPER, NORMAL, UNIT, F(1), N, Y );
     Round( Y );
 }
+
 template<typename F>
 void BatchTransposedCoordinatesToSparse
-( const Matrix<F>& NTrans, const Matrix<F>& V, Matrix<F>& Y )
+( const Matrix<F>& NTrans,
+  const Matrix<F>& V,
+        Matrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("svp::BatchTransposedCoordinatesToSparse"))
     Y = V;
@@ -51,7 +62,10 @@ void BatchTransposedCoordinatesToSparse
 }
 
 template<typename F>
-void SparseToCoordinates( const Matrix<F>& N, const Matrix<F>& y, Matrix<F>& v )
+void SparseToCoordinates
+( const Matrix<F>& N,
+  const Matrix<F>& y,
+        Matrix<F>& v )
 {
     DEBUG_ONLY(CSE cse("svp::SparseToCoordinates"))
     const Int n = N.Height();
@@ -70,9 +84,12 @@ void SparseToCoordinates( const Matrix<F>& N, const Matrix<F>& y, Matrix<F>& v )
         vBuf[j] -= Round(tau);
     }
 }
+
 template<typename F>
 void TransposedSparseToCoordinates
-( const Matrix<F>& NTrans, const Matrix<F>& y, Matrix<F>& v )
+( const Matrix<F>& NTrans,
+  const Matrix<F>& y,
+        Matrix<F>& v )
 {
     DEBUG_ONLY(CSE cse("svp::TransposedSparseToCoordinates"))
     const Int n = NTrans.Height();
@@ -97,7 +114,9 @@ void TransposedSparseToCoordinates
 // TODO: Optimize this routine by changing the loop order?
 template<typename F>
 void BatchSparseToCoordinatesUnblocked
-( const Matrix<F>& N, const Matrix<F>& Y, Matrix<F>& V )
+( const Matrix<F>& N,
+  const Matrix<F>& Y,
+        Matrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("svp::BatchSparseToCoordinatesUnblocked"))
     const Int n = N.Height();
@@ -123,9 +142,12 @@ void BatchSparseToCoordinatesUnblocked
         }
     }
 }
+
 template<typename F>
 void BatchTransposedSparseToCoordinatesUnblocked
-( const Matrix<F>& NTrans, const Matrix<F>& Y, Matrix<F>& V )
+( const Matrix<F>& NTrans,
+  const Matrix<F>& Y,
+        Matrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("svp::BatchTransposedSparseToCoordinatesUnblocked"))
     const Int n = NTrans.Height();
@@ -157,7 +179,10 @@ void BatchTransposedSparseToCoordinatesUnblocked
 // TODO: Optimize this routine
 template<typename F>
 void BatchSparseToCoordinates
-( const Matrix<F>& N, const Matrix<F>& Y, Matrix<F>& V, Int blocksize )
+( const Matrix<F>& N,
+  const Matrix<F>& Y,
+        Matrix<F>& V,
+        Int blocksize )
 {
     DEBUG_ONLY(CSE cse("svp::BatchSparseToCoordinates"))
     const Int n = N.Height();
@@ -171,7 +196,8 @@ void BatchSparseToCoordinates
     }
 
     Zeros( V, n, numRHS );
-    for( Int i=0; i<n; i+=blocksize )
+    const Int iLast = LastOffset( n, blocksize );
+    for( Int i=iLast; i>=0; i-=blocksize )
     { 
         const Int nb = Min(n-i,blocksize);
         const Range<Int> ind0(0,i), ind1(i,i+nb);
@@ -183,13 +209,16 @@ void BatchSparseToCoordinates
         auto V1 = V( ind1, ALL );
 
         BatchSparseToCoordinatesUnblocked( N11, Y1, V1 );
-        if( i+nb < n )
-            Gemm( NORMAL, NORMAL, F(-1), N01, V1, F(1), V0 );
+        Gemm( NORMAL, NORMAL, F(-1), N01, V1, F(1), V0 );
     }
 }
+
 template<typename F>
 void BatchTransposedSparseToCoordinates
-( const Matrix<F>& NTrans, const Matrix<F>& Y, Matrix<F>& V, Int blocksize )
+( const Matrix<F>& NTrans,
+  const Matrix<F>& Y,
+        Matrix<F>& V,
+        Int blocksize )
 {
     DEBUG_ONLY(CSE cse("svp::BatchTransposedSparseToCoordinates"))
     const Int n = NTrans.Height();
@@ -203,7 +232,8 @@ void BatchTransposedSparseToCoordinates
     }
 
     Zeros( V, n, numRHS );
-    for( Int i=0; i<n; i+=blocksize )
+    const Int iLast = LastOffset( n, blocksize );
+    for( Int i=iLast; i>=0; i-=blocksize )
     { 
         const Int nb = Min(n-i,blocksize);
         const Range<Int> ind0(0,i), ind1(i,i+nb);
@@ -215,14 +245,15 @@ void BatchTransposedSparseToCoordinates
         auto V1 = V( ind1, ALL );
 
         BatchTransposedSparseToCoordinatesUnblocked( NTrans11, Y1, V1 );
-        if( i+nb < n )
-            Gemm( TRANSPOSE, NORMAL, F(-1), NTrans10, V1, F(1), V0 );
+        Gemm( TRANSPOSE, NORMAL, F(-1), NTrans10, V1, F(1), V0 );
     }
 }
 
 template<typename F>
 Base<F> CoordinatesToNorm
-( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& v )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+  const Matrix<F>& v )
 {
     DEBUG_ONLY(CSE cse("svp::CoordinatesToNorm"))
     Matrix<F> z( v );
@@ -230,9 +261,12 @@ Base<F> CoordinatesToNorm
     DiagonalScale( LEFT, NORMAL, d, z );
     return FrobeniusNorm( z );
 }
+
 template<typename F>
 Base<F> TransposedCoordinatesToNorm
-( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& v )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& NTrans,
+  const Matrix<F>& v )
 {
     DEBUG_ONLY(CSE cse("svp::TransposedCoordinatesToNorm"))
     Matrix<F> z( v );
@@ -243,7 +277,9 @@ Base<F> TransposedCoordinatesToNorm
 
 template<typename F>
 Matrix<Base<F>> BatchCoordinatesToNorms
-( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& V )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+  const Matrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToNorms"))
     typedef Base<F> Real;
@@ -259,9 +295,12 @@ Matrix<Base<F>> BatchCoordinatesToNorms
     ColumnTwoNorms( Z, colNorms );
     return colNorms;
 }
+
 template<typename F>
 Matrix<Base<F>> BatchTransposedCoordinatesToNorms
-( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& V )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& NTrans,
+  const Matrix<F>& V )
 {
     DEBUG_ONLY(CSE cse("svp::BatchTransposedCoordinatesToNorms"))
     typedef Base<F> Real;
@@ -280,7 +319,8 @@ Matrix<Base<F>> BatchTransposedCoordinatesToNorms
 
 template<typename F>
 Base<F> SparseToNormLowerBound
-( const Matrix<Base<F>>& d, const Matrix<F>& y )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::SparseToNormLowerBound"))
     typedef Base<F> Real;
@@ -304,7 +344,8 @@ Base<F> SparseToNormLowerBound
 
 template<typename F>
 Matrix<Base<F>> BatchSparseToNormLowerBound
-( const Matrix<Base<F>>& d, const Matrix<F>& Y )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& Y )
 {
     DEBUG_ONLY(CSE cse("svp::BatchSparseToNormLowerBound"))
     typedef Base<F> Real;
@@ -318,16 +359,21 @@ Matrix<Base<F>> BatchSparseToNormLowerBound
 
 template<typename F>
 Base<F> SparseToNorm
-( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& y )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+  const Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::SparseToNorm"))
     Matrix<F> v;
     SparseToCoordinates( N, y, v );
     return CoordinatesToNorm( d, N, v );
 }
+
 template<typename F>
 Base<F> TransposedSparseToNorm
-( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& y )
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& NTrans,
+  const Matrix<F>& y )
 {
     DEBUG_ONLY(CSE cse("svp::TransposedSparseToNorm"))
     Matrix<F> v;
@@ -347,6 +393,7 @@ Matrix<Base<F>> BatchSparseToNorm
     BatchSparseToCoordinates( N, Y, V, blocksize );
     return BatchCoordinatesToNorms( d, N, V );
 }
+
 template<typename F>
 Matrix<Base<F>> BatchTransposedSparseToNorm
 ( const Matrix<Base<F>>& d,
@@ -384,8 +431,8 @@ public:
       const Matrix<Real>& d,
       const Matrix<Real>& N,
       Real normUpperBound, 
-      Int batchSize=1000,
-      Int blocksize=16,
+      Int batchSize=256,
+      Int blocksize=32,
       bool useTranspose=true )
     : B_(B),
       d_(d),
@@ -471,7 +518,7 @@ public:
         MemCopy( Y_.Buffer(0,numQueued_), y.LockedBuffer(), y.Height() ); 
 
         ++numQueued_;
-        if( numQueued_ == blocksize_ )
+        if( numQueued_ == Y_.Width() )
             Flush();
     }
 
@@ -703,10 +750,9 @@ Real PhaseEnumeration
 
     // TODO: Loop and increase bands for min and max one and inf norms?
 
-    // NOTE: This does not seem to have a substantial impact on performance...
-    const Int batchSize = 2000;
-    //const Int batchSize = 1;
-    const Int blocksize = 16;
+    // NOTE: The blocking doesn't seem to help the performance (yet)
+    const Int batchSize = 256;
+    const Int blocksize = 32;
     const bool useTranspose = true;
     PhaseEnumerationCache<Real>
       cache( B, d, N, normUpperBound, batchSize, blocksize, useTranspose );
@@ -740,21 +786,37 @@ Real PhaseEnumeration
 // TODO: Instantiate batched variants?
 #define PROTO(F) \
   template void svp::CoordinatesToSparse \
-  ( const Matrix<F>& N, const Matrix<F>& v, Matrix<F>& y ); \
+  ( const Matrix<F>& N, \
+    const Matrix<F>& v, \
+          Matrix<F>& y ); \
   template void svp::TransposedCoordinatesToSparse \
-  ( const Matrix<F>& NTrans, const Matrix<F>& v, Matrix<F>& y ); \
+  ( const Matrix<F>& NTrans, \
+    const Matrix<F>& v, \
+          Matrix<F>& y ); \
   template void svp::SparseToCoordinates \
-  ( const Matrix<F>& N, const Matrix<F>& y, Matrix<F>& v ); \
+  ( const Matrix<F>& N, \
+    const Matrix<F>& y, \
+          Matrix<F>& v ); \
   template void svp::TransposedSparseToCoordinates \
-  ( const Matrix<F>& NTrans, const Matrix<F>& y, Matrix<F>& v ); \
+  ( const Matrix<F>& NTrans, \
+    const Matrix<F>& y, \
+          Matrix<F>& v ); \
   template Base<F> svp::CoordinatesToNorm \
-  ( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& v ); \
+  ( const Matrix<Base<F>>& d, \
+    const Matrix<F>& N, \
+    const Matrix<F>& v ); \
   template Base<F> svp::TransposedCoordinatesToNorm \
-  ( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& v ); \
+  ( const Matrix<Base<F>>& d, \
+    const Matrix<F>& NTrans, \
+    const Matrix<F>& v ); \
   template Base<F> svp::SparseToNorm \
-  ( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& y ); \
+  ( const Matrix<Base<F>>& d, \
+    const Matrix<F>& N, \
+    const Matrix<F>& y ); \
   template Base<F> svp::TransposedSparseToNorm \
-  ( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& y ); \
+  ( const Matrix<Base<F>>& d, \
+    const Matrix<F>& NTrans, \
+    const Matrix<F>& y ); \
   template Base<F> svp::PhaseEnumeration \
   ( const Matrix<F>& B, \
     const Matrix<Base<F>>& d, \
