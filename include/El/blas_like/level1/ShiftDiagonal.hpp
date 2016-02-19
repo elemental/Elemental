@@ -109,6 +109,31 @@ void ShiftDiagonal
     }
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  template void ShiftDiagonal \
+  ( Matrix<T>& A, T alpha, Int offset ); \
+  template void ShiftDiagonal \
+  ( AbstractDistMatrix<T>& A, T alpha, Int offset ); \
+  template void ShiftDiagonal \
+  ( SparseMatrix<T>& A, T alpha, Int offset, bool existingDiag ); \
+  template void ShiftDiagonal \
+  ( DistSparseMatrix<T>& A, T alpha, Int offset, bool existingDiag );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include "El/macros/Instantiate.h"
+
+#undef EL_EXTERN
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_SHIFTDIAGONAL_HPP

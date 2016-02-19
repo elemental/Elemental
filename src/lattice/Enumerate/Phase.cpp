@@ -772,7 +772,7 @@ Real PhaseEnumeration
 
     if( cache.FoundVector() )
     {
-        y = cache.BestVector();
+        v = cache.BestVector();
         return cache.NormUpperBound();
     }
     else

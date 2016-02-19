@@ -344,8 +344,8 @@ struct EnumCtrl
 
     Real fudge=Real(1.5); // fudge factor for number of bits of precision
 
-    bool time=true;
-    bool progress=true;
+    bool time=false;
+    bool progress=false;
 
     // For monitoring the core (bounded) enumeration procedure
     bool innerProgress=false;

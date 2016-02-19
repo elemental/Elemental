@@ -442,12 +442,13 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logNorms = false;
             subCtrl.logProjNorms = false;
             subCtrl.checkpoint = false;
+            subCtrl.enumCtrl.time = false;
+            subCtrl.enumCtrl.progress = false;
             subCtrl.lllCtrl.jumpstart = false;
             subCtrl.lllCtrl.recursive = false;
             if( ctrl.progress )
               Output("Running sub-BKZ with blocksize=",subCtrl.blocksize);
-            auto bkzInfo =
-              BKZWithQ( BSub, W, QRSub, tSub, dSub, subCtrl );
+            auto bkzInfo = BKZWithQ( BSub, W, QRSub, tSub, dSub, subCtrl );
             if( ctrl.progress )
               Output
               ("  ",bkzInfo.numSwaps," swaps and ",
@@ -937,6 +938,8 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logNorms = false;
             subCtrl.logProjNorms = false;
             subCtrl.checkpoint = false;
+            subCtrl.enumCtrl.time = false;
+            subCtrl.enumCtrl.progress = false;
             subCtrl.lllCtrl.jumpstart = false;
             subCtrl.lllCtrl.recursive = false;
             if( ctrl.progress )
