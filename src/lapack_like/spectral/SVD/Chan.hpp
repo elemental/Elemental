@@ -45,13 +45,18 @@ ChanUpper
         return;
     }
 
+    Timer timer;
     if( avoidU )
     {
         if( m > heightRatio*n )
         {
             DistMatrix<F,MD,STAR> t(g);
             DistMatrix<Real,MD,STAR> d(g);
+            if( ctrl.time && g.Rank() == 0 )
+                timer.Start();
             QR( A, t, d );
+            if( ctrl.time && g.Rank() == 0 )
+                Output("Chan QR reduction: ",timer.Stop()," seconds");
 
             DistMatrix<F> R(g);
             auto AT = A( IR(0,n), IR(0,n) );
@@ -74,7 +79,11 @@ ChanUpper
         {
             DistMatrix<F,MD,STAR> t(g);
             DistMatrix<Real,MD,STAR> d(g);
+            if( ctrl.time && g.Rank() == 0 )
+                timer.Start();
             QR( A, t, d );
+            if( ctrl.time && g.Rank() == 0 )
+                Output("Chan QR reduction: ",timer.Stop()," seconds");
 
             DistMatrix<F> R(g);
             auto AT = A( IR(0,n), IR(0,n) );
@@ -86,7 +95,11 @@ ChanUpper
                 Identity( U, m, m );
                 auto UTL = U( IR(0,n), IR(0,n) );
                 svd::GolubReinsch( R, UTL, s, V, ctrl );
+                if( ctrl.time && g.Rank() == 0 )
+                    timer.Start();
                 qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+                if( ctrl.time && g.Rank() == 0 )
+                    Output("Chan backtransformation: ",timer.Stop()," seconds");
             }
             else
             {
@@ -96,7 +109,11 @@ ChanUpper
                 const Int rank = UT.Width();
                 U.Resize( m, rank );
                 // (U,s,V) holds an SVD of the R from the QR fact. of original A
+                if( ctrl.time && g.Rank() == 0 )
+                    timer.Start();
                 qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+                if( ctrl.time && g.Rank() == 0 )
+                    Output("Chan backtransformation: ",timer.Stop()," seconds");
             }
         }
         else

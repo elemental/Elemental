@@ -17,11 +17,15 @@ void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
     DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int height = A.Height();
     const Int width = A.Width();
+
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+
     for( Int j=0; j<width; ++j )
     {
         const Int i = j-offset;
         if( i >= 0 && i < height )
-            A.Update(i,j,alpha);
+            ABuf[i+j*ALDim] += alpha;
     }
 }
 
@@ -31,6 +35,10 @@ void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
     DEBUG_ONLY(CSE cse("ShiftDiagonal"))
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
+
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);
@@ -38,7 +46,7 @@ void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
         if( i >= 0 && i < height && A.IsLocalRow(i) )
         {
             const Int iLoc = A.LocalRow(i);
-            A.UpdateLocal( iLoc, jLoc, alpha );
+            ABuf[iLoc+jLoc*ALDim] += alpha;
         }
     }
 }

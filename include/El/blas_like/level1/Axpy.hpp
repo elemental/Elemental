@@ -207,6 +207,37 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
     Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void Axpy \
+  ( T alpha, const Matrix<T>& X, Matrix<T>& Y ); \
+  EL_EXTERN template void Axpy \
+  ( T alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y ); \
+  EL_EXTERN template void Axpy \
+  ( T alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y ); \
+  EL_EXTERN template void Axpy \
+  ( T alpha, const BlockMatrix<T>& X, BlockMatrix<T>& Y ); \
+  EL_EXTERN template void Axpy \
+  ( T alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y ); \
+  EL_EXTERN template void Axpy \
+  ( T alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y ); \
+  EL_EXTERN template void Axpy \
+  ( T alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include "El/macros/Instantiate.h"
+
+#undef EL_EXTERN
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_AXPY_HPP

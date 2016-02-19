@@ -1127,6 +1127,8 @@ inline SVDCtrl<float> CReflect( const ElSVDCtrl_s& ctrlC )
     ctrl.overwrite = ctrlC.overwrite;
     ctrl.avoidComputingU = ctrlC.avoidComputingU;
     ctrl.avoidComputingV = ctrlC.avoidComputingV;
+    ctrl.time = ctrlC.time;
+    ctrl.avoidLibflame = ctrlC.avoidLibflame;
 
     ctrl.seqQR = ctrlC.seqQR;
     ctrl.valChanRatio = ctrlC.valChanRatio;
@@ -1144,12 +1146,15 @@ inline SVDCtrl<double> CReflect( const ElSVDCtrl_d& ctrlC )
     ctrl.overwrite = ctrlC.overwrite;
     ctrl.avoidComputingU = ctrlC.avoidComputingU;
     ctrl.avoidComputingV = ctrlC.avoidComputingV;
+    ctrl.time = ctrlC.time;
+    ctrl.avoidLibflame = ctrlC.avoidLibflame;
 
     ctrl.seqQR = ctrlC.seqQR;
     ctrl.valChanRatio = ctrlC.valChanRatio;
     ctrl.fullChanRatio = ctrlC.fullChanRatio;
     ctrl.relative = ctrlC.relative;
     ctrl.tol = ctrlC.tol;
+
     return ctrl;
 }
 
@@ -1160,12 +1165,15 @@ inline ElSVDCtrl_s CReflect( const SVDCtrl<float>& ctrl )
     ctrlC.overwrite = ctrl.overwrite;
     ctrlC.avoidComputingU = ctrl.avoidComputingU;
     ctrlC.avoidComputingV = ctrl.avoidComputingV;
+    ctrlC.time = ctrl.time;
+    ctrlC.avoidLibflame = ctrl.avoidLibflame;
 
     ctrlC.seqQR = ctrl.seqQR;
     ctrlC.valChanRatio = ctrl.valChanRatio;
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
     ctrlC.relative = ctrl.relative;
     ctrlC.tol = ctrl.tol;
+
     return ctrlC;
 }
 
@@ -1176,12 +1184,15 @@ inline ElSVDCtrl_d CReflect( const SVDCtrl<double>& ctrl )
     ctrlC.overwrite = ctrl.overwrite;
     ctrlC.avoidComputingU = ctrl.avoidComputingU;
     ctrlC.avoidComputingV = ctrl.avoidComputingV;
+    ctrlC.time = ctrl.time;
+    ctrlC.avoidLibflame = ctrl.avoidLibflame;
 
     ctrlC.seqQR = ctrl.seqQR;
     ctrlC.valChanRatio = ctrl.valChanRatio;
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
     ctrlC.relative = ctrl.relative;
     ctrlC.tol = ctrl.tol;
+
     return ctrlC;
 }
 

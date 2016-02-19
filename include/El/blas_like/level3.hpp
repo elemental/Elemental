@@ -602,6 +602,36 @@ void LocalTrr2k
   T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
   T gamma,       ElementalMatrix<T>& E );
 
+// Hermitian from EVD
+// ==================
+// A := Z diag(w) Z^H, where w is real
+template<typename F>
+void HermitianFromEVD
+( UpperOrLower uplo,
+        Matrix<F>& A,
+  const Matrix<Base<F>>& w,
+  const Matrix<F>& Z );
+template<typename F>
+void HermitianFromEVD
+( UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+  const ElementalMatrix<Base<F>>& w,
+  const ElementalMatrix<F>& Z );
+
+// Normal from EVD
+// ===============
+// A := Z diag(w) Z^H, where w is complex
+template<typename Real>
+void NormalFromEVD
+(       Matrix<Complex<Real>>& A,
+  const Matrix<Complex<Real>>& w,
+  const Matrix<Complex<Real>>& Z );
+template<typename Real>
+void NormalFromEVD
+(       ElementalMatrix<Complex<Real>>& A,
+  const ElementalMatrix<Complex<Real>>& w,
+  const ElementalMatrix<Complex<Real>>& Z );
+
 } // namespace El
 
 #endif // ifndef EL_BLAS3_HPP

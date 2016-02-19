@@ -951,7 +951,6 @@ inline void TallAbsoluteProduct
     )
     typedef Base<F> Real;
     const Int m = A.Height();
-    const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
@@ -1053,7 +1052,6 @@ TallAbsoluteProduct
     )
     typedef Base<F> Real;
     const Int m = A.Height();
-    const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
@@ -1082,11 +1080,9 @@ TallAbsoluteProduct
     HermitianEig( LOWER, C, s, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
-    {
-        const Int localHeight = s.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
-    }
+    const Int localHeight = s.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
 }
 
 template<typename F>
@@ -1328,7 +1324,6 @@ WideAbsoluteProduct
           LogicError("negative threshold does not make sense");
     )
     typedef Base<F> Real;
-    const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
@@ -1429,7 +1424,6 @@ WideAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    const Int m = A.Height();
     const Int n = A.Width();
 
     typedef Base<F> Real;
@@ -1461,11 +1455,9 @@ WideAbsoluteProduct
     HermitianEig( LOWER, C, s, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
-    {
-        const Int localHeight = s.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
-    }
+    const Int localHeight = s.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
 }
 
 template<typename F>

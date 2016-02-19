@@ -103,6 +103,8 @@ ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl )
     ctrl->overwrite = false;
     ctrl->avoidComputingU = false;
     ctrl->avoidComputingV = false;
+    ctrl->time = false;
+    ctrl->avoidLibflame = false;
 
     ctrl->seqQR = false;
     ctrl->valChanRatio = 1.2;
@@ -117,6 +119,8 @@ ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
     ctrl->overwrite = false;
     ctrl->avoidComputingU = false;
     ctrl->avoidComputingV = false;
+    ctrl->time = false;
+    ctrl->avoidLibflame = false;
 
     ctrl->seqQR = false;
     ctrl->valChanRatio = 1.2;

@@ -64,6 +64,12 @@ functionality, including:
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
 
+**Lattice reduction**:
+* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to linearly-dependent bases
+* Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1)
+ incorporating ["y-sparse" enumeration](https://eprint.iacr.org/2014/980)
+* Integer images/kernels and relation-finding
+
 ### The current development roadmap
 
 **Core data structures**:
@@ -83,9 +89,6 @@ functionality, including:
 * (3b) Enhance sparse scalability via low edge-degree plus low-rank 
   decompositions \[depends on (1b); weakly depends on (1a)\]
 * (3c) Distributed sparse semidefinite programs via chordal decompositions \[weakly depends on (3b)\]
-
-**Lattice reduction**:
-* (4a) Distributed [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html), Fincke-Pohst SVP solver, and [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1)
 
 Alternatively, see the `TODO` list for a detailed, albeit somewhat outdated,
 list of planned additions.
@@ -199,3 +202,7 @@ three external interfaces are currently being externally developed:
 * [L1-MAGIC](http://users.ece.gatech.edu/~justin/l1magic/)
 * [SDPA](http://sdpa.sourceforge.net/index.html)
 
+**Lattice reduction and number theory**
+
+* [FPLLL](https://github.com/dstehle/fplll)
+* [NTL](http://www.shoup.net/ntl/)

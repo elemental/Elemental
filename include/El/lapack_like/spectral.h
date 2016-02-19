@@ -869,6 +869,8 @@ typedef struct {
   bool overwrite;
   bool avoidComputingU;
   bool avoidComputingV;
+  bool time;
+  bool avoidLibflame;
 
   bool seqQR;
   double valChanRatio;
@@ -883,6 +885,8 @@ typedef struct {
   bool overwrite;
   bool avoidComputingU;
   bool avoidComputingV;
+  bool time;
+  bool avoidLibflame;
 
   bool seqQR;
   double valChanRatio;
