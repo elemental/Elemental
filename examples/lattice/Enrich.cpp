@@ -7,13 +7,13 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
-#ifdef EL_HAVE_MPC
 using namespace El;
 
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
 
+#ifdef EL_HAVE_MPC
     try
     {
         const string inputBasisFile = 
@@ -101,13 +101,7 @@ int main( int argc, char* argv[] )
         }
     }
     catch( std::exception& e ) { ReportException(e); }
+#endif // ifdef EL_HAVE_MPC
 
     return 0;
 }
-#else
-int main( int argc, char* argv[] )
-{
-    Environment env( argc, argv );
-    return 0;
-}
-#endif // ifdef EL_HAVE_MPC
