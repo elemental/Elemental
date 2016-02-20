@@ -104,4 +104,10 @@ int main( int argc, char* argv[] )
 
     return 0;
 }
+#else
+int main( int argc, char* argv[] )
+{
+    Environment env( argc, argv );
+    return 0;
+}
 #endif // ifdef EL_HAVE_MPC
