@@ -342,6 +342,7 @@ struct EnumCtrl
 {
     EnumType enumType=FULL_ENUM;
 
+    bool disablePrecDrop=false;
     Real fudge=Real(1.5); // fudge factor for number of bits of precision
 
     bool time=false;
@@ -378,6 +379,7 @@ struct EnumCtrl
     EnumCtrl<Real>& operator=( const EnumCtrl<OtherReal>& ctrl )
     {
         enumType = ctrl.enumType;
+        disablePrecDrop = ctrl.disablePrecDrop;
         fudge = Real(ctrl.fudge);
         time = ctrl.time;
         progress = ctrl.progress;

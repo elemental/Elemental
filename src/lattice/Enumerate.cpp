@@ -32,7 +32,8 @@ Base<F> ShortVectorEnumeration
 
     const Real BOneNorm = OneNorm( B );
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
-    if( MantissaIsLonger<Real,float>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
         typedef float RealLower;
@@ -52,7 +53,8 @@ Base<F> ShortVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,double>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
@@ -74,7 +76,8 @@ Base<F> ShortVectorEnumeration
         { Output("e.what()=",e.what()); }
     }
 #ifdef EL_HAVE_QD
-    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,DoubleDouble>::value &&
         MantissaBits<DoubleDouble>::value >= neededPrec )
     {
         typedef DoubleDouble RealLower;
@@ -95,7 +98,8 @@ Base<F> ShortVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,QuadDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
         typedef QuadDouble RealLower;
@@ -118,7 +122,8 @@ Base<F> ShortVectorEnumeration
     }
 #endif
 #ifdef EL_HAVE_QUAD
-    if( MantissaIsLonger<Real,Quad>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,Quad>::value &&
         MantissaBits<Quad>::value >= neededPrec )
     {
         typedef Quad RealLower;
@@ -359,7 +364,8 @@ MultiShortVectorEnumeration
 
     const Real BOneNorm = OneNorm( B );
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
-    if( MantissaIsLonger<Real,float>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
         typedef float RealLower;
@@ -381,7 +387,8 @@ MultiShortVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,double>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
@@ -404,7 +411,8 @@ MultiShortVectorEnumeration
         { Output("e.what()=",e.what()); }
     }
 #ifdef EL_HAVE_QD
-    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,DoubleDouble>::value &&
         MantissaBits<DoubleDouble>::value >= neededPrec )
     {
         typedef DoubleDouble RealLower;
@@ -426,7 +434,8 @@ MultiShortVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,QuadDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
         typedef QuadDouble RealLower;
@@ -450,7 +459,8 @@ MultiShortVectorEnumeration
     }
 #endif
 #ifdef EL_HAVE_QUAD
-    if( MantissaIsLonger<Real,Quad>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,Quad>::value &&
         MantissaBits<Quad>::value >= neededPrec )
     {
         typedef Quad RealLower;
@@ -778,7 +788,8 @@ Base<F> ShortestVectorEnumeration
 
     const Real BOneNorm = OneNorm( B );
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge)); 
-    if( MantissaIsLonger<Real,float>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
         typedef float RealLower;
@@ -798,7 +809,8 @@ Base<F> ShortestVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,double>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
@@ -819,7 +831,8 @@ Base<F> ShortestVectorEnumeration
         { Output("e.what()=",e.what()); }
     }
 #ifdef EL_HAVE_QD
-    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,DoubleDouble>::value &&
         MantissaBits<DoubleDouble>::value >= neededPrec )
     {
         typedef DoubleDouble RealLower;
@@ -839,7 +852,8 @@ Base<F> ShortestVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,QuadDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
         typedef QuadDouble RealLower;
@@ -861,7 +875,8 @@ Base<F> ShortestVectorEnumeration
     }
 #endif
 #ifdef EL_HAVE_QUAD
-    if( MantissaIsLonger<Real,Quad>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,Quad>::value &&
         MantissaBits<Quad>::value >= neededPrec )
     {
         typedef Quad RealLower;
@@ -934,7 +949,8 @@ MultiShortestVectorEnumeration
 
     const Real BOneNorm = OneNorm( B );
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge)); 
-    if( MantissaIsLonger<Real,float>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,float>::value &&
         MantissaBits<float>::value >= neededPrec )
     {
         typedef float RealLower;
@@ -956,7 +972,8 @@ MultiShortestVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,double>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,double>::value &&
         MantissaBits<double>::value >= neededPrec )
     {
         typedef double RealLower;
@@ -979,7 +996,8 @@ MultiShortestVectorEnumeration
         { Output("e.what()=",e.what()); }
     }
 #ifdef EL_HAVE_QD
-    if( MantissaIsLonger<Real,DoubleDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,DoubleDouble>::value &&
         MantissaBits<DoubleDouble>::value >= neededPrec )
     {
         typedef DoubleDouble RealLower;
@@ -1001,7 +1019,8 @@ MultiShortestVectorEnumeration
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
     }
-    if( MantissaIsLonger<Real,QuadDouble>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,QuadDouble>::value &&
         MantissaBits<QuadDouble>::value >= neededPrec )
     {
         typedef QuadDouble RealLower;
@@ -1025,7 +1044,8 @@ MultiShortestVectorEnumeration
     }
 #endif
 #ifdef EL_HAVE_QUAD
-    if( MantissaIsLonger<Real,Quad>::value &&
+    if( !ctrl.disablePrecDrop &&
+        MantissaIsLonger<Real,Quad>::value &&
         MantissaBits<Quad>::value >= neededPrec )
     {
         typedef Quad RealLower;
@@ -1050,11 +1070,6 @@ MultiShortestVectorEnumeration
 #endif
     // TODO: Arbitrary-precision drop?
 
-    // TODO: Check if later vectors are shorter too
-    const Real b0Norm = R.Get(0,0);
-    Zeros( v, n, 1 );
-    v.Set( 0, 0, F(1) );
-
     const Int numNested = normUpperBounds.Height();
     Matrix<Real> targetNorms( normUpperBounds );
   
@@ -1067,6 +1082,11 @@ MultiShortestVectorEnumeration
             satisfiedBound = true;
             satisfiedIndex = j;
             targetNorms.Set( j, 0, R.Get(j,j) );
+
+            Zeros( v, n-satisfiedIndex, 1 );
+            v.Set( 0, 0, F(1) );
+
+            break;
         }
     }
 
@@ -1089,13 +1109,15 @@ MultiShortestVectorEnumeration
                 return result;
         }
         else if( satisfiedBound )
+        {
             return std::pair<Real,Int>
                    (targetNorms.Get(satisfiedIndex,0),satisfiedIndex);
+        }
         else
         {
             Zeros( v, n, 1 );
             v.Set( 0, 0, F(1) );
-            return std::pair<Real,Int>(b0Norm,0);
+            return std::pair<Real,Int>(R.Get(0,0),0);
         }
     }
 }

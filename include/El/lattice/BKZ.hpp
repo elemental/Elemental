@@ -370,7 +370,7 @@ BKZInfo<Base<F>> BKZWithQ
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Range<Int> windowInd = IR(j,Min(j+5,k+1));
         auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
-        Scale( Sqrt(ctrl.lllCtrl.delta), normUpperBounds );
+        Scale( Min(Sqrt(ctrl.lllCtrl.delta),Real(1)), normUpperBounds );
         const auto minPair = 
           MultiShortestVectorEnrichment
           ( BEnum, UEnum, QREnum, normUpperBounds, v, enumCtrl );
@@ -392,7 +392,7 @@ BKZInfo<Base<F>> BKZWithQ
                  " with j=",j,", z=",z);
                 Print( v, "v" );
                 Output("insertion index: ",insertionInd);
-                Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm);
+                Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm,", oldProjNorm-minProjNorm=",oldProjNorm-minProjNorm);
             }
 
             ++numEnumFailures;
@@ -447,6 +447,7 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logNorms = false;
             subCtrl.logProjNorms = false;
             subCtrl.checkpoint = false;
+            subCtrl.enumCtrl.disablePrecDrop = true;
             subCtrl.enumCtrl.time = false;
             subCtrl.enumCtrl.progress = false;
             subCtrl.lllCtrl.jumpstart = false;
@@ -874,7 +875,7 @@ BKZInfo<Base<F>> BKZWithQ
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Range<Int> windowInd = IR(j,Min(j+5,k+1));
         auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
-        Scale( Sqrt(ctrl.lllCtrl.delta), normUpperBounds );
+        Scale( Min(Sqrt(ctrl.lllCtrl.delta),Real(1)), normUpperBounds );
         const auto minPair =
           MultiShortestVectorEnrichment
           ( BEnum, QREnum, normUpperBounds, v, enumCtrl );
@@ -896,7 +897,7 @@ BKZInfo<Base<F>> BKZWithQ
                  " with j=",j,", z=",z);
                 Print( v, "v" );
                 Output("insertion index: ",insertionInd);
-                Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm);
+                Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm,", oldProjNorm-minProjNorm=",oldProjNorm-minProjNorm);
             }
 
             ++numEnumFailures;
@@ -948,6 +949,7 @@ BKZInfo<Base<F>> BKZWithQ
             subCtrl.logNorms = false;
             subCtrl.logProjNorms = false;
             subCtrl.checkpoint = false;
+            subCtrl.enumCtrl.disablePrecDrop = true;
             subCtrl.enumCtrl.time = false;
             subCtrl.enumCtrl.progress = false;
             subCtrl.lllCtrl.jumpstart = false;
