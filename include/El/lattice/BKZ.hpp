@@ -329,7 +329,8 @@ BKZInfo<Base<F>> BKZWithQ
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
-    Int z=0, j=-1; 
+    Int z=0;
+    Int j = ( ctrl.jumpstart ? ctrl.startCol : 0 ) - 1;
     Int numEnums=0, numEnumFailures=0;
     const Int indent = PushIndent(); 
     while( z < rank-1 ) 
@@ -363,21 +364,21 @@ BKZInfo<Base<F>> BKZWithQ
         auto UEnum = U( ALL, IR(j,k+1) );
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
+        const Real normUpperBound = Sqrt(ctrl.lllCtrl.delta)*oldProjNorm;
         if( ctrl.time )
             bkz::enumTimer.Start();
         auto enumCtrl = ctrl.enumCtrl;
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, enumCtrl );
+          ShortestVectorEnrichment
+          ( BEnum, UEnum, QREnum, normUpperBound, v, enumCtrl );
         if( ctrl.time )
-            Output("Enum time: ",bkz::enumTimer.Stop()," seconds");
+            Output("Enum/enrich time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
 
-        const bool keepMin =
-          ( Sqrt(ctrl.lllCtrl.delta)*oldProjNorm > minProjNorm );
-
-        if( keepMin )
+        const bool keptMin = ( minProjNorm < oldProjNorm );
+        if( keptMin )
         {
             if( ctrl.progress )
             {
@@ -400,8 +401,6 @@ BKZInfo<Base<F>> BKZWithQ
                 nontrivialCoordsFile << endl;
             }
             z = 0;
-
-            EnrichLattice( BEnum, UEnum, v );
         }
         else
         {
@@ -461,7 +460,7 @@ BKZInfo<Base<F>> BKZWithQ
         {
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = ( keepMin ? j : h-1 );
+            subLLLCtrl.startCol = ( keptMin ? j : h-1 );
             subLLLCtrl.recursive = false;
             lllInfo = LLLWithQ( BSub, W, QRSub, tSub, dSub, subLLLCtrl );
             if( lllInfo.numSwaps != 0 )
@@ -473,7 +472,7 @@ BKZInfo<Base<F>> BKZWithQ
         Gemm( NORMAL, NORMAL, F(1), USubCopy, W, USub );
         if( ctrl.time )
             Output("BKZ time: ",bkz::bkzTimer.Stop()," seconds");
-        if( !keepMin )
+        if( !keptMin )
         {
             if( changed )
             {
@@ -829,7 +828,8 @@ BKZInfo<Base<F>> BKZWithQ
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
-    Int z=0, j=-1; 
+    Int z=0;
+    Int j = ( ctrl.jumpstart ? ctrl.startCol : 0 ) - 1;
     Int numEnums=0, numEnumFailures=0;
     const Int indent = PushIndent(); 
     while( z < rank-1 ) 
@@ -862,21 +862,21 @@ BKZInfo<Base<F>> BKZWithQ
         auto BEnum = B( ALL, IR(j,k+1) );
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         const Real oldProjNorm = QR.Get(j,j);
+        const Real normUpperBound = Sqrt(ctrl.lllCtrl.delta)*oldProjNorm;
         if( ctrl.time )
             bkz::enumTimer.Start();
         auto enumCtrl = ctrl.enumCtrl;
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Real minProjNorm =
-          ShortestVectorEnumeration( BEnum, QREnum, v, enumCtrl );
+          ShortestVectorEnrichment
+          ( BEnum, QREnum, normUpperBound, v, enumCtrl );
         if( ctrl.time )
             Output("Enum time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
 
-        const bool keepMin =
-          ( Sqrt(ctrl.lllCtrl.delta)*oldProjNorm > minProjNorm );
-
-        if( keepMin )
+        const bool keptMin = ( minProjNorm < oldProjNorm );
+        if( keptMin )
         {
             if( ctrl.progress )
             {
@@ -899,8 +899,6 @@ BKZInfo<Base<F>> BKZWithQ
                 nontrivialCoordsFile << endl;
             }
             z = 0;
-
-            EnrichLattice( BEnum, v );
         }
         else
         {
@@ -957,7 +955,7 @@ BKZInfo<Base<F>> BKZWithQ
         {
             LLLCtrl<Real> subLLLCtrl( ctrl.lllCtrl );
             subLLLCtrl.jumpstart = true;
-            subLLLCtrl.startCol = ( keepMin ? j : h-1 );
+            subLLLCtrl.startCol = ( keptMin ? j : h-1 );
             subLLLCtrl.recursive = false;
             lllInfo = LLLWithQ( BSub, QRSub, tSub, dSub, subLLLCtrl );
             if( lllInfo.numSwaps != 0 )
@@ -966,7 +964,7 @@ BKZInfo<Base<F>> BKZWithQ
         }
         if( ctrl.time )
             Output("BKZ time: ",bkz::bkzTimer.Stop()," seconds");
-        if( !keepMin )
+        if( !keptMin )
         {
             if( changed )
             {

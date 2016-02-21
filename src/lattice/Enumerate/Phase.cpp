@@ -276,10 +276,36 @@ Base<F> TransposedCoordinatesToNorm
 }
 
 template<typename F>
+Matrix<Base<F>> NestedColumnTwoNorms( const Matrix<F>& Z, Int numNested=1 )
+{
+    DEBUG_ONLY(CSE cse("svp::NestedColumnTwoNorms"))
+    typedef Base<F> Real;
+    const Int n = Z.Height();
+    const Int numRHS = Z.Width();
+
+    Matrix<Real> colNorms(numRHS,numNested);
+    // Compute nested norms in linear time
+    for( Int j=0; j<numRHS; ++j )
+    {
+        const F* zBuf = Z.LockedBuffer(0,j);
+        Real scale=0, scaledSquare=1;          
+        for( Int i=n-1; i>=numNested; --i )
+            UpdateScaledSquare( zBuf[i], scale, scaledSquare );
+        for( Int i=numNested-1; i>=0; --i )
+        {
+            UpdateScaledSquare( zBuf[i], scale, scaledSquare );
+            colNorms.Set( j, i, scale*Sqrt(scaledSquare) );
+        }
+    }
+    return colNorms;
+}
+
+template<typename F>
 Matrix<Base<F>> BatchCoordinatesToNorms
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& N,
-  const Matrix<F>& V )
+  const Matrix<F>& V,
+        Int numNested=1 )
 {
     DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToNorms"))
     typedef Base<F> Real;
@@ -291,16 +317,15 @@ Matrix<Base<F>> BatchCoordinatesToNorms
         Trmm( LEFT, UPPER, NORMAL, UNIT, F(1), N, Z );
     DiagonalScale( LEFT, NORMAL, d, Z );
 
-    Matrix<Real> colNorms;
-    ColumnTwoNorms( Z, colNorms );
-    return colNorms;
+    return NestedColumnTwoNorms( Z, numNested );
 }
 
 template<typename F>
 Matrix<Base<F>> BatchTransposedCoordinatesToNorms
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& NTrans,
-  const Matrix<F>& V )
+  const Matrix<F>& V,
+        Int numNested=1 )
 {
     DEBUG_ONLY(CSE cse("svp::BatchTransposedCoordinatesToNorms"))
     typedef Base<F> Real;
@@ -312,9 +337,7 @@ Matrix<Base<F>> BatchTransposedCoordinatesToNorms
         Trmm( LEFT, LOWER, TRANSPOSE, UNIT, F(1), NTrans, Z );
     DiagonalScale( LEFT, NORMAL, d, Z );
 
-    Matrix<Real> colNorms;
-    ColumnTwoNorms( Z, colNorms );
-    return colNorms;
+    return NestedColumnTwoNorms( Z, numNested );
 }
 
 template<typename F>
@@ -386,12 +409,13 @@ Matrix<Base<F>> BatchSparseToNorm
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& N,
   const Matrix<F>& Y,
-        Int blocksize )
+        Int blocksize,
+        Int numNested=1 )
 {
     DEBUG_ONLY(CSE cse("svp::BatchSparseToNorm"))
     Matrix<F> V;
     BatchSparseToCoordinates( N, Y, V, blocksize );
-    return BatchCoordinatesToNorms( d, N, V );
+    return BatchCoordinatesToNorms( d, N, V, numNested );
 }
 
 template<typename F>
@@ -399,12 +423,13 @@ Matrix<Base<F>> BatchTransposedSparseToNorm
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& NTrans,
   const Matrix<F>& Y,
-        Int blocksize )
+        Int blocksize,
+        Int numNested=1 )
 {
     DEBUG_ONLY(CSE cse("svp::BatchTransposedSparseToNorm"))
     Matrix<F> V;
     BatchTransposedSparseToCoordinates( NTrans, Y, V, blocksize );
-    return BatchTransposedCoordinatesToNorms( d, NTrans, V );
+    return BatchTransposedCoordinatesToNorms( d, NTrans, V, numNested );
 }
 
 template<typename Real>
@@ -415,31 +440,35 @@ private:
     const Matrix<Real>& d_;
     const Matrix<Real>& N_;
           Matrix<Real> NTrans_;
-    Real normUpperBound_;
+          Matrix<Real> normUpperBounds_;
     bool foundVector_=false;
-    bool useTranspose_=true;
 
     Int numQueued_=0;
     Matrix<Real> Y_;
     Matrix<Real> VCand_;
+
+    Int insertionBound_;
     Matrix<Real> v_;
+
     Int blocksize_=32;
+    bool useTranspose_=true;
 
 public:
     PhaseEnumerationCache
     ( const Matrix<Real>& B,
       const Matrix<Real>& d,
       const Matrix<Real>& N,
-      Real normUpperBound, 
-      Int batchSize=256,
-      Int blocksize=32,
-      bool useTranspose=true )
+      const Matrix<Real>& normUpperBounds,
+            Int batchSize=256,
+            Int blocksize=32,
+            bool useTranspose=true )
     : B_(B),
       d_(d),
       N_(N),
-      normUpperBound_(normUpperBound),
+      normUpperBounds_(normUpperBounds),
       foundVector_(false),
       numQueued_(0),
+      insertionBound_(normUpperBounds.Height()),
       blocksize_(blocksize),
       useTranspose_(useTranspose)
     { 
@@ -450,7 +479,25 @@ public:
 
     bool FoundVector() const { return foundVector_; }
     const Matrix<Real>& BestVector() const { return v_; }
-    Real NormUpperBound() const { return normUpperBound_; }
+
+    Int InsertionIndex() const
+    {
+        if( foundVector_ )
+        {
+            return insertionBound_-1;
+        }
+        else
+        {
+            LogicError("Did not find a shorter vector");
+            return -1;
+        }
+    }
+
+    Real InsertionNorm() const
+    {
+        const Int insertionIndex = InsertionIndex();
+        return normUpperBounds_.Get(insertionIndex,0);
+    }
 
     void Flush()
     {
@@ -464,50 +511,61 @@ public:
         {
             BatchTransposedSparseToCoordinates
             ( NTrans_, YActive, VCand_, blocksize_ );
-            colNorms = BatchTransposedCoordinatesToNorms( d_, NTrans_, VCand_ );
+            colNorms =
+              BatchTransposedCoordinatesToNorms
+              ( d_, NTrans_, VCand_, insertionBound_ );
         }
         else
         {
             BatchSparseToCoordinates( N_, YActive, VCand_, blocksize_ );
-            colNorms = BatchCoordinatesToNorms( d_, N_, VCand_ );
+            colNorms =
+              BatchCoordinatesToNorms( d_, N_, VCand_, insertionBound_ );
         }
 
         for( Int j=0; j<numQueued_; ++j )
         {
-            const Real bNorm = colNorms.Get(j,0);
-            if( bNorm < normUpperBound_ && bNorm != Real(0) )
+            for( Int k=0; k<insertionBound_; ++k )
             {
-                auto y = YActive(ALL,IR(j));
-                auto vCand = VCand_(ALL,IR(j));
-
-                Output("normUpperBound=",normUpperBound_,", bNorm=",bNorm);
-                Print( y, "y" );
-                Print( d_, "d" );
-                Print( N_, "N" );
-
-                // Check that the reverse transformation holds
-                Matrix<Real> yCheck;
-                CoordinatesToSparse( N_, vCand, yCheck );
-                yCheck -= y;
-                if( FrobeniusNorm(yCheck) != Real(0) )
+                const Real bNorm = colNorms.Get(j,k);
+                if( bNorm < normUpperBounds_.Get(k,0) && bNorm != Real(0) )
                 {
-                    Print( vCand, "vCand" );
-                    Print( yCheck, "eCheck" );
-                    LogicError("Invalid sparse transformation");
+                    const Range<Int> subInd(k,END);
+
+                    auto y = YActive(subInd,IR(j));
+                    auto vCand = VCand_(subInd,IR(j));
+
+                    Output
+                    ("normUpperBound=",normUpperBounds_.Get(k,0),
+                     ", bNorm=",bNorm,", k=",k);
+                    Print( y, "y" );
+
+                    // Check that the reverse transformation holds
+                    Matrix<Real> yCheck;
+                    CoordinatesToSparse( N_(subInd,subInd), vCand, yCheck );
+                    yCheck -= y;
+                    if( FrobeniusNorm(yCheck) != Real(0) )
+                    {
+                        Print( B_(ALL,subInd), "B" );
+                        Print( d_(subInd,ALL), "d" );
+                        Print( N_(subInd,subInd), "N" );
+                        Print( vCand, "vCand" );
+                        Print( yCheck, "eCheck" );
+                        LogicError("Invalid sparse transformation");
+                    }
+
+                    Copy( vCand, v_ );
+                    Print( v_, "v" );
+
+                    Matrix<Real> b;
+                    Zeros( b, B_.Height(), 1 );
+                    Gemv( NORMAL, Real(1), B_(ALL,subInd), v_, Real(0), b );
+                    Print( b, "b" );
+
+                    normUpperBounds_.Set(k,0,bNorm);
+                    foundVector_ = true;
+                    insertionBound_ = k+1;
                 }
-
-                Copy( vCand, v_ );
-
-                Print( v_, "v" );
-                Print( B_, "B" );
-
-                Matrix<Real> b;
-                Zeros( b, B_.Height(), 1 );
-                Gemv( NORMAL, Real(1), B_, v_, Real(0), b );
-                Print( b, "b" );
-
-                normUpperBound_ = bNorm;
-                foundVector_ = true;
+                // TODO: Keep track of 'stock' vectors?
             }
         }
         numQueued_ = 0;
@@ -527,8 +585,8 @@ public:
 
 template<typename Real>
 void PhaseEnumerationBottom
-( PhaseEnumerationCache<Real>& cache,
-  Matrix<Real>& y,
+(       PhaseEnumerationCache<Real>& cache,
+        Matrix<Real>& y,
   const Int& beg,
   const Int& minInf,
   const Int& maxInf,
@@ -721,11 +779,11 @@ void PhaseEnumerationInner
 }
 
 template<typename Real>
-Real PhaseEnumeration
+std::pair<Real,Int> PhaseEnumeration
 ( const Matrix<Real>& B,
   const Matrix<Real>& d,
   const Matrix<Real>& N,
-        Real normUpperBound,
+  const Matrix<Real>& normUpperBounds,
         Int startIndex,
         Int phaseLength,
   const vector<Int>& maxInfNorms,
@@ -736,7 +794,7 @@ Real PhaseEnumeration
     DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
     const Int n = N.Height();
     if( n <= 1 )
-        return 2*normUpperBound + 1;
+        return std::pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
 
     // TODO: Make starting index modifiable
     const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
@@ -755,7 +813,7 @@ Real PhaseEnumeration
     const Int blocksize = 32;
     const bool useTranspose = true;
     PhaseEnumerationCache<Real>
-      cache( B, d, N, normUpperBound, batchSize, blocksize, useTranspose );
+      cache( B, d, N, normUpperBounds, batchSize, blocksize, useTranspose );
 
     Int phase=0;
     Int beg=startIndex;
@@ -773,12 +831,37 @@ Real PhaseEnumeration
     if( cache.FoundVector() )
     {
         v = cache.BestVector();
-        return cache.NormUpperBound();
+        const Real insertionNorm = cache.InsertionNorm();
+        const Int insertionIndex = cache.InsertionIndex();
+        return std::pair<Real,Int>(insertionNorm,insertionIndex);
     }
     else
     {
-        return 2*normUpperBound+1;
+        return std::pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
     }
+}
+
+template<typename Real>
+Real PhaseEnumeration
+( const Matrix<Real>& B,
+  const Matrix<Real>& d,
+  const Matrix<Real>& N,
+        Real normUpperBound,
+        Int startIndex,
+        Int phaseLength,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& maxOneNorms,
+        Matrix<Real>& v,
+        Int progressLevel )
+{
+    DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
+    Matrix<Real> normUpperBounds(1,1);
+    normUpperBounds.Set(0,0,normUpperBound);
+    auto pair = 
+      PhaseEnumeration
+      ( B, d, N, normUpperBounds, startIndex, phaseLength,
+        maxInfNorms, maxOneNorms, v, progressLevel );
+    return pair.first;
 }
 
 } // namespace svp
@@ -822,6 +905,17 @@ Real PhaseEnumeration
     const Matrix<Base<F>>& d, \
     const Matrix<F>& N, \
           Base<F> normUpperBound, \
+          Int startIndex, \
+          Int phaseLength, \
+    const vector<Int>& maxInfNorms, \
+    const vector<Int>& maxOneNorms, \
+          Matrix<F>& v, \
+          Int progressLevel ); \
+  template std::pair<Base<F>,Int> svp::PhaseEnumeration \
+  ( const Matrix<F>& B, \
+    const Matrix<Base<F>>& d, \
+    const Matrix<F>& N, \
+    const Matrix<Base<F>>& normUpperBounds, \
           Int startIndex, \
           Int phaseLength, \
     const vector<Int>& maxInfNorms, \

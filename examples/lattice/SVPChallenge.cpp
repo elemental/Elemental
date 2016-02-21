@@ -59,6 +59,9 @@ int main( int argc, char* argv[] )
           Input("--subBKZ","use BKZ w/ lower blocksize for subproblems?",true);
         const bool subEarlyAbort =
           Input("--subEarlyAbort","early abort subproblem?",false);
+        const bool jumpstartBKZ =
+          Input("--jumpstartBKZ","jumpstart BKZ?",false);
+        const Int startColBKZ = Input("--startColBKZ","BKZ start column",0);
         const bool timeLLL = Input("--timeLLL","time LLL?",false);
         const bool timeBKZ = Input("--timeBKZ","time BKZ?",true);
         const bool progressLLL =
@@ -119,6 +122,7 @@ int main( int argc, char* argv[] )
         auto blocksizeLambda =
           [&]( Int j )
           {
+              // With k-sparse
               if( j <= 3 )
                   return 146;
               else if( j <= 10 )
@@ -129,6 +133,23 @@ int main( int argc, char* argv[] )
                   return 55;
               else
                   return 45;
+              // Full enum
+              /*
+              if( j == 0 )
+                  return 80;
+              else if( j == 1 )
+                  return 75;
+              else if( j == 2 )
+                  return 70;
+              else if( j <= 10 )
+                  return 62;
+              else if( j <= 20 )
+                  return 60;
+              else if( j <= 50 )
+                  return 55;
+              else
+                  return 45;
+              */
           };
         auto enumTypeLambda = 
           [&]( Int j )
@@ -137,6 +158,7 @@ int main( int argc, char* argv[] )
                   return YSPARSE_ENUM;
               else
                   return FULL_ENUM;
+              //return FULL_ENUM;
           };
         BKZCtrl<Real> ctrl;
         ctrl.blocksize = blocksize;
@@ -147,6 +169,8 @@ int main( int argc, char* argv[] )
         ctrl.time = timeBKZ;
         ctrl.progress = progressBKZ;
         ctrl.recursive = recursiveBKZ;
+        ctrl.jumpstart = jumpstartBKZ;
+        ctrl.startCol = startColBKZ;
         ctrl.enumCtrl.enumType = FULL_ENUM;
         ctrl.enumCtrl.time = timeEnum;
         ctrl.enumCtrl.innerProgress = innerEnumProgress; 

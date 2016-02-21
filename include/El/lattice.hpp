@@ -476,6 +476,19 @@ Real PhaseEnumeration
   const vector<Int>& maxOneNorms,
         Matrix<Real>& v,
         Int progressLevel=0 );
+template<typename Real>
+std::pair<Real,Int>
+PhaseEnumeration
+( const Matrix<Real>& B,
+  const Matrix<Real>& d,
+  const Matrix<Real>& N,
+  const Matrix<Real>& normUpperBounds,
+        Int startIndex,
+        Int phaseLength,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& maxOneNorms,
+        Matrix<Real>& v,
+        Int progressLevel=0 );
 
 } // namespace svp
 
@@ -491,6 +504,15 @@ Base<F> ShortVectorEnumeration
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
 
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortVectorEnumeration
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
 // Given a reduced lattice B and its Gaussian Normal Form, R, find the shortest
 // member of the lattice (with the shortest vector given by B v).
 //
@@ -501,6 +523,7 @@ Base<F> ShortestVectorEnumeration
   const Matrix<F>& R,
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
 // If an upper-bound on the shortest vector which is better than || b_0 ||_2 is
 // available
 template<typename F>
@@ -508,6 +531,69 @@ Base<F> ShortestVectorEnumeration
 ( const Matrix<F>& B,
   const Matrix<F>& R,
         Base<F> normUpperBound,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortestVectorEnumeration
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+// If a shorter vector is found, insert it into the first position
+// ---------------------------------------------------------------
+
+// The return value is the norm of the (approximately) shortest vector.
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+  const Matrix<F>& R,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+        Matrix<F>& U,
+  const Matrix<F>& R,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+// If an upper-bound on the shortest vector which is better than || b_0 ||_2 is
+// available
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+        Matrix<F>& U,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortestVectorEnrichment
+(       Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortestVectorEnrichment
+(       Matrix<F>& B,
+        Matrix<F>& U,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
 
@@ -564,6 +650,7 @@ struct BKZCtrl
 
     bool skipInitialLLL=false;
     bool jumpstart=false;
+    Int startCol=0;
 
     EnumCtrl<Real> enumCtrl;
 
@@ -619,6 +706,8 @@ struct BKZCtrl
         enumTypeFunc = ctrl.enumTypeFunc;
 
         skipInitialLLL = ctrl.skipInitialLLL;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
 
         enumCtrl = ctrl.enumCtrl;
 
