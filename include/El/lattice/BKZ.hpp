@@ -363,20 +363,25 @@ BKZInfo<Base<F>> BKZWithQ
         auto BEnum = B( ALL, IR(j,k+1) );
         auto UEnum = U( ALL, IR(j,k+1) );
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
-        const Real oldProjNorm = QR.Get(j,j);
-        const Real normUpperBound = Sqrt(ctrl.lllCtrl.delta)*oldProjNorm;
         if( ctrl.time )
             bkz::enumTimer.Start();
         auto enumCtrl = ctrl.enumCtrl;
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
-        const Real minProjNorm =
-          ShortestVectorEnrichment
-          ( BEnum, UEnum, QREnum, normUpperBound, v, enumCtrl );
+        const Range<Int> windowInd = IR(j,Min(j+5,k+1));
+        auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
+        Scale( Sqrt(ctrl.lllCtrl.delta), normUpperBounds );
+        const auto minPair = 
+          MultiShortestVectorEnrichment
+          ( BEnum, UEnum, QREnum, normUpperBounds, v, enumCtrl );
         if( ctrl.time )
             Output("Enum/enrich time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
 
+        const Real minProjNorm = minPair.first;
+        const Int insertionInd = minPair.second;
+
+        const Real oldProjNorm = QREnum.Get(insertionInd,insertionInd);
         const bool keptMin = ( minProjNorm < oldProjNorm );
         if( keptMin )
         {
@@ -386,6 +391,7 @@ BKZInfo<Base<F>> BKZWithQ
                 ("Nontrivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
                 Print( v, "v" );
+                Output("insertion index: ",insertionInd);
                 Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm);
             }
 
@@ -396,7 +402,7 @@ BKZInfo<Base<F>> BKZWithQ
                 streakSizesFile << z << endl;
             if( ctrl.logNontrivialCoords )
             {
-                for( Int e=0; e<k+1-j; ++e )
+                for( Int e=0; e<v.Height(); ++e )
                     nontrivialCoordsFile << v.Get(e,0) << " ";
                 nontrivialCoordsFile << endl;
             }
@@ -861,20 +867,25 @@ BKZInfo<Base<F>> BKZWithQ
         Matrix<F> v;
         auto BEnum = B( ALL, IR(j,k+1) );
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
-        const Real oldProjNorm = QR.Get(j,j);
-        const Real normUpperBound = Sqrt(ctrl.lllCtrl.delta)*oldProjNorm;
         if( ctrl.time )
             bkz::enumTimer.Start();
         auto enumCtrl = ctrl.enumCtrl;
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
-        const Real minProjNorm =
-          ShortestVectorEnrichment
-          ( BEnum, QREnum, normUpperBound, v, enumCtrl );
+        const Range<Int> windowInd = IR(j,Min(j+5,k+1));
+        auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
+        Scale( Sqrt(ctrl.lllCtrl.delta), normUpperBounds );
+        const auto minPair =
+          MultiShortestVectorEnrichment
+          ( BEnum, QREnum, normUpperBounds, v, enumCtrl );
         if( ctrl.time )
-            Output("Enum time: ",bkz::enumTimer.Stop()," seconds");
+            Output("Enum/enrich time: ",bkz::enumTimer.Stop()," seconds");
         ++numEnums;
 
+        const Real minProjNorm = minPair.first;
+        const Int insertionInd = minPair.second;
+
+        const Real oldProjNorm = QREnum.Get(insertionInd,insertionInd);
         const bool keptMin = ( minProjNorm < oldProjNorm );
         if( keptMin )
         {
@@ -884,6 +895,7 @@ BKZInfo<Base<F>> BKZWithQ
                 ("Nontrivial enumeration for window of size ",k+1-j,
                  " with j=",j,", z=",z);
                 Print( v, "v" );
+                Output("insertion index: ",insertionInd);
                 Output("oldProjNorm=",oldProjNorm,", minProjNorm=",minProjNorm);
             }
 
@@ -894,7 +906,7 @@ BKZInfo<Base<F>> BKZWithQ
                 streakSizesFile << z << endl;
             if( ctrl.logNontrivialCoords )
             {
-                for( Int e=0; e<k+1-j; ++e )
+                for( Int e=0; e<v.Height(); ++e )
                     nontrivialCoordsFile << v.Get(e,0) << " ";
                 nontrivialCoordsFile << endl;
             }
