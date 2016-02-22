@@ -509,6 +509,25 @@ public:
         Matrix<Real> colNorms;
         if( useTranspose_ )
         {
+            // TODO: Add this as an option
+            /*
+            Timer timer;
+            timer.Start();
+            BatchTransposedSparseToCoordinates
+            ( NTrans_, YActive, VCand_, blocksize_ );
+            const double transformTime = timer.Stop();
+            const double n = YActive.Height();
+            const double transformGflops = double(numQueued_)*n*n/(1.e9*transformTime);
+            Output(numQueued_," transforms: ",timer.Stop()," seconds (",transformGflops," GFlop/s");
+            timer.Start();
+            colNorms =
+              BatchTransposedCoordinatesToNorms
+              ( d_, NTrans_, VCand_, insertionBound_ );
+            const double normTime = timer.Stop();
+            const double normGflops = double(numQueued_)*n*n/(1.e9*normTime);
+            Output(numQueued_," norms: ",timer.Stop()," seconds (",normGflops," GFlop/s");
+            */
+
             BatchTransposedSparseToCoordinates
             ( NTrans_, YActive, VCand_, blocksize_ );
             colNorms =
@@ -809,7 +828,7 @@ std::pair<Real,Int> PhaseEnumeration
     // TODO: Loop and increase bands for min and max one and inf norms?
 
     // NOTE: The blocking doesn't seem to help the performance (yet)
-    const Int batchSize = 256;
+    const Int batchSize = 512;
     const Int blocksize = 32;
     const bool useTranspose = true;
     PhaseEnumerationCache<Real>

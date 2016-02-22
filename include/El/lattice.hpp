@@ -660,7 +660,8 @@ struct BKZCtrl
     // BKZ with a smaller blocksize (perhaps with early abort)
     bool subBKZ=true;
     function<Int(Int)> subBlocksizeFunc =
-      function<Int(Int)>( []( Int bsize ) { return Max(bsize/2,Int(2)); } );
+      function<Int(Int)>( []( Int bsize )
+      { return Max(Min(bsize/2,Int(20)),Int(2)); } );
     bool subEarlyAbort = true;
     Int subNumEnumsBeforeAbort = 100;
 
