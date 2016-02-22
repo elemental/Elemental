@@ -477,6 +477,8 @@ public:
             Transpose( N, NTrans_ );
     }
 
+    Int Height() const { return N_.Height(); }
+
     bool FoundVector() const { return foundVector_; }
     const Matrix<Real>& BestVector() const { return v_; }
 
@@ -588,6 +590,7 @@ public:
             }
         }
         numQueued_ = 0;
+        Zero( Y_ );
     }
 
     void Enqueue( const Matrix<Real>& y )
@@ -599,8 +602,102 @@ public:
             Flush();
     }
 
+    void Enqueue( const vector<pair<Int,Int>>& y )
+    {
+        Real* yBuf = Y_.Buffer(0,numQueued_);
+
+        const Int numEntries = y.size();
+        for( Int e=0; e<numEntries; ++e )
+            yBuf[y[e].first] = Real(y[e].second);
+
+        ++numQueued_;
+        if( numQueued_ == Y_.Width() )
+            Flush();
+    }
+
+    void Enqueue( const vector<pair<Int,Real>>& y )
+    {
+        Real* yBuf = Y_.Buffer(0,numQueued_);
+
+        const Int numEntries = y.size();
+        for( Int e=0; e<numEntries; ++e )
+            yBuf[y[e].first] = y[e].second;
+
+        ++numQueued_;
+        if( numQueued_ == Y_.Width() )
+            Flush();
+    }
+
     ~PhaseEnumerationCache() { }
 };
+
+template<typename Real>
+void PhaseEnumerationBottom
+(       PhaseEnumerationCache<Real>& cache,
+        vector<pair<Int,Int>>& y,
+  const Int& beg,
+  const Int& minInf,
+  const Int& maxInf,
+  const Int& minOne,
+  const Int& maxOne,
+  const Int& baseOneNorm,
+  const Int& baseInfNorm,
+  const bool& zeroSoFar )
+{
+    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationBottom"))
+    const Int n = cache.Height();
+
+    const Int bound = Min(maxInf,maxOne-baseOneNorm);
+    for( Int absBeta=1; absBeta<=bound; ++absBeta )
+    {
+        const Int newOneNorm = baseOneNorm + absBeta;
+        const Int newInfNorm = Max(baseInfNorm,absBeta);
+
+        if( newOneNorm >= minOne && newInfNorm >= minInf )
+        {
+            // We can insert +-|beta| into any position and be admissible,
+            // so enqueue each possibility
+            for( Int i=beg; i<n; ++i )
+            {
+                y.emplace_back( i, absBeta );
+                cache.Enqueue( y );
+
+                if( !zeroSoFar )
+                {
+                    y.back() = pair<Int,Int>(i,-absBeta);
+                    cache.Enqueue( y );
+                }
+
+                y.pop_back();
+            }
+        }
+
+        if( newOneNorm < maxOne )
+        {
+            // We can insert +-|beta| into any position and still have room
+            // left for the one norm bound, so do so and then recurse
+            for( Int i=beg; i<n-1; ++i )
+            {
+                y.emplace_back( i, absBeta );
+                PhaseEnumerationBottom
+                ( cache, y,
+                  i+1, minInf, maxInf, minOne, maxOne,
+                  newOneNorm, newInfNorm, false );
+
+                if( !zeroSoFar )
+                {
+                    y.back().second = -absBeta;
+                    PhaseEnumerationBottom
+                    ( cache, y,
+                      i+1, minInf, maxInf, minOne, maxOne,
+                      newOneNorm, newInfNorm, false );
+                }
+
+                y.pop_back();
+            }
+        }
+    }
+}
 
 template<typename Real>
 void PhaseEnumerationBottom
@@ -697,10 +794,10 @@ void PhaseEnumerationInner
 
     if( end >= n )
     {
-        const Int minInf = minInfNorms.back(); 
-        const Int maxInf = maxInfNorms.back();
-        const Int minOne = minOneNorms.back();
-        const Int maxOne = maxOneNorms.back();
+        const Int& minInf = minInfNorms.back(); 
+        const Int& maxInf = maxInfNorms.back();
+        const Int& minOne = minOneNorms.back();
+        const Int& maxOne = maxOneNorms.back();
         // Enqueue the zero phase if it is admissible
         if( minInf == Int(0) && minOne == Int(0) )
             cache.Enqueue( y );
@@ -798,7 +895,133 @@ void PhaseEnumerationInner
 }
 
 template<typename Real>
-std::pair<Real,Int> PhaseEnumeration
+void PhaseEnumerationInner
+(       PhaseEnumerationCache<Real>& cache,
+        vector<pair<Int,Int>>& y,
+  const Int& phaseLength,
+  const Int& phase,
+  const Int& beg,
+  const Int& end,
+  const vector<Int>& minInfNorms,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
+  const vector<Int>& maxOneNorms,
+  const Int& baseOneNorm,
+  const Int& baseInfNorm,
+  const bool& zeroSoFar,
+  const Int& progressLevel )
+{
+    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationInner"))
+    const Int n = cache.Height();
+
+    const Int phaseBeg = Max(end-phaseLength,0);
+    const Int nextPhaseEnd = Min(end+phaseLength,n);
+
+    if( end >= n )
+    {
+        const Int& minInf = minInfNorms.back(); 
+        const Int& maxInf = maxInfNorms.back();
+        const Int& minOne = minOneNorms.back();
+        const Int& maxOne = maxOneNorms.back();
+        // Enqueue the zero phase if it is admissible
+        if( minInf == Int(0) && minOne == Int(0) )
+            cache.Enqueue( y );
+
+        PhaseEnumerationBottom
+        ( cache, y, beg,
+          minInf, maxInf, minOne, maxOne,
+          Int(0), Int(0), zeroSoFar );
+        return;
+    }
+
+    if( beg == phaseBeg && minInfNorms[phase] == 0 && minOneNorms[phase] == 0 )
+    {
+        // This phase can be all zeroes, so move to the next phase
+        PhaseEnumerationInner
+        ( cache, y, phaseLength,
+          phase+1, end, nextPhaseEnd,
+          minInfNorms, maxInfNorms,
+          minOneNorms, maxOneNorms,
+          Int(0), Int(0), zeroSoFar, progressLevel );
+    }
+
+    const Int bound = Min(maxInfNorms[phase],maxOneNorms[phase]-baseOneNorm);
+    for( Int absBeta=1; absBeta<=bound; ++absBeta ) 
+    {
+        const Int phaseOneNorm = baseOneNorm + absBeta;
+        const Int phaseInfNorm = Max( baseInfNorm, absBeta );
+
+        if( phaseOneNorm >= minOneNorms[phase] &&
+            phaseInfNorm >= minInfNorms[phase] )
+        {
+            // We could insert +-|beta| into any position and still have
+            // an admissible choice for the current phase, so procede to
+            // the next phase with each such choice
+
+            for( Int i=beg; i<end; ++i )
+            {
+                // Fix y[i] = +|beta| and move to the next phase
+                y.emplace_back( i, absBeta );
+                if( phase < progressLevel )
+                    Output("phase ",phase,": y[",i,"]=",absBeta);
+                PhaseEnumerationInner
+                ( cache, y, phaseLength,
+                  phase+1, end, nextPhaseEnd,
+                  minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                  Int(0), Int(0), false, progressLevel );
+
+                if( !zeroSoFar )
+                {
+                    // Fix y[i] = -|beta| and move to the next phase
+                    y.back().second = -absBeta;
+                    if( phase < progressLevel )
+                        Output("phase ",phase,": y[",i,"]=",-absBeta);
+                    PhaseEnumerationInner
+                    ( cache, y, phaseLength,
+                      phase+1, end, nextPhaseEnd,
+                      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                      Int(0), Int(0), false, progressLevel );
+                }
+                
+                y.pop_back();
+            }
+        }
+
+        if( phaseOneNorm < maxOneNorms[phase] )
+        {
+            // Inserting +-|beta| into any position still leaves us with
+            // room in the current phase
+
+            for( Int i=beg; i<end; ++i )
+            {
+                // Fix y[i] = +|beta| and move to y[i+1]
+                y.emplace_back( i, absBeta ); 
+                PhaseEnumerationInner
+                ( cache, y, phaseLength,
+                  phase, i+1, end,
+                  minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                  phaseOneNorm, phaseInfNorm, false, progressLevel );
+
+                if( !zeroSoFar )
+                {
+                    // Fix y[i] = -|beta| and move to y[i+1]
+                    y.back().second = -absBeta;
+                    PhaseEnumerationInner
+                    ( cache, y, phaseLength,
+                      phase, i+1, end,
+                      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+                      phaseOneNorm, phaseInfNorm, false, progressLevel );
+                }
+               
+                y.pop_back();
+            }
+        }
+    }
+}
+
+template<typename Real>
+pair<Real,Int>
+PhaseEnumeration
 ( const Matrix<Real>& B,
   const Matrix<Real>& d,
   const Matrix<Real>& N,
@@ -813,7 +1036,7 @@ std::pair<Real,Int> PhaseEnumeration
     DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
     const Int n = N.Height();
     if( n <= 1 )
-        return std::pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
+        return pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
 
     // TODO: Make starting index modifiable
     const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
@@ -834,16 +1057,29 @@ std::pair<Real,Int> PhaseEnumeration
     PhaseEnumerationCache<Real>
       cache( B, d, N, normUpperBounds, batchSize, blocksize, useTranspose );
 
+    const bool useSparse = true;
+
     Int phase=0;
     Int beg=startIndex;
     Int end=Min(beg+phaseLength,n);
-    Matrix<Real> y;
-    Zeros( y, n, 1 );
     bool zeroSoFar = true;
-    PhaseEnumerationInner
-    ( cache, y, phaseLength, phase, beg, end,
-      minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
-      Int(0), Int(0), zeroSoFar, progressLevel );
+    if( useSparse )
+    {
+        vector<pair<Int,Int>> y;
+        PhaseEnumerationInner
+        ( cache, y, phaseLength, phase, beg, end,
+          minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+          Int(0), Int(0), zeroSoFar, progressLevel );
+    }
+    else
+    {
+        Matrix<Real> y;
+        Zeros( y, n, 1 );
+        PhaseEnumerationInner
+        ( cache, y, phaseLength, phase, beg, end,
+          minInfNorms, maxInfNorms, minOneNorms, maxOneNorms,
+          Int(0), Int(0), zeroSoFar, progressLevel );
+    }
 
     cache.Flush();
 
@@ -852,11 +1088,11 @@ std::pair<Real,Int> PhaseEnumeration
         v = cache.BestVector();
         const Real insertionNorm = cache.InsertionNorm();
         const Int insertionIndex = cache.InsertionIndex();
-        return std::pair<Real,Int>(insertionNorm,insertionIndex);
+        return pair<Real,Int>(insertionNorm,insertionIndex);
     }
     else
     {
-        return std::pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
+        return pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
     }
 }
 
@@ -930,7 +1166,7 @@ Real PhaseEnumeration
     const vector<Int>& maxOneNorms, \
           Matrix<F>& v, \
           Int progressLevel ); \
-  template std::pair<Base<F>,Int> svp::PhaseEnumeration \
+  template pair<Base<F>,Int> svp::PhaseEnumeration \
   ( const Matrix<F>& B, \
     const Matrix<Base<F>>& d, \
     const Matrix<F>& N, \

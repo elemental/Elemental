@@ -343,7 +343,7 @@ Base<F> ShortVectorEnumeration
 }
 
 template<typename F>
-std::pair<Base<F>,Int>
+pair<Base<F>,Int>
 MultiShortVectorEnumeration
 ( const Matrix<F>& B,
   const Matrix<F>& R,
@@ -360,7 +360,7 @@ MultiShortVectorEnumeration
     // TODO: Guarantee normUpperBounds are positive?
 
     if( n == 0 )
-        return std::pair<Real,Int>(Real(0),0);
+        return pair<Real,Int>(Real(0),0);
 
     const Real BOneNorm = OneNorm( B );
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
@@ -382,7 +382,7 @@ MultiShortVectorEnumeration
               MultiShortVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -405,7 +405,7 @@ MultiShortVectorEnumeration
               MultiShortVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -429,7 +429,7 @@ MultiShortVectorEnumeration
               MultiShortVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -452,7 +452,7 @@ MultiShortVectorEnumeration
               MultiShortVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -477,7 +477,7 @@ MultiShortVectorEnumeration
               MultiShortVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -637,7 +637,7 @@ MultiShortVectorEnumeration
                     Print( v, "v" );
                     Print( b, "b" );
                 }
-                return std::pair<Real,Int>(result,0);
+                return pair<Real,Int>(result,0);
             }
         }
         for( Int j=0; j<numNested; ++j )
@@ -646,10 +646,10 @@ MultiShortVectorEnumeration
             {
                 Zeros( v, n-j, 1 );
                 v.Set( 0, 0, F(1) );
-                return std::pair<Real,Int>(modNormUpperBounds.Get(j,0),j);
+                return pair<Real,Int>(modNormUpperBounds.Get(j,0),j);
             }
         }
-        return std::pair<Real,Int>(2*normUpperBound+1,0);
+        return pair<Real,Int>(2*normUpperBound+1,0);
     }
     else if( ctrl.enumType == YSPARSE_ENUM )
     {
@@ -696,7 +696,7 @@ MultiShortVectorEnumeration
 
         if( result < normUpperBound )
         {
-            return std::pair<Real,Int>(result,0);
+            return pair<Real,Int>(result,0);
         }
         else
         {
@@ -706,10 +706,10 @@ MultiShortVectorEnumeration
                 {
                     Zeros( v, n-j, 1 );
                     v.Set( 0, 0, F(1) );
-                    return std::pair<Real,Int>(modNormUpperBounds.Get(j,0),j);
+                    return pair<Real,Int>(modNormUpperBounds.Get(j,0),j);
                 }
             }
-            return std::pair<Real,Int>(result,0);
+            return pair<Real,Int>(result,0);
         }
     }
 }
@@ -932,7 +932,7 @@ Base<F> ShortestVectorEnumeration
 }
 
 template<typename F>
-std::pair<Base<F>,Int>
+pair<Base<F>,Int>
 MultiShortestVectorEnumeration
 ( const Matrix<F>& B,
   const Matrix<F>& R,
@@ -945,7 +945,7 @@ MultiShortestVectorEnumeration
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
-        return std::pair<Real,Int>(Real(0),0);
+        return pair<Real,Int>(Real(0),0);
 
     const Real BOneNorm = OneNorm( B );
     const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge)); 
@@ -967,7 +967,7 @@ MultiShortestVectorEnumeration
               MultiShortestVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -990,7 +990,7 @@ MultiShortestVectorEnumeration
               MultiShortestVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -1014,7 +1014,7 @@ MultiShortestVectorEnumeration
               MultiShortestVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -1037,7 +1037,7 @@ MultiShortestVectorEnumeration
               MultiShortestVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -1062,7 +1062,7 @@ MultiShortestVectorEnumeration
               MultiShortestVectorEnumeration
               ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
             Copy( vLower, v );
-            return std::pair<Real,Int>(Real(result.first),result.second);
+            return pair<Real,Int>(Real(result.first),result.second);
         }
         catch( std::exception& e )
         { Output("e.what()=",e.what()); }
@@ -1110,14 +1110,14 @@ MultiShortestVectorEnumeration
         }
         else if( satisfiedBound )
         {
-            return std::pair<Real,Int>
+            return pair<Real,Int>
                    (targetNorms.Get(satisfiedIndex,0),satisfiedIndex);
         }
         else
         {
             Zeros( v, n, 1 );
             v.Set( 0, 0, F(1) );
-            return std::pair<Real,Int>(R.Get(0,0),0);
+            return pair<Real,Int>(R.Get(0,0),0);
         }
     }
 }
@@ -1144,7 +1144,7 @@ Base<F> ShortestVectorEnrichment
 }
 
 template<typename F>
-std::pair<Base<F>,Int>
+pair<Base<F>,Int>
 MultiShortestVectorEnrichment
 (       Matrix<F>& B,
   const Matrix<F>& R,
@@ -1157,7 +1157,7 @@ MultiShortestVectorEnrichment
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
-        return std::pair<Real,Int>(Real(0),0);
+        return pair<Real,Int>(Real(0),0);
 
     auto ret = MultiShortestVectorEnumeration( B, R, normUpperBounds, v, ctrl );
     const Real retNorm = ret.first;
@@ -1195,7 +1195,7 @@ Base<F> ShortestVectorEnrichment
 }
 
 template<typename F>
-std::pair<Base<F>,Int>
+pair<Base<F>,Int>
 MultiShortestVectorEnrichment
 (       Matrix<F>& B,
         Matrix<F>& U,
@@ -1209,7 +1209,7 @@ MultiShortestVectorEnrichment
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
-        return std::pair<Real,Int>(Real(0),0);
+        return pair<Real,Int>(Real(0),0);
 
     auto ret = MultiShortestVectorEnumeration( B, R, normUpperBounds, v, ctrl );
     const Real retNorm = ret.first;
@@ -1234,7 +1234,7 @@ MultiShortestVectorEnrichment
           Base<F> normUpperBound, \
           Matrix<F>& v, \
     const EnumCtrl<Base<F>>& ctrl ); \
-  template std::pair<Base<F>,Int> MultiShortVectorEnumeration \
+  template pair<Base<F>,Int> MultiShortVectorEnumeration \
   ( const Matrix<F>& B, \
     const Matrix<F>& R, \
     const Matrix<Base<F>>& normUpperBounds, \
@@ -1251,7 +1251,7 @@ MultiShortestVectorEnrichment
           Base<F> normUpperBound, \
           Matrix<F>& v, \
     const EnumCtrl<Base<F>>& ctrl ); \
-  template std::pair<Base<F>,Int> MultiShortestVectorEnumeration \
+  template pair<Base<F>,Int> MultiShortestVectorEnumeration \
   ( const Matrix<F>& B, \
     const Matrix<F>& R, \
     const Matrix<Base<F>>& normUpperBounds, \
@@ -1274,7 +1274,7 @@ MultiShortestVectorEnrichment
           Base<F> normUpperBound, \
           Matrix<F>& v, \
     const EnumCtrl<Base<F>>& ctrl ); \
-  template std::pair<Base<F>,Int> MultiShortestVectorEnrichment \
+  template pair<Base<F>,Int> MultiShortestVectorEnrichment \
   (       Matrix<F>& B, \
     const Matrix<F>& R, \
     const Matrix<Base<F>>& normUpperBounds, \
@@ -1287,7 +1287,7 @@ MultiShortestVectorEnrichment
           Base<F> normUpperBound, \
           Matrix<F>& v, \
     const EnumCtrl<Base<F>>& ctrl ); \
-  template std::pair<Base<F>,Int> MultiShortestVectorEnrichment \
+  template pair<Base<F>,Int> MultiShortestVectorEnrichment \
   (       Matrix<F>& B, \
           Matrix<F>& U, \
     const Matrix<F>& R, \
