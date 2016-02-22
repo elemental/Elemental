@@ -329,6 +329,9 @@ BKZInfo<Base<F>> BKZWithQ
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
+    auto enumCtrl = ctrl.enumCtrl;
+    enumCtrl.disablePrecDrop = true;
+
     Int z=0;
     Int j = ( ctrl.jumpstart ? ctrl.startCol : 0 ) - 1;
     Int numEnums=0, numEnumFailures=0;
@@ -365,7 +368,6 @@ BKZInfo<Base<F>> BKZWithQ
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         if( ctrl.time )
             bkz::enumTimer.Start();
-        auto enumCtrl = ctrl.enumCtrl;
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Range<Int> windowInd = IR(j,Min(j+5,k+1));
@@ -835,6 +837,9 @@ BKZInfo<Base<F>> BKZWithQ
     if( ctrl.logNontrivialCoords )
         nontrivialCoordsFile.open( ctrl.nontrivialCoordsFile.c_str() );
 
+    auto enumCtrl = ctrl.enumCtrl;
+    enumCtrl.disablePrecDrop = true;
+
     Int z=0;
     Int j = ( ctrl.jumpstart ? ctrl.startCol : 0 ) - 1;
     Int numEnums=0, numEnumFailures=0;
@@ -870,7 +875,6 @@ BKZInfo<Base<F>> BKZWithQ
         auto QREnum = QR( IR(j,k+1), IR(j,k+1) );
         if( ctrl.time )
             bkz::enumTimer.Start();
-        auto enumCtrl = ctrl.enumCtrl;
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Range<Int> windowInd = IR(j,Min(j+5,k+1));

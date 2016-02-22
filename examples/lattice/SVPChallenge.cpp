@@ -32,7 +32,7 @@ int main( int argc, char* argv[] )
         const string shortestVecFile = 
           Input
           ("--shortestVecFile","shortest vector file",string("shortest"));
-        const Real delta = Input("--delta","delta for LLL",Real(0.99));
+        const Real delta = Input("--delta","delta for LLL",Real(0.9999));
         const Real eta =
           Input
           ("--eta","eta for LLL",
@@ -217,8 +217,17 @@ int main( int argc, char* argv[] )
         ctrl.enumCtrl.maxOneNorms[3] = 1;
         ctrl.enumCtrl.maxOneNorms[4] = 1;
         ctrl.enumCtrl.maxOneNorms[5] = 1;
-        ctrl.enumCtrl.maxOneNorms[6] = 2;
-        ctrl.enumCtrl.maxOneNorms[7] = 2;
+        ctrl.enumCtrl.maxOneNorms[6] = 3;
+        ctrl.enumCtrl.maxOneNorms[7] = 3;
+
+        ctrl.enumCtrl.maxInfNorms[0] = 1;
+        ctrl.enumCtrl.maxInfNorms[1] = 1;
+        ctrl.enumCtrl.maxInfNorms[2] = 1;
+        ctrl.enumCtrl.maxInfNorms[3] = 1;
+        ctrl.enumCtrl.maxInfNorms[4] = 1;
+        ctrl.enumCtrl.maxInfNorms[5] = 1;
+        ctrl.enumCtrl.maxInfNorms[6] = 2;
+        ctrl.enumCtrl.maxInfNorms[7] = 2;
 
         const double startTime = mpi::Time();
         Matrix<Real> R;
