@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson and Tim Moon
+   Copyright (c) 2009-2016, Jack Poulson and Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -10,21 +10,6 @@
 namespace El {
 namespace safemstrsm {
 
-/* Determine machine dependent parameters to control overflow
- *   Note: LAPACK uses more complicated parameters to handle 
- *   issues that can happen on Cray machines.
- */
-template<typename Real>
-inline void
-OverflowParameters( Real& smlnum, Real& bignum )
-{
-    const Real unfl = lapack::MachineSafeMin<Real>();
-    const Real ovfl = lapack::MachineOverflowThreshold<Real>();
-    const Real ulp  = lapack::MachinePrecision<Real>();
-    smlnum = Max( unfl/ulp, 1/(ovfl*ulp) );
-    bignum = 1/smlnum;
-}
-  
 template<typename F>
 void
 LUNBlock
@@ -38,6 +23,10 @@ LUNBlock
   
     DEBUG_ONLY(
       CSE cse("safemstrsm::LUNBlock");
+      if( U.Height() != U.Width() )
+          LogicError("Triangular matrix must be square");
+      if( U.Width() != X.Height() )
+          LogicError("Matrix dimensions do not match");
       if( shifts.Height() != X.Width() )
           LogicError("Incompatible number of shifts");
     )
@@ -55,10 +44,11 @@ LUNBlock
     // Compute infinity norms of columns of U (excluding diagonal)
     // TODO: scale cnorm if an entry is bigger than bignum
     Matrix<Real> cnorm( n, 1 );
-    cnorm.Set( 0, 0, Real(0) );
+    Real* cnorm_buffer = cnorm.Buffer();
+    cnorm_buffer[0] = Real(0);
     for( Int j=1; j<n; ++j )
     {
-        cnorm.Set( j, 0, MaxNorm( U(IR(0,j),IR(j)) ) );
+        cnorm_buffer[j] = MaxNorm( U(IR(0,j),IR(j)) );
     }
 
     // Iterate through RHS's
@@ -68,7 +58,10 @@ LUNBlock
         // Initialize triangular system
         ShiftDiagonal( U, -shifts.Get(j,0) );
         auto xj = X( ALL, IR(j) );
-
+        Real scales_j = Real(1);
+        const F* U_buffer = U.LockedBuffer();
+        F* xj_buffer = xj.Buffer();
+        
         // Determine largest entry of RHS
         Real xjMax = MaxNorm( xj );
         if( xjMax >= bignum )
@@ -76,7 +69,7 @@ LUNBlock
             const Real s = 0.5*bignum/xjMax;
             xj *= s;
             xjMax *= s;
-            scales.Set( j, 0, s*scales.Get(j,0) );
+            scales_j *= s;
         }
         xjMax = Max( xjMax, 2*smlnum );
 
@@ -87,7 +80,7 @@ LUNBlock
         Real invMi = invGi;
         for( Int i=n-1; i>=0; --i )
         {
-            const Real absUii = SafeAbs( U.Get(i,i) );
+            const Real absUii = SafeAbs( U_buffer[i+i*ldim] );
             if( invGi<=smlnum || invMi<=smlnum || absUii<=smlnum )
             {
                 invGi = 0;
@@ -96,7 +89,7 @@ LUNBlock
             invMi = Min( invMi, absUii*invGi );
             if( i > 0 )
             {
-                invGi *= absUii/(absUii+cnorm.Get(i,0));
+                invGi *= absUii/(absUii+cnorm_buffer[i]);
             }
         }
         invGi = Min( invGi, invMi );
@@ -106,7 +99,7 @@ LUNBlock
         {
             blas::Trsv
             ( 'U', 'N', 'N', n,
-              U.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
+              U_buffer, ldim, xj_buffer, 1 );
         }
 
         // Perform backward substitution if estimated growth is large
@@ -116,19 +109,22 @@ LUNBlock
             {
 
                 // Perform division and check for overflow
-                const Real absUii = SafeAbs( U.Get(i,i) );
-                Real absXij = SafeAbs( xj.Get(i,0) );
+                const F Uii = U_buffer[i+i*ldim];
+                const Real absUii = SafeAbs( Uii );
+                F Xij = xj_buffer[i];
+                Real absXij = SafeAbs( Xij );
                 if( absUii > smlnum )
                 {
                     if( absUii<=1 && absXij>=absUii*bignum )
                     {
                         // Set overflowing entry to 0.5/U[i,i]
                         const Real s = 0.5/absXij;
-                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        Xij *= s;
                         xj *= s;
                         xjMax *= s;
+                        scales_j *= s;
                     }
-                    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
+                    Xij /= Uii;
                 }
                 else if( absUii > 0 )
                 {
@@ -136,11 +132,12 @@ LUNBlock
                     {
                         // Set overflowing entry to bignum/2
                         const Real s = 0.5*absUii*bignum/absXij;
-                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        Xij *= s;
                         xj *= s;
                         xjMax *= s;
+                        scales_j *= s;
                     }
-                    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
+                    Xij /= Uii;
                 }
                 else
                 {
@@ -148,43 +145,47 @@ LUNBlock
                     //   | Xij | >= || A || * eps
                     if( absXij >= smlnum )
                     {
-                        scales.Set( j, 0, F(0) );
                         Zero( xj );
-                        xjMax = 0;
+                        xjMax = Real(0);
+                        scales_j = Real(0);
                     }
-                    xj.Set( i, 0, F(1) );
+                    Xij = F(1);
                 }
-
+                xj.Set( i, 0, Xij );
+                
                 if( i > 0 )
                 {
 
                     // Check for possible overflows in AXPY
                     // Note: G(i+1) <= G(i) + | Xij | * cnorm(i)
-                    absXij = SafeAbs( xj.Get(i,0) );
+                    absXij = SafeAbs( Xij );
+                    const Real cnorm_i = cnorm_buffer[i];
                     if( absXij >= 1 &&
-                        cnorm.Get(i,0) >= (bignum-xjMax)/absXij )
+                        cnorm_i >= (bignum-xjMax)/absXij )
                     {
                         const Real s = 0.25/absXij;
-                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        Xij *= s;
                         xj *= s;
                         xjMax *= s;
                         absXij *= s;
+                        scales_j *= s;
                     }
                     else if( absXij < 1 &&
-                             absXij*cnorm.Get(i,0) >= bignum-xjMax )
+                             absXij*cnorm_i >= bignum-xjMax )
                     {
                         const Real s = 0.25;
-                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        Xij *= s;
                         xj *= s;
                         xjMax *= s;
                         absXij *= s;
+                        scales_j *= s;
                     }
-                    xjMax += absXij * cnorm.Get(i,0);
+                    xjMax += absXij * cnorm_i;
 
                     // AXPY
                     auto U01 = U( IR(0,i), IR(i) );
                     auto X1  = X( IR(0,i), IR(j) );
-                    Axpy( -xj.Get(i,0), U01, X1 );
+                    Axpy( -Xij, U01, X1 );
 
                 }
 
@@ -192,6 +193,8 @@ LUNBlock
 
         }
 
+        scales.Set( j, 0, scales_j );
+        
         // Reset matrix diagonal
         SetDiagonal( U, diag );
     }
@@ -204,7 +207,15 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
 {
     typedef Base<F> Real;
 
-    DEBUG_ONLY(CSE cse("safemstrsm::LUN"))
+    DEBUG_ONLY(
+      CSE cse("safemstrsm::LUN");
+      if( U.Height() != U.Width() )
+          LogicError("Triangular matrix must be square");
+      if( U.Width() != X.Height() )
+          LogicError("Matrix dimensions do not match");
+      if( shifts.Height() != X.Width() )
+          LogicError("Incompatible number of shifts");
+    )
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
@@ -256,7 +267,7 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
         for( Int j=0; j<n; ++j )
         {
             const Real sj = scalesUpdate.GetRealPart(j,0);
-            if( sj < 1 )
+            if( sj < Real(1) )
             {
                 scales.Set( j, 0, sj*scales.Get(j,0) );
                 auto X0j = X0( ALL, IR(j) );
@@ -323,7 +334,17 @@ LUN
         ElementalMatrix<F>& XPre,
         ElementalMatrix<F>& scalesPre ) 
 {
-    DEBUG_ONLY(CSE cse("mstrsm::LUN"))
+    typedef Base<F> Real;
+  
+    DEBUG_ONLY(
+      CSE cse("safemstrsm::LUN");
+      if( UPre.Height() != UPre.Width() )
+          LogicError("Triangular matrix must be square");
+      if( UPre.Width() != XPre.Height() )
+          LogicError("Matrix dimensions do not match");
+      if( shiftsPre.Height() != XPre.Width() )
+          LogicError("Incompatible number of shifts");
+    )
 
     const Int m = XPre.Height();
     const Int n = XPre.Width();
@@ -333,12 +354,11 @@ LUN
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
-    DistMatrixReadWriteProxy<F,F,VR,STAR> scalesProx( scalesPre );
+    DistMatrixWriteProxy<F,F,VR,STAR> scalesProx( scalesPre );
     auto& U = UProx.GetLocked();
     auto& shifts = shiftsProx.GetLocked();
     auto& X = XProx.Get();
     auto& scales = scalesProx.Get();
-    Ones( scales, n, 1 );
     
     const Grid& g = U.Grid();
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
@@ -346,7 +366,10 @@ LUN
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
     DistMatrix<F,VR,  STAR> scalesUpdate_VR_STAR(g);
-    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR(g);
+    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR( X.Grid() );
+
+    Ones( scales, n, 1 );
+    scalesUpdate_VR_STAR.Resize( n, 1 );
     
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -363,6 +386,7 @@ LUN
         auto X1 = X( ind1, ALL );
         auto X2 = X( ind2, ALL );
 
+        // Perform triangular solve on diagonal block
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -371,24 +395,37 @@ LUN
         LUN
         ( U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), 
           X1_STAR_VR.Matrix(), scalesUpdate_VR_STAR.Matrix() );
-
         X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1 = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
 
-        // X0[MC,MR] := X0[MC,MR]*diag(scalesUpdate[MR,*])
-        // X2[MC,MR] := X2[MC,MR]*diag(scalesUpdate[MR,*])
-        // scales[VR,*] := diag(scalesUpdate[VR,*])*scales[VR,*]
-        scalesUpdate_MR_STAR.AlignWith( X0 );
+        // Apply scalings on RHS
+        scalesUpdate_MR_STAR.AlignWith( X );
         scalesUpdate_MR_STAR = scalesUpdate_VR_STAR;
-        DiagonalScale( RIGHT, NORMAL, scalesUpdate_MR_STAR, X0 );
-        DiagonalScale( RIGHT, NORMAL, scalesUpdate_MR_STAR, X2 );
+        auto scalesUpdate_MR_STAR_local = scalesUpdate_MR_STAR.LockedMatrix();
+        for( Int j=0; j<scalesUpdate_MR_STAR_local.Height(); ++j )
+        {
+            const Real sj = scalesUpdate_MR_STAR_local.GetRealPart(j,0);
+            if( sj < Real(1))
+            {
+                auto X0j = X0.Matrix()( ALL, IR(j) );
+                auto X2j = X2.Matrix()( ALL, IR(j) );
+                X0j *= sj;
+                X2j *= sj;
+            }
+        }
         DiagonalScale( LEFT,  NORMAL, scalesUpdate_VR_STAR, scales );
-
-        // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        U01_MC_STAR.AlignWith( X0 );
-        U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        
+        if( k > 0 )
+        {
+            // Update RHS with GEMM
+            // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
+            U01_MC_STAR.AlignWith( X0 );
+            U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
+            LocalGemm
+            ( NORMAL, NORMAL, F(-1),
+              U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        }
     }
 }
   

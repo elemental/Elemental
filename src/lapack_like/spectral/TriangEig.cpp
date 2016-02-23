@@ -338,7 +338,7 @@ TriangEig
     DEBUG_ONLY(CSE cse("TriangEig"))
 
 // TODO: implement distributed version of TriangEig
-#if 0
+#if 1
     LogicError("TriangEig is not yet implemented for distributed matrices");
 #else
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
