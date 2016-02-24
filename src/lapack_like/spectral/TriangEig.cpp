@@ -253,9 +253,10 @@ TriangEig( Matrix<F>& U, Matrix<F>& X )
         auto X2 = X( ind2, cols );
 
         auto scalesUpdateCurrent = scalesUpdate( cols, ALL );
+        auto shiftsCurrent = shifts( cols, ALL );
         
         // Perform triangular solve on diagonal block
-        triang_eig::DiagonalBlockSolve( U11, shifts(cols,ALL),
+        triang_eig::DiagonalBlockSolve( U11, shiftsCurrent,
                                         X1, scalesUpdateCurrent );
 
         // Apply scalings on RHS
@@ -335,77 +336,111 @@ TriangEig
         ElementalMatrix<F>& XPre ) 
 {
 
+    typedef Base<F> Real;
+  
     DEBUG_ONLY(CSE cse("TriangEig"))
 
-// TODO: implement distributed version of TriangEig
-#if 1
-    LogicError("TriangEig is not yet implemented for distributed matrices");
-#else
+    const Int m = UPre.Height();
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( m, bsize );
+
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& U = UProx.GetLocked();
     auto& X = XProx.Get();
-
-    const Grid& g = U.Grid();
-    DistMatrix<F,VR,STAR> shifts(g);
-    GetDiagonal( U, shifts );
-
-    // TODO: Handle near and exact singularity
 
     // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
     Scale( F(-1), X );
 
+    const Grid& g = U.Grid();
+    DistMatrix<F,VR,  STAR> shifts(g);
+    DistMatrix<F,VR,  STAR> scales(g);
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<F,VR,  STAR> scalesUpdate_VR_STAR(g);
+    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR(g);
 
-    const Int m = X.Height();
-    const Int bsize = Blocksize();
-    const Int kLast = LastOffset( m, bsize );
-
+    GetDiagonal( U, shifts );
+    Ones( scales, m, 1 );
+    scalesUpdate_VR_STAR.Resize( m, 1 );
+    scalesUpdate_MR_STAR.Resize( m, 1 );
+    
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const Range<Int> ind0( 0, k    ),
-                         ind1( k, k+nb );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, END  ),
+                         cols( k,    END );
 
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        auto X0 = X( ind0, IR(k,END) );
-        auto X1 = X( ind1, IR(k,END) );
+        auto X0 = X( ind0, cols );
+        auto X1 = X( ind1, cols );
+        auto X2 = X( ind2, cols );
 
+        auto shiftsCurrent = shifts( cols, ALL );
+        auto scalesCurrent = scales( cols, ALL );
+        auto scalesUpdateCurrent_VR_STAR = scalesUpdate_VR_STAR( cols, ALL );
+        auto scalesUpdateCurrent_MR_STAR = scalesUpdate_MR_STAR( cols, ALL );
+        
+        // Perform triangular solve on diagonal block
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR = X1; // X1[* ,VR] <- X1[MC,MR]
+        scalesUpdateCurrent_VR_STAR.AlignWith( shiftsCurrent );
         triang_eig::DiagonalBlockSolve
-        ( U11_STAR_STAR.Matrix(), shifts(IR(k,END),ALL).LockedMatrix(), 
-          X1_STAR_VR.Matrix() );
-
+        ( U11_STAR_STAR.Matrix(), shiftsCurrent.LockedMatrix(), 
+          X1_STAR_VR.Matrix(), scalesUpdateCurrent_VR_STAR.Matrix() );
         X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1 = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
 
-        // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        U01_MC_STAR.AlignWith( X0 );
-        U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        // Apply scalings on RHS
+        scalesUpdateCurrent_MR_STAR.AlignWith( X0 );
+        scalesUpdateCurrent_MR_STAR = scalesUpdateCurrent_VR_STAR;
+        auto scalesUpdateCurrent_MR_STAR_local
+          = scalesUpdateCurrent_MR_STAR.LockedMatrix();
+        for( Int j=0; j<scalesUpdateCurrent_MR_STAR_local.Height(); ++j )
+        {
+            const Real sj
+              = scalesUpdateCurrent_MR_STAR_local.GetRealPart(j,0);
+            if( sj < Real(1) )
+            {
+                auto X0j = X0.Matrix()( ALL, IR(j) );
+                auto X2j = X2.Matrix()( ALL, IR(j) );
+                X0j *= sj;
+                X2j *= sj;
+            }
+        }
+        DiagonalScale
+        ( LEFT, NORMAL, scalesUpdateCurrent_VR_STAR, scalesCurrent );
+        
+        if( k > 0 )
+        {
+            // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
+            U01_MC_STAR.AlignWith( X0 );
+            U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
+            LocalGemm
+            ( NORMAL, NORMAL, F(-1),
+              U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        }
     }
-    FillDiagonal( X, F(1) );
+    SetDiagonal( X, scales );
     
     // Normalize eigenvectors
     for( Int k=1; k<m; ++k )
     {
-        auto Xcol = View( X, IR(0,k+1), IR(k,k+1) );
-        Scale( F(1)/Nrm2(Xcol), Xcol );
+        auto Xcol = X( IR(0,k+1), IR(k) );
+        Xcol *= 1/Nrm2(Xcol);
     }
-
-#endif
     
 }
 

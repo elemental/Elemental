@@ -406,7 +406,7 @@ LUN
         for( Int j=0; j<scalesUpdate_MR_STAR_local.Height(); ++j )
         {
             const Real sj = scalesUpdate_MR_STAR_local.GetRealPart(j,0);
-            if( sj < Real(1))
+            if( sj < Real(1) )
             {
                 auto X0j = X0.Matrix()( ALL, IR(j) );
                 auto X2j = X2.Matrix()( ALL, IR(j) );

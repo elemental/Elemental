@@ -14,59 +14,68 @@ using namespace El;
 #if 1
 
 template<typename F>
-void FoxLiSchurFactor( Matrix<F>& A, Int m )
+void FoxLiSchurFactor( ElementalMatrix<F>& A, Int m )
 {
     LogicError( "Fox-Li matrix is complex" );
 }
 template<typename Real>
-void FoxLiSchurFactor( Matrix<Complex<Real>>& A, Int m )
+void FoxLiSchurFactor( ElementalMatrix<Complex<Real>>& A, Int m )
 {
-    Matrix<Complex<Real>> B;
+    const Grid& g = A.Grid();
+    DistMatrix<Complex<Real>,MC,MR> B(g);
+    DistMatrix<Complex<Real>,VR,STAR> w(g);
     FoxLi( B, m, Real(-0.179) );
-    A = ( B );
-    Schur( A, B );
-    MakeTrapezoidal( UPPER, A, 0 );
+    Schur( B, w );
+    MakeTrapezoidal( UPPER, B, 0 );
+    A = B;
 }
 
 template<typename F>
 void TestCorrectness
 ( bool print,
-  const Matrix<F>& A,
-  const Matrix<F>& X )
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& X )
 {
     typedef Base<F> Real;
-    const Int n = X.Height();
-    const Int k = X.Width();
-    
+    const Grid& g = A.Grid();
+
     // Find the residual R = AX-XW
-    Matrix<F> R( X );
+    DistMatrix<F> R( X );
     Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, R );
-    Matrix<F> XW( X );
-    Matrix<F> w;
+    DistMatrix<F> XW( X );
+    DistMatrix<F> w( g );
     GetDiagonal( A, w );
     DiagonalScale( RIGHT, NORMAL, w, XW );
     R -= XW;
+    
     // Find the Frobenius norms of A and AX-XW
     Real frobNormA = FrobeniusNorm( A );
     Real frobNormR = FrobeniusNorm( R );
+
     // Find condition number
     Real condX = Condition( X );
-    Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
-    Output("    cond(X) = ", condX);
+    if( g.Rank() == 0 )
+    {
+        Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
+        Output("    cond(X) = ", condX);
+    }
       
 }
 
-template<typename F>
+template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
 void TestTriangEig
 ( bool testCorrectness,
   bool print,
-  Int m, 
+  Int m,
+  const Grid& g,
   Int testMatrix )
 {
     typedef Base<F> Real;
 
-    Matrix<F> A, AOrig, X;
-    Matrix<F> w;
+    DistMatrix<F,U,V> A(g), AOrig(g), X(g);
+    DistMatrix<F,S,STAR> w(g);
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
 
     // Generate test matrix
     switch( testMatrix )
@@ -75,7 +84,7 @@ void TestTriangEig
     case 0:
         {
             // LU factorization of Gaussian matrix
-            Matrix<F> B;
+            DistMatrix<F> B(g);
             Gaussian( B, m, m );
             LU( B );
             Transpose( B, A );
@@ -85,40 +94,15 @@ void TestTriangEig
 
     case 1:
         {
-            // LU factorization of Gaussian matrix
-            Matrix<F> B;
-            Gaussian( B, m, m );
-            LU( B );
-            Transpose( B, A );
-            MakeTrapezoidal( UPPER, A, 0 );
-
-            // 4/5 of eigenvalues are repeated
-            F repeatList[4];
-            for(Int i=0; i<Min(4,m); ++i)
-            {
-                repeatList[i] = A.Get(i,i);
-            }
-            for(Int i=0; i<m; ++i)
-            {
-                if( i%5 < 4 )
-                {
-                    A.Set(i,i,repeatList[i%5]);
-                }
-            }    
-            break;
-        }
-
-    case 2:
-        {
             // Schur factorization of Fox-Li matrix
             FoxLiSchurFactor( A, m );
             break;
         }
         
-    case 3:
+    case 2:
         {
             // Schur factorization of Grcar matrix
-            Matrix<Complex<Real>> d;
+            DistMatrix<Complex<Real>,VR,STAR> d(g);
             Grcar( A, m );
             Schur( A, d );
             MakeTrapezoidal( UPPER, A, 0 );
@@ -139,11 +123,13 @@ void TestTriangEig
     if( print )
         Print( A, "A" );
 
-    Output("  Starting triangular eigensolver...");
+    if( g.Rank() == 0 )
+        Output("  Starting triangular eigensolver...");
     const double startTime = mpi::Time();
     TriangEig( A, X );
     const double runTime = mpi::Time() - startTime;
-    Output("  Time = ",runTime," seconds");
+    if( g.Rank() == 0 )
+        Output("  Time = ",runTime," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -158,9 +144,12 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
+    const Int commRank = mpi::Rank( comm );
+    const Int commSize = mpi::Size( comm );
 
     try
     {
+        Int r = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -169,21 +158,41 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
-        const Int testMatrix = Input("--testMatrix","test matrix (0=Gaussian,1=GaussianRepeated,2=Fox-Li,3=Grcar)",0);
+        const Int testMatrix = Input("--testMatrix","test matrix (0=Gaussian,1=Fox-Li,2=Grcar)",0);
         ProcessInput();
         PrintInputReport();
 
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 
+        // Test with default distributions
+        if( commRank == 0 )
+            Output("Normal algorithms:");
         if( testReal )
             TestTriangEig<double>
             ( testCorrectness, print,
-              n, testMatrix );
+              n, g, testMatrix );
         if( testCpx )
             TestTriangEig<Complex<double>>
             ( testCorrectness, print,
-              n, testMatrix );
+              n, g, testMatrix );
+
+        // Test with non-standard distributions
+        if( commRank == 0 )
+            Output("Non-standard algorithms:");
+        if( testReal )
+            TestTriangEig<double,MR,MC,MC>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        if( testCpx )
+            TestTriangEig<Complex<double>,MR,MC,MC>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        
     }
     catch( exception& e ) { ReportException(e); }
 
