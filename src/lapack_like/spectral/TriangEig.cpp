@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson and Tim Moon
+   Copyright (c) 2009-2016, Jack Poulson and Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -204,120 +204,21 @@ template<typename F>
 inline void
 TriangEig( Matrix<F>& U, Matrix<F>& X ) 
 {
-    typedef Base<F> Real;
   
     DEBUG_ONLY(CSE cse("TriangEig"))
     const Int m = U.Height();
-    const Int bsize = Blocksize();
-    const Int kLast = LastOffset( m, bsize );
-    Real smlnum, bignum;
-    triang_eig::OverflowParameters<Real>( smlnum, bignum );
 
-    Matrix<F> shifts( m, 1 ),
-              scales( m, 1 ),
-              scalesUpdate( m, 1 );
-    GetDiagonal( U, shifts );
-    Ones( scales, m, 1 );
-    
     // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
     Scale( F(-1), X );
 
-    // Determine largest entry of each RHS
-    Matrix<Real> XMax( m, 1 );
-    XMax.Set( 0, 0, Real(0) );
-    for( Int j=1; j<m; ++j )
-    {
-        auto xj = X( IR(0,j), IR(j) );
-        Real xjMax = MaxNorm( xj );
-        xjMax = Max( xjMax, 2*smlnum );
-        XMax.Set( j, 0, xjMax );
-    }
-
-    // Block triangular solve
-    for( Int k=kLast; k>=0; k-=bsize )
-    {
-        const Int nb = Min(bsize,m-k);
-
-        const Range<Int> ind0( 0, k      ),
-                         ind1( k, k+nb   ),
-                         ind2( k+nb, END ),
-                         cols( k, END    );
-        
-        auto U01 = U( ind0, ind1 );
-        auto U11 = U( ind1, ind1 );
-
-        auto X0 = X( ind0, cols );
-        auto X1 = X( ind1, cols );
-        auto X2 = X( ind2, cols );
-
-        auto scalesUpdateCurrent = scalesUpdate( cols, ALL );
-        auto shiftsCurrent = shifts( cols, ALL );
-        
-        // Perform triangular solve on diagonal block
-        triang_eig::DiagonalBlockSolve( U11, shiftsCurrent,
-                                        X1, scalesUpdateCurrent );
-
-        // Apply scalings on RHS
-        for( Int j=k; j<m; ++j )
-        {
-            const Real sj = scalesUpdate.GetRealPart(j,0);
-            if( sj < 1 )
-            {
-                scales.Set( j, 0, sj*scales.Get(j,0) );
-                auto X0j = X0( ALL, IR(j-k) );
-                auto X2j = X2( ALL, IR(j-k) );
-                X0j *= sj;
-                X2j *= sj;
-                XMax.Set( j, 0, sj*XMax.Get(j,0) );
-            }
-        }
-
-        if( k > 0 )
-        {
-            // Compute infinity norms of columns in U01
-            // Note: nb*cnorm is the sum of infinity norms
-            // TODO: scale cnorm if an entry is bigger than bignum
-            Real cnorm = 0;
-            for( Int j=0; j<nb; ++j )
-            {
-                cnorm += MaxNorm( U01(ALL,IR(j)) ) / nb;
-            }
-
-            // Check for possible overflows in GEMM
-            // Note: G(i+1) <= G(i) + nb*cnorm*|| X1[:,j] ||_infty
-            for( Int j=k; j<m; ++j )
-            {
-                auto xj = X( IR(0,j), IR(j) );
-                Real xjMax = XMax.Get(j,0);
-                Real X1Max = MaxNorm( X1(ALL,IR(j-k)) );
-                if( X1Max >= 1 &&
-                    cnorm >= (bignum-xjMax)/X1Max/nb )
-                {
-                    const Real s = Real(0.5)/X1Max/nb;
-                    scales.Set( j, 0, s*scales.Get(j,0) );
-                    xj *= s;
-                    xjMax *= s;
-                    X1Max *= s;
-                }
-                else if( X1Max < 1 &&
-                         cnorm*X1Max >= (bignum-xjMax)/nb )
-                {
-                    const Real s = Real(0.5)/nb;
-                    scales.Set( j, 0, s*scales.Get(j,0) );
-                    xj *= s;
-                    xjMax *= s;
-                    X1Max *= s;
-                }
-                xjMax += nb*cnorm*X1Max;
-                XMax.Set( j, 0, xjMax );
-            }
-
-            // Update RHS with GEMM
-            Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
-        }
-    }
+    // Solve multi-shift triangular system
+    Matrix<F> shifts;
+    Matrix<F> scales;
+    GetDiagonal( U, shifts );
+    SafeMultiShiftTrsm
+    ( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
     SetDiagonal( X, scales );
 
     // Normalize eigenvectors
@@ -336,14 +237,9 @@ TriangEig
         ElementalMatrix<F>& XPre ) 
 {
 
-    typedef Base<F> Real;
-  
     DEBUG_ONLY(CSE cse("TriangEig"))
-
     const Int m = UPre.Height();
-    const Int bsize = Blocksize();
-    const Int kLast = LastOffset( m, bsize );
-
+      
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& U = UProx.GetLocked();
@@ -354,92 +250,20 @@ TriangEig
     MakeTrapezoidal( UPPER, X, 1 );
     Scale( F(-1), X );
 
+    // Solve multi-shift triangular system
     const Grid& g = U.Grid();
-    DistMatrix<F,VR,  STAR> shifts(g);
-    DistMatrix<F,VR,  STAR> scales(g);
-    DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
-    DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<F,VR,  STAR> scalesUpdate_VR_STAR(g);
-    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR(g);
-
+    DistMatrix<F,VR,STAR> shifts(g);
+    DistMatrix<F,VR,STAR> scales(g);
     GetDiagonal( U, shifts );
-    Ones( scales, m, 1 );
-    scalesUpdate_VR_STAR.Resize( m, 1 );
-    scalesUpdate_MR_STAR.Resize( m, 1 );
-    
-    for( Int k=kLast; k>=0; k-=bsize )
-    {
-        const Int nb = Min(bsize,m-k);
-
-        const Range<Int> ind0( 0,    k    ),
-                         ind1( k,    k+nb ),
-                         ind2( k+nb, END  ),
-                         cols( k,    END );
-
-        auto U01 = U( ind0, ind1 );
-        auto U11 = U( ind1, ind1 );
-
-        auto X0 = X( ind0, cols );
-        auto X1 = X( ind1, cols );
-        auto X2 = X( ind2, cols );
-
-        auto shiftsCurrent = shifts( cols, ALL );
-        auto scalesCurrent = scales( cols, ALL );
-        auto scalesUpdateCurrent_VR_STAR = scalesUpdate_VR_STAR( cols, ALL );
-        auto scalesUpdateCurrent_MR_STAR = scalesUpdate_MR_STAR( cols, ALL );
-        
-        // Perform triangular solve on diagonal block
-        // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
-        U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
-        X1_STAR_VR.AlignWith( shifts );
-        X1_STAR_VR = X1; // X1[* ,VR] <- X1[MC,MR]
-        scalesUpdateCurrent_VR_STAR.AlignWith( shiftsCurrent );
-        triang_eig::DiagonalBlockSolve
-        ( U11_STAR_STAR.Matrix(), shiftsCurrent.LockedMatrix(), 
-          X1_STAR_VR.Matrix(), scalesUpdateCurrent_VR_STAR.Matrix() );
-        X1_STAR_MR.AlignWith( X0 );
-        X1_STAR_MR = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
-        X1 = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
-
-        // Apply scalings on RHS
-        scalesUpdateCurrent_MR_STAR.AlignWith( X0 );
-        scalesUpdateCurrent_MR_STAR = scalesUpdateCurrent_VR_STAR;
-        auto scalesUpdateCurrent_MR_STAR_local
-          = scalesUpdateCurrent_MR_STAR.LockedMatrix();
-        for( Int j=0; j<scalesUpdateCurrent_MR_STAR_local.Height(); ++j )
-        {
-            const Real sj
-              = scalesUpdateCurrent_MR_STAR_local.GetRealPart(j,0);
-            if( sj < Real(1) )
-            {
-                auto X0j = X0.Matrix()( ALL, IR(j) );
-                auto X2j = X2.Matrix()( ALL, IR(j) );
-                X0j *= sj;
-                X2j *= sj;
-            }
-        }
-        DiagonalScale
-        ( LEFT, NORMAL, scalesUpdateCurrent_VR_STAR, scalesCurrent );
-        
-        if( k > 0 )
-        {
-            // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-            U01_MC_STAR.AlignWith( X0 );
-            U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
-            LocalGemm
-            ( NORMAL, NORMAL, F(-1),
-              U01_MC_STAR, X1_STAR_MR, F(1), X0 );
-        }
-    }
+    SafeMultiShiftTrsm
+    ( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
     SetDiagonal( X, scales );
     
     // Normalize eigenvectors
-    for( Int k=1; k<m; ++k )
+    for( Int j=1; j<m; ++j )
     {
-        auto Xcol = X( IR(0,k+1), IR(k) );
-        Xcol *= 1/Nrm2(Xcol);
+        auto Xj = X( IR(0,j+1), IR(j) );
+        Xj *= 1/Nrm2(Xj);
     }
     
 }

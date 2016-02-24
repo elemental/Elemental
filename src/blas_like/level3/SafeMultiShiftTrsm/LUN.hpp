@@ -56,6 +56,7 @@ LUNBlock
     {
 
         // Initialize triangular system
+        SetDiagonal( U, diag );
         ShiftDiagonal( U, -shifts.Get(j,0) );
         auto xj = X( ALL, IR(j) );
         Real scales_j = Real(1);
@@ -71,7 +72,10 @@ LUNBlock
             xjMax *= s;
             scales_j *= s;
         }
-        xjMax = Max( xjMax, 2*smlnum );
+        if( xjMax <= smlnum )
+        {
+            continue;
+        }
 
         // Estimate growth of entries in triangular solve
         //   Note: See "Robust Triangular Solves for Use in Condition
@@ -145,11 +149,11 @@ LUNBlock
                     //   | Xij | >= || A || * eps
                     if( absXij >= smlnum )
                     {
+                        Xij = F(1);
                         Zero( xj );
                         xjMax = Real(0);
                         scales_j = Real(0);
                     }
-                    Xij = F(1);
                 }
                 xj.Set( i, 0, Xij );
                 
@@ -195,9 +199,10 @@ LUNBlock
 
         scales.Set( j, 0, scales_j );
         
-        // Reset matrix diagonal
-        SetDiagonal( U, diag );
     }
+
+    // Reset matrix diagonal
+    SetDiagonal( U, diag );
 }
 
 template<typename F>
