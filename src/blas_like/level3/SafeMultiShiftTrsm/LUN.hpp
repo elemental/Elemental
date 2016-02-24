@@ -18,7 +18,12 @@ LUNBlock
         Matrix<F>& X,
         Matrix<F>& scales )
 {
-
+    /*   Note: See "Robust Triangular Solves for Use in Condition
+     *   Estimation" by Edward Anderson for notation and bounds.
+     *   Entries in U are assumed to be less (in magnitude) than 
+     *   bignum.
+     */
+  
     typedef Base<F> Real;
   
     DEBUG_ONLY(
@@ -40,9 +45,8 @@ LUNBlock
     
     // Default scale is 1
     Ones( scales, numShifts, 1 );
-
+    
     // Compute infinity norms of columns of U (excluding diagonal)
-    // TODO: scale cnorm if an entry is bigger than bignum
     Matrix<Real> cnorm( n, 1 );
     Real* cnorm_buffer = cnorm.Buffer();
     cnorm_buffer[0] = Real(0);
@@ -210,6 +214,12 @@ void
 LUN( Matrix<F>& U, const Matrix<F>& shifts,
      Matrix<F>& X, Matrix<F>& scales ) 
 {
+    /*   Note: See "Robust Triangular Solves for Use in Condition
+     *   Estimation" by Edward Anderson for notation and bounds.
+     *   Entries in U are assumed to be less (in magnitude) than 
+     *   bignum.
+     */
+
     typedef Base<F> Real;
 
     DEBUG_ONLY(
@@ -229,6 +239,11 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
     Real smlnum, bignum;
     OverflowParameters<Real>( smlnum, bignum );
 
+    DEBUG_ONLY(
+      if( MaxNorm(U) >= bignum )
+          LogicError("Entries in matrix are too large");
+    )
+    
     Ones( scales, n, 1 );
     Matrix<F> scalesUpdate( n, 1 );
 
@@ -288,7 +303,6 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
 
             // Compute infinity norms of columns in U01
             // Note: nb*cnorm is the sum of infinity norms
-            // TODO: scale cnorm if an entry is bigger than bignum
             Real cnorm = 0;
             for( Int j=0; j<nb; ++j )
             {
