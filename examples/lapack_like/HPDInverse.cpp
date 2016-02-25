@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -34,7 +34,12 @@ main( int argc, char* argv[] )
         // Make a copy of A and then overwrite it with its inverse
         const UpperOrLower uplo = ( upper ? UPPER : LOWER );
         DistMatrix<C> invA( A );
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         HPDInverse( uplo, invA );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
         {
             MakeHermitian( uplo, invA );
@@ -50,10 +55,13 @@ main( int argc, char* argv[] )
         const Real frobNormInvA = HermitianFrobeniusNorm( uplo, invA );
         const Real frobNormError = FrobeniusNorm( E );
         if( mpi::Rank() == 0 )
+        {
+            Output("HPDInverse time: ",timer.Total()," secs");
             Output
             ("|| A          ||_F = ",frobNormA,"\n",
              "|| inv(A)     ||_F = ",frobNormInvA,"\n",
              "|| I - invA A ||_F = ",frobNormError,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

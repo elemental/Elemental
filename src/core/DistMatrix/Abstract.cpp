@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -976,7 +976,10 @@ AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
 
 #define PROTO(T) template class AbstractDistMatrix<T>;
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 

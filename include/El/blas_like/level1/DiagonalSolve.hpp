@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BLAS_DIAGONALSOLVE_HPP
 #define EL_BLAS_DIAGONALSOLVE_HPP
 
@@ -29,6 +28,10 @@ void DiagonalSolve
     const FDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
+        DEBUG_ONLY(
+          if( d.Height() != m )
+              LogicError("Invalid left diagonal solve dimension");
+        )
         for( Int i=0; i<m; ++i )
         {
             const F delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
@@ -41,6 +44,10 @@ void DiagonalSolve
     }
     else
     {
+        DEBUG_ONLY(
+          if( d.Height() != n )
+              LogicError("Invalid right diagonal solve dimension");
+        )
         for( Int j=0; j<n; ++j )
         {
             const F delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
@@ -64,6 +71,11 @@ void SymmetricDiagonalSolve
     F* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
     const Real* dBuf = d.LockedBuffer();
+
+    DEBUG_ONLY(
+      if( d.Height() != n )
+          LogicError("Invalid symmetric diagonal solve dimension");
+    )
 
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i ) 
@@ -366,6 +378,61 @@ void DiagonalSolve
             XBuf[iLoc+j*XLDim] /= delta;
     }
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(F) \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const Matrix<F>& d, \
+          Matrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void SymmetricDiagonalSolve \
+  ( const Matrix<Base<F>>& d, \
+          Matrix<F>& A ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const ElementalMatrix<F>& d, \
+          ElementalMatrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const Matrix<F>& d, \
+          SparseMatrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void SymmetricDiagonalSolve \
+  ( const Matrix<Base<F>>& d, SparseMatrix<F>& A ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const DistMultiVec<F>& d, \
+          DistSparseMatrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void SymmetricDiagonalSolve \
+  ( const DistMultiVec<Base<F>>& d, \
+          DistSparseMatrix<F>& A ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const DistMultiVec<F>& d, \
+          DistMultiVec<F>& X, \
+    bool checkIfSingular );
+
+#define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
 

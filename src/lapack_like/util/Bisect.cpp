@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -19,10 +19,13 @@
 namespace El {
 
 Int Bisect
-( const Graph& graph, Graph& leftChild, Graph& rightChild,
-  vector<Int>& perm, const BisectCtrl& ctrl )
+( const Graph& graph,
+  Graph& leftChild,
+  Graph& rightChild,
+  vector<Int>& perm,
+  const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Bisect"))
+    DEBUG_ONLY(CSE cse("Bisect [Graph]"))
 #ifdef EL_HAVE_METIS
     // METIS assumes that there are no self-connections or connections 
     // outside the sources, so we must manually remove them from our graph
@@ -99,7 +102,7 @@ Int Bisect
         bool& onLeft, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Bisect"))
+    DEBUG_ONLY(CSE cse("Bisect [DistGraph]"))
 #ifdef EL_HAVE_METIS
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size( comm );
@@ -350,10 +353,9 @@ void EnsurePermutation( const DistMap& map )
                  " in parallel map");
 }
 
-
-
 void BuildChildrenFromPerm
-( const Graph& graph, const vector<Int>& perm, 
+( const Graph& graph,
+  const vector<Int>& perm, 
   Int leftChildSize, Graph& leftChild,
   Int rightChildSize, Graph& rightChild )
 {
@@ -394,7 +396,7 @@ void BuildChildrenFromPerm
                                  invTarget );
             DEBUG_ONLY(
               if( target >= leftChildSize && target < (numSources-sepSize) )
-                  LogicError("Invalid bisection, left set touches right set");
+                  LogicError("Invalid bisection, left set touches right set at (",source,",",target,") since leftChildSize=",leftChildSize);
             )
             leftChild.QueueConnection( source, target );
         }
@@ -418,7 +420,7 @@ void BuildChildrenFromPerm
                                  invTarget );
             DEBUG_ONLY(
               if( target < leftChildSize )
-                  LogicError("Invalid bisection, right set touches left set");
+                  LogicError("Invalid bisection, right set touches left set at (",source,",",target,") since leftChildSize=",leftChildSize);
             )
             // The targets that are in parent separators do not need to be
             rightChild.QueueConnection

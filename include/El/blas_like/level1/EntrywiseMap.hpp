@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -71,7 +71,9 @@ void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func )
 
 template<typename S,typename T>
 void EntrywiseMap
-( const SparseMatrix<S>& A, SparseMatrix<T>& B, function<T(S)> func )
+( const SparseMatrix<S>& A,
+        SparseMatrix<T>& B,
+        function<T(S)> func )
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int numEntries = A.NumEntries();
@@ -85,8 +87,9 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const ElementalMatrix<S>& A, ElementalMatrix<T>& B, 
-  function<T(S)> func )
+( const ElementalMatrix<S>& A,
+        ElementalMatrix<T>& B, 
+        function<T(S)> func )
 { 
     if( A.DistData().colDist == B.DistData().colDist &&
         A.DistData().rowDist == B.DistData().rowDist )
@@ -113,8 +116,9 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const BlockMatrix<S>& A, BlockMatrix<T>& B, 
-  function<T(S)> func )
+( const BlockMatrix<S>& A,
+        BlockMatrix<T>& B, 
+        function<T(S)> func )
 { 
     if( A.DistData().colDist == B.DistData().colDist &&
         A.DistData().rowDist == B.DistData().rowDist )
@@ -141,8 +145,9 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B, 
-  function<T(S)> func )
+( const DistSparseMatrix<S>& A,
+        DistSparseMatrix<T>& B, 
+        function<T(S)> func )
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
     const Int numEntries = A.vals_.size();
@@ -161,7 +166,9 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const DistMultiVec<S>& A, DistMultiVec<T>& B, function<T(S)> func )
+( const DistMultiVec<S>& A,
+        DistMultiVec<T>& B,
+        function<T(S)> func )
 {
     DEBUG_ONLY(CSE cse("EntrywiseMap"))
     B.SetComm( A.Comm() );
@@ -169,5 +176,48 @@ void EntrywiseMap
     EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif 
+
+#define PROTO(T) \
+  EL_EXTERN template void EntrywiseMap \
+  ( Matrix<T>& A, \
+    function<T(T)> func ); \
+  EL_EXTERN template void EntrywiseMap \
+  ( AbstractDistMatrix<T>& A, \
+    function<T(T)> func ); \
+  EL_EXTERN template void EntrywiseMap \
+  ( DistMultiVec<T>& A, \
+    function<T(T)> func ); \
+  EL_EXTERN template void EntrywiseMap \
+  ( const Matrix<T>& A, \
+          Matrix<T>& B, \
+          function<T(T)> func ); \
+  EL_EXTERN template void EntrywiseMap \
+  ( const ElementalMatrix<T>& A, \
+          ElementalMatrix<T>& B, \
+          function<T(T)> func ); \
+  EL_EXTERN template void EntrywiseMap \
+  ( const BlockMatrix<T>& A, \
+          BlockMatrix<T>& B, \
+          function<T(T)> func ); \
+  EL_EXTERN template void EntrywiseMap \
+  ( const DistMultiVec<T>& A, \
+          DistMultiVec<T>& B, \
+          function<T(T)> func );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
+
 } // namespace El
+
 #endif // ifndef EL_BLAS_ENTRYWISEMAP_HPP

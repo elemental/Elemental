@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    Copyright (c) 2013, The University of Texas at Austin
@@ -9,7 +9,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TRMM_LLT_HPP
 #define EL_TRMM_LLT_HPP
 

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LATTICE_HPP
 #define EL_LATTICE_HPP
 
@@ -18,6 +17,12 @@ template<typename F>
 void DeepColSwap( Matrix<F>& B, Int i, Int k );
 template<typename F>
 void DeepRowSwap( Matrix<F>& B, Int i, Int k );
+
+// Lattice Log Potential
+// =====================
+// NOTE: This operates on the Gaussian Normal Form (R from QR)
+template<typename F>
+Base<F> LatticeLogPotential( const Matrix<F>& R );
 
 // Lenstra-Lenstra-Lovasz (LLL) lattice reduction
 // ==============================================
@@ -60,6 +65,23 @@ struct LLLInfo
     Int nullity; 
     Int numSwaps;
     Real logVol;
+
+    template<typename OtherReal>
+    LLLInfo<Real>& operator=( const LLLInfo<OtherReal>& info )
+    {
+        delta = Real(info.delta);
+        eta = Real(info.eta);
+        rank = info.rank;
+        nullity = info.nullity;
+        numSwaps = info.numSwaps;
+        logVol = Real(info.logVol);
+        return *this;
+    }
+    
+    LLLInfo() { }
+    LLLInfo( const LLLInfo<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    LLLInfo( const LLLInfo<OtherReal>& ctrl ) { *this = ctrl; }
 };
 
 // Return the Gaussian estimate of the minimum-length vector
@@ -99,6 +121,8 @@ struct LLLCtrl
     Real eta=Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9));
 
     LLLVariant variant=LLL_NORMAL;
+    bool recursive=false;
+    Int cutoff=10;
 
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
     // (in the manner suggested by Wubben et al.) can greatly decrease
@@ -117,6 +141,10 @@ struct LLLCtrl
     // then it is interpreted as a zero vector (and forced to zero)
     Real zeroTol=Pow(limits::Epsilon<Real>(),Real(0.9));
 
+    // Exploit the sparsity in the size reduction Axpy's unless at least the 
+    // following percentage of reductions were non-trivial
+    float blockingThresh = 0.5f;
+
     bool progress=false;
     bool time=false;
 
@@ -124,6 +152,70 @@ struct LLLCtrl
     // 'startCol' columns are already processed
     bool jumpstart=false;
     Int startCol=0;
+
+    // In case of conversion from BigFloat to BigFloat with different precision
+    LLLCtrl<Real>& operator=( const LLLCtrl<Real>& ctrl )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        const Real etaMin = Real(1)/Real(2)+Pow(eps,Real(0.9));
+        const Real zeroTolMin = Pow(eps,Real(0.9));
+
+        delta = Real(ctrl.delta);
+        // NOTE: This does *not* seem to be equivalent to Max if the precisions
+        //       are different
+        eta = Real(ctrl.eta);
+        if( eta < etaMin )
+            eta = etaMin;
+        variant = ctrl.variant; 
+        recursive = ctrl.recursive;
+        cutoff = ctrl.cutoff;
+        presort = ctrl.presort;
+        smallestFirst = ctrl.smallestFirst;
+        reorthogTol = Real(ctrl.reorthogTol);
+        numOrthog = ctrl.numOrthog;
+        // NOTE: This does *not* seem to be equivalent to Max if the precisions
+        //       are different
+        zeroTol = Real(ctrl.zeroTol);
+        if( zeroTol < zeroTolMin )
+            zeroTol = zeroTolMin;
+        blockingThresh = ctrl.blockingThresh;
+        progress = ctrl.progress; 
+        time = ctrl.time;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+        return *this;
+    }
+
+    // We frequently need to convert datatypes, so make this easy
+    template<typename OtherReal>
+    LLLCtrl<Real>& operator=( const LLLCtrl<OtherReal>& ctrl )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        const Real etaMin = Real(1)/Real(2)+Pow(eps,Real(0.9));
+        const Real zeroTolMin = Pow(eps,Real(0.9));
+
+        delta = Real(ctrl.delta);
+        eta = Max(etaMin,Real(ctrl.eta));
+        variant = ctrl.variant; 
+        recursive = ctrl.recursive;
+        cutoff = ctrl.cutoff;
+        presort = ctrl.presort;
+        smallestFirst = ctrl.smallestFirst;
+        reorthogTol = Real(ctrl.reorthogTol);
+        numOrthog = ctrl.numOrthog;
+        zeroTol = Max(zeroTolMin,Real(ctrl.zeroTol));
+        blockingThresh = ctrl.blockingThresh;
+        progress = ctrl.progress; 
+        time = ctrl.time;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+        return *this;
+    }
+
+    LLLCtrl() { }
+    LLLCtrl( const LLLCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    LLLCtrl( const LLLCtrl<OtherReal>& ctrl ) { *this = ctrl; }
 };
 
 // TODO: Maintain B in BigInt form
@@ -143,7 +235,6 @@ template<typename F>
 LLLInfo<Base<F>> LLL
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
@@ -159,30 +250,12 @@ template<typename F>
 LLLInfo<Base<F>> LLLWithQ
 ( Matrix<F>& B,
   Matrix<F>& U,
-  Matrix<F>& UInv,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-// Perform a tree reduction of subsets of the original basis in order to 
-// expose parallelism and perform as much work as possible in double-precision
-// (which is often possible even for the SVP Challenge).
-// This will not be substantially faster than the above LLL until Elemental
-// supports different MPFR precisions simultaneously
-template<typename F>
-LLLInfo<Base<F>> RecursiveLLL
-( Matrix<F>& B,
-  Int cutoff=10,
-  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
-template<typename F>
-LLLInfo<Base<F>> RecursiveLLL
-( Matrix<F>& B,
-  Matrix<F>& R,
-  Int cutoff=10,
-  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
-
-// Overwrite B, fill M with its (quasi-reduced) image of B, and fill K with the
+// Fill M with its (quasi-reduced) image of B, and fill K with the
 // LLL-reduced basis for the kernel of B.
 //
 // This is essentially Algorithm 2.7.1 from Cohen's
@@ -192,18 +265,26 @@ LLLInfo<Base<F>> RecursiveLLL
 // 
 template<typename F>
 void LatticeImageAndKernel
-( Matrix<F>& B,
-  Matrix<F>& M,
-  Matrix<F>& K,
+( const Matrix<F>& B,
+        Matrix<F>& M,
+        Matrix<F>& K,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-// Overwrite B and fill K with the LLL-reduced basis for the kernel of B.
+// Fill K with the LLL-reduced basis for the image of B.
+// TODO: Make this faster than LatticeImageAndKernel
+template<typename F>
+void LatticeImage
+( const Matrix<F>& B,
+        Matrix<F>& M,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+// Fill K with the LLL-reduced basis for the kernel of B.
 // This will eventually mirror Algorithm 2.7.2 from Cohen's
 // "A course in computational algebraic number theory".
 template<typename F>
 void LatticeKernel
-( Matrix<F>& B,
-  Matrix<F>& K,
+( const Matrix<F>& B,
+        Matrix<F>& K,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 // Search for Z-dependence
@@ -247,6 +328,89 @@ Int AlgebraicRelationSearch
 // Schnorr-Euchner enumeration
 // ===========================
 
+namespace EnumTypeNS {
+enum EnumType {
+    FULL_ENUM,
+    GNR_ENUM,
+    YSPARSE_ENUM
+};
+}
+using namespace EnumTypeNS;
+
+template<typename Real>
+struct EnumCtrl
+{
+    EnumType enumType=FULL_ENUM;
+
+    bool disablePrecDrop=false;
+    Real fudge=Real(1.5); // fudge factor for number of bits of precision
+
+    bool time=false;
+    bool progress=false;
+
+    // For monitoring the core (bounded) enumeration procedure
+    bool innerProgress=false;
+
+    // Explicitly transpose 'N' to encourage unit-stride access
+    bool explicitTranspose=true;
+
+    // GNR_ENUM
+    // --------
+    // TODO: Add ability to further tune the bounding function
+    bool linearBounding=false;
+    Int numTrials=1000;
+
+    // YSPARSE_ENUM
+    // ------------
+    Int phaseLength=10;
+
+    bool customStartIndex=false; 
+    Int startIndex;
+
+    bool customMaxInfNorms=false;
+    vector<Int> maxInfNorms;
+
+    bool customMaxOneNorms=false;
+    vector<Int> maxOneNorms; 
+
+    Int progressLevel=0;
+
+    template<typename OtherReal>
+    EnumCtrl<Real>& operator=( const EnumCtrl<OtherReal>& ctrl )
+    {
+        enumType = ctrl.enumType;
+        disablePrecDrop = ctrl.disablePrecDrop;
+        fudge = Real(ctrl.fudge);
+        time = ctrl.time;
+        progress = ctrl.progress;
+        innerProgress = ctrl.innerProgress;
+        explicitTranspose = ctrl.explicitTranspose;
+
+        // GNR_ENUM
+        // --------
+        linearBounding = ctrl.linearBounding;
+        numTrials = ctrl.numTrials;
+
+        // YSPARSE_ENUM
+        // ------------
+        phaseLength = ctrl.phaseLength;
+        customStartIndex = ctrl.customStartIndex;
+        startIndex = ctrl.startIndex;
+        customMaxInfNorms = ctrl.customMaxInfNorms;
+        maxInfNorms = ctrl.maxInfNorms;
+        customMaxOneNorms = ctrl.customMaxOneNorms;
+        maxOneNorms = ctrl.maxOneNorms;
+        progressLevel = ctrl.progressLevel;
+
+        return *this;
+    }
+
+    EnumCtrl() { }
+    EnumCtrl( const EnumCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    EnumCtrl( const EnumCtrl<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
 namespace svp {
 
 // If successful, fills 'v' with the integer coordinates of the columns of 
@@ -261,10 +425,72 @@ namespace svp {
 // NOTE: There is not currently a complex implementation, though algorithms
 //       exist.
 template<typename F>
-Base<F> BoundedEnumeration
-( const Matrix<F>& R,
+Base<F> GNREnumeration
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
   const Matrix<Base<F>>& u,
-        Matrix<F>& v );
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+// Convert to/from the so-called "y-sparse" representation of
+//
+//   Dan Ding, Guizhen Zhu, Yang Yu, and Zhongxiang Zheng,
+//   "A fast phase-based enumeration algorithm for SVP challenge through
+//    y-sparse representations of short lattice vectors"
+
+template<typename F>
+void CoordinatesToSparse
+( const Matrix<F>& N, const Matrix<F>& v, Matrix<F>& y );
+template<typename F>
+void TransposedCoordinatesToSparse
+( const Matrix<F>& NTrans, const Matrix<F>& v, Matrix<F>& y );
+
+template<typename F>
+void SparseToCoordinates
+( const Matrix<F>& N, const Matrix<F>& y, Matrix<F>& v );
+template<typename F>
+void TransposedSparseToCoordinates
+( const Matrix<F>& NTrans, const Matrix<F>& y, Matrix<F>& v );
+
+template<typename F>
+Base<F> CoordinatesToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& v );
+template<typename F>
+Base<F> TransposedCoordinatesToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& v );
+
+template<typename F>
+Base<F> SparseToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& N, const Matrix<F>& y );
+template<typename F>
+Base<F> TransposedSparseToNorm
+( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& y );
+
+template<typename Real>
+Real PhaseEnumeration
+( const Matrix<Real>& B,
+  const Matrix<Real>& d,
+  const Matrix<Real>& N,
+        Real normUpperBound,
+        Int startIndex,
+        Int phaseLength,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& maxOneNorms,
+        Matrix<Real>& v,
+        Int progressLevel=0 );
+template<typename Real>
+std::pair<Real,Int>
+PhaseEnumeration
+( const Matrix<Real>& B,
+  const Matrix<Real>& d,
+  const Matrix<Real>& N,
+  const Matrix<Real>& normUpperBounds,
+        Int startIndex,
+        Int phaseLength,
+  const vector<Int>& maxInfNorms,
+  const vector<Int>& maxOneNorms,
+        Matrix<Real>& v,
+        Int progressLevel=0 );
 
 } // namespace svp
 
@@ -278,7 +504,16 @@ Base<F> ShortVectorEnumeration
   const Matrix<F>& R,
         Base<F> normUpperBound,
         Matrix<F>& v,
-  bool probabalistic=false );
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortVectorEnumeration
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
 
 // Given a reduced lattice B and its Gaussian Normal Form, R, find the shortest
 // member of the lattice (with the shortest vector given by B v).
@@ -289,7 +524,8 @@ Base<F> ShortestVectorEnumeration
 ( const Matrix<F>& B,
   const Matrix<F>& R,
         Matrix<F>& v,
-  bool probabalistic=false );
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
 // If an upper-bound on the shortest vector which is better than || b_0 ||_2 is
 // available
 template<typename F>
@@ -298,8 +534,274 @@ Base<F> ShortestVectorEnumeration
   const Matrix<F>& R,
         Base<F> normUpperBound,
         Matrix<F>& v,
-  bool probabalistic=false );
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortestVectorEnumeration
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+// If a shorter vector is found, insert it into the first position
+// ---------------------------------------------------------------
+
+// The return value is the norm of the (approximately) shortest vector.
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+  const Matrix<F>& R,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+        Matrix<F>& U,
+  const Matrix<F>& R,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+// If an upper-bound on the shortest vector which is better than || b_0 ||_2 is
+// available
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+template<typename F>
+Base<F> ShortestVectorEnrichment
+(       Matrix<F>& B,
+        Matrix<F>& U,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortestVectorEnrichment
+(       Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+template<typename F>
+std::pair<Base<F>,Int>
+MultiShortestVectorEnrichment
+(       Matrix<F>& B,
+        Matrix<F>& U,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl=EnumCtrl<Base<F>>() );
+
+// Block Korkin-Zolotarev (BKZ) reduction
+// ======================================
+// TODO: Tailor BKZInfo; it is currently a copy of LLLInfo
+template<typename Real>
+struct BKZInfo
+{
+    Real delta;
+    Real eta; 
+    Int rank;
+    Int nullity; 
+    Int numSwaps;
+    Int numEnums;
+    Int numEnumFailures;
+    Real logVol;
+
+    template<typename OtherReal>
+    BKZInfo<Real>& operator=( const BKZInfo<OtherReal>& info )
+    {
+        delta = Real(info.delta);
+        eta = Real(info.eta);
+        rank = info.rank;
+        nullity = info.nullity;
+        numSwaps = info.numSwaps;
+        numEnums = info.numEnums;
+        numEnumFailures = info.numEnumFailures;
+        logVol = Real(info.logVol);
+        return *this;
+    }
+
+    BKZInfo() { }
+    BKZInfo( const BKZInfo<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    BKZInfo( const BKZInfo<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+template<typename Real>
+struct BKZCtrl
+{
+    Int blocksize=20;
+    bool time=false;
+    bool progress=false;
+
+    bool earlyAbort=false;
+    Int numEnumsBeforeAbort=1000; // only used if earlyAbort=true
+
+    bool variableBlocksize=false;
+    function<Int(Int)> blocksizeFunc;
+
+    bool variableEnumType=false;
+    function<EnumType(Int)> enumTypeFunc;
+
+    bool skipInitialLLL=false;
+    bool jumpstart=false;
+    Int startCol=0;
+
+    EnumCtrl<Real> enumCtrl;
+
+    // Rather than running LLL after a productive enumeration, one could run
+    // BKZ with a smaller blocksize (perhaps with early abort)
+    bool subBKZ=true;
+    function<Int(Int)> subBlocksizeFunc =
+      function<Int(Int)>( []( Int bsize )
+      { return Max(Min(bsize/2,Int(20)),Int(2)); } );
+    bool subEarlyAbort = true;
+    Int subNumEnumsBeforeAbort = 100;
+
+    // This seems to be *more* expensive but lead to higher quality (perhaps).
+    // Note that this is different from GNR recursion and uses a tree method
+    // with shuffling at each merge.
+    bool recursive=false;
+
+    bool logFailedEnums=false;
+    std::string failedEnumFile="BKZFailedEnums.txt";
+
+    bool logStreakSizes=false;
+    std::string streakSizesFile="BKZStreakSizes.txt";
+
+    bool logNontrivialCoords=false;
+    std::string nontrivialCoordsFile="BKZNontrivialCoords.txt";
+
+    bool logNorms=false;
+    std::string normsFile="BKZNorms.txt";
+
+    bool logProjNorms=false;
+    std::string projNormsFile="BKZProjNorms.txt";
+
+    bool checkpoint=false;
+    FileFormat checkpointFormat=ASCII;
+    std::string checkpointFileBase="BKZCheckpoint";
+
+    LLLCtrl<Real> lllCtrl;
+
+    // We frequently need to convert datatypes, so make this easy
+    template<typename OtherReal>
+    BKZCtrl<Real>& operator=( const BKZCtrl<OtherReal>& ctrl )
+    {
+        blocksize = ctrl.blocksize;
+        time = ctrl.time;
+        progress = ctrl.progress;
+
+        earlyAbort = ctrl.earlyAbort;
+        numEnumsBeforeAbort = ctrl.numEnumsBeforeAbort;
+
+        variableBlocksize = ctrl.variableBlocksize;
+        blocksizeFunc = ctrl.blocksizeFunc;
+
+        variableEnumType = ctrl.variableEnumType;
+        enumTypeFunc = ctrl.enumTypeFunc;
+
+        skipInitialLLL = ctrl.skipInitialLLL;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+
+        enumCtrl = ctrl.enumCtrl;
+
+        subBKZ = ctrl.subBKZ;
+        subBlocksizeFunc = ctrl.subBlocksizeFunc;
+        subEarlyAbort = ctrl.subEarlyAbort;
+        subNumEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+
+        recursive = ctrl.recursive;
+
+        logFailedEnums = ctrl.logFailedEnums;
+        logStreakSizes = ctrl.logStreakSizes;
+        logNontrivialCoords = ctrl.logNontrivialCoords;
+        logNorms = ctrl.logNorms;
+        logProjNorms = ctrl.logProjNorms;
+        checkpoint = ctrl.checkpoint;
+        failedEnumFile = ctrl.failedEnumFile;
+        streakSizesFile = ctrl.streakSizesFile;
+        nontrivialCoordsFile = ctrl.nontrivialCoordsFile;
+        normsFile = ctrl.normsFile;
+        projNormsFile = ctrl.projNormsFile;
+        checkpointFileBase = ctrl.checkpointFileBase;
+        checkpointFormat = ctrl.checkpointFormat;
+
+        lllCtrl = ctrl.lllCtrl;
+        return *this;
+    }
+    
+    BKZCtrl() { }
+    BKZCtrl( const BKZCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    BKZCtrl( const BKZCtrl<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  Matrix<F>& R,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& R,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZWithQ
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZWithQ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+// Lattice coordinates
+// ===================
+// Seek the coordinates x in Z^n of a vector y within a lattice B, i.e.,
+//
+//     B x = y.
+//
+// Return 'true' if such coordinates could be found and 'false' otherwise.
+template<typename F>
+bool LatticeCoordinates( const Matrix<F>& B, const Matrix<F>& y, Matrix<F>& x );
+
+// Enrich a lattice with a particular vector
+// =========================================
+// Push B v into the first column of B via a unimodular transformation
+template<typename F>
+void EnrichLattice( Matrix<F>& B, const Matrix<F>& v );
+template<typename F>
+void EnrichLattice( Matrix<F>& B, Matrix<F>& U, const Matrix<F>& v );
 
 } // namespace El
+
+#include "El/lattice/LLL.hpp"
+#include "El/lattice/Enrich.hpp"
+#include "El/lattice/BKZ.hpp"
 
 #endif // ifndef EL_LATTICE_HPP

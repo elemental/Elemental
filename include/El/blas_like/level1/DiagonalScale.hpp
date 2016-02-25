@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BLAS_DIAGONALSCALE_HPP
 #define EL_BLAS_DIAGONALSCALE_HPP
 
@@ -28,6 +27,10 @@ void DiagonalScale
     const Int ALDim = A.LDim();
     if( side == LEFT )
     {
+        DEBUG_ONLY(
+          if( d.Height() != m )
+              LogicError("Invalid left diagonal scaling dimension");
+        )
         for( Int i=0; i<m; ++i )
         {
             const T delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
@@ -37,6 +40,10 @@ void DiagonalScale
     }
     else
     {
+        DEBUG_ONLY(
+          if( d.Height() != n )
+              LogicError("Invalid right diagonal scaling dimension");
+        )
         for( Int j=0; j<n; ++j )
         {
             const T delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
@@ -115,8 +122,10 @@ void DiagonalScale
     const TDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
-        if( d.Height() != A.Height() )
-            LogicError("The size of d must match the height of A");
+        DEBUG_ONLY(
+          if( d.Height() != A.Height() )
+              LogicError("The size of d must match the height of A");
+        )
         for( Int k=0; k<numEntries; ++k )
         {
             const Int i = rowBuf[k];
@@ -126,8 +135,10 @@ void DiagonalScale
     }
     else
     {
-        if( d.Height() != A.Width() )
-            LogicError("The size of d must match the width of A");
+        DEBUG_ONLY(
+          if( d.Height() != A.Width() )
+              LogicError("The size of d must match the width of A");
+        )
         for( Int k=0; k<numEntries; ++k )
         {
             const Int j = colBuf[k];
@@ -236,6 +247,48 @@ void DiagonalScale
             XBuf[iLoc+j*XLDim] *= delta;
     }
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void DiagonalScale \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const Matrix<T>& d, \
+          Matrix<T>& A ); \
+  EL_EXTERN template void DiagonalScale \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const ElementalMatrix<T>& d, \
+          ElementalMatrix<T>& A ); \
+  EL_EXTERN template void DiagonalScale \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const Matrix<T>& d, \
+          SparseMatrix<T>& A ); \
+  EL_EXTERN template void DiagonalScale \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const DistMultiVec<T>& d, \
+          DistSparseMatrix<T>& A ); \
+  EL_EXTERN template void DiagonalScale \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const DistMultiVec<T>& d, \
+          DistMultiVec<T>& X );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
 

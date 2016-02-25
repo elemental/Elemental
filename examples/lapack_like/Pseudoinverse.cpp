@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -29,9 +29,14 @@ main( int argc, char* argv[] )
         DistMatrix<C> A;
         Uniform( A, m, n );
 
+        Timer timer;
         // Compute the pseudoinverseof A (but do not overwrite A)
         DistMatrix<C> pinvA( A );
+        if( mpi::Rank() == 0 )
+            timer.Start();
         Pseudoinverse( pinvA );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
         {
             Print( A, "A" );
@@ -42,9 +47,12 @@ main( int argc, char* argv[] )
         const Real frobPinvA = FrobeniusNorm( pinvA );
 
         if( mpi::Rank() == 0 )
+        {
+            Output("PseudoInverse time: ",timer.Total()," secs");
             Output
             ("||   A     ||_F = ",frobA,"\n",
              "|| pinv(A) ||_F = ",frobPinvA,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

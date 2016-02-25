@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_SPECTRAL_HPP
 #define EL_SPECTRAL_HPP
 
@@ -21,7 +20,7 @@ struct HermitianEigSubset
     Int lowerIndex=0, upperIndex=0;
  
     bool rangeSubset=false;
-    Real lowerBound=0, upperBound=0;
+    Real lowerBound=Real(0), upperBound=Real(0);
 };
 
 template<typename Real>
@@ -29,8 +28,8 @@ struct HermitianSDCCtrl
 {
     Int cutoff=256;
     Int maxInnerIts=2, maxOuterIts=10;
-    Real tol=0;
-    Real spreadFactor=1e-6;
+    Real tol=Real(0);
+    Real spreadFactor=Real(1e-6);
     bool progress=false;
 };
 
@@ -177,38 +176,54 @@ void HermitianGenDefEig
 // --------------------
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, 
+( Matrix<Base<F>>& d,
+  Matrix<F>& dSub,
+  Matrix<Base<F>>& w, 
   SortType sort=ASCENDING, 
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 template<typename F>
 void HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w, SortType sort=ASCENDING,
+( const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& dSub,
+        ElementalMatrix<Base<F>>& w,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 // Compute eigenpairs
 // ------------------
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& dSub, Matrix<Base<F>>& w, Matrix<F>& Z,
+( Matrix<Base<F>>& d,
+  Matrix<F>& dSub,
+  Matrix<Base<F>>& w,
+  Matrix<F>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 template<typename F>
 void HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,       ElementalMatrix<F>& Z, 
-  SortType sort=ASCENDING,
+( const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& dSub,
+        ElementalMatrix<Base<F>>& w,
+        ElementalMatrix<F>& Z, 
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 
 template<typename Real>
 Int HermitianTridiagEigEstimate
-( const ElementalMatrix<Real>& d, const ElementalMatrix<Real>& dSub,
-        mpi::Comm wColComm, Real vl, Real vu );
+( const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& dSub,
+        mpi::Comm wColComm,
+        Real vl,
+        Real vu );
 // Z is assumed to be sufficiently large and properly aligned
 template<typename Real>
 void HermitianTridiagEigPostEstimate
-( const ElementalMatrix<Real>& d, const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& w,       ElementalMatrix<Real>& Z, 
-  SortType sort, Real vl, Real vu );
+( const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& dSub,
+        ElementalMatrix<Real>& w,
+        ElementalMatrix<Real>& Z, 
+        SortType sort,
+        Real vl,
+        Real vu );
 
 namespace herm_eig {
 
@@ -216,7 +231,8 @@ template<typename F>
 void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING );
 template<typename Real,typename F>
 void Sort
-( ElementalMatrix<Real>& w, ElementalMatrix<F>& Z,
+( ElementalMatrix<Real>& w,
+  ElementalMatrix<F>& Z,
   SortType sort=ASCENDING );
 
 } // namespace herm_eig
@@ -269,7 +285,7 @@ struct SDCCtrl
     Int cutoff=256;
     Int maxInnerIts=2, maxOuterIts=10;
     Real tol=0;
-    Real spreadFactor=1e-6;
+    Real spreadFactor=Real(1e-6);
     bool random=true;
     bool progress=false;
 
@@ -426,15 +442,19 @@ void Eig
 // -----------------------------------
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const Matrix<F>& G, Matrix<Base<F>>& wImag,
-  SortType sort=ASCENDING,
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
         HermitianEigCtrl<Complex<Base<F>>>() );
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const ElementalMatrix<F>& G,
-  ElementalMatrix<Base<F>>& wImag, SortType sort=ASCENDING,
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& G,
+        ElementalMatrix<Base<F>>& wImag,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
         HermitianEigCtrl<Complex<Base<F>>>() );
@@ -443,26 +463,58 @@ void SkewHermitianEig
 // ------------------
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const Matrix<F>& G,
-  Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z,
-  SortType sort=ASCENDING,
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag,
+        Matrix<Complex<Base<F>>>& Z,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
         HermitianEigCtrl<Complex<Base<F>>>() );
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const ElementalMatrix<F>& G,
-  ElementalMatrix<Base<F>>& wImag, ElementalMatrix<Complex<Base<F>>>& Z,
-  SortType sort=ASCENDING,
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& G,
+        ElementalMatrix<Base<F>>& wImag,
+        ElementalMatrix<Complex<Base<F>>>& Z,
+        SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
         HermitianEigCtrl<Complex<Base<F>>>() );
 
 // Singular Value Decomposition
 // ============================
+
+enum SVDApproach {
+  // If A is m x n, return A = U S V^H, where U is m x min(m,n) and 
+  // V is n x min(m,n).
+  THIN_SVD,
+
+  // If A is m x n and rank k, return A = U S V^H, where U is m x k and 
+  // V is n x k.
+  COMPACT_SVD,
+
+  // If A is m x n, return A = U S V^H, where U is m x m and V is n x n.
+  FULL_SVD,
+
+  // If the sufficiently small singular triplets should be thrown away.
+  // When thresholded, a cross-product algorithm is used. This is often
+  // advantageous since tridiagonal eigensolvers tend to have faster 
+  // parallel implementations than bidiagonal SVD's.
+  PRODUCT_SVD
+};
+
 template<typename Real>
 struct SVDCtrl 
 {
+    SVDApproach approach=THIN_SVD;
+    bool overwrite=false; // Allow 'A' to be overwritten computing A = U S V^H
+    bool avoidComputingU=false; // Avoid computing 'U' in A = U S V^H
+    bool avoidComputingV=false; // Avoid computing 'V' in A = U S V^H
+
+    bool time=false;
+    bool avoidLibflame=false;
+
     // Bidiagonal SVD options
     // ----------------------
 
@@ -488,12 +540,6 @@ struct SVDCtrl
     // NOTE: Currently only supported when computing both singular values
     //       and vectors
 
-    // If the sufficiently small singular triplets should be thrown away.
-    // When thresholded, a cross-product algorithm is used. This is often
-    // advantageous since tridiagonal eigensolvers tend to have faster 
-    // parallel implementations than bidiagonal SVD's.
-    bool thresholded=false;
-
     // If the tolerance should be relative to the largest singular value
     bool relative=true;
 
@@ -505,82 +551,206 @@ struct SVDCtrl
 // Compute the singular values
 // ---------------------------
 template<typename F>
-void SVD( Matrix<F>& A, Matrix<Base<F>>& s );
-template<typename F>
 void SVD
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
+(       Matrix<F>& A,
+        Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
-( DistMatrix<F,MC,MR,BLOCK>& A,
-  Matrix<Base<F>>& s );
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s, 
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       DistMatrix<F,MC,MR,BLOCK>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
 void TSQR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s );
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s,
+  bool overwrite=false );
+template<typename F>
+void TSQR
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s );
 
 } // namespace svd
-
-template<typename F>
-void HermitianSVD
-( UpperOrLower uplo,
-  Matrix<F>& A,
-  Matrix<Base<F>>& s );
-template<typename F>
-void HermitianSVD
-( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s );
 
 // Compute the full SVD
 // --------------------
 template<typename F>
 void SVD
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V, 
+(       Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& V,
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
-( DistMatrix<F,MC,MR,BLOCK>& A,
-  Matrix<Base<F>>& s,
-  DistMatrix<F,MC,MR,BLOCK>& U,
-  DistMatrix<F,MC,MR,BLOCK>& VH );
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s, 
+        ElementalMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+
+template<typename F>
+void SVD
+(       DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& U,
+        Matrix<Base<F>>& s,
+        DistMatrix<F,MC,MR,BLOCK>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
+template<typename F>
+void SVD
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& U,
+        Matrix<Base<F>>& s,
+        DistMatrix<F,MC,MR,BLOCK>& V,
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
 void TSQR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s,
-  ElementalMatrix<F>& V );
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& s,
+        ElementalMatrix<F>& V );
 
 } // namespace svd
 
+// Hermitian SVD
+// =============
+
+// Compute the singular values
+// ---------------------------
 template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
-  Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  Matrix<F>& U,
-  Matrix<F>& V );
+        Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  bool overwrite=false );
 template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s,
-  ElementalMatrix<F>& U, 
-  ElementalMatrix<F>& V );
+  const Matrix<F>& A,
+        Matrix<Base<F>>& s );
+
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s,
+  bool overwrite=false );
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& s );
+
+// Compute the full SVD
+// --------------------
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+        Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  bool overwrite=false );
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V );
+
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U, 
+        ElementalMatrix<Base<F>>& s,
+        ElementalMatrix<F>& V,
+  bool overwrite=false );
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& U, 
+        ElementalMatrix<Base<F>>& s,
+        ElementalMatrix<F>& V );
+
+// Image and kernel
+// ================
+// Return orthonormal bases for the image and/or kernel of a matrix
+// TODO: Provide support for various algorithms (e.g., RRQR vs. SVD)
+
+template<typename F>
+void ImageAndKernel
+( const Matrix<F>& A,
+        Matrix<F>& M,
+        Matrix<F>& K );
+template<typename F>
+void ImageAndKernel
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& M,
+        ElementalMatrix<F>& K );
+
+template<typename F>
+void Image
+( const Matrix<F>& A,
+        Matrix<F>& M );
+template<typename F>
+void Image
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& M );
+
+template<typename F>
+void Kernel
+( const Matrix<F>& A,
+        Matrix<F>& K );
+template<typename F>
+void Kernel
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<F>& K );
 
 // Lanczos
 // =======
@@ -721,7 +891,7 @@ struct PseudospecCtrl
 
     // Convergence and deflation criteria
     Int maxIts=50;
-    Real tol=1e-6;
+    Real tol=Real(1e-6);
     bool deflate=true;
 
     // (Implicitly Restarted) Arnoldi/Lanczos. If basisSize > 1, then
@@ -736,7 +906,7 @@ struct PseudospecCtrl
     SnapshotCtrl snapCtrl;
 
     mutable Complex<Real> center = Complex<Real>(0);
-    mutable Real realWidth=0, imagWidth=0;
+    mutable Real realWidth=Real(0), imagWidth=Real(0);
 };
 
 template<typename Real>
@@ -786,61 +956,94 @@ DistMatrix<Int> TriangularSpectralPortrait
 
 template<typename F>
 Matrix<Int> TriangularSpectralPortrait
-( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& U,
+  const Matrix<F>& Q,
+        Matrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> TriangularSpectralPortrait
-( const ElementalMatrix<F>& U, const ElementalMatrix<F>& Q,
-  ElementalMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& U,
+  const ElementalMatrix<F>& Q,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralPortrait
-( const Matrix<Real>& U, Matrix<Real>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Real>& box,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+( const Matrix<Real>& U,
+        Matrix<Real>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Real>& box,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int> QuasiTriangularSpectralPortrait
-( const ElementalMatrix<Real>& U, ElementalMatrix<Real>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Real>& box,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+( const ElementalMatrix<Real>& U,
+        ElementalMatrix<Real>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Real>& box,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralPortrait
-( const Matrix<Real>& U, const Matrix<Real>& Q, Matrix<Real>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Real>& box,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+( const Matrix<Real>& U,
+  const Matrix<Real>& Q,
+        Matrix<Real>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Real>& box,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int> QuasiTriangularSpectralPortrait
-( const ElementalMatrix<Real>& U, const ElementalMatrix<Real>& Q,
-  ElementalMatrix<Real>& invNormMap, Int realSize, Int imagSize, 
-  SpectralBox<Real>& box,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+( const ElementalMatrix<Real>& U,
+  const ElementalMatrix<Real>& Q,
+        ElementalMatrix<Real>& invNormMap,
+        Int realSize,
+        Int imagSize, 
+        SpectralBox<Real>& box,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
-( const Matrix<F>& H, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& H,
+        Matrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> HessenbergSpectralPortrait
-( const ElementalMatrix<F>& H, ElementalMatrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& H,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
-( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
-  Int realSize, Int imagSize, SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& H,
+  const Matrix<F>& Q,
+        Matrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize,
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> HessenbergSpectralPortrait
-( const ElementalMatrix<F>& H, const ElementalMatrix<F>& Q,
-  ElementalMatrix<Base<F>>& invNormMap, Int realSize, Int imagSize, 
-  SpectralBox<Base<F>>& box,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& Q,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Int realSize,
+        Int imagSize, 
+        SpectralBox<Base<F>>& box,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 // (Pseudo-)Spectral window
 // ------------------------
@@ -848,188 +1051,255 @@ DistMatrix<Int> HessenbergSpectralPortrait
 // said square cells
 template<typename F>
 Matrix<Int> SpectralWindow
-( const Matrix<F>& A, Matrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& A,
+        Matrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> SpectralWindow
-( const ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& A,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralWindow
-( const Matrix<F>& U, Matrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& U,
+        Matrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> TriangularSpectralWindow
-( const ElementalMatrix<F>& U, ElementalMatrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& U,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralWindow
-( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& U,
+  const Matrix<F>& Q,
+        Matrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> TriangularSpectralWindow
-( const ElementalMatrix<F>& U, const ElementalMatrix<F>& Q,
-  ElementalMatrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& U,
+  const ElementalMatrix<F>& Q,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralWindow
 ( const Matrix<Real>& U,
-  Matrix<Real>& invNormMap,
-  Complex<Real> center, Real realWidth, Real imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+        Matrix<Real>& invNormMap,
+        Complex<Real> center,
+        Real realWidth,
+        Real imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int> QuasiTriangularSpectralWindow
 ( const ElementalMatrix<Real>& U,
-  ElementalMatrix<Real>& invNormMap,
-  Complex<Real> center, Real realWidth, Real imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+        ElementalMatrix<Real>& invNormMap,
+        Complex<Real> center,
+        Real realWidth,
+        Real imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralWindow
-( const Matrix<Real>& U, const Matrix<Real>& Q,
-  Matrix<Real>& invNormMap,
-  Complex<Real> center, Real realWidth, Real imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+( const Matrix<Real>& U,
+  const Matrix<Real>& Q,
+        Matrix<Real>& invNormMap,
+        Complex<Real> center,
+        Real realWidth,
+        Real imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int> QuasiTriangularSpectralWindow
-( const ElementalMatrix<Real>& U, const ElementalMatrix<Real>& Q,
-  ElementalMatrix<Real>& invNormMap,
-  Complex<Real> center, Real realWidth, Real imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+( const ElementalMatrix<Real>& U,
+  const ElementalMatrix<Real>& Q,
+        ElementalMatrix<Real>& invNormMap,
+        Complex<Real> center,
+        Real realWidth,
+        Real imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralWindow
-( const Matrix<F>& H, Matrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& H,
+        Matrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> HessenbergSpectralWindow
-( const ElementalMatrix<F>& H, ElementalMatrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& H,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralWindow
-( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& H,
+  const Matrix<F>& Q,
+        Matrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> HessenbergSpectralWindow
-( const ElementalMatrix<F>& H, const ElementalMatrix<F>& Q,
-  ElementalMatrix<Base<F>>& invNormMap,
-  Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& Q,
+        ElementalMatrix<Base<F>>& invNormMap,
+        Complex<Base<F>> center,
+        Base<F> realWidth,
+        Base<F> imagWidth,
+        Int realSize,
+        Int imagSize,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 // (Pseudo-)Spectral cloud
 // -----------------------
 template<typename F>
 Matrix<Int> SpectralCloud
-( const Matrix<F>& A, const Matrix<Complex<Base<F>>>& shifts,
-  Matrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& A,
+  const Matrix<Complex<Base<F>>>& shifts,
+        Matrix<Base<F>>& invNorms,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int,VR,STAR> SpectralCloud
 ( const ElementalMatrix<F>& A,
   const ElementalMatrix<Complex<Base<F>>>& shifts,
-  ElementalMatrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+        ElementalMatrix<Base<F>>& invNorms,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralCloud
-( const Matrix<F>& U, const Matrix<Complex<Base<F>>>& shifts,
-  Matrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& U,
+  const Matrix<Complex<Base<F>>>& shifts,
+        Matrix<Base<F>>& invNorms,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int,VR,STAR> TriangularSpectralCloud
 ( const ElementalMatrix<F>& U,
   const ElementalMatrix<Complex<Base<F>>>& shifts,
         ElementalMatrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> TriangularSpectralCloud
-( const Matrix<F>& U, const Matrix<F>& Q,
-  const Matrix<Complex<Base<F>>>& shifts, Matrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& U,
+  const Matrix<F>& Q,
+  const Matrix<Complex<Base<F>>>& shifts,
+        Matrix<Base<F>>& invNorms,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int,VR,STAR> TriangularSpectralCloud
-( const ElementalMatrix<F>& U, const ElementalMatrix<F>& Q,
+( const ElementalMatrix<F>& U,
+  const ElementalMatrix<F>& Q,
   const ElementalMatrix<Complex<Base<F>>>& shifts,
         ElementalMatrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralCloud
 ( const Matrix<Real>& U,
   const Matrix<Complex<Real>>& shifts,
-  Matrix<Real>& invNorms,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
 ( const ElementalMatrix<Real>& U,
   const ElementalMatrix<Complex<Real>>& shifts,
         ElementalMatrix<Real>& invNorms,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename Real>
 Matrix<Int> QuasiTriangularSpectralCloud
-( const Matrix<Real>& U, const Matrix<Real>& Q,
+( const Matrix<Real>& U,
+  const Matrix<Real>& Q,
   const Matrix<Complex<Real>>& shifts,
-  Matrix<Real>& invNorms,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 template<typename Real>
 DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
-( const ElementalMatrix<Real>& U, const ElementalMatrix<Real>& Q,
+( const ElementalMatrix<Real>& U,
+  const ElementalMatrix<Real>& Q,
   const ElementalMatrix<Complex<Real>>& shifts,
         ElementalMatrix<Real>& invNorms,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralCloud
-( const Matrix<F>& H, const Matrix<Complex<Base<F>>>& shifts,
-  Matrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& H,
+  const Matrix<Complex<Base<F>>>& shifts,
+        Matrix<Base<F>>& invNorms,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 ( const ElementalMatrix<F>& H,
   const ElementalMatrix<Complex<Base<F>>>& shifts,
         ElementalMatrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 template<typename F>
 Matrix<Int> HessenbergSpectralCloud
-( const Matrix<F>& H, const Matrix<F>& Q,
-  const Matrix<Complex<Base<F>>>& shifts, Matrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+( const Matrix<F>& H,
+  const Matrix<F>& Q,
+  const Matrix<Complex<Base<F>>>& shifts,
+        Matrix<Base<F>>& invNorms,
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
-( const ElementalMatrix<F>& H, const ElementalMatrix<F>& Q,
+( const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& Q,
   const ElementalMatrix<Complex<Base<F>>>& shifts,
         ElementalMatrix<Base<F>>& invNorms,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+        PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
 } // namespace El
 

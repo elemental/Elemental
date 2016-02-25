@@ -2,7 +2,7 @@
    Copyright (C) 1992-2008 The University of Tennessee
    All rights reserved.
 
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is loosely based upon the LAPACK routines dlarfg.f and zlarfg.f.
@@ -252,6 +252,8 @@ F RightReflector( F& chi, ElementalMatrix<F>& x )
   ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

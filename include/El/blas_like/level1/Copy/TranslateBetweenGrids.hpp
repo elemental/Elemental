@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BLAS_COPY_TRANSLATEBETWEENGRIDS_HPP
 #define EL_BLAS_COPY_TRANSLATEBETWEENGRIDS_HPP
 
@@ -126,7 +125,7 @@ void TranslateBetweenGrids
             recvCol=Mod(Mod(rowRankA-rowAlignA,rowStrideA)+rowAlignB,rowStride);
         for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
         {
-            mpi::Request sendRequest;
+            mpi::Request<T> sendRequest;
             // Fire off this round of non-blocking sends
             if( inAGrid )
             {
@@ -136,7 +135,7 @@ void TranslateBetweenGrids
                 copy::util::InterleaveMatrix
                 ( sendHeight, sendWidth,
                   A.LockedBuffer(colSend,rowSend),
-                 numColSends, numRowSends*A.LDim(),
+                  numColSends, numRowSends*A.LDim(),
                   sendBuf, 1, sendHeight );
                 // Send data
                 const Int recvVCRank = recvRow + recvCol*colStride;
@@ -255,7 +254,7 @@ void TranslateBetweenGrids
     T* bcastBuffer = &buffer[offset];
 
     // Send from the root of A to the root of B's matrix's grid
-    mpi::Request sendRequest;
+    mpi::Request<T> sendRequest;
     if( rankA == 0 ) 
     {
         util::InterleaveMatrix

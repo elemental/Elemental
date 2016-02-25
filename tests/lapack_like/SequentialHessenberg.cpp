@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -84,6 +84,8 @@ void TestHessenberg
   bool print,
   bool display )
 {
+    if( mpi::Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     Matrix<F> A, AOrig;
     Matrix<F> t;
 
@@ -123,8 +125,6 @@ int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -135,21 +135,48 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            Output("Double-precision:");
-        TestHessenberg<double>( uplo, n, testCorrectness, print, display );
+        TestHessenberg<float>
+        ( uplo, n, testCorrectness, print, display );
+        TestHessenberg<Complex<float>>
+        ( uplo, n, testCorrectness, print, display );
 
-        if( commRank == 0 )
-            Output("Double-precision complex:");
+        TestHessenberg<double>
+        ( uplo, n, testCorrectness, print, display );
         TestHessenberg<Complex<double>>
         ( uplo, n, testCorrectness, print, display );
+
+#ifdef EL_HAVE_QD
+        TestHessenberg<DoubleDouble>
+        ( uplo, n, testCorrectness, print, display );
+        TestHessenberg<QuadDouble>
+        ( uplo, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestHessenberg<Quad>
+        ( uplo, n, testCorrectness, print, display );
+        TestHessenberg<Complex<Quad>>
+        ( uplo, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestHessenberg<BigFloat>
+        ( uplo, n, testCorrectness, print, display );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -204,7 +204,7 @@ Real MaxStep
 
         i += order;
     }
-    return alpha;
+    return Real(alpha);
 }
 
 template<typename Real,typename>
@@ -266,7 +266,7 @@ Real MaxStep
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
 
-    return mpi::AllReduce( alpha, mpi::MIN, x.DistComm() );
+    return Real(mpi::AllReduce( alpha, mpi::MIN, x.DistComm() ));
 }
 
 template<typename Real,typename>
@@ -317,7 +317,7 @@ Real MaxStep
 
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
-    return mpi::AllReduce( alpha, mpi::MIN, comm );
+    return Real(mpi::AllReduce( alpha, mpi::MIN, comm ));
 }
 
 #define PROTO(Real) \
@@ -342,6 +342,8 @@ Real MaxStep
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

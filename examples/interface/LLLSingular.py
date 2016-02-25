@@ -54,7 +54,7 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
       # Run the LLL reduction
       startTime = El.mpi.Time()
       mode=El.LLL_FULL
-      U, UInv, R, info = El.LLL(B,mode,ctrl)
+      U, R, info = El.LLL(B,mode,ctrl)
       runTime = El.mpi.Time() - startTime
       print "  runtime: %f seconds" % runTime
       print "  delta=", info.delta
@@ -63,7 +63,6 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
       print "  num swaps: ", info.numSwaps
       if output:
         El.Print( U, "U" )
-        El.Print( UInv, "UInv" )
         El.Print( B, "BNew" )
         El.Print( R, "R" )
 

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_RANDOM_DECL_HPP
 #define EL_RANDOM_DECL_HPP
 
@@ -34,44 +33,62 @@ template<typename T>
 T UnitCell();
 
 template<typename T=double>
-T SampleUniform( T a=0, T b=UnitCell<T>() );
+T SampleUniform( const T& a=0, const T& b=UnitCell<T>() );
 
+template<>
+Int SampleUniform<Int>( const Int& a, const Int& b );
+
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble SampleUniform( const DoubleDouble& a, const DoubleDouble& b );
+template<>
+QuadDouble SampleUniform( const QuadDouble& a, const QuadDouble& b );
+#endif
 #ifdef EL_HAVE_QUAD
 template<>
-Quad SampleUniform( Quad a, Quad b );
+Quad SampleUniform( const Quad& a, const Quad& b );
 template<>
-Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b );
+Complex<Quad> SampleUniform( const Complex<Quad>& a, const Complex<Quad>& b );
 #endif
 #ifdef EL_HAVE_MPC
 template<>
-BigFloat SampleUniform( BigFloat a, BigFloat b );
-#endif
-
+BigInt SampleUniform( const BigInt& a, const BigInt& b );
 template<>
-Int SampleUniform<Int>( Int a, Int b );
+BigFloat SampleUniform( const BigFloat& a, const BigFloat& b );
+#endif
 
 // The complex extension of the normal distribution can actually be quite
 // technical, and so we will use the simplest case, where both the real and
 // imaginary components are independently drawn with the same standard 
 // deviation, but different means.
 template<typename T=double>
-T SampleNormal( T mean=0, Base<T> stddev=1 );
+T SampleNormal( const T& mean=0, const Base<T>& stddev=1 );
 
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble
+SampleNormal( const DoubleDouble& mean, const DoubleDouble& stddev );
+template<>
+QuadDouble
+SampleNormal( const QuadDouble& mean, const QuadDouble& stddev );
+#endif
 #ifdef EL_HAVE_QUAD
 template<>
-Quad SampleNormal( Quad mean, Quad stddev );
+Quad SampleNormal( const Quad& mean, const Quad& stddev );
 template<>
-Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev );
+Complex<Quad> SampleNormal( const Complex<Quad>& mean, const Quad& stddev );
 #endif
 #ifdef EL_HAVE_MPC
 template<>
-BigFloat SampleNormal( BigFloat mean, BigFloat stddev );
+BigFloat SampleNormal( const BigFloat& mean, const BigFloat& stddev );
 #endif
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.
-template<typename T> 
-T SampleBall( T center=0, Base<T> radius=1 );
+template<typename F> 
+F SampleBall( const F& center=0, const Base<F>& radius=1 );
+template<typename Real,typename=EnableIf<IsReal<Real>>> 
+Real SampleBall( const Real& center=0, const Real& radius=1 );
 
 } // namespace El
 

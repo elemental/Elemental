@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -32,8 +32,8 @@ Int AlgebraicRelationSearch
         bLastRow.Set( 0, j, Pow(alpha,Real(j)) );
     Scale( NSqrt, bLastRow );
 
-    Matrix<F> UInv, R;
-    auto info = LLL( B, U, UInv, R, ctrl );
+    Matrix<F> R;
+    auto info = LLL( B, U, R, ctrl );
 
     return info.nullity;
 }
@@ -48,6 +48,8 @@ Int AlgebraicRelationSearch
     const LLLCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"

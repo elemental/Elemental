@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -41,22 +41,23 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
         Output
-        ("||L||_max            = ",maxNormL,"\n",
-         "||A||_max            = ",maxNormA,"\n",
-         "||A||_F              = ",frobNormA,"\n",
-         "||Y||_F              = ",frobNormY,"\n",
-         "||X - inv(A) X||_F  = ",frobNormE);
+        ("||L||_max              = ",maxNormL,"\n",
+         "||A||_max              = ",maxNormA,"\n",
+         "||A||_F                = ",frobNormA,"\n",
+         "||Y||_F                = ",frobNormY,"\n",
+         "||X - A \\ (A X) ||_F  = ",frobNormE);
 }
 
 template<typename F> 
 void TestCholesky
-( bool testCorrectness,
+( const Grid& g,
+  UpperOrLower uplo, 
   bool pivot,
+  Int m,
+  Int nbLocal,
   bool print,
   bool printDiag,
-  UpperOrLower uplo,
-  Int m,
-  const Grid& g,
+  bool correctness,
   bool scalapack )
 {
     if( g.Rank() == 0 )
@@ -64,8 +65,10 @@ void TestCholesky
     DistMatrix<F> A(g), AOrig(g);
     DistPermutation p(g);
 
+    SetLocalTrrkBlocksize<F>( nbLocal );
+
     HermitianUniformSpectrum( A, m, 1e-9, 10 );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -101,7 +104,7 @@ void TestCholesky
     }
     if( printDiag )
         Print( GetRealPartOfDiagonal(A), "diag(A)" );
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( pivot, uplo, A, p, AOrig );
 }
 
@@ -110,7 +113,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -121,7 +124,7 @@ main( int argc, char* argv[] )
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool pivot = Input("--pivot","use pivoting?",false);
-        const bool testCorrectness = Input
+        const bool correctness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool printDiag = Input("--printDiag","print diag of fact?",false);
@@ -130,8 +133,15 @@ main( int argc, char* argv[] )
 #else
         const bool scalapack = false;
 #endif
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -139,32 +149,63 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
-        SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
+
         ComplainIfDebug();
 
         if( scalapack )
+            TestCholesky<float>
+            ( g, uplo, pivot, m, nbLocal,
+              print, printDiag, correctness, true );
+        TestCholesky<float>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+
+        if( scalapack )
+            TestCholesky<Complex<float>>
+            ( g, uplo, pivot, m, nbLocal,
+              print, printDiag, correctness, true );
+        TestCholesky<Complex<float>>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+
+        if( scalapack )
             TestCholesky<double>
-            ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
+            ( g, uplo, pivot, m, nbLocal,
+              print, printDiag, correctness, true );
         TestCholesky<double>
-        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
 
         if( scalapack )
             TestCholesky<Complex<double>>
-            ( testCorrectness, pivot, print, printDiag, uplo, m, g, true );
+            ( g, uplo, pivot, m, nbLocal,
+              print, printDiag, correctness, true );
         TestCholesky<Complex<double>>
-        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+
+#ifdef EL_HAVE_QD
+        TestCholesky<DoubleDouble>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+        TestCholesky<QuadDouble>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+#endif
 
 #ifdef EL_HAVE_QUAD
         TestCholesky<Quad>
-        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
         TestCholesky<Complex<Quad>>
-        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestCholesky<BigFloat>
-        ( testCorrectness, pivot, print, printDiag, uplo, m, g, false );
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

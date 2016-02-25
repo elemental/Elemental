@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -99,9 +99,9 @@ void TestCorrectness
 
 template<typename F>
 void TestBidiag
-( Int m,
+( const Grid& g,
+  Int m,
   Int n,
-  const Grid& g,
   bool testCorrectness,
   bool print,
   bool display )
@@ -150,7 +150,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -163,8 +163,15 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -173,15 +180,24 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestBidiag<double>( m, n, g, testCorrectness, print, display );
-        TestBidiag<Complex<double>>( m, n, g, testCorrectness, print, display );
+        TestBidiag<float>( g, m, n, testCorrectness, print, display );
+        TestBidiag<Complex<float>>( g, m, n, testCorrectness, print, display );
+
+        TestBidiag<double>( g, m, n, testCorrectness, print, display );
+        TestBidiag<Complex<double>>( g, m, n, testCorrectness, print, display );
+
+#ifdef EL_HAVE_QD
+        TestBidiag<DoubleDouble>( g, m, n, testCorrectness, print, display );
+        TestBidiag<QuadDouble>( g, m, n, testCorrectness, print, display );
+#endif
 
 #ifdef EL_HAVE_QUAD
-        TestBidiag<Quad>( m, n, g, testCorrectness, print, display );
-        TestBidiag<Complex<Quad>>( m, n, g, testCorrectness, print, display );
+        TestBidiag<Quad>( g, m, n, testCorrectness, print, display );
+        TestBidiag<Complex<Quad>>( g, m, n, testCorrectness, print, display );
 #endif
+
 #ifdef EL_HAVE_MPC
-        TestBidiag<BigFloat>( m, n, g, testCorrectness, print, display );
+        TestBidiag<BigFloat>( g, m, n, testCorrectness, print, display );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

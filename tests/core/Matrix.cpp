@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -12,6 +12,9 @@ using namespace El;
 template<typename T> 
 void TestMatrix( Int m, Int n, Int ldim )
 {
+    if( mpi::Rank() == 0 )
+        Output("Testing with ",TypeName<T>());
+
     if( m > ldim || ldim == 0 )
         LogicError("Leading dimension must be >= m and nonzero");
     vector<T> buffer(ldim*n);
@@ -50,13 +53,26 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( mpi::Rank() == 0 )
-            Output("Testing with doubles");
-        TestMatrix<double>( m, n, ldim );
+        TestMatrix<float>( m, n, ldim );
+        TestMatrix<Complex<float>>( m, n, ldim );
 
-        if( mpi::Rank() == 0 )
-            Output("Testing with double-precision complex...");
+        TestMatrix<double>( m, n, ldim );
         TestMatrix<Complex<double>>( m, n, ldim );
+
+#ifdef EL_HAVE_QD
+        TestMatrix<DoubleDouble>( m, n, ldim );
+        TestMatrix<QuadDouble>( m, n, ldim );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestMatrix<Quad>( m, n, ldim );
+        TestMatrix<Complex<Quad>>( m, n, ldim );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestMatrix<BigInt>( m, n, ldim );
+        TestMatrix<BigFloat>( m, n, ldim );
+#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

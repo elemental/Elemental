@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.

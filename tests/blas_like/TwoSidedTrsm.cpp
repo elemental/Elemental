@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,10 +11,12 @@ using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( bool print, UpperOrLower uplo, UnitOrNonUnit diag,
+( UpperOrLower uplo,
+  UnitOrNonUnit diag,
   const DistMatrix<F>& A,
   const DistMatrix<F>& B,
-  const DistMatrix<F>& AOrig )
+  const DistMatrix<F>& AOrig,
+  bool print )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -82,17 +84,23 @@ void TestCorrectness
     }
 }
 
-template<typename F> 
+template<typename F,typename=EnableIf<IsBlasScalar<F>>> 
 void TestTwoSidedTrsm
-( bool testCorrectness, bool print,
-  UpperOrLower uplo, UnitOrNonUnit diag,
-  Int m, const Grid& g, bool scalapack )
+( UpperOrLower uplo,
+  UnitOrNonUnit diag,
+  Int m,
+  const Grid& g,
+  bool scalapack,
+  bool print,
+  bool correctness )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), B(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
     HermitianUniformSpectrum( B, m, 1, 10 );
     MakeTrapezoidal( uplo, B );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
     {
@@ -130,8 +138,49 @@ void TestTwoSidedTrsm
         Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
     if( print )
         Print( A, "A after reduction" );
-    if( testCorrectness )
-        TestCorrectness( print, uplo, diag, A, B, AOrig );
+    if( correctness )
+        TestCorrectness( uplo, diag, A, B, AOrig, print );
+}
+
+template<typename F> 
+void TestTwoSidedTrsm
+( UpperOrLower uplo,
+  UnitOrNonUnit diag,
+  Int m,
+  const Grid& g,
+  bool print,
+  bool correctness )
+{
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
+    DistMatrix<F> A(g), B(g), AOrig(g);
+    HermitianUniformSpectrum( A, m, 1, 10 );
+    HermitianUniformSpectrum( B, m, 1, 10 );
+    MakeTrapezoidal( uplo, B );
+    if( correctness )
+        AOrig = A;
+    if( print )
+    {
+        Print( A, "A" );
+        Print( B, "B" );
+    }
+
+    if( g.Rank() == 0 )
+        Output("  Starting Elemental TwoSidedTrsm");
+    mpi::Barrier( g.Comm() );
+    const double startTime = mpi::Time();
+    TwoSidedTrsm( uplo, diag, A, B );
+    mpi::Barrier( g.Comm() );
+    const double runTime = mpi::Time() - startTime;
+    double gFlops = Pow(double(m),3.)/(runTime*1.e9);
+    if( IsComplex<F>::value )
+        gFlops *= 4.;
+    if( g.Rank() == 0 )
+        Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
+    if( print )
+        Print( A, "A after reduction" );
+    if( correctness )
+        TestCorrectness( uplo, diag, A, B, AOrig, print );
 }
 
 int 
@@ -160,7 +209,7 @@ main( int argc, char* argv[] )
         const Int mb = 32;
         const Int nb = 32;
 #endif
-        const bool testCorrectness = Input
+        const bool correctness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -180,15 +229,34 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test TwoSidedTrsm",uploChar,diagChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestTwoSidedTrsm<double>
-        ( testCorrectness, print, uplo, diag, m, g, scalapack );
+        TestTwoSidedTrsm<float>
+        ( uplo, diag, m, g, scalapack, print, correctness );
+        TestTwoSidedTrsm<Complex<float>>
+        ( uplo, diag, m, g, scalapack, print, correctness );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
+        TestTwoSidedTrsm<double>
+        ( uplo, diag, m, g, scalapack, print, correctness );
         TestTwoSidedTrsm<Complex<double>>
-        ( testCorrectness, print, uplo, diag, m, g, scalapack );
+        ( uplo, diag, m, g, scalapack, print, correctness );
+
+#ifdef EL_HAVE_QD
+       TestTwoSidedTrsm<DoubleDouble>
+        ( uplo, diag, m, g, print, correctness );
+       TestTwoSidedTrsm<QuadDouble>
+        ( uplo, diag, m, g, print, correctness );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestTwoSidedTrsm<Quad>
+        ( uplo, diag, m, g, print, correctness );
+        TestTwoSidedTrsm<Complex<Quad>>
+        ( uplo, diag, m, g, print, correctness );
+#endif
+
+#ifdef EL_HAVE_MPC
+       TestTwoSidedTrsm<BigFloat>
+        ( uplo, diag, m, g, print, correctness );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,9 +11,17 @@ using namespace El;
 
 template<typename T> 
 void TestHemm
-( bool print, LeftOrRight side, UpperOrLower uplo,
-  Int m, Int n, T alpha, T beta, const Grid& g )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Int m,
+  Int n,
+  T alpha,
+  T beta,
+  const Grid& g,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<T>());
     DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
@@ -85,14 +93,61 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test Hemm ",sideChar,uploChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestHemm<double>( print, side, uplo, m, n, 3., 4., g );
+        TestHemm<float>
+        ( side, uplo,
+          m, n,
+          float(3), float(4),
+          g, print );
+        TestHemm<Complex<float>>
+        ( side, uplo,
+          m, n,
+          Complex<float>(3), Complex<float>(4),
+          g, print );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestHemm<double>
+        ( side, uplo,
+          m, n,
+          double(3), double(4),
+          g, print );
         TestHemm<Complex<double>>
-        ( print, side, uplo, m, n, Complex<double>(3), Complex<double>(4), g );
+        ( side, uplo,
+          m, n,
+          Complex<double>(3), Complex<double>(4),
+          g, print );
+
+#ifdef EL_HAVE_QD
+        TestHemm<DoubleDouble>
+        ( side, uplo,
+          m, n,
+          DoubleDouble(3), DoubleDouble(4),
+          g, print );
+        TestHemm<QuadDouble>
+        ( side, uplo,
+          m, n,
+          QuadDouble(3), QuadDouble(4),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestHemm<Quad>
+        ( side, uplo,
+          m, n,
+          Quad(3), Quad(4),
+          g, print );
+        TestHemm<Complex<Quad>>
+        ( side, uplo,
+          m, n,
+          Complex<Quad>(3), Complex<Quad>(4),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestHemm<BigFloat>
+        ( side, uplo,
+          m, n,
+          BigFloat(3), BigFloat(4),
+          g, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

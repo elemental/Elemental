@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -52,10 +52,17 @@ void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
 
 template<typename F> 
 void TestMultiShiftQuasiTrsm
-( bool print,
-  LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  Int m, Int n, F alpha, const Grid& g )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation, 
+  Int m,
+  Int n,
+  F alpha,
+  const Grid& g,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     typedef Base<F> Real;
     DistMatrix<F> H(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g);
@@ -171,15 +178,61 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Testing MultiShiftQuasiTrsm ",sideChar,uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestMultiShiftQuasiTrsm<double>
-        ( print, side, uplo, orientation, m, n, 3., g );
+        TestMultiShiftQuasiTrsm<float>
+        ( side, uplo, orientation,
+          m, n,
+          float(3),
+          g, print );
+        TestMultiShiftQuasiTrsm<Complex<float>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<float>(3),
+          g, print );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestMultiShiftQuasiTrsm<double>
+        ( side, uplo, orientation,
+          m, n,
+          double(3),
+          g, print );
         TestMultiShiftQuasiTrsm<Complex<double>>
-        ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
+        ( side, uplo, orientation,
+          m, n,
+          Complex<double>(3),
+          g, print );
+
+#ifdef EL_HAVE_QD
+        TestMultiShiftQuasiTrsm<DoubleDouble>
+        ( side, uplo, orientation,
+          m, n,
+          DoubleDouble(3),
+          g, print );
+        TestMultiShiftQuasiTrsm<QuadDouble>
+        ( side, uplo, orientation,
+          m, n,
+          QuadDouble(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestMultiShiftQuasiTrsm<Quad>
+        ( side, uplo, orientation,
+          m, n,
+          Quad(3),
+          g, print );
+        TestMultiShiftQuasiTrsm<Complex<Quad>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<Quad>(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestMultiShiftQuasiTrsm<BigFloat>
+        ( side, uplo, orientation,
+          m, n,
+          BigFloat(3),
+          g, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -58,6 +58,10 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     {
         if( commRank == 0 )
             Output("PASSED");
+        if( print )
+            Print( A, "A" );
+        if( print ) 
+            Print( B, "B" );
     }
     else
     {
@@ -79,7 +83,10 @@ void CheckAll( Int m, Int n, const Grid& g, bool print )
     mpi::Broadcast( colAlign, 0, g.Comm() );
     mpi::Broadcast( rowAlign, 0, g.Comm() );
     A.Align( colAlign, rowAlign );
-    Uniform( A, m, n );
+
+    const T center = 0;
+    const Base<T> radius = 5;
+    Uniform( A, m, n, center, radius );
 
     {
       DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC(g);
@@ -199,14 +206,21 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Testing with integers:");
         DistMatrixTest<Int>( m, n, g, print );
-
         if( commRank == 0 )
             Output("Testing with floats:");
         DistMatrixTest<float>( m, n, g, print );
-
         if( commRank == 0 )
             Output("Testing with doubles:");
         DistMatrixTest<double>( m, n, g, print );
+
+#ifdef EL_HAVE_QD
+        if( commRank == 0 )
+            Output("Testing with DoubleDouble:");
+        DistMatrixTest<DoubleDouble>( m, n, g, print );
+        if( commRank == 0 )
+            Output("Testing with QuadDouble:");
+        DistMatrixTest<QuadDouble>( m, n, g, print );
+#endif
 
 #ifdef EL_HAVE_QUAD
         if( commRank == 0 )
@@ -217,7 +231,6 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Testing with single-precision complex:");
         DistMatrixTest<Complex<float>>( m, n, g, print );
-        
         if( commRank == 0 )
             Output("Testing with double-precision complex:");
         DistMatrixTest<Complex<double>>( m, n, g, print );
@@ -229,6 +242,14 @@ main( int argc, char* argv[] )
 #endif
 
 #ifdef EL_HAVE_MPC
+        if( commRank == 0 )
+            Output("Testing with BigInt (with default=256-bit precision):");
+        DistMatrixTest<BigInt>( m, n, g, print );
+        mpc::SetMinIntBits( 512 );
+        if( commRank == 0 )
+            Output("Testing with BigInt (with 512-bit precision):");
+        DistMatrixTest<BigInt>( m, n, g, print );
+
         if( commRank == 0 )
             Output("Testing with BigFloat (with default=256-bit precision):");
         DistMatrixTest<BigFloat>( m, n, g, print );

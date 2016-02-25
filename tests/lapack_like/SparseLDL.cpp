@@ -20,6 +20,8 @@
 #include "El.hpp"
 using namespace El;
 
+// TODO: Extend this driver to test with several different datatypes
+
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );

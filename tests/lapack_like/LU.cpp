@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -57,8 +57,8 @@ void TestCorrectness
 
 template<typename F> 
 void TestLU
-( Int m,
-  const Grid& g,
+( const Grid& g,
+  Int m,
   Int pivoting, 
   bool testCorrectness,
   bool forceGrowth,
@@ -135,8 +135,8 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -150,10 +150,17 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
         if( pivot < 0 || pivot > 2 )
             LogicError("Invalid pivot value");
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -171,10 +178,34 @@ main( int argc, char* argv[] )
                 Output("Testing LU with full pivoting");
         }
 
+        TestLU<float>
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        TestLU<Complex<float>>
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+
         TestLU<double>
-        ( m, g, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
         TestLU<Complex<double>>
-        ( m, g, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+
+#ifdef EL_HAVE_QD
+        TestLU<DoubleDouble>
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        TestLU<QuadDouble>
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestLU<Quad>
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        TestLU<Complex<Quad>>
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestLU<BigFloat>
+        ( g, m, pivot, testCorrectness, forceGrowth, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

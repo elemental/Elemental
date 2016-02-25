@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -43,11 +43,16 @@ void TestHerk
   const Grid& g,
   bool print,
   bool correctness,
+  Int nbLocal,
   Int colAlignA=0,
   Int rowAlignA=0,
   Int colAlignC=0,
   Int rowAlignC=0 )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<T>());
+    SetLocalTrrkBlocksize<T>( nbLocal );
+
     DistMatrix<T> A(g), C(g);
     A.Align( colAlignA, rowAlignA );
     C.Align( colAlignC, rowAlignC );
@@ -121,24 +126,75 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
-        SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
 
         ComplainIfDebug();
         if( commRank == 0 )
             Output("Will test Herk ",uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestHerk<double>
-        ( uplo, orientation, m, k, 3., 4., g, print, correctness,
+        TestHerk<float>
+        ( uplo, orientation, m, k,
+          float(3), float(4),
+          g, print, correctness,
+          nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
+        TestHerk<Complex<float>>
+        ( uplo, orientation, m, k,
+          float(3), float(4),
+          g, print, correctness,
+          nbLocal,
           colAlignA, rowAlignA, colAlignC, rowAlignC );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
-        TestHerk<Complex<double>>
-        ( uplo, orientation, m, k, 3., 4., g, print, correctness,
+        TestHerk<double>
+        ( uplo, orientation, m, k,
+          double(3), double(4),
+          g, print, correctness,
+          nbLocal,
           colAlignA, rowAlignA, colAlignC, rowAlignC );
+        TestHerk<Complex<double>>
+        ( uplo, orientation, m, k,
+          double(3), double(4),
+          g, print, correctness,
+          nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
+
+#ifdef EL_HAVE_QD
+        TestHerk<DoubleDouble>
+        ( uplo, orientation, m, k,
+          DoubleDouble(3), DoubleDouble(4),
+          g, print, correctness,
+          nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
+        TestHerk<QuadDouble>
+        ( uplo, orientation, m, k,
+          QuadDouble(3), QuadDouble(4),
+          g, print, correctness,
+          nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestHerk<Quad>
+        ( uplo, orientation, m, k,
+          Quad(3), Quad(4),
+          g, print, correctness,
+          nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
+        TestHerk<Complex<Quad>>
+        ( uplo, orientation, m, k,
+          Quad(3), Quad(4),
+          g, print, correctness,
+          nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestHerk<BigFloat>
+        ( uplo, orientation, m, k,
+          BigFloat(3), BigFloat(4),
+          g, print, correctness,
+          nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

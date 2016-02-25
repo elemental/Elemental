@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -376,39 +376,106 @@ if(NOT EL_DISABLE_QUAD)
   endif()
 endif()
 
-# Check for MPFR *and* MPC support
-# ================================
+# Check for QD
+# ============
+if(NOT EL_DISABLE_QD)
+  find_package(QD)
+  if(QD_FOUND)
+    set(CMAKE_REQUIRED_LIBRARIES ${QD_LIBRARIES})
+    set(CMAKE_REQUIRED_INCLUDES ${QD_INCLUDES})
+    set(QD_CODE
+      "#include <iostream>
+       #include \"qd/qd_real.h\"
+       int main( int argc, char* argv[] )
+       {
+           double a1=1., a2=2., b1=3., b2=4.;
+           dd_real a(a1,a2), b(b1,b2);
+           dd_real c = a*b;
+           std::cout << \"c=\" << c << std::endl;
+           qd_real d(a1,a2,b1,b2);
+           std::cout << \"d=\" << d << std::endl;
+       }")
+    check_cxx_source_compiles("${QD_CODE}" EL_HAVE_QD)
+    if(NOT EL_HAVE_QD)
+      message(WARNING "Found QD but could not successfully compile with it")
+    endif()
+    unset(CMAKE_REQUIRED_LIBRARIES)
+    unset(CMAKE_REQUIRED_INCLUDES)
+  endif()
+  if(EL_HAVE_QD)
+    list(APPEND MATH_LIBS ${QD_LIBRARIES})
+    list(APPEND MATH_LIBS_AT_CONFIG ${QD_LIBRARIES})
+    message(STATUS "Including ${QD_INCLUDES} to add support for QD")
+    include_directories(${QD_INCLUDES})
+  endif()
+endif()
+
+# Check for GMP, MPFR, *and* MPC support
+# ======================================
 if(NOT EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
   message("Disabling MPFR since MPI_LONG_LONG was not detected")
 endif()
 if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
-  # TODO: See if this requirement could be lowered
-  find_package(MPFR 3.1.0)
-  if(MPFR_FOUND)
-    set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES})
-    set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES})
-    set(MPFR_CODE
-      "#include \"mpfr.h\"
+  find_package(GMP 6.0.0)
+  if(GMP_FOUND)
+    set(CMAKE_REQUIRED_LIBRARIES ${GMP_LIBRARIES})
+    set(CMAKE_REQUIRED_INCLUDES ${GMP_INCLUDES})
+    set(GMP_CODE
+      "#include \"gmp.h\"
        int main( int argc, char* argv[] )
        {
-           mpfr_t a;
-           mpfr_prec_t prec = 256;
-           mpfr_init2( a, prec );
+           gmp_randstate_t randState;
+           gmp_randinit_default( randState );
+           const long seed = 1024;
+           gmp_randseed_ui( randState, seed );
            return 0;
        }")
-    check_cxx_source_compiles("${MPFR_CODE}" EL_HAVE_MPFR)
-    if(NOT EL_HAVE_MPFR)
-      message(WARNING "Found MPFR but could not successfully compile with it")
+    check_cxx_source_compiles("${GMP_CODE}" EL_HAVE_GMP)
+    if(NOT EL_HAVE_GMP)
+      message(WARNING "Found GMP but could not successfully compile with it")
     endif()
     unset(CMAKE_REQUIRED_LIBRARIES)
     unset(CMAKE_REQUIRED_INCLUDES)
   endif()
 
-  if(EL_HAVE_MPFR)
+  if(EL_HAVE_GMP)
+    # TODO: See if this requirement could be lowered
+    find_package(MPFR 3.1.0)
+    if(MPFR_FOUND)
+      set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+      set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES} ${GMP_INCLUDES})
+      set(MPFR_CODE
+        "#include \"mpfr.h\"
+         int main( int argc, char* argv[] )
+         {
+             mpfr_t a;
+             mpfr_prec_t prec = 256;
+             mpfr_init2( a, prec );
+  
+             /* Also test that GMP links */
+             gmp_randstate_t randState;
+             gmp_randinit_default( randState );
+             const long seed = 1024;
+             gmp_randseed_ui( randState, seed );
+             
+             return 0;
+         }")
+      check_cxx_source_compiles("${MPFR_CODE}" EL_HAVE_MPFR)
+      if(NOT EL_HAVE_MPFR)
+        message(WARNING "Found MPFR but could not successfully compile with it")
+      endif()
+      unset(CMAKE_REQUIRED_LIBRARIES)
+      unset(CMAKE_REQUIRED_INCLUDES)
+    endif()
+  endif()
+
+  if(EL_HAVE_GMP AND EL_HAVE_MPFR)
     find_package(MPC 1.0.0)
     if(MPC_FOUND) 
-      set(CMAKE_REQUIRED_LIBRARIES ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
-      set(CMAKE_REQUIRED_INCLUDES ${MPC_INCLUDES} ${MPFR_INCLUDES})
+      set(CMAKE_REQUIRED_LIBRARIES
+        ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+      set(CMAKE_REQUIRED_INCLUDES
+        ${MPC_INCLUDES} ${MPFR_INCLUDES} ${GMP_INCLUDES})
       set(MPC_CODE
         "#include \"mpc.h\" 
         int main( int argc, char* argv[] )
@@ -416,14 +483,23 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
             mpc_t a;
             mpfr_prec_t prec = 256;
             mpc_init2( a, prec );
+            
+            /* Also test that GMP links */
+            gmp_randstate_t randState;
+            gmp_randinit_default( randState );
+            const long seed = 1024;
+            gmp_randseed_ui( randState, seed );
+            
             return 0;
         }")
       check_cxx_source_compiles("${MPC_CODE}" EL_HAVE_MPC)
       if(EL_HAVE_MPC)
-        list(APPEND MATH_LIBS ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
-        list(APPEND MATH_LIBS_AT_CONFIG ${MPC_LIBRARIES} ${MPFR_LIBRARIES})
-        message(STATUS "Including ${MPFR_INCLUDES} and ${MPC_INCLUDES} to add support for MPFR and MPC")
-        include_directories(${MPFR_INCLUDES} ${MPC_INCLUDES})
+        list(APPEND MATH_LIBS
+          ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+        list(APPEND MATH_LIBS_AT_CONFIG
+          ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
+        message(STATUS "Including ${MPFR_INCLUDES}, ${MPC_INCLUDES}, and ${GMP_INCLUDES} to add support for GMP, MPFR, and MPC")
+        include_directories(${GMP_INCLUDES} ${MPFR_INCLUDES} ${MPC_INCLUDES})
       else()
         message(WARNING "Found MPC but could not successfully compile with it")
       endif()

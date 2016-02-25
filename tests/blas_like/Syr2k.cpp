@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,15 +11,19 @@ using namespace El;
 
 template<typename T>
 void TestSyr2k
-( bool print,
-  UpperOrLower uplo,
+( UpperOrLower uplo,
   Orientation orientation,
   Int m,
   Int k,
   T alpha,
   T beta,
-  const Grid& g )
+  const Grid& g,
+  bool print,
+  Int nbLocal )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<T>());
+    SetLocalTrr2kBlocksize<T>( nbLocal );
     DistMatrix<T> A(g), B(g), C(g);
 
     if( orientation == NORMAL )
@@ -91,22 +95,57 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
-        SetLocalTrr2kBlocksize<double>( nbLocal );
-        SetLocalTrr2kBlocksize<Complex<double>>( nbLocal );
 
         ComplainIfDebug();
         if( commRank == 0 )
             Output("Will test Syr2k ",uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestSyr2k<double>( print, uplo, orientation, m, k, 3., 4., g );
+        TestSyr2k<float>
+        ( uplo, orientation, m, k,
+          float(3), float(4),
+          g, print, nbLocal );
+        TestSyr2k<Complex<float>>
+        ( uplo, orientation, m, k, 
+          Complex<float>(3), Complex<float>(4),
+          g, print, nbLocal );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestSyr2k<double>
+        ( uplo, orientation, m, k,
+          double(3), double(4),
+          g, print, nbLocal );
         TestSyr2k<Complex<double>>
-        ( print, uplo, orientation, m, k, 
-          Complex<double>(3), Complex<double>(4), g );
+        ( uplo, orientation, m, k, 
+          Complex<double>(3), Complex<double>(4),
+          g, print, nbLocal );
+
+#ifdef EL_HAVE_QD
+        TestSyr2k<DoubleDouble>
+        ( uplo, orientation, m, k,
+          DoubleDouble(3), DoubleDouble(4),
+          g, print, nbLocal );
+        TestSyr2k<QuadDouble>
+        ( uplo, orientation, m, k,
+          QuadDouble(3), QuadDouble(4),
+          g, print, nbLocal );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestSyr2k<Quad>
+        ( uplo, orientation, m, k,
+          Quad(3), Quad(4),
+          g, print, nbLocal );
+        TestSyr2k<Complex<Quad>>
+        ( uplo, orientation, m, k, 
+          Complex<Quad>(3), Complex<Quad>(4),
+          g, print, nbLocal );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestSyr2k<BigFloat>
+        ( uplo, orientation, m, k,
+          BigFloat(3), BigFloat(4),
+          g, print, nbLocal );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

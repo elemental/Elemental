@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -68,9 +68,16 @@ void TestCorrectness
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo, Orientation orientation, Int m, Int n, 
-  bool testCorrectness, bool print, bool display )
+( UpperOrLower uplo,
+  Orientation orientation,
+  Int m,
+  Int n, 
+  bool testCorrectness,
+  bool print,
+  bool display )
 {
+    if( mpi::Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     Matrix<F> H, X, Y, shifts;
 
     Uniform( H, m, m );
@@ -86,10 +93,7 @@ void TestHessenberg
 
     X = Y;
     if( mpi::Rank() == 0 )
-    {
-        std::cout << "  Starting Hessenberg solve...";
-        std::cout.flush();
-    }
+        Output("  Starting Hessenberg solve...");
     mpi::Barrier( mpi::COMM_WORLD );
     const double startTime = mpi::Time();
     MultiShiftHessSolve( uplo, orientation, F(1), H, shifts, X );
@@ -97,10 +101,7 @@ void TestHessenberg
     const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
     if( mpi::Rank() == 0 )
-    {
-        std::cout << "DONE. " << std::endl
-                  << "  Time = " << runTime << " seconds." << std::endl;
-    }
+        Output("  Time = ",runTime," seconds");
     if( testCorrectness )
         TestCorrectness( uplo, orientation, H, shifts, X, Y, print, display );
 }
@@ -109,8 +110,6 @@ int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -123,23 +122,49 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orient = CharToOrientation( orientChar );
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            std::cout << "Double-precision:" << std::endl;
-        TestHessenberg<double>
+        TestHessenberg<float>
+        ( uplo, orient, m, n, testCorrectness, print, display );
+        TestHessenberg<Complex<float>>
         ( uplo, orient, m, n, testCorrectness, print, display );
 
-        if( commRank == 0 )
-            std::cout << "Double-precision complex:" << std::endl;
+        TestHessenberg<double>
+        ( uplo, orient, m, n, testCorrectness, print, display );
         TestHessenberg<Complex<double>>
         ( uplo, orient, m, n, testCorrectness, print, display );
+
+#ifdef EL_HAVE_QD
+        TestHessenberg<DoubleDouble>
+        ( uplo, orient, m, n, testCorrectness, print, display );
+        TestHessenberg<QuadDouble>
+        ( uplo, orient, m, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestHessenberg<Quad>
+        ( uplo, orient, m, n, testCorrectness, print, display );
+        TestHessenberg<Complex<Quad>>
+        ( uplo, orient, m, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestHessenberg<BigFloat>
+        ( uplo, orient, m, n, testCorrectness, print, display );
+#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

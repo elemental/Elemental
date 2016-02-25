@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -38,13 +38,22 @@ void TestCorrectness
 
 template<typename T> 
 void TestGemm
-( Orientation orientA, Orientation orientB,
-  Int m, Int n, Int k, T alpha, T beta, const Grid& g, 
-  bool print, bool correctness,
+( Orientation orientA,
+  Orientation orientB,
+  Int m,
+  Int n,
+  Int k,
+  T alpha,
+  T beta,
+  const Grid& g, 
+  bool print,
+  bool correctness,
   Int colAlignA=0, Int rowAlignA=0,
   Int colAlignB=0, Int rowAlignB=0,
   Int colAlignC=0, Int rowAlignC=0 )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<T>());
     double startTime, runTime, realGFlops, gFlops;
     DistMatrix<T> A(g), B(g), COrig(g), C(g);
 
@@ -186,18 +195,97 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test Gemm",transA,transB);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestGemm<double>
-        ( orientA, orientB, m, n, k, 3., 4., g, print, correctness,
-          colAlignA, rowAlignA, colAlignB, rowAlignB, colAlignC, rowAlignC );
+        TestGemm<float>
+        ( orientA, orientB,
+          m, n, k,
+          float(3), float(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+        TestGemm<Complex<float>>
+        ( orientA, orientB,
+          m, n, k, 
+          Complex<float>(3), Complex<float>(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestGemm<double>
+        ( orientA, orientB,
+          m, n, k,
+          double(3), double(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
         TestGemm<Complex<double>>
-        ( orientA, orientB, m, n, k, 
-          Complex<double>(3), Complex<double>(4), g, print, correctness,
-          colAlignA, rowAlignA, colAlignB, rowAlignB, colAlignC, rowAlignC );
+        ( orientA, orientB,
+          m, n, k, 
+          Complex<double>(3), Complex<double>(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+
+#ifdef EL_HAVE_QD
+        TestGemm<DoubleDouble>
+        ( orientA, orientB,
+          m, n, k,
+          DoubleDouble(3), DoubleDouble(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+        TestGemm<QuadDouble>
+        ( orientA, orientB,
+          m, n, k,
+          QuadDouble(3), QuadDouble(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestGemm<Quad>
+        ( orientA, orientB,
+          m, n, k,
+          Quad(3), Quad(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+        TestGemm<Complex<Quad>>
+        ( orientA, orientB,
+          m, n, k, 
+          Complex<Quad>(3), Complex<Quad>(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestGemm<BigFloat>
+        ( orientA, orientB,
+          m, n, k,
+          BigFloat(3), BigFloat(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -2,7 +2,7 @@
    Copyright (c) 1992-2008 The University of Tennessee.
    All rights reserved.
 
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is loosely based upon the LAPACK routines dlarfg.f and zlarfg.f.
@@ -11,7 +11,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_REFLECTOR_COL_HPP
 #define EL_REFLECTOR_COL_HPP
 

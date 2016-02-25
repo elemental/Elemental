@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -41,10 +41,9 @@ main( int argc, char* argv[] )
                 Display( AMid, "Middle block" );
             if( print )
                 Print( AMid, "Middle block" );
-            auto AMidCopy = AMid;
              
             DistMatrix<double,VR,STAR> s;
-            SVD( AMidCopy, s );
+            SVD( AMid, s );
             Print( s, "singular values of middle block" );
         }
     }

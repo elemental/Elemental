@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,10 +11,18 @@ using namespace El;
 
 template<typename T>
 void TestTrmm
-( bool print, LeftOrRight side, UpperOrLower uplo, 
-  Orientation orientation, UnitOrNonUnit diag,
-  Int m, Int n, T alpha, const Grid& g )
+( LeftOrRight side,
+  UpperOrLower uplo, 
+  Orientation orientation,
+  UnitOrNonUnit diag,
+  Int m,
+  Int n,
+  T alpha,
+  const Grid& g,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<T>());
     DistMatrix<T> A(g), X(g);
 
     if( side == LEFT )
@@ -104,14 +112,61 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test Trmm ",sideChar,uploChar,transChar,diagChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestTrmm<double>( print, side, uplo, orientation, diag, m, n, 3., g );
+        TestTrmm<float>
+        ( side, uplo, orientation, diag,
+          m, n,
+          float(3),
+          g, print );
+        TestTrmm<Complex<float>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<float>(3),
+          g, print );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestTrmm<double>
+        ( side, uplo, orientation, diag,
+          m, n,
+          double(3),
+          g, print );
         TestTrmm<Complex<double>>
-        ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<double>(3),
+          g, print );
+
+#ifdef EL_HAVE_QD
+        TestTrmm<DoubleDouble>
+        ( side, uplo, orientation, diag,
+          m, n,
+          DoubleDouble(3),
+          g, print );
+        TestTrmm<QuadDouble>
+        ( side, uplo, orientation, diag,
+          m, n,
+          QuadDouble(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestTrmm<Quad>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Quad(3),
+          g, print );
+        TestTrmm<Complex<Quad>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<Quad>(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestTrmm<BigFloat>
+        ( side, uplo, orientation, diag,
+          m, n,
+          BigFloat(3),
+          g, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

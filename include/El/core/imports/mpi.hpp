@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
                       2013, Jeff Hammond
    All rights reserved.
 
@@ -7,7 +7,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_IMPORTS_MPI_HPP
 #define EL_IMPORTS_MPI_HPP
 
@@ -80,9 +79,21 @@ inline bool operator!=( const Op& a, const Op& b ) EL_NO_EXCEPT
 typedef MPI_Aint Aint;
 typedef MPI_Datatype Datatype;
 typedef MPI_Errhandler ErrorHandler;
-typedef MPI_Request Request;
 typedef MPI_Status Status;
 typedef MPI_User_function UserFunction;
+
+template<typename T>
+struct Request
+{
+    Request() { }
+
+    MPI_Request backend;
+
+    vector<byte> buffer;
+    bool receivingPacked=false;
+    int recvCount;
+    T* unpackedRecvBuf;
+};
 
 // Standard constants
 const int ANY_SOURCE = MPI_ANY_SOURCE;
@@ -106,7 +117,6 @@ const Comm COMM_WORLD = MPI_COMM_WORLD;
 const ErrorHandler ERRORS_RETURN = MPI_ERRORS_RETURN;
 const ErrorHandler ERRORS_ARE_FATAL = MPI_ERRORS_ARE_FATAL;
 const Group GROUP_EMPTY = MPI_GROUP_EMPTY;
-const Request REQUEST_NULL = MPI_REQUEST_NULL;
 const Op MAX = MPI_MAX;
 const Op MIN = MPI_MIN;
 const Op MAXLOC = MPI_MAXLOC;
@@ -125,21 +135,34 @@ template<typename T> Op UserCommOp();
 
 template<typename Real> inline Op MaxOp() EL_NO_EXCEPT { return MAX; }
 template<typename Real> inline Op MinOp() EL_NO_EXCEPT { return MIN; }
+#ifdef EL_HAVE_QD
+template<> Op MaxOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MinOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MaxOp<QuadDouble>() EL_NO_EXCEPT;
+template<> Op MinOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op MaxOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinOp<Quad>() EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> Op MaxOp<BigInt>() EL_NO_EXCEPT;
+template<> Op MinOp<BigInt>() EL_NO_EXCEPT;
 template<> Op MaxOp<BigFloat>() EL_NO_EXCEPT;
 template<> Op MinOp<BigFloat>() EL_NO_EXCEPT;
 #endif
 
 template<typename T> inline Op SumOp() EL_NO_EXCEPT { return SUM; }
+#ifdef EL_HAVE_QD
+template<> Op SumOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op SumOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op SumOp<Quad>() EL_NO_EXCEPT;
 template<> Op SumOp<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> Op SumOp<BigInt>() EL_NO_EXCEPT;
 template<> Op SumOp<BigFloat>() EL_NO_EXCEPT;
 #endif
 
@@ -151,11 +174,19 @@ template<> Op MaxLocOp<float>() EL_NO_EXCEPT;
 template<> Op MinLocOp<float>() EL_NO_EXCEPT;
 template<> Op MaxLocOp<double>() EL_NO_EXCEPT;
 template<> Op MinLocOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Op MaxLocOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MinLocOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MaxLocOp<QuadDouble>() EL_NO_EXCEPT;
+template<> Op MinLocOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op MaxLocOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinLocOp<Quad>() EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> Op MaxLocOp<BigInt>() EL_NO_EXCEPT;
+template<> Op MinLocOp<BigInt>() EL_NO_EXCEPT;
 template<> Op MaxLocOp<BigFloat>() EL_NO_EXCEPT;
 template<> Op MinLocOp<BigFloat>() EL_NO_EXCEPT;
 #endif
@@ -168,11 +199,19 @@ template<> Op MaxLocPairOp<float>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<float>() EL_NO_EXCEPT;
 template<> Op MaxLocPairOp<double>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<double>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Op MaxLocPairOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<DoubleDouble>() EL_NO_EXCEPT;
+template<> Op MaxLocPairOp<QuadDouble>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Op MaxLocPairOp<Quad>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<Quad>() EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> Op MaxLocPairOp<BigInt>() EL_NO_EXCEPT;
+template<> Op MinLocPairOp<BigInt>() EL_NO_EXCEPT;
 template<> Op MaxLocPairOp<BigFloat>() EL_NO_EXCEPT;
 template<> Op MinLocPairOp<BigFloat>() EL_NO_EXCEPT;
 #endif
@@ -254,12 +293,66 @@ void Translate
 
 // Utilities
 void Barrier( Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
-void Wait( Request& request ) EL_NO_RELEASE_EXCEPT;
-void Wait( Request& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-void WaitAll( int numRequests, Request* requests ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
+void Wait( Request<T>& request ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
+void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
+void WaitAll( int numRequests, Request<T>* requests ) EL_NO_RELEASE_EXCEPT;
+template<typename T>
 void WaitAll
-( int numRequests, Request* requests, Status* statuses ) EL_NO_RELEASE_EXCEPT;
-bool Test( Request& request ) EL_NO_RELEASE_EXCEPT;
+( int numRequests, Request<T>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+#ifdef EL_HAVE_MPC
+template<>
+void Wait( Request<BigInt>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<BigInt>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<ValueInt<BigInt>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<ValueInt<BigInt>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<Entry<BigInt>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<Entry<BigInt>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<BigFloat>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<BigFloat>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<ValueInt<BigFloat>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<ValueInt<BigFloat>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Wait
+( Request<Entry<BigFloat>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<>
+void WaitAll
+( int numRequests, Request<Entry<BigFloat>>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT;
+#endif
+template<typename T>
+bool Test( Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 bool IProbe
 ( int source, int tag, Comm comm, Status& status ) EL_NO_RELEASE_EXCEPT;
 
@@ -281,6 +374,19 @@ void TaggedSend
 ( const Real* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void TaggedSend
+( const BigInt* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedSend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedSend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void TaggedSend
 ( const BigFloat* buf, int count, int to, int tag, Comm comm )
@@ -317,85 +423,171 @@ void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // -----------------
 template<typename Real>
 void TaggedISend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
-EL_NO_RELEASE_EXCEPT;
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 // NOTE: The following simply throws an exception since I believe that the
 //       buffer needs to persist despite being temporary internally
 template<>
 void TaggedISend
-( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedISend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedISend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+
+template<>
+void TaggedISend
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISend
-( const Entry<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT;
 #endif
 template<typename Real>
 void TaggedISend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void ISend( const T* buf, int count, int to, Comm comm, Request& request )
+void ISend( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one
 template<typename T>
-void TaggedISend( T b, int to, int tag, Comm comm, Request& request )
+void TaggedISend( T b, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one and the tag is irrelevant
 template<typename T>
-void ISend( T b, int to, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
+void ISend( T b, int to, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
+
+// Non-blocking ready-mode send
+// ----------------------------
+template<typename Real>
+void TaggedIRSend
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
+#ifdef EL_HAVE_MPC
+// NOTE: The following simply throws an exception since I believe that the
+//       buffer needs to persist despite being temporary internally
+template<>
+void TaggedIRSend
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+
+template<>
+void TaggedIRSend
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRSend
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
+#endif
+template<typename Real>
+void TaggedIRSend
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
+
+// If the tag is irrelevant
+template<typename T>
+void IRSend( const T* buf, int count, int to, Comm comm, Request<T>& request )
+EL_NO_RELEASE_EXCEPT;
+
+// If the send count is one
+template<typename T>
+void TaggedIRSend( T b, int to, int tag, Comm comm, Request<T>& request )
+EL_NO_RELEASE_EXCEPT;
+
+// If the send count is one and the tag is irrelevant
+template<typename T>
+void IRSend( T b, int to, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking synchronous Send
 // -----------------------------
 template<typename Real>
 void TaggedISSend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
 void TaggedISSend
-( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISSend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request )
 EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedISSend
-( const Entry<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void TaggedISSend
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedISSend
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedISSend
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT;
 #endif
 template<typename Real>
 void TaggedISSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void ISSend( const T* buf, int count, int to, Comm comm, Request& request )
+void ISSend( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one
 template<typename T>
-void TaggedISSend( T b, int to, int tag, Comm comm, Request& request )
+void TaggedISSend( T b, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the send count is one and the tag is irrelevant
 template<typename T>
-void ISSend( T b, int to, Comm comm, Request& request )
+void ISSend( T b, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // Recv
@@ -405,6 +597,19 @@ void TaggedRecv
 ( Real* buf, int count, int from, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void TaggedRecv
+( BigInt* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedRecv
+( ValueInt<BigInt>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedRecv
+( Entry<BigInt>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void TaggedRecv
 ( BigFloat* buf, int count, int from, int tag, Comm comm )
@@ -441,41 +646,54 @@ T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<typename Real>
 void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 // NOTE: The following simply throws an exception since I believe that the
 //       buffer needs to persist despite being temporary internally
 template<>
 void TaggedIRecv
+( BigInt* buf, int count, int from, int tag, Comm comm,
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRecv
+( ValueInt<BigInt>* buf, int count, int from, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedIRecv
+( Entry<BigInt>* buf, int count, int from, int tag, Comm comm,
+  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
+
+template<>
+void TaggedIRecv
 ( BigFloat* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedIRecv
 ( ValueInt<BigFloat>* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<ValueInt<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
 template<>
 void TaggedIRecv
 ( Entry<BigFloat>* buf, int count, int from, int tag, Comm comm,
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Entry<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
 #endif
 template<typename Real>
 void TaggedIRecv
 ( Complex<Real>* buf, int count, int from, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT;
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
-void IRecv( T* buf, int count, int from, Comm comm, Request& request )
+void IRecv( T* buf, int count, int from, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one
 template<typename T>
-T TaggedIRecv( int from, int tag, Comm comm, Request& request )
+T TaggedIRecv( int from, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT;
 
 // If the recv count is one and the tag is irrelevant
 template<typename T>
-T IRecv( int from, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT;
+T IRecv( int from, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // SendRecv
 // --------
@@ -485,6 +703,22 @@ void TaggedSendRecv
         Real* rbuf, int rc, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void TaggedSendRecv
+( const BigInt* sbuf, int sc, int to,   int stag,
+        BigInt* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedSendRecv
+( const ValueInt<BigInt>* sbuf, int sc, int to,   int stag,
+        ValueInt<BigInt>* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedSendRecv
+( const Entry<BigInt>* sbuf, int sc, int to,   int stag,
+        Entry<BigInt>* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void TaggedSendRecv
 ( const BigFloat* sbuf, int sc, int to,   int stag,
@@ -532,6 +766,21 @@ EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
 void TaggedSendRecv
+( BigInt* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedSendRecv
+( ValueInt<BigInt>* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void TaggedSendRecv
+( Entry<BigInt>* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void TaggedSendRecv
 ( BigFloat* buf, int count, int to, int stag, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 template<>
@@ -565,6 +814,16 @@ void Broadcast( Real* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
+void Broadcast( BigInt* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Broadcast( ValueInt<BigInt>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Broadcast( Entry<BigInt>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
 void Broadcast( BigFloat* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 template<>
@@ -586,25 +845,40 @@ void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 // ----------------------
 template<typename Real>
 void IBroadcast
-( Real* buf, int count, int root, Comm comm, Request& request );
+( Real* buf, int count, int root, Comm comm, Request<Real>& request );
 #ifdef EL_HAVE_MPC
 template<>
 void IBroadcast
-( BigFloat* buf, int count, int root, Comm comm, Request& request );
+( BigInt* buf, int count, int root, Comm comm, Request<BigInt>& request );
 template<>
 void IBroadcast
-( ValueInt<BigFloat>* buf, int count, int root, Comm comm, Request& request );
+( ValueInt<BigInt>* buf, int count, int root, Comm comm,
+  Request<ValueInt<BigInt>>& request );
 template<>
 void IBroadcast
-( Entry<BigFloat>* buf, int count, int root, Comm comm, Request& request );
+( Entry<BigInt>* buf, int count, int root, Comm comm,
+  Request<Entry<BigInt>>& request );
+
+template<>
+void IBroadcast
+( BigFloat* buf, int count, int root, Comm comm, Request<BigFloat>& request );
+template<>
+void IBroadcast
+( ValueInt<BigFloat>* buf, int count, int root, Comm comm,
+  Request<ValueInt<BigFloat>>& request );
+template<>
+void IBroadcast
+( Entry<BigFloat>* buf, int count, int root, Comm comm,
+  Request<Entry<BigFloat>>& request );
 #endif
 template<typename Real>
 void IBroadcast
-( Complex<Real>* buf, int count, int root, Comm comm, Request& request );
+( Complex<Real>* buf, int count, int root, Comm comm,
+  Request<Complex<Real>>& request );
 
 // If the message length is one
 template<typename T>
-void IBroadcast( T& b, int root, Comm comm, Request& request );
+void IBroadcast( T& b, int root, Comm comm, Request<T>& request );
 
 // Gather
 // ------
@@ -619,6 +893,21 @@ void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void Gather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<>
+void Gather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc,
+  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<>
+void Gather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc,
+  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
 template<>
 void Gather
 ( const BigFloat* sbuf, int sc,
@@ -644,27 +933,52 @@ void  Gather
 template<typename Real>
 void IGather
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, int root, Comm comm, Request& request );
+        Real* rbuf, int rc, int root, Comm comm,
+  Request<Real>& request );
 #ifdef EL_HAVE_MPC
 template<>
 void IGather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, int root, Comm comm,
+  Request<BigInt>& request );
+template<>
+void IGather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc,
+  int root, Comm comm,
+  Request<ValueInt<BigInt>>& request );
+template<>
+void IGather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc,
+  int root, Comm comm,
+  Request<Entry<BigInt>>& request );
+
+template<>
+void IGather
 ( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc, int root, Comm comm, Request& request );
+        BigFloat* rbuf, int rc,
+  int root, Comm comm,
+  Request<BigFloat>& request );
 template<>
 void IGather
 ( const ValueInt<BigFloat>* sbuf, int sc,
         ValueInt<BigFloat>* rbuf, int rc,
-  int root, Comm comm, Request& request );
+  int root, Comm comm,
+  Request<ValueInt<BigFloat>>& request );
 template<>
 void IGather
 ( const Entry<BigFloat>* sbuf, int sc,
         Entry<BigFloat>* rbuf, int rc,
-  int root, Comm comm, Request& request );
+  int root, Comm comm,
+  Request<Entry<BigFloat>>& request );
 #endif
 template<typename Real>
 void IGather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, int root, Comm comm, Request& request );
+        Complex<Real>* rbuf, int rc,
+  int root, Comm comm,
+  Request<Complex<Real>>& request );
 
 // Gather with variable recv sizes
 // -------------------------------
@@ -675,6 +989,25 @@ void Gather
   int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void Gather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Gather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Gather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void Gather
 ( const BigFloat* sbuf, int sc,
@@ -710,6 +1043,19 @@ void AllGather
 #ifdef EL_HAVE_MPC
 template<>
 void AllGather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<>
+void AllGather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<>
+void AllGather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
+template<>
+void AllGather
 ( const BigFloat* sbuf, int sc,
         BigFloat* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 template<>
@@ -734,6 +1080,22 @@ void AllGather
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void AllGather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllGather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllGather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void AllGather
 ( const BigFloat* sbuf, int sc,
@@ -767,6 +1129,22 @@ EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
 void Scatter
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scatter
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scatter
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
+void Scatter
 ( const BigFloat* sbuf, int sc,
         BigFloat* rbuf, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
@@ -792,6 +1170,16 @@ void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
+void Scatter( BigInt* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scatter( ValueInt<BigInt>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scatter( Entry<BigInt>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
 void Scatter( BigFloat* buf, int sc, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 template<>
@@ -815,6 +1203,19 @@ void AllToAll
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void AllToAll
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<>
+void AllToAll
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<>
+void AllToAll
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+
 template<>
 void AllToAll
 ( const BigFloat* sbuf, int sc,
@@ -842,6 +1243,22 @@ void AllToAll
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void AllToAll
+( const BigInt* sbuf, const int* scs, const int* sds,
+        BigInt* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllToAll
+( const ValueInt<BigInt>* sbuf, const int* scs, const int* sds,
+        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllToAll
+( const Entry<BigInt>* sbuf, const int* scs, const int* sds,
+        Entry<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void AllToAll
 ( const BigFloat* sbuf, const int* scs, const int* sds,
@@ -879,6 +1296,21 @@ void Reduce
 ( const Real* sbuf, Real* rbuf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void Reduce
+( const BigInt* sbuf, BigInt* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Reduce
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Reduce
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void Reduce
 ( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, int root, Comm comm )
@@ -944,6 +1376,16 @@ void Reduce( Real* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
+void Reduce( BigInt* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Reduce( ValueInt<BigInt>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Reduce( Entry<BigInt>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
 void Reduce( BigFloat* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 template<>
@@ -979,6 +1421,21 @@ template<typename Real>
 void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void AllReduce
+( const BigInt* sbuf, BigInt* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllReduce
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllReduce
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void AllReduce
 ( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
@@ -1044,6 +1501,16 @@ void AllReduce( Real* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
+void AllReduce( BigInt* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllReduce( ValueInt<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void AllReduce( Entry<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
 void AllReduce( BigFloat* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 template<>
@@ -1079,6 +1546,18 @@ template<typename Real>
 void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void ReduceScatter( BigInt* sbuf, BigInt* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void ReduceScatter
+( ValueInt<BigInt>* sbuf, ValueInt<BigInt>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void ReduceScatter
+( Entry<BigInt>* sbuf, Entry<BigInt>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void ReduceScatter( BigFloat* sbuf, BigFloat* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
@@ -1120,6 +1599,16 @@ void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
+void ReduceScatter( BigInt* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void ReduceScatter( ValueInt<BigInt>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void ReduceScatter( Entry<BigInt>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
 void ReduceScatter( BigFloat* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 template<>
@@ -1156,6 +1645,21 @@ void ReduceScatter
 ( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void ReduceScatter
+( const BigInt* sbuf, BigInt* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void ReduceScatter
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void ReduceScatter
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void ReduceScatter
 ( const BigFloat* sbuf, BigFloat* rbuf, const int* rcs, Op op, Comm comm )
@@ -1200,6 +1704,20 @@ template<typename Real>
 void Scan( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
+template<>
+void Scan( const BigInt* sbuf, BigInt* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scan
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scan
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 template<>
 void Scan( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
@@ -1263,6 +1781,16 @@ void Scan( Real* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<>
+void Scan( BigInt* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scan( ValueInt<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<>
+void Scan( Entry<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
+template<>
 void Scan( BigFloat* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 template<>
@@ -1324,11 +1852,16 @@ template<> Datatype TypeMap<float>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<float>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<double>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<double>>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Datatype TypeMap<DoubleDouble>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<QuadDouble>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<Quad>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<BigInt>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<BigFloat>() EL_NO_EXCEPT;
 #endif
 
@@ -1337,11 +1870,16 @@ template<> Datatype TypeMap<ValueInt<float>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<float>>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<double>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<double>>>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Datatype TypeMap<ValueInt<DoubleDouble>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<ValueInt<QuadDouble>>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<ValueInt<Quad>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<Complex<Quad>>>() EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<ValueInt<BigInt>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<ValueInt<BigFloat>>() EL_NO_EXCEPT;
 #endif
 
@@ -1350,15 +1888,22 @@ template<> Datatype TypeMap<Entry<float>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<float>>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<double>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<double>>>() EL_NO_EXCEPT;
+#ifdef EL_HAVE_QD
+template<> Datatype TypeMap<Entry<DoubleDouble>>() EL_NO_EXCEPT;
+template<> Datatype TypeMap<Entry<QuadDouble>>() EL_NO_EXCEPT;
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Datatype TypeMap<Entry<Quad>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<Complex<Quad>>>() EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
+template<> Datatype TypeMap<Entry<BigInt>>() EL_NO_EXCEPT;
 template<> Datatype TypeMap<Entry<BigFloat>>() EL_NO_EXCEPT;
 #endif
 
 #ifdef EL_HAVE_MPC
+void CreateBigIntFamily();
+void DestroyBigIntFamily();
 void CreateBigFloatFamily();
 void DestroyBigFloatFamily();
 #endif

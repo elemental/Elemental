@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,14 +11,17 @@ using namespace El;
 
 template<typename F> 
 void TestMultiShiftTrsm
-( bool print,
-  LeftOrRight side,
+( LeftOrRight side,
   UpperOrLower uplo,
   Orientation orientation, 
-  Int m, Int n,
+  Int m,
+  Int n,
   F alpha,
-  const Grid& g )
+  const Grid& g,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     typedef Base<F> Real;
     DistMatrix<F> U(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g);
@@ -134,15 +137,61 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test MultiShiftTrsm ",sideChar,uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestMultiShiftTrsm<double>
-        ( print, side, uplo, orientation, m, n, 3., g );
+        TestMultiShiftTrsm<float>
+        ( side, uplo, orientation,
+          m, n,
+          float(3),
+          g, print );
+        TestMultiShiftTrsm<Complex<float>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<float>(3),
+          g, print );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestMultiShiftTrsm<double>
+        ( side, uplo, orientation,
+          m, n,
+          double(3),
+          g, print );
         TestMultiShiftTrsm<Complex<double>>
-        ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
+        ( side, uplo, orientation,
+          m, n,
+          Complex<double>(3),
+          g, print );
+
+#ifdef EL_HAVE_QD
+        TestMultiShiftTrsm<DoubleDouble>
+        ( side, uplo, orientation,
+          m, n,
+          DoubleDouble(3),
+          g, print );
+        TestMultiShiftTrsm<QuadDouble>
+        ( side, uplo, orientation,
+          m, n,
+          QuadDouble(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestMultiShiftTrsm<Quad>
+        ( side, uplo, orientation,
+          m, n,
+          Quad(3),
+          g, print );
+        TestMultiShiftTrsm<Complex<Quad>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<Quad>(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestMultiShiftTrsm<BigFloat>
+        ( side, uplo, orientation,
+          m, n,
+          BigFloat(3),
+          g, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

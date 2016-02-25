@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -80,14 +80,20 @@ main( int argc, char* argv[] )
         ctrl.inv = inv;
         ctrl.progress = progress;
 
+        Timer timer;
         DistMatrix<Real> wHatLog;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         LogisticRegression( G, q, wHatLog, gamma, penalty );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         auto wLog = View( wHatLog, 0, 0, n, 1 );
         const Real offsetLog = -wHatLog.Get(n,0);
         const Real wLogOneNorm = OneNorm( wLog );
         const Real wLogFrobNorm = FrobeniusNorm( wLog );
         if( mpi::Rank(comm) == 0 )
         {
+            Output("Logistic Regression time: ",timer.Total()," secs");
             Output("|| wLog ||_1=",wLogOneNorm);
             Output("|| wLog ||_2=",wLogFrobNorm);
             Output("margin      =",Real(2)/wLogFrobNorm);

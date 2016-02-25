@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_INDEXING_DECL_HPP
 #define EL_INDEXING_DECL_HPP
 
@@ -49,6 +48,12 @@ Int GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs );
 // still returns a result in [0,b). Note that b is assumed to be non-negative.
 Int Mod( Int a, Int b );
 Int Mod_( Int a, Int b ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_MPC
+BigInt Mod( const BigInt& a, const BigInt& b );
+BigInt Mod( const BigInt& a, const unsigned& b );
+BigInt Mod( const BigInt& a, const unsigned long& b );
+BigInt Mod_( const BigInt& a, const BigInt& b );
+#endif
 
 Int Shift( Int rank, Int firstRank, Int numProcs );
 Int Shift_( Int rank, Int firstRank, Int numProcs ) EL_NO_EXCEPT;

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -18,9 +18,8 @@ Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p )
         LogicError("Invalid index of KyFanSchatten norm");
 
     typedef Base<F> Real;
-    Matrix<F> B( A );
     Matrix<Real> s;
-    SVD( B, s );
+    SVD( A, s );
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
@@ -37,9 +36,8 @@ Base<F> HermitianKyFanSchattenNorm
         LogicError("Invalid index of KyFanSchatten norm");
 
     typedef Base<F> Real;
-    Matrix<F> B( A );
     Matrix<Real> s;
-    HermitianSVD( uplo, B, s );
+    HermitianSVD( uplo, A, s );
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
@@ -59,7 +57,9 @@ Base<F> SymmetricKyFanSchattenNorm
     Matrix<F> B( A );
     Matrix<Real> s;
     MakeSymmetric( uplo, B );
-    SVD( B, s );
+    SVDCtrl<Real> ctrl;
+    ctrl.overwrite = true;
+    SVD( B, s, ctrl );
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
@@ -77,7 +77,9 @@ Base<F> KyFanSchattenNorm( const ElementalMatrix<F>& A, Int k, Base<F> p )
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
-    SVD( B, s );
+    SVDCtrl<Real> ctrl;
+    ctrl.overwrite = true;
+    SVD( B, s, ctrl );
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
@@ -97,9 +99,8 @@ Base<F> HermitianKyFanSchattenNorm
         LogicError("Invalid index of KyFanSchatten norm");
 
     typedef Base<F> Real;
-    DistMatrix<F> B( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
-    HermitianSVD( uplo, B, s );
+    HermitianSVD( uplo, A, s );
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
@@ -122,7 +123,9 @@ Base<F> SymmetricKyFanSchattenNorm
     DistMatrix<F> B( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
-    SVD( B, s );
+    SVDCtrl<Real> ctrl;
+    ctrl.overwrite = true;
+    SVD( B, s, ctrl );
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );

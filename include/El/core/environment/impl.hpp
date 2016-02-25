@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_ENVIRONMENT_IMPL_HPP
 #define EL_ENVIRONMENT_IMPL_HPP
 
@@ -39,6 +38,13 @@ MemCopy( T* dest, const T* source, size_t numEntries )
 }
 #ifdef EL_HAVE_MPC
 inline void
+MemCopy( BigInt* dest, const BigInt* source, size_t numEntries )
+{
+    for( size_t k=0; k<numEntries; ++k )
+        dest[k] = source[k];
+}
+
+inline void
 MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries )
 {
     for( size_t k=0; k<numEntries; ++k )
@@ -58,6 +64,19 @@ MemSwap( T* a, T* b, T* temp, size_t numEntries )
     MemCopy( b, temp, numEntries );
 }
 #ifdef EL_HAVE_MPC
+inline void
+MemSwap( BigInt* a, BigInt* b, BigInt* temp, size_t numEntries )
+{
+    // NOTE: This is the same as above for now
+
+    // temp := a
+    MemCopy( temp, a, numEntries );
+    // a := b
+    MemCopy( a, b, numEntries );
+    // b := temp
+    MemCopy( b, temp, numEntries );
+}
+
 inline void
 MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries )
 {
@@ -84,6 +103,15 @@ StridedMemCopy
 #ifdef EL_HAVE_MPC
 inline void
 StridedMemCopy
+(       BigInt* dest,   Int destStride,
+  const BigInt* source, Int sourceStride, Int numEntries )
+{
+    for( Int k=0; k<numEntries; ++k )
+        dest[destStride*k] = source[sourceStride*k];
+}
+
+inline void
+StridedMemCopy
 (       BigFloat* dest,   Int destStride,
   const BigFloat* source, Int sourceStride, Int numEntries )
 {
@@ -100,6 +128,12 @@ MemZero( T* buffer, size_t numEntries )
     std::memset( buffer, 0, numEntries*sizeof(T) );
 }
 #ifdef EL_HAVE_MPC
+inline void MemZero( BigInt* buffer, size_t numEntries )
+{
+    for( size_t k=0; k<numEntries; ++k )
+        buffer[k].Zero();
+}
+
 inline void MemZero( BigFloat* buffer, size_t numEntries )
 {
     for( size_t k=0; k<numEntries; ++k )

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -91,16 +91,18 @@ void TestCorrectness
 
 template<typename F>
 void TestUT
-( LeftOrRight side,
+( const Grid& g,
+  LeftOrRight side,
   UpperOrLower uplo, 
   ForwardOrBackward order,
   Conjugation conjugation,
   Int m,
   Int offset,
   bool testCorrectness,
-  bool printMatrices,
-  const Grid& g )
+  bool printMatrices )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> H(g), A(g);
     Uniform( H, m, m );
     Uniform( A, m, m );
@@ -119,7 +121,7 @@ void TestUT
             // View below the diagonal containing the implicit 1
             HCol = View( H, i-offset+1, i, m-(i-offset+1), 1 );
             F norm = Nrm2( HCol );
-            F alpha = 2./(norm*norm+1.);
+            F alpha = F(2)/(norm*norm+F(1));
             t.Set( i, 0, alpha );
         }
     }
@@ -130,7 +132,7 @@ void TestUT
             // View above the diagonal containing the implicit 1
             HCol = View( H, 0, i+offset, i, 1 );
             F norm = Nrm2( HCol );
-            F alpha = 2./(norm*norm+1.);
+            F alpha = F(2)/(norm*norm+F(1));
             t.Set( i, 0, alpha );
         }
     }
@@ -168,8 +170,8 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -185,8 +187,15 @@ main( int argc, char* argv[] )
         const bool testCorrectness  = Input
             ("--correctness","test correctness?",true);
         const bool printMatrices = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -209,17 +218,43 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test UT transform");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestUT<double>
-        ( side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices, g );
+        TestUT<float>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
+        TestUT<Complex<float>>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
+        TestUT<double>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
         TestUT<Complex<double>>
-        ( side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices, g );
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
+
+#ifdef EL_HAVE_QD
+        TestUT<DoubleDouble>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
+        TestUT<QuadDouble>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestUT<Quad>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
+        TestUT<Complex<Quad>>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestUT<BigFloat>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          testCorrectness, printMatrices );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

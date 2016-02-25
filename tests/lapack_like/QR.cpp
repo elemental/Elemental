@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -75,13 +75,13 @@ void TestCorrectness
     }
 }
 
-template<typename F>
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 void TestQR
-( bool testCorrectness,
-  bool print,
+( const Grid& g,
   Int m,
   Int n,
-  const Grid& g,
+  bool testCorrectness,
+  bool print,
   bool scalapack )
 {
     if( g.Rank() == 0 )
@@ -134,19 +134,62 @@ void TestQR
         TestCorrectness( A, t, d, AOrig );
 }
 
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void TestQR
+( const Grid& g,
+  Int m,
+  Int n,
+  bool testCorrectness,
+  bool print )
+{
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
+    DistMatrix<F> A(g), AOrig(g);
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
+
+    Uniform( A, m, n );
+    if( testCorrectness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+    const double mD = double(m);
+    const double nD = double(n);
+
+    if( g.Rank() == 0 )
+        Output("  Starting QR factorization...");
+    mpi::Barrier( g.Comm() );
+    const double startTime = mpi::Time();
+    QR( A, t, d );
+    mpi::Barrier( g.Comm() );
+    const double runTime = mpi::Time() - startTime;
+    const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    if( g.Rank() == 0 )
+        Output("  Elemental: ",runTime," seconds. GFlops = ",gFlops);
+    if( print )
+    {
+        Print( A, "A after factorization" );
+        Print( t, "phases" );
+        Print( d, "diagonal" );
+    }
+    if( testCorrectness )
+        TestCorrectness( A, t, d, AOrig );
+}
+
 int 
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
         Int r = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",1000);
-        const Int n = Input("--width","width of matrix",1000);
+        const Int m = Input("--height","height of matrix",400);
+        const Int n = Input("--width","width of matrix",400);
         const Int nb = Input("--nb","algorithmic blocksize",64);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
@@ -155,9 +198,16 @@ main( int argc, char* argv[] )
 #else
         const bool scalapack = false;
 #endif
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -166,8 +216,25 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestQR<double>( testCorrectness, print, m, n, g, scalapack );
-        TestQR<Complex<double>>( testCorrectness, print, m, n, g, scalapack );
+        TestQR<float>( g, m, n, testCorrectness, print, scalapack );
+        TestQR<Complex<float>>( g, m, n, testCorrectness, print, scalapack );
+
+        TestQR<double>( g, m, n, testCorrectness, print, scalapack );
+        TestQR<Complex<double>>( g, m, n, testCorrectness, print, scalapack );
+
+#ifdef EL_HAVE_QD
+        TestQR<DoubleDouble>( g, m, n, testCorrectness, print );
+        TestQR<QuadDouble>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestQR<Quad>( g, m, n, testCorrectness, print );
+        TestQR<Complex<Quad>>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestQR<BigFloat>( g, m, n, testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

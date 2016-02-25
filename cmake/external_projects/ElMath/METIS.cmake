@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -52,6 +52,7 @@ elseif(NOT EL_PREVENT_METIS_DOWNLOAD)
       -D PCRE=${METIS_PCRE}
       -D GKREGEX=${METIS_GKREGEX}
       -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -D CMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
       -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}

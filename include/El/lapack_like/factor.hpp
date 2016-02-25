@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_FACTOR_HPP
 #define EL_FACTOR_HPP
 
@@ -511,7 +510,7 @@ void LUMod
   const Matrix<F>& u,
   const Matrix<F>& v,
   bool conjugate=true,
-  Base<F> tau=0.1 );
+  Base<F> tau=Base<F>(1)/Base<F>(10) );
 template<typename F>
 void LUMod
 (       ElementalMatrix<F>& A,
@@ -519,7 +518,7 @@ void LUMod
   const ElementalMatrix<F>& u,
   const ElementalMatrix<F>& v, 
   bool conjugate=true,
-  Base<F> tau=0.1 );
+  Base<F> tau=Base<F>(1)/Base<F>(10) );
 
 namespace lu {
 
@@ -659,7 +658,7 @@ struct QRCtrl
     Int maxRank=0;
 
     bool adaptive=false;
-    Real tol=0;
+    Real tol=Real(0);
 
     bool alwaysRecomputeNorms=false;
 

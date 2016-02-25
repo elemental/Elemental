@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -50,13 +50,13 @@ void TestCorrectness
 
 template<typename F> 
 void TestCholeskyMod
-( bool testCorrectness,
-  bool print,
+( const Grid& g,
   UpperOrLower uplo,
   Int m,
   Int n, 
   Base<F> alpha,
-  const Grid& g )
+  bool testCorrectness,
+  bool print )
 {
     if( g.Rank() == 0 )
         Output("Testing with ",TypeName<F>());
@@ -107,7 +107,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -121,8 +121,15 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -132,11 +139,34 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestCholeskyMod<double>
-        ( testCorrectness, print, uplo, m, n, alpha, g );
+        TestCholeskyMod<float>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
+        TestCholeskyMod<Complex<float>>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
 
+        TestCholeskyMod<double>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
         TestCholeskyMod<Complex<double>>
-        ( testCorrectness, print, uplo, m, n, alpha, g );
+        ( g, uplo, m, n, alpha,testCorrectness, print );
+
+#ifdef EL_HAVE_QD
+        TestCholeskyMod<DoubleDouble>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
+        TestCholeskyMod<QuadDouble>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestCholeskyMod<Quad>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
+        TestCholeskyMod<Complex<Quad>>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestCholeskyMod<BigFloat>
+        ( g, uplo, m, n, alpha,testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

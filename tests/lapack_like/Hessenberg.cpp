@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -35,7 +35,7 @@ void TestCorrectness
     if( print )
         Print( H, "Hessenberg" );
     if( display )
-        Display( H, "Bidiagonal" );
+        Display( H, "Hessenberg" );
 
     if( print || display )
     {
@@ -79,9 +79,9 @@ void TestCorrectness
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo,
+( const Grid& g,
+  UpperOrLower uplo,
   Int n,
-  const Grid& g,
   bool testCorrectness, 
   bool print,
   bool display )
@@ -128,7 +128,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -141,8 +141,15 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -152,19 +159,33 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
+        TestHessenberg<float>
+        ( g, uplo, n, testCorrectness, print, display );
+        TestHessenberg<Complex<float>>
+        ( g, uplo, n, testCorrectness, print, display );
+
         TestHessenberg<double>
-        ( uplo, n, g, testCorrectness, print, display );
+        ( g, uplo, n, testCorrectness, print, display );
         TestHessenberg<Complex<double>>
-        ( uplo, n, g, testCorrectness, print, display );
+        ( g, uplo, n, testCorrectness, print, display );
+
+#ifdef EL_HAVE_QD
+        TestHessenberg<DoubleDouble>
+        ( g, uplo, n, testCorrectness, print, display );
+        TestHessenberg<QuadDouble>
+        ( g, uplo, n, testCorrectness, print, display );
+#endif
+
 #ifdef EL_HAVE_QUAD
         TestHessenberg<Quad>
-        ( uplo, n, g, testCorrectness, print, display );
+        ( g, uplo, n, testCorrectness, print, display );
         TestHessenberg<Complex<Quad>>
-        ( uplo, n, g, testCorrectness, print, display );
+        ( g, uplo, n, testCorrectness, print, display );
 #endif
+
 #ifdef EL_HAVE_MPC
         TestHessenberg<BigFloat>
-        ( uplo, n, g, testCorrectness, print, display );
+        ( g, uplo, n, testCorrectness, print, display );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

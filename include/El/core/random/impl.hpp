@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_RANDOM_IMPL_HPP
 #define EL_RANDOM_IMPL_HPP
 
@@ -111,7 +110,7 @@ T UnitCell()
 }
 
 template<typename T>
-T SampleUniform( T a, T b )
+T SampleUniform( const T& a, const T& b )
 {
     typedef Base<T> Real;
     T sample;
@@ -143,20 +142,22 @@ T SampleUniform( T a, T b )
 }
 
 template<typename F>
-F SampleNormal( F mean, Base<F> stddev )
+F SampleNormal( const F& mean, const Base<F>& stddev )
 {
     typedef Base<F> Real;
     F sample;
+
+    Real stddevAdj = stddev;
     if( IsComplex<F>::value )
-        stddev = stddev / Sqrt(Real(2));
+        stddevAdj /= Sqrt(Real(2));
 
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
-    std::normal_distribution<Real> realNormal( RealPart(mean), stddev );
+    std::normal_distribution<Real> realNormal( RealPart(mean), stddevAdj );
     SetRealPart( sample, realNormal(gen) );
     if( IsComplex<F>::value )
     {
-        std::normal_distribution<Real> imagNormal( ImagPart(mean), stddev );
+        std::normal_distribution<Real> imagNormal( ImagPart(mean), stddevAdj );
         SetImagPart( sample, imagNormal(gen) );
     }
 #else
@@ -172,9 +173,9 @@ F SampleNormal( F mean, Base<F> stddev )
         if( S > Real(0) && S < Real(1) )
         {
             const Real W = Sqrt(-2*Log(S)/S);
-            SetRealPart( sample, RealPart(mean) + stddev*U*W );
+            SetRealPart( sample, RealPart(mean) + stddevAdj*U*W );
             if( IsComplex<F>::value )
-                SetImagPart( sample, ImagPart(mean) + stddev*V*W );
+                SetImagPart( sample, ImagPart(mean) + stddevAdj*V*W );
             break;
         }
     }
@@ -182,6 +183,19 @@ F SampleNormal( F mean, Base<F> stddev )
 
     return sample;
 }
+
+template<typename F>
+F SampleBall( const F& center, const Base<F>& radius )
+{
+    typedef Base<F> Real;
+    const Real r = SampleUniform<Real>(0,radius);
+    const Real angle = SampleUniform<Real>(0,Real(2*Pi<Real>()));
+    return center + F(r*Cos(angle),r*Sin(angle));
+}
+
+template<typename Real,typename>
+Real SampleBall( const Real& center, const Real& radius )
+{ return SampleUniform<Real>(center-radius,center+radius); }
 
 } // namespace El
 

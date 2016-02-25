@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_ELEMENT_IMPL_HPP
 #define EL_ELEMENT_IMPL_HPP
 
@@ -178,12 +177,12 @@ template<typename F,typename>
 F Exp( const F& alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
 
 template<typename F,typename T,typename,typename>
-F Pow( const F& alpha, const T& beta ) EL_NO_EXCEPT
+F Pow( const F& alpha, const T& beta )
 { return std::pow(alpha,beta); }
 
 #ifdef EL_USE_64BIT_INTS
 template<typename F,typename>
-F Pow( const F& alpha, const int& beta ) EL_NO_EXCEPT
+F Pow( const F& alpha, const int& beta )
 { return Pow(alpha,F(beta)); }
 #endif
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson.
    All rights reserved.
 
    Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
@@ -337,6 +337,18 @@ Int Graph::Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
     const Int nextOff = SourceOffset(source+1);
     auto it = std::lower_bound( targetBuf+thisOff, targetBuf+nextOff, target );
     return it-targetBuf;
+}
+
+bool Graph::EdgeExists( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("Graph::EdgeExists"))
+    if( source == END ) source = numSources_ - 1;
+    if( target == END ) target = numTargets_ - 1;
+    Int index = Offset( source, target );
+    if( Source(index) != source || Target(index) != target )
+        return false;
+    else
+        return true;
 }
 
 Int Graph::NumConnections( Int source ) const EL_NO_RELEASE_EXCEPT

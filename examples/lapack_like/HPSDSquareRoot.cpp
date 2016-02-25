@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -34,13 +34,20 @@ main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
 
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         // Replace A with its matrix square root
         HPSDSquareRoot( LOWER, A );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
         {
             MakeHermitian( LOWER, A );
             Print( A, "sqrt(A)" );
         }
+        if( mpi::Rank() == 0 )
+            Output("HPSDSquareRoot time: ",timer.Total()," secs");
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BLAS3_HPP
 #define EL_BLAS3_HPP
 
@@ -607,6 +606,36 @@ void LocalTrr2k
   T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
   T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
   T gamma,       ElementalMatrix<T>& E );
+
+// Hermitian from EVD
+// ==================
+// A := Z diag(w) Z^H, where w is real
+template<typename F>
+void HermitianFromEVD
+( UpperOrLower uplo,
+        Matrix<F>& A,
+  const Matrix<Base<F>>& w,
+  const Matrix<F>& Z );
+template<typename F>
+void HermitianFromEVD
+( UpperOrLower uplo,
+        ElementalMatrix<F>& A,
+  const ElementalMatrix<Base<F>>& w,
+  const ElementalMatrix<F>& Z );
+
+// Normal from EVD
+// ===============
+// A := Z diag(w) Z^H, where w is complex
+template<typename Real>
+void NormalFromEVD
+(       Matrix<Complex<Real>>& A,
+  const Matrix<Complex<Real>>& w,
+  const Matrix<Complex<Real>>& Z );
+template<typename Real>
+void NormalFromEVD
+(       ElementalMatrix<Complex<Real>>& A,
+  const ElementalMatrix<Complex<Real>>& w,
+  const ElementalMatrix<Complex<Real>>& Z );
 
 } // namespace El
 

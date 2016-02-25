@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  Copyright 2012, Jed Brown
@@ -161,8 +161,7 @@ option(EL_DISABLE_VALGRIND "Prevent Elemental from looking for valgrind?" OFF)
 mark_as_advanced(EL_DISABLE_VALGRIND)
 
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
-option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
-mark_as_advanced(EL_USE_CUSTOM_ALLTOALLV EL_BARRIER_IN_ALLTOALLV)
+mark_as_advanced(EL_USE_CUSTOM_ALLTOALLV)
 
 # Since it is surprisingly common for MPI libraries to have bugs in their
 # support for complex data, the following option forces Elemental to cast

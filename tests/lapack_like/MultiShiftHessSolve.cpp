@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -77,14 +77,14 @@ void TestCorrectness
 
 template<typename F>
 void TestHessenberg
-( UpperOrLower uplo,
+( const Grid& g,
+  UpperOrLower uplo,
   Orientation orientation,
   Int m,
   Int n, 
   bool testCorrectness,
   bool print,
-  bool display,
-  const Grid& g )
+  bool display )
 {
     if( g.Rank() == 0 )
         Output("Testing with ",TypeName<F>());
@@ -136,8 +136,15 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid grid( comm, order );
@@ -146,10 +153,34 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
+        TestHessenberg<float>
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+        TestHessenberg<Complex<float>>
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+
         TestHessenberg<double>
-        ( uplo, orient, m, n, testCorrectness, print, display, grid );
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
         TestHessenberg<Complex<double>>
-        ( uplo, orient, m, n, testCorrectness, print, display, grid );
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+
+#ifdef EL_HAVE_QD
+        TestHessenberg<DoubleDouble>
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+        TestHessenberg<QuadDouble>
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestHessenberg<Quad>
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+        TestHessenberg<Complex<Quad>>
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestHessenberg<BigFloat>
+        ( grid, uplo, orient, m, n, testCorrectness, print, display );
+#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

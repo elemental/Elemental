@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -47,12 +47,19 @@ main( int argc, char* argv[] )
         DistMatrix<C,CIRC,CIRC> X;
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         HermitianEig( LOWER, H, w, X, ASCENDING );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
         {
             Print( w, "Eigenvalues of H" );
             Print( X, "Eigenvectors of H" );
         }
+        if( mpi::Rank() == 0 )
+            Output("HermitianEig time: ",timer.Total()," secs");
     }
     catch( exception& e ) { ReportException(e); }
 

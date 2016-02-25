@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -75,11 +75,11 @@ void TestCorrectness
 
 template<typename F>
 void TestRQ
-( bool testCorrectness,
-  bool print,
+( const Grid& g,
   Int m,
   Int n,
-  const Grid& g )
+  bool testCorrectness,
+  bool print )
 {
     if( g.Rank() == 0 )
         Output("Testing with ",TypeName<F>());
@@ -121,20 +121,27 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
         Int r = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",100);
-        const Int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",200);
+        const Int n = Input("--width","width of matrix",200);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -143,8 +150,25 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestRQ<double>( testCorrectness, print, m, n, g );
-        TestRQ<Complex<double>>( testCorrectness, print, m, n, g );
+        TestRQ<float>( g, m, n, testCorrectness, print );
+        TestRQ<Complex<float>>( g, m, n, testCorrectness, print );
+
+        TestRQ<double>( g, m, n, testCorrectness, print );
+        TestRQ<Complex<double>>( g, m, n, testCorrectness, print );
+
+#ifdef EL_HAVE_QD
+        TestRQ<DoubleDouble>( g, m, n, testCorrectness, print );
+        TestRQ<QuadDouble>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestRQ<Quad>( g, m, n, testCorrectness, print );
+        TestRQ<Complex<Quad>>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestRQ<BigFloat>( g, m, n, testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

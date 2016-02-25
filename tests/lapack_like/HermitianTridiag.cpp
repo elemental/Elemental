@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -93,28 +93,18 @@ void TestCorrectness
 }
 
 template<typename F>
-void TestHermitianTridiag
+void InnerTestHermitianTridiag
 ( UpperOrLower uplo,
-  Int m,
-  const Grid& g, 
+        DistMatrix<F>& A,
+        DistMatrix<F,STAR,STAR>& t,
+  const HermitianTridiagCtrl<F>& ctrl,
   bool testCorrectness,
   bool print,
-  bool display, 
-  const HermitianTridiagCtrl<F>& ctrl )
+  bool display )
 {
-    DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,STAR,STAR> t(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
-
-    //HermitianUniformSpectrum( A, m, -10, 10 );
-    Wigner( A, m );
-    if( testCorrectness )
-        AOrig = A;
-    if( print )
-        Print( A, "A" );
-    if( display )
-        Display( A, "A" );
+    DistMatrix<F> AOrig( A ), ACopy( A );
+    const Int m = A.Height();
+    const Grid& g = A.Grid();
 
     if( g.Rank() == 0 )
         Output("  Starting tridiagonalization...");
@@ -139,6 +129,56 @@ void TestHermitianTridiag
     }
     if( testCorrectness )
         TestCorrectness( uplo, A, t, AOrig, print, display );
+    A = ACopy;
+}
+
+template<typename F>
+void TestHermitianTridiag
+( const Grid& g,
+  UpperOrLower uplo,
+  Int m,
+  Int nbLocal,
+  bool avoidTrmv,
+  bool testCorrectness,
+  bool print,
+  bool display )
+{
+    DistMatrix<F> A(g), AOrig(g);
+    DistMatrix<F,STAR,STAR> t(g);
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
+
+    HermitianTridiagCtrl<F> ctrl;
+    ctrl.symvCtrl.bsize = nbLocal;
+    ctrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+
+    Wigner( A, m );
+    if( testCorrectness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+    if( display )
+        Display( A, "A" );
+
+    if( g.Rank() == 0 )
+        Output("Normal algorithm:");
+    ctrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+    InnerTestHermitianTridiag
+    ( uplo, A, t, ctrl, testCorrectness, print, display );
+
+    if( g.Rank() == 0 )
+        Output("Square row-major algorithm:");
+    ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+    ctrl.order = ROW_MAJOR;
+    InnerTestHermitianTridiag
+    ( uplo, A, t, ctrl, testCorrectness, print, display );
+
+    if( g.Rank() == 0 )
+        Output("Square column-major algorithm:");
+    ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+    ctrl.order = COLUMN_MAJOR;
+    InnerTestHermitianTridiag
+    ( uplo, A, t, ctrl, testCorrectness, print, display );
 }
 
 int 
@@ -146,8 +186,8 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
+    const int commRank = mpi::Rank( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -165,8 +205,15 @@ main( int argc, char* argv[] )
         const bool display = Input("--display","display matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -179,71 +226,43 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test HermitianTridiag",uploChar);
 
-        HermitianTridiagCtrl<double> ctrl_d;
-        ctrl_d.symvCtrl.bsize = nbLocal;
-        ctrl_d.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+        if( testReal )
+            TestHermitianTridiag<float>
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
+        if( testCpx )
+            TestHermitianTridiag<Complex<float>>
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
 
-        HermitianTridiagCtrl<Complex<double>> ctrl_z;
-        ctrl_z.symvCtrl.bsize = nbLocal;
-        ctrl_z.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
-#ifdef EL_HAVE_QUAD
-        HermitianTridiagCtrl<Quad> ctrl_quad;
-        ctrl_quad.symvCtrl.bsize = nbLocal;
-        ctrl_quad.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+        if( testReal )
+            TestHermitianTridiag<double>
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
+        if( testCpx )
+            TestHermitianTridiag<Complex<double>>
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
 
-        HermitianTridiagCtrl<Complex<Quad>> ctrl_complex_quad;
-        ctrl_complex_quad.symvCtrl.bsize = nbLocal;
-        ctrl_complex_quad.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+#ifdef EL_HAVE_QD
+        if( testReal )
+        {
+            TestHermitianTridiag<DoubleDouble>
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
+            TestHermitianTridiag<QuadDouble>
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
+        }
 #endif
-#ifdef EL_HAVE_MPC
-        HermitianTridiagCtrl<BigFloat> ctrl_bf;
-        ctrl_bf.symvCtrl.bsize = nbLocal;
-        ctrl_bf.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
-#endif
 
-        if( commRank == 0 )
-            Output("Normal algorithms:");
-        ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_NORMAL;
-        if( testReal )
-            TestHermitianTridiag<double>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_d );
-        if( testCpx )
-            TestHermitianTridiag<Complex<double>>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_z );
-
-        if( commRank == 0 )
-            Output("Square row-major algorithm:");
-        ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_d.order = ctrl_z.order = ROW_MAJOR;
-        if( testReal )
-            TestHermitianTridiag<double>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_d );
-        if( testCpx )
-            TestHermitianTridiag<Complex<double>>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_z );
-
-        if( commRank == 0 )
-            Output("Square column-major algorithm:");
-        ctrl_d.approach = ctrl_z.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_d.order = ctrl_z.order = COLUMN_MAJOR;
-        if( testReal )
-            TestHermitianTridiag<double>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_d );
-        if( testCpx )
-            TestHermitianTridiag<Complex<double>>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_z );
 #ifdef EL_HAVE_QUAD
         if( testReal )
             TestHermitianTridiag<Quad>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_quad );
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
         if( testCpx )
             TestHermitianTridiag<Complex<Quad>>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_complex_quad );
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
 #endif
+
 #ifdef EL_HAVE_MPC
         if( testReal )
             TestHermitianTridiag<BigFloat>
-            ( uplo, m, g, testCorrectness, print, display, ctrl_bf );
+            ( g, uplo, m, nbLocal, avoidTrmv, testCorrectness, print, display );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -15,9 +15,8 @@ Base<F> TwoCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("TwoCondition"))
     typedef Base<F> Real;
-    Matrix<F> B( A );
     Matrix<Real> s;
-    SVD( B, s );
+    SVD( A, s );
 
     Real cond = 1;
     const Int numVals = s.Height();
@@ -31,9 +30,8 @@ Base<F> TwoCondition( const ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("TwoCondition"))
     typedef Base<F> Real;
-    DistMatrix<F> B( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
-    SVD( B, s );
+    SVD( A, s );
 
     Real cond = 1;
     const Int numVals = s.Height();

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -90,9 +90,7 @@ main( int argc, char* argv[] )
                 break;
             };
 
-            // Make a copy of A and then perform the SVD
-            U = A;
-            SVD( U, s, V, ctrl );
+            SVD( A, U, s, V, ctrl );
 
             const Real twoNormA = MaxNorm( s );
             const Real maxNormA = MaxNorm( A );

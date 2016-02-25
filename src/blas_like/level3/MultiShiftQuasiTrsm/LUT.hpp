@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -141,7 +141,7 @@ LUTUnb
                 const C delta22 = UBuf[(k+1)+(k+1)*ldU] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; C s;
-                const C gamma11 = blas::Givens( delta11, delta21, &c, &s );
+                const C gamma11 = blas::Givens( delta11, C(delta21), &c, &s );
                 const C gamma12 =        c*delta12 + s*delta22;
                 const C gamma22 = -Conj(s)*delta12 + c*delta22;
 

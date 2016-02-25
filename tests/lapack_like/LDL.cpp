@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -54,15 +54,18 @@ void TestCorrectness
 
 template<typename F> 
 void TestLDL
-( bool conjugated,
-  bool testCorrectness,
-  bool print, 
+( const Grid& g,
   Int m,
-  const Grid& g )
+  bool conjugated,
+  Int nbLocal,
+  bool testCorrectness,
+  bool print )
 {
     DistMatrix<F> A(g), AOrig(g);
     if( g.Rank() == 0 )
         Output("Testing with ",TypeName<F>());
+
+    SetLocalTrrkBlocksize<F>( nbLocal );
 
     if( conjugated )
         HermitianUniformSpectrum( A, m, -100, 100 );
@@ -102,7 +105,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -115,20 +118,51 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, r, order );
         SetBlocksize( nb );
-        SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
 
-        TestLDL<double>( conjugated, testCorrectness, print, m, g );
-        TestLDL<Complex<double>>( conjugated, testCorrectness, print, m, g );
+        TestLDL<float>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+        TestLDL<Complex<float>>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+
+        TestLDL<double>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+        TestLDL<Complex<double>>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+
+#ifdef EL_HAVE_QD
+        TestLDL<DoubleDouble>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+        TestLDL<QuadDouble>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestLDL<Quad>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+        TestLDL<Complex<Quad>>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestLDL<BigFloat>
+        ( g, m, conjugated, nbLocal, testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

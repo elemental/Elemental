@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,10 +11,10 @@ using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( const DistMatrix<F,VC,  STAR>& U,
+(       DistMatrix<F,VC,  STAR>& A,
+  const DistMatrix<F,VC,  STAR>& U,
   const DistMatrix<Base<F>,STAR,STAR>& s,
   const DistMatrix<F,STAR,STAR>& V,
-        DistMatrix<F,VC,  STAR>& A,
   bool print )
 {
     typedef Base<F> Real;
@@ -78,9 +78,14 @@ void TestCorrectness
 
 template<typename F>
 void TestSVD
-( bool testCorrectness, bool print,
-  Int m, Int n, const Grid& g )
+( const Grid& g,
+  Int m,
+  Int n,
+  bool testCorrectness,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F,VC,STAR> A(g), U(g);
     DistMatrix<Base<F>,STAR,STAR> s(g);
     DistMatrix<F,STAR,STAR> V(g); 
@@ -88,13 +93,12 @@ void TestSVD
     Uniform( A, m, n );
     if( print )
         Print( A, "A" );
-    U = A;
 
     if( g.Rank() == 0 )
         Output("  Starting TSQR factorization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    svd::TSQR( U, s, V );
+    svd::TSQR( A, U, s, V );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
@@ -106,7 +110,7 @@ void TestSVD
         Print( V, "V" );
     }
     if( testCorrectness )
-        TestCorrectness( U, s, V, A, print );
+        TestCorrectness( A, U, s, V, print );
 }
 
 int 
@@ -114,7 +118,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
+    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -135,13 +139,11 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test TSSVD");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestSVD<double>( testCorrectness, print, m, n, g );
+        TestSVD<float>( g, m, n, testCorrectness, print );
+        TestSVD<Complex<float>>( g, m, n, testCorrectness, print );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
-        TestSVD<Complex<double>>( testCorrectness, print, m, n, g );
+        TestSVD<double>( g, m, n, testCorrectness, print );
+        TestSVD<Complex<double>>( g, m, n, testCorrectness, print );
     }
     catch( exception& e ) { ReportException(e); }
 

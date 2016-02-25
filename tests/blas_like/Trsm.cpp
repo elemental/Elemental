@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,11 +11,18 @@ using namespace El;
 
 template<typename F> 
 void TestTrsm
-( bool print,
-  LeftOrRight side, UpperOrLower uplo, 
-  Orientation orientation, UnitOrNonUnit diag,
-  Int m, Int n, F alpha, const Grid& g )
+( LeftOrRight side,
+  UpperOrLower uplo, 
+  Orientation orientation,
+  UnitOrNonUnit diag,
+  Int m,
+  Int n,
+  F alpha,
+  const Grid& g,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F> A(g), X(g);
 
     if( side == LEFT )
@@ -102,14 +109,61 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test Trsm ",sideChar,uploChar,transChar,diagChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestTrsm<double>( print, side, uplo, orientation, diag, m, n, 3., g );
+        TestTrsm<float>
+        ( side, uplo, orientation, diag,
+          m, n,
+          float(3),
+          g, print );
+        TestTrsm<Complex<float>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<float>(3),
+          g, print );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestTrsm<double>
+        ( side, uplo, orientation, diag,
+          m, n,
+          double(3),
+          g, print );
         TestTrsm<Complex<double>>
-        ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<double>(3),
+          g, print );
+
+#ifdef EL_HAVE_QD
+        TestTrsm<DoubleDouble>
+        ( side, uplo, orientation, diag,
+          m, n,
+          DoubleDouble(3),
+          g, print );
+        TestTrsm<QuadDouble>
+        ( side, uplo, orientation, diag,
+          m, n,
+          QuadDouble(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestTrsm<Quad>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Quad(3),
+          g, print );
+        TestTrsm<Complex<Quad>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<Quad>(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestTrsm<BigFloat>
+        ( side, uplo, orientation, diag,
+          m, n,
+          BigFloat(3),
+          g, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

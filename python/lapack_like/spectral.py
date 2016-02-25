@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -529,7 +529,7 @@ def HermitianSVD(uplo,A,vectors=True):
     if vectors:
       U = Matrix(A.tag)
       V = Matrix(A.tag)
-      args = [uplo,A.obj,s.obj,U.obj,V.obj]
+      args = [uplo,A.obj,U.obj,s.obj,V.obj]
       if   A.tag == sTag: lib.ElHermitianSVD_s(*args)
       elif A.tag == dTag: lib.ElHermitianSVD_d(*args)
       elif A.tag == cTag: lib.ElHermitianSVD_c(*args)
@@ -549,7 +549,7 @@ def HermitianSVD(uplo,A,vectors=True):
     if vectors:
       U = DistMatrix(A.tag,MC,MR,A.Grid())
       V = DistMatrix(A.tag,MC,MR,A.Grid())
-      args = [uplo,A.obj,s.obj,U.obj,V.obj]
+      args = [uplo,A.obj,U.obj,s.obj,V.obj]
       if   A.tag == sTag: lib.ElHermitianSVDDist_s(*args)
       elif A.tag == dTag: lib.ElHermitianSVDDist_d(*args)
       elif A.tag == cTag: lib.ElHermitianSVDDist_c(*args)
@@ -885,20 +885,32 @@ def Eig(A):
 # Singular value decomposition
 # ============================
 
+(THIN_SVD,COMPACT_SVD,FULL_SVD,PRODUCT_SVD)=(0,1,2,3)
+
 class SVDCtrl_s(ctypes.Structure):
-  _fields_ = [("seqQR",bType),
+  _fields_ = [("approach",c_uint),
+              ("overwrite",bType),
+              ("avoidComputingU",bType),
+              ("avoidComputingV",bType),
+              ("time",bType),
+              ("avoidLibflame",bType),
+              ("seqQR",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
-              ("thesholded",bType),
               ("relative",bType),
               ("tol",sType)]
   def __init__(self):
     lib.ElSVDCtrlDefault_s(pointer(self))
 class SVDCtrl_d(ctypes.Structure):
-  _fields_ = [("seqQR",bType),
+  _fields_ = [("approach",c_uint),
+              ("overwrite",bType),
+              ("avoidComputingU",bType),
+              ("avoidComputingV",bType),
+              ("time",bType),
+              ("avoidLibflame",bType),
+              ("seqQR",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
-              ("thesholded",bType),
               ("relative",bType),
               ("tol",dType)]
   def __init__(self):
@@ -982,19 +994,20 @@ lib.ElSVDX_s.argtypes = \
 lib.ElSVDX_c.argtypes = \
 lib.ElSVDXDist_s.argtypes = \
 lib.ElSVDXDist_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,SVDCtrl_s]
+  [c_void_p,c_void_p,c_void_p,c_void_p,SVDCtrl_s]
 lib.ElSVDX_d.argtypes = \
 lib.ElSVDX_z.argtypes = \
 lib.ElSVDXDist_d.argtypes = \
 lib.ElSVDXDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,SVDCtrl_d]
+  [c_void_p,c_void_p,c_void_p,c_void_p,SVDCtrl_d]
 
 def SVD(A,ctrl=None):
   if type(A) is Matrix:
     s = Matrix(Base(A.tag))
+    U = Matrix(A.tag)
     V = Matrix(A.tag)
-    args = [A.obj,s.obj,V.obj]
-    argsCtrl = [A.obj,s.obj,V.obj,ctrl]
+    args = [A.obj,U.obj,s.obj,V.obj]
+    argsCtrl = [A.obj,U.obj,s.obj,V.obj,ctrl]
     if   A.tag == sTag:
       if ctrl==None: lib.ElSVD_s(*args)
       else:          lib.ElSVDX_s(*argsCtrl)
@@ -1008,12 +1021,13 @@ def SVD(A,ctrl=None):
       if ctrl==None: lib.ElSVD_z(*args)
       else:          lib.ElSVDX_z(*argsCtrl)
     else: DataExcept()
-    return s, V
+    return U, s, V
   elif type(A) is DistMatrix:
     s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
+    U = DistMatrix(A.tag,MC,MR,A.Grid())
     V = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [A.obj,s.obj,V.obj]
-    argsCtrl = [A.obj,s.obj,V.obj,ctrl]
+    args = [A.obj,U.obj,s.obj,V.obj]
+    argsCtrl = [A.obj,U.obj,s.obj,V.obj,ctrl]
     if   A.tag == sTag:
       if ctrl==None: lib.ElSVDDist_s(*args)
       else:          lib.ElSVDXDist_s(*argsCtrl)
@@ -1027,25 +1041,26 @@ def SVD(A,ctrl=None):
       if ctrl==None: lib.ElSVDDist_z(*args)
       else:          lib.ElSVDXDist_z(*argsCtrl)
     else: DataExcept()
-    return s, V
+    return U, s, V
   else: TypeExcept()
 
 lib.ElTSQRSVD_s.argtypes = \
 lib.ElTSQRSVD_d.argtypes = \
 lib.ElTSQRSVD_c.argtypes = \
 lib.ElTSQRSVD_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p]
+  [c_void_p,c_void_p,c_void_p,c_void_p]
 def TSQRSVD(A):
   if type(A) is DistMatrix:
     s = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
+    U = DistMatrix(A.tag,STAR,STAR,A.Grid())
     V = DistMatrix(A.tag,STAR,STAR,A.Grid())
-    args = [A.obj,s.obj,V.obj]
+    args = [A.obj,U.obj,s.obj,V.obj]
     if   A.tag == sTag: lib.ElTSQRSVD_s(*args)
     elif A.tag == dTag: lib.ElTSQRSVD_d(*args)
     elif A.tag == cTag: lib.ElTSQRSVD_c(*args)
     elif A.tag == zTag: lib.ElTSQRSVD_z(*args)
     else: DataExcept()
-    return s, V
+    return U, s, V
   else: TypeExcept()
 
 # Product Lanczos

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -13,8 +13,10 @@ namespace El {
 template<typename F> 
 void Ridge
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& B, 
-        Base<F> gamma,      Matrix<F>& X, 
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+        Base<F> gamma,
+        Matrix<F>& X, 
   RidgeAlg alg )
 {
     DEBUG_ONLY(CSE cse("Ridge"))
@@ -66,10 +68,20 @@ void Ridge
             Matrix<F> U, V;
             Matrix<Base<F>> s; 
             if( orientation == NORMAL )
-                U = A;
+            {
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = false;
+                SVD( A, U, s, V, ctrl );
+            }
             else
-                Adjoint( A, U );
-            SVD( U, s, V );
+            {
+                Matrix<F> AAdj;
+                Adjoint( A, AAdj );
+
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = true;
+                SVD( AAdj, U, s, V, ctrl );
+            }
             auto sigmaMap = 
               [=]( Base<F> sigma ) 
               { return sigma / (sigma*sigma + gamma*gamma); };
@@ -153,10 +165,21 @@ void Ridge
             DistMatrix<F> U(A.Grid()), V(A.Grid());
             DistMatrix<Base<F>,VR,STAR> s(A.Grid());
             if( orientation == NORMAL )
-                U = A;
+            {
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = false;
+                SVD( A, U, s, V, ctrl );
+            }
             else
-                Adjoint( A, U );
-            SVD( U, s, V );
+            {
+                DistMatrix<F> AAdj(A.Grid());
+                Adjoint( A, AAdj );
+
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = true;
+                SVD( AAdj, U, s, V );
+            }
+
             auto sigmaMap = 
               [=]( Base<F> sigma ) 
               { return sigma / (sigma*sigma + gamma*gamma); };
@@ -252,6 +275,8 @@ void Ridge
 #define EL_NO_INT_PROTO
 // NOTE: These will be enabled when there is SVD support
 /*
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 */

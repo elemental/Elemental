@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BLAS_COPY_HPP
 #define EL_BLAS_COPY_HPP
 
@@ -251,7 +250,8 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
     T* BBuf = B.Buffer();
     const Int BLDim = B.LDim();
     
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     for( Int e=0; e<numEntries; ++e )
         BBuf[ARowBuf[e]+AColBuf[e]*BLDim] = Caster<S,T>::Cast(AValBuf[e]);
 }
@@ -277,7 +277,8 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumLocalEntries();
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     B.Reserve( numEntries );
     for( Int e=0; e<numEntries; ++e )
         B.QueueUpdate( A.Row(e), A.Col(e), Caster<S,T>::Cast(A.Value(e)) );
@@ -368,7 +369,8 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     B.Reserve( mLoc*n );
     for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {
@@ -389,7 +391,8 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     const Int nLoc = A.LocalWidth();
     mpi::Comm comm = A.Grid().Comm();
     B.SetComm( comm );
-    Zeros( B, m, n );
+    B.Resize( m, n );
+    Zero( B );
     B.Reserve( mLoc*nLoc );
     for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {
@@ -495,6 +498,54 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
           (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
     }
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void Copy \
+  ( const Matrix<T>& A, Matrix<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK>& B, \
+    bool includingViewers ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( DistMatrix<T,CIRC,CIRC,BLOCK>& B, bool includingViewers ); \
+  EL_EXTERN template void Copy \
+  ( const SparseMatrix<T>& A, SparseMatrix<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( const DistSparseMatrix<T>& ADist, int root ); \
+  EL_EXTERN template void Copy \
+  ( const DistMultiVec<T>& A, DistMultiVec<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B ); \
+  EL_EXTERN template void Copy \
+  ( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B ); \
+  EL_EXTERN template void CopyFromRoot \
+  ( const DistMultiVec<T>& XDist, Matrix<T>& X ); \
+  EL_EXTERN template void CopyFromNonRoot \
+  ( const DistMultiVec<T>& XDist, int root );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
 

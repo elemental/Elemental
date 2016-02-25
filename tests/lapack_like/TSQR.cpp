@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -56,9 +56,14 @@ void TestCorrectness
 
 template<typename F>
 void TestQR
-( bool testCorrectness, bool print,
-  Int m, Int n, const Grid& g )
+( const Grid& g,
+  Int m,
+  Int n,
+  bool testCorrectness,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     DistMatrix<F,VC,STAR> A(g), AFact(g);
     DistMatrix<F,STAR,STAR> R(g);
 
@@ -93,7 +98,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
+    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -104,8 +109,15 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, order );
@@ -114,13 +126,25 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test TSQR");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestQR<double>( testCorrectness, print, m, n, g );
+        TestQR<float>( g, m, n, testCorrectness, print );
+        TestQR<Complex<float>>( g, m, n, testCorrectness, print );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
-        TestQR<Complex<double>>( testCorrectness, print, m, n, g );
+        TestQR<double>( g, m, n, testCorrectness, print );
+        TestQR<Complex<double>>( g, m, n, testCorrectness, print );
+
+#ifdef EL_HAVE_QD
+        TestQR<DoubleDouble>( g, m, n, testCorrectness, print );
+        TestQR<QuadDouble>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestQR<Quad>( g, m, n, testCorrectness, print );
+        TestQR<Complex<Quad>>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestQR<BigFloat>( g, m, n, testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

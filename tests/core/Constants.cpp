@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -34,6 +34,10 @@ main( int argc, char* argv[] )
     {
         QueryLimits<float>( "Single-precision:" );
         QueryLimits<double>( "Double-precision:" );
+#ifdef EL_HAVE_QD
+        QueryLimits<DoubleDouble>( "DoubleDouble:" );
+        QueryLimits<QuadDouble>( "QuadDouble:" );
+#endif
 #ifdef EL_HAVE_QUAD
         QueryLimits<Quad>( "Quad-precision:" );
 #endif

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -38,11 +38,14 @@ class LLLCtrl_s(ctypes.Structure):
   _fields_ = [("delta",sType),
               ("eta",sType),
               ("variant",c_uint),
+              ("recursive",bType),
+              ("cutoff",iType),
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",sType),
               ("numOrthog",iType),
               ("zeroTol",sType),
+              ("blockingThresh",sType),
               ("progress",bType),
               ("time",bType),
               ("jumpstart",bType),
@@ -53,11 +56,14 @@ class LLLCtrl_d(ctypes.Structure):
   _fields_ = [("delta",dType),
               ("eta",dType),
               ("variant",c_uint),
+              ("recursive",bType),
+              ("cutoff",iType),
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",dType),
               ("numOrthog",iType),
               ("zeroTol",dType),
+              ("blockingThresh",sType),
               ("progress",bType),
               ("time",bType),
               ("jumpstart",bType),
@@ -81,11 +87,11 @@ lib.ElLLLFormR_z.argtypes = \
 
 lib.ElLLLFull_s.argtypes = \
 lib.ElLLLFull_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,
+  [c_void_p,c_void_p,c_void_p,
    LLLCtrl_s,POINTER(LLLInfo_s)]
 lib.ElLLLFull_d.argtypes = \
 lib.ElLLLFull_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,
+  [c_void_p,c_void_p,c_void_p,
    LLLCtrl_d,POINTER(LLLInfo_d)]
 
 (LLL_LATTICE_ONLY,LLL_FORM_R,LLL_FULL)=(0,1,2)
@@ -102,12 +108,11 @@ def LLL(B,mode=LLL_LATTICE_ONLY,ctrl=None):
 
   if type(B) is Matrix:
     U = Matrix(B.tag)
-    UInv = Matrix(B.tag)
     R = Matrix(B.tag)
 
     args = [B.obj,ctrl,pointer(info)]
     argsFormR = [B.obj,R.obj,ctrl,pointer(info)]
-    argsFull = [B.obj,U.obj,UInv.obj,R.obj,ctrl,pointer(info)]
+    argsFull = [B.obj,U.obj,R.obj,ctrl,pointer(info)]
 
     if   B.tag == sTag:
       if   mode==LLL_FULL:   lib.ElLLLFull_s(*argsFull)
@@ -128,7 +133,7 @@ def LLL(B,mode=LLL_LATTICE_ONLY,ctrl=None):
     else: DataExcept()
 
     if mode==LLL_FULL:
-      return U, UInv, R, info
+      return U, R, info
     elif mode==LLL_FORM_R:
       return R, info
     else:
@@ -161,6 +166,29 @@ def LatticeImageAndKernel(B,ctrl=None):
     elif B.tag == zTag: lib.ElLatticeImageAndKernel_z(*args)
     else: DataExcept()
     return M, K
+  else: TypeExcept()
+
+lib.ElLatticeImage_s.argtypes = \
+lib.ElLatticeImage_c.argtypes = \
+  [c_void_p,c_void_p,LLLCtrl_s]
+lib.ElLatticeImage_d.argtypes = \
+lib.ElLatticeImage_z.argtypes = \
+  [c_void_p,c_void_p,LLLCtrl_d]
+
+def LatticeImage(B,ctrl=None):
+  if ctrl==None:
+    if   B.tag == sTag or B.tag == cTag: ctrl = LLLCtrl_s()
+    elif B.tag == dTag or B.tag == zTag: ctrl = LLLCtrl_d()
+
+  if type(B) is Matrix:
+    M = Matrix(B.tag)
+    args = [B.obj,M.obj,ctrl]
+    if   B.tag == sTag: lib.ElLatticeImage_s(*args)
+    elif B.tag == dTag: lib.ElLatticeImage_d(*args)
+    elif B.tag == cTag: lib.ElLatticeImage_c(*args)
+    elif B.tag == zTag: lib.ElLatticeImage_z(*args)
+    else: DataExcept()
+    return M
   else: TypeExcept()
 
 lib.ElLatticeKernel_s.argtypes = \

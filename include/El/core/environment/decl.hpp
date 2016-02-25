@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_ENVIRONMENT_DECL_HPP
 #define EL_ENVIRONMENT_DECL_HPP
 
@@ -118,12 +117,14 @@ inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 template<typename T>
 void MemCopy( T* dest, const T* source, size_t numEntries );
 #ifdef EL_HAVE_MPC
+void MemCopy( BigInt* dest, const BigInt* source, size_t numEntries );
 void MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries );
 #endif
 
 template<typename T>
 void MemSwap( T* a, T* b, T* temp, size_t numEntries );
 #ifdef EL_HAVE_MPC
+void MemSwap( BigInt* a, BigInt* b, BigInt* temp, size_t numEntries );
 void MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries );
 #endif
 
@@ -133,6 +134,9 @@ void StridedMemCopy
 (       T* dest,   Int destStride,
   const T* source, Int sourceStride, Int numEntries );
 #ifdef EL_HAVE_MPC
+void StridedMemCopy
+(       BigInt* dest,   Int destStride,
+  const BigInt* source, Int sourceStride, Int numEntries );
 void StridedMemCopy
 (       BigFloat* dest,   Int destStride,
   const BigFloat* source, Int sourceStride, Int numEntries );
@@ -150,6 +154,7 @@ inline void CopySTL( const S& a, T& b )
 template<typename T>
 void MemZero( T* buffer, size_t numEntries );
 #ifdef EL_HAVE_MPC
+void MemZero( BigInt* buffer, size_t numEntries );
 void MemZero( BigFloat* buffer, size_t numEntries );
 #endif
 
@@ -177,6 +182,13 @@ inline void FastResize( vector<T>& v, Int numEntries )
 #endif
 }
 #ifdef EL_HAVE_MPC
+inline void FastResize( vector<BigInt>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<ValueInt<BigInt>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<Entry<BigInt>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+
 inline void FastResize( vector<BigFloat>& v, Int numEntries )
 { v.resize( numEntries ); }
 inline void FastResize( vector<ValueInt<BigFloat>>& v, Int numEntries )

@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -77,9 +77,11 @@ elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
       -D PCRE=${METIS_PCRE}
       -D GKREGEX=${METIS_GKREGEX}
       -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -D CMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
       -D MPI_C_INCLUDE_PATH=${MPI_C_INCSTRING}
+      -D MPI_C_COMPILE_FLAGS=${MPI_C_COMPILE_FLAGS}
       -D MPI_C_LIBRARIES=${MPI_C_LIBSTRING}
       -D MPI_LINK_FLAGS=${MPI_LINK_FLAGS}
       -D DISABLE_PARMETIS_PROGRAMS=ON

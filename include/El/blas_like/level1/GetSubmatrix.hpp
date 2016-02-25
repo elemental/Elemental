@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BLAS_GETSUBMATRIX_HPP
 #define EL_BLAS_GETSUBMATRIX_HPP
 
@@ -52,7 +51,8 @@ void GetSubmatrix
     if( J.end == END ) J.end = A.Width();
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     const Int* offsetBuf = A.LockedOffsetBuffer();
     const Int* colBuf = A.LockedTargetBuffer();
@@ -137,7 +137,8 @@ void GetSubmatrix
     if( J.end == END ) J.end = A.Width();
 
     ASub.SetComm( A.Comm() );
-    Zeros( ASub, I.end-I.beg, J.end-J.beg );
+    ASub.Resize( I.end-I.beg, J.end-J.beg );
+    Zero( ASub );
 
     // Count the number of updates
     // ===========================
@@ -218,7 +219,8 @@ void GetSubmatrix
     const Int localHeight = A.LocalHeight();
 
     ASub.SetComm( A.Comm() );
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
     
     const T* ABuf = A.LockedMatrix().LockedBuffer();
     const Int ALDim = A.LockedMatrix().LDim();
@@ -353,7 +355,8 @@ void GetSubmatrix
     const Int nSub = J.size();
     const Grid& g = A.Grid();
     ASub.SetGrid( g ); 
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     // TODO: Intelligently pick the redundant rank to pack from?
 
@@ -408,7 +411,8 @@ void GetSubmatrix
     const Int nSub = J.end-J.beg;
     const Grid& g = A.Grid();
     ASub.SetGrid( g ); 
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     // TODO: Intelligently pick the redundant rank to pack from?
 
@@ -463,7 +467,8 @@ void GetSubmatrix
     const Int nSub = J.size();
     const Grid& g = A.Grid();
     ASub.SetGrid( g ); 
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     // TODO: Intelligently pick the redundant rank to pack from?
 
@@ -541,6 +546,123 @@ void GetSubmatrix
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J,  \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const ElementalMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          ElementalMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+    const Range<Int> I, \
+    const vector<Int>& J,  \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+    const vector<Int>& I, \
+    const Range<Int> J, \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          AbstractDistMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          AbstractDistMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          AbstractDistMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          DistMultiVec<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          DistMultiVec<T>& ASub );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
 

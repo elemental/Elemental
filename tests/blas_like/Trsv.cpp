@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,9 +11,15 @@ using namespace El;
 
 template<typename F> 
 void TestTrsv
-( bool print, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
-  Int n, const Grid& g )
+( UpperOrLower uplo,
+  Orientation orientation,
+  UnitOrNonUnit diag,
+  Int n,
+  const Grid& g,
+  bool print )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     typedef Base<F> Real;
     DistMatrix<F> A(g), x(g), y(g);
 
@@ -91,13 +97,25 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             Output("Will test Trsv ",uploChar,transChar,diagChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestTrsv<double>( print, uplo, orientation, diag, n, g );
+        TestTrsv<float>( uplo, orientation, diag, n, g, print );
+        TestTrsv<Complex<float>>( uplo, orientation, diag, n, g, print );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
-        TestTrsv<Complex<double>>( print, uplo, orientation, diag, n, g );
+        TestTrsv<double>( uplo, orientation, diag, n, g, print );
+        TestTrsv<Complex<double>>( uplo, orientation, diag, n, g, print );
+
+#ifdef EL_HAVE_QD
+        TestTrsv<DoubleDouble>( uplo, orientation, diag, n, g, print );
+        TestTrsv<QuadDouble>( uplo, orientation, diag, n, g, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestTrsv<Quad>( uplo, orientation, diag, n, g, print );
+        TestTrsv<Complex<Quad>>( uplo, orientation, diag, n, g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestTrsv<BigFloat>( uplo, orientation, diag, n, g, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

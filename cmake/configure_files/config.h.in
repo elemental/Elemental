@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -67,6 +67,7 @@
 #cmakedefine EL_HAVE_FLA_BSVD
 #cmakedefine EL_HAVE_QUAD
 #cmakedefine EL_HAVE_QUADMATH
+#cmakedefine EL_HAVE_QD
 #cmakedefine EL_HAVE_MPC
 #cmakedefine EL_HAVE_MKL
 #cmakedefine EL_DISABLE_MKL_CSRMV
@@ -97,7 +98,6 @@
 
 /* Sparse-direct configuration */
 #cmakedefine EL_USE_CUSTOM_ALLTOALLV
-#cmakedefine EL_BARRIER_IN_ALLTOALLV
 #cmakedefine EL_HAVE_METIS
 #cmakedefine EL_HAVE_PARMETIS
 

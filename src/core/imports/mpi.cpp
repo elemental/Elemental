@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
                       2013, Jeff Hammond
                       2013, Jed Brown
    All rights reserved.
@@ -383,45 +383,174 @@ void Barrier( Comm comm ) EL_NO_RELEASE_EXCEPT
 }
 
 // Test for completion
-bool Test( Request& request ) EL_NO_RELEASE_EXCEPT
+template<typename T>
+bool Test( Request<T>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Test"))
     Status status;
     int flag;
-    SafeMpi( MPI_Test( &request, &flag, &status ) );
+    SafeMpi( MPI_Test( &request.backend, &flag, &status ) );
     return flag;
 }
 
 // Ensure that the request finishes before continuing
-void Wait( Request& request ) EL_NO_RELEASE_EXCEPT
+template<typename T>
+void Wait( Request<T>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Wait"))
     Status status;
-    SafeMpi( MPI_Wait( &request, &status ) );
+    Wait( request, status );
 }
 
 // Ensure that the request finishes before continuing
-void Wait( Request& request, Status& status ) EL_NO_RELEASE_EXCEPT
+template<typename T>
+void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Wait"))
-    SafeMpi( MPI_Wait( &request, &status ) );
+    SafeMpi( MPI_Wait( &request.backend, &status ) );
 }
 
 // Ensure that several requests finish before continuing
-void WaitAll( int numRequests, Request* requests ) EL_NO_RELEASE_EXCEPT
+template<typename T>
+void WaitAll( int numRequests, Request<T>* requests ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WaitAll"))
     vector<Status> statuses( numRequests );
-    SafeMpi( MPI_Waitall( numRequests, requests, statuses.data() ) );
+    WaitAll( numRequests, requests, statuses.data() );
 }
 
 // Ensure that several requests finish before continuing
-void WaitAll( int numRequests, Request* requests, Status* statuses )
+template<typename T>
+void WaitAll( int numRequests, Request<T>* requests, Status* statuses )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::WaitAll"))
-    SafeMpi( MPI_Waitall( numRequests, requests, statuses ) );
+#ifndef EL_MPI_REQUEST_IS_NOT_POINTER
+    // Both MPICH and OpenMPI define MPI_Request to be a pointer to a structure,
+    // which implies that the following code is legal. AFAIK, there are not
+    // any popular MPI implementations which should break this logic, but 
+    // the alternative #ifdef logic is provided in case a breakage is observed.
+    vector<MPI_Request> backends( numRequests );
+    for( Int j=0; j<numRequests; ++j )
+        backends[j] = requests[j].backend;
+    SafeMpi( MPI_Waitall( numRequests, backends.data(), statuses ) );
+    // NOTE: This write back will almost always be superfluous, but it ensures
+    //       that any changes to the pointer are propagated
+    for( Int j=0; j<numRequests; ++j )
+        requests[j].backend = backends[j];
+#else
+    for( Int j=0; j<numRequests; ++j )
+    {
+        Status status;
+        MPI_Wait( &requests[j].backend, &status );
+    }
+#endif
 }
+
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedWait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedWait"))
+    SafeMpi( MPI_Wait( &request.backend, &status ) );
+    if( request.receivingPacked )
+    {
+        Deserialize
+        ( request.recvCount, request.buffer.data(), request.unpackedRecvBuf );
+        request.receivingPacked = false;
+    }
+    request.buffer.clear();
+}
+
+template<>
+void Wait( Request<BigInt>& request, Status& status ) EL_NO_RELEASE_EXCEPT
+{ PackedWait( request, status ); }
+template<>
+void Wait( Request<ValueInt<BigInt>>& request, Status& status )
+EL_NO_RELEASE_EXCEPT
+{ PackedWait( request, status ); }
+template<>
+void Wait( Request<Entry<BigInt>>& request, Status& status )
+EL_NO_RELEASE_EXCEPT
+{ PackedWait( request, status ); }
+
+template<>
+void Wait( Request<BigFloat>& request, Status& status ) EL_NO_RELEASE_EXCEPT
+{ PackedWait( request, status ); }
+template<>
+void Wait( Request<ValueInt<BigFloat>>& request, Status& status )
+EL_NO_RELEASE_EXCEPT
+{ PackedWait( request, status ); }
+template<>
+void Wait( Request<Entry<BigFloat>>& request, Status& status )
+EL_NO_RELEASE_EXCEPT
+{ PackedWait( request, status ); }
+
+template<typename T>
+void PackedWaitAll( int numRequests, Request<T>* requests, Status* statuses )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedWaitAll"))
+#ifndef EL_MPI_REQUEST_IS_NOT_POINTER
+    // Both MPICH and OpenMPI define MPI_Request to be a pointer to a structure,
+    // which implies that the following code is legal. AFAIK, there are not
+    // any popular MPI implementations which should break this logic, but 
+    // the alternative #ifdef logic is provided in case a breakage is observed.
+    vector<MPI_Request> backends( numRequests );
+    for( Int j=0; j<numRequests; ++j )
+        backends[j] = requests[j].backend;
+    SafeMpi( MPI_Waitall( numRequests, backends.data(), statuses ) );
+    // NOTE: This write back will almost always be superfluous, but it ensures
+    //       that any changes to the pointer are propagated
+    for( Int j=0; j<numRequests; ++j )
+        requests[j].backend = backends[j];
+#else
+    for( Int j=0; j<numRequests; ++j )
+    {
+        Status status;
+        MPI_Wait( &requests[j].backend, &status );
+    }
+#endif
+    for( Int j=0; j<numRequests; ++j )
+    {
+        if( requests[j].receivingPacked )
+        {
+            Deserialize
+            ( requests[j].recvCount,
+              requests[j].buffer.data(),
+              requests[j].unpackedRecvBuf );
+            requests[j].receivingPacked = false;
+        }
+        requests[j].buffer.clear();
+    }
+}
+
+template<>
+void WaitAll
+( int numRequests, Request<BigInt>* requests, Status* statuses )
+{ PackedWaitAll( numRequests, requests, statuses ); }
+template<>
+void WaitAll
+( int numRequests, Request<ValueInt<BigInt>>* requests, Status* statuses )
+{ PackedWaitAll( numRequests, requests, statuses ); }
+template<>
+void WaitAll
+( int numRequests, Request<Entry<BigInt>>* requests, Status* statuses )
+{ PackedWaitAll( numRequests, requests, statuses ); }
+
+template<>
+void WaitAll
+( int numRequests, Request<BigFloat>* requests, Status* statuses )
+{ PackedWaitAll( numRequests, requests, statuses ); }
+template<>
+void WaitAll
+( int numRequests, Request<ValueInt<BigFloat>>* requests, Status* statuses )
+{ PackedWaitAll( numRequests, requests, statuses ); }
+template<>
+void WaitAll
+( int numRequests, Request<Entry<BigFloat>>* requests, Status* statuses )
+{ PackedWaitAll( numRequests, requests, statuses ); }
+#endif
 
 // Nonblocking test for message completion
 bool IProbe( int source, int tag, Comm comm, Status& status )
@@ -449,10 +578,9 @@ void TaggedSend( const Real* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("mpi::TaggedSend"))
-    SafeMpi( 
-      MPI_Send
-      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm )
-    );
+    SafeMpi
+    ( MPI_Send
+      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm ) );
 }
 #ifdef EL_HAVE_MPC
 template<typename T>
@@ -461,10 +589,33 @@ void PackedTaggedSend( const T* buf, int count, int to, int tag, Comm comm )
     DEBUG_ONLY(CSE cse("mpi::PackedTaggedSend"))
     std::vector<byte> packedBuf;
     Serialize( count, buf, packedBuf );
-    SafeMpi( 
-      MPI_Send( packedBuf.data(), count, TypeMap<T>(), to, tag, comm.comm )
-    );
+    SafeMpi
+    ( MPI_Send( packedBuf.data(), count, TypeMap<T>(), to, tag, comm.comm ) );
 }
+template<>
+void TaggedSend( const BigInt* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend [BigInt]"))
+    PackedTaggedSend( buf, count, to, tag, comm );
+}
+template<>
+void TaggedSend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend [ValueInt<BigInt>]"))
+    PackedTaggedSend( buf, count, to, tag, comm );
+}
+template<>
+void TaggedSend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSend [Entry<BigInt>]"))
+    PackedTaggedSend( buf, count, to, tag, comm );
+}
+
 template<>
 void TaggedSend( const BigFloat* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -523,29 +674,62 @@ void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT
 
 template<typename Real>
 void TaggedISend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request )
 EL_NO_RELEASE_EXCEPT
 { 
     DEBUG_ONLY(CSE cse("mpi::ISend"))
     SafeMpi
     ( MPI_Isend
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
-        tag, comm.comm, &request ) );
+        tag, comm.comm, &request.backend ) );
 }
 #ifdef EL_HAVE_MPC
 template<typename T>
 void PackedTaggedISend
-( const T* buf, int count, int to, int tag, Comm comm, Request& request )
+( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::PackedTaggedISend"))
-    LogicError
-    ("Elemental does not yet support non-blocking BigFloat communication");
+    Serialize( count, buf, request.buffer );
+    SafeMpi
+    ( MPI_Isend
+      ( request.buffer.data(), count, TypeMap<T>(), to, tag, comm.comm,
+        &request.backend ) );
 }
 
 template<>
 void TaggedISend
-( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedISend [BigInt]"))
+    PackedTaggedISend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedISend [ValueInt<BigInt>]"))
+    PackedTaggedISend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedISend [Entry<BigInt>]"))
+    PackedTaggedISend( buf, count, to, tag, comm, request );
+}
+
+template<>
+void TaggedISend
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::TaggedISend [BigFloat]"))
@@ -553,8 +737,8 @@ EL_NO_RELEASE_EXCEPT
 }
 template<>
 void TaggedISend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::TaggedISend [ValueInt<BigFloat>]"))
@@ -562,8 +746,8 @@ EL_NO_RELEASE_EXCEPT
 }
 template<>
 void TaggedISend
-( const Entry<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::TaggedISend [Entry<BigFloat>]"))
@@ -574,72 +758,219 @@ EL_NO_RELEASE_EXCEPT
 template<typename Real>
 void TaggedISend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request ) EL_NO_RELEASE_EXCEPT
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISend"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Isend
       ( const_cast<Complex<Real>*>(buf), 2*count, 
-        TypeMap<Real>(), to, tag, comm.comm, &request ) );
+        TypeMap<Real>(), to, tag, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Isend
       ( const_cast<Complex<Real>*>(buf), count, 
-        TypeMap<Complex<Real>>(), to, tag, comm.comm, &request ) );
+        TypeMap<Complex<Real>>(), to, tag, comm.comm, &request.backend ) );
 #endif
 }
 
 template<typename T>
 void ISend
-( const T* buf, int count, int to, Comm comm, Request& request )
+( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedISend( buf, count, to, 0, comm, request ); } 
 
 template<typename T>
-void TaggedISend( T b, int to, int tag, Comm comm, Request& request )
+void TaggedISend( T b, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedISend( &b, 1, to, tag, comm, request ); }
 
 template<typename T>
-void ISend( T b, int to, Comm comm, Request& request )
+void ISend( T b, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedISend( b, to, 0, comm, request ); }
 
 template<typename Real>
-void TaggedISSend
-( const Real* buf, int count, int to, int tag, Comm comm, Request& request )
+void TaggedIRSend
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request )
 EL_NO_RELEASE_EXCEPT
+{ 
+    DEBUG_ONLY(CSE cse("mpi::IRSend"))
+    SafeMpi
+    ( MPI_Irsend
+      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
+        tag, comm.comm, &request.backend ) );
+}
+#ifdef EL_HAVE_MPC
+template<typename T>
+void PackedTaggedIRSend
+( const T* buf, int count, int to, int tag, Comm comm,
+  Request<T>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::PackedTaggedIRSend"))
+    Serialize( count, buf, request.buffer );
+    SafeMpi
+    ( MPI_Irsend
+      ( request.buffer.data(), count, TypeMap<T>(), to, 
+        tag, comm.comm, &request.backend ) );
+}
+
+template<>
+void TaggedIRSend
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRSend [BigInt]"))
+    PackedTaggedIRSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedIRSend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRSend [ValueInt<BigInt>]"))
+    PackedTaggedIRSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedIRSend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRSend [Entry<BigInt>]"))
+    PackedTaggedIRSend( buf, count, to, tag, comm, request );
+}
+
+template<>
+void TaggedIRSend
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRSend [BigFloat]"))
+    PackedTaggedIRSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedIRSend
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRSend [ValueInt<BigFloat>]"))
+    PackedTaggedIRSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedIRSend
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRSend [Entry<BigFloat>]"))
+    PackedTaggedIRSend( buf, count, to, tag, comm, request );
+}
+#endif
+
+template<typename Real>
+void TaggedIRSend
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::IRSend"))
+#ifdef EL_AVOID_COMPLEX_MPI
+    SafeMpi
+    ( MPI_Irsend
+      ( const_cast<Complex<Real>*>(buf), 2*count, 
+        TypeMap<Real>(), to, tag, comm.comm, &request.backend ) );
+#else
+    SafeMpi
+    ( MPI_Irsend
+      ( const_cast<Complex<Real>*>(buf), count, 
+        TypeMap<Complex<Real>>(), to, tag, comm.comm, &request.backend ) );
+#endif
+}
+
+template<typename T>
+void IRSend
+( const T* buf, int count, int to, Comm comm, Request<T>& request )
+EL_NO_RELEASE_EXCEPT
+{ TaggedIRSend( buf, count, to, 0, comm, request ); } 
+
+template<typename T>
+void TaggedIRSend( T b, int to, int tag, Comm comm, Request<T>& request )
+EL_NO_RELEASE_EXCEPT
+{ TaggedIRSend( &b, 1, to, tag, comm, request ); }
+
+template<typename T>
+void IRSend( T b, int to, Comm comm, Request<T>& request )
+EL_NO_RELEASE_EXCEPT
+{ TaggedIRSend( b, to, 0, comm, request ); }
+
+template<typename Real>
+void TaggedISSend
+( const Real* buf, int count, int to, int tag, Comm comm,
+  Request<Real>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISSend"))
     SafeMpi
     ( MPI_Issend
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
-        tag, comm.comm, &request ) );
+        tag, comm.comm, &request.backend ) );
 }
 #ifdef EL_HAVE_MPC
 template<typename T>
 void PackedTaggedISSend
-( const T* buf, int count, int to, int tag, Comm comm, Request& request )
+( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::PackedISSend"))
-    LogicError
-    ("Elemental does not yet support non-blocking BigFloat communication");
+    Serialize( count, buf, request.buffer );
+    SafeMpi
+    ( MPI_Issend
+      ( request.buffer.data(), count, TypeMap<T>(), to, 
+        tag, comm.comm, &request.backend ) );
 }
 
 template<>
 void TaggedISSend
-( const BigFloat* buf, int count, int to, int tag, Comm comm, Request& request )
-EL_NO_RELEASE_EXCEPT
+( const BigInt* buf, int count, int to, int tag, Comm comm,
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ISSend [BigInt]"))
+    PackedTaggedISSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISSend
+( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ISSend [ValueInt<BigInt>]"))
+    PackedTaggedISSend( buf, count, to, tag, comm, request );
+}
+template<>
+void TaggedISSend
+( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ISSend [Entry<BigInt>]"))
+    PackedTaggedISSend( buf, count, to, tag, comm, request );
+}
+
+template<>
+void TaggedISSend
+( const BigFloat* buf, int count, int to, int tag, Comm comm,
+  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISSend [BigFloat]"))
     PackedTaggedISSend( buf, count, to, tag, comm, request );
 }
 template<>
 void TaggedISSend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
+( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISSend [ValueInt<BigFloat>]"))
@@ -647,9 +978,8 @@ EL_NO_RELEASE_EXCEPT
 }
 template<>
 void TaggedISSend
-( const Entry<BigFloat>* buf, int count, int to, int tag,
-  Comm comm, Request& request )
-EL_NO_RELEASE_EXCEPT
+( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISSend [Entry<BigFloat>]"))
     PackedTaggedISSend( buf, count, to, tag, comm, request );
@@ -659,30 +989,29 @@ EL_NO_RELEASE_EXCEPT
 template<typename Real>
 void TaggedISSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
-  Request& request )
-EL_NO_RELEASE_EXCEPT
+  Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ISSend"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Issend
       ( const_cast<Complex<Real>*>(buf), 2*count, 
-        TypeMap<Real>(), to, tag, comm.comm, &request ) );
+        TypeMap<Real>(), to, tag, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Issend
       ( const_cast<Complex<Real>*>(buf), count, 
-        TypeMap<Complex<Real>>(), to, tag, comm.comm, &request ) );
+        TypeMap<Complex<Real>>(), to, tag, comm.comm, &request.backend ) );
 #endif
 }
 
 template<typename T>
-void ISSend( const T* buf, int count, int to, Comm comm, Request& request )
+void ISSend( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedISSend( buf, count, to, 0, comm, request ); }
 
 template<typename T>
-void TaggedISSend( T b, int to, int tag, Comm comm, Request& request )
+void TaggedISSend( T b, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedISSend( &b, 1, to, tag, comm, request ); }
 
@@ -708,6 +1037,29 @@ void PackedTaggedRecv( T* buf, int count, int from, int tag, Comm comm )
       ( packedBuf.data(), count, TypeMap<T>(), from, tag,
         comm.comm, &status ) );
     Deserialize( count, packedBuf, buf );
+}
+
+template<>
+void TaggedRecv( BigInt* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv [BigInt]"))
+    PackedTaggedRecv( buf, count, from, tag, comm );
+}
+template<>
+void TaggedRecv
+( ValueInt<BigInt>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv [ValueInt<BigInt>]"))
+    PackedTaggedRecv( buf, count, from, tag, comm );
+}
+template<>
+void TaggedRecv( Entry<BigInt>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedRecv [Entry<BigInt>]"))
+    PackedTaggedRecv( buf, count, from, tag, comm );
 }
 
 template<>
@@ -767,37 +1119,70 @@ EL_NO_RELEASE_EXCEPT
 
 template<typename Real>
 void TaggedIRecv
-( Real* buf, int count, int from, int tag, Comm comm, Request& request )
+( Real* buf, int count, int from, int tag, Comm comm, Request<Real>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::TaggedIRecv"))
     SafeMpi
     ( MPI_Irecv
-      ( buf, count, TypeMap<Real>(), from, tag, comm.comm, &request ) );
+      ( buf, count, TypeMap<Real>(), from, tag, comm.comm, &request.backend ) );
 }
 #ifdef EL_HAVE_MPC
 template<typename T>
 void PackedTaggedIRecv
-( T* buf, int count, int from, int tag, Comm comm, Request& request )
+( T* buf, int count, int from, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::PackedTaggedIRecv"))
-    LogicError
-    ("Elemental does not yet support non-blocking BigFloat communication");
+    request.receivingPacked = true;
+    request.recvCount = count;
+    request.unpackedRecvBuf = buf;
+    ReserveSerialized( count, buf, request.buffer );
+    SafeMpi
+    ( MPI_Irecv
+      ( request.buffer.data(), count, TypeMap<T>(), from, tag, comm.comm,
+        &request.backend ) );
 }
 
 template<>
 void TaggedIRecv
-( BigFloat* buf, int count, int from, int tag, Comm comm, Request& request )
+( BigInt* buf, int count, int from, int tag, Comm comm,
+  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [BigInt]"))
+    PackedTaggedIRecv( buf, count, from, tag, comm, request );
+}
+template<>
+void TaggedIRecv
+( ValueInt<BigInt>* buf, int count, int from, int tag, Comm comm,
+  Request<ValueInt<BigInt>>& request )
 EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [ValueInt<BigInt>]"))
+    PackedTaggedIRecv( buf, count, from, tag, comm, request );
+}
+template<>
+void TaggedIRecv
+( Entry<BigInt>* buf, int count, int from, int tag, Comm comm,
+  Request<Entry<BigInt>>& request )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [Entry<BigInt>]"))
+    PackedTaggedIRecv( buf, count, from, tag, comm, request );
+}
+
+template<>
+void TaggedIRecv
+( BigFloat* buf, int count, int from, int tag, Comm comm,
+  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [BigFloat]"))
     PackedTaggedIRecv( buf, count, from, tag, comm, request );
 }
 template<>
 void TaggedIRecv
-( ValueInt<BigFloat>* buf, int count, int from, int tag,
-  Comm comm, Request& request )
+( ValueInt<BigFloat>* buf, int count, int from, int tag, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [ValueInt<BigFloat>]"))
@@ -805,8 +1190,8 @@ EL_NO_RELEASE_EXCEPT
 }
 template<>
 void TaggedIRecv
-( Entry<BigFloat>* buf, int count, int from, int tag,
-  Comm comm, Request& request )
+( Entry<BigFloat>* buf, int count, int from, int tag, Comm comm,
+  Request<Entry<BigFloat>>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::TaggedIRecv [Entry<BigFloat>]"))
@@ -816,33 +1201,36 @@ EL_NO_RELEASE_EXCEPT
 
 template<typename Real>
 void TaggedIRecv
-( Complex<Real>* buf, int count, int from, int tag, 
-  Comm comm, Request& request )
+( Complex<Real>* buf, int count, int from, int tag, Comm comm,
+  Request<Complex<Real>>& request )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::IRecv"))
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
-    ( MPI_Irecv( buf, 2*count, TypeMap<Real>(), from, tag, comm.comm, &request ) );
+    ( MPI_Irecv
+      ( buf, 2*count, TypeMap<Real>(), from, tag, comm.comm,
+        &request.backend ) );
 #else
     SafeMpi
     ( MPI_Irecv
-      ( buf, count, TypeMap<Complex<Real>>(), from, tag, comm.comm, &request ) );
+      ( buf, count, TypeMap<Complex<Real>>(), from, tag, comm.comm,
+        &request.backend ) );
 #endif
 }
 
 template<typename T>
-void IRecv( T* buf, int count, int from, Comm comm, Request& request )
+void IRecv( T* buf, int count, int from, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedIRecv( buf, count, from, ANY_TAG, comm, request ); }
 
 template<typename T>
-T TaggedIRecv( int from, int tag, Comm comm, Request& request )
+T TaggedIRecv( int from, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { T b; TaggedIRecv( &b, 1, from, tag, comm, request ); return b; }
 
 template<typename T>
-T IRecv( int from, Comm comm, Request& request )
+T IRecv( int from, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { return TaggedIRecv<T>( from, ANY_TAG, comm, request ); }
 
@@ -877,6 +1265,31 @@ void PackedTaggedSendRecv
         packedRecv.data(), rc, TypeMap<T>(), from, rtag, 
         comm.comm, &status ) );
     Deserialize( rc, packedRecv, rbuf );
+}
+
+template<>
+void TaggedSendRecv
+( const BigInt* sbuf, int sc, int to,   int stag,
+        BigInt* rbuf, int rc, int from, int rtag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [BigInt]"))
+    PackedTaggedSendRecv( sbuf, sc, to, stag, rbuf, rc, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( const ValueInt<BigInt>* sbuf, int sc, int to,   int stag,
+        ValueInt<BigInt>* rbuf, int rc, int from, int rtag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [ValueInt<BigInt>]"))
+    PackedTaggedSendRecv( sbuf, sc, to, stag, rbuf, rc, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( const Entry<BigInt>* sbuf, int sc, int to,   int stag,
+        Entry<BigInt>* rbuf, int rc, int from, int rtag, Comm comm )
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [Entry<BigInt>]"))
+    PackedTaggedSendRecv( sbuf, sc, to, stag, rbuf, rc, from, rtag, comm );
 }
 
 template<>
@@ -959,7 +1372,8 @@ EL_NO_RELEASE_EXCEPT
     Status status;
     SafeMpi
     ( MPI_Sendrecv_replace
-      ( buf, count, TypeMap<Real>(), to, stag, from, rtag, comm.comm, &status ) );
+      ( buf, count, TypeMap<Real>(), to, stag, from, rtag, comm.comm,
+        &status ) );
 }
 #ifdef EL_HAVE_MPC
 template<typename T>
@@ -970,12 +1384,40 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(CSE cse("mpi::PackedTaggedSendRecv"))
     std::vector<byte> packedBuf;
     ReserveSerialized( count, buf, packedBuf );
+    Serialize( count, buf, packedBuf );
     Status status;
     SafeMpi
     ( MPI_Sendrecv_replace
       ( packedBuf.data(), count, TypeMap<T>(), to, stag, from, rtag,
         comm.comm, &status ) );
     Deserialize( count, packedBuf, buf );
+}
+
+template<>
+void TaggedSendRecv
+( BigInt* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [BigInt]"))
+    PackedTaggedSendRecv( buf, count, to, stag, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( ValueInt<BigInt>* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [ValueInt<BigInt>]"))
+    PackedTaggedSendRecv( buf, count, to, stag, from, rtag, comm );
+}
+template<>
+void TaggedSendRecv
+( Entry<BigInt>* buf, int count, int to, int stag, int from, int rtag,
+  Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::TaggedSendRecv [Entry<BigInt>]"))
+    PackedTaggedSendRecv( buf, count, to, stag, from, rtag, comm );
 }
 
 template<>
@@ -1058,6 +1500,28 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<>
+void Broadcast( BigInt* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Broadcast [BigInt]"))
+    PackedBroadcast( buf, count, root, comm );
+}
+template<>
+void Broadcast( ValueInt<BigInt>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Broadcast [ValueInt<BigInt>]"))
+    PackedBroadcast( buf, count, root, comm );
+}
+template<>
+void Broadcast( Entry<BigInt>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Broadcast [Entry<BigInt>]"))
+    PackedBroadcast( buf, count, root, comm );
+}
+
+template<>
 void Broadcast( BigFloat* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1099,12 +1563,14 @@ void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT
 { Broadcast( &b, 1, root, comm ); }
 
 template<typename Real>
-void IBroadcast( Real* buf, int count, int root, Comm comm, Request& request )
+void IBroadcast
+( Real* buf, int count, int root, Comm comm, Request<Real>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IBroadcast"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
     SafeMpi
-    ( MPI_Ibcast( buf, count, TypeMap<Real>(), root, comm.comm, &request ) );
+    ( MPI_Ibcast
+      ( buf, count, TypeMap<Real>(), root, comm.comm, &request.backend ) );
 #else
     LogicError("Elemental was not configured with non-blocking support");
 #endif
@@ -1112,30 +1578,66 @@ void IBroadcast( Real* buf, int count, int root, Comm comm, Request& request )
 #ifdef EL_HAVE_MPC
 template<typename T>
 void PackedIBroadcast
-( T* buf, int count, int root, Comm comm, Request& request )
+( T* buf, int count, int root, Comm comm, Request<T>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::PackedIBroadcast"))
-    LogicError
-    ("Elemental does not yet support non-blocking BigFloat communication");
+#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
+    request.receivingPacked = true;
+    request.recvCount = count;
+    request.unpackedRecvBuf = buf;
+    ReserveSerialized( count, buf, request.buffer );
+    SafeMpi
+    ( MPI_Ibcast
+      ( request.buffer.data(), count, TypeMap<Real>(), root, comm.comm,
+        &request.backend ) );
+#else
+    LogicError("Elemental was not configured with non-blocking support");
+#endif
 }
 
 template<>
 void IBroadcast
-( BigFloat* buf, int count, int root, Comm comm, Request& request )
+( BigInt* buf, int count, int root, Comm comm, Request<BigInt>& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast [BigInt]"))
+    PackedIBroadcast( buf, count, root, comm, request );
+}
+template<>
+void IBroadcast
+( ValueInt<BigInt>* buf, int count, int root, Comm comm,
+  Request<ValueInt<BigInt>>& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast [ValueInt<BigInt>]"))
+    PackedIBroadcast( buf, count, root, comm, request );
+}
+template<>
+void IBroadcast
+( Entry<BigInt>* buf, int count, int root, Comm comm,
+  Request<Entry<BigInt>>& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IBroadcast [Entry<BigInt>]"))
+    PackedIBroadcast( buf, count, root, comm, request );
+}
+
+template<>
+void IBroadcast
+( BigFloat* buf, int count, int root, Comm comm, Request<BigFloat>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IBroadcast [BigFloat]"))
     PackedIBroadcast( buf, count, root, comm, request );
 }
 template<>
 void IBroadcast
-( ValueInt<BigFloat>* buf, int count, int root, Comm comm, Request& request )
+( ValueInt<BigFloat>* buf, int count, int root, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IBroadcast [ValueInt<BigFloat>]"))
     PackedIBroadcast( buf, count, root, comm, request );
 }
 template<>
 void IBroadcast
-( Entry<BigFloat>* buf, int count, int root, Comm comm, Request& request )
+( Entry<BigFloat>* buf, int count, int root, Comm comm,
+  Request<Entry<BigFloat>>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IBroadcast [Entry<BigFloat>]"))
     PackedIBroadcast( buf, count, root, comm, request );
@@ -1144,17 +1646,20 @@ void IBroadcast
 
 template<typename Real>
 void IBroadcast
-( Complex<Real>* buf, int count, int root, Comm comm, Request& request )
+( Complex<Real>* buf, int count, int root, Comm comm,
+  Request<Complex<Real>>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IBroadcast"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
-    ( MPI_Ibcast( buf, 2*count, TypeMap<Real>(), root, comm.comm, &request ) );
+    ( MPI_Ibcast
+      ( buf, 2*count, TypeMap<Real>(), root, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Ibcast
-      ( buf, count, TypeMap<Complex<Real>>(), root, comm.comm, &request ) );
+      ( buf, count, TypeMap<Complex<Real>>(), root, comm.comm,
+        &request.backend ) );
 #endif
 #else
     LogicError("Elemental was not configured with non-blocking support");
@@ -1162,7 +1667,7 @@ void IBroadcast
 }
 
 template<typename T>
-void IBroadcast( T& b, int root, Comm comm, Request& request )
+void IBroadcast( T& b, int root, Comm comm, Request<T>& request )
 { IBroadcast( &b, 1, root, comm, request ); }
 
 template<typename Real>
@@ -1200,6 +1705,34 @@ EL_NO_RELEASE_EXCEPT
         packedRecv.data(), rc, TypeMap<T>(), root, comm.comm ) );
     if( commRank == root )
         Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void Gather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [BigInt]"))
+    PackedGather( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Gather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [ValueInt<BigInt>]"))
+    PackedGather( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Gather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [Entry<BigInt>]"))
+    PackedGather( sbuf, sc, rbuf, rc, root, comm );
 }
 
 template<>
@@ -1255,14 +1788,17 @@ EL_NO_RELEASE_EXCEPT
 template<typename Real>
 void IGather
 ( const Real* sbuf, int sc,
-        Real* rbuf, int rc, int root, Comm comm, Request& request )
+        Real* rbuf, int rc,
+  int root, Comm comm,
+  Request<Real>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IGather"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
     SafeMpi
     ( MPI_Igather
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
-        rbuf,                    rc, TypeMap<Real>(), root, comm.comm, &request ) );
+        rbuf,                    rc, TypeMap<Real>(), root, comm.comm,
+        &request.backend ) );
 #else
     LogicError("Elemental was not configured with non-blocking support");
 #endif
@@ -1271,17 +1807,66 @@ void IGather
 template<typename T>
 void PackedIGather
 ( const T* sbuf, int sc,
-        T* rbuf, int rc, int root, Comm comm, Request& request )
+        T* rbuf, int rc,
+  int root, Comm comm,
+  Request<T>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::PackedIGather"))
-    LogicError
-    ("Elemental does not yet support non-blocking BigFloat communication");
+#ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
+    if( mpi::Rank(comm) == root )
+    {
+        const int commSize = mpi::Size(comm);
+        request.receivingPacked = true;
+        request.recvCount = rc*commSize;
+        request.unpackedRecvBuf = rbuf;
+        ReserveSerialized( rc*commSize, rbuf, request.buffer );
+    }
+    SafeMpi
+    ( MPI_Igather
+      ( request.buffer.data(), sc, TypeMap<Real>(),
+        rbuf,                  rc, TypeMap<Real>(), root, comm.comm,
+        &request.backend ) );
+#else
+    LogicError("Elemental was not configured with non-blocking support");
+#endif
+}
+
+template<>
+void IGather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc,
+  int root, Comm comm,
+  Request<BigInt>& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IGather [BigInt]"))
+    PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
+}
+template<>
+void IGather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc,
+  int root, Comm comm,
+  Request<ValueInt<BigInt>>& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IGather [ValueInt<BigInt>]"))
+    PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
+}
+template<>
+void IGather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc,
+  int root, Comm comm, Request<Entry<BigInt>>& request )
+{
+    DEBUG_ONLY(CSE cse("mpi::IGather [Entry<BigInt>]"))
+    PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
 }
 
 template<>
 void IGather
 ( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc, int root, Comm comm, Request& request )
+        BigFloat* rbuf, int rc,
+  int root, Comm comm,
+  Request<BigFloat>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IGather [BigFloat]"))
     PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
@@ -1290,7 +1875,8 @@ template<>
 void IGather
 ( const ValueInt<BigFloat>* sbuf, int sc,
         ValueInt<BigFloat>* rbuf, int rc,
-  int root, Comm comm, Request& request )
+  int root, Comm comm,
+  Request<ValueInt<BigFloat>>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IGather [ValueInt<BigFloat>]"))
     PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
@@ -1299,7 +1885,8 @@ template<>
 void IGather
 ( const Entry<BigFloat>* sbuf, int sc,
         Entry<BigFloat>* rbuf, int rc,
-  int root, Comm comm, Request& request )
+  int root, Comm comm,
+  Request<Entry<BigFloat>>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IGather [Entry<BigFloat>]"))
     PackedIGather( sbuf, sc, rbuf, rc, root, comm, request );
@@ -1309,7 +1896,9 @@ void IGather
 template<typename Real>
 void IGather
 ( const Complex<Real>* sbuf, int sc,
-        Complex<Real>* rbuf, int rc, int root, Comm comm, Request& request )
+        Complex<Real>* rbuf, int rc,
+  int root, Comm comm,
+  Request<Complex<Real>>& request )
 {
     DEBUG_ONLY(CSE cse("mpi::IGather"))
 #ifdef EL_HAVE_NONBLOCKING_COLLECTIVES
@@ -1318,13 +1907,13 @@ void IGather
     ( MPI_Igather
       ( const_cast<Complex<Real>*>(sbuf), 2*sc, TypeMap<Real>(),
         rbuf,                             2*rc, TypeMap<Real>(), 
-        root, comm.comm, &request ) );
+        root, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Igather
       ( const_cast<Complex<Real>*>(sbuf), sc, TypeMap<Complex<Real>>(),
         rbuf,                             rc, TypeMap<Complex<Real>>(), 
-        root, comm.comm, &request ) );
+        root, comm.comm, &request.backend ) );
 #endif
 #else
     LogicError("Elemental was not configured with non-blocking support");
@@ -1334,7 +1923,8 @@ void IGather
 template<typename Real>
 void Gather
 ( const Real* sbuf, int sc,
-        Real* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+        Real* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::Gather"))
@@ -1383,6 +1973,36 @@ EL_NO_RELEASE_EXCEPT
         comm.comm ) );
     if( commRank == root )
         Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void Gather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [BigInt]"))
+    PackedGather( sbuf, sc, rbuf, rcs, rds, root, comm );
+}
+template<>
+void Gather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [ValueInt<BigInt>]"))
+    PackedGather( sbuf, sc, rbuf, rcs, rds, root, comm );
+}
+template<>
+void Gather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Gather [Entry<BigInt>]"))
+    PackedGather( sbuf, sc, rbuf, rcs, rds, root, comm );
 }
 
 template<>
@@ -1498,6 +2118,34 @@ EL_NO_RELEASE_EXCEPT
       ( packedSend.data(), sc, TypeMap<T>(),
         packedRecv.data(), rc, TypeMap<T>(), comm.comm ) );
     Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void AllGather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllGather [BigInt]"))
+    PackedAllGather( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllGather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllGather [ValueInt<BigInt>]"))
+    PackedAllGather( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllGather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllGather [Entry<BigInt>]"))
+    PackedAllGather( sbuf, sc, rbuf, rc, comm );
 }
 
 template<>
@@ -1623,6 +2271,34 @@ EL_NO_RELEASE_EXCEPT
 
 template<>
 void AllGather
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Allgather [BigInt]"))
+    PackedAllGather( sbuf, sc, rbuf, rcs, rds, comm );
+}
+template<>
+void AllGather
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Allgather [ValueInt<BigInt>]"))
+    PackedAllGather( sbuf, sc, rbuf, rcs, rds, comm );
+}
+template<>
+void AllGather
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Allgather [Entry<BigInt>]"))
+    PackedAllGather( sbuf, sc, rbuf, rcs, rds, comm );
+}
+
+template<>
+void AllGather
 ( const BigFloat* sbuf, int sc,
         BigFloat* rbuf, const int* rcs, const int* rds, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -1738,6 +2414,34 @@ EL_NO_RELEASE_EXCEPT
 
 template<>
 void Scatter
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [BigInt]"))
+    PackedScatter( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Scatter
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [ValueInt<BigInt>]"))
+    PackedScatter( sbuf, sc, rbuf, rc, root, comm );
+}
+template<>
+void Scatter
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [Entry<BigInt>]"))
+    PackedScatter( sbuf, sc, rbuf, rc, root, comm );
+}
+
+template<>
+void Scatter
 ( const BigFloat* sbuf, int sc,
         BigFloat* rbuf, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -1830,6 +2534,28 @@ EL_NO_RELEASE_EXCEPT
       ( packedSend.data(), sc, TypeMap<T>(),
         packedRecv.data(), rc, TypeMap<T>(), root, comm.comm ) );
     Deserialize( rc, packedRecv, buf );
+}
+
+template<>
+void Scatter( BigInt* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [BigInt]"))
+    PackedScatter( buf, sc, rc, root, comm );
+}
+template<>
+void Scatter( ValueInt<BigInt>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [ValueInt<BigInt>]"))
+    PackedScatter( buf, sc, rc, root, comm );
+}
+template<>
+void Scatter( Entry<BigInt>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scatter [Entry<BigInt>]"))
+    PackedScatter( buf, sc, rc, root, comm );
 }
 
 template<>
@@ -1927,6 +2653,34 @@ EL_NO_RELEASE_EXCEPT
 
 template<>
 void AllToAll
+( const BigInt* sbuf, int sc,
+        BigInt* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [BigInt]"))
+    PackedAllToAll( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllToAll
+( const ValueInt<BigInt>* sbuf, int sc,
+        ValueInt<BigInt>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [ValueInt<BigInt>]"))
+    PackedAllToAll( sbuf, sc, rbuf, rc, comm );
+}
+template<>
+void AllToAll
+( const Entry<BigInt>* sbuf, int sc,
+        Entry<BigInt>* rbuf, int rc, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [Entry<BigInt>]"))
+    PackedAllToAll( sbuf, sc, rbuf, rc, comm );
+}
+
+template<>
+void AllToAll
 ( const BigFloat* sbuf, int sc,
         BigFloat* rbuf, int rc, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -2017,6 +2771,34 @@ EL_NO_RELEASE_EXCEPT
         const_cast<int*>(rcs), const_cast<int*>(rds), TypeMap<T>(),
         comm.comm ) );
     Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void AllToAll
+( const BigInt* sbuf, const int* scs, const int* sds,
+        BigInt* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [BigInt]"))
+    PackedAllToAll( sbuf, scs, sds, rbuf, rcs, rds, comm );
+}
+template<>
+void AllToAll
+( const ValueInt<BigInt>* sbuf, const int* scs, const int* sds,
+        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [ValueInt<BigInt>]"))
+    PackedAllToAll( sbuf, scs, sds, rbuf, rcs, rds, comm );
+}
+template<>
+void AllToAll
+( const Entry<BigInt>* sbuf, const int* scs, const int* sds,
+        Entry<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllToAll [Entry<BigInt>]"))
+    PackedAllToAll( sbuf, scs, sds, rbuf, rcs, rds, comm );
 }
 
 template<>
@@ -2164,6 +2946,33 @@ EL_NO_RELEASE_EXCEPT
         opC, root, comm.comm ) );
     if( commRank == root )
         Deserialize( count, packedRecv, rbuf );
+}
+
+template<>
+void Reduce
+( const BigInt* sbuf, BigInt* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [BigInt]"))
+    PackedReduce( sbuf, rbuf, count, op, root, comm );
+}
+template<>
+void Reduce
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [ValueInt<BigInt>]"))
+    PackedReduce( sbuf, rbuf, count, op, root, comm );
+}
+template<>
+void Reduce
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [Entry<BigInt>]"))
+    PackedReduce( sbuf, rbuf, count, op, root, comm );
 }
 
 template<>
@@ -2325,6 +3134,28 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<>
+void Reduce( BigInt* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [BigInt]"))
+    PackedReduce( buf, count, op, root, comm );
+}
+template<>
+void Reduce( ValueInt<BigInt>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [ValueInt<BigInt>]"))
+    PackedReduce( buf, count, op, root, comm );
+}
+template<>
+void Reduce( Entry<BigInt>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Reduce [Entry<BigInt>]"))
+    PackedReduce( buf, count, op, root, comm );
+}
+
+template<>
 void Reduce( BigFloat* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2472,6 +3303,33 @@ EL_NO_RELEASE_EXCEPT
 
 template<>
 void AllReduce
+( const BigInt* sbuf, BigInt* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [BigInt]"))
+    PackedAllReduce( sbuf, rbuf, count, op, comm );
+}
+template<>
+void AllReduce
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [ValueInt<BigInt>]"))
+    PackedAllReduce( sbuf, rbuf, count, op, comm );
+}
+template<>
+void AllReduce
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [Entry<BigInt>]"))
+    PackedAllReduce( sbuf, rbuf, count, op, comm );
+}
+
+template<>
+void AllReduce
 ( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2602,6 +3460,28 @@ EL_NO_RELEASE_EXCEPT
       ( packedSend.data(), packedRecv.data(), count, TypeMap<T>(),
         opC, comm.comm ) );
     Deserialize( count, packedRecv, buf );
+}
+
+template<>
+void AllReduce( BigInt* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [BigInt]"))
+    PackedAllReduce( buf, count, op, comm );
+}
+template<>
+void AllReduce( ValueInt<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [ValueInt<BigInt>]"))
+    PackedAllReduce( buf, count, op, comm );
+}
+template<>
+void AllReduce( Entry<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::AllReduce [Entry<BigInt>]"))
+    PackedAllReduce( buf, count, op, comm );
 }
 
 template<>
@@ -2738,6 +3618,32 @@ EL_NO_RELEASE_EXCEPT
     Reduce( sbuf, totalSend, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
+}
+
+template<>
+void ReduceScatter( BigInt* sbuf, BigInt* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [BigInt]"))
+    PackedReduceScatter( sbuf, rbuf, rc, op, comm );
+}
+template<>
+void ReduceScatter
+( ValueInt<BigInt>* sbuf,
+  ValueInt<BigInt>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [ValueInt<BigInt>]"))
+    PackedReduceScatter( sbuf, rbuf, rc, op, comm );
+}
+template<>
+void ReduceScatter
+( Entry<BigInt>* sbuf,
+  Entry<BigInt>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [Entry<BigInt>]"))
+    PackedReduceScatter( sbuf, rbuf, rc, op, comm );
 }
 
 template<>
@@ -2893,6 +3799,28 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<>
+void ReduceScatter( BigInt* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [BigInt]"))
+    PackedReduceScatter( buf, rc, op, comm );
+}
+template<>
+void ReduceScatter( ValueInt<BigInt>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [ValueInt<BigInt>]"))
+    PackedReduceScatter( buf, rc, op, comm );
+}
+template<>
+void ReduceScatter( Entry<BigInt>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [Entry<BigInt>]"))
+    PackedReduceScatter( buf, rc, op, comm );
+}
+
+template<>
 void ReduceScatter( BigFloat* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -3011,6 +3939,33 @@ EL_NO_RELEASE_EXCEPT
       ( packedSend.data(), packedRecv.data(), const_cast<int*>(rcs),
         TypeMap<T>(), opC, comm.comm ) );
     Deserialize( totalRecv, packedRecv, rbuf );
+}
+
+template<>
+void ReduceScatter
+( const BigInt* sbuf, BigInt* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [BigInt]"))
+    PackedReduceScatter( sbuf, rbuf, rcs, op, comm );
+}
+template<>
+void ReduceScatter
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [ValueInt<BigInt>]"))
+    PackedReduceScatter( sbuf, rbuf, rcs, op, comm );
+}
+template<>
+void ReduceScatter
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::ReduceScatter [Entry<BigInt>]"))
+    PackedReduceScatter( sbuf, rbuf, rcs, op, comm );
 }
 
 template<>
@@ -3161,6 +4116,33 @@ EL_NO_RELEASE_EXCEPT
 
 template<>
 void Scan
+( const BigInt* sbuf, BigInt* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [BigInt]"))
+    PackedScan( sbuf, rbuf, count, op, comm );
+}
+template<>
+void Scan
+( const ValueInt<BigInt>* sbuf,
+        ValueInt<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [ValueInt<BigInt>]"))
+    PackedScan( sbuf, rbuf, count, op, comm );
+}
+template<>
+void Scan
+( const Entry<BigInt>* sbuf,
+        Entry<BigInt>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [Entry<BigInt>]"))
+    PackedScan( sbuf, rbuf, count, op, comm );
+}
+
+template<>
+void Scan
 ( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -3302,6 +4284,28 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<>
+void Scan( BigInt* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [BigInt]"))
+    PackedScan( buf, count, op, comm );
+}
+template<>
+void Scan( ValueInt<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [ValueInt<BigInt>]"))
+    PackedScan( buf, count, op, comm );
+}
+template<>
+void Scan( Entry<BigInt>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("mpi::Scan [Entry<BigInt>]"))
+    PackedScan( buf, count, op, comm );
+}
+
+template<>
 void Scan( BigFloat* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -3376,6 +4380,10 @@ void SparseAllToAll
         Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_ONLY(
+      CSE cse("mpi::SparseAllToAll");
+      VerifySendsAndRecvs( sendCounts, recvCounts, comm );
+    )
 #ifdef EL_USE_CUSTOM_ALLTOALLV
     const int commSize = Size( comm );
     int numSends=0,numRecvs=0;
@@ -3387,7 +4395,7 @@ EL_NO_RELEASE_EXCEPT
             ++numRecvs;
     }
     vector<Status> statuses(numSends+numRecvs);
-    vector<Request> requests(numSends+numRecvs);
+    vector<Request<T>> requests(numSends+numRecvs);
     int rCount=0;
     for( int q=0; q<commSize; ++q )
     {
@@ -3396,16 +4404,17 @@ EL_NO_RELEASE_EXCEPT
         if( count != 0 )
             IRecv( &recvBuffer[displ], count, q, comm, requests[rCount++] );
     }
-#ifdef EL_BARRIER_IN_ALLTOALLV
-    // This should help ensure that recvs are posted before the sends
+
+    // Ensure that recvs are posted before the sends
+    // (Invalid MPI_Irecv's have been observed otherwise)
     Barrier( comm );
-#endif
+
     for( int q=0; q<commSize; ++q )
     {
         int count = sendCounts[q];
         int displ = sendDispls[q];
         if( count != 0 )
-            ISend( &sendBuffer[displ], count, q, comm, requests[rCount++] );
+            IRSend( &sendBuffer[displ], count, q, comm, requests[rCount++] );
     }
     WaitAll( numSends+numRecvs, requests.data(), statuses.data() );
 #else
@@ -3416,6 +4425,15 @@ EL_NO_RELEASE_EXCEPT
 }
 
 #define MPI_PROTO(T) \
+  template bool Test( Request<T>& request ) EL_NO_RELEASE_EXCEPT; \
+  template void Wait( Request<T>& request ) EL_NO_RELEASE_EXCEPT; \
+  template void Wait( Request<T>& request, Status& status ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void WaitAll( int numRequests, Request<T>* requests ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void WaitAll \
+  ( int numRequests, Request<T>* requests, Status* statuses ) \
+  EL_NO_RELEASE_EXCEPT; \
   template int GetCount<T>( Status& status ) EL_NO_RELEASE_EXCEPT; \
   template void TaggedSend \
   ( const T* buf, int count, int to, int tag, Comm comm ) \
@@ -3427,24 +4445,25 @@ EL_NO_RELEASE_EXCEPT
   template void Send( T b, int to, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
   template void TaggedISend \
-  ( const T* buf, int count, int to, int tag, Comm comm, Request& request ) \
+  ( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template void ISend \
-  ( const T* buf, int count, int to, Comm comm, Request& request ) \
+  ( const T* buf, int count, int to, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template void TaggedISend \
-  ( T buf, int to, int tag, Comm comm, Request& request ) \
+  ( T buf, int to, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void ISend( T buf, int to, Comm comm, Request& request ) \
+  template void ISend( T buf, int to, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template void TaggedISSend \
-  ( const T* buf, int count, int to, int tag, Comm comm, Request& request ) \
+  ( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template void ISSend \
-  ( const T* buf, int count, int to, Comm comm, Request& request ) \
+  ( const T* buf, int count, int to, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template void TaggedISSend \
-  ( T b, int to, int tag, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT; \
+  ( T b, int to, int tag, Comm comm, Request<T>& request ) \
+  EL_NO_RELEASE_EXCEPT; \
   template void TaggedRecv \
   ( T* buf, int count, int from, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT; \
   template void Recv( T* buf, int count, int from, Comm comm ) \
@@ -3453,14 +4472,14 @@ EL_NO_RELEASE_EXCEPT
   EL_NO_RELEASE_EXCEPT; \
   template T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT; \
   template void TaggedIRecv \
-  ( T* buf, int count, int from, int tag, Comm comm, Request& request ) \
+  ( T* buf, int count, int from, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template void IRecv \
-  ( T* buf, int count, int from, Comm comm, Request& request ) \
+  ( T* buf, int count, int from, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template T TaggedIRecv<T> \
-  ( int from, int tag, Comm comm, Request& request ) EL_NO_RELEASE_EXCEPT; \
-  template T IRecv<T>( int from, Comm comm, Request& request ) \
+  ( int from, int tag, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT; \
+  template T IRecv<T>( int from, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template void TaggedSendRecv \
   ( const T* sbuf, int sc, int to,   int stag, \
@@ -3484,15 +4503,16 @@ EL_NO_RELEASE_EXCEPT
   template void Broadcast( T& b, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
   template void IBroadcast \
-  ( T* buf, int count, int root, Comm comm, Request& request ); \
+  ( T* buf, int count, int root, Comm comm, Request<T>& request ); \
   template void IBroadcast \
-  ( T& b, int root, Comm comm, Request& request ); \
+  ( T& b, int root, Comm comm, Request<T>& request ); \
   template void Gather \
   ( const T* sbuf, int sc, T* rbuf, int rc, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
   template void IGather \
   ( const T* sbuf, int sc, \
-          T* rbuf, int rc, int root, Comm comm, Request& request ); \
+          T* rbuf, int rc, \
+    int root, Comm comm, Request<T>& request ); \
   template void Gather \
   ( const T* sbuf, int sc, \
           T* rbuf, const int* rcs, const int* rds, int root, Comm comm ) \
@@ -3604,6 +4624,14 @@ MPI_PROTO(ValueInt<double>)
 MPI_PROTO(ValueInt<Complex<double>>)
 MPI_PROTO(Entry<double>)
 MPI_PROTO(Entry<Complex<double>>)
+#ifdef EL_HAVE_QD
+MPI_PROTO(DoubleDouble)
+MPI_PROTO(QuadDouble)
+MPI_PROTO(ValueInt<DoubleDouble>)
+MPI_PROTO(ValueInt<QuadDouble>)
+MPI_PROTO(Entry<DoubleDouble>)
+MPI_PROTO(Entry<QuadDouble>)
+#endif
 #ifdef EL_HAVE_QUAD
 MPI_PROTO(Quad)
 MPI_PROTO(Complex<Quad>)
@@ -3613,10 +4641,13 @@ MPI_PROTO(Entry<Quad>)
 MPI_PROTO(Entry<Complex<Quad>>)
 #endif
 #ifdef EL_HAVE_MPC
+MPI_PROTO(BigInt)
 MPI_PROTO(BigFloat)
 // TODO: MPI_PROTO(Complex<BigFloat>)
+MPI_PROTO(ValueInt<BigInt>)
 MPI_PROTO(ValueInt<BigFloat>)
 // TODO: MPI_PROTO(ValueInt<Complex<BigFloat>>)
+MPI_PROTO(Entry<BigInt>)
 MPI_PROTO(Entry<BigFloat>)
 // TODO: MPI_PROTO(Entry<Complex<BigFloat>>)
 #endif
@@ -3631,7 +4662,10 @@ MPI_PROTO(Entry<BigFloat>)
     const vector<int>& recvDispls, \
           Comm comm ) EL_NO_RELEASE_EXCEPT;
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 

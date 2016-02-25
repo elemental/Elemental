@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -51,12 +51,12 @@ void TestCorrectness
 
 template<typename F> 
 void TestLUMod
-( bool conjugate,
+( const Grid& g,
+  Int m,
+  bool conjugate,
   Base<F> tau,
   bool testCorrectness,
-  bool print,
-  Int m,
-  const Grid& g )
+  bool print )
 {
     if( g.Rank() == 0 )
         Output("Testing with ",TypeName<F>());
@@ -122,7 +122,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
+    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -135,8 +135,15 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -145,10 +152,34 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
+        TestLUMod<float>
+        ( g, m, conjugate, tau, testCorrectness, print );
+        TestLUMod<Complex<float>>
+        ( g, m, conjugate, tau, testCorrectness, print );
+
         TestLUMod<double>
-        ( conjugate, tau, testCorrectness, print, m, g );
+        ( g, m, conjugate, tau, testCorrectness, print );
         TestLUMod<Complex<double>>
-        ( conjugate, tau, testCorrectness, print, m, g );
+        ( g, m, conjugate, tau, testCorrectness, print );
+
+#ifdef EL_HAVE_QD
+        TestLUMod<DoubleDouble>
+        ( g, m, conjugate, tau, testCorrectness, print );
+        TestLUMod<QuadDouble>
+        ( g, m, conjugate, tau, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestLUMod<Quad>
+        ( g, m, conjugate, tau, testCorrectness, print );
+        TestLUMod<Complex<Quad>>
+        ( g, m, conjugate, tau, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestLUMod<BigFloat>
+        ( g, m, conjugate, tau, testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

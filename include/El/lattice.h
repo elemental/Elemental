@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LATTICE_C_H
 #define EL_LATTICE_C_H
 
@@ -49,11 +48,14 @@ typedef struct
     float delta;
     float eta;
     ElLLLVariant variant;
+    bool recursive;
+    ElInt cutoff;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
     ElInt numOrthog;
     float zeroTol;
+    float blockingThresh;
     bool progress;
     bool time;
     bool jumpstart;
@@ -66,11 +68,14 @@ typedef struct
     double delta;
     double eta;
     ElLLLVariant variant;
+    bool recursive;
+    ElInt cutoff;
     bool presort;
     bool smallestFirst;
     double reorthogTol;
     ElInt numOrthog;
     double zeroTol;
+    float blockingThresh;
     bool progress;
     bool time;
     bool jumpstart;
@@ -93,37 +98,46 @@ EL_EXPORT ElError ElLLLFormR_z
 ( ElMatrix_z B, ElMatrix_z R, ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 
 EL_EXPORT ElError ElLLLFull_s
-( ElMatrix_s B, ElMatrix_s U, ElMatrix_s UInv, ElMatrix_s R,
+( ElMatrix_s B, ElMatrix_s U, ElMatrix_s R,
   ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFull_d
-( ElMatrix_d B, ElMatrix_d U, ElMatrix_d UInv, ElMatrix_d R,
+( ElMatrix_d B, ElMatrix_d U, ElMatrix_d R,
   ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 EL_EXPORT ElError ElLLLFull_c
-( ElMatrix_c B, ElMatrix_c U, ElMatrix_c UInv, ElMatrix_c R,
+( ElMatrix_c B, ElMatrix_c U, ElMatrix_c R,
   ElLLLCtrl_s ctrl, ElLLLInfo_s* info );
 EL_EXPORT ElError ElLLLFull_z
-( ElMatrix_z B, ElMatrix_z U, ElMatrix_z UInv, ElMatrix_z R,
+( ElMatrix_z B, ElMatrix_z U, ElMatrix_z R,
   ElLLLCtrl_d ctrl, ElLLLInfo_d* info );
 
 /* Lattice image and kernel
    ======================== */
 EL_EXPORT ElError ElLatticeImageAndKernel_s
-( ElMatrix_s B, ElMatrix_s M, ElMatrix_s K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_s B, ElMatrix_s M, ElMatrix_s K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeImageAndKernel_d
-( ElMatrix_d B, ElMatrix_d M, ElMatrix_d K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_d B, ElMatrix_d M, ElMatrix_d K, ElLLLCtrl_d ctrl );
 EL_EXPORT ElError ElLatticeImageAndKernel_c
-( ElMatrix_c B, ElMatrix_c M, ElMatrix_c K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_c B, ElMatrix_c M, ElMatrix_c K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeImageAndKernel_z
-( ElMatrix_z B, ElMatrix_z M, ElMatrix_z K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_z B, ElMatrix_z M, ElMatrix_z K, ElLLLCtrl_d ctrl );
+
+EL_EXPORT ElError ElLatticeImage_s
+( ElConstMatrix_s B, ElMatrix_s M, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeImage_d
+( ElConstMatrix_d B, ElMatrix_d M, ElLLLCtrl_d ctrl );
+EL_EXPORT ElError ElLatticeImage_c
+( ElConstMatrix_c B, ElMatrix_c M, ElLLLCtrl_s ctrl );
+EL_EXPORT ElError ElLatticeImage_z
+( ElConstMatrix_z B, ElMatrix_z M, ElLLLCtrl_d ctrl );
 
 EL_EXPORT ElError ElLatticeKernel_s
-( ElMatrix_s B, ElMatrix_s K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_s B, ElMatrix_s K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeKernel_d
-( ElMatrix_d B, ElMatrix_d K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_d B, ElMatrix_d K, ElLLLCtrl_d ctrl );
 EL_EXPORT ElError ElLatticeKernel_c
-( ElMatrix_c B, ElMatrix_c K, ElLLLCtrl_s ctrl );
+( ElConstMatrix_c B, ElMatrix_c K, ElLLLCtrl_s ctrl );
 EL_EXPORT ElError ElLatticeKernel_z
-( ElMatrix_z B, ElMatrix_z K, ElLLLCtrl_d ctrl );
+( ElConstMatrix_z B, ElMatrix_z K, ElLLLCtrl_d ctrl );
 
 /* Search for Z-dependence
    ======================= */

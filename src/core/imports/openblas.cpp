@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -136,6 +136,16 @@ template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Int alpha, const Int* A, BlasInt lda,
                    Int* B, BlasInt ldb );
+#ifdef EL_HAVE_QD
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  DoubleDouble alpha, const DoubleDouble* A, BlasInt lda,
+                            DoubleDouble* B, BlasInt ldb );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  QuadDouble alpha, const QuadDouble* A, BlasInt lda,
+                          QuadDouble* B, BlasInt ldb );
+#endif
 #ifdef EL_HAVE_QUAD
 template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -147,6 +157,10 @@ template void omatcopy
                              Complex<Quad>* B, BlasInt ldb );
 #endif
 #ifdef EL_HAVE_MPC
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  BigInt alpha, const BigInt* A, BlasInt lda,
+                      BigInt* B, BlasInt ldb );
 template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha, const BigFloat* A, BlasInt lda,
@@ -208,6 +222,14 @@ void imatcopy
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   Int alpha, Int* A, BlasInt lda, BlasInt ldb );
+#ifdef EL_HAVE_QD
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  DoubleDouble alpha, DoubleDouble* A, BlasInt lda, BlasInt ldb );
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  QuadDouble alpha, QuadDouble* A, BlasInt lda, BlasInt ldb );
+#endif
 #ifdef EL_HAVE_QUAD
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -217,6 +239,9 @@ template void imatcopy
   Complex<Quad> alpha, Complex<Quad>* A, BlasInt lda, BlasInt ldb );
 #endif
 #ifdef EL_HAVE_MPC
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  BigInt alpha, BigInt* A, BlasInt lda, BlasInt ldb );
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha, BigFloat* A, BlasInt lda, BlasInt ldb );

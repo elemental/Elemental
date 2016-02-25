@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -16,7 +16,8 @@ namespace {
 
 template<typename T>
 void MultiplyCSR
-( Orientation orientation, Int m, Int n,
+( Orientation orientation,
+  Int m, Int n,
   T alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -77,7 +78,8 @@ void MultiplyCSR
 
 template<>
 void MultiplyCSR<Int>
-( Orientation orientation, Int m, Int n,
+( Orientation orientation,
+  Int m, Int n,
   Int alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -130,7 +132,8 @@ void MultiplyCSR<Int>
 #ifdef EL_HAVE_QUAD
 template<>
 void MultiplyCSR<Quad>
-( Orientation orientation, Int m, Int n,
+( Orientation orientation,
+  Int m, Int n,
   Quad alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -182,7 +185,8 @@ void MultiplyCSR<Quad>
 
 template<>
 void MultiplyCSR<Complex<Quad>>
-( Orientation orientation, Int m, Int n,
+( Orientation orientation,
+  Int m, Int n,
   Complex<Quad> alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -235,7 +239,8 @@ void MultiplyCSR<Complex<Quad>>
 
 template<typename T>
 void MultiplyCSR
-( Orientation orientation, Int m, Int n, Int numRHS,
+( Orientation orientation,
+  Int m, Int n, Int numRHS,
   T alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -307,7 +312,8 @@ void MultiplyCSR
 
 template<typename T>
 void MultiplyCSRInterX
-( Orientation orientation, Int m, Int n, Int numRHS,
+( Orientation orientation,
+  Int m, Int n, Int numRHS,
   T alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -379,7 +385,8 @@ void MultiplyCSRInterX
 
 template<typename T>
 void MultiplyCSRInterY
-( Orientation orientation, Int m, Int n, Int numRHS,
+( Orientation orientation,
+  Int m, Int n, Int numRHS,
   T alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -451,7 +458,8 @@ void MultiplyCSRInterY
 
 template<typename T>
 void MultiplyCSRInter
-( Orientation orientation, Int m, Int n, Int numRHS,
+( Orientation orientation,
+  Int m, Int n, Int numRHS,
   T alpha,
   const Int* rowOffsets,
   const Int* colIndices,
@@ -694,7 +702,10 @@ void Multiply
             T beta, \
             DistMultiVec<T>& Y );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
 #include "El/macros/Instantiate.h"
 

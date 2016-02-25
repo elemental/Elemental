@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_INDEXING_IMPL_HPP
 #define EL_INDEXING_IMPL_HPP
 
@@ -182,6 +181,39 @@ inline Int Mod_( Int a, Int b ) EL_NO_EXCEPT
     const Int rem = a % b;
     return ( rem >= 0 ? rem : rem+b );
 }
+
+#ifdef EL_HAVE_MPC
+inline BigInt Mod( const BigInt& a, const BigInt& b )
+{
+    DEBUG_ONLY(
+      CSE cse("Mod");
+      if( b <= 0 )
+          LogicError("b is assumed to be positive");
+    )
+    return Mod_( a, b );
+}
+
+inline BigInt Mod( const BigInt& a, const unsigned& b )
+{
+    DEBUG_ONLY(CSE cse("Mod"))
+    const BigInt rem = a % b;
+    return ( rem >= 0 ? rem : rem+b );
+}
+
+inline BigInt Mod( const BigInt& a, const unsigned long& b )
+{
+    DEBUG_ONLY(CSE cse("Mod"))
+    const BigInt rem = a % b;
+    return ( rem >= 0 ? rem : rem+b );
+}
+
+inline BigInt Mod_( const BigInt& a, const BigInt& b )
+{
+    // TODO: Use a native routine for this
+    const BigInt rem = a % b;
+    return ( rem >= 0 ? rem : rem+b );
+}
+#endif
 
 // For determining the first index assigned to a given rank
 inline Int Shift( Int rank, Int align, Int stride )

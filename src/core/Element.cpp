@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -55,6 +55,14 @@ string TypeName<Complex<float>>()
 template<>
 string TypeName<Complex<double>>()
 { return string("Complex<double>"); }
+#ifdef EL_HAVE_QD
+template<>
+string TypeName<DoubleDouble>()
+{ return string("DoubleDouble"); }
+template<>
+string TypeName<QuadDouble>()
+{ return string("QuadDouble"); }
+#endif
 #ifdef EL_HAVE_QUAD
 template<>
 string TypeName<Quad>()
@@ -96,7 +104,7 @@ istream& operator>>( istream& is, Quad& alpha )
 
 // Return the complex argument
 // ---------------------------
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Arg( const Complex<Quad>& alphaPre )
 {
@@ -110,7 +118,7 @@ Quad Arg( const Complex<Quad>& alphaPre )
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QUAD
 template<>
 Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta )
 {
@@ -122,7 +130,17 @@ Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta )
 
 // Magnitude and sign
 // ==================
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Abs( const DoubleDouble& alpha ) EL_NO_EXCEPT
+{ return fabs(alpha); }
+
+template<>
+QuadDouble Abs( const QuadDouble& alpha ) EL_NO_EXCEPT
+{ return fabs(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Abs( const Quad& alpha ) EL_NO_EXCEPT { return fabsq(alpha); }
 
@@ -138,6 +156,15 @@ Quad Abs( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 
 #ifdef EL_HAVE_MPC
 template<>
+BigInt Abs( const BigInt& alpha ) EL_NO_EXCEPT
+{
+    BigInt absAlpha;
+    absAlpha.SetMinBits( alpha.NumBits() );
+    mpz_abs( absAlpha.Pointer(), alpha.LockedPointer() );
+    return absAlpha;
+}
+
+template<>
 BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
 {
     BigFloat absAlpha;
@@ -147,7 +174,7 @@ BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
 }
 #endif
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QUAD
 template<>
 Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT
 {
@@ -159,6 +186,18 @@ Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT
 #endif
 
 #ifdef EL_HAVE_MPC
+BigInt Sgn( const BigInt& alpha, bool symmetric ) EL_NO_EXCEPT
+{
+    const int numBits = alpha.NumBits();
+    const int result = mpz_cmp_si( alpha.LockedPointer(), 0 );
+    if( result < 0 )
+        return BigInt(-1,numBits);
+    else if( result > 0 || !symmetric )
+        return BigInt(1,numBits);
+    else
+        return BigInt(0,numBits);
+}
+
 BigFloat Sgn( const BigFloat& alpha, bool symmetric ) EL_NO_EXCEPT
 {
     mpfr_prec_t prec = alpha.Precision();
@@ -176,7 +215,17 @@ BigFloat Sgn( const BigFloat& alpha, bool symmetric ) EL_NO_EXCEPT
 // ==============
 double Exp( const Int& alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Exp( const DoubleDouble& alpha ) EL_NO_EXCEPT
+{ return exp(alpha); }
+
+template<>
+QuadDouble Exp( const QuadDouble& alpha ) EL_NO_EXCEPT
+{ return exp(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Exp( const Quad& alpha ) EL_NO_EXCEPT { return expq(alpha); }
 
@@ -203,14 +252,23 @@ BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT
 }
 #endif
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
 template<>
-Quad Pow( const Quad& alpha, const Quad& beta ) EL_NO_EXCEPT
+DoubleDouble Pow( const DoubleDouble& alpha, const DoubleDouble& beta )
+{ return pow(alpha,beta); }
+
+template<>
+QuadDouble Pow( const QuadDouble& alpha, const QuadDouble& beta )
+{ return pow(alpha,beta); }
+#endif
+
+#ifdef EL_HAVE_QUAD
+template<>
+Quad Pow( const Quad& alpha, const Quad& beta )
 { return powq(alpha,beta); }
 
 template<>
-Complex<Quad> Pow
-( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre ) EL_NO_EXCEPT
+Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre )
 {
     __complex128 alpha, beta;
     __real__(alpha) = alphaPre.real();
@@ -223,8 +281,7 @@ Complex<Quad> Pow
 }
 
 template<>
-Complex<Quad> Pow
-( const Complex<Quad>& alphaPre, const Quad& betaPre ) EL_NO_EXCEPT
+Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Quad& betaPre )
 {
     __complex128 alpha, beta;
     __real__(alpha) = alphaPre.real();
@@ -239,7 +296,32 @@ Complex<Quad> Pow
 
 #ifdef EL_HAVE_MPC
 template<>
-BigFloat Pow( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT
+BigInt Pow( const BigInt& alpha, const BigInt& beta )
+{
+    BigInt gamma;
+    gamma.SetMinBits( alpha.NumBits() );
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), (unsigned long)(beta) );
+    return gamma;
+}
+
+BigInt Pow( const BigInt& alpha, const unsigned& beta )
+{
+    BigInt gamma;
+    gamma.SetMinBits( alpha.NumBits() );
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    return gamma;
+}
+
+BigInt Pow( const BigInt& alpha, const unsigned long& beta )
+{
+    BigInt gamma;
+    gamma.SetMinBits( alpha.NumBits() );
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    return gamma;
+}
+
+template<>
+BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
 {
     BigFloat gamma;
     gamma.SetPrecision( alpha.Precision() );
@@ -255,7 +337,17 @@ BigFloat Pow( const BigFloat& alpha, const BigFloat& beta ) EL_NO_EXCEPT
 // ----------------------
 double Log( const Int& alpha ) { return std::log(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Log( const DoubleDouble& alpha )
+{ return log(alpha); }
+
+template<>
+QuadDouble Log( const QuadDouble& alpha )
+{ return log(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Log( const Quad& alpha ) { return logq(alpha); }
 
@@ -282,10 +374,21 @@ BigFloat Log( const BigFloat& alpha )
 }
 #endif
 
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Log2( const DoubleDouble& alpha )
+{ return Log(alpha)/DoubleDouble(dd_real::_log2); }
+
+template<>
+QuadDouble Log2( const QuadDouble& alpha )
+{ return Log(alpha)/QuadDouble(qd_real::_log2); }
+#endif
+
 #ifdef EL_HAVE_QUAD
 template<> Quad Log2( const Quad& alpha )
 { return log2q(alpha); }
 #endif
+
 #ifdef EL_HAVE_MPC
 template<> BigFloat Log2( const BigFloat& alpha )
 {
@@ -299,7 +402,15 @@ template<> BigFloat Log2( const BigFloat& alpha )
 
 double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Sqrt( const DoubleDouble& alpha ) { return sqrt(alpha); }
+
+template<>
+QuadDouble Sqrt( const QuadDouble& alpha ) { return sqrt(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Sqrt( const Quad& alpha ) { return sqrtq(alpha); }
 
@@ -330,7 +441,15 @@ BigFloat Sqrt( const BigFloat& alpha )
 // =============
 double Cos( const Int& alpha ) { return std::cos(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Cos( const DoubleDouble& alpha ) { return cos(alpha); }
+
+template<>
+QuadDouble Cos( const QuadDouble& alpha ) { return cos(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Cos( const Quad& alpha ) { return cosq(alpha); }
 
@@ -359,7 +478,15 @@ BigFloat Cos( const BigFloat& alpha )
 
 double Sin( const Int& alpha ) { return std::sin(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Sin( const DoubleDouble& alpha ) { return sin(alpha); }
+
+template<>
+QuadDouble Sin( const QuadDouble& alpha ) { return sin(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Sin( const Quad& alpha ) { return sinq(alpha); }
 
@@ -388,7 +515,15 @@ BigFloat Sin( const BigFloat& alpha )
 
 double Tan( const Int& alpha ) { return std::tan(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Tan( const DoubleDouble& alpha ) { return tan(alpha); }
+
+template<>
+QuadDouble Tan( const QuadDouble& alpha ) { return tan(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Tan( const Quad& alpha ) { return tanq(alpha); }
 
@@ -419,7 +554,15 @@ BigFloat Tan( const BigFloat& alpha )
 // ---------------------
 double Acos( const Int& alpha ) { return std::acos(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Acos( const DoubleDouble& alpha ) { return acos(alpha); }
+
+template<>
+QuadDouble Acos( const QuadDouble& alpha ) { return acos(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Acos( const Quad& alpha ) { return acosq(alpha); }
 
@@ -448,7 +591,15 @@ BigFloat Acos( const BigFloat& alpha )
 
 double Asin( const Int& alpha ) { return std::asin(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Asin( const DoubleDouble& alpha ) { return asin(alpha); }
+
+template<>
+QuadDouble Asin( const QuadDouble& alpha ) { return asin(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Asin( const Quad& alpha ) { return asinq(alpha); }
 
@@ -477,7 +628,15 @@ BigFloat Asin( const BigFloat& alpha )
 
 double Atan( const Int& alpha ) { return std::atan(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Atan( const DoubleDouble& alpha ) { return atan(alpha); }
+
+template<>
+QuadDouble Atan( const QuadDouble& alpha ) { return atan(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Atan( const Quad& alpha ) { return atanq(alpha); }
 
@@ -506,7 +665,17 @@ BigFloat Atan( const BigFloat& alpha )
 
 double Atan2( const Int& y, const Int& x ) { return std::atan2( y, x ); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Atan2( const DoubleDouble& y, const DoubleDouble& x )
+{ return atan2(y,x); }
+
+template<>
+QuadDouble Atan2( const QuadDouble& y, const QuadDouble& x )
+{ return atan2(y,x); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Atan2( const Quad& y, const Quad& x ) { return atan2q( y, x ); }
 #endif
@@ -529,7 +698,15 @@ BigFloat Atan2( const BigFloat& y, const BigFloat& x )
 // ==========
 double Cosh( const Int& alpha ) { return std::cosh(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Cosh( const DoubleDouble& alpha ) { return cosh(alpha); }
+
+template<>
+QuadDouble Cosh( const QuadDouble& alpha ) { return cosh(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Cosh( const Quad& alpha ) { return coshq(alpha); }
 
@@ -558,7 +735,15 @@ BigFloat Cosh( const BigFloat& alpha )
 
 double Sinh( const Int& alpha ) { return std::sinh(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Sinh( const DoubleDouble& alpha ) { return sinh(alpha); }
+
+template<>
+QuadDouble Sinh( const QuadDouble& alpha ) { return sinh(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Sinh( const Quad& alpha ) { return sinhq(alpha); }
 
@@ -587,7 +772,15 @@ BigFloat Sinh( const BigFloat& alpha )
 
 double Tanh( const Int& alpha ) { return std::tanh(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Tanh( const DoubleDouble& alpha ) { return tanh(alpha); }
+
+template<>
+QuadDouble Tanh( const QuadDouble& alpha ) { return tanh(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Tanh( const Quad& alpha ) { return tanhq(alpha); }
 
@@ -618,7 +811,15 @@ BigFloat Tanh( const BigFloat& alpha )
 // ------------------
 double Acosh( const Int& alpha ) { return std::acosh(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Acosh( const DoubleDouble& alpha ) { return acosh(alpha); }
+
+template<>
+QuadDouble Acosh( const QuadDouble& alpha ) { return acosh(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Acosh( const Quad& alpha ) { return acoshq(alpha); }
 
@@ -647,7 +848,15 @@ BigFloat Acosh( const BigFloat& alpha )
 
 double Asinh( const Int& alpha ) { return std::asinh(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Asinh( const DoubleDouble& alpha ) { return asinh(alpha); }
+
+template<>
+QuadDouble Asinh( const QuadDouble& alpha ) { return asinh(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Asinh( const Quad& alpha ) { return asinhq(alpha); }
 
@@ -676,7 +885,15 @@ BigFloat Asinh( const BigFloat& alpha )
 
 double Atanh( const Int& alpha ) { return std::atanh(alpha); }
 
-#ifdef EL_HAVE_QUADMATH
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Atanh( const DoubleDouble& alpha ) { return atanh(alpha); }
+
+template<>
+QuadDouble Atanh( const QuadDouble& alpha ) { return atanh(alpha); }
+#endif
+
+#ifdef EL_HAVE_QUAD
 template<>
 Quad Atanh( const Quad& alpha ) { return atanhq(alpha); }
 
@@ -710,11 +927,19 @@ BigFloat Atanh( const BigFloat& alpha )
 // ----------------------------
 template<>
 Int Round( const Int& alpha ) { return alpha; }
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Round( const DoubleDouble& alpha ) { return nint(alpha); }
+template<>
+QuadDouble Round( const QuadDouble& alpha ) { return nint(alpha); }
+#endif
 #ifdef EL_HAVE_QUAD
 template<>
 Quad Round( const Quad& alpha ) { return rintq(alpha); }
 #endif
 #ifdef EL_HAVE_MPC
+template<>
+BigInt Round( const BigInt& alpha ) { return alpha; }
 template<>
 BigFloat Round( const BigFloat& alpha )
 { 
@@ -728,10 +953,18 @@ BigFloat Round( const BigFloat& alpha )
 // Ceiling
 // -------
 template<> Int Ceil( const Int& alpha ) { return alpha; }
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Ceil( const DoubleDouble& alpha )
+{ return ceil(alpha); }
+template<> QuadDouble Ceil( const QuadDouble& alpha )
+{ return ceil(alpha); }
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Ceil( const Quad& alpha ) { return ceilq(alpha); }
 #endif
 #ifdef EL_HAVE_MPC
+template<>
+BigInt Ceil( const BigInt& alpha ) { return alpha; }
 template<>
 BigFloat Ceil( const BigFloat& alpha )
 {
@@ -745,10 +978,18 @@ BigFloat Ceil( const BigFloat& alpha )
 // Floor
 // -----
 template<> Int Floor( const Int& alpha ) { return alpha; }
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Floor( const DoubleDouble& alpha )
+{ return floor(alpha); }
+template<> QuadDouble Floor( const QuadDouble& alpha )
+{ return floor(alpha); }
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Floor( const Quad& alpha ) { return floorq(alpha); }
 #endif
 #ifdef EL_HAVE_MPC
+template<>
+BigInt Floor( const BigInt& alpha ) { return alpha; }
 template<> BigFloat Floor( const BigFloat& alpha )
 {
     BigFloat alphaFloor;
@@ -760,6 +1001,10 @@ template<> BigFloat Floor( const BigFloat& alpha )
 
 // Pi
 // ==
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Pi<DoubleDouble>() { return dd_real::_pi; }
+template<> QuadDouble Pi<QuadDouble>() { return qd_real::_pi; }
+#endif
 #ifdef EL_HAVE_QUAD
 template<> Quad Pi<Quad>() { return M_PIq; }
 #endif
@@ -783,6 +1028,20 @@ BigFloat Pi( mpfr_prec_t prec )
 
 // Gamma
 // =====
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Gamma( const DoubleDouble& alpha )
+{
+    // TODO: Decide a more precise means of handling this
+    return Gamma(to_double(alpha));
+}
+template<>
+QuadDouble Gamma( const QuadDouble& alpha )
+{
+    // TODO: Decide a more precise means of handling this
+    return Gamma(to_double(alpha));
+}
+#endif
 #ifdef EL_HAVE_QUAD
 template<>
 Quad Gamma( const Quad& alpha ) { return tgammaq(alpha); }
@@ -798,6 +1057,20 @@ template<> BigFloat Gamma( const BigFloat& alpha )
 }
 #endif
 
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble LogGamma( const DoubleDouble& alpha )
+{
+    // TODO: Decide a more precise means of handling this
+    return LogGamma(to_double(alpha));
+}
+template<>
+QuadDouble LogGamma( const QuadDouble& alpha )
+{
+    // TODO: Decide a more precise means of handling this
+    return LogGamma(to_double(alpha));
+}
+#endif
 #ifdef EL_HAVE_QUAD
 template<>
 Quad LogGamma( const Quad& alpha ) { return lgammaq(alpha); }

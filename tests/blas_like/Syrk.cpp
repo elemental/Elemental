@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -35,11 +35,24 @@ void TestCorrectness
 
 template<typename T>
 void TestSyrk
-( UpperOrLower uplo, Orientation orientation,
-  Int m, Int k, T alpha, T beta, const Grid& g, bool print, bool correctness,
-  Int colAlignA=0, Int rowAlignA=0, Int colAlignC=0, Int rowAlignC=0,
+( UpperOrLower uplo,
+  Orientation orientation,
+  Int m,
+  Int k,
+  T alpha,
+  T beta,
+  const Grid& g,
+  bool print,
+  bool correctness,
+  Int nbLocal,
+  Int colAlignA=0, Int rowAlignA=0,
+  Int colAlignC=0, Int rowAlignC=0,
   bool contigA=true, bool contigC=true )
 {
+    if( g.Rank() == 0 )
+        Output("Testing with ",TypeName<T>());
+    SetLocalTrrkBlocksize<T>( nbLocal );
+
     DistMatrix<T> A(g), C(g);
     A.Align( colAlignA, rowAlignA );
     C.Align( colAlignC, rowAlignC );
@@ -135,25 +148,75 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
-        SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
 
         ComplainIfDebug();
         if( commRank == 0 )
             Output("Will test Syrk ",uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestSyrk<double>
-        ( uplo, orientation, m, k, 3., 4., g, print, correctness, 
-          colAlignA, rowAlignA, colAlignC, rowAlignC, contigA, contigC );
-
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
-        TestSyrk<Complex<double>>
-        ( uplo, orientation, m, k, Complex<double>(3), Complex<double>(4), g,
-          print, correctness, colAlignA, rowAlignA, colAlignC, rowAlignC,
+        TestSyrk<float>
+        ( uplo, orientation, m, k,
+          float(3), float(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
           contigA, contigC );
+        TestSyrk<Complex<float>>
+        ( uplo, orientation, m, k,
+          Complex<float>(3), Complex<float>(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+
+        TestSyrk<double>
+        ( uplo, orientation, m, k,
+          double(3), double(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+        TestSyrk<Complex<double>>
+        ( uplo, orientation, m, k,
+          Complex<double>(3), Complex<double>(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+
+#ifdef EL_HAVE_QD
+        TestSyrk<DoubleDouble>
+        ( uplo, orientation, m, k,
+          DoubleDouble(3), DoubleDouble(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+        TestSyrk<QuadDouble>
+        ( uplo, orientation, m, k,
+          QuadDouble(3), QuadDouble(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestSyrk<Quad>
+        ( uplo, orientation, m, k,
+          Quad(3), Quad(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+        TestSyrk<Complex<Quad>>
+        ( uplo, orientation, m, k,
+          Complex<Quad>(3), Complex<Quad>(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestSyrk<BigFloat>
+        ( uplo, orientation, m, k,
+          BigFloat(3), BigFloat(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

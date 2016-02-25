@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -37,9 +37,17 @@ main( int argc, char* argv[] )
             Print( A, "A" );
             Print( B, "B" );
         }
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         const double logDetDiv = LogDetDiv( LOWER, A, B );
         if( mpi::Rank() == 0 )
+            timer.Stop();
+        if( mpi::Rank() == 0 )
+        {
+            Output("LogDetDiv time: ",timer.Total(),"secs");
             Output("LogDetDiv(A,B) = ",logDetDiv);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

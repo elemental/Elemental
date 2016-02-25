@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_SVT_PIVOTEDQR_HPP
 #define EL_SVT_PIVOTEDQR_HPP
 
@@ -26,6 +25,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+
     Matrix<F> ACopy( A ), t;
     Matrix<Real> d;
     Permutation Omega;
@@ -35,15 +35,16 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     QR( ACopy, t, d, Omega, qrCtrl );
     auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
-    Matrix<F> U( ACopyUpper ), V;
-    Matrix<Real> s;
-    MakeTrapezoidal( UPPER, U );
+    Matrix<F> R( ACopyUpper );
+    MakeTrapezoidal( UPPER, R );
 
+    Matrix<F> U, V;
+    Matrix<Real> s;
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.thresholded = true;
+    svdCtrl.approach = PRODUCT_SVD;
     svdCtrl.tol = tau;
     svdCtrl.relative = relative;
-    SVD( U, s, V, svdCtrl );
+    SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
@@ -86,15 +87,16 @@ Int PivotedQR
     QR( ACopy, t, d, Omega, qrCtrl );
     auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
-    DistMatrix<F> U( ACopyUpper ), V(g);
-    DistMatrix<Real,VR,STAR> s(g);
-    MakeTrapezoidal( UPPER, U );
+    DistMatrix<F> R( ACopyUpper );
+    MakeTrapezoidal( UPPER, R );
 
+    DistMatrix<F> U(g), V(g);
+    DistMatrix<Real,VR,STAR> s(g);
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.thresholded = true;
+    svdCtrl.approach = PRODUCT_SVD;
     svdCtrl.tol = tau;
     svdCtrl.relative = relative;
-    SVD( U, s, V, svdCtrl );
+    SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );

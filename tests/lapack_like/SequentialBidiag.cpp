@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -152,14 +152,38 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         SetBlocksize( nb );
         ComplainIfDebug();
 
+        TestBidiag<float>( m, n, testCorrectness, print, display );
+        TestBidiag<Complex<float>>( m, n, testCorrectness, print, display );
+
         TestBidiag<double>( m, n, testCorrectness, print, display );
         TestBidiag<Complex<double>>( m, n, testCorrectness, print, display );
+
+#ifdef EL_HAVE_QD
+        TestBidiag<DoubleDouble>( m, n, testCorrectness, print, display );
+        TestBidiag<QuadDouble>( m, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestBidiag<Quad>( m, n, testCorrectness, print, display );
+        TestBidiag<Complex<Quad>>( m, n, testCorrectness, print, display );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestBidiag<BigFloat>( m, n, testCorrectness, print, display );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

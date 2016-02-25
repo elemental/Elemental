@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -134,9 +134,8 @@ int main( int argc, char* argv[] )
             const int height = FL.Height();
             const int width = FL.Width();
             auto B = FL( IR(width,height), IR(0,width) );
-            auto BCopy( B );
             DistMatrix<Real,VR,STAR> singVals_VR_STAR( grid );
-            SVD( BCopy, singVals_VR_STAR );
+            SVD( B, singVals_VR_STAR );
             DistMatrix<Real,CIRC,CIRC> singVals( singVals_VR_STAR );
             mpi::Barrier( grid.Comm() );
             const Real twoNorm = MaxNorm( singVals_VR_STAR );
@@ -174,9 +173,8 @@ int main( int argc, char* argv[] )
             if( commRank == 0 )
                 Output("lower half=",lHalf,", upper half=",uHalf);
             auto offDiagBlock = FL( IR(lHalf,rootSepSize), IR(0,lHalf) );
-            auto offDiagBlockCopy( offDiagBlock );
             DistMatrix<Real,VR,STAR> singVals_VR_STAR( grid );
-            SVD( offDiagBlockCopy, singVals_VR_STAR );
+            SVD( offDiagBlock, singVals_VR_STAR );
             DistMatrix<Real,CIRC,CIRC> singVals( singVals_VR_STAR );
             mpi::Barrier();
             const Real twoNorm = MaxNorm( singVals_VR_STAR );

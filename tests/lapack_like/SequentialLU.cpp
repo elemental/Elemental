@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -52,8 +52,10 @@ void TestCorrectness
 }
 
 template<typename F> 
-void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
+void TestLU( Int m, bool pivot, bool testCorrectness, bool print )
 {
+    if( mpi::Rank() == 0 )
+        Output("Testing with ",TypeName<F>());
     Matrix<F> A, ARef;
     Permutation P;
 
@@ -97,7 +99,7 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
+    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -107,21 +109,40 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpc::SetPrecision( prec );
+#endif
 
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
             Output("Will test LU",( pivot ? " with partial pivoting" : " " ));
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestLU<double>( pivot, testCorrectness, print, m );
+        TestLU<float>( m, pivot, testCorrectness, print );
+        TestLU<Complex<float>>( m, pivot, testCorrectness, print );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
-        TestLU<Complex<double>>( pivot, testCorrectness, print, m );
+        TestLU<double>( m, pivot, testCorrectness, print );
+        TestLU<Complex<double>>( m, pivot, testCorrectness, print );
+
+#ifdef EL_HAVE_QD
+        TestLU<DoubleDouble>( m, pivot, testCorrectness, print );
+        TestLU<QuadDouble>( m, pivot, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestLU<Quad>( m, pivot, testCorrectness, print );
+        TestLU<Complex<Quad>>( m, pivot, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestLU<BigFloat>( m, pivot, testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 
