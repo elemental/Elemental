@@ -20,11 +20,11 @@ int main( int argc, char* argv[] )
           Input
           ("--inputBasisFile","input basis file",string("SVPChallenge40.txt"));
         const bool transposeBasis =
-          Input("--transposeBasis","transpose basis?",true);
+          Input("--transposeBasis","transpose basis?",false);
         const string vectorFile =
           Input("--vectorFile","vector file",string("vector.txt"));
         const bool transposeVector =
-          Input("--transposeVector","transpose vector?",true);
+          Input("--transposeVector","transpose vector?",false);
         const Int subsetStart = Input("--subsetStart","subset start col",0);
         const bool coordinates = Input("--coordinates","vector is coordinates?",true);
         const bool insertViaLLL = Input("--insertViaLLL","insert vector via LLL?",false);

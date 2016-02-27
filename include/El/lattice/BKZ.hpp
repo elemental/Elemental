@@ -370,7 +370,7 @@ BKZInfo<Base<F>> BKZWithQ
             bkz::enumTimer.Start();
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
-        const Range<Int> windowInd = IR(j,Min(j+5,k+1));
+        const Range<Int> windowInd = IR(j,Min(j+10,k+1));
         auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
         Scale( Min(Sqrt(ctrl.lllCtrl.delta),Real(1)), normUpperBounds );
         const auto minPair = 
@@ -877,7 +877,7 @@ BKZInfo<Base<F>> BKZWithQ
             bkz::enumTimer.Start();
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
-        const Range<Int> windowInd = IR(j,Min(j+5,k+1));
+        const Range<Int> windowInd = IR(j,Min(j+10,k+1));
         auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
         Scale( Min(Sqrt(ctrl.lllCtrl.delta),Real(1)), normUpperBounds );
         const auto minPair =
