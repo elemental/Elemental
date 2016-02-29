@@ -631,6 +631,9 @@ public:
     ~PhaseEnumerationCache() { }
 };
 
+// TODO: Reverse the enumeration order since nonzeros are more likely to happen
+//       at the bottom of the vector. This will require changing the arguments
+//       to this routine.
 template<typename Real>
 void PhaseEnumerationBottom
 (       PhaseEnumerationCache<Real>& cache,
@@ -768,6 +771,9 @@ void PhaseEnumerationBottom
     }
 }
 
+// TODO: Reverse the enumeration order since nonzeros are more likely to happen
+//       at the bottom of the vector. This will require changing the arguments
+//       to this routine.
 template<typename Real>
 void PhaseEnumerationInner
 (       PhaseEnumerationCache<Real>& cache,

@@ -212,11 +212,11 @@ int main( int argc, char* argv[] )
         // 6: [132,142)
         // 7: [142,146)
         ctrl.enumCtrl.maxOneNorms[0] = 0;
-        ctrl.enumCtrl.maxOneNorms[1] = 0;
+        ctrl.enumCtrl.maxOneNorms[1] = 1;
         ctrl.enumCtrl.maxOneNorms[2] = 1;
         ctrl.enumCtrl.maxOneNorms[3] = 1;
         ctrl.enumCtrl.maxOneNorms[4] = 1;
-        ctrl.enumCtrl.maxOneNorms[5] = 1;
+        ctrl.enumCtrl.maxOneNorms[5] = 2;
         ctrl.enumCtrl.maxOneNorms[6] = 3;
         ctrl.enumCtrl.maxOneNorms[7] = 3;
 

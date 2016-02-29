@@ -33,7 +33,7 @@ template<typename T>
 T UnitCell();
 
 template<typename T=double>
-T SampleUniform( const T& a=0, const T& b=UnitCell<T>() );
+T SampleUniform( const T& a=T(0), const T& b=UnitCell<T>() );
 
 template<>
 Int SampleUniform<Int>( const Int& a, const Int& b );
@@ -62,7 +62,7 @@ BigFloat SampleUniform( const BigFloat& a, const BigFloat& b );
 // imaginary components are independently drawn with the same standard 
 // deviation, but different means.
 template<typename T=double>
-T SampleNormal( const T& mean=0, const Base<T>& stddev=1 );
+T SampleNormal( const T& mean=T(0), const Base<T>& stddev=Base<T>(1) );
 
 #ifdef EL_HAVE_QD
 template<>
@@ -86,9 +86,9 @@ BigFloat SampleNormal( const BigFloat& mean, const BigFloat& stddev );
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.
 template<typename F> 
-F SampleBall( const F& center=0, const Base<F>& radius=1 );
+F SampleBall( const F& center=F(0), const Base<F>& radius=Base<F>(1) );
 template<typename Real,typename=EnableIf<IsReal<Real>>> 
-Real SampleBall( const Real& center=0, const Real& radius=1 );
+Real SampleBall( const Real& center=Real(0), const Real& radius=Real(1) );
 
 } // namespace El
 
