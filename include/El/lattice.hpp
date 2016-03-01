@@ -650,6 +650,10 @@ struct BKZCtrl
     bool variableEnumType=false;
     function<EnumType(Int)> enumTypeFunc;
 
+    // Y-sparse enumeration supports simultaneous searches for improving a
+    // contiguous window of vectors
+    Int multiEnumWindow=15;
+
     bool skipInitialLLL=false;
     bool jumpstart=false;
     Int startCol=0;

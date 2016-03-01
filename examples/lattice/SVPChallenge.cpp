@@ -41,6 +41,7 @@ int main( int argc, char* argv[] )
         const Int blocksize = Input("--blocksize","BKZ blocksize",20);
         const bool variableBsize = Input("--variableBsize","variable blocksize?",false);
         const bool variableEnumType = Input("--variableEnumType","variable enum type?",false);
+        const Int multiEnumWindow = Input("--multiEnumWindow","window for y-sparse enumeration",15);
         const Int phaseLength =
           Input("--phaseLength","YSPARSE_ENUM phase length",10);
         const Int progressLevel =
@@ -166,6 +167,7 @@ int main( int argc, char* argv[] )
         ctrl.blocksizeFunc = function<Int(Int)>(blocksizeLambda);
         ctrl.variableEnumType = variableEnumType;
         ctrl.enumTypeFunc = function<EnumType(Int)>(enumTypeLambda);
+        ctrl.multiEnumWindow = multiEnumWindow;
         ctrl.time = timeBKZ;
         ctrl.progress = progressBKZ;
         ctrl.recursive = recursiveBKZ;
