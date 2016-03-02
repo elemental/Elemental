@@ -26,8 +26,8 @@ int main( int argc, char* argv[] )
         const bool transposeVector =
           Input("--transposeVector","transpose vector?",false);
         const Int subsetStart = Input("--subsetStart","subset start col",0);
-        const bool coordinates = Input("--coordinates","vector is coordinates?",true);
-        const bool insertViaLLL = Input("--insertViaLLL","insert vector via LLL?",false);
+        const bool coordinates = Input("--coordinates","vector is coordinates?",false);
+        const bool insertViaLLL = Input("--insertViaLLL","insert vector via LLL?",true);
         const mpfr_prec_t prec =
           Input("--prec","MPFR precision",mpfr_prec_t(1024));
         ProcessInput();
