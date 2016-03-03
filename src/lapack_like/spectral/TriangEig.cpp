@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson and Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -12,139 +12,249 @@ namespace El {
 
 namespace triang_eig {
 
-template<typename F>
-inline void
-DiagonalBlockSolve
-(       Matrix<F>& T,
-  const Matrix<F>& shifts,
-        Matrix<F>& X ) 
+/* Determine machine dependent parameters to control overflow
+ *   Note: LAPACK uses more complicated parameters to handle 
+ *   issues that can happen on Cray machines.
+ */
+template<typename Real>
+inline pair<Real,Real>
+OverflowParameters()
 {
+    const Real unfl = lapack::MachineSafeMin<Real>();
+    const Real ovfl = lapack::MachineOverflowThreshold<Real>();
+    const Real ulp  = lapack::MachinePrecision<Real>();
+    Real smallNum = Max( unfl/ulp, Real(1)/(ovfl*ulp) );
+    Real bigNum = Real(1)/smallNum;
+    return pair<Real,Real>(smallNum,bigNum);
+}
+
+template<typename F>
+void
+DiagonalBlockSolve
+(       Matrix<F>& U,
+  const Matrix<F>& shifts,
+        Matrix<F>& X,
+        Matrix<F>& scales )
+{
+    typedef Base<F> Real;
+  
     DEBUG_ONLY(
       CSE cse("triang_eig::DiagonalBlockSolve");
       if( shifts.Height() != X.Width() )
           LogicError("Incompatible number of shifts");
     )
-    const char uploChar = 'U';
-    const char orientChar = 'N';
-    auto diag = GetDiagonal(T);
-    const Int n = T.Height();
-    const Int ldim = T.LDim();
+    auto diag = GetDiagonal(U);
+    const Int n = U.Height();
+    const Int ldim = U.LDim();
     const Int numShifts = shifts.Height();
+
+    auto params = OverflowParameters<Real>();
+    const Real smallNum = params.first;
+    const Real bigNum = params.second;
+
+    const Real oneHalf = Real(1)/Real(2);
+    const Real oneQuarter = Real(1)/Real(4);
+    
+    // Default scale is 1
+    Ones( scales, numShifts, 1 );
+
+    // Compute infinity norms of columns of U (excluding diagonal)
+    // TODO: scale cnorm if an entry is bigger than bigNum
+    Matrix<Real> cnorm( n, 1 );
+    cnorm.Set( 0, 0, Real(0) );
+    for( Int j=1; j<n; ++j )
+    {
+        cnorm.Set( j, 0, MaxNorm( U(IR(0,j),IR(j)) ) );
+    }
+
+    // Iterate through RHS's
     for( Int j=1; j<numShifts; ++j )
     {
-        ShiftDiagonal( T, -shifts.Get(j,0) );
-        // TODO: Handle small diagonal entries in the usual manner
-        blas::Trsv
-        ( uploChar, orientChar, 'N', Min(n,j), 
-          T.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
-        SetDiagonal( T, diag );
+        // Initialize triangular system
+        ShiftDiagonal( U, -shifts.Get(j,0) );
+        auto xj = X( IR(0,Min(n,j)), IR(j) );
+
+        // Determine largest entry of RHS
+        Real xjMax = MaxNorm( xj );
+        if( xjMax >= bigNum )
+        {
+            const Real s = oneHalf*bigNum/xjMax;
+            xj *= s;
+            xjMax *= s;
+            scales.Set( j, 0, s*scales.Get(j,0) );
+        }
+        xjMax = Max( xjMax, 2*smallNum );
+
+        // Estimate growth of entries in triangular solve
+        //   Note: See "Robust Triangular Solves for Use in Condition
+        //   Estimation" by Edward Anderson for explanation of bounds.
+        Real invGi = 1/xjMax;
+        Real invMi = invGi;
+        for( Int i=Min(n,j)-1; i>=0; --i )
+        {
+            const Real absUii = SafeAbs( U.Get(i,i) );
+            if( invGi<=smallNum || invMi<=smallNum || absUii<=smallNum )
+            {
+                invGi = 0;
+                break;
+            }
+            invMi = Min( invMi, absUii*invGi );
+            if( i > 0 )
+            {
+                invGi *= absUii/(absUii+cnorm.Get(i,0));
+            }
+        }
+        invGi = Min( invGi, invMi );
+
+        // Call TRSV if estimated growth is not too large
+        if( invGi > smallNum )
+        {
+            blas::Trsv
+            ( 'U', 'N', 'N', Min(n,j),
+              U.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
+        }
+        // Perform backward substitution if estimated growth is large
+        else
+        {
+            for( Int i=Min(n,j)-1; i>=0; --i )
+            {
+                // Perform division and check for overflow
+                const Real absUii = SafeAbs( U.Get(i,i) );
+                Real absXij = SafeAbs( xj.Get(i,0) );
+                if( absUii > smallNum )
+                {
+                    if( absUii<=1 && absXij>=absUii*bigNum )
+                    {
+                        // Set overflowing entry to 0.5/U[i,i]
+                        const Real s = oneHalf/absXij;
+                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        xj *= s;
+                        xjMax *= s;
+                    }
+                    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
+                }
+                else if( absUii > 0 )
+                {
+                    if( absXij >= absUii*bigNum )
+                    {
+                        // Set overflowing entry to bigNum/2
+                        const Real s = oneHalf*absUii*bigNum/absXij;
+                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        xj *= s;
+                        xjMax *= s;
+                    }
+                    xj.Set( i, 0, xj.Get(i,0)/U.Get(i,i) );
+                }
+                else
+                {
+                    // TODO: maybe this tolerance should be loosened to
+                    //   | Xij | >= || A || * eps
+                    if( absXij >= smallNum )
+                    {
+                        scales.Set( j, 0, F(0) );
+                        Zero( xj );
+                        xjMax = 0;
+                    }
+                    xj.Set( i, 0, F(1) );
+                }
+
+                if( i > 0 )
+                {
+                    // Check for possible overflows in AXPY
+                    // Note: G(i+1) <= G(i) + | Xij | * cnorm(i)
+                    absXij = SafeAbs( xj.Get(i,0) );
+                    if( absXij >= 1 &&
+                        cnorm.Get(i,0) >= (bigNum-xjMax)/absXij )
+                    {
+                        const Real s = oneQuarter/absXij;
+                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        xj *= s;
+                        xjMax *= s;
+                        absXij *= s;
+                    }
+                    else if( absXij < 1 &&
+                             absXij*cnorm.Get(i,0) >= bigNum-xjMax )
+                    {
+                        const Real s = oneQuarter;
+                        scales.Set( j, 0, s*scales.Get(j,0) );
+                        xj *= s;
+                        xjMax *= s;
+                        absXij *= s;
+                    }
+                    xjMax += absXij * cnorm.Get(i,0);
+
+                    // AXPY
+                    auto U01 = U( IR(0,i), IR(i) );
+                    auto X1  = X( IR(0,i), IR(j) );
+                    Axpy( -xj.Get(i,0), U01, X1 );
+                }
+            }
+        }
+
+        // Reset matrix diagonal
+        SetDiagonal( U, diag );
     }
 }
-
+  
 } // namespace triang_eig
 
 template<typename F>
-inline void
-TriangEig( Matrix<F>& U, Matrix<F>& X ) 
+void TriangEig( Matrix<F>& U, Matrix<F>& X ) 
 {
+  
     DEBUG_ONLY(CSE cse("TriangEig"))
     const Int m = U.Height();
-    const Int bsize = Blocksize();
-    const Int kLast = LastOffset( m, bsize );
-
-    Matrix<F> shifts;
-    GetDiagonal( U, shifts );
-
-    // TODO: Handle near and exact singularity
 
     // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
     Scale( F(-1), X );
 
-    for( Int k=kLast; k>=0; k-=bsize )
+    // Solve multi-shift triangular system
+    Matrix<F> shifts, scales;
+    GetDiagonal( U, shifts );
+    SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    SetDiagonal( X, scales );
+
+    // Normalize eigenvectors
+    for( Int j=0; j<m; ++j )
     {
-        const Int nb = Min(bsize,m-k);
-
-        const Range<Int> ind0( 0, k    ),
-                         ind1( k, k+nb );
-
-        auto U01 = U( ind0, ind1 );
-        auto U11 = U( ind1, ind1 );
-
-        auto X0 = X( ind0, IR(k,END) );
-        auto X1 = X( ind1, IR(k,END) );
-
-        triang_eig::DiagonalBlockSolve( U11, shifts(IR(k,END),ALL), X1 );
-        Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+        auto xj = X( IR(0,j+1), IR(j) );
+        Scale( 1/Nrm2(xj), xj );
     }
-    FillDiagonal( X, F(1) ); 
 }
-
+  
 template<typename F>
-inline void
-TriangEig
+void TriangEig
 ( const ElementalMatrix<F>& UPre, 
         ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("TriangEig"))
-
+    const Int m = UPre.Height();
+      
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& U = UProx.GetLocked();
     auto& X = XProx.Get();
 
-    const Grid& g = U.Grid();
-    DistMatrix<F,VR,STAR> shifts(g);
-    GetDiagonal( U, shifts );
-
-    // TODO: Handle near and exact singularity
-
     // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
     Scale( F(-1), X );
 
-    DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
-    DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-
-    const Int m = X.Height();
-    const Int bsize = Blocksize();
-    const Int kLast = LastOffset( m, bsize );
-
-    for( Int k=kLast; k>=0; k-=bsize )
+    // Solve multi-shift triangular system
+    const Grid& g = U.Grid();
+    DistMatrix<F,VR,STAR> shifts(g), scales(g);
+    GetDiagonal( U, shifts );
+    SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    SetDiagonal( X, scales );
+    
+    // Normalize eigenvectors
+    for( Int j=1; j<m; ++j )
     {
-        const Int nb = Min(bsize,m-k);
-
-        const Range<Int> ind0( 0, k    ),
-                         ind1( k, k+nb );
-
-        auto U01 = U( ind0, ind1 );
-        auto U11 = U( ind1, ind1 );
-
-        auto X0 = X( ind0, IR(k,END) );
-        auto X1 = X( ind1, IR(k,END) );
-
-        // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
-        U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
-        X1_STAR_VR.AlignWith( shifts );
-        X1_STAR_VR = X1; // X1[* ,VR] <- X1[MC,MR]
-        triang_eig::DiagonalBlockSolve
-        ( U11_STAR_STAR.Matrix(), shifts(IR(k,END),ALL).LockedMatrix(), 
-          X1_STAR_VR.Matrix() );
-
-        X1_STAR_MR.AlignWith( X0 );
-        X1_STAR_MR = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
-        X1 = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
-
-        // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        U01_MC_STAR.AlignWith( X0 );
-        U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
-        LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+        auto xj = X( IR(0,j+1), IR(j) );
+        xj *= 1/Nrm2(xj);
     }
-    FillDiagonal( X, F(1) );
 }
 
 #define PROTO(F) \

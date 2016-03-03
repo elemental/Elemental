@@ -4380,6 +4380,10 @@ void SparseAllToAll
         Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_ONLY(
+      CSE cse("mpi::SparseAllToAll");
+      VerifySendsAndRecvs( sendCounts, recvCounts, comm );
+    )
 #ifdef EL_USE_CUSTOM_ALLTOALLV
     const int commSize = Size( comm );
     int numSends=0,numRecvs=0;
@@ -4400,10 +4404,11 @@ EL_NO_RELEASE_EXCEPT
         if( count != 0 )
             IRecv( &recvBuffer[displ], count, q, comm, requests[rCount++] );
     }
-#ifdef EL_BARRIER_IN_ALLTOALLV
-    // This should help ensure that recvs are posted before the sends
+
+    // Ensure that recvs are posted before the sends
+    // (Invalid MPI_Irecv's have been observed otherwise)
     Barrier( comm );
-#endif
+
     for( int q=0; q<commSize; ++q )
     {
         int count = sendCounts[q];

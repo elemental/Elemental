@@ -65,6 +65,35 @@ void UpdateSubmatrix
     A.ProcessQueues();
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void UpdateSubmatrix \
+  (       Matrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          T alpha, \
+    const Matrix<T>& ASub ); \
+  EL_EXTERN template void UpdateSubmatrix \
+  (       AbstractDistMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          T alpha, \
+    const AbstractDistMatrix<T>& ASub );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include "El/macros/Instantiate.h"
+
+#undef EL_EXTERN
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_UPDATESUBMATRIX_HPP

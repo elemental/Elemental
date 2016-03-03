@@ -34,6 +34,7 @@ main( int argc, char* argv[] )
         const Int mb = 32;
         const Int nb = 32;
 #endif
+        const bool time = Input("--time","time SVD components?",true);
         // Options for thresholded SVD
         const bool relative = Input("--relative","relative thresholding?",true);
         const Real tol = Input("--tol","threshold tol",Real(0));
@@ -66,6 +67,7 @@ main( int argc, char* argv[] )
             seqCtrl.approach = approach;
             seqCtrl.relative = relative;
             seqCtrl.tol = tol;
+            seqCtrl.time = time;
             SVD( ASeq, sSeq, seqCtrl );
             Output("Sequential SingularValues: ",timer.Stop());
         }
@@ -85,6 +87,7 @@ main( int argc, char* argv[] )
         ctrl.approach = approach;
         ctrl.relative = relative;
         ctrl.tol = tol;
+        ctrl.time = time;
         DistMatrix<Real,VR,STAR> sOnly(g);
         if( commRank == 0 )
             timer.Start();

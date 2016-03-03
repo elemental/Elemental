@@ -379,6 +379,61 @@ void DiagonalSolve
     }
 }
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(F) \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const Matrix<F>& d, \
+          Matrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void SymmetricDiagonalSolve \
+  ( const Matrix<Base<F>>& d, \
+          Matrix<F>& A ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const ElementalMatrix<F>& d, \
+          ElementalMatrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const Matrix<F>& d, \
+          SparseMatrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void SymmetricDiagonalSolve \
+  ( const Matrix<Base<F>>& d, SparseMatrix<F>& A ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const DistMultiVec<F>& d, \
+          DistSparseMatrix<F>& A, \
+    bool checkIfSingular ); \
+  EL_EXTERN template void SymmetricDiagonalSolve \
+  ( const DistMultiVec<Base<F>>& d, \
+          DistSparseMatrix<F>& A ); \
+  EL_EXTERN template void DiagonalSolve \
+  ( LeftOrRight side, \
+    Orientation orientation, \
+    const DistMultiVec<F>& d, \
+          DistMultiVec<F>& X, \
+    bool checkIfSingular );
+
+#define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_DIAGONALSOLVE_HPP

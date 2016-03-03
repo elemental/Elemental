@@ -43,7 +43,12 @@ void CauchyLike
 // Circulant
 // ---------
 template<typename T>
+void Circulant( Matrix<T>& A, const Matrix<T>& a );
+template<typename T>
 void Circulant( Matrix<T>& A, const vector<T>& a );
+
+template<typename T>
+void Circulant( AbstractDistMatrix<T>& A, const Matrix<T>& a );
 template<typename T>
 void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a );
 
@@ -599,6 +604,19 @@ void Whale( Matrix<Complex<Real>>& A, Int n );
 template<typename Real>
 void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n );
 
+// Lattice
+// =======
+
+// The transpose of the 2 x 2 block matrix described in sub-subsection 3.4.1
+// in:
+//
+//   Jeffrey Hoffstein, Jill Pipher, Joseph H. Silverman,
+//   "NTRU: A ring-based public key cryptosystem"
+//
+// NOTE: While 'q' should be an integer, we accept it as floating-point for now
+template<typename Real>
+void NTRUAttack( Matrix<Real>& A, const Matrix<Real>& h, Real alpha, Real q );
+
 // Random
 // ######
 
@@ -759,5 +777,9 @@ template<typename F>
 void Wigner( ElementalMatrix<F>& A, Int n, F mean=0, Base<F> stddev=1 );
 
 } // namespace El
+
+// TODO: Group these into a small number of includes of parent dir's
+#include <El/matrices/deterministic/classical/Circulant.hpp>
+#include <El/matrices/deterministic/lattice/NTRUAttack.hpp>
 
 #endif // ifndef EL_MATRICES_HPP

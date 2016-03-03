@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_LATTICE_LLL_UNBLOCKED_HPP
-#define EL_LATTICE_LLL_UNBLOCKED_HPP
+#ifndef EL_LATTICE_LLL_LEFT_HPP
+#define EL_LATTICE_LLL_LEFT_HPP
 
 namespace El {
 namespace lll {
@@ -918,4 +918,4 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
 } // namespace lll
 } // namespace El
 
-#endif // ifndef EL_LATTICE_LLL_UNBLOCKED_HPP
+#endif // ifndef EL_LATTICE_LLL_LEFT_HPP

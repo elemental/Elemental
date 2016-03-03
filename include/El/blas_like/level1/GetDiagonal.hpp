@@ -162,6 +162,41 @@ GetImagPartOfDiagonal( const DistMatrix<T,U,V>& A, Int offset )
 
 // TODO: DistSparseMatrix implementation
 
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void GetDiagonal \
+  ( const Matrix<T>& A, Matrix<T>& d, Int offset ); \
+  EL_EXTERN template void GetRealPartOfDiagonal \
+  ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset ); \
+  EL_EXTERN template void GetImagPartOfDiagonal \
+  ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset ); \
+  EL_EXTERN template Matrix<T> GetDiagonal \
+  ( const Matrix<T>& A, Int offset ); \
+  EL_EXTERN template Matrix<Base<T>> GetRealPartOfDiagonal \
+  ( const Matrix<T>& A, Int offset ); \
+  EL_EXTERN template Matrix<Base<T>> GetImagPartOfDiagonal \
+  ( const Matrix<T>& A, Int offset ); \
+  EL_EXTERN template void GetDiagonal \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& d, Int offset ); \
+  EL_EXTERN template void GetRealPartOfDiagonal \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& d, Int offset ); \
+  EL_EXTERN template void GetImagPartOfDiagonal \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& d, Int offset );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_GETDIAGONAL_HPP
