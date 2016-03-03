@@ -631,25 +631,51 @@ public:
     ~PhaseEnumerationCache() { }
 };
 
+template<typename Real>
+struct PhaseEnumerationCtrl
+{
+  const vector<Int>& phaseOffsets;
+  const vector<Int>& minInfNorms;
+  const vector<Int>& maxInfNorms;
+  const vector<Int>& minOneNorms;
+  const vector<Int>& maxOneNorms;
+  const bool earlyExit=false;
+  const Int progressLevel=4;
+
+  PhaseEnumerationCtrl
+  ( const vector<Int>& offsets,
+    const vector<Int>& minInf,
+    const vector<Int>& maxInf,
+    const vector<Int>& minOne,
+    const vector<Int>& maxOne,
+    bool early=false,
+    Int level=4 )
+  : phaseOffsets(offsets),
+    minInfNorms(minInf), maxInfNorms(maxInf),
+    minOneNorms(minOne), maxOneNorms(maxOne),
+    earlyExit(early), progressLevel(level)
+  { }
+};
+
 // TODO: Reverse the enumeration order since nonzeros are more likely to happen
 //       at the bottom of the vector. This will require changing the arguments
 //       to this routine.
 template<typename Real>
 void PhaseEnumerationLeafInner
 (       PhaseEnumerationCache<Real>& cache,
+  const PhaseEnumerationCtrl<Real>& ctrl,
         vector<pair<Int,Int>>& y,
-  const vector<Int>& phaseOffsets,
-  const Int& beg,
-  const Int& minInf,
-  const Int& maxInf,
-  const Int& minOne,
-  const Int& maxOne,
-  const Int& baseInfNorm,
-  const Int& baseOneNorm,
-  const bool& zeroSoFar )
+  const Int beg,
+  const Int baseInfNorm,
+  const Int baseOneNorm,
+  const bool zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeafInner"))
-    const Int n = phaseOffsets.back();
+    const Int n = ctrl.phaseOffsets.back();
+    const Int minInf = ctrl.minInfNorms.back();
+    const Int maxInf = ctrl.maxInfNorms.back();
+    const Int minOne = ctrl.minOneNorms.back();
+    const Int maxOne = ctrl.maxOneNorms.back();
 
     const Int bound = Min(maxInf,maxOne-baseOneNorm);
     for( Int absBeta=1; absBeta<=bound; ++absBeta )
@@ -684,17 +710,15 @@ void PhaseEnumerationLeafInner
             {
                 y.emplace_back( i, absBeta );
                 PhaseEnumerationLeafInner
-                ( cache, y, phaseOffsets, i+1,
-                  minInf, maxInf, minOne, maxOne,
-                  newInfNorm, newOneNorm, false );
+                ( cache, ctrl, y,
+                  i+1, newInfNorm, newOneNorm, false );
 
                 if( !zeroSoFar )
                 {
                     y.back().second = -absBeta;
                     PhaseEnumerationLeafInner
-                    ( cache, y, phaseOffsets, i+1,
-                      minInf, maxInf, minOne, maxOne,
-                      newInfNorm, newOneNorm, false );
+                    ( cache, ctrl, y,
+                      i+1, newInfNorm, newOneNorm, false );
                 }
 
                 y.pop_back();
@@ -706,22 +730,23 @@ void PhaseEnumerationLeafInner
 template<typename Real>
 void PhaseEnumerationLeaf
 (       PhaseEnumerationCache<Real>& cache,
+  const PhaseEnumerationCtrl<Real>& ctrl,
         vector<pair<Int,Int>>& y,
-  const vector<Int>& phaseOffsets,
-  const Int& minInf,
-  const Int& maxInf,
-  const Int& minOne,
-  const Int& maxOne,
-  const bool& zeroSoFar )
+  const bool zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeaf"))
-    const Int beg = phaseOffsets[phaseOffsets.size()-2];
+
+    // Enqueue the zero phase if it is admissible
+    if( ctrl.minInfNorms.back() == Int(0) &&
+        ctrl.minOneNorms.back() == Int(0) )
+        cache.Enqueue( y );
+
+    const Int beg = ctrl.phaseOffsets[ctrl.phaseOffsets.size()-2];
     const Int baseInfNorm = 0;
     const Int baseOneNorm = 0;
     PhaseEnumerationLeafInner
-    ( cache, y, phaseOffsets, beg,
-      minInf, maxInf, minOne, maxOne,
-      baseInfNorm, baseOneNorm, zeroSoFar );
+    ( cache, ctrl, y,
+      beg, baseInfNorm, baseOneNorm, zeroSoFar );
 }
 
 // TODO: Reverse the enumeration order since nonzeros are more likely to happen
@@ -730,66 +755,45 @@ void PhaseEnumerationLeaf
 template<typename Real>
 void PhaseEnumerationNodeInner
 (       PhaseEnumerationCache<Real>& cache,
+  const PhaseEnumerationCtrl<Real>& ctrl,
         vector<pair<Int,Int>>& y,
-  const Int& phase,
-  const Int& beg,
-  const vector<Int>& phaseOffsets,
-  const vector<Int>& minInfNorms,
-  const vector<Int>& maxInfNorms,
-  const vector<Int>& minOneNorms,
-  const vector<Int>& maxOneNorms,
-  const Int& baseInfNorm,
-  const Int& baseOneNorm,
-  const bool& zeroSoFar,
-  const bool& earlyExit,
-  const Int& progressLevel )
+  const Int phase,
+  const Int beg,
+  const Int baseInfNorm,
+  const Int baseOneNorm,
+  const bool zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationNodeInner"))
     const Int n = cache.Height();
-    if( earlyExit && cache.FoundVector() )
+    if( ctrl.earlyExit && cache.FoundVector() )
         return;
 
-    const Int phaseBeg = phaseOffsets[phase];
-    const Int nextPhaseBeg = phaseOffsets[phase+1];
+    const Int phaseBeg = ctrl.phaseOffsets[phase];
+    const Int nextPhaseBeg = ctrl.phaseOffsets[phase+1];
+    const Int minInf = ctrl.minInfNorms[phase];
+    const Int maxInf = ctrl.maxInfNorms[phase];
+    const Int minOne = ctrl.minOneNorms[phase];
+    const Int maxOne = ctrl.maxOneNorms[phase];
 
     if( nextPhaseBeg >= n )
     {
-        const Int& minInf = minInfNorms.back(); 
-        const Int& maxInf = maxInfNorms.back();
-        const Int& minOne = minOneNorms.back();
-        const Int& maxOne = maxOneNorms.back();
-        // Enqueue the zero phase if it is admissible
-        if( minInf == Int(0) && minOne == Int(0) )
-            cache.Enqueue( y );
-
-        PhaseEnumerationLeaf
-        ( cache, y, phaseOffsets,
-          minInf, maxInf, minOne, maxOne,
-          zeroSoFar );
+        PhaseEnumerationLeaf( cache, ctrl, y, zeroSoFar );
         return;
     }
 
-    if( beg == phaseBeg && minInfNorms[phase] == 0 && minOneNorms[phase] == 0 )
+    if( beg == phaseBeg && minInf == 0 && minOne == 0 )
     {
         // This phase can be all zeroes, so move to the next phase
-        PhaseEnumerationNode
-        ( cache, y,
-          phase+1, 
-          phaseOffsets,
-          minInfNorms, maxInfNorms,
-          minOneNorms, maxOneNorms,
-          zeroSoFar,
-          earlyExit, progressLevel );
+        PhaseEnumerationNode( cache, ctrl, y, phase+1, zeroSoFar );
     }
 
-    const Int bound = Min(maxInfNorms[phase],maxOneNorms[phase]-baseOneNorm);
+    const Int bound = Min(maxInf,maxOne-baseOneNorm);
     for( Int absBeta=1; absBeta<=bound; ++absBeta ) 
     {
         const Int phaseOneNorm = baseOneNorm + absBeta;
         const Int phaseInfNorm = Max( baseInfNorm, absBeta );
 
-        if( phaseOneNorm >= minOneNorms[phase] &&
-            phaseInfNorm >= minInfNorms[phase] )
+        if( phaseOneNorm >= minOne && phaseInfNorm >= minInf )
         {
             // We could insert +-|beta| into any position and still have
             // an admissible choice for the current phase, so procede to
@@ -799,38 +803,24 @@ void PhaseEnumerationNodeInner
             {
                 // Fix y[i] = +|beta| and move to the next phase
                 y.emplace_back( i, absBeta );
-                if( phase < progressLevel )
+                if( phase < ctrl.progressLevel )
                     Output("phase ",phase,": y[",i,"]=",absBeta);
-                PhaseEnumerationNode
-                ( cache, y, 
-                  phase+1,
-                  phaseOffsets,
-                  minInfNorms, maxInfNorms,
-                  minOneNorms, maxOneNorms,
-                  false,
-                  earlyExit, progressLevel );
+                PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
 
                 if( !zeroSoFar )
                 {
                     // Fix y[i] = -|beta| and move to the next phase
                     y.back().second = -absBeta;
-                    if( phase < progressLevel )
+                    if( phase < ctrl.progressLevel )
                         Output("phase ",phase,": y[",i,"]=",-absBeta);
-                    PhaseEnumerationNode
-                    ( cache, y, 
-                      phase+1,
-                      phaseOffsets,
-                      minInfNorms, maxInfNorms,
-                      minOneNorms, maxOneNorms,
-                      false,
-                      earlyExit, progressLevel );
+                    PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
                 }
                 
                 y.pop_back();
             }
         }
 
-        if( phaseOneNorm < maxOneNorms[phase] )
+        if( phaseOneNorm < maxOne )
         {
             // Inserting +-|beta| into any position still leaves us with
             // room in the current phase
@@ -840,26 +830,18 @@ void PhaseEnumerationNodeInner
                 // Fix y[i] = +|beta| and move to y[i+1]
                 y.emplace_back( i, absBeta ); 
                 PhaseEnumerationNodeInner
-                ( cache, y, 
+                ( cache, ctrl, y, 
                   phase, i+1,
-                  phaseOffsets,
-                  minInfNorms, maxInfNorms,
-                  minOneNorms, maxOneNorms,
-                  phaseInfNorm, phaseOneNorm, false,
-                  earlyExit, progressLevel );
+                  phaseInfNorm, phaseOneNorm, false );
 
                 if( !zeroSoFar )
                 {
                     // Fix y[i] = -|beta| and move to y[i+1]
                     y.back().second = -absBeta;
                     PhaseEnumerationNodeInner
-                    ( cache, y,
+                    ( cache, ctrl, y,
                       phase, i+1,
-                      phaseOffsets,
-                      minInfNorms, maxInfNorms,
-                      minOneNorms, maxOneNorms,
-                      phaseInfNorm, phaseOneNorm, false,
-                      earlyExit, progressLevel );
+                      phaseInfNorm, phaseOneNorm, false );
                 }
                
                 y.pop_back();
@@ -871,28 +853,18 @@ void PhaseEnumerationNodeInner
 template<typename Real>
 void PhaseEnumerationNode
 (       PhaseEnumerationCache<Real>& cache,
+  const PhaseEnumerationCtrl<Real>& ctrl,
         vector<pair<Int,Int>>& y,
-  const Int& phase,
-  const vector<Int>& phaseOffsets,
-  const vector<Int>& minInfNorms,
-  const vector<Int>& maxInfNorms,
-  const vector<Int>& minOneNorms,
-  const vector<Int>& maxOneNorms,
-  const bool& zeroSoFar,
-  const bool& earlyExit,
-  const Int& progressLevel )
+  const Int phase,
+  const bool zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationNode"))
-    const Int beg = phaseOffsets[phase];
     const Int baseInfNorm = 0;
     const Int baseOneNorm = 0;
     PhaseEnumerationNodeInner
-    ( cache, y, phase, beg,
-      phaseOffsets,
-      minInfNorms, maxInfNorms,
-      minOneNorms, maxOneNorms,
-      baseInfNorm, baseOneNorm,
-      zeroSoFar, earlyExit, progressLevel ); 
+    ( cache, ctrl, y,
+      phase, ctrl.phaseOffsets[phase],
+      baseInfNorm, baseOneNorm, zeroSoFar ); 
 }
 
 template<typename Real>
@@ -940,16 +912,17 @@ PhaseEnumeration
     for( Int phase=0; phase<=numPhases; ++phase )
         phaseOffsets[phase] = Min(startIndex+phase*phaseLength,n);
 
+    PhaseEnumerationCtrl<Real>
+      ctrl
+      (phaseOffsets,
+       minInfNorms,maxInfNorms,
+       minOneNorms,maxOneNorms,
+       earlyExit,progressLevel);
+
     vector<pair<Int,Int>> y;
     Int phase=0;
     bool zeroSoFar = true;
-    PhaseEnumerationNode
-    ( cache, y, phase, 
-      phaseOffsets,
-      minInfNorms, maxInfNorms,
-      minOneNorms, maxOneNorms,
-      zeroSoFar,
-      earlyExit, progressLevel );
+    PhaseEnumerationNode( cache, ctrl, y, phase, zeroSoFar );
 
     cache.Flush();
 
