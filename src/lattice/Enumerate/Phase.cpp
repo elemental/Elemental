@@ -710,15 +710,13 @@ void PhaseEnumerationLeafInner
             {
                 y.emplace_back( i, absBeta );
                 PhaseEnumerationLeafInner
-                ( cache, ctrl, y,
-                  i+1, newInfNorm, newOneNorm, false );
+                ( cache, ctrl, y, i+1, newInfNorm, newOneNorm, false );
 
                 if( !zeroSoFar )
                 {
                     y.back().second = -absBeta;
                     PhaseEnumerationLeafInner
-                    ( cache, ctrl, y,
-                      i+1, newInfNorm, newOneNorm, false );
+                    ( cache, ctrl, y, i+1, newInfNorm, newOneNorm, false );
                 }
 
                 y.pop_back();
@@ -745,8 +743,7 @@ void PhaseEnumerationLeaf
     const Int baseInfNorm = 0;
     const Int baseOneNorm = 0;
     PhaseEnumerationLeafInner
-    ( cache, ctrl, y,
-      beg, baseInfNorm, baseOneNorm, zeroSoFar );
+    ( cache, ctrl, y, beg, baseInfNorm, baseOneNorm, zeroSoFar );
 }
 
 // TODO: Reverse the enumeration order since nonzeros are more likely to happen

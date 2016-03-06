@@ -15,14 +15,15 @@ namespace safemstrsm {
  *   issues that can happen on Cray machines.
  */
 template<typename Real>
-inline void
-OverflowParameters( Real& smlnum, Real& bignum )
+inline pair<Real,Real>
+OverflowParameters()
 {
-    const Real unfl = lapack::MachineSafeMin<Real>();
-    const Real ovfl = lapack::MachineOverflowThreshold<Real>();
+    const Real underflow = lapack::MachineSafeMin<Real>();
+    const Real overflow = lapack::MachineOverflowThreshold<Real>();
     const Real ulp  = lapack::MachinePrecision<Real>();
-    smlnum = Max( unfl/ulp, 1/(ovfl*ulp) );
-    bignum = 1/smlnum;
+    const Real smallNum = Max( underflow/ulp, 1/(overflow*ulp) );
+    const Real bigNum = 1/smallNum;
+    return pair<Real,Real>(smallNum,bigNum);
 }
 
 }
