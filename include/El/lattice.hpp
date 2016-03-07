@@ -712,6 +712,8 @@ struct BKZCtrl
         variableEnumType = ctrl.variableEnumType;
         enumTypeFunc = ctrl.enumTypeFunc;
 
+        multiEnumWindow = ctrl.multiEnumWindow;
+
         skipInitialLLL = ctrl.skipInitialLLL;
         jumpstart = ctrl.jumpstart;
         startCol = ctrl.startCol;
