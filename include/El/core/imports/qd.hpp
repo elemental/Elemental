@@ -78,6 +78,7 @@ struct DoubleDouble : public dd_real
     // Casting
     explicit operator unsigned() const { return to_int(*this); }
     explicit operator int() const { return to_int(*this); }
+    explicit operator long long int() const;
     explicit operator float() const { return to_double(*this); }
     explicit operator double() const { return to_double(*this); }
 #ifdef EL_HAVE_QUAD
@@ -181,6 +182,7 @@ struct QuadDouble : public qd_real
     explicit operator int() const { return to_int(*this); }
     explicit operator float() const { return to_double(*this); }
     explicit operator double() const { return to_double(*this); }
+    explicit operator long long int() const;
     explicit operator DoubleDouble() const { return to_dd_real(*this); }
 #ifdef EL_HAVE_QUAD
     explicit operator Quad() const;
