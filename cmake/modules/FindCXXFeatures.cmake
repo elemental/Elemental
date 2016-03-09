@@ -48,7 +48,7 @@ endif ()
 #
 ### Check for needed compiler flags
 #
-include(${CMAKE_CURRENT_LIST_DIR}/CheckCXXCompilerFlag.cmake)
+include(CheckCXXCompilerFlag)
 
 function(test_set_flag FLAG NAME)
     check_cxx_compiler_flag("${FLAG}" _HAS_${NAME}_FLAG)
@@ -164,7 +164,7 @@ foreach (_cxx_feature IN LISTS CXXFEATURES_FIND_COMPONENTS)
     cxx_check_feature(${_cxx_feature} ${FEATURE_NAME})
 endforeach (_cxx_feature)
 
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
+include(FindPackageHandleStandardArgs)
 set(DUMMY_VAR TRUE)
 find_package_handle_standard_args(CXXFeatures REQUIRED_VARS DUMMY_VAR HANDLE_COMPONENTS)
 unset(DUMMY_VAR)
