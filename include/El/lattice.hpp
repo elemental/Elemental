@@ -363,12 +363,19 @@ struct EnumCtrl
     // YSPARSE_ENUM
     // ------------
     Int phaseLength=10;
+    double enqueueProb=1.;
 
     bool customStartIndex=false; 
     Int startIndex;
 
+    bool customMinInfNorms=false;
+    vector<Int> minInfNorms;
+
     bool customMaxInfNorms=false;
     vector<Int> maxInfNorms;
+
+    bool customMinOneNorms=false;
+    vector<Int> minOneNorms;
 
     bool customMaxOneNorms=false;
     vector<Int> maxOneNorms; 
@@ -394,12 +401,20 @@ struct EnumCtrl
         // YSPARSE_ENUM
         // ------------
         phaseLength = ctrl.phaseLength;
+        enqueueProb = ctrl.enqueueProb;
         customStartIndex = ctrl.customStartIndex;
         startIndex = ctrl.startIndex;
+
+        customMinInfNorms = ctrl.customMinInfNorms;
+        minInfNorms = ctrl.minInfNorms;
         customMaxInfNorms = ctrl.customMaxInfNorms;
         maxInfNorms = ctrl.maxInfNorms;
+
+        customMinOneNorms = ctrl.customMinOneNorms;
+        minOneNorms = ctrl.minOneNorms;
         customMaxOneNorms = ctrl.customMaxOneNorms;
         maxOneNorms = ctrl.maxOneNorms;
+
         progressLevel = ctrl.progressLevel;
 
         return *this;
@@ -474,7 +489,10 @@ Real PhaseEnumeration
         Real normUpperBound,
         Int startIndex,
         Int phaseLength,
+        double enqueueProb,
+  const vector<Int>& minInfNorms,
   const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
         Matrix<Real>& v,
         Int progressLevel=0 );
@@ -487,7 +505,10 @@ PhaseEnumeration
   const Matrix<Real>& normUpperBounds,
         Int startIndex,
         Int phaseLength,
+        double enqueueProb,
+  const vector<Int>& minInfNorms,
   const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
         Matrix<Real>& v,
         Int progressLevel=0 );

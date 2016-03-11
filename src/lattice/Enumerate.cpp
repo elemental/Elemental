@@ -307,11 +307,17 @@ Base<F> ShortVectorEnumeration
 
         const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
 
-        vector<Int> maxInfNorms(numPhases,1), maxOneNorms(numPhases,1);
+        vector<Int> minInfNorms(numPhases,0), maxInfNorms(numPhases,1),
+                    minOneNorms(numPhases,0), maxOneNorms(numPhases,1);
         if( numPhases >= 1 ) maxOneNorms[numPhases-1] = 2;
 
+        if( ctrl.customMinInfNorms )
+            minInfNorms = ctrl.minInfNorms;
         if( ctrl.customMaxInfNorms )
             maxInfNorms = ctrl.maxInfNorms;
+
+        if( ctrl.customMinOneNorms )
+            minOneNorms = ctrl.minOneNorms;
         if( ctrl.customMaxOneNorms )
             maxOneNorms = ctrl.maxOneNorms;
 
@@ -320,8 +326,11 @@ Base<F> ShortVectorEnumeration
         if( ctrl.time )
             timer.Start();
         Real result = svp::PhaseEnumeration
-          ( B, d, N, normUpperBound, startIndex, phaseLength,
-            maxInfNorms, maxOneNorms, v, ctrl.progressLevel );
+          ( B, d, N, normUpperBound,
+            startIndex, phaseLength, ctrl.enqueueProb,
+            minInfNorms, maxInfNorms,
+            minOneNorms, maxOneNorms,
+            v, ctrl.progressLevel );
         if( ctrl.time )
             Output("YSPARSE_ENUM(",n,"): ",timer.Stop()," seconds");
         return result;
@@ -659,11 +668,17 @@ MultiShortVectorEnumeration
 
         const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
 
-        vector<Int> maxInfNorms(numPhases,1), maxOneNorms(numPhases,1);
+        vector<Int> minInfNorms(numPhases,0), maxInfNorms(numPhases,1),
+                    minOneNorms(numPhases,0), maxOneNorms(numPhases,1);
         if( numPhases >= 1 ) maxOneNorms[numPhases-1] = 2;
 
+        if( ctrl.customMinInfNorms )
+            minInfNorms = ctrl.minInfNorms;
         if( ctrl.customMaxInfNorms )
             maxInfNorms = ctrl.maxInfNorms;
+
+        if( ctrl.customMinOneNorms )
+            minOneNorms = ctrl.minOneNorms;
         if( ctrl.customMaxOneNorms )
             maxOneNorms = ctrl.maxOneNorms;
 
@@ -672,8 +687,11 @@ MultiShortVectorEnumeration
         if( ctrl.time )
             timer.Start();
         auto result = svp::PhaseEnumeration
-          ( B, d, N, modNormUpperBounds, startIndex, phaseLength,
-            maxInfNorms, maxOneNorms, v, ctrl.progressLevel );
+          ( B, d, N, modNormUpperBounds, 
+            startIndex, phaseLength, ctrl.enqueueProb,
+            minInfNorms, maxInfNorms,
+            minOneNorms, maxOneNorms,
+            v, ctrl.progressLevel );
         if( ctrl.time )
             Output("YSPARSE_ENUM(",n,"): ",timer.Stop()," seconds");
         return result;

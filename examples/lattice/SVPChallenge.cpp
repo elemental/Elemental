@@ -44,6 +44,8 @@ int main( int argc, char* argv[] )
         const Int multiEnumWindow = Input("--multiEnumWindow","window for y-sparse enumeration",15);
         const Int phaseLength =
           Input("--phaseLength","YSPARSE_ENUM phase length",10);
+        const double enqueueProb =
+          Input("--enqueueProb","enqueue probability?",1.);
         const Int progressLevel =
           Input("--progressLevel","YSPARSE_ENUM progress level",4);
         const bool presort = Input("--presort","presort columns?",false);
@@ -177,6 +179,7 @@ int main( int argc, char* argv[] )
         ctrl.enumCtrl.time = timeEnum;
         ctrl.enumCtrl.innerProgress = innerEnumProgress; 
         ctrl.enumCtrl.phaseLength = phaseLength;
+        ctrl.enumCtrl.enqueueProb = enqueueProb;
         ctrl.enumCtrl.progressLevel = progressLevel;
         ctrl.earlyAbort = earlyAbort;
         ctrl.numEnumsBeforeAbort = numEnumsBeforeAbort;

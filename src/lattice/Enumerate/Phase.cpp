@@ -628,6 +628,12 @@ public:
             Flush();
     }
 
+    void MaybeEnqueue( const vector<pair<Int,Int>>& y, double enqueueProb=1. )
+    {
+        if( enqueueProb >= 1. || SampleUniform<double>(0,1) <= enqueueProb )
+            Enqueue( y );
+    }
+
     ~PhaseEnumerationCache() { }
 };
 
@@ -639,6 +645,7 @@ struct PhaseEnumerationCtrl
   const vector<Int>& maxInfNorms;
   const vector<Int>& minOneNorms;
   const vector<Int>& maxOneNorms;
+  const double enqueueProb=1.;
   const bool earlyExit=false;
   const Int progressLevel=4;
 
@@ -648,12 +655,15 @@ struct PhaseEnumerationCtrl
     const vector<Int>& maxInf,
     const vector<Int>& minOne,
     const vector<Int>& maxOne,
+    double accept=1.,
     bool early=false,
     Int level=4 )
   : phaseOffsets(offsets),
     minInfNorms(minInf), maxInfNorms(maxInf),
     minOneNorms(minOne), maxOneNorms(maxOne),
-    earlyExit(early), progressLevel(level)
+    enqueueProb(accept),
+    earlyExit(early),
+    progressLevel(level)
   { }
 };
 
@@ -690,12 +700,12 @@ void PhaseEnumerationLeafInner
             for( Int i=beg; i<n; ++i )
             {
                 y.emplace_back( i, absBeta );
-                cache.Enqueue( y );
+                cache.MaybeEnqueue( y, ctrl.enqueueProb );
 
                 if( !zeroSoFar )
                 {
                     y.back() = pair<Int,Int>(i,-absBeta);
-                    cache.Enqueue( y );
+                    cache.MaybeEnqueue( y, ctrl.enqueueProb );
                 }
 
                 y.pop_back();
@@ -737,7 +747,7 @@ void PhaseEnumerationLeaf
     // Enqueue the zero phase if it is admissible
     if( ctrl.minInfNorms.back() == Int(0) &&
         ctrl.minOneNorms.back() == Int(0) )
-        cache.Enqueue( y );
+        cache.MaybeEnqueue( y, ctrl.enqueueProb );
 
     const Int beg = ctrl.phaseOffsets[ctrl.phaseOffsets.size()-2];
     const Int baseInfNorm = 0;
@@ -873,7 +883,10 @@ PhaseEnumeration
   const Matrix<Real>& normUpperBounds,
         Int startIndex,
         Int phaseLength,
+        double enqueueProb,
+  const vector<Int>& minInfNorms,
   const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
         Matrix<Real>& v,
         Int progressLevel )
@@ -889,9 +902,6 @@ PhaseEnumeration
         LogicError("Invalid length of maxInfNorms");
     if( numPhases != Int(maxOneNorms.size()) )
         LogicError("Invalid length of maxOneNorms");
-
-    // TODO: Make these values modifiable
-    vector<Int> minInfNorms(numPhases,0), minOneNorms(numPhases,0);
 
     // TODO: Loop and increase bands for min and max one and inf norms?
 
@@ -914,6 +924,7 @@ PhaseEnumeration
       (phaseOffsets,
        minInfNorms,maxInfNorms,
        minOneNorms,maxOneNorms,
+       enqueueProb,
        earlyExit,progressLevel);
 
     vector<pair<Int,Int>> y;
@@ -944,7 +955,10 @@ Real PhaseEnumeration
         Real normUpperBound,
         Int startIndex,
         Int phaseLength,
+        double enqueueProb,
+  const vector<Int>& minInfNorms,
   const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
         Matrix<Real>& v,
         Int progressLevel )
@@ -954,8 +968,11 @@ Real PhaseEnumeration
     normUpperBounds.Set(0,0,normUpperBound);
     auto pair = 
       PhaseEnumeration
-      ( B, d, N, normUpperBounds, startIndex, phaseLength,
-        maxInfNorms, maxOneNorms, v, progressLevel );
+      ( B, d, N, normUpperBounds,
+        startIndex, phaseLength, enqueueProb,
+        minInfNorms, maxInfNorms,
+        minOneNorms, maxOneNorms,
+        v, progressLevel );
     return pair.first;
 }
 
@@ -1002,7 +1019,10 @@ Real PhaseEnumeration
           Base<F> normUpperBound, \
           Int startIndex, \
           Int phaseLength, \
+          double enqueueProb, \
+    const vector<Int>& minInfNorms, \
     const vector<Int>& maxInfNorms, \
+    const vector<Int>& minOneNorms, \
     const vector<Int>& maxOneNorms, \
           Matrix<F>& v, \
           Int progressLevel ); \
@@ -1013,7 +1033,10 @@ Real PhaseEnumeration
     const Matrix<Base<F>>& normUpperBounds, \
           Int startIndex, \
           Int phaseLength, \
+          double enqueueProb, \
+    const vector<Int>& minInfNorms, \
     const vector<Int>& maxInfNorms, \
+    const vector<Int>& minOneNorms, \
     const vector<Int>& maxOneNorms, \
           Matrix<F>& v, \
           Int progressLevel );
