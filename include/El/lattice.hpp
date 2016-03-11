@@ -710,6 +710,7 @@ struct BKZCtrl
     bool checkpoint=false;
     FileFormat checkpointFormat=ASCII;
     std::string checkpointFileBase="BKZCheckpoint";
+    std::string tourFileBase="BKZTour";
 
     LLLCtrl<Real> lllCtrl;
 
@@ -757,6 +758,7 @@ struct BKZCtrl
         normsFile = ctrl.normsFile;
         projNormsFile = ctrl.projNormsFile;
         checkpointFileBase = ctrl.checkpointFileBase;
+        tourFileBase = ctrl.tourFileBase;
         checkpointFormat = ctrl.checkpointFormat;
 
         lllCtrl = ctrl.lllCtrl;

@@ -345,7 +345,11 @@ BKZInfo<Base<F>> BKZWithQ
         const Int k = Min(j+bsize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
         if( ctrl.checkpoint )
-          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        {
+            Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+            if( j == 0 )
+                Write( B, ctrl.tourFileBase, ctrl.checkpointFormat, "B" );
+        }
         if( j == 0 )
         {
             if( ctrl.logNorms )
@@ -853,7 +857,11 @@ BKZInfo<Base<F>> BKZWithQ
         const Int k = Min(j+bsize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
         if( ctrl.checkpoint )
-          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        {
+            Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+            if( j == 0 )
+                Write( B, ctrl.tourFileBase, ctrl.checkpointFormat, "B" );
+        }
         if( j == 0 )
         {
             if( ctrl.logNorms )
