@@ -328,14 +328,11 @@ Int AlgebraicRelationSearch
 // Schnorr-Euchner enumeration
 // ===========================
 
-namespace EnumTypeNS {
 enum EnumType {
-    FULL_ENUM,
-    GNR_ENUM,
-    YSPARSE_ENUM
+  FULL_ENUM,
+  GNR_ENUM,
+  YSPARSE_ENUM
 };
-}
-using namespace EnumTypeNS;
 
 template<typename Real>
 struct EnumCtrl
@@ -825,9 +822,30 @@ void EnrichLattice( Matrix<F>& B, const Matrix<F>& v );
 template<typename F>
 void EnrichLattice( Matrix<F>& B, Matrix<F>& U, const Matrix<F>& v );
 
+// Closest vector problem
+// ======================
+
+template<typename F>
+void NearestPlane
+( const Matrix<F>& B,
+  const Matrix<F>& T,
+        Matrix<F>& X,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename F>
+void NearestPlane
+( const Matrix<F>& B,
+  const Matrix<F>& QR,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& T,
+        Matrix<F>& X,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
 } // namespace El
 
 #include "El/lattice/LLL.hpp"
+#include "El/lattice/NearestPlane.hpp"
 #include "El/lattice/Enrich.hpp"
 #include "El/lattice/BKZ.hpp"
 
