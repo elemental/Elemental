@@ -10,6 +10,7 @@
 
 namespace El {
 
+// TODO: Generalize to support several columns at once?
 template<typename F>
 bool LatticeCoordinates
 ( const Matrix<F>& B,
@@ -20,6 +21,9 @@ bool LatticeCoordinates
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
+    if( y.Height() != m || y.Width() != 1 )
+        LogicError("y should have been an ",m," x 1 vector");
+
     if( FrobeniusNorm(y) == Real(0) )
     {
         Zeros( x, n, 1 );
