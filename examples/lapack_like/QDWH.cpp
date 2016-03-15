@@ -23,6 +23,7 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const bool colPiv = Input("--colPiv","QR with col pivoting?",false);
+        const Int maxIts = Input("--maxIts","maximum number of QDWH it's",20);
         ProcessInput();
         PrintInputReport();
 
@@ -35,10 +36,17 @@ main( int argc, char* argv[] )
         Q = A;
         PolarCtrl ctrl;
         ctrl.qdwh = true;
-        ctrl.colPiv = colPiv;
-        Polar( Q, ctrl );
+        ctrl.qdwhCtrl.colPiv = colPiv;
+        ctrl.qdwhCtrl.maxIts = maxIts;
+        auto info = Polar( Q, ctrl );
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
+        if( mpi::Rank() == 0 )
+        {
+            Output("Total QDWH iterations: ",info.qdwhInfo.numIts);
+            Output("  QR iterations:       ",info.qdwhInfo.numQRIts);
+            Output("  Cholesky iterations: ",info.qdwhInfo.numCholIts);
+        }
 
         // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
@@ -49,8 +57,7 @@ main( int argc, char* argv[] )
         const Real frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( mpi::Rank() == 0 )
             Output
-            (ctrl.numIts," iterations of QDWH\n",
-             "||A - QP||_F / ||A||_F = ",frobQDWH/frobA,"\n",
+            ("||A - QP||_F / ||A||_F = ",frobQDWH/frobA,"\n",
              "||I - QQ^H||_F / ||A||_F = ",frobQDWHOrthog/frobA,"\n");
     }
     catch( exception& e ) { ReportException(e); }

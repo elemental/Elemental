@@ -239,39 +239,65 @@ void Sort
 
 // Polar decomposition
 // ===================
+struct QDWHCtrl
+{
+    bool colPiv=false;
+    Int maxIts=20;
+};
+
 struct PolarCtrl 
 {
     bool qdwh=false;
-    bool colPiv=false;
-    Int maxIts=20;
-    mutable Int numIts=0;
+    QDWHCtrl qdwhCtrl;
+};
+
+struct QDWHInfo
+{
+    Int numIts=0;
+    Int numQRIts=0;
+    Int numCholIts=0;
+};
+
+struct PolarInfo
+{
+    QDWHInfo qdwhInfo;
 };
 
 template<typename F>
-void Polar( Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
+PolarInfo Polar( Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
-void Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
+PolarInfo Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
 template<typename F>
-void Polar
-( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl=PolarCtrl() );
-template<typename F>
-void Polar
-( ElementalMatrix<F>& A, ElementalMatrix<F>& P, 
-  const PolarCtrl& ctrl=PolarCtrl() ); 
-template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
-template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, ElementalMatrix<F>& A, 
-  const PolarCtrl& ctrl=PolarCtrl() ); 
-template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, 
+PolarInfo Polar
+( Matrix<F>& A,
+  Matrix<F>& P,
   const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& P, 
+PolarInfo Polar
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& P, 
+  const PolarCtrl& ctrl=PolarCtrl() ); 
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  const PolarCtrl& ctrl=PolarCtrl() );
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A, 
+  const PolarCtrl& ctrl=PolarCtrl() ); 
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<F>& P, 
+  const PolarCtrl& ctrl=PolarCtrl() );
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A,
+  ElementalMatrix<F>& P, 
   const PolarCtrl& ctrl=PolarCtrl() ); 
 
 // Schur decomposition

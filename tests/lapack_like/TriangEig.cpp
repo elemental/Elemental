@@ -14,6 +14,7 @@ void FoxLiSchurFactor( ElementalMatrix<F>& A, Int m )
 {
     LogicError( "Fox-Li matrix is complex" );
 }
+
 template<typename Real>
 void FoxLiSchurFactor( ElementalMatrix<Complex<Real>>& A, Int m )
 {

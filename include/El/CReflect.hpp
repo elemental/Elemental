@@ -1092,14 +1092,29 @@ CReflect( const ElHermitianEigCtrl_z& ctrlC )
     return ctrl;
 }
 
+/* QDWHCtrl */
+inline ElQDWHCtrl CReflect( const QDWHCtrl& ctrl )
+{
+    ElQDWHCtrl ctrlC;
+    ctrlC.colPiv = ctrl.colPiv;
+    ctrlC.maxIts = ctrl.maxIts;
+    return ctrlC;
+}
+
+inline QDWHCtrl CReflect( const ElQDWHCtrl& ctrlC )
+{
+    QDWHCtrl ctrl;
+    ctrl.colPiv = ctrlC.colPiv;
+    ctrl.maxIts = ctrlC.maxIts;
+    return ctrl;
+}
+
 /* PolarCtrl */
 inline ElPolarCtrl CReflect( const PolarCtrl& ctrl )
 {
     ElPolarCtrl ctrlC;
     ctrlC.qdwh = ctrl.qdwh;
-    ctrlC.colPiv = ctrl.colPiv;
-    ctrlC.maxIts = ctrl.maxIts;
-    ctrlC.numIts = ctrl.numIts;
+    ctrlC.qdwhCtrl = CReflect(ctrl.qdwhCtrl);
     return ctrlC;
 }
 
@@ -1107,10 +1122,42 @@ inline PolarCtrl CReflect( const ElPolarCtrl& ctrlC )
 {
     PolarCtrl ctrl;
     ctrl.qdwh = ctrlC.qdwh;
-    ctrl.colPiv = ctrlC.colPiv;
-    ctrl.maxIts = ctrlC.maxIts;
-    ctrl.numIts = ctrlC.numIts;
+    ctrl.qdwhCtrl = CReflect(ctrlC.qdwhCtrl);
     return ctrl;
+}
+
+/* QDWHInfo */
+inline ElQDWHInfo CReflect( const QDWHInfo& info )
+{
+    ElQDWHInfo infoC;
+    infoC.numIts = info.numIts;
+    infoC.numQRIts = info.numQRIts;
+    infoC.numCholIts = info.numCholIts;
+    return infoC;
+}
+
+inline QDWHInfo CReflect( const ElQDWHInfo& infoC )
+{
+    QDWHInfo info;
+    info.numIts = infoC.numIts;
+    info.numQRIts = infoC.numQRIts;
+    info.numCholIts = infoC.numCholIts;
+    return info;
+}
+
+/* PolarInfo */
+inline ElPolarInfo CReflect( const PolarInfo& info )
+{
+    ElPolarInfo infoC;
+    infoC.qdwhInfo = CReflect(info.qdwhInfo);
+    return infoC;
+}
+
+inline PolarInfo CReflect( const ElPolarInfo& infoC )
+{
+    PolarInfo info;
+    info.qdwhInfo = CReflect(infoC.qdwhInfo);
+    return info;
 }
 
 /* SVDCtrl */

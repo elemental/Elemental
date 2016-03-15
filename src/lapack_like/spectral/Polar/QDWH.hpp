@@ -25,8 +25,8 @@ namespace El {
 namespace polar {
 
 template<typename F>
-inline Int 
-QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
+inline QDWHInfo
+QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWHInner"))
     typedef Base<F> Real;
@@ -36,6 +36,8 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
     const Real oneThird = Real(1)/Real(3);
     if( m < n )
         LogicError("Height cannot be less than width");
+
+    QDWHInfo info;
 
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
@@ -50,8 +52,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
     Matrix<F> Q( m+n, n );
     auto QT = Q( IR(0,m  ), ALL );
     auto QB = Q( IR(m,END), ALL );
-    Int numIts=0;
-    while( numIts < ctrl.maxIts )
+    while( info.numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -88,6 +89,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, true, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
+            ++info.numQRIts;
         }
         else
         {
@@ -102,20 +104,21 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             A *= beta;
             Axpy( alpha, ATemp, A );
+            ++info.numCholIts;
         }
 
-        ++numIts;
+        ++info.numIts;
         ALast -= A;
         frobNormADiff = FrobeniusNorm( ALast );
         if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
-    return numIts;
+    return info;
 }
 
 template<typename F>
-inline Int 
-QDWH( Matrix<F>& A, const PolarCtrl& ctrl )
+inline QDWHInfo
+QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
     typedef Base<F> Real;
@@ -150,22 +153,22 @@ QDWH( Matrix<F>& A, const PolarCtrl& ctrl )
 }
 
 template<typename F>
-inline Int 
-QDWH( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
+inline QDWHInfo
+QDWH( Matrix<F>& A, Matrix<F>& P, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
     Matrix<F> ACopy( A );
-    const Int numIts = QDWH( A, ctrl );
+    auto info = QDWH( A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( LOWER, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
     MakeHermitian( LOWER, P );
-    return numIts;
+    return info;
 }
 
 template<typename F>
-inline Int 
+inline QDWHInfo
 QDWHInner
-( ElementalMatrix<F>& APre, Base<F> sMinUpper, const PolarCtrl& ctrl )
+( ElementalMatrix<F>& APre, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWHInner"))
 
@@ -179,6 +182,8 @@ QDWHInner
     const Real oneThird = Real(1)/Real(3);
     if( m < n )
         LogicError("Height cannot be less than width");
+
+    QDWHInfo info;
 
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
@@ -194,9 +199,8 @@ QDWHInner
     auto QT = Q( IR(0,m  ), ALL );
     auto QB = Q( IR(m,END), ALL );
 
-    Int numIts=0;
     Real frobNormADiff;
-    while( numIts < ctrl.maxIts )
+    while( info.numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -233,6 +237,7 @@ QDWHInner
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, true, qrCtrl );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
+            ++info.numQRIts;
         }
         else
         {
@@ -247,20 +252,21 @@ QDWHInner
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             A *= beta;
             Axpy( alpha, ATemp, A );
+            ++info.numCholIts;
         }
 
-        ++numIts;
+        ++info.numIts;
         ALast -= A;
         frobNormADiff = FrobeniusNorm( ALast );
         if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
-    return numIts;
+    return info;
 }
 
 template<typename F>
-inline Int 
-QDWH( ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
+inline QDWHInfo
+QDWH( ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
 
@@ -299,10 +305,11 @@ QDWH( ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
 }
 
 template<typename F>
-inline Int 
+inline QDWHInfo
 QDWH
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre, 
-  const PolarCtrl& ctrl )
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& PPre, 
+  const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
 
@@ -312,11 +319,11 @@ QDWH
     auto& P = PProx.Get();
 
     DistMatrix<F> ACopy( A );
-    const Int numIts = QDWH( A, ctrl );
+    auto info = QDWH( A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( LOWER, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
     MakeHermitian( LOWER, P );
-    return numIts;
+    return info;
 }
 
 } // namespace polar
@@ -324,9 +331,12 @@ QDWH
 namespace herm_polar {
 
 template<typename F>
-inline int
+inline QDWHInfo
 QDWHInner
-( UpperOrLower uplo, Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Base<F> sMinUpper,
+  const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     if( A.Height() != A.Width() )
@@ -336,6 +346,8 @@ QDWHInner
     typedef Complex<Real> Cpx;
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
+
+    QDWHInfo info;
 
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
@@ -351,8 +363,7 @@ QDWHInner
     auto QT = Q( IR(0,n  ), ALL );
     auto QB = Q( IR(n,END), ALL );
 
-    Int numIts=0;
-    while( numIts < ctrl.maxIts )
+    while( info.numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -390,6 +401,7 @@ QDWHInner
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, true, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
+            ++info.numQRIts;
         }
         else
         {
@@ -408,23 +420,24 @@ QDWHInner
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             A *= beta;
             Axpy( alpha, ATemp, A );
+            ++info.numCholIts;
         }
 
         ALast -= A;
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
 
-        ++numIts;
+        ++info.numIts;
         if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
 
     MakeHermitian( uplo, A );
-    return numIts;
+    return info;
 }
 
 template<typename F>
-inline Int 
-QDWH( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl )
+inline QDWHInfo
+QDWH( UpperOrLower uplo, Matrix<F>& A, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     typedef Base<F> Real;
@@ -448,25 +461,30 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl )
 }
 
 template<typename F>
-inline Int
+inline QDWHInfo
 QDWH
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<F>& P,
+  const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     Matrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );
-    const Int numIts = QDWH( uplo, A, ctrl );
+    auto info = QDWH( uplo, A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( uplo, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
-    return numIts;
+    return info;
 }
 
 template<typename F>
-inline int
+inline QDWHInfo
 QDWHInner
-( UpperOrLower uplo, ElementalMatrix<F>& APre, Base<F> sMinUpper, 
-  const PolarCtrl& ctrl )
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  Base<F> sMinUpper, 
+  const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
     if( APre.Height() != APre.Width() )
@@ -480,6 +498,8 @@ QDWHInner
     const Grid& g = A.Grid();
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
+
+    QDWHInfo info;
 
     QRCtrl<Base<F>> qrCtrl;
     qrCtrl.colPiv = ctrl.colPiv;
@@ -495,8 +515,7 @@ QDWHInner
     auto QT = Q( IR(0,n  ), ALL );
     auto QB = Q( IR(n,END), ALL );
 
-    Int numIts=0;
-    while( numIts < ctrl.maxIts )
+    while( info.numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -534,6 +553,7 @@ QDWHInner
             MakeIdentity( QB );
             qr::ExplicitUnitary( Q, true, qrCtrl );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
+            ++info.numQRIts;
         }
         else
         {
@@ -552,21 +572,22 @@ QDWHInner
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             A *= beta;
             Axpy( alpha, ATemp, A );
+            ++info.numCholIts;
         }
 
-        ++numIts;
+        ++info.numIts;
         ALast -= A;
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
         if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
     MakeHermitian( uplo, A );
-    return numIts;
+    return info;
 }
 
 template<typename F>
-inline Int 
-QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
+inline QDWHInfo
+QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
 
@@ -594,10 +615,12 @@ QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const PolarCtrl& ctrl )
 }
 
 template<typename F>
-inline Int
+inline QDWHInfo
 QDWH
-( UpperOrLower uplo, ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre, 
-  const PolarCtrl& ctrl )
+( UpperOrLower uplo,
+  ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& PPre, 
+  const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
 
@@ -609,10 +632,10 @@ QDWH
     DistMatrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );
-    const Int numIts = QDWH( uplo, A, ctrl );
+    auto info = QDWH( uplo, A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( uplo, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
-    return numIts;
+    return info;
 }
 
 } // namespace herm_polar
