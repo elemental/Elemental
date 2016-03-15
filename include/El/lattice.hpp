@@ -63,7 +63,8 @@ struct LLLInfo
     Real eta; 
     Int rank;
     Int nullity; 
-    Int numSwaps;
+    Int numSwaps=0;
+    Int firstSwap;
     Real logVol;
 
     template<typename OtherReal>
@@ -74,6 +75,7 @@ struct LLLInfo
         rank = info.rank;
         nullity = info.nullity;
         numSwaps = info.numSwaps;
+        firstSwap = info.firstSwap;
         logVol = Real(info.logVol);
         return *this;
     }

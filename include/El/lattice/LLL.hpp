@@ -208,6 +208,7 @@ LLLInfo<Base<F>> LLLWithQ
         Identity( U, n, n ); 
     }
 
+    Int firstSwap = n;
     if( ctrl.presort )
     {
         if( ctrl.jumpstart )
@@ -223,15 +224,27 @@ LLLInfo<Base<F>> LLLWithQ
         El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
         Omega.PermuteCols( B );
         Omega.PermuteCols( U );
+
+        // TODO: Do not use such a pessimistic lower bound
+        firstSwap = 0;
     }
 
     const bool formU = true;
+    LLLInfo<Real> info;
     if( ctrl.variant == LLL_DEEP_REDUCE )
-        return lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
+    {
+        info = lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
+    }
     else if( ctrl.variant == LLL_DEEP )
-        return lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
+    {
+        info = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
+    }
     else
-        return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+    {
+        info = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+    }
+    info.firstSwap = Min(info.firstSwap,firstSwap);
+    return info;
 }
 
 template<typename F>
@@ -274,6 +287,7 @@ LLLWithQ
         ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
          Sqrt(ctrl.delta),")");
 
+    Int firstSwap = n;
     if( ctrl.presort )
     {
         if( ctrl.jumpstart )
@@ -289,6 +303,9 @@ LLLWithQ
         // TODO: Add support for qr::ProxyHouseholder as well
         El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
         Omega.PermuteCols( B );
+
+        // TODO: Do not use such a pessimistic lower bound
+        firstSwap = 0;
     }
 
     const bool formU = false;
@@ -297,32 +314,39 @@ LLLWithQ
     {
         // Start with standard LLL
         auto infoReg = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+        firstSwap = Min(firstSwap,infoReg.firstSwap);
 
         // Move up from standard to deep
         auto ctrlMod( ctrl );
         ctrlMod.jumpstart = true;
         ctrlMod.startCol = 0;
         auto infoDeep = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+        firstSwap = Min(firstSwap,infoDeep.firstSwap);
 
         // Move up from deep insertion to deep reduction
         auto infoDeepRed =
           lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrlMod ); 
+        firstSwap = Min(firstSwap,infoDeepRed.firstSwap);
 
         infoDeepRed.numSwaps += infoReg.numSwaps + infoDeep.numSwaps;
+        infoDeepRed.firstSwap = firstSwap;
         return infoDeepRed;
     }
     else if( ctrl.variant == LLL_DEEP )
     {
         // Start with standard LLL
         auto infoReg = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+        firstSwap = Min(firstSwap,infoReg.firstSwap);
 
         // Move from standard to deep insertion
         auto ctrlMod( ctrl );
         ctrlMod.jumpstart = true;
         ctrlMod.startCol = 0;
         auto infoDeep = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+        firstSwap = Min(firstSwap,infoDeep.firstSwap);
 
         infoDeep.numSwaps += infoReg.numSwaps;
+        infoDeep.firstSwap = firstSwap;
         return infoDeep;
     }
     else
@@ -472,6 +496,9 @@ RecursiveHelper
 
     LLLInfo<Real> info;
     info.numSwaps = 0;
+    // NOTE: We can assume that the following lower bound should essentially
+    //       always be tight.
+    info.firstSwap = 0;
     for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
     {
         if( ctrl.progress || ctrl.time )
@@ -752,6 +779,9 @@ RecursiveHelper
 
     LLLInfo<Real> info;
     info.numSwaps = 0;
+    // NOTE: We can assume that the following lower bound should essentially
+    //       always be tight.
+    info.firstSwap = 0;
     for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
     {
         if( ctrl.progress || ctrl.time )

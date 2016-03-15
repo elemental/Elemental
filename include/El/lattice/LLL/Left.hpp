@@ -320,6 +320,7 @@ LLLInfo<Base<F>> LeftAlg
 
     Int numSwaps=0;
     Int nullity = 0;
+    Int firstSwap = n;
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
@@ -360,6 +361,7 @@ LLLInfo<Base<F>> LeftAlg
 
                 ++nullity;
                 ++numSwaps;
+                firstSwap = 0;
             }
             else
                 break;
@@ -379,6 +381,7 @@ LLLInfo<Base<F>> LeftAlg
                 ColSwap( U, k, (n-1)-nullity );
             ++nullity;
             ++numSwaps;
+            firstSwap = Min(firstSwap,k);
             continue;
         }
 
@@ -399,6 +402,7 @@ LLLInfo<Base<F>> LeftAlg
         else
         {
             ++numSwaps;
+            firstSwap = Min(firstSwap,k-1);
             if( ctrl.progress )
             {
                 if( rho_k_k <= ctrl.zeroTol )
@@ -435,6 +439,7 @@ LLLInfo<Base<F>> LeftAlg
                        
                         ++nullity;
                         ++numSwaps;
+                        firstSwap = 0;
                     }
                     else
                         break;
@@ -451,10 +456,10 @@ LLLInfo<Base<F>> LeftAlg
 
     if( ctrl.time )
     {
-        Output("  Step time:              ",stepTimer.Total());
+        Output("  Step time:                ",stepTimer.Total());
         Output("    Householder step time:  ",houseStepTimer.Total());
-        Output("      view time:              ",houseViewTimer.Total());
-        Output("      reflect time:           ",houseReflectTimer.Total());
+        Output("      view time:            ",houseViewTimer.Total());
+        Output("      reflect time:         ",houseReflectTimer.Total());
         Output("    Apply Householder time: ",applyHouseTimer.Total());
         Output("    Round time:             ",roundTimer.Total());
     }
@@ -468,6 +473,7 @@ LLLInfo<Base<F>> LeftAlg
     info.rank = n-nullity;
     info.nullity = nullity;
     info.numSwaps = numSwaps;
+    info.firstSwap = firstSwap;
     info.logVol = logVol;
 
     return info;
@@ -508,6 +514,7 @@ LLLInfo<Base<F>> LeftDeepAlg
 
     Int numSwaps=0;
     Int nullity = 0;
+    Int firstSwap = n;
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
@@ -549,6 +556,7 @@ LLLInfo<Base<F>> LeftDeepAlg
 
                 ++nullity;
                 ++numSwaps;
+                firstSwap = 0;
             }
             else
                 break;
@@ -568,6 +576,7 @@ LLLInfo<Base<F>> LeftDeepAlg
                 ColSwap( U, k, (n-1)-nullity );
             ++nullity;
             ++numSwaps;
+            firstSwap = Min(firstSwap,k);
             continue;
         }
 
@@ -592,6 +601,7 @@ LLLInfo<Base<F>> LeftDeepAlg
             if( leftTerm > partialNorm )
             {
                 ++numSwaps;
+                firstSwap = Min(firstSwap,i);
                 if( ctrl.progress )
                     Output("Deep inserting k=",k," into position i=",i," since sqrt(delta)*R(i,i)=",leftTerm," > ",partialNorm);
 
@@ -622,6 +632,7 @@ LLLInfo<Base<F>> LeftDeepAlg
 
                             ++nullity;
                             ++numSwaps;
+                            firstSwap = 0;
                         }
                         else
                             break;
@@ -677,6 +688,7 @@ LLLInfo<Base<F>> LeftDeepAlg
     info.rank = n-nullity;
     info.nullity = nullity;
     info.numSwaps = numSwaps;
+    info.firstSwap = firstSwap;
     info.logVol = logVol;
 
     return info;
@@ -713,6 +725,7 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
 
     Int numSwaps = 0;
     Int nullity = 0;
+    Int firstSwap = n;
     if( ctrl.jumpstart && ctrl.startCol > 0 )
     {
         if( QR.Height() != m || QR.Width() != n )
@@ -754,6 +767,7 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
 
                 ++nullity;
                 ++numSwaps;
+                firstSwap = 0;
             }
             else
                 break;
@@ -773,6 +787,7 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
                 ColSwap( U, k, (n-1)-nullity );
             ++nullity;
             ++numSwaps;
+            firstSwap = Min(firstSwap,k);
             continue;
         }
 
@@ -818,6 +833,7 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
             if( leftTerm > partialNorm )
             {
                 ++numSwaps;
+                firstSwap = Min(firstSwap,i);
                 if( ctrl.progress )
                     Output("Deep inserting k=",k," into position i=",i," since sqrt(delta)*R(i,i)=",leftTerm," > ",partialNorm);
 
@@ -866,6 +882,7 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
                        
                             ++nullity;
                             ++numSwaps;
+                            firstSwap = 0;
                         }
                         else
                             break;
@@ -910,6 +927,7 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
     info.rank = n-nullity;
     info.nullity = nullity;
     info.numSwaps = numSwaps;
+    info.firstSwap = firstSwap;
     info.logVol = logVol;
 
     return info;
