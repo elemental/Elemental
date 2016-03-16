@@ -10,7 +10,7 @@
 namespace El {
 namespace safemstrsm {
 
-  /* Determine machine dependent parameters to control overflow
+/* Determine machine dependent parameters to control overflow
  *   Note: LAPACK uses more complicated parameters to handle 
  *   issues that can happen on Cray machines.
  */

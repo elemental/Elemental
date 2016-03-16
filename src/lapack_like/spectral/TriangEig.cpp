@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include "./TriangEig/MultiShiftSolve.hpp"
 
 namespace El {
 
@@ -25,7 +26,8 @@ void TriangEig( Matrix<F>& U, Matrix<F>& X )
     // Solve multi-shift triangular system
     Matrix<F> shifts, scales;
     GetDiagonal( U, shifts );
-    SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    //SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    triang_eig::MultiShiftSolve( U, shifts, X, scales );
     SetDiagonal( X, scales );
 
     // Normalize eigenvectors
@@ -58,7 +60,8 @@ void TriangEig
     const Grid& g = U.Grid();
     DistMatrix<F,VR,STAR> shifts(g), scales(g);
     GetDiagonal( U, shifts );
-    SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    //SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    triang_eig::MultiShiftSolve( U, shifts, X, scales );
     SetDiagonal( X, scales );
     
     // Normalize eigenvectors
