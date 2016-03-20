@@ -79,10 +79,14 @@ public:
     BigInt& operator=( const double& a );
     BigInt& operator=( BigInt&& a );
 
+    BigInt& operator+=( const int& a );
+    BigInt& operator+=( const long int& a );
     BigInt& operator+=( const unsigned& a );
     BigInt& operator+=( const unsigned long& a );
     BigInt& operator+=( const BigInt& a );
 
+    BigInt& operator-=( const int& a );
+    BigInt& operator-=( const long int& a );
     BigInt& operator-=( const unsigned& a );
     BigInt& operator-=( const unsigned long& a );
     BigInt& operator-=( const BigInt& a );
@@ -102,14 +106,10 @@ public:
     BigInt operator+() const;
 
     // Analogue of bit-shifting left
-    BigInt& operator<<=( const int& a );
-    BigInt& operator<<=( const long int& a );
     BigInt& operator<<=( const unsigned& a ); 
     BigInt& operator<<=( const unsigned long& a );
 
     // Analogue of bit-shifting right
-    BigInt& operator>>=( const int& a );
-    BigInt& operator>>=( const long int& a );
     BigInt& operator>>=( const unsigned& a ); 
     BigInt& operator>>=( const unsigned long& a );
 

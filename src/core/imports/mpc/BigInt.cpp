@@ -224,6 +224,24 @@ BigInt& BigInt::operator=( BigInt&& a )
     return *this;
 }
 
+BigInt& BigInt::operator+=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator+= [int]"))
+    if( a >= 0 )
+        return *this += static_cast<unsigned>(a);
+    else
+        return *this -= static_cast<unsigned>(-a);
+}
+
+BigInt& BigInt::operator+=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator+= [long int]"))
+    if( a >= 0 )
+        return *this += static_cast<unsigned long>(a);
+    else
+        return *this -= static_cast<unsigned long>(-a);
+}
+
 BigInt& BigInt::operator+=( const unsigned& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator+= [unsigned]"))
@@ -243,6 +261,24 @@ BigInt& BigInt::operator+=( const BigInt& a )
     DEBUG_ONLY(CSE cse("BigInt::operator+= [BigInt]"))
     mpz_add( Pointer(), Pointer(), a.LockedPointer() );
     return *this;
+}
+
+BigInt& BigInt::operator-=( const int& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator-= [int]"))
+    if( a >= 0 )
+        return *this -= static_cast<unsigned>(a);
+    else
+        return *this += static_cast<unsigned>(-a);
+}
+
+BigInt& BigInt::operator-=( const long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator-= [long int]"))
+    if( a >= 0 )
+        return *this -= static_cast<unsigned long>(a);
+    else
+        return *this += static_cast<unsigned long>(-a);
 }
 
 BigInt& BigInt::operator-=( const unsigned& a )

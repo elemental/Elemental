@@ -270,6 +270,15 @@ inline Int GCD_( Int a, Int b ) EL_NO_EXCEPT
         return GCD_( b, a-b*(a/b) );
 }
 
+#ifdef EL_HAVE_MPC
+inline BigInt GCD( const BigInt& a, const BigInt& b )
+{
+    BigInt d;
+    mpz_gcd( d.Pointer(), a.LockedPointer(), b.LockedPointer() );
+    return d;
+}
+#endif
+
 inline bool PowerOfTwo( Unsigned n )
 { return n && !(n & (n-1)); }
 

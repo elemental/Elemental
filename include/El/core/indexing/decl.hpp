@@ -65,6 +65,10 @@ Int DiagonalLength( Int height, Int width, Int offset=0 ) EL_NO_EXCEPT;
 Int GCD( Int a, Int b ); 
 Int GCD_( Int a, Int b ) EL_NO_EXCEPT; 
 
+#ifdef EL_HAVE_MPC
+BigInt GCD( const BigInt& a, const BigInt& b );
+#endif
+
 Unsigned FlooredLog2( Unsigned n );
 bool PowerOfTwo( Unsigned n );
 
