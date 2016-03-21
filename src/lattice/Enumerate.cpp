@@ -164,6 +164,67 @@ TryLowerPrecisionMultiShortest
     return result;
 }
 
+template<typename Real>
+Matrix<Real> AonoPruning()
+{
+    // See the n=140 column of Table 1 from Yoshinori Aono's
+    // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
+    // Pruning Coefficients".
+    Matrix<Real> controlBounds(17,1);
+    controlBounds.Set( 0, 0, Real(0.1318) );
+    controlBounds.Set( 1, 0, Real(0.1859) );
+    controlBounds.Set( 2, 0, Real(0.2240) );
+    controlBounds.Set( 3, 0, Real(0.2326) );
+    controlBounds.Set( 4, 0, Real(0.2336) );
+    controlBounds.Set( 5, 0, Real(0.2565) );
+    controlBounds.Set( 6, 0, Real(0.2871) );
+    controlBounds.Set( 7, 0, Real(0.3353) );
+    controlBounds.Set( 8, 0, Real(0.3978) );
+    controlBounds.Set( 9, 0, Real(0.4860) );
+    controlBounds.Set( 10, 0, Real(0.5808) );
+    controlBounds.Set( 11, 0, Real(0.6936) );
+    controlBounds.Set( 12, 0, Real(0.8241) );
+    controlBounds.Set( 13, 0, Real(0.9191) );
+    controlBounds.Set( 14, 0, Real(1) );
+    controlBounds.Set( 15, 0, Real(1) );
+    controlBounds.Set( 16, 0, Real(1) );
+    return controlBounds;
+}
+
+template<typename Real>
+Matrix<Real> PrunedUpperBounds( Int n, Real normUpperBound, bool linear )
+{
+    // TODO: Support more general pruning
+    Matrix<Real> upperBounds( n, 1 );
+    if( linear )
+    {
+        for( Int j=0; j<n; ++j )
+            upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
+        return upperBounds;
+    }
+
+    auto controlBounds = AonoPruning<Real>();
+    const Int numPoints = controlBounds.Height();
+    for( Int j=0; j<n; ++j )
+    {
+        const Real percent = Real(j+1)/Real(n);
+        const Real realIndex = percent*(numPoints-1);
+        const Int floorIndex = Int(Floor(realIndex));
+        const Int ceilIndex = Int(Ceil(realIndex));
+        const Real indexFrac = realIndex-floorIndex;
+        DEBUG_ONLY(
+          if( ceilIndex >= numPoints )
+              LogicError("Invalid ceiling index of ",ceilIndex);
+        )
+        // TODO: Use spline instead of linear interpolation?
+        const Real floorVal = controlBounds.Get(floorIndex,0);
+        const Real ceilVal = controlBounds.Get(ceilIndex,0);
+        const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
+        upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
+    }
+    return upperBounds;
+}
+
 } // namespace svp
 
 // NOTE: This norm upper bound is *non-inclusive*
@@ -230,53 +291,8 @@ Base<F> ShortVectorEnumeration
 
     if( ctrl.enumType == GNR_ENUM )
     {
-        Matrix<Real> upperBounds(n,1);
-        if( ctrl.linearBounding )
-        {
-            for( Int j=0; j<n; ++j )
-                upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
-        }
-        else
-        {
-            // See the n=140 column of Table 1 from Yoshinori Aono's
-            // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
-            // Pruning Coefficients".
-            Matrix<Real> s(17,1);
-            s.Set( 0, 0, Real(0.1318) ); 
-            s.Set( 1, 0, Real(0.1859) );
-            s.Set( 2, 0, Real(0.2240) ); 
-            s.Set( 3, 0, Real(0.2326) );
-            s.Set( 4, 0, Real(0.2336) );
-            s.Set( 5, 0, Real(0.2565) );
-            s.Set( 6, 0, Real(0.2871) );
-            s.Set( 7, 0, Real(0.3353) );
-            s.Set( 8, 0, Real(0.3978) );
-            s.Set( 9, 0, Real(0.4860) );
-            s.Set( 10, 0, Real(0.5808) );
-            s.Set( 11, 0, Real(0.6936) );
-            s.Set( 12, 0, Real(0.8241) );
-            s.Set( 13, 0, Real(0.9191) );
-            s.Set( 14, 0, Real(1) );
-            s.Set( 15, 0, Real(1) );
-            s.Set( 16, 0, Real(1) );
-            for( Int j=0; j<n; ++j )
-            {
-                const Real percent = Real(j+1)/Real(n);
-                const Real realIndex = percent*16;
-                const Int floorIndex = Int(Floor(realIndex));
-                const Int ceilIndex = Int(Ceil(realIndex));
-                const Real indexFrac = realIndex-floorIndex;
-                DEBUG_ONLY(
-                  if( ceilIndex > 16 )
-                      LogicError("Invalid ceiling index of ",ceilIndex);
-                )
-                // TODO: Use spline instead of linear interpolation?
-                const Real floorVal = s.Get(floorIndex,0);
-                const Real ceilVal = s.Get(ceilIndex,0);
-                const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
-                upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
-            }
-        }
+        auto upperBounds =
+          svp::PrunedUpperBounds( n, normUpperBound, ctrl.linearBounding );
 
         // Since we will manually build up a (weakly) pseudorandom
         // unimodular matrix so that the probabalistic enumerations traverse
@@ -488,53 +504,8 @@ MultiShortVectorEnumeration
         // GNR enumeration does not yet support multi-enumeration
         const Real normUpperBound = modNormUpperBounds.Get(0,0);
 
-        Matrix<Real> upperBounds(n,1);
-        if( ctrl.linearBounding )
-        {
-            for( Int j=0; j<n; ++j )
-                upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
-        }
-        else
-        {
-            // See the n=140 column of Table 1 from Yoshinori Aono's
-            // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
-            // Pruning Coefficients".
-            Matrix<Real> s(17,1);
-            s.Set( 0, 0, Real(0.1318) ); 
-            s.Set( 1, 0, Real(0.1859) );
-            s.Set( 2, 0, Real(0.2240) ); 
-            s.Set( 3, 0, Real(0.2326) );
-            s.Set( 4, 0, Real(0.2336) );
-            s.Set( 5, 0, Real(0.2565) );
-            s.Set( 6, 0, Real(0.2871) );
-            s.Set( 7, 0, Real(0.3353) );
-            s.Set( 8, 0, Real(0.3978) );
-            s.Set( 9, 0, Real(0.4860) );
-            s.Set( 10, 0, Real(0.5808) );
-            s.Set( 11, 0, Real(0.6936) );
-            s.Set( 12, 0, Real(0.8241) );
-            s.Set( 13, 0, Real(0.9191) );
-            s.Set( 14, 0, Real(1) );
-            s.Set( 15, 0, Real(1) );
-            s.Set( 16, 0, Real(1) );
-            for( Int j=0; j<n; ++j )
-            {
-                const Real percent = Real(j+1)/Real(n);
-                const Real realIndex = percent*16;
-                const Int floorIndex = Int(Floor(realIndex));
-                const Int ceilIndex = Int(Ceil(realIndex));
-                const Real indexFrac = realIndex-floorIndex;
-                DEBUG_ONLY(
-                  if( ceilIndex > 16 )
-                      LogicError("Invalid ceiling index of ",ceilIndex);
-                )
-                // TODO: Use spline instead of linear interpolation?
-                const Real floorVal = s.Get(floorIndex,0);
-                const Real ceilVal = s.Get(ceilIndex,0);
-                const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
-                upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
-            }
-        }
+        auto upperBounds =
+          svp::PrunedUpperBounds( n, normUpperBound, ctrl.linearBounding );
 
         // Since we will manually build up a (weakly) pseudorandom
         // unimodular matrix so that the probabalistic enumerations traverse
