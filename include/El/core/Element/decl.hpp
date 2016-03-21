@@ -445,6 +445,21 @@ template<> BigFloat Log2( const BigFloat& alpha );
 template<typename Integer,typename=EnableIf<IsIntegral<Integer>>,typename=void>
 double Log2( const Integer& alpha );
 
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Log10( const Real& alpha );
+#ifdef EL_HAVE_QD
+template<> DoubleDouble Log10( const DoubleDouble& alpha );
+template<> QuadDouble Log10( const QuadDouble& alpha );
+#endif
+#ifdef EL_HAVE_QUAD
+template<> Quad Log10( const Quad& alpha );
+#endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Log10( const BigFloat& alpha );
+#endif
+template<typename Integer,typename=EnableIf<IsIntegral<Integer>>,typename=void>
+double Log10( const Integer& alpha );
+
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sqrt( const F& alpha );
 #ifdef EL_HAVE_QD

@@ -400,6 +400,32 @@ template<> BigFloat Log2( const BigFloat& alpha )
 }
 #endif
 
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Log10( const DoubleDouble& alpha )
+{ return Log(alpha)/DoubleDouble(dd_real::_log10); }
+
+template<>
+QuadDouble Log10( const QuadDouble& alpha )
+{ return Log(alpha)/QuadDouble(qd_real::_log10); }
+#endif
+
+#ifdef EL_HAVE_QUAD
+template<> Quad Log10( const Quad& alpha )
+{ return log10q(alpha); }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<> BigFloat Log10( const BigFloat& alpha )
+{
+    BigFloat log10Alpha;
+    log10Alpha.SetPrecision( alpha.Precision() );
+    mpfr_log10
+    ( log10Alpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return log10Alpha;
+}
+#endif
+
 double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
 
 #ifdef EL_HAVE_QD

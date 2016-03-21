@@ -731,7 +731,7 @@ BigFloat::operator Quad() const
 #else
     std::ostringstream format;
     format << "%.";
-    format << mpc::BinaryToDecimalPrecision(Precision())+1;
+    format << BinaryToDecimalPrecision(Int(Precision()))+1;
     format << "Rg";
 
     char* rawStr = 0;
@@ -869,9 +869,9 @@ std::ostream& operator<<( std::ostream& os, const BigFloat& alpha )
     if( os.precision() >= 0 )
         osFormat << os.precision();
     else
-        osFormat << mpc::BinaryToDecimalPrecision(alpha.Precision())+1;
+        osFormat << BinaryToDecimalPrecision(Int(alpha.Precision()))+1;
     */
-    osFormat << mpc::BinaryToDecimalPrecision(alpha.Precision())+1;
+    osFormat << BinaryToDecimalPrecision(Int(alpha.Precision()))+1;
     // TODO: Support floating-point and exponential as runtime options
     osFormat << "Rg";
 

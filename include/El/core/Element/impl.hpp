@@ -202,6 +202,14 @@ template<typename Integer,typename,typename>
 double Log2( const Integer& alpha )
 { return std::log2(alpha); }
 
+template<typename Real,typename>
+Real Log10( const Real& alpha )
+{ return std::log10(alpha); }
+
+template<typename Integer,typename,typename>
+double Log10( const Integer& alpha )
+{ return std::log10(alpha); }
+
 template<typename F,typename>
 F Sqrt( const F& alpha ) { return std::sqrt(alpha); }
 

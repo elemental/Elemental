@@ -24,19 +24,50 @@ struct IsFixedPrecision<BigFloat>
 
 template<typename Real>
 struct MantissaBits;
+
+template<> struct MantissaBits<unsigned>
+{ static const unsigned value = 8*sizeof(unsigned); };
+template<> struct MantissaBits<int>
+{ static const unsigned value = 8*sizeof(int)-1; };
+
+template<> struct MantissaBits<unsigned long>
+{ static const unsigned value = 8*sizeof(unsigned long); };
+template<> struct MantissaBits<long int>
+{ static const unsigned value = 8*sizeof(long int)-1; };
+
+template<> struct MantissaBits<unsigned long long>
+{ static const unsigned value = 8*sizeof(unsigned long long); };
+template<> struct MantissaBits<long long int>
+{ static const unsigned value = 8*sizeof(long long int)-1; };
+
 template<> struct MantissaBits<float>
 { static const unsigned value = 24; };
 template<> struct MantissaBits<double>
 { static const unsigned value = 53; };
+
 #ifdef EL_HAVE_QD
 template<> struct MantissaBits<DoubleDouble>
 { static const unsigned value = 106; };
 template<> struct MantissaBits<QuadDouble>
 { static const unsigned value = 212; };
 #endif
+
 #ifdef EL_HAVE_QUAD
 template<> struct MantissaBits<Quad>
 { static const unsigned value = 113; };
+#endif
+
+// NOTE: The 'Num' is only prepended to avoid a symbol conflict
+template<typename T>
+Int NumMantissaBits( const T& alpha=T() )
+{ return MantissaBits<T>::value; }
+#ifdef EL_HAVE_MPC
+template<>
+inline Int NumMantissaBits<BigFloat>( const BigFloat& alpha )
+{ return alpha.Precision(); }
+template<>
+inline Int NumMantissaBits<BigInt>( const BigInt& alpha )
+{ return alpha.NumBits(); }
 #endif
 
 template<typename Real1,typename Real2>
@@ -289,6 +320,10 @@ inline bool IsFinite( const BigFloat& alpha )
 #endif // ifdef EL_HAVE_MPC
 
 } // namespace limits
+
+inline Int BinaryToDecimalPrecision( Int prec )
+{ return Int(Floor(prec*std::log10(2.))); }
+
 } // namespace El
 
 #endif // ifndef EL_LIMITS_HPP

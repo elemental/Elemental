@@ -31,8 +31,6 @@ int NumIntBits();
 int NumIntLimbs();
 void SetMinIntBits( int minIntBits );
 
-Int BinaryToDecimalPrecision( mpfr_prec_t precision );
-
 // NOTE: These should only be called internally
 void RegisterMPI();
 void FreeMPI();
@@ -41,7 +39,8 @@ mpfr_rnd_t RoundingMode();
 
 } // namespace mpc
 
-class BigInt {
+class BigInt
+{
 private:
     mpz_t mpzInt_;
 

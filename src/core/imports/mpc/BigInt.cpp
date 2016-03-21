@@ -729,9 +729,9 @@ std::ostream& operator<<( std::ostream& os, const BigInt& alpha )
     if( os.precision() >= 0 )
         osFormat << os.precision();
     else
-        osFormat << mpc::BinaryToDecimalPrecision(alpha.Precision())+1;
+        osFormat << BinaryToDecimalPrecision(Int(alpha.Precision()))+1;
     */
-    osFormat << mpc::BinaryToDecimalPrecision(alpha.NumBits())+1;
+    osFormat << BinaryToDecimalPrecision(Int(alpha.NumBits()))+1;
     osFormat << "Zd";
 
     char* rawStr = 0;
