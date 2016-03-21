@@ -494,7 +494,7 @@ bool TryLowerPrecisionMerge
         Matrix<Base<F>>& d,
         bool maintainU,
   const LLLCtrl<Base<F>>& ctrl,
-        Int neededPrec,
+        unsigned neededPrec,
         LLLInfo<Base<F>>& info )
 {
     bool succeeded = false;
@@ -527,7 +527,7 @@ bool TryLowerPrecisionBigFloatMerge
         Matrix<Base<F>>& d,
         bool maintainU,
   const LLLCtrl<Base<F>>& ctrl,
-        Int neededPrec,
+        unsigned neededPrec,
         LLLInfo<Base<F>>& info )
 {
     bool succeeded = false;

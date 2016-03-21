@@ -37,7 +37,7 @@ bool TryLowerPrecision
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl,
-  Int neededPrec,
+  unsigned neededPrec,
   BKZInfo<Base<F>>& info )
 {
     bool succeeded = false;
@@ -81,7 +81,7 @@ bool TryLowerPrecision
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl,
-  Int neededPrec,
+  unsigned neededPrec,
   BKZInfo<Base<F>>& info )
 {
     bool succeeded = false;
@@ -127,7 +127,7 @@ bool TryLowerPrecisionBigFloat
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl,
-  Int neededPrec,
+  unsigned neededPrec,
   BKZInfo<Base<F>>& info )
 {
     typedef Base<F> Real;
@@ -179,7 +179,7 @@ bool TryLowerPrecisionBigFloat
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl,
-  Int neededPrec,
+  unsigned neededPrec,
   BKZInfo<Base<F>>& info )
 {
     typedef Base<F> Real;
@@ -1039,7 +1039,7 @@ bool TryLowerPrecisionMerge
         Matrix<F>& t,
         Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl,
-        Int neededPrec,
+        unsigned neededPrec,
         BKZInfo<Base<F>>& info )
 {
     bool succeeded = false;
@@ -1070,7 +1070,7 @@ bool TryLowerPrecisionBigFloatMerge
         Matrix<F>& t,
         Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl,
-        Int neededPrec,
+        unsigned neededPrec,
         BKZInfo<Base<F>>& info )
 {
     bool succeeded = false;
