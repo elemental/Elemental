@@ -10,32 +10,59 @@
 using namespace El;
 
 #ifdef EL_HAVE_MPC
-// TODO: Generalize beyond x_{i+1} = x_i^2 - 1 (mod n)
-BigInt PollardRho( const BigInt& n, Int m, Int S )
+// x_{i+1} := x_i^2 + a
+BigInt PollardRhoBounded
+( const BigInt& n, Int a=1, Int gcdDelay=100, Int maxIts=10000 )
 {
     BigInt xi=2, x2i=2, Qi=1;
-    for( Int i=0; i<S; ++i )
+    BigInt xiSave=2, x2iSave=2;
+    for( Int i=1; i<=maxIts; ++i )
     {
         // Advance xi once
-        xi = Mod( xi*xi - 1, n );
+        xi = Mod( xi*xi + a, n );
 
         // Advance x2i twice
-        x2i = Mod( x2i*x2i - 1, n );
-        x2i = Mod( x2i*x2i - 1, n );
+        x2i = Mod( x2i*x2i + a, n );
+        x2i = Mod( x2i*x2i + a, n );
 
         // Advance Qi
         Qi = Mod( Qi*(x2i-xi), n );
 
-        if( i % m == 0 )
+        if( i % gcdDelay == 0 )
         {
             BigInt d = GCD( Qi, n );
-            if( BigInt(1) < d && d < n )
+            if( d > BigInt(1) )
             {
-                Output("Found factor d=",d," at i=",i); 
-                return d;
+                // NOTE: This was not suggested by Pollard's original paper
+                if( d == BigInt(n) )
+                {
+                    if( gcdDelay == 1 )
+                    {
+                        Output("(x_n) converged before (x_n mod p) at i=",i);
+                        return d;
+                    }
+                    else
+                    {
+                        Output("Backtracking and setting gcdDelay=1 at i=",i);
+                        i = Max( i-(gcdDelay+1), 0 );
+                        gcdDelay = 1;
+                        xi = xiSave;
+                        x2i = x2iSave;
+                    }
+                }
+                else
+                {
+                    Output("Found factor d=",d," at i=",i); 
+                    return d;
+                }
             }
+
+            // NOTE: This was not suggested by Pollard's original paper
+            Qi = 1;
+            xiSave = xi;
+            x2iSave = x2i;
         }
-        if( i == S-1 )
+        if( i == maxIts )
         {
             Output("Failed to find a factor in time");
             Output("Final xi=",xi,", x2i=",x2i,", and Qi=",Qi);
@@ -44,18 +71,92 @@ BigInt PollardRho( const BigInt& n, Int m, Int S )
     return n;
 }
 
-vector<BigInt> PollardRhoFactors( const BigInt& n, Int m, Int S )
+// x_{i+1} := x_i^2 + a
+BigInt PollardRho( const BigInt& n, Int a=1, Int gcdDelay=100 )
 {
-    vector<BigInt> factors;
-    BigInt a = n;
+    BigInt xi=2, x2i=2, Qi=1;
+    BigInt xiSave=xi, x2iSave=x2i;
+    Int k=1, i=1; // it is okay for i to overflow since it is just for printing
     while( true )
     {
-        BigInt factor = PollardRho( a, m, S );
-        factors.push_back( factor );
-        if( factor == a )
-            break; 
+        // Advance xi once
+        xi = Mod( xi*xi + a, n );
+
+        // Advance x2i twice
+        x2i = Mod( x2i*x2i + a, n );
+        x2i = Mod( x2i*x2i + a, n );
+
+        // Advance Qi
+        Qi = Mod( Qi*(x2i-xi), n );
+
+        if( k >= gcdDelay )
+        {
+            BigInt d = GCD( Qi, n );
+            if( d > BigInt(1) )
+            {
+                // NOTE: This was not suggested by Pollard's original paper
+                if( d == BigInt(n) )
+                {
+                    if( gcdDelay == 1 )
+                    {
+                        Output("(x_n) converged before (x_n mod p) at i=",i);
+                        return d;
+                    }
+                    else
+                    {
+                        Output("Backtracking and setting gcdDelay=1 at i=",i);
+                        i = Max( i-(gcdDelay+1), 0 );
+                        gcdDelay = 1;
+                        xi = xiSave;
+                        x2i = x2iSave;
+                    }
+                }
+                else
+                {
+                    Output("Found factor d=",d," at i=",i); 
+                    return d;
+                }
+            }
+
+            // NOTE: This was not suggested by Pollard's original paper
+            k = 0;
+            xiSave = xi;
+            x2iSave = x2i;
+            Qi = 1;
+        }
+        ++k;
+        ++i;
+    }
+}
+
+vector<BigInt> PollardRhoFactors( const BigInt& n, Int gcdDelay=100 )
+{
+    vector<BigInt> factors;
+    BigInt nRem = n;
+    while( true )
+    {
+        Output("Attempting to factor ",nRem," with a=1");
+        PushIndent();
+        BigInt factor = PollardRho( nRem, 1, gcdDelay );
+        PopIndent();
+        if( factor == nRem )
+        {
+            // Try again with a=-1
+            Output("Attempting to factor ",nRem," with a=-1");
+            PushIndent();
+            factor = PollardRho( nRem, -1, gcdDelay );
+            PopIndent();
+            factors.push_back( factor );
+            if( factor == nRem )
+                break; 
+            else
+                nRem /= factor;
+        }
         else
-            a /= factor;
+        {
+            factors.push_back( factor );
+            nRem /= factor;
+        }
     }
     return factors;
 }
@@ -68,9 +169,9 @@ int main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
     try
     {
-        const int minIntBits = Input("--minIntBits","integer bits",128);
-        const Int m = Input("--m","m from Pollard's rho",100);
-        const Int S = Input("--S","S from Pollard's rho",10000);
+        const int minIntBits = Input("--minIntBits","integer bits",256);
+        const Int gcdDelay =
+          Input("--gcdDelay","GCD delay in Pollard's rho",100);
         ProcessInput();
         PrintInputReport(); 
 
@@ -83,11 +184,9 @@ int main( int argc, char* argv[] )
         // n = 2^77 - 3
         // We should find (1291,99432527,1177212722617) at iterations
         // (100,8200,failed)
-        BigInt n( 1 );
-        n <<= unsigned(77);
-        n -= 3;
+        BigInt n = (BigInt(1) << unsigned(77)) - 3;
         Output("n=",n);
-        auto factors = PollardRhoFactors( n, m, S );
+        auto factors = PollardRhoFactors( n, gcdDelay );
         Output("Factors of n=",n);
         for( auto factor : factors )
             Output(factor);
@@ -95,11 +194,17 @@ int main( int argc, char* argv[] )
         // n = 2^79 - 3
         // We should find (5,3414023,146481287,241741417) at iterations
         // (100,800,5300,failed)
-        n = 1;
-        n <<= unsigned(79);
-        n -= 3;
+        n = (BigInt(1) << unsigned(79)) - 3;
         Output("n=",n);
-        factors = PollardRhoFactors( n, m, S );
+        factors = PollardRhoFactors( n, gcdDelay );
+        Output("Factors of n=",n);
+        for( auto factor : factors )
+            Output(factor);
+
+        // n = 2^97 - 3
+        n = (BigInt(1) << unsigned(97)) - 3;
+        Output("n=",n);
+        factors = PollardRhoFactors( n, gcdDelay );
         Output("Factors of n=",n);
         for( auto factor : factors )
             Output(factor);
