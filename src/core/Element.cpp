@@ -335,8 +335,6 @@ BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
 
 // Inverse exponentiation
 // ----------------------
-double Log( const Int& alpha ) { return std::log(alpha); }
-
 #ifdef EL_HAVE_QD
 template<>
 DoubleDouble Log( const DoubleDouble& alpha )
@@ -365,6 +363,12 @@ Complex<Quad> Log( const Complex<Quad>& alphaPre )
 
 #ifdef EL_HAVE_MPC
 template<>
+double Log( const BigInt& alpha )
+{
+    return double(Log(BigFloat(alpha)));
+}
+
+template<>
 BigFloat Log( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -385,12 +389,20 @@ QuadDouble Log2( const QuadDouble& alpha )
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<> Quad Log2( const Quad& alpha )
+template<>
+Quad Log2( const Quad& alpha )
 { return log2q(alpha); }
 #endif
 
 #ifdef EL_HAVE_MPC
-template<> BigFloat Log2( const BigFloat& alpha )
+template<>
+double Log2( const BigInt& alpha )
+{
+    return double(Log2(BigFloat(alpha)));
+}
+
+template<>
+BigFloat Log2( const BigFloat& alpha )
 {
     BigFloat log2Alpha;
     log2Alpha.SetPrecision( alpha.Precision() );
@@ -411,12 +423,20 @@ QuadDouble Log10( const QuadDouble& alpha )
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<> Quad Log10( const Quad& alpha )
+template<>
+Quad Log10( const Quad& alpha )
 { return log10q(alpha); }
 #endif
 
 #ifdef EL_HAVE_MPC
-template<> BigFloat Log10( const BigFloat& alpha )
+template<>
+double Log10( const BigInt& alpha )
+{
+    return double(Log10(BigFloat(alpha)));
+}
+
+template<>
+BigFloat Log10( const BigFloat& alpha )
 {
     BigFloat log10Alpha;
     log10Alpha.SetPrecision( alpha.Precision() );

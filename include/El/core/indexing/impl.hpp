@@ -290,6 +290,38 @@ inline Unsigned FlooredLog2( Unsigned n )
     return result;
 }
 
+#ifdef EL_HAVE_MPC
+inline BigInt PowMod
+( const BigInt& base, const BigInt& exp, const BigInt& mod )
+{
+    BigInt powMod;
+    mpz_powm
+    ( powMod.Pointer(),
+      base.LockedPointer(),
+      exp.LockedPointer(),
+      mod.LockedPointer() );
+    return powMod;
+}
+
+inline Primality PrimalityTest( const BigInt& n, int numReps )
+{
+    int result = mpz_probab_prime_p( n.LockedPointer(), numReps );
+    if( result == 2 )
+        return PRIME;
+    else if( result == 1 )
+        return PROBABLY_PRIME;
+    else
+        return COMPOSITE;
+}
+
+inline BigInt NextPrime( const BigInt& n )
+{
+    BigInt nextPrime;
+    mpz_nextprime( nextPrime.Pointer(), n.LockedPointer() );
+    return nextPrime;
+}
+#endif
+
 } // namespace El
 
 #endif // ifndef EL_INDEXING_IMPL_HPP

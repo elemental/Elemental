@@ -194,16 +194,20 @@ F Pow( const F& alpha, const int& beta )
 template<typename F,typename>
 F Log( const F& alpha ) { return std::log(alpha); }
 
-template<typename Real,typename>
-Real Log2( const Real& alpha )
+template<typename Integer,typename,typename>
+double Log( const Integer& alpha )
+{ return std::log(alpha); }
+
+template<typename F,typename>
+F Log2( const F& alpha )
 { return std::log2(alpha); }
 
 template<typename Integer,typename,typename>
 double Log2( const Integer& alpha )
 { return std::log2(alpha); }
 
-template<typename Real,typename>
-Real Log10( const Real& alpha )
+template<typename F,typename>
+F Log10( const F& alpha )
 { return std::log10(alpha); }
 
 template<typename Integer,typename,typename>

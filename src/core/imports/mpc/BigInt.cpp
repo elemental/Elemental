@@ -359,6 +359,24 @@ BigInt BigInt::operator+() const
     return alpha;
 }
 
+BigInt& BigInt::operator%=( const BigInt& b )
+{
+    mpz_mod( Pointer(), LockedPointer(), b.LockedPointer() );
+    return *this;
+}
+
+BigInt& BigInt::operator%=( const unsigned long& b )
+{
+    mpz_mod_ui( Pointer(), LockedPointer(), b );
+    return *this;
+}
+
+BigInt& BigInt::operator%=( const unsigned& b )
+{
+    mpz_mod_ui( Pointer(), LockedPointer(), b );
+    return *this;
+}
+
 BigInt& BigInt::operator<<=( const unsigned& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator<<= [unsigned]"))

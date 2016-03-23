@@ -104,6 +104,11 @@ public:
     // Identity map
     BigInt operator+() const;
 
+    // Overwrite the input modulo b
+    BigInt& operator%=( const BigInt& b );
+    BigInt& operator%=( const unsigned& b );
+    BigInt& operator%=( const unsigned long& b );
+
     // Analogue of bit-shifting left
     BigInt& operator<<=( const unsigned& a ); 
     BigInt& operator<<=( const unsigned long& a );
