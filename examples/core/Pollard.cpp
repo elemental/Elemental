@@ -91,16 +91,16 @@ BigInt PollardRhoUnopt( const BigInt& n, Int a=1, Int gcdDelay=100 )
 
         if( k >= gcdDelay )
         {
-            BigInt d = GCD( Qi, n );
-            if( d > BigInt(1) )
+            BigInt gcd = GCD( Qi, n );
+            if( gcd > BigInt(1) )
             {
                 // NOTE: This was not suggested by Pollard's original paper
-                if( d == n )
+                if( gcd == n )
                 {
                     if( gcdDelay == 1 )
                     {
                         Output("(x_n) converged before (x_n mod p) at i=",i);
-                        return d;
+                        return gcd;
                     }
                     else
                     {
@@ -113,8 +113,8 @@ BigInt PollardRhoUnopt( const BigInt& n, Int a=1, Int gcdDelay=100 )
                 }
                 else
                 {
-                    Output("Found factor d=",d," at i=",i); 
-                    return d;
+                    Output("Found factor ",gcd," at i=",i); 
+                    return gcd;
                 }
             }
 
@@ -129,11 +129,10 @@ BigInt PollardRhoUnopt( const BigInt& n, Int a=1, Int gcdDelay=100 )
     }
 }
 
-// Aggressively avoid re-allocation
 // TODO: Remove the direct mpz_gcd call without sacrificing performance
 BigInt PollardRhoOpt( const BigInt& n, Int a=1, Int gcdDelay=100 )
 {
-    BigInt tmp, d;
+    BigInt tmp, gcd;
     BigInt one(1);
 
     BigInt xi=2, x2i=2, Qi=1;
@@ -173,17 +172,17 @@ BigInt PollardRhoOpt( const BigInt& n, Int a=1, Int gcdDelay=100 )
 
         if( k >= gcdDelay )
         {
-            //BigInt d = GCD( Qi, n );
-            mpz_gcd( d.Pointer(), Qi.LockedPointer(), n.LockedPointer() );
-            if( d > one )
+            //BigInt gcd = GCD( Qi, n );
+            mpz_gcd( gcd.Pointer(), Qi.LockedPointer(), n.LockedPointer() );
+            if( gcd > one )
             {
                 // NOTE: This was not suggested by Pollard's original paper
-                if( d == n )
+                if( gcd == n )
                 {
                     if( gcdDelay == 1 )
                     {
                         Output("(x_n) converged before (x_n mod p) at i=",i);
-                        return d;
+                        return gcd;
                     }
                     else
                     {
@@ -196,8 +195,8 @@ BigInt PollardRhoOpt( const BigInt& n, Int a=1, Int gcdDelay=100 )
                 }
                 else
                 {
-                    Output("Found factor d=",d," at i=",i); 
-                    return d;
+                    Output("Found factor ",gcd," at i=",i); 
+                    return gcd;
                 }
             }
 
@@ -298,155 +297,70 @@ vector<BigInt> PollardRhoFactors
     return factors;
 }
 
-BigInt PollardPMinusOneUnopt( const BigInt& n, BigInt smoothness=100000 )
-{
-    double nLog = Log( n );
-    BigInt smoothnessBound = Pow( BigInt(10), BigInt(9) );
-    while( true )
-    {
-        // Uniformly select a in (Z/(n))*
-        // (alternatively, we could set a=2)
-        BigInt a = SampleUniform( BigInt(0), n );
-        while( GCD( a, n ) != BigInt(1) )
-        {
-            a = SampleUniform( BigInt(0), n ); 
-        }
-        Output("a=",a);
-
-        // TODO: Pre-sieve the list of primes rather than using NextPrime
-
-        // TODO: Enable this until a gcd of n is found
-        /*
-        BigInt q(2), b(a);
-        while( q <= smoothness )
-        {
-            unsigned qExponent = unsigned(nLog/Log(q));
-            for( Int i=0; i<qExponent; ++i )
-                b = PowMod( b, q, n );
-            q = NextPrime( q );
-        }
-        BigInt g = GCD( b-1, n );
-        */
-
-        // Divide by 2 last
-        BigInt q(3), b(a);
-        while( q <= smoothness )
-        {
-            unsigned qExponent = unsigned(nLog/Log(q));
-            for( Int i=0; i<qExponent; ++i )
-                b = PowMod( b, q, n );
-            q = NextPrime( q );
-        }
-        unsigned twoExponent = unsigned(nLog/Log(2));
-        BigInt g = GCD( b-1, n );
-        for( Int i=0; i<twoExponent; ++i )
-        {
-            if( g > BigInt(1) && g < n )
-            {
-                Output("Found factor ",g," at i=",i);
-                break;
-            }
-            b = PowMod( b, BigInt(2), n );
-            g = GCD( b-1, n );
-        }
-
-        // TODO: Add support for a second stage
-
-        if( g == BigInt(1) )
-        {
-            if( smoothness >= smoothnessBound )
-            {
-                Output("Smoothness bound of ",smoothnessBound," exceeded");
-                return n;
-            }
-            smoothness *= 2;
-            Output("Increased smoothness to ",smoothness);
-        }
-        else if( g == n )
-        {
-            if( smoothness <= BigInt(2) )
-            {
-                Output("Smoothness lower bound of 2 hit");
-                return n;
-            }
-            smoothness /= 2;
-            Output("Decreased smoothness to ",smoothness);
-        }
-        else
-        {
-            Output("Found factor of ",g);
-            return g;
-        }
-    }
-}
+// TODO: Unoptimized version
 
 BigInt PollardPMinusOneOpt( const BigInt& n, BigInt smoothness=100000 )
 {
-    double nLog = Log( n );
-    BigInt smoothnessBound = Pow( BigInt(10), BigInt(9) );
+    const double twoLog = Log( 2 );
+    const double nLog = Log( n );
+    const BigInt zero(0), one(1);
+    const BigInt smoothnessBound =
+        Max( Pow(BigInt(10),BigInt(9)), smoothness*8 );
+
+    bool separateOdd=false;
+
+    BigInt smallPrime, gcd, tmp;
     while( true )
     {
         // Uniformly select a in (Z/(n))*
         // (alternatively, we could set a=2)
-        BigInt a = SampleUniform( BigInt(0), n );
-        while( GCD( a, n ) != BigInt(1) )
+        BigInt a = SampleUniform( zero, n );
+        while( GCD( a, n ) != one )
         {
-            a = SampleUniform( BigInt(0), n ); 
+            a = SampleUniform( zero, n ); 
         }
-        Output("a=",a);
 
-        /*
-        BigInt q(2), b(a);
-        while( q <= smoothness )
+        // TODO: Generate the list of primes with a sieve instead of nextprime
+        smallPrime = ( separateOdd ? 3 : 2 );
+        while( smallPrime <= smoothness )
         {
-            unsigned qExponent = unsigned(nLog/Log(q));
-            for( Int i=0; i<qExponent; ++i )
-                b = PowMod( b, q, n );
-            q = NextPrime( q );
-        }
-        BigInt g = GCD( b-1, n );
-        */
-
-        // Divide by 2 last
-        BigInt q(3), b(a);
-        while( q <= smoothness )
-        {
-            unsigned qExponent = unsigned(nLog/Log(q));
-            for( Int i=0; i<qExponent; ++i )
+            unsigned smallPrimeExponent = unsigned(nLog/Log(smallPrime));
+            for( Int i=0; i<smallPrimeExponent; ++i )
             {
-                //b = PowMod( b, q, n );
+                //a = PowMod( a, smallPrime, n );
                 mpz_powm
-                ( b.Pointer(),
-                  b.LockedPointer(),
-                  q.LockedPointer(),
+                ( a.Pointer(),
+                  a.LockedPointer(),
+                  smallPrime.LockedPointer(),
                   n.LockedPointer() );
             }
-            //q = NextPrime( q );
-            mpz_nextprime( q.Pointer(), q.LockedPointer() );
-        }
-        unsigned twoExponent = unsigned(nLog/Log(2));
-        BigInt g = GCD( b-1, n );
-        BigInt two(2), tmp;
-        for( Int i=0; i<twoExponent; ++i )
-        {
-            if( g > BigInt(1) && g < n )
-            {
-                Output("Found factor ",g," at i=",i);
-                break;
-            }
-            //b = PowMod( b, two, n );
-            mpz_powm
-            ( b.Pointer(),
-              b.LockedPointer(),
-              two.LockedPointer(),
-              n.LockedPointer() );
-            //g = GCD( b-1, n );
-            tmp = b;
-            tmp -= 1;
-            mpz_gcd( g.Pointer(), tmp.LockedPointer(), n.LockedPointer() );
+            //smallPrime = NextPrime( smallPrime );
+            mpz_nextprime( smallPrime.Pointer(), smallPrime.LockedPointer() );
         }
 
-        if( g == BigInt(1) )
+        // gcd := GCD( a-1, n )
+        tmp = a; 
+        tmp -= 1;
+        mpz_gcd( gcd.Pointer(), tmp.LockedPointer(), n.LockedPointer() );
+
+        if( separateOdd )
+        { 
+            unsigned twoExponent = unsigned(nLog/twoLog);
+            for( Int i=0; i<twoExponent; ++i )
+            {
+                if( gcd > one && gcd < n )
+                    break;
+                //a = PowMod( a, 2, n );
+                a *= a;
+                a %= n;
+                //gcd = GCD( a-1, n );
+                tmp = a;
+                tmp -= 1;
+                mpz_gcd( gcd.Pointer(), tmp.LockedPointer(), n.LockedPointer() );
+            }
+        }
+
+        if( gcd == one )
         {
             if( smoothness >= smoothnessBound )
             {
@@ -456,31 +370,26 @@ BigInt PollardPMinusOneOpt( const BigInt& n, BigInt smoothness=100000 )
             smoothness *= 2;
             Output("Increased smoothness to ",smoothness);
         }
-        else if( g == n )
+        else if( gcd == n )
         {
-            if( smoothness <= BigInt(2) )
-            {
-                Output("Smoothness lower bound of 2 hit");
-                return n;
-            }
-            smoothness /= 2;
-            Output("Decreased smoothness to ",smoothness);
+            separateOdd = true;
+            Output("Separately checking powers of two");
         }
         else
         {
-            Output("Found factor of ",g);
-            return g;
+            Output("Found factor of ",gcd);
+            return gcd;
         }
     }
 }
 
+// Pollard's p-1 can occasionally factor much larger numbers than the rho 
+// method but is much less reliable (and the ECM method is a generalization
+// which allows it to become more reliable)
 BigInt PollardPMinusOne
 ( const BigInt& n, BigInt smoothness=100000, bool opt=true )
 {
-    if( opt )
-        return PollardPMinusOneOpt( n, smoothness );
-    else
-        return PollardPMinusOneUnopt( n, smoothness );
+    return PollardPMinusOneOpt( n, smoothness );
 }
 
 vector<BigInt> PollardPMinusOneFactors
@@ -554,7 +463,6 @@ vector<BigInt> PollardPMinusOneFactors
     }
     return factors;
 }
-
 #endif
 
 int main( int argc, char* argv[] )
@@ -570,62 +478,68 @@ int main( int argc, char* argv[] )
         const int numReps = Input("--numReps","num Miller-Rabin reps,",20);
         const bool opt = Input("--opt","optimized allocations?",true);
         const bool time = Input("--time","time Pollard rho steps?",true);
-        const BigInt smoothness =
-          Input("--smoothness","smoothness bound for p-1",BigInt(100000));
+        const bool largeRho =
+          Input("--largeRho","reproduce Pollard and Brent's result?",false);
+        const bool heroicPMinusOne =
+          Input("--heroicPMinusOne","reproduce Zimmerman's result?",false);
         ProcessInput();
         PrintInputReport(); 
 
         mpc::SetMinIntBits( minIntBits );
 
-        // Try Pollard's rho method with x_0=2 and 
-        //   x_{i+1} := x_i^2 - 1 (mod n)
-        // (See J.M. Pollard, "A Monte Carlo Method for Factorization")
-
         // n = 2^77 - 3
-        // We should find (1291,99432527,1177212722617) at iterations
-        // (100,8200,failed)
+        // We should find (1291,99432527,1177212722617) 
         BigInt n = Pow(BigInt(2),unsigned(77)) - 3;
-        Output("n=",n);
+        Output("n=2^77-3=",n);
         auto factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
-        Output("");
-        factors = PollardPMinusOneFactors( n, smoothness, numReps, opt, time );
         Output("");
 
         // n = 2^79 - 3
-        // We should find (5,3414023,146481287,241741417) at iterations
-        // (100,800,5300,failed)
+        // We should find (5,3414023,146481287,241741417)
         n = Pow(BigInt(2),unsigned(79)) - 3;
-        Output("n=",n);
+        Output("n=2^79-3=",n);
         factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
-        Output("");
-        factors = PollardPMinusOneFactors( n, smoothness, numReps, opt, time );
         Output("");
 
         // n = 2^97 - 3
         n = Pow(BigInt(2),unsigned(97)) - 3;
-        Output("n=",n);
+        Output("n=2^97-3=",n);
         factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
         Output("");
-        factors = PollardPMinusOneFactors( n, smoothness, numReps, opt, time );
-        Output("");
 
-        // n = 3^100 + 2 (example from http://julia-programming-language.2336112.n4.nabble.com/Factorization-of-big-integers-is-taking-too-long-td15925.html)
+        // n = 3^100 + 2 
         n = Pow(BigInt(3),unsigned(100)) + 2;
-        Output("n=",n);
+        Output("n=3^100+2=",n);
         factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
-        Output("");
-        factors = PollardPMinusOneFactors( n, smoothness, numReps, opt, time );
         Output("");
 
-        // TODO: Re-enable this when the methods are more refined
-        // n = 3^100 + 4
-        /* 
-        n = Pow(BigInt(3),unsigned(100)) + 4;
-        Output("n=",n);
-        factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
-        Output("");
-        factors = PollardPMinusOneFactors( n, smoothness, numReps, opt, time );
-        */
+        if( largeRho )
+        {
+            // Try Pollard's rho on Pollard and Brent's famous result of
+            //    2^(2^8) + 1 = 1238926361552897 * p_{62},
+            // where p_{62} is a 62-digit prime.
+            // Note that this should only take about 30 seconds.
+            mpc::SetMinIntBits( 1024 );
+            BigInt z = Pow(BigInt(2),Pow(BigInt(2),BigInt(8))) + 1; 
+            Output("z=2^(2^8)+1=",z); 
+            factors = PollardRhoFactors( z, gcdDelay, numReps, opt, time );
+            Output("");
+        }
+
+        if( heroicPMinusOne )
+        {
+            // Try Pollard's p-1 on 2^2098+1, which P. Zimmerman showed to have
+            // a factor of
+            // p=372098406910139347411473978297737029649599583843164650153,
+            // where p-1=23*32*1049*1627*139999*1284223*7475317*341342347*
+            //           2456044907*9909876848747
+            mpc::SetMinIntBits( 8192 );
+            BigInt z = Pow(BigInt(2),BigInt(2098)) + 1;
+            BigInt smoothness = Pow(BigInt(10),BigInt(13));
+            Output("z=2^2098+1=",z);
+            factors =
+              PollardPMinusOneFactors( z, smoothness, numReps, opt, time );
+        }
     }
     catch( std::exception& e ) { ReportException(e); }
 #endif
