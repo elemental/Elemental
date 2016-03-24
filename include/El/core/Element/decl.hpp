@@ -322,6 +322,11 @@ Real Conj( const Real& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Complex<Real> Conj( const Complex<Real>& alpha ) EL_NO_EXCEPT;
 
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void Conj( const Real& alpha, Real& alphaConj ) EL_NO_EXCEPT;
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void Conj( const Complex<Real>& alpha, Complex<Real>& alphaConj ) EL_NO_EXCEPT;
+
 // Complex argument
 // ----------------
 template<typename F,typename=EnableIf<IsScalar<F>>>

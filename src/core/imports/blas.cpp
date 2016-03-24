@@ -554,8 +554,14 @@ void Axpy
   const T* x, BlasInt incx,
         T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma;
     for( BlasInt i=0; i<n; ++i )
-        y[i*incy] += alpha*x[i*incx];
+    {
+        gamma = alpha*x[i*incx];
+        y[i*incy] += gamma;
+    }
 }
 template void Axpy
 ( BlasInt n, Int alpha,
@@ -684,9 +690,16 @@ T Dot
   const T* x, BlasInt incx,
   const T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma;
     T alpha = 0;
     for( BlasInt i=0; i<n; ++i )
-        alpha += Conj(x[i*incx])*y[i*incy];
+    {
+        Conj( x[i*incx], gamma );
+        gamma *= y[i*incy];
+        alpha += gamma;
+    }
     return alpha;
 }
 template Int Dot
@@ -750,9 +763,16 @@ T Dotu
   const T* x, BlasInt incx,
   const T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma;
     T alpha = 0;
     for( BlasInt i=0; i<n; ++i )
-        alpha += x[i*incx]*y[i*incy];
+    {
+        gamma = x[i*incx];
+        gamma *= y[i*incy];
+        alpha += gamma;
+    }
     return alpha;
 }
 template Int Dotu
@@ -841,11 +861,15 @@ template<typename F>
 BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx )
 {
     typedef Base<F> Real;
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    //       (A copy elision is assumed in the return value of Abs)
+    Real absVal;
     Real maxAbsVal = -1;
     BlasInt maxAbsInd = -1;
     for( BlasInt i=0; i<n; ++i ) 
     {
-        const Real absVal = Abs(x[i*incx]);
+        absVal = Abs(x[i*incx]);
         if( absVal > maxAbsVal )
         {
             maxAbsVal = absVal;
@@ -895,11 +919,15 @@ Real Givens
   Real* c,
   Real* s )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    Real zero(0), one(1);
+
     Real phiAbs = Abs(phi);
-    if( phiAbs == Real(0) )
+    if( phiAbs == zero )
     {
-        *c = Real(0);
-        *s = Real(1);
+        *c = zero;
+        *s = one;
         return gamma;
     }
     else
@@ -919,11 +947,15 @@ Complex<Real> Givens
   Real* c,
   Complex<Real>* s )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    Real zero(0), one(1);
+
     Real phiAbs = Abs(phi);
-    if( phiAbs == Real(0) )
+    if( phiAbs == zero )
     {
-        *c = Real(0);
-        *s = Complex<Real>(Real(1),Real(0));
+        *c = zero;
+        *s = one;
         return gamma;
     }
     else
@@ -1016,12 +1048,25 @@ void Rot
   F* y, BlasInt incy,
   Base<F> c, F s )
 {
-    F temp;
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    F gamma, delta;
     for( BlasInt i=0; i<n; ++i )    
     {
-        temp = c*x[i*incx] + s*y[i*incy];
-        y[i*incy] = -Conj(s)*x[i*incx] + c*y[i*incy];
-        x[i*incx] = temp;
+        //gamma = c*x[i*incx] + s*y[i*incy];
+        gamma = c;
+        gamma *= x[i*incx];
+        delta = s;
+        delta *= y[i*incy];
+        gamma += delta;
+
+        //y[i*incy] = -Conj(s)*x[i*incx] + c*y[i*incy];
+        y[i*incy] *= c;
+        Conj( s, delta );
+        delta *= x[i*incx];
+        y[i*incy] -= delta;
+
+        x[i*incx] = gamma;
     }
 }
 #ifdef EL_HAVE_QD
@@ -1135,6 +1180,8 @@ void Scal( BlasInt n, dcomplex alpha, dcomplex* x, BlasInt incx )
 template<typename F>
 Base<F> Nrm1( BlasInt n, const F* x, BlasInt incx )
 {
+    // TODO: Avoid temporaries since constructing BigInt/BigFloat involves
+    //       a memory allocation
     Base<F> sum=0;
     for( BlasInt i=0; i<n; ++i )
         sum += Abs(x[i*incx]);
@@ -1163,9 +1210,12 @@ double Nrm1( BlasInt n, const dcomplex* x, BlasInt incx )
 template<typename T>
 void Swap( BlasInt n, T* x, BlasInt incx, T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T temp;
     for( BlasInt i=0; i<n; ++i )
     {
-        const T temp = x[i*incx];
+        temp = x[i*incx];
         x[i*incx] = y[i*incy];
         y[i*incy] = temp;
     }
@@ -1207,6 +1257,10 @@ void Gemv
            const T* x, BlasInt incx,
   T beta,        T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    // TODO: Special-case alpha=0, alpha=1, and alpha=-1?
+    T gamma, delta;
     if( std::toupper(trans) == 'N' )
     {
         if( m > 0 && n == 0 && beta == T(0) )
@@ -1215,10 +1269,20 @@ void Gemv
                 y[i*incy] = 0;
             return;
         }
+
         Scal( m, beta, y, incy );
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+        for( BlasInt j=0; j<n; ++j )
+        {
+            gamma = x[j*incx];
+            gamma *= alpha;
+            for( BlasInt i=0; i<m; ++i )
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                delta = A[i+j*ALDim];
+                delta *= gamma;
+                y[i*incy] += delta;
+            }
+        }
     }
     else if( std::toupper(trans) == 'T' )
     {
@@ -1229,9 +1293,25 @@ void Gemv
             return;
         }
         Scal( n, beta, y, incy );
+
+        // Prescale x to avoid a factor of two more work than necessary
+        vector<T> xAlpha(m);
+        for( Int j=0; j<m; ++j )
+        {
+            xAlpha[j] = x[j*incx];
+            xAlpha[j] *= alpha;
+        }
+
         for( BlasInt i=0; i<n; ++i )
+        {
             for( BlasInt j=0; j<m; ++j )
-                y[i*incy] += alpha*A[j+i*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[j+i*ALDim]*x[j*incx];
+                gamma = A[j+i*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
     }
     else
     {
@@ -1242,9 +1322,25 @@ void Gemv
             return;
         }
         Scal( n, beta, y, incy );
+
+        // Prescale x to avoid a factor of two more work than necessary
+        vector<T> xAlpha(m);
+        for( Int j=0; j<m; ++j )
+        {
+            xAlpha[j] = x[j*incx];
+            xAlpha[j] *= alpha;
+        }
+
         for( BlasInt i=0; i<n; ++i )
+        {
             for( BlasInt j=0; j<m; ++j )
-                y[i*incy] += alpha*Conj(A[j+i*ALDim])*x[j*incx];
+            {
+                // y[i*incy] += alpha*Conj(A[j+i*ALDim])*x[j*incx];
+                Conj( A[j+i*ALDim], gamma );
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
     }
 }
 template void Gemv
@@ -1334,9 +1430,22 @@ void Ger
            const T* y, BlasInt incy,
                  T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    // TODO: Special-case alpha=0?
+    T gamma, delta;
     for( BlasInt j=0; j<n; ++j )
+    {
+        Conj( y[j*incy], gamma );
+        gamma *= alpha;
         for( BlasInt i=0; i<m; ++i )
-            A[i+j*ALDim] += alpha*x[i*incx]*Conj(y[j*incy]);
+        {
+            // A[i+j*ALDim] += alpha*x[i*incx]*Conj(y[j*incy]);
+            delta = x[i*incx];
+            delta *= gamma;
+            A[i+j*ALDim] += delta;
+        }
+    }
 }
 template void Ger
 ( BlasInt m, BlasInt n, 
@@ -1416,9 +1525,22 @@ void Geru
   const T* y, BlasInt incy,
         T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    // TODO: Special-case alpha=0?
+    T gamma, delta;
     for( BlasInt j=0; j<n; ++j )
+    {
+        gamma = y[j*incy];
+        gamma *= alpha;
         for( BlasInt i=0; i<m; ++i )
-            A[i+j*ALDim] += alpha*x[i*incx]*y[j*incy];
+        {
+            // A[i+j*ALDim] += alpha*x[i*incx]*y[j*incy];
+            delta = x[i*incx];
+            delta *= gamma;
+            A[i+j*ALDim] += delta;
+        }
+    }
 }
 template void Geru
 ( BlasInt m, BlasInt n, 
@@ -1509,6 +1631,9 @@ void Hemv
            const T* x, BlasInt incx,
   T beta,        T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // y := beta*y
     if( beta == T(0) )
     {
@@ -1521,29 +1646,66 @@ void Hemv
             y[i*incy] *= beta;
     }
 
+    // Pre-scale x to avoid redundant computation
+    vector<T> xAlpha(m);
+    for( Int i=0; i<m; ++i )
+    {
+        xAlpha[i] = x[i*incx];
+        xAlpha[i] *= alpha;
+    }
+
+    T gamma;
     if( uplo == LOWER )
     {
         // Multiply with the lower triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=j; i<m; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the adjoint of the strictly lower triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=j+1; i<m; ++i )
-                y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+            {
+                // y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+                Conj( A[i+j*ALDim], gamma );
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
     else
     {
         // Multiply with the upper triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=0; i<=j; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the adjoint of the strictly upper triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=0; i<j; ++i )
-                y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+            {
+                // y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+                Conj( A[i+j*ALDim], gamma );
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
 }
 
@@ -1624,17 +1786,38 @@ void Her
   const T* x, BlasInt incx,
         T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta;
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( x[j*incx], gamma );
+            gamma *= alpha;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( x[j*incx], gamma );
+            gamma *= alpha;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
 }
 template void Her
@@ -1698,19 +1881,51 @@ void Her2
            const T* y, BlasInt incy,
                  T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta, phi, psi, alphaConj;
+    Conj( alpha, alphaConj );
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( y[j*incy], gamma );
+            gamma *= alpha;
+            Conj( x[j*incx], delta );
+            delta *= alphaConj;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
-                              Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
+                //                 Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( y[j*incy], gamma );
+            gamma *= alpha;
+            Conj( x[j*incx], delta );
+            delta *= alphaConj;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
-                              Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
+                //                 Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
 }
 template void Her2
@@ -1791,6 +2006,9 @@ void Symv
            const T* x, BlasInt incx,
   T beta,        T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // y := beta*y
     if( beta == T(0) )
     {
@@ -1803,29 +2021,66 @@ void Symv
             y[i*incy] *= beta;
     }
 
+    // Pre-scale x to avoid redundant computation
+    vector<T> xAlpha(m);
+    for( Int i=0; i<m; ++i )
+    {
+        xAlpha[i] = x[i*incx];
+        xAlpha[i] *= alpha;
+    }
+
+    T gamma;
     if( uplo == LOWER )
     {
         // Multiply with the lower triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=j; i<m; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the transpose of the strictly lower triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=j+1; i<m; ++i )
-                y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+            {
+                // y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
     else
     {
         // Multiply with the upper triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=0; i<=j; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the transpose of the strictly upper triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=0; i<j; ++i )
-                y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+            {
+                // y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
 }
 
@@ -1911,17 +2166,38 @@ void Syr
   T alpha, const T* x, BlasInt incx,
                  T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta;
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = x[j*incx];
+            gamma *= alpha;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = x[j*incx];
+            gamma *= alpha;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
 }
 template void Syr
@@ -1996,17 +2272,50 @@ void Syr2
            const T* y, BlasInt incy,
                  T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta, phi, psi;
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = y[j*incy];
+            gamma *= alpha;
+            delta = x[j*incx];
+            delta *= alpha;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*(x[i*incx]*y[j*incy]+y[i*incy]*x[j*incx]);
+            {
+                // A[i+j*ALDim] +=
+                //   alpha*(x[i*incx]*y[j*incy]+y[i*incy]*x[j*incx])
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = y[j*incy];
+            gamma *= alpha;
+            delta = x[j*incx]; 
+            delta *= alpha;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*(x[i*incx]*y[j*incy]+y[i*incy]*x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*y[j*incy] + 
+                //                 alpha*y[i*incy]*x[j*incx];
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
 }
 template void Syr2
@@ -2107,20 +2416,29 @@ void Trmv
   const T* A, BlasInt ALDim,
         T* x, BlasInt incx )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     const bool lower = ( std::toupper(uplo) == 'L' );
     const bool conj = ( std::toupper(trans) == 'C' );
     const bool unitDiag = ( std::toupper(diag) == 'U' );
+    const T zero(0);
+
+    T gamma, delta;
     if( lower )
     {
         if( std::toupper(trans) == 'N' )
         {
             for( BlasInt j=m-1; j>=0; --j )
             {
-                T gamma = x[j*incx]; 
-                if( gamma != T(0) )
+                gamma = x[j*incx]; 
+                if( gamma != zero )
                 {
                     for( BlasInt i=m-1; i>j; --i )
-                        x[i*incx] += gamma*A[i+j*ALDim];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= gamma;
+                        x[i*incx] += delta;
+                    }
                     if( !unitDiag )
                         x[j*incx] *= A[j+j*ALDim];
                 }
@@ -2130,20 +2448,31 @@ void Trmv
         {
             for( BlasInt j=0; j<m; ++j )
             {
-                T gamma = x[j*incx]; 
+                gamma = x[j*incx]; 
                 if( conj )
                 {
                     if( !unitDiag )
-                        gamma *= Conj(A[j+j*ALDim]);
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        gamma *= delta;
+                    }
                     for( BlasInt i=j+1; i<m; ++i )
-                        gamma += Conj(A[i+j*ALDim])*x[i*incx];
+                    {
+                        Conj( A[i+j*ALDim], delta );
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag )
                         gamma *= A[j+j*ALDim];
                     for( BlasInt i=j+1; i<m; ++i )
-                        gamma += A[i+j*ALDim]*x[i*incx];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 x[j*incx] = gamma;
             }
@@ -2155,11 +2484,15 @@ void Trmv
         {
             for( BlasInt j=0; j<m; ++j )
             {
-                T gamma = x[j*incx]; 
-                if( gamma != T(0) )
+                gamma = x[j*incx]; 
+                if( gamma != zero )
                 {
                     for( BlasInt i=0; i<j; ++i )
-                        x[i*incx] += gamma*A[i+j*ALDim];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= gamma;
+                        x[i*incx] += delta;
+                    }
                     if( !unitDiag )
                         x[j*incx] *= A[j+j*ALDim];
                 }
@@ -2169,20 +2502,31 @@ void Trmv
         {
             for( BlasInt j=m-1; j>=0; --j )
             {
-                T gamma = x[j*incx]; 
+                gamma = x[j*incx]; 
                 if( conj )
                 {
                     if( !unitDiag )
-                        gamma *= Conj(A[j+j*ALDim]);
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        gamma *= delta;
+                    }
                     for( BlasInt i=j-1; i>=0; --i )
-                        gamma += Conj(A[i+j*ALDim])*x[i*incx];
+                    {
+                        Conj( A[i+j*ALDim], delta );
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag )
                         gamma *= A[j+j*ALDim];
                     for( BlasInt i=j-1; i>=0; --i )
-                        gamma += A[i+j*ALDim]*x[i*incx];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 x[j*incx] = gamma;
             }
@@ -2254,9 +2598,13 @@ void Trsv
   const F* A, BlasInt ALDim,
         F* x, BlasInt incx )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     const bool conj = ( std::toupper(trans) == 'C' );
     const bool lower = ( std::toupper(uplo) == 'L' );
     const bool unitDiag = ( std::toupper(diag) == 'U' );
+
+    F gamma, delta;
     if( lower )
     {
         if( std::toupper(trans) == 'N' )
@@ -2265,9 +2613,13 @@ void Trsv
             {
                 if( !unitDiag ) 
                     x[j*incx] /= A[j+j*ALDim];
-                const F gamma = x[j*incx];
+                gamma = x[j*incx];
                 for( BlasInt i=j+1; i<m; ++i )
-                    x[i*incx] -= gamma*A[i+j*ALDim];
+                {
+                    delta = A[i+j*ALDim];
+                    delta *= gamma;
+                    x[i*incx] -= delta;
+                }
             }
         }
         else
@@ -2277,18 +2629,29 @@ void Trsv
                 if( conj )
                 {
                     if( !unitDiag )
-                        x[j*incx] /= Conj(A[j+j*ALDim]);
-                    const F gamma = x[j*incx];
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        x[j*incx] /= delta;
+                    }
+                    gamma = x[j*incx];
                     for( BlasInt i=j-1; i>=0; --i )
-                        x[i*incx] -= gamma*Conj(A[j+i*ALDim]);
+                    {
+                        Conj( A[j+i*ALDim], delta );
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag )
                         x[j*incx] /= A[j+j*ALDim];
-                    const F gamma = x[j*incx];
+                    gamma = x[j*incx];
                     for( BlasInt i=j-1; i>=0; --i )
-                        x[i*incx] -= gamma*A[j+i*ALDim];
+                    {
+                        delta = A[j+i*ALDim];
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
             }
         }
@@ -2301,9 +2664,13 @@ void Trsv
             {
                 if( !unitDiag )
                     x[j*incx] /= A[j+j*ALDim];
-                const F gamma = x[j*incx];
+                gamma = x[j*incx];
                 for( BlasInt i=j-1; i>=0; --i )
-                    x[i*incx] -= gamma*A[i+j*ALDim];
+                {
+                    delta = A[i+j*ALDim];
+                    delta *= gamma;
+                    x[i*incx] -= delta;
+                }
             }
         }
         else
@@ -2314,17 +2681,28 @@ void Trsv
                 {
                     if( !unitDiag ) 
                         x[j*incx] /= A[j+j*ALDim];
-                    const F gamma = x[j*incx];
+                    gamma = x[j*incx];
                     for( BlasInt i=j+1; i<m; ++i )
-                        x[i*incx] -= gamma*A[j+i*ALDim];
+                    {
+                        delta = A[j+i*ALDim];
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag ) 
-                        x[j*incx] /= Conj(A[j+j*ALDim]);
-                    const F gamma = x[j*incx];
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        x[j*incx] /= delta;
+                    }
+                    gamma = x[j*incx];
                     for( BlasInt i=j+1; i<m; ++i )
-                        x[i*incx] -= gamma*Conj(A[j+i*ALDim]);
+                    {
+                        Conj( A[j+i*ALDim], delta );
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
             }
         }
@@ -2391,6 +2769,8 @@ void Gemm
            const T* B, BlasInt BLDim,
   T beta,        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( m > 0 && n > 0 && k == 0 && beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -2414,6 +2794,7 @@ void Gemm
     }
 
     // Naive implementation
+    T gamma, delta;
     if( std::toupper(transA) == 'N' && std::toupper(transB) == 'N' )
     {
         // C := alpha A B + C
@@ -2421,9 +2802,13 @@ void Gemm
         {
             for( BlasInt l=0; l<k; ++l )
             {
-                const T gamma = alpha*B[l+j*BLDim];
+                gamma = alpha*B[l+j*BLDim];
                 for( BlasInt i=0; i<m; ++i )
-                    C[i+j*CLDim] += gamma*A[i+l*ALDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= gamma;
+                    C[i+j*CLDim] += delta;
+                }
             }
         }
     }
@@ -2436,9 +2821,13 @@ void Gemm
             {
                 for( BlasInt l=0; l<k; ++l )
                 {
-                    const T gamma = alpha*B[j+l*BLDim];
+                    gamma = alpha*B[j+l*BLDim];
                     for( BlasInt i=0; i<m; ++i )
-                        C[i+j*CLDim] += gamma*A[i+l*ALDim];
+                    {
+                        delta = A[i+l*ALDim];
+                        delta *= gamma;
+                        C[i+j*CLDim] += delta;
+                    }
                 }
             }
         }
@@ -2449,9 +2838,13 @@ void Gemm
             {
                 for( BlasInt l=0; l<k; ++l )
                 {
-                    const T gamma = alpha*Conj(B[j+l*BLDim]);
+                    gamma = alpha*Conj(B[j+l*BLDim]);
                     for( BlasInt i=0; i<m; ++i )
-                        C[i+j*CLDim] += gamma*A[i+l*ALDim];
+                    {
+                        delta = A[i+l*ALDim];
+                        delta *= gamma;
+                        C[i+j*CLDim] += delta;
+                    }
                 }
             }
         }
@@ -2465,10 +2858,15 @@ void Gemm
             {
                 for( BlasInt i=0; i<m; ++i )
                 {
-                    T gamma = 0;
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        gamma += A[l+i*ALDim]*B[l+j*BLDim];
-                    C[i+j*CLDim] += alpha*gamma;
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= B[l+j*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
                 }
             }
         }
@@ -2479,10 +2877,15 @@ void Gemm
             {
                 for( BlasInt i=0; i<m; ++i )
                 {
-                    T gamma = 0;
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        gamma += Conj(A[l+i*ALDim])*B[l+j*BLDim];
-                    C[i+j*CLDim] += alpha*gamma;
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= B[l+j*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
                 }
             }
         }
@@ -2493,34 +2896,79 @@ void Gemm
         {
             // C := alpha A^T B^T + C
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*B[j+l*BLDim];
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= B[j+l*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else if( std::toupper(transA) == 'T' )
         {
             // C := alpha A^T B^H + C
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*Conj(B[j+l*BLDim]);
+                    {
+                        Conj( B[j+l*BLDim], delta );
+                        delta *= A[l+i*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else if( std::toupper(transB) == 'T' )
         {
             // C := alpha A^H B^T + C
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*B[j+l*BLDim];
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= B[j+l*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             // C := alpha A^H B^H + C
+            T phi;
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                            alpha*Conj(A[l+i*ALDim])*Conj(B[j+l*BLDim]);
+                    {
+                        Conj( A[l+i*ALDim], delta );       
+                        Conj( B[j+l*BLDim], phi );
+                        delta *= phi;
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
@@ -2742,6 +3190,9 @@ void Hemm
            const T* B, BlasInt BLDim,
   T beta,        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // Scale C
     if( beta == T(0) )
     {
@@ -2758,61 +3209,150 @@ void Hemm
     }
 
     // Naive implementation
+    T gamma, delta;
     if( std::toupper(side) == 'L' && std::toupper(uplo) == 'L' )
     {
         // C := alpha tril(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=i; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha tril(A,-1)^H B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i+1; l<m; ++l )
-                    C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*B[l+j*BLDim];
+                {
+                    Conj( A[l+i*ALDim], delta );
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'L' && std::toupper(uplo) == 'U' )
     {
         // C := alpha triu(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i; l<m; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha triu(A,-)^H B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<i; ++l )
-                    C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*B[l+j*BLDim];
+                {
+                    Conj( A[l+i*ALDim], delta );
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'L' )
     {
         // C := alpha B tril(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B tril(A,-1)^H + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                {
+                    Conj( A[j+l*ALDim], delta );
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'U' )
     {
         // C := alpha B triu(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B triu(A,1)^H + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j+1; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                {
+                    Conj( A[j+l*ALDim], delta );
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     DEBUG_ONLY(
       else
@@ -2913,6 +3453,8 @@ void Her2k
                 const T* B, BlasInt BLDim,
   Base<T> beta,       T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == Base<T>(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -2929,26 +3471,60 @@ void Her2k
     const T alphaConj = Conj(alpha);
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, delta, phi;
     if( normal )
     {
         // C := alpha A B^H + Conj(alpha) B A^H + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *A[i+l*ALDim]*Conj(B[j+l*BLDim]) +
-                          alphaConj*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( B[j+l*BLDim], phi );
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        Conj( A[j+l*ALDim], phi );
+                        phi *= B[i+l*BLDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *A[i+l*ALDim]*Conj(B[j+l*BLDim]) +
-                          alphaConj*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( B[j+l*BLDim], phi );
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        Conj( A[j+l*ALDim], phi );
+                        phi *= B[i+l*BLDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
@@ -2957,20 +3533,52 @@ void Her2k
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *Conj(A[l+i*ALDim])*B[l+j*BLDim] +
-                          alphaConj*Conj(B[l+i*BLDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], phi );
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        Conj( B[l+i*BLDim], phi );
+                        phi *= A[l+j*ALDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma; 
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *Conj(A[l+i*ALDim])*B[l+j*BLDim] +
-                          alphaConj*Conj(B[l+i*BLDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], phi );
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        Conj( B[l+i*BLDim], phi );
+                        phi *= A[l+j*ALDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
@@ -3080,6 +3688,8 @@ void Herk
   Base<T> alpha, const T* A, BlasInt ALDim, 
   Base<T> beta,        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == Base<T>(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -3095,22 +3705,46 @@ void Herk
 
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, delta;
     if( normal )
     {
         // C := alpha A A^H + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( A[j+l*ALDim], delta );
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( A[j+l*ALDim], delta );
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
@@ -3119,16 +3753,38 @@ void Herk
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
@@ -3224,12 +3880,16 @@ void Symm
            const T* B, BlasInt BLDim,
   T beta,        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // Scale C
     if( beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
             for( BlasInt i=0; i<m; ++i )
                 C[i+j*CLDim] = 0;
+
     }
     else if( beta != T(1) )
     {
@@ -3239,61 +3899,150 @@ void Symm
     }
 
     // Naive implementation
+    T gamma, delta;
     if( std::toupper(side) == 'L' && std::toupper(uplo) == 'L' )
     {
         // C := alpha tril(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=i; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha tril(A,-1)^T B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i+1; l<m; ++l )
-                    C[i+j*CLDim] += alpha*A[l+i*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[l+i*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'L' && std::toupper(uplo) == 'U' )
     {
         // C := alpha triu(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i; l<m; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha triu(A,-)^T B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<i; ++l )
-                    C[i+j*CLDim] += alpha*A[l+i*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[l+i*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'L' )
     {
         // C := alpha B tril(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B tril(A,-1)^T + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[j+l*ALDim];
+                {
+                    delta = A[j+l*ALDim];
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'U' )
     {
         // C := alpha B triu(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B triu(A,1)^T + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j+1; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[j+l*ALDim];
+                {
+                    delta = A[j+l*ALDim];
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     DEBUG_ONLY(
       else
@@ -3390,6 +4139,8 @@ void Syr2k
            const T* B, BlasInt BLDim,
   T beta,        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -3405,48 +4156,102 @@ void Syr2k
 
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, phi;
     if( normal )
     {
-        // C := alpha (A B^T + B A^T) + beta C
+        // C := alpha A B^T + alpha B A^T + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[i+l*ALDim]*B[j+l*BLDim] +
-                           B[i+l*BLDim]*A[j+l*ALDim]);
+                    {
+                        phi = B[j+l*BLDim];
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        phi = A[j+l*ALDim];
+                        phi *= B[i+l*BLDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[i+l*ALDim]*B[j+l*BLDim] +
-                           B[i+l*BLDim]*A[j+l*ALDim]);
+                    {
+                        phi = B[j+l*BLDim];
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        phi = A[j+l*ALDim];
+                        phi *= B[i+l*BLDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
     {
-        // C := alpha (A^T B + B^T A) + beta C
+        // C := alpha A^T B + alpha B^T A + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[l+i*ALDim]*B[l+j*BLDim] +
-                           B[l+i*BLDim]*A[l+j*ALDim]);
+                    {
+                        phi = A[l+i*ALDim];
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        phi = B[l+i*BLDim];
+                        phi *= A[l+j*ALDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma; 
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[l+i*ALDim]*B[l+j*BLDim] +
-                           B[l+i*BLDim]*A[l+j*ALDim]);
+                    {
+                        phi = A[l+i*ALDim];
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        phi = B[l+i*BLDim];
+                        phi *= A[l+j*ALDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
@@ -3550,6 +4355,8 @@ void Syrk
   T alpha, const T* A, BlasInt ALDim, 
   T beta,        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -3565,22 +4372,46 @@ void Syrk
 
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, delta;
     if( normal )
     {
         // C := alpha A A^T + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*A[j+l*ALDim];
+                    {
+                        delta = A[j+l*ALDim];
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*A[j+l*ALDim];
+                    {
+                        delta = A[j+l*ALDim];
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
@@ -3589,16 +4420,38 @@ void Syrk
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*A[l+j*ALDim];
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*A[l+j*ALDim];
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
@@ -3714,6 +4567,7 @@ void Trmm
                 for( Int j=0; j<n; ++j )
                     B[i+j*BLDim] = Conj(B[i+j*BLDim]);
             Trmv( uplo, newTrans, unit, n, A, ALDim, &B[i], BLDim );
+            // TODO: Avoid temporaries here
             if( conjugate )
                 for( Int j=0; j<n; ++j )
                     B[i+j*BLDim] = Conj(B[i+j*BLDim]);
@@ -3819,6 +4673,8 @@ void Trsm
   const F* A, BlasInt ALDim,
         F* B, BlasInt BLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     const bool onLeft = ( std::toupper(side) == 'L' );
     const bool lower = ( std::toupper(uplo) == 'L' );
     const bool conjugate = ( std::toupper(trans) == 'C' );
@@ -3829,6 +4685,7 @@ void Trsm
         for( BlasInt i=0; i<m; ++i )
             B[i+j*BLDim] *= alpha;
 
+    F alpha11, alpha11Conj;
     if( onLeft )
     {
         if( std::toupper(trans) == 'N' )
@@ -3839,7 +4696,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )      
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3856,7 +4713,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )      
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3877,12 +4734,12 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11Conj;
                     }
                     for( Int s=0; s<k; ++s )
-                        aRow[s] = Conj(A[k+s*ALDim]);
+                        Conj( A[k+s*ALDim], aRow[s] );
                     Geru
                     ( k, n,
                       F(-1), aRow.data(), 1,
@@ -3896,13 +4753,13 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11Conj;
                     }
                     std::vector<F> aRow(m);
                     for( Int s=0; s<m-(k+1); ++s )
-                        aRow[s] = Conj(A[k+(k+1+s)*ALDim]);
+                        Conj( A[k+(k+1+s)*ALDim], aRow[s] );
                     Geru
                     ( m-(k+1), n,
                       F(-1), aRow.data(), 1,
@@ -3919,7 +4776,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3936,7 +4793,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3959,7 +4816,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }
@@ -3976,7 +4833,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }
@@ -3996,7 +4853,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11Conj;
                     }
@@ -4013,7 +4870,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11Conj;
                     }
@@ -4033,7 +4890,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }
@@ -4050,7 +4907,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }

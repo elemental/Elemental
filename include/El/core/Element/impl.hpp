@@ -128,6 +128,14 @@ template<typename Real,typename>
 Complex<Real> Conj( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Complex<Real>(alpha.real(),-alpha.imag()); }
 
+template<typename Real,typename>
+void Conj( const Real& alpha, Real& alphaConj ) EL_NO_EXCEPT
+{ alphaConj = alpha; }
+
+template<typename Real,typename>
+void Conj( const Complex<Real>& alpha, Complex<Real>& alphaConj ) EL_NO_EXCEPT
+{  alphaConj = std::conj(alpha); }
+
 // Return the complex argument
 // ---------------------------
 template<typename F,typename>
