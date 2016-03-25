@@ -742,7 +742,7 @@ std::ostream& operator<<( std::ostream& os, const BigInt& alpha )
 {
     DEBUG_ONLY(CSE cse("operator<<(std::ostream&,const BigInt&)"))
     std::ostringstream osFormat;
-    osFormat << "%";
+    osFormat << "%.";
     osFormat << BinaryToDecimalPrecision(Int(alpha.NumBits()))+1;
     osFormat << "Zd";
 

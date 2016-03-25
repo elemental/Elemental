@@ -10,170 +10,82 @@
 using namespace El;
 
 #ifdef EL_HAVE_MPC
-// x_{i+1} := x_i^2 + a
-BigInt PollardRhoBounded
-( const BigInt& n, Int a=1, Int gcdDelay=100, Int maxIts=10000 )
+struct PollardRhoCtrl
 {
-    BigInt xi=2, x2i=2, Qi=1;
-    BigInt xiSave=2, x2iSave=2;
-    for( Int i=1; i<=maxIts; ++i )
-    {
-        // Advance xi once
-        xi = Mod( xi*xi + a, n );
+    Int a0=1;
+    Int a1=-1;
+    unsigned long numSteps=1u;
+    BigInt x0=BigInt(2);
+    Int gcdDelay=100;
+    int numReps=30;
+    bool progress=false;
+    bool time=false;
+};
 
-        // Advance x2i twice
-        x2i = Mod( x2i*x2i + a, n );
-        x2i = Mod( x2i*x2i + a, n );
-
-        // Advance Qi
-        Qi = Mod( Qi*(x2i-xi), n );
-
-        if( i % gcdDelay == 0 )
-        {
-            BigInt d = GCD( Qi, n );
-            if( d > BigInt(1) )
-            {
-                // NOTE: This was not suggested by Pollard's original paper
-                if( d == n )
-                {
-                    if( gcdDelay == 1 )
-                    {
-                        Output("(x_n) converged before (x_n mod p) at i=",i);
-                        return d;
-                    }
-                    else
-                    {
-                        Output("Backtracking and setting gcdDelay=1 at i=",i);
-                        i = Max( i-(gcdDelay+1), 0 );
-                        gcdDelay = 1;
-                        xi = xiSave;
-                        x2i = x2iSave;
-                    }
-                }
-                else
-                {
-                    Output("Found factor d=",d," at i=",i); 
-                    return d;
-                }
-            }
-
-            // NOTE: This was not suggested by Pollard's original paper
-            Qi = 1;
-            xiSave = xi;
-            x2iSave = x2i;
-        }
-        if( i == maxIts )
-        {
-            Output("Failed to find a factor in time");
-            Output("Final xi=",xi,", x2i=",x2i,", and Qi=",Qi);
-        }
-    }
-    return n;
-}
-
-// x_{i+1} := x_i^2 + a
-BigInt PollardRhoUnopt( const BigInt& n, Int a=1, Int gcdDelay=100 )
+// TODO: Add the ability to set a maximum number of iterations
+BigInt PollardRhoInner
+( const BigInt& n,
+  Int a=1,
+  const PollardRhoCtrl& ctrl=PollardRhoCtrl() )
 {
-    BigInt xi=2, x2i=2, Qi=1;
-    BigInt xiSave=xi, x2iSave=x2i;
-    Int k=1, i=1; // it is okay for i to overflow since it is just for printing
-    while( true )
-    {
-        // Advance xi once
-        xi = Mod( xi*xi + a, n );
-
-        // Advance x2i twice
-        x2i = Mod( x2i*x2i + a, n );
-        x2i = Mod( x2i*x2i + a, n );
-
-        // Advance Qi
-        Qi = Mod( Qi*(x2i-xi), n );
-
-        if( k >= gcdDelay )
-        {
-            BigInt gcd = GCD( Qi, n );
-            if( gcd > BigInt(1) )
-            {
-                // NOTE: This was not suggested by Pollard's original paper
-                if( gcd == n )
-                {
-                    if( gcdDelay == 1 )
-                    {
-                        Output("(x_n) converged before (x_n mod p) at i=",i);
-                        return gcd;
-                    }
-                    else
-                    {
-                        Output("Backtracking and setting gcdDelay=1 at i=",i);
-                        i = Max( i-(gcdDelay+1), 0 );
-                        gcdDelay = 1;
-                        xi = xiSave;
-                        x2i = x2iSave;
-                    }
-                }
-                else
-                {
-                    Output("Found factor ",gcd," at i=",i); 
-                    return gcd;
-                }
-            }
-
-            // NOTE: This was not suggested by Pollard's original paper
-            k = 0;
-            xiSave = xi;
-            x2iSave = x2i;
-            Qi = 1;
-        }
-        ++k;
-        ++i;
-    }
-}
-
-// TODO: Remove the direct mpz_gcd call without sacrificing performance
-BigInt PollardRhoOpt( const BigInt& n, Int a=1, Int gcdDelay=100 )
-{
+    if( a == 0 || a == -2 )
+        Output("WARNING: Problematic choice of Pollard rho shift");
     BigInt tmp, gcd;
     BigInt one(1);
 
-    BigInt xi=2, x2i=2, Qi=1;
+    auto xAdvance =
+      [&]( BigInt& x )
+      {
+        if( ctrl.numSteps == 1 )
+        {
+            // TODO: Determine if there is a penalty to x *= x
+            /*
+            tmp = x;
+            tmp *= x;
+            tmp += a;
+            x = tmp;
+            x %= n;
+            */
+            x *= x;
+            x += a;
+            x %= n;
+        }
+        else
+        {
+            PowMod( x, 2*ctrl.numSteps, n, x );
+            x += a;
+            x %= n;
+        }
+      };
+
+    auto QAdvance =
+      [&]( const BigInt& x, const BigInt& x2, BigInt& Q )
+      {
+        tmp = x2;
+        tmp -= x;
+        Q *= tmp;
+        Q %= n;
+      };
+
+    Int gcdDelay = ctrl.gcdDelay;
+    BigInt xi=ctrl.x0, x2i=ctrl.x0, Qi=1;
     BigInt xiSave=xi, x2iSave=x2i;
     Int k=1, i=1; // it is okay for i to overflow since it is just for printing
     while( true )
     {
         // Advance xi once
-        //xi = Mod( xi*xi + a, n );
-        tmp = xi;
-        tmp *= xi;
-        tmp += a;
-        xi = tmp;
-        xi %= n;
+        xAdvance( xi );
 
         // Advance x2i twice
-        //x2i = Mod( x2i*x2i + a, n );
-        tmp = x2i;
-        tmp *= x2i;
-        tmp += a;
-        x2i = tmp;
-        x2i %= n;
-        //x2i = Mod( x2i*x2i + a, n );
-        tmp = x2i;
-        tmp *= x2i;
-        tmp += a;
-        x2i = tmp;
-        x2i %= n;
+        xAdvance( x2i );
+        xAdvance( x2i );
 
         // Advance Qi
-        //Qi = Mod( Qi*(x2i-xi), n );
-        tmp = x2i;
-        tmp -= xi;
-        tmp *= Qi;
-        Qi = tmp;
-        Qi %= n;
+        QAdvance( xi, x2i, Qi );
 
         if( k >= gcdDelay )
         {
-            //BigInt gcd = GCD( Qi, n );
-            mpz_gcd( gcd.Pointer(), Qi.LockedPointer(), n.LockedPointer() );
+            GCD( Qi, n, gcd );
             if( gcd > one )
             {
                 // NOTE: This was not suggested by Pollard's original paper
@@ -181,12 +93,14 @@ BigInt PollardRhoOpt( const BigInt& n, Int a=1, Int gcdDelay=100 )
                 {
                     if( gcdDelay == 1 )
                     {
-                        Output("(x_n) converged before (x_n mod p) at i=",i);
+                        if( ctrl.progress )
+                            Output("(x) converged before (x mod p) at i=",i);
                         return gcd;
                     }
                     else
                     {
-                        Output("Backtracking and setting gcdDelay=1 at i=",i);
+                        if( ctrl.progress )
+                            Output("Backtracking at i=",i);
                         i = Max( i-(gcdDelay+1), 0 );
                         gcdDelay = 1;
                         xi = xiSave;
@@ -195,7 +109,8 @@ BigInt PollardRhoOpt( const BigInt& n, Int a=1, Int gcdDelay=100 )
                 }
                 else
                 {
-                    Output("Found factor ",gcd," at i=",i); 
+                    if( ctrl.progress )
+                        Output("Found factor ",gcd," at i=",i); 
                     return gcd;
                 }
             }
@@ -211,76 +126,68 @@ BigInt PollardRhoOpt( const BigInt& n, Int a=1, Int gcdDelay=100 )
     }
 }
 
-BigInt PollardRho( const BigInt& n, Int a=1, Int gcdDelay=100, bool opt=true )
-{
-    if( opt )
-        return PollardRhoOpt( n, a, gcdDelay );
-    else
-        return PollardRhoUnopt( n, a, gcdDelay );
-}
-
-vector<BigInt> PollardRhoFactors
+vector<BigInt> PollardRho
 ( const BigInt& n,
-  Int gcdDelay=100,
-  int numReps=20,
-  bool opt=true,
-  bool time=false )
+  const PollardRhoCtrl& ctrl=PollardRhoCtrl() )
 {
     vector<BigInt> factors;
     BigInt nRem = n;
 
     Timer timer;
+    PushIndent();
     while( true )
     {
         // Try Miller-Rabin first
-        if( time )
+        if( ctrl.time )
             timer.Start();
-        Primality primality = PrimalityTest( nRem, numReps );
+        Primality primality = PrimalityTest( nRem, ctrl.numReps );
         if( primality == PRIME )
         {
-            if( time )
+            if( ctrl.time )
                 Output(nRem," is prime (",timer.Stop()," seconds)");
-            else
+            else if( ctrl.progress )
                 Output(nRem," is prime");
             factors.push_back( nRem );       
             break;
         }
         else if( primality == PROBABLY_PRIME )
         {
-            if( time )
+            if( ctrl.time )
                 Output(nRem," is probably prime (",timer.Stop()," seconds)");
-            else
+            else if( ctrl.progress )
                 Output(nRem," is probably prime");
             factors.push_back( nRem );
             break;
         }
         else
         {
-            if( time )
+            if( ctrl.time )
                 Output(nRem," is composite (",timer.Stop()," seconds)");
-            else
+            else if( ctrl.progress )
                 Output(nRem," is composite");
         }
 
-        Output("Attempting to factor ",nRem," with a=1");
-        if( time )
+        if( ctrl.progress )
+            Output("Attempting to factor ",nRem," with a=",ctrl.a0);
+        if( ctrl.time )
             timer.Start();
         PushIndent();
-        BigInt factor = PollardRho( nRem, 1, gcdDelay, opt );
+        BigInt factor = PollardRhoInner( nRem, ctrl.a0, ctrl );
         PopIndent();
-        if( time )
-            Output("Pollard-rho: ",timer.Stop()," seconds");
+        if( ctrl.time )
+            Output("Pollard-rho (a=",ctrl.a0,"): ",timer.Stop()," seconds");
         if( factor == nRem )
         {
-            // Try again with a=-1
-            Output("Attempting to factor ",nRem," with a=-1");
-            if( time )
+            // Try again with a=ctrl.a1
+            if( ctrl.progress )
+                Output("Attempting to factor ",nRem," with a=",ctrl.a1);
+            if( ctrl.time )
                 timer.Start();
             PushIndent();
-            factor = PollardRho( nRem, -1, gcdDelay, opt );
+            factor = PollardRhoInner( nRem, ctrl.a1, ctrl );
             PopIndent();
-            if( time )
-                Output("Pollard-rho: ",timer.Stop()," seconds");
+            if( ctrl.time )
+                Output("Pollard-rho (a=",ctrl.a1,"): ",timer.Stop()," seconds");
             // TODO: Test for (unlikely) possibility of composite factor?
             factors.push_back( factor );
             if( factor == nRem )
@@ -294,16 +201,31 @@ vector<BigInt> PollardRhoFactors
             nRem /= factor;
         }
     }
+    PopIndent();
+    sort( factors.begin(), factors.end() );
     return factors;
 }
 
-// TODO: Unoptimized version
+struct PollardPMinusOneCtrl
+{
+    BigInt smoothness=BigInt(100000);
+    int numReps=30;
+    bool progress=false;
+    bool time=false;
+};
 
-BigInt PollardPMinusOneOpt( const BigInt& n, BigInt smoothness=100000 )
+// Pollard's p-1 can occasionally factor much larger numbers than the rho 
+// method but is much less reliable (and the ECM method is a generalization
+// which allows it to become more reliable)
+BigInt PollardPMinusOneInner
+( const BigInt& n,
+  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() )
 {
     const double twoLog = Log( 2 );
     const double nLog = Log( n );
     const BigInt zero(0), one(1);
+
+    BigInt smoothness = ctrl.smoothness;
     const BigInt smoothnessBound =
         Max( Pow(BigInt(10),BigInt(9)), smoothness*8 );
 
@@ -327,21 +249,17 @@ BigInt PollardPMinusOneOpt( const BigInt& n, BigInt smoothness=100000 )
             unsigned smallPrimeExponent = unsigned(nLog/Log(smallPrime));
             for( Int i=0; i<smallPrimeExponent; ++i )
             {
-                //a = PowMod( a, smallPrime, n );
-                mpz_powm
-                ( a.Pointer(),
-                  a.LockedPointer(),
-                  smallPrime.LockedPointer(),
-                  n.LockedPointer() );
+                // a = a^smallPrime (mod n)
+                PowMod( a, smallPrime, n, a );
             }
-            //smallPrime = NextPrime( smallPrime );
-            mpz_nextprime( smallPrime.Pointer(), smallPrime.LockedPointer() );
+            // Move smallPrime to the next higher prime
+            NextPrime( smallPrime, smallPrime );
         }
 
         // gcd := GCD( a-1, n )
         tmp = a; 
         tmp -= 1;
-        mpz_gcd( gcd.Pointer(), tmp.LockedPointer(), n.LockedPointer() );
+        GCD( tmp, n, gcd );
 
         if( separateOdd )
         { 
@@ -350,13 +268,13 @@ BigInt PollardPMinusOneOpt( const BigInt& n, BigInt smoothness=100000 )
             {
                 if( gcd > one && gcd < n )
                     break;
-                //a = PowMod( a, 2, n );
+                // a = a*a (mod n)
                 a *= a;
                 a %= n;
                 //gcd = GCD( a-1, n );
                 tmp = a;
                 tmp -= 1;
-                mpz_gcd( gcd.Pointer(), tmp.LockedPointer(), n.LockedPointer() );
+                GCD( tmp, n, gcd );
             }
         }
 
@@ -368,80 +286,73 @@ BigInt PollardPMinusOneOpt( const BigInt& n, BigInt smoothness=100000 )
                 return n;
             }
             smoothness *= 2;
-            Output("Increased smoothness to ",smoothness);
+            if( ctrl.progress )
+                Output("Increased smoothness to ",smoothness);
         }
         else if( gcd == n )
         {
             separateOdd = true;
-            Output("Separately checking powers of two");
+            if( ctrl.progress )
+                Output("Separately checking powers of two");
         }
         else
         {
-            Output("Found factor of ",gcd);
+            if( ctrl.progress )
+                Output("Found factor of ",gcd);
             return gcd;
         }
     }
 }
 
-// Pollard's p-1 can occasionally factor much larger numbers than the rho 
-// method but is much less reliable (and the ECM method is a generalization
-// which allows it to become more reliable)
-BigInt PollardPMinusOne
-( const BigInt& n, BigInt smoothness=100000, bool opt=true )
-{
-    return PollardPMinusOneOpt( n, smoothness );
-}
-
-vector<BigInt> PollardPMinusOneFactors
+vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-  BigInt smoothness=100000,
-  int numReps=20,
-  bool opt=true,
-  bool time=false )
+  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() )
 {
     vector<BigInt> factors;
     BigInt nRem = n;
 
     Timer timer;
+    PushIndent();
     while( true )
     {
         // Try Miller-Rabin first
-        if( time )
+        if( ctrl.time )
             timer.Start();
-        Primality primality = PrimalityTest( nRem, numReps );
+        Primality primality = PrimalityTest( nRem, ctrl.numReps );
         if( primality == PRIME )
         {
-            if( time )
+            if( ctrl.time )
                 Output(nRem," is prime (",timer.Stop()," seconds)");
-            else
+            else if( ctrl.progress )
                 Output(nRem," is prime");
             factors.push_back( nRem );       
             break;
         }
         else if( primality == PROBABLY_PRIME )
         {
-            if( time )
+            if( ctrl.time )
                 Output(nRem," is probably prime (",timer.Stop()," seconds)");
-            else
+            else if( ctrl.progress )
                 Output(nRem," is probably prime");
             factors.push_back( nRem );
             break;
         }
         else
         {
-            if( time )
+            if( ctrl.time )
                 Output(nRem," is composite (",timer.Stop()," seconds)");
-            else
+            else if( ctrl.progress )
                 Output(nRem," is composite");
         }
 
-        Output("Attempting to factor ",nRem);
-        if( time )
+        if( ctrl.progress )
+            Output("Attempting to factor ",nRem);
+        if( ctrl.time )
             timer.Start();
         PushIndent();
-        BigInt factor = PollardPMinusOne( nRem, smoothness, opt );
+        BigInt factor = PollardPMinusOneInner( nRem, ctrl );
         PopIndent();
-        if( time )
+        if( ctrl.time )
             Output("Pollard p-1: ",timer.Stop()," seconds");
 
         if( factor == nRem )
@@ -453,14 +364,15 @@ vector<BigInt> PollardPMinusOneFactors
         {
             // The factor might be composite, so attempt to factor it
             PushIndent();
-            auto subfactors =
-              PollardPMinusOneFactors( factor, smoothness, numReps, opt, time );
+            auto subfactors = PollardPMinusOne( factor, ctrl );
             PopIndent();
             for( auto subfactor : subfactors )
                 factors.push_back( subfactor );
             nRem /= factor;
         }
     }
+    PopIndent();
+    sort( factors.begin(), factors.end() );
     return factors;
 }
 #endif
@@ -473,10 +385,13 @@ int main( int argc, char* argv[] )
     try
     {
         const int minIntBits = Input("--minIntBits","integer bits",384);
+        const unsigned long numSteps =
+          Input("--numSteps","x^2k + a in Pollard rho",1u);
+        const BigInt x0 = Input("--x0","x0 in Pollard rho",BigInt(2));
         const Int gcdDelay =
           Input("--gcdDelay","GCD delay in Pollard's rho",100);
-        const int numReps = Input("--numReps","num Miller-Rabin reps,",20);
-        const bool opt = Input("--opt","optimized allocations?",true);
+        const int numReps = Input("--numReps","num Miller-Rabin reps,",30);
+        const bool progress = Input("--progress","factor progress?",true);
         const bool time = Input("--time","time Pollard rho steps?",true);
         const bool largeRho =
           Input("--largeRho","reproduce Pollard and Brent's result?",false);
@@ -487,30 +402,55 @@ int main( int argc, char* argv[] )
 
         mpc::SetMinIntBits( minIntBits );
 
+        PollardRhoCtrl rhoCtrl;
+        rhoCtrl.numSteps = numSteps;
+        rhoCtrl.x0 = x0;
+        rhoCtrl.gcdDelay = gcdDelay;
+        rhoCtrl.numReps = numReps;
+        rhoCtrl.progress = progress;
+        rhoCtrl.time = time;
+
+        PollardPMinusOneCtrl pm1Ctrl;
+        pm1Ctrl.numReps = numReps;
+        pm1Ctrl.progress = progress;
+        pm1Ctrl.time = time;
+
         // n = 2^77 - 3
         // We should find (1291,99432527,1177212722617) 
         BigInt n = Pow(BigInt(2),unsigned(77)) - 3;
         Output("n=2^77-3=",n);
-        auto factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
+        auto factors = PollardRho( n, rhoCtrl );
+        Output("factors:");
+        for( auto factor : factors )
+            Output("  ",factor); 
         Output("");
 
         // n = 2^79 - 3
         // We should find (5,3414023,146481287,241741417)
         n = Pow(BigInt(2),unsigned(79)) - 3;
         Output("n=2^79-3=",n);
-        factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
+        factors = PollardRho( n, rhoCtrl );
+        Output("factors:");
+        for( auto factor : factors )
+            Output("  ",factor); 
         Output("");
 
         // n = 2^97 - 3
         n = Pow(BigInt(2),unsigned(97)) - 3;
         Output("n=2^97-3=",n);
-        factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
+        factors = PollardRho( n, rhoCtrl );
+        Output("factors:");
+        for( auto factor : factors )
+            Output("  ",factor); 
         Output("");
 
         // n = 3^100 + 2 
         n = Pow(BigInt(3),unsigned(100)) + 2;
         Output("n=3^100+2=",n);
-        factors = PollardRhoFactors( n, gcdDelay, numReps, opt, time );
+        factors = PollardRho( n, rhoCtrl );
+        Output("factors:");
+        for( auto factor : factors )
+            Output("  ",factor); 
         Output("");
 
         if( largeRho )
@@ -522,8 +462,25 @@ int main( int argc, char* argv[] )
             mpc::SetMinIntBits( 1024 );
             BigInt z = Pow(BigInt(2),Pow(BigInt(2),BigInt(8))) + 1; 
             Output("z=2^(2^8)+1=",z); 
-            factors = PollardRhoFactors( z, gcdDelay, numReps, opt, time );
+            factors = PollardRho( z, rhoCtrl );
+            Output("factors:");
+            for( auto factor : factors )
+                Output("  ",factor); 
             Output("");
+
+            if( numSteps != 512u )
+            {
+                // Try again with numSteps=512 and x0=3
+                Output("Factoring z=2^(2^8)+1 again with numSteps=512");
+                auto rhoCtrlMod = rhoCtrl;
+                rhoCtrlMod.numSteps = 512u;
+                rhoCtrlMod.x0 = BigInt(3);
+                factors = PollardRho( z, rhoCtrlMod );
+                Output("factors:");
+                for( auto factor : factors )
+                    Output("  ",factor); 
+                Output("");
+            }
         }
 
         if( heroicPMinusOne )
@@ -535,10 +492,12 @@ int main( int argc, char* argv[] )
             //           2456044907*9909876848747
             mpc::SetMinIntBits( 8192 );
             BigInt z = Pow(BigInt(2),BigInt(2098)) + 1;
-            BigInt smoothness = Pow(BigInt(10),BigInt(13));
+            pm1Ctrl.smoothness = Pow(BigInt(10),BigInt(13));
             Output("z=2^2098+1=",z);
-            factors =
-              PollardPMinusOneFactors( z, smoothness, numReps, opt, time );
+            factors = PollardPMinusOne( z, pm1Ctrl );
+            Output("factors:");
+            for( auto factor : factors )
+                Output("  ",factor); 
         }
     }
     catch( std::exception& e ) { ReportException(e); }

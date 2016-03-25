@@ -271,11 +271,48 @@ inline Int GCD_( Int a, Int b ) EL_NO_EXCEPT
 }
 
 #ifdef EL_HAVE_MPC
+inline void GCD( const BigInt& a, const BigInt& b, BigInt& gcd )
+{
+    mpz_gcd( gcd.Pointer(), a.LockedPointer(), b.LockedPointer() );
+}
+
 inline BigInt GCD( const BigInt& a, const BigInt& b )
 {
-    BigInt d;
-    mpz_gcd( d.Pointer(), a.LockedPointer(), b.LockedPointer() );
-    return d;
+    BigInt gcd;
+    GCD( a, b, gcd );
+    return gcd;
+}
+
+inline void ExtendedGCD
+( const BigInt& a, const BigInt& b, BigInt& gcd, BigInt& s, BigInt& t )
+{
+    mpz_gcdext
+    ( gcd.Pointer(), s.Pointer(), t.Pointer(),
+      a.LockedPointer(), b.LockedPointer() );
+}
+
+inline void LCM( const BigInt& a, const BigInt& b, BigInt& lcm )
+{
+    mpz_lcm( lcm.Pointer(), a.LockedPointer(), b.LockedPointer() );
+}
+
+inline BigInt LCM( const BigInt& a, const BigInt& b )
+{
+    BigInt lcm;
+    LCM( a, b, lcm );
+    return lcm;
+}
+
+inline void InvertMod( const BigInt& a, const BigInt& n, BigInt& aInv )
+{
+    mpz_invert( aInv.Pointer(), a.LockedPointer(), n.LockedPointer() );
+}
+
+inline BigInt InvertMod( const BigInt& a, const BigInt& n )
+{
+    BigInt aInv;
+    InvertMod( a, n, aInv );
+    return aInv;
 }
 #endif
 
@@ -291,16 +328,50 @@ inline Unsigned FlooredLog2( Unsigned n )
 }
 
 #ifdef EL_HAVE_MPC
-inline BigInt PowMod
-( const BigInt& base, const BigInt& exp, const BigInt& mod )
+inline void PowMod
+( const BigInt& base,
+  const BigInt& exp,
+  const BigInt& mod,
+        BigInt& result )
 {
-    BigInt powMod;
     mpz_powm
-    ( powMod.Pointer(),
+    ( result.Pointer(),
       base.LockedPointer(),
       exp.LockedPointer(),
       mod.LockedPointer() );
-    return powMod;
+}
+
+inline BigInt PowMod
+( const BigInt& base,
+  const BigInt& exp,
+  const BigInt& mod )
+{
+    BigInt result;
+    PowMod( base, exp, mod, result );
+    return result;
+}
+
+inline void PowMod
+( const BigInt& base,
+        unsigned long exp,
+  const BigInt& mod,
+        BigInt& result )
+{
+    mpz_powm_ui
+    ( result.Pointer(),
+      base.LockedPointer(),
+      exp,
+      mod.LockedPointer() );
+}
+
+inline BigInt PowMod
+( const BigInt& base,
+        unsigned long exp,
+  const BigInt& mod )
+{
+    BigInt result;
+    PowMod( base, exp, mod, result );
+    return result;
 }
 
 inline Primality PrimalityTest( const BigInt& n, int numReps )
@@ -314,10 +385,15 @@ inline Primality PrimalityTest( const BigInt& n, int numReps )
         return COMPOSITE;
 }
 
+inline void NextPrime( const BigInt& n, BigInt& nextPrime )
+{
+    mpz_nextprime( nextPrime.Pointer(), n.LockedPointer() );
+}
+
 inline BigInt NextPrime( const BigInt& n )
 {
     BigInt nextPrime;
-    mpz_nextprime( nextPrime.Pointer(), n.LockedPointer() );
+    NextPrime( n, nextPrime ); 
     return nextPrime;
 }
 #endif
