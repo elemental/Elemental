@@ -90,6 +90,11 @@ public:
     BigInt& operator-=( const unsigned long& a );
     BigInt& operator-=( const BigInt& a );
 
+    BigInt& operator++();
+    BigInt  operator++(int);
+    BigInt& operator--();
+    BigInt  operator--(int);
+
     BigInt& operator*=( const int& a );
     BigInt& operator*=( const long int& a );
     BigInt& operator*=( const unsigned& a );
@@ -316,6 +321,11 @@ public:
     BigFloat& operator-=( const double& a );
     BigFloat& operator-=( const BigInt& a );
     BigFloat& operator-=( const BigFloat& a );
+
+    BigFloat& operator++();
+    BigFloat  operator++(int);
+    BigFloat& operator--();
+    BigFloat  operator--(int);
 
     BigFloat& operator*=( const unsigned& a );
     BigFloat& operator*=( const unsigned long& a );

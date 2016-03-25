@@ -327,6 +327,36 @@ inline Unsigned FlooredLog2( Unsigned n )
     return result;
 }
 
+template<typename T,typename>
+void SqrtRem( const T& alpha, T& alphaSqrt, T& remainder )
+{
+    alphaSqrt = Sqrt( alpha );
+    remainder = alpha-alphaSqrt*alphaSqrt;
+}
+#ifdef EL_HAVE_MPC
+template<>
+inline void SqrtRem( const BigInt& alpha, BigInt& alphaSqrt, BigInt& remainder )
+{
+    mpz_sqrtrem
+    ( alphaSqrt.Pointer(), remainder.Pointer(), alpha.LockedPointer() );
+}
+#endif
+
+template<typename T,typename>
+bool IsPerfectSquare( const T& alpha )
+{ 
+    T alphaSqrt = Sqrt( alpha );
+    return alpha == alphaSqrt*alphaSqrt;
+}
+#ifdef EL_HAVE_MPC
+template<>
+inline bool IsPerfectSquare( const BigInt& alpha )
+{
+    int result = mpz_perfect_square_p( alpha.LockedPointer() );
+    return result != 0;
+}
+#endif
+
 #ifdef EL_HAVE_MPC
 inline void PowMod
 ( const BigInt& base,

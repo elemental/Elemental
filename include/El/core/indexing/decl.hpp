@@ -84,6 +84,19 @@ BigInt InvertMod( const BigInt& a, const BigInt& n );
 void InvertMod( const BigInt& a, const BigInt& n, BigInt& aInv );
 #endif
 
+template<typename T,typename=EnableIf<IsIntegral<T>>>
+void SqrtRem( const T& alpha, T& alphaSqrt, T& remainder );
+#ifdef EL_HAVE_MPC
+template<> void SqrtRem
+( const BigInt& alpha, BigInt& alphaSqrt, BigInt& remainder );
+#endif
+
+template<typename T,typename=EnableIf<IsIntegral<T>>>
+bool IsPerfectSquare( const T& alpha );
+#ifdef EL_HAVE_MPC
+template<> bool IsPerfectSquare( const BigInt& alpha );
+#endif
+
 Unsigned FlooredLog2( Unsigned n );
 bool PowerOfTwo( Unsigned n );
 
@@ -120,7 +133,7 @@ enum Primality
 #ifdef EL_HAVE_MPC
 // Use a combination of trial divisions and Miller-Rabin 
 // (with numReps representatives) to test for primality
-Primality PrimalityTest( const BigInt& n, int numReps=20 );
+Primality PrimalityTest( const BigInt& n, int numReps=30 );
 
 // Return the first prime greater than n (with high likelihood)
 BigInt NextPrime( const BigInt& n );

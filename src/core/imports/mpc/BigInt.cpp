@@ -302,6 +302,32 @@ BigInt& BigInt::operator-=( const BigInt& a )
     return *this;
 }
 
+BigInt& BigInt::operator++()
+{
+    *this += 1;
+    return *this;
+}
+
+BigInt BigInt::operator++(int)
+{
+    BigInt result(*this);
+    ++(*this);
+    return result;
+}
+
+BigInt& BigInt::operator--()
+{
+    *this -= 1;
+    return *this;
+}
+
+BigInt BigInt::operator--(int)
+{
+    BigInt result(*this);
+    --(*this); 
+    return result;
+}
+
 BigInt& BigInt::operator*=( const int& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator*= [int]"))

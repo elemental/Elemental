@@ -9,18 +9,20 @@
 #ifndef EL_HPP
 #define EL_HPP
 
-#include "El/config.h"
+#include <El/config.h>
 
-#include "El/core.hpp"
-#include "El/blas_like.hpp"
+#include <El/core.hpp>
+#include <El/blas_like.hpp>
 
-#include "El/lapack_like.hpp"
-#include "El/optimization.hpp"
-#include "El/control.hpp"
-#include "El/lattice.hpp"
+#include <El/lapack_like.hpp>
+#include <El/optimization.hpp>
+#include <El/control.hpp>
+#include <El/lattice.hpp>
 
-#include "El/matrices.hpp"
+#include <El/matrices.hpp>
 
-#include "El/io.hpp"
+#include <El/number_theory.hpp>
+
+#include <El/io.hpp>
 
 #endif // ifndef EL_HPP

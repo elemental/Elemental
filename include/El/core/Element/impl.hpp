@@ -239,6 +239,9 @@ double Log10( const Integer& alpha )
 template<typename F,typename>
 F Sqrt( const F& alpha ) { return std::sqrt(alpha); }
 
+template<typename F,typename>
+void Sqrt( const F& alpha, F& alphaSqrt ) { alphaSqrt = Sqrt(alpha); }
+
 // Trigonometric
 // =============
 template<typename F,typename>

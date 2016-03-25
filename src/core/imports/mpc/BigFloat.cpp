@@ -483,6 +483,32 @@ BigFloat& BigFloat::operator-=( const BigFloat& a )
     return *this;
 }
 
+BigFloat& BigFloat::operator++()
+{
+    *this += 1;
+    return *this;
+}
+
+BigFloat BigFloat::operator++(int)
+{
+    BigFloat result(*this);
+    ++(*this);
+    return result;
+}
+
+BigFloat& BigFloat::operator--()
+{
+    *this -= 1;
+    return *this;
+}
+
+BigFloat BigFloat::operator--(int)
+{
+    BigFloat result(*this);
+    --(*this);
+    return result;
+}
+
 BigFloat& BigFloat::operator*=( const unsigned& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator*= [unsigned]"))

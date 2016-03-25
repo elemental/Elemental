@@ -446,7 +446,8 @@ BigFloat Log10( const BigFloat& alpha )
 }
 #endif
 
-double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
+template<>
+Int Sqrt( const Int& alpha ) { return Int(sqrt(alpha)); }
 
 #ifdef EL_HAVE_QD
 template<>
@@ -474,12 +475,31 @@ Complex<Quad> Sqrt( const Complex<Quad>& alphaPre )
 
 #ifdef EL_HAVE_MPC
 template<>
+void Sqrt( const BigInt& alpha, BigInt& alphaSqrt )
+{ mpz_sqrt( alphaSqrt.Pointer(), alpha.LockedPointer() ); }
+
+template<>
+void Sqrt( const BigFloat& alpha, BigFloat& alphaSqrt )
+{
+    mpfr_sqrt
+    ( alphaSqrt.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+}
+
+template<>
+BigInt Sqrt( const BigInt& alpha )
+{
+    BigInt alphaSqrt;
+    Sqrt( alpha, alphaSqrt );
+    return alphaSqrt;
+}
+
+template<>
 BigFloat Sqrt( const BigFloat& alpha )
 {
-    BigFloat beta;
-    beta.SetPrecision( alpha.Precision() );
-    mpfr_sqrt( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
-    return beta;
+    BigFloat alphaSqrt;
+    alphaSqrt.SetPrecision( alpha.Precision() );
+    Sqrt( alpha, alphaSqrt );
+    return alphaSqrt;
 }
 #endif
 

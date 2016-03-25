@@ -509,8 +509,12 @@ double Log10( const Integer& alpha );
 template<> double Log10( const BigInt& alpha );
 #endif
 
+// Contrary to the STL, we do not define the square-root of an integral argument
+// to be a double-precision result because, for example, the square-root of
+// a BigInt may not be representable as a double even if the result is integer
 template<typename F,typename=EnableIf<IsScalar<F>>>
 F Sqrt( const F& alpha );
+template<> Int Sqrt( const Int& alpha );
 #ifdef EL_HAVE_QD
 template<> DoubleDouble Sqrt( const DoubleDouble& alpha );
 template<> QuadDouble Sqrt( const QuadDouble& alpha );
@@ -520,7 +524,16 @@ template<> Quad Sqrt( const Quad& alpha );
 template<> Complex<Quad> Sqrt( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
+template<> BigInt Sqrt( const BigInt& alpha );
 template<> BigFloat Sqrt( const BigFloat& alpha );
+#endif
+
+// Versions which avoid temporaries if necessary
+template<typename F,typename=EnableIf<IsScalar<F>>>
+void Sqrt( const F& alpha, F& sqrtAlpha );
+#ifdef EL_HAVE_MPC
+template<> void Sqrt( const BigInt& alpha, BigInt& sqrtAlpha );
+template<> void Sqrt( const BigFloat& alpha, BigFloat& sqrtAlpha );
 #endif
 
 // Trigonometric functions
