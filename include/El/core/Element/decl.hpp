@@ -276,10 +276,21 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real RealPart( const Real& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real RealPart( const Complex<Real>& alpha ) EL_NO_EXCEPT;
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void RealPart( const Real& alpha, Real& alphaReal ) EL_NO_EXCEPT;
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void RealPart( const Complex<Real>& alpha, Real& alphaReal ) EL_NO_EXCEPT;
+
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real ImagPart( const Real& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real ImagPart( const Complex<Real>& alpha ) EL_NO_EXCEPT;
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void ImagPart( const Real& alpha, Real& alphaImag ) EL_NO_EXCEPT;
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void ImagPart( const Complex<Real>& alpha, Real& alphaImag ) EL_NO_EXCEPT;
 
 template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 struct Caster {

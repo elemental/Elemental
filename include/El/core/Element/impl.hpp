@@ -72,11 +72,25 @@ Real RealPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.real(); }
 
 template<typename Real,typename>
+void RealPart( const Real& alpha, Real& alphaReal ) EL_NO_EXCEPT
+{ alphaReal = alpha; }
+template<typename Real,typename>
+void RealPart( const Complex<Real>& alpha, Real& alphaReal ) EL_NO_EXCEPT
+{ alphaReal = alpha.real(); }
+
+template<typename Real,typename>
 Real ImagPart( const Real& alpha ) EL_NO_EXCEPT
 { return 0; }
 template<typename Real,typename>
 Real ImagPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.imag(); }
+
+template<typename Real,typename>
+void ImagPart( const Real& alpha, Real& alphaImag ) EL_NO_EXCEPT
+{ alphaImag = 0; }
+template<typename Real,typename>
+void ImagPart( const Complex<Real>& alpha, Real& alphaImag ) EL_NO_EXCEPT
+{ alphaImag = alpha.imag(); }
 
 // Set the real/imaginary part of an element
 // -----------------------------------------
