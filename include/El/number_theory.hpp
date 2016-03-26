@@ -12,6 +12,7 @@
 namespace El {
 
 #ifdef EL_HAVE_MPC
+
 namespace factor {
 
 struct PollardRhoCtrl
@@ -62,17 +63,41 @@ BigInt FindFactor
 } // namespace factor
 
 bool IsPrimitiveRoot
-( const BigInt& p,
-  const BigInt& primitive,
-  const vector<BigInt>& pm1Factors );
+( const BigInt& primitive,
+  const BigInt& p,
+  const vector<BigInt>& pm1Factors,
+        bool progress=false );
 bool IsPrimitiveRoot
-( const BigInt& p,
-  const BigInt& primitive,
+( const BigInt& primitive,
+  const BigInt& p,
+        bool progress=false,
   const factor::PollardRhoCtrl& ctrl=factor::PollardRhoCtrl() );
 
 // Return a primitive root of a prime number p
 BigInt PrimitiveRoot( const BigInt& p, int numReps=30 );
 void PrimitiveRoot( const BigInt& p, BigInt& primitive, int numReps=30 );
+
+namespace dlog {
+
+struct PollardRhoCtrl
+{
+    BigInt a0=0;
+    BigInt b0=0;
+    bool demandPrimitive=true;
+    factor::PollardRhoCtrl factorCtrl;
+
+    bool progress=false;
+    bool time=false;
+};
+
+// Return k such that r^k = q (mod p)
+BigInt PollardRho
+( const BigInt& q,
+  const BigInt& r,
+  const BigInt& p,
+  const PollardRhoCtrl& ctrl=PollardRhoCtrl() );
+
+} // namespace dlog
 
 #endif // ifdef EL_HAVE_MPC
 
@@ -81,5 +106,6 @@ void PrimitiveRoot( const BigInt& p, BigInt& primitive, int numReps=30 );
 #include <El/number_theory/factor/PollardRho.hpp>
 #include <El/number_theory/factor/PollardPMinusOne.hpp>
 #include <El/number_theory/PrimitiveRoot.hpp>
+#include <El/number_theory/dlog/PollardRho.hpp>
 
 #endif // ifndef EL_NUMBER_THEORY_HPP

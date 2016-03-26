@@ -63,8 +63,10 @@ inline BigInt FindFactor
       };
 
     Int gcdDelay = ctrl.gcdDelay;
-    BigInt xi=ctrl.x0, x2i=ctrl.x0, Qi=1;
+    BigInt xi=ctrl.x0;
+    BigInt x2i(xi);
     BigInt xiSave=xi, x2iSave=x2i;
+    BigInt Qi(1);
     Int k=1, i=1; // it is okay for i to overflow since it is just for printing
     while( true )
     {

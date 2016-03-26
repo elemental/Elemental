@@ -14,11 +14,12 @@ namespace El {
 #ifdef EL_HAVE_MPC
 
 inline bool IsPrimitiveRoot
-( const BigInt& p,
-  const BigInt& primitive,
-  const vector<BigInt>& pm1Factors )
+( const BigInt& primitive,
+  const BigInt& p,
+  const vector<BigInt>& pm1Factors,
+        bool progress )
 {
-    BigInt one(1), two(2), negOne(-1);
+    BigInt one(1), two(2);
     BigInt primMod(primitive);
     primMod %= p;
 
@@ -46,8 +47,12 @@ inline bool IsPrimitiveRoot
         exponent = pm1;
         exponent /= pm1Factors[i];
         PowMod( primMod, exponent, p, primModPower ); 
-        if( primModPower != negOne )
+        if( primModPower == one )
         {
+            if( progress )
+                Output
+                ("Primitive test failed for ",
+                 primMod,"^",exponent," = ",primModPower," (mod ",p,")");
             return false;
         }
     }
@@ -55,8 +60,9 @@ inline bool IsPrimitiveRoot
 }
 
 inline bool IsPrimitiveRoot
-( const BigInt& p,
-  const BigInt& primitive,
+( const BigInt& primitive,
+  const BigInt& p,
+        bool progress,
   const factor::PollardRhoCtrl& ctrl )
 {
     BigInt primMod(primitive);
@@ -72,7 +78,7 @@ inline bool IsPrimitiveRoot
     BigInt pm1(p);
     pm1 -= 1;
     auto pm1Factors = factor::PollardRho( pm1, ctrl );
-    return IsPrimitiveRoot( p, primMod, pm1Factors );
+    return IsPrimitiveRoot( primMod, p, pm1Factors, progress );
 }
 
 inline void PrimitiveRoot
@@ -103,7 +109,7 @@ inline void PrimitiveRoot
     // TODO: Consider inlining IsPrimitiveRoot to avoid temporary allocations
     for( BigInt a=2; a<=pm1; ++a )
     {
-        if( IsPrimitiveRoot( p, a, factors ) )
+        if( IsPrimitiveRoot( a, p, factors ) )
         {
             primitive = a;
             return;
