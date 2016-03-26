@@ -71,8 +71,6 @@ inline BigInt PollardRho
     }
     
     BigInt a2i(ai), b2i(bi), x2i(xi);
-    BigInt m, n, d, lambda, mu, k, exponent, theta, thetaExp, thetaPow, Q;
-    BigInt one(1);
     Int i=1; // it is okay for i to overflow since it is just for printing
     while( true )
     {
@@ -88,14 +86,15 @@ inline BigInt PollardRho
             if( ctrl.progress )
                 Output("Detected cycle at iteration ",i);
 
-            m = ai;
+            BigInt m(ai);
             m -= a2i;
             m %= pm1;
 
-            n = b2i;
+            BigInt n(b2i);
             n -= bi;
             n %= pm1;
 
+            BigInt d, lambda, mu;
             ExtendedGCD( m, pm1, d, lambda, mu );
             if( ctrl.progress )
                 Output("GCD(",m,",",pm1,")=",d);
@@ -103,32 +102,55 @@ inline BigInt PollardRho
             // Solve for k in lambda*n = d*k.
             // Note that such a relationship of r^(lambda*n) = r^(d*k)
             // need not exist if r does not generate q.
-            k = lambda;
+            BigInt k(lambda);
             k *= n;
             k /= d;
             k %= pm1; // TODO: Decide if this mod is necessary
 
             // Q := q r^{-k}
-            PowMod( r, -k, p, Q );
+            BigInt Q = PowMod( r, -k, p );
             Q *= q;
             Q %= p;
 
             // theta := pow( r, (p-1)/d ) 
-            exponent = pm1;
+            BigInt exponent(pm1);
             exponent /= d;
-            PowMod( r, exponent, p, theta );
+            BigInt theta = PowMod( r, exponent, p );
 
             // Test theta^i = Q for each i
-            thetaPow = theta;
-            for( thetaExp=0; thetaExp<d; ++thetaExp )
+            // (Also test theta^i = -Q, which implies theta^{i+d/2} = Q
+            //  if r was a primitive root)
+            BigInt thetaPow(theta);
+            BigInt one(1);
+            BigInt negQ(Q);
+            negQ *= -1;
+            negQ %= p;
+            for( BigInt thetaExp=0; thetaExp<d; ++thetaExp )
             {
-                if( Q == thetaPow )
+                if( thetaPow == Q )
                 {
                     BigInt discLog = k + thetaExp*exponent;
                     if( ctrl.progress )
                         Output("Returning ",discLog," at thetaExp=",thetaExp);
                     return discLog;
                 }
+                else if( thetaPow == negQ )
+                {
+                    BigInt dHalf(d);
+                    dHalf /= 2;
+                    BigInt theta_dHalf = PowMod( theta, dHalf, p );
+                    if( Mod(thetaPow*theta_dHalf,p) == Q )
+                    {
+                        BigInt discLog = k + (thetaExp+dHalf)*exponent;
+                        if( ctrl.progress )
+                            Output
+                            ("Took -Q shortcut at thetaExp=",thetaExp,
+                             " and found discLog=",discLog);
+                        return discLog; 
+                    }
+                    else if( ctrl.progress )
+                        Output("-Q shortcut failed at thetaExp=",thetaExp);
+                } 
                 if( thetaPow == one )
                 {
                     LogicError
@@ -141,8 +163,6 @@ inline BigInt PollardRho
             }
 
             LogicError("This should not be possible");
-            // This should never occur and is to prevent compiler warnings
-            return BigInt(-1);
         }
         ++i;
     }

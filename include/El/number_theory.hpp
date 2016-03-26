@@ -83,6 +83,7 @@ struct PollardRhoCtrl
 {
     BigInt a0=0;
     BigInt b0=0;
+    bool multistage=true;
     factor::PollardRhoCtrl factorCtrl;
 
     bool progress=false;
