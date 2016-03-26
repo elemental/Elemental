@@ -61,6 +61,7 @@ template<> std::string TypeName<Quad>();
 template<> std::string TypeName<Complex<Quad>>();
 #endif
 #ifdef EL_HAVE_MPC
+template<> std::string TypeName<BigInt>();
 template<> std::string TypeName<BigFloat>();
 #endif
 

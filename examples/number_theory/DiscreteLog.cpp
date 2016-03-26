@@ -41,6 +41,7 @@ int main( int argc, char* argv[] )
         // p=999959, q=3, r=7
         // We should find an index of 178162
         BigInt q(3), r(7), p(999959);
+        Output("Computing discrete log of ",q," w.r.t. ",r," mod ",p);
         BigInt index = dlog::PollardRho( q, r, p, rhoCtrl );
         Output("index: ",index);
         Output("");
@@ -50,9 +51,18 @@ int main( int argc, char* argv[] )
         p = 99989;
         q = 107;
         r = 2;
+        Output("Computing discrete log of ",q," w.r.t. ",r," mod ",p);
         index = dlog::PollardRho( q, r, p, rhoCtrl );
         Output("index: ",index);
         Output("");
+
+        // Try an impossible problem: 3^x = 4 (mod 13)
+        p = 13;
+        q = 4;
+        r = 3;
+        Output("Computing discrete log of ",q," w.r.t. ",r," mod ",p);
+        try { index = dlog::PollardRho( q, r, p, rhoCtrl ); }
+        catch( std::exception& e ) { Output("exception: ",e.what()); }
     }
     catch( std::exception& e ) { ReportException(e); }
 #endif

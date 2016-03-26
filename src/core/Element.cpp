@@ -73,6 +73,9 @@ string TypeName<Complex<Quad>>()
 #endif
 #ifdef EL_HAVE_MPC
 template<>
+string TypeName<BigInt>()
+{ return string("BigInt"); }
+template<>
 string TypeName<BigFloat>()
 { return string("BigFloat"); }
 #endif

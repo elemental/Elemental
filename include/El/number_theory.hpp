@@ -83,7 +83,6 @@ struct PollardRhoCtrl
 {
     BigInt a0=0;
     BigInt b0=0;
-    bool demandPrimitive=true;
     factor::PollardRhoCtrl factorCtrl;
 
     bool progress=false;

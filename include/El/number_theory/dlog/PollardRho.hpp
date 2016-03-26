@@ -32,14 +32,6 @@ inline BigInt PollardRho
     pTwoThirds *= 2;
     pTwoThirds /= 3;
 
-    if( ctrl.demandPrimitive )
-    {
-        bool rIsPrimitive =
-          IsPrimitiveRoot( r, p, ctrl.progress, ctrl.factorCtrl );
-        if( !rIsPrimitive )
-            LogicError(r," was not a primitive root of ",p);
-    }
-
     auto xAdvance =
       [&]( BigInt& x, BigInt& a, BigInt& b )
       {
@@ -79,7 +71,8 @@ inline BigInt PollardRho
     }
     
     BigInt a2i(ai), b2i(bi), x2i(xi);
-    BigInt m, n, d, lambda, mu, k, exponent, theta, thetaExp, candidate;
+    BigInt m, n, d, lambda, mu, k, exponent, theta, thetaExp, thetaPow, Q;
+    BigInt one(1);
     Int i=1; // it is okay for i to overflow since it is just for printing
     while( true )
     {
@@ -107,37 +100,53 @@ inline BigInt PollardRho
             if( ctrl.progress )
                 Output("GCD(",m,",",pm1,")=",d);
 
-            // Solve for k in lambda*n = d*k
+            // Solve for k in lambda*n = d*k.
+            // Note that such a relationship of r^(lambda*n) = r^(d*k)
+            // need not exist if r does not generate q.
             k = lambda;
             k *= n;
             k /= d;
             k %= pm1; // TODO: Decide if this mod is necessary
+
+            // Q := q r^{-k}
+            PowMod( r, -k, p, Q );
+            Q *= q;
+            Q %= p;
 
             // theta := pow( r, (p-1)/d ) 
             exponent = pm1;
             exponent /= d;
             PowMod( r, exponent, p, theta );
 
-            // candidate := r^k
-            PowMod( r, k, p, candidate );
-
-            // Try each power of theta
+            // Test theta^i = Q for each i
+            thetaPow = theta;
             for( thetaExp=0; thetaExp<d; ++thetaExp )
             {
-                if( candidate == q )
+                if( Q == thetaPow )
                 {
                     BigInt discLog = k + thetaExp*exponent;
                     if( ctrl.progress )
                         Output("Returning ",discLog," at thetaExp=",thetaExp);
                     return discLog;
                 }
-                candidate *= theta;
-                candidate %= p;
+                if( thetaPow == one )
+                {
+                    LogicError
+                    ("theta=r^(",pm1,"/",d,")=",theta,
+                     " was a degenerate ",d,"'th root, as theta^",
+                     thetaExp,"=1, and r does not generate q");
+                }
+                thetaPow *= theta;
+                thetaPow %= p;
             }
-            LogicError("No power of theta yielded q = r^k theta^i (mod p)");
+
+            LogicError("This should not be possible");
+            // This should never occur and is to prevent compiler warnings
+            return BigInt(-1);
         }
         ++i;
     }
+
     // This should never occur and is to prevent compiler warnings
     return BigInt(-1);
 }
