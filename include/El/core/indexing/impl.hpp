@@ -426,7 +426,12 @@ inline BigInt NextPrime( const BigInt& n )
     NextPrime( n, nextPrime ); 
     return nextPrime;
 }
-#endif
+
+inline int LegendreSymbol( const BigInt& n, const BigInt& p )
+{
+    return mpz_legendre( n.LockedPointer(), p.LockedPointer() );
+}
+#endif // ifdef EL_HAVE_MPC
 
 } // namespace El
 

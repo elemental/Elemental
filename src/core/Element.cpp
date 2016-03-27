@@ -298,40 +298,131 @@ Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Quad& betaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
+void Pow( const BigInt& alpha, const BigInt& beta, BigInt& gamma )
+{
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), (unsigned long)(beta) );
+}
+
+void Pow( const BigInt& alpha, const unsigned& beta, BigInt& gamma )
+{
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+}
+
+void Pow( const BigInt& alpha, const unsigned long& beta, BigInt& gamma )
+{
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+}
+
 template<>
 BigInt Pow( const BigInt& alpha, const BigInt& beta )
 {
     BigInt gamma;
-    gamma.SetMinBits( alpha.NumBits() );
-    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), (unsigned long)(beta) );
+    Pow( alpha, beta, gamma );
     return gamma;
 }
 
 BigInt Pow( const BigInt& alpha, const unsigned& beta )
 {
     BigInt gamma;
-    gamma.SetMinBits( alpha.NumBits() );
-    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    Pow( alpha, beta, gamma );
     return gamma;
 }
 
 BigInt Pow( const BigInt& alpha, const unsigned long& beta )
 {
     BigInt gamma;
-    gamma.SetMinBits( alpha.NumBits() );
-    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    Pow( alpha, beta, gamma );
     return gamma;
+}
+
+void Pow( const BigFloat& alpha, const BigFloat& beta, BigFloat& gamma )
+{
+    mpfr_pow
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta.LockedPointer(), mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const unsigned& beta, BigFloat& gamma )
+{
+    mpfr_pow_ui
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const unsigned long& beta, BigFloat& gamma )
+{
+    mpfr_pow_ui
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const int& beta, BigFloat& gamma )
+{
+    mpfr_pow_si
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const long int& beta, BigFloat& gamma )
+{
+    mpfr_pow_si
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const BigInt& beta, BigFloat& gamma )
+{
+    mpfr_pow_z
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta.LockedPointer(), mpc::RoundingMode() );
 }
 
 template<>
 BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
 {
     BigFloat gamma;
-    gamma.SetPrecision( alpha.Precision() );
-    mpfr_pow
-    ( gamma.Pointer(),
-      alpha.LockedPointer(),
-      beta.LockedPointer(), mpc::RoundingMode() );
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const unsigned& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const unsigned long& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const int& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const long int& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const BigInt& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
     return gamma;
 }
 #endif

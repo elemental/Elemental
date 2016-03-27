@@ -138,6 +138,8 @@ Primality PrimalityTest( const BigInt& n, int numReps=30 );
 // Return the first prime greater than n (with high likelihood)
 BigInt NextPrime( const BigInt& n );
 void NextPrime( const BigInt& n, BigInt& nextPrime );
+
+int LegendreSymbol( const BigInt& n, const BigInt& p );
 #endif
 
 } // namespace El

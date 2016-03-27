@@ -13,6 +13,9 @@ namespace El {
 
 #ifdef EL_HAVE_MPC
 
+BigInt ModSqrt( const BigInt& n, const BigInt& p );
+void ModSqrt( const BigInt& n, const BigInt& p, BigInt& nSqrt );
+
 namespace factor {
 
 struct PollardRhoCtrl
@@ -103,6 +106,7 @@ BigInt PollardRho
 
 } // namespace El
 
+#include <El/number_theory/ModSqrt.hpp>
 #include <El/number_theory/factor/PollardRho.hpp>
 #include <El/number_theory/factor/PollardPMinusOne.hpp>
 #include <El/number_theory/PrimitiveRoot.hpp>
