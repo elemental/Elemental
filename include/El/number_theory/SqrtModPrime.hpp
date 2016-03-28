@@ -6,18 +6,27 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_NUMBER_THEORY_MODSQRT_HPP
-#define EL_NUMBER_THEORY_MODSQRT_HPP
+#ifndef EL_NUMBER_THEORY_SQRT_MOD_PRIME_HPP
+#define EL_NUMBER_THEORY_SQRT_MOD_PRIME_HPP
 
 namespace El {
 
 #ifdef EL_HAVE_MPC
 
 // This is a simple implementation of Tonelli-Shanks as given in Algorithm
-// 1.5.1 (Square Root Mod p) in Henry Cohen's famous book
-inline void ModSqrt( const BigInt& n, const BigInt& p, BigInt& x )
+// 1.5.1 (Square Root Mod p) in Henri Cohen's
+// "A course in computational algebraic number theory"
+inline void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& x )
 {
     BigInt one(1), two(2);
+    if( p == two )
+    {
+        // Squaring is the identity operation in Z/2Z
+        x = n;
+        x %= two;
+        return;
+    }
+    // TODO: Optionally ensure that p is prime?
 
     // Decompose p-1 as 2^e*q, where q is odd
     // --------------------------------------
@@ -88,10 +97,10 @@ inline void ModSqrt( const BigInt& n, const BigInt& p, BigInt& x )
     }
 }
 
-inline BigInt ModSqrt( const BigInt& n, const BigInt& p )
+inline BigInt SqrtModPrime( const BigInt& n, const BigInt& p )
 {
     BigInt nSqrt;
-    ModSqrt( n, p, nSqrt );
+    SqrtModPrime( n, p, nSqrt );
     return nSqrt;
 }
 
@@ -99,4 +108,4 @@ inline BigInt ModSqrt( const BigInt& n, const BigInt& p )
 
 } // namespace El
 
-#endif // ifndef EL_NUMBER_THEORY_MODSQRT_HPP
+#endif // ifndef EL_NUMBER_THEORY_SQRT_MOD_PRIME_HPP

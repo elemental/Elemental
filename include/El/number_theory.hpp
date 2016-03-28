@@ -13,8 +13,8 @@ namespace El {
 
 #ifdef EL_HAVE_MPC
 
-BigInt ModSqrt( const BigInt& n, const BigInt& p );
-void ModSqrt( const BigInt& n, const BigInt& p, BigInt& nSqrt );
+BigInt SqrtModPrime( const BigInt& n, const BigInt& p );
+void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& nSqrt );
 
 int LegendreSymbol( const BigInt& n, const BigInt& p );
 int JacobiSymbol( const BigInt& m, const BigInt& n );
@@ -128,7 +128,7 @@ BigInt PollardRho
 
 } // namespace El
 
-#include <El/number_theory/ModSqrt.hpp>
+#include <El/number_theory/SqrtModPrime.hpp>
 #include <El/number_theory/LegendreSymbol.hpp>
 #include <El/number_theory/JacobiSymbol.hpp>
 #include <El/number_theory/MillerRabin.hpp>
