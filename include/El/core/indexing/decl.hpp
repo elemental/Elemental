@@ -122,26 +122,6 @@ void PowMod
         BigInt& result );
 #endif
 
-enum Primality
-{
-  PRIME,
-  PROBABLY_PRIME,
-  PROBABLY_COMPOSITE,
-  COMPOSITE
-};
-
-#ifdef EL_HAVE_MPC
-// Use a combination of trial divisions and Miller-Rabin 
-// (with numReps representatives) to test for primality
-Primality PrimalityTest( const BigInt& n, int numReps=30 );
-
-// Return the first prime greater than n (with high likelihood)
-BigInt NextPrime( const BigInt& n );
-void NextPrime( const BigInt& n, BigInt& nextPrime );
-
-int LegendreSymbol( const BigInt& n, const BigInt& p );
-#endif
-
 } // namespace El
 
 #endif // ifndef EL_INDEXING_DECL_HPP

@@ -16,6 +16,27 @@ namespace El {
 BigInt ModSqrt( const BigInt& n, const BigInt& p );
 void ModSqrt( const BigInt& n, const BigInt& p, BigInt& nSqrt );
 
+int LegendreSymbol( const BigInt& n, const BigInt& p );
+int JacobiSymbol( const BigInt& m, const BigInt& n );
+
+enum Primality
+{
+  PRIME,
+  PROBABLY_PRIME,
+  PROBABLY_COMPOSITE,
+  COMPOSITE
+};
+
+Primality MillerRabin( const BigInt& n, Int numReps=30 );
+
+// Use a combination of trial divisions and Miller-Rabin 
+// (with numReps representatives) to test for primality.
+Primality PrimalityTest( const BigInt& n, Int numReps=30 );
+
+// Return the first prime greater than n (with high likelihood)
+BigInt NextProbablePrime( const BigInt& n, Int numReps=30 );
+void NextProbablePrime( const BigInt& n, BigInt& nextPrime, Int numReps=30 );
+
 namespace factor {
 
 struct PollardRhoCtrl
@@ -25,7 +46,7 @@ struct PollardRhoCtrl
     unsigned long numSteps=1u;
     BigInt x0=BigInt(2);
     Int gcdDelay=100;
-    int numReps=30;
+    Int numReps=30;
     bool progress=false;
     bool time=false;
 };
@@ -45,8 +66,9 @@ BigInt FindDivisor
 
 struct PollardPMinusOneCtrl
 {
-    BigInt smoothness=BigInt(100000);
-    int numReps=30;
+    BigInt smoothness=BigInt(1000000);
+    BigInt smoothnessSecond=BigInt(10000000);
+    Int numReps=30;
     bool progress=false;
     bool time=false;
 };
@@ -77,8 +99,8 @@ bool IsPrimitiveRoot
   const factor::PollardRhoCtrl& ctrl=factor::PollardRhoCtrl() );
 
 // Return a primitive root of a prime number p
-BigInt PrimitiveRoot( const BigInt& p, int numReps=30 );
-void PrimitiveRoot( const BigInt& p, BigInt& primitive, int numReps=30 );
+BigInt PrimitiveRoot( const BigInt& p, Int numReps=30 );
+void PrimitiveRoot( const BigInt& p, BigInt& primitive, Int numReps=30 );
 
 namespace dlog {
 
@@ -107,6 +129,11 @@ BigInt PollardRho
 } // namespace El
 
 #include <El/number_theory/ModSqrt.hpp>
+#include <El/number_theory/LegendreSymbol.hpp>
+#include <El/number_theory/JacobiSymbol.hpp>
+#include <El/number_theory/MillerRabin.hpp>
+#include <El/number_theory/PrimalityTest.hpp>
+#include <El/number_theory/NextProbablePrime.hpp>
 #include <El/number_theory/factor/PollardRho.hpp>
 #include <El/number_theory/factor/PollardPMinusOne.hpp>
 #include <El/number_theory/PrimitiveRoot.hpp>

@@ -404,33 +404,6 @@ inline BigInt PowMod
     return result;
 }
 
-inline Primality PrimalityTest( const BigInt& n, int numReps )
-{
-    int result = mpz_probab_prime_p( n.LockedPointer(), numReps );
-    if( result == 2 )
-        return PRIME;
-    else if( result == 1 )
-        return PROBABLY_PRIME;
-    else
-        return COMPOSITE;
-}
-
-inline void NextPrime( const BigInt& n, BigInt& nextPrime )
-{
-    mpz_nextprime( nextPrime.Pointer(), n.LockedPointer() );
-}
-
-inline BigInt NextPrime( const BigInt& n )
-{
-    BigInt nextPrime;
-    NextPrime( n, nextPrime ); 
-    return nextPrime;
-}
-
-inline int LegendreSymbol( const BigInt& n, const BigInt& p )
-{
-    return mpz_legendre( n.LockedPointer(), p.LockedPointer() );
-}
 #endif // ifdef EL_HAVE_MPC
 
 } // namespace El

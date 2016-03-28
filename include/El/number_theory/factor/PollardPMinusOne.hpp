@@ -56,7 +56,7 @@ inline BigInt FindFactor
                 PowMod( a, smallPrime, n, a );
             }
             // Move smallPrime to the next higher prime
-            NextPrime( smallPrime, smallPrime );
+            NextProbablePrime( smallPrime, smallPrime );
         }
 
         // gcd := GCD( a-1, n )
