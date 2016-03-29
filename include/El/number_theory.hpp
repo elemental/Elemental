@@ -11,14 +11,6 @@
 
 namespace El {
 
-#ifdef EL_HAVE_MPC
-
-BigInt SqrtModPrime( const BigInt& n, const BigInt& p );
-void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& nSqrt );
-
-int LegendreSymbol( const BigInt& n, const BigInt& p );
-int JacobiSymbol( const BigInt& m, const BigInt& n );
-
 // A dynamic version of the sieve of Eratosthenes
 template<typename TUnsigned=unsigned long long>
 struct DynamicSieve
@@ -53,6 +45,14 @@ private:
 
     TUnsigned CurrentPrime() const;
 };
+
+#ifdef EL_HAVE_MPC
+
+BigInt SqrtModPrime( const BigInt& n, const BigInt& p );
+void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& nSqrt );
+
+int LegendreSymbol( const BigInt& n, const BigInt& p );
+int JacobiSymbol( const BigInt& m, const BigInt& n );
 
 enum Primality
 {
@@ -101,8 +101,8 @@ BigInt FindDivisor
 
 struct PollardPMinusOneCtrl
 {
-    BigInt smoothness=BigInt(1000000);
-    BigInt smoothnessSecond=BigInt(10000000);
+    unsigned long long smooth1=1000000ULL;
+    unsigned long long smooth2=10000000ULL;
     Int numReps=30;
     bool progress=false;
     bool time=false;
@@ -112,10 +112,20 @@ vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
   const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
 
+vector<BigInt> PollardPMinusOne
+( const BigInt& n,
+        DynamicSieve<unsigned long long>& sieve,
+  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
+
 namespace pollard_pm1 {
 
 BigInt FindFactor
 ( const BigInt& n,
+  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
+
+BigInt FindFactor
+( const BigInt& n,
+        DynamicSieve<unsigned long long>& sieve,
   const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
 
 } // namespace pollard_pm1
@@ -163,10 +173,11 @@ BigInt PollardRho
 
 } // namespace El
 
+#include <El/number_theory/DynamicSieve.hpp>
+
 #include <El/number_theory/SqrtModPrime.hpp>
 #include <El/number_theory/LegendreSymbol.hpp>
 #include <El/number_theory/JacobiSymbol.hpp>
-#include <El/number_theory/DynamicSieve.hpp>
 #include <El/number_theory/MillerRabin.hpp>
 #include <El/number_theory/PrimalityTest.hpp>
 #include <El/number_theory/NextProbablePrime.hpp>

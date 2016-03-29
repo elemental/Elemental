@@ -9,6 +9,8 @@
 #ifndef EL_INDEXING_IMPL_HPP
 #define EL_INDEXING_IMPL_HPP
 
+#include <cstdint>
+
 namespace El {
 
 // Indexing for element-wise distributions
@@ -397,6 +399,41 @@ inline void PowMod
 inline BigInt PowMod
 ( const BigInt& base,
         unsigned long exp,
+  const BigInt& mod )
+{
+    BigInt result;
+    PowMod( base, exp, mod, result );
+    return result;
+}
+
+inline void PowMod
+( const BigInt& base,
+        unsigned long long exp,
+  const BigInt& mod,
+        BigInt& result )
+{
+    if( exp <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        mpz_powm_ui
+        ( result.Pointer(),
+          base.LockedPointer(),
+          static_cast<unsigned long>(exp),
+          mod.LockedPointer() );
+    }
+    else
+    {
+        BigInt expBig(exp);
+        mpz_powm
+        ( result.Pointer(),
+          base.LockedPointer(),
+          expBig.LockedPointer(),
+          mod.LockedPointer() );
+    }
+}
+
+inline BigInt PowMod
+( const BigInt& base,
+        unsigned long long exp,
   const BigInt& mod )
 {
     BigInt result;

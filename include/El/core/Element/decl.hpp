@@ -85,24 +85,45 @@ template<>
 struct IsIntegral<BigInt> { static const bool value = true; };
 #endif
 
-template<typename T> struct IsScalar { static const bool value=false; };
-template<> struct IsScalar<Unsigned> { static const bool value=true; };
-template<> struct IsScalar<Int> { static const bool value=true; };
-template<> struct IsScalar<float> { static const bool value=true; };
-template<> struct IsScalar<double> { static const bool value=true; };
-template<> struct IsScalar<Complex<float>> { static const bool value=true; };
-template<> struct IsScalar<Complex<double>> { static const bool value=true; };
+template<typename T> struct IsScalar
+{ static const bool value=false; };
+template<> struct IsScalar<unsigned>
+{ static const bool value=true; };
+template<> struct IsScalar<int>
+{ static const bool value=true; };
+template<> struct IsScalar<unsigned long>
+{ static const bool value=true; };
+template<> struct IsScalar<long int>
+{ static const bool value=true; };
+template<> struct IsScalar<unsigned long long>
+{ static const bool value=true; };
+template<> struct IsScalar<long long int>
+{ static const bool value=true; };
+template<> struct IsScalar<float>
+{ static const bool value=true; };
+template<> struct IsScalar<double>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<float>>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<double>>
+{ static const bool value=true; };
 #ifdef EL_HAVE_QD
-template<> struct IsScalar<DoubleDouble> { static const bool value=true; };
-template<> struct IsScalar<QuadDouble> { static const bool value=true; };
+template<> struct IsScalar<DoubleDouble>
+{ static const bool value=true; };
+template<> struct IsScalar<QuadDouble>
+{ static const bool value=true; };
 #endif
 #ifdef EL_HAVE_QUAD
-template<> struct IsScalar<Quad> { static const bool value=true; };
-template<> struct IsScalar<Complex<Quad>> { static const bool value=true; };
+template<> struct IsScalar<Quad>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<Quad>>
+{ static const bool value=true; };
 #endif
 #ifdef EL_HAVE_MPC
-template<> struct IsScalar<BigInt> { static const bool value=true; };
-template<> struct IsScalar<BigFloat> { static const bool value=true; };
+template<> struct IsScalar<BigInt>
+{ static const bool value=true; };
+template<> struct IsScalar<BigFloat>
+{ static const bool value=true; };
 #endif
 
 template<typename T> struct IsBlasScalar

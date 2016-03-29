@@ -120,6 +120,15 @@ void PowMod
         unsigned long exp,
   const BigInt& mod,
         BigInt& result );
+BigInt PowMod
+( const BigInt& base,
+        unsigned long long exp,
+  const BigInt& mod );
+void PowMod
+( const BigInt& base,
+        unsigned long long exp,
+  const BigInt& mod,
+        BigInt& result );
 #endif
 
 } // namespace El

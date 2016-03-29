@@ -22,18 +22,23 @@ namespace pollard_pm1 {
 
 inline BigInt FindFactor
 ( const BigInt& n,
+        DynamicSieve<unsigned long long>& sieve,
   const PollardPMinusOneCtrl& ctrl )
 {
-    const double twoLog = Log( 2 );
-    const double nLog = Log( n );
+    const double twoLog = Log( 2. );
+    const double nLog = double( Log( BigFloat(n) ) );
     const BigInt zero(0), one(1);
 
-    BigInt smoothness = ctrl.smoothness;
-    const BigInt smoothnessBound =
-        Max( Pow(BigInt(10),BigInt(9)), smoothness*8 );
+    unsigned long long smooth1 = ctrl.smooth1;
+    unsigned long long smooth2 = ctrl.smooth2;
+    const auto smooth1Bound = Max( Pow(10ULL,9ULL), 8ULL*smooth1 );
+    const auto smooth2Bound = Max( Pow(10ULL,10ULL), 8ULL*smooth2 );
+
+    // Ensure that we have sieved at least up until smooth1
+    while( sieve.oddPrimes.back() < smooth1 )
+        sieve.NextPrime();
 
     bool separateOdd=false;
-
     BigInt smallPrime, gcd, tmp;
     while( true )
     {
@@ -45,18 +50,30 @@ inline BigInt FindFactor
             a = SampleUniform( zero, n ); 
         }
 
-        // TODO: Generate the list of primes with a sieve instead of nextprime
-        smallPrime = ( separateOdd ? 3 : 2 );
-        while( smallPrime <= smoothness )
+        if( !separateOdd )
         {
-            unsigned smallPrimeExponent = unsigned(nLog/Log(smallPrime));
+            // Handle 2 separately
+            unsigned smallPrimeExponent = unsigned(nLog/twoLog);
+            for( Int i=0; i<smallPrimeExponent; ++i )
+            {
+                // a = a^2 (mod n)
+                a *= a;
+                a %= n;
+            }
+        }
+        auto smooth1Iter = 
+          std::upper_bound
+          ( sieve.oddPrimes.begin(), sieve.oddPrimes.end(), smooth1 );
+        for( auto iter=sieve.oddPrimes.begin(); iter<smooth1Iter; ++iter )
+        {
+            auto smallPrime = *iter;
+            double smallPrimeLog = double(Log(double(smallPrime)));
+            unsigned smallPrimeExponent = unsigned(nLog/smallPrimeLog);
             for( Int i=0; i<smallPrimeExponent; ++i )
             {
                 // a = a^smallPrime (mod n)
                 PowMod( a, smallPrime, n, a );
             }
-            // Move smallPrime to the next higher prime
-            NextProbablePrime( smallPrime, smallPrime );
         }
 
         // gcd := GCD( a-1, n )
@@ -81,16 +98,18 @@ inline BigInt FindFactor
             }
         }
 
+        // TODO: Introduce second stage
+
         if( gcd == one )
         {
-            if( smoothness >= smoothnessBound )
+            if( smooth1 >= smooth1Bound )
             {
                 RuntimeError
-                ("Smoothness bound of ",smoothnessBound," exceeded");
+                ("Stage-1 smoothness bound of ",smooth1Bound," exceeded");
             }
-            smoothness *= 2;
+            smooth1 *= 2;
             if( ctrl.progress )
-                Output("Increased smoothness to ",smoothness);
+                Output("Increased stage-1 smoothness to ",smooth1);
         }
         else if( gcd == n )
         {
@@ -107,10 +126,19 @@ inline BigInt FindFactor
     }
 }
 
+inline BigInt FindFactor
+( const BigInt& n,
+  const PollardPMinusOneCtrl& ctrl )
+{
+    DynamicSieve<unsigned long long> sieve;
+    return FindFactor( n, sieve, ctrl );
+}
+
 } // namespace pollard_pm1
 
 inline vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
+        DynamicSieve<unsigned long long>& sieve,
   const PollardPMinusOneCtrl& ctrl )
 {
     vector<BigInt> factors;
@@ -155,7 +183,7 @@ inline vector<BigInt> PollardPMinusOne
         if( ctrl.time )
             timer.Start();
         PushIndent();
-        BigInt factor = pollard_pm1::FindFactor( nRem, ctrl );
+        BigInt factor = pollard_pm1::FindFactor( nRem, sieve, ctrl );
         PopIndent();
         if( ctrl.time )
             Output("Pollard p-1: ",timer.Stop()," seconds");
@@ -171,6 +199,14 @@ inline vector<BigInt> PollardPMinusOne
     PopIndent();
     sort( factors.begin(), factors.end() );
     return factors;
+}
+
+inline vector<BigInt> PollardPMinusOne
+( const BigInt& n,
+  const PollardPMinusOneCtrl& ctrl )
+{
+    DynamicSieve<unsigned long long> sieve;
+    return PollardPMinusOne( n, sieve, ctrl );
 }
 
 } // namespace factor

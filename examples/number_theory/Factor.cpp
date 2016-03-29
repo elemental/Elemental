@@ -124,7 +124,7 @@ int main( int argc, char* argv[] )
             //           2456044907*9909876848747
             mpc::SetMinIntBits( 8192 );
             BigInt z = Pow(BigInt(2),BigInt(2098)) + 1;
-            pm1Ctrl.smoothness = Pow(BigInt(10),BigInt(13));
+            pm1Ctrl.smooth1 = Pow(10UL,13UL);
             Output("z=2^2098+1=",z);
             factors = factor::PollardPMinusOne( z, pm1Ctrl );
             Output("factors:");
