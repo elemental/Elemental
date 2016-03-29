@@ -9,7 +9,7 @@
 #ifndef EL_INDEXING_IMPL_HPP
 #define EL_INDEXING_IMPL_HPP
 
-#include <cstdint>
+#include <climits>
 
 namespace El {
 

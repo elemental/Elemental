@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
+#include <climits>
+
 #ifdef EL_HAVE_MPC
 
 namespace El {
@@ -75,12 +77,21 @@ BigInt::BigInt( const unsigned long long& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [unsigned long long]"))
     mpz_init2( Pointer(), numBits );
-    const size_t count = 1;
-    const int order = 1;  // most-significant first
-    const size_t size = sizeof(a);
-    const int endian = 0; // native endianness 
-    const size_t nails = 0; // do not skip any bits
-    mpz_import( Pointer(), count, order, size, endian, nails, &a );
+    if( a <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        unsigned long aLong = static_cast<unsigned long>(a);
+        mpz_set_ui( Pointer(), aLong );
+    }
+    else
+    {
+        // TODO: More efficient (multi-stage?) alternative
+        const size_t count = 1;
+        const int order = 1;  // most-significant first
+        const size_t size = sizeof(a);
+        const int endian = 0; // native endianness 
+        const size_t nails = 0; // do not skip any bits
+        mpz_import( Pointer(), count, order, size, endian, nails, &a );
+    }
 }
 
 BigInt::BigInt( const int& a, int numBits )
@@ -101,15 +112,25 @@ BigInt::BigInt( const long long int& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [long long int]"))
     mpz_init2( Pointer(), numBits );
-    const size_t count = 1;
-    const int order = 1;  // most-significant first
-    const size_t size = sizeof(a);
-    const int endian = 0; // native endianness 
-    const size_t nails = 0; // do not skip any bits
-    mpz_import( Pointer(), count, order, size, endian, nails, &a );
-    // We must manually handle the sign
-    if( a < 0 )
-        mpz_neg( Pointer(), Pointer() );
+    if( (a >= 0 && a <= static_cast<long long>(LONG_MAX)) ||
+        (a <  0 && a >= static_cast<long long>(LONG_MIN)) )
+    {
+        long aLong = static_cast<long>(a);
+        mpz_set_si( Pointer(), aLong );
+    }
+    else
+    {
+        // TODO: More efficient (multi-stage?) alternative
+        const size_t count = 1;
+        const int order = 1;  // most-significant first
+        const size_t size = sizeof(a);
+        const int endian = 0; // native endianness 
+        const size_t nails = 0; // do not skip any bits
+        mpz_import( Pointer(), count, order, size, endian, nails, &a );
+        // We must manually handle the sign
+        if( a < 0 )
+            mpz_neg( Pointer(), Pointer() );
+    }
 }
 
 BigInt::BigInt( const char* str, int base, int numBits )
@@ -172,12 +193,21 @@ BigInt& BigInt::operator=( const unsigned long& a )
 BigInt& BigInt::operator=( const unsigned long long& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator= [unsigned long long]"))
-    const size_t count = 1;
-    const int order = 1;  // most-significant first
-    const size_t size = sizeof(a);
-    const int endian = 0; // native endianness 
-    const size_t nails = 0; // do not skip any bits
-    mpz_import( Pointer(), count, order, size, endian, nails, &a );
+    if( a <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        unsigned long aLong = static_cast<unsigned long>(a);
+        mpz_set_ui( Pointer(), aLong );
+    }
+    else
+    {
+        // TODO: More efficient (multi-stage?) alternative
+        const size_t count = 1;
+        const int order = 1;  // most-significant first
+        const size_t size = sizeof(a);
+        const int endian = 0; // native endianness 
+        const size_t nails = 0; // do not skip any bits
+        mpz_import( Pointer(), count, order, size, endian, nails, &a );
+    }
     return *this;
 }
 
@@ -198,15 +228,25 @@ BigInt& BigInt::operator=( const long int& a )
 BigInt& BigInt::operator=( const long long int& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator= [long long int]"))
-    const size_t count = 1;
-    const int order = 1;  // most-significant first
-    const size_t size = sizeof(a);
-    const int endian = 0; // native endianness 
-    const size_t nails = 0; // do not skip any bits
-    mpz_import( Pointer(), count, order, size, endian, nails, &a );
-    // We must manually handle the sign
-    if( a < 0 )
-        mpz_neg( Pointer(), Pointer() );
+    if( (a >= 0 && a <= static_cast<long long>(LONG_MAX)) ||
+        (a <  0 && a >= static_cast<long long>(LONG_MIN)) )
+    {
+        long aLong = static_cast<long>(a);
+        mpz_set_si( Pointer(), aLong );
+    }
+    else
+    {
+        // TODO: More efficient (multi-stage?) alternative
+        const size_t count = 1;
+        const int order = 1;  // most-significant first
+        const size_t size = sizeof(a);
+        const int endian = 0; // native endianness 
+        const size_t nails = 0; // do not skip any bits
+        mpz_import( Pointer(), count, order, size, endian, nails, &a );
+        // We must manually handle the sign
+        if( a < 0 )
+            mpz_neg( Pointer(), Pointer() );
+    }
     return *this;
 }
 
@@ -242,6 +282,36 @@ BigInt& BigInt::operator+=( const long int& a )
         return *this -= static_cast<unsigned long>(-a);
 }
 
+BigInt& BigInt::operator+=( const long long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator+= [long long int]"))
+    if( a >= 0 )
+    {
+        if( a <= static_cast<long>(ULONG_MAX) )
+        {
+            *this += static_cast<unsigned long>(a);
+        }
+        else
+        {
+            BigInt aBig(a);
+            *this += aBig;
+        }
+    }
+    else
+    {
+        if( -a <= static_cast<unsigned long>(ULONG_MAX) )
+        {
+            *this += static_cast<unsigned long>(-a);
+        }
+        else
+        {
+            BigInt aBig(a);
+            *this -= aBig;
+        }
+    }
+    return *this;
+}
+
 BigInt& BigInt::operator+=( const unsigned& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator+= [unsigned]"))
@@ -253,6 +323,22 @@ BigInt& BigInt::operator+=( const unsigned long& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator+= [unsigned long]"))
     mpz_add_ui( Pointer(), Pointer(), a );
+    return *this;
+}
+
+BigInt& BigInt::operator+=( const unsigned long long& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator+= [unsigned long long]"))
+    if( a <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        unsigned long aLong = static_cast<unsigned long>(a);
+        mpz_add_ui( Pointer(), Pointer(), aLong );
+    }
+    else
+    {
+        BigInt aBig(a);
+        *this += aBig;
+    }
     return *this;
 }
 
@@ -281,6 +367,36 @@ BigInt& BigInt::operator-=( const long int& a )
         return *this += static_cast<unsigned long>(-a);
 }
 
+BigInt& BigInt::operator-=( const long long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator-= [long long int]"))
+    if( a >= 0 )
+    {
+        if( a <= static_cast<long long int>(ULONG_MAX) )
+        {
+            *this -= static_cast<unsigned long>(a);
+        }
+        else
+        {
+            BigInt aBig(a);
+            *this -= aBig;
+        }
+    }
+    else
+    {
+        if( -a <= static_cast<long long int>(ULONG_MAX) )
+        {
+            *this += static_cast<unsigned long>(-a);
+        }
+        else
+        {
+            BigInt aBig(a);
+            *this -= aBig;
+        }
+    }
+    return *this;
+}
+
 BigInt& BigInt::operator-=( const unsigned& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator-= [unsigned]"))
@@ -292,6 +408,22 @@ BigInt& BigInt::operator-=( const unsigned long& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator-= [unsigned long]"))
     mpz_sub_ui( Pointer(), Pointer(), a );
+    return *this;
+}
+
+BigInt& BigInt::operator-=( const unsigned long long& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator-= [unsigned long long]"))
+    if( a <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        unsigned long aLong = static_cast<unsigned long>(a);
+        mpz_sub_ui( Pointer(), Pointer(), aLong );
+    }
+    else
+    {
+        BigInt aBig(a);
+        *this -= aBig;
+    }
     return *this;
 }
 
@@ -342,6 +474,23 @@ BigInt& BigInt::operator*=( const long int& a )
     return *this;
 }
 
+BigInt& BigInt::operator*=( const long long int& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator*= [long long int]"))
+    if( (a >= 0 && a <= static_cast<long long int>(LONG_MAX)) ||
+        (a <  0 && a >  static_cast<long long int>(LONG_MIN)) )
+    {
+        long int aLong = static_cast<long int>(a);
+        mpz_mul_si( Pointer(), Pointer(), aLong );
+    }
+    else
+    {
+        BigInt aBig(a);
+        *this *= aBig;
+    }
+    return *this;
+}
+
 BigInt& BigInt::operator*=( const unsigned& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator*= [unsigned]"))
@@ -353,6 +502,22 @@ BigInt& BigInt::operator*=( const unsigned long& a )
 {
     DEBUG_ONLY(CSE cse("BigInt::operator*= [unsigned long]"))
     mpz_mul_ui( Pointer(), Pointer(), a );
+    return *this;
+}
+
+BigInt& BigInt::operator*=( const unsigned long long& a )
+{
+    DEBUG_ONLY(CSE cse("BigInt::operator*= [unsigned long long]"))
+    if( a <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        unsigned long aLong = static_cast<unsigned long>(a);
+        mpz_mul_ui( Pointer(), Pointer(), aLong );
+    }
+    else
+    {
+        BigInt aBig(a);
+        *this *= aBig;
+    }
     return *this;
 }
 
@@ -388,6 +553,21 @@ BigInt BigInt::operator+() const
 BigInt& BigInt::operator%=( const BigInt& b )
 {
     mpz_mod( Pointer(), LockedPointer(), b.LockedPointer() );
+    return *this;
+}
+
+BigInt& BigInt::operator%=( const unsigned long long& b )
+{
+    if( b <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        unsigned long bLong = static_cast<unsigned long>(b);
+        mpz_mod_ui( Pointer(), LockedPointer(), bLong );
+    }
+    else
+    {
+        BigInt bBig(b);
+        *this %= bBig;
+    }
     return *this;
 }
 
@@ -643,22 +823,29 @@ BigInt operator/( const BigInt& a, const BigInt& b )
 
 BigInt operator%( const BigInt& a, const BigInt& b )
 {
-    BigInt c;
-    mpz_mod( c.Pointer(), a.LockedPointer(), b.LockedPointer() );
+    BigInt c(a);
+    c %= b;
+    return c;
+}
+
+BigInt operator%( const BigInt& a, const unsigned long long& b )
+{
+    BigInt c(a);
+    c %= b;
     return c;
 }
 
 BigInt operator%( const BigInt& a, const unsigned long& b )
 {
-    BigInt c;
-    mpz_mod_ui( c.Pointer(), a.LockedPointer(), b );
+    BigInt c(a);
+    c %= b;
     return c;
 }
 
 BigInt operator%( const BigInt& a, const unsigned& b )
 {
-    BigInt c;
-    mpz_mod_ui( c.Pointer(), a.LockedPointer(), b );
+    BigInt c(a);
+    c %= b;
     return c;
 }
 
@@ -683,56 +870,82 @@ bool operator<( const BigInt& a, const int& b )
 bool operator<( const BigInt& a, const long int& b )
 { return mpz_cmp_si(a.mpzInt_,b) < 0; }
 
+bool operator<( const BigInt& a, const long long int& b )
+{
+    if( (b >=0 && b <= static_cast<long long int>(LONG_MAX)) ||
+        (b < 0 && b >= static_cast<long long int>(LONG_MIN)) )
+    {
+        long int bLong = static_cast<long int>(b);
+        return mpz_cmp_si(a.mpzInt_,bLong) < 0;
+    }
+    else
+    {
+        BigInt bBig(b);
+        return a < bBig;
+    }
+}
+
 bool operator<( const int& a, const BigInt& b )
 { return mpz_cmp_si(b.mpzInt_,a) > 0; }
 
 bool operator<( const long int& a, const BigInt& b )
 { return mpz_cmp_si(b.mpzInt_,a) > 0; }
 
+bool operator<( const long long int& a, const BigInt& b )
+{ 
+    if( (a >=0 && a <= static_cast<long long int>(LONG_MAX)) ||
+        (a < 0 && a >= static_cast<long long int>(LONG_MIN)) )
+    {
+        long int aLong = static_cast<long int>(a);
+        return mpz_cmp_si(b.mpzInt_,aLong) > 0;
+    }
+    else
+    {
+        BigInt aBig(a);
+        return aBig < b;
+    }
+}
+
 bool operator>( const BigInt& a, const BigInt& b )
-{ return mpz_cmp(a.mpzInt_,b.mpzInt_) > 0; }
-
+{ return b < a; }
 bool operator>( const BigInt& a, const int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) > 0; }
-
+{ return b < a; }
 bool operator>( const BigInt& a, const long int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) > 0; }
-
+{ return b < a; }
+bool operator>( const BigInt& a, const long long int& b )
+{ return b < a; }
 bool operator>( const int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) < 0; }
-
+{ return b < a; }
 bool operator>( const long int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) < 0; }
+{ return b < a; }
+bool operator>( const long long int& a, const BigInt& b )
+{ return b < a; }
 
 bool operator<=( const BigInt& a, const BigInt& b )
-{ return mpz_cmp(a.mpzInt_,b.mpzInt_) <= 0; }
-
+{ return !(a > b); }
 bool operator<=( const BigInt& a, const int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) <= 0; }
-
+{ return !(a > b); }
 bool operator<=( const BigInt& a, const long int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) <= 0; }
-
+{ return !(a > b); }
+bool operator<=( const BigInt& a, const long long int& b )
+{ return !(a > b); }
 bool operator<=( const int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) >= 0; }
-
+{ return !(a > b); }
 bool operator<=( const long int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) >= 0; }
+{ return !(a > b); }
+bool operator<=( const long long int& a, const BigInt& b )
+{ return !(a > b); }
 
 bool operator>=( const BigInt& a, const BigInt& b )
-{ return mpz_cmp(a.mpzInt_,b.mpzInt_) >= 0; }
-
+{ return !(a < b); }
 bool operator>=( const BigInt& a, const int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) >= 0; }
-
+{ return !(a < b); }
 bool operator>=( const BigInt& a, const long int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) >= 0; }
-
+{ return !(a < b); }
 bool operator>=( const int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) <= 0; }
-
+{ return !(a < b); }
 bool operator>=( const long int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) <= 0; }
+{ return !(a < b); }
 
 bool operator==( const BigInt& a, const BigInt& b )
 { return mpz_cmp(a.mpzInt_,b.mpzInt_) == 0; }
@@ -743,25 +956,41 @@ bool operator==( const BigInt& a, const int& b )
 bool operator==( const BigInt& a, const long int& b )
 { return mpz_cmp_si(a.mpzInt_,b) == 0; }
 
-bool operator==( const int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) == 0; }
+bool operator==( const BigInt& a, const long long int& b )
+{
+    if( (b >= 0 && b <= static_cast<long long int>(LONG_MAX)) ||
+        (b <  0 && b >= static_cast<long long int>(LONG_MIN)) )
+    {
+        long int bLong = static_cast<long int>(b);
+        return mpz_cmp_si(a.mpzInt_,bLong) == 0;
+    }
+    else
+    {
+        BigInt bBig(b);
+        return a == bBig;
+    }
+}
 
+bool operator==( const int& a, const BigInt& b )
+{ return b ==a ; }
 bool operator==( const long int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) == 0; }
+{ return b == a; }
+bool operator==( const long long int& a, const BigInt& b )
+{ return b == a; }
 
 bool operator!=( const BigInt& a, const BigInt& b )
 { return !(a==b); }
-
 bool operator!=( const BigInt& a, const int& b )
 { return !(a==b); }
-
 bool operator!=( const BigInt& a, const long int& b )
 { return !(a==b); }
-
+bool operator!=( const BigInt& a, const long long int& b )
+{ return !(a==b); }
 bool operator!=( const int& a, const BigInt& b )
 { return !(a==b); }
-
 bool operator!=( const long int& a, const BigInt& b )
+{ return !(a==b); }
+bool operator!=( const long long int& a, const BigInt& b )
 { return !(a==b); }
 
 std::ostream& operator<<( std::ostream& os, const BigInt& alpha )
