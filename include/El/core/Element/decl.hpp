@@ -86,6 +86,7 @@ struct IsIntegral<BigInt> { static const bool value = true; };
 #endif
 
 template<typename T> struct IsScalar { static const bool value=false; };
+template<> struct IsScalar<Unsigned> { static const bool value=true; };
 template<> struct IsScalar<Int> { static const bool value=true; };
 template<> struct IsScalar<float> { static const bool value=true; };
 template<> struct IsScalar<double> { static const bool value=true; };
@@ -237,6 +238,7 @@ template<typename T> struct IsData<const T*> { static const bool value=true; };
 #ifdef EL_USE_64BIT_INTS
 template<> struct IsData<int> { static const bool value=true; };
 #endif
+template<> struct IsData<Unsigned> { static const bool value=true; };
 template<> struct IsData<Int> { static const bool value=true; };
 template<> struct IsData<float> { static const bool value=true; };
 template<> struct IsData<double> { static const bool value=true; };

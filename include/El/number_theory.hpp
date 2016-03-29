@@ -19,6 +19,41 @@ void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& nSqrt );
 int LegendreSymbol( const BigInt& n, const BigInt& p );
 int JacobiSymbol( const BigInt& m, const BigInt& n );
 
+// A dynamic version of the sieve of Eratosthenes
+template<typename TUnsigned=unsigned long long>
+struct DynamicSieve
+{
+public:
+    DynamicSieve( TUnsigned lowerBound=3 );
+
+    TUnsigned NextPrime();
+
+    // A set of small odd primes for sieving larger primes
+    vector<TUnsigned> oddPrimes;
+
+private:
+    vector<byte> table;
+    TUnsigned oddOffset, halvedIndex;
+    bool freshTable;
+
+    // The smallest indices into the above table of each of the 'oddPrimes'
+    // that could lead to said value of 'oddPrimes' being the smallest prime
+    // factor
+    vector<TUnsigned> starts;
+
+    // Attempt to update 'halvedIndex' until oddOffset + 2*halvedIndex is 
+    // corresponds to a precomputed prime (i.e., table[halvedIndex] is one)
+    bool SeekPrecomputedPrime();
+
+    TUnsigned ComputeStart( const TUnsigned& p ) const;
+
+    void AugmentPrimes();
+    void Sieve();
+    void FormNewTable();
+
+    TUnsigned CurrentPrime() const;
+};
+
 enum Primality
 {
   PRIME,
@@ -131,6 +166,7 @@ BigInt PollardRho
 #include <El/number_theory/SqrtModPrime.hpp>
 #include <El/number_theory/LegendreSymbol.hpp>
 #include <El/number_theory/JacobiSymbol.hpp>
+#include <El/number_theory/DynamicSieve.hpp>
 #include <El/number_theory/MillerRabin.hpp>
 #include <El/number_theory/PrimalityTest.hpp>
 #include <El/number_theory/NextProbablePrime.hpp>

@@ -20,7 +20,7 @@ int main( int argc, char* argv[] )
           Input("--n","prime lower bound",BigInt(Pow(BigInt(10),BigInt(20))));
         const Int numTrials = Input("--numTrials","num trials",100);
 
-        BigInt p = NextPrime( n );
+        BigInt p = NextProbablePrime( n );
         for( Int trial=0; trial<numTrials; ++trial ) 
         {
             // Generate a random number between 1 and p
@@ -29,7 +29,7 @@ int main( int argc, char* argv[] )
             BigInt aSquared = a*a;
             aSquared %= p; 
             // Compute the square-root mod p
-            BigInt aSquaredRoot = ModSqrt( aSquared, p ); 
+            BigInt aSquaredRoot = SqrtModPrime( aSquared, p ); 
             // If a != aSquaredRoot, throw and exception
             if( aSquared != Mod(aSquaredRoot*aSquaredRoot,p) )
             {
