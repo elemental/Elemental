@@ -11,7 +11,6 @@
 
 namespace El {
 
-#ifdef EL_HAVE_MPC
 template<typename TUnsigned>
 DynamicSieve<TUnsigned>::DynamicSieve( TUnsigned lowerBound )
 {
@@ -216,8 +215,6 @@ TUnsigned DynamicSieve<TUnsigned>::NextPrime()
     }
     return CurrentPrime();
 }
-
-#endif // ifdef EL_HAVE_MPC
 
 } // namespace El
 
