@@ -12,7 +12,7 @@
 namespace El {
 
 template<typename TUnsigned>
-DynamicSieve<TUnsigned>::DynamicSieve( TUnsigned lowerBound )
+DynamicSieve<TUnsigned>::DynamicSieve( TUnsigned lowerBound, bool keepAll )
 {
     oddPrimes.resize( 9 ); 
     oddPrimes[0] = 3;
@@ -25,66 +25,99 @@ DynamicSieve<TUnsigned>::DynamicSieve( TUnsigned lowerBound )
     oddPrimes[7] = 23;
     oddPrimes[8] = 29;
 
-    oddOffset = lowerBound;
-    halvedIndex = 0; // candidate for prime is oddOffset + 2*halvedIndex
+    lowerBound_ = segmentOffset_ = ( keepAll ? 3 : lowerBound );
 
     TUnsigned numPrimes = oddPrimes.size();
-    starts.resize( numPrimes );
-    for( Int i=0; i<numPrimes; ++i )
-        starts[i] = ComputeStart( oddPrimes[i] );
-        
+    
     // Allocate a table which would use roughly the same amount of memory
-    // as the list of primes (which we crudely approximate to have a cardinality
-    // on the order of Sqrt(oddOffset))
+    // as the list of primes (which we crudely approximate to have a
+    // cardinality on the order of Sqrt(segmentOffset_))
     size_t minTableSize = 256;
-    TUnsigned tableSize = Max( size_t(std::sqrt(oddOffset)), minTableSize );
-    table.resize( tableSize );
+    TUnsigned tableSize =
+      Max( size_t(std::sqrt(segmentOffset_)), minTableSize );
+    segmentTable_.resize( tableSize );
 
-    // Ensure that every prime factor of a number in the range covered by the
-    // table, [oddOffset,oddOffset+2*newTableSize), is in our list of primes
-    TUnsigned largestCandidate = oddOffset + 2*(tableSize-1);
+    // Ensure that every prime factor of a number in the range covered by
+    // the table, [segmentOffset_,segmentOffset_+2*newTableSize), 
+    // is in our list of primes
+    TUnsigned largestCandidate = segmentOffset_ + 2*(tableSize-1);
     while( oddPrimes.back()*oddPrimes.back() < largestCandidate )
     {
-        AugmentPrimes();
+        AugmentPrimes( 2*oddPrimes.size() );
     }
 
-    Sieve();
+    SieveSegment();
+
+    if( keepAll )
+    {
+        Generate( lowerBound );
+        lowerBound_ = lowerBound;
+    }
 }
 
 template<typename TUnsigned>
-bool DynamicSieve<TUnsigned>::SeekPrecomputedPrime()
+void DynamicSieve<TUnsigned>::SetStorage( bool keepAll )
 {
-    if( freshTable )
-        freshTable = false;
-    else
-        ++halvedIndex;
-
-    // Set halvedIndex to the first location greater than or equal to the
-    // current location that is marked prime
-    const TUnsigned tableSize = table.size();
-    for( TUnsigned i=halvedIndex; i<tableSize; ++i )
+    if( keepAll && !keepAll_ )
     {
-        if( table[i] != 0 )
+        // NOTE: This could be made substantially faster but is provided as
+        //       a convenience. Advanced users should set this mode upon 
+        //       construction.
+        DynamicSieve<TUnsigned> tmpSieve( oddPrimes.back()+1 );
+        tmpSieve.oddPrimes = oddPrimes;
+
+        TUnsigned pntEstimate =
+          segmentOffset_ / TUnsigned(Log2(double(segmentOffset_)));
+        TUnsigned fudge = 10;
+        oddPrimes.reserve( pntEstimate + fudge );
+
+        while( tmpSieve.oddPrimes.back() < segmentOffset_ )
+            oddPrimes.push_back( tmpSieve.NextPrime() );
+    }
+    keepAll_ = keepAll;
+}
+
+template<typename TUnsigned>
+void DynamicSieve<TUnsigned>::Generate( TUnsigned upperBound )
+{
+    while( oddPrimes.back() < upperBound )
+        NextPrime();
+}
+
+template<typename TUnsigned>
+bool DynamicSieve<TUnsigned>::SeekSegmentPrime()
+{
+    // Set segmentIndex_ to the first location greater than or equal to the
+    // current location that is marked prime
+    const TUnsigned tableSize = segmentTable_.size();
+    const TUnsigned start = 
+      ( segmentOffset_ >= lowerBound_ ?
+        0 :
+        (lowerBound_-segmentOffset_+1) / 2 );
+    for( TUnsigned i=start; i<tableSize; ++i )
+    {
+        if( segmentTable_[i] != 0 )
         {
-            halvedIndex = i;
+            segmentIndex_ = i;
             return true;
         }
     }
     return false;
 }
 
-// Find the integer k such that oddOffset + 2*k is the first odd 
-// multiple of p that is greater than or equal to Max(oddOffset,p^2)
+// Find the integer k such that segmentOffset_ + 2*k is the first odd 
+// multiple of p that is greater than or equal to Max(segmentOffset_,p^2)
 template<typename TUnsigned>
-TUnsigned DynamicSieve<TUnsigned>::ComputeStart( const TUnsigned& p ) const
+TUnsigned DynamicSieve<TUnsigned>::ComputeSegmentStart
+( const TUnsigned& p ) const
 {
-    if( p*p >= oddOffset )
+    if( p*p >= segmentOffset_ )
     {
-        return (p*p - oddOffset) / 2;
+        return (p*p - segmentOffset_) / 2;
     }
     else
     {
-        TUnsigned complement = (p - (oddOffset % p)) % p;
+        TUnsigned complement = (p - (segmentOffset_ % p)) % p;
         if( complement % 2 == 0 )
         {
             return complement / 2;
@@ -97,14 +130,13 @@ TUnsigned DynamicSieve<TUnsigned>::ComputeStart( const TUnsigned& p ) const
 }
 
 template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::AugmentPrimes()
+void DynamicSieve<TUnsigned>::AugmentPrimes( TUnsigned numPrimes )
 {
     TUnsigned pIndex = oddPrimes.size();
-    TUnsigned numPrimes = 2*pIndex;
-
     oddPrimes.resize( numPrimes );
-    starts.resize( numPrimes );
 
+    // TODO: Consider switching to another scheme if a sufficient number of
+    //       primes are to be kept
     TUnsigned p = oddPrimes[pIndex-1];
     for( ; pIndex<numPrimes; ++pIndex )
     {
@@ -137,83 +169,109 @@ void DynamicSieve<TUnsigned>::AugmentPrimes()
             }
         }
         oddPrimes[pIndex] = p;
-        starts[pIndex] = ComputeStart( p );
     }
 }
 
 template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::Sieve()
+void DynamicSieve<TUnsigned>::SieveSegment()
 {
-    halvedIndex = 0;
-    std::fill( table.begin(), table.end(), byte(1) );
+    std::fill( segmentTable_.begin(), segmentTable_.end(), byte(1) );
 
-    TUnsigned tableSize = table.size();
+    TUnsigned tableSize = segmentTable_.size();
     TUnsigned numPrimes = oddPrimes.size();
-    for( TUnsigned j=0; j<numPrimes; ++j )
+
+    TUnsigned largestCandidate = segmentOffset_ + 2*(tableSize-1);
+    TUnsigned factorBound = TUnsigned(std::sqrt(largestCandidate)) + 1;
+    auto boundIter =
+      std::lower_bound( oddPrimes.begin(), oddPrimes.end(), factorBound );
+    const TUnsigned indexEnd = TUnsigned(boundIter-oddPrimes.begin());
+
+    for( TUnsigned j=0; j<indexEnd; ++j )
     {
         TUnsigned p = oddPrimes[j];
 
         // Iterate over the indices corresponding to odd multiples of p that
-        // are at least as large as Max(oddOffset,p^2)
-        TUnsigned k;
-        for( k=starts[j]; k<tableSize; k+=p )
-            table[k] = 0;
-
-        // The next time we use this value, it will be for a new table starting
-        // at oddOffsetNew = oddOffset + 2*tableSize. Then the adjusted value
-        // should be as follows, where k is the minimum member of
-        //     starts[j] + p N
-        // that is greater than or equal to tableSize.
-        starts[j] = k - tableSize;
+        // are at least as large as Max(segmentOffset_,p^2)
+        TUnsigned start = ComputeSegmentStart( p );
+        for( TUnsigned k=start; k<tableSize; k+=p )
+            segmentTable_[k] = 0;
     }
-
-    freshTable = true;
-    halvedIndex = 0;
 }
 
 template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::FormNewTable()
+void DynamicSieve<TUnsigned>::FormNewSegment()
 {
     // The current table handles the odd integers in the inclusive interval
-    // [oddOffset,oddOffset+2*(tableSize-1)], so the next table should begin at
-    // 2*tableSize.
-    oddOffset += 2*table.size();
+    // [segmentOffset,segmentOffset+2*(tableSize-1)], so the next table should
+    // begin at 2*tableSize (unless lowerBound_ is larger).
+    segmentOffset_ += 2*segmentTable_.size();
+    segmentOffset_ = Max(segmentOffset_,lowerBound_);
 
     // Allocate a new table which would use roughly the same amount of memory
     // as the list of primes (which we crudely approximate to have a cardinality
-    // on the order of Sqrt(oddOffset))
+    // on the order of Sqrt(segmentOffset_))
     const TUnsigned newTableSize =
-      Max( size_t(std::sqrt(oddOffset)), table.size() );
-    table.resize( newTableSize );
+      Max( size_t(std::sqrt(segmentOffset_)), segmentTable_.size() );
+    segmentTable_.resize( newTableSize );
 
     // Ensure that every prime factor of a number in the range covered by the
-    // table, [oddOffset,oddOffset+2*newTableSize), is in our list of primes
-    const TUnsigned largestCandidate = oddOffset + 2*(newTableSize-1);
-    while( oddPrimes.back()*oddPrimes.back() < largestCandidate )
+    // table, [segmentOffset_,segmentOffset_+2*newTableSize), is in our list of
+    //  primes
+    const TUnsigned largestCandidate = segmentOffset_ + 2*(newTableSize-1);
+    if( keepAll_ )
     {
-        AugmentPrimes();
+        // We should have all of the primes below segmentOffset_ precomputed
+        // TODO: Decide a sharp way to assert this
+        TUnsigned pntEstimate =
+          largestCandidate / TUnsigned(Log2(double(largestCandidate)));
+        TUnsigned fudge = 10;
+        oddPrimes.reserve( pntEstimate + fudge );
+    }
+    else
+    {
+        while( oddPrimes.back()*oddPrimes.back() < largestCandidate )
+        {
+            AugmentPrimes( 2*oddPrimes.size() );
+        }
     }
 
-    Sieve();
+    SieveSegment();
 }
-
-template<typename TUnsigned>
-TUnsigned DynamicSieve<TUnsigned>::CurrentPrime() const
-{ return oddOffset + 2*halvedIndex; }
 
 template<typename TUnsigned>
 TUnsigned DynamicSieve<TUnsigned>::NextPrime()
 {
-    if( !SeekPrecomputedPrime() )
+    // Use a stored prime if a sufficiently large one exists
+    if( oddPrimes.back() >= lowerBound_ )
     {
-        FormNewTable();
-        bool foundPrecomputed = SeekPrecomputedPrime();
+        auto iter =
+          std::lower_bound( oddPrimes.begin(), oddPrimes.end(), lowerBound_ );
+        TUnsigned currentPrime = *iter;
+        lowerBound_ = currentPrime + 1;
+        return currentPrime;
+    }
+
+    // Fall back to the segment table
+    if( !SeekSegmentPrime() )
+    {
+        FormNewSegment();
+        bool foundPrecomputed = SeekSegmentPrime();
         DEBUG_ONLY(
           if( !foundPrecomputed )
-              LogicError("Bug in implementation");
+              LogicError("Error in DynamicSieve's table computation");
         )
     }
-    return CurrentPrime();
+
+    // We have guaranteed that we are currently pointing to a prime
+    TUnsigned currentPrime = segmentOffset_ + 2*segmentIndex_;
+    if( keepAll_ && currentPrime > oddPrimes.back() )
+        oddPrimes.push_back( currentPrime );
+    DEBUG_ONLY(
+        if( currentPrime < lowerBound_ )
+            LogicError("Error in DynamicSieve's lower bound mechanism");
+    )
+    lowerBound_ = currentPrime + 1;
+    return currentPrime;
 }
 
 } // namespace El

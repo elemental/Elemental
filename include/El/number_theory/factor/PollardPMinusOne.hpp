@@ -20,28 +20,42 @@ namespace factor {
 
 namespace pollard_pm1 {
 
+template<typename SieveUnsigned>
 inline BigInt FindFactor
 ( const BigInt& n,
-        DynamicSieve<unsigned long long>& sieve,
-  const PollardPMinusOneCtrl& ctrl )
+        DynamicSieve<SieveUnsigned>& sieve,
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
 {
     const double twoLog = Log( 2. );
     const double nLog = double( Log( BigFloat(n) ) );
     const BigInt zero(0), one(1);
 
-    unsigned long long smooth1 = ctrl.smooth1;
-    unsigned long long smooth2 = ctrl.smooth2;
-    const auto smooth1Bound = Max( Pow(10ULL,9ULL), 8ULL*smooth1 );
-    const auto smooth2Bound = Max( Pow(10ULL,10ULL), 8ULL*smooth2 );
+    // Keep all of the generated primes
+    sieve.SetStorage( true );
 
-    // Ensure that we have sieved at least up until smooth1
-    while( sieve.oddPrimes.back() < smooth1 )
-        sieve.NextPrime();
+    SieveUnsigned smooth1 = ctrl.smooth1;
+    SieveUnsigned smooth2 = ctrl.smooth2;
+    SieveUnsigned smooth1Bound = Max( Pow(10ULL,9ULL), 8ULL*smooth1 );
+    SieveUnsigned smooth2Bound = Max( Pow(10ULL,10ULL), 8ULL*smooth2 );
 
+    // Ensure that we do not have a GCD of n appear too many times despite
+    // separately checking the powers of two
     bool separateOdd=false;
-    BigInt smallPrime, gcd, tmp;
+    Int maxGCDFailures=10;
+    Int numGCDFailures=0;
+
+    BigInt smallPrime, gcd, tmp, diffPower;
     while( true )
     {
+        // Ensure that we have sieved at least up until smooth1
+        bool neededStage1Sieving = ( sieve.oddPrimes.back() < smooth1 );
+        if( ctrl.progress && neededStage1Sieving )
+            Output
+            ("Updating sieve from ",sieve.oddPrimes.back()," to ",smooth1);
+        sieve.Generate( smooth1 );
+        if( ctrl.progress && neededStage1Sieving )
+            Output("Done sieving for stage 1");
+
         // Uniformly select a in (Z/(n))*
         // (alternatively, we could set a=2)
         BigInt a = SampleUniform( zero, n );
@@ -61,10 +75,12 @@ inline BigInt FindFactor
                 a %= n;
             }
         }
-        auto smooth1Iter = 
+        auto smooth1End = 
           std::upper_bound
-          ( sieve.oddPrimes.begin(), sieve.oddPrimes.end(), smooth1 );
-        for( auto iter=sieve.oddPrimes.begin(); iter<smooth1Iter; ++iter )
+          ( sieve.oddPrimes.begin(),
+            sieve.oddPrimes.end(),
+            smooth1 );
+        for( auto iter=sieve.oddPrimes.begin(); iter<smooth1End; ++iter )
         {
             auto smallPrime = *iter;
             double smallPrimeLog = double(Log(double(smallPrime)));
@@ -80,66 +96,180 @@ inline BigInt FindFactor
         tmp = a; 
         tmp -= 1;
         GCD( tmp, n, gcd );
+        if( gcd > one && gcd < n )
+        {
+            if( ctrl.progress )
+                Output("Found stage-1 factor of ",gcd);
+            return gcd;
+        }
 
         if( separateOdd )
         { 
             unsigned twoExponent = unsigned(nLog/twoLog);
             for( Int i=0; i<twoExponent; ++i )
             {
-                if( gcd > one && gcd < n )
-                    break;
                 // a = a*a (mod n)
                 a *= a;
                 a %= n;
+
                 //gcd = GCD( a-1, n );
                 tmp = a;
                 tmp -= 1;
                 GCD( tmp, n, gcd );
+                if( gcd > one && gcd < n )
+                {
+                    if( ctrl.progress )
+                        Output("Found separate stage-1 factor of ",gcd);
+                    return gcd;
+                }
             }
         }
 
-        // TODO: Introduce second stage
+        if( gcd == n )
+        {
+            if( separateOdd )
+            {
+                ++numGCDFailures;
+                if( numGCDFailures >= maxGCDFailures )
+                    RuntimeError
+                    ("Too many GCD failures despite separately checking "
+                     "powers of two");
+            }
+            else
+            {
+                ++numGCDFailures;
+                separateOdd = true;
+                if( ctrl.progress )
+                    Output("GCD was n; will separately check powers of two");
+            }
+            continue;
+        }
+        else // gcd == one
+        {
+            if( ctrl.progress )
+                Output("Proceeding to stage-2");
+        }
+        
+        // Run stage-2
+        // ----------- 
 
-        if( gcd == one )
+        // Store all powers of a^{d_i}, where d_i is the difference between
+        // primes p_{i+1} and p_i, where smooth1 < p_{i+1} <= smooth2
+        bool neededStage2Sieving = ( sieve.oddPrimes.back() < smooth2 );
+        if( ctrl.progress && neededStage2Sieving )
+            Output
+            ("Updating sieve from ",sieve.oddPrimes.back()," to ",smooth2);
+        sieve.Generate( smooth2 );
+        if( ctrl.progress && neededStage2Sieving )
+            Output("Done sieving for stage 2");
+
+        // NOTE: stage1End has potentially been invalidated due to reallocation
+        auto stage2Beg =
+          std::lower_bound
+          ( sieve.oddPrimes.begin(),
+            sieve.oddPrimes.end(),
+            smooth1 );
+        auto stage2End =
+          std::upper_bound
+          ( stage2Beg,
+            sieve.oddPrimes.end(),
+            smooth2 );
+        std::map<SieveUnsigned,BigInt> diffPowers;
+        for( auto iter=stage2Beg; iter<stage2End; ++iter )
+        {
+            SieveUnsigned diff = *iter - *(iter-1);
+            auto search = diffPowers.find( diff );
+
+            const size_t whichPrime = (iter-sieve.oddPrimes.begin())+1;
+            Output("  ",whichPrime,": ",*iter," - ",*(iter-1)," = ",diff);
+            if( search == diffPowers.end() )
+            {
+                PowMod( a, diff, n, diffPower );
+                diffPowers.insert( std::make_pair(diff,diffPower) );
+                Output("    Stored ",a,"^",diff,"=",diffPower);
+            }
+            else
+                Output("    diff=",diff," was redundant");
+        }
+
+        // Test each stage two candidate
+        for( auto iter=stage2Beg; iter<stage2End; ++iter )
+        {
+            SieveUnsigned diff = *iter - *(iter-1);
+            a *= diffPowers[diff];
+            a %= n;
+            
+            //gcd = GCD( a-1, n );
+            tmp = a;
+            tmp -= 1;
+            GCD( tmp, n, gcd );
+            if( gcd > one && gcd < n )
+            {
+                if( ctrl.progress )
+                    Output("Found stage-2 factor of ",gcd);
+                return gcd;
+            }
+        }
+
+        if( gcd == n )
+        {
+            if( separateOdd )
+            {
+                if( ctrl.progress )
+                    Output("GCD failure ",numGCDFailures);
+                ++numGCDFailures;
+                if( numGCDFailures >= maxGCDFailures )
+                    RuntimeError
+                    ("Too many GCD failures despite separately checking "
+                     "powers of two");
+            }
+            else
+            {
+                ++numGCDFailures;
+                separateOdd = true;
+                if( ctrl.progress )
+                    Output("GCD was n; will separately check powers of two");
+            }
+            continue;
+        }
+        else // gcd == one
         {
             if( smooth1 >= smooth1Bound )
             {
                 RuntimeError
                 ("Stage-1 smoothness bound of ",smooth1Bound," exceeded");
             }
+            if( smooth2 >= smooth2Bound )
+            {
+                RuntimeError
+                ("Stage-2 smoothness bound of ",smooth2Bound," exceeded");
+            }
             smooth1 *= 2;
+            smooth2 *= 2;
             if( ctrl.progress )
-                Output("Increased stage-1 smoothness to ",smooth1);
-        }
-        else if( gcd == n )
-        {
-            separateOdd = true;
-            if( ctrl.progress )
-                Output("Separately checking powers of two");
-        }
-        else
-        {
-            if( ctrl.progress )
-                Output("Found factor of ",gcd);
-            return gcd;
+                Output
+                ("Increased stage-1 smoothness to ",smooth1," and stage-2 "
+                 "smoothness to ",smooth2);
         }
     }
 }
 
+template<typename SieveUnsigned>
 inline BigInt FindFactor
 ( const BigInt& n,
-  const PollardPMinusOneCtrl& ctrl )
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
 {
-    DynamicSieve<unsigned long long> sieve;
+    DynamicSieve<SieveUnsigned> sieve;
     return FindFactor( n, sieve, ctrl );
 }
 
 } // namespace pollard_pm1
 
+template<typename SieveUnsigned>
 inline vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-        DynamicSieve<unsigned long long>& sieve,
-  const PollardPMinusOneCtrl& ctrl )
+        DynamicSieve<SieveUnsigned>& sieve,
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
 {
     vector<BigInt> factors;
     BigInt nRem = n;
@@ -201,11 +331,12 @@ inline vector<BigInt> PollardPMinusOne
     return factors;
 }
 
+template<typename SieveUnsigned>
 inline vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-  const PollardPMinusOneCtrl& ctrl )
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
 {
-    DynamicSieve<unsigned long long> sieve;
+    DynamicSieve<SieveUnsigned> sieve;
     return PollardPMinusOne( n, sieve, ctrl );
 }
 

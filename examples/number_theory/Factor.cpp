@@ -42,7 +42,7 @@ int main( int argc, char* argv[] )
         rhoCtrl.progress = progress;
         rhoCtrl.time = time;
 
-        factor::PollardPMinusOneCtrl pm1Ctrl;
+        factor::PollardPMinusOneCtrl<unsigned long long> pm1Ctrl;
         pm1Ctrl.numReps = numReps;
         pm1Ctrl.progress = progress;
         pm1Ctrl.time = time;
@@ -124,7 +124,8 @@ int main( int argc, char* argv[] )
             //           2456044907*9909876848747
             mpc::SetMinIntBits( 8192 );
             BigInt z = Pow(BigInt(2),BigInt(2098)) + 1;
-            pm1Ctrl.smooth1 = Pow(10UL,13UL);
+            pm1Ctrl.smooth1 = 5*Pow(10UL,9UL);
+            pm1Ctrl.smooth2 = Pow(10UL,13UL);
             Output("z=2^2098+1=",z);
             factors = factor::PollardPMinusOne( z, pm1Ctrl );
             Output("factors:");

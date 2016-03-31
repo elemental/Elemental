@@ -16,34 +16,33 @@ template<typename TUnsigned=unsigned long long>
 struct DynamicSieve
 {
 public:
-    DynamicSieve( TUnsigned lowerBound=3 );
+    DynamicSieve( TUnsigned lowerBound=3, bool keepAll=false );
+
+    void SetStorage( bool keepAll );
+    void Generate( TUnsigned upperBound );
 
     TUnsigned NextPrime();
 
-    // A set of small odd primes for sieving larger primes
     vector<TUnsigned> oddPrimes;
 
 private:
-    vector<byte> table;
-    TUnsigned oddOffset, halvedIndex;
-    bool freshTable;
+    bool keepAll_;
+    TUnsigned lowerBound_; // always return the first prime >= lowerBound_
 
-    // The smallest indices into the above table of each of the 'oddPrimes'
-    // that could lead to said value of 'oddPrimes' being the smallest prime
-    // factor
-    vector<TUnsigned> starts;
+    // The segment offset will be odd (>=3) and the associated numbers are
+    // the offset plus twice the index.
+    vector<byte> segmentTable_;
+    TUnsigned segmentOffset_, segmentIndex_;
 
     // Attempt to update 'halvedIndex' until oddOffset + 2*halvedIndex is 
     // corresponds to a precomputed prime (i.e., table[halvedIndex] is one)
-    bool SeekPrecomputedPrime();
+    bool SeekSegmentPrime();
+    TUnsigned ComputeSegmentStart( const TUnsigned& p ) const;
 
-    TUnsigned ComputeStart( const TUnsigned& p ) const;
+    void AugmentPrimes( TUnsigned numPrimes );
 
-    void AugmentPrimes();
-    void Sieve();
-    void FormNewTable();
-
-    TUnsigned CurrentPrime() const;
+    void SieveSegment();
+    void FormNewSegment();
 };
 
 #ifdef EL_HAVE_MPC
@@ -99,34 +98,43 @@ BigInt FindDivisor
 
 } // namespace pollard_rho
 
+template<typename SieveUnsigned=unsigned long long>
 struct PollardPMinusOneCtrl
 {
-    unsigned long long smooth1=1000000ULL;
-    unsigned long long smooth2=10000000ULL;
+    SieveUnsigned smooth1=SieveUnsigned(1000000ULL);
+    SieveUnsigned smooth2=SieveUnsigned(10000000ULL);
     Int numReps=30;
     bool progress=false;
     bool time=false;
 };
 
+template<typename SieveUnsigned=unsigned long long>
 vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
+        PollardPMinusOneCtrl<SieveUnsigned>() );
 
+template<typename SieveUnsigned=unsigned long long>
 vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-        DynamicSieve<unsigned long long>& sieve,
-  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
+        DynamicSieve<SieveUnsigned>& sieve,
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
+        PollardPMinusOneCtrl<SieveUnsigned>() );
 
 namespace pollard_pm1 {
 
+template<typename SieveUnsigned=unsigned long long>
 BigInt FindFactor
 ( const BigInt& n,
-  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
+        PollardPMinusOneCtrl<SieveUnsigned>() );
 
+template<typename SieveUnsigned=unsigned long long>
 BigInt FindFactor
 ( const BigInt& n,
-        DynamicSieve<unsigned long long>& sieve,
-  const PollardPMinusOneCtrl& ctrl=PollardPMinusOneCtrl() );
+        DynamicSieve<SieveUnsigned>& sieve,
+  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
+        PollardPMinusOneCtrl<SieveUnsigned>() );
 
 } // namespace pollard_pm1
 

@@ -11,20 +11,28 @@ using namespace El;
 
 int main( int argc, char* argv[] )
 {
+    typedef unsigned long long TUnsigned;
     Environment env( argc, argv );
+    const TUnsigned B1 =
+      Input("--B1","smoothness limit",TUnsigned(1000000000UL));
+    const bool print = Input("--print","print primes?",false);
+    ProcessInput();
+    PrintInputReport();
 
     try
     {
-        typedef unsigned long long TUnsigned;
-        const TUnsigned B1=1000000000;
-        DynamicSieve<TUnsigned> sieve;
-        TUnsigned numPrimes=0;
-        for( TUnsigned p=2; p<=B1; p=sieve.NextPrime() )
+        // Count the number of primes below the given bound
         {
-            //Output(numPrimes,": ",p);
-            ++numPrimes; 
+            DynamicSieve<TUnsigned> sieve;
+            TUnsigned numPrimes=0;
+            for( TUnsigned p=2; p<=B1; p=sieve.NextPrime() )
+            {
+                if( print )
+                    Output(numPrimes,": ",p);
+                ++numPrimes; 
+            }
+            Output("numPrimes=",numPrimes);
         }
-        Output("numPrimes=",numPrimes);
     }
     catch( std::exception& e ) { ReportException(e); }
 
