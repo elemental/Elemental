@@ -11,35 +11,44 @@
 
 namespace El {
 
-// A dynamic version of the sieve of Eratosthenes
-template<typename TUnsigned=unsigned long long>
+template<typename T=unsigned long long,
+         typename TSmall=unsigned>
 struct DynamicSieve
 {
 public:
-    DynamicSieve( TUnsigned lowerBound=3, bool keepAll=false );
+    DynamicSieve
+    ( T lowerBound=3,
+      bool keepAll=false,
+      TSmall segmentSize=32768 );
 
     void SetStorage( bool keepAll );
-    void Generate( TUnsigned upperBound );
+    void Generate( T upperBound );
 
-    TUnsigned NextPrime();
+    T NextPrime();
 
-    vector<TUnsigned> oddPrimes;
+    // We could use TSmall if keepAll was false
+    vector<T> oddPrimes;
 
 private:
     bool keepAll_;
-    TUnsigned lowerBound_; // always return the first prime >= lowerBound_
+    T lowerBound_; // always return the first prime >= lowerBound_
+    T oddPrimeBound_;
+    vector<TSmall> oddPrimeStarts_;
 
     // The segment offset will be odd (>=3) and the associated numbers are
     // the offset plus twice the index.
-    vector<byte> segmentTable_;
-    TUnsigned segmentOffset_, segmentIndex_;
-
+    vector<char> segmentTable_;
+    TSmall segmentSize_;
+    T segmentOffset_;
+    TSmall segmentIndex_;
     // Attempt to update 'halvedIndex' until oddOffset + 2*halvedIndex is 
     // corresponds to a precomputed prime (i.e., table[halvedIndex] is one)
     bool SeekSegmentPrime();
-    TUnsigned ComputeSegmentStart( const TUnsigned& p ) const;
+    TSmall ComputeSegmentStart( const TSmall& p ) const;
 
-    void AugmentPrimes( TUnsigned numPrimes );
+    void AugmentPrimes( T numPrimes );
+
+    T PrimeCountingEstimate( T n ) const;
 
     void SieveSegment();
     void FormNewSegment();
@@ -98,43 +107,47 @@ BigInt FindDivisor
 
 } // namespace pollard_rho
 
-template<typename SieveUnsigned=unsigned long long>
+template<typename TSieve=unsigned long long>
 struct PollardPMinusOneCtrl
 {
-    SieveUnsigned smooth1=SieveUnsigned(1000000ULL);
-    SieveUnsigned smooth2=SieveUnsigned(10000000ULL);
+    TSieve smooth1=TSieve(1000000ULL);
+    TSieve smooth2=TSieve(10000000ULL);
     Int numReps=30;
     bool progress=false;
     bool time=false;
 };
 
-template<typename SieveUnsigned=unsigned long long>
+template<typename TSieve=unsigned long long,
+         typename TSieveSmall=unsigned>
 vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
-        PollardPMinusOneCtrl<SieveUnsigned>() );
+  const PollardPMinusOneCtrl<TSieve>& ctrl=
+        PollardPMinusOneCtrl<TSieve>() );
 
-template<typename SieveUnsigned=unsigned long long>
+template<typename TSieve=unsigned long long,
+         typename TSieveSmall=unsigned>
 vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-        DynamicSieve<SieveUnsigned>& sieve,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
-        PollardPMinusOneCtrl<SieveUnsigned>() );
+        DynamicSieve<TSieve,TSieveSmall>& sieve,
+  const PollardPMinusOneCtrl<TSieve>& ctrl=
+        PollardPMinusOneCtrl<TSieve>() );
 
 namespace pollard_pm1 {
 
-template<typename SieveUnsigned=unsigned long long>
+template<typename TSieve=unsigned long long,
+         typename TSieveSmall=unsigned>
 BigInt FindFactor
 ( const BigInt& n,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
-        PollardPMinusOneCtrl<SieveUnsigned>() );
+  const PollardPMinusOneCtrl<TSieve>& ctrl=
+        PollardPMinusOneCtrl<TSieve>() );
 
-template<typename SieveUnsigned=unsigned long long>
+template<typename TSieve=unsigned long long,
+         typename TSieveSmall=unsigned>
 BigInt FindFactor
 ( const BigInt& n,
-        DynamicSieve<SieveUnsigned>& sieve,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl=
-        PollardPMinusOneCtrl<SieveUnsigned>() );
+        DynamicSieve<TSieve,TSieveSmall>& sieve,
+  const PollardPMinusOneCtrl<TSieve>& ctrl=
+        PollardPMinusOneCtrl<TSieve>() );
 
 } // namespace pollard_pm1
 

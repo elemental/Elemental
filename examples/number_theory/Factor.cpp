@@ -16,6 +16,9 @@ int main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
     try
     {
+        typedef TSieve = unsigned long long;
+        typedef TSieveSmall = unsigned;
+
         const int minIntBits = Input("--minIntBits","integer bits",384);
         const unsigned long numSteps =
           Input("--numSteps","x^2k + a in Pollard rho",1u);
@@ -42,7 +45,7 @@ int main( int argc, char* argv[] )
         rhoCtrl.progress = progress;
         rhoCtrl.time = time;
 
-        factor::PollardPMinusOneCtrl<unsigned long long> pm1Ctrl;
+        factor::PollardPMinusOneCtrl<TSieve> pm1Ctrl;
         pm1Ctrl.numReps = numReps;
         pm1Ctrl.progress = progress;
         pm1Ctrl.time = time;

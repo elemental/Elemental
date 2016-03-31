@@ -11,10 +11,25 @@
 
 namespace El {
 
-template<typename TUnsigned>
-DynamicSieve<TUnsigned>::DynamicSieve( TUnsigned lowerBound, bool keepAll )
+template<typename T,typename TSmall>
+DynamicSieve<T,TSmall>::DynamicSieve
+( T lowerBound,
+  bool keepAll,
+  TSmall segmentSize )
 {
-    oddPrimes.resize( 9 ); 
+    keepAll_ = false;
+    oddPrimeBound_ = 0;
+
+    // Ensure that the lower bound is odd
+    if( lowerBound % 2 == 0 )
+        ++lowerBound;
+
+    // Ensure that the segment size is even
+    if( segmentSize % 2 == 1 )
+        ++segmentSize;
+
+    // This could be an arbitrary number of the first several odd primes
+    oddPrimes.resize( 9 );
     oddPrimes[0] = 3;
     oddPrimes[1] = 5;
     oddPrimes[2] = 7;
@@ -25,76 +40,104 @@ DynamicSieve<TUnsigned>::DynamicSieve( TUnsigned lowerBound, bool keepAll )
     oddPrimes[7] = 23;
     oddPrimes[8] = 29;
 
-    lowerBound_ = segmentOffset_ = ( keepAll ? 3 : lowerBound );
+    segmentOffset_ = lowerBound_ = ( keepAll ? 3 : lowerBound );
+    segmentOffset_ = std::max( segmentOffset_, oddPrimes.back()+2 );
 
-    TUnsigned numPrimes = oddPrimes.size();
-    
-    // Allocate a table which would use roughly the same amount of memory
-    // as the list of primes (which we crudely approximate to have a
-    // cardinality on the order of Sqrt(segmentOffset_))
-    size_t minTableSize = 256;
-    TUnsigned tableSize =
-      Max( size_t(std::sqrt(segmentOffset_)), minTableSize );
-    segmentTable_.resize( tableSize );
+    segmentSize_ = segmentSize;
 
-    // Ensure that every prime factor of a number in the range covered by
-    // the table, [segmentOffset_,segmentOffset_+2*newTableSize), 
-    // is in our list of primes
-    TUnsigned largestCandidate = segmentOffset_ + 2*(tableSize-1);
+    T numPrimes = oddPrimes.size();
+    segmentTable_.resize( segmentSize );
+
+    // Initialize the sieve table
+    T largestCandidate = segmentOffset_ + 2*(segmentSize-1);
     while( oddPrimes.back()*oddPrimes.back() < largestCandidate )
     {
         AugmentPrimes( 2*oddPrimes.size() );
     }
-
     SieveSegment();
 
     if( keepAll )
     {
+        // Since it has been requested that we start generating primes at
+        // 'lowerBound', to keep all primes, we should now generate all
+        // primes before 'lowerBound'
         Generate( lowerBound );
         lowerBound_ = lowerBound;
     }
 }
 
-template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::SetStorage( bool keepAll )
+template<typename T,typename TSmall>
+T DynamicSieve<T,TSmall>::PrimeCountingEstimate( T n ) const
+{ return 2*(n/T(std::log(n))); }
+
+template<typename T,typename TSmall>
+void DynamicSieve<T,TSmall>::SetStorage( bool keepAll )
 {
     if( keepAll && !keepAll_ )
     {
-        // NOTE: This could be made substantially faster but is provided as
-        //       a convenience. Advanced users should set this mode upon 
-        //       construction.
-        DynamicSieve<TUnsigned> tmpSieve( oddPrimes.back()+1 );
+        // This could be made substantially faster but is provided as
+        // a convenience. Advanced users should set this mode upon 
+        // construction.
+        DynamicSieve<T> tmpSieve( oddPrimes.back()+1 );
         tmpSieve.oddPrimes = oddPrimes;
 
-        TUnsigned pntEstimate =
-          segmentOffset_ / TUnsigned(Log2(double(segmentOffset_)));
-        TUnsigned fudge = 10;
-        oddPrimes.reserve( pntEstimate + fudge );
-
+        oddPrimes.reserve( PrimeCountingEstimate(segmentOffset_) );
         while( tmpSieve.oddPrimes.back() < segmentOffset_ )
+        {
             oddPrimes.push_back( tmpSieve.NextPrime() );
+        }
     }
     keepAll_ = keepAll;
 }
 
-template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::Generate( TUnsigned upperBound )
+template<typename T,typename TSmall>
+void DynamicSieve<T,TSmall>::Generate( T upperBound )
 {
-    while( oddPrimes.back() < upperBound )
-        NextPrime();
+    SetStorage( true );
+
+    // Compute all of the needed "small" odd primes for testing candidates
+    // up to a (loose) upper bound of upperBound + 2*(segmentSize-1)
+    T largestCandidate = upperBound + 2*(segmentSize_-1);
+    oddPrimes.reserve( PrimeCountingEstimate(largestCandidate) );
+    while( oddPrimes.back()*oddPrimes.back() < largestCandidate )
+    {
+        AugmentPrimes( 2*oddPrimes.size() );
+    }
+
+    if( segmentOffset_ < oddPrimes.back()+2 )
+    {
+        segmentOffset_ = oddPrimes.back()+2;
+        // Regenerate oddPrimeStarts_ since it has been invalidated
+        // by breaking the assumption on the incrementation of segmentOffset_
+        // by 2*segmentSize_
+        for( TSmall i=0; i<oddPrimeBound_; ++i )
+            oddPrimeStarts_[i] = ComputeSegmentStart( oddPrimes[i] );
+    }
+
+    for( ; segmentOffset_<upperBound; segmentOffset_+=2*segmentSize_ )
+    {
+        SieveSegment();
+        for( TSmall k=0; k<segmentSize_; ++k )
+        {
+            if( segmentTable_[k] )
+            {
+                T p = segmentOffset_ + 2*k;
+                oddPrimes.push_back( p );
+            }
+        }
+    }
 }
 
-template<typename TUnsigned>
-bool DynamicSieve<TUnsigned>::SeekSegmentPrime()
+template<typename T,typename TSmall>
+bool DynamicSieve<T,TSmall>::SeekSegmentPrime()
 {
     // Set segmentIndex_ to the first location greater than or equal to the
     // current location that is marked prime
-    const TUnsigned tableSize = segmentTable_.size();
-    const TUnsigned start = 
+    const TSmall start =
       ( segmentOffset_ >= lowerBound_ ?
         0 :
         (lowerBound_-segmentOffset_+1) / 2 );
-    for( TUnsigned i=start; i<tableSize; ++i )
+    for( TSmall i=start; i<segmentSize_; ++i )
     {
         if( segmentTable_[i] != 0 )
         {
@@ -107,9 +150,9 @@ bool DynamicSieve<TUnsigned>::SeekSegmentPrime()
 
 // Find the integer k such that segmentOffset_ + 2*k is the first odd 
 // multiple of p that is greater than or equal to Max(segmentOffset_,p^2)
-template<typename TUnsigned>
-TUnsigned DynamicSieve<TUnsigned>::ComputeSegmentStart
-( const TUnsigned& p ) const
+template<typename T,typename TSmall>
+TSmall DynamicSieve<T,TSmall>::ComputeSegmentStart
+( const TSmall& p ) const
 {
     if( p*p >= segmentOffset_ )
     {
@@ -117,7 +160,7 @@ TUnsigned DynamicSieve<TUnsigned>::ComputeSegmentStart
     }
     else
     {
-        TUnsigned complement = (p - (segmentOffset_ % p)) % p;
+        auto complement = (p - (segmentOffset_ % p)) % p;
         if( complement % 2 == 0 )
         {
             return complement / 2;
@@ -129,15 +172,17 @@ TUnsigned DynamicSieve<TUnsigned>::ComputeSegmentStart
     }
 }
 
-template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::AugmentPrimes( TUnsigned numPrimes )
+template<typename T,typename TSmall>
+void DynamicSieve<T,TSmall>::AugmentPrimes
+( T numPrimes )
 {
-    TUnsigned pIndex = oddPrimes.size();
+    T pIndex = oddPrimes.size();
     oddPrimes.resize( numPrimes );
 
-    // TODO: Consider switching to another scheme if a sufficient number of
-    //       primes are to be kept
-    TUnsigned p = oddPrimes[pIndex-1];
+    // TODO:
+    // Consider switching to another scheme if a sufficient number of primes
+    // are to be kept
+    T p = oddPrimes[pIndex-1];
     for( ; pIndex<numPrimes; ++pIndex )
     {
         // Find the next prime after p using trial division.
@@ -147,13 +192,13 @@ void DynamicSieve<TUnsigned>::AugmentPrimes( TUnsigned numPrimes )
         {
             p += 2;
 
-            TUnsigned factorBound = TUnsigned(std::sqrt(p)) + 1;
+            T factorBound = T(std::sqrt(p)) + 1;
             boundIter =
               std::lower_bound( boundIter, begIter+pIndex, factorBound );
-            const TUnsigned indexEnd = TUnsigned(boundIter-begIter);
+            const T indexEnd = T(boundIter-begIter);
 
-            TUnsigned remainder = 1; // this could be an arbitrary nonzero
-            for( TUnsigned j=0; j<indexEnd; ++j )
+            T remainder = 1; // this could be an arbitrary nonzero
+            for( T j=0; j<indexEnd; ++j )
             {
                 remainder = p % oddPrimes[j];
                 if( remainder == 0 )
@@ -172,60 +217,63 @@ void DynamicSieve<TUnsigned>::AugmentPrimes( TUnsigned numPrimes )
     }
 }
 
-template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::SieveSegment()
+template<typename T,typename TSmall>
+void DynamicSieve<T,TSmall>::SieveSegment()
 {
-    std::fill( segmentTable_.begin(), segmentTable_.end(), byte(1) );
+    std::fill( segmentTable_.begin(), segmentTable_.end(), char(1) );
 
-    TUnsigned tableSize = segmentTable_.size();
-    TUnsigned numPrimes = oddPrimes.size();
-
-    TUnsigned largestCandidate = segmentOffset_ + 2*(tableSize-1);
-    TUnsigned factorBound = TUnsigned(std::sqrt(largestCandidate)) + 1;
+    // Since sqrt(n) is an upper-bound on the smallest prime factor of 
+    // a number n, we can a priori compute which of our stored primes is
+    // the last that we need to sieve with in this segment
+    T largestCandidate = segmentOffset_ + 2*(segmentSize_-1);
+    auto factorBound = TSmall(std::sqrt(largestCandidate)) + 1;
     auto boundIter =
       std::lower_bound( oddPrimes.begin(), oddPrimes.end(), factorBound );
-    const TUnsigned indexEnd = TUnsigned(boundIter-oddPrimes.begin());
+    auto indexEnd = TSmall(boundIter-oddPrimes.begin());
 
-    for( TUnsigned j=0; j<indexEnd; ++j )
+    // Compute the starting index in this segment of all of the newly
+    // incorporated small primes 
+    while( oddPrimeBound_ < indexEnd )
     {
-        TUnsigned p = oddPrimes[j];
+        oddPrimeStarts_.push_back
+        ( ComputeSegmentStart(oddPrimes[oddPrimeBound_]) );
+        ++oddPrimeBound_;
+    }
+
+    for( TSmall j=0; j<indexEnd; ++j )
+    {
+        TSmall p = oddPrimes[j];
 
         // Iterate over the indices corresponding to odd multiples of p that
         // are at least as large as Max(segmentOffset_,p^2)
-        TUnsigned start = ComputeSegmentStart( p );
-        for( TUnsigned k=start; k<tableSize; k+=p )
+        auto k = oddPrimeStarts_[j];
+        for( ; k<segmentSize_; k+=p )
+        {
             segmentTable_[k] = 0;
+        }
+
+        // Store the next starting index of the j'th small prime
+        // (under the assumption that the next segment will begin where the
+        // current one ends)
+        oddPrimeStarts_[j] = k - segmentSize_;
     }
 }
 
-template<typename TUnsigned>
-void DynamicSieve<TUnsigned>::FormNewSegment()
+template<typename T,typename TSmall>
+void DynamicSieve<T,TSmall>::FormNewSegment()
 {
     // The current table handles the odd integers in the inclusive interval
-    // [segmentOffset,segmentOffset+2*(tableSize-1)], so the next table should
-    // begin at 2*tableSize (unless lowerBound_ is larger).
-    segmentOffset_ += 2*segmentTable_.size();
-    segmentOffset_ = Max(segmentOffset_,lowerBound_);
-
-    // Allocate a new table which would use roughly the same amount of memory
-    // as the list of primes (which we crudely approximate to have a cardinality
-    // on the order of Sqrt(segmentOffset_))
-    const TUnsigned newTableSize =
-      Max( size_t(std::sqrt(segmentOffset_)), segmentTable_.size() );
-    segmentTable_.resize( newTableSize );
+    // [segmentOffset,segmentOffset+2*(segmentSize-1)], so the next table
+    // should begin at 2*segmentSize (unless lowerBound_ is larger).
+    segmentOffset_ += 2*segmentSize_;
 
     // Ensure that every prime factor of a number in the range covered by the
-    // table, [segmentOffset_,segmentOffset_+2*newTableSize), is in our list of
+    // table, [segmentOffset_,segmentOffset_+2*segmentSize), is in our list of
     //  primes
-    const TUnsigned largestCandidate = segmentOffset_ + 2*(newTableSize-1);
+    const T largestCandidate = segmentOffset_ + 2*(segmentSize_-1);
     if( keepAll_ )
     {
-        // We should have all of the primes below segmentOffset_ precomputed
-        // TODO: Decide a sharp way to assert this
-        TUnsigned pntEstimate =
-          largestCandidate / TUnsigned(Log2(double(largestCandidate)));
-        TUnsigned fudge = 10;
-        oddPrimes.reserve( pntEstimate + fudge );
+        oddPrimes.reserve( PrimeCountingEstimate(largestCandidate) );
     }
     else
     {
@@ -238,39 +286,38 @@ void DynamicSieve<TUnsigned>::FormNewSegment()
     SieveSegment();
 }
 
-template<typename TUnsigned>
-TUnsigned DynamicSieve<TUnsigned>::NextPrime()
+template<typename T,typename TSmall>
+T DynamicSieve<T,TSmall>::NextPrime()
 {
     // Use a stored prime if a sufficiently large one exists
     if( oddPrimes.back() >= lowerBound_ )
     {
         auto iter =
           std::lower_bound( oddPrimes.begin(), oddPrimes.end(), lowerBound_ );
-        TUnsigned currentPrime = *iter;
-        lowerBound_ = currentPrime + 1;
+        T currentPrime = *iter;
+        lowerBound_ = currentPrime + 2;
         return currentPrime;
     }
 
     // Fall back to the segment table
-    if( !SeekSegmentPrime() )
+    while( !SeekSegmentPrime() )
     {
         FormNewSegment();
-        bool foundPrecomputed = SeekSegmentPrime();
-        DEBUG_ONLY(
-          if( !foundPrecomputed )
-              LogicError("Error in DynamicSieve's table computation");
-        )
     }
 
     // We have guaranteed that we are currently pointing to a prime
-    TUnsigned currentPrime = segmentOffset_ + 2*segmentIndex_;
+    T currentPrime = segmentOffset_ + 2*segmentIndex_;
     if( keepAll_ && currentPrime > oddPrimes.back() )
+    {
         oddPrimes.push_back( currentPrime );
+    }
     DEBUG_ONLY(
-        if( currentPrime < lowerBound_ )
-            LogicError("Error in DynamicSieve's lower bound mechanism");
+      if( currentPrime < lowerBound_ )
+          Output
+          ("Current prime, ",currentPrime,
+           ", smaller than lower bound of ",lowerBound_);
     )
-    lowerBound_ = currentPrime + 1;
+    lowerBound_ = currentPrime + 2;
     return currentPrime;
 }
 

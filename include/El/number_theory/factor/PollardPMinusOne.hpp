@@ -20,23 +20,20 @@ namespace factor {
 
 namespace pollard_pm1 {
 
-template<typename SieveUnsigned>
+template<typename TSieve,typename TSieveSmall>
 inline BigInt FindFactor
 ( const BigInt& n,
-        DynamicSieve<SieveUnsigned>& sieve,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
+        DynamicSieve<TSieve,TSieveSmall>& sieve,
+  const PollardPMinusOneCtrl<TSieve>& ctrl )
 {
     const double twoLog = Log( 2. );
     const double nLog = double( Log( BigFloat(n) ) );
     const BigInt zero(0), one(1);
 
-    // Keep all of the generated primes
-    sieve.SetStorage( true );
-
-    SieveUnsigned smooth1 = ctrl.smooth1;
-    SieveUnsigned smooth2 = ctrl.smooth2;
-    SieveUnsigned smooth1Bound = Max( Pow(10ULL,9ULL), 8ULL*smooth1 );
-    SieveUnsigned smooth2Bound = Max( Pow(10ULL,10ULL), 8ULL*smooth2 );
+    TSieve smooth1 = ctrl.smooth1;
+    TSieve smooth2 = ctrl.smooth2;
+    TSieve smooth1Bound = Max( Pow(10ULL,9ULL), 8ULL*smooth1 );
+    TSieve smooth2Bound = Max( Pow(10ULL,10ULL), 8ULL*smooth2 );
 
     // Ensure that we do not have a GCD of n appear too many times despite
     // separately checking the powers of two
@@ -174,10 +171,10 @@ inline BigInt FindFactor
           ( stage2Beg,
             sieve.oddPrimes.end(),
             smooth2 );
-        std::map<SieveUnsigned,BigInt> diffPowers;
+        std::map<TSieve,BigInt> diffPowers;
         for( auto iter=stage2Beg; iter<stage2End; ++iter )
         {
-            SieveUnsigned diff = *iter - *(iter-1);
+            TSieve diff = *iter - *(iter-1);
             auto search = diffPowers.find( diff );
 
             const size_t whichPrime = (iter-sieve.oddPrimes.begin())+1;
@@ -195,7 +192,7 @@ inline BigInt FindFactor
         // Test each stage two candidate
         for( auto iter=stage2Beg; iter<stage2End; ++iter )
         {
-            SieveUnsigned diff = *iter - *(iter-1);
+            TSieve diff = *iter - *(iter-1);
             a *= diffPowers[diff];
             a %= n;
             
@@ -254,22 +251,22 @@ inline BigInt FindFactor
     }
 }
 
-template<typename SieveUnsigned>
+template<typename TSieve,typename TSieveSmall>
 inline BigInt FindFactor
 ( const BigInt& n,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
+  const PollardPMinusOneCtrl<TSieve>& ctrl )
 {
-    DynamicSieve<SieveUnsigned> sieve;
+    DynamicSieve<TSieve,TSieveSmall> sieve;
     return FindFactor( n, sieve, ctrl );
 }
 
 } // namespace pollard_pm1
 
-template<typename SieveUnsigned>
+template<typename TSieve,typename TSieveSmall>
 inline vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-        DynamicSieve<SieveUnsigned>& sieve,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
+        DynamicSieve<TSieve,TSieveSmall>& sieve,
+  const PollardPMinusOneCtrl<TSieve>& ctrl )
 {
     vector<BigInt> factors;
     BigInt nRem = n;
@@ -331,12 +328,12 @@ inline vector<BigInt> PollardPMinusOne
     return factors;
 }
 
-template<typename SieveUnsigned>
+template<typename TSieve,typename TSieveSmall>
 inline vector<BigInt> PollardPMinusOne
 ( const BigInt& n,
-  const PollardPMinusOneCtrl<SieveUnsigned>& ctrl )
+  const PollardPMinusOneCtrl<TSieve>& ctrl )
 {
-    DynamicSieve<SieveUnsigned> sieve;
+    DynamicSieve<TSieve,TSieveSmall> sieve;
     return PollardPMinusOne( n, sieve, ctrl );
 }
 
