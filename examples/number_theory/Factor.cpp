@@ -16,8 +16,8 @@ int main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
     try
     {
-        typedef TSieve = unsigned long long;
-        typedef TSieveSmall = unsigned;
+        typedef unsigned long long TSieve;
+        typedef unsigned TSieveSmall;
 
         const int minIntBits = Input("--minIntBits","integer bits",384);
         const unsigned long numSteps =
