@@ -184,6 +184,56 @@ namespace El {
 
 namespace mpi {
 
+namespace {
+
+// The first stage; to be finalized via 'CreateResized'.
+// TODO: Decide whether the intermediate type (i.e., 'newType') needs to be
+//       committed and/or freed.
+void CreateStruct
+( int numItems,
+  int* blockLengths,
+  MPI_Aint* displs,
+  mpi::Datatype* typeList,
+  mpi::Datatype& newType )
+{
+    int err =
+      MPI_Type_create_struct
+      ( numItems, blockLengths, displs, typeList, &newType );
+    if( err != MPI_SUCCESS )
+        RuntimeError("MPI_Type_create_struct returned with err=",err);
+}
+
+void CreateResized
+( mpi::Datatype& type,
+  MPI_Aint lowerBound,
+  MPI_Aint extent,
+  mpi::Datatype& newType )
+{
+    int err = MPI_Type_create_resized( type, 0, extent, &newType );
+    if( err != MPI_SUCCESS )
+        RuntimeError("MPI_Type_create_resized returned with err=",err);
+
+    err = MPI_Type_commit( &newType );
+    if( err != MPI_SUCCESS )
+        RuntimeError("MPI_Type_commit returned with err=",err);
+}
+
+void CreateContiguous
+( int numItems,
+  mpi::Datatype type,
+  mpi::Datatype& newType )
+{
+    int err = MPI_Type_contiguous( numItems, type, &newType );
+    if( err != MPI_SUCCESS )
+        RuntimeError("MPI_Type_contiguous returned with err=",err);
+
+    err = MPI_Type_commit( &newType );
+    if( err != MPI_SUCCESS )
+        RuntimeError("MPI_Type_commit returned with err=",err);
+}
+
+} // anonymous namespace
+
 #ifdef EL_HAVE_MPC
 
 void CreateBigIntType()
@@ -192,30 +242,21 @@ void CreateBigIntType()
     const auto packedSize = alpha.SerializedSize();
     const int numLimbs = mpc::NumIntLimbs();
 
-    mpi::Datatype typeList[3];
-    typeList[0] = mpi::TypeMap<int>();
-    typeList[1] = mpi::TypeMap<mp_limb_t>();
-    typeList[2] = MPI_UB;
+    Datatype typeList[2];
+    typeList[0] = TypeMap<int>();
+    typeList[1] = TypeMap<mp_limb_t>();
     
-    int blockLengths[3];
+    int blockLengths[2];
     blockLengths[0] = 1;
     blockLengths[1] = numLimbs;
-    blockLengths[2] = 1;
 
-    MPI_Aint displs[3];
+    MPI_Aint displs[2];
     displs[0] = 0;
     displs[1] = sizeof(int);
-    displs[2] = packedSize;
-
-    int err;
-    err =
-      MPI_Type_create_struct
-      ( 3, blockLengths, displs, typeList, &::BigIntType );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &::BigIntType );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+     
+    MPI_Datatype tempType;
+    CreateStruct( 2, blockLengths, displs, typeList, tempType );
+    CreateResized( tempType, 0, packedSize, ::BigIntType );
 }
 
 void CreateBigFloatType()
@@ -224,36 +265,27 @@ void CreateBigFloatType()
     const auto packedSize = alpha.SerializedSize();
     const auto numLimbs = alpha.NumLimbs();
 
-    mpi::Datatype typeList[5];
-    typeList[0] = mpi::TypeMap<mpfr_prec_t>();
-    typeList[1] = mpi::TypeMap<mpfr_sign_t>();
-    typeList[2] = mpi::TypeMap<mpfr_exp_t>();
-    typeList[3] = mpi::TypeMap<mp_limb_t>();
-    typeList[4] = MPI_UB;
+    Datatype typeList[4];
+    typeList[0] = TypeMap<mpfr_prec_t>();
+    typeList[1] = TypeMap<mpfr_sign_t>();
+    typeList[2] = TypeMap<mpfr_exp_t>();
+    typeList[3] = TypeMap<mp_limb_t>();
     
-    int blockLengths[5];
+    int blockLengths[4];
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
     blockLengths[2] = 1;
     blockLengths[3] = numLimbs;
-    blockLengths[4] = 1;
 
-    MPI_Aint displs[5];
+    MPI_Aint displs[4];
     displs[0] = 0;
     displs[1] = sizeof(mpfr_prec_t);
     displs[2] = sizeof(mpfr_prec_t) + sizeof(mpfr_sign_t);
     displs[3] = sizeof(mpfr_prec_t) + sizeof(mpfr_sign_t) + sizeof(mpfr_exp_t);
-    displs[4] = packedSize;
     
-    int err;
-    err =
-      MPI_Type_create_struct
-      ( 5, blockLengths, displs, typeList, &::BigFloatType );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &::BigFloatType );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    MPI_Datatype tempType;
+    CreateStruct( 4, blockLengths, displs, typeList, tempType );
+    CreateResized( tempType, 0, packedSize, ::BigFloatType );
 }
 #endif // ifdef EL_HAVE_MPC
 
@@ -1456,15 +1488,14 @@ template<typename T>
 static void CreateValueIntType() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateValueIntType"))
-    Datatype typeList[3];
+
+    Datatype typeList[2];
     typeList[0] = TypeMap<T>();
     typeList[1] = TypeMap<Int>();
-    typeList[2] = MPI_UB;
     
-    int blockLengths[3];
+    int blockLengths[2];
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
-    blockLengths[2] = 1;
 
     ValueInt<T> v;
     MPI_Aint startAddr, valueAddr, indexAddr;
@@ -1472,19 +1503,16 @@ static void CreateValueIntType() EL_NO_EXCEPT
     MPI_Get_address( &v.value, &valueAddr );
     MPI_Get_address( &v.index, &indexAddr );
 
-    MPI_Aint displs[3];
+    MPI_Aint displs[2];
     displs[0] = valueAddr - startAddr;
     displs[1] = indexAddr - startAddr;
-    displs[2] = sizeof(v);
+
+    Datatype tempType;
+    CreateStruct( 2, blockLengths, displs, typeList, tempType );
 
     Datatype& type = ValueIntType<T>();
-    int err;
-    err = MPI_Type_create_struct( 3, blockLengths, displs, typeList, &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    MPI_Aint extent = sizeof(v);
+    CreateResized( tempType, 0, extent, type );
 }
 
 #ifdef EL_HAVE_MPC
@@ -1492,64 +1520,56 @@ template<>
 void CreateValueIntType<BigInt>() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateValueIntType [BigInt]"))
-    Datatype typeList[3];
+
+    Datatype typeList[2];
     typeList[0] = TypeMap<BigInt>();
     typeList[1] = TypeMap<Int>();
-    typeList[2] = MPI_UB;
     
-    int blockLengths[3];
+    int blockLengths[2];
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
-    blockLengths[2] = 1;
 
     BigInt alpha;
     const size_t packedSize = alpha.SerializedSize();
 
-    MPI_Aint displs[3];
+    MPI_Aint displs[2];
     displs[0] = 0;
     displs[1] = packedSize;
-    displs[2] = packedSize + sizeof(Int);
+
+    Datatype tempType;
+    CreateStruct( 2, blockLengths, displs, typeList, tempType );
 
     Datatype& type = ValueIntType<BigInt>();
-    int err;
-    err = MPI_Type_create_struct( 3, blockLengths, displs, typeList, &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    MPI_Aint extent = packedSize + sizeof(Int);
+    CreateResized( tempType, 0, extent, type );
 }
 
 template<>
 void CreateValueIntType<BigFloat>() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateValueIntType [BigFloat]"))
-    Datatype typeList[3];
+
+    Datatype typeList[2];
     typeList[0] = TypeMap<BigFloat>();
     typeList[1] = TypeMap<Int>();
-    typeList[2] = MPI_UB;
     
-    int blockLengths[3];
+    int blockLengths[2];
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
-    blockLengths[2] = 1;
 
     BigFloat alpha;
     const size_t packedSize = alpha.SerializedSize();
 
-    MPI_Aint displs[3];
+    MPI_Aint displs[2];
     displs[0] = 0;
     displs[1] = packedSize;
-    displs[2] = packedSize + sizeof(Int);
+
+    Datatype tempType;
+    CreateStruct( 2, blockLengths, displs, typeList, tempType );
 
     Datatype& type = ValueIntType<BigFloat>();
-    int err;
-    err = MPI_Type_create_struct( 3, blockLengths, displs, typeList, &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    MPI_Aint extent = packedSize + sizeof(Int);
+    CreateResized( tempType, 0, extent, type );
 }
 #endif
 
@@ -1571,17 +1591,16 @@ template<typename T>
 static void CreateEntryType() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateEntryType"))
-    Datatype typeList[4];
+
+    Datatype typeList[3];
     typeList[0] = TypeMap<Int>();
     typeList[1] = TypeMap<Int>();
     typeList[2] = TypeMap<T>();
-    typeList[3] = MPI_UB;
     
-    int blockLengths[4];
+    int blockLengths[3];
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
     blockLengths[2] = 1; 
-    blockLengths[3] = 1;
 
     Entry<T> v;
     MPI_Aint startAddr, iAddr, jAddr, valueAddr;
@@ -1590,20 +1609,17 @@ static void CreateEntryType() EL_NO_EXCEPT
     MPI_Get_address( &v.j,     &jAddr );
     MPI_Get_address( &v.value, &valueAddr );
 
-    MPI_Aint displs[4];
+    MPI_Aint displs[3];
     displs[0] = iAddr - startAddr;
     displs[1] = jAddr - startAddr;
     displs[2] = valueAddr - startAddr;
-    displs[3] = sizeof(v);
+
+    Datatype tempType;
+    CreateStruct( 3, blockLengths, displs, typeList, tempType );
 
     Datatype& type = EntryType<T>();
-    int err;
-    err = MPI_Type_create_struct( 4, blockLengths, displs, typeList, &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &type );
-    if( err != MPI_SUCCESS ) 
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    MPI_Aint extent = sizeof(v);
+    CreateResized( tempType, 0, extent, type );
 }
 
 #ifdef EL_HAVE_MPC
@@ -1611,70 +1627,62 @@ template<>
 void CreateEntryType<BigInt>() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateEntryType [BigInt]"))
-    Datatype typeList[4];
+
+    Datatype typeList[3];
     typeList[0] = TypeMap<Int>();
     typeList[1] = TypeMap<Int>();
     typeList[2] = TypeMap<BigInt>();
-    typeList[3] = MPI_UB;
     
-    int blockLengths[4];
+    int blockLengths[3];
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
     blockLengths[2] = 1; 
-    blockLengths[3] = 1;
+
+    MPI_Aint displs[3];
+    displs[0] = 0;
+    displs[1] = sizeof(Int);
+    displs[2] = 2*sizeof(Int);
+
+    Datatype tempType;
+    CreateStruct( 3, blockLengths, displs, typeList, tempType );
 
     BigInt alpha;
     const auto packedSize = alpha.SerializedSize();
 
-    MPI_Aint displs[4];
-    displs[0] = 0;
-    displs[1] = sizeof(Int);
-    displs[2] = 2*sizeof(Int);
-    displs[3] = 2*sizeof(Int) + packedSize;
-
     Datatype& type = EntryType<BigInt>();
-    int err;
-    err = MPI_Type_create_struct( 4, blockLengths, displs, typeList, &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    MPI_Aint extent = 2*sizeof(Int) + packedSize;
+    CreateResized( tempType, 0, extent, type );
 }
 
 template<>
 void CreateEntryType<BigFloat>() EL_NO_EXCEPT
 {
     DEBUG_ONLY(CSE cse("CreateEntryType [BigFloat]"))
-    Datatype typeList[4];
+
+    Datatype typeList[3];
     typeList[0] = TypeMap<Int>();
     typeList[1] = TypeMap<Int>();
     typeList[2] = TypeMap<BigFloat>();
-    typeList[3] = MPI_UB;
     
-    int blockLengths[4];
+    int blockLengths[3];
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
     blockLengths[2] = 1; 
-    blockLengths[3] = 1;
+
+    MPI_Aint displs[3];
+    displs[0] = 0;
+    displs[1] = sizeof(Int);
+    displs[2] = 2*sizeof(Int);
+
+    Datatype tempType;
+    CreateStruct( 3, blockLengths, displs, typeList, tempType );
 
     BigFloat alpha;
     const auto packedSize = alpha.SerializedSize();
 
-    MPI_Aint displs[4];
-    displs[0] = 0;
-    displs[1] = sizeof(Int);
-    displs[2] = 2*sizeof(Int);
-    displs[3] = 2*sizeof(Int) + packedSize;
-
     Datatype& type = EntryType<BigFloat>();
-    int err;
-    err = MPI_Type_create_struct( 4, blockLengths, displs, typeList, &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_create_struct returned with err=",err);
-    err = MPI_Type_commit( &type );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    MPI_Aint extent = 2*sizeof(Int) + packedSize;
+    CreateResized( tempType, 0, extent, type );
 }
 #endif
 
@@ -1729,53 +1737,22 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     // Create an MPI type for DoubleDouble
     // -----------------------------------
-    {
-        int err;
-        err = MPI_Type_contiguous( 2, MPI_DOUBLE, &::DoubleDoubleType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_contiguous returned with err=",err);
-        err = MPI_Type_commit( &::DoubleDoubleType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_commit returned with err=",err);
-    }
+    CreateContiguous( 2, MPI_DOUBLE, ::DoubleDoubleType );
 
     // Create an MPI type for QuadDouble
     // ---------------------------------
-    {
-        int err;
-        err = MPI_Type_contiguous( 4, MPI_DOUBLE, &::QuadDoubleType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_contiguous returned with err=",err);
-        err = MPI_Type_commit( &::QuadDoubleType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_commit returned with err=",err);
-    }
+    CreateContiguous( 4, MPI_DOUBLE, ::QuadDoubleType );
 
 #endif
 #ifdef EL_HAVE_QUAD
     // Create an MPI type for Quad
     // ---------------------------
-    {
-        int err;
-        err = MPI_Type_contiguous( 2, MPI_DOUBLE, &::QuadType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_contiguous returned with err=",err);
-        err = MPI_Type_commit( &::QuadType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_commit returned with err=",err);
-    }
+    CreateContiguous( 2, MPI_DOUBLE, ::QuadType );
 
     // Create an MPI type for Complex<Quad>
     // ------------------------------------
-    {
-        int err;
-        err = MPI_Type_contiguous( 4, MPI_DOUBLE, &::QuadComplexType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_contiguous returned with err=",err);
-        err = MPI_Type_commit( &::QuadComplexType );
-        if( err != MPI_SUCCESS )
-            RuntimeError("MPI_Type_commit returned with err=",err);
-    }
+    CreateContiguous( 4, MPI_DOUBLE, ::QuadComplexType );
+
 #endif
     // NOTE: The BigFloat types are created by mpc::SetPrecision previously
     //       within El::Initialize

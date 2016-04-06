@@ -10,6 +10,15 @@
 
 namespace El {
 
+template<typename T>
+void ConfigurePrecision( ostream& os )
+{
+    // Force the full precision to be reported
+    const Int numDecimals =
+      BinaryToDecimalPrecision(NumMantissaBits(Base<T>()))+1;
+    os.precision( numDecimals );
+}
+
 // Dense
 // =====
 
@@ -19,6 +28,8 @@ void Print( const Matrix<T>& A, string title, ostream& os )
     DEBUG_ONLY(CSE cse("Print"))
     if( title != "" )
         os << title << endl;
+
+    ConfigurePrecision<T>( os );
     
     const Int height = A.Height();
     const Int width = A.Width();
@@ -105,6 +116,9 @@ void Print( const SparseMatrix<T>& A, string msg, ostream& os )
     A.AssertConsistent();
     if( msg != "" )
         os << msg << endl;
+
+    ConfigurePrecision<T>( os );
+
     const Int numEntries = A.NumEntries();
     const Int* srcBuf = A.LockedSourceBuffer();
     const Int* tgtBuf = A.LockedTargetBuffer();
@@ -153,6 +167,8 @@ void Print( const vector<T>& x, string title, ostream& os )
     DEBUG_ONLY(CSE cse("Print"))
     if( title != "" )
         os << title << endl;
+
+    ConfigurePrecision<T>( os );
     
     const Int length = x.size();
     for( Int i=0; i<length; ++i )

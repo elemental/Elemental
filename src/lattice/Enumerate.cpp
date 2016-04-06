@@ -6,9 +6,226 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
+
+namespace svp {
+
+template<typename RealLower,typename F>
+pair<bool,Base<F>> TryLowerPrecisionShort
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl,
+        unsigned neededPrec )
+{
+    typedef Base<F> Real;
+    pair<bool,Real> result{ false, Real(0) };
+    if( MantissaIsLonger<Real,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        typedef ConvertBase<F,RealLower> FLower;
+        try
+        {
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
+            RealLower resultNorm =
+              ShortVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
+            Copy( vLower, v );
+            result.first = true;
+            result.second = Real(resultNorm);
+        }
+        catch( std::exception& e )
+        {
+            Output("e.what()=",e.what());
+        }
+    }
+    return result;
+}
+
+template<typename RealLower,typename F>
+pair<bool,Base<F>> TryLowerPrecisionShortest
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+        Base<F> normUpperBound,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl,
+        unsigned neededPrec )
+{
+    typedef Base<F> Real;
+    pair<bool,Real> result{ false, Real(0) };
+    if( MantissaIsLonger<Real,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        typedef ConvertBase<F,RealLower> FLower;
+        try
+        {
+            Matrix<FLower> BLower, RLower, vLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
+            RealLower resultNorm =
+              ShortestVectorEnumeration
+              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
+            Copy( vLower, v );
+            result.first = true;
+            result.second = Real(resultNorm);
+        }
+        catch( std::exception& e )
+        {
+            Output("e.what()=",e.what());
+        }
+    }
+    return result;
+}
+
+template<typename RealLower,typename F>
+std::tuple<bool,Base<F>,Int>
+TryLowerPrecisionMultiShort
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl,
+        unsigned neededPrec )
+{
+    typedef Base<F> Real;
+    std::tuple<bool,Real,Int> result{ false, Real(0), 0 };
+    if( MantissaIsLonger<Real,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        typedef ConvertBase<F,RealLower> FLower;
+        try
+        {
+            Matrix<FLower> BLower, RLower, vLower;
+            Matrix<RealLower> normUpperBoundsLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            Copy( normUpperBounds, normUpperBoundsLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
+            auto resultPair =
+              MultiShortVectorEnumeration
+              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
+            Copy( vLower, v );
+            std::get<0>(result) = true;
+            std::get<1>(result) = Real(resultPair.first);
+            std::get<2>(result) = resultPair.second;
+        }
+        catch( std::exception& e )
+        {
+            Output("e.what()=",e.what());
+        }
+    }
+    return result;
+}
+
+template<typename RealLower,typename F>
+std::tuple<bool,Base<F>,Int>
+TryLowerPrecisionMultiShortest
+( const Matrix<F>& B,
+  const Matrix<F>& R,
+  const Matrix<Base<F>>& normUpperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl,
+        unsigned neededPrec )
+{
+    typedef Base<F> Real;
+    std::tuple<bool,Real,Int> result{ false, Real(0), 0 };
+    if( MantissaIsLonger<Real,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        typedef ConvertBase<F,RealLower> FLower;
+        try
+        {
+            Matrix<FLower> BLower, RLower, vLower;
+            Matrix<RealLower> normUpperBoundsLower;
+            Copy( B, BLower );
+            Copy( R, RLower );
+            Copy( normUpperBounds, normUpperBoundsLower );
+            EnumCtrl<RealLower> ctrlLower = ctrl;
+            auto resultPair =
+              MultiShortestVectorEnumeration
+              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
+            Copy( vLower, v );
+            std::get<0>(result) = true;
+            std::get<1>(result) = Real(resultPair.first);
+            std::get<2>(result) = resultPair.second;
+        }
+        catch( std::exception& e )
+        {
+            Output("e.what()=",e.what());
+        }
+    }
+    return result;
+}
+
+template<typename Real>
+Matrix<Real> AonoPruning()
+{
+    // See the n=140 column of Table 1 from Yoshinori Aono's
+    // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
+    // Pruning Coefficients".
+    Matrix<Real> controlBounds(17,1);
+    controlBounds.Set( 0, 0, Real(0.1318) );
+    controlBounds.Set( 1, 0, Real(0.1859) );
+    controlBounds.Set( 2, 0, Real(0.2240) );
+    controlBounds.Set( 3, 0, Real(0.2326) );
+    controlBounds.Set( 4, 0, Real(0.2336) );
+    controlBounds.Set( 5, 0, Real(0.2565) );
+    controlBounds.Set( 6, 0, Real(0.2871) );
+    controlBounds.Set( 7, 0, Real(0.3353) );
+    controlBounds.Set( 8, 0, Real(0.3978) );
+    controlBounds.Set( 9, 0, Real(0.4860) );
+    controlBounds.Set( 10, 0, Real(0.5808) );
+    controlBounds.Set( 11, 0, Real(0.6936) );
+    controlBounds.Set( 12, 0, Real(0.8241) );
+    controlBounds.Set( 13, 0, Real(0.9191) );
+    controlBounds.Set( 14, 0, Real(1) );
+    controlBounds.Set( 15, 0, Real(1) );
+    controlBounds.Set( 16, 0, Real(1) );
+    return controlBounds;
+}
+
+template<typename Real>
+Matrix<Real> PrunedUpperBounds( Int n, Real normUpperBound, bool linear )
+{
+    // TODO: Support more general pruning
+    Matrix<Real> upperBounds( n, 1 );
+    if( linear )
+    {
+        for( Int j=0; j<n; ++j )
+            upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
+        return upperBounds;
+    }
+
+    auto controlBounds = AonoPruning<Real>();
+    const Int numPoints = controlBounds.Height();
+    for( Int j=0; j<n; ++j )
+    {
+        const Real percent = Real(j+1)/Real(n);
+        const Real realIndex = percent*(numPoints-1);
+        const Int floorIndex = Int(Floor(realIndex));
+        const Int ceilIndex = Int(Ceil(realIndex));
+        const Real indexFrac = realIndex-floorIndex;
+        DEBUG_ONLY(
+          if( ceilIndex >= numPoints )
+              LogicError("Invalid ceiling index of ",ceilIndex);
+        )
+        // TODO: Use spline instead of linear interpolation?
+        const Real floorVal = controlBounds.Get(floorIndex,0);
+        const Real ceilVal = controlBounds.Get(ceilIndex,0);
+        const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
+        upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
+    }
+    return upperBounds;
+}
+
+} // namespace svp
 
 // NOTE: This norm upper bound is *non-inclusive*
 template<typename F>
@@ -30,122 +247,34 @@ Base<F> ShortVectorEnumeration
     if( n == 0 )
         return Real(0);
 
-    const Real BOneNorm = OneNorm( B );
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,float>::value &&
-        MantissaBits<float>::value >= neededPrec )
+    const bool isInteger = IsInteger( B );
+    if( isInteger && !ctrl.disablePrecDrop )
     {
-        typedef float RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,double>::value &&
-        MantissaBits<double>::value >= neededPrec )
-    {
-        typedef double RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        const Real BOneNorm = OneNorm( B );
+        const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
+
+        auto result = svp::TryLowerPrecisionShort<float>
+          ( B, R, normUpperBound, v, ctrl, neededPrec );
+        if( !result.first )
+            result = svp::TryLowerPrecisionShort<double>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
 #ifdef EL_HAVE_QD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,DoubleDouble>::value &&
-        MantissaBits<DoubleDouble>::value >= neededPrec )
-    {
-        typedef DoubleDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower, 
-                ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,QuadDouble>::value &&
-        MantissaBits<QuadDouble>::value >= neededPrec )
-    {
-        typedef QuadDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        if( !result.first )
+            result = svp::TryLowerPrecisionShort<DoubleDouble>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
+        if( !result.first )
+            result = svp::TryLowerPrecisionShort<QuadDouble>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
+#elif defined(EL_HAVE_QUAD)
+        if( !result.first )
+            result = svp::TryLowerPrecisionShort<Quad>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
 #endif
-#ifdef EL_HAVE_QUAD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,Quad>::value &&
-        MantissaBits<Quad>::value >= neededPrec )
-    {
-        typedef Quad RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower,
-                ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
+        // TODO: Arbitrary-precision drop?
+        if( result.first )
+            return result.second;
     }
-#endif
-    // TODO: Arbitrary-precision drop?
+    // TODO: Non-integer drop?
 
     const Real b0ProjNorm = R.Get(0,0);
     if( b0ProjNorm < normUpperBound )
@@ -162,53 +291,8 @@ Base<F> ShortVectorEnumeration
 
     if( ctrl.enumType == GNR_ENUM )
     {
-        Matrix<Real> upperBounds(n,1);
-        if( ctrl.linearBounding )
-        {
-            for( Int j=0; j<n; ++j )
-                upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
-        }
-        else
-        {
-            // See the n=140 column of Table 1 from Yoshinori Aono's
-            // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
-            // Pruning Coefficients".
-            Matrix<Real> s(17,1);
-            s.Set( 0, 0, Real(0.1318) ); 
-            s.Set( 1, 0, Real(0.1859) );
-            s.Set( 2, 0, Real(0.2240) ); 
-            s.Set( 3, 0, Real(0.2326) );
-            s.Set( 4, 0, Real(0.2336) );
-            s.Set( 5, 0, Real(0.2565) );
-            s.Set( 6, 0, Real(0.2871) );
-            s.Set( 7, 0, Real(0.3353) );
-            s.Set( 8, 0, Real(0.3978) );
-            s.Set( 9, 0, Real(0.4860) );
-            s.Set( 10, 0, Real(0.5808) );
-            s.Set( 11, 0, Real(0.6936) );
-            s.Set( 12, 0, Real(0.8241) );
-            s.Set( 13, 0, Real(0.9191) );
-            s.Set( 14, 0, Real(1) );
-            s.Set( 15, 0, Real(1) );
-            s.Set( 16, 0, Real(1) );
-            for( Int j=0; j<n; ++j )
-            {
-                const Real percent = Real(j+1)/Real(n);
-                const Real realIndex = percent*16;
-                const Int floorIndex = Int(Floor(realIndex));
-                const Int ceilIndex = Int(Ceil(realIndex));
-                const Real indexFrac = realIndex-floorIndex;
-                DEBUG_ONLY(
-                  if( ceilIndex > 16 )
-                      LogicError("Invalid ceiling index of ",ceilIndex);
-                )
-                // TODO: Use spline instead of linear interpolation?
-                const Real floorVal = s.Get(floorIndex,0);
-                const Real ceilVal = s.Get(ceilIndex,0);
-                const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
-                upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
-            }
-        }
+        auto upperBounds =
+          svp::PrunedUpperBounds( n, normUpperBound, ctrl.linearBounding );
 
         // Since we will manually build up a (weakly) pseudorandom
         // unimodular matrix so that the probabalistic enumerations traverse
@@ -307,11 +391,17 @@ Base<F> ShortVectorEnumeration
 
         const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
 
-        vector<Int> maxInfNorms(numPhases,1), maxOneNorms(numPhases,1);
+        vector<Int> minInfNorms(numPhases,0), maxInfNorms(numPhases,1),
+                    minOneNorms(numPhases,0), maxOneNorms(numPhases,1);
         if( numPhases >= 1 ) maxOneNorms[numPhases-1] = 2;
 
+        if( ctrl.customMinInfNorms )
+            minInfNorms = ctrl.minInfNorms;
         if( ctrl.customMaxInfNorms )
             maxInfNorms = ctrl.maxInfNorms;
+
+        if( ctrl.customMinOneNorms )
+            minOneNorms = ctrl.minOneNorms;
         if( ctrl.customMaxOneNorms )
             maxOneNorms = ctrl.maxOneNorms;
 
@@ -320,8 +410,11 @@ Base<F> ShortVectorEnumeration
         if( ctrl.time )
             timer.Start();
         Real result = svp::PhaseEnumeration
-          ( B, d, N, normUpperBound, startIndex, phaseLength,
-            maxInfNorms, maxOneNorms, v, ctrl.progressLevel );
+          ( B, d, N, normUpperBound,
+            startIndex, phaseLength, ctrl.enqueueProb,
+            minInfNorms, maxInfNorms,
+            minOneNorms, maxOneNorms,
+            v, ctrl.progressLevel );
         if( ctrl.time )
             Output("YSPARSE_ENUM(",n,"): ",timer.Stop()," seconds");
         return result;
@@ -362,128 +455,34 @@ MultiShortVectorEnumeration
     if( n == 0 )
         return pair<Real,Int>(Real(0),0);
 
-    const Real BOneNorm = OneNorm( B );
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,float>::value &&
-        MantissaBits<float>::value >= neededPrec )
+    const bool isInteger = IsInteger( B );
+    if( isInteger && !ctrl.disablePrecDrop )
     {
-        typedef float RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            auto result =
-              MultiShortVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,double>::value &&
-        MantissaBits<double>::value >= neededPrec )
-    {
-        typedef double RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            auto result =
-              MultiShortVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        const Real BOneNorm = OneNorm( B );
+        const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
+
+        auto result = svp::TryLowerPrecisionMultiShort<float>
+          ( B, R, normUpperBounds, v, ctrl, neededPrec );
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShort<double>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
 #ifdef EL_HAVE_QD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,DoubleDouble>::value &&
-        MantissaBits<DoubleDouble>::value >= neededPrec )
-    {
-        typedef DoubleDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            auto result =
-              MultiShortVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,QuadDouble>::value &&
-        MantissaBits<QuadDouble>::value >= neededPrec )
-    {
-        typedef QuadDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            auto result =
-              MultiShortVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShort<DoubleDouble>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShort<QuadDouble>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
+#elif defined(EL_HAVE_QUAD)
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShort<Quad>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
 #endif
-#ifdef EL_HAVE_QUAD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,Quad>::value &&
-        MantissaBits<Quad>::value >= neededPrec )
-    {
-        typedef Quad RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            auto result =
-              MultiShortVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
+        // TODO: Arbitrary-precision drop?
+        if( std::get<0>(result) )
+            return pair<Real,Int>( std::get<1>(result), std::get<2>(result) );
     }
-#endif
-    // TODO: Arbitrary-precision drop?
+    // TODO: Non-integer drop?
 
     const Int numNested = normUpperBounds.Height();
     auto modNormUpperBounds( normUpperBounds );
@@ -505,53 +504,8 @@ MultiShortVectorEnumeration
         // GNR enumeration does not yet support multi-enumeration
         const Real normUpperBound = modNormUpperBounds.Get(0,0);
 
-        Matrix<Real> upperBounds(n,1);
-        if( ctrl.linearBounding )
-        {
-            for( Int j=0; j<n; ++j )
-                upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
-        }
-        else
-        {
-            // See the n=140 column of Table 1 from Yoshinori Aono's
-            // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
-            // Pruning Coefficients".
-            Matrix<Real> s(17,1);
-            s.Set( 0, 0, Real(0.1318) ); 
-            s.Set( 1, 0, Real(0.1859) );
-            s.Set( 2, 0, Real(0.2240) ); 
-            s.Set( 3, 0, Real(0.2326) );
-            s.Set( 4, 0, Real(0.2336) );
-            s.Set( 5, 0, Real(0.2565) );
-            s.Set( 6, 0, Real(0.2871) );
-            s.Set( 7, 0, Real(0.3353) );
-            s.Set( 8, 0, Real(0.3978) );
-            s.Set( 9, 0, Real(0.4860) );
-            s.Set( 10, 0, Real(0.5808) );
-            s.Set( 11, 0, Real(0.6936) );
-            s.Set( 12, 0, Real(0.8241) );
-            s.Set( 13, 0, Real(0.9191) );
-            s.Set( 14, 0, Real(1) );
-            s.Set( 15, 0, Real(1) );
-            s.Set( 16, 0, Real(1) );
-            for( Int j=0; j<n; ++j )
-            {
-                const Real percent = Real(j+1)/Real(n);
-                const Real realIndex = percent*16;
-                const Int floorIndex = Int(Floor(realIndex));
-                const Int ceilIndex = Int(Ceil(realIndex));
-                const Real indexFrac = realIndex-floorIndex;
-                DEBUG_ONLY(
-                  if( ceilIndex > 16 )
-                      LogicError("Invalid ceiling index of ",ceilIndex);
-                )
-                // TODO: Use spline instead of linear interpolation?
-                const Real floorVal = s.Get(floorIndex,0);
-                const Real ceilVal = s.Get(ceilIndex,0);
-                const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
-                upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
-            }
-        }
+        auto upperBounds =
+          svp::PrunedUpperBounds( n, normUpperBound, ctrl.linearBounding );
 
         // Since we will manually build up a (weakly) pseudorandom
         // unimodular matrix so that the probabalistic enumerations traverse
@@ -659,11 +613,17 @@ MultiShortVectorEnumeration
 
         const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
 
-        vector<Int> maxInfNorms(numPhases,1), maxOneNorms(numPhases,1);
+        vector<Int> minInfNorms(numPhases,0), maxInfNorms(numPhases,1),
+                    minOneNorms(numPhases,0), maxOneNorms(numPhases,1);
         if( numPhases >= 1 ) maxOneNorms[numPhases-1] = 2;
 
+        if( ctrl.customMinInfNorms )
+            minInfNorms = ctrl.minInfNorms;
         if( ctrl.customMaxInfNorms )
             maxInfNorms = ctrl.maxInfNorms;
+
+        if( ctrl.customMinOneNorms )
+            minOneNorms = ctrl.minOneNorms;
         if( ctrl.customMaxOneNorms )
             maxOneNorms = ctrl.maxOneNorms;
 
@@ -672,8 +632,11 @@ MultiShortVectorEnumeration
         if( ctrl.time )
             timer.Start();
         auto result = svp::PhaseEnumeration
-          ( B, d, N, modNormUpperBounds, startIndex, phaseLength,
-            maxInfNorms, maxOneNorms, v, ctrl.progressLevel );
+          ( B, d, N, modNormUpperBounds, 
+            startIndex, phaseLength, ctrl.enqueueProb,
+            minInfNorms, maxInfNorms,
+            minOneNorms, maxOneNorms,
+            v, ctrl.progressLevel );
         if( ctrl.time )
             Output("YSPARSE_ENUM(",n,"): ",timer.Stop()," seconds");
         return result;
@@ -786,118 +749,34 @@ Base<F> ShortestVectorEnumeration
     if( n == 0 )
         return Real(0);
 
-    const Real BOneNorm = OneNorm( B );
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge)); 
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,float>::value &&
-        MantissaBits<float>::value >= neededPrec )
+    const bool isInteger = IsInteger( B );
+    if( isInteger && !ctrl.disablePrecDrop )
     {
-        typedef float RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,double>::value &&
-        MantissaBits<double>::value >= neededPrec )
-    {
-        typedef double RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        const Real BOneNorm = OneNorm( B );
+        const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
+
+        auto result = svp::TryLowerPrecisionShortest<float>
+          ( B, R, normUpperBound, v, ctrl, neededPrec );
+        if( !result.first )
+            result = svp::TryLowerPrecisionShortest<double>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
 #ifdef EL_HAVE_QD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,DoubleDouble>::value &&
-        MantissaBits<DoubleDouble>::value >= neededPrec )
-    {
-        typedef DoubleDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,QuadDouble>::value &&
-        MantissaBits<QuadDouble>::value >= neededPrec )
-    {
-        typedef QuadDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        if( !result.first )
+            result = svp::TryLowerPrecisionShortest<DoubleDouble>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
+        if( !result.first )
+            result = svp::TryLowerPrecisionShortest<QuadDouble>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
+#elif defined(EL_HAVE_QUAD)
+        if( !result.first )
+            result = svp::TryLowerPrecisionShortest<Quad>
+              ( B, R, normUpperBound, v, ctrl, neededPrec );
 #endif
-#ifdef EL_HAVE_QUAD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,Quad>::value &&
-        MantissaBits<Quad>::value >= neededPrec )
-    {
-        typedef Quad RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            EnumCtrl<RealLower> ctrlLower = ctrl;
-            RealLower result =
-              ShortestVectorEnumeration
-              ( BLower, RLower, RealLower(normUpperBound), vLower, ctrlLower );
-            Copy( vLower, v );
-            return Real(result);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
+        // TODO: Arbitrary-precision drop?
+        if( result.first )
+            return result.second;
     }
-#endif
-    // TODO: Arbitrary-precision drop?
+    // TODO: Non-integer drop?
 
     const Real b0Norm = R.Get(0,0);
     Zeros( v, n, 1 );
@@ -947,128 +826,34 @@ MultiShortestVectorEnumeration
     if( n == 0 )
         return pair<Real,Int>(Real(0),0);
 
-    const Real BOneNorm = OneNorm( B );
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge)); 
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,float>::value &&
-        MantissaBits<float>::value >= neededPrec )
+    const bool isInteger = IsInteger( B );
+    if( isInteger && !ctrl.disablePrecDrop )
     {
-        typedef float RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower( ctrl );
-            auto result =
-              MultiShortestVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,double>::value &&
-        MantissaBits<double>::value >= neededPrec )
-    {
-        typedef double RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower( ctrl );
-            auto result =
-              MultiShortestVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        const Real BOneNorm = OneNorm( B );
+        const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*ctrl.fudge));
+
+        auto result = svp::TryLowerPrecisionMultiShortest<float>
+          ( B, R, normUpperBounds, v, ctrl, neededPrec );
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShortest<double>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
 #ifdef EL_HAVE_QD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,DoubleDouble>::value &&
-        MantissaBits<DoubleDouble>::value >= neededPrec )
-    {
-        typedef DoubleDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower( ctrl );
-            auto result =
-              MultiShortestVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,QuadDouble>::value &&
-        MantissaBits<QuadDouble>::value >= neededPrec )
-    {
-        typedef QuadDouble RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower( ctrl );
-            auto result =
-              MultiShortestVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShortest<DoubleDouble>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShortest<QuadDouble>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
+#elif defined(EL_HAVE_QUAD)
+        if( !std::get<0>(result) )
+            result = svp::TryLowerPrecisionMultiShortest<Quad>
+              ( B, R, normUpperBounds, v, ctrl, neededPrec );
 #endif
-#ifdef EL_HAVE_QUAD
-    if( !ctrl.disablePrecDrop &&
-        MantissaIsLonger<Real,Quad>::value &&
-        MantissaBits<Quad>::value >= neededPrec )
-    {
-        typedef Quad RealLower;
-        typedef ConvertBase<F,RealLower> FLower;
-        try
-        {
-            Matrix<FLower> BLower, RLower, vLower;
-            Matrix<RealLower> normUpperBoundsLower;
-            Copy( B, BLower );
-            Copy( R, RLower );
-            Copy( normUpperBounds, normUpperBoundsLower );
-            EnumCtrl<RealLower> ctrlLower( ctrl );
-            auto result =
-              MultiShortestVectorEnumeration
-              ( BLower, RLower, normUpperBoundsLower, vLower, ctrlLower );
-            Copy( vLower, v );
-            return pair<Real,Int>(Real(result.first),result.second);
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
+        // TODO: Arbitrary-precision drop?
+        if( std::get<0>(result) )
+            return pair<Real,Int>( std::get<1>(result), std::get<2>(result) );
     }
-#endif
-    // TODO: Arbitrary-precision drop?
+    // TODO: Non-integer drop?
 
     const Int numNested = normUpperBounds.Height();
     Matrix<Real> targetNorms( normUpperBounds );

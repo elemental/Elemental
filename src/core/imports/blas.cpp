@@ -550,65 +550,83 @@ namespace blas {
 // ============
 template<typename T>
 void Axpy
-( BlasInt n, T alpha,
+( BlasInt n,
+  const T& alpha,
   const T* x, BlasInt incx,
         T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma;
     for( BlasInt i=0; i<n; ++i )
-        y[i*incy] += alpha*x[i*incx];
+    {
+        gamma = alpha*x[i*incx];
+        y[i*incy] += gamma;
+    }
 }
 template void Axpy
-( BlasInt n, Int alpha,
+( BlasInt n,
+  const Int& alpha,
   const Int* x, BlasInt incx,
         Int* y, BlasInt incy );
 #ifdef EL_HAVE_QD
 template void Axpy
-( BlasInt n, DoubleDouble alpha, 
+( BlasInt n,
+  const DoubleDouble& alpha, 
   const DoubleDouble* x, BlasInt incx,
         DoubleDouble* y, BlasInt incy );
 template void Axpy
-( BlasInt n, QuadDouble alpha, 
+( BlasInt n,
+  const QuadDouble& alpha, 
   const QuadDouble* x, BlasInt incx,
         QuadDouble* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Axpy
-( BlasInt n, Quad alpha, 
+( BlasInt n,
+  const Quad& alpha, 
   const Quad* x, BlasInt incx,
         Quad* y, BlasInt incy );
 template void Axpy
-( BlasInt n, Complex<Quad> alpha, 
+( BlasInt n,
+  const Complex<Quad>& alpha, 
   const Complex<Quad>* x, BlasInt incx,
         Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
 template void Axpy
-( BlasInt n, BigInt alpha, 
+( BlasInt n,
+  const BigInt& alpha, 
   const BigInt* x, BlasInt incx,
         BigInt* y, BlasInt incy );
 template void Axpy
-( BlasInt n, BigFloat alpha, 
+( BlasInt n,
+  const BigFloat& alpha, 
   const BigFloat* x, BlasInt incx,
         BigFloat* y, BlasInt incy );
 #endif
 
 void Axpy
-( BlasInt n, float alpha,
+( BlasInt n,
+  const float& alpha,
   const float* x, BlasInt incx, 
         float* y, BlasInt incy )
 { EL_BLAS(saxpy)( &n, &alpha, x, &incx, y, &incy ); }
 void Axpy
-( BlasInt n, double alpha,
+( BlasInt n,
+  const double& alpha,
   const double* x, BlasInt incx, 
         double* y, BlasInt incy )
 { EL_BLAS(daxpy)( &n, &alpha, x, &incx, y, &incy ); }
 void Axpy
-( BlasInt n, scomplex alpha,
+( BlasInt n,
+  const scomplex& alpha,
   const scomplex* x, BlasInt incx, 
         scomplex* y, BlasInt incy )
 { EL_BLAS(caxpy)( &n, &alpha, x, &incx, y, &incy ); }
 void Axpy
-( BlasInt n, dcomplex alpha,
+( BlasInt n,
+  const dcomplex& alpha,
   const dcomplex* x, BlasInt incx, 
         dcomplex* y, BlasInt incy )
 { EL_BLAS(zaxpy)( &n, &alpha, x, &incx, y, &incy ); }
@@ -684,9 +702,16 @@ T Dot
   const T* x, BlasInt incx,
   const T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma;
     T alpha = 0;
     for( BlasInt i=0; i<n; ++i )
-        alpha += Conj(x[i*incx])*y[i*incy];
+    {
+        Conj( x[i*incx], gamma );
+        gamma *= y[i*incy];
+        alpha += gamma;
+    }
     return alpha;
 }
 template Int Dot
@@ -750,9 +775,16 @@ T Dotu
   const T* x, BlasInt incx,
   const T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma;
     T alpha = 0;
     for( BlasInt i=0; i<n; ++i )
-        alpha += x[i*incx]*y[i*incy];
+    {
+        gamma = x[i*incx];
+        gamma *= y[i*incy];
+        alpha += gamma;
+    }
     return alpha;
 }
 template Int Dotu
@@ -841,11 +873,15 @@ template<typename F>
 BlasInt MaxInd( BlasInt n, const F* x, BlasInt incx )
 {
     typedef Base<F> Real;
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    //       (A copy elision is assumed in the return value of Abs)
+    Real absVal;
     Real maxAbsVal = -1;
     BlasInt maxAbsInd = -1;
     for( BlasInt i=0; i<n; ++i ) 
     {
-        const Real absVal = Abs(x[i*incx]);
+        absVal = Abs(x[i*incx]);
         if( absVal > maxAbsVal )
         {
             maxAbsVal = absVal;
@@ -895,11 +931,15 @@ Real Givens
   Real* c,
   Real* s )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    Real zero(0), one(1);
+
     Real phiAbs = Abs(phi);
-    if( phiAbs == Real(0) )
+    if( phiAbs == zero )
     {
-        *c = Real(0);
-        *s = Real(1);
+        *c = zero;
+        *s = one;
         return gamma;
     }
     else
@@ -919,11 +959,15 @@ Complex<Real> Givens
   Real* c,
   Complex<Real>* s )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    Real zero(0), one(1);
+
     Real phiAbs = Abs(phi);
-    if( phiAbs == Real(0) )
+    if( phiAbs == zero )
     {
-        *c = Real(0);
-        *s = Complex<Real>(Real(1),Real(0));
+        *c = zero;
+        *s = one;
         return gamma;
     }
     else
@@ -1014,14 +1058,28 @@ void Rot
 ( BlasInt n,
   F* x, BlasInt incx,
   F* y, BlasInt incy,
-  Base<F> c, F s )
+  const Base<F>& c,
+  const F& s )
 {
-    F temp;
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    F gamma, delta;
     for( BlasInt i=0; i<n; ++i )    
     {
-        temp = c*x[i*incx] + s*y[i*incy];
-        y[i*incy] = -Conj(s)*x[i*incx] + c*y[i*incy];
-        x[i*incx] = temp;
+        //gamma = c*x[i*incx] + s*y[i*incy];
+        gamma = c;
+        gamma *= x[i*incx];
+        delta = s;
+        delta *= y[i*incy];
+        gamma += delta;
+
+        //y[i*incy] = -Conj(s)*x[i*incx] + c*y[i*incy];
+        y[i*incy] *= c;
+        Conj( s, delta );
+        delta *= x[i*incx];
+        y[i*incy] -= delta;
+
+        x[i*incx] = gamma;
     }
 }
 #ifdef EL_HAVE_QD
@@ -1029,112 +1087,144 @@ template void Rot
 ( BlasInt n,
   DoubleDouble* x, BlasInt incx,
   DoubleDouble* y, BlasInt incy,
-  DoubleDouble c, DoubleDouble s );
+  const DoubleDouble& c,
+  const DoubleDouble& s );
 template void Rot
 ( BlasInt n,
   QuadDouble* x, BlasInt incx,
   QuadDouble* y, BlasInt incy,
-  QuadDouble c, QuadDouble s );
+  const QuadDouble& c,
+  const QuadDouble& s );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Rot
 ( BlasInt n,
   Quad* x, BlasInt incx,
   Quad* y, BlasInt incy,
-  Quad c, Quad s );
+  const Quad& c,
+  const Quad& s );
 template void Rot
 ( BlasInt n,
   Complex<Quad>* x, BlasInt incx,
   Complex<Quad>* y, BlasInt incy,
-  Quad c, Complex<Quad> s );
+  const Quad& c,
+  const Complex<Quad>& s );
 #endif
 #ifdef EL_HAVE_MPC
 template void Rot
 ( BlasInt n,
   BigFloat* x, BlasInt incx,
   BigFloat* y, BlasInt incy,
-  BigFloat c, BigFloat s );
+  const BigFloat& c,
+  const BigFloat& s );
 #endif
 
 void Rot
 ( BlasInt n,
   float* x, BlasInt incx, 
   float* y, BlasInt incy,
-  float c, float s )
+  const float& c,
+  const float& s )
 { EL_BLAS(srot)( &n, x, &incx, y, &incy, &c, &s ); }
 void Rot
 ( BlasInt n,
   double* x, BlasInt incx, 
   double* y, BlasInt incy,
-  double c, double s )
+  const double& c,
+  const double& s )
 { EL_BLAS(drot)( &n, x, &incx, y, &incy, &c, &s ); }
 void Rot
 ( BlasInt n,
   scomplex* x, BlasInt incx, 
   scomplex* y, BlasInt incy,
-  float c, scomplex s )
+  const float& c,
+  const scomplex& s )
 { EL_BLAS(crot)( &n, x, &incx, y, &incy, &c, &s ); }
 void Rot
 ( BlasInt n,
   dcomplex* x, BlasInt incx, 
   dcomplex* y, BlasInt incy,
-  double c, dcomplex s )
+  const double& c,
+  const dcomplex& s )
 { EL_BLAS(zrot)( &n, x, &incx, y, &incy, &c, &s ); }
 
 template<typename T>
-void Scal( BlasInt n, T alpha, T* x, BlasInt incx )
+void Scal( BlasInt n, const T& alpha, T* x, BlasInt incx )
 {
     for( BlasInt j=0; j<n; ++j )
         x[j*incx] *= alpha;
 }
-template void Scal( BlasInt n, Int alpha, Int* x, BlasInt incx );
+template void Scal
+( BlasInt n,
+  const Int& alpha,
+  Int* x, BlasInt incx );
 #ifdef EL_HAVE_QD
 template void Scal
-( BlasInt n, DoubleDouble alpha, DoubleDouble* x, BlasInt incx );
+( BlasInt n,
+  const DoubleDouble& alpha,
+  DoubleDouble* x, BlasInt incx );
 template void Scal
-( BlasInt n, QuadDouble alpha, QuadDouble* x, BlasInt incx );
+( BlasInt n,
+  const QuadDouble& alpha,
+  QuadDouble* x, BlasInt incx );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Scal
-( BlasInt n, Quad alpha, Quad* x, BlasInt incx );
+( BlasInt n,
+  const Quad& alpha,
+  Quad* x, BlasInt incx );
 template void Scal
-( BlasInt n, Complex<Quad> alpha, Complex<Quad>* x, BlasInt incx );
+( BlasInt n,
+  const Complex<Quad>& alpha,
+  Complex<Quad>* x, BlasInt incx );
 #endif
 #ifdef EL_HAVE_MPC
 template void Scal
-( BlasInt n, BigInt alpha, BigInt* x, BlasInt incx );
+( BlasInt n,
+  const BigInt& alpha,
+  BigInt* x, BlasInt incx );
 template void Scal
-( BlasInt n, BigFloat alpha, BigFloat* x, BlasInt incx );
+( BlasInt n,
+  const BigFloat& alpha,
+  BigFloat* x, BlasInt incx );
 #endif
 
 template<typename T>
-void Scal( BlasInt n, T alpha, Complex<T>* x, BlasInt incx )
+void Scal( BlasInt n, const T& alpha, Complex<T>* x, BlasInt incx )
 {
     for( BlasInt j=0; j<n; ++j )
         x[j*incx] *= alpha;
 }
 template void Scal
-( BlasInt n, float alpha, Complex<float>* x, BlasInt incx );
+( BlasInt n,
+  const float& alpha,
+  Complex<float>* x, BlasInt incx );
 template void Scal
-( BlasInt n, double alpha, Complex<double>* x, BlasInt incx );
+( BlasInt n,
+  const double& alpha,
+  Complex<double>* x, BlasInt incx );
 #ifdef EL_HAVE_QUAD
 template void Scal
-( BlasInt n, Quad alpha, Complex<Quad>* x, BlasInt incx );
+( BlasInt n,
+  const Quad& alpha,
+  Complex<Quad>* x, BlasInt incx );
 #endif
 
-void Scal( BlasInt n, float alpha, float* x, BlasInt incx )
+void Scal( BlasInt n, const float& alpha, float* x, BlasInt incx )
 { EL_BLAS(sscal)( &n, &alpha, x, &incx ); }
-void Scal( BlasInt n, double alpha, double* x, BlasInt incx )
+void Scal( BlasInt n, const double& alpha, double* x, BlasInt incx )
 { EL_BLAS(dscal)( &n, &alpha, x, &incx ); }
-void Scal( BlasInt n, scomplex alpha, scomplex* x, BlasInt incx )
+void Scal( BlasInt n, const scomplex& alpha, scomplex* x, BlasInt incx )
 { EL_BLAS(cscal)( &n, &alpha, x, &incx ); }
-void Scal( BlasInt n, dcomplex alpha, dcomplex* x, BlasInt incx )
+void Scal( BlasInt n, const dcomplex& alpha, dcomplex* x, BlasInt incx )
 { EL_BLAS(zscal)( &n, &alpha, x, &incx ); }
 
 // NOTE: 'nrm1' is not the official name but is consistent with 'nrm2'
 template<typename F>
 Base<F> Nrm1( BlasInt n, const F* x, BlasInt incx )
 {
+    // TODO: Avoid temporaries since constructing BigInt/BigFloat involves
+    //       a memory allocation
     Base<F> sum=0;
     for( BlasInt i=0; i<n; ++i )
         sum += Abs(x[i*incx]);
@@ -1163,9 +1253,12 @@ double Nrm1( BlasInt n, const dcomplex* x, BlasInt incx )
 template<typename T>
 void Swap( BlasInt n, T* x, BlasInt incx, T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T temp;
     for( BlasInt i=0; i<n; ++i )
     {
-        const T temp = x[i*incx];
+        temp = x[i*incx];
         x[i*incx] = y[i*incy];
         y[i*incy] = temp;
     }
@@ -1203,10 +1296,16 @@ void Swap( BlasInt n, dcomplex* x, BlasInt incx, dcomplex* y, BlasInt incy )
 template<typename T>
 void Gemv
 ( char trans, BlasInt m, BlasInt n,
-  T alpha, const T* A, BlasInt ALDim,
-           const T* x, BlasInt incx,
-  T beta,        T* y, BlasInt incy )
+  const T& alpha,
+  const T* A, BlasInt ALDim,
+  const T* x, BlasInt incx,
+  const T& beta,
+        T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    // TODO: Special-case alpha=0, alpha=1, and alpha=-1?
+    T gamma, delta;
     if( std::toupper(trans) == 'N' )
     {
         if( m > 0 && n == 0 && beta == T(0) )
@@ -1215,10 +1314,20 @@ void Gemv
                 y[i*incy] = 0;
             return;
         }
+
         Scal( m, beta, y, incy );
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+        for( BlasInt j=0; j<n; ++j )
+        {
+            gamma = x[j*incx];
+            gamma *= alpha;
+            for( BlasInt i=0; i<m; ++i )
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                delta = A[i+j*ALDim];
+                delta *= gamma;
+                y[i*incy] += delta;
+            }
+        }
     }
     else if( std::toupper(trans) == 'T' )
     {
@@ -1229,9 +1338,25 @@ void Gemv
             return;
         }
         Scal( n, beta, y, incy );
+
+        // Prescale x to avoid a factor of two more work than necessary
+        vector<T> xAlpha(m);
+        for( Int j=0; j<m; ++j )
+        {
+            xAlpha[j] = x[j*incx];
+            xAlpha[j] *= alpha;
+        }
+
         for( BlasInt i=0; i<n; ++i )
+        {
             for( BlasInt j=0; j<m; ++j )
-                y[i*incy] += alpha*A[j+i*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[j+i*ALDim]*x[j*incx];
+                gamma = A[j+i*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
     }
     else
     {
@@ -1242,58 +1367,90 @@ void Gemv
             return;
         }
         Scal( n, beta, y, incy );
+
+        // Prescale x to avoid a factor of two more work than necessary
+        vector<T> xAlpha(m);
+        for( Int j=0; j<m; ++j )
+        {
+            xAlpha[j] = x[j*incx];
+            xAlpha[j] *= alpha;
+        }
+
         for( BlasInt i=0; i<n; ++i )
+        {
             for( BlasInt j=0; j<m; ++j )
-                y[i*incy] += alpha*Conj(A[j+i*ALDim])*x[j*incx];
+            {
+                // y[i*incy] += alpha*Conj(A[j+i*ALDim])*x[j*incx];
+                Conj( A[j+i*ALDim], gamma );
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
     }
 }
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
-  Int alpha, const Int* A, BlasInt ALDim,
-             const Int* x, BlasInt incx, 
-  Int beta,        Int* y, BlasInt incy );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim,
+  const Int* x, BlasInt incx, 
+  const Int& beta,
+        Int* y, BlasInt incy );
 #ifdef EL_HAVE_QD
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
-                      const DoubleDouble* x, BlasInt incx, 
-  DoubleDouble beta,        DoubleDouble* y, BlasInt incy );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim,
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble& beta,
+        DoubleDouble* y, BlasInt incy );
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
-                    const QuadDouble* x, BlasInt incx, 
-  QuadDouble beta,        QuadDouble* y, BlasInt incy );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim,
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble& beta,
+        QuadDouble* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
-  Quad alpha, const Quad* A, BlasInt ALDim,
-              const Quad* x, BlasInt incx, 
-  Quad beta,        Quad* y, BlasInt incy );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim,
+  const Quad* x, BlasInt incx, 
+  const Quad& beta,
+        Quad* y, BlasInt incy );
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* x, BlasInt incx, 
-  Complex<Quad> beta,        Complex<Quad>* y, BlasInt incy );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>& beta,
+        Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim,
-                const BigInt* x, BlasInt incx, 
-  BigInt beta,        BigInt* y, BlasInt incy );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim,
+  const BigInt* x, BlasInt incx, 
+  const BigInt& beta,
+        BigInt* y, BlasInt incy );
 template void Gemv
 ( char trans, BlasInt m, BlasInt n, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim,
-                  const BigFloat* x, BlasInt incx, 
-  BigFloat beta,        BigFloat* y, BlasInt incy );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim,
+  const BigFloat* x, BlasInt incx, 
+  const BigFloat& beta,
+        BigFloat* y, BlasInt incy );
 #endif
 
 void Gemv
 ( char trans, BlasInt m, BlasInt n,
-  float alpha, const float* A, BlasInt ALDim,
-               const float* x, BlasInt incx,
-  float beta,        float* y, BlasInt incy )
+  const float& alpha,
+  const float* A, BlasInt ALDim,
+  const float* x, BlasInt incx,
+  const float& beta,
+        float* y, BlasInt incy )
 {
     const char fixedTrans = ( std::toupper(trans) == 'C' ? 'T' : trans );
     EL_BLAS(sgemv)
@@ -1302,9 +1459,11 @@ void Gemv
 
 void Gemv
 ( char trans, BlasInt m, BlasInt n,
-  double alpha, const double* A, BlasInt ALDim,
-                const double* x, BlasInt incx,
-  double beta,        double* y, BlasInt incy )
+  const double& alpha,
+  const double* A, BlasInt ALDim,
+  const double* x, BlasInt incx,
+  const double& beta,
+        double* y, BlasInt incy )
 {
     const char fixedTrans = ( std::toupper(trans) == 'C' ? 'T' : trans );
     EL_BLAS(dgemv)
@@ -1313,129 +1472,171 @@ void Gemv
 
 void Gemv
 ( char trans, BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* A, BlasInt ALDim, 
-                  const scomplex* x, BlasInt incx,
-  scomplex beta,        scomplex* y, BlasInt incy )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim, 
+  const scomplex* x, BlasInt incx,
+  const scomplex& beta,
+        scomplex* y, BlasInt incy )
 { EL_BLAS(cgemv)
   ( &trans, &m, &n, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 void Gemv
 ( char trans, BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* x, BlasInt incx,
-  dcomplex beta,        dcomplex* y, BlasInt incy )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* x, BlasInt incx,
+  const dcomplex& beta,
+        dcomplex* y, BlasInt incy )
 { EL_BLAS(zgemv)
   ( &trans, &m, &n, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 template<typename T>
 void Ger
 ( BlasInt m, BlasInt n,
-  T alpha, const T* x, BlasInt incx, 
-           const T* y, BlasInt incy,
-                 T* A, BlasInt ALDim )
+  const T& alpha,
+  const T* x, BlasInt incx, 
+  const T* y, BlasInt incy,
+        T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    // TODO: Special-case alpha=0?
+    T gamma, delta;
     for( BlasInt j=0; j<n; ++j )
+    {
+        Conj( y[j*incy], gamma );
+        gamma *= alpha;
         for( BlasInt i=0; i<m; ++i )
-            A[i+j*ALDim] += alpha*x[i*incx]*Conj(y[j*incy]);
+        {
+            // A[i+j*ALDim] += alpha*x[i*incx]*Conj(y[j*incy]);
+            delta = x[i*incx];
+            delta *= gamma;
+            A[i+j*ALDim] += delta;
+        }
+    }
 }
 template void Ger
 ( BlasInt m, BlasInt n, 
-  Int alpha, const Int* x, BlasInt incx, 
-             const Int* y, BlasInt incy, 
-                   Int* A, BlasInt ALDim );
+  const Int& alpha,
+  const Int* x, BlasInt incx, 
+  const Int* y, BlasInt incy, 
+        Int* A, BlasInt ALDim );
 #ifdef EL_HAVE_QD
 template void Ger
 ( BlasInt m, BlasInt n, 
-  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx, 
-                      const DoubleDouble* y, BlasInt incy, 
-                            DoubleDouble* A, BlasInt ALDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble* y, BlasInt incy, 
+        DoubleDouble* A, BlasInt ALDim );
 template void Ger
 ( BlasInt m, BlasInt n, 
-  QuadDouble alpha, const QuadDouble* x, BlasInt incx, 
-                    const QuadDouble* y, BlasInt incy, 
-                          QuadDouble* A, BlasInt ALDim );
+  const QuadDouble& alpha,
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble* y, BlasInt incy, 
+        QuadDouble* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Ger
 ( BlasInt m, BlasInt n, 
-  Quad alpha, const Quad* x, BlasInt incx, 
-              const Quad* y, BlasInt incy, 
-                    Quad* A, BlasInt ALDim );
+  const Quad& alpha,
+  const Quad* x, BlasInt incx, 
+  const Quad* y, BlasInt incy, 
+        Quad* A, BlasInt ALDim );
 template void Ger
 ( BlasInt m, BlasInt n, 
-  Complex<Quad> alpha, const Complex<Quad>* x, BlasInt incx, 
-                       const Complex<Quad>* y, BlasInt incy, 
-                             Complex<Quad>* A, BlasInt ALDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>* y, BlasInt incy, 
+        Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Ger
 ( BlasInt m, BlasInt n, 
-  BigInt alpha, const BigInt* x, BlasInt incx, 
-                const BigInt* y, BlasInt incy, 
-                      BigInt* A, BlasInt ALDim );
+  const BigInt& alpha,
+  const BigInt* x, BlasInt incx, 
+  const BigInt* y, BlasInt incy, 
+        BigInt* A, BlasInt ALDim );
 template void Ger
 ( BlasInt m, BlasInt n, 
-  BigFloat alpha, const BigFloat* x, BlasInt incx, 
-                  const BigFloat* y, BlasInt incy, 
-                        BigFloat* A, BlasInt ALDim );
+  const BigFloat& alpha,
+  const BigFloat* x, BlasInt incx, 
+  const BigFloat* y, BlasInt incy, 
+        BigFloat* A, BlasInt ALDim );
 #endif
 
 void Ger
 ( BlasInt m, BlasInt n,
-  float alpha, const float* x, BlasInt incx, 
-               const float* y, BlasInt incy,
-                     float* A, BlasInt ALDim )
+  const float& alpha,
+  const float* x, BlasInt incx, 
+  const float* y, BlasInt incy,
+        float* A, BlasInt ALDim )
 { EL_BLAS(sger)( &m, &n, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Ger
 ( BlasInt m, BlasInt n,
-  double alpha, const double* x, BlasInt incx, 
-                const double* y, BlasInt incy,
-                      double* A, BlasInt ALDim  )
+  const double& alpha,
+  const double* x, BlasInt incx, 
+  const double* y, BlasInt incy,
+        double* A, BlasInt ALDim  )
 { EL_BLAS(dger)( &m, &n, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Ger
 ( BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* x, BlasInt incx, 
-                  const scomplex* y, BlasInt incy,
-                        scomplex* A, BlasInt ALDim )
+  const scomplex& alpha,
+  const scomplex* x, BlasInt incx, 
+  const scomplex* y, BlasInt incy,
+        scomplex* A, BlasInt ALDim )
 { EL_BLAS(cgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Ger
 ( BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* x, BlasInt incx, 
-                  const dcomplex* y, BlasInt incy,
-                        dcomplex* A, BlasInt ALDim )
+  const dcomplex& alpha,
+  const dcomplex* x, BlasInt incx, 
+  const dcomplex* y, BlasInt incy,
+        dcomplex* A, BlasInt ALDim )
 { EL_BLAS(zgerc)( &m, &n, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 template<typename T>
 void Geru
 ( BlasInt m, BlasInt n,
-  T alpha,
+  const T& alpha,
   const T* x, BlasInt incx, 
   const T* y, BlasInt incy,
         T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    // TODO: Special-case alpha=0?
+    T gamma, delta;
     for( BlasInt j=0; j<n; ++j )
+    {
+        gamma = y[j*incy];
+        gamma *= alpha;
         for( BlasInt i=0; i<m; ++i )
-            A[i+j*ALDim] += alpha*x[i*incx]*y[j*incy];
+        {
+            // A[i+j*ALDim] += alpha*x[i*incx]*y[j*incy];
+            delta = x[i*incx];
+            delta *= gamma;
+            A[i+j*ALDim] += delta;
+        }
+    }
 }
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Int alpha,
+  const Int& alpha,
   const Int* x, BlasInt incx, 
   const Int* y, BlasInt incy, 
         Int* A, BlasInt ALDim );
 #ifdef EL_HAVE_QD
 template void Geru
 ( BlasInt m, BlasInt n, 
-  DoubleDouble alpha,
+  const DoubleDouble& alpha,
   const DoubleDouble* x, BlasInt incx, 
   const DoubleDouble* y, BlasInt incy, 
         DoubleDouble* A, BlasInt ALDim );
 template void Geru
 ( BlasInt m, BlasInt n, 
-  QuadDouble alpha,
+  const QuadDouble& alpha,
   const QuadDouble* x, BlasInt incx, 
   const QuadDouble* y, BlasInt incy, 
         QuadDouble* A, BlasInt ALDim );
@@ -1443,13 +1644,13 @@ template void Geru
 #ifdef EL_HAVE_QUAD
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Quad alpha,
+  const Quad& alpha,
   const Quad* x, BlasInt incx, 
   const Quad* y, BlasInt incy, 
         Quad* A, BlasInt ALDim );
 template void Geru
 ( BlasInt m, BlasInt n, 
-  Complex<Quad> alpha,
+  const Complex<Quad>& alpha,
   const Complex<Quad>* x, BlasInt incx, 
   const Complex<Quad>* y, BlasInt incy, 
         Complex<Quad>* A, BlasInt ALDim );
@@ -1457,13 +1658,13 @@ template void Geru
 #ifdef EL_HAVE_MPC
 template void Geru
 ( BlasInt m, BlasInt n, 
-  BigInt alpha,
+  const BigInt& alpha,
   const BigInt* x, BlasInt incx, 
   const BigInt* y, BlasInt incy, 
         BigInt* A, BlasInt ALDim );
 template void Geru
 ( BlasInt m, BlasInt n, 
-  BigFloat alpha,
+  const BigFloat& alpha,
   const BigFloat* x, BlasInt incx, 
   const BigFloat* y, BlasInt incy, 
         BigFloat* A, BlasInt ALDim );
@@ -1471,7 +1672,7 @@ template void Geru
 
 void Geru
 ( BlasInt m, BlasInt n,
-  float alpha,
+  const float& alpha,
   const float* x, BlasInt incx, 
   const float* y, BlasInt incy,
         float* A, BlasInt ALDim )
@@ -1479,7 +1680,7 @@ void Geru
 
 void Geru
 ( BlasInt m, BlasInt n,
-  double alpha,
+  const double& alpha,
   const double* x, BlasInt incx, 
   const double* y, BlasInt incy,
         double* A, BlasInt ALDim )
@@ -1487,7 +1688,7 @@ void Geru
 
 void Geru
 ( BlasInt m, BlasInt n,
-  scomplex alpha,
+  const scomplex& alpha,
   const scomplex* x, BlasInt incx, 
   const scomplex* y, BlasInt incy,
         scomplex* A, BlasInt ALDim )
@@ -1495,7 +1696,7 @@ void Geru
 
 void Geru
 ( BlasInt m, BlasInt n,
-  dcomplex alpha,
+  const dcomplex& alpha,
   const dcomplex* x, BlasInt incx, 
   const dcomplex* y, BlasInt incy,
         dcomplex* A, BlasInt ALDim )
@@ -1505,10 +1706,15 @@ void Geru
 template<typename T>
 void Hemv
 ( char uplo, BlasInt m,
-  T alpha, const T* A, BlasInt ALDim, 
-           const T* x, BlasInt incx,
-  T beta,        T* y, BlasInt incy )
+  const T& alpha,
+  const T* A, BlasInt ALDim, 
+  const T* x, BlasInt incx,
+  const T& beta,
+        T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // y := beta*y
     if( beta == T(0) )
     {
@@ -1521,276 +1727,421 @@ void Hemv
             y[i*incy] *= beta;
     }
 
+    // Pre-scale x to avoid redundant computation
+    vector<T> xAlpha(m);
+    for( Int i=0; i<m; ++i )
+    {
+        xAlpha[i] = x[i*incx];
+        xAlpha[i] *= alpha;
+    }
+
+    T gamma;
     if( uplo == LOWER )
     {
         // Multiply with the lower triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=j; i<m; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the adjoint of the strictly lower triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=j+1; i<m; ++i )
-                y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+            {
+                // y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+                Conj( A[i+j*ALDim], gamma );
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
     else
     {
         // Multiply with the upper triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=0; i<=j; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the adjoint of the strictly upper triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=0; i<j; ++i )
-                y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+            {
+                // y[j*incy] += alpha*Conj(A[i+j*ALDim])*x[i*incx];
+                Conj( A[i+j*ALDim], gamma );
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
 }
 
 template void Hemv
 ( char uplo, BlasInt m, 
-  Int alpha, const Int* A, BlasInt ALDim, 
-             const Int* x, BlasInt incx, 
-  Int beta,        Int* y, BlasInt incy );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int* x, BlasInt incx, 
+  const Int& beta,
+        Int* y, BlasInt incy );
 #ifdef EL_HAVE_QD
 template void Hemv
 ( char uplo, BlasInt m, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-                      const DoubleDouble* x, BlasInt incx, 
-  DoubleDouble beta,        DoubleDouble* y, BlasInt incy );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble& beta,
+        DoubleDouble* y, BlasInt incy );
 template void Hemv
 ( char uplo, BlasInt m, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-                    const QuadDouble* x, BlasInt incx, 
-  QuadDouble beta,        QuadDouble* y, BlasInt incy );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble& beta,
+        QuadDouble* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Hemv
 ( char uplo, BlasInt m, 
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-              const Quad* x, BlasInt incx, 
-  Quad beta,        Quad* y, BlasInt incy );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad* x, BlasInt incx, 
+  const Quad& beta,
+        Quad* y, BlasInt incy );
 template void Hemv
 ( char uplo, BlasInt m, 
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* x, BlasInt incx, 
-  Complex<Quad> beta,        Complex<Quad>* y, BlasInt incy );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>& beta,
+        Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
 template void Hemv
 ( char uplo, BlasInt m, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-                const BigInt* x, BlasInt incx, 
-  BigInt beta,        BigInt* y, BlasInt incy );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt* x, BlasInt incx, 
+  const BigInt& beta,
+        BigInt* y, BlasInt incy );
 template void Hemv
 ( char uplo, BlasInt m, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-                  const BigFloat* x, BlasInt incx, 
-  BigFloat beta,        BigFloat* y, BlasInt incy );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat* x, BlasInt incx, 
+  const BigFloat& beta,
+        BigFloat* y, BlasInt incy );
 #endif
 
 void Hemv
 ( char uplo, BlasInt m,
-  float alpha, const float* A, BlasInt ALDim, 
-               const float* x, BlasInt incx,
-  float beta,        float* y, BlasInt incy )
+  const float& alpha,
+  const float* A, BlasInt ALDim, 
+  const float* x, BlasInt incx,
+  const float& beta,
+        float* y, BlasInt incy )
 { EL_BLAS(ssymv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 void Hemv
 ( char uplo, BlasInt m,
-  double alpha, const double* A, BlasInt ALDim, 
-                const double* x, BlasInt incx,
-  double beta,        double* y, BlasInt incy )
+  const double& alpha,
+  const double* A, BlasInt ALDim, 
+  const double* x, BlasInt incx,
+  const double& beta,
+        double* y, BlasInt incy )
 { EL_BLAS(dsymv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 void Hemv
 ( char uplo, BlasInt m,
-  scomplex alpha, const scomplex* A, BlasInt ALDim, 
-                  const scomplex* x, BlasInt incx,
-  scomplex beta,        scomplex* y, BlasInt incy )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim, 
+  const scomplex* x, BlasInt incx,
+  const scomplex& beta,
+        scomplex* y, BlasInt incy )
 { EL_BLAS(chemv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 void Hemv
 ( char uplo, BlasInt m,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* x, BlasInt incx,
-  dcomplex beta,        dcomplex* y, BlasInt incy )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* x, BlasInt incx,
+  const dcomplex& beta,
+        dcomplex* y, BlasInt incy )
 { EL_BLAS(zhemv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 template<typename T>
 void Her
 ( char uplo, BlasInt m,
-  Base<T> alpha,
+  const Base<T>& alpha,
   const T* x, BlasInt incx,
         T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta;
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( x[j*incx], gamma );
+            gamma *= alpha;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( x[j*incx], gamma );
+            gamma *= alpha;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*Conj(x[j*incx]);
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
 }
 template void Her
 ( char uplo, BlasInt m,
-  Int alpha, const Int* x, BlasInt incx, 
-                   Int* A, BlasInt ALDim );
+  const Int& alpha,
+  const Int* x, BlasInt incx, 
+        Int* A, BlasInt ALDim );
 #ifdef EL_HAVE_QD
 template void Her
 ( char uplo, BlasInt m, 
-  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx,
-                            DoubleDouble* A, BlasInt ALDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* x, BlasInt incx,
+        DoubleDouble* A, BlasInt ALDim );
 template void Her
 ( char uplo, BlasInt m, 
-  QuadDouble alpha, const QuadDouble* x, BlasInt incx,
-                          QuadDouble* A, BlasInt ALDim );
+  const QuadDouble& alpha,
+  const QuadDouble* x, BlasInt incx,
+        QuadDouble* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Her
 ( char uplo, BlasInt m, 
-  Quad alpha, const Quad* x, BlasInt incx, Quad* A, BlasInt ALDim );
+  const Quad& alpha,
+  const Quad* x, BlasInt incx,
+        Quad* A, BlasInt ALDim );
 template void Her
 ( char uplo, BlasInt m, 
-  Quad alpha, const Complex<Quad>* x, BlasInt incx, 
-                    Complex<Quad>* A, BlasInt ALDim );
+  const Quad& alpha,
+  const Complex<Quad>* x, BlasInt incx, 
+        Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Her
 ( char uplo, BlasInt m, 
-  BigInt alpha, const BigInt* x, BlasInt incx,
-                      BigInt* A, BlasInt ALDim );
+  const BigInt& alpha,
+  const BigInt* x, BlasInt incx,
+        BigInt* A, BlasInt ALDim );
 template void Her
 ( char uplo, BlasInt m, 
-  BigFloat alpha, const BigFloat* x, BlasInt incx,
-                        BigFloat* A, BlasInt ALDim );
+  const BigFloat& alpha,
+  const BigFloat* x, BlasInt incx,
+        BigFloat* A, BlasInt ALDim );
 #endif
 
 void Her
 ( char uplo, BlasInt m,
-  float alpha, const float* x, BlasInt incx, float* A, BlasInt ALDim )
+  const float& alpha,
+  const float* x, BlasInt incx,
+        float* A, BlasInt ALDim )
 { EL_BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); }
 
 void Her
 ( char uplo, BlasInt m,
-  double alpha, const double* x, BlasInt incx, double* A, BlasInt ALDim )
+  const double& alpha,
+  const double* x, BlasInt incx,
+        double* A, BlasInt ALDim )
 { EL_BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); }
 
 void Her
 ( char uplo, BlasInt m,
-  float alpha, const scomplex* x, BlasInt incx, scomplex* A, BlasInt ALDim )
+  const float& alpha,
+  const scomplex* x, BlasInt incx,
+        scomplex* A, BlasInt ALDim )
 { EL_BLAS(cher)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); }
 
 void Her
 ( char uplo, BlasInt m,
-  double alpha, const dcomplex* x, BlasInt incx, dcomplex* A, BlasInt ALDim )
+  const double& alpha,
+  const dcomplex* x, BlasInt incx,
+        dcomplex* A, BlasInt ALDim )
 { EL_BLAS(zher)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); }
 
 template<typename T>
 void Her2
 ( char uplo, BlasInt m, 
-  T alpha, const T* x, BlasInt incx,
-           const T* y, BlasInt incy,
-                 T* A, BlasInt ALDim )
+  const T& alpha,
+  const T* x, BlasInt incx,
+  const T* y, BlasInt incy,
+        T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta, phi, psi, alphaConj;
+    Conj( alpha, alphaConj );
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( y[j*incy], gamma );
+            gamma *= alpha;
+            Conj( x[j*incx], delta );
+            delta *= alphaConj;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
-                              Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
+                //                 Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            Conj( y[j*incy], gamma );
+            gamma *= alpha;
+            Conj( x[j*incx], delta );
+            delta *= alphaConj;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
-                              Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*      x[i*incx]*Conj(y[j*incy]) + 
+                //                 Conj(alpha)*y[i*incy]*Conj(x[j*incx]);
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
 }
 template void Her2
 ( char uplo, BlasInt m, 
-  Int alpha, const Int* x, BlasInt incx, 
-             const Int* y, BlasInt incy, 
-                   Int* A, BlasInt ALDim );
+  const Int& alpha,
+  const Int* x, BlasInt incx, 
+  const Int* y, BlasInt incy, 
+        Int* A, BlasInt ALDim );
 #ifdef EL_HAVE_QD
 template void Her2
 ( char uplo, BlasInt m, 
-  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx, 
-                      const DoubleDouble* y, BlasInt incy, 
-                            DoubleDouble* A, BlasInt ALDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble* y, BlasInt incy, 
+        DoubleDouble* A, BlasInt ALDim );
 template void Her2
 ( char uplo, BlasInt m, 
-  QuadDouble alpha, const QuadDouble* x, BlasInt incx, 
-                    const QuadDouble* y, BlasInt incy, 
-                          QuadDouble* A, BlasInt ALDim );
+  const QuadDouble& alpha,
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble* y, BlasInt incy, 
+        QuadDouble* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Her2
 ( char uplo, BlasInt m, 
-  Quad alpha, const Quad* x, BlasInt incx, 
-              const Quad* y, BlasInt incy, 
-                    Quad* A, BlasInt ALDim );
+  const Quad& alpha,
+  const Quad* x, BlasInt incx, 
+  const Quad* y, BlasInt incy, 
+        Quad* A, BlasInt ALDim );
 template void Her2
 ( char uplo, BlasInt m, 
-  Complex<Quad> alpha, const Complex<Quad>* x, BlasInt incx, 
-                       const Complex<Quad>* y, BlasInt incy, 
-                             Complex<Quad>* A, BlasInt ALDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>* y, BlasInt incy, 
+        Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Her2
 ( char uplo, BlasInt m, 
-  BigInt alpha, const BigInt* x, BlasInt incx, 
-                const BigInt* y, BlasInt incy, 
-                      BigInt* A, BlasInt ALDim );
+  const BigInt& alpha,
+  const BigInt* x, BlasInt incx, 
+  const BigInt* y, BlasInt incy, 
+        BigInt* A, BlasInt ALDim );
 template void Her2
 ( char uplo, BlasInt m, 
-  BigFloat alpha, const BigFloat* x, BlasInt incx, 
-                  const BigFloat* y, BlasInt incy, 
-                        BigFloat* A, BlasInt ALDim );
+  const BigFloat& alpha,
+  const BigFloat* x, BlasInt incx, 
+  const BigFloat* y, BlasInt incy, 
+        BigFloat* A, BlasInt ALDim );
 #endif
 
 void Her2
 ( char uplo, BlasInt m,
-  float alpha, const float* x, BlasInt incx, 
-               const float* y, BlasInt incy,
-                     float* A, BlasInt ALDim )
+  const float& alpha,
+  const float* x, BlasInt incx, 
+  const float* y, BlasInt incy,
+        float* A, BlasInt ALDim )
 { EL_BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Her2
 ( char uplo, BlasInt m,
-  double alpha, const double* x, BlasInt incx, 
-                const double* y, BlasInt incy,
-                      double* A, BlasInt ALDim )
+  const double& alpha,
+  const double* x, BlasInt incx, 
+  const double* y, BlasInt incy,
+        double* A, BlasInt ALDim )
 { EL_BLAS(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Her2
 ( char uplo, BlasInt m,
-  scomplex alpha, const scomplex* x, BlasInt incx, 
-                  const scomplex* y, BlasInt incy,
-                        scomplex* A, BlasInt ALDim )
+  const scomplex& alpha,
+  const scomplex* x, BlasInt incx, 
+  const scomplex* y, BlasInt incy,
+        scomplex* A, BlasInt ALDim )
 { EL_BLAS(cher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Her2
 ( char uplo, BlasInt m,
-  dcomplex alpha, const dcomplex* x, BlasInt incx, 
-                  const dcomplex* y, BlasInt incy,
-                        dcomplex* A, BlasInt ALDim )
+  const dcomplex& alpha,
+  const dcomplex* x, BlasInt incx, 
+  const dcomplex* y, BlasInt incy,
+        dcomplex* A, BlasInt ALDim )
 { EL_BLAS(zher2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 // TODO: Introduce some sort of blocking
 template<typename T>
 void Symv
 ( char uplo, BlasInt m,
-  T alpha, const T* A, BlasInt ALDim, 
-           const T* x, BlasInt incx,
-  T beta,        T* y, BlasInt incy )
+  const T& alpha,
+  const T* A, BlasInt ALDim, 
+  const T* x, BlasInt incx,
+  const T& beta,
+        T* y, BlasInt incy )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // y := beta*y
     if( beta == T(0) )
     {
@@ -1803,93 +2154,150 @@ void Symv
             y[i*incy] *= beta;
     }
 
+    // Pre-scale x to avoid redundant computation
+    vector<T> xAlpha(m);
+    for( Int i=0; i<m; ++i )
+    {
+        xAlpha[i] = x[i*incx];
+        xAlpha[i] *= alpha;
+    }
+
+    T gamma;
     if( uplo == LOWER )
     {
         // Multiply with the lower triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=j; i<m; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the transpose of the strictly lower triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=j+1; i<m; ++i )
-                y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+            {
+                // y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
     else
     {
         // Multiply with the upper triangle
         for( BlasInt j=0; j<m; ++j )
+        {
             for( BlasInt i=0; i<=j; ++i )
-                y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+            {
+                // y[i*incy] += alpha*A[i+j*ALDim]*x[j*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[j];
+                y[i*incy] += gamma;
+            }
+        }
 
         // Multiply with the transpose of the strictly upper triangle
         for( BlasInt j=0; j<m; ++j ) 
+        {
             for( BlasInt i=0; i<j; ++i )
-                y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+            {
+                // y[j*incy] += alpha*A[i+j*ALDim]*x[i*incx];
+                gamma = A[i+j*ALDim];
+                gamma *= xAlpha[i];
+                y[j*incy] += gamma;
+            }
+        }
     }
 }
 
 template void Symv
 ( char uplo, BlasInt m, 
-  Int alpha, const Int* A, BlasInt ALDim, 
-             const Int* x, BlasInt incx, 
-  Int beta,        Int* y, BlasInt incy );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int* x, BlasInt incx, 
+  const Int& beta,
+        Int* y, BlasInt incy );
 #ifdef EL_HAVE_QD
 template void Symv
 ( char uplo, BlasInt m, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-                      const DoubleDouble* x, BlasInt incx, 
-  DoubleDouble beta,        DoubleDouble* y, BlasInt incy );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble& beta,
+        DoubleDouble* y, BlasInt incy );
 template void Symv
 ( char uplo, BlasInt m, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-                    const QuadDouble* x, BlasInt incx, 
-  QuadDouble beta,        QuadDouble* y, BlasInt incy );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble& beta,
+        QuadDouble* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Symv
 ( char uplo, BlasInt m, 
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-              const Quad* x, BlasInt incx, 
-  Quad beta,        Quad* y, BlasInt incy );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad* x, BlasInt incx, 
+  const Quad& beta,
+        Quad* y, BlasInt incy );
 template void Symv
 ( char uplo, BlasInt m, 
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* x, BlasInt incx, 
-  Complex<Quad> beta,        Complex<Quad>* y, BlasInt incy );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>& beta,
+        Complex<Quad>* y, BlasInt incy );
 #endif
 #ifdef EL_HAVE_MPC
 template void Symv
 ( char uplo, BlasInt m, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-                const BigInt* x, BlasInt incx, 
-  BigInt beta,        BigInt* y, BlasInt incy );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt* x, BlasInt incx, 
+  const BigInt& beta,
+        BigInt* y, BlasInt incy );
 template void Symv
 ( char uplo, BlasInt m, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-                  const BigFloat* x, BlasInt incx, 
-  BigFloat beta,        BigFloat* y, BlasInt incy );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat* x, BlasInt incx, 
+  const BigFloat& beta,
+        BigFloat* y, BlasInt incy );
 #endif
 
 void Symv
 ( char uplo, BlasInt m,
-  float alpha, const float* A, BlasInt ALDim, 
-               const float* x, BlasInt incx,
-  float beta,        float* y, BlasInt incy )
+  const float& alpha,
+  const float* A, BlasInt ALDim, 
+  const float* x, BlasInt incx,
+  const float& beta,
+        float* y, BlasInt incy )
 { EL_BLAS(ssymv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 void Symv
 ( char uplo, BlasInt m,
-  double alpha, const double* A, BlasInt ALDim, 
-                const double* x, BlasInt incx,
-  double beta,        double* y, BlasInt incy )
+  const double& alpha,
+  const double* A, BlasInt ALDim, 
+  const double* x, BlasInt incx,
+  const double& beta,
+        double* y, BlasInt incy )
 { EL_BLAS(dsymv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy ); }
 
 void Symv
 ( char uplo, BlasInt m,
-  scomplex alpha, const scomplex* A, BlasInt ALDim, 
-                  const scomplex* x, BlasInt incx,
-  scomplex beta,        scomplex* y, BlasInt incy )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim, 
+  const scomplex* x, BlasInt incx,
+  const scomplex& beta,
+        scomplex* y, BlasInt incy )
 {
     // Recall that 'csymv' is an LAPACK auxiliary routine
     EL_LAPACK(csymv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy );
@@ -1897,9 +2305,11 @@ void Symv
 
 void Symv
 ( char uplo, BlasInt m,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* x, BlasInt incx,
-  dcomplex beta,        dcomplex* y, BlasInt incy )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* x, BlasInt incx,
+  const dcomplex& beta,
+        dcomplex* y, BlasInt incy )
 {
     // Recall that 'zsymv' is an LAPACK auxiliary routine
     EL_LAPACK(zsymv)( &uplo, &m, &alpha, A, &ALDim, x, &incx, &beta, y, &incy );
@@ -1908,73 +2318,105 @@ void Symv
 template<typename T>
 void Syr
 ( char uplo, BlasInt m,
-  T alpha, const T* x, BlasInt incx,
-                 T* A, BlasInt ALDim )
+  const T& alpha,
+  const T* x, BlasInt incx,
+        T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta;
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = x[j*incx];
+            gamma *= alpha;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = x[j*incx];
+            gamma *= alpha;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*x[j*incx];
+                delta = x[i*incx];
+                delta *= gamma;
+                A[i+j*ALDim] += delta;
+            }
+        }
     }
 }
 template void Syr
 ( char uplo, BlasInt m,
-  Int alpha, const Int* x, BlasInt incx, 
-                   Int* A, BlasInt ALDim );
+  const Int& alpha,
+  const Int* x, BlasInt incx, 
+        Int* A, BlasInt ALDim );
 #ifdef EL_HAVE_QD
 template void Syr
 ( char uplo, BlasInt m, 
-  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx,
-                            DoubleDouble* A, BlasInt ALDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* x, BlasInt incx,
+        DoubleDouble* A, BlasInt ALDim );
 template void Syr
 ( char uplo, BlasInt m, 
-  QuadDouble alpha, const QuadDouble* x, BlasInt incx,
-                          QuadDouble* A, BlasInt ALDim );
+  const QuadDouble& alpha,
+  const QuadDouble* x, BlasInt incx,
+        QuadDouble* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Syr
 ( char uplo, BlasInt m, 
-  Quad alpha, const Quad* x, BlasInt incx,
-                    Quad* A, BlasInt ALDim );
+  const Quad& alpha,
+  const Quad* x, BlasInt incx,
+        Quad* A, BlasInt ALDim );
 template void Syr
 ( char uplo, BlasInt m, 
-  Complex<Quad> alpha, const Complex<Quad>* x, BlasInt incx, 
-                             Complex<Quad>* A, BlasInt ALDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* x, BlasInt incx, 
+        Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Syr
 ( char uplo, BlasInt m, 
-  BigInt alpha, const BigInt* x, BlasInt incx,
-                      BigInt* A, BlasInt ALDim );
+  const BigInt& alpha,
+  const BigInt* x, BlasInt incx,
+        BigInt* A, BlasInt ALDim );
 template void Syr
 ( char uplo, BlasInt m, 
-  BigFloat alpha, const BigFloat* x, BlasInt incx,
-                        BigFloat* A, BlasInt ALDim );
+  const BigFloat& alpha,
+  const BigFloat* x, BlasInt incx,
+        BigFloat* A, BlasInt ALDim );
 #endif
 
 void Syr
 ( char uplo, BlasInt m,
-  float alpha, const float* x, BlasInt incx,
-                     float* A, BlasInt ALDim  )
+  const float& alpha,
+  const float* x, BlasInt incx,
+        float* A, BlasInt ALDim  )
 { EL_BLAS(ssyr)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); }
 
 void Syr
 ( char uplo, BlasInt m,
-  double alpha, const double* x, BlasInt incx,
-                      double* A, BlasInt ALDim )
+  const double& alpha,
+  const double* x, BlasInt incx,
+        double* A, BlasInt ALDim )
 { EL_BLAS(dsyr)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); }
 
 void Syr
 ( char uplo, BlasInt m,
-  scomplex alpha, const scomplex* x, BlasInt incx,
-                        scomplex* A, BlasInt ALDim )
+  const scomplex& alpha,
+  const scomplex* x, BlasInt incx,
+        scomplex* A, BlasInt ALDim )
 {
     // Recall that 'csyr' is an LAPACK auxiliary routine
     EL_LAPACK(csyr)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); 
@@ -1982,8 +2424,9 @@ void Syr
 
 void Syr
 ( char uplo, BlasInt m,
-  dcomplex alpha, const dcomplex* x, BlasInt incx,
-                        dcomplex* A, BlasInt ALDim )
+  const dcomplex& alpha,
+  const dcomplex* x, BlasInt incx,
+        dcomplex* A, BlasInt ALDim )
 {
     // Recall that 'zsyr' is an LAPACK auxiliary routine
     EL_LAPACK(zsyr)( &uplo, &m, &alpha, x, &incx, A, &ALDim ); 
@@ -1992,84 +2435,128 @@ void Syr
 template<typename T>
 void Syr2
 ( char uplo, BlasInt m, 
-  T alpha, const T* x, BlasInt incx,
-           const T* y, BlasInt incy,
-                 T* A, BlasInt ALDim )
+  const T& alpha,
+  const T* x, BlasInt incx,
+  const T* y, BlasInt incy,
+        T* A, BlasInt ALDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    T gamma, delta, phi, psi;
     if( std::toupper(uplo) == 'L' )
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = y[j*incy];
+            gamma *= alpha;
+            delta = x[j*incx];
+            delta *= alpha;
             for( BlasInt i=j; i<m; ++i )
-                A[i+j*ALDim] += alpha*(x[i*incx]*y[j*incy]+y[i*incy]*x[j*incx]);
+            {
+                // A[i+j*ALDim] +=
+                //   alpha*(x[i*incx]*y[j*incy]+y[i*incy]*x[j*incx])
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
     else
     {
         for( BlasInt j=0; j<m; ++j )
+        {
+            gamma = y[j*incy];
+            gamma *= alpha;
+            delta = x[j*incx]; 
+            delta *= alpha;
             for( BlasInt i=0; i<=j; ++i )
-                A[i+j*ALDim] += alpha*(x[i*incx]*y[j*incy]+y[i*incy]*x[j*incx]);
+            {
+                // A[i+j*ALDim] += alpha*x[i*incx]*y[j*incy] + 
+                //                 alpha*y[i*incy]*x[j*incx];
+                phi = x[i*incx]; 
+                phi *= gamma;
+                psi = y[i*incy];
+                psi *= delta;
+                phi += psi;
+                A[i+j*ALDim] += phi;
+            }
+        }
     }
 }
 template void Syr2
 ( char uplo, BlasInt m, 
-  Int alpha, const Int* x, BlasInt incx,
-             const Int* y, BlasInt incy, 
-                   Int* A, BlasInt ALDim );
+  const Int& alpha,
+  const Int* x, BlasInt incx,
+  const Int* y, BlasInt incy, 
+        Int* A, BlasInt ALDim );
 #ifdef EL_HAVE_QD
 template void Syr2
 ( char uplo, BlasInt m, 
-  DoubleDouble alpha, const DoubleDouble* x, BlasInt incx, 
-                      const DoubleDouble* y, BlasInt incy, 
-                            DoubleDouble* A, BlasInt ALDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* x, BlasInt incx, 
+  const DoubleDouble* y, BlasInt incy, 
+        DoubleDouble* A, BlasInt ALDim );
 template void Syr2
 ( char uplo, BlasInt m, 
-  QuadDouble alpha, const QuadDouble* x, BlasInt incx, 
-                    const QuadDouble* y, BlasInt incy, 
-                          QuadDouble* A, BlasInt ALDim );
+  const QuadDouble& alpha,
+  const QuadDouble* x, BlasInt incx, 
+  const QuadDouble* y, BlasInt incy, 
+        QuadDouble* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Syr2
 ( char uplo, BlasInt m, 
-  Quad alpha, const Quad* x, BlasInt incx, 
-              const Quad* y, BlasInt incy, 
-                    Quad* A, BlasInt ALDim );
+  const Quad& alpha,
+  const Quad* x, BlasInt incx, 
+  const Quad* y, BlasInt incy, 
+        Quad* A, BlasInt ALDim );
 template void Syr2
 ( char uplo, BlasInt m, 
-  Complex<Quad> alpha, const Complex<Quad>* x, BlasInt incx, 
-                       const Complex<Quad>* y, BlasInt incy, 
-                             Complex<Quad>* A, BlasInt ALDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* x, BlasInt incx, 
+  const Complex<Quad>* y, BlasInt incy, 
+        Complex<Quad>* A, BlasInt ALDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Syr2
 ( char uplo, BlasInt m, 
-  BigInt alpha, const BigInt* x, BlasInt incx, 
-                const BigInt* y, BlasInt incy, 
-                      BigInt* A, BlasInt ALDim );
+  const BigInt& alpha,
+  const BigInt* x, BlasInt incx, 
+  const BigInt* y, BlasInt incy, 
+        BigInt* A, BlasInt ALDim );
 template void Syr2
 ( char uplo, BlasInt m, 
-  BigFloat alpha, const BigFloat* x, BlasInt incx, 
-                  const BigFloat* y, BlasInt incy, 
-                        BigFloat* A, BlasInt ALDim );
+  const BigFloat& alpha,
+  const BigFloat* x, BlasInt incx, 
+  const BigFloat* y, BlasInt incy, 
+        BigFloat* A, BlasInt ALDim );
 #endif
 
 void Syr2
 ( char uplo, BlasInt m,
-  float alpha, const float* x, BlasInt incx,
-               const float* y, BlasInt incy,
-                     float* A, BlasInt ALDim )
+  const float& alpha,
+  const float* x, BlasInt incx,
+  const float* y, BlasInt incy,
+        float* A, BlasInt ALDim )
 { EL_BLAS(ssyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Syr2
 ( char uplo, BlasInt m,
-  double alpha, const double* x, BlasInt incx,
-                const double* y, BlasInt incy,
-                      double* A, BlasInt ALDim )
+  const double& alpha,
+  const double* x, BlasInt incx,
+  const double* y, BlasInt incy,
+        double* A, BlasInt ALDim )
 { EL_BLAS(dsyr2)( &uplo, &m, &alpha, x, &incx, y, &incy, A, &ALDim ); }
 
 void Syr2
 ( char uplo, BlasInt m,
-  scomplex alpha, const scomplex* x, BlasInt incx, 
-                  const scomplex* y, BlasInt incy,
-                        scomplex* A, BlasInt ALDim )
+  const scomplex& alpha,
+  const scomplex* x, BlasInt incx, 
+  const scomplex* y, BlasInt incy,
+        scomplex* A, BlasInt ALDim )
 {
     // csyr2 doesn't exist, so we route through csyr2k. However, csyr2k expects 
     // contiguous access of 'x', so we treat x and y as a row vectors where 
@@ -2084,9 +2571,10 @@ void Syr2
 
 void Syr2
 ( char uplo, BlasInt m,
-  dcomplex alpha, const dcomplex* x, BlasInt incx, 
-                  const dcomplex* y, BlasInt incy,
-                        dcomplex* A, BlasInt ALDim )
+  const dcomplex& alpha,
+  const dcomplex* x, BlasInt incx, 
+  const dcomplex* y, BlasInt incy,
+        dcomplex* A, BlasInt ALDim )
 {
     // zsyr2 doesn't exist, so we route through zsyr2k. However, zsyr2k expects 
     // contiguous access of 'x', so we treat x and y as a row vectors where 
@@ -2107,20 +2595,29 @@ void Trmv
   const T* A, BlasInt ALDim,
         T* x, BlasInt incx )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     const bool lower = ( std::toupper(uplo) == 'L' );
     const bool conj = ( std::toupper(trans) == 'C' );
     const bool unitDiag = ( std::toupper(diag) == 'U' );
+    const T zero(0);
+
+    T gamma, delta;
     if( lower )
     {
         if( std::toupper(trans) == 'N' )
         {
             for( BlasInt j=m-1; j>=0; --j )
             {
-                T gamma = x[j*incx]; 
-                if( gamma != T(0) )
+                gamma = x[j*incx]; 
+                if( gamma != zero )
                 {
                     for( BlasInt i=m-1; i>j; --i )
-                        x[i*incx] += gamma*A[i+j*ALDim];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= gamma;
+                        x[i*incx] += delta;
+                    }
                     if( !unitDiag )
                         x[j*incx] *= A[j+j*ALDim];
                 }
@@ -2130,20 +2627,31 @@ void Trmv
         {
             for( BlasInt j=0; j<m; ++j )
             {
-                T gamma = x[j*incx]; 
+                gamma = x[j*incx]; 
                 if( conj )
                 {
                     if( !unitDiag )
-                        gamma *= Conj(A[j+j*ALDim]);
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        gamma *= delta;
+                    }
                     for( BlasInt i=j+1; i<m; ++i )
-                        gamma += Conj(A[i+j*ALDim])*x[i*incx];
+                    {
+                        Conj( A[i+j*ALDim], delta );
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag )
                         gamma *= A[j+j*ALDim];
                     for( BlasInt i=j+1; i<m; ++i )
-                        gamma += A[i+j*ALDim]*x[i*incx];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 x[j*incx] = gamma;
             }
@@ -2155,11 +2663,15 @@ void Trmv
         {
             for( BlasInt j=0; j<m; ++j )
             {
-                T gamma = x[j*incx]; 
-                if( gamma != T(0) )
+                gamma = x[j*incx]; 
+                if( gamma != zero )
                 {
                     for( BlasInt i=0; i<j; ++i )
-                        x[i*incx] += gamma*A[i+j*ALDim];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= gamma;
+                        x[i*incx] += delta;
+                    }
                     if( !unitDiag )
                         x[j*incx] *= A[j+j*ALDim];
                 }
@@ -2169,20 +2681,31 @@ void Trmv
         {
             for( BlasInt j=m-1; j>=0; --j )
             {
-                T gamma = x[j*incx]; 
+                gamma = x[j*incx]; 
                 if( conj )
                 {
                     if( !unitDiag )
-                        gamma *= Conj(A[j+j*ALDim]);
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        gamma *= delta;
+                    }
                     for( BlasInt i=j-1; i>=0; --i )
-                        gamma += Conj(A[i+j*ALDim])*x[i*incx];
+                    {
+                        Conj( A[i+j*ALDim], delta );
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag )
                         gamma *= A[j+j*ALDim];
                     for( BlasInt i=j-1; i>=0; --i )
-                        gamma += A[i+j*ALDim]*x[i*incx];
+                    {
+                        delta = A[i+j*ALDim];
+                        delta *= x[i*incx];
+                        gamma += delta;
+                    }
                 }
                 x[j*incx] = gamma;
             }
@@ -2254,9 +2777,13 @@ void Trsv
   const F* A, BlasInt ALDim,
         F* x, BlasInt incx )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     const bool conj = ( std::toupper(trans) == 'C' );
     const bool lower = ( std::toupper(uplo) == 'L' );
     const bool unitDiag = ( std::toupper(diag) == 'U' );
+
+    F gamma, delta;
     if( lower )
     {
         if( std::toupper(trans) == 'N' )
@@ -2265,9 +2792,13 @@ void Trsv
             {
                 if( !unitDiag ) 
                     x[j*incx] /= A[j+j*ALDim];
-                const F gamma = x[j*incx];
+                gamma = x[j*incx];
                 for( BlasInt i=j+1; i<m; ++i )
-                    x[i*incx] -= gamma*A[i+j*ALDim];
+                {
+                    delta = A[i+j*ALDim];
+                    delta *= gamma;
+                    x[i*incx] -= delta;
+                }
             }
         }
         else
@@ -2277,18 +2808,29 @@ void Trsv
                 if( conj )
                 {
                     if( !unitDiag )
-                        x[j*incx] /= Conj(A[j+j*ALDim]);
-                    const F gamma = x[j*incx];
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        x[j*incx] /= delta;
+                    }
+                    gamma = x[j*incx];
                     for( BlasInt i=j-1; i>=0; --i )
-                        x[i*incx] -= gamma*Conj(A[j+i*ALDim]);
+                    {
+                        Conj( A[j+i*ALDim], delta );
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag )
                         x[j*incx] /= A[j+j*ALDim];
-                    const F gamma = x[j*incx];
+                    gamma = x[j*incx];
                     for( BlasInt i=j-1; i>=0; --i )
-                        x[i*incx] -= gamma*A[j+i*ALDim];
+                    {
+                        delta = A[j+i*ALDim];
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
             }
         }
@@ -2301,9 +2843,13 @@ void Trsv
             {
                 if( !unitDiag )
                     x[j*incx] /= A[j+j*ALDim];
-                const F gamma = x[j*incx];
+                gamma = x[j*incx];
                 for( BlasInt i=j-1; i>=0; --i )
-                    x[i*incx] -= gamma*A[i+j*ALDim];
+                {
+                    delta = A[i+j*ALDim];
+                    delta *= gamma;
+                    x[i*incx] -= delta;
+                }
             }
         }
         else
@@ -2314,17 +2860,28 @@ void Trsv
                 {
                     if( !unitDiag ) 
                         x[j*incx] /= A[j+j*ALDim];
-                    const F gamma = x[j*incx];
+                    gamma = x[j*incx];
                     for( BlasInt i=j+1; i<m; ++i )
-                        x[i*incx] -= gamma*A[j+i*ALDim];
+                    {
+                        delta = A[j+i*ALDim];
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
                 else
                 {
                     if( !unitDiag ) 
-                        x[j*incx] /= Conj(A[j+j*ALDim]);
-                    const F gamma = x[j*incx];
+                    {
+                        Conj( A[j+j*ALDim], delta );
+                        x[j*incx] /= delta;
+                    }
+                    gamma = x[j*incx];
                     for( BlasInt i=j+1; i<m; ++i )
-                        x[i*incx] -= gamma*Conj(A[j+i*ALDim]);
+                    {
+                        Conj( A[j+i*ALDim], delta );
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
                 }
             }
         }
@@ -2387,10 +2944,14 @@ template<typename T>
 void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k,
-  T alpha, const T* A, BlasInt ALDim,
-           const T* B, BlasInt BLDim,
-  T beta,        T* C, BlasInt CLDim )
+  const T& alpha,
+  const T* A, BlasInt ALDim,
+  const T* B, BlasInt BLDim,
+  const T& beta,
+        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( m > 0 && n > 0 && k == 0 && beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -2414,6 +2975,7 @@ void Gemm
     }
 
     // Naive implementation
+    T gamma, delta;
     if( std::toupper(transA) == 'N' && std::toupper(transB) == 'N' )
     {
         // C := alpha A B + C
@@ -2421,9 +2983,13 @@ void Gemm
         {
             for( BlasInt l=0; l<k; ++l )
             {
-                const T gamma = alpha*B[l+j*BLDim];
+                gamma = alpha*B[l+j*BLDim];
                 for( BlasInt i=0; i<m; ++i )
-                    C[i+j*CLDim] += gamma*A[i+l*ALDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= gamma;
+                    C[i+j*CLDim] += delta;
+                }
             }
         }
     }
@@ -2436,9 +3002,13 @@ void Gemm
             {
                 for( BlasInt l=0; l<k; ++l )
                 {
-                    const T gamma = alpha*B[j+l*BLDim];
+                    gamma = alpha*B[j+l*BLDim];
                     for( BlasInt i=0; i<m; ++i )
-                        C[i+j*CLDim] += gamma*A[i+l*ALDim];
+                    {
+                        delta = A[i+l*ALDim];
+                        delta *= gamma;
+                        C[i+j*CLDim] += delta;
+                    }
                 }
             }
         }
@@ -2449,9 +3019,13 @@ void Gemm
             {
                 for( BlasInt l=0; l<k; ++l )
                 {
-                    const T gamma = alpha*Conj(B[j+l*BLDim]);
+                    gamma = alpha*Conj(B[j+l*BLDim]);
                     for( BlasInt i=0; i<m; ++i )
-                        C[i+j*CLDim] += gamma*A[i+l*ALDim];
+                    {
+                        delta = A[i+l*ALDim];
+                        delta *= gamma;
+                        C[i+j*CLDim] += delta;
+                    }
                 }
             }
         }
@@ -2465,10 +3039,15 @@ void Gemm
             {
                 for( BlasInt i=0; i<m; ++i )
                 {
-                    T gamma = 0;
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        gamma += A[l+i*ALDim]*B[l+j*BLDim];
-                    C[i+j*CLDim] += alpha*gamma;
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= B[l+j*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
                 }
             }
         }
@@ -2479,10 +3058,15 @@ void Gemm
             {
                 for( BlasInt i=0; i<m; ++i )
                 {
-                    T gamma = 0;
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        gamma += Conj(A[l+i*ALDim])*B[l+j*BLDim];
-                    C[i+j*CLDim] += alpha*gamma;
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= B[l+j*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
                 }
             }
         }
@@ -2493,92 +3077,153 @@ void Gemm
         {
             // C := alpha A^T B^T + C
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*B[j+l*BLDim];
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= B[j+l*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else if( std::toupper(transA) == 'T' )
         {
             // C := alpha A^T B^H + C
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*Conj(B[j+l*BLDim]);
+                    {
+                        Conj( B[j+l*BLDim], delta );
+                        delta *= A[l+i*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else if( std::toupper(transB) == 'T' )
         {
             // C := alpha A^H B^T + C
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*B[j+l*BLDim];
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= B[j+l*BLDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             // C := alpha A^H B^H + C
+            T phi;
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<m; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                            alpha*Conj(A[l+i*ALDim])*Conj(B[j+l*BLDim]);
+                    {
+                        Conj( A[l+i*ALDim], delta );       
+                        Conj( B[j+l*BLDim], phi );
+                        delta *= phi;
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  Int alpha, const Int* A, BlasInt ALDim,
-             const Int* B, BlasInt BLDim,
-  Int beta,        Int* C, BlasInt CLDim );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim,
+  const Int* B, BlasInt BLDim,
+  const Int& beta,
+        Int* C, BlasInt CLDim );
 #ifdef EL_HAVE_QD
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim,
-                      const DoubleDouble* B, BlasInt BLDim,
-  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim,
+  const DoubleDouble* B, BlasInt BLDim,
+  const DoubleDouble& beta,
+        DoubleDouble* C, BlasInt CLDim );
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim,
-                    const QuadDouble* B, BlasInt BLDim,
-  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim,
+  const QuadDouble* B, BlasInt BLDim,
+  const QuadDouble& beta,
+        QuadDouble* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  Quad alpha, const Quad* A, BlasInt ALDim,
-              const Quad* B, BlasInt BLDim,
-  Quad beta,        Quad* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim,
+  const Quad* B, BlasInt BLDim,
+  const Quad& beta,
+        Quad* C, BlasInt CLDim );
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* B, BlasInt BLDim,
-  Complex<Quad> beta,        Complex<Quad>* C, BlasInt CLDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* B, BlasInt BLDim,
+  const Complex<Quad>& beta,
+        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim,
-                const BigInt* B, BlasInt BLDim,
-  BigInt beta,        BigInt* C, BlasInt CLDim );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim,
+  const BigInt* B, BlasInt BLDim,
+  const BigInt& beta,
+        BigInt* C, BlasInt CLDim );
 template void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim,
-                  const BigFloat* B, BlasInt BLDim,
-  BigFloat beta,        BigFloat* C, BlasInt CLDim );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim,
+  const BigFloat* B, BlasInt BLDim,
+  const BigFloat& beta,
+        BigFloat* C, BlasInt CLDim );
 #endif
 
 void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  float alpha, const float* A, BlasInt ALDim,
-               const float* B, BlasInt BLDim,
-  float beta,        float* C, BlasInt CLDim )
+  const float& alpha,
+  const float* A, BlasInt ALDim,
+  const float* B, BlasInt BLDim,
+  const float& beta,
+        float* C, BlasInt CLDim )
 {
     DEBUG_ONLY(
       CSE cse("blas::Gemm");
@@ -2617,9 +3262,11 @@ void Gemm
 void Gemm
 ( char transA, char transB,
   BlasInt m, BlasInt n, BlasInt k, 
-  double alpha, const double* A, BlasInt ALDim, 
-                const double* B, BlasInt BLDim,
-  double beta,        double* C, BlasInt CLDim )
+  const double& alpha,
+  const double* A, BlasInt ALDim, 
+  const double* B, BlasInt BLDim,
+  const double& beta,
+        double* C, BlasInt CLDim )
 {
     DEBUG_ONLY(
       CSE cse("blas::Gemm");
@@ -2658,9 +3305,11 @@ void Gemm
 
 void Gemm
 ( char transA, char transB, BlasInt m, BlasInt n, BlasInt k, 
-  scomplex alpha, const scomplex* A, BlasInt ALDim, 
-                  const scomplex* B, BlasInt BLDim,
-  scomplex beta,        scomplex* C, BlasInt CLDim )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim, 
+  const scomplex* B, BlasInt BLDim,
+  const scomplex& beta,
+        scomplex* C, BlasInt CLDim )
 {
     DEBUG_ONLY(
       CSE cse("blas::Gemm");
@@ -2697,9 +3346,11 @@ void Gemm
 
 void Gemm
 ( char transA, char transB, BlasInt m, BlasInt n, BlasInt k, 
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* B, BlasInt BLDim,
-  dcomplex beta,        dcomplex* C, BlasInt CLDim )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* B, BlasInt BLDim,
+  const dcomplex& beta,
+        dcomplex* C, BlasInt CLDim )
 {
     DEBUG_ONLY(
       CSE cse("blas::Gemm");
@@ -2738,10 +3389,15 @@ template<typename T>
 void Hemm
 ( char side, char uplo,
   BlasInt m, BlasInt n, 
-  T alpha, const T* A, BlasInt ALDim, 
-           const T* B, BlasInt BLDim,
-  T beta,        T* C, BlasInt CLDim )
+  const T& alpha,
+  const T* A, BlasInt ALDim, 
+  const T* B, BlasInt BLDim,
+  const T& beta,
+        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // Scale C
     if( beta == T(0) )
     {
@@ -2758,61 +3414,150 @@ void Hemm
     }
 
     // Naive implementation
+    T gamma, delta;
     if( std::toupper(side) == 'L' && std::toupper(uplo) == 'L' )
     {
         // C := alpha tril(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=i; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha tril(A,-1)^H B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i+1; l<m; ++l )
-                    C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*B[l+j*BLDim];
+                {
+                    Conj( A[l+i*ALDim], delta );
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'L' && std::toupper(uplo) == 'U' )
     {
         // C := alpha triu(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i; l<m; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha triu(A,-)^H B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<i; ++l )
-                    C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*B[l+j*BLDim];
+                {
+                    Conj( A[l+i*ALDim], delta );
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'L' )
     {
         // C := alpha B tril(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B tril(A,-1)^H + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                {
+                    Conj( A[j+l*ALDim], delta );
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'U' )
     {
         // C := alpha B triu(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B triu(A,1)^H + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j+1; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                {
+                    Conj( A[j+l*ALDim], delta );
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     DEBUG_ONLY(
       else
@@ -2821,51 +3566,67 @@ void Hemm
 }
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt ALDim, 
-             const Int* B, BlasInt BLDim,
-  Int beta,        Int* C, BlasInt CLDim );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int* B, BlasInt BLDim,
+  const Int& beta,
+        Int* C, BlasInt CLDim );
 #ifdef EL_HAVE_QD
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-                      const DoubleDouble* B, BlasInt BLDim,
-  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble* B, BlasInt BLDim,
+  const DoubleDouble& beta,
+        DoubleDouble* C, BlasInt CLDim );
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-                    const QuadDouble* B, BlasInt BLDim,
-  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble* B, BlasInt BLDim,
+  const QuadDouble& beta,
+        QuadDouble* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-              const Quad* B, BlasInt BLDim,
-  Quad beta,        Quad* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad* B, BlasInt BLDim,
+  const Quad& beta,
+        Quad* C, BlasInt CLDim );
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* B, BlasInt BLDim,
-  Complex<Quad> beta,        Complex<Quad>* C, BlasInt CLDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* B, BlasInt BLDim,
+  const Complex<Quad>& beta,
+        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-                const BigInt* B, BlasInt BLDim,
-  BigInt beta,        BigInt* C, BlasInt CLDim );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt* B, BlasInt BLDim,
+  const BigInt& beta,
+        BigInt* C, BlasInt CLDim );
 template void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-                  const BigFloat* B, BlasInt BLDim,
-  BigFloat beta,        BigFloat* C, BlasInt CLDim );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat* B, BlasInt BLDim,
+  const BigFloat& beta,
+        BigFloat* C, BlasInt CLDim );
 #endif
 
 void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  float alpha, const float* A, BlasInt ALDim, 
-               const float* B, BlasInt BLDim,
-  float beta,        float* C, BlasInt CLDim )
+  const float& alpha,
+  const float* A, BlasInt ALDim, 
+  const float* B, BlasInt BLDim,
+  const float& beta,
+        float* C, BlasInt CLDim )
 {
     EL_BLAS(ssymm)
     ( &side, &uplo, &m, &n,
@@ -2874,9 +3635,11 @@ void Hemm
 
 void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  double alpha, const double* A, BlasInt ALDim, 
-                const double* B, BlasInt BLDim,
-  double beta,        double* C, BlasInt CLDim )
+  const double& alpha,
+  const double* A, BlasInt ALDim, 
+  const double* B, BlasInt BLDim,
+  const double& beta,
+        double* C, BlasInt CLDim )
 {
     EL_BLAS(dsymm)
     ( &side, &uplo, &m, &n,
@@ -2885,9 +3648,11 @@ void Hemm
 
 void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* A, BlasInt ALDim, 
-                  const scomplex* B, BlasInt BLDim,
-  scomplex beta,        scomplex* C, BlasInt CLDim )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim, 
+  const scomplex* B, BlasInt BLDim,
+  const scomplex& beta,
+        scomplex* C, BlasInt CLDim )
 {
     EL_BLAS(chemm)
     ( &side, &uplo, &m, &n,
@@ -2896,9 +3661,11 @@ void Hemm
 
 void Hemm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* B, BlasInt BLDim,
-  dcomplex beta,        dcomplex* C, BlasInt CLDim )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* B, BlasInt BLDim,
+  const dcomplex& beta,
+        dcomplex* C, BlasInt CLDim )
 {
     EL_BLAS(zhemm)
     ( &side, &uplo, &m, &n,
@@ -2909,10 +3676,14 @@ template<typename T>
 void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  T alpha,      const T* A, BlasInt ALDim, 
-                const T* B, BlasInt BLDim,
-  Base<T> beta,       T* C, BlasInt CLDim )
+  const T& alpha,
+  const T* A, BlasInt ALDim, 
+  const T* B, BlasInt BLDim,
+  const Base<T>& beta,
+        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == Base<T>(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -2929,26 +3700,60 @@ void Her2k
     const T alphaConj = Conj(alpha);
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, delta, phi;
     if( normal )
     {
         // C := alpha A B^H + Conj(alpha) B A^H + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *A[i+l*ALDim]*Conj(B[j+l*BLDim]) +
-                          alphaConj*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( B[j+l*BLDim], phi );
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        Conj( A[j+l*ALDim], phi );
+                        phi *= B[i+l*BLDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *A[i+l*ALDim]*Conj(B[j+l*BLDim]) +
-                          alphaConj*B[i+l*BLDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( B[j+l*BLDim], phi );
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        Conj( A[j+l*ALDim], phi );
+                        phi *= B[i+l*BLDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
@@ -2957,78 +3762,126 @@ void Her2k
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *Conj(A[l+i*ALDim])*B[l+j*BLDim] +
-                          alphaConj*Conj(B[l+i*BLDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], phi );
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        Conj( B[l+i*BLDim], phi );
+                        phi *= A[l+j*ALDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma; 
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
+                    delta = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] +=
-                          alpha    *Conj(A[l+i*ALDim])*B[l+j*BLDim] +
-                          alphaConj*Conj(B[l+i*BLDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], phi );
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        Conj( B[l+i*BLDim], phi );
+                        phi *= A[l+j*ALDim];
+                        delta += phi;
+                    }
+                    gamma *= alpha;
+                    delta *= alphaConj;
+                    gamma += delta;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Int alpha, const Int* A, BlasInt ALDim, 
-             const Int* B, BlasInt BLDim,
-  Int beta,        Int* C, BlasInt CLDim );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int* B, BlasInt BLDim,
+  const Int& beta,
+        Int* C, BlasInt CLDim );
 #ifdef EL_HAVE_QD
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-                      const DoubleDouble* B, BlasInt BLDim,
-  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble* B, BlasInt BLDim,
+  const DoubleDouble& beta,
+        DoubleDouble* C, BlasInt CLDim );
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-                    const QuadDouble* B, BlasInt BLDim,
-  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble* B, BlasInt BLDim,
+  const QuadDouble& beta,
+        QuadDouble* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-              const Quad* B, BlasInt BLDim,
-  Quad beta,        Quad* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad* B, BlasInt BLDim,
+  const Quad& beta,
+        Quad* C, BlasInt CLDim );
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* B, BlasInt BLDim,
-  Quad beta,                 Complex<Quad>* C, BlasInt CLDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* B, BlasInt BLDim,
+  const Quad& beta,
+        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-                const BigInt* B, BlasInt BLDim,
-  BigInt beta,        BigInt* C, BlasInt CLDim );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt* B, BlasInt BLDim,
+  const BigInt& beta,
+        BigInt* C, BlasInt CLDim );
 template void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-                  const BigFloat* B, BlasInt BLDim,
-  BigFloat beta,        BigFloat* C, BlasInt CLDim );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat* B, BlasInt BLDim,
+  const BigFloat& beta,
+        BigFloat* C, BlasInt CLDim );
 #endif
 
 void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  float alpha, const float* A, BlasInt ALDim, 
-               const float* B, BlasInt BLDim,
-  float beta,        float* C, BlasInt CLDim )
+  const float& alpha,
+  const float* A, BlasInt ALDim, 
+  const float* B, BlasInt BLDim,
+  const float& beta,
+        float* C, BlasInt CLDim )
 {
     const char transFixed = ( trans == 'C' ? 'T' : trans );
     EL_BLAS(ssyr2k)
@@ -3039,9 +3892,11 @@ void Her2k
 void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  double alpha, const double* A, BlasInt ALDim, 
-                const double* B, BlasInt BLDim,
-  double beta,        double* C, BlasInt CLDim )
+  const double& alpha,
+  const double* A, BlasInt ALDim, 
+  const double* B, BlasInt BLDim,
+  const double& beta,
+        double* C, BlasInt CLDim )
 {
     const char transFixed = ( trans == 'C' ? 'T' : trans );
     EL_BLAS(dsyr2k)
@@ -3052,9 +3907,11 @@ void Her2k
 void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  scomplex alpha, const scomplex* A, BlasInt ALDim, 
-                  const scomplex* B, BlasInt BLDim,
-  float beta,           scomplex* C, BlasInt CLDim )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim, 
+  const scomplex* B, BlasInt BLDim,
+  const float& beta,
+        scomplex* C, BlasInt CLDim )
 {
     EL_BLAS(cher2k)
     ( &uplo, &trans, &n, &k,
@@ -3064,9 +3921,11 @@ void Her2k
 void Her2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* B, BlasInt BLDim,
-  double beta,          dcomplex* C, BlasInt CLDim )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* B, BlasInt BLDim,
+  const double& beta,
+        dcomplex* C, BlasInt CLDim )
 {
     EL_BLAS(zher2k)
     ( &uplo, &trans, &n, &k,
@@ -3077,9 +3936,13 @@ template<typename T>
 void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Base<T> alpha, const T* A, BlasInt ALDim, 
-  Base<T> beta,        T* C, BlasInt CLDim )
+  const Base<T>& alpha,
+  const T* A, BlasInt ALDim, 
+  const Base<T>& beta,
+        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == Base<T>(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -3095,22 +3958,46 @@ void Herk
 
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, delta;
     if( normal )
     {
         // C := alpha A A^H + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( A[j+l*ALDim], delta );
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*Conj(A[j+l*ALDim]);
+                    {
+                        Conj( A[j+l*ALDim], delta );
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
@@ -3119,66 +4006,104 @@ void Herk
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*Conj(A[l+i*ALDim])*A[l+j*ALDim];
+                    {
+                        Conj( A[l+i*ALDim], delta );
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Int alpha, const Int* A, BlasInt ALDim, 
-  Int beta,        Int* C, BlasInt CLDim );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int& beta,
+        Int* C, BlasInt CLDim );
 #ifdef EL_HAVE_QD
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble& beta,
+        DoubleDouble* C, BlasInt CLDim );
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble& beta,
+        QuadDouble* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-  Quad beta,        Quad* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad& beta,
+        Quad* C, BlasInt CLDim );
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  Quad alpha, const Complex<Quad>* A, BlasInt ALDim, 
-  Quad beta,        Complex<Quad>* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Quad& beta,
+        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-  BigInt beta,        BigInt* C, BlasInt CLDim );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt& beta,
+        BigInt* C, BlasInt CLDim );
 template void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-  BigFloat beta,        BigFloat* C, BlasInt CLDim );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat& beta,
+        BigFloat* C, BlasInt CLDim );
 #endif
 
 void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  float alpha, const float* A, BlasInt ALDim,
-  float beta,        float* C, BlasInt CLDim )
+  const float& alpha,
+  const float* A, BlasInt ALDim,
+  const float& beta,
+        float* C, BlasInt CLDim )
 {
     const char transFixed = ( std::toupper(trans) == 'C' ? 'T' : trans );
     EL_BLAS(ssyrk)
@@ -3188,8 +4113,10 @@ void Herk
 void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  double alpha, const double* A, BlasInt ALDim,
-  double beta,        double* C, BlasInt CLDim )
+  const double& alpha,
+  const double* A, BlasInt ALDim,
+  const double& beta,
+        double* C, BlasInt CLDim )
 {
     const char transFixed = ( std::toupper(trans) == 'C' ? 'T' : trans );
     EL_BLAS(dsyrk)
@@ -3199,8 +4126,10 @@ void Herk
 void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  float alpha, const scomplex* A, BlasInt ALDim,
-  float beta,        scomplex* C, BlasInt CLDim )
+  const float& alpha,
+  const scomplex* A, BlasInt ALDim,
+  const float& beta,
+        scomplex* C, BlasInt CLDim )
 {
     EL_BLAS(cherk)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, &beta, C, &CLDim );
@@ -3209,8 +4138,10 @@ void Herk
 void Herk
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  double alpha, const dcomplex* A, BlasInt ALDim,
-  double beta,        dcomplex* C, BlasInt CLDim )
+  const double& alpha,
+  const dcomplex* A, BlasInt ALDim,
+  const double& beta,
+        dcomplex* C, BlasInt CLDim )
 {
     EL_BLAS(zherk)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, &beta, C, &CLDim );
@@ -3220,16 +4151,22 @@ template<typename T>
 void Symm
 ( char side, char uplo,
   BlasInt m, BlasInt n, 
-  T alpha, const T* A, BlasInt ALDim, 
-           const T* B, BlasInt BLDim,
-  T beta,        T* C, BlasInt CLDim )
+  const T& alpha,
+  const T* A, BlasInt ALDim, 
+  const T* B, BlasInt BLDim,
+  const T& beta,
+        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+
     // Scale C
     if( beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
             for( BlasInt i=0; i<m; ++i )
                 C[i+j*CLDim] = 0;
+
     }
     else if( beta != T(1) )
     {
@@ -3239,61 +4176,150 @@ void Symm
     }
 
     // Naive implementation
+    T gamma, delta;
     if( std::toupper(side) == 'L' && std::toupper(uplo) == 'L' )
     {
         // C := alpha tril(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=i; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha tril(A,-1)^T B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i+1; l<m; ++l )
-                    C[i+j*CLDim] += alpha*A[l+i*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[l+i*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'L' && std::toupper(uplo) == 'U' )
     {
         // C := alpha triu(A) B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=i; l<m; ++l )
-                    C[i+j*CLDim] += alpha*A[i+l*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[i+l*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha triu(A,-)^T B + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<i; ++l )
-                    C[i+j*CLDim] += alpha*A[l+i*ALDim]*B[l+j*BLDim];
+                {
+                    delta = A[l+i*ALDim];
+                    delta *= B[l+j*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'L' )
     {
         // C := alpha B tril(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B tril(A,-1)^T + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[j+l*ALDim];
+                {
+                    delta = A[j+l*ALDim];
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     else if( std::toupper(side) == 'R' && std::toupper(uplo) == 'U' )
     {
         // C := alpha B triu(A) + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=0; l<=j; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[l+j*ALDim];
+                {
+                    delta = B[i+l*BLDim];
+                    delta *= A[l+j*ALDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
 
         // C := alpha B triu(A,1)^T + C
         for( BlasInt j=0; j<n; ++j )
+        {
             for( BlasInt i=0; i<m; ++i )
+            {
+                gamma = 0;
                 for( BlasInt l=j+1; l<n; ++l )
-                    C[i+j*CLDim] += alpha*B[i+l*BLDim]*A[j+l*ALDim];
+                {
+                    delta = A[j+l*ALDim];
+                    delta *= B[i+l*BLDim];
+                    gamma += delta;
+                }
+                gamma *= alpha;
+                C[i+j*CLDim] += gamma;
+            }
+        }
     }
     DEBUG_ONLY(
       else
@@ -3302,51 +4328,67 @@ void Symm
 }
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt ALDim, 
-             const Int* B, BlasInt BLDim,
-  Int beta,        Int* C, BlasInt CLDim );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int* B, BlasInt BLDim,
+  const Int& beta,
+        Int* C, BlasInt CLDim );
 #ifdef EL_HAVE_QD
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-                      const DoubleDouble* B, BlasInt BLDim,
-  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble* B, BlasInt BLDim,
+  const DoubleDouble& beta,
+        DoubleDouble* C, BlasInt CLDim );
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-                    const QuadDouble* B, BlasInt BLDim,
-  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble* B, BlasInt BLDim,
+  const QuadDouble& beta,
+        QuadDouble* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-              const Quad* B, BlasInt BLDim,
-  Quad beta,        Quad* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad* B, BlasInt BLDim,
+  const Quad& beta,
+        Quad* C, BlasInt CLDim );
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* B, BlasInt BLDim,
-  Complex<Quad> beta,        Complex<Quad>* C, BlasInt CLDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* B, BlasInt BLDim,
+  const Complex<Quad>& beta,
+        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-                const BigInt* B, BlasInt BLDim,
-  BigInt beta,        BigInt* C, BlasInt CLDim );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt* B, BlasInt BLDim,
+  const BigInt& beta,
+        BigInt* C, BlasInt CLDim );
 template void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-                  const BigFloat* B, BlasInt BLDim,
-  BigFloat beta,        BigFloat* C, BlasInt CLDim );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat* B, BlasInt BLDim,
+  const BigFloat& beta,
+        BigFloat* C, BlasInt CLDim );
 #endif
 
 void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  float alpha, const float* A, BlasInt ALDim, 
-               const float* B, BlasInt BLDim,
-  float beta,        float* C, BlasInt CLDim )
+  const float& alpha,
+  const float* A, BlasInt ALDim, 
+  const float* B, BlasInt BLDim,
+  const float& beta,
+        float* C, BlasInt CLDim )
 {
     EL_BLAS(ssymm)
     ( &side, &uplo, &m, &n, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3354,9 +4396,11 @@ void Symm
 
 void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  double alpha, const double* A, BlasInt ALDim, 
-                const double* B, BlasInt BLDim,
-  double beta,        double* C, BlasInt CLDim )
+  const double& alpha,
+  const double* A, BlasInt ALDim, 
+  const double* B, BlasInt BLDim,
+  const double& beta,
+        double* C, BlasInt CLDim )
 {
     EL_BLAS(dsymm)
     ( &side, &uplo, &m, &n, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3364,9 +4408,11 @@ void Symm
 
 void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  scomplex alpha, const scomplex* A, BlasInt ALDim, 
-                  const scomplex* B, BlasInt BLDim,
-  scomplex beta,        scomplex* C, BlasInt CLDim )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim, 
+  const scomplex* B, BlasInt BLDim,
+  const scomplex& beta,
+        scomplex* C, BlasInt CLDim )
 {
     EL_BLAS(csymm)
     ( &side, &uplo, &m, &n, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3374,9 +4420,11 @@ void Symm
 
 void Symm
 ( char side, char uplo, BlasInt m, BlasInt n,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* B, BlasInt BLDim,
-  dcomplex beta,        dcomplex* C, BlasInt CLDim )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* B, BlasInt BLDim,
+  const dcomplex& beta,
+        dcomplex* C, BlasInt CLDim )
 {
     EL_BLAS(zsymm)
     ( &side, &uplo, &m, &n, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3386,10 +4434,14 @@ template<typename T>
 void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  T alpha, const T* A, BlasInt ALDim, 
-           const T* B, BlasInt BLDim,
-  T beta,        T* C, BlasInt CLDim )
+  const T& alpha,
+  const T* A, BlasInt ALDim, 
+  const T* B, BlasInt BLDim,
+  const T& beta,
+        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -3405,106 +4457,176 @@ void Syr2k
 
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, phi;
     if( normal )
     {
-        // C := alpha (A B^T + B A^T) + beta C
+        // C := alpha A B^T + alpha B A^T + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[i+l*ALDim]*B[j+l*BLDim] +
-                           B[i+l*BLDim]*A[j+l*ALDim]);
+                    {
+                        phi = B[j+l*BLDim];
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        phi = A[j+l*ALDim];
+                        phi *= B[i+l*BLDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[i+l*ALDim]*B[j+l*BLDim] +
-                           B[i+l*BLDim]*A[j+l*ALDim]);
+                    {
+                        phi = B[j+l*BLDim];
+                        phi *= A[i+l*ALDim];
+                        gamma += phi;
+
+                        phi = A[j+l*ALDim];
+                        phi *= B[i+l*BLDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
     {
-        // C := alpha (A^T B + B^T A) + beta C
+        // C := alpha A^T B + alpha B^T A + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[l+i*ALDim]*B[l+j*BLDim] +
-                           B[l+i*BLDim]*A[l+j*ALDim]);
+                    {
+                        phi = A[l+i*ALDim];
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        phi = B[l+i*BLDim];
+                        phi *= A[l+j*ALDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma; 
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*
-                          (A[l+i*ALDim]*B[l+j*BLDim] +
-                           B[l+i*BLDim]*A[l+j*ALDim]);
+                    {
+                        phi = A[l+i*ALDim];
+                        phi *= B[l+j*BLDim];
+                        gamma += phi;
+
+                        phi = B[l+i*BLDim];
+                        phi *= A[l+j*ALDim];
+                        gamma += phi;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Int alpha, const Int* A, BlasInt ALDim, 
-             const Int* B, BlasInt BLDim,
-  Int beta,        Int* C, BlasInt CLDim );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int* B, BlasInt BLDim,
+  const Int& beta,
+        Int* C, BlasInt CLDim );
 #ifdef EL_HAVE_QD
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-                      const DoubleDouble* B, BlasInt BLDim,
-  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble* B, BlasInt BLDim,
+  const DoubleDouble& beta,
+        DoubleDouble* C, BlasInt CLDim );
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-                    const QuadDouble* B, BlasInt BLDim,
-  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble* B, BlasInt BLDim,
+  const QuadDouble& beta,
+        QuadDouble* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-              const Quad* B, BlasInt BLDim,
-  Quad beta,        Quad* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad* B, BlasInt BLDim,
+  const Quad& beta,
+        Quad* C, BlasInt CLDim );
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-                       const Complex<Quad>* B, BlasInt BLDim,
-  Complex<Quad> beta,       Complex<Quad>* C, BlasInt CLDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>* B, BlasInt BLDim,
+  const Complex<Quad>& beta,
+        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-                const BigInt* B, BlasInt BLDim,
-  BigInt beta,        BigInt* C, BlasInt CLDim );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt* B, BlasInt BLDim,
+  const BigInt& beta,
+        BigInt* C, BlasInt CLDim );
 template void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-                  const BigFloat* B, BlasInt BLDim,
-  BigFloat beta,        BigFloat* C, BlasInt CLDim );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat* B, BlasInt BLDim,
+  const BigFloat& beta,
+        BigFloat* C, BlasInt CLDim );
 #endif
 
 void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  float alpha, const float* A, BlasInt ALDim, 
-               const float* B, BlasInt BLDim,
-  float beta,        float* C, BlasInt CLDim )
+  const float& alpha,
+  const float* A, BlasInt ALDim, 
+  const float* B, BlasInt BLDim,
+  const float& beta,
+        float* C, BlasInt CLDim )
 {
     EL_BLAS(ssyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3513,9 +4635,11 @@ void Syr2k
 void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  double alpha, const double* A, BlasInt ALDim, 
-                const double* B, BlasInt BLDim,
-  double beta,        double* C, BlasInt CLDim )
+  const double& alpha,
+  const double* A, BlasInt ALDim, 
+  const double* B, BlasInt BLDim,
+  const double& beta,
+        double* C, BlasInt CLDim )
 {
     EL_BLAS(dsyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3524,9 +4648,11 @@ void Syr2k
 void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  scomplex alpha, const scomplex* A, BlasInt ALDim,
-                  const scomplex* B, BlasInt BLDim,
-  scomplex beta,        scomplex* C, BlasInt CLDim )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim,
+  const scomplex* B, BlasInt BLDim,
+  const scomplex& beta,
+        scomplex* C, BlasInt CLDim )
 {
     EL_BLAS(csyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3535,9 +4661,11 @@ void Syr2k
 void Syr2k
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim, 
-                  const dcomplex* B, BlasInt BLDim,
-  dcomplex beta,        dcomplex* C, BlasInt CLDim )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim, 
+  const dcomplex* B, BlasInt BLDim,
+  const dcomplex& beta,
+        dcomplex* C, BlasInt CLDim )
 {
     EL_BLAS(zsyr2k)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, B, &BLDim, &beta, C, &CLDim );
@@ -3547,9 +4675,13 @@ template<typename T>
 void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  T alpha, const T* A, BlasInt ALDim, 
-  T beta,        T* C, BlasInt CLDim )
+  const T& alpha,
+  const T* A, BlasInt ALDim, 
+  const T& beta,
+        T* C, BlasInt CLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     if( beta == T(0) )
     {
         for( BlasInt j=0; j<n; ++j )
@@ -3565,22 +4697,46 @@ void Syrk
 
     const bool normal = ( std::toupper(trans) == 'N' );
     const bool lower = ( std::toupper(uplo) == 'L' );
+
+    T gamma, delta;
     if( normal )
     {
         // C := alpha A A^T + beta C
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*A[j+l*ALDim];
+                    {
+                        delta = A[j+l*ALDim];
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[i+l*ALDim]*A[j+l*ALDim];
+                    {
+                        delta = A[j+l*ALDim];
+                        delta *= A[i+l*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
     else
@@ -3589,65 +4745,103 @@ void Syrk
         if( lower )
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=j; i<n; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*A[l+j*ALDim];
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
         else
         {
             for( BlasInt j=0; j<n; ++j )
+            {
                 for( BlasInt i=0; i<=j; ++i )
+                {
+                    gamma = 0;
                     for( BlasInt l=0; l<k; ++l )
-                        C[i+j*CLDim] += alpha*A[l+i*ALDim]*A[l+j*ALDim];
+                    {
+                        delta = A[l+i*ALDim];
+                        delta *= A[l+j*ALDim];
+                        gamma += delta;
+                    }
+                    gamma *= alpha;
+                    C[i+j*CLDim] += gamma;
+                }
+            }
         }
     }
 }
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Int alpha, const Int* A, BlasInt ALDim, 
-  Int beta,        Int* C, BlasInt CLDim );
+  const Int& alpha,
+  const Int* A, BlasInt ALDim, 
+  const Int& beta,
+        Int* C, BlasInt CLDim );
 #ifdef EL_HAVE_QD
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  DoubleDouble alpha, const DoubleDouble* A, BlasInt ALDim, 
-  DoubleDouble beta,        DoubleDouble* C, BlasInt CLDim );
+  const DoubleDouble& alpha,
+  const DoubleDouble* A, BlasInt ALDim, 
+  const DoubleDouble& beta,
+        DoubleDouble* C, BlasInt CLDim );
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  QuadDouble alpha, const QuadDouble* A, BlasInt ALDim, 
-  QuadDouble beta,        QuadDouble* C, BlasInt CLDim );
+  const QuadDouble& alpha,
+  const QuadDouble* A, BlasInt ALDim, 
+  const QuadDouble& beta,
+        QuadDouble* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  Quad alpha, const Quad* A, BlasInt ALDim, 
-  Quad beta,        Quad* C, BlasInt CLDim );
+  const Quad& alpha,
+  const Quad* A, BlasInt ALDim, 
+  const Quad& beta,
+        Quad* C, BlasInt CLDim );
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt ALDim, 
-  Complex<Quad> beta,        Complex<Quad>* C, BlasInt CLDim );
+  const Complex<Quad>& alpha,
+  const Complex<Quad>* A, BlasInt ALDim, 
+  const Complex<Quad>& beta,
+        Complex<Quad>* C, BlasInt CLDim );
 #endif
 #ifdef EL_HAVE_MPC
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigInt alpha, const BigInt* A, BlasInt ALDim, 
-  BigInt beta,        BigInt* C, BlasInt CLDim );
+  const BigInt& alpha,
+  const BigInt* A, BlasInt ALDim, 
+  const BigInt& beta,
+        BigInt* C, BlasInt CLDim );
 template void Syrk
 ( char uplo, char trans,
   BlasInt n, BlasInt k, 
-  BigFloat alpha, const BigFloat* A, BlasInt ALDim, 
-  BigFloat beta,        BigFloat* C, BlasInt CLDim );
+  const BigFloat& alpha,
+  const BigFloat* A, BlasInt ALDim, 
+  const BigFloat& beta,
+        BigFloat* C, BlasInt CLDim );
 #endif
 
 void Syrk
 ( char uplo, char trans, BlasInt n, BlasInt k,
-  float alpha, const float* A, BlasInt ALDim,
-  float beta,        float* C, BlasInt CLDim )
+  const float& alpha,
+  const float* A, BlasInt ALDim,
+  const float& beta,
+        float* C, BlasInt CLDim )
 {
     EL_BLAS(ssyrk)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, &beta, C, &CLDim );
@@ -3655,8 +4849,10 @@ void Syrk
 
 void Syrk
 ( char uplo, char trans, BlasInt n, BlasInt k,
-  double alpha, const double* A, BlasInt ALDim,
-  double beta,        double* C, BlasInt CLDim )
+  const double& alpha,
+  const double* A, BlasInt ALDim,
+  const double& beta,
+        double* C, BlasInt CLDim )
 {
     EL_BLAS(dsyrk)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, &beta, C, &CLDim );
@@ -3664,8 +4860,10 @@ void Syrk
 
 void Syrk
 ( char uplo, char trans, BlasInt n, BlasInt k,
-  scomplex alpha, const scomplex* A, BlasInt ALDim,
-  scomplex beta,        scomplex* C, BlasInt CLDim )
+  const scomplex& alpha,
+  const scomplex* A, BlasInt ALDim,
+  const scomplex& beta,
+        scomplex* C, BlasInt CLDim )
 {
     EL_BLAS(csyrk)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, &beta, C, &CLDim );
@@ -3673,8 +4871,10 @@ void Syrk
 
 void Syrk
 ( char uplo, char trans, BlasInt n, BlasInt k,
-  dcomplex alpha, const dcomplex* A, BlasInt ALDim,
-  dcomplex beta,        dcomplex* C, BlasInt CLDim )
+  const dcomplex& alpha,
+  const dcomplex* A, BlasInt ALDim,
+  const dcomplex& beta,
+        dcomplex* C, BlasInt CLDim )
 {
     EL_BLAS(zsyrk)
     ( &uplo, &trans, &n, &k, &alpha, A, &ALDim, &beta, C, &CLDim );
@@ -3684,7 +4884,7 @@ template<typename T>
 void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  T alpha,
+  const T& alpha,
   const T* A, BlasInt ALDim,
         T* B, BlasInt BLDim )
 {
@@ -3714,6 +4914,7 @@ void Trmm
                 for( Int j=0; j<n; ++j )
                     B[i+j*BLDim] = Conj(B[i+j*BLDim]);
             Trmv( uplo, newTrans, unit, n, A, ALDim, &B[i], BLDim );
+            // TODO: Avoid temporaries here
             if( conjugate )
                 for( Int j=0; j<n; ++j )
                     B[i+j*BLDim] = Conj(B[i+j*BLDim]);
@@ -3723,20 +4924,20 @@ void Trmm
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Int alpha,
+  const Int& alpha,
   const Int* A, BlasInt ALDim,
         Int* B, BlasInt BLDim );
 #ifdef EL_HAVE_QD
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  DoubleDouble alpha,
+  const DoubleDouble& alpha,
   const DoubleDouble* A, BlasInt ALDim,
         DoubleDouble* B, BlasInt BLDim );
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  QuadDouble alpha,
+  const QuadDouble& alpha,
   const QuadDouble* A, BlasInt ALDim,
         QuadDouble* B, BlasInt BLDim );
 #endif
@@ -3744,13 +4945,13 @@ template void Trmm
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Quad alpha,
+  const Quad& alpha,
   const Quad* A, BlasInt ALDim,
         Quad* B, BlasInt BLDim );
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Complex<Quad> alpha,
+  const Complex<Quad>& alpha,
   const Complex<Quad>* A, BlasInt ALDim,
         Complex<Quad>* B, BlasInt BLDim );
 #endif
@@ -3758,20 +4959,20 @@ template void Trmm
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  BigInt alpha,
+  const BigInt& alpha,
   const BigInt* A, BlasInt ALDim,
         BigInt* B, BlasInt BLDim );
 template void Trmm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  BigFloat alpha,
+  const BigFloat& alpha,
   const BigFloat* A, BlasInt ALDim,
         BigFloat* B, BlasInt BLDim );
 #endif
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  float alpha,
+  const float& alpha,
   const float* A, BlasInt ALDim,
         float* B, BlasInt BLDim )
 {
@@ -3782,7 +4983,7 @@ void Trmm
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  double alpha,
+  const double& alpha,
   const double* A, BlasInt ALDim,
         double* B, BlasInt BLDim )
 {
@@ -3793,7 +4994,7 @@ void Trmm
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  scomplex alpha,
+  const scomplex& alpha,
   const scomplex* A, BlasInt ALDim,
         scomplex* B, BlasInt BLDim )
 {
@@ -3803,7 +5004,7 @@ void Trmm
 
 void Trmm
 ( char side, char uplo, char trans, char unit, BlasInt m, BlasInt n,
-  dcomplex alpha,
+  const dcomplex& alpha,
   const dcomplex* A, BlasInt ALDim,
         dcomplex* B, BlasInt BLDim )
 {
@@ -3815,10 +5016,12 @@ template<typename F>
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  F alpha,
+  const F& alpha,
   const F* A, BlasInt ALDim,
         F* B, BlasInt BLDim )
 {
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
     const bool onLeft = ( std::toupper(side) == 'L' );
     const bool lower = ( std::toupper(uplo) == 'L' );
     const bool conjugate = ( std::toupper(trans) == 'C' );
@@ -3829,6 +5032,7 @@ void Trsm
         for( BlasInt i=0; i<m; ++i )
             B[i+j*BLDim] *= alpha;
 
+    F alpha11, alpha11Conj;
     if( onLeft )
     {
         if( std::toupper(trans) == 'N' )
@@ -3839,7 +5043,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )      
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3856,7 +5060,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )      
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3877,12 +5081,12 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11Conj;
                     }
                     for( Int s=0; s<k; ++s )
-                        aRow[s] = Conj(A[k+s*ALDim]);
+                        Conj( A[k+s*ALDim], aRow[s] );
                     Geru
                     ( k, n,
                       F(-1), aRow.data(), 1,
@@ -3896,13 +5100,13 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11Conj;
                     }
                     std::vector<F> aRow(m);
                     for( Int s=0; s<m-(k+1); ++s )
-                        aRow[s] = Conj(A[k+(k+1+s)*ALDim]);
+                        Conj( A[k+(k+1+s)*ALDim], aRow[s] );
                     Geru
                     ( m-(k+1), n,
                       F(-1), aRow.data(), 1,
@@ -3919,7 +5123,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3936,7 +5140,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt j=0; j<n; ++j )
                             B[k+j*BLDim] /= alpha11;
                     }
@@ -3959,7 +5163,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }
@@ -3976,7 +5180,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }
@@ -3996,7 +5200,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11Conj;
                     }
@@ -4013,7 +5217,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11Conj = Conj(A[k+k*ALDim]);
+                        Conj( A[k+k*ALDim], alpha11Conj );
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11Conj;
                     }
@@ -4033,7 +5237,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }
@@ -4050,7 +5254,7 @@ void Trsm
                 {
                     if( !unitDiag )
                     {
-                        const F alpha11 = A[k+k*ALDim];
+                        alpha11 = A[k+k*ALDim];
                         for( BlasInt i=0; i<m; ++i )
                             B[i+k*BLDim] /= alpha11;
                     }
@@ -4068,13 +5272,13 @@ void Trsm
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  DoubleDouble alpha,
+  const DoubleDouble& alpha,
   const DoubleDouble* A, BlasInt ALDim,
         DoubleDouble* B, BlasInt BLDim );
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  QuadDouble alpha,
+  const QuadDouble& alpha,
   const QuadDouble* A, BlasInt ALDim,
         QuadDouble* B, BlasInt BLDim );
 #endif
@@ -4082,13 +5286,13 @@ template void Trsm
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Quad alpha,
+  const Quad& alpha,
   const Quad* A, BlasInt ALDim,
         Quad* B, BlasInt BLDim );
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  Complex<Quad> alpha,
+  const Complex<Quad>& alpha,
   const Complex<Quad>* A, BlasInt ALDim,
         Complex<Quad>* B, BlasInt BLDim );
 #endif
@@ -4096,7 +5300,7 @@ template void Trsm
 template void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  BigFloat alpha,
+  const BigFloat& alpha,
   const BigFloat* A, BlasInt ALDim,
         BigFloat* B, BlasInt BLDim );
 #endif
@@ -4104,7 +5308,7 @@ template void Trsm
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  float alpha,
+  const float& alpha,
   const float* A, BlasInt ALDim,
         float* B, BlasInt BLDim )
 {
@@ -4116,7 +5320,7 @@ void Trsm
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  double alpha,
+  const double& alpha,
   const double* A, BlasInt ALDim,
         double* B, BlasInt BLDim )
 {
@@ -4128,7 +5332,7 @@ void Trsm
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  scomplex alpha,
+  const scomplex& alpha,
   const scomplex* A, BlasInt ALDim,
         scomplex* B, BlasInt BLDim )
 {
@@ -4139,7 +5343,7 @@ void Trsm
 void Trsm
 ( char side, char uplo, char trans, char unit,
   BlasInt m, BlasInt n,
-  dcomplex alpha,
+  const dcomplex& alpha,
   const dcomplex* A, BlasInt ALDim,
         dcomplex* B, BlasInt BLDim )
 {

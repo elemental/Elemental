@@ -30,180 +30,160 @@ bool TrivialCoordinates( const Matrix<F>& v )
     return true;
 }
 
-} // namespace bkz
+template<typename RealLower,typename F>
+bool TryLowerPrecision
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl,
+  unsigned neededPrec,
+  BKZInfo<Base<F>>& info )
+{
+    bool succeeded = false;
+    if( MantissaIsLonger<Base<F>,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        if( ctrl.progress )
+            Output("Dropping to ",TypeName<RealLower>());
+        try
+        {
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
+            info = infoLower;
+            Copy( BLower, B );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            succeeded = true;
+        }
+        catch( std::exception& e )
+        {
+            Output("e.what()=",e.what());
+        }
+    }
+    return succeeded;
+}
 
-template<typename F>
-BKZInfo<Base<F>> BKZWithQ
+template<typename RealLower,typename F>
+bool TryLowerPrecision
 ( Matrix<F>& B,
   Matrix<F>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
-  const BKZCtrl<Base<F>>& ctrl )
+  const BKZCtrl<Base<F>>& ctrl,
+  unsigned neededPrec,
+  BKZInfo<Base<F>>& info )
 {
-    DEBUG_ONLY(CSE cse("BKZWithQ"))
-    typedef Base<F> Real;
-    const Int n = B.Width();
+    bool succeeded = false;
+    if( MantissaIsLonger<Base<F>,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        if( ctrl.progress )
+            Output("Dropping to ",TypeName<RealLower>());
+        try
+        {
+            typedef ConvertBase<F,RealLower> FLower;
+            Matrix<FLower> BLower, ULower, QRLower, tLower;
+            Matrix<RealLower> dLower;
+            BKZCtrl<RealLower> ctrlLower( ctrl );
+            Copy( B, BLower );
+            Copy( U, ULower );
+            Copy( QR, QRLower );
+            Copy( t, tLower );
+            Copy( d, dLower );
+            auto infoLower =
+              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
+            info = infoLower;
+            Copy( BLower, B );
+            Copy( ULower, U );
+            Copy( QRLower, QR );
+            Copy( tLower, t );
+            Copy( dLower, d );
+            succeeded = true;
+        }
+        catch( std::exception& e )
+        {
+            Output("e.what()=",e.what());
+        }
+    }
+    return succeeded;
+}
 
-    const Real BOneNorm = OneNorm(B);
-    const Real fudge = 2; // TODO: Make tunable
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
-
-    if( MantissaIsLonger<Real,float>::value &&
-        MantissaBits<float>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to float");
-        try
-        {
-            typedef float RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, ULower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( U, ULower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( ULower, U );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( MantissaIsLonger<Real,double>::value &&
-        MantissaBits<double>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to double");
-        try
-        {
-            typedef double RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, ULower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( U, ULower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( ULower, U );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-#ifdef EL_HAVE_QD
-    if( MantissaIsLonger<Real,DoubleDouble>::value &&
-        MantissaBits<DoubleDouble>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to DoubleDouble");
-        try
-        {
-            typedef DoubleDouble RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, ULower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( U, ULower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( ULower, U );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( MantissaIsLonger<Real,QuadDouble>::value &&
-        MantissaBits<QuadDouble>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to QuadDouble");
-        try
-        {
-            typedef QuadDouble RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, ULower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( U, ULower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( ULower, U );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-#endif
-#ifdef EL_HAVE_QUAD
-    if( MantissaIsLonger<Real,Quad>::value &&
-        MantissaBits<Quad>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to Quad");
-        try
-        {
-            typedef Quad RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, ULower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( U, ULower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( ULower, U );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-#endif
 #ifdef EL_HAVE_MPC
+template<typename F>
+bool TryLowerPrecisionBigFloat
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl,
+  unsigned neededPrec,
+  BKZInfo<Base<F>>& info )
+{
+    typedef Base<F> Real;
+    bool succeeded = false;
+    if( !IsFixedPrecision<Real>::value )
+    {
+        const mpfr_prec_t minPrecDiff = 32;
+        mpfr_prec_t inputPrec = mpc::Precision();
+        if( neededPrec <= inputPrec-minPrecDiff )
+        {
+            if( ctrl.progress )
+                Output("Dropping to precision=",neededPrec);
+            mpc::SetPrecision( neededPrec );
+            try
+            {
+                Matrix<F> BLower, QRLower, tLower;
+                Matrix<Real> dLower;
+                BKZCtrl<Real> ctrlLower( ctrl );
+                Copy( B, BLower );
+                Copy( QR, QRLower );
+                Copy( t, tLower );
+                Copy( d, dLower );
+                auto infoLower =
+                  BKZWithQ
+                  ( BLower, QRLower, tLower, dLower, ctrlLower );
+                mpc::SetPrecision( inputPrec );
+                info = infoLower;
+                Copy( BLower, B );
+                Copy( QRLower, QR );
+                Copy( tLower, t );
+                Copy( dLower, d );
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            {
+                Output("e.what()=",e.what());
+            }
+            mpc::SetPrecision( inputPrec );
+        }
+    }
+    return succeeded;
+}
+
+template<typename F>
+bool TryLowerPrecisionBigFloat
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl,
+  unsigned neededPrec,
+  BKZInfo<Base<F>>& info )
+{
+    typedef Base<F> Real;
+    bool succeeded = false;
     if( !IsFixedPrecision<Real>::value )
     {
         const mpfr_prec_t minPrecDiff = 32;
@@ -227,20 +207,74 @@ BKZInfo<Base<F>> BKZWithQ
                   BKZWithQ
                   ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
                 mpc::SetPrecision( inputPrec );
-                BKZInfo<Real> info( infoLower );
+                info = infoLower;
                 Copy( BLower, B );
                 Copy( ULower, U );
                 Copy( QRLower, QR );
                 Copy( tLower, t );
                 Copy( dLower, d );
-                return info;
+                succeeded = true;
             }
             catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
+            {
+                Output("e.what()=",e.what());
+            }
             mpc::SetPrecision( inputPrec );
         }
     }
+    return succeeded;
+}
 #endif
+
+} // namespace bkz
+
+template<typename F>
+BKZInfo<Base<F>> BKZWithQ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("BKZWithQ"))
+    typedef Base<F> Real;
+    const Int n = B.Width();
+
+    const bool isInteger = IsInteger( B );
+    if( isInteger )
+    {
+        const Real BOneNorm = OneNorm(B);
+        const Real fudge = 2; // TODO: Make tunable
+        const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
+
+        BKZInfo<Real> info;
+        bool succeeded = bkz::TryLowerPrecision<float>
+          ( B, U, QR, t, d, ctrl, neededPrec, info );
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<double>
+              ( B, U, QR, t, d, ctrl, neededPrec, info );
+#ifdef EL_HAVE_QD
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<DoubleDouble>
+              ( B, U, QR, t, d, ctrl, neededPrec, info );
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<QuadDouble>
+              ( B, U, QR, t, d, ctrl, neededPrec, info );
+#elif defined(EL_HAVE_QUAD)
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<Quad>
+              ( B, U, QR, t, d, ctrl, neededPrec, info );
+#endif
+#ifdef EL_HAVE_MPC
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecisionBigFloat
+              ( B, U, QR, t, d, ctrl, neededPrec, info );
+#endif
+        if( succeeded )
+            return info;
+    }
+    // TODO: Allow for dropping with non-integer vectors?
 
     if( ctrl.recursive &&
         Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n &&
@@ -345,7 +379,11 @@ BKZInfo<Base<F>> BKZWithQ
         const Int k = Min(j+bsize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
         if( ctrl.checkpoint )
-          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        {
+            Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+            if( j == 0 )
+                Write( B, ctrl.tourFileBase, ctrl.checkpointFormat, "B" );
+        }
         if( j == 0 )
         {
             if( ctrl.logNorms )
@@ -569,190 +607,40 @@ BKZInfo<Base<F>> BKZWithQ
     typedef Base<F> Real;
     const Int n = B.Width();
 
-    const Real BOneNorm = OneNorm(B);
-    const Real fudge = 2; // TODO: Make tunable
-    const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
+    const bool isInteger = IsInteger(B);
+    if( isInteger )
+    {
+        const Real BOneNorm = OneNorm(B);
+        const Real fudge = 2; // TODO: Make tunable
+        const unsigned neededPrec = unsigned(Ceil(Log2(BOneNorm)*fudge));
 
-    if( MantissaIsLonger<Real,float>::value &&
-        MantissaBits<float>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to float");
-        try
-        {
-            typedef float RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( MantissaIsLonger<Real,double>::value &&
-        MantissaBits<double>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to double");
-        try
-        {
-            typedef double RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        BKZInfo<Real> info;
+        bool succeeded = bkz::TryLowerPrecision<float>
+          ( B, QR, t, d, ctrl, neededPrec, info );
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<double>
+              ( B, QR, t, d, ctrl, neededPrec, info );
 #ifdef EL_HAVE_QD
-    if( MantissaIsLonger<Real,DoubleDouble>::value &&
-        MantissaBits<DoubleDouble>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to DoubleDouble");
-        try
-        {
-            typedef DoubleDouble RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-    if( MantissaIsLonger<Real,QuadDouble>::value &&
-        MantissaBits<QuadDouble>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to QuadDouble");
-        try
-        {
-            typedef QuadDouble RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
-#endif
-#ifdef EL_HAVE_QUAD
-    if( MantissaIsLonger<Real,Quad>::value &&
-        MantissaBits<Quad>::value >= neededPrec )
-    {
-        if( ctrl.progress )
-            Output("Dropping to Quad");
-        try
-        {
-            typedef Quad RealLower;
-            typedef ConvertBase<F,RealLower> FLower;
-            Matrix<FLower> BLower, QRLower, tLower;
-            Matrix<RealLower> dLower;
-            BKZCtrl<RealLower> ctrlLower( ctrl );
-            Copy( B, BLower );
-            Copy( QR, QRLower );
-            Copy( t, tLower );
-            Copy( d, dLower );
-            auto infoLower =
-              BKZWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
-            BKZInfo<Real> info( infoLower );
-            Copy( BLower, B );
-            Copy( QRLower, QR );
-            Copy( tLower, t );
-            Copy( dLower, d );
-            return info;
-        }
-        catch( std::exception& e )
-        { Output("e.what()=",e.what()); }
-    }
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<DoubleDouble>
+              ( B, QR, t, d, ctrl, neededPrec, info );
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<QuadDouble>
+              ( B, QR, t, d, ctrl, neededPrec, info );
+#elif defined(EL_HAVE_QUAD)
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecision<Quad>
+              ( B, QR, t, d, ctrl, neededPrec, info );
 #endif
 #ifdef EL_HAVE_MPC
-    if( !IsFixedPrecision<Real>::value )
-    {
-        const mpfr_prec_t minPrecDiff = 32;
-        mpfr_prec_t inputPrec = mpc::Precision();
-        if( neededPrec <= inputPrec-minPrecDiff )
-        {
-            if( ctrl.progress )
-                Output("Dropping to precision=",neededPrec);
-            mpc::SetPrecision( neededPrec );
-            try
-            {
-                Matrix<F> BLower, QRLower, tLower;
-                Matrix<Real> dLower;
-                BKZCtrl<Real> ctrlLower( ctrl );
-                Copy( B, BLower );
-                Copy( QR, QRLower );
-                Copy( t, tLower );
-                Copy( d, dLower );
-                auto infoLower =
-                  BKZWithQ
-                  ( BLower, QRLower, tLower, dLower, ctrlLower );
-                mpc::SetPrecision( inputPrec );
-                BKZInfo<Real> info( infoLower );
-                Copy( BLower, B );
-                Copy( QRLower, QR );
-                Copy( tLower, t );
-                Copy( dLower, d );
-                return info;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-            mpc::SetPrecision( inputPrec );
-        }
-    }
+        if( !succeeded )
+            succeeded = bkz::TryLowerPrecisionBigFloat
+              ( B, QR, t, d, ctrl, neededPrec, info );
 #endif
+        if( succeeded )
+            return info;
+    }
+    // TODO: Allow for dropping with non-integer vectors?
 
     if( ctrl.recursive &&
         Max(ctrl.blocksize,ctrl.lllCtrl.cutoff) < n &&
@@ -853,7 +741,11 @@ BKZInfo<Base<F>> BKZWithQ
         const Int k = Min(j+bsize-1,rank-1);
         const Int h = Min(k+1,rank-1); 
         if( ctrl.checkpoint )
-          Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+        {
+            Write( B, ctrl.checkpointFileBase, ctrl.checkpointFormat, "B" );
+            if( j == 0 )
+                Write( B, ctrl.tourFileBase, ctrl.checkpointFormat, "B" );
+        }
         if( j == 0 )
         {
             if( ctrl.logNorms )
@@ -1077,7 +969,7 @@ BKZ
 
 namespace bkz {
 
-template<typename F,typename RealLower>
+template<typename RealLower,typename F>
 BKZInfo<RealLower>
 LowerPrecisionMerge
 ( const Matrix<F>& CL,
@@ -1137,6 +1029,76 @@ LowerPrecisionMerge
     Copy( dLower, d );
     return infoLower;
 }
+
+template<typename RealLower,typename F>
+bool TryLowerPrecisionMerge
+( const Matrix<F>& CL,
+  const Matrix<F>& CR,
+        Matrix<F>& B,
+        Matrix<F>& QR,
+        Matrix<F>& t,
+        Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl,
+        unsigned neededPrec,
+        BKZInfo<Base<F>>& info )
+{
+    bool succeeded = false;
+    if( MantissaIsLonger<Base<F>,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        try
+        {
+            info = LowerPrecisionMerge<RealLower>
+              ( CL, CR, B, QR, t, d, ctrl );
+            succeeded = true;
+        }
+        catch( std::exception& e )
+        {
+            Output("e.what()=",e.what());
+        }
+    }
+    return succeeded;
+}
+
+#ifdef EL_HAVE_MPC
+template<typename F>
+bool TryLowerPrecisionBigFloatMerge
+( const Matrix<F>& CL,
+  const Matrix<F>& CR,
+        Matrix<F>& B,
+        Matrix<F>& QR,
+        Matrix<F>& t,
+        Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl,
+        unsigned neededPrec,
+        BKZInfo<Base<F>>& info )
+{
+    bool succeeded = false;
+    if( !IsFixedPrecision<Base<F>>::value )
+    {
+        // Only move down to a lower-precision MPFR type if the jump is
+        // substantial. The current value has been naively chosen.
+        const mpfr_prec_t minPrecDiff = 32;
+        mpfr_prec_t inputPrec = mpc::Precision();
+        if( neededPrec <= inputPrec-minPrecDiff )
+        {
+            mpc::SetPrecision( neededPrec );
+            try
+            {
+                info = LowerPrecisionMerge<BigFloat>
+                  ( CL, CR, B, QR, t, d, ctrl );
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            {
+                Output("e.what()=",e.what());
+            }
+            mpc::SetPrecision( inputPrec );
+        }
+    }
+    return succeeded;
+}
+#endif
 
 template<typename Real>
 BKZInfo<Real>
@@ -1224,126 +1186,59 @@ RecursiveHelper
             Output("  left time:  ",leftTime," seconds");
             Output("  right time: ",rightTime," seconds");
         }
-        const Real CLOneNorm = OneNorm( CL );
-        const Real CROneNorm = OneNorm( CR );
-        const Real CLMaxNorm = MaxNorm( CL );
-        const Real CRMaxNorm = MaxNorm( CR );
-        if( ctrl.lllCtrl.progress )
-        {
-            Output("  || C_L ||_1 = ",CLOneNorm);
-            Output("  || C_R ||_1 = ",CROneNorm);
-            Output("  || C_L ||_max = ",CLMaxNorm);
-            Output("  || C_R ||_max = ",CRMaxNorm);
-        }
-
-        const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 2; // TODO: Make tunable
-        const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
-        if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
-        {
-            Output("  || C ||_1 = ",COneNorm);
-            Output("  Needed precision: ",neededPrec);
-        }
 
         bool succeeded = false;
         Int numPrevSwaps = info.numSwaps;
-        if( MantissaIsLonger<Real,float>::value &&
-            MantissaBits<float>::value >= neededPrec )
+        const bool isInteger = IsInteger( B );
+        if( isInteger )
         {
-            try
+            const Real CLOneNorm = OneNorm( CL );
+            const Real CROneNorm = OneNorm( CR );
+            const Real CLMaxNorm = MaxNorm( CL );
+            const Real CRMaxNorm = MaxNorm( CR );
+            if( ctrl.lllCtrl.progress )
             {
-                info =
-                  LowerPrecisionMerge<F,float>( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
+                Output("  || C_L ||_1 = ",CLOneNorm);
+                Output("  || C_R ||_1 = ",CROneNorm);
+                Output("  || C_L ||_max = ",CLMaxNorm);
+                Output("  || C_R ||_max = ",CRMaxNorm);
             }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
-        if( !succeeded && 
-            MantissaIsLonger<Real,double>::value &&
-            MantissaBits<double>::value >= neededPrec )
-        {
-            try
+
+            const Real COneNorm = Max(CLOneNorm,CROneNorm);
+            const Real fudge = 2; // TODO: Make tunable
+            const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
+            if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
             {
-                info =
-                  LowerPrecisionMerge<F,double>( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
+                Output("  || C ||_1 = ",COneNorm);
+                Output("  Needed precision: ",neededPrec);
             }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
+
+            succeeded = TryLowerPrecisionMerge<float>
+              ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<double>
+                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
 #ifdef EL_HAVE_QD
-        if( !succeeded &&
-            MantissaIsLonger<Real,DoubleDouble>::value &&
-            MantissaBits<DoubleDouble>::value >= neededPrec )
-        {
-            try
-            {
-                info =
-                  LowerPrecisionMerge<F,DoubleDouble>
-                  ( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
-        if( !succeeded &&
-            MantissaIsLonger<Real,QuadDouble>::value &&
-            MantissaBits<QuadDouble>::value >= neededPrec )
-        {
-            try
-            {
-                info =
-                  LowerPrecisionMerge<F,QuadDouble>
-                  ( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<DoubleDouble>
+                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<QuadDouble>
+                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
 #elif defined(EL_HAVE_QUAD)
-        if( !succeeded &&
-            MantissaIsLonger<Real,Quad>::value &&
-            MantissaBits<Quad>::value >= neededPrec )
-        {
-            try
-            {
-                info =
-                  LowerPrecisionMerge<F,Quad>( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<Quad>
+                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
 #endif
 #ifdef EL_HAVE_MPC
-        if( !succeeded && !IsFixedPrecision<Real>::value )
-        {
-            // Only move down to a lower-precision MPFR type if the jump is
-            // substantial. The current value has been naively chosen.
-            const mpfr_prec_t minPrecDiff = 32;
-            mpfr_prec_t inputPrec = mpc::Precision();
-            if( neededPrec <= inputPrec-minPrecDiff )
-            {
-                mpc::SetPrecision( neededPrec );
-                try {
-                    info =
-                      LowerPrecisionMerge<F,BigFloat>
-                      ( CL, CR, B, QR, t, d, ctrl );
-                    info.numSwaps += numPrevSwaps;
-                    succeeded = true;
-                }
-                catch( std::exception& e )
-                { Output("e.what()=",e.what()); }
-                mpc::SetPrecision( inputPrec );
-            }
-        }
+            if( !succeeded )
+                succeeded = TryLowerPrecisionBigFloatMerge
+                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
 #endif
+            if( succeeded )
+                info.numSwaps += numPrevSwaps;
+        }
+        // TODO: Allow for dropping with non-integer vectors?
 
         if( !succeeded )
         {
@@ -1460,90 +1355,48 @@ RecursiveHelper
             Output("  left time:  ",leftTime," seconds");
             Output("  right time: ",rightTime," seconds");
         }
-        const Real CLOneNorm = OneNorm( CL );
-        const Real CROneNorm = OneNorm( CR );
-        const Real CLMaxNorm = MaxNorm( CL );
-        const Real CRMaxNorm = MaxNorm( CR );
-        if( ctrl.lllCtrl.progress )
-        {
-            Output("  || C_L ||_1 = ",CLOneNorm);
-            Output("  || C_R ||_1 = ",CROneNorm);
-            Output("  || C_L ||_max = ",CLMaxNorm);
-            Output("  || C_R ||_max = ",CRMaxNorm);
-        }
-
-        const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = 2; // TODO: Make tunable
-        const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
-        if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
-        {
-            Output("  || C ||_1 = ",COneNorm);
-            Output("  Needed precision: ",neededPrec);
-        }
 
         bool succeeded = false;
         Int numPrevSwaps = info.numSwaps;
-        if( MantissaIsLonger<Real,float>::value &&
-            MantissaBits<float>::value >= neededPrec )
+        const bool isInteger = IsInteger( B );
+        if( isInteger )
         {
-            try
+            const Real CLOneNorm = OneNorm( CL );
+            const Real CROneNorm = OneNorm( CR );
+            const Real CLMaxNorm = MaxNorm( CL );
+            const Real CRMaxNorm = MaxNorm( CR );
+            if( ctrl.lllCtrl.progress )
             {
-                info =
-                  LowerPrecisionMerge<F,float>( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
-        }
-        if( !succeeded && 
-            MantissaIsLonger<Real,double>::value &&
-            MantissaBits<double>::value >= neededPrec )
-        {
-            try
+                Output("  || C_L ||_1 = ",CLOneNorm);
+                Output("  || C_R ||_1 = ",CROneNorm);
+                Output("  || C_L ||_max = ",CLMaxNorm);
+                Output("  || C_R ||_max = ",CRMaxNorm);
+            }
+
+            const Real COneNorm = Max(CLOneNorm,CROneNorm);
+            const Real fudge = 2; // TODO: Make tunable
+            const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
+            if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
             {
-                info =
-                  LowerPrecisionMerge<F,double>( CL, CR, B, QR, t, d, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
-        }
+                Output("  || C ||_1 = ",COneNorm);
+                Output("  Needed precision: ",neededPrec);
+            }
+
+            succeeded = TryLowerPrecisionMerge<float>
+              ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<double>
+                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
         // There is not yet support for Complex<{Quad,Double}Double>
 #ifdef EL_HAVE_QUAD
-        if( !succeeded &&
-            MantissaIsLonger<Real,Quad>::value &&
-            MantissaBits<Quad>::value >= neededPrec )
-        {
-            try
-            {
-                info =
-                  LowerPrecisionMerge<F,Quad>( CL, CR, B, QR, t, d, ctrl );
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<Quad>
+                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
+#endif
+            if( succeeded )
                 info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
         }
-#endif
-#ifdef EL_HAVE_MPC
-        if( !succeeded && !IsFixedPrecision<Real>::value )
-        {
-            // Only move down to a lower-precision MPFR type if the jump is
-            // substantial. The current value has been naively chosen.
-            const mpfr_prec_t minPrecDiff = 32;
-            mpfr_prec_t inputPrec = mpc::Precision();
-            if( neededPrec <= inputPrec-minPrecDiff )
-            {
-                mpc::SetPrecision( neededPrec );
-                try {
-                    info =
-                      LowerPrecisionMerge<F,BigFloat>
-                      ( CL, CR, B, QR, t, d, ctrl );
-                    info.numSwaps += numPrevSwaps;
-                    succeeded = true;
-                }
-                catch( std::exception& e )
-                { Output("e.what()=",e.what()); }
-                mpc::SetPrecision( inputPrec );
-            }
-        }
-#endif
+        // TODO: Allow for dropping with non-integer vectors?
 
         if( !succeeded )
         {

@@ -673,17 +673,35 @@ EL_EXPORT ElError ElHermitianSVDDist_z
 
 /* Polar decomposition
    =================== */
+/* QDWHCtrl */
+typedef struct {
+  bool colPiv;
+  ElInt maxIts;
+} ElQDWHCtrl;
+EL_EXPORT ElError ElQDWHCtrlDefault( ElQDWHCtrl* ctrl );
+
 /* PolarCtrl */
 typedef struct {
   bool qdwh;
-  bool colPiv;
-  ElInt maxIts;
-  ElInt numIts;
+  ElQDWHCtrl qdwhCtrl;
 } ElPolarCtrl;
 EL_EXPORT ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
 
+/* QDWHInfo */
+typedef struct {
+  ElInt numIts;
+  ElInt numQRIts;
+  ElInt numCholIts;
+} ElQDWHInfo;
+
+/* PolarInfo */
+typedef struct {
+  ElQDWHInfo qdwhInfo;
+} ElPolarInfo;
+
 /* Compute just the polar factor
    ----------------------------- */
+/* TODO: Return PolarInfo as well? */
 EL_EXPORT ElError ElPolar_s( ElMatrix_s A );
 EL_EXPORT ElError ElPolar_d( ElMatrix_d A );
 EL_EXPORT ElError ElPolar_c( ElMatrix_c A );
@@ -710,6 +728,7 @@ EL_EXPORT ElError ElHermitianPolarDist_z
 
 /* Compute the entire polar decomposition
    -------------------------------------- */
+/* TODO: Return PolarInfo as well? */
 EL_EXPORT ElError ElPolarDecomp_s( ElMatrix_s A, ElMatrix_s P );
 EL_EXPORT ElError ElPolarDecomp_d( ElMatrix_d A, ElMatrix_d P );
 EL_EXPORT ElError ElPolarDecomp_c( ElMatrix_c A, ElMatrix_c P );

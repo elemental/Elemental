@@ -63,12 +63,17 @@ int main( int argc, char* argv[] )
         if( coordinates )
         {
             const Int subsetSize = ySub.Height();
+            if( n != subsetStart + subsetSize )
+                LogicError("coordinate vector and subsetStart did not match");
             auto BSub = B( ALL, IR(subsetStart,subsetStart+subsetSize) );
             EnrichLattice( BSub, ySub );
             Print( B, "BNew" );
         }
         else if( insertViaLLL )
         {
+            if( ySub.Height() != m )
+                LogicError("Incorrect vector height");
+
             Matrix<BigFloat> BExt;
             Zeros( BExt, m, n+1 );
             auto BExtL = BExt( ALL, IR(0,subsetStart) );

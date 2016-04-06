@@ -10,6 +10,11 @@
 namespace El {
 namespace safemstrsm {
 
+/*   Note: See "Robust Triangular Solves for Use in Condition
+ *   Estimation" by Edward Anderson for notation and bounds.
+ *   Entries in U are assumed to be less (in magnitude) than 
+ *   bigNum.
+ */
 template<typename F>
 void
 LUNBlock
@@ -18,14 +23,7 @@ LUNBlock
         Matrix<F>& X,
         Matrix<F>& scales )
 {
-    /*   Note: See "Robust Triangular Solves for Use in Condition
-     *   Estimation" by Edward Anderson for notation and bounds.
-     *   Entries in U are assumed to be less (in magnitude) than 
-     *   bignum.
-     */
-  
     typedef Base<F> Real;
-  
     DEBUG_ONLY(
       CSE cse("safemstrsm::LUNBlock");
       if( U.Height() != U.Width() )
@@ -37,46 +35,54 @@ LUNBlock
     )
     auto diag = GetDiagonal(U);
     const Int n = U.Height();
-    const Int ldim = U.LDim();
     const Int numShifts = shifts.Height();
 
-    Real smlnum, bignum;
-    OverflowParameters<Real>( smlnum, bignum );
+    auto overflowPair = OverflowParameters<Real>();
+    const Real smallNum = overflowPair.first;
+    const Real bigNum = overflowPair.second;
     
+    const Real oneHalf = Real(1)/Real(2);
+    const Real oneQuarter = Real(1)/Real(4);
+
+    const F* UBuf = U.LockedBuffer();
+    const Int ULDim = U.LDim();
+
     // Default scale is 1
     Ones( scales, numShifts, 1 );
     
     // Compute infinity norms of columns of U (excluding diagonal)
-    Matrix<Real> cnorm( n, 1 );
-    Real* cnorm_buffer = cnorm.Buffer();
-    cnorm_buffer[0] = Real(0);
+    Matrix<Real> cNorm( n, 1 );
+    Real* cNormBuf = cNorm.Buffer();
+    cNormBuf[0] = Real(0);
     for( Int j=1; j<n; ++j )
     {
-        cnorm_buffer[j] = MaxNorm( U(IR(0,j),IR(j)) );
+        //cNormBuf[j] = MaxNorm( U(IR(0,j),IR(j)) );
+        cNormBuf[j] = 0;
+        for( Int i=0; i<j; ++i )
+            cNormBuf[j] = Max( cNormBuf[j], Abs(UBuf[i+j*ULDim]) );
     }
 
     // Iterate through RHS's
     for( Int j=0; j<numShifts; ++j )
     {
-
         // Initialize triangular system
         SetDiagonal( U, diag );
         ShiftDiagonal( U, -shifts.Get(j,0) );
         auto xj = X( ALL, IR(j) );
         Real scales_j = Real(1);
-        const F* U_buffer = U.LockedBuffer();
-        F* xj_buffer = xj.Buffer();
+
+        F* xjBuf = xj.Buffer();
         
         // Determine largest entry of RHS
         Real xjMax = MaxNorm( xj );
-        if( xjMax >= bignum )
+        if( xjMax >= bigNum )
         {
-            const Real s = 0.5*bignum/xjMax;
+            const Real s = oneHalf*bigNum/xjMax;
             xj *= s;
             xjMax *= s;
             scales_j *= s;
         }
-        if( xjMax <= smlnum )
+        if( xjMax <= smallNum )
         {
             continue;
         }
@@ -88,8 +94,8 @@ LUNBlock
         Real invMi = invGi;
         for( Int i=n-1; i>=0; --i )
         {
-            const Real absUii = SafeAbs( U_buffer[i+i*ldim] );
-            if( invGi<=smlnum || invMi<=smlnum || absUii<=smlnum )
+            const Real absUii = SafeAbs( UBuf[i+i*ULDim] );
+            if( invGi<=smallNum || invMi<=smallNum || absUii<=smallNum )
             {
                 invGi = 0;
                 break;
@@ -97,36 +103,32 @@ LUNBlock
             invMi = Min( invMi, absUii*invGi );
             if( i > 0 )
             {
-                invGi *= absUii/(absUii+cnorm_buffer[i]);
+                invGi *= absUii/(absUii+cNormBuf[i]);
             }
         }
         invGi = Min( invGi, invMi );
 
-        // Call TRSV if estimated growth is not too large
-        if( invGi > smlnum )
+        if( invGi > smallNum )
         {
-            blas::Trsv
-            ( 'U', 'N', 'N', n,
-              U_buffer, ldim, xj_buffer, 1 );
+            // Call TRSV since estimated growth is not too large
+            blas::Trsv( 'U', 'N', 'N', n, UBuf, ULDim, xjBuf, 1 );
         }
-
-        // Perform backward substitution if estimated growth is large
         else
         {
+            // Perform backward substitution since estimated growth is large
             for( Int i=n-1; i>=0; --i )
             {
-
                 // Perform division and check for overflow
-                const F Uii = U_buffer[i+i*ldim];
+                const F Uii = UBuf[i+i*ULDim];
                 const Real absUii = SafeAbs( Uii );
-                F Xij = xj_buffer[i];
+                F Xij = xjBuf[i];
                 Real absXij = SafeAbs( Xij );
-                if( absUii > smlnum )
+                if( absUii > smallNum )
                 {
-                    if( absUii<=1 && absXij>=absUii*bignum )
+                    if( absUii<=1 && absXij>=absUii*bigNum )
                     {
                         // Set overflowing entry to 0.5/U[i,i]
-                        const Real s = 0.5/absXij;
+                        const Real s = oneHalf/absXij;
                         Xij *= s;
                         xj *= s;
                         xjMax *= s;
@@ -136,10 +138,10 @@ LUNBlock
                 }
                 else if( absUii > 0 )
                 {
-                    if( absXij >= absUii*bignum )
+                    if( absXij >= absUii*bigNum )
                     {
-                        // Set overflowing entry to bignum/2
-                        const Real s = 0.5*absUii*bignum/absXij;
+                        // Set overflowing entry to bigNum/2
+                        const Real s = oneHalf*absUii*bigNum/absXij;
                         Xij *= s;
                         xj *= s;
                         xjMax *= s;
@@ -151,7 +153,7 @@ LUNBlock
                 {
                     // TODO: maybe this tolerance should be loosened to
                     //   | Xij | >= || A || * eps
-                    if( absXij >= smlnum )
+                    if( absXij >= smallNum )
                     {
                         Xij = F(1);
                         Zero( xj );
@@ -159,67 +161,63 @@ LUNBlock
                         scales_j = Real(0);
                     }
                 }
-                xj.Set( i, 0, Xij );
+                xjBuf[i] = Xij;
                 
                 if( i > 0 )
                 {
 
                     // Check for possible overflows in AXPY
-                    // Note: G(i+1) <= G(i) + | Xij | * cnorm(i)
+                    // Note: G(i+1) <= G(i) + | Xij | * cNorm(i)
                     absXij = SafeAbs( Xij );
-                    const Real cnorm_i = cnorm_buffer[i];
-                    if( absXij >= 1 &&
-                        cnorm_i >= (bignum-xjMax)/absXij )
+                    const Real cNorm_i = cNormBuf[i];
+                    if( absXij >= Real(1) &&
+                        cNorm_i >= (bigNum-xjMax)/absXij )
                     {
-                        const Real s = 0.25/absXij;
+                        const Real s = oneQuarter/absXij;
                         Xij *= s;
                         xj *= s;
                         xjMax *= s;
                         absXij *= s;
                         scales_j *= s;
                     }
-                    else if( absXij < 1 &&
-                             absXij*cnorm_i >= bignum-xjMax )
+                    else if( absXij < Real(1) &&
+                             absXij*cNorm_i >= bigNum-xjMax )
                     {
-                        const Real s = 0.25;
+                        const Real s = oneQuarter;
                         Xij *= s;
                         xj *= s;
                         xjMax *= s;
                         absXij *= s;
                         scales_j *= s;
                     }
-                    xjMax += absXij * cnorm_i;
+                    xjMax += absXij*cNorm_i;
 
-                    // AXPY
-                    auto U01 = U( IR(0,i), IR(i) );
-                    auto X1  = X( IR(0,i), IR(j) );
-                    Axpy( -Xij, U01, X1 );
-
+                    // AXPY X(0:i,j) -= Xij*U(0:i,i)
+                    blas::Axpy( i, -Xij, &UBuf[i*ULDim], 1, xjBuf, 1 );
                 }
-
             }
-
         }
 
         scales.Set( j, 0, scales_j );
-        
     }
 
     // Reset matrix diagonal
     SetDiagonal( U, diag );
 }
 
+/*   Note: See "Robust Triangular Solves for Use in Condition
+ *   Estimation" by Edward Anderson for notation and bounds.
+ *   Entries in U are assumed to be less (in magnitude) than 
+ *   bigNum.
+ */
 template<typename F>
 void
-LUN( Matrix<F>& U, const Matrix<F>& shifts,
-     Matrix<F>& X, Matrix<F>& scales ) 
+LUN
+(       Matrix<F>& U,
+  const Matrix<F>& shifts,
+        Matrix<F>& X,
+        Matrix<F>& scales ) 
 {
-    /*   Note: See "Robust Triangular Solves for Use in Condition
-     *   Estimation" by Edward Anderson for notation and bounds.
-     *   Entries in U are assumed to be less (in magnitude) than 
-     *   bignum.
-     */
-
     typedef Base<F> Real;
 
     DEBUG_ONLY(
@@ -236,11 +234,14 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
 
-    Real smlnum, bignum;
-    OverflowParameters<Real>( smlnum, bignum );
+    const Real oneHalf = Real(1)/Real(2);
+
+    auto overflowPair = OverflowParameters<Real>();
+    const Real smallNum = overflowPair.first;
+    const Real bigNum = overflowPair.second;
 
     DEBUG_ONLY(
-      if( MaxNorm(U) >= bignum )
+      if( MaxNorm(U) >= bigNum )
           LogicError("Entries in matrix are too large");
     )
     
@@ -253,14 +254,14 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
     {
         auto xj = X( ALL, IR(j) );
         Real xjMax = MaxNorm( xj );
-        if( xjMax >= bignum )
+        if( xjMax >= bigNum )
         {
-            const Real s = 0.5*bignum/xjMax;
+            const Real s = oneHalf*bigNum/xjMax;
             xj *= s;
             xjMax *= s;
             scales.Set( j, 0, s*scales.Get(j,0) );
         }
-        xjMax = Max( xjMax, 2*smlnum );
+        xjMax = Max( xjMax, 2*smallNum );
         XMax.Set( j, 0, xjMax );
     }
         
@@ -302,45 +303,44 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts,
         {
 
             // Compute infinity norms of columns in U01
-            // Note: nb*cnorm is the sum of infinity norms
-            Real cnorm = 0;
+            // Note: nb*cNorm is the sum of infinity norms
+            Real cNorm = 0;
             for( Int j=0; j<nb; ++j )
             {
-                cnorm += MaxNorm( U01(ALL,IR(j)) ) / nb;
+                cNorm += MaxNorm( U01(ALL,IR(j)) ) / nb;
             }
 
             // Check for possible overflows in GEMM
-            // Note: G(i+1) <= G(i) + nb*cnorm*|| X1[:,j] ||_infty
+            // Note: G(i+1) <= G(i) + nb*cNorm*|| X1[:,j] ||_infty
             for( Int j=0; j<n; ++j )
             {
                 auto xj = X( ALL, IR(j) );
                 Real xjMax = XMax.Get(j,0);
                 Real X1Max = MaxNorm( X1(ALL,IR(j)) );
                 if( X1Max >= 1 &&
-                    cnorm >= (bignum-xjMax)/X1Max/nb )
+                    cNorm >= (bigNum-xjMax)/X1Max/nb )
                 {
-                    const Real s = 0.5/X1Max/nb;
+                    const Real s = oneHalf/(X1Max*nb);
                     scales.Set( j, 0, s*scales.Get(j,0) );
                     xj *= s;
                     xjMax *= s;
                     X1Max *= s;
                 }
                 else if( X1Max < 1 &&
-                         cnorm*X1Max >= (bignum-xjMax)/nb )
+                         cNorm*X1Max >= (bigNum-xjMax)/nb )
                 {
-                    const Real s = 0.5/nb;
+                    const Real s = oneHalf/nb;
                     scales.Set( j, 0, s*scales.Get(j,0) );
                     xj *= s;
                     xjMax *= s;
                     X1Max *= s;
                 }
-                xjMax += nb*cnorm*X1Max;
+                xjMax += nb*cNorm*X1Max;
                 XMax.Set( j, 0, xjMax );
             }
 
             // Update RHS with GEMM
             Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
-        
         }
     }
 }
@@ -389,6 +389,8 @@ LUN
 
     Ones( scales, n, 1 );
     scalesUpdate_VR_STAR.Resize( n, 1 );
+
+    const Int XLocalWidth = X.LocalWidth();
     
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -421,16 +423,16 @@ LUN
         // Apply scalings on RHS
         scalesUpdate_MR_STAR.AlignWith( X );
         scalesUpdate_MR_STAR = scalesUpdate_VR_STAR;
-        auto scalesUpdate_MR_STAR_local = scalesUpdate_MR_STAR.LockedMatrix();
-        for( Int j=0; j<scalesUpdate_MR_STAR_local.Height(); ++j )
+        for( Int jLoc=0; jLoc<XLocalWidth; ++jLoc )
         {
-            const Real sj = scalesUpdate_MR_STAR_local.GetRealPart(j,0);
-            if( sj < Real(1) )
+            const Real sigma = scalesUpdate_MR_STAR.GetLocalRealPart(jLoc,0);
+            if( sigma < Real(1) )
             {
-                auto X0j = X0.Matrix()( ALL, IR(j) );
-                auto X2j = X2.Matrix()( ALL, IR(j) );
-                X0j *= sj;
-                X2j *= sj;
+                // X1 has already been rescaled, but X0 and X2 have not
+                blas::Scal( X0.LocalHeight(), sigma, X0.Buffer(0,jLoc), 1 );
+                // TODO: Delay rescaling of X2 until the end since it is no
+                //       longer used within this loop?
+                blas::Scal( X2.LocalHeight(), sigma, X2.Buffer(0,jLoc), 1 );
             }
         }
         DiagonalScale( LEFT,  NORMAL, scalesUpdate_VR_STAR, scales );
@@ -442,8 +444,7 @@ LUN
             U01_MC_STAR.AlignWith( X0 );
             U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
             LocalGemm
-            ( NORMAL, NORMAL, F(-1),
-              U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+            ( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
         }
     }
 }

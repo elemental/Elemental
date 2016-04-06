@@ -73,6 +73,9 @@ string TypeName<Complex<Quad>>()
 #endif
 #ifdef EL_HAVE_MPC
 template<>
+string TypeName<BigInt>()
+{ return string("BigInt"); }
+template<>
 string TypeName<BigFloat>()
 { return string("BigFloat"); }
 #endif
@@ -295,48 +298,137 @@ Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Quad& betaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
+void Pow( const BigInt& alpha, const BigInt& beta, BigInt& gamma )
+{
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), (unsigned long)(beta) );
+}
+
+void Pow( const BigInt& alpha, const unsigned& beta, BigInt& gamma )
+{
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+}
+
+void Pow( const BigInt& alpha, const unsigned long& beta, BigInt& gamma )
+{
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+}
+
 template<>
 BigInt Pow( const BigInt& alpha, const BigInt& beta )
 {
     BigInt gamma;
-    gamma.SetMinBits( alpha.NumBits() );
-    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), (unsigned long)(beta) );
+    Pow( alpha, beta, gamma );
     return gamma;
 }
 
 BigInt Pow( const BigInt& alpha, const unsigned& beta )
 {
     BigInt gamma;
-    gamma.SetMinBits( alpha.NumBits() );
-    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    Pow( alpha, beta, gamma );
     return gamma;
 }
 
 BigInt Pow( const BigInt& alpha, const unsigned long& beta )
 {
     BigInt gamma;
-    gamma.SetMinBits( alpha.NumBits() );
-    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
+    Pow( alpha, beta, gamma );
     return gamma;
+}
+
+void Pow( const BigFloat& alpha, const BigFloat& beta, BigFloat& gamma )
+{
+    mpfr_pow
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta.LockedPointer(), mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const unsigned& beta, BigFloat& gamma )
+{
+    mpfr_pow_ui
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const unsigned long& beta, BigFloat& gamma )
+{
+    mpfr_pow_ui
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const int& beta, BigFloat& gamma )
+{
+    mpfr_pow_si
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const long int& beta, BigFloat& gamma )
+{
+    mpfr_pow_si
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const BigInt& beta, BigFloat& gamma )
+{
+    mpfr_pow_z
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta.LockedPointer(), mpc::RoundingMode() );
 }
 
 template<>
 BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
 {
     BigFloat gamma;
-    gamma.SetPrecision( alpha.Precision() );
-    mpfr_pow
-    ( gamma.Pointer(),
-      alpha.LockedPointer(),
-      beta.LockedPointer(), mpc::RoundingMode() );
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const unsigned& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const unsigned long& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const int& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const long int& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const BigInt& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
     return gamma;
 }
 #endif
 
 // Inverse exponentiation
 // ----------------------
-double Log( const Int& alpha ) { return std::log(alpha); }
-
 #ifdef EL_HAVE_QD
 template<>
 DoubleDouble Log( const DoubleDouble& alpha )
@@ -365,6 +457,12 @@ Complex<Quad> Log( const Complex<Quad>& alphaPre )
 
 #ifdef EL_HAVE_MPC
 template<>
+double Log( const BigInt& alpha )
+{
+    return double(Log(BigFloat(alpha)));
+}
+
+template<>
 BigFloat Log( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -385,12 +483,20 @@ QuadDouble Log2( const QuadDouble& alpha )
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<> Quad Log2( const Quad& alpha )
+template<>
+Quad Log2( const Quad& alpha )
 { return log2q(alpha); }
 #endif
 
 #ifdef EL_HAVE_MPC
-template<> BigFloat Log2( const BigFloat& alpha )
+template<>
+double Log2( const BigInt& alpha )
+{
+    return double(Log2(BigFloat(alpha)));
+}
+
+template<>
+BigFloat Log2( const BigFloat& alpha )
 {
     BigFloat log2Alpha;
     log2Alpha.SetPrecision( alpha.Precision() );
@@ -400,7 +506,42 @@ template<> BigFloat Log2( const BigFloat& alpha )
 }
 #endif
 
-double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
+#ifdef EL_HAVE_QD
+template<>
+DoubleDouble Log10( const DoubleDouble& alpha )
+{ return Log(alpha)/DoubleDouble(dd_real::_log10); }
+
+template<>
+QuadDouble Log10( const QuadDouble& alpha )
+{ return Log(alpha)/QuadDouble(qd_real::_log10); }
+#endif
+
+#ifdef EL_HAVE_QUAD
+template<>
+Quad Log10( const Quad& alpha )
+{ return log10q(alpha); }
+#endif
+
+#ifdef EL_HAVE_MPC
+template<>
+double Log10( const BigInt& alpha )
+{
+    return double(Log10(BigFloat(alpha)));
+}
+
+template<>
+BigFloat Log10( const BigFloat& alpha )
+{
+    BigFloat log10Alpha;
+    log10Alpha.SetPrecision( alpha.Precision() );
+    mpfr_log10
+    ( log10Alpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return log10Alpha;
+}
+#endif
+
+template<>
+Int Sqrt( const Int& alpha ) { return Int(sqrt(alpha)); }
 
 #ifdef EL_HAVE_QD
 template<>
@@ -428,12 +569,31 @@ Complex<Quad> Sqrt( const Complex<Quad>& alphaPre )
 
 #ifdef EL_HAVE_MPC
 template<>
+void Sqrt( const BigInt& alpha, BigInt& alphaSqrt )
+{ mpz_sqrt( alphaSqrt.Pointer(), alpha.LockedPointer() ); }
+
+template<>
+void Sqrt( const BigFloat& alpha, BigFloat& alphaSqrt )
+{
+    mpfr_sqrt
+    ( alphaSqrt.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+}
+
+template<>
+BigInt Sqrt( const BigInt& alpha )
+{
+    BigInt alphaSqrt;
+    Sqrt( alpha, alphaSqrt );
+    return alphaSqrt;
+}
+
+template<>
 BigFloat Sqrt( const BigFloat& alpha )
 {
-    BigFloat beta;
-    beta.SetPrecision( alpha.Precision() );
-    mpfr_sqrt( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
-    return beta;
+    BigFloat alphaSqrt;
+    alphaSqrt.SetPrecision( alpha.Precision() );
+    Sqrt( alpha, alphaSqrt );
+    return alphaSqrt;
 }
 #endif
 

@@ -86,13 +86,19 @@ ElError ElHermitianEigCtrlDefault_z( ElHermitianEigCtrl_z* ctrl )
     return EL_SUCCESS;
 }
 
+/* QDWHCtrl */
+ElError ElQDWHCtrlDefault( ElQDWHCtrl* ctrl )
+{
+    ctrl->colPiv = false;
+    ctrl->maxIts = 20;
+    return EL_SUCCESS;
+}
+
 /* PolarCtrl */
 ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
 {
     ctrl->qdwh = false;
-    ctrl->colPiv = false;
-    ctrl->maxIts = 20;
-    ctrl->numIts = 0;
+    ElQDWHCtrlDefault( &ctrl->qdwhCtrl );
     return EL_SUCCESS;
 }
 

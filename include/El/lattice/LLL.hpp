@@ -212,6 +212,7 @@ LLLInfo<Base<F>> LLLWithQ
         Identity( U, n, n ); 
     }
 
+    Int firstSwap = n;
     if( ctrl.presort )
     {
         if( ctrl.jumpstart )
@@ -227,17 +228,24 @@ LLLInfo<Base<F>> LLLWithQ
         El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
         Omega.PermuteCols( B );
         Omega.PermuteCols( U );
+
+        // TODO: Do not use such a pessimistic lower bound
+        firstSwap = 0;
     }
 
     const bool formU = true;
+    LLLInfo<Real> info;
     if( ctrl.variant == LLL_DEEP_REDUCE )
-        return lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
+        info = lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
     else if( ctrl.variant == LLL_DEEP )
         return lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
     else if ( ctrl.rightLooking )
         return lll::RightAlg( B, U, QR, t, d, formU, ctrl );
     else
-        return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+        info = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+
+    info.firstSwap = Min(info.firstSwap,firstSwap);
+    return info;
 }
 
 template<typename Z, typename F>
@@ -280,6 +288,7 @@ LLLWithQ
         ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
          Sqrt(ctrl.delta),")");
 
+    Int firstSwap = n;
     if( ctrl.presort )
     {
         if( ctrl.jumpstart )
@@ -295,6 +304,9 @@ LLLWithQ
         // TODO: Add support for qr::ProxyHouseholder as well
         El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
         Omega.PermuteCols( B );
+
+        // TODO: Do not use such a pessimistic lower bound
+        firstSwap = 0;
     }
 
     const bool formU = false;
@@ -303,32 +315,39 @@ LLLWithQ
     {
         // Start with standard LLL
         auto infoReg = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+        firstSwap = Min(firstSwap,infoReg.firstSwap);
 
         // Move up from standard to deep
         auto ctrlMod( ctrl );
         ctrlMod.jumpstart = true;
         ctrlMod.startCol = 0;
         auto infoDeep = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+        firstSwap = Min(firstSwap,infoDeep.firstSwap);
 
         // Move up from deep insertion to deep reduction
         auto infoDeepRed =
           lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrlMod ); 
+        firstSwap = Min(firstSwap,infoDeepRed.firstSwap);
 
         infoDeepRed.numSwaps += infoReg.numSwaps + infoDeep.numSwaps;
+        infoDeepRed.firstSwap = firstSwap;
         return infoDeepRed;
     }
     else if( ctrl.variant == LLL_DEEP )
     {
         // Start with standard LLL
         auto infoReg = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
+        firstSwap = Min(firstSwap,infoReg.firstSwap);
 
         // Move from standard to deep insertion
         auto ctrlMod( ctrl );
         ctrlMod.jumpstart = true;
         ctrlMod.startCol = 0;
         auto infoDeep = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrlMod ); 
+        firstSwap = Min(firstSwap,infoDeep.firstSwap);
 
         infoDeep.numSwaps += infoReg.numSwaps;
+        infoDeep.firstSwap = firstSwap;
         return infoDeep;
     }
     else if ( ctrl.rightLooking )
@@ -370,6 +389,22 @@ LLL
 
 // TODO: Provide a way to display when changing precision without showing
 //       all of the backtracks and deep insertions.
+
+template<typename F>
+bool IsInteger( const Matrix<F>& A )
+{
+    DEBUG_ONLY(CSE cse("IsInteger"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const F* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    for( Int j=0; j<n; ++j ) 
+        for( Int i=0; i<m; ++i )
+            if( ABuf[i+j*ALDim] != Round(ABuf[i+j*ALDim]) )
+                return false;
+    return true;
+}
 
 namespace lll {
 
@@ -458,6 +493,86 @@ LowerPrecisionMerge
     return infoLower;
 }
 
+template<typename Z, typename F, typename RealLower>
+bool TryLowerPrecisionMerge
+( const Matrix<Z>& CL,
+  const Matrix<Z>& CR,
+        Matrix<Z>& B,
+        Matrix<Z>& U,
+        Matrix<F>& QR,
+        Matrix<F>& t,
+        Matrix<Base<F>>& d,
+        bool maintainU,
+  const LLLCtrl<Base<F>>& ctrl,
+        unsigned neededPrec,
+        LLLInfo<Base<F>>& info )
+{
+    bool succeeded = false;
+    if( MantissaIsLonger<Base<Z>,RealLower>::value &&
+        MantissaBits<RealLower>::value >= neededPrec )
+    {
+        try
+        {
+            if (MantissaIsLonger<F,RealLower>::value)
+            {
+                info = LowerPrecisionMerge<Z,F,RealLower,RealLower>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
+            }
+            else
+            {
+                info = LowerPrecisionMerge<Z,F,RealLower,F>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
+            }
+            succeeded = true;
+        }
+        catch( std::exception& e )
+        { Output("e.what()=",e.what()); }
+    }
+    return succeeded;
+}
+
+#ifdef EL_HAVE_MPC
+template<typename Z,typename F>
+bool TryLowerPrecisionBigFloatMerge
+( const Matrix<Z>& CL,
+  const Matrix<Z>& CR,
+        Matrix<Z>& B,
+        Matrix<Z>& U,
+        Matrix<F>& QR,
+        Matrix<F>& t,
+        Matrix<Base<F>>& d,
+        bool maintainU,
+  const LLLCtrl<Base<F>>& ctrl,
+        unsigned neededPrec,
+        LLLInfo<Base<F>>& info )
+{
+    bool succeeded = false;
+    if( !IsFixedPrecision<Base<F>>::value )
+    {
+        // Only move down to a lower-precision MPFR type if the jump is
+        // substantial. The current value has been naively chosen.
+        const mpfr_prec_t minPrecDiff = 32;
+        mpfr_prec_t inputPrec = mpc::Precision();
+        if( neededPrec <= inputPrec-minPrecDiff )
+        {
+            mpc::SetPrecision( neededPrec );
+            try
+            {
+                info = LowerPrecisionMerge<Z,F,BigFloat,F>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
+                succeeded = true;
+            }
+            catch( std::exception& e )
+            {
+                Output("e.what()=",e.what());
+            }
+            mpc::SetPrecision( inputPrec );
+        }
+    }
+    return succeeded;
+}
+#endif
+
 template<typename ZReal, typename Real>
 LLLInfo<Real>
 RecursiveHelper
@@ -488,6 +603,9 @@ RecursiveHelper
 
     LLLInfo<Real> info;
     info.numSwaps = 0;
+    // NOTE: We can assume that the following lower bound should essentially
+    //       always be tight.
+    info.firstSwap = 0;
     for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
     {
         if( ctrl.progress || ctrl.time )
@@ -560,165 +678,61 @@ RecursiveHelper
             Output("  left time:  ",leftTime," seconds");
             Output("  right time: ",rightTime," seconds");
         }
-        const ZReal CLOneNorm = OneNorm( CL );
-        const ZReal CROneNorm = OneNorm( CR );
-        const ZReal CLMaxNorm = MaxNorm( CL );
-        const ZReal CRMaxNorm = MaxNorm( CR );
-        // TODO: Incorporate norm of U if maintaining U
-        if( ctrl.progress )
-        {
-            Output("  || C_L ||_1 = ",CLOneNorm);
-            Output("  || C_R ||_1 = ",CROneNorm);
-            Output("  || C_L ||_max = ",CLMaxNorm);
-            Output("  || C_R ||_max = ",CRMaxNorm);
-        }
 
-        const ZReal COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
-        const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
-        if( ctrl.progress || ctrl.time )
-        {
-            Output("  || C ||_1 = ",COneNorm);
-            Output("  Needed precision: ",neededPrec);
-        }
+        const bool isInteger = IsInteger( C );
 
         bool succeeded = false;
         Int numPrevSwaps = info.numSwaps;
-        if( MantissaIsLonger<Z,float>::value &&
-            MantissaBits<float>::value >= neededPrec )
+        if( isInteger )
         {
-            try
+            const ZReal CLOneNorm = OneNorm( CL );
+            const ZReal CROneNorm = OneNorm( CR );
+            const ZReal CLMaxNorm = MaxNorm( CL );
+            const ZReal CRMaxNorm = MaxNorm( CR );
+            // TODO: Incorporate norm of U if maintaining U
+            if( ctrl.progress )
             {
-                if (MantissaIsLonger<F,float>::value)
-                {
-                    info = LowerPrecisionMerge<Z,F,float,float>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                else
-                {
-                    info = LowerPrecisionMerge<Z,F,float,F>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
+			    Output("  || C_L ||_1 = ",CLOneNorm);
+                Output("  || C_R ||_1 = ",CROneNorm);
+                Output("  || C_L ||_max = ",CLMaxNorm);
+                Output("  || C_R ||_max = ",CRMaxNorm);
             }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
-        if( !succeeded && 
-            MantissaIsLonger<Z,double>::value &&
-            MantissaBits<double>::value >= neededPrec )
-        {
-            try
-            {
-                if (MantissaIsLonger<F,double>::value)
-                {
-                    info = LowerPrecisionMerge<Z,F,double,double>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                else
-                {
-                    info = LowerPrecisionMerge<Z,F,double,F>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
+			const ZReal COneNorm = Max(CLOneNorm,CROneNorm);
+			const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
+			const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
+			if( ctrl.progress || ctrl.time )
+			{
+				Output("  || C ||_1 = ",COneNorm);
+				Output("  Needed precision: ",neededPrec);
+			}
+
+            succeeded = TryLowerPrecisionMerge<Z,F,float>
+              ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<Z,F,double>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #ifdef EL_HAVE_QD
-        if( !succeeded && 
-            MantissaIsLonger<Z,DoubleDouble>::value &&
-            MantissaBits<DoubleDouble>::value >= neededPrec )
-        {
-            try
-            {
-                if (MantissaIsLonger<F,DoubleDouble>::value)
-                {
-                    info = LowerPrecisionMerge<Z,F,DoubleDouble,DoubleDouble>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                else
-                {
-                    info = LowerPrecisionMerge<Z,F,DoubleDouble,F>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
-        if( !succeeded && 
-            MantissaIsLonger<Z,QuadDouble>::value &&
-            MantissaBits<QuadDouble>::value >= neededPrec )
-        {
-            try
-            {
-                if (MantissaIsLonger<F,QuadDouble>::value)
-                {
-                    info = LowerPrecisionMerge<Z,F,QuadDouble,QuadDouble>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                else
-                {
-                    info = LowerPrecisionMerge<Z,F,QuadDouble,F>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<Z,F,DoubleDouble>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<Z,F,QuadDouble>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #elif defined(EL_HAVE_QUAD)
-        if( !succeeded && 
-            MantissaIsLonger<Z,Quad>::value &&
-            MantissaBits<Quad>::value >= neededPrec )
-        {
-            try
-            {
-                if (MantissaIsLonger<F,Quad>::value)
-                {
-                    info = LowerPrecisionMerge<Z,F,Quad,Quad>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                else
-                {
-                    info = LowerPrecisionMerge<Z,F,Quad,F>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                }
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            }
-            catch( std::exception& e )
-            { Output("e.what()=",e.what()); }
-        }
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<Z,F,Quad>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #endif
 #ifdef EL_HAVE_MPC
-        if( !succeeded && !IsFixedPrecision<Z>::value )
-        {
-            // Only move down to a lower-precision MPFR type if the jump is
-            // substantial. The current value has been naively chosen.
-            const mpfr_prec_t minPrecDiff = 32;
-            mpfr_prec_t inputPrec = mpc::Precision();
-            if( neededPrec <= inputPrec-minPrecDiff )
-            {
-                mpc::SetPrecision( neededPrec );
-                try {
-                    info = LowerPrecisionMerge<Z,F,BigFloat,F>
-                      ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                
-                    info.numSwaps += numPrevSwaps;
-                    succeeded = true;
-                }
-                catch( std::exception& e )
-                { Output("e.what()=",e.what()); }
-                mpc::SetPrecision( inputPrec );
-            }
-        }
+            if( !succeeded )
+                succeeded = TryLowerPrecisionBigFloatMerge<Z,F>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #endif
+
+            if( succeeded )
+                info.numSwaps += numPrevSwaps;
+        }
+        // TODO: Allow for dropping with non-integer coefficients?
 
         if( !succeeded )
         {        
@@ -808,6 +822,9 @@ RecursiveHelper
 
     LLLInfo<Real> info;
     info.numSwaps = 0;
+    // NOTE: We can assume that the following lower bound should essentially
+    //       always be tight.
+    info.firstSwap = 0;
     for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
     {
         if( ctrl.progress || ctrl.time )
@@ -878,68 +895,51 @@ RecursiveHelper
             Output("  left time:  ",leftTime," seconds");
             Output("  right time: ",rightTime," seconds");
         }
-        // TODO: Incorporate U norm
-        const Real CLOneNorm = OneNorm( CL );
-        const Real CROneNorm = OneNorm( CR );
-        const Real CLMaxNorm = MaxNorm( CL );
-        const Real CRMaxNorm = MaxNorm( CR );
-        if( ctrl.progress )
-        {
-            Output("  || C_L ||_1 = ",CLOneNorm);
-            Output("  || C_R ||_1 = ",CROneNorm);
-            Output("  || C_L ||_max = ",CLMaxNorm);
-            Output("  || C_R ||_max = ",CRMaxNorm);
-        }
 
-        const Real COneNorm = Max(CLOneNorm,CROneNorm);
-        const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
-        const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
-        if( ctrl.progress || ctrl.time )
-        {
-            Output("  || C ||_1 = ",COneNorm);
-            Output("  Needed precision: ",neededPrec);
-        }
+        const bool isInteger = IsInteger( C );
 
         bool succeeded = false;
         Int numPrevSwaps = info.numSwaps;
-        if( MantissaIsLonger<Real,float>::value &&
-            MantissaBits<float>::value >= neededPrec )
+        if( isInteger )
         {
-            try
+            // TODO: Incorporate U norm
+            const Real CLOneNorm = OneNorm( CL );
+            const Real CROneNorm = OneNorm( CR );
+            const Real CLMaxNorm = MaxNorm( CL );
+            const Real CRMaxNorm = MaxNorm( CR );
+            if( ctrl.progress )
             {
-                info = LowerPrecisionMerge<F,float>
-                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
-        }
-        if( !succeeded && 
-            MantissaIsLonger<Real,double>::value &&
-            MantissaBits<double>::value >= neededPrec )
-        {
-            try
+                Output("  || C_L ||_1 = ",CLOneNorm);
+                Output("  || C_R ||_1 = ",CROneNorm);
+                Output("  || C_L ||_max = ",CLMaxNorm);
+                Output("  || C_R ||_max = ",CRMaxNorm);
+            }
+
+            const Real COneNorm = Max(CLOneNorm,CROneNorm);
+            const Real fudge = 2; // TODO: Make tunable
+            const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
+            if( ctrl.progress || ctrl.time )
             {
-                info = LowerPrecisionMerge<F,double>
-                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
-        }
-        // There is not yet support for Complex<{Quad,Double}Double>
+                Output("  || C ||_1 = ",COneNorm);
+                Output("  Needed precision: ",neededPrec);
+            }
+
+            succeeded = TryLowerPrecisionMerge<float>
+              ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<double>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
+            // There is not yet support for Complex<{Quad,Double}Double>
 #ifdef EL_HAVE_QUAD
-        if( !succeeded &&
-            MantissaIsLonger<Real,Quad>::value &&
-            MantissaBits<Quad>::value >= neededPrec )
-        {
-            try
-            {
-                info = LowerPrecisionMerge<F,Quad>
-                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
-                info.numSwaps += numPrevSwaps;
-                succeeded = true;
-            } catch( std::exception& e ) { Output("e.what()=",e.what()); }
-        }
+            if( !succeeded )
+                succeeded = TryLowerPrecisionMerge<Quad>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #endif
+
+            if( succeeded )
+                info.numSwaps += numPrevSwaps;
+        }
+        // TODO: Allow for dropping with non-integer coefficients?
 
         if( !succeeded )
         {            

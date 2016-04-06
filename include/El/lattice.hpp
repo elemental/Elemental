@@ -63,7 +63,8 @@ struct LLLInfo
     Real eta; 
     Int rank;
     Int nullity; 
-    Int numSwaps;
+    Int numSwaps=0;
+    Int firstSwap;
     Real logVol;
 
     template<typename OtherReal>
@@ -74,6 +75,7 @@ struct LLLInfo
         rank = info.rank;
         nullity = info.nullity;
         numSwaps = info.numSwaps;
+        firstSwap = info.firstSwap;
         logVol = Real(info.logVol);
         return *this;
     }
@@ -338,14 +340,11 @@ Int AlgebraicRelationSearch
 // Schnorr-Euchner enumeration
 // ===========================
 
-namespace EnumTypeNS {
 enum EnumType {
-    FULL_ENUM,
-    GNR_ENUM,
-    YSPARSE_ENUM
+  FULL_ENUM,
+  GNR_ENUM,
+  YSPARSE_ENUM
 };
-}
-using namespace EnumTypeNS;
 
 template<typename Real>
 struct EnumCtrl
@@ -373,12 +372,19 @@ struct EnumCtrl
     // YSPARSE_ENUM
     // ------------
     Int phaseLength=10;
+    double enqueueProb=1.;
 
     bool customStartIndex=false; 
     Int startIndex;
 
+    bool customMinInfNorms=false;
+    vector<Int> minInfNorms;
+
     bool customMaxInfNorms=false;
     vector<Int> maxInfNorms;
+
+    bool customMinOneNorms=false;
+    vector<Int> minOneNorms;
 
     bool customMaxOneNorms=false;
     vector<Int> maxOneNorms; 
@@ -404,12 +410,20 @@ struct EnumCtrl
         // YSPARSE_ENUM
         // ------------
         phaseLength = ctrl.phaseLength;
+        enqueueProb = ctrl.enqueueProb;
         customStartIndex = ctrl.customStartIndex;
         startIndex = ctrl.startIndex;
+
+        customMinInfNorms = ctrl.customMinInfNorms;
+        minInfNorms = ctrl.minInfNorms;
         customMaxInfNorms = ctrl.customMaxInfNorms;
         maxInfNorms = ctrl.maxInfNorms;
+
+        customMinOneNorms = ctrl.customMinOneNorms;
+        minOneNorms = ctrl.minOneNorms;
         customMaxOneNorms = ctrl.customMaxOneNorms;
         maxOneNorms = ctrl.maxOneNorms;
+
         progressLevel = ctrl.progressLevel;
 
         return *this;
@@ -484,7 +498,10 @@ Real PhaseEnumeration
         Real normUpperBound,
         Int startIndex,
         Int phaseLength,
+        double enqueueProb,
+  const vector<Int>& minInfNorms,
   const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
         Matrix<Real>& v,
         Int progressLevel=0 );
@@ -497,7 +514,10 @@ PhaseEnumeration
   const Matrix<Real>& normUpperBounds,
         Int startIndex,
         Int phaseLength,
+        double enqueueProb,
+  const vector<Int>& minInfNorms,
   const vector<Int>& maxInfNorms,
+  const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
         Matrix<Real>& v,
         Int progressLevel=0 );
@@ -702,6 +722,7 @@ struct BKZCtrl
     bool checkpoint=false;
     FileFormat checkpointFormat=ASCII;
     std::string checkpointFileBase="BKZCheckpoint";
+    std::string tourFileBase="BKZTour";
 
     LLLCtrl<Real> lllCtrl;
 
@@ -721,6 +742,8 @@ struct BKZCtrl
 
         variableEnumType = ctrl.variableEnumType;
         enumTypeFunc = ctrl.enumTypeFunc;
+
+        multiEnumWindow = ctrl.multiEnumWindow;
 
         skipInitialLLL = ctrl.skipInitialLLL;
         jumpstart = ctrl.jumpstart;
@@ -747,6 +770,7 @@ struct BKZCtrl
         normsFile = ctrl.normsFile;
         projNormsFile = ctrl.projNormsFile;
         checkpointFileBase = ctrl.checkpointFileBase;
+        tourFileBase = ctrl.tourFileBase;
         checkpointFormat = ctrl.checkpointFormat;
 
         lllCtrl = ctrl.lllCtrl;
@@ -812,9 +836,30 @@ void EnrichLattice( Matrix<F>& B, const Matrix<F>& v );
 template<typename F>
 void EnrichLattice( Matrix<F>& B, Matrix<F>& U, const Matrix<F>& v );
 
+// Closest vector problem
+// ======================
+
+template<typename F>
+void NearestPlane
+( const Matrix<F>& B,
+  const Matrix<F>& T,
+        Matrix<F>& X,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename F>
+void NearestPlane
+( const Matrix<F>& B,
+  const Matrix<F>& QR,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& T,
+        Matrix<F>& X,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
 } // namespace El
 
 #include "El/lattice/LLL.hpp"
+#include "El/lattice/NearestPlane.hpp"
 #include "El/lattice/Enrich.hpp"
 #include "El/lattice/BKZ.hpp"
 

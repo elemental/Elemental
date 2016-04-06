@@ -66,5 +66,35 @@ QuadDouble::operator BigFloat() const
 }
 #endif
 
+DoubleDouble::operator long long int() const
+{
+    // NOTE: This should be verified for correctness and is somewhat ad-hoc
+    long long int result = 0;
+    DoubleDouble alpha = *this;
+    for( Int i=0; i<2; ++i )
+    {
+        double beta = double(alpha);
+        long long int betaInt = static_cast<long long int>(beta);
+        result += betaInt;
+        alpha -= betaInt;
+    }
+    return result;
+}
+
+QuadDouble::operator long long int() const
+{
+    // NOTE: This should be verified for correctness and is somewhat ad-hoc
+    long long int result = 0;
+    QuadDouble alpha = *this;
+    for( Int i=0; i<4; ++i )
+    {
+        double beta = double(alpha);
+        long long int betaInt = static_cast<long long int>(beta);
+        result += betaInt;
+        alpha -= betaInt;
+    }
+    return result;
+}
+
 } // namespace El
 #endif // ifdef EL_HAVE_QD

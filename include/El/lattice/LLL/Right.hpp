@@ -12,6 +12,37 @@
 namespace El {
 namespace lll {
 
+template<typename Z, typename F>
+bool IsLLLReduced
+( Matrix<Z>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d, 
+  const LLLCtrl<Base<F>>& ctrl,
+  Int nullity )
+{
+	typedef Base<F> Real;
+    const Int m = QR.Height();
+    const Int n = QR.Width();
+    const Int minDim = Min(m,n);
+	
+    Copy(B, QR);
+    El::QR(QR, t, d);
+	for (Int i = 0; i < minDim-nullity-1; ++i)
+	{
+		F rho_k_k = QR.Get(i,i);
+		F rho_kp1_kp1 = QR.Get(i+1,i+1);
+		F rho_k_kp1 = QR.Get(i,i+1);
+		
+		const Real leftTerm = Sqrt(ctrl.delta)*rho_k_k;
+        const Real rightTerm = lapack::SafeNorm(rho_kp1_kp1,rho_k_kp1);
+
+        if( leftTerm > rightTerm )
+			return false;
+	}
+	return true;
+}
+
 template<typename F>
 void RightGivensStep
 ( Int k,
@@ -68,13 +99,13 @@ void RightGivensStep
     //     [y z]   [0 v]
     F x = QR.Get(k,k); F y = QR.Get(k+1,k);
     F w = QR.Get(k,k+1); F z = QR.Get(k+1,k+1);
-    
+	
     lapack::Givens( x, y, &c, &s );
     Matrix<F> G1(2,2);
     c = Sgn(RealPart(x))*Abs(c);
     s = Sgn(RealPart(y))*Abs(s);
     Real sgn = Sgn(RealPart(-Conj(s)*w+c*z));
-    
+	
     G1.Set(0,0,c);
     G1.Set(0,1,s);
     G1.Set(1,0,-sgn*Conj(s));
@@ -609,7 +640,7 @@ LLLInfo<Base<F>> RightAlg
             if (ctrl.progress) {
                 cout << "k=" << k << ": ||b_k|| = " << colNorms.Get(k, 0) << endl;
                 cout << "k=" << k << ": ||r_k|| = " << rnorm << endl;
-                cout << "k=" << k << ": (||b_k|| - ||r_k||)/||b_k|| = " << (colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) << endl;
+                cout << "k=" << k << ": | ||b_k|| - ||r_k|| |/||b_k|| = " << Abs(colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) << endl;
             }
             
             if (Abs(colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) >= thresh)
@@ -851,17 +882,26 @@ LLLInfo<Base<F>> RightAlg
         Output("Total LLL time:           ",LLLTimer.Total());
     }
 
-    std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
-    Real logVol = lll::LogVolume(QR);
+	LLLInfo<Base<F>> info;
+	if (!lll::IsLLLReduced(B, QR, t, d, ctrl, nullity))
+	{
+		Output("Rerunning LLL");
+		info = lll::RightAlg( B, U, QR, t, d, formU, ctrl );
+	}
+	else
+	{
+		Output("Successfully finished");
+		std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
+		Real logVol = lll::LogVolume(QR);
 
-    LLLInfo<Base<F>> info;
-    info.delta = achieved.first;
-    info.eta = achieved.second;
-    info.rank = n-nullity;
-    info.nullity = nullity;
-    info.numSwaps = numSwaps;
-    info.logVol = logVol;
-
+		info.delta = achieved.first;
+		info.eta = achieved.second;
+		info.rank = n-nullity;
+		info.nullity = nullity;
+		info.numSwaps = numSwaps;
+		info.logVol = logVol;
+	}
+	
     return info;
 }
 

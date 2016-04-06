@@ -44,6 +44,8 @@ int main( int argc, char* argv[] )
         const Int multiEnumWindow = Input("--multiEnumWindow","window for y-sparse enumeration",15);
         const Int phaseLength =
           Input("--phaseLength","YSPARSE_ENUM phase length",10);
+        const double enqueueProb =
+          Input("--enqueueProb","enqueue probability?",1.);
         const Int progressLevel =
           Input("--progressLevel","YSPARSE_ENUM progress level",4);
         const bool presort = Input("--presort","presort columns?",false);
@@ -177,6 +179,7 @@ int main( int argc, char* argv[] )
         ctrl.enumCtrl.time = timeEnum;
         ctrl.enumCtrl.innerProgress = innerEnumProgress; 
         ctrl.enumCtrl.phaseLength = phaseLength;
+        ctrl.enumCtrl.enqueueProb = enqueueProb;
         ctrl.enumCtrl.progressLevel = progressLevel;
         ctrl.earlyAbort = earlyAbort;
         ctrl.numEnumsBeforeAbort = numEnumsBeforeAbort;
@@ -198,12 +201,16 @@ int main( int argc, char* argv[] )
         ctrl.lllCtrl.progress = progressLLL;
         ctrl.lllCtrl.time = timeLLL;
 
+        ctrl.enumCtrl.customMinInfNorms = true;
         ctrl.enumCtrl.customMaxInfNorms = true;
+        ctrl.enumCtrl.customMinOneNorms = true;
         ctrl.enumCtrl.customMaxOneNorms = true;
         const Int startIndex = Max(n/2-1,0);
         const Int numPhases = ((n-startIndex)+phaseLength-1) / phaseLength;
+        ctrl.enumCtrl.minInfNorms.resize( numPhases, 0 );
         ctrl.enumCtrl.maxInfNorms.resize( numPhases, 1 );
-        ctrl.enumCtrl.maxOneNorms.resize( numPhases );
+        ctrl.enumCtrl.minOneNorms.resize( numPhases, 0 );
+        ctrl.enumCtrl.maxOneNorms.resize( numPhases, 1 );
         // NOTE: This is tailored to SVP 146 where the ranges are
         // 0: [72,82)
         // 1: [82,92)
@@ -213,6 +220,18 @@ int main( int argc, char* argv[] )
         // 5: [122,132)
         // 6: [132,142)
         // 7: [142,146)
+
+        /*
+        ctrl.enumCtrl.minOneNorms[0] = 0;
+        ctrl.enumCtrl.minOneNorms[1] = 0;
+        ctrl.enumCtrl.minOneNorms[2] = 1;
+        ctrl.enumCtrl.minOneNorms[3] = 1;
+        ctrl.enumCtrl.minOneNorms[4] = 1;
+        ctrl.enumCtrl.minOneNorms[5] = 2;
+        ctrl.enumCtrl.minOneNorms[6] = 3;
+        ctrl.enumCtrl.minOneNorms[7] = 3;
+        */
+
         ctrl.enumCtrl.maxOneNorms[0] = 0;
         ctrl.enumCtrl.maxOneNorms[1] = 1;
         ctrl.enumCtrl.maxOneNorms[2] = 1;
@@ -221,6 +240,17 @@ int main( int argc, char* argv[] )
         ctrl.enumCtrl.maxOneNorms[5] = 2;
         ctrl.enumCtrl.maxOneNorms[6] = 3;
         ctrl.enumCtrl.maxOneNorms[7] = 3;
+
+        /*
+        ctrl.enumCtrl.minInfNorms[0] = 0;
+        ctrl.enumCtrl.minInfNorms[1] = 0;
+        ctrl.enumCtrl.minInfNorms[2] = 1;
+        ctrl.enumCtrl.minInfNorms[3] = 1;
+        ctrl.enumCtrl.minInfNorms[4] = 1;
+        ctrl.enumCtrl.minInfNorms[5] = 1;
+        ctrl.enumCtrl.minInfNorms[6] = 1;
+        ctrl.enumCtrl.minInfNorms[7] = 1;
+        */
 
         ctrl.enumCtrl.maxInfNorms[0] = 1;
         ctrl.enumCtrl.maxInfNorms[1] = 1;
