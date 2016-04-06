@@ -230,36 +230,36 @@ struct LLLCtrl
 
 // TODO: Maintain B in BigInt form
 
-template<typename F>
+template<typename Z, typename F=Z>
 LLLInfo<Base<F>> LLL
-( Matrix<F>& B,
+( Matrix<Z>& B,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename F>
+template<typename Z, typename F=Z>
 LLLInfo<Base<F>> LLL
-( Matrix<F>& B,
+( Matrix<Z>& B,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename F>
+template<typename Z, typename F=Z>
 LLLInfo<Base<F>> LLL
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename F>
+template<typename Z, typename F=Z>
 LLLInfo<Base<F>> LLLWithQ
-( Matrix<F>& B,
+( Matrix<Z>& B,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename F>
+template<typename Z, typename F=Z>
 LLLInfo<Base<F>> LLLWithQ
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,

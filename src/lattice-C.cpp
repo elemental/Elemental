@@ -131,6 +131,7 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
       ( CReflect(alpha), n, NSqrt, \
         *CReflect(B), *CReflect(U), CReflect(ctrl) ) ) }
 
+#define EL_NO_COMPLEX_PROTO
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"
 

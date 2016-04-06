@@ -1295,6 +1295,7 @@ MultiShortestVectorEnrichment
           Matrix<F>& v, \
     const EnumCtrl<Base<F>>& ctrl );
 
+#define EL_NO_COMPLEX_PROTO
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
