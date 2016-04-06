@@ -23,10 +23,11 @@ inline BigInt FindFactor
   Int a,
   const PollardRhoCtrl& ctrl )
 {
+    const BigInt& one = BigIntOne();
+
     if( a == 0 || a == -2 )
         Output("WARNING: Problematic choice of Pollard rho shift");
     BigInt tmp, gcd;
-    BigInt one(1);
 
     auto xAdvance =
       [&]( BigInt& x )

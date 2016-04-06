@@ -21,6 +21,7 @@ public:
       bool keepAll=false,
       TSmall segmentSize=32768 );
 
+    void SetLowerBound( T lowerBound );
     void SetStorage( bool keepAll );
     void Generate( T upperBound );
 
@@ -56,6 +57,11 @@ private:
 
 #ifdef EL_HAVE_MPC
 
+unsigned long PowerDecomp
+( const BigInt& n,
+        BigInt& q,
+  const BigInt& factor=BigIntTwo() );
+
 BigInt SqrtModPrime( const BigInt& n, const BigInt& p );
 void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& nSqrt );
 
@@ -87,7 +93,7 @@ struct PollardRhoCtrl
     Int a0=1;
     Int a1=-1;
     unsigned long numSteps=1u;
-    BigInt x0=BigInt(2);
+    BigInt x0=BigIntTwo();
     Int gcdDelay=100;
     Int numReps=30;
     bool progress=false;
@@ -113,8 +119,12 @@ struct PollardPMinusOneCtrl
     TSieve smooth1=TSieve(1000000ULL);
     TSieve smooth2=TSieve(10000000ULL);
     Int numReps=30;
+
     bool progress=false;
     bool time=false;
+
+    bool checkpoint=false;
+    Int checkpointFreq=1000000;
 };
 
 template<typename TSieve=unsigned long long,
@@ -196,6 +206,7 @@ BigInt PollardRho
 
 #include <El/number_theory/DynamicSieve.hpp>
 
+#include <El/number_theory/PowerDecomp.hpp>
 #include <El/number_theory/SqrtModPrime.hpp>
 #include <El/number_theory/LegendreSymbol.hpp>
 #include <El/number_theory/JacobiSymbol.hpp>

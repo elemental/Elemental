@@ -14,9 +14,16 @@ namespace {
 size_t numLimbs;
 int numIntLimbs;
 
+El::BigInt bigIntZero, bigIntOne, bigIntTwo;
+
 } // anonymous namespace
 
 namespace El {
+
+const BigInt& BigIntZero() { return ::bigIntZero; }
+const BigInt& BigIntOne()  { return ::bigIntOne;  }
+const BigInt& BigIntTwo()  { return ::bigIntTwo;  }
+
 namespace mpc {
 
 mpfr_prec_t Precision()
@@ -36,6 +43,7 @@ void SetPrecision( mpfr_prec_t prec )
     mpfr_set_default_prec( prec ); 
     ::numLimbs = (prec-1) / GMP_NUMB_BITS + 1;
     mpi::CreateBigFloatFamily();
+
     previouslySet = true;
 }
 
@@ -50,6 +58,14 @@ void SetMinIntBits( int numBits )
         mpi::DestroyBigIntFamily();
     ::numIntLimbs = numIntLimbsNew;
     mpi::CreateBigIntFamily();
+
+    ::bigIntZero.SetNumLimbs( ::numLimbs );
+    ::bigIntOne.SetNumLimbs( ::numLimbs );
+    ::bigIntTwo.SetNumLimbs( ::numLimbs );
+    ::bigIntZero = 0;
+    ::bigIntOne = 1;
+    ::bigIntTwo = 2;
+
     previouslySet = true;
 }
 

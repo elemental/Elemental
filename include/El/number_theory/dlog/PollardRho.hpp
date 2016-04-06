@@ -22,6 +22,8 @@ inline BigInt PollardRho
   const BigInt& p,
   const PollardRhoCtrl& ctrl )
 {
+    const BigInt& one = BigIntOne();
+
     BigInt pm1(p);
     pm1 -=1;
 
@@ -121,7 +123,6 @@ inline BigInt PollardRho
             // (Also test theta^i = -Q, which implies theta^{i+d/2} = Q
             //  if r was a primitive root)
             BigInt thetaPow(theta);
-            BigInt one(1);
             BigInt negQ(Q);
             negQ *= -1;
             negQ %= p;

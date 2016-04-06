@@ -14,6 +14,7 @@ namespace El {
 #ifdef EL_HAVE_MPC
 
 // TODO: Use a custom implementation that incorporates 'numReps'
+// TODO: Incorporate a manual BPSW implementation
 inline void NextProbablePrime( const BigInt& n, BigInt& nextPrime, Int numReps )
 {
     mpz_nextprime( nextPrime.Pointer(), n.LockedPointer() );

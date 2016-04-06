@@ -272,6 +272,13 @@ bool operator!=( const long long int& a, const BigInt& b );
 std::ostream& operator<<( std::ostream& os, const BigInt& alpha );
 std::istream& operator>>( std::istream& is,       BigInt& alpha );
 
+// The following constants are provided to avoid needlessly worrying about
+// allocating them as BigInt's within number theoretic routines (such as 
+// Miller-Rabin and Pollard's (p-1) algorithm)
+const BigInt& BigIntZero();
+const BigInt& BigIntOne();
+const BigInt& BigIntTwo();
+
 // BigRational class based upon mpq?
 
 // Since MPFR chose to have mpfr_t be a typedef to an array of length 1,

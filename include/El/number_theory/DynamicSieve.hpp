@@ -71,6 +71,12 @@ T DynamicSieve<T,TSmall>::PrimeCountingEstimate( T n ) const
 { return 2*(n/T(std::log(n))); }
 
 template<typename T,typename TSmall>
+void DynamicSieve<T,TSmall>::SetLowerBound( T lowerBound )
+{
+    lowerBound_ = lowerBound;
+}
+
+template<typename T,typename TSmall>
 void DynamicSieve<T,TSmall>::SetStorage( bool keepAll )
 {
     if( keepAll && !keepAll_ )
@@ -126,6 +132,8 @@ void DynamicSieve<T,TSmall>::Generate( T upperBound )
             }
         }
     }
+
+    SetStorage( false );
 }
 
 template<typename T,typename TSmall>

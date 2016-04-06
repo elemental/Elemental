@@ -19,7 +19,9 @@ inline bool IsPrimitiveRoot
   const vector<BigInt>& pm1Factors,
         bool progress )
 {
-    BigInt one(1), two(2);
+    const BigInt& one = BigIntOne();
+    const BigInt& two = BigIntTwo();
+
     BigInt primMod(primitive);
     primMod %= p;
 
@@ -65,12 +67,15 @@ inline bool IsPrimitiveRoot
         bool progress,
   const factor::PollardRhoCtrl& ctrl )
 {
+    const BigInt& one = BigIntOne();
+    const BigInt& two = BigIntTwo();
+
     BigInt primMod(primitive);
     primMod %= p;
 
     // Try to early exit
-    if( p == BigInt(2) )
-        return primMod == BigInt(1);
+    if( p == two )
+        return primMod == one;
 
     if( IsPerfectSquare(primMod) )
         return false;
@@ -87,7 +92,9 @@ inline void PrimitiveRoot
         int numReps,
   const factor::PollardRhoCtrl& ctrl )
 {
-    if( p == BigInt(2) )
+    const BigInt& two = BigIntTwo();
+
+    if( p == two )
     {
         primitive = 1;
         return;

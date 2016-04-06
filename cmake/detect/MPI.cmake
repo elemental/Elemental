@@ -50,10 +50,25 @@ endif()
 # EL_AVOID_COMPLEX_MPI is enabled. Since 1.7 was a feature branch, 1.8 is the
 # lowest stable branch after 1.6.5.
 # (e.g., for academic investigations of behavior)
+#
+# NOTE: MPI_C_INCLUDE_PATH has been observed to be a list containing both
+#       an item corresponding to the directory containing mpi.h *and* the full
+#       path to mpi.h for Open MPI!
+#
 if(NOT OMPI_MIN_VERSION)
   set(OMPI_MIN_VERSION 1.8.1)
 endif()
-file(READ "${MPI_C_INCLUDE_PATH}/mpi.h" _mpi_header)
+foreach(MPI_PATH ${MPI_C_INCLUDE_PATH})
+  if(EXISTS "${MPI_PATH}/mpi.h")
+    set(MPI_HEADER_PATH ${MPI_PATH})
+  endif()
+endforeach()
+if(MPI_HEADER_PATH)
+  message(STATUS "Will parse MPI header ${MPI_HEADER_PATH}/mpi.h")
+else()
+  message(FATAL_ERROR "Could not find mpi.h")
+endif()
+file(READ "${MPI_HEADER_PATH}/mpi.h" _mpi_header)
 string(REGEX MATCH "define[ \t]+OMPI_MAJOR_VERSION[ \t]+([0-9]+)"
   _ompi_major_version_match "${_mpi_header}")
 set(OMPI_MAJOR_VERSION "${CMAKE_MATCH_1}")
