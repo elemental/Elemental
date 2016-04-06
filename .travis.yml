@@ -6,7 +6,12 @@ compiler:
 
 env:
   - MPI=mpich2
-  - MPI=openmpi
+#  - MPI=openmpi
+# Open MPI is disabled until there is a way to install a reasonably recent
+# version, as 1.6.5 is known to have bugs that lead to incorrect behavior in
+# Elemental for complex data despite attempts at performing soft casts
+# to twice as many entries of real data (with the exact cause unfortunately
+# currently unknown)
 
 # matrix:
 #   exclude:
