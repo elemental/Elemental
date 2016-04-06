@@ -612,7 +612,7 @@ LLLInfo<Base<F>> RightAlg
                 cout << "k=" << k << ": (||b_k|| - ||r_k||)/||b_k|| = " << (colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) << endl;
             }
             
-            if ((colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) >= thresh)
+            if (Abs(colNorms.Get(k, 0) - rnorm)/colNorms.Get(k,0) >= thresh)
             {
                 // Dump Givens to the right
                 if (GivensLastCol > 0)
