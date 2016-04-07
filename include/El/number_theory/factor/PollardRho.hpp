@@ -34,14 +34,6 @@ inline BigInt FindFactor
       {
         if( ctrl.numSteps == 1 )
         {
-            // TODO: Determine if there is a penalty to x *= x
-            /*
-            tmp = x;
-            tmp *= x;
-            tmp += a;
-            x = tmp;
-            x %= n;
-            */
             x *= x;
             x += a;
             x %= n;
@@ -68,7 +60,7 @@ inline BigInt FindFactor
     BigInt x2i(xi);
     BigInt xiSave=xi, x2iSave=x2i;
     BigInt Qi(1);
-    Int k=1, i=1; // it is okay for i to overflow since it is just for printing
+    Int delayCounter=1, i=1;
     while( true )
     {
         // Advance xi once
@@ -81,12 +73,11 @@ inline BigInt FindFactor
         // Advance Qi
         QAdvance( xi, x2i, Qi );
 
-        if( k >= gcdDelay )
+        if( delayCounter >= gcdDelay )
         {
             GCD( Qi, n, gcd );
             if( gcd > one )
             {
-                // NOTE: This was not suggested by Pollard's original paper
                 if( gcd == n )
                 {
                     if( gcdDelay == 1 )
@@ -111,13 +102,12 @@ inline BigInt FindFactor
                 }
             }
 
-            // NOTE: This was not suggested by Pollard's original paper
-            k = 0;
+            delayCounter = 0;
             xiSave = xi;
             x2iSave = x2i;
             Qi = 1;
         }
-        ++k;
+        ++delayCounter;
         ++i;
     }
 }

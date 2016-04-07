@@ -48,6 +48,7 @@ private:
     TSmall ComputeSegmentStart( const TSmall& p ) const;
 
     void AugmentPrimes( T numPrimes );
+    void MoveSegmentOffset( T segmentOffset );
 
     T PrimeCountingEstimate( T n ) const;
 
@@ -118,6 +119,8 @@ struct PollardPMinusOneCtrl
 {
     TSieve smooth1=TSieve(1000000ULL);
     TSieve smooth2=TSieve(10000000ULL);
+    Int gcdDelay2=100;
+
     Int numReps=30;
 
     bool progress=false;

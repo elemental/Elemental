@@ -68,12 +68,35 @@ DynamicSieve<T,TSmall>::DynamicSieve
 
 template<typename T,typename TSmall>
 T DynamicSieve<T,TSmall>::PrimeCountingEstimate( T n ) const
-{ return 2*(n/T(std::log(n))); }
+{ return 2*(n/T(Log(double(n)))); }
 
 template<typename T,typename TSmall>
 void DynamicSieve<T,TSmall>::SetLowerBound( T lowerBound )
 {
-    lowerBound_ = lowerBound;
+    // Ensure that the lower bound is odd
+    if( lowerBound % 2 == 0 )
+        ++lowerBound;
+    if( lowerBound != lowerBound_ )
+    {
+        lowerBound_ = lowerBound;
+        // TODO: Decide if we always need to pay this price
+        MoveSegmentOffset( lowerBound_ );
+    }
+}
+
+template<typename T,typename TSmall>
+void DynamicSieve<T,TSmall>::MoveSegmentOffset( T segmentOffset )
+{
+    // TODO: Decide if this should only be enabled in debug mode
+    if( segmentOffset % 2 == 0 )
+        LogicError("Cannot choose an even segment offset");
+
+    if( segmentOffset_ != segmentOffset )
+    {
+        segmentOffset_ = segmentOffset;
+        for( TSmall i=0; i<oddPrimeBound_; ++i )
+            oddPrimeStarts_[i] = ComputeSegmentStart( oddPrimes[i] );
+    }
 }
 
 template<typename T,typename TSmall>
@@ -81,16 +104,16 @@ void DynamicSieve<T,TSmall>::SetStorage( bool keepAll )
 {
     if( keepAll && !keepAll_ )
     {
-        // This could be made substantially faster but is provided as
-        // a convenience. Advanced users should set this mode upon 
-        // construction.
-        DynamicSieve<T> tmpSieve( oddPrimes.back()+1 );
-        tmpSieve.oddPrimes = oddPrimes;
-
-        oddPrimes.reserve( PrimeCountingEstimate(segmentOffset_) );
-        while( tmpSieve.oddPrimes.back() < segmentOffset_ )
+        // Ensure that we have all of the primes below lowerBound_ stored
+        if( lowerBound_ > oddPrimes.back()+2 )
         {
-            oddPrimes.push_back( tmpSieve.NextPrime() );
+            T lowerBoundSave = lowerBound_;
+            lowerBound_ = oddPrimes.back()+2;
+            MoveSegmentOffset( lowerBound_ );
+
+            keepAll_ = true;
+            while( lowerBound_ < lowerBoundSave )
+                NextPrime(); 
         }
     }
     keepAll_ = keepAll;
@@ -112,12 +135,7 @@ void DynamicSieve<T,TSmall>::Generate( T upperBound )
 
     if( segmentOffset_ < oddPrimes.back()+2 )
     {
-        segmentOffset_ = oddPrimes.back()+2;
-        // Regenerate oddPrimeStarts_ since it has been invalidated
-        // by breaking the assumption on the incrementation of segmentOffset_
-        // by 2*segmentSize_
-        for( TSmall i=0; i<oddPrimeBound_; ++i )
-            oddPrimeStarts_[i] = ComputeSegmentStart( oddPrimes[i] );
+        MoveSegmentOffset( oddPrimes.back()+2 );
     }
 
     for( ; segmentOffset_<upperBound; segmentOffset_+=2*segmentSize_ )

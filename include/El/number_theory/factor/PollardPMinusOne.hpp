@@ -87,11 +87,17 @@ BigInt StageOne
 
     // Ensure that we have sieved at least up until smooth1
     bool neededStage1Sieving = ( sieve.oddPrimes.back() < smooth1 );
-    if( ctrl.progress && neededStage1Sieving )
-        Output
-        ("Updating sieve from ",sieve.oddPrimes.back()," to ",smooth1);
+    if( ctrl.progress )
+    {
+        if( neededStage1Sieving )
+            Output
+            ("Updating sieve from ",sieve.oddPrimes.back()," to ",smooth1);
+        else
+            Output("Stage 1 sieve was already sufficient");
+    }
     sieve.Generate( smooth1 );
-    if( ctrl.progress && neededStage1Sieving )
+    //if( ctrl.progress && neededStage1Sieving )
+    if( ctrl.progress )
         Output("Done sieving for stage 1");
 
     double nLog = double(Log(BigFloat(n)));
@@ -107,6 +113,8 @@ BigInt StageOne
     RepeatedPowModRange
     ( a, sieve.oddPrimes.begin(), smooth1End, n, nLog,
       ctrl.checkpoint, ctrl.checkpointFreq );
+    if( ctrl.progress )
+        Output("Done with stage-1 exponentiation");
 
     // gcd := GCD( a-1, n )
     BigInt tmp = a; 
@@ -161,6 +169,7 @@ BigInt StageTwo
 
     BigInt diffPower, tmp, gcd;
 
+    Int delayCounter=1;
     TSieve p, pLast=sieve.NextPrime();
     std::map<TSieve,BigInt> diffPowers;
     while( pLast <= smooth2 )
@@ -169,18 +178,35 @@ BigInt StageTwo
         TSieve diff = p - pLast;
         auto search = diffPowers.find( diff );
 
-        Output("  p=",p,", pLast=",pLast,", diff=",diff);
         if( search == diffPowers.end() )
         {
             PowMod( a, diff, n, diffPower );
             diffPowers.insert( std::make_pair(diff,diffPower) );
-            Output("    Stored ",a,"^",diff,"=",diffPower);
         }
 
         a *= diffPowers[diff];
         a %= n;
         
-        //gcd = GCD( a-1, n );
+        if( delayCounter >= ctrl.gcdDelay2 )
+        {
+            // gcd = GCD( a-1, n );
+            tmp = a;
+            tmp -= 1;
+            GCD( tmp, n, gcd );
+            if( gcd > one && gcd < n )
+            {
+                if( ctrl.progress )
+                    Output("Found stage-2 factor of ",gcd);
+                return gcd;
+            }
+            delayCounter = 0;
+        }
+        ++delayCounter;
+    }
+
+    // In case the last iteration did not perform a GCD due to the delay
+    if( ctrl.gcdDelay2 > 1 )
+    {
         tmp = a;
         tmp -= 1;
         GCD( tmp, n, gcd );
@@ -188,7 +214,6 @@ BigInt StageTwo
         {
             if( ctrl.progress )
                 Output("Found stage-2 factor of ",gcd);
-            return gcd;
         }
     }
 
