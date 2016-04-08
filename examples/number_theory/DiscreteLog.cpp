@@ -19,8 +19,6 @@ int main( int argc, char* argv[] )
         const int minIntBits = Input("--minIntBits","integer bits",384);
         const BigInt a0 = Input("--a0","a0 in Pollard rho",BigInt(0));
         const BigInt b0 = Input("--b0","b0 in Pollard rho",BigInt(0));
-        const bool demandPrimitive =
-          Input("--demandPrimitive","demand r is primitive?",false);
         const int numReps = Input("--numReps","num Miller-Rabin reps,",30);
         const bool progress = Input("--progress","factor progress?",true);
         const bool time = Input("--time","time Pollard rho steps?",true);

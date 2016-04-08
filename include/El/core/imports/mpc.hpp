@@ -10,7 +10,7 @@
 #define EL_IMPORTS_MPC_HPP
 
 #ifdef EL_HAVE_MPC
-#include "mpc.h"
+#include <mpc.h>
 
 // TODO: Decide if _MPFR_EXP_FORMAT is reliable enough
 #if _MPFR_EXP_FORMAT == 4

@@ -9,7 +9,7 @@
 #ifndef EL_LAPACK_SPECTRAL_C_H
 #define EL_LAPACK_SPECTRAL_C_H
 
-#include "El/lapack_like/funcs.h"
+#include <El/lapack_like/funcs.h>
 
 #ifdef __cplusplus
 extern "C" {

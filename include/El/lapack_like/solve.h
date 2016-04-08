@@ -9,8 +9,8 @@
 #ifndef EL_LAPACK_SOLVE_C_H
 #define EL_LAPACK_SOLVE_C_H
 
-#include "El/core/DistMatrix.h"
-#include "El/lapack_like/euclidean_min.h"
+#include <El/core/DistMatrix.h>
+#include <El/lapack_like/euclidean_min.h>
 
 #ifdef __cplusplus
 extern "C" {

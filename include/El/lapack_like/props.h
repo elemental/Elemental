@@ -9,7 +9,7 @@
 #ifndef EL_LAPACK_PROPS_C_H
 #define EL_LAPACK_PROPS_C_H
 
-#include "El/core/DistMatrix.h"
+#include <El/core/DistMatrix.h>
 
 #ifdef __cplusplus
 extern "C" {

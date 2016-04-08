@@ -712,7 +712,7 @@ BigFloat& BigFloat::operator/=( const unsigned long long& a )
     DEBUG_ONLY(CSE cse("BigFloat::operator/= [unsigned long long]"))
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
-        unsigned long aLong = static_cast<unsigned long>(aLong);
+        unsigned long aLong = static_cast<unsigned long>(a);
         mpfr_div_ui( Pointer(), Pointer(), aLong, mpc::RoundingMode() );
     }
     else

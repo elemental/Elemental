@@ -77,7 +77,8 @@ enum Primality
   COMPOSITE
 };
 
-Primality MillerRabin( const BigInt& n, Int numReps=30 );
+Primality MillerRabin( const BigInt& n, const BigInt& a=BigIntTwo() );
+Primality MillerRabinSequence( const BigInt& n, Int numReps=30 );
 
 // Use a combination of trial divisions and Miller-Rabin 
 // (with numReps representatives) to test for primality.
@@ -117,10 +118,16 @@ BigInt FindDivisor
 template<typename TSieve=unsigned long long>
 struct PollardPMinusOneCtrl
 {
+    // Stage one
     TSieve smooth1=TSieve(1000000ULL);
+    bool jumpstart1=false;
+    TSieve start1=2;
+
+    // Stage two
     TSieve smooth2=TSieve(10000000ULL);
     Int gcdDelay2=100;
 
+    // High-level options
     Int numReps=30;
 
     bool progress=false;
@@ -161,6 +168,25 @@ BigInt FindFactor
         DynamicSieve<TSieve,TSieveSmall>& sieve,
   const PollardPMinusOneCtrl<TSieve>& ctrl=
         PollardPMinusOneCtrl<TSieve>() );
+
+template<typename TSieve=unsigned long long,
+         typename TSieveSmall=unsigned>
+BigInt StageOne
+( const BigInt& n,
+        BigInt& a,
+        DynamicSieve<TSieve,TSieveSmall>& sieve,
+        bool separateOdd,
+        TSieve primeBound,
+  const PollardPMinusOneCtrl<TSieve>& ctrl );
+template<typename TSieve=unsigned long long,
+         typename TSieveSmall=unsigned>
+BigInt StageTwo
+( const BigInt& n,
+        BigInt& a,
+        DynamicSieve<TSieve,TSieveSmall>& sieve,
+        TSieve previousBound,
+        TSieve newBound,
+  const PollardPMinusOneCtrl<TSieve>& ctrl );
 
 } // namespace pollard_pm1
 

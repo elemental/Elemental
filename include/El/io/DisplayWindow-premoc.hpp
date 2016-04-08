@@ -16,12 +16,12 @@
 #include <QScrollArea>
 #include <QWidget>
 
-#include "El/config.h"
+#include <El/config.h>
 #ifdef EL_HAVE_F90_INTERFACE
-# include "El/FCMangle.h"
+# include <El/FCMangle.h>
 #endif
-#include "El/core.hpp"
-#include "El/io.hpp"
+#include <El/core.hpp>
+#include <El/io.hpp>
 
 namespace El {
 

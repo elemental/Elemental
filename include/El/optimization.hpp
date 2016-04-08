@@ -9,9 +9,9 @@
 #ifndef EL_OPTIMIZATION_HPP
 #define EL_OPTIMIZATION_HPP
 
-#include "./optimization/prox.hpp"
-#include "./optimization/util.hpp"
-#include "./optimization/solvers.hpp"
-#include "./optimization/models.hpp"
+#include <El/optimization/prox.hpp>
+#include <El/optimization/util.hpp>
+#include <El/optimization/solvers.hpp>
+#include <El/optimization/models.hpp>
 
 #endif // ifndef EL_OPTIMIZATION_HPP

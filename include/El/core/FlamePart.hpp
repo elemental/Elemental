@@ -9,9 +9,9 @@
 #ifndef EL_FLAMEPART_HPP
 #define EL_FLAMEPART_HPP
 
-#include "./FlamePart/Merge.hpp"
-#include "./FlamePart/Partition.hpp"
-#include "./FlamePart/Repartition.hpp"
-#include "./FlamePart/SlidePartition.hpp"
+#include <El/core/FlamePart/Merge.hpp>
+#include <El/core/FlamePart/Partition.hpp>
+#include <El/core/FlamePart/Repartition.hpp>
+#include <El/core/FlamePart/SlidePartition.hpp>
 
 #endif // ifndef EL_FLAMEPART_HPP

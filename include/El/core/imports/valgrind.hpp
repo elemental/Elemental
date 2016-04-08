@@ -11,7 +11,7 @@
 
 #ifdef EL_HAVE_VALGRIND
 
-# include "valgrind/valgrind.h"
+# include <valgrind/valgrind.h>
 # define EL_RUNNING_ON_VALGRIND RUNNING_ON_VALGRIND
 
 #else

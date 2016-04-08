@@ -58,7 +58,7 @@ const char* ElErrorString( ElError error );
 } // extern "C"
 #endif
 
-#include "El/core/Element.h"
+#include <El/core/Element.h>
 
 #ifdef __cplusplus
 extern "C" {

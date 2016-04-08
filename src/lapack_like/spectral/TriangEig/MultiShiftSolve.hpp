@@ -423,8 +423,6 @@ MultiShiftSolve
     Ones( scales, n, 1 );
     scalesUpdate_VR_STAR.Resize( n, 1 );
 
-    const Int XLocalWidth = X.LocalWidth();
-    
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);

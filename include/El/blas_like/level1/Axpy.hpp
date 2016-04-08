@@ -9,7 +9,7 @@
 #ifndef EL_BLAS_AXPY_HPP
 #define EL_BLAS_AXPY_HPP
 
-#include "./Axpy/util.hpp"
+#include <El/blas_like/level1/Axpy/util.hpp>
 
 namespace El {
 

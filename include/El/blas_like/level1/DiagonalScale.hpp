@@ -101,7 +101,7 @@ void DiagonalScale
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
         DiagonalScale( side, orientation, d, ACast );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename TDiag,typename T>

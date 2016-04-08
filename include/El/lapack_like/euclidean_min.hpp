@@ -9,7 +9,7 @@
 #ifndef EL_EUCLIDEANMIN_HPP
 #define EL_EUCLIDEANMIN_HPP
 
-#include "El/lapack_like/factor.hpp"
+#include <El/lapack_like/factor.hpp>
 
 namespace El {
 

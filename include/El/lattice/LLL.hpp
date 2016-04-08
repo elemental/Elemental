@@ -172,7 +172,7 @@ Base<F> LogVolume( const Matrix<F>& R )
 
 } // namespace El
 
-#include "El/lattice/LLL/Left.hpp"
+#include <El/lattice/LLL/Left.hpp>
 
 namespace El {
 

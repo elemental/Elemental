@@ -299,7 +299,7 @@ BigInt& BigInt::operator+=( const long long int& a )
     }
     else
     {
-        if( -a <= static_cast<unsigned long>(ULONG_MAX) )
+        if( -a <= static_cast<long>(ULONG_MAX) )
         {
             *this += static_cast<unsigned long>(-a);
         }

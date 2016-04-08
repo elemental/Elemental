@@ -27,7 +27,7 @@ inline void RepeatedSquareMod
 {
     double twoLog = Log(2.);
     unsigned exponent = unsigned(nLog/twoLog);
-    for( Int i=0; i<exponent; ++i )
+    for( unsigned i=0; i<exponent; ++i )
     {
         a *= a;
         a %= n;
@@ -80,38 +80,43 @@ BigInt StageOne
         BigInt& a,
         DynamicSieve<TSieve,TSieveSmall>& sieve,
         bool separateOdd,
-        TSieve smooth1,
+        TSieve primeBound,
   const PollardPMinusOneCtrl<TSieve>& ctrl )
 {
     const BigInt& one = BigIntOne();
 
-    // Ensure that we have sieved at least up until smooth1
-    bool neededStage1Sieving = ( sieve.oddPrimes.back() < smooth1 );
+    // Ensure that we have sieved at least up until primeBound
+    bool neededStage1Sieving = ( sieve.oddPrimes.back() < primeBound );
     if( ctrl.progress )
     {
         if( neededStage1Sieving )
             Output
-            ("Updating sieve from ",sieve.oddPrimes.back()," to ",smooth1);
+            ("Updating sieve from ",sieve.oddPrimes.back()," to ",primeBound);
         else
             Output("Stage 1 sieve was already sufficient");
     }
-    sieve.Generate( smooth1 );
-    //if( ctrl.progress && neededStage1Sieving )
-    if( ctrl.progress )
+    sieve.Generate( primeBound );
+    if( ctrl.progress && neededStage1Sieving )
         Output("Done sieving for stage 1");
 
     double nLog = double(Log(BigFloat(n)));
-    if( !separateOdd )
+    if( !separateOdd && !ctrl.jumpstart1 )
     {
         RepeatedSquareMod( a, n, nLog );
     }
-    auto smooth1End = 
-      std::upper_bound
-      ( sieve.oddPrimes.begin(),
-        sieve.oddPrimes.end(),
-        smooth1 );
+    auto oddPrimeBeg = sieve.oddPrimes.begin();
+    if( ctrl.jumpstart1 )
+    {
+        // Start at the first odd prime >= ctrl.start1
+        oddPrimeBeg =
+          std::lower_bound
+          ( oddPrimeBeg, sieve.oddPrimes.end(), ctrl.start1 );
+    }
+    // We stop just before the last prime *greater* than primeBound
+    auto oddPrimeEnd = 
+      std::upper_bound( oddPrimeBeg, sieve.oddPrimes.end(), primeBound );
     RepeatedPowModRange
-    ( a, sieve.oddPrimes.begin(), smooth1End, n, nLog,
+    ( a, oddPrimeBeg, oddPrimeEnd, n, nLog,
       ctrl.checkpoint, ctrl.checkpointFreq );
     if( ctrl.progress )
         Output("Done with stage-1 exponentiation");
@@ -137,7 +142,7 @@ BigInt StageOne
             a *= a;
             a %= n;
 
-            //gcd = GCD( a-1, n );
+            // gcd = GCD( a-1, n );
             tmp = a;
             tmp -= 1;
             GCD( tmp, n, gcd );
@@ -153,26 +158,25 @@ BigInt StageOne
     return gcd;
 }
 
-// TODO: Allow for jumpstarting
 // NOTE: Returns the GCD of stage 1 and overwrites a with a power of a
 template<typename TSieve,typename TSieveSmall>
 BigInt StageTwo
 ( const BigInt& n,
         BigInt& a,
         DynamicSieve<TSieve,TSieveSmall>& sieve,
-        TSieve smooth1,
-        TSieve smooth2,
+        TSieve previousBound,
+        TSieve newBound,
   const PollardPMinusOneCtrl<TSieve>& ctrl )
 {
     const BigInt& one = BigIntOne();
-    sieve.SetLowerBound( smooth1+1 );
+    sieve.SetLowerBound( previousBound+1 );
 
     BigInt diffPower, tmp, gcd;
 
     Int delayCounter=1;
     TSieve p, pLast=sieve.NextPrime();
     std::map<TSieve,BigInt> diffPowers;
-    while( pLast <= smooth2 )
+    while( pLast <= newBound )
     {
         p = sieve.NextPrime();
         TSieve diff = p - pLast;
@@ -227,11 +231,8 @@ BigInt FindFactor
         DynamicSieve<TSieve,TSieveSmall>& sieve,
   const PollardPMinusOneCtrl<TSieve>& ctrl )
 {
-    const BigInt& zero = BigIntZero();
     const BigInt& one = BigIntOne();
-
-    const double twoLog = Log( 2. );
-    const double nLog = double( Log( BigFloat(n) ) );
+    const BigInt& two = BigIntTwo();
 
     TSieve smooth1 = ctrl.smooth1;
     TSieve smooth2 = ctrl.smooth2;
@@ -247,12 +248,11 @@ BigInt FindFactor
     BigInt gcd, tmp, diffPower;
     while( true )
     {
-        // Uniformly select a in (Z/(n))*
-        // (alternatively, we could set a=2)
-        BigInt a = SampleUniform( zero, n );
+        // Uniformly select a in (Z/(n))* \ {1}
+        BigInt a = SampleUniform( two, n );
         while( GCD( a, n ) != one )
         {
-            a = SampleUniform( zero, n ); 
+            a = SampleUniform( two, n ); 
         }
 
         gcd = StageOne( n, a, sieve, separateOdd, smooth1, ctrl );

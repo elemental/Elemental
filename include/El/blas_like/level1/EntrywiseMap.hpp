@@ -108,7 +108,7 @@ void EntrywiseMap
           AProx.AlignWith( B.DistData() ); \
           Copy( A, AProx ); \
           EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
-        #include "El/macros/GuardAndPayload.h"
+        #include <El/macros/GuardAndPayload.h>
         #undef GUARD
         #undef PAYLOAD
     }
@@ -137,7 +137,7 @@ void EntrywiseMap
           AProx.AlignWith( B.DistData() ); \
           Copy( A, AProx ); \
           EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
-        #include "El/macros/GuardAndPayload.h"
+        #include <El/macros/GuardAndPayload.h>
         #undef GUARD
         #undef PAYLOAD
     }

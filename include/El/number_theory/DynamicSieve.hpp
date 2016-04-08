@@ -45,7 +45,6 @@ DynamicSieve<T,TSmall>::DynamicSieve
 
     segmentSize_ = segmentSize;
 
-    T numPrimes = oddPrimes.size();
     segmentTable_.resize( segmentSize );
 
     // Initialize the sieve table
