@@ -21,9 +21,10 @@ ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
     ctrl->variant = EL_LLL_NORMAL;
     ctrl->recursive = false;
     ctrl->cutoff = 10;
-	ctrl->rightLooking = false;
-	ctrl->precisionFudge = 2.0f;
-	ctrl->givensBlockSize = 4;
+    ctrl->rightLooking = false;
+    ctrl->precisionFudge = 2.0f;
+    ctrl->givensBlockSize = 4;
+    ctrl->minColThresh = 0;
     ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
@@ -46,9 +47,10 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ctrl->variant = EL_LLL_NORMAL;
     ctrl->recursive = false;
     ctrl->cutoff = 10;
-	ctrl->rightLooking = false;
-	ctrl->precisionFudge = 2;
-	ctrl->givensBlockSize = 4;
+    ctrl->rightLooking = false;
+    ctrl->precisionFudge = 2;
+    ctrl->givensBlockSize = 4;
+    ctrl->minColThresh = 0;
     ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;

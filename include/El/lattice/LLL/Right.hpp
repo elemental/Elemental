@@ -132,6 +132,9 @@ void RightNegateRow
   Int GivensLastCol, 
   bool time )
 {
+    if ( time )
+        negateRowTimer.Start();
+
     DEBUG_ONLY(CSE cse("lll::RightNegateRow"))
     typedef Base<F> Real;
     const Int n = QR.Width();
@@ -154,6 +157,9 @@ void RightNegateRow
             }
         }
     }
+	
+    if ( time )
+        negateRowTimer.Stop();
 }
 
 // Put the k'th column of B into the k'th column of QR and then rotate
@@ -298,7 +304,11 @@ bool RightStep
         else
             lll::RightNegateRow( k, QR, GivensBlock, GivensFirstCol, GivensLastCol, ctrl.time );
 
-        const Base<Z> oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+        Matrix<F> vec;
+        auto bcol = B(ALL, IR(k));
+        Copy(bcol, vec);
+        const Real oldNorm = El::FrobeniusNorm(vec);
+//        const Base<Z> oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
 //        if( !limits::IsFinite(oldNorm) )
 //            RuntimeError("Encountered an unbounded norm; increase precision");
 //        if( oldNorm > Real(1)/eps )
@@ -386,7 +396,7 @@ bool RightStep
                 updateCol = true;
                 
                 const float nonzeroRatio = float(numNonzero)/float(k); 
-                if( nonzeroRatio >= ctrl.blockingThresh )
+                if( nonzeroRatio >= ctrl.blockingThresh && k >= ctrl.minColThresh )
                 {
                     vector<Z> xzBuf(k);
                     // Need array of type Z
@@ -425,7 +435,10 @@ bool RightStep
                 }
             }
         }
-        const Base<Z> newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+        bcol = B(ALL, IR(k));
+        Copy(bcol, vec);
+        const Real newNorm = El::FrobeniusNorm(vec);
+//        const Base<Z> newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )
             roundTimer.Stop();
 //        if( !limits::IsFinite(newNorm) )
@@ -441,6 +454,7 @@ bool RightStep
             Output
             ("  Reorthogonalizing with k=",k,
              " since oldNorm=",oldNorm," and newNorm=",newNorm);
+
     }
     if( useHouseholder )
         lll::RightHouseholderStep( k, QR, t, d, ctrl.time );
@@ -479,6 +493,7 @@ LLLInfo<Base<F>> RightAlg
         copyGivensTimer.Reset();
         formGivensTimer.Reset();
         colNormTimer.Reset();
+        negateRowTimer.Reset();
         LLLTimer.Reset();
         
         LLLTimer.Start();
@@ -508,7 +523,9 @@ LLLInfo<Base<F>> RightAlg
     for (Int i=0; i<n; i++)
     {
         auto col = B( ALL, IR(i) );
-        colNorms.Set( i, 0, Real(El::FrobeniusNorm(col)) );
+        Matrix<F> vec;
+        Copy(col, vec);
+        colNorms.Set( i, 0, El::FrobeniusNorm(vec) );
     }
 
     if( ctrl.time )
@@ -629,7 +646,9 @@ LLLInfo<Base<F>> RightAlg
                 
             // Update column norm
             auto col = B( ALL, IR(k) );
-            colNorms.Set( k, 0, Real(El::FrobeniusNorm(col)) );
+            Matrix<F> vec;
+            Copy(col, vec);
+            colNorms.Set( k, 0, El::FrobeniusNorm(vec) );
             
             auto rCol = QR( IR(0,k+1), IR(k) );
             Base<F> rnorm = El::FrobeniusNorm(rCol);
@@ -686,6 +705,20 @@ LLLInfo<Base<F>> RightAlg
                 
                 if ( ctrl.time )
                     formQRTimer.Stop();
+					
+				// Check if size reduction successful
+				bool repeat = false;
+				for (Int i = k-1; i >= 0; --i)
+				{
+					F chi = QR.Get(i,k)/QR.Get(i,i);
+					if (Abs(chi) > ctrl.eta)
+					{
+						repeat = true;
+						break;
+					}
+				}
+				if (repeat)
+					continue;
             }
         }
         
@@ -879,28 +912,19 @@ LLLInfo<Base<F>> RightAlg
         Output("  Copy Givens time:       ",copyGivensTimer.Total());
         Output("  Form Givens time:       ",formGivensTimer.Total());
         Output("  ColNorm time:           ",colNormTimer.Total());
+        Output("  NegateRow time:         ",negateRowTimer.Total());
         Output("Total LLL time:           ",LLLTimer.Total());
     }
 
-	LLLInfo<Base<F>> info;
-	if (!lll::IsLLLReduced(B, QR, t, d, ctrl, nullity))
-	{
-		Output("Rerunning LLL");
-		info = lll::RightAlg( B, U, QR, t, d, formU, ctrl );
-	}
-	else
-	{
-		Output("Successfully finished");
-		std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
-		Real logVol = lll::LogVolume(QR);
-
-		info.delta = achieved.first;
-		info.eta = achieved.second;
-		info.rank = n-nullity;
-		info.nullity = nullity;
-		info.numSwaps = numSwaps;
-		info.logVol = logVol;
-	}
+    LLLInfo<Base<F>> info;
+    std::pair<Real,Real> achieved = lll::Achieved(QR,ctrl);
+    Real logVol = lll::LogVolume(QR);
+    info.delta = achieved.first;
+    info.eta = achieved.second;
+    info.rank = n-nullity;
+    info.nullity = nullity;
+    info.numSwaps = numSwaps;
+    info.logVol = logVol;
 	
     return info;
 }
