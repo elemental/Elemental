@@ -44,7 +44,6 @@ void TriangEig
         ElementalMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CSE cse("TriangEig"))
-    const Int m = UPre.Height();
       
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
@@ -65,11 +64,10 @@ void TriangEig
     SetDiagonal( X, scales );
     
     // Normalize eigenvectors
-    for( Int j=1; j<m; ++j )
-    {
-        auto xj = X( IR(0,j+1), IR(j) );
-        xj *= 1/Nrm2(xj);
-    }
+    // TODO: Exploit the upper-triangular structure
+    DistMatrix<Base<F>,MR,STAR> colNorms(g);
+    ColumnTwoNorms( X, colNorms );
+    DiagonalSolve( RIGHT, NORMAL, colNorms, X );
 }
 
 #define PROTO(F) \

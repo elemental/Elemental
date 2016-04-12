@@ -342,7 +342,6 @@ inline BigInt PollardRho
     // for a concise overview of the algorithm.
     //
     BigInt x=0;
-    const Unsigned numUnique = totientUniqueFactors.size();
     for( Unsigned pIndex=0; pIndex<totientUniqueFactors.size(); ++pIndex )
     {
         const BigInt& p = totientUniqueFactors[pIndex];

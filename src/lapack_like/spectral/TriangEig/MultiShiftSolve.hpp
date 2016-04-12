@@ -231,6 +231,210 @@ MultiShiftDiagonalBlockSolve
     SetDiagonal( U, diag );
 }
 
+template<typename F>
+void
+MultiShiftDiagonalBlockSolve
+(       DistMatrix<F,STAR,STAR>& U,
+  const DistMatrix<F,VR,STAR>& shifts,
+        DistMatrix<F,STAR,VR>& X,
+        DistMatrix<F,VR,STAR>& scales )
+{
+    typedef Base<F> Real;
+    DEBUG_ONLY(
+      CSE cse("triang_eig::MultiShiftDiagonalBlockSolve");
+      if( U.Height() != U.Width() )
+          LogicError("Triangular matrix must be square");
+      if( U.Width() != X.Height() )
+          LogicError("Matrix dimensions do not match");
+      if( shifts.Height() != X.Width() )
+          LogicError("Incompatible number of shifts");
+      AssertSameGrids( U, shifts, X, scales );
+    )
+
+          Matrix<F>& ULoc = U.Matrix();
+    const Matrix<F>& shiftsLoc = shifts.LockedMatrix();
+          Matrix<F>& XLoc = X.Matrix();
+          Matrix<F>& scalesLoc = scales.Matrix();
+
+    auto diag = GetDiagonal(ULoc);
+    const Int n = U.Height();
+
+    auto overflowPair = OverflowParameters<Real>();
+    const Real smallNum = overflowPair.first;
+    const Real bigNum = overflowPair.second;
+    
+    const Real oneHalf = Real(1)/Real(2);
+    const Real oneQuarter = Real(1)/Real(4);
+
+    const F* UBuf = U.LockedBuffer();
+    const Int ULDim = U.LDim();
+
+    // Default scale is 1
+    const Int numShifts = shifts.Height();
+    Ones( scales, numShifts, 1 );
+    
+    // Compute infinity norms of columns of U (excluding diagonal)
+    Matrix<Real> cNorm( n, 1 );
+    Real* cNormBuf = cNorm.Buffer();
+    cNormBuf[0] = Real(0);
+    for( Int j=1; j<n; ++j )
+    {
+        //cNormBuf[j] = MaxNorm( ULoc(IR(0,j),IR(j)) );
+        cNormBuf[j] = 0;
+        for( Int i=0; i<j; ++i )
+            cNormBuf[j] = Max( cNormBuf[j], Abs(UBuf[i+j*ULDim]) );
+    }
+
+    // Iterate through RHS's (skipping the first shift)
+    const Int numLocalShifts = shifts.LocalHeight();
+    for( Int jLoc=0; jLoc<numLocalShifts; ++jLoc )
+    {
+        const Int j = shifts.GlobalRow(jLoc);
+        if( j == 0 )
+            continue;
+        const Int xHeight = Min(n,j);
+
+        // Initialize triangular system
+        // TODO: Only modify the first xHeight entries of the diagonal
+        SetDiagonal( ULoc, diag );
+        ShiftDiagonal( ULoc, -shiftsLoc.Get(jLoc,0) );
+        auto xj = XLoc( IR(0,xHeight), IR(jLoc) );
+        Real scales_j = Real(1);
+
+        F* xjBuf = xj.Buffer();
+        
+        // Determine largest entry of RHS
+        Real xjMax = MaxNorm( xj );
+        if( xjMax >= bigNum )
+        {
+            const Real s = oneHalf*bigNum/xjMax;
+            xj *= s;
+            xjMax *= s;
+            scales_j *= s;
+        }
+        if( xjMax <= smallNum )
+        {
+            continue;
+        }
+
+        // Estimate growth of entries in triangular solve
+        //   Note: See "Robust Triangular Solves for Use in Condition
+        //   Estimation" by Edward Anderson for explanation of bounds.
+        Real invGi = 1/xjMax;
+        Real invMi = invGi;
+        for( Int i=xHeight-1; i>=0; --i )
+        {
+            const Real absUii = SafeAbs( UBuf[i+i*ULDim] );
+            if( invGi<=smallNum || invMi<=smallNum || absUii<=smallNum )
+            {
+                invGi = 0;
+                break;
+            }
+            invMi = Min( invMi, absUii*invGi );
+            if( i > 0 )
+            {
+                invGi *= absUii/(absUii+cNormBuf[i]);
+            }
+        }
+        invGi = Min( invGi, invMi );
+
+        if( invGi > smallNum )
+        {
+            // Call TRSV since estimated growth is not too large
+            blas::Trsv( 'U', 'N', 'N', xHeight, UBuf, ULDim, xjBuf, 1 );
+        }
+        else
+        {
+            // Perform backward substitution since estimated growth is large
+            for( Int i=xHeight-1; i>=0; --i )
+            {
+                // Perform division and check for overflow
+                const F Uii = UBuf[i+i*ULDim];
+                const Real absUii = SafeAbs( Uii );
+                F Xij = xjBuf[i];
+                Real absXij = SafeAbs( Xij );
+                if( absUii > smallNum )
+                {
+                    if( absUii<=1 && absXij>=absUii*bigNum )
+                    {
+                        // Set overflowing entry to 0.5/U[i,i]
+                        const Real s = oneHalf/absXij;
+                        Xij *= s;
+                        xj *= s;
+                        xjMax *= s;
+                        scales_j *= s;
+                    }
+                    Xij /= Uii;
+                }
+                else if( absUii > 0 )
+                {
+                    if( absXij >= absUii*bigNum )
+                    {
+                        // Set overflowing entry to bigNum/2
+                        const Real s = oneHalf*absUii*bigNum/absXij;
+                        Xij *= s;
+                        xj *= s;
+                        xjMax *= s;
+                        scales_j *= s;
+                    }
+                    Xij /= Uii;
+                }
+                else
+                {
+                    // TODO: maybe this tolerance should be loosened to
+                    //   | Xij | >= || A || * eps
+                    if( absXij >= smallNum )
+                    {
+                        Xij = F(1);
+                        Zero( xj );
+                        xjMax = Real(0);
+                        scales_j = Real(0);
+                    }
+                }
+                xjBuf[i] = Xij;
+                
+                if( i > 0 )
+                {
+
+                    // Check for possible overflows in AXPY
+                    // Note: G(i+1) <= G(i) + | Xij | * cNorm(i)
+                    absXij = SafeAbs( Xij );
+                    const Real cNorm_i = cNormBuf[i];
+                    if( absXij >= Real(1) &&
+                        cNorm_i >= (bigNum-xjMax)/absXij )
+                    {
+                        const Real s = oneQuarter/absXij;
+                        Xij *= s;
+                        xj *= s;
+                        xjMax *= s;
+                        absXij *= s;
+                        scales_j *= s;
+                    }
+                    else if( absXij < Real(1) &&
+                             absXij*cNorm_i >= bigNum-xjMax )
+                    {
+                        const Real s = oneQuarter;
+                        Xij *= s;
+                        xj *= s;
+                        xjMax *= s;
+                        absXij *= s;
+                        scales_j *= s;
+                    }
+                    xjMax += absXij*cNorm_i;
+
+                    // AXPY X(0:i,j) -= Xij*U(0:i,i)
+                    blas::Axpy( i, -Xij, &UBuf[i*ULDim], 1, xjBuf, 1 );
+                }
+            }
+        }
+
+        scalesLoc.Set( jLoc, 0, scales_j );
+    }
+
+    // Reset matrix diagonal
+    SetDiagonal( ULoc, diag );
+}
+
 /*   Note: See "Robust Triangular Solves for Use in Condition
  *   Estimation" by Edward Anderson for notation and bounds.
  *   Entries in U are assumed to be less (in magnitude) than 
@@ -318,15 +522,15 @@ MultiShiftSolve
         for( Int jActive=0; jActive<nActive; ++jActive )
         {
             const Int j = jActive + k;
-            const Real sj = scalesUpdate.GetRealPart(jActive,0);
-            if( sj < Real(1) )
+            const Real sigma = scalesUpdate.GetRealPart(jActive,0);
+            if( sigma < Real(1) )
             {
-                scales.Set( j, 0, sj*scales.Get(j,0) );
+                scales.Set( j, 0, sigma*scales.Get(j,0) );
                 auto x0j = X( IR(0,k),    IR(j) );
                 auto x2j = X( IR(k+nb,j), IR(j) );
-                x0j *= sj;
-                x2j *= sj;
-                XMax.Set( j, 0, sj*XMax.Get(j,0) );
+                x0j *= sigma;
+                x2j *= sigma;
+                XMax.Set( j, 0, sigma*XMax.Get(j,0) );
             }
         }
 
@@ -418,10 +622,13 @@ MultiShiftSolve
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
     DistMatrix<F,VR,  STAR> scalesUpdate_VR_STAR(g);
-    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR( X.Grid() );
+    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR(g);
 
     Ones( scales, n, 1 );
     scalesUpdate_VR_STAR.Resize( n, 1 );
+
+    // TODO: Intitialize XMax with the largest entry of each RHS
+    // TODO: Rescale X if any of the columns are too large
 
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -448,8 +655,8 @@ MultiShiftSolve
         scalesUpdate_VR_STAR.AlignWith( shiftsActive );
         scalesUpdate_VR_STAR.Resize( shiftsActive.Height(), 1 );
         MultiShiftDiagonalBlockSolve
-        ( U11_STAR_STAR.Matrix(), shiftsActive.LockedMatrix(), 
-          X1_STAR_VR.Matrix(), scalesUpdate_VR_STAR.Matrix() );
+        ( U11_STAR_STAR, shiftsActive, X1_STAR_VR, scalesUpdate_VR_STAR );
+
         X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1 = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
@@ -467,19 +674,26 @@ MultiShiftSolve
                 // X1 has already been rescaled, but X0 and X2 have not
                 blas::Scal
                 ( X0.LocalHeight(), sigma, X0.Buffer(0,jActiveLoc), 1 );
-                // TODO: Delay rescaling of X2 until the end since it is no
-                //       longer used within this loop?
                 blas::Scal
                 ( X2.LocalHeight(), sigma, X2.Buffer(0,jActiveLoc), 1 );
+
+                // TODO: Update XMax
+            }
+            else
+            {
+                // Force the value to one so the diagonal scale does not
+                // have an effect. This is somewhat of a hack.
+                scalesUpdate_MR_STAR.Set(jActiveLoc,0,F(1));
             }
         }
         auto scalesActive = scales(IR(k,END),ALL);
-        DiagonalScale( LEFT,  NORMAL, scalesUpdate_VR_STAR, scalesActive );
+        DiagonalScale( LEFT,  NORMAL, scalesUpdate_MR_STAR, scalesActive );
 
-        // TODO: Check for overflow
-        
         if( k > 0 )
         {
+            // TODO: Compute infinity norms of columns in U01
+            // TODO: Check for possible overflows in GEMM
+
             // Update RHS with GEMM
             // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
             U01_MC_STAR.AlignWith( X0 );
