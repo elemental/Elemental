@@ -21,26 +21,26 @@ bool IsLLLReduced
   const LLLCtrl<Base<F>>& ctrl,
   Int nullity )
 {
-	typedef Base<F> Real;
+    typedef Base<F> Real;
     const Int m = QR.Height();
     const Int n = QR.Width();
     const Int minDim = Min(m,n);
-	
+    
     Copy(B, QR);
     El::QR(QR, t, d);
-	for (Int i = 0; i < minDim-nullity-1; ++i)
-	{
-		F rho_k_k = QR.Get(i,i);
-		F rho_kp1_kp1 = QR.Get(i+1,i+1);
-		F rho_k_kp1 = QR.Get(i,i+1);
-		
-		const Real leftTerm = Sqrt(ctrl.delta)*rho_k_k;
+    for (Int i = 0; i < minDim-nullity-1; ++i)
+    {
+        F rho_k_k = QR.Get(i,i);
+        F rho_kp1_kp1 = QR.Get(i+1,i+1);
+        F rho_k_kp1 = QR.Get(i,i+1);
+        
+        const Real leftTerm = Sqrt(ctrl.delta)*rho_k_k;
         const Real rightTerm = lapack::SafeNorm(rho_kp1_kp1,rho_k_kp1);
 
         if( leftTerm > rightTerm )
-			return false;
-	}
-	return true;
+            return false;
+    }
+    return true;
 }
 
 template<typename F>
@@ -99,13 +99,13 @@ void RightGivensStep
     //     [y z]   [0 v]
     F x = QR.Get(k,k); F y = QR.Get(k+1,k);
     F w = QR.Get(k,k+1); F z = QR.Get(k+1,k+1);
-	
+    
     lapack::Givens( x, y, &c, &s );
     Matrix<F> G1(2,2);
     c = Sgn(RealPart(x))*Abs(c);
     s = Sgn(RealPart(y))*Abs(s);
     Real sgn = Sgn(RealPart(-Conj(s)*w+c*z));
-	
+    
     G1.Set(0,0,c);
     G1.Set(0,1,s);
     G1.Set(1,0,-sgn*Conj(s));
@@ -157,7 +157,7 @@ void RightNegateRow
             }
         }
     }
-	
+    
     if ( time )
         negateRowTimer.Stop();
 }
@@ -303,18 +303,19 @@ bool RightStep
             lll::RightExpandQR( k, QR, t, d, ctrl.numOrthog, hPanelStart, ctrl.time);
         else
             lll::RightNegateRow( k, QR, GivensBlock, GivensFirstCol, GivensLastCol, ctrl.time );
+            
+//        Matrix<F> vec;
+//        auto bcol = B(ALL, IR(k));
+//        Copy(bcol, vec);
+//        const Real oldNorm = El::FrobeniusNorm(vec);
 
-        Matrix<F> vec;
-        auto bcol = B(ALL, IR(k));
-        Copy(bcol, vec);
-        const Real oldNorm = El::FrobeniusNorm(vec);
 //        const Base<Z> oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
 //        if( !limits::IsFinite(oldNorm) )
 //            RuntimeError("Encountered an unbounded norm; increase precision");
 //        if( oldNorm > Real(1)/eps )
 //            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
-        if( oldNorm <= ctrl.zeroTol )
+/*        if( oldNorm <= ctrl.zeroTol )
         {
             for( Int i=0; i<m; ++i )
                 BBuf[i+k*BLDim] = 0;
@@ -329,7 +330,7 @@ bool RightStep
                 stepTimer.Stop();
             return true;
         }
-
+*/
         if( ctrl.time )
             roundTimer.Start();
         if( ctrl.variant == LLL_WEAK )
@@ -435,10 +436,11 @@ bool RightStep
                 }
             }
         }
-        bcol = B(ALL, IR(k));
-        Copy(bcol, vec);
-        const Real newNorm = El::FrobeniusNorm(vec);
+//        bcol = B(ALL, IR(k));
+//        Copy(bcol, vec);
+//        const Real newNorm = El::FrobeniusNorm(vec);
 //        const Base<Z> newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+
         if( ctrl.time )
             roundTimer.Stop();
 //        if( !limits::IsFinite(newNorm) )
@@ -446,14 +448,14 @@ bool RightStep
 //        if( newNorm > Real(1)/eps )
 //            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
-        if( newNorm > ctrl.reorthogTol*oldNorm )
-        {
+//        if( newNorm > ctrl.reorthogTol*oldNorm )
+//        {
             break;
-        }
-        else if( ctrl.progress )
-            Output
-            ("  Reorthogonalizing with k=",k,
-             " since oldNorm=",oldNorm," and newNorm=",newNorm);
+//        }
+//        else if( ctrl.progress )
+//            Output
+//            ("  Reorthogonalizing with k=",k,
+//             " since oldNorm=",oldNorm," and newNorm=",newNorm);
 
     }
     if( useHouseholder )
@@ -515,7 +517,7 @@ LLLInfo<Base<F>> RightAlg
     Copy(B, QR);
     Matrix<Base<F>> colNorms;
     Zeros( colNorms, n, 1 );
-	
+    
     if( ctrl.time )
         colNormTimer.Start();
         
@@ -618,11 +620,11 @@ LLLInfo<Base<F>> RightAlg
         
             hPanelStart = hPanelEnd;
         }
-    
+		
         updateCol = false;
         bool zeroVector = lll::RightStep( k, B, U, QR, t, d, formU, 
             hPanelStart, GivensBlock, GivensFirstCol, GivensLastCol, useHouseholder, ctrl, updateCol );
-        
+
         if( zeroVector )
         {
             ColSwap( B, k, (n-1)-nullity );
@@ -705,20 +707,29 @@ LLLInfo<Base<F>> RightAlg
                 
                 if ( ctrl.time )
                     formQRTimer.Stop();
-					
-				// Check if size reduction successful
-				bool repeat = false;
-				for (Int i = k-1; i >= 0; --i)
-				{
-					F chi = QR.Get(i,k)/QR.Get(i,i);
-					if (Abs(chi) > ctrl.eta)
-					{
-						repeat = true;
-						break;
-					}
-				}
-				if (repeat)
-					continue;
+            
+                // Check if size reduction successful
+                bool repeat = false;
+                for (Int i = k-1; i >= 0; --i)
+                {
+                    F chi = QR.Get(i,k)/QR.Get(i,i);
+                    if (Abs(chi) > ctrl.eta)
+                    {
+                        repeat = true;
+                        break;
+                    }
+                }
+                if (repeat)
+                {
+                    if (ctrl.progress)
+                        Output("Redoing size reduction");
+                    if (useHouseholder)
+                    {
+                        hPanelEnd++;
+                        useHouseholder = false;
+                    }
+                    continue;
+                }                    
             }
         }
         
@@ -925,7 +936,7 @@ LLLInfo<Base<F>> RightAlg
     info.nullity = nullity;
     info.numSwaps = numSwaps;
     info.logVol = logVol;
-	
+    
     return info;
 }
 
