@@ -242,6 +242,25 @@ F Sqrt( const F& alpha ) { return std::sqrt(alpha); }
 template<typename F,typename>
 void Sqrt( const F& alpha, F& alphaSqrt ) { alphaSqrt = Sqrt(alpha); }
 
+template<typename Integer,typename>
+Integer ISqrt( const Integer& alpha )
+{
+    if( alpha == 0 )
+        return 0;
+
+    // Update an initial guess
+    Integer alphaSqrt = std::sqrt( double(alpha) );
+
+    // Correct the initial guess under the assumption that it was close;
+    // this could likely be substantially improved
+    while( (alphaSqrt+1)*(alphaSqrt+1) <= alpha )
+        ++alphaSqrt;
+    while( (alphaSqrt-1)*(alphaSqrt-1) >= alpha )
+        --alphaSqrt;
+
+    return alphaSqrt;
+}
+
 // Trigonometric
 // =============
 template<typename F,typename>

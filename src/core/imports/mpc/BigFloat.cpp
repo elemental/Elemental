@@ -1044,19 +1044,19 @@ BigFloat operator>>( const BigFloat& a, const long unsigned& b )
 { return BigFloat(a) >>= b; }
 
 bool operator<( const BigFloat& a, const BigFloat& b )
-{ return mpfr_less_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_less_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator>( const BigFloat& a, const BigFloat& b )
-{ return mpfr_greater_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_greater_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator<=( const BigFloat& a, const BigFloat& b )
-{ return mpfr_lessequal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_lessequal_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator>=( const BigFloat& a, const BigFloat& b )
-{ return mpfr_greaterequal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_greaterequal_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator==( const BigFloat& a, const BigFloat& b )
-{ return mpfr_equal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_equal_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator!=( const BigFloat& a, const BigFloat& b )
 { return !(a==b); }

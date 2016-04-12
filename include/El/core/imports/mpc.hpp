@@ -157,46 +157,6 @@ public:
           byte* ThinSerialize( byte* buf ) const;
           byte* ThinDeserialize( byte* buf );
     const byte* ThinDeserialize( const byte* buf );
-
-    friend BigInt operator%( const BigInt& a, const BigInt& b );
-    friend BigInt operator%( const BigInt& a, const unsigned& b );
-    friend BigInt operator%( const BigInt& a, const unsigned long& b );
-    friend BigInt operator%( const BigInt& a, const unsigned long long& b );
-    friend bool operator<( const BigInt& a, const BigInt& b );
-    friend bool operator<( const BigInt& a, const int& b );
-    friend bool operator<( const BigInt& a, const long int& b );
-    friend bool operator<( const BigInt& a, const long long int& b );
-    friend bool operator<( const int& a, const BigInt& b );
-    friend bool operator<( const long int& a, const BigInt& b );
-    friend bool operator<( const long long int& a, const BigInt& b );
-    friend bool operator>( const BigInt& a, const BigInt& b );
-    friend bool operator>( const BigInt& a, const int& b );
-    friend bool operator>( const BigInt& a, const long int& b );
-    friend bool operator>( const BigInt& a, const long long int& b );
-    friend bool operator>( const int& a, const BigInt& b );
-    friend bool operator>( const long int& a, const BigInt& b );
-    friend bool operator>( const long long int& a, const BigInt& b );
-    friend bool operator<=( const BigInt& a, const BigInt& b );
-    friend bool operator<=( const BigInt& a, const int& b );
-    friend bool operator<=( const BigInt& a, const long int& b );
-    friend bool operator<=( const BigInt& a, const long long int& b );
-    friend bool operator<=( const int& a, const BigInt& b );
-    friend bool operator<=( const long int& a, const BigInt& b );
-    friend bool operator<=( const long long int& a, const BigInt& b );
-    friend bool operator>=( const BigInt& a, const BigInt& b );
-    friend bool operator>=( const BigInt& a, const int& b );
-    friend bool operator>=( const BigInt& a, const long int& b );
-    friend bool operator>=( const BigInt& a, const long long int& b );
-    friend bool operator>=( const int& a, const BigInt& b );
-    friend bool operator>=( const long int& a, const BigInt& b );
-    friend bool operator>=( const long long int& a, const BigInt& b );
-    friend bool operator==( const BigInt& a, const BigInt& b );
-    friend bool operator==( const BigInt& a, const int& b );
-    friend bool operator==( const BigInt& a, const long int& b );
-    friend bool operator==( const BigInt& a, const long long int& b );
-    friend bool operator==( const int& a, const BigInt& b );
-    friend bool operator==( const long int& a, const BigInt& b );
-    friend bool operator==( const long long int& a, const BigInt& b );
 };
 
 BigInt operator+( const BigInt& a, const BigInt& b );
@@ -205,9 +165,9 @@ BigInt operator*( const BigInt& a, const BigInt& b );
 BigInt operator/( const BigInt& a, const BigInt& b );
 
 BigInt operator%( const BigInt& a, const BigInt& b );
-BigInt operator%( const BigInt& a, const unsigned& b );
-BigInt operator%( const BigInt& a, const unsigned long& b );
-BigInt operator%( const BigInt& a, const unsigned long long& b );
+unsigned operator%( const BigInt& a, const unsigned& b );
+unsigned long operator%( const BigInt& a, const unsigned long& b );
+unsigned long long operator%( const BigInt& a, const unsigned long long& b );
 
 BigInt operator<<( const BigInt& a, const int& b );
 BigInt operator<<( const BigInt& a, const long int& b );
@@ -444,13 +404,6 @@ public:
           byte* Serialize( byte* buf ) const;
           byte* Deserialize( byte* buf );
     const byte* Deserialize( const byte* buf );
-
-    // Comparisons with BigInt via mpfr_cmp_z?
-    friend bool operator<( const BigFloat& a, const BigFloat& b );
-    friend bool operator>( const BigFloat& a, const BigFloat& b );
-    friend bool operator<=( const BigFloat& a, const BigFloat& b );
-    friend bool operator>=( const BigFloat& a, const BigFloat& b );
-    friend bool operator==( const BigFloat& a, const BigFloat& b );
 };
 
 BigFloat operator+( const BigFloat& a, const BigFloat& b );

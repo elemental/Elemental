@@ -8,6 +8,7 @@
 */
 #include "El.hpp"
 
+using El::FortranLogical;
 using El::BlasInt;
 using El::scomplex;
 using El::dcomplex;
@@ -189,21 +190,33 @@ void EL_LAPACK(zgesvd)
 
 // Reduction to Hessenberg form
 void EL_LAPACK(sgehrd)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   float* A, const BlasInt* ldA,
-  float* tau, float* work, const BlasInt* workSize, BlasInt* info );
+  float* tau,
+  float* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(dgehrd)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   double* A, const BlasInt* ldA,
-  double* tau, double* work, const BlasInt* workSize, BlasInt* info );
+  double* tau,
+  double* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(cgehrd)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   scomplex* A, const BlasInt* ldA,
-  scomplex* tau, scomplex* work, const BlasInt* workSize, BlasInt* info );
+  scomplex* tau,
+  scomplex* work, const BlasInt* workSize,
+  BlasInt* info );
 void EL_LAPACK(zgehrd)
-( const BlasInt* n, const BlasInt* ilo, const BlasInt* ihi, 
+( const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi, 
   dcomplex* A, const BlasInt* ldA,
-  dcomplex* tau, dcomplex* work, const BlasInt* workSize, BlasInt* info );
+  dcomplex* tau,
+  dcomplex* work, const BlasInt* workSize,
+  BlasInt* info );
 
 // Generates a unitary matrix defined as the product of Householder reflectors
 void EL_LAPACK(sorghr)
@@ -268,6 +281,58 @@ void EL_LAPACK(zhseqr)
   dcomplex* Z, const BlasInt* ldZ,
   dcomplex* work, const BlasInt* workSize,
   BlasInt* info );
+
+// Compute the eigenvectors of a (quasi-)triangular matrix
+void EL_LAPACK(strevc)
+( const char* side,
+  const char* howMany,
+  const FortranLogical* select,
+  const BlasInt* n,  
+        float* T, const BlasInt* ldT, 
+        float* VL, const BlasInt* ldVL,
+        float* VR, const BlasInt* ldVR,
+  const BlasInt* mm,
+  const BlasInt* m,
+        float* work,
+  const BlasInt* info );
+void EL_LAPACK(dtrevc)
+( const char* side,
+  const char* howMany,
+  const FortranLogical* select,
+  const BlasInt* n,  
+        double* T, const BlasInt* ldT, 
+        double* VL, const BlasInt* ldVL,
+        double* VR, const BlasInt* ldVR,
+  const BlasInt* mm,
+  const BlasInt* m,
+        double* work,
+  const BlasInt* info );
+void EL_LAPACK(ctrevc)
+( const char* side,
+  const char* howMany,
+  const FortranLogical* select,
+  const BlasInt* n,  
+        scomplex* T, const BlasInt* ldT, 
+        scomplex* VL, const BlasInt* ldVL,
+        scomplex* VR, const BlasInt* ldVR,
+  const BlasInt* mm,
+  const BlasInt* m,
+        scomplex* work,
+        float* rWork,
+  const BlasInt* info );
+void EL_LAPACK(ztrevc)
+( const char* side,
+  const char* howMany,
+  const FortranLogical* select,
+  const BlasInt* n,  
+        dcomplex* T, const BlasInt* ldT, 
+        dcomplex* VL, const BlasInt* ldVL,
+        dcomplex* VR, const BlasInt* ldVR,
+  const BlasInt* mm,
+  const BlasInt* m,
+        dcomplex* work,
+        double* rWork,
+  const BlasInt* info );
 
 // Compute eigenpairs of a general matrix using the QR algorithm followed
 // by a sequence of careful triangular solves
@@ -1863,11 +1928,244 @@ void SVD( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, double* s )
         RuntimeError("zgesvd's updating process failed");
 }
 
+// Reduce a general square matrix to upper Hessenberg form
+// =======================================================
+
+void Hessenberg
+( BlasInt n,
+  float* A, BlasInt ldA,
+  float* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    float workDummy;
+    EL_LAPACK(sgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy;
+
+    // Reduce to Hessenberg form
+    vector<float> work( workSize );
+    EL_LAPACK(sgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+void Hessenberg
+( BlasInt n,
+  double* A, BlasInt ldA,
+  double* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    double workDummy;
+    EL_LAPACK(dgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy;
+
+    // Reduce to Hessenberg form
+    vector<double> work( workSize );
+    EL_LAPACK(dgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+void Hessenberg
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    scomplex workDummy;
+    EL_LAPACK(cgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy.real();
+
+    // Reduce to Hessenberg form
+    vector<scomplex> work( workSize );
+    EL_LAPACK(cgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+void Hessenberg
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    dcomplex workDummy;
+    EL_LAPACK(zgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy.real();
+
+    // Reduce to Hessenberg form
+    vector<dcomplex> work( workSize );
+    EL_LAPACK(zgehrd)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+// Generate the unitary matrix used within the reduction to Hessenberg form
+// ------------------------------------------------------------------------
+
+void HessenbergGenerateUnitary
+( BlasInt n,
+  float* A, BlasInt ldA,
+  const float* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    float workDummy;
+    EL_LAPACK(sorghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy;
+
+    // Generate the unitary matrix
+    vector<float> work( workSize );
+    EL_LAPACK(sorghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+void HessenbergGenerateUnitary
+( BlasInt n,
+  double* A, BlasInt ldA,
+  const double* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    double workDummy;
+    EL_LAPACK(dorghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy;
+
+    // Generate the unitary matrix
+    vector<double> work( workSize );
+    EL_LAPACK(dorghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+void HessenbergGenerateUnitary
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  const scomplex* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    scomplex workDummy;
+    EL_LAPACK(cunghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy.real();
+
+    // Generate the unitary matrix
+    vector<scomplex> work( workSize );
+    EL_LAPACK(cunghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+void HessenbergGenerateUnitary
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  const dcomplex* tau )
+{
+    // Query the workspace size
+    BlasInt ilo=1, ihi=n, workSize=-1, info;
+    dcomplex workDummy;
+    EL_LAPACK(zunghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      &workDummy, &workSize,
+      &info );
+    workSize = workDummy.real();
+
+    // Generate the unitary matrix
+    vector<dcomplex> work( workSize );
+    EL_LAPACK(zunghr)
+    ( &n, &ilo, &ihi,
+      A, &ldA,
+      tau,
+      work.data(), &workSize,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
 // Compute the Schur decomposition of an upper Hessenberg matrix
 // =============================================================
 
 void HessenbergSchur
-( BlasInt n, float* H, BlasInt ldH, scomplex* w, bool fullTriangle )
+( BlasInt n,
+  float* H, BlasInt ldH,
+  scomplex* w,
+  bool fullTriangle )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -1897,7 +2195,10 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( BlasInt n, double* H, BlasInt ldH, dcomplex* w, bool fullTriangle )
+( BlasInt n,
+  double* H, BlasInt ldH,
+  dcomplex* w,
+  bool fullTriangle )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -1927,7 +2228,10 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w, bool fullTriangle )
+( BlasInt n,
+  scomplex* H, BlasInt ldH,
+  scomplex* w,
+  bool fullTriangle )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -1953,7 +2257,10 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w, bool fullTriangle )
+( BlasInt n,
+  dcomplex* H, BlasInt ldH,
+  dcomplex* w,
+  bool fullTriangle )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -1979,8 +2286,12 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( BlasInt n, float* H, BlasInt ldH, scomplex* w, float* Q, BlasInt ldQ, 
-  bool fullTriangle, bool multiplyQ )
+( BlasInt n,
+  float* H, BlasInt ldH,
+  scomplex* w,
+  float* Q, BlasInt ldQ, 
+  bool fullTriangle,
+  bool multiplyQ )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -2010,8 +2321,12 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( BlasInt n, double* H, BlasInt ldH, dcomplex* w, double* Q, BlasInt ldQ, 
-  bool fullTriangle, bool multiplyQ )
+( BlasInt n,
+  double* H, BlasInt ldH,
+  dcomplex* w,
+  double* Q, BlasInt ldQ, 
+  bool fullTriangle,
+  bool multiplyQ )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -2041,8 +2356,12 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w, scomplex* Q, BlasInt ldQ,
-  bool fullTriangle, bool multiplyQ )
+( BlasInt n,
+  scomplex* H, BlasInt ldH,
+  scomplex* w,
+  scomplex* Q, BlasInt ldQ,
+  bool fullTriangle,
+  bool multiplyQ )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -2068,8 +2387,12 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w, dcomplex* Q, BlasInt ldQ,
-  bool fullTriangle, bool multiplyQ )
+( BlasInt n,
+  dcomplex* H, BlasInt ldH,
+  dcomplex* w,
+  dcomplex* Q, BlasInt ldQ,
+  bool fullTriangle,
+  bool multiplyQ )
 {
     DEBUG_ONLY(CSE cse("lapack::HessenbergSchur"))
     if( n == 0 )
@@ -2126,7 +2449,14 @@ void HessenbergEig( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w )
 // Compute the Schur decomposition of a square matrix
 // ==================================================
 
-void Schur( BlasInt n, float* A, BlasInt ldA, scomplex* w, bool fullTriangle )
+// TODO: Add timing of components
+
+void Schur
+( BlasInt n,
+  float* A, BlasInt ldA,
+  scomplex* w,
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2170,7 +2500,12 @@ void Schur( BlasInt n, float* A, BlasInt ldA, scomplex* w, bool fullTriangle )
         w[i] = El::Complex<float>(wr[i],wi[i]);
 }
 
-void Schur( BlasInt n, double* A, BlasInt ldA, dcomplex* w, bool fullTriangle )
+void Schur
+( BlasInt n,
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2215,7 +2550,11 @@ void Schur( BlasInt n, double* A, BlasInt ldA, dcomplex* w, bool fullTriangle )
 }
 
 void Schur
-( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, bool fullTriangle )
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* w,
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2255,7 +2594,11 @@ void Schur
 }
 
 void Schur
-( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, bool fullTriangle )
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* w,
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2295,8 +2638,12 @@ void Schur
 }
 
 void Schur
-( BlasInt n, float* A, BlasInt ldA, scomplex* w, float* Q, BlasInt ldQ, 
-  bool fullTriangle )
+( BlasInt n,
+  float* A, BlasInt ldA,
+  scomplex* w,
+  float* Q, BlasInt ldQ, 
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2356,8 +2703,12 @@ void Schur
 }
 
 void Schur
-( BlasInt n, double* A, BlasInt ldA, dcomplex* w, double* Q, BlasInt ldQ, 
-  bool fullTriangle )
+( BlasInt n,
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  double* Q, BlasInt ldQ, 
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2417,8 +2768,12 @@ void Schur
 }
 
 void Schur
-( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, scomplex* Q, BlasInt ldQ, 
-  bool fullTriangle )
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* w,
+  scomplex* Q, BlasInt ldQ, 
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2473,8 +2828,12 @@ void Schur
 }
 
 void Schur
-( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, dcomplex* Q, BlasInt ldQ, 
-  bool fullTriangle )
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* w,
+  dcomplex* Q, BlasInt ldQ, 
+  bool fullTriangle,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Schur"))
     if( n == 0 )
@@ -2528,34 +2887,150 @@ void Schur
         RuntimeError("chseqr's failed to compute all eigenvalues");
 }
 
+// Compute eigenvectors of an upper (quasi-)triangular matrix
+// ==========================================================
+void QuasiTriangEig
+( BlasInt n,
+  float* T, BlasInt ldT,
+  float* VR, BlasInt ldVR,
+  bool accumulate )
+{
+    char side='R';
+    char howMany = ( accumulate ? 'B' : 'A' );
+    float* VL=0;
+    BlasInt ldVL=1;
+    FortranLogical* select=0;
+    BlasInt mm=n, m=n;
+    BlasInt info;
+
+    vector<float> work(3*n);
+    EL_LAPACK(strevc)
+    ( &side, &howMany, select, &n,
+      T, &ldT,
+      VL, &ldVL,
+      VR, &ldVR,
+      &mm, &m,
+      work.data(),
+      &info );
+    if( info != 0 )
+        LogicError("Argument ",-info," had an illegal value");
+}
+
+void QuasiTriangEig
+( BlasInt n,
+  double* T, BlasInt ldT,
+  double* VR, BlasInt ldVR,
+  bool accumulate )
+{
+    char side='R';
+    char howMany = ( accumulate ? 'B' : 'A' );
+    double* VL=0;
+    BlasInt ldVL=1;
+    FortranLogical* select=0;
+    BlasInt mm=n, m=n;
+    BlasInt info;
+
+    vector<double> work(3*n);
+    EL_LAPACK(dtrevc)
+    ( &side, &howMany, select, &n,
+      T, &ldT,
+      VL, &ldVL,
+      VR, &ldVR,
+      &mm, &m,
+      work.data(),
+      &info );
+    if( info != 0 )
+        LogicError("Argument ",-info," had an illegal value");
+}
+
+void TriangEig
+( BlasInt n,
+  scomplex* T, BlasInt ldT,
+  scomplex* VR, BlasInt ldVR,
+  bool accumulate )
+{
+    char side='R';
+    char howMany = ( accumulate ? 'B' : 'A' );
+    scomplex* VL=0;
+    BlasInt ldVL=1;
+    FortranLogical* select=0;
+    BlasInt mm=n, m=n;
+    BlasInt info;
+
+    vector<scomplex> work(2*n);
+    vector<float> rWork(n);
+    EL_LAPACK(ctrevc)
+    ( &side, &howMany, select, &n,
+      T, &ldT,
+      VL, &ldVL,
+      VR, &ldVR,
+      &mm, &m,
+      work.data(), rWork.data(),
+      &info );
+    if( info != 0 )
+        LogicError("Argument ",-info," had an illegal value");
+}
+
+void TriangEig
+( BlasInt n,
+  dcomplex* T, BlasInt ldT,
+  dcomplex* VR, BlasInt ldVR,
+  bool accumulate )
+{
+    char side='R';
+    char howMany = ( accumulate ? 'B' : 'A' );
+    dcomplex* VL=0;
+    BlasInt ldVL=1;
+    FortranLogical* select=0;
+    BlasInt mm=n, m=n;
+    BlasInt info;
+
+    vector<dcomplex> work(2*n);
+    vector<double> rWork(n);
+    EL_LAPACK(ztrevc)
+    ( &side, &howMany, select, &n,
+      T, &ldT,
+      VL, &ldVL,
+      VR, &ldVR,
+      &mm, &m,
+      work.data(), rWork.data(),
+      &info );
+    if( info != 0 )
+        LogicError("Argument ",-info," had an illegal value");
+}
+
 // Compute the eigenvalues/pairs of a square matrix
 // ================================================
 
 // Eigenvalues only
 // ----------------
 
-void Eig( BlasInt n, float* A, BlasInt ldA, scomplex* w )
+void Eig( BlasInt n, float* A, BlasInt ldA, scomplex* w, bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
-    Schur( n, A, ldA, w, false );
+    bool fullTriangle = false;
+    Schur( n, A, ldA, w, fullTriangle, time );
 }
 
-void Eig( BlasInt n, double* A, BlasInt ldA, dcomplex* w )
+void Eig( BlasInt n, double* A, BlasInt ldA, dcomplex* w, bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
-    Schur( n, A, ldA, w, false );
+    bool fullTriangle = false;
+    Schur( n, A, ldA, w, fullTriangle, time );
 }
 
-void Eig( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w )
+void Eig( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
-    Schur( n, A, ldA, w, false );
+    bool fullTriangle = false;
+    Schur( n, A, ldA, w, fullTriangle, time );
 }
 
-void Eig( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w )
+void Eig( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
-    Schur( n, A, ldA, w, false );
+    bool fullTriangle = false;
+    Schur( n, A, ldA, w, fullTriangle, time );
 }
 
 // Eigenpairs
@@ -2571,7 +3046,11 @@ void Eig( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w )
 //       when the j'th and j+1'th eigenvalues are complex conjugates.
 
 void Eig
-( BlasInt n, float* A, BlasInt ldA, scomplex* w, float* XPacked, BlasInt ldX )
+( BlasInt n,
+  float* A, BlasInt ldA,
+  scomplex* w,
+  float* XPacked, BlasInt ldX,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
     const char jobVL='N', jobVR='V';
@@ -2596,7 +3075,11 @@ void Eig
 }
 
 void Eig
-( BlasInt n, double* A, BlasInt ldA, dcomplex* w, double* XPacked, BlasInt ldX )
+( BlasInt n,
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  double* XPacked, BlasInt ldX,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
     const char jobVL='N', jobVR='V';
@@ -2621,7 +3104,11 @@ void Eig
 }
 
 void Eig
-( BlasInt n, float* A, BlasInt ldA, scomplex* w, scomplex* X, BlasInt ldX )
+( BlasInt n,
+  float* A, BlasInt ldA,
+  scomplex* w,
+  scomplex* X, BlasInt ldX,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
     float* XPacked = (float*)X;    
@@ -2655,7 +3142,11 @@ void Eig
 }
 
 void Eig
-( BlasInt n, double* A, BlasInt ldA, dcomplex* w, dcomplex* X, BlasInt ldX )
+( BlasInt n,
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  dcomplex* X, BlasInt ldX,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
     double* XPacked = (double*)X;    
@@ -2689,7 +3180,11 @@ void Eig
 }
 
 void Eig
-( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, scomplex* X, BlasInt ldX )
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* w,
+  scomplex* X, BlasInt ldX,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
     vector<float> rWork( 2*n );
@@ -2710,7 +3205,11 @@ void Eig
 }
 
 void Eig
-( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, dcomplex* X, BlasInt ldX )
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* w,
+  dcomplex* X, BlasInt ldX,
+  bool time )
 {
     DEBUG_ONLY(CSE cse("lapack::Eig"))
     vector<double> rWork( 2*n );

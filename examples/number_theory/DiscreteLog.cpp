@@ -17,6 +17,10 @@ int main( int argc, char* argv[] )
     try
     {
         const int minIntBits = Input("--minIntBits","integer bits",384);
+        const bool multistage =
+          Input("--multistage","Use Pohlig-Hellman?",true);
+        const bool assumePrime =
+          Input("--assumePrime","assume prime modulus?",false);
         const BigInt a0 = Input("--a0","a0 in Pollard rho",BigInt(0));
         const BigInt b0 = Input("--b0","b0 in Pollard rho",BigInt(0));
         const int numReps = Input("--numReps","num Miller-Rabin reps,",30);
@@ -30,6 +34,8 @@ int main( int argc, char* argv[] )
         dlog::PollardRhoCtrl rhoCtrl;
         rhoCtrl.a0 = a0;
         rhoCtrl.b0 = b0;
+        rhoCtrl.multistage = multistage;
+        rhoCtrl.assumePrime = assumePrime;
         rhoCtrl.factorCtrl.numReps = numReps;
         rhoCtrl.factorCtrl.progress = progress;
         rhoCtrl.factorCtrl.time = time;

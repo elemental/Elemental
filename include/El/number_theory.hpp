@@ -56,6 +56,23 @@ private:
     void FormNewSegment();
 };
 
+// For retrieving a global-scope sieve for trial division
+DynamicSieve<unsigned long long,unsigned>& TrialDivisionSieve();
+
+// Return the prime factors (up to the specified limit) found through trial div
+vector<unsigned long long>
+TrialDivision( unsigned long long n, unsigned long long limit=53 );
+#ifdef EL_HAVE_MPC
+vector<unsigned long long>
+TrialDivision( const BigInt& n, unsigned long long limit=53 );
+#endif
+
+// Simply return whether or not a factor was found through trial division
+bool HasTinyFactor( unsigned long long n, unsigned long long limit=53 );
+#ifdef EL_HAVE_MPC
+bool HasTinyFactor( const BigInt& n, unsigned long long limit=53 );
+#endif
+
 #ifdef EL_HAVE_MPC
 
 unsigned long PowerDecomp
@@ -97,7 +114,14 @@ struct PollardRhoCtrl
     unsigned long numSteps=1u;
     BigInt x0=BigIntTwo();
     Int gcdDelay=100;
+
+    // For trial division
+    bool avoidTrialDiv=false;
+    unsigned long long trialDivLimit=53ULL;
+
+    // For Miller-Rabin primality testing
     Int numReps=30;
+
     bool progress=false;
     bool time=false;
 };
@@ -127,7 +151,11 @@ struct PollardPMinusOneCtrl
     TSieve smooth2=TSieve(10000000ULL);
     Int gcdDelay2=100;
 
-    // High-level options
+    // For trial division
+    bool avoidTrialDiv=false;
+    unsigned long long trialDivLimit=53ULL;
+
+    // For Miller-Rabin primality testing
     Int numReps=30;
 
     bool progress=false;
@@ -214,6 +242,7 @@ struct PollardRhoCtrl
     BigInt a0=0;
     BigInt b0=0;
     bool multistage=true;
+    bool assumePrime=false;
     factor::PollardRhoCtrl factorCtrl;
 
     bool progress=false;
@@ -234,6 +263,7 @@ BigInt PollardRho
 } // namespace El
 
 #include <El/number_theory/DynamicSieve.hpp>
+#include <El/number_theory/TrialDivision.hpp>
 
 #include <El/number_theory/PowerDecomp.hpp>
 #include <El/number_theory/SqrtModPrime.hpp>

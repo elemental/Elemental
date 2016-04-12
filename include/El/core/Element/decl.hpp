@@ -576,6 +576,21 @@ template<> void Sqrt( const BigInt& alpha, BigInt& sqrtAlpha );
 template<> void Sqrt( const BigFloat& alpha, BigFloat& sqrtAlpha );
 #endif
 
+template<typename Integer,typename=EnableIf<IsIntegral<Integer>>>
+Integer ISqrt( const Integer& alpha ); // general algorithm
+// The following cast to double (which is provably correct)
+template<> unsigned ISqrt( const unsigned& alpha );
+template<> unsigned long ISqrt( const unsigned long& alpha );
+template<> int ISqrt( const int& alpha );
+template<> long int ISqrt( const long int& alpha );
+
+#ifdef EL_HAVE_MPC
+template<>
+BigInt ISqrt( const BigInt& alpha );
+// A version which potentially avoids an unnecessary memory allocation
+void ISqrt( const BigInt& alpha, BigInt& alphaSqrt );
+#endif
+
 // Trigonometric functions
 // =======================
 template<typename F,typename=EnableIf<IsField<F>>>

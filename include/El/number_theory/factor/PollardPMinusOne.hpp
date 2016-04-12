@@ -72,7 +72,6 @@ void RepeatedPowModRange
     }
 }
 
-// TODO: Allow for jumpstarting
 // NOTE: Returns the GCD of stage 1 and overwrites a with a power of a
 template<typename TSieve,typename TSieveSmall>
 BigInt StageOne
@@ -208,8 +207,8 @@ BigInt StageTwo
         ++delayCounter;
     }
 
-    // In case the last iteration did not perform a GCD due to the delay
-    if( ctrl.gcdDelay2 > 1 )
+    // If the last iteration did not perform a GCD due to the delay
+    if( ctrl.gcdDelay2 > 1 && delayCounter != 1 )
     {
         tmp = a;
         tmp -= 1;
@@ -224,7 +223,6 @@ BigInt StageTwo
     return gcd;
 }
 
-// TODO: Allow for jumpstarting within stage 1 or stage 2?
 template<typename TSieve,typename TSieveSmall>
 BigInt FindFactor
 ( const BigInt& n,
@@ -351,6 +349,21 @@ vector<BigInt> PollardPMinusOne
     vector<BigInt> factors;
     BigInt nRem = n;
 
+    if( !ctrl.avoidTrialDiv )
+    {
+        // Start with trial division
+        auto tinyFactors = TrialDivision( n, ctrl.trialDivLimit );
+        for( auto tinyFactor : tinyFactors )
+        {
+            factors.push_back( tinyFactor );
+            nRem /= tinyFactor;
+            if( ctrl.progress )
+                Output("Removed tiny factor of ",tinyFactor);
+        }
+    }
+    if( nRem <= BigInt(1) )
+        return factors;
+
     Timer timer;
     PushIndent();
     while( true )
@@ -399,7 +412,7 @@ vector<BigInt> PollardPMinusOne
         PushIndent();
         auto subfactors = PollardPMinusOne( factor, ctrl );
         PopIndent();
-        for( auto subfactor : subfactors )
+        for( const auto& subfactor : subfactors )
             factors.push_back( subfactor );
         nRem /= factor;
     }

@@ -330,6 +330,7 @@ struct SchurCtrl
     bool useSDC=false;
     HessQRCtrl qrCtrl;
     SDCCtrl<Real> sdcCtrl;    
+    bool time=false;
 };
 
 template<typename F>

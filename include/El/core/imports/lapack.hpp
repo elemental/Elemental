@@ -268,58 +268,90 @@ void HermitianEig
 // ^^^^^^^^^^^^^^
 void HermitianEig
 ( char uplo, BlasInt n, 
-  float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
+  float* A, BlasInt ldA,
+  float* w,
+  float* Z, BlasInt ldZ,
   float abstol=0 );
 void HermitianEig
 ( char uplo, BlasInt n, 
-  double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
+  double* A, BlasInt ldA,
+  double* w,
+  double* Z, BlasInt ldZ,
   double abstol=0 );
 void HermitianEig
 ( char uplo, BlasInt n, 
-  scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
+  scomplex* A, BlasInt ldA,
+  float* w,
+  scomplex* Z, BlasInt ldZ,
   float abstol=0 );
 void HermitianEig
 ( char uplo, BlasInt n, 
-  dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
+  dcomplex* A, BlasInt ldA,
+  double* w,
+  dcomplex* Z, BlasInt ldZ,
   double abstol=0 );
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 BlasInt HermitianEig
 ( char uplo, BlasInt n, 
-  float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
-  float vl, float vu, float abstol=0 );
+  float* A, BlasInt ldA,
+  float* w,
+  float* Z, BlasInt ldZ,
+  float vl, float vu,
+  float abstol=0 );
 BlasInt HermitianEig
 ( char uplo, BlasInt n, 
-  double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
-  double vl, double vu, double abstol=0 );
+  double* A, BlasInt ldA,
+  double* w,
+  double* Z, BlasInt ldZ,
+  double vl, double vu,
+  double abstol=0 );
 BlasInt HermitianEig
 ( char uplo, BlasInt n, 
-  scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
-  float vl, float vu, float abstol=0 );
+  scomplex* A, BlasInt ldA,
+  float* w,
+  scomplex* Z, BlasInt ldZ,
+  float vl, float vu,
+  float abstol=0 );
 BlasInt HermitianEig
 ( char uplo, BlasInt n, 
-  dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
-  double vl, double vu, double abstol=0 );
+  dcomplex* A, BlasInt ldA,
+  double* w,
+  dcomplex* Z, BlasInt ldZ,
+  double vl, double vu,
+  double abstol=0 );
 
 // Index range
 // ^^^^^^^^^^^
 void HermitianEig
 ( char uplo, BlasInt n, 
-  float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
-  BlasInt il, BlasInt iu, float abstol=0 );
+  float* A, BlasInt ldA,
+  float* w,
+  float* Z, BlasInt ldZ,
+  BlasInt il, BlasInt iu,
+  float abstol=0 );
 void HermitianEig
 ( char uplo, BlasInt n, 
-  double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
-  BlasInt il, BlasInt iu, double abstol=0 );
+  double* A, BlasInt ldA,
+  double* w,
+  double* Z, BlasInt ldZ,
+  BlasInt il, BlasInt iu,
+  double abstol=0 );
 void HermitianEig
 ( char uplo, BlasInt n, 
-  scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
-  BlasInt il, BlasInt iu, float abstol=0 );
+  scomplex* A, BlasInt ldA,
+  float* w,
+  scomplex* Z, BlasInt ldZ,
+  BlasInt il, BlasInt iu,
+  float abstol=0 );
 void HermitianEig
 ( char uplo, BlasInt n, 
-  dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
-  BlasInt il, BlasInt iu, double abstol=0 );
+  dcomplex* A, BlasInt ldA,
+  double* w,
+  dcomplex* Z, BlasInt ldZ,
+  BlasInt il, BlasInt iu,
+  double abstol=0 );
 
 // Compute the SVD of a general matrix using a divide and conquer algorithm
 // ========================================================================
@@ -415,30 +447,96 @@ void BidiagQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
   double* d, double* e, dcomplex* VH, BlasInt ldVH, dcomplex* U, BlasInt ldU );
 
+// Reduce a general square matrix to upper Hessenberg form
+// =======================================================
+
+void Hessenberg
+( BlasInt n,
+  float* A, BlasInt ldA,
+  float* tau );
+void Hessenberg
+( BlasInt n,
+  double* A, BlasInt ldA,
+  double* tau );
+void Hessenberg
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* tau );
+void Hessenberg
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* tau );
+
+// Return the unitary matrix from the reduction to Hessenberg form
+void HessenbergGenerateUnitary
+( BlasInt n,
+  float* A, BlasInt ldA,
+  const float* tau );
+void HessenbergGenerateUnitary
+( BlasInt n,
+  double* A, BlasInt ldA,
+  const double* tau );
+void HessenbergGenerateUnitary
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  const scomplex* tau );
+void HessenbergGenerateUnitary
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  const dcomplex* tau );
+
 // Compute the Schur decomposition of an upper Hessenberg matrix
 // =============================================================
 
 void HessenbergSchur
-( BlasInt n, float* H, BlasInt ldH, scomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  float* H, BlasInt ldH,
+  scomplex* w,
+  bool fullTriangle=false );
 void HessenbergSchur
-( BlasInt n, double* H, BlasInt ldH, dcomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  double* H, BlasInt ldH,
+  dcomplex* w,
+  bool fullTriangle=false );
 void HessenbergSchur
-( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  scomplex* H, BlasInt ldH,
+  scomplex* w,
+  bool fullTriangle=false );
 void HessenbergSchur
-( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  dcomplex* H, BlasInt ldH,
+  dcomplex* w,
+  bool fullTriangle=false );
 
 void HessenbergSchur
-( BlasInt n, float* H, BlasInt ldH, scomplex* w, float* Q, BlasInt ldQ, 
-  bool fullTriangle=true, bool multiplyQ=false );
+( BlasInt n,
+  float* H, BlasInt ldH,
+  scomplex* w,
+  float* Q, BlasInt ldQ, 
+  bool fullTriangle=true,
+  bool multiplyQ=false );
 void HessenbergSchur
-( BlasInt n, double* H, BlasInt ldH, dcomplex* w, double* Q, BlasInt ldQ, 
-  bool fullTriangle=true, bool multiplyQ=false );
+( BlasInt n,
+  double* H, BlasInt ldH,
+  dcomplex* w,
+  double* Q, BlasInt ldQ, 
+  bool fullTriangle=true,
+  bool multiplyQ=false );
 void HessenbergSchur
-( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w, scomplex* Q, BlasInt ldQ, 
-  bool fullTriangle=false, bool multiplyQ=false );
+( BlasInt n,
+  scomplex* H, BlasInt ldH,
+  scomplex* w,
+  scomplex* Q, BlasInt ldQ, 
+  bool fullTriangle=false,
+  bool multiplyQ=false );
 void HessenbergSchur
-( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w, dcomplex* Q, BlasInt ldQ, 
-  bool fullTriangle=false, bool multiplyQ=false );
+( BlasInt n,
+  dcomplex* H, BlasInt ldH,
+  dcomplex* w,
+  dcomplex* Q, BlasInt ldQ, 
+  bool fullTriangle=false,
+  bool multiplyQ=false );
 
 // Compute the eigenvalues/pairs of an upper Hessenberg matrix
 // ===========================================================
@@ -454,53 +552,146 @@ void HessenbergEig( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w );
 // ==================================================
 
 void Schur
-( BlasInt n, float* A, BlasInt ldA, scomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  float* A, BlasInt ldA,
+  scomplex* w,
+  bool fullTriangle=false,
+  bool time=false );
 void Schur
-( BlasInt n, double* A, BlasInt ldA, dcomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  bool fullTriangle=false,
+  bool time=false );
 void Schur
-( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* w,
+  bool fullTriangle=false,
+  bool time=false );
 void Schur
-( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, bool fullTriangle=false );
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* w,
+  bool fullTriangle=false,
+  bool time=false );
 
 void Schur
-( BlasInt n, float* A, BlasInt ldA, scomplex* w, float* Q, BlasInt ldQ, 
-  bool fullTriangle=true );
+( BlasInt n,
+  float* A, BlasInt ldA,
+  scomplex* w,
+  float* Q, BlasInt ldQ, 
+  bool fullTriangle=true,
+  bool time=false );
 void Schur
-( BlasInt n, double* A, BlasInt ldA, dcomplex* w, double* Q, BlasInt ldQ, 
-  bool fullTriangle=true );
+( BlasInt n,
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  double* Q, BlasInt ldQ, 
+  bool fullTriangle=true,
+  bool time=false );
 void Schur
-( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, scomplex* Q, BlasInt ldQ, 
-  bool fullTriangle=true );
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* w,
+  scomplex* Q, BlasInt ldQ, 
+  bool fullTriangle=true,
+  bool time=false );
 void Schur
-( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, dcomplex* Q, BlasInt ldQ, 
-  bool fullTriangle=true );
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* w,
+  dcomplex* Q, BlasInt ldQ, 
+  bool fullTriangle=true,
+  bool time=false );
+
+// Compute eigenvectors of an upper (quasi-)triangular matrix
+// ==========================================================
+
+void QuasiTriangEig
+( BlasInt n,
+  float* T, BlasInt ldT,
+  float* VR, BlasInt ldVR,
+  bool accumulate=false );
+void QuasiTriangEig
+( BlasInt n,
+  double* T, BlasInt ldT,
+  double* VR, BlasInt ldVR,
+  bool accumulate=false );
+
+void TriangEig
+( BlasInt n,
+  scomplex* T, BlasInt ldT,
+  scomplex* VR, BlasInt ldVR,
+  bool accumulate=false );
+void TriangEig
+( BlasInt n,
+  dcomplex* T, BlasInt ldT,
+  dcomplex* VR, BlasInt ldVR,
+  bool accumulate=false );
 
 // Compute the eigenvalues/pairs of a square matrix
 // ================================================
 
-void Eig( BlasInt n, float* A, BlasInt ldA, scomplex* w );
-void Eig( BlasInt n, double* A, BlasInt ldA, dcomplex* w );
-void Eig( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w );
-void Eig( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w );
+// TODO: Optional support for balancing
+
+void Eig
+( BlasInt n,
+  float* A, BlasInt ldA,
+  scomplex* w,
+  bool time=false );
+void Eig
+( BlasInt n,
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  bool time=false );
+void Eig
+( BlasInt n,
+  scomplex* A, BlasInt ldA,
+  scomplex* w,
+  bool time=false );
+void Eig
+( BlasInt n,
+  dcomplex* A, BlasInt ldA,
+  dcomplex* w,
+  bool time=false );
 
 void Eig
 ( BlasInt n, 
-  float* A, BlasInt ldA, scomplex* w, scomplex* X, BlasInt ldX );
+  float* A, BlasInt ldA,
+  scomplex* w,
+  scomplex* X, BlasInt ldX,
+  bool time=false );
 void Eig
 ( BlasInt n, 
-  float* A, BlasInt ldA, scomplex* w, float* XPacked, BlasInt ldX );
+  float* A, BlasInt ldA,
+  scomplex* w,
+  float* XPacked, BlasInt ldX,
+  bool time=false );
 void Eig
 ( BlasInt n, 
-  double* A, BlasInt ldA, dcomplex* w, dcomplex* X, BlasInt ldX );
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  dcomplex* X, BlasInt ldX,
+  bool time=false );
 void Eig
 ( BlasInt n, 
-  double* A, BlasInt ldA, dcomplex* w, double* XPacked, BlasInt ldX );
+  double* A, BlasInt ldA,
+  dcomplex* w,
+  double* XPacked, BlasInt ldX,
+  bool time=false );
 void Eig
 ( BlasInt n, 
-  scomplex* A, BlasInt ldA, scomplex* w, scomplex* X, BlasInt ldX );
+  scomplex* A, BlasInt ldA,
+  scomplex* w,
+  scomplex* X, BlasInt ldX,
+  bool time=false );
 void Eig
 ( BlasInt n, 
-  dcomplex* A, BlasInt ldA, dcomplex* w, dcomplex* X, BlasInt ldX );
+  dcomplex* A, BlasInt ldA,
+  dcomplex* w,
+  dcomplex* X, BlasInt ldX,
+  bool time=false );
 
 } // namespace lapack
 

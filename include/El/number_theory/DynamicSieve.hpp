@@ -28,8 +28,10 @@ DynamicSieve<T,TSmall>::DynamicSieve
     if( segmentSize % 2 == 1 )
         ++segmentSize;
 
-    // This could be an arbitrary number of the first several odd primes
-    oddPrimes.resize( 9 );
+    // This could be an arbitrary number of the first several odd primes,
+    // but testing up to 53 being a good default for trial division is common
+    // folklore
+    oddPrimes.resize( 15 );
     oddPrimes[0] = 3;
     oddPrimes[1] = 5;
     oddPrimes[2] = 7;
@@ -39,12 +41,16 @@ DynamicSieve<T,TSmall>::DynamicSieve
     oddPrimes[6] = 19;
     oddPrimes[7] = 23;
     oddPrimes[8] = 29;
+    oddPrimes[9] = 31;
+    oddPrimes[10] = 37;
+    oddPrimes[11] = 41;
+    oddPrimes[12] = 43;
+    oddPrimes[13] = 47;
+    oddPrimes[14] = 53;
 
     segmentOffset_ = lowerBound_ = ( keepAll ? 3 : lowerBound );
     segmentOffset_ = std::max( segmentOffset_, oddPrimes.back()+2 );
-
     segmentSize_ = segmentSize;
-
     segmentTable_.resize( segmentSize );
 
     // Initialize the sieve table

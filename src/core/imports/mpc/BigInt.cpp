@@ -828,25 +828,24 @@ BigInt operator%( const BigInt& a, const BigInt& b )
     return c;
 }
 
-BigInt operator%( const BigInt& a, const unsigned long long& b )
+unsigned long long operator%( const BigInt& a, const unsigned long long& b )
 {
+    // TODO: Branch on the size of b
     BigInt c(a);
     c %= b;
-    return c;
+    return static_cast<unsigned long long>(c);
 }
 
-BigInt operator%( const BigInt& a, const unsigned long& b )
+unsigned long operator%( const BigInt& a, const unsigned long& b )
 {
-    BigInt c(a);
-    c %= b;
-    return c;
+    // Yes, this routine name is correct
+    return mpz_fdiv_ui( a.LockedPointer(), b );
 }
 
-BigInt operator%( const BigInt& a, const unsigned& b )
+unsigned operator%( const BigInt& a, const unsigned& b )
 {
-    BigInt c(a);
-    c %= b;
-    return c;
+    // Yes, this routine name is correct
+    return mpz_fdiv_ui( a.LockedPointer(), b );
 }
 
 BigInt operator<<( const BigInt& a, const unsigned& b )
@@ -862,13 +861,13 @@ BigInt operator>>( const BigInt& a, const long unsigned& b )
 { return BigInt(a) >>= b; }
 
 bool operator<( const BigInt& a, const BigInt& b )
-{ return mpz_cmp(a.mpzInt_,b.mpzInt_) < 0; }
+{ return mpz_cmp(a.LockedPointer(),b.LockedPointer()) < 0; }
 
 bool operator<( const BigInt& a, const int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) < 0; }
+{ return mpz_cmp_si(a.LockedPointer(),b) < 0; }
 
 bool operator<( const BigInt& a, const long int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) < 0; }
+{ return mpz_cmp_si(a.LockedPointer(),b) < 0; }
 
 bool operator<( const BigInt& a, const long long int& b )
 {
@@ -876,7 +875,7 @@ bool operator<( const BigInt& a, const long long int& b )
         (b < 0 && b >= static_cast<long long int>(LONG_MIN)) )
     {
         long int bLong = static_cast<long int>(b);
-        return mpz_cmp_si(a.mpzInt_,bLong) < 0;
+        return mpz_cmp_si(a.LockedPointer(),bLong) < 0;
     }
     else
     {
@@ -886,10 +885,10 @@ bool operator<( const BigInt& a, const long long int& b )
 }
 
 bool operator<( const int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) > 0; }
+{ return mpz_cmp_si(b.LockedPointer(),a) > 0; }
 
 bool operator<( const long int& a, const BigInt& b )
-{ return mpz_cmp_si(b.mpzInt_,a) > 0; }
+{ return mpz_cmp_si(b.LockedPointer(),a) > 0; }
 
 bool operator<( const long long int& a, const BigInt& b )
 { 
@@ -897,7 +896,7 @@ bool operator<( const long long int& a, const BigInt& b )
         (a < 0 && a >= static_cast<long long int>(LONG_MIN)) )
     {
         long int aLong = static_cast<long int>(a);
-        return mpz_cmp_si(b.mpzInt_,aLong) > 0;
+        return mpz_cmp_si(b.LockedPointer(),aLong) > 0;
     }
     else
     {
@@ -948,13 +947,13 @@ bool operator>=( const long int& a, const BigInt& b )
 { return !(a < b); }
 
 bool operator==( const BigInt& a, const BigInt& b )
-{ return mpz_cmp(a.mpzInt_,b.mpzInt_) == 0; }
+{ return mpz_cmp(a.LockedPointer(),b.LockedPointer()) == 0; }
 
 bool operator==( const BigInt& a, const int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) == 0; }
+{ return mpz_cmp_si(a.LockedPointer(),b) == 0; }
 
 bool operator==( const BigInt& a, const long int& b )
-{ return mpz_cmp_si(a.mpzInt_,b) == 0; }
+{ return mpz_cmp_si(a.LockedPointer(),b) == 0; }
 
 bool operator==( const BigInt& a, const long long int& b )
 {
@@ -962,7 +961,7 @@ bool operator==( const BigInt& a, const long long int& b )
         (b <  0 && b >= static_cast<long long int>(LONG_MIN)) )
     {
         long int bLong = static_cast<long int>(b);
-        return mpz_cmp_si(a.mpzInt_,bLong) == 0;
+        return mpz_cmp_si(a.LockedPointer(),bLong) == 0;
     }
     else
     {

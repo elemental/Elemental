@@ -597,6 +597,34 @@ BigFloat Sqrt( const BigFloat& alpha )
 }
 #endif
 
+template<>
+unsigned ISqrt( const unsigned& alpha )
+{ return static_cast<unsigned>(std::sqrt(alpha)); }
+template<>
+unsigned long ISqrt( const unsigned long& alpha )
+{ return static_cast<unsigned long>(std::sqrt(alpha)); }
+template<>
+int ISqrt( const int& alpha )
+{ return static_cast<int>(std::sqrt(alpha)); }
+template<>
+long int ISqrt( const long int& alpha )
+{ return static_cast<long int>(std::sqrt(alpha)); }
+
+#ifdef EL_HAVE_MPC
+void ISqrt( const BigInt& alpha, BigInt& alphaSqrt )
+{
+    mpz_sqrt( alphaSqrt.Pointer(), alpha.LockedPointer() );
+}
+
+template<>
+BigInt ISqrt( const BigInt& alpha )
+{
+    BigInt alphaSqrt;
+    ISqrt( alpha, alphaSqrt );
+    return alphaSqrt;
+}
+#endif
+
 // Trigonometric
 // =============
 double Cos( const Int& alpha ) { return std::cos(alpha); }

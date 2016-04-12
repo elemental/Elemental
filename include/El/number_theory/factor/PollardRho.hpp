@@ -121,6 +121,21 @@ inline vector<BigInt> PollardRho
     vector<BigInt> factors;
     BigInt nRem = n;
 
+    if( !ctrl.avoidTrialDiv )
+    {
+        // Start with trial division
+        auto tinyFactors = TrialDivision( n, ctrl.trialDivLimit );
+        for( auto tinyFactor : tinyFactors )
+        {
+            factors.push_back( tinyFactor );
+            nRem /= tinyFactor;
+            if( ctrl.progress )
+                Output("Removed tiny factor of ",tinyFactor);
+        }
+    }
+    if( nRem <= BigInt(1) )
+        return factors;
+
     Timer timer;
     PushIndent();
     while( true )
@@ -176,7 +191,12 @@ inline vector<BigInt> PollardRho
             Output("Pollard-rho: ",timer.Stop()," seconds");
         PopIndent();
 
-        factors.push_back( factor );
+        // The factor might be composite, so attempt to factor it
+        PushIndent();
+        auto subfactors = PollardRho( factor, ctrl );
+        PopIndent();
+        for( const auto& subfactor : subfactors )
+            factors.push_back( subfactor );
         nRem /= factor;
     }
     PopIndent();

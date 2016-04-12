@@ -741,7 +741,8 @@ lib.ElSchurCtrlDefault_s.argtypes = [c_void_p]
 class SchurCtrl_s(ctypes.Structure):
   _fields_ = [("useSDC",bType),
               ("qrCtrl",HessQRCtrl),
-              ("sdcCtrl",SDCCtrl_s)]
+              ("sdcCtrl",SDCCtrl_s),
+              ("time",bType)]
   def __init__(self):
     lib.ElSchurCtrlDefault_s(pointer(self))
 
@@ -749,7 +750,8 @@ lib.ElSchurCtrlDefault_d.argtypes = [c_void_p]
 class SchurCtrl_d(ctypes.Structure):
   _fields_ = [("useSDC",bType),
               ("qrCtrl",HessQRCtrl),
-              ("sdcCtrl",SDCCtrl_d)]
+              ("sdcCtrl",SDCCtrl_d),
+              ("time",bType)]
   def __init__(self):
     lib.ElSchurCtrlDefault_d(pointer(self))
 
