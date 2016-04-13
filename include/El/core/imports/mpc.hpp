@@ -10,7 +10,7 @@
 #define EL_IMPORTS_MPC_HPP
 
 #ifdef EL_HAVE_MPC
-#include "mpc.h"
+#include <mpc.h>
 
 // TODO: Decide if _MPFR_EXP_FORMAT is reliable enough
 #if _MPFR_EXP_FORMAT == 4
@@ -157,46 +157,6 @@ public:
           byte* ThinSerialize( byte* buf ) const;
           byte* ThinDeserialize( byte* buf );
     const byte* ThinDeserialize( const byte* buf );
-
-    friend BigInt operator%( const BigInt& a, const BigInt& b );
-    friend BigInt operator%( const BigInt& a, const unsigned& b );
-    friend BigInt operator%( const BigInt& a, const unsigned long& b );
-    friend BigInt operator%( const BigInt& a, const unsigned long long& b );
-    friend bool operator<( const BigInt& a, const BigInt& b );
-    friend bool operator<( const BigInt& a, const int& b );
-    friend bool operator<( const BigInt& a, const long int& b );
-    friend bool operator<( const BigInt& a, const long long int& b );
-    friend bool operator<( const int& a, const BigInt& b );
-    friend bool operator<( const long int& a, const BigInt& b );
-    friend bool operator<( const long long int& a, const BigInt& b );
-    friend bool operator>( const BigInt& a, const BigInt& b );
-    friend bool operator>( const BigInt& a, const int& b );
-    friend bool operator>( const BigInt& a, const long int& b );
-    friend bool operator>( const BigInt& a, const long long int& b );
-    friend bool operator>( const int& a, const BigInt& b );
-    friend bool operator>( const long int& a, const BigInt& b );
-    friend bool operator>( const long long int& a, const BigInt& b );
-    friend bool operator<=( const BigInt& a, const BigInt& b );
-    friend bool operator<=( const BigInt& a, const int& b );
-    friend bool operator<=( const BigInt& a, const long int& b );
-    friend bool operator<=( const BigInt& a, const long long int& b );
-    friend bool operator<=( const int& a, const BigInt& b );
-    friend bool operator<=( const long int& a, const BigInt& b );
-    friend bool operator<=( const long long int& a, const BigInt& b );
-    friend bool operator>=( const BigInt& a, const BigInt& b );
-    friend bool operator>=( const BigInt& a, const int& b );
-    friend bool operator>=( const BigInt& a, const long int& b );
-    friend bool operator>=( const BigInt& a, const long long int& b );
-    friend bool operator>=( const int& a, const BigInt& b );
-    friend bool operator>=( const long int& a, const BigInt& b );
-    friend bool operator>=( const long long int& a, const BigInt& b );
-    friend bool operator==( const BigInt& a, const BigInt& b );
-    friend bool operator==( const BigInt& a, const int& b );
-    friend bool operator==( const BigInt& a, const long int& b );
-    friend bool operator==( const BigInt& a, const long long int& b );
-    friend bool operator==( const int& a, const BigInt& b );
-    friend bool operator==( const long int& a, const BigInt& b );
-    friend bool operator==( const long long int& a, const BigInt& b );
 };
 
 BigInt operator+( const BigInt& a, const BigInt& b );
@@ -205,9 +165,9 @@ BigInt operator*( const BigInt& a, const BigInt& b );
 BigInt operator/( const BigInt& a, const BigInt& b );
 
 BigInt operator%( const BigInt& a, const BigInt& b );
-BigInt operator%( const BigInt& a, const unsigned& b );
-BigInt operator%( const BigInt& a, const unsigned long& b );
-BigInt operator%( const BigInt& a, const unsigned long long& b );
+unsigned operator%( const BigInt& a, const unsigned& b );
+unsigned long operator%( const BigInt& a, const unsigned long& b );
+unsigned long long operator%( const BigInt& a, const unsigned long long& b );
 
 BigInt operator<<( const BigInt& a, const int& b );
 BigInt operator<<( const BigInt& a, const long int& b );
@@ -271,6 +231,13 @@ bool operator!=( const long long int& a, const BigInt& b );
 
 std::ostream& operator<<( std::ostream& os, const BigInt& alpha );
 std::istream& operator>>( std::istream& is,       BigInt& alpha );
+
+// The following constants are provided to avoid needlessly worrying about
+// allocating them as BigInt's within number theoretic routines (such as 
+// Miller-Rabin and Pollard's (p-1) algorithm)
+const BigInt& BigIntZero();
+const BigInt& BigIntOne();
+const BigInt& BigIntTwo();
 
 // BigRational class based upon mpq?
 
@@ -437,13 +404,6 @@ public:
           byte* Serialize( byte* buf ) const;
           byte* Deserialize( byte* buf );
     const byte* Deserialize( const byte* buf );
-
-    // Comparisons with BigInt via mpfr_cmp_z?
-    friend bool operator<( const BigFloat& a, const BigFloat& b );
-    friend bool operator>( const BigFloat& a, const BigFloat& b );
-    friend bool operator<=( const BigFloat& a, const BigFloat& b );
-    friend bool operator>=( const BigFloat& a, const BigFloat& b );
-    friend bool operator==( const BigFloat& a, const BigFloat& b );
 };
 
 BigFloat operator+( const BigFloat& a, const BigFloat& b );

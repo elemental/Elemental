@@ -22,10 +22,10 @@
 #ifndef EL_FACTOR_LDL_SPARSE_SYMBOLIC_HPP
 #define EL_FACTOR_LDL_SPARSE_SYMBOLIC_HPP
 
-#include "ElSuiteSparse/amd.h"
+#include <ElSuiteSparse/amd.h>
 
-#include "./symbolic/Separator.hpp"
-#include "./symbolic/NodeInfo.hpp"
+#include <El/lapack_like/factor/ldl/sparse/symbolic/Separator.hpp>
+#include <El/lapack_like/factor/ldl/sparse/symbolic/NodeInfo.hpp>
 
 namespace El {
 namespace ldl {

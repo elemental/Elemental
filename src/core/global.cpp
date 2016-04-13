@@ -54,6 +54,9 @@ std::ofstream logFile;
 Int indentLevel=0;
 Int spacesPerIndent=2;
 
+// Dynamic sieve for trial division
+DynamicSieve<unsigned long long,unsigned> trialDivSieve;
+
 // Tuning parameters for basic routines
 Int localSymvIntBlocksize = 64;
 Int localSymvFloatBlocksize = 64;
@@ -229,6 +232,9 @@ bool Using64BitBlasInt()
     return false;
 #endif
 }
+
+DynamicSieve<unsigned long long,unsigned>& TrialDivisionSieve()
+{ return ::trialDivSieve; }
 
 void SetColorMap( ColorMap map )
 { ::colorMap = map; }

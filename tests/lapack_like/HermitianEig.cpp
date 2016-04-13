@@ -129,7 +129,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int r = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const bool onlyEigvals = Input
             ("--onlyEigvals","only compute eigenvalues?",false);

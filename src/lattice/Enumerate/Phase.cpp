@@ -308,7 +308,6 @@ Matrix<Base<F>> BatchCoordinatesToNorms
         Int numNested=1 )
 {
     DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToNorms"))
-    typedef Base<F> Real;
     Matrix<F> Z( V );
     // TODO: Decide whether this branch is necessary or not...
     if( V.Width() == 1 )
@@ -328,7 +327,6 @@ Matrix<Base<F>> BatchTransposedCoordinatesToNorms
         Int numNested=1 )
 {
     DEBUG_ONLY(CSE cse("svp::BatchTransposedCoordinatesToNorms"))
-    typedef Base<F> Real;
     Matrix<F> Z( V );
     // TODO: Decide whether this branch is necessary or not...
     if( V.Width() == 1 )

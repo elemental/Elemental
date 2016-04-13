@@ -112,7 +112,7 @@ void RotateCols( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

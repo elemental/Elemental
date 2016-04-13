@@ -15,14 +15,70 @@ namespace El {
 
 // See Algorithm 8.2.2 from Henri Cohen's 
 // "A course in computational algebraic number theory"
-inline Primality MillerRabin( const BigInt& n, Int numReps )
+
+// This routine avoids memory allocations
+inline Primality MillerRabinHelper
+( const BigInt& n,
+  const BigInt& a,
+  const BigInt& nm1,
+  const BigInt& q,
+        unsigned long t,
+        BigInt& b )
 {
-    BigInt one(1), two(2);
-    if( n <= one )
-        LogicError("Miller-Rabin is invalid for n <= 1");
-    else if( n == two )
+    const BigInt& one = BigIntOne();
+
+    // b := a^q (mod n)
+    PowMod( a, q, n, b );
+    if( b == one )
+    {
+        // n is a strong probable prime to base a, as
+        // a^(n-1) = (a^q)^(2^t) = 1^(2^t) = 1 (mod n)
+        return PROBABLY_PRIME;
+    }
+
+    for( decltype(t) e=0; e<t-1; ++e )
+    {
+        if( b == nm1 )
+        {
+            // b^2 (mod n) will be equal to one, so a^(n-1) (mod n) = 1
+            // and a is a strong probable prime to base a
+            break;
+        }
+        b *= b;
+        b %= n;
+
+        if( b == one )
+        {
+            // The only square-roots of 1 (modulo a prime) are +-1, and
+            // none of the square-roots that we have previously encountered
+            // have been of this form, so n cannot be a prime.
+            return COMPOSITE;
+        }
+    }
+    if( b != nm1 )
+    {
+        // Since we did not break the above loop, b = a^(n-1)/2 (mod n),
+        // and b != +-1 (mod n), so a^(n-1) != 1 (mod n) and n cannot be 
+        // prime.
+        return COMPOSITE;
+    }
+
+    return PROBABLY_PRIME;
+}
+
+inline Primality MillerRabin( const BigInt& n, const BigInt& a )
+{
+    const BigInt& zero = BigIntZero();
+    const BigInt& one = BigIntOne();
+    const BigInt& two = BigIntTwo();
+
+    DEBUG_ONLY(
+      if( n <= one )
+          LogicError("Miller-Rabin is invalid for n <= 1");
+    )
+    if( n == two )
         return PRIME;
-    else if( Mod(n,two) == BigInt(0) )
+    else if( Mod(n,two) == zero )
         return COMPOSITE;
 
     // Decompose n-1 as 2^t*q, where q is odd
@@ -30,8 +86,32 @@ inline Primality MillerRabin( const BigInt& n, Int numReps )
     BigInt nm1(n);
     nm1 -= 1;
     BigInt q;
-    auto t =
-      mpz_remove( q.Pointer(), nm1.LockedPointer(), two.LockedPointer() );
+    auto t = PowerDecomp( nm1, q, two );
+
+    BigInt b;
+    return MillerRabinHelper( n, a, nm1, q, t, b );
+}
+
+inline Primality MillerRabinSequence( const BigInt& n, Int numReps )
+{
+    const BigInt& zero = BigIntZero();
+    const BigInt& one = BigIntOne();
+    const BigInt& two = BigIntTwo();
+    DEBUG_ONLY( 
+      if( n <= one )
+          LogicError("Miller-Rabin is invalid for n <= 1");
+    )
+    if( n == two )
+        return PRIME;
+    else if( Mod(n,two) == zero )
+        return COMPOSITE;
+
+    // Decompose n-1 as 2^t*q, where q is odd
+    // --------------------------------------
+    BigInt nm1(n);
+    nm1 -= 1;
+    BigInt q;
+    auto t = PowerDecomp( nm1, q, two );
 
     BigInt a, b;
     for( Int c=0; c<numReps; ++c )
@@ -42,42 +122,9 @@ inline Primality MillerRabin( const BigInt& n, Int numReps )
         // and so we would have (n-1)^k = +-1 (mod n) for all values of k and
         // the test would not be of any use.
         a = SampleUniform( two, nm1 );
-
-        // b := a^q (mod n)
-        PowMod( a, q, n, b );
-        if( b == one )
-        {
-            // n is a strong probable prime to base a, as
-            // a^(n-1) = (a^q)^(2^t) = 1^(2^t) = 1 (mod n)
-            continue;
-        }
-
-        for( decltype(t) e=0; e<t-1; ++e )
-        {
-            if( b == nm1 )
-            {
-                // b^2 (mod n) will be equal to one, so a^(n-1) (mod n) = 1
-                // and a is a strong probable prime to base a
-                break;
-            }
-            b *= b;
-            b %= n;
-
-            if( b == one )
-            {
-                // The only square-roots of 1 (modulo a prime) are +-1, and
-                // none of the square-roots that we have previously encountered
-                // have been of this form, so n cannot be a prime.
-                return COMPOSITE;
-            }
-        }
-        if( b != nm1 )
-        {
-            // Since we did not break the above loop, b = a^(n-1)/2 (mod n),
-            // and b != +-1 (mod n), so a^(n-1) != 1 (mod n) and n cannot be 
-            // prime.
+        Primality primality = MillerRabinHelper( n, a, nm1, q, t, b );
+        if( primality == COMPOSITE )
             return COMPOSITE;
-        }
     }
     return PROBABLY_PRIME;
 }

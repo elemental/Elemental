@@ -9,9 +9,9 @@
 #ifndef EL_OPTIMIZATION_UTIL_HPP
 #define EL_OPTIMIZATION_UTIL_HPP
 
-#include "./util/cone.hpp"
-#include "./util/pos_orth.hpp"
-#include "./util/soc.hpp"
+#include <El/optimization/util/cone.hpp>
+#include <El/optimization/util/pos_orth.hpp>
+#include <El/optimization/util/soc.hpp>
 
 namespace El {
 

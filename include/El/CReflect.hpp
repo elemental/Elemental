@@ -1320,6 +1320,7 @@ inline ElSchurCtrl_s CReflect( const SchurCtrl<float>& ctrl )
     ctrlC.useSDC = ctrl.useSDC;
     ctrlC.qrCtrl = CReflect( ctrl.qrCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
+    ctrlC.time = ctrl.time;
     return ctrlC;
 }
 inline ElSchurCtrl_d CReflect( const SchurCtrl<double>& ctrl )
@@ -1328,6 +1329,7 @@ inline ElSchurCtrl_d CReflect( const SchurCtrl<double>& ctrl )
     ctrlC.useSDC = ctrl.useSDC;
     ctrlC.qrCtrl = CReflect( ctrl.qrCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
+    ctrlC.time = ctrl.time;
     return ctrlC;
 }
 
@@ -1337,6 +1339,7 @@ inline SchurCtrl<float> CReflect( const ElSchurCtrl_s& ctrlC )
     ctrl.useSDC = ctrlC.useSDC;
     ctrl.qrCtrl = CReflect( ctrlC.qrCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
+    ctrl.time = ctrlC.time;
     return ctrl;
 }
 inline SchurCtrl<double> CReflect( const ElSchurCtrl_d& ctrlC )
@@ -1345,6 +1348,7 @@ inline SchurCtrl<double> CReflect( const ElSchurCtrl_d& ctrlC )
     ctrl.useSDC = ctrlC.useSDC;
     ctrl.qrCtrl = CReflect( ctrlC.qrCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
+    ctrl.time = ctrlC.time;
     return ctrl;
 }
 

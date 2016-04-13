@@ -9,9 +9,9 @@
 #ifndef EL_BLAS_COPY_HPP
 #define EL_BLAS_COPY_HPP
 
-#include "./Copy/internal_decl.hpp"
-#include "./Copy/GeneralPurpose.hpp"
-#include "./Copy/util.hpp"
+#include <El/blas_like/level1/Copy/internal_decl.hpp>
+#include <El/blas_like/level1/Copy/GeneralPurpose.hpp>
+#include <El/blas_like/level1/Copy/util.hpp>
 
 namespace El {
 
@@ -118,7 +118,7 @@ void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( A, BCast );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
@@ -175,7 +175,7 @@ void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B )
     #define PAYLOAD(CDIST,RDIST) \
       auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(B); \
       Copy( A, BCast );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>

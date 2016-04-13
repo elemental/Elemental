@@ -299,7 +299,7 @@ Int AbstractDistMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
       CSE cse("ADM::LocalRow");
       if( !IsLocalRow(i) )
           LogicError
-          ("Row ",i,"is owned by ",RowOwner(i),", not ",ColRank());
+          ("Row ",i," is owned by ",RowOwner(i),", not ",ColRank());
     )
     return LocalRowOffset(i);
 }
@@ -311,7 +311,7 @@ Int AbstractDistMatrix<T>::LocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
       CSE cse("ADM::LocalCol");
       if( !IsLocalCol(j) )
           LogicError
-          ("Column ",j,"is owned by ",ColOwner(j),", not ",RowRank());
+          ("Column ",j," is owned by ",ColOwner(j),", not ",RowRank());
     )
     return LocalColOffset(j);
 }

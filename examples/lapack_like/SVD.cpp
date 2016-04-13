@@ -46,7 +46,6 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const SVDApproach approach = static_cast<SVDApproach>(approachInt);
-        const bool compact = ( approach == COMPACT_SVD );
 
         SetBlocksize( blocksize );
         SetDefaultBlockHeight( mb );

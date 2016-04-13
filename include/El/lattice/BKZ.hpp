@@ -1116,7 +1116,6 @@ RecursiveHelper
     if( maintainU )
         LogicError("Recursive BKZ does not yet support computing U");
 
-    typedef Real F;
     const Int n = B.Width();
     if( n <= Max(ctrl.lllCtrl.cutoff,ctrl.blocksize) )
     {
@@ -1286,7 +1285,6 @@ RecursiveHelper
     if( maintainU )
         LogicError("Recursive BKZ does not yet support computing U");
 
-    typedef Complex<Real> F;
     const Int n = B.Width();
     if( n <= Max(ctrl.lllCtrl.cutoff,ctrl.blocksize) )
     {

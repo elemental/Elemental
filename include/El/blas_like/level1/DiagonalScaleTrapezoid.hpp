@@ -226,7 +226,7 @@ void DiagonalScaleTrapezoid
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
         DiagonalScaleTrapezoid( side, uplo, orientation, d, ACast, offset );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename TDiag,typename T>
@@ -296,7 +296,7 @@ void DiagonalScaleTrapezoid
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

@@ -9,8 +9,8 @@
 #ifndef EL_FACTOR_HPP
 #define EL_FACTOR_HPP
 
-#include "El/lapack_like/factor/ldl/sparse/symbolic.hpp"
-#include "El/lapack_like/factor/ldl/sparse/numeric.hpp"
+#include <El/lapack_like/factor/ldl/sparse/symbolic.hpp>
+#include <El/lapack_like/factor/ldl/sparse/numeric.hpp>
 
 namespace El {
 
@@ -1058,6 +1058,6 @@ void Skeleton
 
 } // namespace El
 
-#include "El/lapack_like/factor/qr/ProxyHouseholder.hpp"
+#include <El/lapack_like/factor/qr/ProxyHouseholder.hpp>
 
 #endif // ifndef EL_FACTOR_HPP

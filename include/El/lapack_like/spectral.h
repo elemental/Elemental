@@ -9,7 +9,7 @@
 #ifndef EL_LAPACK_SPECTRAL_C_H
 #define EL_LAPACK_SPECTRAL_C_H
 
-#include "El/lapack_like/funcs.h"
+#include <El/lapack_like/funcs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -796,6 +796,7 @@ typedef struct {
   bool useSDC;
   ElHessQRCtrl qrCtrl;
   ElSDCCtrl_s sdcCtrl;
+  bool time;
 } ElSchurCtrl_s;
 EL_EXPORT ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
 
@@ -803,6 +804,7 @@ typedef struct {
   bool useSDC;
   ElHessQRCtrl qrCtrl;
   ElSDCCtrl_d sdcCtrl;
+  bool time;
 } ElSchurCtrl_d;
 EL_EXPORT ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
 

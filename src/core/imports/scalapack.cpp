@@ -10,6 +10,7 @@
 
 #ifdef EL_HAVE_SCALAPACK
 
+using El::FortranLogical;
 using El::scomplex;
 using El::dcomplex;
 
@@ -21,19 +22,23 @@ extern "C" {
 // Cholesky
 // --------
 void EL_SCALAPACK(pspotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   float* A, const int* iA, const int* jA, const int* descA,
   int* info );
 void EL_SCALAPACK(pdpotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   double* A, const int* iA, const int* jA, const int* descA,
   int* info );
 void EL_SCALAPACK(pcpotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   scomplex* A, const int* iA, const int* jA, const int* descA,
   int* info );
 void EL_SCALAPACK(pzpotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   dcomplex* A, const int* iA, const int* jA, const int* descA,
   int* info );
 
@@ -103,7 +108,9 @@ void EL_SCALAPACK(pzgesv)
 // MRRR
 // ^^^^
 void EL_SCALAPACK(pssyevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   float* A, const int* iA, const int* jA, const int* descA,
   const float* vl, const float* vu,
@@ -116,7 +123,9 @@ void EL_SCALAPACK(pssyevr)
   int* iWork, const int* liWork,
   int* info );
 void EL_SCALAPACK(pdsyevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   double* A, const int* iA, const int* jA, const int* descA,
   const double* vl, const double* vu,
@@ -129,7 +138,9 @@ void EL_SCALAPACK(pdsyevr)
   int* iWork, const int* liWork,
   int* info );
 void EL_SCALAPACK(pcheevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   scomplex* A, const int* iA, const int* jA, const int* descA,
   const float* vl, const float* vu,
@@ -143,7 +154,9 @@ void EL_SCALAPACK(pcheevr)
   int* iWork, const int* liWork,
   int* info );
 void EL_SCALAPACK(pzheevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   dcomplex* A, const int* iA, const int* jA, const int* descA,
   const double* vl, const double* vu,
@@ -160,7 +173,8 @@ void EL_SCALAPACK(pzheevr)
 // SVD
 // ---
 void EL_SCALAPACK(psgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   float* A, const int* iA, const int* jA, const int* descA,
   float* S,
@@ -169,7 +183,8 @@ void EL_SCALAPACK(psgesvd)
   float* work, const int* lwork,
   int* info );
 void EL_SCALAPACK(pdgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   double* A, const int* iA, const int* jA, const int* descA,
   double* S,
@@ -178,7 +193,8 @@ void EL_SCALAPACK(pdgesvd)
   double* work, const int* lwork,
   int* info );
 void EL_SCALAPACK(pcgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   scomplex* A, const int* iA, const int* jA, const int* descA,
   float* S,
@@ -188,7 +204,8 @@ void EL_SCALAPACK(pcgesvd)
   float* rwork,
   int* info );
 void EL_SCALAPACK(pzgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   dcomplex* A, const int* iA, const int* jA, const int* descA,
   double* S,
@@ -201,25 +218,37 @@ void EL_SCALAPACK(pzgesvd)
 // Reduction of a Hermitian positive-definite EVP to standard form
 // ---------------------------------------------------------------
 void EL_SCALAPACK(pssyngst)
-( const int* typeB, const char* uplo, const int* n, 
+( const int* typeB,
+  const char* uplo,
+  const int* n, 
         float* A, const int* iA, const int* jA, const int* descA,
   const float* B, const int* iB, const int* jB, const int* descB,
-        float* scale, float* work, const int* workSize, int* info );
+        float* scale,
+        float* work, const int* workSize,
+        int* info );
 void EL_SCALAPACK(pdsyngst)
-( const int* typeB, const char* uplo, const int* n, 
+( const int* typeB,
+  const char* uplo,
+  const int* n, 
         double* A, const int* iA, const int* jA, const int* descA,
   const double* B, const int* iB, const int* jB, const int* descB,
-        double* scale, double* work, const int* workSize, int* info );
+        double* scale,
+        double* work, const int* workSize,
+        int* info );
 void EL_SCALAPACK(pchengst)
 ( const int* typeB, const char* uplo, const int* n, 
         scomplex* A, const int* iA, const int* jA, const int* descA,
   const scomplex* B, const int* iB, const int* jB, const int* descB,
-        float* scale, scomplex* work, const int* workSize, int* info );
+        float* scale,
+        scomplex* work, const int* workSize,
+        int* info );
 void EL_SCALAPACK(pzhengst)
 ( const int* typeB, const char* uplo, const int* n, 
         dcomplex* A, const int* iA, const int* jA, const int* descA,
   const dcomplex* B, const int* iB, const int* jB, const int* descB,
-        double* scale, dcomplex* work, const int* workSize, int* info );
+        double* scale,
+        dcomplex* work, const int* workSize,
+        int* info );
 
 // Hessenberg QR algorithm
 // -----------------------
@@ -228,76 +257,134 @@ void EL_SCALAPACK(pzhengst)
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
 // NOTE: ScaLAPACK currently only supports AED for real matrices
 void EL_SCALAPACK(pshseqr)
-( const char* job, const char* compz, 
-  const int* n, const int* ilo, const int* ihi, 
-  float* H, const int* descH, float* wr, float* wi, 
-  float* Q, const int* descQ, float* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const char* job,
+  const char* compz, 
+  const int* n,
+  const int* ilo, const int* ihi, 
+  float* H, const int* descH,
+  float* wr, float* wi, 
+  float* Q, const int* descQ,
+  float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 void EL_SCALAPACK(pdhseqr)
-( const char* job, const char* compz, 
-  const int* n, const int* ilo, const int* ihi, 
-  double* H, const int* descH, double* wr, double* wi, 
-  double* Q, const int* descQ, double* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const char* job,
+  const char* compz, 
+  const int* n,
+  const int* ilo, const int* ihi, 
+  double* H, const int* descH,
+  double* wr, double* wi, 
+  double* Q, const int* descQ,
+  double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 
 // Pipelined without AED
 // ^^^^^^^^^^^^^^^^^^^^^
 void EL_SCALAPACK(pslahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* descH,
-  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  float* H, const int* descH,
+  float* wr, float* wi,
+  const int* iloQ, const int* ihiQ, 
   float* Q, const int* descQ,
-  float* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  float* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 void EL_SCALAPACK(pdlahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* descH,
-  double* wr, double* wi, const int* iloQ, const int* ihiQ, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  double* H, const int* descH,
+  double* wr, double* wi,
+  const int* iloQ, const int* ihiQ, 
   double* Q, const int* descQ,
-  double* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  double* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 void EL_SCALAPACK(pclahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, scomplex* H, const int* descH,
-  scomplex* w, const int* iloQ, const int* ihiQ, scomplex* Q, const int* descQ,
-  scomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  scomplex* H, const int* descH,
+  scomplex* w,
+  const int* iloQ, const int* ihiQ,
+  scomplex* Q, const int* descQ,
+  scomplex* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 void EL_SCALAPACK(pzlahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, dcomplex* H, const int* descH,
-  dcomplex* w, const int* iloQ, const int* ihiQ, dcomplex* Q, const int* descQ,
-  dcomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  dcomplex* H, const int* descH,
+  dcomplex* w,
+  const int* iloQ, const int* ihiQ,
+  dcomplex* Q, const int* descQ,
+  dcomplex* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 
 // Pipelined with AED for big matrices
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void EL_SCALAPACK(pslaqr0)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* descH, 
-  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
-  float* Q, const int* descQ, float* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info, const int* reclevel );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  float* H, const int* descH, 
+  float* wr, float* wi,
+  const int* iloQ, const int* ihiQ, 
+  float* Q, const int* descQ,
+  float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info,
+  const int* reclevel );
 void EL_SCALAPACK(pdlaqr0)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* descH, 
-  double* wr, double* wi, const int* iloQ, const int* ihiQ,
-  double* Q, const int* descQ, double* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info, const int* reclevel );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  double* H, const int* descH, 
+  double* wr, double* wi,
+  const int* iloQ, const int* ihiQ,
+  double* Q, const int* descQ,
+  double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info,
+  const int* reclevel );
 
 // Pipelined with AED for small matrices
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void EL_SCALAPACK(pslaqr1)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* descH, 
-  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
-  float* Q, const int* descQ, float* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  float* H, const int* descH, 
+  float* wr, float* wi,
+  const int* iloQ, const int* ihiQ, 
+  float* Q, const int* descQ,
+  float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 void EL_SCALAPACK(pdlaqr1)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* descH, 
-  double* wr, double* wi, const int* iloQ, const int* ihiQ, 
-  double* Q, const int* descQ, double* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  double* H, const int* descH, 
+  double* wr, double* wi,
+  const int* iloQ, const int* ihiQ, 
+  double* Q, const int* descQ,
+  double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 
 } // extern "C"
 
@@ -1505,8 +1592,8 @@ void HessenbergSchur
     }
     else
     {
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_FALSE;
+        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                       wantz=FORTRAN_FALSE;
 
         // PSLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1580,8 +1667,8 @@ void HessenbergSchur
     }
     else
     {
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_FALSE;
+        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                       wantz=FORTRAN_FALSE;
 
         // PDLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1624,8 +1711,8 @@ void HessenbergSchur
   bool aed ) 
 {
     DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_FALSE;
+    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                   wantz=FORTRAN_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
@@ -1658,8 +1745,8 @@ void HessenbergSchur
   bool aed ) 
 {
     DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_FALSE;
+    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                   wantz=FORTRAN_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
@@ -1727,8 +1814,8 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_TRUE;
+        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                       wantz=FORTRAN_TRUE;
 
         // PSLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1806,8 +1893,8 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_TRUE;
+        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                       wantz=FORTRAN_TRUE;
 
         // PDLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1854,8 +1941,8 @@ void HessenbergSchur
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_TRUE;
+    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                   wantz=FORTRAN_TRUE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -1888,8 +1975,8 @@ void HessenbergSchur
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_TRUE;
+    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+                   wantz=FORTRAN_TRUE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes

@@ -104,7 +104,7 @@ void GetDiagonal
     #define PAYLOAD(CDIST,RDIST) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       GetDiagonal( ACast, d, offset );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
@@ -117,7 +117,7 @@ void GetRealPartOfDiagonal
     #define PAYLOAD(CDIST,RDIST) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       GetRealPartOfDiagonal( ACast, d, offset );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
@@ -130,7 +130,7 @@ void GetImagPartOfDiagonal
     #define PAYLOAD(CDIST,RDIST) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       GetImagPartOfDiagonal( ACast, d, offset );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T,Dist U,Dist V>

@@ -177,6 +177,7 @@ ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
     ctrl->useSDC = false;
     ElHessQRCtrlDefault( &ctrl->qrCtrl );
     ElSDCCtrlDefault_s( &ctrl->sdcCtrl );
+    ctrl->time = false;
     return EL_SUCCESS; 
 }
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
@@ -184,6 +185,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ctrl->useSDC = false;
     ElHessQRCtrlDefault( &ctrl->qrCtrl );
     ElSDCCtrlDefault_d( &ctrl->sdcCtrl );
+    ctrl->time = false;
     return EL_SUCCESS; 
 }
 

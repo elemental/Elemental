@@ -82,6 +82,14 @@ typedef unsigned Unsigned;
 typedef __float128 Quad;
 #endif
 
+// Convert CMake configuration into a typedef and an enum
+typedef EL_FORT_LOGICAL FortranLogical;
+enum FortranLogicalEnum
+{
+  FORTRAN_TRUE=EL_FORT_TRUE,
+  FORTRAN_FALSE=EL_FORT_FALSE
+};
+
 } // namespace El
 
 // Declare the intertwined core parts of our library

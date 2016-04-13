@@ -9,8 +9,8 @@
 #ifndef EL_SOLVE_HPP
 #define EL_SOLVE_HPP
 
-#include "El/lapack_like/factor.hpp"
-#include "El/lapack_like/euclidean_min.hpp"
+#include <El/lapack_like/factor.hpp>
+#include <El/lapack_like/euclidean_min.hpp>
 
 namespace El {
 
@@ -172,8 +172,8 @@ void MultiShiftHessSolve
 
 } // namespace El
 
-#include "./solve/FGMRES.hpp"
-#include "./solve/LGMRES.hpp"
-#include "./solve/Refined.hpp"
+#include <El/lapack_like/solve/FGMRES.hpp>
+#include <El/lapack_like/solve/LGMRES.hpp>
+#include <El/lapack_like/solve/Refined.hpp>
 
 #endif // ifndef EL_SOLVE_HPP

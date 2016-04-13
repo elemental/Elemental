@@ -10,7 +10,7 @@
 #define EL_IMPORTS_QD_HPP
 
 #ifdef EL_HAVE_QD
-#include "qd/qd_real.h"
+#include <qd/qd_real.h>
 
 namespace El {
 

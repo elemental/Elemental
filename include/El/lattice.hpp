@@ -861,9 +861,9 @@ void NearestPlane
 
 } // namespace El
 
-#include "El/lattice/LLL.hpp"
-#include "El/lattice/NearestPlane.hpp"
-#include "El/lattice/Enrich.hpp"
-#include "El/lattice/BKZ.hpp"
+#include <El/lattice/LLL.hpp>
+#include <El/lattice/NearestPlane.hpp>
+#include <El/lattice/Enrich.hpp>
+#include <El/lattice/BKZ.hpp>
 
 #endif // ifndef EL_LATTICE_HPP

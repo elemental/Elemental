@@ -23,24 +23,17 @@ inline BigInt FindFactor
   Int a,
   const PollardRhoCtrl& ctrl )
 {
+    const BigInt& one = BigIntOne();
+
     if( a == 0 || a == -2 )
         Output("WARNING: Problematic choice of Pollard rho shift");
     BigInt tmp, gcd;
-    BigInt one(1);
 
     auto xAdvance =
       [&]( BigInt& x )
       {
         if( ctrl.numSteps == 1 )
         {
-            // TODO: Determine if there is a penalty to x *= x
-            /*
-            tmp = x;
-            tmp *= x;
-            tmp += a;
-            x = tmp;
-            x %= n;
-            */
             x *= x;
             x += a;
             x %= n;
@@ -67,7 +60,7 @@ inline BigInt FindFactor
     BigInt x2i(xi);
     BigInt xiSave=xi, x2iSave=x2i;
     BigInt Qi(1);
-    Int k=1, i=1; // it is okay for i to overflow since it is just for printing
+    Int delayCounter=1, i=1;
     while( true )
     {
         // Advance xi once
@@ -80,12 +73,11 @@ inline BigInt FindFactor
         // Advance Qi
         QAdvance( xi, x2i, Qi );
 
-        if( k >= gcdDelay )
+        if( delayCounter >= gcdDelay )
         {
             GCD( Qi, n, gcd );
             if( gcd > one )
             {
-                // NOTE: This was not suggested by Pollard's original paper
                 if( gcd == n )
                 {
                     if( gcdDelay == 1 )
@@ -110,13 +102,12 @@ inline BigInt FindFactor
                 }
             }
 
-            // NOTE: This was not suggested by Pollard's original paper
-            k = 0;
+            delayCounter = 0;
             xiSave = xi;
             x2iSave = x2i;
             Qi = 1;
         }
-        ++k;
+        ++delayCounter;
         ++i;
     }
 }
@@ -129,6 +120,21 @@ inline vector<BigInt> PollardRho
 {
     vector<BigInt> factors;
     BigInt nRem = n;
+
+    if( !ctrl.avoidTrialDiv )
+    {
+        // Start with trial division
+        auto tinyFactors = TrialDivision( n, ctrl.trialDivLimit );
+        for( auto tinyFactor : tinyFactors )
+        {
+            factors.push_back( tinyFactor );
+            nRem /= tinyFactor;
+            if( ctrl.progress )
+                Output("Removed tiny factor of ",tinyFactor);
+        }
+    }
+    if( nRem <= BigInt(1) )
+        return factors;
 
     Timer timer;
     PushIndent();
@@ -185,7 +191,12 @@ inline vector<BigInt> PollardRho
             Output("Pollard-rho: ",timer.Stop()," seconds");
         PopIndent();
 
-        factors.push_back( factor );
+        // The factor might be composite, so attempt to factor it
+        PushIndent();
+        auto subfactors = PollardRho( factor, ctrl );
+        PopIndent();
+        for( const auto& subfactor : subfactors )
+            factors.push_back( subfactor );
         nRem /= factor;
     }
     PopIndent();

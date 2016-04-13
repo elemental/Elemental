@@ -9,8 +9,8 @@
 #ifndef EL_PERM_HPP
 #define EL_PERM_HPP
 
-#include "perm/Permutation.hpp"
-#include "perm/DistPermutation.hpp"
+#include <El/lapack_like/perm/Permutation.hpp>
+#include <El/lapack_like/perm/DistPermutation.hpp>
 
 namespace El {
 

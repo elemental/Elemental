@@ -169,8 +169,8 @@ void Transform2x2Cols
     DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
     const auto& G = GProx.GetLocked();
 
-    const int colOwner1 = A.RowOwner(j1);
-    const int colOwner2 = A.RowOwner(j2);
+    const int colOwner1 = A.ColOwner(j1);
+    const int colOwner2 = A.ColOwner(j2);
     const bool inFirstCol = ( A.RowRank() == colOwner1 );
     const bool inSecondCol = ( A.RowRank() == colOwner2 );
     if( !inFirstCol && !inSecondCol )

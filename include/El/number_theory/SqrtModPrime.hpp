@@ -18,7 +18,9 @@ namespace El {
 // "A course in computational algebraic number theory"
 inline void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& x )
 {
-    BigInt one(1), two(2);
+    const BigInt& one = BigIntOne();
+    const BigInt& two = BigIntTwo();
+
     if( p == two )
     {
         // Squaring is the identity operation in Z/2Z
@@ -33,8 +35,7 @@ inline void SqrtModPrime( const BigInt& n, const BigInt& p, BigInt& x )
     BigInt pm1(p);
     pm1 -= 1;
     BigInt q;
-    auto e =
-      mpz_remove( q.Pointer(), pm1.LockedPointer(), two.LockedPointer() ); 
+    auto e = PowerDecomp( pm1, q, two );
 
     // Find a quadratic non-residue, a, and set z := a^q (mod p)
     // ---------------------------------------------------------

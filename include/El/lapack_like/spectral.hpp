@@ -330,6 +330,7 @@ struct SchurCtrl
     bool useSDC=false;
     HessQRCtrl qrCtrl;
     SDCCtrl<Real> sdcCtrl;    
+    bool time=false;
 };
 
 template<typename F>
@@ -1329,7 +1330,7 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 
 } // namespace El
 
-#include "./spectral/Lanczos.hpp"
-#include "./spectral/ProductLanczos.hpp"
+#include <El/lapack_like/spectral/Lanczos.hpp>
+#include <El/lapack_like/spectral/ProductLanczos.hpp>
 
 #endif // ifndef EL_SPECTRAL_HPP

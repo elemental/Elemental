@@ -135,7 +135,7 @@ void DiagonalSolve
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
         DiagonalSolve( side, orientation, d, ACast, checkIfSingular );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename FDiag,typename F>

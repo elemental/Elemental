@@ -712,7 +712,7 @@ BigFloat& BigFloat::operator/=( const unsigned long long& a )
     DEBUG_ONLY(CSE cse("BigFloat::operator/= [unsigned long long]"))
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
-        unsigned long aLong = static_cast<unsigned long>(aLong);
+        unsigned long aLong = static_cast<unsigned long>(a);
         mpfr_div_ui( Pointer(), Pointer(), aLong, mpc::RoundingMode() );
     }
     else
@@ -1044,19 +1044,19 @@ BigFloat operator>>( const BigFloat& a, const long unsigned& b )
 { return BigFloat(a) >>= b; }
 
 bool operator<( const BigFloat& a, const BigFloat& b )
-{ return mpfr_less_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_less_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator>( const BigFloat& a, const BigFloat& b )
-{ return mpfr_greater_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_greater_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator<=( const BigFloat& a, const BigFloat& b )
-{ return mpfr_lessequal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_lessequal_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator>=( const BigFloat& a, const BigFloat& b )
-{ return mpfr_greaterequal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_greaterequal_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator==( const BigFloat& a, const BigFloat& b )
-{ return mpfr_equal_p(a.mpfrFloat_,b.mpfrFloat_) != 0; }
+{ return mpfr_equal_p(a.LockedPointer(),b.LockedPointer()) != 0; }
 
 bool operator!=( const BigFloat& a, const BigFloat& b )
 { return !(a==b); }

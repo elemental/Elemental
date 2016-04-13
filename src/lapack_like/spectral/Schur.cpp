@@ -36,7 +36,7 @@ void Schur
             schur::SDC( A, w, ctrl.sdcCtrl );
     }
     else
-        schur::QR( A, w, fullTriangle );
+        schur::QR( A, w, fullTriangle, ctrl.time );
 }
 
 template<typename F>
@@ -51,7 +51,7 @@ void Schur
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
-        schur::QR( A, w, Q, fullTriangle );
+        schur::QR( A, w, Q, fullTriangle, ctrl.time );
 }
 
 template<typename F>
@@ -75,7 +75,7 @@ void Schur
     }
     else
     {
-        schur::QR( A, w, fullTriangle, ctrl.qrCtrl );
+        schur::QR( A, w, fullTriangle, ctrl.qrCtrl, ctrl.time );
     }
 #else
     if( fullTriangle )
@@ -96,7 +96,7 @@ void Schur
   const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
-    schur::QR( A, w, fullTriangle, ctrl.qrCtrl );
+    schur::QR( A, w, fullTriangle, ctrl.qrCtrl, ctrl.time );
 }
 
 template<typename F>
@@ -112,7 +112,7 @@ void Schur
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
-        schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl );
+        schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl, ctrl.time );
 #else
     schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
 #endif
@@ -127,7 +127,7 @@ void Schur
   const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CSE cse("Schur"))
-    schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl );
+    schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl, ctrl.time );
 }
 
 #define PROTO(F) \
