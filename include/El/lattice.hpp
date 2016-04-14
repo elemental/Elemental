@@ -126,9 +126,7 @@ struct LLLCtrl
     bool recursive=false;
     Int cutoff=10;
 
-    bool rightLooking=false;
     Real precisionFudge=Real(2);
-    Int givensBlockSize = 4;
     Int minColThresh = 0;
 	
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
@@ -173,9 +171,7 @@ struct LLLCtrl
         eta = Real(ctrl.eta);
         if( eta < etaMin )
             eta = etaMin;
-        rightLooking = ctrl.rightLooking;
         precisionFudge = Real(ctrl.precisionFudge);
-        givensBlockSize = ctrl.givensBlockSize;
         minColThresh = ctrl.minColThresh;
         variant = ctrl.variant; 
         recursive = ctrl.recursive;
@@ -207,9 +203,7 @@ struct LLLCtrl
 
         delta = Real(ctrl.delta);
         eta = Max(etaMin,Real(ctrl.eta));
-        rightLooking = ctrl.rightLooking;
         precisionFudge = Real(ctrl.precisionFudge);
-        givensBlockSize = ctrl.givensBlockSize;
         minColThresh = ctrl.minColThresh;
         variant = ctrl.variant; 
         recursive = ctrl.recursive;

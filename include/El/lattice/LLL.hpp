@@ -69,10 +69,7 @@ namespace lll {
 static Timer stepTimer, houseStepTimer,
        houseViewTimer, houseReflectTimer,
        applyHouseTimer, roundTimer,
-       formSInvTimer, formQRTimer,
-       applyGivensTimer, copyGivensTimer,
-       formGivensTimer, colNormTimer,
-       negateRowTimer, LLLTimer;
+       formSInvTimer;
 
 // Return the achieved delta and eta reduction properties
 template<typename F>
@@ -191,6 +188,15 @@ LLLInfo<Base<F>> LLLWithQ
     DEBUG_ONLY(CSE cse("LLLWithQ"))
     typedef Base<F> Real;
     const Int n = B.Width();
+    if( ctrl.recursive && ctrl.cutoff < n )
+        return RecursiveLLLWithQ( B, U, QR, t, d, ctrl );
+
+    if( ctrl.delta < Real(1)/Real(2) )
+        LogicError("delta is assumed to be at least 1/2");
+    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Sqrt(ctrl.delta) )
+        LogicError
+        ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
+         Sqrt(ctrl.delta),")");
 
     if( ctrl.jumpstart )
     {
@@ -201,16 +207,6 @@ LLLInfo<Base<F>> LLLWithQ
     {
         Identity( U, n, n ); 
     }
-
-    if( ctrl.recursive && ctrl.cutoff < n )
-        return RecursiveLLLWithQ( B, U, QR, t, d, ctrl );
-
-    if( ctrl.delta < Real(1)/Real(2) )
-        LogicError("delta is assumed to be at least 1/2");
-    if( ctrl.eta <= Real(1)/Real(2) || ctrl.eta >= Sqrt(ctrl.delta) )
-        LogicError
-        ("eta=",ctrl.eta," should be in (1/2,sqrt(delta)=",
-         Sqrt(ctrl.delta),")");
 
     Int firstSwap = n;
     if( ctrl.presort )
@@ -239,8 +235,6 @@ LLLInfo<Base<F>> LLLWithQ
         info = lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
     else if( ctrl.variant == LLL_DEEP )
         return lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
-    else if ( ctrl.rightLooking )
-        return lll::RightAlg( B, U, QR, t, d, formU, ctrl );
     else
         info = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
 
@@ -350,8 +344,6 @@ LLLWithQ
         infoDeep.firstSwap = firstSwap;
         return infoDeep;
     }
-    else if ( ctrl.rightLooking )
-        return lll::RightAlg( B, U, QR, t, d, formU, ctrl );
     else
         return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
 }
@@ -744,7 +736,7 @@ RecursiveHelper
         // TODO: Allow for dropping with non-integer coefficients?
 
         if( !succeeded )
-        {        
+        { 
             // Interleave CL and CR to reform B before running LLL again
             for( Int jSub=0; jSub<n/2; ++jSub )
             {
@@ -761,7 +753,7 @@ RecursiveHelper
                 auto bL = B( ALL, IR(n-1) ); 
                 bL = cL;
             }
-            
+
             auto ctrlMod( ctrl );
             ctrlMod.jumpstart = true;
             ctrlMod.startCol = 0;
@@ -788,7 +780,7 @@ RecursiveHelper
                     auto uL = U( ALL, IR(n-1) );
                     uL = uCopyL;
                 }
-                
+
                 info = LLLWithQ( B, U, QR, t, d, ctrlMod );
             }
             else
@@ -951,7 +943,7 @@ RecursiveHelper
         // TODO: Allow for dropping with non-integer coefficients?
 
         if( !succeeded )
-        {            
+        {
             // Interleave CL and CR to reform B before running LLL again
             for( Int jSub=0; jSub<n/2; ++jSub )
             {
@@ -968,7 +960,7 @@ RecursiveHelper
                 auto bL = B( ALL, IR(n-1) ); 
                 bL = cL;
             }
-            
+
             auto ctrlMod( ctrl );
             ctrlMod.jumpstart = true;
             ctrlMod.startCol = 0;
