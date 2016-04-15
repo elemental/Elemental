@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "./SVT/Normal.hpp"
 #include "./SVT/Cross.hpp"
@@ -84,6 +84,6 @@ Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
   PROTO_DIST(F,VR  )
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

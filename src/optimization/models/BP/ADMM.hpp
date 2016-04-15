@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html

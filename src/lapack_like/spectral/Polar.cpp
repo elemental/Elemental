@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "./Polar/QDWH.hpp"
 #include "./Polar/SVD.hpp"
@@ -161,6 +161,6 @@ PolarInfo HermitianPolar
     const PolarCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

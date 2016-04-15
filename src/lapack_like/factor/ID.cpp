@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // TODO: Add detailed references to Tygert et al.'s ID package and the papers
 //       "Randomized algorithms for the low-rank approximation of matrices", 
@@ -195,6 +195,6 @@ void ID
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

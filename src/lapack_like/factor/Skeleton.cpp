@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // NOTE: There are *many* algorithms for (pseudo-)skeleton/CUR decompositions,
 //       and, for now, we will simply implement one.
@@ -136,6 +136,6 @@ void Skeleton
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 */
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

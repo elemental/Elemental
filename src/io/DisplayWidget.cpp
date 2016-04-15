@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #ifdef EL_HAVE_QT5
 
@@ -180,7 +180,7 @@ void DisplayWidget<T>::SavePng( string basename ) const
 
 #define PROTO(T) template class DisplayWidget<T>;
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El
 

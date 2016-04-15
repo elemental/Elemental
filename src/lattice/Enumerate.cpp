@@ -1086,6 +1086,6 @@ MultiShortestVectorEnrichment
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El
