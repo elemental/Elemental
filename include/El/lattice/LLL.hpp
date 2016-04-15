@@ -677,35 +677,31 @@ RecursiveHelper
         Int numPrevSwaps = info.numSwaps;
         if( isInteger )
         {
-			// Can we use QR for this without recomputing norms?
-			Matrix<F> CLF;
-			Copy(CL, CLF);
-			Matrix<F> CRF;
-			Copy(CR, CRF);
-			const Real CLOneNorm = OneNorm( CLF );
-			const Real CROneNorm = OneNorm( CRF );
-			const Real CLMaxNorm = MaxNorm( CLF );
-			const Real CRMaxNorm = MaxNorm( CRF );
-            //const ZReal CLOneNorm = OneNorm( CL );
-            //const ZReal CROneNorm = OneNorm( CR );
-            //const ZReal CLMaxNorm = MaxNorm( CL );
-            //const ZReal CRMaxNorm = MaxNorm( CR );
-			// TODO: Incorporate norm of U if maintaining U
+            // Can we use QR for this without recomputing norms?
+            Matrix<F> CLF;
+            Copy(CL, CLF);
+            Matrix<F> CRF;
+            Copy(CR, CRF);
+            const Real CLOneNorm = OneNorm( CLF );
+            const Real CROneNorm = OneNorm( CRF );
+            const Real CLMaxNorm = MaxNorm( CLF );
+            const Real CRMaxNorm = MaxNorm( CRF );
+            // TODO: Incorporate norm of U if maintaining U
             if( ctrl.progress )
             {
-			    Output("  || C_L ||_1 = ",CLOneNorm);
+                Output("  || C_L ||_1 = ",CLOneNorm);
                 Output("  || C_R ||_1 = ",CROneNorm);
                 Output("  || C_L ||_max = ",CLMaxNorm);
                 Output("  || C_R ||_max = ",CRMaxNorm);
             }
-			const Real COneNorm = Max(CLOneNorm,CROneNorm);
-			const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
-			const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
-			if( ctrl.progress || ctrl.time )
-			{
-				Output("  || C ||_1 = ",COneNorm);
-				Output("  Needed precision: ",neededPrec);
-			}
+            const Real COneNorm = Max(CLOneNorm,CROneNorm);
+            const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
+            const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
+            if( ctrl.progress || ctrl.time )
+            {
+                Output("  || C ||_1 = ",COneNorm);
+                Output("  Needed precision: ",neededPrec);
+            }
 
             succeeded = TryLowerPrecisionMerge<Z,F,float>
               ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
