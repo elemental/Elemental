@@ -126,8 +126,13 @@ struct LLLCtrl
     bool recursive=false;
     Int cutoff=10;
 
+    // Fudge factor for determining whether to drop precision
     Real precisionFudge=Real(2);
+    
     Int minColThresh = 0;
+
+    // Ignore precision limits for QR factorization?
+    bool unsafeSzReduct=false;
 	
     // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
     // (in the manner suggested by Wubben et al.) can greatly decrease
@@ -173,6 +178,7 @@ struct LLLCtrl
             eta = etaMin;
         precisionFudge = Real(ctrl.precisionFudge);
         minColThresh = ctrl.minColThresh;
+        unsafeSzReduct = ctrl.unsafeSzReduct;
         variant = ctrl.variant; 
         recursive = ctrl.recursive;
         cutoff = ctrl.cutoff;
@@ -205,6 +211,7 @@ struct LLLCtrl
         eta = Max(etaMin,Real(ctrl.eta));
         precisionFudge = Real(ctrl.precisionFudge);
         minColThresh = ctrl.minColThresh;
+        unsafeSzReduct = ctrl.unsafeSzReduct;
         variant = ctrl.variant; 
         recursive = ctrl.recursive;
         cutoff = ctrl.cutoff;

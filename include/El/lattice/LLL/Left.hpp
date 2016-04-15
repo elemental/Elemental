@@ -45,43 +45,29 @@ void ExpandQR
         applyHouseTimer.Start();
     for( Int orthog=0; orthog<numOrthog; ++orthog )
     {
-        // One would figure that it would be faster to use ApplyQ
-        // since it would block the Householder... but it seems
-        // to be orders of magnitude slower?
-        if ( k < 0 ) // Should be made tunable
+        for( Int i=0; i<Min(k,minDim); ++i )
         {
-            auto H = QR( ALL, IR(0,k) );
-            auto col = QR( ALL, k );
-            auto tt = t( IR(0,k), ALL );
-            auto dd = d( IR(0,k), ALL );
-            qr::ApplyQ(LEFT, ADJOINT, H, tt, dd, col);
-        }
-        else
-        {
-            for( Int i=0; i<Min(k,minDim); ++i )
-            {
-                // Apply the i'th Householder reflector
+            // Apply the i'th Householder reflector
     
-                // Temporarily replace QR(i,i) with 1
-                const Real alpha = RealPart(QRBuf[i+i*QRLDim]);
-                QRBuf[i+i*QRLDim] = 1;
+            // Temporarily replace QR(i,i) with 1
+            const Real alpha = RealPart(QRBuf[i+i*QRLDim]);
+            QRBuf[i+i*QRLDim] = 1;
 
-                const F innerProd =
-                  blas::Dot
-                  ( m-i,
-                    &QRBuf[i+i*QRLDim], 1,
-                    &QRBuf[i+k*QRLDim], 1 );
-                blas::Axpy
-                ( m-i, -tBuf[i]*innerProd,
-                  &QRBuf[i+i*QRLDim], 1,
-                  &QRBuf[i+k*QRLDim], 1 );
+            const F innerProd =
+              blas::Dot
+              ( m-i,
+                &QRBuf[i+i*QRLDim], 1,
+                &QRBuf[i+k*QRLDim], 1 );
+            blas::Axpy
+            ( m-i, -tBuf[i]*innerProd,
+              &QRBuf[i+i*QRLDim], 1,
+              &QRBuf[i+k*QRLDim], 1 );
 
-                // Fix the scaling
-                QRBuf[i+k*QRLDim] *= dBuf[i];
+            // Fix the scaling
+            QRBuf[i+k*QRLDim] *= dBuf[i];
 
-                // Restore H(i,i)
-                QRBuf[i+i*QRLDim] = alpha; 
-            }
+            // Restore H(i,i)
+            QRBuf[i+i*QRLDim] = alpha; 
         }
     }
     if( time )
@@ -178,11 +164,10 @@ bool Step
 
     while( true ) 
     {
-//        const Base<Z> oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
-//        if( !limits::IsFinite(oldNorm) )
-//            RuntimeError("Encountered an unbounded norm; increase precision");
-//        if( oldNorm > Real(1)/eps )
-//            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
+        if( !ctrl.unsafeSzReduct && !limits::IsFinite(oldNorm) )
+            RuntimeError("Encountered an unbounded norm; increase precision");
+        if( !ctrl.unsafeSzReduct && oldNorm > Real(1)/eps )
+            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         if( oldNorm <= ctrl.zeroTol )
         {
@@ -241,7 +226,7 @@ bool Step
             vector<F> xBuf(k);
             // NOTE: Unless LLL is being aggressively executed in low precision,
             //       this loop should only need to be executed once
-            const Int maxSizeReductions = 1; // I don't think this is necessary, should be handled by while loop
+            const Int maxSizeReductions = 128;
             for( Int reduce=0; reduce<maxSizeReductions; ++reduce )
             {
                 Int numNonzero = 0;
@@ -327,13 +312,12 @@ bool Step
             continue;
         }
 
-//        const Base<Z> newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
         if( ctrl.time )
             roundTimer.Stop();
-//        if( !limits::IsFinite(newNorm) )
-//            RuntimeError("Encountered an unbounded norm; increase precision");
-//        if( newNorm > Real(1)/eps )
-//            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
+        if( !ctrl.unsafeSzReduct && !limits::IsFinite(newNorm) )
+            RuntimeError("Encountered an unbounded norm; increase precision");
+        if( !ctrl.unsafeSzReduct && newNorm > Real(1)/eps )
+            RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         
         if( newNorm > ctrl.reorthogTol*oldNorm )
