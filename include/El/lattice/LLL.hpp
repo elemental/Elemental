@@ -447,7 +447,7 @@ LowerPrecisionMerge
         auto bL = BLower( ALL, IR(n-1) );
         Copy( cL, bL );
     }
-    
+ 
     LLLCtrl<RealLower> ctrlLower( ctrl );
     ctrlLower.recursive = false;
     RealLower eps = limits::Epsilon<RealLower>();

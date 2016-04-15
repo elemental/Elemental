@@ -23,7 +23,7 @@ ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
     ctrl->cutoff = 10;
     ctrl->precisionFudge = 2.0f;
     ctrl->minColThresh = 0;
-    ctrl->unsafeSzReduct = false;
+    ctrl->unsafeSizeReduct = false;
     ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
@@ -48,7 +48,7 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ctrl->cutoff = 10;
     ctrl->precisionFudge = 2;
     ctrl->minColThresh = 0;
-    ctrl->unsafeSzReduct = false;
+    ctrl->unsafeSizeReduct = false;
     ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;

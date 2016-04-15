@@ -164,9 +164,9 @@ bool Step
 
     while( true ) 
     {
-        if( !ctrl.unsafeSzReduct && !limits::IsFinite(oldNorm) )
+        if( !ctrl.unsafeSizeReduct && !limits::IsFinite(oldNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
-        if( !ctrl.unsafeSzReduct && oldNorm > Real(1)/eps )
+        if( !ctrl.unsafeSizeReduct && oldNorm > Real(1)/eps )
             RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         if( oldNorm <= ctrl.zeroTol )
@@ -293,7 +293,7 @@ bool Step
             }
         }
 
-        if ( !colUpdated )
+        if( !colUpdated )
         {
             break;
         }
@@ -304,9 +304,9 @@ bool Step
         auto rCol  = QR( ALL, IR(k) );
         Real rNorm = El::FrobeniusNorm(rCol);
 
-        if (Abs(newNorm - rNorm)/newNorm >= thresh)
+        if( Abs(newNorm - rNorm)/newNorm >= thresh )
         {
-            if ( ctrl.progress )
+            if( ctrl.progress )
                 Output("Repeating size reduction with k=", k, 
                        " because ||bk||=", newNorm, ", ||rk||=", rNorm);
             continue;
@@ -314,9 +314,9 @@ bool Step
 
         if( ctrl.time )
             roundTimer.Stop();
-        if( !ctrl.unsafeSzReduct && !limits::IsFinite(newNorm) )
+        if( !ctrl.unsafeSizeReduct && !limits::IsFinite(newNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
-        if( !ctrl.unsafeSzReduct && newNorm > Real(1)/eps )
+        if( !ctrl.unsafeSizeReduct && newNorm > Real(1)/eps )
             RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         
