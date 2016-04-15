@@ -188,6 +188,8 @@ void EigBenchmark
   bool print,
   Int m,
   Int testMatrix,
+  bool distAED,
+  Int blockHeight,
   const Grid& g )
 {
     const int gridRank = g.Rank();
@@ -213,6 +215,8 @@ void EigBenchmark
     Timer timer;
  
     SchurCtrl<double> schurCtrl;
+    schurCtrl.qrCtrl.distAED = distAED;
+    schurCtrl.qrCtrl.blockHeight = blockHeight;
     schurCtrl.time = true;
 
     // Compute eigenvectors with Elemental
@@ -277,6 +281,14 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int blockHeight =
+          Input("--blockHeight","ScaLAPACK block height",32);
+        // NOTE: Distributed AED is not supported by ScaLAPACK for complex :-(
+        const bool distAED =
+          Input
+          ("--distAED",
+           "Distributed Aggressive Early Deflation? (it can be buggy...)",
+           true);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",false);
         const bool print = Input("--print","print matrices?",false);
@@ -294,9 +306,11 @@ main( int argc, char* argv[] )
         const Grid grid( comm, r, order );
        
         if( commRank == 0 )
-            SequentialEigBenchmark(testCorrectness, print, n, testMatrix);
+            SequentialEigBenchmark( testCorrectness, print, n, testMatrix );
 
-        EigBenchmark(testCorrectness, print, n, testMatrix, grid);
+        EigBenchmark
+        ( testCorrectness, print, n, testMatrix,
+          distAED, blockHeight, grid );
     }
     catch( exception& e ) { ReportException(e); }
 
