@@ -471,22 +471,40 @@ template<> BigFloat Pow( const BigFloat& alpha, const BigFloat& beta );
 // Versions which accept exponents of a different type
 BigInt Pow( const BigInt& alpha, const unsigned& beta );
 BigInt Pow( const BigInt& alpha, const unsigned long& beta );
+BigInt Pow( const BigInt& alpha, const unsigned long long& beta );
 BigFloat Pow( const BigFloat& alpha, const unsigned& beta );
 BigFloat Pow( const BigFloat& alpha, const unsigned long& beta );
+BigFloat Pow( const BigFloat& alpha, const unsigned long long& beta );
 BigFloat Pow( const BigFloat& alpha, const int& beta );
 BigFloat Pow( const BigFloat& alpha, const long int& beta );
+BigFloat Pow( const BigFloat& alpha, const long long int& beta );
 BigFloat Pow( const BigFloat& alpha, const BigInt& beta );
 
 // Versions which avoid temporaries
-void Pow( const BigInt& alpha, const BigInt& beta, BigInt& gamma );
-void Pow( const BigInt& alpha, const unsigned& beta, BigInt& gamma );
-void Pow( const BigInt& alpha, const unsigned long& beta, BigInt& gamma );
-void Pow( const BigFloat& alpha, const BigFloat& beta, BigFloat& gamma );
-void Pow( const BigFloat& alpha, const unsigned& beta, BigFloat& gamma );
-void Pow( const BigFloat& alpha, const unsigned long& beta, BigFloat& gamma );
-void Pow( const BigFloat& alpha, const int& beta, BigFloat& gamma );
-void Pow( const BigFloat& alpha, const long int& beta, BigFloat& gamma );
-void Pow( const BigFloat& alpha, const BigInt& beta, BigFloat& gamma );
+void Pow
+( const BigInt& alpha, const BigInt& beta, BigInt& gamma );
+void Pow
+( const BigInt& alpha, const unsigned& beta, BigInt& gamma );
+void Pow
+( const BigInt& alpha, const unsigned long& beta, BigInt& gamma );
+void Pow
+( const BigInt& alpha, const unsigned long long& beta, BigInt& gamma );
+void Pow
+( const BigFloat& alpha, const BigFloat& beta, BigFloat& gamma );
+void Pow
+( const BigFloat& alpha, const unsigned& beta, BigFloat& gamma );
+void Pow
+( const BigFloat& alpha, const unsigned long& beta, BigFloat& gamma );
+void Pow
+( const BigFloat& alpha, const unsigned long long& beta, BigFloat& gamma );
+void Pow
+( const BigFloat& alpha, const int& beta, BigFloat& gamma );
+void Pow
+( const BigFloat& alpha, const long int& beta, BigFloat& gamma );
+void Pow
+( const BigFloat& alpha, const long long int& beta, BigFloat& gamma );
+void Pow
+( const BigFloat& alpha, const BigInt& beta, BigFloat& gamma );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
