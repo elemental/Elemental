@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Ron Estrin
+   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -293,6 +293,9 @@ bool Step
             }
         }
 
+        if( ctrl.time )
+            roundTimer.Stop();
+ 
         if( !colUpdated )
         {
             break;
@@ -312,8 +315,6 @@ bool Step
             continue;
         }
 
-        if( ctrl.time )
-            roundTimer.Stop();
         if( !ctrl.unsafeSizeReduct && !limits::IsFinite(newNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
         if( !ctrl.unsafeSizeReduct && newNorm > Real(1)/eps )
