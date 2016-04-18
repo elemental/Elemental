@@ -90,6 +90,7 @@ void SetBlocksize( Int blocksize );
 // For manipulating the algorithmic blocksize as a stack
 void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
+void EmptyBlocksizeStack();
 
 Int DefaultBlockHeight();
 Int DefaultBlockWidth();
