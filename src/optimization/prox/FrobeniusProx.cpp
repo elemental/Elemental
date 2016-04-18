@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // The Frobenius norm prox returns the solution to
 //     arg min || A ||_F + tau/2 || A - A0 ||_F^2
@@ -45,6 +45,6 @@ void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

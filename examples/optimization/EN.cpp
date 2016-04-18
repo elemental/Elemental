@@ -1,4 +1,4 @@
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 DistSparseMatrix<double> ConcatFD2D( Int n0, Int n1 )

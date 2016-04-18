@@ -6,10 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "El/core/FlamePart.hpp"
 
-#include "El.h"
+#include <El.h>
 using namespace El;
 
 extern "C" {
@@ -126,6 +126,6 @@ extern "C" {
     ElDistMatrix_ ## SIG ABL, ElDistMatrix_ ## SIG ABR, \
     ElConstDistMatrix_ ## SIG A20, ElConstDistMatrix_ ## SIG A21, ElConstDistMatrix_ ## SIG A22 );
 
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

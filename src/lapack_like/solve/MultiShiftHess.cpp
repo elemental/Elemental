@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // NOTE: These algorithms are adaptations and/or extensions of Alg. 2 from
 //       Greg Henry's "The shifted Hessenberg system solve computation".
@@ -529,6 +529,6 @@ void MultiShiftHessSolve
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

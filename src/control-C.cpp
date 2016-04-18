@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El.hpp>
+#include <El.h>
 using namespace El;
 
 extern "C" {
@@ -67,6 +67,6 @@ extern "C" {
   { EL_TRY( Sylvester( m, *CReflect(W), *CReflect(X) ) ) }
 
 #define EL_NO_INT_PROTO
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -55,6 +55,6 @@ void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n, double p )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

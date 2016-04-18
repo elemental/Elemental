@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // This is an implementation of the riffle-shuffle matrix made famous by 
 // Diaconis et al. and analyzed by Trefethen et al. The binomial and Eulerian
@@ -164,6 +164,6 @@ void RiffleDecay( ElementalMatrix<F>& A, Int n )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // Basis Pursuit is the search for a solution to A x = b which minimizes
 // the one norm of x, i.e.,

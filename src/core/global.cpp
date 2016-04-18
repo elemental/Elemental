@@ -7,7 +7,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include <algorithm>
 #include <iomanip>
@@ -661,6 +661,14 @@ DEBUG_ONLY(
 
     void PushCallStack( string s )
     { 
+        // It was discovered that a global instantiation of a BigInt
+        // (::bigIntZero) led to pushing to the call stack in global scope
+        // before entering main, and this could possibly have been before the
+        // call stack was constructed, leading to PopCallStack() causing an
+        // exception due to the stack being empty. But this isn't completely
+        // verified.
+        if( !Initialized() )
+            return;
 #ifdef EL_HYBRID
         if( omp_get_thread_num() != 0 )
             return;
@@ -685,6 +693,14 @@ DEBUG_ONLY(
 
     void PopCallStack()
     { 
+        // It was discovered that a global instantiation of a BigInt
+        // (::bigIntZero) led to pushing to the call stack in global scope
+        // before entering main, and this could possibly have been before the
+        // call stack was constructed, leading to PopCallStack() causing an
+        // exception due to the stack being empty. But this isn't completely
+        // verified.
+        if( !Initialized() )
+            return;
 #ifdef EL_HYBRID
         if( omp_get_thread_num() != 0 )
             return;
@@ -1127,6 +1143,6 @@ Int Find( const vector<Int>& sortedInds, Int index )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // Generate a 3(2^k) x 3(2^k) Extended Kahan matrix, which has the form
 // A = S R, where S = diag(1,zeta,...,zeta^(3 2^k - 1)), 
@@ -144,6 +144,6 @@ void ExtendedKahan( ElementalMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

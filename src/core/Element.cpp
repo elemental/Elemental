@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -313,6 +313,18 @@ void Pow( const BigInt& alpha, const unsigned long& beta, BigInt& gamma )
     mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), beta );
 }
 
+void Pow( const BigInt& alpha, const unsigned long long& beta, BigInt& gamma )
+{
+    DEBUG_ONLY(
+      if( beta > static_cast<unsigned long long>(ULONG_MAX) )
+      {
+          RuntimeError("Excessively large exponent for Pow: ",beta); 
+      }
+    )
+    unsigned long betaLong = static_cast<unsigned long>(beta);
+    mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), betaLong );
+}
+
 template<>
 BigInt Pow( const BigInt& alpha, const BigInt& beta )
 {
@@ -329,6 +341,13 @@ BigInt Pow( const BigInt& alpha, const unsigned& beta )
 }
 
 BigInt Pow( const BigInt& alpha, const unsigned long& beta )
+{
+    BigInt gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigInt Pow( const BigInt& alpha, const unsigned long long& beta )
 {
     BigInt gamma;
     Pow( alpha, beta, gamma );
@@ -359,6 +378,28 @@ void Pow( const BigFloat& alpha, const unsigned long& beta, BigFloat& gamma )
       beta, mpc::RoundingMode() );
 }
 
+void Pow
+( const BigFloat& alpha, const unsigned long long& beta, BigFloat& gamma )
+{
+    if( beta <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        unsigned long betaLong = static_cast<unsigned long>(beta);
+        mpfr_pow_ui
+        ( gamma.Pointer(),
+          alpha.LockedPointer(),
+          betaLong,
+          mpc::RoundingMode() );
+    }
+    else
+    {
+        BigFloat betaBig(beta);
+        mpfr_pow
+        ( gamma.Pointer(),
+          alpha.LockedPointer(),
+          betaBig.LockedPointer(), mpc::RoundingMode() );
+    }
+}
+
 void Pow( const BigFloat& alpha, const int& beta, BigFloat& gamma )
 {
     mpfr_pow_si
@@ -373,6 +414,27 @@ void Pow( const BigFloat& alpha, const long int& beta, BigFloat& gamma )
     ( gamma.Pointer(),
       alpha.LockedPointer(),
       beta, mpc::RoundingMode() );
+}
+
+void Pow( const BigFloat& alpha, const long long int& beta, BigFloat& gamma )
+{
+    if( (beta >=0 && beta <= static_cast<long long int>(LONG_MAX)) ||
+        (beta < 0 && beta >= static_cast<long long int>(LONG_MIN)) )
+    {
+        long int betaLong = static_cast<long int>(beta);
+        mpfr_pow_si
+        ( gamma.Pointer(),
+          alpha.LockedPointer(),
+          betaLong, mpc::RoundingMode() );
+    }
+    else
+    {
+        BigFloat betaBig(beta);
+        mpfr_pow
+        ( gamma.Pointer(),
+          alpha.LockedPointer(),
+          betaBig.LockedPointer(), mpc::RoundingMode() );
+    }
 }
 
 void Pow( const BigFloat& alpha, const BigInt& beta, BigFloat& gamma )
@@ -405,6 +467,13 @@ BigFloat Pow( const BigFloat& alpha, const unsigned long& beta )
     return gamma;
 }
 
+BigFloat Pow( const BigFloat& alpha, const unsigned long long& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
 BigFloat Pow( const BigFloat& alpha, const int& beta )
 {
     BigFloat gamma;
@@ -413,6 +482,13 @@ BigFloat Pow( const BigFloat& alpha, const int& beta )
 }
 
 BigFloat Pow( const BigFloat& alpha, const long int& beta )
+{
+    BigFloat gamma;
+    Pow( alpha, beta, gamma );
+    return gamma;
+}
+
+BigFloat Pow( const BigFloat& alpha, const long long int& beta )
 {
     BigFloat gamma;
     Pow( alpha, beta, gamma );

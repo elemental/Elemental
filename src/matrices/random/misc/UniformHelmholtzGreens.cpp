@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -139,6 +139,6 @@ void UniformHelmholtzGreens
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El
