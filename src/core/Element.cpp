@@ -378,7 +378,8 @@ void Pow( const BigFloat& alpha, const unsigned long& beta, BigFloat& gamma )
       beta, mpc::RoundingMode() );
 }
 
-void Pow( const BigFloat& alpha, const unsigned long& beta, BigFloat& gamma )
+void Pow
+( const BigFloat& alpha, const unsigned long long& beta, BigFloat& gamma )
 {
     if( beta <= static_cast<unsigned long long>(ULONG_MAX) )
     {
