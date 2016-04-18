@@ -661,6 +661,14 @@ DEBUG_ONLY(
 
     void PushCallStack( string s )
     { 
+        // It was discovered that a global instantiation of a BigInt
+        // (::bigIntZero) led to pushing to the call stack in global scope
+        // before entering main, and this could possibly have been before the
+        // call stack was constructed, leading to PopCallStack() causing an
+        // exception due to the stack being empty. But this isn't completely
+        // verified.
+        if( !Initialized() )
+            return;
 #ifdef EL_HYBRID
         if( omp_get_thread_num() != 0 )
             return;
@@ -685,6 +693,14 @@ DEBUG_ONLY(
 
     void PopCallStack()
     { 
+        // It was discovered that a global instantiation of a BigInt
+        // (::bigIntZero) led to pushing to the call stack in global scope
+        // before entering main, and this could possibly have been before the
+        // call stack was constructed, leading to PopCallStack() causing an
+        // exception due to the stack being empty. But this isn't completely
+        // verified.
+        if( !Initialized() )
+            return;
 #ifdef EL_HYBRID
         if( omp_get_thread_num() != 0 )
             return;
