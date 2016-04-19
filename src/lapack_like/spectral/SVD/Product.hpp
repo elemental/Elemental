@@ -69,7 +69,7 @@ inline void TallAbsoluteProduct
     for( Int i=0; i<k; ++i )
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
-    if( avoidU )
+    if( !avoidU )
     {
         // Y := A V
         Matrix<F> Y;
@@ -130,7 +130,7 @@ inline void TallRelativeProduct
             s.Set( i, 0, sigma );
     }
 
-    if( avoidU )
+    if( !avoidU )
     {
         // Y := A V
         Matrix<F> Y;
@@ -218,7 +218,7 @@ TallAbsoluteProduct
             s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
-    if( avoidU )
+    if( !avoidU )
     {
         // Y := A V
         DistMatrix<F> Y(g);
@@ -305,7 +305,7 @@ TallRelativeProduct
     }
     Copy( s_STAR_STAR, s );
 
-    if( avoidU )
+    if( !avoidU )
     {
         // Y := A V
         DistMatrix<F> Y(g);
@@ -414,7 +414,7 @@ TallAbsoluteProduct
     for( Int i=0; i<k; ++i )
         s.SetLocal( i, 0, Sqrt(s.GetLocal(i,0)) );
 
-    if( avoidU )
+    if( !avoidU )
     {
         // Y := A V
         DistMatrix<F,VC,STAR> Y(g);
@@ -504,7 +504,7 @@ TallRelativeProduct
     }
     const int k = s.Height();
 
-    if( avoidU )
+    if( !avoidU )
     {
         // Y := A V
         DistMatrix<F,VC,STAR> Y(g);
@@ -610,7 +610,7 @@ WideAbsoluteProduct
     for( Int i=0; i<k; ++i )
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
-    if( avoidV )
+    if( !avoidV )
     {
         // (Sigma V) := A^H U
         Gemm( ADJOINT, NORMAL, F(1), A, U, V );
@@ -670,7 +670,7 @@ WideRelativeProduct
             s.Set( i, 0, Sqrt(lambda) );
     }
 
-    if( avoidV )
+    if( !avoidV )
     {
         // (Sigma V) := A^H U
         Gemm( ADJOINT, NORMAL, F(1), A, U, V );
@@ -756,7 +756,7 @@ WideAbsoluteProduct
             s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
-    if( avoidV )
+    if( !avoidV )
     {
         // (Sigma V) := A^H U
         Gemm( ADJOINT, NORMAL, F(1), A, U, V );
@@ -841,7 +841,7 @@ WideRelativeProduct
     }
     Copy( s_STAR_STAR, s );
 
-    if( avoidV )
+    if( !avoidV )
     {
         // (Sigma V) := A^H U
         Gemm( ADJOINT, NORMAL, F(1), A, U, V );

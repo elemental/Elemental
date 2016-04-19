@@ -14,10 +14,6 @@
 #include <set>
 #include <stack>
 
-#ifdef EL_HAVE_QT5
- #include <QApplication>
-#endif
-
 namespace {
 using namespace El;
 
@@ -56,27 +52,6 @@ Int spacesPerIndent=2;
 // Dynamic sieve for trial division
 DynamicSieve<unsigned long long,unsigned> trialDivSieve;
 
-// Qt5
-// ===
-// TODO: Move this into its own file?
-ColorMap colorMap=RED_BLACK_GREEN;
-Int numDiscreteColors = 15;
-#ifdef EL_HAVE_QT5
-// The command-line arguments should be passed into Qt5 in a manner which
-// ensures that they do not fall out of scope until the last Qt5 call.
-// The best way to do so is to make a copy and pass in the copy.
-int argcSave;
-char** argvSave;
-
-bool guiDisabled;
-bool elemInitializedQt = false;
-bool elemOpenedWindow = false;
-QCoreApplication* coreApp;
-bool haveMinRealWindowVal=false, haveMaxRealWindowVal=false,
-     haveMinImagWindowVal=false, haveMaxImagWindowVal=false;
-double minRealWindowVal, maxRealWindowVal,
-       minImagWindowVal, maxImagWindowVal;
-#endif
 }
 
 namespace El {
@@ -180,94 +155,6 @@ bool Using64BitBlasInt()
 DynamicSieve<unsigned long long,unsigned>& TrialDivisionSieve()
 { return ::trialDivSieve; }
 
-void SetColorMap( ColorMap map )
-{ ::colorMap = map; }
-
-ColorMap GetColorMap()
-{ return ::colorMap; }
-
-void SetNumDiscreteColors( Int numChunks )
-{ ::numDiscreteColors = numChunks; }
-
-Int NumDiscreteColors()
-{ return ::numDiscreteColors; }
-
-#ifdef EL_HAVE_QT5
-bool GuiDisabled()
-{ return ::guiDisabled; }
-
-void OpenedWindow()
-{ ::elemOpenedWindow = true; }
-
-double MinRealWindowVal()
-{
-    if( ::haveMinRealWindowVal )
-        return ::minRealWindowVal;
-    else
-        return 0;
-}
-
-double MaxRealWindowVal()
-{
-    if( ::haveMaxRealWindowVal )
-        return ::maxRealWindowVal;
-    else
-        return 0;
-}
-
-double MinImagWindowVal()
-{
-    if( ::haveMinImagWindowVal )
-        return ::minImagWindowVal;
-    else
-        return 0;
-}
-
-double MaxImagWindowVal()
-{
-    if( ::haveMaxImagWindowVal )
-        return ::maxImagWindowVal;
-    else
-        return 0;
-}
-
-void UpdateMinRealWindowVal( double minVal )
-{
-    if( ::haveMinRealWindowVal )
-        ::minRealWindowVal = Min( ::minRealWindowVal, minVal );
-    else
-        ::minRealWindowVal = minVal;
-    ::haveMinRealWindowVal = true;
-}
-
-void UpdateMaxRealWindowVal( double maxVal )
-{
-    if( ::haveMaxRealWindowVal )
-        ::maxRealWindowVal = Max( ::maxRealWindowVal, maxVal );
-    else
-        ::maxRealWindowVal = maxVal;
-    ::haveMaxRealWindowVal = true;
-}
-
-void UpdateMinImagWindowVal( double minVal )
-{
-    if( ::haveMinImagWindowVal )
-        ::minImagWindowVal = Min( ::minImagWindowVal, minVal );
-    else
-        ::minImagWindowVal = minVal;
-    ::haveMinImagWindowVal = true;
-}
-
-void UpdateMaxImagWindowVal( double maxVal )
-{
-    if( ::haveMaxImagWindowVal )
-        ::maxImagWindowVal = Max( ::maxImagWindowVal, maxVal );
-    else
-        ::maxImagWindowVal = maxVal;
-    ::haveMaxImagWindowVal = true;
-}
-#endif // ifdef EL_HAVE_QT5
-
 bool Initialized()
 { return ::numElemInits > 0; }
 
@@ -324,30 +211,7 @@ void Initialize( int& argc, char**& argv )
     }
 
 #ifdef EL_HAVE_QT5
-    ::coreApp = QCoreApplication::instance();
-    if( ::coreApp == 0 )
-    {
-        // Test for whether the GUI should be disabled
-        ::guiDisabled = false;
-        for( int i=1; i<argc; ++i )
-            if( !qstrcmp(argv[i],"-no-gui") )
-                ::guiDisabled = true;
-
-        ::argcSave = argc;
-        ::argvSave = new char*[argc+1];
-        for( int i=0; i<argc; ++i )
-        {
-            ::argvSave[i] = new char[std::strlen(argv[i])+1];
-            std::strcpy( ::argvSave[i], argv[i] );
-        }
-       ::argvSave[argc] = nullptr;
-       
-        if( ::guiDisabled )
-            ::coreApp = new QCoreApplication( ::argcSave, ::argvSave );
-        else
-            ::coreApp = new QApplication( ::argcSave, ::argvSave );        
-        ::elemInitializedQt = true;
-    }
+    InitializeQt5( argc, argv );
 #endif
 
     // Queue a default algorithmic blocksize
@@ -406,19 +270,7 @@ void Finalize()
         ::defaultGrid = 0;
 
 #ifdef EL_HAVE_QT5
-        if( ::elemInitializedQt )
-        {
-            if( ::elemOpenedWindow )
-                ::coreApp->exec();
-            else
-                ::coreApp->exit();
-            delete ::coreApp;
-
-            // Delete the copies of argc and argv
-            for( int i=0; i< ::argcSave; ++i )
-                delete[] ::argvSave[i]; 
-            delete[] ::argvSave;
-        }
+        FinalizeQt5();
 #endif
         if( ::elemInitializedMpi )
             mpi::Finalize();

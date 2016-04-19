@@ -45,16 +45,16 @@ RealPartImage
     const Int n = A.Width();
 
     // Compute the maximum and minimum values
-    Real minVal=0, maxVal=0; 
+    double minVal=0, maxVal=0; 
     if( m != 0 && n != 0 )
     {
-        minVal = maxVal = A.GetRealPart( 0, 0 );
+        minVal = maxVal = double(A.GetRealPart( 0, 0 ));
         for( Int j=0; j<n; ++j )
         {
             for( Int i=0; i<m; ++i )
             {
-                minVal = Min( minVal, A.GetRealPart(i,j) );
-                maxVal = Max( maxVal, A.GetRealPart(i,j) );
+                minVal = Min( minVal, double(A.GetRealPart(i,j)) );
+                maxVal = Max( maxVal, double(A.GetRealPart(i,j)) );
             }
         }
     }
@@ -71,7 +71,8 @@ RealPartImage
         for( Int iPix=0; iPix<mPix; ++iPix )
         {
             const Int i = mRatio*iPix;
-            QRgb color = SampleColorMap( A.GetRealPart(i,j), minVal, maxVal );
+            QRgb color =
+              SampleColorMap( double(A.GetRealPart(i,j)), minVal, maxVal );
             image.setPixel( jPix, iPix, color );
         }
     }
@@ -94,16 +95,16 @@ ImagPartImage
     const Int n = A.Width();
 
     // Compute the maximum and minimum values
-    Real minVal=0, maxVal=0; 
+    double minVal=0, maxVal=0; 
     if( m != 0 && n != 0 )
     {
-        minVal = maxVal = A.GetImagPart( 0, 0 );
+        minVal = maxVal = double(A.GetImagPart( 0, 0 ));
         for( Int j=0; j<n; ++j )
         {
             for( Int i=0; i<m; ++i )
             {
-                minVal = Min( minVal, A.GetImagPart(i,j) );
-                maxVal = Max( maxVal, A.GetImagPart(i,j) );
+                minVal = Min( minVal, double(A.GetImagPart(i,j)) );
+                maxVal = Max( maxVal, double(A.GetImagPart(i,j)) );
             }
         }
     }
@@ -120,7 +121,8 @@ ImagPartImage
         for( Int iPix=0; iPix<mPix; ++iPix )
         {
             const Int i = mRatio*iPix;
-            QRgb color = SampleColorMap( A.GetImagPart(i,j), minVal, maxVal );
+            QRgb color =
+              SampleColorMap( double(A.GetImagPart(i,j)), minVal, maxVal );
             image.setPixel( jPix, iPix, color );
         }
     }

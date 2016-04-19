@@ -30,45 +30,12 @@ enum ColorMap
 }
 using namespace ColorMapNS;
 
-#ifdef EL_HAVE_QT5
-// Return true if Qt5 was detected, but no GUI is allowed.
-// This is useful if images are to be written to file using Qt5's wrappers.
-bool GuiDisabled();
-
-// When Elemental is finalized, if no window was opened, then it must call 
-// app.exit() instead
-void OpenedWindow();
-
-// For keeping track of the extreme values visualized so far
-double MinRealWindowVal();
-double MaxRealWindowVal();
-double MinImagWindowVal();
-double MaxImagWindowVal();
-void UpdateMinRealWindowVal( double minVal );
-void UpdateMaxRealWindowVal( double maxVal );
-void UpdateMinImagWindowVal( double minVal );
-void UpdateMaxImagWindowVal( double maxVal );
-#endif
-
-} // namespace El
-
-#ifdef EL_HAVE_QT5
-# include <El/io/DisplayWidget.hpp>
-# include <El/io/DisplayWindow-premoc.hpp>
-# include <El/io/ComplexDisplayWindow-premoc.hpp>
-#endif // ifdef EL_HAVE_QT5
-
-namespace El {
-
 // Color maps
 // ==========
 void SetColorMap( ColorMap colorMap );
 ColorMap GetColorMap();
 void SetNumDiscreteColors( Int numColors );
 Int NumDiscreteColors();
-#ifdef EL_HAVE_QT5
-QRgb SampleColorMap( double value, double minVal, double maxVal );
-#endif 
 
 // Display
 // =======
@@ -173,5 +140,19 @@ void Write
   FileFormat format=BINARY, string title="" );
 
 } // namespace El
+
+#ifdef EL_HAVE_QT5
+
+#include <El/io/DisplayWidget.hpp>
+#include <El/io/DisplayWindow-premoc.hpp>
+#include <El/io/ComplexDisplayWindow-premoc.hpp>
+
+namespace El {
+
+QRgb SampleColorMap( double value, double minVal, double maxVal );
+
+}
+
+#endif // ifdef EL_HAVE_QT5
 
 #endif // ifndef EL_IO_HPP
