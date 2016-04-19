@@ -427,7 +427,7 @@ install(FILES "${PROJECT_BINARY_DIR}/include/El/config.h"
         DESTINATION include/El)
 add_custom_target(El_config DEPENDS "${PROJECT_BINARY_DIR}/include/El/config.h")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-  DESTINATION "${CMAKE_INSTALL_PREFIX}/include/"
+  DESTINATION include/
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
 # Define the main library for Elemental
