@@ -90,6 +90,10 @@ F SampleBall( const F& center=F(0), const Base<F>& radius=Base<F>(1) );
 template<typename Real,typename=EnableIf<IsReal<Real>>> 
 Real SampleBall( const Real& center=Real(0), const Real& radius=Real(1) );
 
+// To be used internally by Elemental
+void InitializeRandom( bool deterministic=true );
+void FinalizeRandom();
+
 } // namespace El
 
 #endif // ifndef EL_RANDOM_DECL_HPP

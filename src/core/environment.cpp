@@ -12,45 +12,18 @@
 #include <algorithm>
 #include <iomanip>
 #include <set>
-#include <stack>
 
 namespace {
 using namespace El;
 
 Int numElemInits = 0;
 bool elemInitializedMpi = false;
-#ifdef EL_HAVE_QD
-unsigned oldControlWord=0;
-#endif
 
 Grid* defaultGrid = 0;
 Args* args = 0;
 
 // Default blocksizes for BlockMatrix
 Int blockHeight=32, blockWidth=32;
-
-// A common Mersenne twister configuration
-std::mt19937 generator;
-
-#ifdef EL_HAVE_MPC
-gmp_randstate_t gmpRandState;
-#endif
-
-// Debugging
-DEBUG_ONLY(
-  std::stack<string> callStack;
-  bool tracingEnabled = false;
-)
-
-// A (per-process) output file for logging
-std::ofstream logFile;
-
-// Output/logging
-Int indentLevel=0;
-Int spacesPerIndent=2;
-
-// Dynamic sieve for trial division
-DynamicSieve<unsigned long long,unsigned> trialDivSieve;
 
 }
 
@@ -152,9 +125,6 @@ bool Using64BitBlasInt()
 #endif
 }
 
-DynamicSieve<unsigned long long,unsigned>& TrialDivisionSieve()
-{ return ::trialDivSieve; }
-
 bool Initialized()
 { return ::numElemInits > 0; }
 
@@ -222,23 +192,10 @@ void Initialize( int& argc, char**& argv )
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
 #ifdef EL_HAVE_QD
-    // TODO: Enable and disable when entering routines using QD
-    fpu_fix_start( &::oldControlWord );
+    InitializeQD();
 #endif
 
-    const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
-    // TODO: Allow for switching on/off reproducibility?
-    //const long secs = time(NULL);
-    const long secs = 21;
-    const long seed = (secs<<16) | (rank & 0xFFFF);
-    ::generator.seed( seed );
-    srand( seed );
-#ifdef EL_HAVE_MPC
-    mpc::SetMinIntBits( 256 );
-    mpc::SetPrecision( 256 );
-    gmp_randinit_default( ::gmpRandState );
-    gmp_randseed_ui( ::gmpRandState, seed );
-#endif
+    InitializeRandom();
 
     // Create the types and ops
     // NOTE: mpc::SetPrecision created the BigFloat types
@@ -279,13 +236,10 @@ void Finalize()
         EmptyBlocksizeStack();
 
 #ifdef EL_HAVE_QD
-        // TODO: Enable and disable when entering routines using QD
-        fpu_fix_end( &::oldControlWord );
+        FinalizeQD();
 #endif
 
-#ifdef EL_HAVE_MPC
-        gmp_randclear( ::gmpRandState );
-#endif
+        FinalizeRandom();
     }
 
     DEBUG_ONLY( CloseLog() )
@@ -321,27 +275,6 @@ void SetDefaultBlockHeight( Int mb )
 
 void SetDefaultBlockWidth( Int nb )
 { ::blockWidth = nb; }
-
-std::mt19937& Generator()
-{ return ::generator; }
-
-#ifdef EL_HAVE_MPC
-namespace mpc {
-
-void RandomState( gmp_randstate_t randState )
-{
-    // It is surprisingly tedious to return the state...
-
-    randState->_mp_seed->_mp_alloc = ::gmpRandState->_mp_seed->_mp_alloc;
-    randState->_mp_seed->_mp_size = ::gmpRandState->_mp_seed->_mp_size;
-    randState->_mp_seed->_mp_d = ::gmpRandState->_mp_seed->_mp_d;
-
-    randState->_mp_alg = ::gmpRandState->_mp_alg;
-    randState->_mp_algdata._mp_lc = ::gmpRandState->_mp_algdata._mp_lc;
-}
-
-} // namespace mpc
-#endif
 
 void Args::HandleVersion( ostream& os ) const
 {
@@ -415,113 +348,6 @@ void ComplainIfDebug()
             Output("=======================================================");
         }
     )
-}
-
-// If we are not in RELEASE mode, then implement wrappers for a CallStack
-DEBUG_ONLY(
-
-    void EnableTracing() { ::tracingEnabled = true; }
-    void DisableTracing() { ::tracingEnabled = false; }
-
-    void PushCallStack( string s )
-    { 
-        // It was discovered that a global instantiation of a BigInt
-        // (::bigIntZero) led to pushing to the call stack in global scope
-        // before entering main, and this could possibly have been before the
-        // call stack was constructed, leading to PopCallStack() causing an
-        // exception due to the stack being empty. But this isn't completely
-        // verified.
-        if( !Initialized() )
-            return;
-#ifdef EL_HYBRID
-        if( omp_get_thread_num() != 0 )
-            return;
-#endif
-        const size_t maxStackSize = 300;
-        if( ::callStack.size() > maxStackSize )
-        {
-            DumpCallStack();
-            return;
-        }
-        ::callStack.push(s); 
-        if( ::tracingEnabled )
-        {
-            const int stackSize = ::callStack.size();
-            ostringstream os;
-            for( int j=0; j<stackSize; ++j )
-                os << " "; 
-            os << s << endl;
-            cout <<  os.str();
-        }
-    }
-
-    void PopCallStack()
-    { 
-        // It was discovered that a global instantiation of a BigInt
-        // (::bigIntZero) led to pushing to the call stack in global scope
-        // before entering main, and this could possibly have been before the
-        // call stack was constructed, leading to PopCallStack() causing an
-        // exception due to the stack being empty. But this isn't completely
-        // verified.
-        if( !Initialized() )
-            return;
-#ifdef EL_HYBRID
-        if( omp_get_thread_num() != 0 )
-            return;
-#endif
-        if( ::callStack.empty() )
-            LogicError("Attempted to pop an empty call stack");
-        ::callStack.pop(); 
-    }
-
-    void DumpCallStack( ostream& os )
-    {
-        ostringstream msg;
-        while( ! ::callStack.empty() )
-        {
-            msg << "[" << ::callStack.size() << "]: " << ::callStack.top() 
-                << "\n";
-            ::callStack.pop();
-        }
-        os << msg.str();
-        os.flush();
-    }
-
-) // DEBUG_ONLY
-
-void OpenLog( const char* filename )
-{
-    if( ::logFile.is_open() )
-        CloseLog();
-    ::logFile.open( filename );
-}
-
-std::ostream& LogOS()
-{
-    if( !::logFile.is_open() )
-    {
-        ostringstream fileOS;
-        fileOS << "El-Proc" << std::setfill('0') << std::setw(3)
-               << mpi::Rank() << ".log";
-        ::logFile.open( fileOS.str().c_str() );
-    }
-    return ::logFile; 
-}
-
-void CloseLog() { ::logFile.close(); }
-
-Int PushIndent() { return ::indentLevel++; }
-Int PopIndent() { return ::indentLevel--; }
-void SetIndent( Int indent ) { ::indentLevel = indent; }
-void ClearIndent() { ::indentLevel = 0; }
-Int IndentLevel() { return ::indentLevel; }
-
-string Indent()
-{
-    string ind;
-    for( Int i=0; i < ::spacesPerIndent * ::indentLevel; ++i )
-        ind = ind + " ";
-    return ind;
 }
 
 template<typename T>

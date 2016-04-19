@@ -236,6 +236,10 @@ inline QuadDouble operator/( const QuadDouble& a, double b )
 inline QuadDouble operator/( double a, const QuadDouble& b )
 { return a / static_cast<const qd_real&>(b); }
 
+// To be called internally by Elemental
+void InitializeQD();
+void FinalizeQD();
+
 } // namespace El
 #endif // ifdef EL_HAVE_QD
 

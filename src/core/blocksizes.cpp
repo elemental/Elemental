@@ -10,6 +10,7 @@
 #include <stack>
 
 // TODO: Consider moving this into another folder (e.g., in src/blas_like/)
+//       and/or using a better datastructure for managing the blocksizes
 
 namespace {
 using namespace El;
