@@ -192,8 +192,8 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
             TestBidiag<BigFloat>
             ( m, n, testCorrectness, print, display );
-        }
 #endif
+        }
     }
     catch( exception& e ) { ReportException(e); }
 
