@@ -43,7 +43,7 @@ void TestCorrectness
     const Real infNormOfX = InfinityNorm( X );
     const Real frobNormOfX = FrobeniusNorm( X );
     OutputFromRoot
-    (g.Rank(),
+    (g.Comm(),
      "||A||_oo   = ",infNormOfA,"\n",Indent(),
      "||A||_F    = ",frobNormOfA,"\n",Indent(),
      "||X||_oo   = ",infNormOfX,"\n",Indent(),
