@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
+        const Grid& g = Grid::Default();
         DistMatrix<C> A(g);
         if( matType == 0 )
             Uniform( A, n, n );

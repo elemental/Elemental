@@ -10,7 +10,6 @@
 #include <El.hpp>
 
 #include <algorithm>
-#include <iomanip>
 #include <set>
 
 namespace {
@@ -18,7 +17,6 @@ namespace {
 El::Int numElemInits = 0;
 bool elemInitializedMpi = false;
 
-El::Grid* defaultGrid = 0;
 El::Args* args = 0;
 
 }
@@ -185,7 +183,7 @@ void Initialize( int& argc, char**& argv )
     PushBlocksizeStack( 128 );
 
     // Build the default grid
-    defaultGrid = new Grid( mpi::COMM_WORLD );
+    Grid::InitializeDefault();
 
 #ifdef EL_HAVE_QD
     InitializeQD();
@@ -214,13 +212,11 @@ void Finalize()
     {
         delete ::args;
         ::args = 0;
+
+        Grid::FinalizeDefault();
        
         // Destroy the types and ops
         mpi::DestroyCustom();
-
-        // Delete the default grid
-        delete ::defaultGrid;
-        ::defaultGrid = 0;
 
 #ifdef EL_HAVE_QT5
         FinalizeQt5();
@@ -246,18 +242,6 @@ Args& GetArgs()
     if( args == 0 )
         throw std::runtime_error("No available instance of Args");
     return *::args; 
-}
-
-const Grid& DefaultGrid() EL_NO_RELEASE_EXCEPT
-{
-    DEBUG_ONLY(
-      CSE cse("DefaultGrid");
-      if( ::defaultGrid == 0 )
-          LogicError
-          ("Attempted to return a non-existant default grid. Please ensure "
-           "that Elemental is initialized before creating a DistMatrix.");
-    )
-    return *::defaultGrid;
 }
 
 void Args::HandleVersion( ostream& os ) const

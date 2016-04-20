@@ -17,7 +17,7 @@ extern "C" {
 typedef       struct ElGridDummy* ElGrid;
 typedef const struct ElGridDummy* ElConstGrid;
 
-/* const Grid& DefaultGrid() 
+/* const Grid& Grid::Default() 
    ------------------------- */
 EL_EXPORT ElError ElDefaultGrid( ElConstGrid* grid );
 

@@ -73,7 +73,7 @@ struct PermutationMeta
 class DistPermutation
 {
 public:
-    DistPermutation( const Grid& g=DefaultGrid() );
+    DistPermutation( const Grid& g=Grid::Default() );
 
     void SetGrid( const Grid& g );
 

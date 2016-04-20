@@ -166,7 +166,7 @@ protected:
 
     // Private constructors
     // ====================
-    BlockMatrix( const El::Grid& g=DefaultGrid(),  int root=0 );
+    BlockMatrix( const El::Grid& g=Grid::Default(),  int root=0 );
     BlockMatrix
     ( const El::Grid& g, Int blockHeight, Int blockWidth, int root=0 );
 

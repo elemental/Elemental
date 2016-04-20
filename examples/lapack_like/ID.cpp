@@ -29,7 +29,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
+        const Grid& g = Grid::Default();
         DistMatrix<F> U(g), V(g), A(g);
         Uniform( U, m, r );
         Uniform( V, n, r );
