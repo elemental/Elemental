@@ -11,6 +11,11 @@
 
 namespace El {
 
+Int DefaultBlockHeight(); 
+Int DefaultBlockWidth();
+void SetDefaultBlockHeight( Int blockHeight );
+void SetDefaultBlockWidth( Int blockWidth );
+
 template<typename T> 
 class BlockMatrix : public AbstractDistMatrix<T>
 {

@@ -24,8 +24,8 @@ void TestCorrectness
     const Grid& g = H.Grid();
     const Int m = H.Height();
 
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of transform...");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of transform...");
+    PushIndent();
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
     DistMatrix<F> Y(g);
@@ -70,23 +70,23 @@ void TestCorrectness
     const Real oneNormError = OneNorm( Z );
     const Real infNormError = InfinityNorm( Z );
     const Real frobNormError = FrobeniusNorm( Z );
-    if( g.Rank() == 0 )
+    if( order == FORWARD )
     {
-        if( order == FORWARD )
-        {
-            Output
-            ("    ||Q Q^H - I||_1  = ",oneNormError,"\n",
-             "    ||Q Q^H - I||_oo = ",infNormError,"\n",
-             "    ||Q Q^H - I||_F  = ",frobNormError);
-        }
-        else
-        {
-            Output
-            ("    ||Q^H Q - I||_1  = ",oneNormError,"\n",
-             "    ||Q^H Q - I||_oo = ",infNormError,"\n",
-             "    ||Q^H Q - I||_F  = ",frobNormError);
-        }
+        OutputFromRoot
+        (g.Comm(),
+         "||Q Q^H - I||_1  = ",oneNormError,"\n",Indent(),
+         "||Q Q^H - I||_oo = ",infNormError,"\n",Indent(),
+         "||Q Q^H - I||_F  = ",frobNormError);
     }
+    else
+    {
+        OutputFromRoot
+        (g.Comm(),
+         "||Q^H Q - I||_1  = ",oneNormError,"\n",Indent(),
+         "||Q^H Q - I||_oo = ",infNormError,"\n",Indent(),
+         "||Q^H Q - I||_F  = ",frobNormError);
+    }
+    PopIndent();
 }
 
 template<typename F>
@@ -101,8 +101,8 @@ void TestUT
   bool testCorrectness,
   bool printMatrices )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F> H(g), A(g);
     Uniform( H, m, m );
     Uniform( A, m, m );
@@ -144,18 +144,17 @@ void TestUT
         Print( t, "t" );
     }
 
-    if( g.Rank() == 0 )
-        Output("  Starting UT transform...");
+    OutputFromRoot(g.Comm(),"Starting UT transform...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer; 
+    timer.Start();
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, A );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 8.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( printMatrices )
         Print( A, "A after factorization" );
     if( testCorrectness )
@@ -163,6 +162,7 @@ void TestUT
         TestCorrectness
         ( side, uplo, order, conjugation, offset, printMatrices, H, t );
     }
+    PopIndent();
 }
 
 int 
@@ -170,12 +170,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        Int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","store in triangle: L/U",'L');
@@ -197,10 +195,10 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const ForwardOrBackward dir = ( forward ? FORWARD : BACKWARD );
@@ -215,8 +213,7 @@ main( int argc, char* argv[] )
             ("Offset cannot be negative if transforms are in upper triangle");
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test UT transform");
+        OutputFromRoot(g.Comm(),"Will test UT transform");
 
         TestUT<float>
         ( g, side, uplo, dir, conjugation, m, offset, 

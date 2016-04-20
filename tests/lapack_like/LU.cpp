@@ -22,8 +22,8 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
-    if( g.Rank() == 0 )
-        Output("Testing error...");
+    OutputFromRoot(g.Comm(),"Testing error...");
+    PushIndent();
 
     // Generate random right-hand sides
     DistMatrix<F> X(g);
@@ -45,14 +45,15 @@ void TestCorrectness
     const Real infNormA = InfinityNorm( AOrig );
     const Real frobNormA = FrobeniusNorm( AOrig );
 
-    if( g.Rank() == 0 )
-        Output
-        ("||A||_oo            = ",infNormA,"\n",
-         "||A||_F             = ",frobNormA,"\n",
-         "||X||_oo            = ",infNormX,"\n",
-         "||X||_F             = ",frobNormX,"\n",
-         "||A A^-1 X - X||_oo = ",infNormError,"\n",
-         "||A A^-1 X - X||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_oo            = ",infNormA,"\n",Indent(),
+     "||A||_F             = ",frobNormA,"\n",Indent(),
+     "||X||_oo            = ",infNormX,"\n",Indent(),
+     "||X||_F             = ",frobNormX,"\n",Indent(),
+     "||A A^-1 X - X||_oo = ",infNormError,"\n",Indent(),
+     "||A A^-1 X - X||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F> 
@@ -64,8 +65,8 @@ void TestLU
   bool forceGrowth,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F> A(g), AOrig(g);
     DistPermutation P(g), Q(g);
 
@@ -79,23 +80,21 @@ void TestLU
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting LU factorization...");
+    OutputFromRoot(g.Comm(),"Starting LU factorization...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     if( pivoting == 0 )
         LU( A );
     else if( pivoting == 1 )
         LU( A, P );
     else if( pivoting == 2 )
         LU( A, P, Q );
-
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
@@ -128,6 +127,7 @@ void TestLU
     }
     if( testCorrectness )
         TestCorrectness( AOrig, A, P, Q, pivoting, print );
+    PopIndent();
 }
 
 int 
@@ -135,12 +135,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -162,21 +160,18 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-        {
-            if( pivot == 0 )
-                Output("Testing LU with no pivoting");
-            else if( pivot == 1 )
-                Output("Testing LU with partial pivoting");
-            else if( pivot == 2 )
-                Output("Testing LU with full pivoting");
-        }
+        if( pivot == 0 )
+            OutputFromRoot(g.Comm(),"Testing LU with no pivoting");
+        else if( pivot == 1 )
+            OutputFromRoot(g.Comm(),"Testing LU with partial pivoting");
+        else if( pivot == 2 )
+            OutputFromRoot(g.Comm(),"Testing LU with full pivoting");
 
         TestLU<float>
         ( g, m, pivot, testCorrectness, forceGrowth, print );

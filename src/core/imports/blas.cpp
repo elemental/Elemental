@@ -560,7 +560,8 @@ void Axpy
     T gamma;
     for( BlasInt i=0; i<n; ++i )
     {
-        gamma = alpha*x[i*incx];
+        gamma = alpha;
+        gamma *= x[i*incx];
         y[i*incy] += gamma;
     }
 }
@@ -1736,7 +1737,7 @@ void Hemv
     }
 
     T gamma;
-    if( uplo == LOWER )
+    if( std::toupper(uplo) == 'L' )
     {
         // Multiply with the lower triangle
         for( BlasInt j=0; j<m; ++j )
@@ -2163,7 +2164,7 @@ void Symv
     }
 
     T gamma;
-    if( uplo == LOWER )
+    if( std::toupper(uplo) == 'L' )
     {
         // Multiply with the lower triangle
         for( BlasInt j=0; j<m; ++j )
@@ -2449,17 +2450,22 @@ void Syr2
         {
             gamma = y[j*incy];
             gamma *= alpha;
+
             delta = x[j*incx];
             delta *= alpha;
+
             for( BlasInt i=j; i<m; ++i )
             {
                 // A[i+j*ALDim] +=
                 //   alpha*(x[i*incx]*y[j*incy]+y[i*incy]*x[j*incx])
                 phi = x[i*incx]; 
                 phi *= gamma;
+
                 psi = y[i*incy];
                 psi *= delta;
+
                 phi += psi;
+
                 A[i+j*ALDim] += phi;
             }
         }
@@ -2470,17 +2476,22 @@ void Syr2
         {
             gamma = y[j*incy];
             gamma *= alpha;
+
             delta = x[j*incx]; 
             delta *= alpha;
+
             for( BlasInt i=0; i<=j; ++i )
             {
                 // A[i+j*ALDim] += alpha*x[i*incx]*y[j*incy] + 
                 //                 alpha*y[i*incy]*x[j*incx];
                 phi = x[i*incx]; 
                 phi *= gamma;
+
                 psi = y[i*incy];
                 psi *= delta;
+
                 phi += psi;
+
                 A[i+j*ALDim] += phi;
             }
         }
@@ -2983,7 +2994,8 @@ void Gemm
         {
             for( BlasInt l=0; l<k; ++l )
             {
-                gamma = alpha*B[l+j*BLDim];
+                gamma = alpha;
+                gamma *= B[l+j*BLDim];
                 for( BlasInt i=0; i<m; ++i )
                 {
                     delta = A[i+l*ALDim];
@@ -3002,7 +3014,8 @@ void Gemm
             {
                 for( BlasInt l=0; l<k; ++l )
                 {
-                    gamma = alpha*B[j+l*BLDim];
+                    gamma = alpha;
+                    gamma *= B[j+l*BLDim];
                     for( BlasInt i=0; i<m; ++i )
                     {
                         delta = A[i+l*ALDim];
@@ -3019,7 +3032,8 @@ void Gemm
             {
                 for( BlasInt l=0; l<k; ++l )
                 {
-                    gamma = alpha*Conj(B[j+l*BLDim]);
+                    Conj( B[j+l*BLDim], gamma );
+                    gamma *= alpha;
                     for( BlasInt i=0; i<m; ++i )
                     {
                         delta = A[i+l*ALDim];

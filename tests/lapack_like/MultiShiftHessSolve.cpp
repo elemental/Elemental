@@ -65,14 +65,14 @@ void TestCorrectness
     const Real HInf = InfinityNorm( H );
     const Real ZFrob = FrobeniusNorm( Z );
     const Real ZInf = InfinityNorm( Z );
-    if( mpi::Rank() == 0 )
-        Output
-        ("    || H ||_F  = ",HFrob,"\n",
-         "    || H ||_oo = ",HInf,"\n",
-         "    || Y ||_F  = ",YFrob,"\n",
-         "    || Y ||_oo = ",YInf,"\n",
-         "    || H X - X Mu - Y ||_F  = ",ZFrob,"\n",
-         "    || H X - X Mu - Y ||_oo = ",ZInf);
+    OutputFromRoot
+    (H.Grid().Comm(),
+     "|| H ||_F  = ",HFrob,"\n",Indent(),
+     "|| H ||_oo = ",HInf,"\n",Indent(),
+     "|| Y ||_F  = ",YFrob,"\n",Indent(),
+     "|| Y ||_oo = ",YInf,"\n",Indent(),
+     "|| H X - X Mu - Y ||_F  = ",ZFrob,"\n",Indent(),
+     "|| H X - X Mu - Y ||_oo = ",ZInf);
 }
 
 template<typename F>
@@ -86,8 +86,8 @@ void TestHessenberg
   bool print,
   bool display )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F,VC,STAR> H(g);
     DistMatrix<F,STAR,VR> X(g), Y(g);
     DistMatrix<F,VR,STAR> shifts(g);
@@ -104,18 +104,18 @@ void TestHessenberg
     Uniform( shifts, n, 1 );
 
     X = Y;
-    if( mpi::Rank() == 0 )
-        Output("  Starting Hessenberg solve...");
+    OutputFromRoot(g.Comm(),"Starting Hessenberg solve...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     MultiShiftHessSolve( uplo, orientation, F(1), H, shifts, X );
     mpi::Barrier( mpi::COMM_WORLD );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     // TODO: Flop calculation
-    if( mpi::Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds");
     if( testCorrectness )
         TestCorrectness( uplo, orientation, H, shifts, X, Y, print, display );
+    PopIndent();
 }
 
 int 

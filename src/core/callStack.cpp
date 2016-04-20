@@ -13,7 +13,7 @@ namespace {
 
 // Debugging
 DEBUG_ONLY(
-  std::stack<string> callStack;
+  std::stack<std::string> callStack;
   bool tracingEnabled = false;
 )
 

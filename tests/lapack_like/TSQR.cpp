@@ -20,23 +20,24 @@ void TestCorrectness
     const Int n = A.Width();
 
     // Form I - Q^H Q
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of Q...");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of Q...");
+    PushIndent();
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     Herk( UPPER, ADJOINT, Real(-1), Q, Real(1), Z );
     Real oneNormError = HermitianOneNorm( UPPER, Z );
     Real infNormError = HermitianInfinityNorm( UPPER, Z );
     Real frobNormError = HermitianFrobeniusNorm( UPPER, Z );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||Q^H Q - I||_1  = ",oneNormError,"\n",
-         "    ||Q^H Q - I||_oo = ",infNormError,"\n",
-         "    ||Q^H Q - I||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||Q^H Q - I||_1  = ",oneNormError,"\n",Indent(),
+     "||Q^H Q - I||_oo = ",infNormError,"\n",Indent(),
+     "||Q^H Q - I||_F  = ",frobNormError);
+    PopIndent();
 
     // Form A - Q R
-    if( g.Rank() == 0 )
-        Output("  Testing if A = QR...");
+    OutputFromRoot(g.Comm(),"Testing if A = QR...");
+    PushIndent();
     const Real oneNormA = OneNorm( A );
     const Real infNormA = InfinityNorm( A );
     const Real frobNormA = FrobeniusNorm( A );
@@ -44,14 +45,15 @@ void TestCorrectness
     oneNormError = OneNorm( A );
     infNormError = InfinityNorm( A );
     frobNormError = FrobeniusNorm( A );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||A||_1       = ",oneNormA,"\n",
-         "    ||A||_oo      = ",infNormA,"\n",
-         "    ||A||_F       = ",frobNormA,"\n",
-         "    ||A - QR||_1  = ",oneNormError,"\n",
-         "    ||A - QR||_oo = ",infNormError,"\n",
-         "    ||A - QR||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_1       = ",oneNormA,"\n",Indent(),
+     "||A||_oo      = ",infNormA,"\n",Indent(),
+     "||A||_F       = ",frobNormA,"\n",Indent(),
+     "||A - QR||_1  = ",oneNormError,"\n",Indent(),
+     "||A - QR||_oo = ",infNormError,"\n",Indent(),
+     "||A - QR||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
@@ -62,8 +64,9 @@ void TestQR
   bool testCorrectness,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F,VC,STAR> A(g), AFact(g);
     DistMatrix<F,STAR,STAR> R(g);
 
@@ -72,18 +75,18 @@ void TestQR
         Print( A, "A" );
     AFact = A;
 
-    if( g.Rank() == 0 )
-        Output("  Starting TSQR factorization...");
+    Timer timer;
+
+    OutputFromRoot(g.Comm(),"Starting TSQR factorization...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    timer.Start();
     qr::ExplicitTS( AFact, R );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double gFlops = (2.*mD*nD*nD + 1./3.*nD*nD*nD)/(1.e9*runTime);
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( AFact, "Q" );
@@ -91,6 +94,7 @@ void TestQR
     }
     if( testCorrectness )
         TestCorrectness( AFact, R, A );
+    PopIndent();
 }
 
 int 
@@ -98,7 +102,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -123,8 +126,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test TSQR");
+        OutputFromRoot(comm,"Will test TSQR");
 
         TestQR<float>( g, m, n, testCorrectness, print );
         TestQR<Complex<float>>( g, m, n, testCorrectness, print );

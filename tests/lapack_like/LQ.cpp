@@ -23,8 +23,8 @@ void TestCorrectness
     const Int n = A.Width();
     const Int minDim = std::min(m,n);
 
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of Q...");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of Q...");
+    PushIndent();
 
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
@@ -41,14 +41,15 @@ void TestCorrectness
     Real oneNormError = OneNorm( X );
     Real infNormError = InfinityNorm( X );
     Real frobNormError = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||Q Q^H - I||_1  = ",oneNormError,"\n",
-         "    ||Q Q^H - I||_oo = ",infNormError,"\n",
-         "    ||Q Q^H - I||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||Q Q^H - I||_1  = ",oneNormError,"\n",Indent(),
+     "||Q Q^H - I||_oo = ",infNormError,"\n",Indent(),
+     "||Q Q^H - I||_F  = ",frobNormError);
+    PopIndent();
 
-    if( g.Rank() == 0 )
-        Output("  Testing if A = LQ...");
+    OutputFromRoot(g.Comm(),"Testing if A = LQ...");
+    PushIndent();
 
     // Form L Q
     auto L( A );
@@ -64,21 +65,22 @@ void TestCorrectness
     oneNormError = OneNorm( L );
     infNormError = InfinityNorm( L );
     frobNormError = FrobeniusNorm( L );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||A||_1       = ",oneNormA,"\n",
-         "    ||A||_oo      = ",infNormA,"\n",
-         "    ||A||_F       = ",frobNormA,"\n",
-         "    ||A - LQ||_1  = ",oneNormError,"\n",
-         "    ||A - LQ||_oo = ",infNormError,"\n",
-         "    ||A - LQ||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_1       = ",oneNormA,"\n",Indent(),
+     "||A||_oo      = ",infNormA,"\n",Indent(),
+     "||A||_F       = ",frobNormA,"\n",Indent(),
+     "||A - LQ||_1  = ",oneNormError,"\n",Indent(),
+     "||A - LQ||_oo = ",infNormError,"\n",Indent(),
+     "||A - LQ||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
 void TestLQ( const Grid& g, Int m, Int n, bool testCorrectness, bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F> A(g), AOrig(g);
     Uniform( A, m, n );
 
@@ -89,19 +91,18 @@ void TestLQ( const Grid& g, Int m, Int n, bool testCorrectness, bool print )
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
 
-    if( g.Rank() == 0 )
-        Output("  Starting LQ factorization...");
+    OutputFromRoot(g.Comm(),"Starting LQ factorization...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     LQ( A, t, d );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double realGFlops = (2.*mD*mD*nD - 2./3.*mD*mD*mD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
@@ -110,6 +111,7 @@ void TestLQ( const Grid& g, Int m, Int n, bool testCorrectness, bool print )
     }
     if( testCorrectness )
         TestCorrectness( print, A, t, d, AOrig );
+    PopIndent();
 }
 
 int 
@@ -117,11 +119,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",200);
         const Int n = Input("--width","width of matrix",200);
@@ -139,10 +140,10 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 

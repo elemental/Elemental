@@ -38,13 +38,12 @@ void TestCorrectness
     X -= Y;
     const Real frobNormE = FrobeniusNorm( X );
 
-    if( mpi::Rank() == 0 )
-        Output
-        ("||T||_max = ",maxNormT,"\n",
-         "||B||_max = ",maxNormB,"\n",
-         "||B||_F   = ",frobNormB,"\n",
-         "||Y||_F   = ",frobNormY,"\n",
-         "||X - inv(B) X||_F  = ",frobNormE);
+    Output
+    ("||T||_max = ",maxNormT,"\n",Indent(),
+     "||B||_max = ",maxNormB,"\n",Indent(),
+     "||B||_F   = ",frobNormB,"\n",Indent(),
+     "||Y||_F   = ",frobNormY,"\n",Indent(),
+     "||X - inv(B) X||_F  = ",frobNormE);
 }
 
 template<typename F> 
@@ -56,47 +55,46 @@ void TestCholeskyMod
   bool testCorrectness,
   bool print )
 {
-    if( mpi::Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
     Matrix<F> T, A;
     HermitianUniformSpectrum( T, m, 1e-9, 10 );
     if( testCorrectness )
         A = T;
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( T, "A" );
 
-    if( mpi::Rank() == 0 )
-        Output("  Starting Cholesky...");
-    double startTime = mpi::Time();
+    Output("Starting Cholesky...");
+    Timer timer;
+    timer.Start();
     Cholesky( uplo, T );
-    double runTime = mpi::Time() - startTime;
+    double runTime = timer.Stop();
     double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( mpi::Rank() == 0 )
-        Output("  Time = ",runTime," seconds (",gFlops," GFlop/s)");
+    Output("Time = ",runTime," seconds (",gFlops," GFlop/s)");
     MakeTrapezoidal( uplo, T );
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( T, "Cholesky factor" );
 
     Matrix<F> V, VMod;
     Uniform( V, m, n );
     V *= F(1)/Sqrt(F(m)*F(n));
     VMod = V;
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( V, "V" );
 
-    if( mpi::Rank() == 0 )
-        Output("  Starting Cholesky mod...");
-    startTime = mpi::Time();
+    Output("Starting Cholesky mod...");
+    timer.Start();
     CholeskyMod( uplo, T, alpha, VMod );
-    runTime = mpi::Time() - startTime;
-    if( mpi::Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
-    if( print && mpi::Rank() == 0 )
+    runTime = timer.Stop();
+    Output("Time = ",runTime," seconds");
+    if( print )
         Print( T, "Modified Cholesky factor" );
 
     if( testCorrectness )
         TestCorrectness( uplo, T, alpha, V, A );
+    PopIndent();
 }
 
 int 
@@ -128,34 +126,37 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestCholeskyMod<float>
-        ( uplo, m, n, alpha, testCorrectness, print );
-        TestCholeskyMod<Complex<float>>
-        ( uplo, m, n, alpha, testCorrectness, print );
+        if( mpi::Rank() == 0 )
+        {
+            TestCholeskyMod<float>
+            ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<Complex<float>>
+            ( uplo, m, n, alpha, testCorrectness, print );
 
-        TestCholeskyMod<double>
-        ( uplo, m, n, alpha, testCorrectness, print );
-        TestCholeskyMod<Complex<double>>
-        ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<double>
+            ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<Complex<double>>
+            ( uplo, m, n, alpha, testCorrectness, print );
 
 #ifdef EL_HAVE_QD
-        TestCholeskyMod<DoubleDouble>
-        ( uplo, m, n, alpha, testCorrectness, print );
-        TestCholeskyMod<QuadDouble>
-        ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<DoubleDouble>
+            ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<QuadDouble>
+            ( uplo, m, n, alpha, testCorrectness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestCholeskyMod<Quad>
-        ( uplo, m, n, alpha, testCorrectness, print );
-        TestCholeskyMod<Complex<Quad>>
-        ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<Quad>
+            ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<Complex<Quad>>
+            ( uplo, m, n, alpha, testCorrectness, print );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestCholeskyMod<BigFloat>
-        ( uplo, m, n, alpha, testCorrectness, print );
+            TestCholeskyMod<BigFloat>
+            ( uplo, m, n, alpha, testCorrectness, print );
 #endif
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

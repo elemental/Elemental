@@ -61,9 +61,10 @@ int main( int argc, char* argv[] )
         }
         const bool conjugate = false;
 
-        if( commRank == 0 )
-            Output("Generating random vector X and forming Y := A X");
-        const double multiplyStart = mpi::Time();
+        Timer timer;
+
+        OutputFromRoot(comm,"Generating random vector X and forming Y := A X");
+        timer.Start();
         DistMultiVec<double> X( N, numRHS, comm ), Y( N, numRHS, comm );
         MakeUniform( X );
         Zero( Y );
@@ -71,35 +72,29 @@ int main( int argc, char* argv[] )
         Matrix<double> YOrigNorms;
         ColumnTwoNorms( Y, YOrigNorms );
         mpi::Barrier( comm );
-        const double multiplyStop = mpi::Time();
-        if( commRank == 0 )
-            Output(multiplyStop-multiplyStart," seconds");
+        OutputFromRoot(comm,timer.Stop()," seconds");
 
-        if( commRank == 0 )
-            Output("Solving...");
-        const double solveStart = mpi::Time();
+        OutputFromRoot(comm,"Solving...");
+        timer.Start();
         SymmetricSolve( A, Y, conjugate, tryLDL, ctrl );
-        const double solveStop = mpi::Time();
-        if( commRank == 0 )
-            Output(solveStop-solveStart," seconds");
+        OutputFromRoot(comm,timer.Stop()," seconds");
 
-        if( commRank == 0 )
-            Output("Checking error in computed solution...");
+        OutputFromRoot(comm,"Checking error in computed solution...");
         Matrix<double> XNorms, YNorms;
         ColumnTwoNorms( X, XNorms );
         ColumnTwoNorms( Y, YNorms );
         Y -= X;
         Matrix<double> errorNorms;
         ColumnTwoNorms( Y, errorNorms );
-        if( commRank == 0 )
-            for( int j=0; j<numRHS; ++j )
-                Output
-                ("Right-hand side ",j,"\n",
-                 "------------------------------------------\n",
-                 "|| x     ||_2 = ",XNorms.Get(j,0),"\n",
-                 "|| xComp ||_2 = ",YNorms.Get(j,0),"\n",
-                 "|| A x   ||_2 = ",YOrigNorms.Get(j,0),"\n",
-                 "|| error ||_2 = ",errorNorms.Get(j,0),"\n");
+        for( int j=0; j<numRHS; ++j )
+            OutputFromRoot
+            (comm,
+             "Right-hand side ",j,"\n",Indent(),
+             "------------------------------------------\n",Indent(),
+             "|| x     ||_2 = ",XNorms.Get(j,0),"\n",Indent(),
+             "|| xComp ||_2 = ",YNorms.Get(j,0),"\n",Indent(),
+             "|| A x   ||_2 = ",YOrigNorms.Get(j,0),"\n",Indent(),
+             "|| error ||_2 = ",errorNorms.Get(j,0),"\n");
     }
     catch( exception& e ) { ReportException(e); }
 

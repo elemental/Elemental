@@ -14,16 +14,12 @@
 #include <set>
 
 namespace {
-using namespace El;
 
-Int numElemInits = 0;
+El::Int numElemInits = 0;
 bool elemInitializedMpi = false;
 
-Grid* defaultGrid = 0;
-Args* args = 0;
-
-// Default blocksizes for BlockMatrix
-Int blockHeight=32, blockWidth=32;
+El::Grid* defaultGrid = 0;
+El::Args* args = 0;
 
 }
 
@@ -263,18 +259,6 @@ const Grid& DefaultGrid() EL_NO_RELEASE_EXCEPT
     )
     return *::defaultGrid;
 }
-
-Int DefaultBlockHeight()
-{ return ::blockHeight; }
-
-Int DefaultBlockWidth()
-{ return ::blockWidth; }
-
-void SetDefaultBlockHeight( Int mb )
-{ ::blockHeight = mb; }
-
-void SetDefaultBlockWidth( Int nb )
-{ ::blockWidth = nb; }
 
 void Args::HandleVersion( ostream& os ) const
 {

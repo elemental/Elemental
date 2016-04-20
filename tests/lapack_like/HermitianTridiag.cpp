@@ -23,8 +23,8 @@ void TestCorrectness
     const Int m = AOrig.Height();
     const Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
     const Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-    if( g.Rank() == 0 )
-        Output("Testing error...");
+    OutputFromRoot(g.Comm(),"Testing error...");
+    PushIndent();
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
     Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
@@ -82,14 +82,15 @@ void TestCorrectness
     const Real infNormQError = InfinityNorm( B );
     const Real frobNormQError = FrobeniusNorm( B ); 
 
-    if( g.Rank() == 0 )
-        Output
-        ("    ||A||_oo = ",infNormAOrig,"\n",
-         "    ||A||_F  = ",frobNormAOrig,"\n",
-         "    || I - Q^H Q ||_oo = ",infNormQError,"\n",
-         "    || I - Q^H Q ||_F  = ",frobNormQError,"\n",
-         "    ||A - Q T Q^H||_oo = ",infNormError,"\n",
-         "    ||A - Q T Q^H||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_oo = ",infNormAOrig,"\n",Indent(),
+     "||A||_F  = ",frobNormAOrig,"\n",Indent(),
+     "|| I - Q^H Q ||_oo = ",infNormQError,"\n",Indent(),
+     "|| I - Q^H Q ||_F  = ",frobNormQError,"\n",Indent(),
+     "||A - Q T Q^H||_oo = ",infNormError,"\n",Indent(),
+     "||A - Q T Q^H||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
@@ -105,18 +106,17 @@ void InnerTestHermitianTridiag
     DistMatrix<F> AOrig( A ), ACopy( A );
     const Int m = A.Height();
     const Grid& g = A.Grid();
+    Timer timer;
 
-    if( g.Rank() == 0 )
-        Output("  Starting tridiagonalization...");
+    OutputFromRoot(g.Comm(),"Starting tridiagonalization...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    timer.Start();
     HermitianTridiag( uplo, A, t, ctrl );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 16./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after HermitianTridiag" );
@@ -145,8 +145,8 @@ void TestHermitianTridiag
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     HermitianTridiagCtrl<F> ctrl;
     ctrl.symvCtrl.bsize = nbLocal;
@@ -160,25 +160,23 @@ void TestHermitianTridiag
     if( display )
         Display( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("Normal algorithm:");
+    OutputFromRoot(g.Comm(),"Normal algorithm:");
     ctrl.approach = HERMITIAN_TRIDIAG_NORMAL;
     InnerTestHermitianTridiag
     ( uplo, A, t, ctrl, testCorrectness, print, display );
 
-    if( g.Rank() == 0 )
-        Output("Square row-major algorithm:");
+    OutputFromRoot(g.Comm(),"Square row-major algorithm:");
     ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.order = ROW_MAJOR;
     InnerTestHermitianTridiag
     ( uplo, A, t, ctrl, testCorrectness, print, display );
 
-    if( g.Rank() == 0 )
-        Output("Square column-major algorithm:");
+    OutputFromRoot(g.Comm(),"Square column-major algorithm:");
     ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.order = COLUMN_MAJOR;
     InnerTestHermitianTridiag
     ( uplo, A, t, ctrl, testCorrectness, print, display );
+    PopIndent();
 }
 
 int 
@@ -186,12 +184,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--height","height of matrix",100);
@@ -215,16 +211,15 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test HermitianTridiag",uploChar);
+        OutputFromRoot(g.Comm(),"Will test HermitianTridiag",uploChar);
 
         if( testReal )
             TestHermitianTridiag<float>

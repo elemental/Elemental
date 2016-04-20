@@ -21,8 +21,9 @@ void TestTrsm
   const Grid& g,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F> A(g), X(g);
 
     if( side == LEFT )
@@ -31,10 +32,15 @@ void TestTrsm
         HermitianUniformSpectrum( A, n, 1, 10 );
     auto S( A );
     MakeTrapezoidal( uplo, S );
+    if( diag == UNIT )
+        FillDiagonal( S, F(1) );
 
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
-    Gemm( NORMAL, NORMAL, F(1)/alpha, S, X, Y );
+    if( side == LEFT )
+        Gemm( orientation, NORMAL, F(1)/alpha, S, X, Y );
+    else
+        Gemm( NORMAL, orientation, F(1)/alpha, X, S, Y );
 
     if( print )
     {
@@ -43,31 +49,33 @@ void TestTrsm
         Print( X, "X" );
         Print( Y, "Y" );
     }
-    if( g.Rank() == 0 )
-        Output("  Starting Trsm");
+    OutputFromRoot(g.Comm(),"Starting Trsm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     Trsm( side, uplo, orientation, diag, alpha, A, Y );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop(); 
     const double realGFlops = 
       ( side==LEFT ? double(m)*double(m)*double(n)
                    : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot
+    (g.Comm(),"Finished in ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( Y, "Y after solve" );
+
     Y -= X;
     const auto SFrob = FrobeniusNorm( S );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );
-    if( g.Rank() == 0 )
-    {
-        Output("  || S ||_F = ",SFrob);
-        Output("  || X ||_F = ",XFrob);
-        Output("  || E ||_F = ",EFrob);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "|| S ||_F = ",SFrob,"\n",Indent(),
+     "|| X ||_F = ",XFrob,"\n",Indent(),
+     "|| E ||_F = ",EFrob);
+
+    PopIndent();
 }
 
 int 
@@ -75,12 +83,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to solve from: L/R",'L');
         const char uploChar = Input
@@ -95,10 +101,10 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
@@ -106,8 +112,8 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test Trsm ",sideChar,uploChar,transChar,diagChar);
+        OutputFromRoot
+        (comm,"Will test Trsm ",sideChar,uploChar,transChar,diagChar);
 
         TestTrsm<float>
         ( side, uplo, orientation, diag,

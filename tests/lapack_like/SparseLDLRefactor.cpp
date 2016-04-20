@@ -81,9 +81,10 @@ int main( int argc, char* argv[] )
             Print( A.DistGraph() );
         }
 
-        if( commRank == 0 )
-            Output("Running nested dissection...");
-        const double nestedStart = mpi::Time();
+        Timer timer;
+
+        OutputFromRoot(comm,"Running nested dissection...");
+        timer.Start();
         const DistGraph& graph = A.DistGraph();
         ldl::DistNodeInfo info;
         ldl::DistSeparator sep;
@@ -91,52 +92,40 @@ int main( int argc, char* argv[] )
         ldl::NestedDissection( graph, map, sep, info, ctrl );
         InvertMap( map, invMap );
         mpi::Barrier( comm );
-        const double nestedStop = mpi::Time();
-        if( commRank == 0 )
-            Output(nestedStop-nestedStart," seconds");
+        OutputFromRoot(comm,timer.Stop()," seconds");
 
         const Int rootSepSize = info.size;
-        if( commRank == 0 )
-            Output(rootSepSize," vertices in root separator\n");
+        OutputFromRoot(comm,rootSepSize," vertices in root separator\n");
 
-        if( commRank == 0 )
-            Output("Building ldl::DistFront tree...");
+        OutputFromRoot(comm,"Building ldl::DistFront tree...");
         mpi::Barrier( comm );
-        const double buildStart = mpi::Time();
+        timer.Start();
         ldl::DistFront<double> front( A, map, sep, info, false );
         mpi::Barrier( comm );
-        const double buildStop = mpi::Time();
-        if( commRank == 0 )
-            Output(buildStop-buildStart," seconds");
+        OutputFromRoot(comm,timer.Stop()," seconds");
 
         for( Int repeat=0; repeat<numRepeats; ++repeat )
         {
             if( repeat != 0 )
                 MakeFrontsUniform( front );
 
-            if( commRank == 0 )
-                Output("Running LDL^T and redistribution...");
+            OutputFromRoot(comm,"Running LDL^T and redistribution...");
             mpi::Barrier( comm );
-            const double ldlStart = mpi::Time();
+            timer.Start();
             if( intraPiv )
                 LDL( info, front, LDL_INTRAPIV_1D );
             else
                 LDL( info, front, LDL_1D );
             mpi::Barrier( comm );
-            const double ldlStop = mpi::Time();
-            if( commRank == 0 )
-                Output(ldlStop-ldlStart," seconds");
+            OutputFromRoot(comm,timer.Stop()," seconds");
 
-            if( commRank == 0 )
-                Output("Solving against random right-hand side...");
-            const double solveStart = mpi::Time();
+            OutputFromRoot(comm,"Solving against random right-hand side...");
+            timer.Start();
             DistMultiVec<double> y( N, 1, comm );
             MakeUniform( y );
             ldl::SolveAfter( invMap, info, front, y );
             mpi::Barrier( comm );
-            const double solveStop = mpi::Time();
-            if( commRank == 0 )
-                Output("  Time = ",solveStop-solveStart," seconds");
+            OutputFromRoot(comm,"Time = ",timer.Stop()," seconds");
 
             // TODO: Check residual error
         }

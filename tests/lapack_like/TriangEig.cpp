@@ -51,12 +51,10 @@ void TestCorrectness
 
     // Find condition number
     Real condX = Condition( X );
-    if( g.Rank() == 0 )
-    {
-        Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
-        Output("    cond(X) = ", condX);
-    }
-      
+    OutputFromRoot
+    (g.Comm(),
+     "||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA,"\n",Indent(),
+     "cond(X) = ",condX);
 }
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
@@ -71,13 +69,13 @@ void TestTriangEig
 
     DistMatrix<F,U,V> A(g), AOrig(g), X(g);
     DistMatrix<F,S,STAR> w(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     // Generate test matrix
     switch( testMatrix )
     {
-
     case 0:
         {
             // LU factorization of Gaussian matrix
@@ -88,14 +86,12 @@ void TestTriangEig
             MakeTrapezoidal( UPPER, A, 0 );
             break;
         }
-
     case 1:
         {
             // Schur factorization of Fox-Li matrix
             FoxLiSchurFactor( A, m );
             break;
         }
-        
     case 2:
         {
             // Schur factorization of Grcar matrix
@@ -105,11 +101,7 @@ void TestTriangEig
             MakeTrapezoidal( UPPER, A, 0 );
             break;
         }
-        
-    default:
-        LogicError("Unknown test matrix");
-        break;
-
+    default: LogicError("Unknown test matrix");
     }
     
     if( testCorrectness )
@@ -120,13 +112,11 @@ void TestTriangEig
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting triangular eigensolver...");
-    const double startTime = mpi::Time();
+    OutputFromRoot(g.Comm(),"Starting triangular eigensolver...");
+    Timer timer;
+    timer.Start();
     TriangEig( A, X );
-    const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -134,6 +124,7 @@ void TestTriangEig
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, X );
+    PopIndent();
 }
 
 int 
@@ -141,12 +132,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -159,16 +148,15 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 
         // Test with default distributions
-        if( commRank == 0 )
-            Output("Normal algorithms:");
+        OutputFromRoot(g.Comm(),"Normal algorithms:");
         if( testReal )
             TestTriangEig<double>
             ( testCorrectness, print,
@@ -179,8 +167,7 @@ main( int argc, char* argv[] )
               n, g, testMatrix );
 
         // Test with non-standard distributions
-        if( commRank == 0 )
-            Output("Non-standard algorithms:");
+        OutputFromRoot(g.Comm(),"Non-standard algorithms:");
         if( testReal )
             TestTriangEig<double,MR,MC,MC>
             ( testCorrectness, print,

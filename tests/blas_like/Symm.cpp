@@ -9,25 +9,28 @@
 #include <El.hpp>
 using namespace El;
 
-template<typename T>
+template<typename T> 
 void TestSymm
-( LeftOrRight side,
+( bool conjugate,
+  LeftOrRight side,
   UpperOrLower uplo,
   Int m,
   Int n,
   T alpha,
   T beta,
-  bool print,
-  const Grid& g )
+  const Grid& g,
+  bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<T>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<T>());
+    PushIndent();
+
     DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
         Uniform( A, m, m );
     else
         Uniform( A, n, n );
+    MakeSymmetric( uplo, A, conjugate );
     Uniform( B, m, n );
     Uniform( C, m, n );
     if( print )
@@ -37,21 +40,48 @@ void TestSymm
         Print( C, "C" );
     }
 
-    // Test Symm
-    if( g.Rank() == 0 )
-        Output("  Starting Symm");
+    const Int numRHS = 100;
+    DistMatrix<T> X(g), Y(g);
+    Uniform( X, m, numRHS ); 
+    if( print )
+        Print( X, "X" );
+    if( side == LEFT )
+    {
+        // Y := alpha Symm(A) (B X) + beta C X
+        DistMatrix<T> Z(g);
+        Gemm( NORMAL, NORMAL, T(1), B, X, Z );
+        Gemm( NORMAL, NORMAL, alpha, A, Z, Y ); 
+        Gemm( NORMAL, NORMAL, beta, C, X, T(1), Y );
+        if( print )
+            Print( Y, "Y := alpha Symm(A) (B X) + beta C X" );
+    }
+    else
+    {
+        // Y := alpha B (Symm(A) X) + beta C X
+        DistMatrix<T> Z(g);
+        Gemm( NORMAL, NORMAL, T(1), A, X, Z );
+        Gemm( NORMAL, NORMAL, alpha, B, Z, Y );
+        Gemm( NORMAL, NORMAL, beta, C, X, T(1), Y );
+        if( print )
+            Print( Y, "Y := alpha B (Symm(A) X) + beta C X" );
+    }
+    const Base<T> YFrobNorm = FrobeniusNorm( Y );
+
+    Timer timer;
+
+    OutputFromRoot(g.Comm(),"Starting Symm...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
-    Symm( side, uplo, alpha, A, B, beta, C );
+    timer.Start();
+    Symm( side, uplo, alpha, A, B, beta, C, conjugate );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double realGFlops = 
       ( side==LEFT ? 2.*mD*mD*nD : 2.*mD*nD*nD ) / (1.e9*runTime);
     const double gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot
+    (g.Comm(),"Finished after ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         if( side == LEFT )
@@ -59,6 +89,16 @@ void TestSymm
         else
             Print( C, BuildString("C := ",alpha," B Symm(A) + ",beta," C") );
     }
+
+    Gemm( NORMAL, NORMAL, T(-1), C, X, T(1), Y );
+    const Base<T> EFrobNorm = FrobeniusNorm( Y );
+    if( print )
+        Print( Y, "E" );
+    OutputFromRoot
+    (g.Comm(),"|| E ||_F / || Y ||_F = ",
+     EFrobNorm,"/",YFrobNorm,"=",EFrobNorm/YFrobNorm);
+
+    PopIndent();
 }
 
 int 
@@ -66,15 +106,14 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
+        const bool conjugate = Input("--conjugate","conjugate Symm?",false);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
-        const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
+        const char uploChar = Input("--uplo","lower/upper storage: L/U",'L');
         const Int m = Input("--m","height of result",100);
         const Int n = Input("--n","width of result",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -82,63 +121,71 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test Symm ",sideChar,uploChar);
+        OutputFromRoot(comm,"Will test Symm ",sideChar,uploChar);
 
         TestSymm<float>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           float(3), float(4),
-          print, g ); 
+          g, print );
         TestSymm<Complex<float>>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           Complex<float>(3), Complex<float>(4),
-          print, g ); 
+          g, print );
 
         TestSymm<double>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           double(3), double(4),
-          print, g ); 
+          g, print );
         TestSymm<Complex<double>>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           Complex<double>(3), Complex<double>(4),
-          print, g ); 
+          g, print );
 
 #ifdef EL_HAVE_QD
         TestSymm<DoubleDouble>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           DoubleDouble(3), DoubleDouble(4),
-          print, g ); 
+          g, print );
         TestSymm<QuadDouble>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           QuadDouble(3), QuadDouble(4),
-          print, g ); 
+          g, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestSymm<Quad>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           Quad(3), Quad(4),
-          print, g ); 
+          g, print );
         TestSymm<Complex<Quad>>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           Complex<Quad>(3), Complex<Quad>(4),
-          print, g ); 
+          g, print );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestSymm<BigFloat>
-        ( side, uplo, m, n,
+        ( conjugate, side, uplo,
+          m, n,
           BigFloat(3), BigFloat(4),
-          print, g ); 
+          g, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

@@ -11,6 +11,8 @@
 
 namespace El {
 
+std::mt19937& Generator();
+
 template<typename Real>
 Real Choose( Int n, Int k );
 template<typename Real>
