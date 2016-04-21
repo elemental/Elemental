@@ -1,5 +1,8 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson and Tim Moon
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
+
+   Copyright (c) 2015-2016, Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -15,14 +18,13 @@ namespace safemstrsm {
  *   issues that can happen on Cray machines.
  */
 template<typename Real>
-inline pair<Real,Real>
-OverflowParameters()
+pair<Real,Real> OverflowParameters()
 {
-    const Real underflow = lapack::MachineSafeMin<Real>();
-    const Real overflow = lapack::MachineOverflowThreshold<Real>();
-    const Real ulp  = lapack::MachinePrecision<Real>();
-    const Real smallNum = Max( underflow/ulp, 1/(overflow*ulp) );
-    const Real bigNum = 1/smallNum;
+    const Real underflow = limits::SafeMin<Real>();
+    const Real overflow = limits::Max<Real>();
+    const Real ulp = limits::Precision<Real>();
+    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
+    const Real bigNum = Real(1)/smallNum;
     return pair<Real,Real>(smallNum,bigNum);
 }
 

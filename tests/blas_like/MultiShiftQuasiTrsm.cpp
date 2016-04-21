@@ -61,8 +61,9 @@ void TestMultiShiftQuasiTrsm
   const Grid& g,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     typedef Base<F> Real;
     DistMatrix<F> H(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g);
@@ -114,31 +115,32 @@ void TestMultiShiftQuasiTrsm
         Print( X, "X" );
         Print( Y, "Y" );
     }
-    if( g.Rank() == 0 )
-        Output("  Starting MultiShiftQuasiTrsm");
+    OutputFromRoot(g.Comm(),"Starting MultiShiftQuasiTrsm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     MultiShiftQuasiTrsm( side, uplo, orientation, alpha, H, shifts, Y );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 
         ( side==LEFT ? double(m)*double(m)*double(n)
                      : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Finished after ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot
+    (g.Comm(),"Finished after ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( Y, "Y after solve" );
     Y -= X;
     const auto HFrob = FrobeniusNorm( H );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );
-    if( g.Rank() == 0 )
-    {
-        Output("  || H ||_F = ",HFrob);
-        Output("  || X ||_F = ",XFrob);
-        Output("  || E ||_F = ",EFrob);
-    }
+    OutputFromRoot
+    ( g.Comm(),
+      "|| H ||_F = ",HFrob,"\n",Indent(),
+      "|| X ||_F = ",XFrob,"\n",Indent(),
+      "|| E ||_F = ",EFrob);
+
+    PopIndent();
 }
 
 int 
@@ -146,12 +148,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to solve from: L/R",'L');
         const char uploChar = Input
@@ -165,18 +165,18 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Testing MultiShiftQuasiTrsm ",sideChar,uploChar,transChar);
+        OutputFromRoot
+        (comm,"Testing MultiShiftQuasiTrsm ",sideChar,uploChar,transChar);
 
         TestMultiShiftQuasiTrsm<float>
         ( side, uplo, orientation,

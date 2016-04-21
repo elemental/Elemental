@@ -50,14 +50,15 @@ void TestCorrectness
     Real frobNormR = FrobeniusNorm( R );
 
     // Find condition number
-    Real condX = Condition( X );
+    Real condX = FrobeniusCondition( X );
     OutputFromRoot
     (g.Comm(),
      "||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA,"\n",Indent(),
      "cond(X) = ",condX);
 }
 
-template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
+template<typename F,Dist U=MC,Dist V=MR,Dist S=MC,
+         typename=EnableIf<IsBlasScalar<F>>>
 void TestTriangEig
 ( bool testCorrectness,
   bool print,
@@ -127,6 +128,62 @@ void TestTriangEig
     PopIndent();
 }
 
+template<typename F,Dist U=MC,Dist V=MR,Dist S=MC,
+         typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void TestTriangEig
+( bool testCorrectness,
+  bool print,
+  Int m,
+  const Grid& g,
+  Int testMatrix )
+{
+    typedef Base<F> Real;
+
+    DistMatrix<F,U,V> A(g), AOrig(g), X(g);
+    DistMatrix<F,S,STAR> w(g);
+
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
+    // Generate test matrix
+    switch( testMatrix )
+    {
+    case 0:
+        {
+            // LU factorization of Gaussian matrix
+            DistMatrix<F> B(g);
+            Gaussian( B, m, m );
+            LU( B );
+            Transpose( B, A );
+            MakeTrapezoidal( UPPER, A, 0 );
+            break;
+        }
+    default: LogicError("Schur factorization not supported for non-BLAS types");
+    }
+    
+    if( testCorrectness )
+    {
+        AOrig = A;
+        GetDiagonal( A, w );
+    }
+    if( print )
+        Print( A, "A" );
+
+    OutputFromRoot(g.Comm(),"Starting triangular eigensolver...");
+    Timer timer;
+    timer.Start();
+    TriangEig( A, X );
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
+    if( print )
+    {
+        Print( w, "eigenvalues:" );
+        Print( X, "eigenvectors:" );
+    }
+    if( testCorrectness )
+        TestCorrectness( print, AOrig, X );
+    PopIndent();
+}
+
 int 
 main( int argc, char* argv[] )
 {
@@ -144,7 +201,8 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
-        const Int testMatrix = Input("--testMatrix","test matrix (0=Gaussian,1=Fox-Li,2=Grcar)",0);
+        const Int testMatrix =
+          Input("--testMatrix","test matrix (0=Gaussian,1=Fox-Li,2=Grcar)",0);
         ProcessInput();
         PrintInputReport();
 
@@ -157,6 +215,19 @@ main( int argc, char* argv[] )
 
         // Test with default distributions
         OutputFromRoot(g.Comm(),"Normal algorithms:");
+
+        // NOTE: This is not nearly enough precision for our chosen matrices
+        /*
+        if( testReal )
+            TestTriangEig<float>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        if( testCpx )
+            TestTriangEig<Complex<float>>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        */
+
         if( testReal )
             TestTriangEig<double>
             ( testCorrectness, print,
@@ -166,17 +237,34 @@ main( int argc, char* argv[] )
             ( testCorrectness, print,
               n, g, testMatrix );
 
-        // Test with non-standard distributions
-        OutputFromRoot(g.Comm(),"Non-standard algorithms:");
+#ifdef EL_HAVE_QUAD
         if( testReal )
-            TestTriangEig<double,MR,MC,MC>
+            TestTriangEig<Quad>
             ( testCorrectness, print,
               n, g, testMatrix );
         if( testCpx )
-            TestTriangEig<Complex<double>,MR,MC,MC>
+            TestTriangEig<Complex<Quad>>
             ( testCorrectness, print,
               n, g, testMatrix );
-        
+#endif
+
+#ifdef EL_HAVE_QD
+        if( testReal )
+            TestTriangEig<DoubleDouble>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        if( testReal )
+            TestTriangEig<QuadDouble>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+#endif
+
+#ifdef EL_HAVE_MPC
+        if( testReal )
+            TestTriangEig<BigFloat>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

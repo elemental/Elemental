@@ -1,5 +1,8 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson and Tim Moon
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
+
+   Copyright (c) 2015-2016, Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -16,8 +19,7 @@ namespace safemstrsm {
  *   bigNum.
  */
 template<typename F>
-void
-LUNBlock
+void LUNBlock
 (       Matrix<F>& U,
   const Matrix<F>& shifts,
         Matrix<F>& X,
@@ -211,8 +213,7 @@ LUNBlock
  *   bigNum.
  */
 template<typename F>
-void
-LUN
+void LUN
 (       Matrix<F>& U,
   const Matrix<F>& shifts,
         Matrix<F>& X,
@@ -346,8 +347,7 @@ LUN
 }
 
 template<typename F>
-inline void
-LUN
+void LUN
 ( const ElementalMatrix<F>& UPre, 
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre,
