@@ -15,8 +15,13 @@ namespace El {
 
 template<typename F>
 void MultiShiftTrsm
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  F alpha,
+        Matrix<F>& U,
+  const Matrix<F>& shifts,
+        Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
     X *= alpha;
@@ -33,9 +38,13 @@ void MultiShiftTrsm
 
 template<typename F>
 void MultiShiftTrsm
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const ElementalMatrix<F>& U, const ElementalMatrix<F>& shifts, 
-  ElementalMatrix<F>& X )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  F alpha,
+  const ElementalMatrix<F>& U,
+  const ElementalMatrix<F>& shifts, 
+        ElementalMatrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
     X *= alpha;
@@ -52,12 +61,21 @@ void MultiShiftTrsm
 
 #define PROTO(F) \
   template void MultiShiftTrsm \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ); \
+  ( LeftOrRight side, \
+    UpperOrLower uplo, \
+    Orientation orientation, \
+    F alpha, \
+          Matrix<F>& U, \
+    const Matrix<F>& shifts, \
+          Matrix<F>& X ); \
   template void MultiShiftTrsm \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const ElementalMatrix<F>& U, \
-    const ElementalMatrix<F>& shifts, ElementalMatrix<F>& X );
+  ( LeftOrRight side, \
+    UpperOrLower uplo, \
+    Orientation orientation, \
+    F alpha, \
+    const ElementalMatrix<F>& U, \
+    const ElementalMatrix<F>& shifts, \
+          ElementalMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

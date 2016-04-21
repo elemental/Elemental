@@ -277,4 +277,6 @@ BigInt PollardRho
 #include <El/number_theory/PrimitiveRoot.hpp>
 #include <El/number_theory/dlog/PollardRho.hpp>
 
+#include <El/number_theory/lattice.hpp>
+
 #endif // ifndef EL_NUMBER_THEORY_HPP

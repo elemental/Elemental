@@ -63,7 +63,8 @@
 #include <El/optimization/prox.h>
 #include <El/optimization/util.h>
 
-#include <El/lattice.h>
+/* TODO: Add other number theoretic interfaces */
+#include <El/number_theory/lattice.h>
 
 #ifdef __cplusplus
 #include <El/CReflect.hpp>
