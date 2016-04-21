@@ -67,7 +67,12 @@
 #include <El/number_theory/lattice.h>
 
 #ifdef __cplusplus
-#include <El/CReflect.hpp>
+#include <El/core/CReflect.hpp>
+#include <El/io/CReflect.hpp>
+#include <El/blas_like/CReflect.hpp>
+#include <El/lapack_like/CReflect.hpp>
+#include <El/optimization/CReflect.hpp>
+#include <El/number_theory/lattice/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_C_H */
