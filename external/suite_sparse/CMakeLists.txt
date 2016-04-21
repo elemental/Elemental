@@ -16,7 +16,7 @@ include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 # Define the header files installation rules
 # ------------------------------------------
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+  DESTINATION include/
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
     
 set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${C_FLAGS}")
