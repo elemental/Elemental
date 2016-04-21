@@ -10,7 +10,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
 namespace El {
 
 namespace triang_eig {
@@ -19,21 +18,6 @@ namespace triang_eig {
 //       which exploit the structure of the eigenvectors
 
 // TODO: "Naive" versions for academic accuracy and performance experiments
-
-/* Determine machine dependent parameters to control overflow
- *   Note: LAPACK uses more complicated parameters to handle 
- *   issues that can happen on Cray machines.
- */
-template<typename Real>
-pair<Real,Real> OverflowParameters()
-{
-    const Real underflow = limits::SafeMin<Real>();
-    const Real overflow = limits::Max<Real>();
-    const Real ulp = limits::Precision<Real>();
-    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
-    const Real bigNum = Real(1)/smallNum;
-    return pair<Real,Real>(smallNum,bigNum);
-}
 
 /*   Note: See "Robust Triangular Solves for Use in Condition
  *   Estimation" by Edward Anderson for notation and bounds.
@@ -61,14 +45,16 @@ void MultiShiftDiagonalBlockSolve
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
 
-    auto overflowPair = OverflowParameters<Real>();
-    const Real smallNum = overflowPair.first;
-    const Real bigNum = overflowPair.second;
+    const Real underflow = limits::SafeMin<Real>();
+    const Real overflow = limits::Max<Real>();
+    const Real ulp = limits::Precision<Real>();
+    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
+    const Real bigNum = Real(1)/smallNum;
     
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
-    const F* UBuf = U.LockedBuffer();
+    F* UBuf = U.Buffer();
     const Int ULDim = U.LDim();
 
     // Default scale is 1
@@ -94,7 +80,15 @@ void MultiShiftDiagonalBlockSolve
         // Initialize triangular system
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( U, diag );
-        ShiftDiagonal( U, -shifts.Get(j,0) );
+        const F shift = shifts.Get(j,0);
+        const Real smallDiag = Max( ulp*FastAbs(shift), smallNum );
+        for( Int k=0; k<xHeight; ++k )
+        {
+            UBuf[k+k*ULDim] -= shift;
+            // TODO: Perhaps preserve phase in complex plane
+            if( FastAbs(UBuf[k+k*ULDim]) < smallDiag )
+                UBuf[k+k*ULDim] = smallDiag;
+        }
         auto xj = X( IR(0,xHeight), IR(j) );
         Real scales_j = Real(1);
 
@@ -259,14 +253,16 @@ void MultiShiftDiagonalBlockSolve
     auto diag = GetDiagonal(ULoc);
     const Int n = U.Height();
 
-    auto overflowPair = OverflowParameters<Real>();
-    const Real smallNum = overflowPair.first;
-    const Real bigNum = overflowPair.second;
+    const Real underflow = limits::SafeMin<Real>();
+    const Real overflow = limits::Max<Real>();
+    const Real ulp = limits::Precision<Real>();
+    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
+    const Real bigNum = Real(1)/smallNum;
     
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
-    const F* UBuf = U.LockedBuffer();
+    F* UBuf = U.Buffer();
     const Int ULDim = U.LDim();
 
     // Default scale is 1
@@ -297,7 +293,15 @@ void MultiShiftDiagonalBlockSolve
         // Initialize triangular system
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( ULoc, diag );
-        ShiftDiagonal( ULoc, -shiftsLoc.Get(jLoc,0) );
+        const F shift = shiftsLoc.Get(jLoc,0);
+        const Real smallDiag = Max( ulp*FastAbs(shift), smallNum );
+        for( Int k=0; k<xHeight; ++k )
+        {
+            UBuf[k+k*ULDim] -= shift;
+            // TODO: Perhaps preserve phase in complex plane
+            if( FastAbs(UBuf[k+k*ULDim]) < smallDiag )
+                UBuf[k+k*ULDim] = smallDiag;
+        }
         auto xj = XLoc( IR(0,xHeight), IR(jLoc) );
         Real scales_j = Real(1);
 
@@ -465,9 +469,11 @@ void MultiShiftSolve
 
     const Real oneHalf = Real(1)/Real(2);
 
-    auto overflowPair = OverflowParameters<Real>();
-    const Real smallNum = overflowPair.first;
-    const Real bigNum = overflowPair.second;
+    const Real underflow = limits::SafeMin<Real>();
+    const Real overflow = limits::Max<Real>();
+    const Real ulp = limits::Precision<Real>();
+    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
+    const Real bigNum = Real(1)/smallNum;
 
     DEBUG_ONLY(
       if( MaxNorm(U) >= bigNum )

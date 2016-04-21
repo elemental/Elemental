@@ -102,6 +102,9 @@ void TestTriangEig
             MakeTrapezoidal( UPPER, A, 0 );
             break;
         }
+    case 3:
+        Jordan( A, m, F(7) );
+        break;
     default: LogicError("Unknown test matrix");
     }
     
@@ -158,6 +161,9 @@ void TestTriangEig
             MakeTrapezoidal( UPPER, A, 0 );
             break;
         }
+    case 3:
+        Jordan( A, m, F(7) );
+        break;
     default: LogicError("Schur factorization not supported for non-BLAS types");
     }
     
@@ -202,7 +208,8 @@ main( int argc, char* argv[] )
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
         const Int testMatrix =
-          Input("--testMatrix","test matrix (0=Gaussian,1=Fox-Li,2=Grcar)",0);
+          Input
+          ("--testMatrix","(0=Gaussian,1=Fox-Li,2=Grcar,3=Jordan)",0);
         ProcessInput();
         PrintInputReport();
 

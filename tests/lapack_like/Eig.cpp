@@ -78,6 +78,7 @@ void SequentialEigBenchmark
     case 0: Gaussian( AOrig, m, m );       break;
     case 1: FoxLi( AOrig, m, foxLiOmega ); break;
     case 2: Grcar( AOrig, m );             break;
+    case 3: Jordan( AOrig, m, Complex<double>(7) ); break;
     default: LogicError("Unknown test matrix");
     }
     if( print )
@@ -227,6 +228,7 @@ void EigBenchmark
     case 0: Gaussian( AOrig, m, m );       break;
     case 1: FoxLi( AOrig, m, foxLiOmega ); break;
     case 2: Grcar( AOrig, m );             break;
+    case 3: Jordan( AOrig, m, Complex<double>(7) ); break;
     default: LogicError("Unknown test matrix");
     }
     if( print )
@@ -305,7 +307,7 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",false);
         const bool print = Input("--print","print matrices?",false);
         const Int testMatrix =
-          Input("--testMatrix","test matrix (0=Gaussian,1=Fox-Li,2=Grcar)",0);
+          Input("--testMatrix","(0=Gaussian,1=Fox-Li,2=Grcar,3=Jordan)",0);
         ProcessInput();
         PrintInputReport();
 
