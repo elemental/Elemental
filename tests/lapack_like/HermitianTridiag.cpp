@@ -190,8 +190,8 @@ main( int argc, char* argv[] )
         int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const Int m = Input("--height","height of matrix",100);
-        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--height","height of matrix",75);
+        const Int nb = Input("--nb","algorithmic blocksize",32);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool avoidTrmv = 
             Input("--avoidTrmv","avoid Trmv local Symv",true);

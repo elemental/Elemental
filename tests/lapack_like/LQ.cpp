@@ -124,8 +124,8 @@ main( int argc, char* argv[] )
     {
         int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",200);
-        const Int n = Input("--width","width of matrix",200);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
