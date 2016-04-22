@@ -16,8 +16,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -74,7 +72,7 @@ main( int argc, char* argv[] )
         if( print )
             Print( graph );
 
-        if( commSize > 1 )
+        if( mpi::Size(comm) > 1 )
         {
             DistGraph child;
             DistMap map;
@@ -93,17 +91,14 @@ main( int argc, char* argv[] )
                 rightChildSize = child.NumSources();
                 leftChildSize = numVertices - rightChildSize - sepSize;
             }
-            if( commRank == 0 )
-            {
-                if( haveLeftChild )
-                    Output
-                    ("Root is on left with sizes: ",leftChildSize,",",
-                     rightChildSize,",",sepSize);
-                else
-                    Output
-                    ("Root is on right with sizes: ",leftChildSize,",",
-                     rightChildSize,",",sepSize);
-            }
+            if( haveLeftChild )
+                OutputFromRoot
+                (comm,"Root is on left with sizes: ",leftChildSize,",",
+                 rightChildSize,",",sepSize);
+            else
+                OutputFromRoot
+                (comm,"Root is on right with sizes: ",leftChildSize,",",
+                 rightChildSize,",",sepSize);
         }
         else
         {

@@ -8,7 +8,64 @@
 */
 #include <El.hpp>
 
+namespace {
+
+// A common Mersenne twister configuration
+std::mt19937 generator;
+
+#ifdef EL_HAVE_MPC
+gmp_randstate_t gmpRandState;
+#endif
+
+}
+
 namespace El {
+
+void InitializeRandom( bool deterministic )
+{
+    const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
+    const long secs = ( deterministic ? 21 : time(NULL) );
+    const long seed = (secs<<16) | (rank & 0xFFFF);
+
+    ::generator.seed( seed );
+
+    srand( seed );
+
+#ifdef EL_HAVE_MPC
+    mpc::SetMinIntBits( 256 );
+    mpc::SetPrecision( 256 );
+    gmp_randinit_default( ::gmpRandState );
+    gmp_randseed_ui( ::gmpRandState, seed );
+#endif
+}
+
+void FinalizeRandom()
+{
+#ifdef EL_HAVE_MPC
+    gmp_randclear( ::gmpRandState );
+#endif
+}
+
+std::mt19937& Generator()
+{ return ::generator; }
+
+#ifdef EL_HAVE_MPC
+namespace mpc {
+
+void RandomState( gmp_randstate_t randState )
+{
+    // It is surprisingly tedious to return the state...
+
+    randState->_mp_seed->_mp_alloc = ::gmpRandState->_mp_seed->_mp_alloc;
+    randState->_mp_seed->_mp_size = ::gmpRandState->_mp_seed->_mp_size;
+    randState->_mp_seed->_mp_d = ::gmpRandState->_mp_seed->_mp_d;
+
+    randState->_mp_alg = ::gmpRandState->_mp_alg;
+    randState->_mp_algdata._mp_lc = ::gmpRandState->_mp_algdata._mp_lc;
+}
+
+} // namespace mpc
+#endif
 
 bool BooleanCoinFlip()
 { return SampleUniform<double>(0,1) >= 0.5; }

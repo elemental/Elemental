@@ -23,8 +23,8 @@ void TestCorrectness
     const Int n = AOrig.Height();
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
-    if( g.Rank() == 0 )
-        Output("Testing error...");
+    OutputFromRoot(g.Comm(),"Testing error...");
+    PushIndent();
 
     // Set H to the appropriate Hessenberg portion of A
     DistMatrix<F> H( A );
@@ -69,12 +69,13 @@ void TestCorrectness
     const Real infNormError = InfinityNorm( H );
     const Real frobNormError = FrobeniusNorm( H );
 
-    if( g.Rank() == 0 )
-        Output
-        ("    ||A||_oo = ",infNormAOrig,"\n",
-         "    ||A||_F  = ",frobNormAOrig,"\n",
-         "    ||H - Q^H A Q||_oo = ",infNormError,"\n",
-         "    ||H - Q^H A Q||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_oo = ",infNormAOrig,"\n",Indent(),
+     "||A||_F  = ",frobNormAOrig,"\n",Indent(),
+     "||H - Q^H A Q||_oo = ",infNormError,"\n",Indent(),
+     "||H - Q^H A Q||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
@@ -88,8 +89,8 @@ void TestHessenberg
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     Uniform( A, n, n );
     if( testCorrectness )
@@ -99,16 +100,15 @@ void TestHessenberg
     if( display )
         Display( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting reduction to Hessenberg form...");
+    OutputFromRoot(g.Comm(),"Starting reduction to Hessenberg form...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     Hessenberg( uplo, A, t );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     // TODO: Flop calculation
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds");
+    OutputFromRoot(g.Comm(),runTime," seconds");
     if( print )
     {
         Print( A, "A after Hessenberg" );
@@ -121,6 +121,7 @@ void TestHessenberg
     }
     if( testCorrectness )
         TestCorrectness( uplo, A, t, AOrig, print, display );
+    PopIndent();
 }
 
 int 
@@ -128,11 +129,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int n = Input("--height","height of matrix",100);
@@ -151,10 +151,10 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         ComplainIfDebug();

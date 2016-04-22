@@ -19,8 +19,10 @@ void TestSafeMultiShiftTrsm
   F alpha,
   const Grid& g )
 {
-    typedef Base<F> Real;
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
+    typedef Base<F> Real;
     DistMatrix<F> A(g), B(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g), scales(g);
 
@@ -41,8 +43,7 @@ void TestSafeMultiShiftTrsm
     {
         Print( A, "A" );
         Print( shifts, "shifts" );
-        if( g.Rank() == 0 )
-            Output( "alpha\n",alpha,"\n" );
+        OutputFromRoot(g.Comm(),"alpha=",alpha);
         Print( B, "B" );
     }
 
@@ -52,16 +53,16 @@ void TestSafeMultiShiftTrsm
     
     // Perform SafeMultiShiftTrsm
     X = B;
-    if( g.Rank() == 0 )
-        Output("  Starting SafeMultiShiftTrsm");
+    OutputFromRoot(g.Comm(),"Starting SafeMultiShiftTrsm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
-    SafeMultiShiftTrsm( side, uplo, orientation,
-                        alpha, A, shifts, X, scales );
+    Timer timer;
+    timer.Start();
+    SafeMultiShiftTrsm
+    ( side, uplo, orientation,
+      alpha, A, shifts, X, scales );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-        Output("  Finished after ",runTime," seconds");
+    const double runTime = timer.Stop();
+    OutputFromRoot(g.Comm(),"Finished after ",runTime," seconds");
     if( print )
     {
         Print( X, "X" );
@@ -103,7 +104,6 @@ void TestSafeMultiShiftTrsm
     Real maxRelErr = 0;
     Real minScales = 1;
     Real maxNorm, minNorm;
-    const Real smlnum = Sqrt( lapack::MachineSafeMin<Real>() );
     if( side == LEFT )
     {
         for( Int j=0; j<n; ++j )
@@ -116,7 +116,8 @@ void TestSafeMultiShiftTrsm
               shiftedDiag.Update( i, 0, shifts.Get(j,0) );
             }
             const Real AjDiagFrob = Nrm2( shiftedDiag );
-            const Real AjFrob = Sqrt( AOffFrob*AOffFrob + AjDiagFrob*AjDiagFrob );
+            const Real AjFrob =
+              Sqrt( AOffFrob*AOffFrob + AjDiagFrob*AjDiagFrob );
             const Real currErr = RjNrm2/(AjFrob*XjNrm2);
             maxErr = Max( maxErr, RjNrm2 );
             maxRelErr = Max( maxRelErr, currErr );
@@ -125,19 +126,21 @@ void TestSafeMultiShiftTrsm
             maxNorm = j>0 ? Max( maxNorm, XjNrm2 ) : XjNrm2;
         }
     }
-    // TODO: side == RIGHT
+    else
+        LogicError("side=RIGHT is not yet supported");
 
-    // Output results
     const Real AFrob = FrobeniusNorm( A );
-    if( g.Rank() == 0 )
-    {
-        Output("  || A ||_F = ",AFrob);
-        Output("  max( || Aj xj - bj sj ||_2 ) = ",maxErr);
-        Output("  max( || Aj xj - bj sj ||_2 / || Aj ||_F || xj ||_2 ) = ",maxRelErr);
-        Output("  max( || xj ||_2 ) = ",maxNorm);
-        Output("  min( || xj ||_2 ) = ",minNorm);
-        Output("  min( sj ) = ",minScales);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "|| A ||_F = ",AFrob,"\n",Indent(),
+     "max( || Aj xj - bj sj ||_2 ) = ",maxErr,"\n",Indent(),
+     "max( || Aj xj - bj sj ||_2 / || Aj ||_F || xj ||_2 ) = ",maxRelErr,
+     "\n",Indent(),
+     "max( || xj ||_2 ) = ",maxNorm,"\n",Indent(),
+     "min( || xj ||_2 ) = ",minNorm,"\n",Indent(),
+     "min( sj ) = ",minScales);
+
+    PopIndent();
 }
 
 int 
@@ -145,12 +148,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to solve from: L/R",'L');
         const char uploChar = Input
@@ -164,28 +165,47 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test SafeMultiShiftTrsm ",sideChar,uploChar,transChar);
+        OutputFromRoot
+        (comm,"Will test SafeMultiShiftTrsm ",sideChar,uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
+        TestSafeMultiShiftTrsm<float>
+        ( print, side, uplo, orientation, m, n, float(3), g );
+        TestSafeMultiShiftTrsm<Complex<float>>
+        ( print, side, uplo, orientation, m, n, Complex<float>(3), g );
+
         TestSafeMultiShiftTrsm<double>
-        ( print, side, uplo, orientation, m, n, 3., g );
-
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        ( print, side, uplo, orientation, m, n, double(3), g );
         TestSafeMultiShiftTrsm<Complex<double>>
         ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
+
+#ifdef EL_HAVE_QUAD
+        TestSafeMultiShiftTrsm<Quad>
+        ( print, side, uplo, orientation, m, n, Quad(3), g );
+        TestSafeMultiShiftTrsm<Complex<Quad>>
+        ( print, side, uplo, orientation, m, n, Complex<Quad>(3), g );
+#endif
+
+#ifdef EL_HAVE_QD
+        TestSafeMultiShiftTrsm<DoubleDouble>
+        ( print, side, uplo, orientation, m, n, DoubleDouble(3), g );
+        TestSafeMultiShiftTrsm<QuadDouble>
+        ( print, side, uplo, orientation, m, n, QuadDouble(3), g );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestSafeMultiShiftTrsm<BigFloat>
+        ( print, side, uplo, orientation, m, n, BigFloat(3), g );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

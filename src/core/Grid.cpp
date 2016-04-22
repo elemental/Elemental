@@ -9,7 +9,33 @@
 */
 #include <El.hpp>
 
+
 namespace El {
+
+Grid* Grid::defaultGrid = 0;
+
+void Grid::InitializeDefault()
+{
+    defaultGrid = new Grid( mpi::COMM_WORLD );    
+}
+
+void Grid::FinalizeDefault()
+{
+    delete defaultGrid;
+    defaultGrid = 0;
+}
+
+const Grid& Grid::Default() EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(
+      CSE cse("Grid::Default");
+      if( defaultGrid == 0 )
+          LogicError
+          ("Attempted to return a non-existant default grid. Please ensure "
+           "that Elemental is initialized before creating a DistMatrix.");
+    )
+    return *defaultGrid;
+}
 
 int Grid::FindFactor( int p ) EL_NO_EXCEPT
 {

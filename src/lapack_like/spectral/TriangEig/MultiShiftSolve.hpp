@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson and Tim Moon
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
+
+   Copyright (c) 2015-2016, Tim Moon
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-
 
 namespace El {
 
@@ -17,30 +19,13 @@ namespace triang_eig {
 
 // TODO: "Naive" versions for academic accuracy and performance experiments
 
-/* Determine machine dependent parameters to control overflow
- *   Note: LAPACK uses more complicated parameters to handle 
- *   issues that can happen on Cray machines.
- */
-template<typename Real>
-inline pair<Real,Real>
-OverflowParameters()
-{
-    const Real underflow = lapack::MachineSafeMin<Real>();
-    const Real overflow = lapack::MachineOverflowThreshold<Real>();
-    const Real ulp  = lapack::MachinePrecision<Real>();
-    const Real smallNum = Max( underflow/ulp, 1/(overflow*ulp) );
-    const Real bigNum = 1/smallNum;
-    return pair<Real,Real>(smallNum,bigNum);
-}
-
 /*   Note: See "Robust Triangular Solves for Use in Condition
  *   Estimation" by Edward Anderson for notation and bounds.
  *   Entries in U are assumed to be less (in magnitude) than 
  *   bigNum.
  */
 template<typename F>
-void
-MultiShiftDiagonalBlockSolve
+void MultiShiftDiagonalBlockSolve
 (       Matrix<F>& U,
   const Matrix<F>& shifts,
         Matrix<F>& X,
@@ -60,14 +45,16 @@ MultiShiftDiagonalBlockSolve
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
 
-    auto overflowPair = OverflowParameters<Real>();
-    const Real smallNum = overflowPair.first;
-    const Real bigNum = overflowPair.second;
+    const Real underflow = limits::SafeMin<Real>();
+    const Real overflow = limits::Max<Real>();
+    const Real ulp = limits::Precision<Real>();
+    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
+    const Real bigNum = Real(1)/smallNum;
     
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
-    const F* UBuf = U.LockedBuffer();
+    F* UBuf = U.Buffer();
     const Int ULDim = U.LDim();
 
     // Default scale is 1
@@ -93,7 +80,15 @@ MultiShiftDiagonalBlockSolve
         // Initialize triangular system
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( U, diag );
-        ShiftDiagonal( U, -shifts.Get(j,0) );
+        const F shift = shifts.Get(j,0);
+        const Real smallDiag = Max( ulp*FastAbs(shift), smallNum );
+        for( Int k=0; k<xHeight; ++k )
+        {
+            UBuf[k+k*ULDim] -= shift;
+            // TODO: Perhaps preserve phase in complex plane
+            if( FastAbs(UBuf[k+k*ULDim]) < smallDiag )
+                UBuf[k+k*ULDim] = smallDiag;
+        }
         auto xj = X( IR(0,xHeight), IR(j) );
         Real scales_j = Real(1);
 
@@ -232,8 +227,7 @@ MultiShiftDiagonalBlockSolve
 }
 
 template<typename F>
-void
-MultiShiftDiagonalBlockSolve
+void MultiShiftDiagonalBlockSolve
 (       DistMatrix<F,STAR,STAR>& U,
   const DistMatrix<F,VR,STAR>& shifts,
         DistMatrix<F,STAR,VR>& X,
@@ -259,14 +253,16 @@ MultiShiftDiagonalBlockSolve
     auto diag = GetDiagonal(ULoc);
     const Int n = U.Height();
 
-    auto overflowPair = OverflowParameters<Real>();
-    const Real smallNum = overflowPair.first;
-    const Real bigNum = overflowPair.second;
+    const Real underflow = limits::SafeMin<Real>();
+    const Real overflow = limits::Max<Real>();
+    const Real ulp = limits::Precision<Real>();
+    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
+    const Real bigNum = Real(1)/smallNum;
     
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
-    const F* UBuf = U.LockedBuffer();
+    F* UBuf = U.Buffer();
     const Int ULDim = U.LDim();
 
     // Default scale is 1
@@ -297,7 +293,15 @@ MultiShiftDiagonalBlockSolve
         // Initialize triangular system
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( ULoc, diag );
-        ShiftDiagonal( ULoc, -shiftsLoc.Get(jLoc,0) );
+        const F shift = shiftsLoc.Get(jLoc,0);
+        const Real smallDiag = Max( ulp*FastAbs(shift), smallNum );
+        for( Int k=0; k<xHeight; ++k )
+        {
+            UBuf[k+k*ULDim] -= shift;
+            // TODO: Perhaps preserve phase in complex plane
+            if( FastAbs(UBuf[k+k*ULDim]) < smallDiag )
+                UBuf[k+k*ULDim] = smallDiag;
+        }
         auto xj = XLoc( IR(0,xHeight), IR(jLoc) );
         Real scales_j = Real(1);
 
@@ -441,8 +445,7 @@ MultiShiftDiagonalBlockSolve
  *   bigNum.
  */
 template<typename F>
-void
-MultiShiftSolve
+void MultiShiftSolve
 (       Matrix<F>& U,
   const Matrix<F>& shifts,
         Matrix<F>& X,
@@ -466,9 +469,11 @@ MultiShiftSolve
 
     const Real oneHalf = Real(1)/Real(2);
 
-    auto overflowPair = OverflowParameters<Real>();
-    const Real smallNum = overflowPair.first;
-    const Real bigNum = overflowPair.second;
+    const Real underflow = limits::SafeMin<Real>();
+    const Real overflow = limits::Max<Real>();
+    const Real ulp = limits::Precision<Real>();
+    const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
+    const Real bigNum = Real(1)/smallNum;
 
     DEBUG_ONLY(
       if( MaxNorm(U) >= bigNum )
@@ -583,8 +588,7 @@ MultiShiftSolve
 }
 
 template<typename F>
-inline void
-MultiShiftSolve
+void MultiShiftSolve
 ( const ElementalMatrix<F>& UPre, 
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre,

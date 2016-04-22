@@ -43,9 +43,10 @@ void TestCorrectness
         const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
         const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
         Real frobNormE = FrobeniusNorm( Y );
-        if( g.Rank() == 0 )
-            cout << "    ||A X - B X W||_F / max(||A||_F,||B||_F) = " 
-                 << frobNormE/Max(frobNormA,frobNormB) << std::endl;
+        OutputFromRoot
+        (g.Comm(),
+         "||A X - B X W||_F / max(||A||_F,||B||_F) = ", 
+         frobNormE/Max(frobNormA,frobNormB));
         DistMatrix<F> Z(g);
         Z = X;
         if( uplo == LOWER )
@@ -55,9 +56,10 @@ void TestCorrectness
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
         frobNormE = FrobeniusNorm( Y );
-        if( g.Rank() == 0 )
-            cout << "    ||X^H B X - I||_F  / max(||A||_F,||B||_F) = " 
-                 << frobNormE/Max(frobNormA,frobNormB) << endl;
+        OutputFromRoot
+        (g.Comm(),
+         "||X^H B X - I||_F  / max(||A||_F,||B||_F) = ", 
+         frobNormE/Max(frobNormA,frobNormB));
     }
     else if( pencil == ABX )
     {
@@ -84,9 +86,10 @@ void TestCorrectness
         const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
         const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
         Real frobNormE = FrobeniusNorm( Z );
-        if( g.Rank() == 0 )
-            cout << "    ||A B X - X W||_F  / max(||A||_F,||B||_F) = " 
-                 << frobNormE/Max(frobNormA,frobNormB) << std::endl;
+        OutputFromRoot
+        (g.Comm(),
+         "||A B X - X W||_F  / max(||A||_F,||B||_F) = ", 
+         frobNormE/Max(frobNormA,frobNormB));
         Z = X;
         if( uplo == LOWER )
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, Z );
@@ -95,9 +98,10 @@ void TestCorrectness
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
         frobNormE = FrobeniusNorm( Y );
-        if( g.Rank() == 0 )
-            cout << "    ||X^H B X - I||_F / Max(||A||_F,||B||_F) = " 
-                 << frobNormE/Max(frobNormA,frobNormB) << endl;
+        OutputFromRoot
+        (g.Comm(),
+         "||X^H B X - I||_F / Max(||A||_F,||B||_F) = ", 
+         frobNormE/Max(frobNormA,frobNormB));
     }
     else /* pencil == BAX */
     {
@@ -124,9 +128,10 @@ void TestCorrectness
         const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
         const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
         Real frobNormE = FrobeniusNorm( Z );
-        if( g.Rank() == 0 )
-            cout << "    ||B A X - X W||_F / Max(||A||_F,||B||_F) = " 
-                 << frobNormE/Max(frobNormA,frobNormB) << std::endl;
+        OutputFromRoot
+        (g.Comm(),
+         "||B A X - X W||_F / Max(||A||_F,||B||_F) = ", 
+         frobNormE/Max(frobNormA,frobNormB));
         Z = X;
         if( uplo == LOWER )
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, Z );
@@ -135,9 +140,10 @@ void TestCorrectness
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
         frobNormE = FrobeniusNorm( Y );
-        if( g.Rank() == 0 )
-            cout << "    ||X^H B^-1 X - I||_F  / Max(||A||_F,||B||_F) = " 
-                 << frobNormE/Max(frobNormA,frobNormB) << endl;
+        OutputFromRoot
+        (g.Comm(),
+         "||X^H B^-1 X - I||_F  / Max(||A||_F,||B||_F) = ", 
+         frobNormE/Max(frobNormA,frobNormB));
     }
 }
 
@@ -158,8 +164,8 @@ void TestHermitianGenDefEig
     DistMatrix<F,U,V> A(g), B(g), AOrig(g), BOrig(g);
     DistMatrix<Real,S,STAR> w(g);
     DistMatrix<F> X(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     HermitianUniformSpectrum( A, m, 1, 10 );
     if( pencil == BAX )
@@ -185,19 +191,18 @@ void TestHermitianGenDefEig
         Print( B, "B" );
     }
 
-    if( g.Rank() == 0 )
-        cout << "  Starting Hermitian Generalized-Definite Eigensolver..."
-             << std::endl;
+    OutputFromRoot
+    (g.Comm(),"Starting Hermitian Generalized-Definite Eigensolver...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     if( onlyEigvals )
         HermitianGenDefEig( pencil, uplo, A, B, w, sort, subset, ctrl );
     else
         HermitianGenDefEig( pencil, uplo, A, B, w, X, sort, subset, ctrl );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-        cout << "  Time = " << runTime << " seconds." << endl;
+    const double runTime = timer.Stop();
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -206,6 +211,7 @@ void TestHermitianGenDefEig
     }
     if( testCorrectness && !onlyEigvals )
         TestCorrectness( print, pencil, uplo, AOrig, BOrig, A, B, w, X );
+    PopIndent();
 }
 
 int 
@@ -259,8 +265,9 @@ main( int argc, char* argv[] )
         if( range != 'A' && range != 'I' && range != 'V' )
             throw runtime_error("'range' must be 'A', 'I', or 'V'");
         const SortType sort = static_cast<SortType>(sortInt);
-        if( testCorrectness && onlyEigvals && commRank==0 )
-            cout << "Cannot test correctness with only eigenvalues." << endl;
+        if( testCorrectness && onlyEigvals )
+            OutputFromRoot
+            (g.Comm(),"Cannot test correctness with only eigenvalues.");
         Pencil pencil;
         string pencilString;
         if( pencilInt == 1 )
@@ -281,10 +288,9 @@ main( int argc, char* argv[] )
         else
             LogicError("Invalid pencil integer");
         ComplainIfDebug();
-        if( commRank == 0 )
-            cout << "Will test " 
-                 << ( uplo==LOWER ? "lower" : "upper" )
-                 << " " << pencilString << " HermitianGenDefEig." << endl;
+        OutputFromRoot
+        (g.Comm(),"Will test ",( uplo==LOWER ? "lower" : "upper" )," ",
+         pencilString," HermitianGenDefEig.");
 
         HermitianEigSubset<double> subset;
         if( range == 'I' )
@@ -309,8 +315,7 @@ main( int argc, char* argv[] )
         ctrl_d.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
         ctrl_z.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
 
-        if( commRank == 0 )
-            cout << "Normal tridiag algorithms:" << endl;
+        OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
         ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
         ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
         if( testReal )
@@ -322,8 +327,7 @@ main( int argc, char* argv[] )
             ( testCorrectness, print, 
               pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
 
-        if( commRank == 0 )
-            cout << "Square row-major algorithms:" << endl;
+        OutputFromRoot(g.Comm(),"Square row-major algorithms:");
         ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_d.tridiagCtrl.order = ROW_MAJOR;
@@ -337,8 +341,7 @@ main( int argc, char* argv[] )
             ( testCorrectness, print, 
               pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
 
-        if( commRank == 0 )
-            cout << "Square column-major algorithms:" << endl;
+        OutputFromRoot(g.Comm(),"Square column-major algorithms:");
         ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_d.tridiagCtrl.order = COLUMN_MAJOR;
@@ -353,8 +356,7 @@ main( int argc, char* argv[] )
               pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
 
         // Also test with non-standard distributions
-        if( commRank == 0 )
-            cout << "Nonstandard distributions:" << endl;
+        OutputFromRoot(g.Comm(),"Nonstandard distributions:");
         if( testReal )
             TestHermitianGenDefEig<double,MR,MC,MC>
             ( testCorrectness, print, 

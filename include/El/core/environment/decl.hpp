@@ -44,7 +44,8 @@ void PrintCxxCompilerInfo( ostream& os=cout );
 bool Using64BitInt();
 bool Using64BitBlasInt();
 
-// For manually initializing and finalizing Elemental
+// For manually initializing and finalizing Elemental; their direct usage
+// in C++ programs now deprecated.
 void Initialize();
 void Initialize( int& argc, char**& argv );
 void Finalize();
@@ -90,13 +91,7 @@ void SetBlocksize( Int blocksize );
 // For manipulating the algorithmic blocksize as a stack
 void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
-
-Int DefaultBlockHeight();
-Int DefaultBlockWidth();
-void SetDefaultBlockHeight( Int blockHeight );
-void SetDefaultBlockWidth( Int blockWidth );
-
-std::mt19937& Generator();
+void EmptyBlocksizeStack();
 
 template<typename T,typename=EnableIf<IsScalar<T>>>
 inline const T& Max( const T& m, const T& n ) EL_NO_EXCEPT
@@ -199,16 +194,16 @@ inline void FastResize( vector<Entry<BigFloat>>& v, Int numEntries )
 
 inline void BuildStream( ostringstream& os ) { }
 
-template<typename T,typename... Args>
+template<typename T,typename... ArgPack>
 inline void BuildStream
-( ostringstream& os, const T& item, const Args& ... args )
+( ostringstream& os, const T& item, const ArgPack& ... args )
 {
     os << item;
     BuildStream( os, args... );
 }
 
-template<typename... Args>
-inline string BuildString( const Args& ... args )
+template<typename... ArgPack>
+inline string BuildString( const ArgPack& ... args )
 { 
     ostringstream os;
     BuildStream( os, args... );
@@ -222,8 +217,8 @@ public:
     : std::runtime_error( msg ) { }
 };
 
-template<typename... Args>
-inline void UnrecoverableError( const Args& ... args )
+template<typename... ArgPack>
+inline void UnrecoverableError( const ArgPack& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -231,8 +226,8 @@ inline void UnrecoverableError( const Args& ... args )
     UnrecoverableException( os.str().c_str() );
 }
 
-template<typename... Args>
-inline void LogicError( const Args& ... args )
+template<typename... ArgPack>
+inline void LogicError( const ArgPack& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -240,8 +235,8 @@ inline void LogicError( const Args& ... args )
     throw std::logic_error( os.str().c_str() );
 }
 
-template<typename... Args>
-inline void RuntimeError( const Args& ... args )
+template<typename... ArgPack>
+inline void RuntimeError( const ArgPack& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -325,8 +320,8 @@ void OpenLog( const char* filename );
 
 std::ostream & LogOS();
 
-template<typename... Args>
-inline void Log( const Args& ... args )
+template<typename... ArgPack>
+inline void Log( const ArgPack& ... args )
 {
     std::ostringstream str;
     BuildStream( str, args... );
@@ -346,8 +341,8 @@ void ClearIndent();
 Int IndentLevel();
 std::string Indent();
 
-template<typename... Args>
-inline void Output( const Args& ... args )
+template<typename... ArgPack>
+inline void Output( const ArgPack& ... args )
 {
     ostringstream os;
     os << Indent();
@@ -356,15 +351,22 @@ inline void Output( const Args& ... args )
     cout << os.str();
 }
 
-// TODO: OutputRoot?
+template<typename... ArgPack>
+inline void OutputFromRoot( mpi::Comm comm, const ArgPack& ... args )
+{
+    if( mpi::Rank(comm) == 0 )
+    {
+        Output( args... );
+    }
+}
 
 template<typename T>
 void EnsureConsistent( T alpha, mpi::Comm comm, string name="" );
 
 // This will be guaranteed by C++14 via std::make_unique
-template<typename T, typename ...Args>
-inline unique_ptr<T> MakeUnique( Args&& ...args )
-{ return unique_ptr<T>( new T( std::forward<Args>(args)... ) ); }
+template<typename T, typename ...ArgPack>
+inline unique_ptr<T> MakeUnique( ArgPack&& ...args )
+{ return unique_ptr<T>( new T( std::forward<ArgPack>(args)... ) ); }
 
 template<typename T>
 T Scan( const vector<T>& counts, vector<T>& offsets );

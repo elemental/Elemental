@@ -32,7 +32,7 @@ void TestCorrectness
     double frobNormA = FrobeniusNorm( A );
     double frobNormR = FrobeniusNorm( R );
 
-    Output("  ||A V - V W||_F / ||A||_F = ",frobNormR/frobNormA);
+    Output("||A V - V W||_F / ||A||_F = ",frobNormR/frobNormA);
 }
 
 void TestCorrectness
@@ -56,7 +56,7 @@ void TestCorrectness
     double frobNormR = FrobeniusNorm( R );
 
     if( A.Grid().Rank() == 0 )
-        Output("  ||A V - V W||_F / ||A||_F = ",frobNormR/frobNormA);
+        Output("||A V - V W||_F / ||A||_F = ",frobNormR/frobNormA);
 }
 
 void SequentialEigBenchmark
@@ -78,6 +78,7 @@ void SequentialEigBenchmark
     case 0: Gaussian( AOrig, m, m );       break;
     case 1: FoxLi( AOrig, m, foxLiOmega ); break;
     case 2: Grcar( AOrig, m );             break;
+    case 3: Jordan( AOrig, m, Complex<double>(7) ); break;
     default: LogicError("Unknown test matrix");
     }
     if( print )
@@ -90,27 +91,34 @@ void SequentialEigBenchmark
 
     // Compute eigenvectors with Elemental
     Output("Elemental");
+    PushIndent();
     A = AOrig;
-    Output("  Schur decomposition...");
+    Output("Schur decomposition...");
+    PushIndent();
     timer.Start();
     Schur( A, w, V, true, schurCtrl );
-    Output("    Time = ",timer.Stop()," seconds");
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
     if( print )
     {
         Print( A, "T" );
         Print( V, "Q" );
     }
-    Output("  Triangular eigensolver...");
+    Output("Triangular eigensolver...");
+    PushIndent();
     timer.Start();
     TriangEig( A, X );
-    Output("    Time = ",timer.Stop()," seconds");
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
     if( print ) 
         Print( X, "X" );
-    Output("  Transforming to get eigenvectors...");
+    Output("Transforming to get eigenvectors...");
+    PushIndent();
     timer.Start();
     Trmm( RIGHT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), X, V );
-    Output("    Time = ",timer.Stop()," seconds");
-    Output("  Total Time = ",timer.Total()," seconds");
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    Output("Total Time = ",timer.Total()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -118,22 +126,29 @@ void SequentialEigBenchmark
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, w, V );
+    PopIndent();
     
     // Compute eigenvectors with LAPACK (GEHRD, HSEQR, TREVC, TRMM)
     Output("LAPACK (GEHRD, UNGHR, HSEQR, TREVC)");
+    PushIndent();
     A = AOrig;
     tau.Resize( m, 1 );
     timer.Reset();
-    Output("  Transforming to upper Hessenberg form...");
+    Output("Transforming to upper Hessenberg form...");
+    PushIndent();
     timer.Start();
     lapack::Hessenberg( m, A.Buffer(), A.LDim(), tau.Buffer() );
-    Output("    Time = ",timer.Stop()," seconds");
-    Output("  Obtaining orthogonal matrix...");
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    Output("Obtaining orthogonal matrix...");
+    PushIndent();
     timer.Start();
     V = A;
     lapack::HessenbergGenerateUnitary( m, V.Buffer(), V.LDim(), tau.Buffer() );
-    Output("    Time = ",timer.Stop()," seconds");
-    Output("  Schur decomposition...");
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    Output("Schur decomposition...");
+    PushIndent();
     timer.Start();
     {
         bool fullTriangle=true;
@@ -145,16 +160,19 @@ void SequentialEigBenchmark
           V.Buffer(), V.LDim(),
           fullTriangle, multiplyQ );
     }
-    Output("    Time = ",timer.Stop()," seconds");
-    Output("  Triangular eigensolver...");
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    Output("Triangular eigensolver...");
+    PushIndent();
     timer.Start();
     {
         bool accumulate=true;
         lapack::TriangEig
         ( m, A.Buffer(), A.LDim(), V.Buffer(), V.LDim(), accumulate );
     }
-    Output("    Time = ",timer.Stop()," seconds");
-    Output("  Total Time = ",timer.Total()," seconds");
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    Output("Total Time = ",timer.Total()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -162,9 +180,11 @@ void SequentialEigBenchmark
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, w, V );
+    PopIndent();
 
     // Compute eigenvectors with LAPACK (GEEV)
     Output("LAPACK (GEEV)");
+    PushIndent();
     A = AOrig;
     timer.Reset();
     timer.Start();
@@ -173,7 +193,7 @@ void SequentialEigBenchmark
       A.Buffer(), A.LDim(),
       w.Buffer(),
       V.Buffer(), V.LDim() );
-    Output("  Total Time = ",timer.Stop()," seconds");
+    Output("Total Time = ",timer.Stop()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -181,6 +201,7 @@ void SequentialEigBenchmark
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, w, V );
+    PopIndent();
 }
 
 void EigBenchmark
@@ -207,6 +228,7 @@ void EigBenchmark
     case 0: Gaussian( AOrig, m, m );       break;
     case 1: FoxLi( AOrig, m, foxLiOmega ); break;
     case 2: Grcar( AOrig, m );             break;
+    case 3: Jordan( AOrig, m, Complex<double>(7) ); break;
     default: LogicError("Unknown test matrix");
     }
     if( print )
@@ -220,43 +242,35 @@ void EigBenchmark
     schurCtrl.time = true;
 
     // Compute eigenvectors with Elemental
-    if( gridRank == 0 )
-        Output("Elemental");
+    OutputFromRoot(g.Comm(),"Elemental");
+    PushIndent();
     A = AOrig;
-    if( gridRank == 0 )
-    {
-        Output("  Schur decomposition...");
-        timer.Start();
-    }
+    OutputFromRoot(g.Comm(),"Schur decomposition...");
+    PushIndent();
+    timer.Start();
     Schur( A, w, V, true, schurCtrl );
-    if( gridRank == 0 )
-        Output("    Time = ",timer.Stop()," seconds");
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
+    PopIndent();
     if( print )
     {
         Print( A, "T" );
         Print( V, "Q" );
     }
-    if( gridRank == 0 )
-    {
-        Output("  Triangular eigensolver...");
-        timer.Start();
-    }
+    OutputFromRoot(g.Comm(),"Triangular eigensolver...");
+    PushIndent();
+    timer.Start();
     TriangEig( A, X );
-    if( gridRank == 0 )
-        Output("    Time = ",timer.Stop()," seconds");
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
+    PopIndent();
     if( print )
         Print( X, "X" );
-    if( gridRank == 0 )
-    {
-        Output("  Transforming to get eigenvectors...");
-        timer.Start();
-    }
+    OutputFromRoot(g.Comm(),"Transforming to get eigenvectors...");
+    PushIndent();
+    timer.Start();
     Trmm( RIGHT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), X, V );
-    if( gridRank == 0 )
-    {
-        Output("    Time = ",timer.Stop()," seconds");
-        Output("  Total Time = ",timer.Total()," seconds");
-    }
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
+    PopIndent();
+    OutputFromRoot(g.Comm(),"Total Time = ",timer.Total()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -264,6 +278,7 @@ void EigBenchmark
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, w, V );
+    PopIndent();
 }
 
 int 
@@ -272,12 +287,11 @@ main( int argc, char* argv[] )
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
         // Parse command line arguments
-        int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -288,22 +302,22 @@ main( int argc, char* argv[] )
           Input
           ("--distAED",
            "Distributed Aggressive Early Deflation? (it can be buggy...)",
-           true);
+           false);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",false);
         const bool print = Input("--print","print matrices?",false);
         const Int testMatrix =
-          Input("--testMatrix","test matrix (0=Gaussian,1=Fox-Li,2=Grcar)",0);
+          Input("--testMatrix","(0=Gaussian,1=Fox-Li,2=Grcar,3=Jordan)",0);
         ProcessInput();
         PrintInputReport();
 
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR ); 
-        const Grid grid( comm, r, order );
+        const Grid grid( comm, gridHeight, order );
        
         if( commRank == 0 )
             SequentialEigBenchmark( testCorrectness, print, n, testMatrix );

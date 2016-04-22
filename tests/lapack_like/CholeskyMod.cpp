@@ -39,13 +39,13 @@ void TestCorrectness
     X -= Y;
     const Real frobNormE = FrobeniusNorm( X );
 
-    if( g.Rank() == 0 )
-        Output
-        ("||T||_max = ",maxNormT,"\n",
-         "||B||_max = ",maxNormB,"\n",
-         "||B||_F   = ",frobNormB,"\n",
-         "||Y||_F   = ",frobNormY,"\n",
-         "||X - inv(B) X||_F  = ",frobNormE);
+    OutputFromRoot
+    (g.Comm(),
+     "||T||_max = ",maxNormT,"\n",Indent(),
+     "||B||_max = ",maxNormB,"\n",Indent(),
+     "||B||_F   = ",frobNormB,"\n",Indent(),
+     "||Y||_F   = ",frobNormY,"\n",Indent(),
+     "||X - inv(B) X||_F  = ",frobNormE);
 }
 
 template<typename F> 
@@ -58,8 +58,8 @@ void TestCholeskyMod
   bool testCorrectness,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     DistMatrix<F> T(g), A(g);
     HermitianUniformSpectrum( T, m, 1e-9, 10 );
@@ -68,15 +68,14 @@ void TestCholeskyMod
     if( print )
         Print( T, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting Cholesky...");
-    double startTime = mpi::Time();
+    OutputFromRoot(g.Comm(),"Starting Cholesky...");
+    Timer timer;
+    timer.Start();
     Cholesky( uplo, T );
-    double runTime = mpi::Time() - startTime;
+    double runTime = timer.Stop();
     double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     MakeTrapezoidal( uplo, T );
     if( print )
         Print( T, "Cholesky factor" );
@@ -88,18 +87,17 @@ void TestCholeskyMod
     if( print )
         Print( V, "V" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting Cholesky mod...");
-    startTime = mpi::Time();
+    OutputFromRoot(g.Comm(),"Starting Cholesky mod...");
+    timer.Start();
     CholeskyMod( uplo, T, alpha, VMod );
-    runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds");
+    runTime = timer.Stop();
+    OutputFromRoot(g.Comm(),runTime," seconds");
     if( print )
         Print( T, "Modified Cholesky factor" );
 
     if( testCorrectness )
         TestCorrectness( uplo, T, alpha, V, A );
+    PopIndent();
 }
 
 int 
@@ -107,11 +105,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","process grid height",0);
+        Int gridHeight = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--m","height of matrix",100);
@@ -131,10 +128,10 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         ComplainIfDebug();

@@ -19,8 +19,9 @@ void TestSymv
   const Grid& g,
   Int nbLocal )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<T>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<T>());
+    PushIndent();
+
     SetLocalSymvBlocksize<T>( nbLocal );
 
     DistMatrix<T> A(g), x(g), y(g);
@@ -36,19 +37,21 @@ void TestSymv
     }
 
     // Test Symv
-    if( g.Rank() == 0 )
-        Output("  Starting Symv");
+    OutputFromRoot(g.Comm(),"Starting Symv");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     Symv( uplo, alpha, A, x, beta, y );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 2.*double(m)*double(m)/(1.e9*runTime);
     const double gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s");
+    OutputFromRoot
+    (g.Comm(),"Finished in ",runTime," seconds (",gFlops," GFlop/s");
     if( print )
         Print( y, BuildString("y := ",alpha," Symm(A) x + ",beta," y") );
+
+    PopIndent();
 }
 
 int 
@@ -56,12 +59,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--m","height of matrix",100);
@@ -71,16 +72,15 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test Symv ",uploChar);
+        OutputFromRoot(comm,"Will test Symv ",uploChar);
 
         TestSymv<float>
         ( uplo, m,

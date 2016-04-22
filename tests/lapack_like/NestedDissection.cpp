@@ -15,7 +15,6 @@ int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -47,8 +46,7 @@ int main( int argc, char* argv[] )
 
         // Fill our portion of the graph of a 3D n x n x n 7-point stencil
         // in natural ordering: (x,y,z) at x + y*n + z*n*n
-        if( commRank == 0 )
-            Output("Filling local portion of graph");
+        OutputFromRoot(comm,"Filling local portion of graph");
         graph.Reserve( 7*numLocalSources );
         for( int iLocal=0; iLocal<numLocalSources; ++iLocal )
         {
@@ -77,8 +75,7 @@ int main( int argc, char* argv[] )
         if( print )
             Print( graph );
 
-        if( commRank == 0 )
-            Output("Running nested dissection");
+        OutputFromRoot(comm,"Running nested dissection");
         ldl::DistNodeInfo info;
         ldl::DistSeparator sep;
         DistMap map;
@@ -86,8 +83,7 @@ int main( int argc, char* argv[] )
 
         const int rootSepSize = info.size;
         // TODO: Print more than just the root separator size
-        if( commRank == 0 )
-            Output(rootSepSize," vertices in root separator");
+        OutputFromRoot(comm,rootSepSize," vertices in root separator");
     }
     catch( exception& e ) { ReportException(e); }
 

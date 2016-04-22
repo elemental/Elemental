@@ -50,16 +50,15 @@ void TestCorrectness
     Real frobNormR = FrobeniusNorm( R );
 
     // Find condition number
-    Real condX = Condition( X );
-    if( g.Rank() == 0 )
-    {
-        Output("    ||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA);
-        Output("    cond(X) = ", condX);
-    }
-      
+    Real condX = FrobeniusCondition( X );
+    OutputFromRoot
+    (g.Comm(),
+     "||A X - X W||_F / ||A||_F = ",frobNormR/frobNormA,"\n",Indent(),
+     "cond(X) = ",condX);
 }
 
-template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
+template<typename F,Dist U=MC,Dist V=MR,Dist S=MC,
+         typename=EnableIf<IsBlasScalar<F>>>
 void TestTriangEig
 ( bool testCorrectness,
   bool print,
@@ -71,13 +70,13 @@ void TestTriangEig
 
     DistMatrix<F,U,V> A(g), AOrig(g), X(g);
     DistMatrix<F,S,STAR> w(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     // Generate test matrix
     switch( testMatrix )
     {
-
     case 0:
         {
             // LU factorization of Gaussian matrix
@@ -88,14 +87,12 @@ void TestTriangEig
             MakeTrapezoidal( UPPER, A, 0 );
             break;
         }
-
     case 1:
         {
             // Schur factorization of Fox-Li matrix
             FoxLiSchurFactor( A, m );
             break;
         }
-        
     case 2:
         {
             // Schur factorization of Grcar matrix
@@ -105,11 +102,10 @@ void TestTriangEig
             MakeTrapezoidal( UPPER, A, 0 );
             break;
         }
-        
-    default:
-        LogicError("Unknown test matrix");
+    case 3:
+        Jordan( A, m, F(7) );
         break;
-
+    default: LogicError("Unknown test matrix");
     }
     
     if( testCorrectness )
@@ -120,13 +116,11 @@ void TestTriangEig
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting triangular eigensolver...");
-    const double startTime = mpi::Time();
+    OutputFromRoot(g.Comm(),"Starting triangular eigensolver...");
+    Timer timer;
+    timer.Start();
     TriangEig( A, X );
-    const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -134,6 +128,66 @@ void TestTriangEig
     }
     if( testCorrectness )
         TestCorrectness( print, AOrig, X );
+    PopIndent();
+}
+
+template<typename F,Dist U=MC,Dist V=MR,Dist S=MC,
+         typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void TestTriangEig
+( bool testCorrectness,
+  bool print,
+  Int m,
+  const Grid& g,
+  Int testMatrix )
+{
+    typedef Base<F> Real;
+
+    DistMatrix<F,U,V> A(g), AOrig(g), X(g);
+    DistMatrix<F,S,STAR> w(g);
+
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
+    // Generate test matrix
+    switch( testMatrix )
+    {
+    case 0:
+        {
+            // LU factorization of Gaussian matrix
+            DistMatrix<F> B(g);
+            Gaussian( B, m, m );
+            LU( B );
+            Transpose( B, A );
+            MakeTrapezoidal( UPPER, A, 0 );
+            break;
+        }
+    case 3:
+        Jordan( A, m, F(7) );
+        break;
+    default: LogicError("Schur factorization not supported for non-BLAS types");
+    }
+    
+    if( testCorrectness )
+    {
+        AOrig = A;
+        GetDiagonal( A, w );
+    }
+    if( print )
+        Print( A, "A" );
+
+    OutputFromRoot(g.Comm(),"Starting triangular eigensolver...");
+    Timer timer;
+    timer.Start();
+    TriangEig( A, X );
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
+    if( print )
+    {
+        Print( w, "eigenvalues:" );
+        Print( X, "eigenvectors:" );
+    }
+    if( testCorrectness )
+        TestCorrectness( print, AOrig, X );
+    PopIndent();
 }
 
 int 
@@ -141,12 +195,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -155,20 +207,34 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
-        const Int testMatrix = Input("--testMatrix","test matrix (0=Gaussian,1=Fox-Li,2=Grcar)",0);
+        const Int testMatrix =
+          Input
+          ("--testMatrix","(0=Gaussian,1=Fox-Li,2=Grcar,3=Jordan)",0);
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 
         // Test with default distributions
-        if( commRank == 0 )
-            Output("Normal algorithms:");
+        OutputFromRoot(g.Comm(),"Normal algorithms:");
+
+        // NOTE: This is not nearly enough precision for our chosen matrices
+        /*
+        if( testReal )
+            TestTriangEig<float>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        if( testCpx )
+            TestTriangEig<Complex<float>>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        */
+
         if( testReal )
             TestTriangEig<double>
             ( testCorrectness, print,
@@ -178,18 +244,34 @@ main( int argc, char* argv[] )
             ( testCorrectness, print,
               n, g, testMatrix );
 
-        // Test with non-standard distributions
-        if( commRank == 0 )
-            Output("Non-standard algorithms:");
+#ifdef EL_HAVE_QUAD
         if( testReal )
-            TestTriangEig<double,MR,MC,MC>
+            TestTriangEig<Quad>
             ( testCorrectness, print,
               n, g, testMatrix );
         if( testCpx )
-            TestTriangEig<Complex<double>,MR,MC,MC>
+            TestTriangEig<Complex<Quad>>
             ( testCorrectness, print,
               n, g, testMatrix );
-        
+#endif
+
+#ifdef EL_HAVE_QD
+        if( testReal )
+            TestTriangEig<DoubleDouble>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+        if( testReal )
+            TestTriangEig<QuadDouble>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+#endif
+
+#ifdef EL_HAVE_MPC
+        if( testReal )
+            TestTriangEig<BigFloat>
+            ( testCorrectness, print,
+              n, g, testMatrix );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

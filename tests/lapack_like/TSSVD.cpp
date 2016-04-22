@@ -24,37 +24,39 @@ void TestCorrectness
     const Int minDim = Min(m,n);
 
     // Form I - U^H U
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of U...");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of U...");
+    PushIndent();
     DistMatrix<F> Z(g);
     Identity( Z, minDim, minDim );
     Herk( UPPER, ADJOINT, Real(-1), U, Real(1), Z );
     Real oneNormError = HermitianOneNorm( UPPER, Z );
     Real infNormError = HermitianInfinityNorm( UPPER, Z );
     Real frobNormError = HermitianFrobeniusNorm( UPPER, Z );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||U^H U - I||_1  = ",oneNormError,"\n",
-         "    ||U^H U - I||_oo = ",infNormError,"\n",
-         "    ||U^H U - I||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||U^H U - I||_1  = ",oneNormError,"\n",Indent(),
+     "||U^H U - I||_oo = ",infNormError,"\n",Indent(),
+     "||U^H U - I||_F  = ",frobNormError);
+    PopIndent();
 
     // Form I - V^H V
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of U...");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of U...");
+    PushIndent();
     Identity( Z, minDim, minDim );
     Herk( UPPER, ADJOINT, Real(-1), V, Real(1), Z );
     oneNormError = HermitianOneNorm( UPPER, Z );
     infNormError = HermitianInfinityNorm( UPPER, Z );
     frobNormError = HermitianFrobeniusNorm( UPPER, Z );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||V^H V - I||_1  = ",oneNormError,"\n",
-         "    ||V^H V - I||_oo = ",infNormError,"\n",
-         "    ||V^H V - I||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||V^H V - I||_1  = ",oneNormError,"\n",Indent(),
+     "||V^H V - I||_oo = ",infNormError,"\n",Indent(),
+     "||V^H V - I||_F  = ",frobNormError);
+    PopIndent();
 
     // Form A - U S V^H
-    if( g.Rank() == 0 )
-        Output("  Testing if A = U S V^H...");
+    OutputFromRoot(g.Comm(),"Testing if A = U S V^H...");
+    PushIndent();
     const Real oneNormA = OneNorm( A );
     const Real infNormA = InfinityNorm( A );
     const Real frobNormA = FrobeniusNorm( A );
@@ -66,14 +68,15 @@ void TestCorrectness
     oneNormError = OneNorm( A );
     infNormError = InfinityNorm( A );
     frobNormError = FrobeniusNorm( A );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||A||_1            = ",oneNormA,"\n",
-         "    ||A||_oo           = ",infNormA,"\n",
-         "    ||A||_F            = ",frobNormA,"\n",
-         "    ||A - U S V^H||_1  = ",oneNormError,"\n",
-         "    ||A - U S V^H||_oo = ",infNormError,"\n",
-         "    ||A - U S V^H||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_1            = ",oneNormA,"\n",Indent(),
+     "||A||_oo           = ",infNormA,"\n",Indent(),
+     "||A||_F            = ",frobNormA,"\n",Indent(),
+     "||A - U S V^H||_1  = ",oneNormError,"\n",Indent(),
+     "||A - U S V^H||_oo = ",infNormError,"\n",Indent(),
+     "||A - U S V^H||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
@@ -84,8 +87,9 @@ void TestSVD
   bool testCorrectness,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F,VC,STAR> A(g), U(g);
     DistMatrix<Base<F>,STAR,STAR> s(g);
     DistMatrix<F,STAR,STAR> V(g); 
@@ -94,15 +98,14 @@ void TestSVD
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting TSQR factorization...");
+    OutputFromRoot(g.Comm(),"Starting TSQR factorization...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     svd::TSQR( A, U, s, V );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
+    const double runTime = timer.Stop();
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds");
     if( print )
     {
         Print( U, "U" );
@@ -111,6 +114,7 @@ void TestSVD
     }
     if( testCorrectness )
         TestCorrectness( A, U, s, V, print );
+    PopIndent();
 }
 
 int 
@@ -118,7 +122,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -136,8 +139,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test TSSVD");
+        OutputFromRoot(g.Comm(),"Will test TSSVD");
 
         TestSVD<float>( g, m, n, testCorrectness, print );
         TestSVD<Complex<float>>( g, m, n, testCorrectness, print );

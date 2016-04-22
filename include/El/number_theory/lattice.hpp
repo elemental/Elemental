@@ -862,9 +862,9 @@ void NearestPlane
 
 } // namespace El
 
-#include <El/lattice/LLL.hpp>
-#include <El/lattice/NearestPlane.hpp>
-#include <El/lattice/Enrich.hpp>
-#include <El/lattice/BKZ.hpp>
+#include <El/number_theory/lattice/LLL.hpp>
+#include <El/number_theory/lattice/NearestPlane.hpp>
+#include <El/number_theory/lattice/Enrich.hpp>
+#include <El/number_theory/lattice/BKZ.hpp>
 
 #endif // ifndef EL_LATTICE_HPP

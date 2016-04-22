@@ -23,8 +23,8 @@ void TestCorrectness
     const Int n = AOrig.Width();
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
-    if( mpi::Rank() == 0 )
-        Output("Testing error...");
+    Output("Testing error...");
+    PushIndent();
 
     // Grab the diagonal and superdiagonal of the bidiagonal matrix
     auto d = GetDiagonal( A, 0 );
@@ -35,9 +35,9 @@ void TestCorrectness
     Zeros( B, m, n );
     SetDiagonal( B, d, 0  );
     SetDiagonal( B, e, (m>=n ? 1 : -1) );
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( B, "Bidiagonal" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( B, "Bidiagonal" );
 
     if( print || display )
@@ -47,12 +47,12 @@ void TestCorrectness
         Identity( P, n, n );
         bidiag::ApplyQ( LEFT,  NORMAL, A, tQ, Q );
         bidiag::ApplyP( RIGHT, NORMAL, A, tP, P );
-        if( print && mpi::Rank() == 0 )
+        if( print )
         {
             Print( Q, "Q" );
             Print( P, "P" );
         }
-        if( display && mpi::Rank() == 0 )
+        if( display )
         {
             Display( Q, "Q" );
             Display( P, "P" );
@@ -62,9 +62,9 @@ void TestCorrectness
     // Reverse the accumulated Householder transforms
     bidiag::ApplyQ( LEFT,  ADJOINT, A, tQ, AOrig );
     bidiag::ApplyP( RIGHT, NORMAL,  A, tP, AOrig );
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( AOrig, "Manual bidiagonal" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( AOrig, "Manual bidiagonal" );
 
     // Compare the appropriate portion of AOrig and B
@@ -79,27 +79,27 @@ void TestCorrectness
         MakeTrapezoidal( UPPER, AOrig, -1 );
     }
     B -= AOrig;
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( B, "Error in rotated bidiagonal" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( B, "Error in rotated bidiagonal" );
     const Real infNormError = InfinityNorm( B );
     const Real frobNormError = FrobeniusNorm( B );
 
-    if( mpi::Rank() == 0 )
-        Output
-        ("    ||A||_oo = ",infNormAOrig,"\n",
-         "    ||A||_F  = ",frobNormAOrig,"\n",
-         "    ||B - Q^H A P||_oo = ",infNormError,"\n",
-         "    ||B - Q^H A P||_F  = ",frobNormError);
+    Output
+    ("||A||_oo = ",infNormAOrig,"\n",Indent(),
+     "||A||_F  = ",frobNormAOrig,"\n",Indent(),
+     "||B - Q^H A P||_oo = ",infNormError,"\n",Indent(),
+     "||B - Q^H A P||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
 void TestBidiag
 ( Int m, Int n, bool testCorrectness, bool print, bool display )
 {
-    if( mpi::Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
 
     Matrix<F> A, AOrig;
     Matrix<F> tP, tQ;
@@ -107,21 +107,18 @@ void TestBidiag
     Uniform( A, m, n );
     if( testCorrectness )
         AOrig = A;
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( A, "A" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( A, "A" );
 
-    if( mpi::Rank() == 0 )
-        Output("  Starting bidiagonalization...");
-    mpi::Barrier( mpi::COMM_WORLD );
-    const double startTime = mpi::Time();
+    Output("Starting bidiagonalization...");
+    Timer timer;
+    timer.Start();
     Bidiag( A, tP, tQ );
-    mpi::Barrier( mpi::COMM_WORLD );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     // TODO: Flop calculation
-    if( mpi::Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
+    Output("Time = ",runTime," seconds");
     if( print && mpi::Rank() == 0 )
     {
         Print( A, "A after Bidiag" );
@@ -136,6 +133,7 @@ void TestBidiag
     }
     if( testCorrectness )
         TestCorrectness( A, tP, tQ, AOrig, print, display );
+    PopIndent();
 }
 
 int 
@@ -165,25 +163,37 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestBidiag<float>( m, n, testCorrectness, print, display );
-        TestBidiag<Complex<float>>( m, n, testCorrectness, print, display );
+        if( mpi::Rank() == 0 )
+        {
+            TestBidiag<float>
+            ( m, n, testCorrectness, print, display );
+            TestBidiag<Complex<float>>
+            ( m, n, testCorrectness, print, display );
 
-        TestBidiag<double>( m, n, testCorrectness, print, display );
-        TestBidiag<Complex<double>>( m, n, testCorrectness, print, display );
+            TestBidiag<double>
+            ( m, n, testCorrectness, print, display );
+            TestBidiag<Complex<double>>
+            ( m, n, testCorrectness, print, display );
 
 #ifdef EL_HAVE_QD
-        TestBidiag<DoubleDouble>( m, n, testCorrectness, print, display );
-        TestBidiag<QuadDouble>( m, n, testCorrectness, print, display );
+            TestBidiag<DoubleDouble>
+            ( m, n, testCorrectness, print, display );
+            TestBidiag<QuadDouble>
+            ( m, n, testCorrectness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestBidiag<Quad>( m, n, testCorrectness, print, display );
-        TestBidiag<Complex<Quad>>( m, n, testCorrectness, print, display );
+            TestBidiag<Quad>
+            ( m, n, testCorrectness, print, display );
+            TestBidiag<Complex<Quad>>
+            ( m, n, testCorrectness, print, display );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestBidiag<BigFloat>( m, n, testCorrectness, print, display );
+            TestBidiag<BigFloat>
+            ( m, n, testCorrectness, print, display );
 #endif
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

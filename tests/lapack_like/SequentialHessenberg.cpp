@@ -22,8 +22,8 @@ void TestCorrectness
     const Int n = AOrig.Height();
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
-    if( mpi::Rank() == 0 )
-        Output("Testing error...");
+    Output("Testing error...");
+    PushIndent();
 
     // Set H to the appropriate Hessenberg portion of A
     Matrix<F> H( A );
@@ -31,12 +31,12 @@ void TestCorrectness
         MakeTrapezoidal( LOWER, H, 1 );
     else
         MakeTrapezoidal( UPPER, H, -1 );
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( H, "Hessenberg" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( H, "Bidiagonal" );
 
-    if( (print || display) && mpi::Rank() == 0 )
+    if( print || display )
     {
         Matrix<F> Q;
         Identity( Q, n, n );
@@ -50,9 +50,9 @@ void TestCorrectness
     // Reverse the accumulated Householder transforms
     hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, t, AOrig );
     hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, t, AOrig );
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( AOrig, "Manual Hessenberg" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( AOrig, "Manual Hessenberg" );
 
     // Compare the appropriate portion of AOrig and B
@@ -61,19 +61,19 @@ void TestCorrectness
     else
         MakeTrapezoidal( UPPER, AOrig, -1 );
     H -= AOrig;
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( H, "Error in rotated Hessenberg" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( H, "Error in rotated Hessenberg" );
     const Real infNormError = InfinityNorm( H );
     const Real frobNormError = FrobeniusNorm( H );
 
-    if( mpi::Rank() == 0 )
-        Output
-        ("    ||A||_oo = ",infNormAOrig,"\n",
-         "    ||A||_F  = ",frobNormAOrig,"\n",
-         "    ||H - Q^H A Q||_oo = ",infNormError,"\n",
-         "    ||H - Q^H A Q||_F  = ",frobNormError);
+    Output
+    ("||A||_oo = ",infNormAOrig,"\n",Indent(),
+     "||A||_F  = ",frobNormAOrig,"\n",Indent(),
+     "||H - Q^H A Q||_oo = ",infNormError,"\n",Indent(),
+     "||H - Q^H A Q||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
@@ -84,41 +84,40 @@ void TestHessenberg
   bool print,
   bool display )
 {
-    if( mpi::Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
     Matrix<F> A, AOrig;
     Matrix<F> t;
 
     Uniform( A, n, n );
     if( testCorrectness )
         AOrig = A;
-    if( print && mpi::Rank() == 0 )
+    if( print )
         Print( A, "A" );
-    if( display && mpi::Rank() == 0 )
+    if( display )
         Display( A, "A" );
 
-    if( mpi::Rank() == 0 )
-        Output("  Starting reduction to Hessenberg form...");
-    mpi::Barrier( mpi::COMM_WORLD );
-    const double startTime = mpi::Time();
+    Output("Starting reduction to Hessenberg form...");
+    Timer timer;
+    timer.Start();
     Hessenberg( uplo, A, t );
-    mpi::Barrier( mpi::COMM_WORLD );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     // TODO: Flop calculation
-    if( mpi::Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
-    if( print && mpi::Rank() == 0 )
+    Output("Time = ",runTime," seconds");
+    if( print )
     {
         Print( A, "A after Hessenberg" );
         Print( t, "t after Hessenberg" );
     }
-    if( display && mpi::Rank() == 0 )
+    if( display )
     {
         Display( A, "A after Hessenberg" );
         Display( t, "t after Hessenberg" );
     }
     if( testCorrectness )
         TestCorrectness( uplo, A, t, AOrig, print, display );
+    PopIndent();
 }
 
 int 
@@ -149,34 +148,37 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestHessenberg<float>
-        ( uplo, n, testCorrectness, print, display );
-        TestHessenberg<Complex<float>>
-        ( uplo, n, testCorrectness, print, display );
+        if( mpi::Rank() == 0 )
+        {
+            TestHessenberg<float>
+            ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<Complex<float>>
+            ( uplo, n, testCorrectness, print, display );
 
-        TestHessenberg<double>
-        ( uplo, n, testCorrectness, print, display );
-        TestHessenberg<Complex<double>>
-        ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<double>
+            ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<Complex<double>>
+            ( uplo, n, testCorrectness, print, display );
 
 #ifdef EL_HAVE_QD
-        TestHessenberg<DoubleDouble>
-        ( uplo, n, testCorrectness, print, display );
-        TestHessenberg<QuadDouble>
-        ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<DoubleDouble>
+            ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<QuadDouble>
+            ( uplo, n, testCorrectness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestHessenberg<Quad>
-        ( uplo, n, testCorrectness, print, display );
-        TestHessenberg<Complex<Quad>>
-        ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<Quad>
+            ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<Complex<Quad>>
+            ( uplo, n, testCorrectness, print, display );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestHessenberg<BigFloat>
-        ( uplo, n, testCorrectness, print, display );
+            TestHessenberg<BigFloat>
+            ( uplo, n, testCorrectness, print, display );
 #endif
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

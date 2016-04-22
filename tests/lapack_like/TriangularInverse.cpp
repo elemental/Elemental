@@ -39,17 +39,17 @@ void TestCorrectness
     const Real oneNormError = OneNorm( Y );
     const Real infNormError = InfinityNorm( Y );
     const Real frobNormError = FrobeniusNorm( Y );
-    if( g.Rank() == 0 )
-        Output
-        ("||A||_1           = ",oneNormOrig,"\n",
-         "||A||_oo          = ",infNormOrig,"\n",
-         "||A||_F           = ",frobNormOrig,"\n",
-         "||A^-1||_1        = ",oneNormFinal,"\n",
-         "||A^-1||_oo       = ",infNormFinal,"\n",
-         "||A^-1||_F        = ",frobNormFinal,"\n",
-         "||A A^-1 - I||_1  = ",oneNormError,"\n",
-         "||A A^-1 - I||_oo = ",infNormError,"\n",
-         "||A A^-1 - I||_F  = ",frobNormError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_1           = ",oneNormOrig,"\n",Indent(),
+     "||A||_oo          = ",infNormOrig,"\n",Indent(),
+     "||A||_F           = ",frobNormOrig,"\n",Indent(),
+     "||A^-1||_1        = ",oneNormFinal,"\n",Indent(),
+     "||A^-1||_oo       = ",infNormFinal,"\n",Indent(),
+     "||A^-1||_F        = ",frobNormFinal,"\n",Indent(),
+     "||A A^-1 - I||_1  = ",oneNormError,"\n",Indent(),
+     "||A A^-1 - I||_oo = ",infNormError,"\n",Indent(),
+     "||A A^-1 - I||_F  = ",frobNormError);
 }
 
 template<typename F> 
@@ -61,8 +61,9 @@ void TestTriangularInverse
   bool testCorrectness,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F> A(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
     MakeTrapezoidal( uplo, A );
@@ -71,21 +72,21 @@ void TestTriangularInverse
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting triangular inversion...");
+    OutputFromRoot(g.Comm(),"Starting triangular inversion...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     TriangularInverse( uplo, diag, A );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( A, "A after inversion" );
     if( testCorrectness )
         TestCorrectness( print, uplo, diag, A, AOrig );
+    PopIndent();
 }
 
 int 
@@ -93,12 +94,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
@@ -120,14 +119,14 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test TriangularInverse",uploChar,diagChar);
+        OutputFromRoot
+        (g.Comm(),"Will test TriangularInverse",uploChar,diagChar);
 
         TestTriangularInverse<float>
         ( g, uplo, diag, m, testCorrectness, print );

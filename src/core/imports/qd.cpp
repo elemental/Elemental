@@ -10,7 +10,23 @@
 
 #ifdef EL_HAVE_QD
 
+namespace {
+
+unsigned oldControlWord=0;
+
+}
+
 namespace El {
+
+void InitializeQD()
+{
+    fpu_fix_start( &::oldControlWord );
+}
+
+void FinalizeQD()
+{
+    fpu_fix_end( &::oldControlWord );
+}
 
 #ifdef EL_HAVE_QUAD
 DoubleDouble::DoubleDouble( const Quad& a )

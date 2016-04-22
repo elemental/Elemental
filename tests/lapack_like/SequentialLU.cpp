@@ -21,6 +21,7 @@ void TestCorrectness
     const Int m = AOrig.Height();
 
     Output("Testing error...");
+    PushIndent();
 
     // Generate random right-hand sides
     Matrix<F> X, Y;
@@ -43,19 +44,21 @@ void TestCorrectness
     const Real frobNormA = FrobeniusNorm( AOrig );
 
     Output
-    ("||A||_oo                 = ",infNormA,"\n",
-     "||A||_F                  = ",frobNormA,"\n",
-     "||X||_oo                 = ",infNormX,"\n",
-     "||X||_F                  = ",frobNormX,"\n",
-     "||A U^-1 L^-1 X - X||_oo = ",infNormError,"\n",
+    ("||A||_oo                 = ",infNormA,"\n",Indent(),
+     "||A||_F                  = ",frobNormA,"\n",Indent(),
+     "||X||_oo                 = ",infNormX,"\n",Indent(),
+     "||X||_F                  = ",frobNormX,"\n",Indent(),
+     "||A U^-1 L^-1 X - X||_oo = ",infNormError,"\n",Indent(),
      "||A U^-1 L^-1 X - X||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F> 
 void TestLU( Int m, bool pivot, bool testCorrectness, bool print )
 {
-    if( mpi::Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
     Matrix<F> A, ARef;
     Permutation P;
 
@@ -65,16 +68,17 @@ void TestLU( Int m, bool pivot, bool testCorrectness, bool print )
     if( print )
         Print( A, "A" );
 
-    Output("  Starting LU factorization...");
-    const double startTime = mpi::Time();
+    Output("Starting LU factorization...");
+    Timer timer;
+    timer.Start();
     if( pivot )
         LU( A, P );
     else
         LU( A );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    Output(runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
@@ -92,14 +96,13 @@ void TestLU( Int m, bool pivot, bool testCorrectness, bool print )
     }
     if( testCorrectness )
         TestCorrectness( pivot, print, A, P, ARef );
+    PopIndent();
 }
 
 int 
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -121,28 +124,30 @@ main( int argc, char* argv[] )
 
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
+        if( mpi::Rank() == 0 )
+        {
             Output("Will test LU",( pivot ? " with partial pivoting" : " " ));
 
-        TestLU<float>( m, pivot, testCorrectness, print );
-        TestLU<Complex<float>>( m, pivot, testCorrectness, print );
+            TestLU<float>( m, pivot, testCorrectness, print );
+            TestLU<Complex<float>>( m, pivot, testCorrectness, print );
 
-        TestLU<double>( m, pivot, testCorrectness, print );
-        TestLU<Complex<double>>( m, pivot, testCorrectness, print );
+            TestLU<double>( m, pivot, testCorrectness, print );
+            TestLU<Complex<double>>( m, pivot, testCorrectness, print );
 
 #ifdef EL_HAVE_QD
-        TestLU<DoubleDouble>( m, pivot, testCorrectness, print );
-        TestLU<QuadDouble>( m, pivot, testCorrectness, print );
+            TestLU<DoubleDouble>( m, pivot, testCorrectness, print );
+            TestLU<QuadDouble>( m, pivot, testCorrectness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestLU<Quad>( m, pivot, testCorrectness, print );
-        TestLU<Complex<Quad>>( m, pivot, testCorrectness, print );
+            TestLU<Quad>( m, pivot, testCorrectness, print );
+            TestLU<Complex<Quad>>( m, pivot, testCorrectness, print );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestLU<BigFloat>( m, pivot, testCorrectness, print );
+            TestLU<BigFloat>( m, pivot, testCorrectness, print );
 #endif
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

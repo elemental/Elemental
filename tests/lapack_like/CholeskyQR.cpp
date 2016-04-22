@@ -21,8 +21,8 @@ void TestCorrectness
     const Int n = A.Width();
 
     // Form I - Q^H Q
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of Q");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of Q");
+    PushIndent();
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
@@ -30,16 +30,16 @@ void TestCorrectness
     Real oneNormOfError = HermitianOneNorm( UPPER, Z );
     Real infNormOfError = HermitianInfinityNorm( UPPER, Z );
     Real frobNormOfError = HermitianFrobeniusNorm( UPPER, Z );
-    if( g.Rank() == 0 )
-    {
-        Output("    ||Q^H Q - I||_1  = ",oneNormOfError);
-        Output("    ||Q^H Q - I||_oo = ",infNormOfError);
-        Output("    ||Q^H Q - I||_F  = ",frobNormOfError);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "||Q^H Q - I||_1  = ",oneNormOfError,"\n",Indent(),
+     "||Q^H Q - I||_oo = ",infNormOfError,"\n",Indent(),
+     "||Q^H Q - I||_F  = ",frobNormOfError);
+    PopIndent();
 
     // Form A - Q R
-    if( g.Rank() == 0 )
-        Output("  Testing if A = QR");
+    OutputFromRoot(g.Comm(),"Testing if A = QR");
+    PushIndent();
     const Real oneNormOfA = OneNorm( A );
     const Real infNormOfA = InfinityNorm( A );
     const Real frobNormOfA = FrobeniusNorm( A );
@@ -47,15 +47,15 @@ void TestCorrectness
     oneNormOfError = OneNorm( A );
     infNormOfError = InfinityNorm( A );
     frobNormOfError = FrobeniusNorm( A );
-    if( g.Rank() == 0 )
-    {
-        Output("    ||A||_1       = ",oneNormOfA);
-        Output("    ||A||_oo      = ",infNormOfA);
-        Output("    ||A||_F       = ",frobNormOfA);
-        Output("    ||A - QR||_1  = ",oneNormOfError);
-        Output("    ||A - QR||_oo = ",infNormOfError);
-        Output("    ||A - QR||_F  = ",frobNormOfError);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_1       = ",oneNormOfA,"\n",Indent(),
+     "||A||_oo      = ",infNormOfA,"\n",Indent(),
+     "||A||_F       = ",frobNormOfA,"\n",Indent(),
+     "||A - QR||_1  = ",oneNormOfError,"\n",Indent(),
+     "||A - QR||_oo = ",infNormOfError,"\n",Indent(),
+     "||A - QR||_F  = ",frobNormOfError,"\n");
+    PopIndent();
 }
 
 template<typename F>
@@ -66,8 +66,8 @@ void TestQR
   bool testCorrectness,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F,VC,STAR> A(g), Q(g);
     DistMatrix<F,STAR,STAR> R(g);
 
@@ -76,18 +76,17 @@ void TestQR
         Print( A, "A" );
     Q = A;
 
-    if( g.Rank() == 0 )
-        Output("  Starting Cholesky QR factorization");
+    OutputFromRoot(g.Comm(),"Starting Cholesky QR factorization");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     qr::Cholesky( Q, R );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double gFlops = (2.*mD*nD*nD + 1./3.*nD*nD*nD)/(1.e9*runTime);
-    if( g.Rank() == 0 )
-        Output("  Time: ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),"Time: ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( Q, "Q" );
@@ -95,6 +94,7 @@ void TestQR
     }
     if( testCorrectness )
         TestCorrectness( Q, R, A );
+    PopIndent();
 }
 
 int 

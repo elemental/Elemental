@@ -427,7 +427,7 @@ install(FILES "${PROJECT_BINARY_DIR}/include/El/config.h"
         DESTINATION include/El)
 add_custom_target(El_config DEPENDS "${PROJECT_BINARY_DIR}/include/El/config.h")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-  DESTINATION "${CMAKE_INSTALL_PREFIX}/include/"
+  DESTINATION include/
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
 # Define the main library for Elemental
@@ -578,7 +578,7 @@ if(EL_EXAMPLES)
   set(EXAMPLE_DIR "${PROJECT_SOURCE_DIR}/examples")
   set(EXAMPLE_TYPES
       optimization core blas_like interface io lapack_like matrices
-      lattice number_theory)
+      number_theory)
   foreach(TYPE ${EXAMPLE_TYPES})
     if(EL_C_INTERFACE)
       file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE

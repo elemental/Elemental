@@ -21,8 +21,9 @@ void TestTrmm
   const Grid& g,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<T>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<T>());
+    PushIndent();
+
     DistMatrix<T> A(g), X(g);
 
     if( side == LEFT )
@@ -35,6 +36,8 @@ void TestTrmm
     // Form an explicit triangular copy to apply with Gemm
     auto S( A );
     MakeTrapezoidal( uplo, S );
+    if( diag == UNIT )
+        FillDiagonal( S, T(1) );
 
     if( print )
     {
@@ -45,16 +48,17 @@ void TestTrmm
     if( g.Rank() == 0 )
         Output("  Starting Trmm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     Trmm( side, uplo, orientation, diag, alpha, A, X );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 
       ( side==LEFT ? double(m)*double(m)*double(n)
                    : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot
+    (g.Comm(),"Finished in ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( X, "X after multiply" );
     if( side == LEFT )
@@ -66,12 +70,12 @@ void TestTrmm
     const auto EFrob = FrobeniusNorm( X );
     if( print )
         Print( X, "error relative to Gemm" );
-    if( g.Rank() == 0 )
-    {
-        Output("  || X ||_F = ",XFrob);
-        Output("  || S ||_F = ",SFrob);
-        Output("  || E ||_F = ",EFrob);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "|| X ||_F = ",XFrob,"\n",Indent(),
+     "|| S ||_F = ",SFrob,"\n",Indent(),
+     "|| E ||_F = ",EFrob);
+    PopIndent();
 }
 
 int 
@@ -79,12 +83,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","lower or upper storage: L/U",'L');
@@ -98,10 +100,10 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
@@ -109,8 +111,8 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test Trmm ",sideChar,uploChar,transChar,diagChar);
+        OutputFromRoot
+        (comm,"Will test Trmm ",sideChar,uploChar,transChar,diagChar);
 
         TestTrmm<float>
         ( side, uplo, orientation, diag,

@@ -27,8 +27,7 @@ void TestCorrectness
     Identity( X, k, k );
     Herk( uplo, ADJOINT, Real(-1), Z, Real(1), X );
     Real frobNormE = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-        Output("    ||Z^H Z - I||_F  = ",frobNormE);
+    OutputFromRoot(g.Comm(),"||Z^H Z - I||_F  = ",frobNormE);
     // X := AZ
     X.AlignWith( Z );
     Zeros( X, n, k );
@@ -40,8 +39,7 @@ void TestCorrectness
     // Find the infinity norms of A, Z, and AZ-ZW
     Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
     frobNormE = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-        Output("    ||A Z - Z W||_F / ||A||_F = ",frobNormE/frobNormA);
+    OutputFromRoot(g.Comm(),"||A Z - Z W||_F / ||A||_F = ",frobNormE/frobNormA);
 }
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
@@ -61,8 +59,8 @@ void TestHermitianEig
     typedef Base<F> Real;
     DistMatrix<F,U,V> A(g), AOrig(g), Z(g);
     DistMatrix<Real,S,STAR> w(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     if( clustered )
         Wilkinson( A, m/2 );
@@ -73,42 +71,39 @@ void TestHermitianEig
     if( print )
         Print( A, "A" );
 
+    Timer timer;
     if( scalapack && U == MC && V == MR )
     {
         if( onlyEigvals )
         {
             DistMatrix<F,MC,MR,BLOCK> ABlock( A );
             Matrix<Base<F>> wBlock;
-            const double startTime = mpi::Time();
+            timer.Start();
             HermitianEig( uplo, ABlock, wBlock, subset );
-            const double runTime = mpi::Time() - startTime;
-            if( g.Rank() == 0 )
-                Output("  ScaLAPACK HermitianEig time: ",runTime);
+            const double runTime = timer.Stop();
+            OutputFromRoot(g.Comm(),"ScaLAPACK HermitianEig time: ",runTime);
         }
         else
         {
             DistMatrix<F,MC,MR,BLOCK> ABlock( A ), ZBlock(g);
             Matrix<Base<F>> wBlock;
-            const double startTime = mpi::Time();
+            timer.Start();
             HermitianEig( uplo, ABlock, wBlock, ZBlock, subset );
-            const double runTime = mpi::Time() - startTime;
-            if( g.Rank() == 0 )
-                Output("  ScaLAPACK HermitianEig time: ",runTime);
+            const double runTime = timer.Stop();
+            OutputFromRoot(g.Comm(),"ScaLAPACK HermitianEig time: ",runTime);
         }
     }
 
-    if( g.Rank() == 0 )
-        Output("  Starting Hermitian eigensolver...");
+    OutputFromRoot(g.Comm(),"Starting Hermitian eigensolver...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    timer.Start();
     if( onlyEigvals )
         HermitianEig( uplo, A, w, sort, subset, ctrl );
     else
         HermitianEig( uplo, A, w, Z, sort, subset, ctrl );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
+    const double runTime = timer.Stop();
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -117,6 +112,7 @@ void TestHermitianEig
     }
     if( testCorrectness && !onlyEigvals )
         TestCorrectness( print, uplo, AOrig, A, w, Z );
+    PopIndent();
 }
 
 int 
@@ -124,12 +120,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const bool onlyEigvals = Input
             ("--onlyEigvals","only compute eigenvalues?",false);
@@ -164,17 +158,18 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         if( range != 'A' && range != 'I' && range != 'V' )
             LogicError("'range' must be 'A', 'I', or 'V'");
         const SortType sort = static_cast<SortType>(sortInt);
-        if( onlyEigvals && testCorrectness && commRank==0 )
-            Output("Cannot test correctness with only eigenvalues.");
+        if( onlyEigvals && testCorrectness )
+            OutputFromRoot
+            (g.Comm(),"Cannot test correctness with only eigenvalues.");
         ComplainIfDebug();
 
         HermitianEigSubset<double> subset;
@@ -201,8 +196,7 @@ main( int argc, char* argv[] )
         ctrl_z.tridiagCtrl.symvCtrl.bsize = nbLocal;
         ctrl_z.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
 
-        if( commRank == 0 )
-            Output("Normal tridiag algorithms:");
+        OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
         ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
         ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
         if( testReal )
@@ -214,8 +208,7 @@ main( int argc, char* argv[] )
             ( testCorrectness, print, onlyEigvals, clustered, 
               uplo, m, sort, g, subset, ctrl_z, scalapack );
 
-        if( commRank == 0 )
-            Output("Square row-major tridiag algorithms:");
+        OutputFromRoot(g.Comm(),"Square row-major tridiag algorithms:");
         ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_d.tridiagCtrl.order = ROW_MAJOR;
@@ -229,8 +222,7 @@ main( int argc, char* argv[] )
             ( testCorrectness, print, onlyEigvals, clustered, 
               uplo, m, sort, g, subset, ctrl_z, scalapack );
 
-        if( commRank == 0 )
-            Output("Square column-major tridiag algorithms:");
+        OutputFromRoot(g.Comm(),"Square column-major tridiag algorithms:");
         ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl_d.tridiagCtrl.order = COLUMN_MAJOR;
@@ -245,8 +237,7 @@ main( int argc, char* argv[] )
               uplo, m, sort, g, subset, ctrl_z, scalapack );
 
         // Also test with non-standard distributions
-        if( commRank == 0 )
-            Output("Nonstandard distributions:");
+        OutputFromRoot(g.Comm(),"Nonstandard distributions:");
         if( testReal )
             TestHermitianEig<double,MR,MC,MC>
             ( testCorrectness, print, onlyEigvals, clustered, 

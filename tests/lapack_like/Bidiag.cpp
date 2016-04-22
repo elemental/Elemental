@@ -24,8 +24,8 @@ void TestCorrectness
     const Int n = AOrig.Width();
     const Real infNormAOrig = InfinityNorm( AOrig );
     const Real frobNormAOrig = FrobeniusNorm( AOrig );
-    if( g.Rank() == 0 )
-        Output("Testing error...");
+    OutputFromRoot(g.Comm(),"Testing error...");
+    PushIndent();
 
     // Grab the diagonal and superdiagonal of the bidiagonal matrix
     auto d = GetDiagonal( A, 0 );
@@ -88,13 +88,13 @@ void TestCorrectness
     const Real infNormError = InfinityNorm( B );
     const Real frobNormError = FrobeniusNorm( B );
 
-    if( g.Rank() == 0 )
-    {
-        Output("    ||A||_oo = ",infNormAOrig);
-        Output("    ||A||_F  = ",frobNormAOrig);
-        Output("    ||B - Q^H A P||_oo = ",infNormError);
-        Output("    ||B - Q^H A P||_F  = ",frobNormError);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_oo = ",infNormAOrig,"\n",Indent(),
+     "||A||_F  = ",frobNormAOrig,"\n",Indent(),
+     "||B - Q^H A P||_oo = ",infNormError,"\n",Indent(),
+     "||B - Q^H A P||_F  = ",frobNormError);
+    PopIndent();
 }
 
 template<typename F>
@@ -106,8 +106,8 @@ void TestBidiag
   bool print,
   bool display )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
 
@@ -119,16 +119,14 @@ void TestBidiag
     if( display )
         Display( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting bidiagonalization");
+    OutputFromRoot(g.Comm(),"Starting bidiagonalization");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     Bidiag( A, tP, tQ );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
     // TODO: Flop calculation
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds.");
+    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds.");
     if( print )
     {
         Print( A, "A after Bidiag" );
@@ -143,6 +141,7 @@ void TestBidiag
     }
     if( testCorrectness )
         TestCorrectness( A, tP, tQ, AOrig, print, display );
+    PopIndent();
 }
 
 int 
@@ -150,11 +149,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        Int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
@@ -173,10 +171,10 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 

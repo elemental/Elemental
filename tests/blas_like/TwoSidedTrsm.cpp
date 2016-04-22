@@ -44,16 +44,15 @@ void TestCorrectness
         Real oneNormError = OneNorm( Z );
         Real infNormError = InfinityNorm( Z );
         Real frobNormError = FrobeniusNorm( Z );
-        if( g.Rank() == 0 )
-        {
-            Output("||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig);
-            Output("||AOrig||_F                    = ",frobNormAOrig);
-            Output("||A||_1 = ||A||_oo             = ",infNormA);
-            Output("||A||_F                        = ",frobNormA);
-            Output("||A X - L^-1 AOrig L^-H X||_1  = ",oneNormError);
-            Output("||A X - L^-1 AOrig L^-H X||_oo = ",infNormError);
-            Output("||A X - L^-1 AOrig L^-H X||_F  = ",frobNormError);
-        }
+        OutputFromRoot
+        (g.Comm(),
+         "||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig,"\n",Indent(),
+         "||AOrig||_F                    = ",frobNormAOrig,"\n",Indent(),
+         "||A||_1 = ||A||_oo             = ",infNormA,"\n",Indent(),
+         "||A||_F                        = ",frobNormA,"\n",Indent(),
+         "||A X - L^-1 AOrig L^-H X||_1  = ",oneNormError,"\n",Indent(),
+         "||A X - L^-1 AOrig L^-H X||_oo = ",infNormError,"\n",Indent(),
+         "||A X - L^-1 AOrig L^-H X||_F  = ",frobNormError);
     }
     else
     {
@@ -71,16 +70,15 @@ void TestCorrectness
         Real oneNormError = OneNorm( Z );
         Real infNormError = InfinityNorm( Z );
         Real frobNormError = FrobeniusNorm( Z );
-        if( g.Rank() == 0 )
-        {
-            Output("||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig);
-            Output("||AOrig||_F                    = ",frobNormAOrig);
-            Output("||A||_1 = ||A||_oo             = ",infNormA);
-            Output("||A||_F                        = ",frobNormA);
-            Output("||A X - U^-H AOrig U^-1 X||_1  = ",oneNormError);
-            Output("||A X - U^-H AOrig U^-1 X||_oo = ",infNormError);
-            Output("||A X - U^-H AOrig U^-1 X||_F  = ",frobNormError);
-        }
+        OutputFromRoot
+        (g.Comm(),
+         "||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig,"\n",Indent(),
+         "||AOrig||_F                    = ",frobNormAOrig,"\n",Indent(),
+         "||A||_1 = ||A||_oo             = ",infNormA,"\n",Indent(),
+         "||A||_F                        = ",frobNormA,"\n",Indent(),
+         "||A X - U^-H AOrig U^-1 X||_1  = ",oneNormError,"\n",Indent(),
+         "||A X - U^-H AOrig U^-1 X||_oo = ",infNormError,"\n",Indent(),
+         "||A X - U^-H AOrig U^-1 X||_F  = ",frobNormError);
     }
 }
 
@@ -94,8 +92,9 @@ void TestTwoSidedTrsm
   bool print,
   bool correctness )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F> A(g), B(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
     HermitianUniformSpectrum( B, m, 1, 10 );
@@ -108,38 +107,37 @@ void TestTwoSidedTrsm
         Print( B, "B" );
     }
 
+    Timer timer;
     if( scalapack )
     {
-        if( g.Rank() == 0 )
-            Output("  Starting ScaLAPACK TwoSidedTrsm");
+        OutputFromRoot(g.Comm(),"Starting ScaLAPACK TwoSidedTrsm");
         mpi::Barrier( g.Comm() );
-        const double startTime = mpi::Time();
+        timer.Start();
         DistMatrix<F,MC,MR,BLOCK> ABlock( A ), BBlock( B ); 
         TwoSidedTrsm( uplo, diag, ABlock, BBlock );
-        const double runTime = mpi::Time() - startTime;
+        double runTime = timer.Stop();
         double gFlops = Pow(double(m),3.)/(runTime*1.e9);
         if( IsComplex<F>::value )
             gFlops *= 4.;
-        if( g.Rank() == 0 )
-            Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
+        OutputFromRoot(g.Comm(),"Time = ",runTime," seconds. GFlops = ",gFlops);
     }
 
-    if( g.Rank() == 0 )
-        Output("  Starting Elemental TwoSidedTrsm");
+    OutputFromRoot(g.Comm(),"Starting Elemental TwoSidedTrsm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    timer.Start();
     TwoSidedTrsm( uplo, diag, A, B );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    double runTime = timer.Stop();
     double gFlops = Pow(double(m),3.)/(runTime*1.e9);
     if( IsComplex<F>::value )
         gFlops *= 4.;
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds. GFlops = ",gFlops);
     if( print )
         Print( A, "A after reduction" );
     if( correctness )
         TestCorrectness( uplo, diag, A, B, AOrig, print );
+
+    PopIndent();
 }
 
 template<typename F> 
@@ -151,8 +149,9 @@ void TestTwoSidedTrsm
   bool print,
   bool correctness )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F> A(g), B(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
     HermitianUniformSpectrum( B, m, 1, 10 );
@@ -165,22 +164,23 @@ void TestTwoSidedTrsm
         Print( B, "B" );
     }
 
-    if( g.Rank() == 0 )
-        Output("  Starting Elemental TwoSidedTrsm");
+    OutputFromRoot(g.Comm(),"Starting Elemental TwoSidedTrsm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     TwoSidedTrsm( uplo, diag, A, B );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    double runTime = timer.Stop();
     double gFlops = Pow(double(m),3.)/(runTime*1.e9);
     if( IsComplex<F>::value )
         gFlops *= 4.;
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds. GFlops = ",gFlops);
     if( print )
         Print( A, "A after reduction" );
     if( correctness )
         TestCorrectness( uplo, diag, A, B, AOrig, print );
+
+    PopIndent();
 }
 
 int 
@@ -188,12 +188,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input
             ("--uplo","lower or upper triangular storage: L/U",'L');
@@ -215,10 +213,10 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
         SetBlocksize( blocksize );
@@ -226,8 +224,7 @@ main( int argc, char* argv[] )
         SetDefaultBlockWidth( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test TwoSidedTrsm",uploChar,diagChar);
+        OutputFromRoot(comm,"Will test TwoSidedTrsm",uploChar,diagChar);
 
         TestTwoSidedTrsm<float>
         ( uplo, diag, m, g, scalapack, print, correctness );

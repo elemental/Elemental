@@ -13,7 +13,7 @@ using namespace El;
 extern "C" {
 
 ElError ElDefaultGrid( ElConstGrid* grid )
-{ EL_TRY( *grid = CReflect(&DefaultGrid()) ) } 
+{ EL_TRY( *grid = CReflect(&Grid::Default()) ) } 
 
 // Grid::Grid( MPI_Comm comm, GridOrder order )
 // --------------------------------------------

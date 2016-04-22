@@ -331,7 +331,7 @@ protected:
     // Protected constructors
     // ======================
     // Create a 0 x 0 distributed matrix
-    AbstractDistMatrix( const El::Grid& g=DefaultGrid(), int root=0 );
+    AbstractDistMatrix( const El::Grid& g=Grid::Default(), int root=0 );
 
     // Modify the distribution metadata
     // ================================

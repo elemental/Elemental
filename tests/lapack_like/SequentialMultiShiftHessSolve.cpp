@@ -13,9 +13,14 @@ using namespace El;
 // This is checked by testing the norm of  op(H) X - X Mu - Y.
 template<typename F> 
 void TestCorrectness
-( UpperOrLower uplo, Orientation orientation, const Matrix<F>& H, 
-  const Matrix<F>& shifts, const Matrix<F>& X, const Matrix<F>& Y,
-  bool print, bool display )
+( UpperOrLower uplo,
+  Orientation orientation,
+  const Matrix<F>& H, 
+  const Matrix<F>& shifts,
+  const Matrix<F>& X,
+  const Matrix<F>& Y,
+  bool print,
+  bool display )
 {
     typedef Base<F> Real;
     const Int m = X.Height();
@@ -31,7 +36,7 @@ void TestCorrectness
 
     Gemm( orientation, NORMAL, F(-1), H, X, F(1), Z );
 
-    if( print && mpi::Rank() == 0 )
+    if( print )
     {
         Print( H, "H" );
         Print( X, "X" );
@@ -39,7 +44,7 @@ void TestCorrectness
         Print( shifts, "shifts" );
         Print( Z, "-H X + X Mu + Y" );
     }
-    if( display && mpi::Rank() == 0 )
+    if( display )
     {
         Display( H, "H" );
         Display( X, "X" );
@@ -54,16 +59,13 @@ void TestCorrectness
     const Real HInf = InfinityNorm( H );
     const Real ZFrob = FrobeniusNorm( Z );
     const Real ZInf = InfinityNorm( Z );
-    if( mpi::Rank() == 0 )
-    {
-        std::cout << "    || H ||_F  = " << HFrob << "\n"
-                  << "    || H ||_oo = " << HInf << "\n"
-                  << "    || Y ||_F  = " << YFrob << "\n"
-                  << "    || Y ||_oo = " << YInf << "\n"
-                  << "    || H X - X Mu - Y ||_F  = " << ZFrob << "\n"
-                  << "    || H X - X Mu - Y ||_oo = " << ZInf << "\n"
-                  << std::endl;
-    }
+    Output
+    ("|| H ||_F  = ",HFrob,"\n",Indent(),
+     "|| H ||_oo = ",HInf,"\n",Indent(),
+     "|| Y ||_F  = ",YFrob,"\n",Indent(),
+     "|| Y ||_oo = ",YInf,"\n",Indent(),
+     "|| H X - X Mu - Y ||_F  = ",ZFrob,"\n",Indent(),
+     "|| H X - X Mu - Y ||_oo = ",ZInf);
 }
 
 template<typename F>
@@ -76,8 +78,9 @@ void TestHessenberg
   bool print,
   bool display )
 {
-    if( mpi::Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
     Matrix<F> H, X, Y, shifts;
 
     Uniform( H, m, m );
@@ -92,18 +95,16 @@ void TestHessenberg
     Uniform( shifts, n, 1 );
 
     X = Y;
-    if( mpi::Rank() == 0 )
-        Output("  Starting Hessenberg solve...");
-    mpi::Barrier( mpi::COMM_WORLD );
-    const double startTime = mpi::Time();
+    Output("Starting Hessenberg solve...");
+    Timer timer;
+    timer.Start();
     MultiShiftHessSolve( uplo, orientation, F(1), H, shifts, X );
-    mpi::Barrier( mpi::COMM_WORLD );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     // TODO: Flop calculation
-    if( mpi::Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
+    Output("Time = ",runTime," seconds");
     if( testCorrectness )
         TestCorrectness( uplo, orientation, H, shifts, X, Y, print, display );
+    PopIndent();
 }
 
 int 
@@ -137,34 +138,37 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestHessenberg<float>
-        ( uplo, orient, m, n, testCorrectness, print, display );
-        TestHessenberg<Complex<float>>
-        ( uplo, orient, m, n, testCorrectness, print, display );
+        if( mpi::Rank() == 0 )
+        {
+            TestHessenberg<float>
+            ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<Complex<float>>
+            ( uplo, orient, m, n, testCorrectness, print, display );
 
-        TestHessenberg<double>
-        ( uplo, orient, m, n, testCorrectness, print, display );
-        TestHessenberg<Complex<double>>
-        ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<double>
+            ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<Complex<double>>
+            ( uplo, orient, m, n, testCorrectness, print, display );
 
 #ifdef EL_HAVE_QD
-        TestHessenberg<DoubleDouble>
-        ( uplo, orient, m, n, testCorrectness, print, display );
-        TestHessenberg<QuadDouble>
-        ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<DoubleDouble>
+            ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<QuadDouble>
+            ( uplo, orient, m, n, testCorrectness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestHessenberg<Quad>
-        ( uplo, orient, m, n, testCorrectness, print, display );
-        TestHessenberg<Complex<Quad>>
-        ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<Quad>
+            ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<Complex<Quad>>
+            ( uplo, orient, m, n, testCorrectness, print, display );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestHessenberg<BigFloat>
-        ( uplo, orient, m, n, testCorrectness, print, display );
+            TestHessenberg<BigFloat>
+            ( uplo, orient, m, n, testCorrectness, print, display );
 #endif
+        }
     }
     catch( std::exception& e ) { ReportException(e); }
 

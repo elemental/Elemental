@@ -42,14 +42,14 @@ void TestCorrectness
     const Real frobNormOfA = HermitianFrobeniusNorm( LOWER, AOrig );
     const Real infNormOfX = InfinityNorm( X );
     const Real frobNormOfX = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-        Output
-        ("||A||_oo   = ",infNormOfA,"\n",
-         "||A||_F    = ",frobNormOfA,"\n",
-         "||X||_oo   = ",infNormOfX,"\n",
-         "||X||_F    = ",frobNormOfX,"\n",
-         "||A X - L D L^[T/H] X||_oo = ",infNormOfError,"\n",
-         "||A X - L D L^[T/H] X||_F  = ",frobNormOfError);
+    OutputFromRoot
+    (g.Comm(),
+     "||A||_oo   = ",infNormOfA,"\n",Indent(),
+     "||A||_F    = ",frobNormOfA,"\n",Indent(),
+     "||X||_oo   = ",infNormOfX,"\n",Indent(),
+     "||X||_F    = ",frobNormOfX,"\n",Indent(),
+     "||A X - L D L^[T/H] X||_oo = ",infNormOfError,"\n",Indent(),
+     "||A X - L D L^[T/H] X||_F  = ",frobNormOfError);
 }
 
 template<typename F> 
@@ -62,8 +62,8 @@ void TestLDL
   bool print )
 {
     DistMatrix<F> A(g), AOrig(g);
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
 
     SetLocalTrrkBlocksize<F>( nbLocal );
 
@@ -76,19 +76,18 @@ void TestLDL
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting LDL^[T/H] factorization...");
+    OutputFromRoot(g.Comm(),"Starting LDL^[T/H] factorization...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     DistMatrix<F,MD,STAR> dSub(g);
     DistPermutation p(g);
     LDL( A, dSub, p, conjugated );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
@@ -98,6 +97,7 @@ void TestLDL
     }
     if( testCorrectness )
         TestCorrectness( conjugated, print, A, dSub, p, AOrig );
+    PopIndent();
 }
 
 int 
@@ -105,11 +105,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","process grid height",0);
+        int gridHeight = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -128,10 +127,10 @@ main( int argc, char* argv[] )
         mpc::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 

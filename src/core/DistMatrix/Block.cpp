@@ -8,9 +8,26 @@
 */
 #include <El.hpp>
 
+namespace {
+
+// Default blocksizes for BlockMatrix
+El::Int blockHeight=32, blockWidth=32;
+
+}
+
 namespace El {
 
-// TODO
+Int DefaultBlockHeight()
+{ return ::blockHeight; }
+
+Int DefaultBlockWidth()
+{ return ::blockWidth; }
+
+void SetDefaultBlockHeight( Int mb )
+{ ::blockHeight = mb; }
+
+void SetDefaultBlockWidth( Int nb )
+{ ::blockWidth = nb; }
 
 // Public section
 // ##############

@@ -86,11 +86,18 @@ public:
 
     static int FindFactor( int p ) EL_NO_EXCEPT;
 
+    // To be used internally by Elemental
+    static void InitializeDefault();
+    static void FinalizeDefault(); 
+    static const Grid& Default() EL_NO_RELEASE_EXCEPT;
+
 private:
     bool haveViewers_;
     int height_, size_, gcd_;
     bool inGrid_;
     GridOrder order_;
+
+    static Grid* defaultGrid;
 
     vector<int> diagsAndRanks_;
     vector<int> vcToViewing_;
@@ -122,9 +129,6 @@ private:
 
 bool operator==( const Grid& A, const Grid& B ) EL_NO_EXCEPT;
 bool operator!=( const Grid& A, const Grid& B ) EL_NO_EXCEPT;
-
-// Return a grid constructed using mpi::COMM_WORLD.
-const Grid& DefaultGrid() EL_NO_RELEASE_EXCEPT;
 
 inline void AssertSameGrids( const Grid& g1 ) { }
 
