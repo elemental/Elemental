@@ -6,11 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like.hpp>
 #include <stack>
 
-// TODO: Consider moving this into another folder (e.g., in src/blas_like/)
-//       and/or using a better datastructure for managing the blocksizes
+// TODO: Find a better data structure
 
 namespace {
 using namespace El;

@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 // The Golub Klema Stewart matrix is upper-triangular with 1/sqrt(j+1) in the
 // j'th entry of its main diagonal and -1/sqrt(j+1) elsewhere in the 

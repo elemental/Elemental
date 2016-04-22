@@ -244,4 +244,8 @@ EL_EXPORT ElError ElWriteDist_z
 } // extern "C"
 #endif
 
+#ifdef __cplusplus
+#include <El/io/CReflect.hpp>
+#endif
+
 #endif /* ifndef EL_IO_C_H */

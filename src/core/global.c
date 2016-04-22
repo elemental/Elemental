@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.h>
+#include <El-lite.h>
 
 ElError ElSizeOfCBool( unsigned* boolSize )
 { *boolSize = sizeof(bool); return EL_SUCCESS; }

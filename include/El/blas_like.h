@@ -6,16 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_C_H
-#define EL_C_H
+#ifndef EL_BLAS_C_H
+#define EL_BLAS_C_H
 
-#include <El/core.h>
-#include <El/io.h>
-#include <El/blas_like.h>
-#include <El/lapack_like.h>
-#include <El/matrices.h>
-#include <El/control.h>
-#include <El/optimization.h>
-#include <El/number_theory.h>
+#include <El/blas_like/level1.h>
+#include <El/blas_like/level2.h>
+#include <El/blas_like/level3.h>
 
-#endif /* ifndef EL_C_H */
+#ifdef __cplusplus
+#include <El/blas_like/CReflect.hpp>
+#endif
+
+#endif /* ifndef EL_BLAS_C_H */

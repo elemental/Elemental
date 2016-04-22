@@ -11,6 +11,9 @@
 #ifndef EL_SPARSEMATRIX_IMPL_HPP
 #define EL_SPARSEMATRIX_IMPL_HPP
 
+#include <El/blas_like/level1/Axpy.hpp>
+#include <El/blas_like/level1/Scale.hpp>
+
 namespace El {
 
 // Constructors and destructors

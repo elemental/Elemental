@@ -10,12 +10,5 @@
 #define EL_C_H
 
 #include <El/core.h>
-#include <El/io.h>
-#include <El/blas_like.h>
-#include <El/lapack_like.h>
-#include <El/matrices.h>
-#include <El/control.h>
-#include <El/optimization.h>
-#include <El/number_theory.h>
 
 #endif /* ifndef EL_C_H */

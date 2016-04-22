@@ -6,16 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_C_H
-#define EL_C_H
+#ifndef EL_NUMBER_THEORY_C_H
+#define EL_NUMBER_THEORY_C_H
 
-#include <El/core.h>
-#include <El/io.h>
-#include <El/blas_like.h>
-#include <El/lapack_like.h>
-#include <El/matrices.h>
-#include <El/control.h>
-#include <El/optimization.h>
-#include <El/number_theory.h>
+/* TODO: Add other number theoretic interfaces */
+#include <El/number_theory/lattice.h>
 
-#endif /* ifndef EL_C_H */
+#ifdef __cplusplus
+#include <El/number_theory/lattice/CReflect.hpp>
+#endif
+
+#endif /* ifndef EL_NUMBER_THEORY_C_H */

@@ -6,8 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
-#include <El.h>
+#include <El-lite.hpp>
+#include <El/matrices.hpp>
+#include <El-lite.h>
+#include <El/matrices.h>
 using namespace El;
 
 extern "C" {
@@ -434,21 +436,6 @@ extern "C" {
   ( ElDistSparseMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, \
     CREFLECT(T) shift ) \
   { EL_TRY( Helmholtz( *CReflect(H), nx, ny, nz, CReflect(shift) ) ) } \
-  /* Hermitian from EVD */ \
-  ElError ElHermitianFromEVD_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIGBASE w, ElConstMatrix_ ## SIG Z ) \
-  { EL_TRY( \
-      HermitianFromEVD( \
-        CReflect(uplo), *CReflect(A), \
-        *CReflect(w), *CReflect(Z) ) ) } \
-  ElError ElHermitianFromEVDDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIGBASE w, ElConstDistMatrix_ ## SIG Z ) \
-  { EL_TRY( \
-      HermitianFromEVD( \
-        CReflect(uplo), *CReflect(A), \
-        *CReflect(w), *CReflect(Z) ) ) } \
   /* Hermitian uniform spectrum */ \
   ElError ElHermitianUniformSpectrum_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, Base<T> lower, Base<T> upper ) \
@@ -692,16 +679,6 @@ extern "C" {
       HelmholtzPML( \
         *CReflect(H), nx, ny, nz, CReflect(omega), \
         numPmlPoints, sigma, pmlExp ) ) } \
-  /* NormalFromEVD */ \
-  ElError ElNormalFromEVD_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElConstMatrix_ ## SIG w, ElConstMatrix_ ## SIG Z ) \
-  { EL_TRY( \
-      NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
-  ElError ElNormalFromEVDDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG w, \
-    ElConstDistMatrix_ ## SIG Z ) \
-  { EL_TRY( \
-      NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
   /* NormalUniformSpectrum */ \
   ElError ElNormalUniformSpectrum_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius ) \

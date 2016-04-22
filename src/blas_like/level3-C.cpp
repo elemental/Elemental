@@ -57,6 +57,21 @@ extern "C" {
                       CReflect(beta), *CReflect(Y) ) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
+  /* Hermitian from EVD */ \
+  ElError ElHermitianFromEVD_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIGBASE w, ElConstMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      HermitianFromEVD( \
+        CReflect(uplo), *CReflect(A), \
+        *CReflect(w), *CReflect(Z) ) ) } \
+  ElError ElHermitianFromEVDDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIGBASE w, ElConstDistMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      HermitianFromEVD( \
+        CReflect(uplo), *CReflect(A), \
+        *CReflect(w), *CReflect(Z) ) ) } \
   /* MultiShiftQuasiTrsm */ \
   ElError ElMultiShiftQuasiTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
@@ -434,6 +449,16 @@ extern "C" {
       Her2k( CReflect(uplo), CReflect(orientation), \
              CReflect(alpha), *CReflect(A), *CReflect(B), \
              beta, *CReflect(C) ) ) } \
+  /* NormalFromEVD */ \
+  ElError ElNormalFromEVD_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElConstMatrix_ ## SIG w, ElConstMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
+  ElError ElNormalFromEVDDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG w, \
+    ElConstDistMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
   /* Trdtrmm */ \
   ElError ElTrdtrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
