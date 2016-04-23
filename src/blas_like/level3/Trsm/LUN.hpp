@@ -15,8 +15,7 @@ namespace trsm {
 //   X := triuu(U)^-1 X
 
 template<typename F>
-inline void
-LUNLarge
+void LUNLarge
 ( UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre, 
@@ -71,8 +70,7 @@ LUNLarge
 }
 
 template<typename F>
-inline void
-LUNMedium
+void LUNMedium
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre,
@@ -127,8 +125,7 @@ LUNMedium
 }
 
 template<typename F,Dist colDist>
-inline void
-LUNSmall
+void LUNSmall
 ( UnitOrNonUnit diag,
   const DistMatrix<F,colDist,STAR>& U,
         DistMatrix<F,colDist,STAR>& X,

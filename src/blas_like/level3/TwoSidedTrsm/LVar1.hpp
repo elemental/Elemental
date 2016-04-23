@@ -13,8 +13,7 @@ namespace El {
 namespace twotrsm {
 
 template<typename F> 
-inline void
-LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
+void LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::LVar1");
@@ -47,7 +46,8 @@ LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         auto L11 = L( ind1, ind1 );
 
         // Y10 := L10 A00
-        Zeros( L10, L10.Height(), A00.Width() );
+        L10.Resize( L10.Height(), A00.Width() );
+        Zero( L10 );
         Hemm( RIGHT, LOWER, F(1), A00, L10, F(0), Y10 );
 
         // A10 := A10 inv(L00)'
@@ -71,8 +71,7 @@ LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 }
 
 template<typename F> 
-inline void
-LVar1
+void LVar1
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& LPre )
@@ -130,8 +129,10 @@ LVar1
         L10Adj_VC_STAR.AdjointPartialColAllGather( L10_STAR_MC );
         Z10Adj_MC_STAR.AlignWith( A00 );
         Z10Adj_MR_STAR.AlignWith( A00 );
-        Zeros( Z10Adj_MC_STAR, k, nb );
-        Zeros( Z10Adj_MR_STAR, k, nb );
+        Z10Adj_MC_STAR.Resize( k, nb );
+        Z10Adj_MR_STAR.Resize( k, nb );
+        Zero( Z10Adj_MC_STAR );
+        Zero( Z10Adj_MR_STAR );
         symm::LocalAccumulateRL
         ( ADJOINT,
           F(1), A00, L10_STAR_MC, L10Adj_MR_STAR, 
@@ -156,7 +157,8 @@ LVar1
         A10_STAR_VR = A10;
         L10_STAR_VR.AlignWith( A00 );
         L10_STAR_VR = L10;
-        Zeros( X11_STAR_STAR, nb, nb );
+        X11_STAR_STAR.Resize( nb, nb );
+        Zero( X11_STAR_STAR );
         Her2k
         ( LOWER, NORMAL,
           F(-1), A10_STAR_VR.Matrix(), L10_STAR_VR.Matrix(), 

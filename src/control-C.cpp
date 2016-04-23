@@ -6,8 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
-#include <El.h>
+#include <El-lite.hpp>
+#include <El/control.hpp>
+#include <El-lite.h>
+#include <El/control.h>
 using namespace El;
 
 extern "C" {

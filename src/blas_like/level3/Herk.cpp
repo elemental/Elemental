@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level3.hpp>
 
 namespace El {
 
@@ -26,7 +27,8 @@ void Herk
 {
     DEBUG_ONLY(CSE cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, T(alpha), A, T(0), C, true );
 }
 
@@ -47,7 +49,8 @@ void Herk
 {
     DEBUG_ONLY(CSE cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, T(alpha), A, T(0), C, true );
 }
 

@@ -13,8 +13,4 @@
 #include <El/blas_like/level2.h>
 #include <El/blas_like/level3.h>
 
-#ifdef __cplusplus
-#include <El/blas_like/CReflect.hpp>
-#endif
-
 #endif /* ifndef EL_BLAS_C_H */

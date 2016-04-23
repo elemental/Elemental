@@ -16,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateRLN
+void LocalAccumulateRLN
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -70,8 +69,7 @@ LocalAccumulateRLN
 }
 
 template<typename T>
-inline void
-RLNA
+void RLNA
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
@@ -109,7 +107,8 @@ RLNA
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
 
-        Zeros( Z1Trans_MR_STAR, n, nb );
+        Z1Trans_MR_STAR.Resize( n, nb );
+        Zero( Z1Trans_MR_STAR );
         LocalAccumulateRLN
         ( TRANSPOSE, diag, T(1), L, X1_STAR_MC, Z1Trans_MR_STAR );
 
@@ -120,8 +119,7 @@ RLNA
 }
 
 template<typename T>
-inline void
-RLNCOld
+void RLNCOld
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
@@ -172,8 +170,7 @@ RLNCOld
 }
 
 template<typename T>
-inline void
-RLNC
+void RLNC
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
@@ -229,8 +226,7 @@ RLNC
 //   X := X tril(L), and
 //   X := X trilu(L)
 template<typename T>
-inline void
-RLN
+void RLN
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& L,
         ElementalMatrix<T>& X )

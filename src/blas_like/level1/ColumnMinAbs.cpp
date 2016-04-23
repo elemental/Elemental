@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
@@ -118,7 +119,7 @@ void ColumnMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    Zeros( mins, n, 1 );
+    mins.Resize( n, 1 );
     Fill( mins, limits::Max<Real>() );
     const Int* colBuf = A.LockedTargetBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
@@ -183,7 +184,7 @@ void ColumnMinAbs
 
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
-    Zeros( mins, A.Width(), 1 );
+    mins.Resize( A.Width(), 1 );
     Fill( mins, limits::Max<Real>() );
     A.InitializeMultMeta();
     const auto& meta = A.multMeta;

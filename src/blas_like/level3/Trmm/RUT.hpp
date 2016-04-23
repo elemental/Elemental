@@ -16,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateRUT
+void LocalAccumulateRUT
 ( UnitOrNonUnit diag,
   T alpha,
   const DistMatrix<T>& U,
@@ -68,8 +67,7 @@ LocalAccumulateRUT
 }
 
 template<typename T>
-inline void
-RUTA
+void RUTA
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const ElementalMatrix<T>& UPre,
@@ -105,7 +103,8 @@ RUTA
         auto X1 = X( IR(k,k+nb), ALL );
 
         Transpose( X1, X1Trans_MR_STAR, conjugate );
-        Zeros( Z1Trans_MC_STAR, X.Width(), nb );
+        Z1Trans_MC_STAR.Resize( X.Width(), nb );
+        Zero( Z1Trans_MC_STAR );
         LocalAccumulateRUT
         ( diag, T(1), U, X1Trans_MR_STAR, Z1Trans_MC_STAR );
 
@@ -117,8 +116,7 @@ RUTA
 }
 
 template<typename T>
-inline void
-RUTC
+void RUTC
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const ElementalMatrix<T>& UPre,
@@ -178,8 +176,7 @@ RUTC
 //   X := X triuu(U)^T, or
 //   X := X triuu(U)^H
 template<typename T>
-inline void
-RUT
+void RUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const ElementalMatrix<T>& U,

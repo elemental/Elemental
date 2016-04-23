@@ -16,8 +16,7 @@ namespace trsm {
 //   X := X trilu(L)^-T, or
 //   X := X trilu(L)^-H
 template<typename F>
-inline void
-RLT
+void RLT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& LPre,

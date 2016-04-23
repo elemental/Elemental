@@ -6,7 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/lapack_like/funcs.hpp>
+#include <El/lapack_like/euclidean_min.hpp>
+#include <El/control.hpp>
 
 namespace El {
 
@@ -95,7 +99,8 @@ void Ricatti
     const Int n = A.Height();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
-    Zeros( W, 2*n, 2*n );
+    W.Resize( 2*n, 2*n );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, n );
@@ -133,7 +138,8 @@ void Ricatti
     const Int n = A.Height();
     DistMatrix<F> W(g), WTL(g), WTR(g),
                         WBL(g), WBR(g);
-    Zeros( W, 2*n, 2*n );
+    W.Resize( 2*n, 2*n );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, n );
@@ -171,6 +177,10 @@ void Ricatti
     SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

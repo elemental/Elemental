@@ -89,8 +89,7 @@ void LocalAccumulateLL
 }
 
 template<typename T>
-inline void
-LLA
+void LLA
 ( T alpha,
   const ElementalMatrix<T>& APre,
   const ElementalMatrix<T>& BPre,
@@ -137,8 +136,10 @@ LLA
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         Transpose( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
-        Zeros( Z1_MC_STAR, m, nb );
-        Zeros( Z1_MR_STAR, m, nb );
+        Z1_MC_STAR.Resize( m, nb );
+        Z1_MR_STAR.Resize( m, nb );
+        Zero( Z1_MC_STAR );
+        Zero( Z1_MR_STAR );
         LocalAccumulateLL
         ( orientation, 
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
@@ -147,13 +148,12 @@ LLA
         Z1.AlignWith( C1 );
         Z1 = Z1_MR_MC;
         AxpyContract( T(1), Z1_MC_STAR, Z1 );
-        Axpy( T(1), Z1, C1 );
+        C1 += Z1;
     }
 }
 
 template<typename T>
-inline void
-LLC
+void LLC
 ( T alpha,
   const ElementalMatrix<T>& APre,
   const ElementalMatrix<T>& BPre,
@@ -218,7 +218,7 @@ LLC
 }
 
 template<typename T>
-inline void LL
+void LL
 ( T alpha,
   const ElementalMatrix<T>& A,
   const ElementalMatrix<T>& B,

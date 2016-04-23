@@ -13,8 +13,7 @@ namespace El {
 namespace twotrsm {
 
 template<typename F>
-inline void
-LVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
+void LVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::LVar3");
@@ -31,7 +30,8 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     // We will use an entire extra matrix as temporary storage. If this is not
     // acceptable, use LVar4 instead.
     Matrix<F> Y;
-    Zeros( Y, n, n );
+    Y.Resize( n, n );
+    Zero( Y );
 
     for( Int k=0; k<n; k+=bsize )
     {
@@ -87,8 +87,7 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 }
 
 template<typename F>
-inline void
-LVar3
+void LVar3
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& LPre )
@@ -123,7 +122,8 @@ LVar3
     // acceptable, use LVar4 instead.
     DistMatrix<F> Y(g);
     Y.AlignWith( A );
-    Zeros( Y, n, n );
+    Y.Resize( n, n );
+    Zero( Y );
 
     for( Int k=0; k<n; k+=bsize )
     {
@@ -154,7 +154,8 @@ LVar3
         L10_STAR_VR.AlignWith( A10 );
         A10_STAR_VR = A10;
         L10_STAR_VR = L10;
-        Zeros( X11_STAR_STAR, nb, nb );
+        X11_STAR_STAR.Resize( nb, nb );
+        Zero( X11_STAR_STAR );
         Her2k
         ( LOWER, NORMAL, 
           F(1), A10_STAR_VR.Matrix(), L10_STAR_VR.Matrix(),

@@ -13,8 +13,7 @@ namespace El {
 namespace twotrsm {
 
 template<typename F> 
-inline void
-UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::UVar5");
@@ -51,7 +50,8 @@ UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         twotrsm::UUnb( diag, A11, U11 );
 
         // Y12 := A11 U12
-        Zeros( Y12, A12.Height(), A12.Width() );
+        Y12.Resize( A12.Height(), A12.Width() );
+        Zero( Y12 );
         Hemm( LEFT, UPPER, F(1), A11, U12, F(0), Y12 );
 
         // A12 := inv(U11)' A12
@@ -72,8 +72,7 @@ UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 }
 
 template<typename F> 
-inline void
-UVar5
+void UVar5
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )
@@ -130,7 +129,8 @@ UVar5
         U12_STAR_VR.AlignWith( A22 );
         U12_STAR_VR = U12;
         Y12_STAR_VR.AlignWith( A12 );
-        Zeros( Y12_STAR_VR, nb, A12.Width() );
+        Y12_STAR_VR.Resize( nb, A12.Width() );
+        Zero( Y12_STAR_VR );
         Hemm
         ( LEFT, UPPER,
           F(1), A11_STAR_STAR.Matrix(), U12_STAR_VR.Matrix(),

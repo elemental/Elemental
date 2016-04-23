@@ -9,6 +9,8 @@
 #ifndef EL_CONDENSE_HPP
 #define EL_CONDENSE_HPP
 
+#include <El/blas_like/level2.hpp>
+
 namespace El {
 
 // Bidiag

@@ -408,4 +408,8 @@ EL_EXPORT ElError ElTrsvDist_z
 } // extern "C"
 #endif
 
+#ifdef __cplusplus
+#include <El/blas_like/level2/CReflect.hpp>
+#endif
+
 #endif /* ifndef EL_BLAS_LEVEL2_C_H */

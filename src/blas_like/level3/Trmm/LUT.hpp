@@ -16,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateLUT
+void LocalAccumulateLUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -67,8 +66,7 @@ LocalAccumulateLUT
 }
 
 template<typename T>
-inline void
-LUTA
+void LUTA
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const ElementalMatrix<T>& UPre,
@@ -107,7 +105,8 @@ LUTA
         auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_MC_STAR = X1;
-        Zeros( Z1_MR_STAR, m, nb );
+        Z1_MR_STAR.Resize( m, nb );
+        Zero( Z1_MR_STAR );
         LocalAccumulateLUT
         ( orientation, diag, T(1), U, X1_MC_STAR, Z1_MR_STAR );
 
@@ -117,8 +116,7 @@ LUTA
 }
 
 template<typename T>
-inline void
-LUTCOld
+void LUTCOld
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const ElementalMatrix<T>& UPre,
@@ -176,15 +174,15 @@ LUTCOld
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
-        Zeros( D1, nb, n );
+        D1.Resize( nb, n );
+        Zero( D1 );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
     }
 }
 
 template<typename T>
-inline void
-LUTC
+void LUTC
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const ElementalMatrix<T>& UPre,
@@ -247,8 +245,7 @@ LUTC
 //   X := triuu(U)^T X, or
 //   X := triuu(U)^H X
 template<typename T>
-inline void
-LUT
+void LUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const ElementalMatrix<T>& U,

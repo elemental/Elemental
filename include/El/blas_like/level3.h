@@ -854,4 +854,8 @@ EL_EXPORT ElError ElNormalFromEVDDist_z
 } // extern "C"
 #endif
 
+#ifdef __cplusplus
+#include <El/blas_like/level3/CReflect.hpp>
+#endif
+
 #endif /* ifndef EL_BLAS_LEVEL3_C_H */

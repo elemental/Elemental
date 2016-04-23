@@ -11,8 +11,7 @@ namespace El {
 namespace trdtrmm {
 
 template<typename F>
-inline void
-LVar1( Matrix<F>& L, bool conjugate=false )
+void LVar1( Matrix<F>& L, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("trdtrmm::LVar1");
@@ -45,8 +44,7 @@ LVar1( Matrix<F>& L, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
+void LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("trdtrmm::LVar1");
@@ -85,8 +83,7 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
+void LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("trdtrmm::LVar1");
@@ -143,8 +140,7 @@ LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-LVar1
+void LVar1
 (       ElementalMatrix<F>& LPre,
   const ElementalMatrix<F>& dSubPre, 
   bool conjugate=false )

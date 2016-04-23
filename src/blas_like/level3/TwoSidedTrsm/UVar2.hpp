@@ -13,8 +13,7 @@ namespace El {
 namespace twotrsm {
 
 template<typename F> 
-inline void
-UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::UVar2");
@@ -49,7 +48,8 @@ UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         auto U11 = U( ind1, ind1 );
 
         // Y01 := A00 U01
-        Zeros( Y01, A01.Height(), A01.Width() );
+        Y01.Resize( A01.Height(), A01.Width() );
+        Zero( Y01 );
         Hemm( LEFT, UPPER, F(1), A00, U01, F(0), Y01 );
 
         // A01 := A01 - 1/2 Y01
@@ -78,8 +78,7 @@ UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 // This routine has only partially been optimized. The ReduceScatter operations
 // need to be (conjugate-)transposed in order to play nice with cache.
 template<typename F> 
-inline void
-UVar2
+void UVar2
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )
@@ -141,8 +140,10 @@ UVar2
         U01_VR_STAR.AdjointPartialColAllGather( U01Adj_STAR_MR );
         Y01_MR_STAR.AlignWith( A00 );
         F01_MC_STAR.AlignWith( A00 );
-        Zeros( Y01_MR_STAR, k, nb );
-        Zeros( F01_MC_STAR, k, nb );
+        Y01_MR_STAR.Resize( k, nb );
+        F01_MC_STAR.Resize( k, nb );
+        Zero( Y01_MR_STAR );
+        Zero( F01_MC_STAR );
         symm::LocalAccumulateLU
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, F01_MC_STAR, Y01_MR_STAR );

@@ -12,8 +12,7 @@ namespace gemm {
 
 // Cannon's algorithm
 template<typename T>
-inline void
-Cannon_NN
+void Cannon_NN
 ( T alpha,
   const ElementalMatrix<T>& APre,
   const ElementalMatrix<T>& BPre,
@@ -100,8 +99,7 @@ Cannon_NN
 
 // Normal Normal Gemm that avoids communicating the matrix A
 template<typename T>
-inline void
-SUMMA_NNA
+void SUMMA_NNA
 ( T alpha,
   const ElementalMatrix<T>& APre, 
   const ElementalMatrix<T>& BPre,
@@ -155,8 +153,7 @@ SUMMA_NNA
 
 // Normal Normal Gemm that avoids communicating the matrix B
 template<typename T>
-inline void 
-SUMMA_NNB
+void SUMMA_NNB
 ( T alpha,
   const ElementalMatrix<T>& APre,
   const ElementalMatrix<T>& BPre,
@@ -207,8 +204,7 @@ SUMMA_NNB
 
 // Normal Normal Gemm that avoids communicating the matrix C
 template<typename T>
-inline void 
-SUMMA_NNC
+void SUMMA_NNC
 ( T alpha,
   const ElementalMatrix<T>& APre,
   const ElementalMatrix<T>& BPre,
@@ -259,8 +255,7 @@ SUMMA_NNC
 
 // Normal Normal Gemm for panel-panel dot products
 template<typename T>
-inline void 
-SUMMA_NNDot
+void SUMMA_NNDot
 ( T alpha,
   const ElementalMatrix<T>& APre,
   const ElementalMatrix<T>& BPre,
@@ -358,8 +353,7 @@ SUMMA_NNDot
 }
 
 template<typename T>
-inline void
-SUMMA_NN
+void SUMMA_NN
 ( T alpha,
   const ElementalMatrix<T>& A,
   const ElementalMatrix<T>& B,

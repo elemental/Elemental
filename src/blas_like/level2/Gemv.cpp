@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
 
 #include "./Gemv/Normal.hpp"
 #include "./Gemv/Transpose.hpp"
@@ -75,9 +76,10 @@ void Gemv
 {
     DEBUG_ONLY(CSE cse("Gemv"))
     if( orientation == NORMAL )
-        Zeros( y, A.Height(), 1 );
+        y.Resize( A.Height(), 1 );
     else
-        Zeros( y, A.Width(), 1 );
+        y.Resize( A.Width(), 1 );
+    Zero( y );
     Gemv( orientation, alpha, A, x, T(0), y );
 }
 
@@ -105,9 +107,10 @@ void Gemv
     DEBUG_ONLY(CSE cse("Gemv"))
     y.AlignWith( A );
     if( orientation == NORMAL )
-        Zeros( y, A.Height(), 1 );
+        y.Resize( A.Height(), 1 );
     else
-        Zeros( y, A.Width(), 1 );
+        y.Resize( A.Width(), 1 );
+    Zero( y );
     Gemv( orientation, alpha, A, x, T(0), y );
 }
 
@@ -225,9 +228,10 @@ void Gemv
     DEBUG_ONLY(CSE cse("Gemv"))
     y.AlignWith( A );
     if( orientation == NORMAL )
-        Zeros( y, A.Height(), 1 );
+        y.Resize( A.Height(), 1 );
     else
-        Zeros( y, A.Width(), 1 );
+        y.Resize( A.Width(), 1 );
+    Zero( y );
     Gemv( orientation, alpha, A, x, T(0), y );
 }
 

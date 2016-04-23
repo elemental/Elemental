@@ -9,6 +9,8 @@
 #ifndef EL_SPECTRAL_HPP
 #define EL_SPECTRAL_HPP
 
+#include <El/lapack_like/condense.hpp>
+
 namespace El {
 
 // Hermitian eigenvalue solvers

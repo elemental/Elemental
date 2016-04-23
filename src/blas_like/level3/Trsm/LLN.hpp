@@ -16,8 +16,7 @@ namespace trsm {
 
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
-inline void
-LLNLarge
+void LLNLarge
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre, 
@@ -72,8 +71,7 @@ LLNLarge
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
-inline void
-LLNMedium
+void LLNMedium
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre, 
@@ -128,8 +126,7 @@ LLNMedium
 
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F,Dist colDist>
-inline void
-LLNSmall
+void LLNSmall
 ( UnitOrNonUnit diag, 
   const DistMatrix<F,colDist,STAR>& L, 
         DistMatrix<F,colDist,STAR>& X, bool checkIfSingular )

@@ -11,8 +11,7 @@ namespace El {
 namespace trdtrmm {
 
 template<typename F>
-inline void
-UVar1( Matrix<F>& U, bool conjugate=false )
+void UVar1( Matrix<F>& U, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("trdtrmm::UVar1");
@@ -47,8 +46,7 @@ UVar1( Matrix<F>& U, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-UVar1( ElementalMatrix<F>& UPre, bool conjugate=false )
+void UVar1( ElementalMatrix<F>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("trdtrmm::UVar1");

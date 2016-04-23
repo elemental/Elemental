@@ -15,8 +15,7 @@ namespace twotrmm {
 // The only requirement that this is a field comes from the necessity for 
 // the existence of 1/2, which is artifact of the algorithm...
 template<typename F> 
-inline void
-UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
       CSE cse("twotrmm::UVar5");
@@ -49,7 +48,8 @@ UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         auto U11 = U( ind1, ind1 );
 
         // Y01 := U01 A11
-        Zeros( Y01, k, nb );
+        Y01.Resize( k, nb );
+        Zero( Y01 );
         Hemm( RIGHT, UPPER, F(1), A11, U01, F(0), Y01 );
 
         // A01 := U00 A01
@@ -73,8 +73,7 @@ UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 }
 
 template<typename F> 
-inline void
-UVar5
+void UVar5
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )
@@ -124,7 +123,8 @@ UVar5
         U01_VC_STAR.AlignWith( A00 );
         U01_VC_STAR = U01;
         Y01_VC_STAR.AlignWith( A01 );
-        Zeros( Y01_VC_STAR, k, nb );
+        Y01_VC_STAR.Resize( k, nb );
+        Zero( Y01_VC_STAR );
         Hemm
         ( RIGHT, UPPER,
           F(1), A11_STAR_STAR.Matrix(), U01_VC_STAR.Matrix(),

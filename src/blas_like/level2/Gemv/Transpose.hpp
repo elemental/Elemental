@@ -11,8 +11,7 @@ namespace El {
 namespace gemv {
 
 template<typename T>
-inline void
-Transpose
+void Transpose
 ( Orientation orientation,
   T alpha,
   const ElementalMatrix<T>& APre,
@@ -49,7 +48,8 @@ Transpose
 
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MR_STAR, A.Width(), 1 );
+        z_MR_STAR.Resize( A.Width(), 1 );
+        Zero( z_MR_STAR );
         LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
@@ -65,7 +65,8 @@ Transpose
 
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MR_STAR, A.Width(), 1 );
+        z_MR_STAR.Resize( A.Width(), 1 );
+        Zero( z_MR_STAR );
         LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
@@ -85,7 +86,8 @@ Transpose
 
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MR_STAR, A.Width(), 1 );
+        z_MR_STAR.Resize( A.Width(), 1 );
+        Zero( z_MR_STAR );
         LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
@@ -101,7 +103,8 @@ Transpose
 
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MR_STAR, A.Width(), 1 );
+        z_MR_STAR.Resize( A.Width(), 1 );
+        Zero( z_MR_STAR );
         LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
 
         DistMatrix<T,MR,MC> z_MR_MC(g);
@@ -116,8 +119,7 @@ Transpose
 }
 
 template<typename T>
-inline void
-Transpose
+void Transpose
 ( Orientation orientation,
   T alpha,
   const DistMatrix<T>& A,
@@ -144,7 +146,8 @@ Transpose
 
     DistMatrix<T,MR,STAR> z_MR_STAR(g);
     z_MR_STAR.AlignWith( A );
-    Zeros( z_MR_STAR, A.Width(), 1 );
+    z_MR_STAR.Resize( A.Width(), 1 );
+    Zero( z_MR_STAR );
     LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
 
     DistMatrix<T,VR,STAR> z_VR_STAR(g);

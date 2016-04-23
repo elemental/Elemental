@@ -16,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateLLN
+void LocalAccumulateLLN
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -68,8 +67,7 @@ LocalAccumulateLLN
 }
 
 template<typename T>
-inline void
-LLNA
+void LLNA
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
@@ -107,7 +105,8 @@ LLNA
 
         X1_VR_STAR = X1;
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
-        Zeros( Z1_MC_STAR, m, nb );
+        Z1_MC_STAR.Resize( m, nb );
+        Zero( Z1_MC_STAR );
         LocalAccumulateLLN
         ( TRANSPOSE, diag, T(1), L, X1Trans_STAR_MR, Z1_MC_STAR );
         Contract( Z1_MC_STAR, X1 );
@@ -115,8 +114,7 @@ LLNA
 }
 
 template<typename T>
-inline void
-LLNCOld
+void LLNCOld
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
@@ -169,15 +167,15 @@ LLNCOld
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
-        Zeros( D1, nb, n );
+        D1.Resize( nb, n );
+        Zero( D1 );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
     }
 }
 
 template<typename T>
-inline void
-LLNC
+void LLNC
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
@@ -233,8 +231,7 @@ LLNC
 //   X := tril(L)  X, or
 //   X := trilu(L) X
 template<typename T>
-inline void
-LLN
+void LLN
 ( UnitOrNonUnit diag,
   const ElementalMatrix<T>& L,
         ElementalMatrix<T>& X )

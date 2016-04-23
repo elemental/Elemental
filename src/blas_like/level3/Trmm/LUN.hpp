@@ -16,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateLUN
+void LocalAccumulateLUN
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -71,8 +70,7 @@ LocalAccumulateLUN
 }
 
 template<typename T>
-inline void
-LUNA
+void LUNA
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
@@ -110,7 +108,8 @@ LUNA
 
         X1_VR_STAR = X1;
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
-        Zeros( Z1_MC_STAR, m, nb );
+        Z1_MC_STAR.Resize( m, nb );
+        Zero( Z1_MC_STAR );
         LocalAccumulateLUN
         ( TRANSPOSE, diag, T(1), U, X1Trans_STAR_MR, Z1_MC_STAR );
 
@@ -119,8 +118,7 @@ LUNA
 }
 
 template<typename T>
-inline void
-LUNCOld
+void LUNCOld
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
@@ -173,15 +171,15 @@ LUNCOld
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
-        Zeros( D1, nb, n );
+        D1.Resize( nb, n );
+        Zero( D1 );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
     }
 }
 
 template<typename T>
-inline void
-LUNC
+void LUNC
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
@@ -236,8 +234,7 @@ LUNC
 //   X := triu(U)  X, or
 //   X := triuu(U) X
 template<typename T>
-inline void
-LUN
+void LUN
 ( UnitOrNonUnit diag,
   const ElementalMatrix<T>& U,
         ElementalMatrix<T>& X )
