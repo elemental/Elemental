@@ -13,23 +13,6 @@
 extern "C" {
 #endif
 
-typedef enum {
-  EL_AUTO,
-  EL_ASCII,
-  EL_ASCII_MATLAB,
-  EL_BINARY,
-  EL_BINARY_FLAT,
-  EL_BMP,
-  EL_JPG,
-  EL_JPEG,
-  EL_MATRIX_MARKET,
-  EL_PNG,
-  EL_PPM,
-  EL_XBM,
-  EL_XPM,
-  EL_FileFormat_MAX
-} ElFileFormat;
-
 EL_EXPORT ElError ElQtImageFormat
 ( ElFileFormat format, const char** formatStr );
 EL_EXPORT ElError ElFileExtension

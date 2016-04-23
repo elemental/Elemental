@@ -206,4 +206,8 @@ EL_EXPORT ElError ElDistPermutationExplicitMatrix
 } // extern "C"
 #endif
 
+#ifdef __cplusplus
+#include <El/lapack_like/perm/CReflect.hpp>
+#endif
+
 #endif /* ifndef EL_PERM_C_H */

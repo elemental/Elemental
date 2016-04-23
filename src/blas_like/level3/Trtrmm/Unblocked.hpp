@@ -13,8 +13,7 @@ namespace El {
 namespace trtrmm {
 
 template<typename T>
-inline void
-LUnblocked( Matrix<T>& L, bool conjugate=false )
+void LUnblocked( Matrix<T>& L, bool conjugate=false )
 {
     DEBUG_ONLY(
         CSE cse("trtrmm::LUnblocked");
@@ -65,8 +64,7 @@ LUnblocked( Matrix<T>& L, bool conjugate=false )
 }
 
 template<typename T>
-inline void
-UUnblocked( Matrix<T>& U, bool conjugate=false )
+void UUnblocked( Matrix<T>& U, bool conjugate=false )
 {
     DEBUG_ONLY(
         CSE cse("trtrmm::UUnblocked");

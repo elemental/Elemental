@@ -11,8 +11,7 @@ namespace El {
 namespace mstrsm {
 
 template<typename F>
-inline void
-LeftUnb
+void LeftUnb
 ( UpperOrLower uplo,
   Orientation orientation,
         Matrix<F>& T,
@@ -47,8 +46,7 @@ LeftUnb
 }
 
 template<typename F>
-inline void
-LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
+void LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CSE cse("mstrsm::LUN"))
     const Int m = X.Height();
@@ -74,8 +72,7 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename F>
-inline void
-LUN
+void LUN
 ( const ElementalMatrix<F>& UPre, 
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre ) 

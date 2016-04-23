@@ -10,6 +10,7 @@
 #define EL_LAPACK_FUNCS_C_H
 
 #include <El/core/DistMatrix.h>
+#include <El/lapack_like/factor.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -17,8 +17,7 @@ namespace trr2k {
 
 // E := alpha op(A) op(B) + beta op(C) op(D) + E
 template<typename T>
-inline void
-LocalTrr2kKernel
+void LocalTrr2kKernel
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,

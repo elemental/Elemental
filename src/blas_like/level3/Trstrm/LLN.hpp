@@ -13,8 +13,7 @@ namespace El {
 namespace trstrm {
 
 template<typename F>
-inline void
-LLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
+void LLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("trstrm::LLNUnb"))
     const bool isUnit = ( diag==UNIT );
@@ -49,8 +48,7 @@ LLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 }
 
 template<typename F>
-inline void
-LLN
+void LLN
 ( UnitOrNonUnit diag,
   F alpha,
   const Matrix<F>& L,
@@ -90,8 +88,7 @@ LLN
 }
 
 template<typename F>
-inline void
-LLN
+void LLN
 ( UnitOrNonUnit diag, 
   F alpha,
   const ElementalMatrix<F>& LPre,

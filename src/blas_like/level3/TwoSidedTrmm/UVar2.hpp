@@ -15,8 +15,7 @@ namespace twotrmm {
 // The only reason a field is required is for the existence of 1/2, which is 
 // an artifact of the algorithm...
 template<typename F> 
-inline void
-UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
       CSE cse("twotrmm::UVar2");
@@ -79,8 +78,7 @@ UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 }
 
 template<typename F> 
-inline void
-UVar2
+void UVar2
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )

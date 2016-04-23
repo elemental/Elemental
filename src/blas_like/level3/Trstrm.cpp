@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 #include <El/blas_like/level3.hpp>
 
 #include "./Trstrm/LLN.hpp"

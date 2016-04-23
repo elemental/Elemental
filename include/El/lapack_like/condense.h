@@ -10,6 +10,7 @@
 #define EL_LAPACK_CONDENSE_C_H
 
 #include <El/core/DistMatrix.h>
+#include <El/blas_like/level2.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -283,6 +284,10 @@ EL_EXPORT ElError ElApplyQAfterHessenbergDist_z
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/lapack_like/condense/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_LAPACK_CONDENSE_C_H */

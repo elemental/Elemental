@@ -6,18 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_IO_CREFLECT_C_HPP
-#define EL_IO_CREFLECT_C_HPP
+#ifndef EL_LAPACK_PROPS_CREFLECT_C_HPP
+#define EL_LAPACK_PROPS_CREFLECT_C_HPP
 
 namespace El {
 
-// Input/Output
-// ------------
-inline ElColorMap CReflect( ColorMap map )
-{ return static_cast<ElColorMap>(map); }
-inline ColorMap CReflect( ElColorMap map )
-{ return static_cast<ColorMap>(map); }
+inline ElNormType CReflect( NormType type )
+{ return static_cast<ElNormType>(type); }
+inline NormType CReflect( ElNormType type )
+{ return static_cast<NormType>(type); }
 
 } // namespace El
 
-#endif // ifndef EL_IO_CREFLECT_C_HPP
+#endif // ifndef EL_LAPACK_PROPS_CREFLECT_C_HPP

@@ -13,8 +13,7 @@ namespace El {
 namespace trtrmm {
 
 template<typename T>
-inline void
-LVar1( Matrix<T>& L, bool conjugate=false )
+void LVar1( Matrix<T>& L, bool conjugate=false )
 {
     DEBUG_ONLY(CSE cse("trtrmm::LVar1"))
     const Int n = L.Height();
@@ -39,8 +38,7 @@ LVar1( Matrix<T>& L, bool conjugate=false )
 }
 
 template<typename T>
-inline void
-LVar1( ElementalMatrix<T>& LPre, bool conjugate=false )
+void LVar1( ElementalMatrix<T>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
       CSE cse("trtrmm::LVar1");

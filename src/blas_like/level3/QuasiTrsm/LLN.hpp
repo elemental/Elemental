@@ -15,8 +15,7 @@ namespace quasitrsm {
 //   X := trilu(L)^-1 X
 
 template<typename F>
-inline void
-LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
+void LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LLNUnb"))
     typedef Base<F> Real;
@@ -104,8 +103,7 @@ LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 }
 
 template<typename F>
-inline void
-LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
+void LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LLN"))
     const Int m = X.Height();
@@ -133,8 +131,7 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
-inline void
-LLNLarge
+void LLNLarge
 ( const ElementalMatrix<F>& LPre,
         ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
@@ -189,8 +186,7 @@ LLNLarge
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
-inline void
-LLNMedium
+void LLNMedium
 ( const ElementalMatrix<F>& LPre,
         ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
@@ -246,8 +242,7 @@ LLNMedium
 
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F,Dist colDist>
-inline void
-LLNSmall
+void LLNSmall
 ( const DistMatrix<F,colDist,STAR>& L,
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
