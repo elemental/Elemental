@@ -11,7 +11,7 @@
 
 namespace El {
 
-// TODO: Add options for FastAbs instead of Abs
+// TODO: Add options for OneAbs instead of Abs
 
 template<typename F>
 ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )

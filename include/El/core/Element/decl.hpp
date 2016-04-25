@@ -378,6 +378,13 @@ Complex<Real> ComplexFromPolar( const Real& r, const Real& theta=0 );
 template<> Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta );
 #endif
 
+// Safe division (in the sense of Baudin and Smith)
+// ------------------------------------------------
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SafeDiv( const Real& x, const Real& y );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> SafeDiv( const Complex<Real>& x, const Complex<Real>& y );
+
 // Magnitude and sign
 // ==================
 
@@ -413,9 +420,16 @@ template<> Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 // Return the sum of the absolute values of the real and imaginary components
 // --------------------------------------------------------------------------
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-Real FastAbs( const Real& alpha ) EL_NO_EXCEPT;
+Real OneAbs( const Real& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
+Real OneAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
+
+// Return the max of the absolute values of the real and imaginary components
+// --------------------------------------------------------------------------
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real MaxAbs( const Real& alpha ) EL_NO_EXCEPT;
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real MaxAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
 
 // Return the sign of a real element
 // ---------------------------------

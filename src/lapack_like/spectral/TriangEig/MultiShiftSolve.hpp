@@ -81,12 +81,12 @@ void MultiShiftDiagonalBlockSolve
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( U, diag );
         const F shift = shifts.Get(j,0);
-        const Real smallDiag = Max( ulp*FastAbs(shift), smallNum );
+        const Real smallDiag = Max( ulp*OneAbs(shift), smallNum );
         for( Int k=0; k<xHeight; ++k )
         {
             UBuf[k+k*ULDim] -= shift;
             // TODO: Perhaps preserve phase in complex plane
-            if( FastAbs(UBuf[k+k*ULDim]) < smallDiag )
+            if( OneAbs(UBuf[k+k*ULDim]) < smallDiag )
                 UBuf[k+k*ULDim] = smallDiag;
         }
         auto xj = X( IR(0,xHeight), IR(j) );
@@ -294,12 +294,12 @@ void MultiShiftDiagonalBlockSolve
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( ULoc, diag );
         const F shift = shiftsLoc.Get(jLoc,0);
-        const Real smallDiag = Max( ulp*FastAbs(shift), smallNum );
+        const Real smallDiag = Max( ulp*OneAbs(shift), smallNum );
         for( Int k=0; k<xHeight; ++k )
         {
             UBuf[k+k*ULDim] -= shift;
             // TODO: Perhaps preserve phase in complex plane
-            if( FastAbs(UBuf[k+k*ULDim]) < smallDiag )
+            if( OneAbs(UBuf[k+k*ULDim]) < smallDiag )
                 UBuf[k+k*ULDim] = smallDiag;
         }
         auto xj = XLoc( IR(0,xHeight), IR(jLoc) );
