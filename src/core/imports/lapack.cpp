@@ -742,12 +742,115 @@ template BigFloat Givens
   BigFloat* s );
 #endif
 
+// Generate a Householder reflector
+// ================================
+// NOTE: 
+// Since LAPACK chooses to use the identity matrix, rather than a single
+// coordinate negation, in cases where the mass is already entirely in the
+// first entry, and the identity matrix cannot be represented as a Householder
+// reflector, Elemental does not ever directly call LAPACK's Householder
+// routines. Otherwise, the logic of routines such as ApplyPackedReflectors
+// would need to be (unnecessarily) complicated.
+//
+// Furthermore, LAPACK defines H = I - tau [1; v] [1; v]' such that
+// adjoint(H) [chi; x] = [beta; 0], but Elemental instead defines
+// H = I - tau [1; v] [1; v]' such that H [chi; x] = [beta; 0].
+//
+template<typename F>
+F Reflector( BlasInt n, F& chi, F* x, BlasInt incx )
+{
+    DEBUG_ONLY(
+      CSE cse("lapack::Reflector");
+    )
+    typedef Base<F> Real; 
+    const Real zero(0);
+
+    Real norm = blas::Nrm2( n, x, incx );
+    F alpha = chi;
+    if( norm == zero && ImagPart(alpha) == zero )
+    {
+        chi *= -1;
+        return F(2); 
+    }
+
+    Real beta;
+    if( RealPart(alpha) <= zero )
+        beta = lapack::SafeNorm( alpha, norm );
+    else
+        beta = -lapack::SafeNorm( alpha, norm );
+
+    // Rescale if the vector is too small
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
+    const Real safeInv = safeMin/epsilon;
+    Int count = 0;
+    if( Abs(beta) < safeInv )
+    {
+        Real invOfSafeInv = Real(1)/safeInv;
+        do
+        {
+            ++count;
+            blas::Scal( n, invOfSafeInv, x, incx );
+            alpha *= invOfSafeInv;
+            beta *= invOfSafeInv;
+        } while( Abs(beta) < safeInv );
+
+        norm = blas::Nrm2( n, x, incx );
+        if( RealPart(alpha) <= 0 )
+            beta = lapack::SafeNorm( alpha, norm );
+        else
+            beta = -lapack::SafeNorm( alpha, norm );
+    }
+
+    F tau = (beta-Conj(alpha)) / beta;
+    blas::Scal( n, Real(1)/(alpha-beta), x, incx );
+
+    // Undo the scaling
+    for( Int j=0; j<count; ++j )
+        beta *= safeInv;
+
+    chi = beta;
+    return tau;
+}
+template float Reflector
+( BlasInt n, float& chi, float* x, BlasInt incx );
+template Complex<float> Reflector
+( BlasInt n, Complex<float>& chi, Complex<float>* x, BlasInt incx );
+template double Reflector
+( BlasInt n, double& chi, double* x, BlasInt incx );
+template Complex<double> Reflector
+( BlasInt n, Complex<double>& chi, Complex<double>* x, BlasInt incx );
+#ifdef EL_HAVE_QD
+template DoubleDouble Reflector
+( BlasInt n, DoubleDouble& chi, DoubleDouble* x, BlasInt incx );
+template QuadDouble Reflector
+( BlasInt n, QuadDouble& chi, QuadDouble* x, BlasInt incx );
+#endif
+#ifdef EL_HAVE_QUAD
+template Quad Reflector
+( BlasInt n, Quad& chi, Quad* x, BlasInt incx );
+template Complex<Quad> Reflector
+( BlasInt n, Complex<Quad>& chi, Complex<Quad>* x, BlasInt incx );
+#endif
+#ifdef EL_HAVE_MPC
+template BigFloat Reflector
+( BlasInt n, BigFloat& chi, BigFloat* x, BlasInt incx );
+#endif
+
 // Compute the EVD of a symmetric tridiagonal matrix
 // =================================================
 
 BlasInt SymmetricTridiagEigWrapper
-( char job, char range, BlasInt n, float* d, float* e, float vl, float vu,
-  BlasInt il, BlasInt iu, float absTol, float* w, float* Z, BlasInt ldZ )
+( char job,
+  char range,
+  BlasInt n,
+  float* d,
+  float* e,
+  float vl, float vu,
+  BlasInt il, BlasInt iu,
+  float absTol,
+  float* w,
+  float* Z, BlasInt ldZ )
 {
     DEBUG_ONLY(CSE cse("lapack::SymmetricTridiagEigWrapper"));
     if( n == 0 )
