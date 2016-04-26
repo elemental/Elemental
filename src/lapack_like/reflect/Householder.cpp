@@ -45,9 +45,9 @@ F LeftReflector( F& chi, Matrix<F>& x )
           LogicError("x must be a vector");
     )
     if( x.Width() == 1 )
-        return lapack::Reflector( x.Height(), chi, x.Buffer(), 1 );
+        return lapack::Reflector( x.Height()+1, chi, x.Buffer(), 1 );
     else
-        return lapack::Reflector( x.Width(), chi, x.Buffer(), x.LDim() );
+        return lapack::Reflector( x.Width()+1, chi, x.Buffer(), x.LDim() );
 }
 
 template<typename F>

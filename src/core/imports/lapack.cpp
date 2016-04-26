@@ -765,7 +765,7 @@ F Reflector( BlasInt n, F& chi, F* x, BlasInt incx )
     typedef Base<F> Real; 
     const Real zero(0);
 
-    Real norm = blas::Nrm2( n, x, incx );
+    Real norm = blas::Nrm2( n-1, x, incx );
     F alpha = chi;
     if( norm == zero && ImagPart(alpha) == zero )
     {
@@ -790,12 +790,12 @@ F Reflector( BlasInt n, F& chi, F* x, BlasInt incx )
         do
         {
             ++count;
-            blas::Scal( n, invOfSafeInv, x, incx );
+            blas::Scal( n-1, invOfSafeInv, x, incx );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
 
-        norm = blas::Nrm2( n, x, incx );
+        norm = blas::Nrm2( n-1, x, incx );
         if( RealPart(alpha) <= 0 )
             beta = lapack::SafeNorm( alpha, norm );
         else
@@ -803,7 +803,7 @@ F Reflector( BlasInt n, F& chi, F* x, BlasInt incx )
     }
 
     F tau = (beta-Conj(alpha)) / beta;
-    blas::Scal( n, Real(1)/(alpha-beta), x, incx );
+    blas::Scal( n-1, Real(1)/(alpha-beta), x, incx );
 
     // Undo the scaling
     for( Int j=0; j<count; ++j )
