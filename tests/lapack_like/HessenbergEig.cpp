@@ -9,13 +9,159 @@
 #include "El.hpp"
 using namespace El;
 
+// Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
+// in a manner similar to xLANV2, returning the cosine and sine terms as well
+// as the real and imaginary parts of the two eigenvalues.
+//
+// Either A is overwritten with its real Schur factor (if it exists), or 
+// it is put into the form 
+//
+//   | alpha00, alpha01 | = | c -s | | beta00 beta01 | | c  s |,
+//   | alpha10, alpha11 |   | s  c | | beta10 beta11 | | -s c |
+//
+// where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
+// are beta00 +- sqrt(beta10*beta01).
+//
+template<typename Real>
+void TwoByTwoRealSchur
+( Matrix<Real>& A,
+  Real& c, Real& s,
+  Real& lambda0Real, Real& lambda0Imag,
+  Real& lambda1Real, Real& lambda1Imag )
+{
+    const Real zero(0), one(1);
+    const Real multiple(4);
+    const Real epsilon = limits::Epsilon<Real>();
+    
+    Real* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+    Real& alpha00 = ABuf[0+0*ALDim];
+    Real& alpha01 = ABuf[0+1*ALDim];
+    Real& alpha10 = ABuf[1+0*ALDim];
+    Real& alpha11 = ABuf[1+1*ALDim];
+
+    if( alpha10 == zero )
+    {
+        c = one;
+        s = zero;
+    }
+    else if( alpha01 == zero )
+    {
+        c = zero;
+        s = one;
+        Real tmp = alpha11;
+        alpha11 = alpha00;
+        alpha00 = tmp;
+        alpha01 = -alpha10;
+        alpha10 = zero;
+    }
+    else if( (alpha00-alpha11) == zero && Sgn(alpha01) != Sgn(alpha10) )
+    {
+        c = one;
+        s = zero;
+    }
+    else
+    {
+        Real tmp = alpha00-alpha11;
+        Real p = tmp/2;
+        Real offDiagMax = Max( Abs(alpha01), Abs(alpha10) );
+        Real offDiagMin = Min( Abs(alpha01), Abs(alpha10) );
+        Real offDiagMinSigned = offDiagMin*Sgn(alpha01)*Sgn(alpha10);
+        Real scale = Max( Abs(p), offDiagMax );
+        Real z = (p/scale)*p + (offDiagMax/scale)*offDiagMinSigned;
+        if( z >= multiple*epsilon )
+        {
+            // Compute the real eigenvalues
+            z = p + Sqrt(scale)*Sqrt(z)*Sgn(p);
+            alpha00 = alpha11 + z;
+            alpha11 -= (offDiagMax/z)*offDiagMinSigned;
+
+            // Compute the rotation matrix
+            Real tau = lapack::SafeNorm( alpha10, z );
+            c = z / tau; 
+            s = alpha10 / tau;
+            alpha01 -= alpha10;
+            alpha10 = zero; 
+        }
+        else
+        {
+            // We have complex or (almost) equal real eigenvalues, so force
+            // alpha00 and alpha11 to be equal 
+            Real sigma = alpha01 + alpha10;
+            Real tau = lapack::SafeNorm( sigma, tmp );
+            c = Sqrt( (one + Abs(sigma)/tau)/2 );
+            s = -(p/(tau*c))*Sgn(sigma);
+            
+            // B := A [c, -s; s, c]
+            Real beta00 =  alpha00*c + alpha01*s;
+            Real beta01 = -alpha00*s + alpha01*c;
+            Real beta10 =  alpha10*c + alpha11*s;
+            Real beta11 = -alpha10*s + alpha11*c;
+
+            // A := [c, s; -s, c] B
+            alpha00 =  c*beta00 + s*beta10;
+            alpha01 =  c*beta01 + s*beta11;
+            alpha10 = -s*beta00 + c*beta10;
+            alpha11 = -s*beta01 + c*beta11;
+
+            tmp = (alpha00+alpha11)/2;
+            alpha00 = alpha11 = tmp;
+
+            if( alpha10 != zero )
+            {
+                if( alpha01 != zero )
+                {
+                    if( Sgn(alpha01) == Sgn(alpha10) ) 
+                    {
+                        // We can reduce to (real) upper-triangular form
+                        Real alpha01Sqrt = Sqrt(Abs(alpha01)); 
+                        Real alpha10Sqrt = Sqrt(Abs(alpha10));
+                        Real p = alpha01Sqrt*alpha10Sqrt*Sgn(alpha10);
+                        tau = one / Sqrt(Abs(alpha01+alpha10));
+                        alpha00 = tmp + p;
+                        alpha11 = tmp - p;
+                        alpha01 -= alpha10;
+                        alpha10 = zero;
+                        Real c1 = alpha01Sqrt*tau;
+                        Real s1 = alpha10Sqrt*tau;
+                        tmp = c*c1 - s*s1;
+                        s = c*s1 + s*c1;
+                        c = tmp;
+                    }
+                }
+                else
+                {
+                    alpha01 = -alpha10;
+                    alpha10 = zero;
+                    tmp = c;
+                    c = -s;
+                    s = tmp;
+                }
+            }
+        }
+    }
+
+    // Explicitly compute the eigenvalues
+    lambda0Real = alpha00; 
+    lambda1Real = alpha11;
+    if( alpha10 == zero )
+    {
+        lambda0Imag = lambda1Imag = zero;
+    }
+    else
+    {
+        lambda0Imag = Sqrt(Abs(alpha01))*Sqrt(Abs(alpha10));
+        lambda1Imag = -lambda0Imag;
+    }
+}
+
 // Use Ahues and Tissuer's (LAPACK Working Note 122, 1997) refinement of
 // Wilkinson's criteria for determining if a subdiagonal entry of a Hessenberg
 // matrix is negligible
-template<typename Real>
-Int DetectSmallSubdiagonal( const Matrix<Complex<Real>>& H )
+template<typename F>
+Int DetectSmallSubdiagonal( const Matrix<F>& H )
 {
-    typedef Complex<Real> F;
+    typedef Base<F> Real;
 
     const Int n = H.Height();
     const F* HBuf = H.LockedBuffer();
@@ -73,10 +219,10 @@ Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
 {
     typedef Complex<Real> F;
     const Int n = H.Height();
-    //DEBUG_ONLY(
+    DEBUG_ONLY(
       if( n < 2 )
           LogicError("WilkinsonShift requires n >= 2");
-    //)
+    )
     const F* HBuf = H.LockedBuffer(n-2,n-2);
     const Int HLDim = H.LDim();
     const Real zero = Real(0);
@@ -88,10 +234,10 @@ Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
     // NOTE:
     // eta10 should be real, but it is possibly negative, and so we will
     // interpret it as a complex number so that the square-root is well-defined
-    //DEBUG_ONLY(
+    DEBUG_ONLY(
       if( ImagPart(eta10) != zero )
           LogicError("Subdiagonal assumed real");
-    //)
+    )
 
     F shift = eta11;
     const F gamma = Sqrt(eta01)*Sqrt(eta10);
@@ -120,7 +266,7 @@ Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
 
 template<typename Real>
 std::tuple<Int,Complex<Real>,Complex<Real>>
-DecideShiftStart( const Matrix<Complex<Real>>& H, Complex<Real> shift )
+ChooseSingleShiftStart( const Matrix<Complex<Real>>& H, Complex<Real> shift )
 {
     typedef Complex<Real> F;
     const Real ulp = limits::Precision<Real>();
@@ -156,6 +302,104 @@ DecideShiftStart( const Matrix<Complex<Real>>& H, Complex<Real> shift )
 }
 
 template<typename Real>
+void PrepareDoubleShift
+( Real eta00, Real eta01,
+  Real eta10, Real eta11,
+  Real& rho0Real, Real& rho0Imag,
+  Real& rho1Real, Real& rho1Imag )
+{
+    const Real zero(0);
+    const Real scale = Abs(eta00) + Abs(eta01) + Abs(eta10) + Abs(eta11);
+    if( scale == zero )
+    {
+        rho0Real = rho0Imag = rho1Real = rho1Imag = zero;
+    }
+    else
+    {
+        eta00 /= scale;
+        eta01 /= scale;
+        eta10 /= scale;
+        eta11 /= scale;
+        Real halfTrace = (eta00+eta11) / 2;
+        Real det = (eta00-halfTrace)*(eta11-halfTrace) - eta01*eta10;
+        Real absDisc = Sqrt(Abs(det));
+        if( det >= zero )
+        {
+            rho0Real = halfTrace*scale;
+            rho0Imag = absDisc*scale;
+
+            rho1Real =  rho0Real;
+            rho1Imag = -rho0Imag;
+        }
+        else
+        {
+            if( Abs(halfTrace+absDisc-eta11) <= Abs(halfTrace-absDisc-eta11) )
+            {
+                rho0Real = (halfTrace+absDisc)*scale;
+                rho1Real = rho0Real;
+            }
+            else
+            {
+                rho1Real = (halfTrace-absDisc)*scale;
+                rho0Real = rho1Real;
+            }
+            rho0Imag = rho1Imag = zero;
+        }
+    }
+}
+
+template<typename Real>
+Int ChooseDoubleShiftStart
+( const Matrix<Real>& H, 
+  const Real& rho0Real, const Real& rho0Imag,
+  const Real& rho1Real, const Real& rho1Imag,
+        Real* v /* vector of length 3 */ )
+{
+    const Real ulp = limits::Precision<Real>();
+    const Int n = H.Height();
+    const Real* HBuf = H.LockedBuffer();
+    const Int HLDim = H.LDim();
+
+    for( Int k=n-3; k>=0; --k )
+    {
+        const Real eta11 = HBuf[ k   + k   *HLDim];
+        const Real eta12 = HBuf[ k   +(k+1)*HLDim];
+        const Real eta21 = HBuf[(k+1)+ k   *HLDim];
+        const Real eta22 = HBuf[(k+1)+(k+1)*HLDim];
+        const Real eta32 = HBuf[(k+2)+(k+1)*HLDim];
+  
+        Real scale = Abs(eta11-rho1Real) + Abs(rho1Imag) + Abs(eta21);
+        Real eta21Scale = eta21 / scale;
+
+        v[0] =
+          eta21Scale*eta12 +
+          (eta11-rho0Real)*((eta11-rho1Real)/scale) -
+          rho0Imag*(rho1Imag/scale);
+        v[1] = eta21Scale*(eta11+eta22-rho0Real-rho1Real);
+        v[2] = eta21Scale*eta32;
+
+        scale = Abs(v[0]) + Abs(v[1]) + Abs(v[2]);
+        v[0] /= scale;
+        v[1] /= scale;
+        v[2] /= scale;
+        if( k == 0 )
+        {
+            return k;
+        }
+        
+        const Real eta00 = HBuf[(k-1)+(k-1)*HLDim];
+        const Real eta10 = HBuf[ k   +(k-1)*HLDim];
+        if( Abs(eta10)*(Abs(v[1])+Abs(v[2])) <= 
+            ulp*Abs(v[0])*(Abs(eta00)+Abs(eta11)+Abs(eta22)) )
+        {
+            return k;
+        }
+    }
+    // This should never be reached but is to avoid compiler warnings
+    return 0;
+}
+
+template<typename Real>
 void SingleShiftStep
 (       Matrix<Complex<Real>>& H,
         Int windowBeg,
@@ -177,12 +421,12 @@ void SingleShiftStep
     const Int HLDim = H.LDim();
     const Int ZLDim = Z.LDim();
 
-    //DEBUG_ONLY(
+    DEBUG_ONLY(
       if( windowBeg > shiftStart || shiftStart >= windowEnd )
           LogicError
           ("shiftStart was ",shiftStart,", but window was [",windowBeg,",",
            windowEnd,")");
-    //)
+    )
 
     Int transformBeg = ( fullTriangle ? 0 : windowBeg ); 
     Int transformEnd = ( fullTriangle ? n : windowEnd );
@@ -296,6 +540,298 @@ void SingleShiftStep
 }
 
 template<typename Real>
+void DoubleShiftStep
+(       Matrix<Real>& H,
+        Int windowBeg,
+        Int windowEnd,
+        Int shiftStart,
+        Real* v, // vector of length three
+  bool fullTriangle,
+        Matrix<Real>& Z,
+  bool wantSchurVecs,
+  Int schurVecBeg,
+  Int schurVecEnd )
+{
+    const Real zero(0), one(1);
+    const Int n = H.Height();
+    const Int nZ = schurVecEnd-schurVecBeg;
+    Real* HBuf = H.Buffer();
+    Real* ZBuf = Z.Buffer();
+    const Int HLDim = H.LDim();
+    const Int ZLDim = Z.LDim();
+
+    DEBUG_ONLY(
+      if( windowBeg > shiftStart || shiftStart >= windowEnd-1 )
+          LogicError
+          ("shiftStart was ",shiftStart,", but window was [",windowBeg,",",
+           windowEnd,")");
+    )
+
+    Int transformBeg = ( fullTriangle ? 0 : windowBeg ); 
+    Int transformEnd = ( fullTriangle ? n : windowEnd );
+
+    for( Int k=shiftStart; k<windowEnd-1; ++k )
+    {
+        const Int numReflect = Min( 3, windowEnd-k );
+        if( k > shiftStart )
+        {
+            MemCopy( v, &HBuf[k+(k-1)*HLDim], numReflect );
+        }
+        Real tau0 = lapack::Reflector( numReflect, v[0], &v[1], 1 );
+        if( k > shiftStart )
+        {
+            HBuf[ k   +(k-1)*HLDim] = v[0];
+            HBuf[(k+1)+(k-1)*HLDim] = zero;
+            if( k < windowEnd-2 )
+                HBuf[(k+2)+(k-1)*HLDim] = zero;
+        }
+        else if( shiftStart > windowBeg )
+        {
+            // The following is supposedly more reliable than
+            // H(k,k-1) = -H(k,k-1) when v(1) and v(2) underflow
+            // (cf. LAPACK's {s,d}lahqr)
+            HBuf[k+(k-1)*HLDim] *= (one-tau0);
+        }
+        Real tau1 = tau0*v[1];
+        if( numReflect == 3 )
+        {
+            Real tau2 = tau0*v[2];
+
+            // Apply the Householder reflector from the left
+            for( Int j=k; j<transformEnd; ++j )
+            {
+                Real innerProd =
+                       HBuf[ k   +j*HLDim] +
+                  v[1]*HBuf[(k+1)+j*HLDim] +
+                  v[2]*HBuf[(k+2)+j*HLDim]; 
+                HBuf[ k   +j*HLDim] -= innerProd*tau0;
+                HBuf[(k+1)+j*HLDim] -= innerProd*tau1;
+                HBuf[(k+2)+j*HLDim] -= innerProd*tau2;
+            }
+           
+            // Apply the Householder reflector from the right
+            const Int rightApplyEnd = Min(k+4,windowEnd);
+            for( Int j=transformBeg; j<rightApplyEnd; ++j )
+            {
+                Real innerProd =
+                       HBuf[j+ k   *HLDim] +
+                  v[1]*HBuf[j+(k+1)*HLDim] +
+                  v[2]*HBuf[j+(k+2)*HLDim];
+                HBuf[j+ k   *HLDim] -= innerProd*tau0;
+                HBuf[j+(k+1)*HLDim] -= innerProd*tau1;
+                HBuf[j+(k+2)*HLDim] -= innerProd*tau2;
+            }
+
+            if( wantSchurVecs )
+            {
+                for( Int j=schurVecBeg; j<schurVecEnd; ++j )
+                {
+                    Real innerProd =
+                           ZBuf[j+ k   *ZLDim] +
+                      v[1]*ZBuf[j+(k+1)*ZLDim] +
+                      v[2]*ZBuf[j+(k+2)*ZLDim];
+                    ZBuf[j+ k   *ZLDim] -= innerProd*tau0;
+                    ZBuf[j+(k+1)*ZLDim] -= innerProd*tau1;
+                    ZBuf[j+(k+2)*ZLDim] -= innerProd*tau2;
+                }
+            }
+        }
+        else if( numReflect == 2 )
+        {
+            // Apply the Householder reflector from the left
+            for( Int j=k; j<transformEnd; ++j )
+            {
+                Real innerProd =
+                       HBuf[ k   +j*HLDim] +
+                  v[1]*HBuf[(k+1)+j*HLDim];
+                HBuf[ k   +j*HLDim] -= innerProd*tau0;
+                HBuf[(k+1)+j*HLDim] -= innerProd*tau1;
+            }
+
+            // Apply the Householder reflector from the right
+            const Int rightApplyEnd = Min(k+3,windowEnd);
+            for( Int j=transformBeg; j<rightApplyEnd; ++j )
+            {
+                Real innerProd =
+                       HBuf[j+ k   *HLDim] +
+                  v[1]*HBuf[j+(k+1)*HLDim]; 
+                HBuf[j+ k   *HLDim] -= innerProd*tau0;
+                HBuf[j+(k+1)*HLDim] -= innerProd*tau1;
+            }
+
+            if( wantSchurVecs )
+            {
+                // Accumulate the Schur vectors
+                for( Int j=schurVecBeg; j<schurVecEnd; ++j )
+                {
+                    Real innerProd =
+                           ZBuf[j+ k   *ZLDim] +
+                      v[1]*ZBuf[j+(k+1)*ZLDim];
+                    ZBuf[j+ k   *ZLDim] -= innerProd*tau0;
+                    ZBuf[j+(k+1)*ZLDim] -= innerProd*tau1;
+                }
+            }
+        }
+    }
+}
+
+template<typename Real>
+void HessenbergQR
+(       Matrix<Real>& H,
+        Int windowBeg,
+        Int windowEnd,
+        Matrix<Real>& wReal,
+        Matrix<Real>& wImag,
+  bool fullTriangle,
+        Matrix<Real>& Z,
+  bool wantSchurVecs,
+  Int schurVecBeg,
+  Int schurVecEnd )
+{
+    const Real zero(0), threeFourths=Real(3)/Real(4);
+    const Int maxIter=30;    
+    // Cf. LAPACK for these somewhat arbitrary constants
+    const Real exceptScale0=Real(3)/Real(4),
+               exceptScale1=Real(-4375)/Real(10000);
+    const Int n = H.Height();
+    const Int windowSize = windowEnd - windowBeg;
+    const Int nZ = schurVecEnd - schurVecBeg;
+    Real* HBuf = H.Buffer(); 
+    Real* ZBuf = Z.Buffer();
+    const Int HLDim = H.LDim();
+    const Int ZLDim = Z.LDim();
+
+    wReal.Resize( n, 1 );
+    wImag.Resize( n, 1 );
+    Real* wRealBuf = wReal.Buffer();
+    Real* wImagBuf = wImag.Buffer();
+
+    if( windowSize == 0 )
+    {
+        return;
+    }
+    if( windowSize == 1 )
+    {
+        wRealBuf[windowBeg] = HBuf[windowBeg+windowBeg*HLDim];
+        wImagBuf[windowBeg] = zero;
+        return;
+    }
+
+    // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
+    for( Int j=windowBeg; j<windowEnd-3; ++j ) 
+    {
+        HBuf[(j+2)+j*HLDim] = 0;
+        HBuf[(j+3)+j*HLDim] = 0;
+    }
+    if( windowBeg <= windowEnd-3 )
+        HBuf[(windowEnd-1)+(windowEnd-3)*HLDim] = 0;
+    
+    // Attempt to converge the eigenvalues one or two at a time
+    Real v[3]; // for computing Householder reflectors
+    while( windowBeg < windowEnd )
+    {
+        Int iterBeg = windowBeg;
+        Int iter;
+        for( iter=0; iter<maxIter; ++iter )
+        {
+            {
+                auto winInd = IR(iterBeg,windowEnd);
+                iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
+            }
+            if( iterBeg > windowBeg )
+            {
+                HBuf[iterBeg+(iterBeg-1)*HLDim] = zero;
+            }
+            if( iterBeg == windowEnd-1 )
+            {
+                wRealBuf[iterBeg] = HBuf[iterBeg+iterBeg*HLDim];
+                wImagBuf[iterBeg] = zero;
+                --windowEnd;
+                break;
+            }
+            else if( iterBeg == windowEnd-2 )
+            {
+                auto HDiag = H(IR(iterBeg,windowEnd),IR(iterBeg,windowEnd));
+                Real c, s;
+                TwoByTwoRealSchur
+                ( HDiag, c, s,
+                  wRealBuf[iterBeg], wImagBuf[iterBeg], 
+                  wRealBuf[iterBeg+1], wImagBuf[iterBeg+1] );
+                if( fullTriangle )
+                {
+                    if( n > windowEnd )
+                        blas::Rot
+                        ( n-windowEnd,
+                          &HBuf[(windowEnd-2)+windowEnd*HLDim], HLDim,
+                          &HBuf[(windowEnd-1)+windowEnd*HLDim], HLDim,
+                          c, s );
+                    blas::Rot
+                    ( windowEnd-2,
+                      &HBuf[0+(windowEnd-2)*HLDim], 1,
+                      &HBuf[0+(windowEnd-1)*HLDim], 1,
+                      c, s );
+                }
+                if( wantSchurVecs )
+                {
+                    blas::Rot
+                    ( nZ,
+                      &ZBuf[schurVecBeg+(windowEnd-2)*ZLDim], 1,
+                      &ZBuf[schurVecBeg+(windowEnd-1)*ZLDim], 1,
+                      c, s );
+                }
+                windowEnd -= 2;
+                break;
+            }
+
+            // Pick either the Francis shifts or exceptional shifts
+            Real eta00, eta01, eta10, eta11;
+            if( iter == maxIter/3 )
+            {
+                const Real* HSub = &HBuf[iterBeg+iterBeg*HLDim];
+                const Real scale = Abs(HSub[1+0*HLDim]) + Abs(HSub[2+1*HLDim]);
+                eta00 = exceptScale0*scale + HSub[0+0*HLDim];
+                eta01 = exceptScale1*scale;
+                eta10 = scale;
+                eta11 = eta00; 
+            } 
+            else if( iter == 2*maxIter/3 )
+            {
+                const Real* HSub = &HBuf[(windowEnd-3)+(windowEnd-3)*HLDim];
+                const Real scale = Abs(HSub[2+1*HLDim]) + Abs(HSub[1+0*HLDim]);
+                eta00 = exceptScale0*scale + HSub[2+2*HLDim];
+                eta11 = exceptScale1*scale;
+                eta10 = scale;
+                eta11 = eta00;
+            }
+            else
+            {
+                const Real* HSub = &HBuf[(windowEnd-2)+(windowEnd-2)*HLDim];
+                eta00 = HSub[0+0*HLDim];
+                eta01 = HSub[0+1*HLDim];
+                eta10 = HSub[1+0*HLDim];
+                eta11 = HSub[1+1*HLDim];
+            }
+            Real rho0Real, rho0Imag, rho1Real, rho1Imag;
+            PrepareDoubleShift
+            ( eta00, eta01,
+              eta10, eta11,
+              rho0Real, rho0Imag,
+              rho1Real, rho1Imag );
+
+            auto subInd = IR(iterBeg,windowEnd);
+            Int shiftStart = iterBeg +
+              ChooseDoubleShiftStart
+              ( H(subInd,subInd), rho0Real, rho0Imag, rho1Real, rho1Imag, v );
+            DoubleShiftStep
+            ( H, iterBeg, windowEnd, shiftStart, v, fullTriangle,
+              Z, wantSchurVecs, schurVecBeg, schurVecEnd );
+        }
+        if( iter == maxIter )
+            RuntimeError("QR iteration did not converge");
+    }
+}
+
+template<typename Real>
 void HessenbergQR
 (       Matrix<Complex<Real>>& H,
         Int windowBeg,
@@ -404,7 +940,7 @@ void HessenbergQR
                 shift = WilkinsonShift( H(subInd,subInd) );
             }
 
-            auto qrTuple = DecideShiftStart( H(subInd,subInd), shift );
+            auto qrTuple = ChooseSingleShiftStart( H(subInd,subInd), shift );
             const Int shiftStart = iterBeg+std::get<0>(qrTuple);
             const Complex<Real> nu0 = std::get<1>(qrTuple);
             const Complex<Real> nu1 = std::get<2>(qrTuple);
@@ -450,6 +986,53 @@ void TestAhuesTisseur( bool print )
     if( print )
     {
         Print( w, "w" );
+        Print( Z, "Z" );
+        Print( T, "T" );
+    }
+
+    Matrix<F> R;
+    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    const Real errFrob = FrobeniusNorm( R ); 
+    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    if( print )
+        Print( R );
+}
+
+template<typename Real>
+void TestAhuesTisseurQuasi( bool print )
+{
+    typedef Real F;
+    const Int n = 3;
+    Output("Testing Ahues/Tisseur with ",TypeName<F>());
+
+    Matrix<F> H;
+    Zeros( H, n, n );
+    H.Set( 0, 0, F(1.) );
+    H.Set( 0, 1, F(1.1e5) );
+    H.Set( 0, 2, F(0.) );
+    H.Set( 1, 0, F(1.1e-8) );
+    H.Set( 1, 1, F(1.+1.e-2) );
+    H.Set( 1, 2, F(1.1e5) );
+    H.Set( 2, 0, F(0.) );
+    H.Set( 2, 1, F(1.1e-8) );
+    H.Set( 2, 2, F(1.+2.*1.e-2) );
+    const Real HFrob = FrobeniusNorm( H );
+    Output("|| H ||_F = ",HFrob);
+    if( print )
+        Print( H, "H" );
+
+    Matrix<F> T, wReal, wImag, Z;
+    const bool fullTriangle=true, wantSchurVecs=true;
+    Identity( Z, n, n );
+    T = H;
+    HessenbergQR
+    ( T, 0, T.Height(), wReal, wImag, fullTriangle,
+      Z, wantSchurVecs, 0, T.Height() );
+    if( print )
+    {
+        Print( wReal, "wReal" );
+        Print( wImag, "wImag" );
         Print( Z, "Z" );
         Print( T, "T" );
     }
@@ -510,6 +1093,19 @@ int main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+
+        TestAhuesTisseurQuasi<float>( print );
+        TestAhuesTisseurQuasi<double>( print );
+#ifdef EL_HAVE_QUAD
+        TestAhuesTisseurQuasi<Quad>( print );
+#endif
+#ifdef EL_HAVE_QD
+        TestAhuesTisseurQuasi<DoubleDouble>( print );
+        TestAhuesTisseurQuasi<QuadDouble>( print );
+#endif
+#ifdef EL_HAVE_MPC
+        TestAhuesTisseurQuasi<BigFloat>( print );
+#endif
 
         TestAhuesTisseur<float>( print );
         TestAhuesTisseur<double>( print );
