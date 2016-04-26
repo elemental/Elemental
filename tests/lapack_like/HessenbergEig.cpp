@@ -1083,6 +1083,44 @@ void TestRandom( Int n, bool print )
         Print( R );
 }
 
+template<typename Real>
+void TestRandomQuasi( Int n, bool print )
+{
+    typedef Real F;
+    Output("Testing uniform Hessenberg with ",TypeName<F>());
+
+    Matrix<F> H;
+    Uniform( H, n, n );
+    MakeTrapezoidal( UPPER, H, -1 );
+    const Real HFrob = FrobeniusNorm( H );
+    Output("|| H ||_F = ",HFrob);
+    if( print )
+        Print( H, "H" );
+
+    Matrix<F> T, wReal, wImag, Z;
+    const bool fullTriangle=true, wantSchurVecs=true;
+    Identity( Z, H.Height(), H.Height() );
+    T = H;
+    HessenbergQR
+    ( T, 0, T.Height(), wReal, wImag, fullTriangle,
+      Z, wantSchurVecs, 0, T.Height() );
+    if( print )
+    {
+        Print( wReal, "wReal" );
+        Print( wImag, "wImag" );
+        Print( Z, "Z" );
+        Print( T, "T" );
+    }
+
+    Matrix<F> R;
+    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    const Real errFrob = FrobeniusNorm( R ); 
+    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    if( print )
+        Print( R );
+}
+
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -1111,6 +1149,19 @@ int main( int argc, char* argv[] )
         TestAhuesTisseur<double>( print );
 #ifdef EL_HAVE_QUAD
         TestAhuesTisseur<Quad>( print );
+#endif
+
+        TestRandomQuasi<float>( n, print );
+        TestRandomQuasi<double>( n, print );
+#ifdef EL_HAVE_QUAD
+        TestRandomQuasi<Quad>( n, print );
+#endif
+#ifdef EL_HAVE_QD
+        TestRandomQuasi<DoubleDouble>( n, print );
+        TestRandomQuasi<QuadDouble>( n, print );
+#endif
+#ifdef EL_HAVE_QD
+        TestRandomQuasi<BigFloat>( n, print );
 #endif
 
         TestRandom<float>( n, print );
