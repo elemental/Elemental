@@ -248,6 +248,20 @@ void EL_LAPACK(zunghr)
   dcomplex* work, const BlasInt* workSize,
   BlasInt* info );
 
+// Real 2x2 Schur decomposition
+void EL_LAPACK(slanv2)
+( float* alpha00, float* alpha01,
+  float* alpha10, float* alpha11,
+  float* lambda0Real, float* lambda0Imag,
+  float* lambda1Real, float* lambda1Imag,
+  float* c, float* s );
+void EL_LAPACK(dlanv2)
+( double* alpha00, double* alpha01,
+  double* alpha10, double* alpha11,
+  double* lambda0Real, double* lambda0Imag,
+  double* lambda1Real, double* lambda1Imag,
+  double* c, double* s );
+
 // Hessenberg QR algorithm
 void EL_LAPACK(shseqr)
 ( const char* job, const char* compZ, const BlasInt* n, 
@@ -2259,6 +2273,210 @@ void HessenbergGenerateUnitary
       &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
+}
+
+// Put a two-by-two nonsymmetric real matrix into standard form
+// ============================================================
+// Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
+// in a manner similar to xLANV2, returning the cosine and sine terms as well
+// as the real and imaginary parts of the two eigenvalues.
+//
+// Either A is overwritten with its real Schur factor (if it exists), or 
+// it is put into the form 
+//
+//   | alpha00, alpha01 | = | c -s | | beta00 beta01 | | c  s |,
+//   | alpha10, alpha11 |   | s  c | | beta10 beta11 | | -s c |
+//
+// where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
+// are beta00 +- sqrt(beta10*beta01).
+//
+template<typename Real>
+void TwoByTwoSchur
+( Real& alpha00, Real& alpha01,
+  Real& alpha10, Real& alpha11,
+  Real& c, Real& s,
+  Real& lambda0Real, Real& lambda0Imag,
+  Real& lambda1Real, Real& lambda1Imag )
+{
+    const Real zero(0), one(1);
+    const Real multiple(4);
+    const Real epsilon = limits::Epsilon<Real>();
+
+    if( alpha10 == zero )
+    {
+        c = one;
+        s = zero;
+    }
+    else if( alpha01 == zero )
+    {
+        c = zero;
+        s = one;
+        Real tmp = alpha11;
+        alpha11 = alpha00;
+        alpha00 = tmp;
+        alpha01 = -alpha10;
+        alpha10 = zero;
+    }
+    else if( (alpha00-alpha11) == zero && Sgn(alpha01) != Sgn(alpha10) )
+    {
+        c = one;
+        s = zero;
+    }
+    else
+    {
+        Real tmp = alpha00-alpha11;
+        Real p = tmp/2;
+        Real offDiagMax = Max( Abs(alpha01), Abs(alpha10) );
+        Real offDiagMin = Min( Abs(alpha01), Abs(alpha10) );
+        Real offDiagMinSigned = offDiagMin*Sgn(alpha01)*Sgn(alpha10);
+        Real scale = Max( Abs(p), offDiagMax );
+        Real z = (p/scale)*p + (offDiagMax/scale)*offDiagMinSigned;
+        if( z >= multiple*epsilon )
+        {
+            // Compute the real eigenvalues
+            z = p + Sqrt(scale)*Sqrt(z)*Sgn(p);
+            alpha00 = alpha11 + z;
+            alpha11 -= (offDiagMax/z)*offDiagMinSigned;
+
+            // Compute the rotation matrix
+            Real tau = lapack::SafeNorm( alpha10, z );
+            c = z / tau;
+            s = alpha10 / tau;
+            alpha01 -= alpha10;
+            alpha10 = zero;
+        }
+        else
+        {
+            // We have complex or (almost) equal real eigenvalues, so force
+            // alpha00 and alpha11 to be equal 
+            Real sigma = alpha01 + alpha10;
+            Real tau = lapack::SafeNorm( sigma, tmp );
+            c = Sqrt( (one + Abs(sigma)/tau)/2 );
+            s = -(p/(tau*c))*Sgn(sigma);
+
+            // B := A [c, -s; s, c]
+            Real beta00 =  alpha00*c + alpha01*s;
+            Real beta01 = -alpha00*s + alpha01*c;
+            Real beta10 =  alpha10*c + alpha11*s;
+            Real beta11 = -alpha10*s + alpha11*c;
+
+            // A := [c, s; -s, c] B
+            alpha00 =  c*beta00 + s*beta10;
+            alpha01 =  c*beta01 + s*beta11;
+            alpha10 = -s*beta00 + c*beta10;
+            alpha11 = -s*beta01 + c*beta11;
+
+            tmp = (alpha00+alpha11)/2;
+            alpha00 = alpha11 = tmp;
+
+            if( alpha10 != zero )
+            {
+                if( alpha01 != zero )
+                {
+                    if( Sgn(alpha01) == Sgn(alpha10) )
+                    {
+                        // We can reduce to (real) upper-triangular form
+                        Real alpha01Sqrt = Sqrt(Abs(alpha01));
+                        Real alpha10Sqrt = Sqrt(Abs(alpha10));
+                        Real p = alpha01Sqrt*alpha10Sqrt*Sgn(alpha10);
+                        tau = one / Sqrt(Abs(alpha01+alpha10));
+                        alpha00 = tmp + p;
+                        alpha11 = tmp - p;
+                        alpha01 -= alpha10;
+                        alpha10 = zero;
+                        Real c1 = alpha01Sqrt*tau;
+                        Real s1 = alpha10Sqrt*tau;
+                        tmp = c*c1 - s*s1;
+                        s = c*s1 + s*c1;
+                        c = tmp;
+                    }
+                }
+                else
+                {
+                    alpha01 = -alpha10;
+                    alpha10 = zero;
+                    tmp = c;
+                    c = -s;
+                    s = tmp;
+                }
+            }
+        }
+    }
+
+    // Explicitly compute the eigenvalues
+    lambda0Real = alpha00;
+    lambda1Real = alpha11;
+    if( alpha10 == zero )
+    {
+        lambda0Imag = lambda1Imag = zero;
+    }
+    else
+    {
+        lambda0Imag = Sqrt(Abs(alpha01))*Sqrt(Abs(alpha10));
+        lambda1Imag = -lambda0Imag;
+    }
+}
+#ifdef EL_HAVE_QUAD
+template void TwoByTwoSchur
+( Quad& alpha00, Quad& alpha01,
+  Quad& alpha10, Quad& alpha11,
+  Quad& c, Quad& s,
+  Quad& lambda0Quad, Quad& lambda0Imag,
+  Quad& lambda1Quad, Quad& lambda1Imag );
+#endif
+#ifdef EL_HAVE_QD
+template void TwoByTwoSchur
+( DoubleDouble& alpha00, DoubleDouble& alpha01,
+  DoubleDouble& alpha10, DoubleDouble& alpha11,
+  DoubleDouble& c, DoubleDouble& s,
+  DoubleDouble& lambda0DoubleDouble, DoubleDouble& lambda0Imag,
+  DoubleDouble& lambda1DoubleDouble, DoubleDouble& lambda1Imag );
+template void TwoByTwoSchur
+( QuadDouble& alpha00, QuadDouble& alpha01,
+  QuadDouble& alpha10, QuadDouble& alpha11,
+  QuadDouble& c, QuadDouble& s,
+  QuadDouble& lambda0QuadDouble, QuadDouble& lambda0Imag,
+  QuadDouble& lambda1QuadDouble, QuadDouble& lambda1Imag );
+#endif
+#ifdef EL_HAVE_MPC
+template void TwoByTwoSchur
+( BigFloat& alpha00, BigFloat& alpha01,
+  BigFloat& alpha10, BigFloat& alpha11,
+  BigFloat& c, BigFloat& s,
+  BigFloat& lambda0BigFloat, BigFloat& lambda0Imag,
+  BigFloat& lambda1BigFloat, BigFloat& lambda1Imag );
+#endif
+
+void TwoByTwoSchur
+( float& alpha00, float& alpha01,
+  float& alpha10, float& alpha11,
+  float& c, float& s,
+  float& lambda0Real, float& lambda0Imag,
+  float& lambda1Real, float& lambda1Imag )
+{
+    typedef float Real;
+    EL_LAPACK(slanv2)
+    ( &alpha00, &alpha01,
+      &alpha10, &alpha11,
+      &lambda0Real, &lambda0Imag,
+      &lambda1Real, &lambda1Imag,
+      &c, &s );
+}
+
+void TwoByTwoSchur
+( double& alpha00, double& alpha01,
+  double& alpha10, double& alpha11,
+  double& c, double& s,
+  double& lambda0Real, double& lambda0Imag,
+  double& lambda1Real, double& lambda1Imag )
+{
+    typedef double Real;
+    EL_LAPACK(dlanv2)
+    ( &alpha00, &alpha01,
+      &alpha10, &alpha11,
+      &lambda0Real, &lambda0Imag,
+      &lambda1Real, &lambda1Imag,
+      &c, &s );
 }
 
 // Compute the Schur decomposition of an upper Hessenberg matrix

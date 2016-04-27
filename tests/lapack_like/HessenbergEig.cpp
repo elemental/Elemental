@@ -9,151 +9,7 @@
 #include "El.hpp"
 using namespace El;
 
-// Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
-// in a manner similar to xLANV2, returning the cosine and sine terms as well
-// as the real and imaginary parts of the two eigenvalues.
-//
-// Either A is overwritten with its real Schur factor (if it exists), or 
-// it is put into the form 
-//
-//   | alpha00, alpha01 | = | c -s | | beta00 beta01 | | c  s |,
-//   | alpha10, alpha11 |   | s  c | | beta10 beta11 | | -s c |
-//
-// where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
-// are beta00 +- sqrt(beta10*beta01).
-//
-template<typename Real>
-void TwoByTwoRealSchur
-( Matrix<Real>& A,
-  Real& c, Real& s,
-  Real& lambda0Real, Real& lambda0Imag,
-  Real& lambda1Real, Real& lambda1Imag )
-{
-    const Real zero(0), one(1);
-    const Real multiple(4);
-    const Real epsilon = limits::Epsilon<Real>();
-    
-    Real* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
-    Real& alpha00 = ABuf[0+0*ALDim];
-    Real& alpha01 = ABuf[0+1*ALDim];
-    Real& alpha10 = ABuf[1+0*ALDim];
-    Real& alpha11 = ABuf[1+1*ALDim];
-
-    if( alpha10 == zero )
-    {
-        c = one;
-        s = zero;
-    }
-    else if( alpha01 == zero )
-    {
-        c = zero;
-        s = one;
-        Real tmp = alpha11;
-        alpha11 = alpha00;
-        alpha00 = tmp;
-        alpha01 = -alpha10;
-        alpha10 = zero;
-    }
-    else if( (alpha00-alpha11) == zero && Sgn(alpha01) != Sgn(alpha10) )
-    {
-        c = one;
-        s = zero;
-    }
-    else
-    {
-        Real tmp = alpha00-alpha11;
-        Real p = tmp/2;
-        Real offDiagMax = Max( Abs(alpha01), Abs(alpha10) );
-        Real offDiagMin = Min( Abs(alpha01), Abs(alpha10) );
-        Real offDiagMinSigned = offDiagMin*Sgn(alpha01)*Sgn(alpha10);
-        Real scale = Max( Abs(p), offDiagMax );
-        Real z = (p/scale)*p + (offDiagMax/scale)*offDiagMinSigned;
-        if( z >= multiple*epsilon )
-        {
-            // Compute the real eigenvalues
-            z = p + Sqrt(scale)*Sqrt(z)*Sgn(p);
-            alpha00 = alpha11 + z;
-            alpha11 -= (offDiagMax/z)*offDiagMinSigned;
-
-            // Compute the rotation matrix
-            Real tau = lapack::SafeNorm( alpha10, z );
-            c = z / tau; 
-            s = alpha10 / tau;
-            alpha01 -= alpha10;
-            alpha10 = zero; 
-        }
-        else
-        {
-            // We have complex or (almost) equal real eigenvalues, so force
-            // alpha00 and alpha11 to be equal 
-            Real sigma = alpha01 + alpha10;
-            Real tau = lapack::SafeNorm( sigma, tmp );
-            c = Sqrt( (one + Abs(sigma)/tau)/2 );
-            s = -(p/(tau*c))*Sgn(sigma);
-            
-            // B := A [c, -s; s, c]
-            Real beta00 =  alpha00*c + alpha01*s;
-            Real beta01 = -alpha00*s + alpha01*c;
-            Real beta10 =  alpha10*c + alpha11*s;
-            Real beta11 = -alpha10*s + alpha11*c;
-
-            // A := [c, s; -s, c] B
-            alpha00 =  c*beta00 + s*beta10;
-            alpha01 =  c*beta01 + s*beta11;
-            alpha10 = -s*beta00 + c*beta10;
-            alpha11 = -s*beta01 + c*beta11;
-
-            tmp = (alpha00+alpha11)/2;
-            alpha00 = alpha11 = tmp;
-
-            if( alpha10 != zero )
-            {
-                if( alpha01 != zero )
-                {
-                    if( Sgn(alpha01) == Sgn(alpha10) ) 
-                    {
-                        // We can reduce to (real) upper-triangular form
-                        Real alpha01Sqrt = Sqrt(Abs(alpha01)); 
-                        Real alpha10Sqrt = Sqrt(Abs(alpha10));
-                        Real p = alpha01Sqrt*alpha10Sqrt*Sgn(alpha10);
-                        tau = one / Sqrt(Abs(alpha01+alpha10));
-                        alpha00 = tmp + p;
-                        alpha11 = tmp - p;
-                        alpha01 -= alpha10;
-                        alpha10 = zero;
-                        Real c1 = alpha01Sqrt*tau;
-                        Real s1 = alpha10Sqrt*tau;
-                        tmp = c*c1 - s*s1;
-                        s = c*s1 + s*c1;
-                        c = tmp;
-                    }
-                }
-                else
-                {
-                    alpha01 = -alpha10;
-                    alpha10 = zero;
-                    tmp = c;
-                    c = -s;
-                    s = tmp;
-                }
-            }
-        }
-    }
-
-    // Explicitly compute the eigenvalues
-    lambda0Real = alpha00; 
-    lambda1Real = alpha11;
-    if( alpha10 == zero )
-    {
-        lambda0Imag = lambda1Imag = zero;
-    }
-    else
-    {
-        lambda0Imag = Sqrt(Abs(alpha01))*Sqrt(Abs(alpha10));
-        lambda1Imag = -lambda0Imag;
-    }
-}
+namespace hess_qr {
 
 // Use Ahues and Tissuer's (LAPACK Working Note 122, 1997) refinement of
 // Wilkinson's criteria for determining if a subdiagonal entry of a Hessenberg
@@ -675,8 +531,9 @@ void DoubleShiftStep
     }
 }
 
+
 template<typename Real>
-void HessenbergQR
+void Windowed
 (       Matrix<Real>& H,
         Int windowBeg,
         Int windowEnd,
@@ -751,11 +608,16 @@ void HessenbergQR
             }
             else if( iterBeg == windowEnd-2 )
             {
-                auto HDiag = H(IR(iterBeg,windowEnd),IR(iterBeg,windowEnd));
                 Real c, s;
-                TwoByTwoRealSchur
-                ( HDiag, c, s,
-                  wRealBuf[iterBeg], wImagBuf[iterBeg], 
+                Real& alpha00 = HBuf[(windowEnd-2)+(windowEnd-2)*HLDim];
+                Real& alpha01 = HBuf[(windowEnd-2)+(windowEnd-1)*HLDim];
+                Real& alpha10 = HBuf[(windowEnd-1)+(windowEnd-2)*HLDim];
+                Real& alpha11 = HBuf[(windowEnd-1)+(windowEnd-1)*HLDim];
+                lapack::TwoByTwoSchur
+                ( alpha00, alpha01,
+                  alpha10, alpha11,
+                  c, s,
+                  wRealBuf[iterBeg],   wImagBuf[iterBeg], 
                   wRealBuf[iterBeg+1], wImagBuf[iterBeg+1] );
                 if( fullTriangle )
                 {
@@ -832,7 +694,7 @@ void HessenbergQR
 }
 
 template<typename Real>
-void HessenbergQR
+void Windowed
 (       Matrix<Complex<Real>>& H,
         Int windowBeg,
         Int windowEnd,
@@ -953,6 +815,70 @@ void HessenbergQR
     }
 }
 
+} // namespace hess_qr
+
+template<typename Real>
+void HessenbergQR
+(       Matrix<Real>& H,
+        Matrix<Real>& wReal,
+        Matrix<Real>& wImag,
+  bool fullTriangle=true )
+{
+    Int windowBeg=0, windowEnd=H.Height();
+    Int schurVecBeg=0, schurVecEnd=0;
+    bool wantSchurVecs=false;
+    Matrix<Real> Z;
+    hess_qr::Windowed
+    ( H, windowBeg, windowEnd, wReal, wImag, fullTriangle, 
+      Z, wantSchurVecs, schurVecBeg, schurVecEnd );
+}
+
+template<typename Real>
+void HessenbergQR
+(       Matrix<Real>& H,
+        Matrix<Real>& wReal,
+        Matrix<Real>& wImag,
+        Matrix<Real>& Z,
+  bool fullTriangle=true )
+{
+    Int windowBeg=0, windowEnd=H.Height();
+    Int schurVecBeg=0, schurVecEnd=Z.Height();
+    bool wantSchurVecs=true;
+    hess_qr::Windowed
+    ( H, windowBeg, windowEnd, wReal, wImag, fullTriangle, 
+      Z, wantSchurVecs, schurVecBeg, schurVecEnd );
+}
+
+template<typename Real>
+void HessenbergQR
+(       Matrix<Complex<Real>>& H,
+        Matrix<Complex<Real>>& w,
+  bool fullTriangle=true )
+{
+    Int windowBeg=0, windowEnd=H.Height();
+    Int schurVecBeg=0, schurVecEnd=0;
+    bool wantSchurVecs=false;
+    Matrix<Complex<Real>> Z;
+    hess_qr::Windowed
+    ( H, windowBeg, windowEnd, w, fullTriangle, 
+      Z, wantSchurVecs, schurVecBeg, schurVecEnd );
+}
+
+template<typename Real>
+void HessenbergQR
+(       Matrix<Complex<Real>>& H,
+        Matrix<Complex<Real>>& w,
+        Matrix<Complex<Real>>& Z,
+  bool fullTriangle=true )
+{
+    Int windowBeg=0, windowEnd=H.Height();
+    Int schurVecBeg=0, schurVecEnd=Z.Height();
+    bool wantSchurVecs=true;
+    hess_qr::Windowed
+    ( H, windowBeg, windowEnd, w, fullTriangle, 
+      Z, wantSchurVecs, schurVecBeg, schurVecEnd );
+}
+
 template<typename Real>
 void TestAhuesTisseur( bool print )
 {
@@ -977,12 +903,12 @@ void TestAhuesTisseur( bool print )
         Print( H, "H" );
 
     Matrix<F> T, w, Z;
-    const bool fullTriangle=true, wantSchurVecs=true;
     Identity( Z, n, n );
     T = H;
-    HessenbergQR
-    ( T, 0, T.Height(), w, fullTriangle,
-      Z, wantSchurVecs, 0, T.Height() );
+    Timer timer;
+    timer.Start();
+    HessenbergQR( T, w, Z );
+    Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
         Print( w, "w" );
@@ -1023,12 +949,12 @@ void TestAhuesTisseurQuasi( bool print )
         Print( H, "H" );
 
     Matrix<F> T, wReal, wImag, Z;
-    const bool fullTriangle=true, wantSchurVecs=true;
     Identity( Z, n, n );
     T = H;
-    HessenbergQR
-    ( T, 0, T.Height(), wReal, wImag, fullTriangle,
-      Z, wantSchurVecs, 0, T.Height() );
+    Timer timer;
+    timer.Start();
+    HessenbergQR( T, wReal, wImag, Z );
+    Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
         Print( wReal, "wReal" );
@@ -1061,12 +987,12 @@ void TestRandom( Int n, bool print )
         Print( H, "H" );
 
     Matrix<F> T, w, Z;
-    const bool fullTriangle=true, wantSchurVecs=true;
     Identity( Z, H.Height(), H.Height() );
     T = H;
-    HessenbergQR
-    ( T, 0, T.Height(), w, fullTriangle,
-      Z, wantSchurVecs, 0, T.Height() );
+    Timer timer;
+    timer.Start();
+    HessenbergQR( T, w, Z );
+    Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
         Print( w, "w" );
@@ -1098,12 +1024,12 @@ void TestRandomQuasi( Int n, bool print )
         Print( H, "H" );
 
     Matrix<F> T, wReal, wImag, Z;
-    const bool fullTriangle=true, wantSchurVecs=true;
     Identity( Z, H.Height(), H.Height() );
     T = H;
-    HessenbergQR
-    ( T, 0, T.Height(), wReal, wImag, fullTriangle,
-      Z, wantSchurVecs, 0, T.Height() );
+    Timer timer;
+    timer.Start();
+    HessenbergQR( T, wReal, wImag, Z );
+    Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
         Print( wReal, "wReal" );
@@ -1127,7 +1053,7 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const Int n = Input("--n","random matrix size",200);
+        const Int n = Input("--n","random matrix size",80);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
