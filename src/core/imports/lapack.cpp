@@ -2275,6 +2275,559 @@ void HessenbergGenerateUnitary
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 }
 
+// Solve a 2x2 linear system using LU with full pivoting, perturbing the
+// matrix as necessary to ensure sufficiently large pivots.
+// NOTE: This is primarily a helper function for SmallSylvester
+template<typename Real>
+bool Solve2x2FullPiv
+( const Real* A,
+        Real* b,
+        Real& scale,
+  const Real& smallNum,
+  const Real& minPiv )
+{
+    const Real one(1), two(2);
+    // Avoid tedious index calculations for the 2x2 LU with full pivoting
+    // using cached tables in the same manner as LAPACK's {s,d}lasy2
+    const BlasInt lambda21Ind[4] = { 1, 0, 3, 2 };
+    const BlasInt ups12Ind[4] = { 2, 3, 0, 1 };
+    const BlasInt ups22Ind[4] = { 3, 2, 1, 0 };
+    const bool XSwapTable[4] = { false, false, true,  true };
+    const bool BSwapTable[4] = { false, true,  false, true };
+
+    bool perturbed = false;
+    BlasInt iPiv = blas::MaxInd( 4, A, 1 );
+    Real ups11 = A[iPiv];
+    if( Abs(ups11) < minPiv )
+    {
+        ups11 = minPiv;
+        perturbed = true;
+    }
+    Real ups12    = A[ups12Ind[iPiv]];
+    Real lambda21 = A[lambda21Ind[iPiv]] / ups11;
+    Real ups22    = A[ups22Ind[iPiv]] - ups12*lambda21;
+    if( Abs(ups22) < minPiv )
+    {
+        ups22 = minPiv;
+        perturbed = true;
+    }
+    if( BSwapTable[iPiv] )
+    {
+        Real tmp = b[1];
+        b[1] = b[0] - lambda21*tmp;
+        b[0] = tmp;
+    }
+    else
+    {
+        b[1] -= lambda21*b[0];
+    }
+    scale = one;
+    if( (two*smallNum)*Abs(b[1]) > Abs(ups22) ||
+        (two*smallNum)*Abs(b[0]) > Abs(ups11) )
+    {
+        b[0] *= scale;
+        b[1] *= scale;
+    }
+    b[1] /= ups22;
+    b[0] = b[0] / ups11 - (ups12/ups11)*b[1];
+    if( XSwapTable[iPiv] )
+    {
+        Real tmp = b[1];
+        b[1] = b[0];
+        b[0] = tmp;
+    }
+    return perturbed;
+}
+template bool Solve2x2FullPiv
+( const float* A,
+        float* b,
+        float& scale,
+  const float& smallNum,
+  const float& minPiv );
+template bool Solve2x2FullPiv
+( const double* A,
+        double* b,
+        double& scale,
+  const double& smallNum,
+  const double& minPiv );
+#ifdef EL_HAVE_QUAD
+template bool Solve2x2FullPiv
+( const Quad* A,
+        Quad* b,
+        Quad& scale,
+  const Quad& smallNum,
+  const Quad& minPiv );
+#endif
+#ifdef EL_HAVE_QD
+template bool Solve2x2FullPiv
+( const DoubleDouble* A,
+        DoubleDouble* b,
+        DoubleDouble& scale,
+  const DoubleDouble& smallNum,
+  const DoubleDouble& minPiv );
+template bool Solve2x2FullPiv
+( const QuadDouble* A,
+        QuadDouble* b,
+        QuadDouble& scale,
+  const QuadDouble& smallNum,
+  const QuadDouble& minPiv );
+#endif
+#ifdef EL_HAVE_MPC
+template bool Solve2x2FullPiv
+( const BigFloat* A,
+        BigFloat* b,
+        BigFloat& scale,
+  const BigFloat& smallNum,
+  const BigFloat& minPiv );
+#endif
+
+// Solve a 4x4 linear system using LU with full pivoting, perturbing the
+// matrix as necessary to ensure sufficiently large pivots.
+// NOTE: This is primarily a helper function for SmallSylvester
+template<typename Real>
+bool Solve4x4FullPiv
+(       Real* A,
+        Real* b,
+        Real& scale,
+  const Real& smallNum,
+  const Real& minPiv )
+{
+    const Real zero(0), one(1), eight(8);
+    bool perturbed = false;
+
+    BlasInt iPiv, jPiv;
+    BlasInt p[4];
+    for( BlasInt i=0; i<3; ++i )
+    {
+        Real AMax = zero;
+        for( BlasInt iMax=i; iMax<4; ++iMax )
+        {
+            for( BlasInt jMax=i; jMax<4; ++jMax )
+            {
+                if( Abs(A[iMax+jMax*4]) >= AMax )
+                {
+                    AMax = Abs(A[iMax+jMax*4]);
+                    iPiv = iMax;
+                    jPiv = jMax;
+                }
+            }
+        }
+
+        if( iPiv != i )
+        {
+            blas::Swap( 4, &A[iPiv], 4, &A[i], 4 );
+            Real tmp = b[i];
+            b[i] = b[iPiv];
+            b[iPiv] = tmp;
+        }
+        if( jPiv != i )
+        {
+            blas::Swap( 4, &A[jPiv*4], 1, &A[i*4], 1 );
+        }
+        p[i] = jPiv;
+        if( Abs(A[i+i*4]) < minPiv )
+        {
+            A[i+i*4] = minPiv;
+            perturbed = true;
+        }
+        for( BlasInt j=i+1; j<4; ++j )
+        {
+            A[j+i*4] /= A[i+i*4];
+            b[j] -= A[j+i*4]*b[i];
+            for( BlasInt k=i+1; k<4; ++k )
+            {
+                A[j+k*4] -= A[j+i*4]*A[i+k*4];
+            }
+        }
+    }
+    if( Abs(A[3+3*4]) < minPiv )
+    {
+        A[3+3*4] = minPiv;
+        perturbed = true;
+    }
+    scale = one;
+    if( (eight*smallNum)*Abs(b[0]) > Abs(A[0+0*4]) ||
+        (eight*smallNum)*Abs(b[1]) > Abs(A[1+1*4]) ||
+        (eight*smallNum)*Abs(b[2]) > Abs(A[2+2*4]) ||
+        (eight*smallNum)*Abs(b[3]) > Abs(A[3+3*4]) )
+    {
+        Real xMax = Max( Abs(b[0]), Abs(b[1]) );
+        xMax = Max( xMax, Abs(b[2]) );
+        xMax = Max( xMax, Abs(b[3]) );
+        scale = (one/eight) / xMax;
+        b[0] *= scale;
+        b[1] *= scale;
+        b[2] *= scale;
+        b[3] *= scale;
+    }
+
+    for( BlasInt i=0; i<4; ++i )
+    {
+        BlasInt k = 3-i;
+        Real tmp = one / A[k+k*4];
+        b[k] *= tmp;
+        for( BlasInt j=k+1; j<4; ++j )
+            b[k] -= (tmp*A[k+j*4])*b[j];
+    }
+    for( BlasInt i=0; i<3; ++i )
+    {
+        if( p[2-i] != 2-i )
+        {
+            Real tmp = b[2-i];
+            b[2-i] = b[p[2-i]];
+            b[p[2-i]] = tmp;
+        }
+    }
+    return perturbed;
+}
+template bool Solve4x4FullPiv
+( float* A,
+  float* b,
+  float& scale,
+  const float& smallNum,
+  const float& minPiv );
+template bool Solve4x4FullPiv
+( double* A,
+  double* b,
+  double& scale,
+  const double& smallNum,
+  const double& minPiv );
+#ifdef EL_HAVE_QUAD
+template bool Solve4x4FullPiv
+( Quad* A,
+  Quad* b,
+  Quad& scale,
+  const Quad& smallNum,
+  const Quad& minPiv );
+#endif
+#ifdef EL_HAVE_QD
+template bool Solve4x4FullPiv
+( DoubleDouble* A,
+  DoubleDouble* b,
+  DoubleDouble& scale,
+  const DoubleDouble& smallNum,
+  const DoubleDouble& minPiv );
+template bool Solve4x4FullPiv
+( QuadDouble* A,
+  QuadDouble* b,
+  QuadDouble& scale,
+  const QuadDouble& smallNum,
+  const QuadDouble& minPiv );
+#endif
+#ifdef EL_HAVE_MPC
+template bool Solve4x4FullPiv
+( BigFloat* A,
+  BigFloat* b,
+  BigFloat& scale,
+  const BigFloat& smallNum,
+  const BigFloat& minPiv );
+#endif
+
+// Solve a 1x1, 1x2, 2x1, or 2x2 Sylvester equation, 
+//
+//   op_C(C) X +- X op_D(D) = scale*B,
+//
+// where op_C(C) is either C or C^T, op_D(D) is either D or D^T,
+// and scale in (0,1] is determined by the subroutine.
+//
+// The fundamental technique is Gaussian Elimination with full pivoting,
+// with pivots forced to be sufficiently large (and, if such a perturbation was
+// performed, the routine returns 'true').
+//
+// The analogous LAPACK routines are {s,d}lasy2.
+//
+template<typename Real>
+bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const Real* C, BlasInt CLDim,
+  const Real* D, BlasInt DLDim,
+  const Real* B, BlasInt BLDim,
+        Real& scale,
+        Real* X, BlasInt XLDim,
+        Real& XInfNorm )
+{
+    DEBUG_ONLY(CSE cse("lapack::SmallSylvester"))
+    const Real one(1);
+    const Real epsilon = limits::Epsilon<Real>();
+    const Real smallNum = limits::SafeMin<Real>() / epsilon;
+    const Real sgn = ( negate ? Real(-1) : Real(1) );
+
+    bool perturbed = false;
+    if( nC == 1 && nD == 1 )
+    {
+        // psi*chi + sgn*chi = beta
+        const Real& psi   = C[0+0*CLDim];
+        const Real& delta = D[0+0*DLDim];
+        const Real& beta  = B[0+0*BLDim];
+              Real& chi   = X[0+0*XLDim];
+
+        Real tau = psi + sgn*delta;
+        Real tauAbs = Abs(tau);
+        if( tauAbs <= smallNum )
+        {
+            tau = tauAbs = smallNum;
+            perturbed = true;
+        }
+        Real gamma = Abs(beta);
+        scale = one;
+        if( smallNum*gamma > tauAbs )
+            scale = one/gamma;
+        chi = (beta*scale) / tau;
+        XInfNorm = Abs(chi);
+    }
+    else if( nC == 1 && nD == 2 )
+    {
+        // psi*x +- x*op(D) = b,
+        //
+        // where x = [chi0, chi1], D = |delta00, delta01|, b = [beta0, beta1].
+        //                             |delta10, delta11|
+        //
+        const Real& psi     = C[0+0*CLDim];
+        const Real& delta00 = D[0+0*DLDim];
+        const Real& delta01 = D[0+1*DLDim];
+        const Real& delta10 = D[1+0*DLDim];
+        const Real& delta11 = D[1+1*DLDim];
+        const Real& beta0   = B[0+0*BLDim];
+        const Real& beta1   = B[0+1*BLDim];
+              Real& chi0    = X[0+0*XLDim];
+              Real& chi1    = X[0+1*XLDim];
+
+        Real maxCD = Max( Abs(delta00), Abs(delta01) );
+        maxCD = Max( maxCD, Abs(delta10) );
+        maxCD = Max( maxCD, Abs(delta11) );
+        maxCD = Max( maxCD, Abs(psi) );
+        const Real minPiv = Max( epsilon*maxCD, smallNum );
+
+        // 
+        // In the case of no transpositions, solve
+        //
+        // | psi +- delta00,   +-delta01    | | chi0 | = | beta0 |
+        // |    +-delta10,   psi +- delta11 | | chi1 |   | beta1 |
+        //
+        Real A[4], b[2];
+        A[0] = psi + sgn*delta00;
+        A[3] = psi + sgn*delta11;
+        if( transD )
+        {
+            A[1] = sgn*delta10;
+            A[2] = sgn*delta01;
+        }
+        else
+        {
+            A[1] = sgn*delta01;
+            A[2] = sgn*delta10;
+        }
+        b[0] = beta0;
+        b[1] = beta1;
+        perturbed = Solve2x2FullPiv( A, b, scale, smallNum, minPiv );
+        chi0 = b[0];
+        chi1 = b[1];
+        XInfNorm = Abs(chi0) + Abs(chi1);
+    }
+    else if( nC == 2 && nD == 1 )
+    {
+        // op(C)*x +- x*delta = b,
+        //
+        // where x = |chi0|, C = |psi00, psi01|, b = |beta0|.
+        //           |chi1|      |psi10, psi11|      |beta1|
+        //
+        const Real& psi00 = C[0+0*CLDim];
+        const Real& psi01 = C[0+1*CLDim];
+        const Real& psi10 = C[1+0*CLDim];
+        const Real& psi11 = C[1+1*CLDim];
+        const Real& delta = D[0+0*DLDim];
+        const Real& beta0 = B[0+0*BLDim];
+        const Real& beta1 = B[1+0*BLDim];
+              Real& chi0  = X[0+0*XLDim];
+              Real& chi1  = X[1+0*XLDim];
+
+        Real maxCD = Max( Abs(psi00), Abs(psi01) );
+        maxCD = Max( maxCD, Abs(psi10) );
+        maxCD = Max( maxCD, Abs(psi11) );
+        maxCD = Max( maxCD, Abs(delta) );
+        const Real minPiv = Max( epsilon*maxCD, smallNum );
+
+        // 
+        // In the case of no transpositions, solve
+        //
+        // | psi00 +- delta,      psi01      | | chi0 | = | beta0 |
+        // |    psi10,        psi11 +- delta | | chi1 |   | beta1 |
+        //
+        Real A[4], b[2];
+        A[0] = psi00 + sgn*delta;
+        A[3] = psi11 + sgn*delta;
+        if( transC )
+        {
+            A[1] = psi01;
+            A[2] = psi10;
+        }
+        else
+        {
+            A[1] = psi10;
+            A[2] = psi01;
+        }
+        b[0] = beta0;
+        b[1] = beta1;
+        perturbed = Solve2x2FullPiv( A, b, scale, smallNum, minPiv );
+        chi0 = b[0];
+        chi1 = b[1];
+        XInfNorm = Max( Abs(chi0), Abs(chi1) );
+    }
+    else if( nC == 2 && nD == 2 )
+    {
+        // op(C)*X +- X*op(D) = B
+        const Real& psi00   = C[0+0*CLDim];
+        const Real& psi01   = C[0+1*CLDim];
+        const Real& psi10   = C[1+0*CLDim];
+        const Real& psi11   = C[1+1*CLDim];
+        const Real& delta00 = D[0+0*DLDim];
+        const Real& delta01 = D[0+1*DLDim];
+        const Real& delta10 = D[1+0*DLDim];
+        const Real& delta11 = D[1+1*DLDim];
+        const Real& beta00  = B[0+0*BLDim];
+        const Real& beta01  = B[0+1*BLDim];
+        const Real& beta10  = B[1+0*BLDim];
+        const Real& beta11  = B[1+1*BLDim];
+              Real& chi00   = X[0+0*XLDim];
+              Real& chi01   = X[0+1*XLDim];
+              Real& chi10   = X[1+0*XLDim];
+              Real& chi11   = X[1+1*XLDim];
+
+        Real maxCD = Max( Abs(psi00), Abs(psi01) );
+        maxCD = Max( maxCD, Abs(psi10) );
+        maxCD = Max( maxCD, Abs(psi11) );
+        maxCD = Max( maxCD, Abs(delta00) );
+        maxCD = Max( maxCD, Abs(delta01) );
+        maxCD = Max( maxCD, Abs(delta10) );
+        maxCD = Max( maxCD, Abs(delta11) );
+        const Real minPiv = Max( epsilon*maxCD, smallNum );
+
+        Real A[16], b[4];
+        A[0+0*4] = psi00 + sgn*delta00;
+        A[1+1*4] = psi11 + sgn*delta00;
+        A[2+2*4] = psi00 + sgn*delta11;
+        A[3+3*4] = psi11 + sgn*delta11;
+        if( transC )
+        {
+            A[0+1*4] = psi10;
+            A[1+0*4] = psi01;
+            A[2+3*4] = psi10;
+            A[3+2*4] = psi01;
+        }
+        else
+        {
+            A[0+1*4] = psi01;
+            A[1+0*4] = psi10;
+            A[2+3*4] = psi01;
+            A[3+2*4] = psi10;
+        }
+        if( transD )
+        {
+            A[0+2*4] = sgn*delta01;
+            A[1+3*4] = sgn*delta01;
+            A[2+0*4] = sgn*delta10;
+            A[3+1*4] = sgn*delta10;
+        }
+        else
+        {
+            A[0+2*4] = sgn*delta10;
+            A[1+3*4] = sgn*delta10;
+            A[2+0*4] = sgn*delta01;
+            A[3+1*4] = sgn*delta01;
+        }
+        b[0] = beta00;
+        b[1] = beta10;
+        b[2] = beta01;
+        b[3] = beta11;
+
+        perturbed = Solve4x4FullPiv( A, b, scale, smallNum, minPiv );
+        chi00 = b[0];
+        chi10 = b[1];
+        chi01 = b[2];
+        chi11 = b[3];
+        XInfNorm = Max( Abs(chi00)+Abs(chi01), Abs(chi10)+Abs(chi11) );
+    }
+    else
+        LogicError("Invalid SmallSylvester sizes");
+
+    return perturbed;
+}
+template bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const float* C, BlasInt CLDim,
+  const float* D, BlasInt DLDim,
+  const float* B, BlasInt BLDim,
+        float& scale,
+        float* X, BlasInt XLDim,
+        float& XInfNorm );
+template bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const double* C, BlasInt CLDim,
+  const double* D, BlasInt DLDim,
+  const double* B, BlasInt BLDim,
+        double& scale,
+        double* X, BlasInt XLDim,
+        double& XInfNorm );
+#ifdef EL_HAVE_QUAD
+template bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const Quad* C, BlasInt CLDim,
+  const Quad* D, BlasInt DLDim,
+  const Quad* B, BlasInt BLDim,
+        Quad& scale,
+        Quad* X, BlasInt XLDim,
+        Quad& XInfNorm );
+#endif
+#ifdef EL_HAVE_QD
+template bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const DoubleDouble* C, BlasInt CLDim,
+  const DoubleDouble* D, BlasInt DLDim,
+  const DoubleDouble* B, BlasInt BLDim,
+        DoubleDouble& scale,
+        DoubleDouble* X, BlasInt XLDim,
+        DoubleDouble& XInfNorm );
+template bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const QuadDouble* C, BlasInt CLDim,
+  const QuadDouble* D, BlasInt DLDim,
+  const QuadDouble* B, BlasInt BLDim,
+        QuadDouble& scale,
+        QuadDouble* X, BlasInt XLDim,
+        QuadDouble& XInfNorm );
+#endif
+#ifdef EL_HAVE_MPC
+template bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const BigFloat* C, BlasInt CLDim,
+  const BigFloat* D, BlasInt DLDim,
+  const BigFloat* B, BlasInt BLDim,
+        BigFloat& scale,
+        BigFloat* X, BlasInt XLDim,
+        BigFloat& XInfNorm );
+#endif
+
 // Put a two-by-two nonsymmetric real matrix into standard form
 // ============================================================
 // Compute the Schur factorization of a real 2x2 nonsymmetric matrix A

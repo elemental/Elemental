@@ -502,6 +502,56 @@ void HessenbergGenerateUnitary
   dcomplex* A, BlasInt ldA,
   const dcomplex* tau );
 
+// Solve a 2x2 linear system using LU with full pivoting, perturbing as
+// necessary to ensure sufficiently large pivots
+// ==============================================================
+// (NOTE: This is primarily a helper function for SmallSylvester)
+template<typename Real>
+bool Solve2x2FullPiv
+( const Real* A,
+        Real* b,
+        Real& scale,
+  const Real& smallNum,
+  const Real& minPiv );
+
+// Solve a 4x4 linear system using LU with full pivoting, perturbing as
+// necessary to ensure sufficiently large pivots
+// ==============================================================
+// (NOTE: This is primarily a helper function for SmallSylvester)
+template<typename Real>
+bool Solve4x4FullPiv
+(       Real* A,
+        Real* b,
+        Real& scale,
+  const Real& smallNum,
+  const Real& minPiv );
+
+// Solve a 1x1, 1x2, 2x1, or 2x2 Sylvester equation, 
+//
+//   op_C(C) X +- X op_D(D) = scale*B,
+//
+// where op_C(C) is either C or C^T, op_D(D) is either D or D^T,
+// and scale in (0,1] is determined by the subroutine.
+//
+// The fundamental technique is Gaussian Elimination with full pivoting,
+// with pivots forced to be sufficiently large (and, if such a perturbation was
+// performed, the routine returns 'true').
+//
+// The analogous LAPACK routines are {s,d}lasy2.
+//
+template<typename Real>
+bool SmallSylvester
+( bool transC,
+  bool transD,
+  bool negate,
+  BlasInt nC, BlasInt nD,
+  const Real* C, BlasInt CLDim,
+  const Real* D, BlasInt DLDim,
+  const Real* B, BlasInt BLDim,
+        Real& scale,
+        Real* X, BlasInt XLDim,
+        Real& XInfNorm );
+
 // Put a real 2x2 nonsymmetric matrix into standard form
 // =====================================================
 // Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
