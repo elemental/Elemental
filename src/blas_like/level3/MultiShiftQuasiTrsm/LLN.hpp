@@ -50,7 +50,7 @@ void LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
                 const F delta22 = LBuf[(k+1)+(k+1)*ldl] - shifts.Get(j,0);
                 // Decompose D = L Q
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta12, &c, &s );
+                const F gamma11 = blas::Givens( delta11, delta12, c, s );
                 const F gamma21 =        c*delta21 + s*delta22;
                 const F gamma22 = -Conj(s)*delta21 + c*delta22;
 

@@ -151,35 +151,35 @@ template<typename Real>
 Real Givens
 ( const Real& phi,
   const Real& gamma,
-  Real* c,
-  Real* s );
+  Real& c,
+  Real& s );
 template<typename Real>
 Complex<Real> Givens
 ( const Complex<Real>& phi,
   const Complex<Real>& gamma,
-  Real* c,
-  Complex<Real>* s );
+  Real& c,
+  Complex<Real>& s );
 
 float Givens
 ( const float& alpha,
   const float& beta,
-  float* c,
-  float* s );
+  float& c,
+  float& s );
 double Givens
 ( const double& alpha,
   const double& beta,
-  double* c,
-  double* s );
+  double& c,
+  double& s );
 scomplex Givens
 ( const scomplex& alpha,
   const scomplex& beta,
-  float* c,
-  scomplex* s );
+  float& c,
+  scomplex& s );
 dcomplex Givens
 ( const dcomplex& alpha,
   const dcomplex& beta,
-  double* c,
-  dcomplex* s );
+  double& c,
+  dcomplex& s );
 
 template<typename F>
 void Rot
@@ -229,6 +229,9 @@ template<typename F>
 Base<F> Nrm1( BlasInt n, const F* x, BlasInt incx );
 double Nrm1( BlasInt n, const double  * x, BlasInt incx );
 double Nrm1( BlasInt n, const Complex<double>* x, BlasInt incx );
+
+template<typename F>
+Base<F> NrmInf( BlasInt n, const F* x, BlasInt incx );
 
 void Swap( BlasInt n, float   * x, BlasInt incx, float   * y, BlasInt incy );
 void Swap( BlasInt n, double  * x, BlasInt incx, double  * y, BlasInt incy );

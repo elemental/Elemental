@@ -692,23 +692,23 @@ void Copy
 // ====================================================================
 
 float Givens
-( const float& phi, const float& gamma, float* c, float* s )
-{ float rho; EL_LAPACK(slartg)( &phi, &gamma, c, s, &rho ); return rho; }
+( const float& phi, const float& gamma, float& c, float& s )
+{ float rho; EL_LAPACK(slartg)( &phi, &gamma, &c, &s, &rho ); return rho; }
 
 double Givens
-( const double& phi, const double& gamma, double* c, double* s )
-{ double rho; EL_LAPACK(dlartg)( &phi, &gamma, c, s, &rho ); return rho; }
+( const double& phi, const double& gamma, double& c, double& s )
+{ double rho; EL_LAPACK(dlartg)( &phi, &gamma, &c, &s, &rho ); return rho; }
 
 scomplex Givens
-( const scomplex& phi, const scomplex& gamma, float* c, scomplex* s )
-{ scomplex rho; EL_LAPACK(clartg)( &phi, &gamma, c, s, &rho ); return rho; }
+( const scomplex& phi, const scomplex& gamma, float& c, scomplex& s )
+{ scomplex rho; EL_LAPACK(clartg)( &phi, &gamma, &c, &s, &rho ); return rho; }
 
 dcomplex Givens
-( const dcomplex& phi, const dcomplex& gamma, double* c, dcomplex* s )
-{ dcomplex rho; EL_LAPACK(zlartg)( &phi, &gamma, c, s, &rho ); return rho; }
+( const dcomplex& phi, const dcomplex& gamma, double& c, dcomplex& s )
+{ dcomplex rho; EL_LAPACK(zlartg)( &phi, &gamma, &c, &s, &rho ); return rho; }
 
 template<typename Real>
-Real Givens( const Real& phi, const Real& gamma, Real* c, Real* s )
+Real Givens( const Real& phi, const Real& gamma, Real& c, Real& s )
 {
     // TODO: Switch to the approach of LAPACK's dlartg instead of the
     //       zrotg-like implementation
@@ -718,8 +718,8 @@ template<typename Real>
 Complex<Real> Givens
 ( const Complex<Real>& phi,
   const Complex<Real>& gamma,
-  Real* c,
-  Complex<Real>* s )
+  Real& c,
+  Complex<Real>& s )
 {
     // TODO: Switch to the approach of LAPACK's zlartg instead of the
     //       zrotg-like implementation
@@ -729,31 +729,31 @@ Complex<Real> Givens
 template DoubleDouble Givens
 ( const DoubleDouble& phi,
   const DoubleDouble& gamma,
-  DoubleDouble* c,
-  DoubleDouble* s );
+  DoubleDouble& c,
+  DoubleDouble& s );
 template QuadDouble Givens
 ( const QuadDouble& phi,
   const QuadDouble& gamma,
-  QuadDouble* c,
-  QuadDouble* s );
+  QuadDouble& c,
+  QuadDouble& s );
 #endif
 #ifdef EL_HAVE_QUAD
 template Quad Givens
 ( const Quad& phi, const Quad& gamma,
-  Quad* c,
-  Quad* s );
+  Quad& c,
+  Quad& s );
 template Complex<Quad> Givens
 ( const Complex<Quad>& phi,
   const Complex<Quad>& gamma,
-  Quad* c,
-  Complex<Quad>* s );
+  Quad& c,
+  Complex<Quad>& s );
 #endif
 #ifdef EL_HAVE_MPC
 template BigFloat Givens
 ( const BigFloat& phi,
   const BigFloat& gamma,
-  BigFloat* c,
-  BigFloat* s );
+  BigFloat& c,
+  BigFloat& s );
 #endif
 
 // Generate a Householder reflector
@@ -1477,7 +1477,9 @@ void BidiagQRAlg
     EL_LAPACK(sbdsqr)
     ( &uplo, &n, &numColsVT, &numRowsU, &numColsC,
       d, e,
-      VTrans, &ldVT, U, &ldU, C, &ldC,
+      VTrans, &ldVT,
+      U, &ldU,
+      C, &ldC,
       work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -1500,7 +1502,9 @@ void BidiagQRAlg
     EL_LAPACK(dbdsqr)
     ( &uplo, &n, &numColsVT, &numRowsU, &numColsC,
       d, e, 
-      VTrans, &ldVT, U, &ldU, C, &ldC,
+      VTrans, &ldVT,
+      U, &ldU,
+      C, &ldC,
       work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -1529,7 +1533,9 @@ void BidiagQRAlg
     EL_LAPACK(cbdsqr)
     ( &uplo, &n, &numColsVH, &numRowsU, &numColsC,
       d, e,
-      VH, &ldVH, U, &ldU, C, &ldC,
+      VH, &ldVH,
+      U, &ldU,
+      C, &ldC,
       realWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -1558,7 +1564,9 @@ void BidiagQRAlg
     EL_LAPACK(zbdsqr)
     ( &uplo, &n, &numColsVH, &numRowsU, &numColsC,
       d, e,
-      VH, &ldVH, U, &ldU, C, &ldC,
+      VH, &ldVH,
+      U, &ldU,
+      C, &ldC,
       realWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -2451,9 +2459,7 @@ bool Solve4x4FullPiv
         (eight*smallNum)*Abs(b[2]) > Abs(A[2+2*4]) ||
         (eight*smallNum)*Abs(b[3]) > Abs(A[3+3*4]) )
     {
-        Real xMax = Max( Abs(b[0]), Abs(b[1]) );
-        xMax = Max( xMax, Abs(b[2]) );
-        xMax = Max( xMax, Abs(b[3]) );
+        const Real xMax = blas::NrmInf( 4, b, 1 );
         scale = (one/eight) / xMax;
         b[0] *= scale;
         b[1] *= scale;
@@ -2828,6 +2834,672 @@ template bool SmallSylvester
         BigFloat& XInfNorm );
 #endif
 
+namespace adjacent_schur {
+
+template<typename Real>
+void ApplyReflector
+( bool onLeft,
+  BlasInt m,
+  BlasInt n,
+  const Real& phi,
+  const Real* v, BlasInt vInc,
+        Real* D, BlasInt DLDim,
+        Real& innerProd,
+        Real& tmp )
+{
+    if( onLeft )
+    {
+        for( BlasInt j=0; j<n; ++j ) 
+        {
+            innerProd=0;
+            for( BlasInt i=0; i<m; ++i )
+            {
+                tmp = v[i*vInc];
+                tmp *= D[i+j*DLDim];
+                innerProd += tmp;
+            }
+            innerProd *= phi;
+            for( BlasInt i=0; i<m; ++i )
+            {
+                tmp = v[i*vInc];
+                tmp *= innerProd;
+                D[i+j*DLDim] -= tmp;
+            }
+        }
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+        {
+            innerProd=0;
+            for( BlasInt j=0; j<n; ++j )
+            {
+                tmp = D[i+j*DLDim];
+                tmp *= v[j*vInc];
+                innerProd += tmp;
+            }
+            innerProd *= phi;
+            for( BlasInt j=0; j<n; ++j )
+            {
+                tmp = innerProd;
+                tmp *= v[j*vInc];
+                D[i+j*DLDim] -= tmp;
+            }
+        }
+    }
+}
+
+template<typename Real>
+void ApplyReflector
+( bool onLeft,
+  BlasInt m,
+  BlasInt n,
+  const Real& phi,
+  const Real* v,
+        Real* D, BlasInt DLDim )
+{
+    Real innerProd, tmp;
+    ApplyReflector( onLeft, m, n, phi, v, D, DLDim, innerProd, tmp );
+}
+
+// See the paper
+//
+//   Zhaojun Bai and James Demmel,
+//   "On swapping diagonal blocks in real Schur form",
+//   Linear Algebra and its Applications, 186:73--95, 1993,
+//
+// and the corresponding implementations in LAPACK's {s,d}laexc.
+//
+template<typename Real>
+void Helper
+( bool wantSchurVecs,
+  BlasInt n,
+  Real* T, BlasInt TLDim, 
+  Real* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  Real* work,
+  bool testAccuracy )
+{
+    // Uphold LAPACK's conventions for allowing n1, n2 in {0,1,2}
+    DEBUG_ONLY(
+      CSE cse("lapack::adjacent_schur::Helper");
+      if( n1 < 0 || n1 > 2 )
+          LogicError("n1 must be in {0,1,2}");
+      if( n2 < 0 || n2 > 2 )
+          LogicError("n2 must be in {0,1,2}");
+    )
+    if( n == 0 || n1 == 0 || n2 == 0 || j1+n1 >= n )
+        return;
+
+    // As discussed by Bai/Demmel (building on a theorem of Ng/Peyton),
+    // given the relationship
+    //
+    //   | A11, A12 | = | I, -X | | A11, 0   | | I, X |,
+    //   |  0,  A22 |   | 0,  I | | 0,   A22 | | 0, I |
+    //
+    // where X is the solution of the Sylvester equation
+    //
+    //   A11 X - X A22 = A12,
+    //
+    // a Householder QR factorization of [-X; I] or [I, X], depending upon
+    // which requires fewer reflections, can be used to swap A11 and A22
+    // via a similarity transformation.
+    //
+    // For example,
+    //
+    //   Q' | -X | = | R | 
+    //      |  I |   | 0 |    
+    //
+    // implies
+    //
+    //   | Q11', Q21' | | I, -X | = | Q11', R |
+    //   | Q12', Q22' | | 0,  I |   | Q12', 0 |
+    //
+    // and therefore
+    //
+    //   Q' A Q
+    //
+    //    = | Q11', R | | A11, 0   | | Q11', R |^{-1}
+    //      | Q12', 0 | | 0,   A22 | | Q12', 0 |
+    //
+    //    = | Q11', R | | A11, 0   | | 0,       inv(Q12)'             |,
+    //      | Q12', 0 | | 0,   A22 | | inv(R), -inv(R) Q11' inv(Q12)' |
+    //
+    //    = | R A22 inv(R), Q11' A11 inv(Q12)' - R A22 inv(R) Q11' inv(Q12)' |.
+    //      |       0,      Q12' A11 inv(Q12)'                               |
+    //
+    // On the other hand, should X have fewer rows than columns, it might
+    // be preferable to instead pick a unitary Q such that
+    //
+    //   | I, X | | Q11, Q12 | = | 0,   R   |,
+    //   | 0, I | | Q21, Q22 |   | Q21, Q22 |
+    //
+    // and therefore
+    //
+    //   Q' A Q 
+    //
+    //    = | 0,   R   |^{-1} | A11, 0   | | 0,   R   |
+    //      | Q21, Q22 |      | 0,   A22 | | Q21, Q22 |
+    //
+    //    = | -inv(Q21)' Q22 inv(R), inv(Q21) | | A11,  0  | | 0,    R  |
+    //      | inv(R),                    0    | |  0,  A22 | | Q21, Q22 |
+    // 
+    //    = | -inv(Q21)' Q22 inv(R) A11, inv(Q21) A22 | | 0,    R  |
+    //      |         inv(R) A11,               0     | | Q21, Q22 |
+    //
+    //    = |inv(Q21) A22 Q21, -inv(Q21)' Q22 inv(R) A11 R + inv(Q21) A22 Q22|.
+    //      |         0,                     inv(R) A11 R                    |
+    //
+
+    if( n1 == 1 && n2 == 1 )
+    {
+        Real tau11 = T[ j1   + j1   *TLDim];
+        Real tau12 = T[ j1   +(j1+1)*TLDim];
+        Real tau22 = T[(j1+1)+(j1+1)*TLDim];
+
+        // Force the bottom-left entry of the similarity transformation
+        //
+        //   |  c, s | | tau11 tau12 | | c, -s |
+        //   | -s  c | |   0   tau22 | | s,  c |
+        //
+        // to remain zero (and therefore swapping tau11 and tau22 and preserving
+        // tau12)
+        Real c, s;
+        Real rho = lapack::Givens( tau12, tau22-tau11, c, s );
+
+        if( j1+2 < n )
+        {
+            blas::Rot
+            ( n-(j1+2),
+              &T[ j1   +(j1+2)*TLDim], TLDim,
+              &T[(j1+1)+(j1+2)*TLDim], TLDim, c, s );
+        }
+        blas::Rot
+        ( j1,
+          &T[0+ j1   *TLDim], 1,
+          &T[0+(j1+1)*TLDim], 1, c, s );
+
+        T[ j1   + j1   *TLDim] = tau22;
+        T[(j1+1)+(j1+1)*TLDim] = tau11;
+
+        if( wantSchurVecs )
+        {
+            blas::Rot
+            ( n,
+              &Q[0+ j1   *QLDim], 1,
+              &Q[0+(j1+1)*QLDim], 1, c, s );
+        }
+    }
+    else
+    {
+        Real D[16], X[4];
+        const BlasInt XLDim = 2;
+        const BlasInt nSum = n1 + n2; 
+        for( BlasInt j=0; j<nSum; ++j )
+            for( BlasInt i=0; i<nSum; ++i )
+                D[i+j*nSum] = T[(j1+i)+(j1+j)*TLDim];
+        const Real DMax = blas::NrmInf( nSum*nSum, D, 1 );
+
+        const Real epsilon = limits::Epsilon<Real>();
+        const Real smallNum = limits::SafeMin<Real>() / epsilon;
+        const Real thresh = Max( Real(10)*epsilon*DMax, smallNum );
+
+        // Solve the Sylvester equation T11*X - X*T22 = scale*T12 for X
+        Real scale, XInfNorm;
+        const bool transT11=false, transT22=false, negate=true;
+        SmallSylvester
+        ( transT11, transT22, negate, n1, n2,
+          &D[0 +0 *nSum], nSum,
+          &D[n1+n1*nSum], nSum,
+          &D[0 +n1*nSum], nSum,
+          scale, X, XLDim, XInfNorm );
+
+        Real innerProd, tmp;
+        const Real zero(0);
+        if( n1 == 1 && n2 == 2 )
+        {
+            const Real tau11 = T[j1+j1*TLDim];
+
+            // Compute the Householder reflection which satisfies
+            //
+            //   | 1, x | | gamma11, q12 | = | 0,    r  |,
+            //   | 0, I | |   q21,   Q22 |   | q21, Q22 |
+            //
+            // where x is a row vector, gamma11 is scalar, q12 is a row vector,
+            // q21 is a column vector, and r is a row vector.
+            //
+            // This can be accomplished via the Householder reflection
+            //
+            //   (I - phi [nu0; nu1; 1] [nu0, nu1, 1]) | 1    | = | 0   |
+            //                                         | chi0 |   | 0   |
+            //                                         | chi1 |   | rho |
+            //
+            // which is simply a permutation of the standard formulation
+            // (and this fact is exploited by LAPACK).
+            Real v[3];
+            v[0] = scale;
+            v[1] = X[0*XLDim];
+            v[2] = X[1*XLDim];
+            Real phi = Reflector( 3, v[2], v, 1 );
+            v[2] = 1; 
+
+            if( testAccuracy )
+            {
+                // Perform the candidate rotation out-of-place on D
+                // ------------------------------------------------ 
+                // Apply the rotation from the left,
+                //   D := (I - phi v v') D = D - v (phi v' D)
+                ApplyReflector
+                ( true, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+                // Apply the rotation from the right,
+                //   D := D (I - phi v v') = D - (phi D v) v'
+                ApplyReflector
+                ( false, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+
+                // Throw an exception if the rotation would be too inaccurate.
+                // As in LAPACK, rather than simply measuring the size of the 
+                // bottom-left block of the rotation of D (which should ideally
+                // be zero), we also take into account our knowledge that the
+                // bottom-right entry of D should by T(j1,j1)
+                Real errMeasure = Max( Abs(D[2+0*3]), Abs(D[2+1*3]) );
+                errMeasure = Max( errMeasure, Abs(D[2+2*3]-tau11) );
+                if( errMeasure > thresh )
+                    RuntimeError("Unacceptable Schur block swap");
+            }
+
+            // Perform the rotation on T
+            // ------------------------- 
+            // Apply the rotation from the left,
+            //   T := (I - phi v v') T = T - v (phi v' T)
+            ApplyReflector
+            ( true, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            // Apply the rotation from the right,
+            //   T := T (I - phi v v') = T - (phi T v) v'
+            ApplyReflector
+            ( false, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            // Force our a priori knowledge that T is block upper-triangular
+            T[(j1+2)+ j1   *TLDim] = zero;
+            T[(j1+2)+(j1+1)*TLDim] = zero; 
+            T[(j1+2)+(j1+2)*TLDim] = tau11;
+
+            if( wantSchurVecs )
+            {
+                // Apply the rotation from the right,
+                //   Q := Q (I - phi v v') = Q - (phi Q v) v'
+                ApplyReflector
+                ( false, n, 3, phi, v, 1, &Q[j1*QLDim], QLDim,
+                  innerProd, tmp );
+            }
+        }
+        else if( n1 == 2 && n2 == 1 )
+        {
+            const Real tau22 = T[(j1+2)+(j1+2)*TLDim];
+
+            // Compute the Householder reflection which satisfies
+            //
+            //   | Q11,   q12   |^T | I, -x | = | Q11^T, r |,
+            //   | q21, gamma22 |   | 0,  1 |   | q12^T, 0 |
+            //
+            // where x is a column vector, gamma22 is scalar, q21 is a row
+            // vector, q12 is a column vector, and r is a column vector.
+            //
+
+            Real v[3];
+            v[0] = -X[0];
+            v[1] = -X[1];
+            v[2] = scale;
+            Real phi = Reflector( 3, v[0], &v[1], 1 );
+            v[0] = 1; 
+
+            if( testAccuracy )
+            {
+                // Perform the candidate rotation out-of-place on D
+                // ------------------------------------------------ 
+                // Apply the rotation from the left,
+                //   D := (I - phi v v') D = D - v (phi v' D)
+                ApplyReflector
+                ( true, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+                // Apply the rotation from the right,
+                //   D := D (I - phi v v') = D - (phi D v) v'
+                ApplyReflector
+                ( false, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+
+                // Throw an exception if the rotation would be too inaccurate.
+                // As in LAPACK, rather than simply measuring the size of the 
+                // bottom-left block of the rotation of D (which should ideally
+                // be zero), we also take into account our knowledge that the
+                // top-left entry of D should by tau22
+                Real errMeasure = Max( Abs(D[1+0*3]), Abs(D[2+0*3]) );
+                errMeasure = Max( errMeasure, Abs(D[0+0*3]-tau22) );
+                if( errMeasure > thresh )
+                    RuntimeError("Unacceptable Schur block swap");
+            }
+
+            // Perform the rotation on T
+            // ------------------------- 
+            // Apply the rotation from the left,
+            //   T := (I - phi v v') T = T - v (phi v' T)
+            ApplyReflector
+            ( true, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            // Apply the rotation from the right,
+            //   T := T (I - phi v v') = T - (phi T v) v'
+            ApplyReflector
+            ( false, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            // Force our a priori knowledge that T is block upper-triangular
+            T[ j1   +j1*TLDim] = tau22;
+            T[(j1+1)+j1*TLDim] = zero;
+            T[(j1+2)+j1*TLDim] = zero;
+
+            if( wantSchurVecs )
+            {
+                // Apply the rotation from the right,
+                //   Q := Q (I - phi v v') = Q - (phi Q v) v'
+                ApplyReflector
+                ( false, n, 3, phi, v, 1, &Q[j1*QLDim], QLDim,
+                  innerProd, tmp );
+            }
+        }
+        else
+        {
+            // Compute the Householder reflections which satisfy
+            //
+            //   Q1^T Q0^T | -X | = | R |
+            //             |  I |   | 0 |
+            //
+            // using an inlined Householder QR factorization of [-X; I].
+            //
+            const Real& chi00 = X[0+0*XLDim];
+            const Real& chi01 = X[0+1*XLDim];
+            const Real& chi10 = X[1+0*XLDim];
+            const Real& chi11 = X[1+1*XLDim];
+
+            Real v0[3];
+            v0[0] = -chi00;
+            v0[1] = -chi10;
+            v0[2] = scale;
+            Real phi0 = Reflector( 3, v0[0], &v0[1], 1 );
+            v0[0] = 1; 
+
+            innerProd = -phi0*(chi01+v0[1]*chi11);
+            Real v1[3];
+            v1[0] = -innerProd*v0[1] - chi11;
+            v1[1] = -innerProd*v0[2];
+            v1[2] = scale;
+            Real phi1 = Reflector( 3, v1[0], &v1[1], 1 ); 
+            v1[0] = 1;
+
+            if( testAccuracy )
+            {
+                // Perform the candidate rotation out-of-place on D
+                // ------------------------------------------------ 
+                // Apply the first rotation from the left,
+                //   D := (I - phi0 v0 v0') D = D - v0 (phi0 v0' D)
+                ApplyReflector
+                ( true, 3, 4, phi0, v0, 1, D, nSum, innerProd, tmp );
+                // Apply the first rotation from the right,
+                //   D := D (I - phi0 v0 v0') = D - (phi0 D v0) v0'
+                ApplyReflector
+                ( false, 4, 3, phi0, v0, 1, D, nSum, innerProd, tmp );
+                // Apply the second rotation from the left,
+                //   D := (I - phi1 v1 v1') D = D - v1 (phi1 v1' D)
+                ApplyReflector
+                ( true, 3, 4, phi1, v1, 1, &D[1+0*nSum], nSum,
+                  innerProd, tmp );
+                // Apply the second rotation from the right,
+                //   D := D (I - phi1 v1 v1') = D - (phi1 D v1) v1'
+                ApplyReflector
+                ( false, 4, 3, phi1, v1, 1, &D[0+1*nSum], nSum,
+                  innerProd, tmp );
+
+                // Throw an exception if the rotation would be too inaccurate.
+                Real errMeasure = Max( Abs(D[2+0*4]), Abs(D[2+1*4]) );
+                errMeasure = Max( errMeasure, Abs(D[3+0*4]) );
+                errMeasure = Max( errMeasure, Abs(D[3+1*4]) );
+                if( errMeasure > thresh )
+                    RuntimeError("Unacceptable Schur block swap");
+            }
+
+            // Perform the rotation on T
+            // ------------------------- 
+            // Apply the first rotation from the left,
+            //   T := (I - phi0 v0 v0') T = T - v0 (phi0 v0' T)
+            ApplyReflector
+            ( true, 3, 4, phi0, v0, 1, T, TLDim, innerProd, tmp );
+            // Apply the first rotation from the right,
+            //   T := T (I - phi0 v0 v0') = T - (phi0 T v0) v0'
+            ApplyReflector
+            ( false, 4, 3, phi0, v0, 1, T, TLDim, innerProd, tmp );
+            // Apply the second rotation from the left,
+            //   T := (I - phi1 v1 v1') T = T - v1 (phi1 v1' T)
+            ApplyReflector
+            ( true, 3, 4, phi1, v1, 1, &T[1+0*TLDim], TLDim,
+              innerProd, tmp );
+            // Apply the second rotation from the right,
+            //   T := T (I - phi1 v1 v1') = T - (phi1 T v1) v1'
+            ApplyReflector
+            ( false, 4, 3, phi1, v1, 1, &T[0+1*TLDim], TLDim,
+              innerProd, tmp );
+
+            // Force our a priori knowledge that T is block upper-triangular
+            T[(j1+2)+ j1   *TLDim] = zero;
+            T[(j1+2)+(j1+1)*TLDim] = zero;
+            T[(j1+3)+ j1   *TLDim] = zero;
+            T[(j1+3)+(j1+1)*TLDim] = zero;
+
+            if( wantSchurVecs )
+            {
+                // Apply the rotations from the right,
+                //   Q := Q (I - phi v v') = Q - (phi Q v) v'
+                ApplyReflector
+                ( false, n, 3, phi0, v0, 1, &Q[j1*QLDim], QLDim,
+                  innerProd, tmp );
+                ApplyReflector
+                ( false, n, 3, phi1, v1, 1, &Q[(j1+1)*QLDim], QLDim,
+                  innerProd, tmp );
+            }
+        }
+
+        // Clean up
+        if( n1 == 2 )
+        {
+            // Force the rotated T11 into standard form
+            Real c, s;
+            TwoByTwoSchur
+            ( T[(j1+n2  )+(j1+n2)*TLDim], T[(j1+n2  )+(j1+n2+1)*TLDim],
+              T[(j1+n2+1)+(j1+n2)*TLDim], T[(j1+n2+1)+(j1+n2+1)*TLDim],
+              c, s );
+            if( j1+4 < n )
+            {
+                blas::Rot
+                ( n-(j1+4), 
+                  &T[(j1+2)+(j1+4)*TLDim], TLDim,
+                  &T[(j1+3)+(j1+4)*TLDim], TLDim, c, s );
+            }
+            blas::Rot
+            ( j1+2,
+              &T[(j1+2)*TLDim], 1,
+              &T[(j1+3)*TLDim], 1, c, s );
+            if( wantSchurVecs )
+            {
+                blas::Rot
+                ( n, 
+                  &Q[(j1+2)*QLDim], 1,
+                  &Q[(j1+3)*QLDim], 1, c, s );
+            }
+        }
+        if( n2 == 2 )
+        {
+            // Force the rotated T22 into standard form
+            Real c, s;
+            TwoByTwoSchur
+            ( T[ j1   +j1*TLDim], T[ j1   +(j1+1)*TLDim],
+              T[(j1+1)+j1*TLDim], T[(j1+1)+(j1+1)*TLDim],
+              c, s );
+            blas::Rot
+            ( n-(j1+2), 
+              &T[ j1   +(j1+2)*TLDim], TLDim,
+              &T[(j1+1)+(j1+2)*TLDim], TLDim, c, s );
+            blas::Rot
+            ( j1,
+              &T[ j1   *TLDim], 1,
+              &T[(j1+1)*TLDim], 1, c, s );
+            if( wantSchurVecs )
+            {
+                blas::Rot
+                ( n, 
+                  &Q[ j1   *QLDim], 1,
+                  &Q[(j1+1)*QLDim], 1, c, s );
+            }
+        }
+    }
+}
+
+} // namespace adjacent_schur
+
+template<typename Real>
+void AdjacentSchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  Real* work,
+  bool testAccuracy )
+{
+    bool wantSchurVecs = false;
+    Real* Q=nullptr;
+    BlasInt QLDim = 1;
+    adjacent_schur::Helper
+    ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, n1, n2, work, testAccuracy );
+}
+
+template<typename Real>
+void AdjacentSchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim, 
+  Real* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  Real* work,
+  bool testAccuracy )
+{
+    bool wantSchurVecs = true;
+    adjacent_schur::Helper
+    ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, n1, n2, work, testAccuracy );
+}
+
+template void AdjacentSchurExchange
+( BlasInt n,
+  float* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  float* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  float* T, BlasInt TLDim,
+  float* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  float* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  double* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  double* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  double* T, BlasInt TLDim,
+  double* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  double* work,
+  bool testAccuracy );
+#ifdef EL_HAVE_QUAD
+template void AdjacentSchurExchange
+( BlasInt n,
+  Quad* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  Quad* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  Quad* T, BlasInt TLDim,
+  Quad* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  Quad* work,
+  bool testAccuracy );
+#endif
+#ifdef EL_HAVE_QD
+template void AdjacentSchurExchange
+( BlasInt n,
+  DoubleDouble* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  DoubleDouble* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  DoubleDouble* T, BlasInt TLDim,
+  DoubleDouble* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  DoubleDouble* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  QuadDouble* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  QuadDouble* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  QuadDouble* T, BlasInt TLDim,
+  QuadDouble* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  QuadDouble* work,
+  bool testAccuracy );
+#endif
+#ifdef EL_HAVE_MPC
+template void AdjacentSchurExchange
+( BlasInt n,
+  BigFloat* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  BigFloat* work,
+  bool testAccuracy );
+template void AdjacentSchurExchange
+( BlasInt n,
+  BigFloat* T, BlasInt TLDim,
+  BigFloat* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  BigFloat* work,
+  bool testAccuracy );
+#endif
+
 // Put a two-by-two nonsymmetric real matrix into standard form
 // ============================================================
 // Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
@@ -2843,13 +3515,12 @@ template bool SmallSylvester
 // where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
 // are beta00 +- sqrt(beta10*beta01).
 //
+
 template<typename Real>
 void TwoByTwoSchur
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
-  Real& c, Real& s,
-  Real& lambda0Real, Real& lambda0Imag,
-  Real& lambda1Real, Real& lambda1Imag )
+  Real& c, Real& s )
 {
     const Real zero(0), one(1);
     const Real multiple(4);
@@ -2955,10 +3626,24 @@ void TwoByTwoSchur
             }
         }
     }
+}
+
+template<typename Real>
+void TwoByTwoSchur
+( Real& alpha00, Real& alpha01,
+  Real& alpha10, Real& alpha11,
+  Real& c, Real& s,
+  Real& lambda0Real, Real& lambda0Imag,
+  Real& lambda1Real, Real& lambda1Imag )
+{
+    TwoByTwoSchur
+    ( alpha00, alpha01,
+      alpha10, alpha11, c, s );
 
     // Explicitly compute the eigenvalues
     lambda0Real = alpha00;
     lambda1Real = alpha11;
+    const Real zero(0);
     if( alpha10 == zero )
     {
         lambda0Imag = lambda1Imag = zero;
@@ -2969,35 +3654,52 @@ void TwoByTwoSchur
         lambda1Imag = -lambda0Imag;
     }
 }
+
 #ifdef EL_HAVE_QUAD
 template void TwoByTwoSchur
 ( Quad& alpha00, Quad& alpha01,
   Quad& alpha10, Quad& alpha11,
+  Quad& c, Quad& s );
+template void TwoByTwoSchur
+( Quad& alpha00, Quad& alpha01,
+  Quad& alpha10, Quad& alpha11,
   Quad& c, Quad& s,
-  Quad& lambda0Quad, Quad& lambda0Imag,
-  Quad& lambda1Quad, Quad& lambda1Imag );
+  Quad& lambda0Real, Quad& lambda0Imag,
+  Quad& lambda1Real, Quad& lambda1Imag );
 #endif
 #ifdef EL_HAVE_QD
 template void TwoByTwoSchur
 ( DoubleDouble& alpha00, DoubleDouble& alpha01,
   DoubleDouble& alpha10, DoubleDouble& alpha11,
+  DoubleDouble& c, DoubleDouble& s );
+template void TwoByTwoSchur
+( DoubleDouble& alpha00, DoubleDouble& alpha01,
+  DoubleDouble& alpha10, DoubleDouble& alpha11,
   DoubleDouble& c, DoubleDouble& s,
-  DoubleDouble& lambda0DoubleDouble, DoubleDouble& lambda0Imag,
-  DoubleDouble& lambda1DoubleDouble, DoubleDouble& lambda1Imag );
+  DoubleDouble& lambda0Real, DoubleDouble& lambda0Imag,
+  DoubleDouble& lambda1Real, DoubleDouble& lambda1Imag );
+template void TwoByTwoSchur
+( QuadDouble& alpha00, QuadDouble& alpha01,
+  QuadDouble& alpha10, QuadDouble& alpha11,
+  QuadDouble& c, QuadDouble& s );
 template void TwoByTwoSchur
 ( QuadDouble& alpha00, QuadDouble& alpha01,
   QuadDouble& alpha10, QuadDouble& alpha11,
   QuadDouble& c, QuadDouble& s,
-  QuadDouble& lambda0QuadDouble, QuadDouble& lambda0Imag,
-  QuadDouble& lambda1QuadDouble, QuadDouble& lambda1Imag );
+  QuadDouble& lambda0Real, QuadDouble& lambda0Imag,
+  QuadDouble& lambda1Real, QuadDouble& lambda1Imag );
 #endif
 #ifdef EL_HAVE_MPC
 template void TwoByTwoSchur
 ( BigFloat& alpha00, BigFloat& alpha01,
   BigFloat& alpha10, BigFloat& alpha11,
+  BigFloat& c, BigFloat& s );
+template void TwoByTwoSchur
+( BigFloat& alpha00, BigFloat& alpha01,
+  BigFloat& alpha10, BigFloat& alpha11,
   BigFloat& c, BigFloat& s,
-  BigFloat& lambda0BigFloat, BigFloat& lambda0Imag,
-  BigFloat& lambda1BigFloat, BigFloat& lambda1Imag );
+  BigFloat& lambda0Real, BigFloat& lambda0Imag,
+  BigFloat& lambda1Real, BigFloat& lambda1Imag );
 #endif
 
 void TwoByTwoSchur
@@ -3017,6 +3719,21 @@ void TwoByTwoSchur
 }
 
 void TwoByTwoSchur
+( float& alpha00, float& alpha01,
+  float& alpha10, float& alpha11,
+  float& c, float& s )
+{
+    float lambda0Real, lambda0Imag,
+          lambda1Real, lambda1Imag;
+    TwoByTwoSchur
+    ( alpha00, alpha01,
+      alpha10, alpha11,
+      c, s,
+      lambda0Real, lambda0Imag,
+      lambda1Real, lambda1Imag );
+}
+
+void TwoByTwoSchur
 ( double& alpha00, double& alpha01,
   double& alpha10, double& alpha11,
   double& c, double& s,
@@ -3030,6 +3747,21 @@ void TwoByTwoSchur
       &lambda0Real, &lambda0Imag,
       &lambda1Real, &lambda1Imag,
       &c, &s );
+}
+
+void TwoByTwoSchur
+( double& alpha00, double& alpha01,
+  double& alpha10, double& alpha11,
+  double& c, double& s )
+{
+    double lambda0Real, lambda0Imag,
+           lambda1Real, lambda1Imag;
+    TwoByTwoSchur
+    ( alpha00, alpha01,
+      alpha10, alpha11,
+      c, s,
+      lambda0Real, lambda0Imag,
+      lambda1Real, lambda1Imag );
 }
 
 // Compute the Schur decomposition of an upper Hessenberg matrix

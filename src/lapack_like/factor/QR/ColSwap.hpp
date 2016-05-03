@@ -38,7 +38,7 @@ void NeighborColSwap
     if( j < m-1 )
     {
         Real c; F s;
-        lapack::Givens( R.Get(j,j), R.Get(j+1,j), &c, &s );
+        lapack::Givens( R.Get(j,j), R.Get(j+1,j), c, s );
 
         auto RBR = R( IR(j,END), IR(j,END) );
         RotateRows( c, s, RBR, 0, 1 );

@@ -123,35 +123,35 @@ template<typename Real>
 Real Givens
 ( const Real& phi,
   const Real& gamma,
-        Real* c,
-        Real* s );
+        Real& c,
+        Real& s );
 template<typename Real>
 Complex<Real> Givens
 ( const Complex<Real>& phi,
   const Complex<Real>& gamma,
-  Real* c,
-  Complex<Real>* s );
+  Real& c,
+  Complex<Real>& s );
 
 float    Givens
 ( const float& phi,
   const float& gamma,
-  float* c,
-  float* s );
+  float& c,
+  float& s );
 double   Givens
 ( const double& phi,
   const double& gamma,
-  double* c,
-  double* s );
+  double& c,
+  double& s );
 scomplex Givens
 ( const scomplex& phi,
   const scomplex& gamma,
-  float* c,
-  scomplex* s );
+  float& c,
+  scomplex& s );
 dcomplex Givens
 ( const dcomplex& phi,
   const dcomplex& gamma,
-  double* c,
-  dcomplex* s );
+  double& c,
+  dcomplex& s );
 
 // Generate a Householder reflector
 // ================================
@@ -526,7 +526,9 @@ bool Solve4x4FullPiv
   const Real& smallNum,
   const Real& minPiv );
 
-// Solve a 1x1, 1x2, 2x1, or 2x2 Sylvester equation, 
+// Small Sylvester
+// ===============
+// Solve a 1x1, 1x2, 2x1, or 2x2 real Sylvester equation, 
 //
 //   op_C(C) X +- X op_D(D) = scale*B,
 //
@@ -552,6 +554,49 @@ bool SmallSylvester
         Real* X, BlasInt XLDim,
         Real& XInfNorm );
 
+// Schur exchange
+// ==============
+// NOTE: In all cases below, 'work' is expected to be a preallocated buffer
+//       of length n
+template<typename Real>
+void AdjacentSchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim, 
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  Real* work,
+  bool testAccuracy=true );
+template<typename Real>
+void AdjacentSchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim, 
+  Real* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt n1,
+  BlasInt n2,
+  Real* work,
+  bool testAccuracy=true );
+
+// TODO...
+template<typename Real>
+void SchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim, 
+  BlasInt j1,
+  BlasInt j2,
+  Real* work,
+  bool testAccuracy=true );
+template<typename Real>
+void SchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim, 
+  Real* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  Real* work,
+  bool testAccuracy=true );
+
 // Put a real 2x2 nonsymmetric matrix into standard form
 // =====================================================
 // Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
@@ -571,15 +616,28 @@ template<typename Real>
 void TwoByTwoSchur
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
+  Real& c, Real& s );
+template<typename Real>
+void TwoByTwoSchur
+( Real& alpha00, Real& alpha01,
+  Real& alpha10, Real& alpha11,
   Real& c, Real& s,
   Real& lambda0Real, Real& lambda0Imag,
   Real& lambda1Real, Real& lambda1Imag );
 void TwoByTwoSchur
 ( float& alpha00, float& alpha01,
   float& alpha10, float& alpha11,
+  float& c, float& s );
+void TwoByTwoSchur
+( float& alpha00, float& alpha01,
+  float& alpha10, float& alpha11,
   float& c, float& s,
   float& lambda0Real, float& lambda0Imag,
   float& lambda1Real, float& lambda1Imag );
+void TwoByTwoSchur
+( double& alpha00, double& alpha01,
+  double& alpha10, double& alpha11,
+  double& c, double& s );
 void TwoByTwoSchur
 ( double& alpha00, double& alpha01,
   double& alpha10, double& alpha11,
