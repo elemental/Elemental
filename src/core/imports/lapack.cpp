@@ -3500,6 +3500,326 @@ template void AdjacentSchurExchange
   bool testAccuracy );
 #endif
 
+// Exchange two blocks of a real Schur decomposition
+// =================================================
+namespace schur_exchange {
+
+// This following technique is an analogue of LAPACK's {s,d}trexc
+template<typename Real>
+void Helper
+( bool wantSchurVecs,
+  BlasInt n,
+  Real* T, BlasInt TLDim, 
+  Real* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  Real* work,
+  bool testAccuracy )
+{
+    DEBUG_ONLY(
+      CSE cse("lapack::schur_exchange::Helper");
+    )
+    const Real zero(0);
+    if( n <= 1 )
+        return;
+
+    if( j1 > 0 && T[j1+(j1-1)*TLDim] != zero )
+        --j1;
+    const bool doubleFirst = ( j1 < n-1 && T[(j1+1)+j1*TLDim] != zero );
+    const Int nb = ( doubleFirst ? 2 : 1 );
+
+    if( j2 > 0 && T[j2+(j2-1)*TLDim] != zero )
+        --j2;
+    const bool doubleSecond = ( j1 < n-1 && T[(j1+1)+j1*TLDim] != zero );
+
+    if( j1 == j2 )
+        return; 
+
+    bool splitDouble = false;
+    if( j1 < j2 )
+    {
+        // We will translate down the j1 block, one swap at a time
+        if( doubleFirst && !doubleSecond ) 
+            --j2;
+        if( !doubleFirst && doubleSecond )
+            ++j2;
+
+        for( Int j=j1; j<j2; )
+        {
+            if( !splitDouble )
+            {
+                bool doubleNext =
+                  ( j+nb+1 < n && T[(j+nb+1)+(j+nb)*TLDim] != zero );
+                Int nbNext = ( doubleNext ? 2 : 1 ); 
+                adjacent_schur::Helper
+                ( wantSchurVecs, n,
+                  T, TLDim,
+                  Q, QLDim,
+                  j, nb, nbNext,
+                  work, testAccuracy );
+
+                j += nbNext;
+                if( nb==2 && T[(j+1)+j*TLDim] == zero )
+                {
+                    // The 2x2 just split (this should be very rare)
+                    splitDouble = true;
+                }
+            }
+            else
+            {
+                bool doubleNext = ( j+3<n && T[(j+3)+(j+2)*TLDim] != zero );
+                Int nbNext = ( doubleNext ? 2 : 1 );
+                adjacent_schur::Helper
+                ( wantSchurVecs, n,
+                  T, TLDim,
+                  Q, QLDim,
+                  j+1, 1, nbNext,
+                  work, testAccuracy );
+                if( nbNext == 1 )
+                {
+                    adjacent_schur::Helper
+                    ( wantSchurVecs, n,
+                      T, TLDim,
+                      Q, QLDim,
+                      j, 1, nbNext,
+                      work, testAccuracy );
+                }
+                else
+                {
+                    if( T[(j+2)+(j+1)*TLDim] != zero )
+                    {
+                        adjacent_schur::Helper
+                        ( wantSchurVecs, n,
+                          T, TLDim,
+                          Q, QLDim,
+                          j, 1, 2,
+                          work, testAccuracy );
+                    }
+                    else
+                    {
+                        // The 2x2 just split (this should be very rare)
+                        adjacent_schur::Helper
+                        ( wantSchurVecs, n,
+                          T, TLDim,
+                          Q, QLDim,
+                          j, 1, 1,
+                          work, testAccuracy );
+                        adjacent_schur::Helper
+                        ( wantSchurVecs, n,
+                          T, TLDim,
+                          Q, QLDim,
+                          j+1, 1, 1,
+                          work, testAccuracy );
+                    }
+                }
+                j += nbNext;
+            }
+        }
+    }
+    else
+    {
+        // We will translate up the j1 block, one swap at a time
+        for( Int j=j1; j>j2; )
+        {
+            if( !splitDouble )
+            {
+                bool doubleNext = ( j>=2 && T[(j-1)+(j-2)*TLDim] != zero );
+                Int nbNext = ( doubleNext ? 2 : 1 );
+                adjacent_schur::Helper
+                ( wantSchurVecs, n,
+                  T, TLDim,
+                  Q, QLDim,
+                  j-nbNext, nbNext, nb,
+                  work, testAccuracy );
+
+                j -= nbNext;
+                if( nb==2 && T[(j+1)+j*TLDim] == zero )
+                    splitDouble = true;
+            }
+            else
+            {
+                // The 2x2 has split (this is very rare)
+                bool doubleNext = ( j>=2 && T[(j-1)+(j-2)*TLDim] != zero );
+                Int nbNext = ( doubleNext ? 2 : 1 );
+                adjacent_schur::Helper
+                ( wantSchurVecs, n,
+                  T, TLDim,
+                  Q, QLDim,
+                  j-nbNext, nbNext, 1,
+                  work, testAccuracy );
+                if( nbNext == 1 )
+                {
+                    adjacent_schur::Helper
+                    ( wantSchurVecs, n,
+                      T, TLDim,
+                      Q, QLDim,
+                      j, nbNext, 1,
+                      work, testAccuracy );
+                }
+                else
+                {
+                    if( T[j+(j-1)*TLDim] != zero )
+                    {
+                        adjacent_schur::Helper
+                        ( wantSchurVecs, n,
+                          T, TLDim,
+                          Q, QLDim,
+                          j-1, 2, 1,
+                          work, testAccuracy );
+                    }
+                    else
+                    {
+                        // The 2x2 has just split (this is very rare)
+                        adjacent_schur::Helper
+                        ( wantSchurVecs, n,
+                          T, TLDim,
+                          Q, QLDim,
+                          j, 1, 1,
+                          work, testAccuracy );
+                        adjacent_schur::Helper
+                        ( wantSchurVecs, n,
+                          T, TLDim,
+                          Q, QLDim,
+                          j-1, 1, 1,
+                          work, testAccuracy );
+                    }
+                }
+                j -= nbNext;
+            }
+        }
+    }
+}
+
+} // namespace schur_exchange
+
+template<typename Real>
+void SchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2,
+  Real* work,
+  bool testAccuracy )
+{
+    bool wantSchurVecs = false;
+    Real* Q=nullptr;
+    BlasInt QLDim = 1;
+    schur_exchange::Helper
+    ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, j2, work, testAccuracy );
+}
+
+template<typename Real>
+void SchurExchange
+( BlasInt n,
+  Real* T, BlasInt TLDim, 
+  Real* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  Real* work,
+  bool testAccuracy )
+{
+    bool wantSchurVecs = true;
+    schur_exchange::Helper
+    ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, j2, work, testAccuracy );
+}
+
+template void SchurExchange
+( BlasInt n,
+  float* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2,
+  float* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  float* T, BlasInt TLDim,
+  float* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  float* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  double* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2,
+  double* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  double* T, BlasInt TLDim,
+  double* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  double* work,
+  bool testAccuracy );
+#ifdef EL_HAVE_QUAD
+template void SchurExchange
+( BlasInt n,
+  Quad* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2,
+  Quad* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  Quad* T, BlasInt TLDim,
+  Quad* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  Quad* work,
+  bool testAccuracy );
+#endif
+#ifdef EL_HAVE_QD
+template void SchurExchange
+( BlasInt n,
+  DoubleDouble* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2,
+  DoubleDouble* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  DoubleDouble* T, BlasInt TLDim,
+  DoubleDouble* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  DoubleDouble* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  QuadDouble* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2,
+  QuadDouble* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  QuadDouble* T, BlasInt TLDim,
+  QuadDouble* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  QuadDouble* work,
+  bool testAccuracy );
+#endif
+#ifdef EL_HAVE_MPC
+template void SchurExchange
+( BlasInt n,
+  BigFloat* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2,
+  BigFloat* work,
+  bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  BigFloat* T, BlasInt TLDim,
+  BigFloat* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2,
+  BigFloat* work,
+  bool testAccuracy );
+#endif
+
 // Put a two-by-two nonsymmetric real matrix into standard form
 // ============================================================
 // Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
