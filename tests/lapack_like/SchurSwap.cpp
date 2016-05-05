@@ -13,9 +13,11 @@ template<typename Real>
 void TestSwap( Real tau, bool testAccuracy, bool print )
 {
     Output("Testing with ",TypeName<Real>());
+    const Real epsilon = limits::Epsilon<Real>();
 
+    const Int n = 4;
     Matrix<Real> A;
-    Zeros( A, 4, 4 );
+    Zeros( A, n, n );
     A.Set( 0, 0, Real(7.001) );
     A.Set( 0, 1, Real(-87)   );
     A.Set( 0, 2, Real(39.4)*tau );
@@ -30,11 +32,12 @@ void TestSwap( Real tau, bool testAccuracy, bool print )
     A.Set( 3, 3, Real(7.01) );
     if( print ) 
         Print( A, "A" );
+    auto AOrig( A );
 
     Matrix<Real> Q;
-    Identity( Q, 4, 4 );
+    Identity( Q, n, n );
 
-    vector<Real> work(4);
+    vector<Real> work(n);
     lapack::AdjacentSchurExchange
     ( A.Height(),
       A.Buffer(), A.LDim(),
@@ -47,7 +50,23 @@ void TestSwap( Real tau, bool testAccuracy, bool print )
         Print( Q, "Q" );
     }
 
-    // TODO: Add accuracy tests; but this has already proven useful
+    // E := I - Q' Q
+    Matrix<Real> E;
+    Identity( E, n, n );
+    Gemm( ADJOINT, NORMAL, Real(-1), Q, Q, Real(1), E );
+    const Real orthogErr = OneNorm( E );
+    const Real relOrthogErr = orthogErr / epsilon;
+    Output("|| I - Q' Q ||_1 / eps = ",relOrthogErr);
+
+    // E := AOrig - Q A Q'
+    Matrix<Real> Z;
+    Gemm( NORMAL, NORMAL, Real(1), Q, A, Z );
+    E = AOrig; 
+    Gemm( NORMAL, ADJOINT, Real(-1), Z, Q, Real(1), E );
+    const Real oneNormA = OneNorm( AOrig );
+    const Real swapErr = OneNorm( E );
+    const Real relSwapErr = swapErr / (epsilon*oneNormA);
+    Output("|| AOrig - Q A Q' ||_1 / (eps*|| A ||_1) = ",relSwapErr);
 }
 
 int main( int argc, char* argv[] )
