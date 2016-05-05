@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
+#include <El/io.hpp>
 
 using El::FortranLogical;
 using El::BlasInt;
@@ -2403,6 +2404,12 @@ bool Solve4x4FullPiv
     const Real zero(0), one(1), eight(8);
     bool perturbed = false;
 
+    Matrix<Real> AMat( 4, 4, A, 4 );
+    Print( AMat, "A4x4" );
+
+    Matrix<Real> bMat( 4, 1, b, 4 );
+    Print( bMat, "b4x1" );
+
     BlasInt iPiv, jPiv;
     BlasInt p[4];
     for( BlasInt i=0; i<3; ++i )
@@ -2484,6 +2491,7 @@ bool Solve4x4FullPiv
             b[p[2-i]] = tmp;
         }
     }
+    Print( bMat, "b4x1Aft" );
     return perturbed;
 }
 template bool Solve4x4FullPiv
@@ -2744,6 +2752,7 @@ bool SmallSylvester
             A[2+0*4] = sgn*delta01;
             A[3+1*4] = sgn*delta01;
         }
+        A[0+3*4] = A[1+2*4] = A[2+1*4] = A[3+0*4] = 0;
         b[0] = beta00;
         b[1] = beta10;
         b[2] = beta01;
@@ -3046,6 +3055,10 @@ void Helper
         const Real smallNum = limits::SafeMin<Real>() / epsilon;
         const Real thresh = Max( Real(10)*epsilon*DMax, smallNum );
 
+        El::Matrix<Real> DMat( nSum, nSum, D, nSum );
+        El::Matrix<Real> XMat( n1, n2, X, XLDim );
+        El::Print( DMat, "D" );
+
         // Solve the Sylvester equation T11*X - X*T22 = scale*T12 for X
         Real scale, XInfNorm;
         const bool transT11=false, transT22=false, negate=true;
@@ -3055,6 +3068,10 @@ void Helper
           &D[n1+n1*nSum], nSum,
           &D[0 +n1*nSum], nSum,
           scale, X, XLDim, XInfNorm );
+
+        El::Print( DMat, "DAfter" );
+        El::Output("scale=",scale);
+        El::Print( XMat, "X" );
 
         Real innerProd, tmp;
         const Real zero(0);
@@ -3075,8 +3092,7 @@ void Helper
             //   (I - phi [nu0; nu1; 1] [nu0, nu1, 1]) | 1    | = | 0   |
             //                                         | chi0 |   | 0   |
             //                                         | chi1 |   | rho |
-            //
-            // which is simply a permutation of the standard formulation
+            // // which is simply a permutation of the standard formulation
             // (and this fact is exploited by LAPACK).
             Real v[3];
             v[0] = scale;
