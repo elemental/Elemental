@@ -10,29 +10,16 @@
 using namespace El;
 
 template<typename Real>
-void TestSwap( Real tau, bool testAccuracy, bool print )
+void TestSwap( const Matrix<Real>& AOrig, bool testAccuracy, bool print )
 {
-    Output("Testing with ",TypeName<Real>());
     const Real epsilon = limits::Epsilon<Real>();
 
-    const Int n = 4;
-    Matrix<Real> A;
-    Zeros( A, n, n );
-    A.Set( 0, 0, Real(7.001) );
-    A.Set( 0, 1, Real(-87)   );
-    A.Set( 0, 2, Real(39.4)*tau );
-    A.Set( 0, 3, Real(22.2)*tau );
-    A.Set( 1, 0, Real(5) );
-    A.Set( 1, 1, Real(7.001) );
-    A.Set( 1, 2, Real(-12.2)*tau );
-    A.Set( 1, 3, Real(36.)*tau );
-    A.Set( 2, 2, Real(7.01) );
-    A.Set( 2, 3, Real(-11.7567) );
-    A.Set( 3, 2, Real(37) );
-    A.Set( 3, 3, Real(7.01) );
+    auto A( AOrig );
+    const Int n = A.Height();
+    if( n != 4 )
+        LogicError("Currently assuming n=4");
     if( print ) 
         Print( A, "A" );
-    auto AOrig( A );
 
     Matrix<Real> Q;
     Identity( Q, n, n );
@@ -69,6 +56,101 @@ void TestSwap( Real tau, bool testAccuracy, bool print )
     Output("|| AOrig - Q A Q' ||_1 / (eps*|| A ||_1) = ",relSwapErr);
 }
 
+template<typename Real>
+void Test( Real tau, bool testAccuracy, bool print )
+{
+    Output("Testing with ",TypeName<Real>());
+    PushIndent();
+    const Int n = 4;
+
+    // Try several examples from Bai and Demmel's paper
+    Output("Trying 'tau' example with tau=",tau);
+    Matrix<Real> A;
+    Zeros( A, n, n );
+    A.Set( 0, 0, Real(7.001) );
+    A.Set( 0, 1, Real(-87)   );
+    A.Set( 0, 2, Real(39.4)*tau );
+    A.Set( 0, 3, Real(22.2)*tau );
+    A.Set( 1, 0, Real(5) );
+    A.Set( 1, 1, Real(7.001) );
+    A.Set( 1, 2, Real(-12.2)*tau );
+    A.Set( 1, 3, Real(36.)*tau );
+    A.Set( 2, 2, Real(7.01) );
+    A.Set( 2, 3, Real(-11.7567) );
+    A.Set( 3, 2, Real(37) );
+    A.Set( 3, 3, Real(7.01) );
+    TestSwap( A, testAccuracy, print );
+
+    // Test 1 from Table 1
+    Output("Trying Test 1 from Table 1");
+    Zeros( A, n, n );    
+    A.Set( 0, 0, Real(2) );
+    A.Set( 0, 1, Real(-87) );
+    A.Set( 0, 2, Real(-20000) );
+    A.Set( 0, 3, Real(10000) );
+    A.Set( 1, 0, Real(5) );
+    A.Set( 1, 1, Real(2) );
+    A.Set( 1, 2, Real(-20000) );
+    A.Set( 1, 3, Real(-10000) );
+    A.Set( 2, 2, Real(1) );
+    A.Set( 2, 3, Real(-11) );
+    A.Set( 3, 2, Real(37) );
+    A.Set( 3, 3, Real(1) );
+    TestSwap( A, testAccuracy, print );
+
+    // Test 2 from Table 1
+    Output("Trying Test 2 from Table 1");
+    Zeros( A, n, n );
+    A.Set( 0, 0, Real(1) );
+    A.Set( 0, 1, Real(-3) );
+    A.Set( 0, 2, Real(3576) );
+    A.Set( 0, 3, Real(4888) );
+    A.Set( 1, 0, Real(1) );
+    A.Set( 1, 1, Real(1) );
+    A.Set( 1, 2, Real(-88) );
+    A.Set( 1, 3, Real(-1440) );
+    A.Set( 2, 2, Real(1.001) );
+    A.Set( 2, 3, Real(-3) );
+    A.Set( 3, 2, Real(1.001) );
+    A.Set( 3, 3, Real(1.001) );
+    TestSwap( A, testAccuracy, print );
+
+    // Test 3 from Table 1
+    Output("Trying Test 3 from Table 1");
+    Zeros( A, n, n );
+    A.Set( 0, 0, Real(1) );
+    A.Set( 0, 1, Real(-100) );
+    A.Set( 0, 2, Real(400) );
+    A.Set( 0, 3, Real(-1000) );
+    A.Set( 1, 0, Real(0.01) );
+    A.Set( 1, 1, Real(1) );
+    A.Set( 1, 2, Real(1200) );
+    A.Set( 1, 3, Real(-10) );
+    A.Set( 2, 2, Real(1.001) );
+    A.Set( 2, 3, Real(-0.01) );
+    A.Set( 3, 2, Real(100) );
+    A.Set( 3, 3, Real(1.001) );
+    TestSwap( A, testAccuracy, print );
+
+    // Test 4 from Table 1
+    Output("Trying Test 4 from Table 1");
+    Zeros( A, n, n );
+    A.Set( 0, 0, Real(1) );
+    A.Set( 0, 1, Real(-3) );
+    A.Set( 0, 2, Real(3) );
+    A.Set( 0, 3, Real(2) );
+    A.Set( 1, 0, Real(1) );
+    A.Set( 1, 1, Real(9) );
+    A.Set( 1, 2, Real(0) );
+    A.Set( 2, 2, Real(1) );
+    A.Set( 2, 3, Real(-3) );
+    A.Set( 3, 2, Real(1) );
+    A.Set( 3, 3, Real(1) );
+    TestSwap( A, testAccuracy, print );
+    
+    PopIndent();
+}
+
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -77,20 +159,20 @@ int main( int argc, char* argv[] )
     {
         const double tau = Input("--tau","scaling parameter",1.); 
         const bool testAccuracy = Input("--testAccuracy","test accuracy?",true);
-        const bool print = Input("--print","print?",true);
+        const bool print = Input("--print","print?",false);
         ProcessInput();
 
-        TestSwap( float(tau), testAccuracy, print );
-        TestSwap( double(tau), testAccuracy, print );
+        Test( float(tau), testAccuracy, print );
+        Test( double(tau), testAccuracy, print );
 #ifdef EL_HAVE_QUAD
-        TestSwap( Quad(tau), testAccuracy, print );
+        Test( Quad(tau), testAccuracy, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestSwap( DoubleDouble(tau), testAccuracy, print );
-        TestSwap( QuadDouble(tau), testAccuracy, print );
+        Test( DoubleDouble(tau), testAccuracy, print );
+        Test( QuadDouble(tau), testAccuracy, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestSwap( BigFloat(tau), testAccuracy, print );
+        Test( BigFloat(tau), testAccuracy, print );
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }
