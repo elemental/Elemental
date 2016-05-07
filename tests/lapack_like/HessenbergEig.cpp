@@ -1150,7 +1150,7 @@ void SmallBulgeSweep
 }
 
 template<typename Real>
-void WindowedSingle
+Int WindowedSingle
 ( Matrix<Real>& H,
   Int winBeg,
   Int winEnd,
@@ -1158,7 +1158,8 @@ void WindowedSingle
   Matrix<Real>& wImag,
   bool fullTriangle,
   Matrix<Real>& Z,
-  bool wantSchurVecs )
+  bool wantSchurVecs,
+  bool demandConverged )
 {
     const Real zero(0), threeFourths=Real(3)/Real(4);
     const Int maxIter=30;    
@@ -1180,13 +1181,13 @@ void WindowedSingle
 
     if( windowSize == 0 )
     {
-        return;
+        return winBeg;
     }
     if( windowSize == 1 )
     {
         wRealBuf[winBeg] = HBuf[winBeg+winBeg*HLDim];
         wImagBuf[winBeg] = zero;
-        return;
+        return winBeg;
     }
 
     // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
@@ -1305,20 +1306,22 @@ void WindowedSingle
               Z,
               wantSchurVecs );
         }
-        if( iter == maxIter )
+        if( iter == maxIter && demandConverged )
             RuntimeError("QR iteration did not converge");
     }
+    return winEnd;
 }
 
 template<typename Real>
-void WindowedSingle
+Int WindowedSingle
 (       Matrix<Complex<Real>>& H,
         Int winBeg,
         Int winEnd,
         Matrix<Complex<Real>>& w,
   bool fullTriangle,
         Matrix<Complex<Real>>& Z,
-  bool wantSchurVecs )
+  bool wantSchurVecs,
+  bool demandConverged )
 {
     typedef Complex<Real> F;
     const Real zero(0), threeFourths=Real(3)/Real(4);
@@ -1336,12 +1339,12 @@ void WindowedSingle
 
     if( windowSize == 0 )
     {
-        return;
+        return winBeg;
     }
     if( windowSize == 1 )
     {
         wBuf[winBeg] = HBuf[winBeg+winBeg*HLDim];
-        return;
+        return winBeg;
     }
 
     // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
@@ -1425,9 +1428,126 @@ void WindowedSingle
               Z,
               wantSchurVecs );
         }
-        if( iter == maxIter )
+        if( iter == maxIter && demandConverged )
             RuntimeError("QR iteration did not converge");
     }
+    return winEnd;
+}
+
+// The best references are
+//
+//   Karen Braman, Ralph Byers, and Roy Mathias,
+//   "The multishift QR algorithm. Part II: Aggressive Early Deflation",
+//   SIAM J. Matrix Anal. Appl., Vol. 23, No. 4, pp. 948--973, 2002
+//
+// and the LAPACK implementation DLAQR2, which has several distinct differences
+// from the suggestions of Braman et al., such as:
+//
+//   1) Solely using "nearby-diagonal deflation" instead of Braman et al.'s 
+//      suggestion of also allowing for "window-Schur deflation".
+//
+//   2) Using the largest (in magnitude) eigenvalue of a 2x2 Schur block to 
+//      determine whether it qualifies for "nearby-diagonal deflation" rather
+//      that using the square-root of the absolute value of the determinant
+//      (which would correspond to the geometric mean of the eigenvalue
+//       magnitudes). 
+//
+// In both respects, the LAPACK implementation is significantly more
+// conservative than the original suggestions of Braman et al.
+//
+template<typename Real>
+Int SpikeDeflation
+(       Matrix<Real>& T,
+        Matrix<Real>& V,
+  const Real& eta,
+        Int winBeg=0 )
+{
+    DEBUG_ONLY(CSE cse("hess_qr::SpikeDeflation"))
+
+    const Int n = T.Height();
+    Real* TBuf = T.Buffer();
+    Real* VBuf = V.Buffer();
+    const Int TLDim = T.LDim();
+    const Int VLDim = V.LDim();
+
+    const Real zero(0);
+    const Real ulp = limits::Precision<Real>();
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real smallNum = safeMin*(Real(n)/ulp);
+
+    // TODO: Take this as an argument to SpikeDeflation to avoid reallocation?
+    vector<Real> work(n);
+
+    Int winEnd = n;
+    while( winBeg < winEnd )
+    {
+        const bool twoByTwo =
+          ( winEnd==1 ? false : TBuf[(winEnd-1)+(winEnd-2)*TLDim] != zero );
+
+        if( twoByTwo )
+        {
+            // Follow LAPACK's suit (rather than Braman et al.) and use the 
+            // eigenvalue of the 2x2 with largest magnitude in order to 
+            // determine if this entry of the spike qualifies for 
+            // "nearby-diagonal" deflation. Recall that the 2x2 block is assumed
+            // to be in standard form,
+            //
+            //    | alpha, gamma |, where beta*gamma < 0,
+            //    | beta,  alpha |
+            //
+            // so that the eigenvalues are alpha +- sqrt(beta*gamma) and the
+            // spectral radius is |alpha| + sqrt(beta*gamma).
+            //
+            const Real& alpha = TBuf[(winEnd-2)+(winEnd-2)*TLDim];
+            const Real& beta  = TBuf[(winEnd-1)+(winEnd-2)*TLDim]; 
+            const Real& gamma = TBuf[(winEnd-2)+(winEnd-1)*TLDim];
+            const Real spectralRadius =
+                Abs(alpha) + Sqrt(Abs(beta))*Sqrt(Abs(gamma));
+            const Real scale =
+              ( spectralRadius > 0 ? spectralRadius : Abs(eta) );
+
+            // The relevant two entries of spike V^T [eta; zeros(n-1,1)]
+            const Real sigma0 = eta*VBuf[(winEnd-2)*VLDim];
+            const Real sigma1 = eta*VBuf[(winEnd-1)*VLDim];
+
+            if( Max( Abs(sigma0), Abs(sigma1) ) <= Max( smallNum, ulp*scale ) )
+            {
+                // The two-by-two block satisfies the "nearby-diagonal" test
+                winEnd -= 2;
+            }
+            else
+            {
+                // Move this undeflatable 2x2 block to the top of the window 
+                lapack::SchurExchange
+                ( n, T, TLDim, V, VLDim, winEnd-2, winBeg, work.data() );
+                winBeg += 2;
+            }
+        }
+        else
+        {
+            const Real spectralRadius = Abs(TBuf[(winEnd-1)+(winEnd-1)*TLDim]);
+            const Real scale =
+              ( spectralRadius > 0 ? spectralRadius : Abs(eta) );
+
+            // The relevant entry of the spike V^T [eta; zeros(n-1,1)]
+            const Real sigma = eta*VBuf[(winEnd-1)*VLDim];
+
+            if( Abs(sigma) <= Max( smallNum, ulp*scale ) )
+            {
+                // The one-by-one block satisfies the "nearby-diagonal" test
+                winEnd -= 1;
+            }
+            else
+            {
+                // Move the undeflatable 1x1 block to the top of the window
+                lapack::SchurExchange
+                ( n, T, TLDim, V, VLDim, winEnd-1, winBeg, work.data() );
+                winBeg += 1;
+            }
+        }
+    }
+    // Return the number of unconverged/undeflated eigenvalues
+    return winBeg;
 }
 
 } // namespace hess_qr
@@ -1441,6 +1561,7 @@ void HessenbergQR
 {
     Int winBeg=0, winEnd=H.Height();
     bool wantSchurVecs=false;
+    bool demandConverged=true;
     Matrix<Real> Z;
     hess_qr::WindowedSingle
     ( H,
@@ -1448,7 +1569,8 @@ void HessenbergQR
       wReal, wImag,
       fullTriangle, 
       Z,
-      wantSchurVecs );
+      wantSchurVecs,
+      demandConverged );
 }
 
 template<typename Real>
@@ -1461,13 +1583,15 @@ void HessenbergQR
 {
     Int winBeg=0, winEnd=H.Height();
     bool wantSchurVecs=true;
+    bool demandConverged=true;
     hess_qr::WindowedSingle
     ( H,
       winBeg, winEnd,
       wReal, wImag,
       fullTriangle, 
       Z,
-      wantSchurVecs );
+      wantSchurVecs,
+      demandConverged );
 }
 
 template<typename Real>
@@ -1478,6 +1602,7 @@ void HessenbergQR
 {
     Int winBeg=0, winEnd=H.Height();
     bool wantSchurVecs=false;
+    bool demandConverged=true;
     Matrix<Complex<Real>> Z;
     hess_qr::WindowedSingle
     ( H,
@@ -1485,7 +1610,8 @@ void HessenbergQR
       w,
       fullTriangle, 
       Z,
-      wantSchurVecs );
+      wantSchurVecs,
+      demandConverged );
 }
 
 template<typename Real>
@@ -1497,13 +1623,15 @@ void HessenbergQR
 {
     Int winBeg=0, winEnd=H.Height();
     bool wantSchurVecs=true;
+    bool demandConverged=true;
     hess_qr::WindowedSingle
     ( H,
       winBeg, winEnd,
       w,
       fullTriangle, 
       Z,
-      wantSchurVecs );
+      wantSchurVecs,
+      demandConverged );
 }
 
 template<typename Real>

@@ -578,7 +578,6 @@ void AdjacentSchurExchange
   Real* work,
   bool testAccuracy=true );
 
-// TODO...
 template<typename Real>
 void SchurExchange
 ( BlasInt n,
