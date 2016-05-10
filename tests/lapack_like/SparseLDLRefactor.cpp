@@ -91,7 +91,8 @@ int main( int argc, char* argv[] )
         ldl::NestedDissection( graph, map, sep, info, ctrl );
         InvertMap( map, invMap );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         const Int rootSepSize = info.size;
         OutputFromRoot(comm,rootSepSize," vertices in root separator\n");
@@ -101,7 +102,8 @@ int main( int argc, char* argv[] )
         timer.Start();
         ldl::DistFront<double> front( A, map, sep, info, false );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         for( Int repeat=0; repeat<numRepeats; ++repeat )
         {
@@ -116,7 +118,8 @@ int main( int argc, char* argv[] )
             else
                 LDL( info, front, LDL_1D );
             mpi::Barrier( comm );
-            OutputFromRoot(comm,timer.Stop()," seconds");
+            timer.Stop();
+            OutputFromRoot(comm,timer.Partial()," seconds");
 
             OutputFromRoot(comm,"Solving against random right-hand side...");
             timer.Start();
@@ -124,7 +127,8 @@ int main( int argc, char* argv[] )
             MakeUniform( y );
             ldl::SolveAfter( invMap, info, front, y );
             mpi::Barrier( comm );
-            OutputFromRoot(comm,"Time = ",timer.Stop()," seconds");
+            timer.Stop();
+            OutputFromRoot(comm,"Time = ",timer.Partial()," seconds");
 
             // TODO: Check residual error
         }

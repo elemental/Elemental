@@ -33,8 +33,8 @@ LVar3Unb( Matrix<F>& A )
         A(j,j) = alpha11;
 
         const Int a21Height = n-(j+1);
-        F* a21 = &A(j+1,j  );
-        F* A22 = &A(j+1,j+1);
+        F* a21 = A.Buffer(j+1,j  );
+        F* A22 = A.Buffer(j+1,j+1);
 
         blas::Scal( a21Height, Real(1)/alpha11, a21, 1 );
         blas::Her( 'L', a21Height, -Real(1), a21, 1, A22, ALDim );

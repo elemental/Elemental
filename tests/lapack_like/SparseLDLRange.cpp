@@ -84,7 +84,8 @@ int main( int argc, char* argv[] )
             ldl::NestedDissection( graph, map, sep, info, ctrl );
         InvertMap( map, invMap );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         const Int rootSepSize = info.size;
         OutputFromRoot(comm,rootSepSize," vertices in root separator\n");
@@ -104,7 +105,8 @@ int main( int argc, char* argv[] )
         timer.Start();
         ldl::DistFront<C> front( A, map, sep, info, false );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         // Memory usage before factorization
         const Int localEntriesBefore = front.NumLocalEntries();

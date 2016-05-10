@@ -44,8 +44,8 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
                   throw ZeroPivotException();
             )
             const Real alpha11Inv = Real(1)/alpha11;
-            F* a21 = &A(j+1,j  );
-            F* A22 = &A(j+1,j+1);
+            F* a21 = A.Buffer(j+1,j  );
+            F* A22 = A.Buffer(j+1,j+1);
 
             blas::Her( 'L', a21Height, -alpha11Inv, a21, 1, A22, ALDim );
             blas::Scal( a21Height, alpha11Inv, a21, 1 );
@@ -63,8 +63,8 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
                   throw ZeroPivotException();
             )
             const F alpha11Inv = Real(1)/alpha11;
-            F* a21 = &A(j+1,j  );
-            F* A22 = &A(j+1,j+1);
+            F* a21 = A.Buffer(j+1,j  );
+            F* A22 = A.Buffer(j+1,j+1);
 
             blas::Syr( 'L', a21Height, -alpha11Inv, a21, 1, A22, ALDim );
             blas::Scal( a21Height, alpha11Inv, a21, 1 );

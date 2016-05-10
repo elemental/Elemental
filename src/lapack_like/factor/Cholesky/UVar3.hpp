@@ -33,8 +33,8 @@ UVar3Unb( Matrix<F>& A )
         A(j,j) = alpha11;
 
         const Int a12Width = n-(j+1);
-        F* a12 = &A(j  ,j+1);
-        F* A22 = &A(j+1,j+1);
+        F* a12 = A.Buffer(j  ,j+1);
+        F* A22 = A.Buffer(j+1,j+1);
 
         blas::Scal( a12Width, Real(1)/alpha11, a12, ALDim );
 
