@@ -28,19 +28,19 @@ void Lyapunov
         ElementalMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
-// Ricatti
+// Riccati
 // =======
 template<typename F>
-void Ricatti
+void Riccati
 ( Matrix<F>& W, Matrix<F>& X, 
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
-void Ricatti
+void Riccati
 ( ElementalMatrix<F>& W, ElementalMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo,
   const Matrix<F>& A,
   const Matrix<F>& K,
@@ -48,7 +48,7 @@ void Ricatti
         Matrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo,
   const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& K, 
