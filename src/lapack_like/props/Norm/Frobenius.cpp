@@ -19,11 +19,9 @@ Base<F> FrobeniusNorm( const Matrix<F>& A )
     Real scaledSquare = 1;
     const Int width = A.Width();
     const Int height = A.Height();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            UpdateScaledSquare( ABuf[i+j*ALDim], scale, scaledSquare );
+            UpdateScaledSquare( A(i,j), scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
 
@@ -53,18 +51,16 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
     Real scaledSquare = 1;
     const Int height = A.Height();
     const Int width = A.Width();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
     if( uplo == UPPER )
     {
         for( Int j=0; j<width; ++j )
         {
             for( Int i=0; i<j; ++i )
             {
-                UpdateScaledSquare( ABuf[i+j*ALDim], scale, scaledSquare );
-                UpdateScaledSquare( ABuf[i+j*ALDim], scale, scaledSquare );
+                UpdateScaledSquare( A(i,j), scale, scaledSquare );
+                UpdateScaledSquare( A(i,j), scale, scaledSquare );
             }
-            UpdateScaledSquare( ABuf[j+j*ALDim], scale, scaledSquare );
+            UpdateScaledSquare( A(j,j), scale, scaledSquare );
         }
     }
     else
@@ -73,10 +69,10 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
         {
             for( Int i=j+1; i<height; ++i )
             {
-                UpdateScaledSquare( ABuf[i+j*ALDim], scale, scaledSquare );
-                UpdateScaledSquare( ABuf[i+j*ALDim], scale, scaledSquare );
+                UpdateScaledSquare( A(i,j), scale, scaledSquare );
+                UpdateScaledSquare( A(i,j), scale, scaledSquare );
             }
-            UpdateScaledSquare( ABuf[j+j*ALDim], scale, scaledSquare );
+            UpdateScaledSquare( A(j,j), scale, scaledSquare );
         }
     }
     return scale*Sqrt(scaledSquare);
@@ -133,12 +129,11 @@ Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
         Real locScale=0, locScaledSquare=1;
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const F* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
+        const Matrix<F>& ALoc = A.LockedMatrix();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 UpdateScaledSquare
-                ( ABuf[iLoc+jLoc*ALDim], locScale, locScaledSquare );
+                ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
 
         // Find the maximum relative scale
         mpi::Comm comm = A.DistComm();
@@ -208,8 +203,7 @@ Base<F> HermitianFrobeniusNorm
         Real locScaledSquare = 1;
         const Int localWidth = A.LocalWidth();
         const Int localHeight = A.LocalHeight();
-        const F* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
+        const Matrix<F>& ALoc = A.LockedMatrix();
         if( uplo == UPPER )
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -220,10 +214,10 @@ Base<F> HermitianFrobeniusNorm
                 {
                     const Int i = A.GlobalRow(iLoc);
                     UpdateScaledSquare
-                    ( ABuf[iLoc+jLoc*ALDim], locScale, locScaledSquare );
+                    ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
                     if( i != j )
                         UpdateScaledSquare
-                        ( ABuf[iLoc+jLoc*ALDim], locScale, locScaledSquare );
+                        ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
                 }
             }
         }
@@ -237,10 +231,10 @@ Base<F> HermitianFrobeniusNorm
                 {
                     const Int i = A.GlobalRow(iLoc);
                     UpdateScaledSquare
-                    ( ABuf[iLoc+jLoc*ALDim], locScale, locScaledSquare );
+                    ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
                     if( i != j )
                         UpdateScaledSquare
-                        ( ABuf[iLoc+jLoc*ALDim], locScale, locScaledSquare );
+                        ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
                 }
             }
         }
@@ -336,11 +330,10 @@ Base<F> FrobeniusNorm( const DistMultiVec<F>& A )
     Real locScale=0, locScaledSquare=1;
     const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
-    const F* ABuf = A.LockedMatrix().LockedBuffer();
-    const Int ALDim = A.LockedMatrix().LDim();
+    const Matrix<F>& ALoc = A.LockedMatrix();
     for( Int j=0; j<width; ++j )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            UpdateScaledSquare( ABuf[iLoc+j*ALDim], locScale, locScaledSquare );
+            UpdateScaledSquare( ALoc(iLoc,j), locScale, locScaledSquare );
 
     // Find the maximum relative scale
     mpi::Comm comm = A.Comm();

@@ -285,20 +285,20 @@ void KKT
     // Jzz := -W^2
     // ===========
     // TODO: Create soc::ExplicitQuadratic?
-    DistMatrix<Int,MC,STAR> orders_MC_STAR(g), firstInds_MC_STAR(g);
-    DistMatrix<Real,MC,STAR> w_MC_STAR(g);
-    DistMatrix<Real,MR,STAR> w_MR_STAR(g);
-    DistMatrix<Real,MC,STAR> wDets_MC_STAR(g);
-    orders_MC_STAR.AlignWith( Jzz );
-    firstInds_MC_STAR.AlignWith( Jzz );
-    w_MC_STAR.AlignWith( Jzz );
-    w_MR_STAR.AlignWith( Jzz );
-    wDets_MC_STAR.AlignWith( Jzz );
-    orders_MC_STAR = orders;
-    firstInds_MC_STAR = firstInds;
-    w_MC_STAR = w;
-    w_MR_STAR = w;
-    wDets_MC_STAR = wDets;
+    DistMatrix<Int,MC,STAR> orders_MC(g), firstInds_MC(g);
+    DistMatrix<Real,MC,STAR> w_MC(g);
+    DistMatrix<Real,MR,STAR> w_MR(g);
+    DistMatrix<Real,MC,STAR> wDets_MC(g);
+    orders_MC.AlignWith( Jzz );
+    firstInds_MC.AlignWith( Jzz );
+    w_MC.AlignWith( Jzz );
+    w_MR.AlignWith( Jzz );
+    wDets_MC.AlignWith( Jzz );
+    orders_MC = orders;
+    firstInds_MC = firstInds;
+    w_MC = w;
+    w_MR = w;
+    wDets_MC = wDets;
     const Int localWidthJzz = Jzz.LocalWidth();
     const Int localHeightJzz = Jzz.LocalHeight();
     // For now, perform this in quadratic time, which does not effect the
@@ -306,29 +306,35 @@ void KKT
     // matrix has the same asymptotic cost. A more efficient parallel 
     // implementation will require more thought (and likely substantially more
     // code).
+    Matrix<Int>& orders_MCLoc = orders_MC.Matrix();
+    Matrix<Int>& firstInds_MCLoc = firstInds_MC.Matrix();
+    Matrix<Real>& JzzLoc = Jzz.Matrix();
+    Matrix<Real>& w_MCLoc = w_MC.Matrix();
+    Matrix<Real>& w_MRLoc = w_MR.Matrix();
+    Matrix<Real>& wDets_MCLoc = wDets_MC.Matrix();
     for( Int iLoc=0; iLoc<localHeightJzz; ++iLoc )
     {
         const Int i = Jzz.GlobalRow(iLoc);
-        const Int order = orders_MC_STAR.GetLocal(iLoc,0);
-        const Int firstInd = firstInds_MC_STAR.GetLocal(iLoc,0);
-        const Real omega_i = w_MC_STAR.GetLocal(iLoc,0);
-        const Real wDet = wDets_MC_STAR.GetLocal(iLoc,0);
+        const Int order = orders_MCLoc(iLoc);
+        const Int firstInd = firstInds_MCLoc(iLoc);
+        const Real omega_i = w_MCLoc(iLoc);
+        const Real wDet = wDets_MCLoc(iLoc);
         // TODO: Restrict the range of this loop (perhaps via Length)
         for( Int jLoc=0; jLoc<localWidthJzz; ++jLoc ) 
         {
             const Int j = Jzz.GlobalCol(jLoc);
-            const Real omega_j = w_MR_STAR.GetLocal(jLoc,0);
+            const Real omega_j = w_MRLoc(jLoc);
 
             // Handle the diagonal update, det(w) R
             if( i == firstInd && j == firstInd ) 
-                Jzz.UpdateLocal( iLoc, jLoc, wDet );
+                JzzLoc(iLoc,jLoc) += wDet;
             else if( i == j )
-                Jzz.UpdateLocal( iLoc, jLoc, -wDet );
+                JzzLoc(iLoc,jLoc) -= wDet;
 
             // Handle the rank-one update, -2 w w^T
             if( (!onlyLower || i >= j) && 
                 j >= firstInd && j < firstInd+order )
-                Jzz.UpdateLocal( iLoc, jLoc, -2*omega_i*omega_j ); 
+                JzzLoc(iLoc,jLoc) -= 2*omega_i*omega_j;
         }
     }
 }
@@ -368,9 +374,9 @@ void KKT
         Int numEntries = A.NumEntries() + G.NumEntries();
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -401,23 +407,23 @@ void KKT
         for( Int e=0; e<G.NumEntries(); ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -431,12 +437,12 @@ void KKT
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w.Get(j,0) );
+                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w(j) );
             }
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.Get(i,0);
+                const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -479,9 +485,9 @@ void KKT
         Int numEntries = 2*A.NumEntries() + 2*G.NumEntries();
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -516,24 +522,24 @@ void KKT
         for( Int e=0; e<G.NumEntries(); ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -549,7 +555,7 @@ void KKT
                     if( j != i )
                         J.QueueUpdate
                         ( n+m+iSparse, n+m+(j+sparseOff), 
-                          -2*omega_i*w.Get(j,0) );
+                          -2*omega_i*w(j) );
             }
             else
             {
@@ -633,9 +639,9 @@ void StaticKKT
         // of the barrier will eventually exist
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -666,17 +672,17 @@ void StaticKKT
         for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
 
             if( order == sparseOrder )
@@ -714,9 +720,9 @@ void StaticKKT
         Int numEntries = 2*numEntriesA + 2*numEntriesG + m + n + kSparse;
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -750,18 +756,18 @@ void StaticKKT
         for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
 
             if( order == sparseOrder )
@@ -837,9 +843,9 @@ void FinishKKT
         Int numEntries = 0;
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -868,16 +874,16 @@ void FinishKKT
             J.Reserve( J.NumEntries()+numEntries );
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -891,12 +897,12 @@ void FinishKKT
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w.Get(j,0) );
+                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w(j) );
             }
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.Get(i,0);
+                const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -939,9 +945,9 @@ void FinishKKT
         Int numEntries = 0;
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -971,16 +977,16 @@ void FinishKKT
             J.Reserve( J.NumEntries()+numEntries );
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -996,12 +1002,12 @@ void FinishKKT
                     if( j != i )
                         J.QueueUpdate
                         ( n+m+iSparse, n+m+(j+sparseOff), 
-                          -2*omega_i*w.Get(j,0) );
+                          -2*omega_i*w(j) );
             }
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.Get(i,0);
+                const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 

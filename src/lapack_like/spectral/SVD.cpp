@@ -353,9 +353,9 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD [BlockMatrix values]"))
-    typedef Base<F> Real;
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
+    typedef Base<F> Real;
     DistMatrix<F,MC,MR,BLOCK> AMod( A.Grid() );
     if( ctrl.overwrite )
         View( AMod, A );
@@ -434,9 +434,9 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("SVD [BlockMatrix Decomp]"))
-    typedef Base<F> Real;
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
+    typedef Base<F> Real;
     DistMatrix<F,MC,MR,BLOCK> AMod( A.Grid() );
     if( ctrl.overwrite )
         View( AMod, A );

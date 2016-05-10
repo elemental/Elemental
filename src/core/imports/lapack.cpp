@@ -2407,6 +2407,7 @@ bool Solve4x4FullPiv
     BlasInt p[4];
     for( BlasInt i=0; i<3; ++i )
     {
+        iPiv=jPiv=0;
         Real AMax = zero;
         for( BlasInt iMax=i; iMax<4; ++iMax )
         {
@@ -3008,7 +3009,7 @@ void Helper
         // to remain zero (and therefore swapping tau11 and tau22 and preserving
         // tau12)
         Real c, s;
-        Real rho = lapack::Givens( tau12, tau22-tau11, c, s );
+        lapack::Givens( tau12, tau22-tau11, c, s );
 
         if( j1+2 < n )
         {
@@ -4029,7 +4030,6 @@ void TwoByTwoSchur
   float& lambda0Real, float& lambda0Imag,
   float& lambda1Real, float& lambda1Imag )
 {
-    typedef float Real;
     EL_LAPACK(slanv2)
     ( &alpha00, &alpha01,
       &alpha10, &alpha11,
@@ -4060,7 +4060,6 @@ void TwoByTwoSchur
   double& lambda0Real, double& lambda0Imag,
   double& lambda1Real, double& lambda1Imag )
 {
-    typedef double Real;
     EL_LAPACK(dlanv2)
     ( &alpha00, &alpha01,
       &alpha10, &alpha11,

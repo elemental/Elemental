@@ -388,7 +388,9 @@ EL_NO_RELEASE_EXCEPT
       CSE cse("Matrix::Get");
       AssertValidEntry( i, j );
     )
-    return Get_( i, j );
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    return CRef( i, j );
 }
 
 template<typename T>
@@ -399,7 +401,9 @@ EL_NO_RELEASE_EXCEPT
       CSE cse("Matrix::GetRealPart");
       AssertValidEntry( i, j );
     )
-    return El::RealPart( Get_( i, j ) );
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    return El::RealPart( CRef( i, j ) );
 }
 
 template<typename T>
@@ -410,7 +414,9 @@ EL_NO_RELEASE_EXCEPT
       CSE cse("Matrix::GetImagPart");
       AssertValidEntry( i, j );
     )
-    return El::ImagPart( Get_( i, j ) );
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    return El::ImagPart( CRef( i, j ) );
 }
 
 template<typename T>
@@ -423,7 +429,9 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    Set_( i, j ) = alpha;
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    Ref( i, j ) = alpha;
 }
 
 template<typename T>
@@ -441,7 +449,9 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    El::SetRealPart( Set_( i, j ), alpha );
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    El::SetRealPart( Ref( i, j ), alpha );
 }
 
 template<typename T>
@@ -459,7 +469,9 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    El::SetImagPart( Set_( i, j ), alpha );
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    El::SetImagPart( Ref( i, j ), alpha );
 }
 
 template<typename T>
@@ -477,7 +489,9 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    Set_( i, j ) += alpha;
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    Ref( i, j ) += alpha;
 }
 
 template<typename T>
@@ -495,7 +509,9 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    El::UpdateRealPart( Set_( i, j ), alpha );
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    El::UpdateRealPart( Ref( i, j ), alpha );
 }
 
 template<typename T>
@@ -513,7 +529,9 @@ EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
     )
-    El::UpdateImagPart( Set_( i, j ), alpha );
+    if( i == END ) i = height_ - 1;
+    if( j == END ) j = width_ - 1;
+    El::UpdateImagPart( Ref( i, j ), alpha );
 }
 
 template<typename T>
@@ -612,20 +630,40 @@ void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 // Return a reference to a single entry without error-checking
 // ===========================================================
 template<typename T>
-const T& Matrix<T>::Get_( Int i, Int j ) const 
+const T& Matrix<T>::CRef( Int i, Int j ) const 
 EL_NO_RELEASE_EXCEPT
 { 
-    if( i == END ) i = height_ - 1;
-    if( j == END ) j = width_ - 1;
     return data_[i+j*ldim_]; 
 }
 
 template<typename T>
-T& Matrix<T>::Set_( Int i, Int j ) 
+const T& Matrix<T>::operator()( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
-    if( i == END ) i = height_ - 1;
-    if( j == END ) j = width_ - 1;
+    DEBUG_ONLY(
+      CSE cse("Matrix::operator()( Int i, Int j ) const");
+      AssertValidEntry( i, j );
+    )
+    return data_[i+j*ldim_];
+}
+
+template<typename T>
+T& Matrix<T>::Ref( Int i, Int j ) 
+EL_NO_RELEASE_EXCEPT
+{
+    return data_[i+j*ldim_];
+}
+
+template<typename T>
+T& Matrix<T>::operator()( Int i, Int j ) 
+EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_ONLY(
+      CSE cse("Matrix::operator()( Int i, Int j )");
+      AssertValidEntry( i, j );
+      if( Locked() )
+          LogicError("Cannot modify data of locked matrices");
+    )
     return data_[i+j*ldim_];
 }
 

@@ -84,11 +84,11 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         //  |alpha11 a12| /I - tauP |1  | |1 conj(v)|\ = |delta 0|
         //                \         |v^T|            /
         const F tauP = RightReflector( alpha11, a12 );
-        tP.Set(k,0,tauP);
+        tP(k) = tauP;
 
         // Temporarily set a1R = | 1 v |
-        d.Set(k,0,alpha11.GetRealPart(0,0));
-        alpha11.Set(0,0,F(1));
+        d(k) = RealPart(alpha11(0));
+        alpha11(0) = F(1);
 
         // Form half of the right-reflector using an implicitly-updated A2R:
         // x21 := tauP (A2R - A20 Y0R - X20 conj(A0R)) a1R^T
@@ -123,12 +123,12 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilon |
         //  \          | u |            / |     a21B |   |    0    |
         const F tauQ = LeftReflector( alpha21T, a21B );
-        tQ.Set(k,0,tauQ);
+        tQ(k) = tauQ;
 
         // Temporarily set a21 = | 1 |
         //                       | u |
-        e.Set(k,0,alpha21T.GetRealPart(0,0));
-        alpha21T.Set(0,0,F(1));
+        e(k) = RealPart(alpha21T(0));
+        alpha21T(0) = F(1);
 
         // Form half of the left-reflector using an implicitly-updated A22:
         // y12 := tauQ a21^H ( A22 - A20 Y02 - X2L conj(AT2) )

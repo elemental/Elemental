@@ -31,13 +31,11 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
 
     Matrix<F> z12;
 
-    F* UBuf = U.Buffer();
-    const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
         const IR ind1( k ), ind2( k+1, END );
 
-        F& upsilon11 = UBuf[k+k*ldu];
+        F& upsilon11 = U(k,k);
         auto u12 = U( ind1, ind2 );
 
         auto v1 = V( ind1, ALL );
@@ -160,13 +158,11 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
 
     Matrix<F> z12;
 
-    F* UBuf = U.Buffer();
-    const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
         const IR ind1( k ), ind2( k+1, END );
 
-        F& upsilon11 = UBuf[k+k*ldu];
+        F& upsilon11 = U(k,k);
         auto u12 = U( ind1, ind2 );
 
         auto v1 = V( ind1, ALL );

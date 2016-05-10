@@ -24,10 +24,10 @@ namespace El {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-void Ricatti
+void Riccati
 ( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Ricatti"))
+    DEBUG_ONLY(CSE cse("Riccati"))
     Sign( W, ctrl );
     const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
@@ -47,12 +47,12 @@ void Ricatti
 }
 
 template<typename F>
-void Ricatti
+void Riccati
 ( ElementalMatrix<F>& WPre,
   ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Ricatti"))
+    DEBUG_ONLY(CSE cse("Riccati"))
 
     DistMatrixReadProxy<F,F,MC,MR> WProx( WPre );
     auto& W = WProx.Get();
@@ -77,7 +77,7 @@ void Ricatti
 }
 
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo, 
   const Matrix<F>& A,
   const Matrix<F>& K,
@@ -110,11 +110,11 @@ void Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    Ricatti( W, X, ctrl );
+    Riccati( W, X, ctrl );
 }
 
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo, 
   const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& K, 
@@ -149,26 +149,26 @@ void Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    Ricatti( W, X, ctrl );
+    Riccati( W, X, ctrl );
 }
 
 #define PROTO(F) \
-  template void Ricatti \
+  template void Riccati \
   ( Matrix<F>& W, \
     Matrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
-  template void Ricatti \
+  template void Riccati \
   ( ElementalMatrix<F>& W, \
     ElementalMatrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
-  template void Ricatti \
+  template void Riccati \
   ( UpperOrLower uplo, \
     const Matrix<F>& A, \
     const Matrix<F>& K, \
     const Matrix<F>& L, \
           Matrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
-  template void Ricatti \
+  template void Riccati \
   ( UpperOrLower uplo, \
     const ElementalMatrix<F>& A, \
     const ElementalMatrix<F>& K, \

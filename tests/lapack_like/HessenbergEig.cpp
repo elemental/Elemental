@@ -20,9 +20,6 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
     typedef Base<F> Real;
 
     const Int n = H.Height();
-    const F* HBuf = H.LockedBuffer();
-    const Int HLDim = H.LDim();
-
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();
     const Real smallNum = safeMin*(Real(n)/ulp);
@@ -30,10 +27,10 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
     // Search up the subdiagonal
     for( Int k=n-1; k>0; --k )
     {
-        const F eta_km1_km1 = HBuf[(k-1)+(k-1)*HLDim];
-        const F eta_km1_k = HBuf[(k-1)+k*HLDim];
-        const Real eta_k_km1 = RealPart(HBuf[k+(k-1)*HLDim]);
-        const F eta_k_k = HBuf[k+k*HLDim];
+        const F eta_km1_km1 = H(k-1,k-1);
+        const F eta_km1_k = H(k-1,k  );
+        const Real eta_k_km1 = RealPart( H(k,k-1) );
+        const F eta_k_k = H(k,k);
         if( OneAbs(eta_k_km1) <= smallNum )
         {
             return k;
@@ -44,9 +41,9 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
         {
             // Search outward a bit to get a sense of the matrix's local scale
             if( k-2 >= 0 )
-                localScale += Abs(RealPart(HBuf[(k-1)+(k-2)*HLDim]));
+                localScale += Abs( RealPart( H(k-1,k-2) ) );
             if( k+1 <= n-1 )
-                localScale += Abs(RealPart(HBuf[(k+1)+ k   *HLDim]));
+                localScale += Abs( RealPart( H(k+1,k  ) ) );
         }
         
         if( Abs(eta_k_km1) <= ulp*localScale )
@@ -79,14 +76,12 @@ Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
           LogicError("WilkinsonShift requires n >= 2");
     )
     const Int offset = n-2;
-    const F* HBuf = H.LockedBuffer(offset,offset);
-    const Int HLDim = H.LDim();
     const Real zero = Real(0);
 
-    const F& eta00 = HBuf[0+0*HLDim];
-    const F& eta01 = HBuf[0+1*HLDim];
-    const F& eta10 = HBuf[1+0*HLDim];
-    const F& eta11 = HBuf[1+1*HLDim];
+    const F& eta00 = H(offset,offset);
+    const F& eta01 = H(offset,offset+1);
+    const F& eta10 = H(offset+1,offset);
+    const F& eta11 = H(offset+1,offset+1);
     // NOTE:
     // eta10 should be real, but it is possibly negative, and so we will
     // interpret it as a complex number so that the square-root is well-defined
@@ -130,14 +125,12 @@ ChooseSingleShiftStart
     const Real ulp = limits::Precision<Real>();
 
     const Int n = H.Height();
-    const F* HBuf = H.LockedBuffer();
-    const Int HLDim = H.LDim();
     for( Int k=n-2; k>0; --k )
     {
-        const Real eta10 = RealPart(HBuf[k+(k-1)*HLDim]);
-        const F& eta11 = HBuf[k+k*HLDim];
-        const F& eta22 = HBuf[(k+1)+(k+1)*HLDim];
-        Real eta21 = RealPart(HBuf[(k+1)+k*HLDim]);
+        const Real eta10 = RealPart( H(k,k-1) );
+        const F& eta11 = H(k,  k  );
+        const F& eta22 = H(k+1,k+1);
+        Real eta21 = RealPart( H(k+1,k) );
 
         F eta11Shift = eta11 - shift;
         const Real sigma = OneAbs(eta11Shift) + Abs(eta21);    
@@ -150,9 +143,8 @@ ChooseSingleShiftStart
         }
     }
     // Start at the top
-    const F& eta11 = HBuf[0+0*HLDim];
-    const F& eta22 = HBuf[1+1*HLDim]; 
-    Real eta21 = RealPart(HBuf[1+0*HLDim]);
+    const F& eta11 = H(0,0);
+    Real eta21 = RealPart( H(1,0) );
 
     const F eta11Shift = eta11 - shift;
     const Real sigma = OneAbs(eta11Shift) + Abs(eta21); 
@@ -215,17 +207,15 @@ Int ChooseDoubleShiftStart
 {
     const Real ulp = limits::Precision<Real>();
     const Int n = H.Height();
-    const Real* HBuf = H.LockedBuffer();
-    const Int HLDim = H.LDim();
 
     v.resize( 3 );
     for( Int k=n-3; k>=0; --k )
     {
-        const Real& eta11 = HBuf[ k   + k   *HLDim];
-        const Real& eta12 = HBuf[ k   +(k+1)*HLDim];
-        const Real& eta21 = HBuf[(k+1)+ k   *HLDim];
-        const Real& eta22 = HBuf[(k+1)+(k+1)*HLDim];
-        const Real& eta32 = HBuf[(k+2)+(k+1)*HLDim];
+        const Real& eta11 = H(k,  k  );
+        const Real& eta12 = H(k,  k+1);
+        const Real& eta21 = H(k+1,k  );
+        const Real& eta22 = H(k+1,k+1);
+        const Real& eta32 = H(k+2,k+1);
   
         Real scale = Abs(eta11-shift1Real) + Abs(shift1Imag) + Abs(eta21);
         Real eta21Scale = eta21 / scale;
@@ -246,8 +236,8 @@ Int ChooseDoubleShiftStart
             return k;
         }
         
-        const Real& eta00 = HBuf[(k-1)+(k-1)*HLDim];
-        const Real& eta10 = HBuf[ k   +(k-1)*HLDim];
+        const Real& eta00 = H(k-1,k-1);
+        const Real& eta10 = H(k,  k-1);
         if( Abs(eta10)*(Abs(v[1])+Abs(v[2])) <= 
             ulp*Abs(v[0])*(Abs(eta00)+Abs(eta11)+Abs(eta22)) )
         {
@@ -260,21 +250,17 @@ Int ChooseDoubleShiftStart
 
 template<typename Real>
 void SingleShiftSweep
-(       Matrix<Complex<Real>>& H,
-        Int winBeg,
-        Int winEnd,
-        Complex<Real> shift,
+( Matrix<Complex<Real>>& H,
+  Int winBeg,
+  Int winEnd,
+  Complex<Real> shift,
   bool fullTriangle,
-        Matrix<Complex<Real>>& Z,
+  Matrix<Complex<Real>>& Z,
   bool wantSchurVecs )
 {
     typedef Complex<Real> F;
     const Int n = H.Height();
     const Int nZ = Z.Height();
-    F* HBuf = H.Buffer();
-    F* ZBuf = Z.Buffer();
-    const Int HLDim = H.LDim();
-    const Int ZLDim = Z.LDim();
 
     const Int transformBeg = ( fullTriangle ? 0 : winBeg ); 
     const Int transformEnd = ( fullTriangle ? n : winEnd );
@@ -289,15 +275,15 @@ void SingleShiftSweep
     {
         if( k > shiftStart )
         {
-            nu0 = HBuf[k+(k-1)*HLDim];    
-            nu1 = RealPart(HBuf[(k+1)+(k-1)*HLDim]);
+            nu0 = H(k,k-1);
+            nu1 = RealPart( H(k+1,k-1) );
         }
         // TODO: Assert nu1 is real
         F tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
         if( k > shiftStart )
         {
-            HBuf[ k   +(k-1)*HLDim] = nu0;
-            HBuf[(k+1)+(k-1)*HLDim] = 0;
+            H(k,  k-1) = nu0;
+            H(k+1,k-1) = 0;
         }
         // The formulas within lapack::Reflector trivially imply that 
         // tau0*Conj(nu1) will be real if nu1 was real on entry to
@@ -307,22 +293,18 @@ void SingleShiftSweep
         // Apply the Householder reflector from the left
         for( Int j=k; j<transformEnd; ++j )
         {
-            F innerProd =
-              tau0*HBuf[ k   +j*HLDim] +
-              tau1*HBuf[(k+1)+j*HLDim];
-            HBuf[ k   +j*HLDim] -= innerProd;
-            HBuf[(k+1)+j*HLDim] -= innerProd*nu1;
+            F innerProd = tau0*H(k,j) + tau1*H(k+1,j);
+            H(k,  j) -= innerProd;
+            H(k+1,j) -= innerProd*nu1;
         }
 
         // Apply the Householder reflector from the right
         const Int rightApplyEnd = Min(k+3,winEnd);
         for( Int j=transformBeg; j<rightApplyEnd; ++j )
         {
-            F innerProd =
-              Conj(tau0)*HBuf[j+ k   *HLDim] +
-                   tau1 *HBuf[j+(k+1)*HLDim]; 
-            HBuf[j+ k   *HLDim] -= innerProd;
-            HBuf[j+(k+1)*HLDim] -= innerProd*Conj(nu1);
+            F innerProd = Conj(tau0)*H(j,k) + tau1*H(j,k+1);
+            H(j,k  ) -= innerProd;
+            H(j,k+1) -= innerProd*Conj(nu1);
         }
 
         if( wantSchurVecs )
@@ -330,11 +312,9 @@ void SingleShiftSweep
             // Accumulate the Schur vectors
             for( Int j=0; j<nZ; ++j )
             {
-                F innerProd =
-                  Conj(tau0)*ZBuf[j+ k   *ZLDim] +
-                       tau1 *ZBuf[j+(k+1)*ZLDim];
-                ZBuf[j+ k   *ZLDim] -= innerProd;
-                ZBuf[j+(k+1)*ZLDim] -= innerProd*Conj(nu1);
+                F innerProd = Conj(tau0)*Z(j,k) + tau1*Z(j,k+1);
+                Z(j,k  ) -= innerProd;
+                Z(j,k+1) -= innerProd*Conj(nu1);
             }
         }
 
@@ -344,9 +324,9 @@ void SingleShiftSweep
             // TODO: Investigate more carefully
             F subdiagVal = Real(1) - Conj(tau0);
             F phase = subdiagVal / Abs(subdiagVal);
-            HBuf[(shiftStart+1)+shiftStart*HLDim] *= Conj(phase);
+            H( shiftStart+1, shiftStart ) *= Conj(phase);
             if( shiftStart+2 < winEnd )
-                HBuf[(shiftStart+2)+(shiftStart+1)*HLDim] *= phase;
+                H( shiftStart+2, shiftStart+1 ) *= phase;
             for( Int j=shiftStart; j<winEnd; ++j )
             {
                 if( j != shiftStart+1 )
@@ -354,39 +334,36 @@ void SingleShiftSweep
                     if( j+1 < transformEnd )
                     {
                         blas::Scal
-                        ( transformEnd-(j+1), phase,
-                          &HBuf[j+(j+1)*HLDim], HLDim );
+                        ( transformEnd-(j+1), phase, &H(j,j+1), H.LDim() );
                     }
                     blas::Scal
-                    ( j-transformBeg, Conj(phase),
-                      &HBuf[transformBeg+j*HLDim], 1 );
+                    ( j-transformBeg, Conj(phase), &H(transformBeg,j), 1 );
                     if( wantSchurVecs )
                     {
-                        blas::Scal( nZ, Conj(phase), &ZBuf[j*ZLDim], 1 );
+                        blas::Scal( nZ, Conj(phase), &Z(0,j), 1 );
                     }
                 }
             }
         }
     }
     // Make H(winEnd-1,winEnd-2) real by scaling by phase
-    F subdiagVal = HBuf[(winEnd-1)+(winEnd-2)*HLDim];
+    F subdiagVal = H( winEnd-1, winEnd-2 );
     if( ImagPart(subdiagVal) != Real(0) )
     {
         Real subdiagAbs = Abs(subdiagVal);
-        HBuf[(winEnd-1)+(winEnd-2)*HLDim] = subdiagAbs;
+        H( winEnd-1, winEnd-2 ) = subdiagAbs;
         F phase = subdiagVal / subdiagAbs;
         if( winEnd < transformEnd ) 
         {
             blas::Scal
             ( transformEnd-winEnd, Conj(phase),
-              &HBuf[(winEnd-1)+winEnd*HLDim], HLDim );
+              &H(winEnd-1,winEnd), H.LDim() );
         }
         blas::Scal
-        ( (winEnd-1)-transformBeg, phase,
-          &HBuf[transformBeg+(winEnd-1)*HLDim], 1 );
+        ( (winEnd-1)-transformBeg, phase, &H(transformBeg,winEnd-1), 1 );
         if( wantSchurVecs )
         {
-            blas::Scal( nZ, phase, &ZBuf[(winEnd-1)*ZLDim], 1 );
+            blas::Scal( nZ, phase, &Z(0,winEnd-1), 1 );
         }
     }
 }
@@ -405,10 +382,6 @@ void DoubleShiftSweep
     const Real zero(0), one(1);
     const Int n = H.Height();
     const Int nZ = Z.Height();
-    Real* HBuf = H.Buffer();
-    Real* ZBuf = Z.Buffer();
-    const Int HLDim = H.LDim();
-    const Int ZLDim = Z.LDim();
 
     const Int transformBeg = ( fullTriangle ? 0 : winBeg ); 
     const Int transformEnd = ( fullTriangle ? n : winEnd );
@@ -427,22 +400,22 @@ void DoubleShiftSweep
         const Int numReflect = Min( 3, winEnd-k );
         if( k > shiftStart )
         {
-            MemCopy( v.data(), &HBuf[k+(k-1)*HLDim], numReflect );
+            MemCopy( v.data(), &H(k,k-1), numReflect );
         }
         Real tau0 = lapack::Reflector( numReflect, v[0], &v[1], 1 );
         if( k > shiftStart )
         {
-            HBuf[ k   +(k-1)*HLDim] = v[0];
-            HBuf[(k+1)+(k-1)*HLDim] = zero;
+            H(k,  k-1) = v[0];
+            H(k+1,k-1) = zero;
             if( k < winEnd-2 )
-                HBuf[(k+2)+(k-1)*HLDim] = zero;
+                H(k+2,k-1) = zero;
         }
         else if( shiftStart > winBeg )
         {
             // The following is supposedly more reliable than
             // H(k,k-1) = -H(k,k-1) when v(1) and v(2) underflow
             // (cf. LAPACK's {s,d}lahqr)
-            HBuf[k+(k-1)*HLDim] *= (one-tau0);
+            H(k,k-1) *= (one-tau0);
         }
         Real tau1 = tau0*v[1];
         if( numReflect == 3 )
@@ -452,39 +425,30 @@ void DoubleShiftSweep
             // Apply the Householder reflector from the left
             for( Int j=k; j<transformEnd; ++j )
             {
-                Real innerProd =
-                       HBuf[ k   +j*HLDim] +
-                  v[1]*HBuf[(k+1)+j*HLDim] +
-                  v[2]*HBuf[(k+2)+j*HLDim]; 
-                HBuf[ k   +j*HLDim] -= innerProd*tau0;
-                HBuf[(k+1)+j*HLDim] -= innerProd*tau1;
-                HBuf[(k+2)+j*HLDim] -= innerProd*tau2;
+                Real innerProd = H(k,j) + v[1]*H(k+1,j) + v[2]*H(k+2,j);
+                H(k,  j) -= innerProd*tau0;
+                H(k+1,j) -= innerProd*tau1;
+                H(k+2,j) -= innerProd*tau2;
             }
            
             // Apply the Householder reflector from the right
             const Int rightApplyEnd = Min(k+4,winEnd);
             for( Int j=transformBeg; j<rightApplyEnd; ++j )
             {
-                Real innerProd =
-                       HBuf[j+ k   *HLDim] +
-                  v[1]*HBuf[j+(k+1)*HLDim] +
-                  v[2]*HBuf[j+(k+2)*HLDim];
-                HBuf[j+ k   *HLDim] -= innerProd*tau0;
-                HBuf[j+(k+1)*HLDim] -= innerProd*tau1;
-                HBuf[j+(k+2)*HLDim] -= innerProd*tau2;
+                Real innerProd = H(j,k) + v[1]*H(j,k+1) + v[2]*H(j,k+2);
+                H(j,k  ) -= innerProd*tau0;
+                H(j,k+1) -= innerProd*tau1;
+                H(j,k+2) -= innerProd*tau2;
             }
 
             if( wantSchurVecs )
             {
                 for( Int j=0; j<nZ; ++j )
                 {
-                    Real innerProd =
-                           ZBuf[j+ k   *ZLDim] +
-                      v[1]*ZBuf[j+(k+1)*ZLDim] +
-                      v[2]*ZBuf[j+(k+2)*ZLDim];
-                    ZBuf[j+ k   *ZLDim] -= innerProd*tau0;
-                    ZBuf[j+(k+1)*ZLDim] -= innerProd*tau1;
-                    ZBuf[j+(k+2)*ZLDim] -= innerProd*tau2;
+                    Real innerProd = Z(j,k) + v[1]*Z(j,k+1) + v[2]*Z(j,k+2);
+                    Z(j,k  ) -= innerProd*tau0;
+                    Z(j,k+1) -= innerProd*tau1;
+                    Z(j,k+2) -= innerProd*tau2;
                 }
             }
         }
@@ -493,22 +457,18 @@ void DoubleShiftSweep
             // Apply the Householder reflector from the left
             for( Int j=k; j<transformEnd; ++j )
             {
-                Real innerProd =
-                       HBuf[ k   +j*HLDim] +
-                  v[1]*HBuf[(k+1)+j*HLDim];
-                HBuf[ k   +j*HLDim] -= innerProd*tau0;
-                HBuf[(k+1)+j*HLDim] -= innerProd*tau1;
+                Real innerProd = H(k,j) + v[1]*H(k+1,j);
+                H(k,  j) -= innerProd*tau0;
+                H(k+1,j) -= innerProd*tau1;
             }
 
             // Apply the Householder reflector from the right
             const Int rightApplyEnd = Min(k+3,winEnd);
             for( Int j=transformBeg; j<rightApplyEnd; ++j )
             {
-                Real innerProd =
-                       HBuf[j+ k   *HLDim] +
-                  v[1]*HBuf[j+(k+1)*HLDim]; 
-                HBuf[j+ k   *HLDim] -= innerProd*tau0;
-                HBuf[j+(k+1)*HLDim] -= innerProd*tau1;
+                Real innerProd = H(j,k) + v[1]*H(j,k+1);
+                H(j,k  ) -= innerProd*tau0;
+                H(j,k+1) -= innerProd*tau1;
             }
 
             if( wantSchurVecs )
@@ -516,11 +476,9 @@ void DoubleShiftSweep
                 // Accumulate the Schur vectors
                 for( Int j=0; j<nZ; ++j )
                 {
-                    Real innerProd =
-                           ZBuf[j+ k   *ZLDim] +
-                      v[1]*ZBuf[j+(k+1)*ZLDim];
-                    ZBuf[j+ k   *ZLDim] -= innerProd*tau0;
-                    ZBuf[j+(k+1)*ZLDim] -= innerProd*tau1;
+                    Real innerProd = Z(j,k) + v[1]*Z(j,k+1);
+                    Z(j,k  ) -= innerProd*tau0;
+                    Z(j,k+1) -= innerProd*tau1;
                 }
             }
         }
@@ -529,13 +487,13 @@ void DoubleShiftSweep
 
 template<typename Real>
 void ImplicitQQuadraticSeed
-( const Int n,
-  const Real* HBuf, const Int HLDim,
+( const Matrix<Real>& H,
   const Real& shift0Real, const Real& shift0Imag, 
   const Real& shift1Real, const Real& shift1Imag,
         Real* v )
 {
     const Real zero(0);
+    const Int n = H.Height();
     DEBUG_ONLY(
       if( n != 2 && n != 3 )
           LogicError("Expected n to be 2 or 3"); 
@@ -546,10 +504,10 @@ void ImplicitQQuadraticSeed
     )
     if( n == 2 )
     {
-        const Real& eta00 = HBuf[0+0*HLDim];
-        const Real& eta01 = HBuf[0+1*HLDim];
-        const Real& eta10 = HBuf[1+0*HLDim];
-        const Real& eta11 = HBuf[1+1*HLDim];
+        const Real& eta00 = H(0,0);
+        const Real& eta01 = H(0,1);
+        const Real& eta10 = H(1,0);
+        const Real& eta11 = H(1,1);
 
         // It seems arbitrary whether the scale is computed relative
         // to shift0 or shift1, but we follow LAPACK's convention.
@@ -572,15 +530,15 @@ void ImplicitQQuadraticSeed
     }
     else
     {
-        const Real& eta00 = HBuf[0+0*HLDim];
-        const Real& eta01 = HBuf[0+1*HLDim];
-        const Real& eta02 = HBuf[0+2*HLDim];
-        const Real& eta10 = HBuf[1+0*HLDim];
-        const Real& eta11 = HBuf[1+1*HLDim];
-        const Real& eta12 = HBuf[1+2*HLDim];
-        const Real& eta20 = HBuf[2+0*HLDim];
-        const Real& eta21 = HBuf[2+1*HLDim]; 
-        const Real& eta22 = HBuf[2+2*HLDim];
+        const Real& eta00 = H(0,0);
+        const Real& eta01 = H(0,1);
+        const Real& eta02 = H(0,2);
+        const Real& eta10 = H(1,0);
+        const Real& eta11 = H(1,1);
+        const Real& eta12 = H(1,2);
+        const Real& eta20 = H(2,0);
+        const Real& eta21 = H(2,1); 
+        const Real& eta22 = H(2,2);
 
         const Real scale =
           Abs(eta00-shift1Real) + Abs(shift1Imag) + Abs(eta10) + Abs(eta20);
@@ -671,10 +629,6 @@ void SmallBulgeSweep
     const Real zero(0), one(1);
     const Int n = H.Height();
     const Int nZ = Z.Height();
-    Real* HBuf = H.Buffer();
-    Real* ZBuf = Z.Buffer();
-    const Int HLDim = H.LDim();
-    const Int ZLDim = Z.LDim();
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();
     const Real smallNum = safeMin*(Real(n)/ulp);
@@ -691,7 +645,7 @@ void SmallBulgeSweep
     PairShifts( realShifts, imagShifts );
 
     // TODO: Decide if this is strictly necessary
-    HBuf[(winBeg+2)+winBeg] = zero;
+    H(winBeg+2,winBeg) = zero;
 
     // Set aside space for storing either the three nonzero entries of the first
     // column of a quadratic polynomial for introducing each bulge or the scalar
@@ -700,8 +654,6 @@ void SmallBulgeSweep
     // length 3 (following the LAPACK convention that 'tau' will lie in the
     // first entry and 'v' will begin in the second entry).
     W.Resize( 3, numBulges );
-    Real* WBuf = W.Buffer();
-    const Int WLDim = W.LDim();
 
     // Set aside space for a Householder vector for a candidate reinflation of
     // a deflated bulge
@@ -754,13 +706,14 @@ void SmallBulgeSweep
             {
                 const Int bulge = lastFull+1;
                 const Int k = packetBeg + 3*bulge;
-                Real* w = &WBuf[bulge*WLDim];
+                Real* w = &W(0,bulge);
 
                 if( k == winBeg-1 )
                 {
                     // Introduce a 2x2 bulge
+                    auto H11 = H( IR(k+1,k+3), IR(k+1,k+3) );
                     ImplicitQQuadraticSeed
-                    ( 2, &HBuf[(k+1)+(k+1)*HLDim], HLDim,
+                    ( H11,
                       realShifts[2*bulge],   imagShifts[2*bulge],
                       realShifts[2*bulge+1], imagShifts[2*bulge+1],
                       w ); 
@@ -770,23 +723,24 @@ void SmallBulgeSweep
                 else
                 {
                     // Find the reflection for chasing the 2x2 bulge
-                    Real beta = HBuf[(k+1)+k*HLDim];
-                    w[1] = HBuf[(k+2)+k*HLDim]; 
+                    Real beta = H( k+1, k );
+                    w[1] = H( k+2, k );
                     w[0] = lapack::Reflector( 2, beta, &w[1], 1 );
-                    HBuf[(k+1)+k*HLDim] = beta;
-                    HBuf[(k+2)+k*HLDim] = zero;
+                    H( k+1, k ) = beta;
+                    H( k+2, k ) = zero;
                 }
             }
             for( Int bulge=lastFull; bulge>=firstFull; --bulge )
             {
                 const Int k = packetBeg + 3*bulge;
-                Real* w = &WBuf[bulge*WLDim];
+                Real* w = &W(0,bulge);
 
                 if( k == winBeg-1 )
                 {
                     // Introduce the bulge into the upper-left corner
+                    auto H11 = H( IR(k+1,k+4), IR(k+1,k+4) );
                     ImplicitQQuadraticSeed
-                    ( 3, &HBuf[(k+1)+(k+1)*HLDim], HLDim,
+                    ( H11,
                       realShifts[2*bulge],   imagShifts[2*bulge],
                       realShifts[2*bulge+1], imagShifts[2*bulge+1],
                       w ); 
@@ -797,14 +751,14 @@ void SmallBulgeSweep
                 else
                 {
                     // Prepare to chase the bulge down a step
-                    Real& eta_k_k     = HBuf[ k   + k   *HLDim];
-                    Real& eta_kp1_k   = HBuf[(k+1)+ k   *HLDim];
-                    Real& eta_kp1_kp1 = HBuf[(k+1)+(k+1)*HLDim];
-                    Real& eta_kp2_k   = HBuf[(k+2)+ k   *HLDim];
-                    Real& eta_kp2_kp2 = HBuf[(k+2)+(k+2)*HLDim];
-                    Real& eta_kp3_k   = HBuf[(k+3)+ k   *HLDim];
-                    Real& eta_kp3_kp1 = HBuf[(k+3)+(k+1)*HLDim];
-                    Real& eta_kp3_kp2 = HBuf[(k+3)+(k+2)*HLDim];
+                    Real& eta_k_k     = H(k,  k  );
+                    Real& eta_kp1_k   = H(k+1,k  );
+                    Real& eta_kp1_kp1 = H(k+1,k+1);
+                    Real& eta_kp2_k   = H(k+2,k  );
+                    Real& eta_kp2_kp2 = H(k+2,k+2);
+                    Real& eta_kp3_k   = H(k+3,k  );
+                    Real& eta_kp3_kp1 = H(k+3,k+1);
+                    Real& eta_kp3_kp2 = H(k+3,k+2);
 
                     Real beta = eta_kp1_k;
                     w[1]  = eta_kp2_k;
@@ -826,8 +780,9 @@ void SmallBulgeSweep
                     else
                     {
                         // Bulge has collapsed
+                        auto H11 = H( IR(k+1,k+4), IR(k+1,k+4) );
                         ImplicitQQuadraticSeed
-                        ( 3, &HBuf[(k+1)+(k+1)*HLDim], HLDim,
+                        ( H11,
                           realShifts[2*bulge],   imagShifts[2*bulge],
                           realShifts[2*bulge+1], imagShifts[2*bulge+1],
                           wCand.data() ); 
@@ -873,12 +828,12 @@ void SmallBulgeSweep
             {
                 const Int bulge = lastFull+1;
                 const Int k = packetBeg + 3*bulge;
-                const Real* w = &WBuf[bulge*WLDim];
+                const Real* w = &W(0,bulge);
 
                 for( Int j=Max(k+1,winBeg); j<transformEnd; ++j )
                 {
-                    Real& eta_kp1_j = HBuf[(k+1)+j*HLDim];
-                    Real& eta_kp2_j = HBuf[(k+2)+j*HLDim];
+                    Real& eta_kp1_j = H(k+1,j);
+                    Real& eta_kp2_j = H(k+2,j);
 
                     // Apply I - tau*[1;v]*[1;v]', where tau is stored in
                     // w[0] and v is stored in w[1]
@@ -893,10 +848,10 @@ void SmallBulgeSweep
                 for( Int bulge=lastFull; bulge>=firstFull; --bulge )
                 {
                     const Int k = packetBeg + 3*bulge;
-                    const Real* w = &WBuf[bulge*WLDim];
-                    Real& eta_kp1_j = HBuf[(k+1)+j*HLDim]; 
-                    Real& eta_kp2_j = HBuf[(k+2)+j*HLDim];
-                    Real& eta_kp3_j = HBuf[(k+3)+j*HLDim];
+                    const Real* w = &W(0,bulge);
+                    Real& eta_kp1_j = H(k+1,j); 
+                    Real& eta_kp2_j = H(k+2,j);
+                    Real& eta_kp3_j = H(k+3,j);
 
                     // Apply I - tau*[1;v]*[1;v]', where tau is stored in
                     // w[0] and v is stored in w[1] and w[2]
@@ -920,12 +875,12 @@ void SmallBulgeSweep
             {
                 const Int bulge = lastFull+1;
                 const Int k = packetBeg + 3*bulge;
-                const Real* w = &WBuf[bulge*WLDim];
+                const Real* w = &W(0,bulge);
 
                 for( Int j=transformBeg; j<Min(winEnd,k+3); ++j )
                 {
-                    Real& eta_j_kp1 = HBuf[j+(k+1)*HLDim];
-                    Real& eta_j_kp2 = HBuf[j+(k+2)*HLDim];
+                    Real& eta_j_kp1 = H(j,k+1);
+                    Real& eta_j_kp2 = H(j,k+2);
 
                     Real innerProd = w[0]*(eta_j_kp1+eta_j_kp2*w[1]);
                     eta_j_kp1 -= innerProd;
@@ -934,14 +889,11 @@ void SmallBulgeSweep
 
                 if( accumulate )
                 {
-                    Real* UBuf = U.Buffer();
-                    const Int ULDim = U.LDim();
-
                     Int kU = k - ghostBeg - 1; // TODO: Check for off-by-one
                     for( Int j=Max(0,(winBeg-1)-ghostBeg); j<slabSize; ++j ) 
                     {
-                        Real& ups_j_kUp1 = UBuf[j+(kU+1)*ULDim];
-                        Real& ups_j_kUp2 = UBuf[j+(kU+2)*ULDim];
+                        Real& ups_j_kUp1 = U(j,kU+1);
+                        Real& ups_j_kUp2 = U(j,kU+2);
 
                         Real innerProd = w[0]*(ups_j_kUp1+ups_j_kUp2*w[1]);
                         ups_j_kUp1 -= innerProd;
@@ -952,8 +904,8 @@ void SmallBulgeSweep
                 {
                     for( Int j=0; j<nZ; ++j )
                     {
-                        Real& zeta_j_kp1 = ZBuf[j+(k+1)*ZLDim];
-                        Real& zeta_j_kp2 = ZBuf[j+(k+2)*ZLDim];
+                        Real& zeta_j_kp1 = Z(j,k+1);
+                        Real& zeta_j_kp2 = Z(j,k+2);
 
                         Real innerProd = w[0]*(zeta_j_kp1+zeta_j_kp2*w[1]);
                         zeta_j_kp1 -= innerProd;
@@ -964,13 +916,13 @@ void SmallBulgeSweep
             for( Int bulge=lastFull; bulge>=firstFull; --bulge )
             {
                 const Int k = packetBeg + 3*bulge;
-                const Real* w = &WBuf[bulge*WLDim];
+                const Real* w = &W(0,bulge);
 
                 for( Int j=transformBeg; j<Min(winEnd,k+4); ++j )
                 {
-                    Real& eta_j_kp1 = HBuf[j+(k+1)*HLDim];
-                    Real& eta_j_kp2 = HBuf[j+(k+2)*HLDim];
-                    Real& eta_j_kp3 = HBuf[j+(k+3)*HLDim];
+                    Real& eta_j_kp1 = H(j,k+1);
+                    Real& eta_j_kp2 = H(j,k+2);
+                    Real& eta_j_kp3 = H(j,k+3);
 
                     Real innerProd =
                       w[0]*(eta_j_kp1+eta_j_kp2*w[1]+eta_j_kp3*w[2]);
@@ -981,15 +933,12 @@ void SmallBulgeSweep
 
                 if( accumulate )
                 {
-                    Real* UBuf = U.Buffer();
-                    const Int ULDim = U.LDim();
-
                     Int kU = k - ghostBeg - 1; // TODO: Check for off-by-one
                     for( Int j=Max(0,(winBeg-1)-ghostBeg); j<slabSize; ++j ) 
                     {
-                        Real& ups_j_kUp1 = UBuf[j+(kU+1)*ULDim];
-                        Real& ups_j_kUp2 = UBuf[j+(kU+2)*ULDim];
-                        Real& ups_j_kUp3 = UBuf[j+(kU+3)*ULDim];
+                        Real& ups_j_kUp1 = U(j,kU+1);
+                        Real& ups_j_kUp2 = U(j,kU+2);
+                        Real& ups_j_kUp3 = U(j,kU+3);
 
                         Real innerProd =
                           w[0]*(ups_j_kUp1+ups_j_kUp2*w[1]+ups_j_kUp3*w[2]);
@@ -1002,9 +951,9 @@ void SmallBulgeSweep
                 {
                     for( Int j=0; j<nZ; ++j )
                     {
-                        Real& zeta_j_kp1 = ZBuf[j+(k+1)*ZLDim];
-                        Real& zeta_j_kp2 = ZBuf[j+(k+2)*ZLDim];
-                        Real& zeta_j_kp3 = ZBuf[j+(k+3)*ZLDim];
+                        Real& zeta_j_kp1 = Z(j,k+1);
+                        Real& zeta_j_kp2 = Z(j,k+2);
+                        Real& zeta_j_kp3 = Z(j,k+3);
 
                         Real innerProd =
                           w[0]*(zeta_j_kp1+zeta_j_kp2*w[1]+zeta_j_kp3*w[2]);
@@ -1024,10 +973,10 @@ void SmallBulgeSweep
             for( Int bulge=vigLast; bulge>=vigFirst; --bulge )
             {
                 const Int k = Min( winEnd-2, packetBeg+3*bulge );
-                Real& eta00 = HBuf[ k   + k   *HLDim];
-                Real& eta01 = HBuf[ k   +(k+1)*HLDim];
-                Real& eta10 = HBuf[(k+1)+ k   *HLDim];
-                Real& eta11 = HBuf[(k+1)+(k+1)*HLDim];
+                Real& eta00 = H(k  ,k  );
+                Real& eta01 = H(k  ,k+1);
+                Real& eta10 = H(k+1,k  );
+                Real& eta11 = H(k+1,k+1);
 
                 if( eta10 == zero )
                     continue;
@@ -1035,17 +984,17 @@ void SmallBulgeSweep
                 if( localScale == zero )
                 {
                     if( k >= winBeg+3 )
-                        localScale += Abs(HBuf[k+(k-3)*HLDim]);
+                        localScale += Abs(H(k,k-3));
                     if( k >= winBeg+2 )
-                        localScale += Abs(HBuf[k+(k-2)*HLDim]);
+                        localScale += Abs(H(k,k-2));
                     if( k >= winBeg+1 )
-                        localScale += Abs(HBuf[k+(k-1)*HLDim]);
+                        localScale += Abs(H(k,k-1));
                     if( k < winEnd-2 )
-                        localScale += Abs(HBuf[(k+2)+(k+1)*HLDim]);
+                        localScale += Abs(H(k+2,k+1));
                     if( k < winEnd-3 )
-                        localScale += Abs(HBuf[(k+3)+(k+1)*HLDim]);
+                        localScale += Abs(H(k+3,k+1));
                     if( k < winEnd-4 )
-                        localScale += Abs(HBuf[(k+4)+(k+1)*HLDim]);
+                        localScale += Abs(H(k+4,k+1));
                 }
                 if( Abs(eta10) <= Max(smallNum,ulp*localScale) )
                 {
@@ -1083,21 +1032,16 @@ void SmallBulgeSweep
             for( Int bulge=lastFull; bulge>=firstFull; --bulge )
             {
                 const Int k = packetBeg + 3*bulge;
-                const Real* w = &WBuf[bulge*WLDim];
-                Real& eta_kp4_kp1 = HBuf[(k+4)+(k+1)*HLDim];
-                Real& eta_kp4_kp2 = HBuf[(k+4)+(k+2)*HLDim]; 
-                Real& eta_kp4_kp3 = HBuf[(k+4)+(k+3)*HLDim];
+                const Real* w = &W(0,bulge);
 
-                const Real innerProd = w[0]*w[2]*eta_kp4_kp3;
-                eta_kp4_kp1 = -innerProd;
-                eta_kp4_kp2 = -innerProd*w[1];
-                eta_kp4_kp3 -= innerProd*w[2];
+                const Real innerProd = w[0]*w[2]*H(k+4,k+3);
+                H(k+4,k+1) = -innerProd;
+                H(k+4,k+2) = -innerProd*w[1];
+                H(k+4,k+3) -= innerProd*w[2];
             }
         }
         if( accumulate )
         {
-            Real* UBuf = U.Buffer();
-            const Int ULDim = U.LDim();
             const Int transformBeg = ( fullTriangle ? 0 : winBeg );
             const Int transformEnd = ( fullTriangle ? n : winEnd );
  
@@ -1111,39 +1055,39 @@ void SmallBulgeSweep
             Zeros( WAccum, nU, horzSize );
             blas::Gemm
             ( 'C', 'N', nU, horzSize, nU, 
-              Real(1), &UBuf[k1+k1*ULDim],           ULDim,
-                       &HBuf[(ghostBeg+k1)+j*HLDim], HLDim,
+              Real(1), &U(k1,k1),         U.LDim(),
+                       &H(ghostBeg+k1,j), H.LDim(),
               Real(0), WAccum.Buffer(), WAccum.LDim() );
             lapack::Copy
             ( 'A', nU, horzSize,
               WAccum.Buffer(), WAccum.LDim(),
-              &HBuf[(ghostBeg+k1)+j*HLDim], HLDim );
+              &H(ghostBeg+k1,j), H.LDim() );
 
             // Vertical far-from-diagonal application
             const Int vertSize = Max( winBeg, ghostBeg ) - transformBeg; 
             Zeros( WAccum, vertSize, nU );
             blas::Gemm
             ( 'N', 'N', vertSize, nU, nU, 
-              Real(1), &HBuf[transformBeg+(ghostBeg+k1)*HLDim], HLDim,
-                       &UBuf[k1+k1*ULDim],                      ULDim,
+              Real(1), &H(transformBeg,ghostBeg+k1), H.LDim(),
+                       &U(k1,k1),                    U.LDim(),
               Real(0), WAccum.Buffer(), WAccum.LDim() );
             lapack::Copy
             ( 'A', vertSize, nU,
               WAccum.Buffer(), WAccum.LDim(),
-              &HBuf[transformBeg+(ghostBeg+k1)*HLDim], HLDim );
+              &H(transformBeg,ghostBeg+k1), H.LDim() );
 
             if( wantSchurVecs )
             {
                 Zeros( WAccum, nZ, nU );
                 blas::Gemm
                 ( 'N', 'N', nZ, nU, nU,
-                  Real(1), &ZBuf[(ghostBeg+k1)*ZLDim], ZLDim,
-                           &UBuf[k1+k1*ULDim],         ULDim,
+                  Real(1), &Z(0,ghostBeg+k1), Z.LDim(),
+                           &U(k1,k1),         U.LDim(),
                   Real(0), WAccum.Buffer(), WAccum.LDim() );
                 blas::Copy
                 ( 'A', nZ, nU,
                   WAccum.Buffer(), WAccum.LDim(),
-                  &ZBuf[(ghostBeg+k1)*ZLDim], ZLDim );
+                  &Z(0,ghostBeg+k1), Z.LDim() );
             }
         }
     }
@@ -1161,7 +1105,7 @@ Int WindowedSingle
   bool wantSchurVecs,
   bool demandConverged )
 {
-    const Real zero(0), threeFourths=Real(3)/Real(4);
+    const Real zero(0);
     const Int maxIter=30;    
     // Cf. LAPACK for these somewhat arbitrary constants
     const Real exceptScale0=Real(3)/Real(4),
@@ -1169,15 +1113,9 @@ Int WindowedSingle
     const Int n = H.Height();
     const Int windowSize = winEnd - winBeg;
     const Int nZ = Z.Height();
-    Real* HBuf = H.Buffer(); 
-    Real* ZBuf = Z.Buffer();
-    const Int HLDim = H.LDim();
-    const Int ZLDim = Z.LDim();
 
     wReal.Resize( n, 1 );
     wImag.Resize( n, 1 );
-    Real* wRealBuf = wReal.Buffer();
-    Real* wImagBuf = wImag.Buffer();
 
     if( windowSize == 0 )
     {
@@ -1185,22 +1123,21 @@ Int WindowedSingle
     }
     if( windowSize == 1 )
     {
-        wRealBuf[winBeg] = HBuf[winBeg+winBeg*HLDim];
-        wImagBuf[winBeg] = zero;
+        wReal(winBeg) = H(winBeg,winBeg);
+        wImag(winBeg) = zero;
         return winBeg;
     }
 
     // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
     for( Int j=winBeg; j<winEnd-3; ++j ) 
     {
-        HBuf[(j+2)+j*HLDim] = 0;
-        HBuf[(j+3)+j*HLDim] = 0;
+        H(j+2,j) = zero;
+        H(j+3,j) = zero;
     }
     if( winBeg <= winEnd-3 )
-        HBuf[(winEnd-1)+(winEnd-3)*HLDim] = 0;
+        H(winEnd-1,winEnd-3) = zero;
     
     // Attempt to converge the eigenvalues one or two at a time
-    vector<Real> v; // for computing Householder reflectors
     while( winBeg < winEnd )
     {
         Int iterBeg = winBeg;
@@ -1213,48 +1150,44 @@ Int WindowedSingle
             }
             if( iterBeg > winBeg )
             {
-                HBuf[iterBeg+(iterBeg-1)*HLDim] = zero;
+                H(iterBeg,iterBeg-1) = zero;
             }
             if( iterBeg == winEnd-1 )
             {
-                wRealBuf[iterBeg] = HBuf[iterBeg+iterBeg*HLDim];
-                wImagBuf[iterBeg] = zero;
+                wReal(iterBeg) = H(iterBeg,iterBeg);
+                wImag(iterBeg) = zero;
                 --winEnd;
                 break;
             }
             else if( iterBeg == winEnd-2 )
             {
                 Real c, s;
-                Real& alpha00 = HBuf[(winEnd-2)+(winEnd-2)*HLDim];
-                Real& alpha01 = HBuf[(winEnd-2)+(winEnd-1)*HLDim];
-                Real& alpha10 = HBuf[(winEnd-1)+(winEnd-2)*HLDim];
-                Real& alpha11 = HBuf[(winEnd-1)+(winEnd-1)*HLDim];
                 lapack::TwoByTwoSchur
-                ( alpha00, alpha01,
-                  alpha10, alpha11,
+                ( H(winEnd-2,winEnd-2), H(winEnd-2,winEnd-1),
+                  H(winEnd-1,winEnd-2), H(winEnd-1,winEnd-1),
                   c, s,
-                  wRealBuf[iterBeg],   wImagBuf[iterBeg], 
-                  wRealBuf[iterBeg+1], wImagBuf[iterBeg+1] );
+                  wReal(iterBeg),   wImag(iterBeg), 
+                  wReal(iterBeg+1), wImag(iterBeg+1) );
                 if( fullTriangle )
                 {
                     if( n > winEnd )
                         blas::Rot
                         ( n-winEnd,
-                          &HBuf[(winEnd-2)+winEnd*HLDim], HLDim,
-                          &HBuf[(winEnd-1)+winEnd*HLDim], HLDim,
+                          &H(winEnd-2,winEnd), H.LDim(),
+                          &H(winEnd-1,winEnd), H.LDim(),
                           c, s );
                     blas::Rot
                     ( winEnd-2,
-                      &HBuf[0+(winEnd-2)*HLDim], 1,
-                      &HBuf[0+(winEnd-1)*HLDim], 1,
+                      &H(0,winEnd-2), 1,
+                      &H(0,winEnd-1), 1,
                       c, s );
                 }
                 if( wantSchurVecs )
                 {
                     blas::Rot
                     ( nZ,
-                      &ZBuf[(winEnd-2)*ZLDim], 1,
-                      &ZBuf[(winEnd-1)*ZLDim], 1,
+                      &Z(0,winEnd-2), 1,
+                      &Z(0,winEnd-1), 1,
                       c, s );
                 }
                 winEnd -= 2;
@@ -1265,29 +1198,28 @@ Int WindowedSingle
             Real eta00, eta01, eta10, eta11;
             if( iter == maxIter/3 )
             {
-                const Real* HSub = &HBuf[iterBeg+iterBeg*HLDim];
-                const Real scale = Abs(HSub[1+0*HLDim]) + Abs(HSub[2+1*HLDim]);
-                eta00 = exceptScale0*scale + HSub[0+0*HLDim];
+                const Real scale =
+                  Abs(H(iterBeg+1,iterBeg)) + Abs(H(iterBeg+2,iterBeg+1));
+                eta00 = exceptScale0*scale + H(iterBeg,iterBeg);
                 eta01 = exceptScale1*scale;
                 eta10 = scale;
                 eta11 = eta00; 
             } 
             else if( iter == 2*maxIter/3 )
             {
-                const Real* HSub = &HBuf[(winEnd-3)+(winEnd-3)*HLDim];
-                const Real scale = Abs(HSub[2+1*HLDim]) + Abs(HSub[1+0*HLDim]);
-                eta00 = exceptScale0*scale + HSub[2+2*HLDim];
-                eta11 = exceptScale1*scale;
+                const Real scale = 
+                  Abs(H(winEnd-1,winEnd-2)) + Abs(H(winEnd-2,winEnd-3));
+                eta00 = exceptScale0*scale + H(winEnd-1,winEnd-1);
+                eta01 = exceptScale1*scale;
                 eta10 = scale;
                 eta11 = eta00;
             }
             else
             {
-                const Real* HSub = &HBuf[(winEnd-2)+(winEnd-2)*HLDim];
-                eta00 = HSub[0+0*HLDim];
-                eta01 = HSub[0+1*HLDim];
-                eta10 = HSub[1+0*HLDim];
-                eta11 = HSub[1+1*HLDim];
+                eta00 = H(winEnd-2,winEnd-2);
+                eta01 = H(winEnd-2,winEnd-1);
+                eta10 = H(winEnd-1,winEnd-2);
+                eta11 = H(winEnd-1,winEnd-1);
             }
             Real shift0Real, shift0Imag, shift1Real, shift1Imag;
             PrepareDoubleShift
@@ -1296,7 +1228,6 @@ Int WindowedSingle
               shift0Real, shift0Imag,
               shift1Real, shift1Imag );
 
-            auto subInd = IR(iterBeg,winEnd);
             DoubleShiftSweep
             ( H,
               iterBeg, winEnd,
@@ -1329,13 +1260,8 @@ Int WindowedSingle
     const Int n = H.Height();
     const Int windowSize = winEnd - winBeg;
     const Int nZ = Z.Height();
-    F* HBuf = H.Buffer(); 
-    F* ZBuf = Z.Buffer();
-    const Int HLDim = H.LDim();
-    const Int ZLDim = Z.LDim();
 
     w.Resize( n, 1 );
-    F* wBuf = w.Buffer();
 
     if( windowSize == 0 )
     {
@@ -1343,36 +1269,35 @@ Int WindowedSingle
     }
     if( windowSize == 1 )
     {
-        wBuf[winBeg] = HBuf[winBeg+winBeg*HLDim];
+        w(winBeg) = H(winBeg,winBeg);
         return winBeg;
     }
 
     // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
     for( Int j=winBeg; j<winEnd-3; ++j ) 
     {
-        HBuf[(j+2)+j*HLDim] = 0;
-        HBuf[(j+3)+j*HLDim] = 0;
+        H(j+2,j) = zero;
+        H(j+3,j) = zero;
     }
     if( winBeg <= winEnd-3 )
-        HBuf[(winEnd-1)+(winEnd-3)*HLDim] = 0;
+        H(winEnd-1,winEnd-3) = zero;
     
     // Rotate the matrix so that the subdiagonals are real
     const Int scaleBeg = ( fullTriangle ? 0 : winBeg );
     const Int scaleEnd = ( fullTriangle ? n : winEnd );
     for( Int i=winBeg+1; i<winEnd; ++i )
     {
-        if( ImagPart(HBuf[i+(i-1)*HLDim]) != zero )
+        if( ImagPart(H(i,i-1)) != zero )
         {
-            const F eta_i_im1 = HBuf[i+(i-1)*HLDim];
+            const F eta_i_im1 = H(i,i-1);
             F phase = eta_i_im1 / OneAbs(eta_i_im1);
             phase = Conj(phase) / Abs(phase);
-            HBuf[i+(i-1)*HLDim] = Abs(eta_i_im1);
-            blas::Scal( scaleEnd-i, phase, &HBuf[i+i*HLDim], HLDim );
+            H(i,i-1) = Abs(eta_i_im1);
+            blas::Scal( scaleEnd-i, phase, &H(i,i), H.LDim() );
             blas::Scal
-            ( Min(scaleEnd,i+2)-scaleBeg, Conj(phase),
-              &HBuf[scaleBeg+i*HLDim], 1 );
+            ( Min(scaleEnd,i+2)-scaleBeg, Conj(phase), &H(scaleBeg,i), 1 );
             if( wantSchurVecs )
-                blas::Scal( nZ, Conj(phase), &ZBuf[i*ZLDim], 1 );
+                blas::Scal( nZ, Conj(phase), &Z(0,i), 1 );
         }
     }
 
@@ -1389,34 +1314,32 @@ Int WindowedSingle
             }
             if( iterBeg > winBeg )
             {
-                HBuf[iterBeg+(iterBeg-1)*HLDim] = zero;
+                H(iterBeg,iterBeg-1) = zero;
             }
             if( iterBeg == winEnd-1 )
             {
-                wBuf[iterBeg] = HBuf[iterBeg+iterBeg*HLDim];
+                w(iterBeg) = H(iterBeg,iterBeg);
                 --winEnd;
                 break;
             }
 
             // Pick either the Wilkinson shift or an exceptional shift
             F shift;
-            auto subInd = IR(iterBeg,winEnd);
             if( iter == maxIter/3 )
             {
-                const F diagVal = HBuf[iterBeg+iterBeg*HLDim];
-                const Real subdiagVal =
-                  RealPart(HBuf[(iterBeg+1)+iterBeg*HLDim]);
+                const F diagVal = H(iterBeg,iterBeg);
+                const Real subdiagVal = RealPart(H(iterBeg+1,iterBeg));
                 shift = diagVal + threeFourths*Abs(subdiagVal);
             } 
             else if( iter == 2*maxIter/3 )
             {
-                const F diagVal = HBuf[(winEnd-1)+(winEnd-1)*HLDim];
-                const Real subdiagVal =
-                  RealPart(HBuf[(winEnd-1)+(winEnd-2)*HLDim]);
+                const F diagVal = H(winEnd-1,winEnd-1);
+                const Real subdiagVal = RealPart(H(winEnd-1,winEnd-2));
                 shift = diagVal + threeFourths*Abs(subdiagVal);
             }
             else
             {
+                auto subInd = IR(iterBeg,winEnd);
                 shift = WilkinsonShift( H(subInd,subInd) );
             }
 
@@ -1460,29 +1383,25 @@ Int SpikeDeflation
 (       Matrix<Real>& T,
         Matrix<Real>& V,
   const Real& eta,
-        Int winBeg=0 )
+        Int numUnconverged,
+        vector<Real>& work )
 {
     DEBUG_ONLY(CSE cse("hess_qr::SpikeDeflation"))
 
     const Int n = T.Height();
-    Real* TBuf = T.Buffer();
-    Real* VBuf = V.Buffer();
-    const Int TLDim = T.LDim();
-    const Int VLDim = V.LDim();
-
     const Real zero(0);
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();
     const Real smallNum = safeMin*(Real(n)/ulp);
 
-    // TODO: Take this as an argument to SpikeDeflation to avoid reallocation?
-    vector<Real> work(n);
+    work.resize( n );
 
+    Int winBeg = numUnconverged;
     Int winEnd = n;
     while( winBeg < winEnd )
     {
         const bool twoByTwo =
-          ( winEnd==1 ? false : TBuf[(winEnd-1)+(winEnd-2)*TLDim] != zero );
+          ( winEnd==1 ? false : T(winEnd-1,winEnd-2) != zero );
 
         if( twoByTwo )
         {
@@ -1498,17 +1417,17 @@ Int SpikeDeflation
             // so that the eigenvalues are alpha +- sqrt(beta*gamma) and the
             // spectral radius is |alpha| + sqrt(beta*gamma).
             //
-            const Real& alpha = TBuf[(winEnd-2)+(winEnd-2)*TLDim];
-            const Real& beta  = TBuf[(winEnd-1)+(winEnd-2)*TLDim]; 
-            const Real& gamma = TBuf[(winEnd-2)+(winEnd-1)*TLDim];
+            const Real& alpha = T(winEnd-2,winEnd-2);
+            const Real& beta  = T(winEnd-1,winEnd-2); 
+            const Real& gamma = T(winEnd-2,winEnd-1);
             const Real spectralRadius =
                 Abs(alpha) + Sqrt(Abs(beta))*Sqrt(Abs(gamma));
             const Real scale =
               ( spectralRadius > 0 ? spectralRadius : Abs(eta) );
 
             // The relevant two entries of spike V^T [eta; zeros(n-1,1)]
-            const Real sigma0 = eta*VBuf[(winEnd-2)*VLDim];
-            const Real sigma1 = eta*VBuf[(winEnd-1)*VLDim];
+            const Real sigma0 = eta*V(0,winEnd-2);
+            const Real sigma1 = eta*V(0,winEnd-1);
 
             if( Max( Abs(sigma0), Abs(sigma1) ) <= Max( smallNum, ulp*scale ) )
             {
@@ -1519,18 +1438,19 @@ Int SpikeDeflation
             {
                 // Move this undeflatable 2x2 block to the top of the window 
                 lapack::SchurExchange
-                ( n, T, TLDim, V, VLDim, winEnd-2, winBeg, work.data() );
+                ( n, &T(0,0), T.LDim(), &V(0,0), V.LDim(),
+                  winEnd-2, winBeg, work.data() );
                 winBeg += 2;
             }
         }
         else
         {
-            const Real spectralRadius = Abs(TBuf[(winEnd-1)+(winEnd-1)*TLDim]);
+            const Real spectralRadius = Abs(T(winEnd-1,winEnd-1));
             const Real scale =
               ( spectralRadius > 0 ? spectralRadius : Abs(eta) );
 
             // The relevant entry of the spike V^T [eta; zeros(n-1,1)]
-            const Real sigma = eta*VBuf[(winEnd-1)*VLDim];
+            const Real sigma = eta*V(0,winEnd-1);
 
             if( Abs(sigma) <= Max( smallNum, ulp*scale ) )
             {
@@ -1541,13 +1461,123 @@ Int SpikeDeflation
             {
                 // Move the undeflatable 1x1 block to the top of the window
                 lapack::SchurExchange
-                ( n, T, TLDim, V, VLDim, winEnd-1, winBeg, work.data() );
+                ( n, &T(0,0), T.LDim(), &V(0,0), V.LDim(),
+                  winEnd-1, winBeg, work.data() );
                 winBeg += 1;
             }
         }
     }
-    // Return the number of unconverged/undeflated eigenvalues
-    return winBeg;
+    // Return the number of deflated eigenvalues
+    return n-winBeg;
+}
+
+template<typename Real>
+void AggressiveEarlyDeflation
+( Matrix<Real>& H,
+  Int winBeg,
+  Int winEnd,
+  Int deflationSize,
+  Matrix<Real>& wReal,
+  Matrix<Real>& wImag,
+  bool fullTriangle,
+  Matrix<Real>& Z,
+  bool wantSchurVecs )
+{
+    const Real zero(0);
+    if( winBeg > winEnd )
+        return;
+    if( deflationSize < 1 )
+        return;
+
+    Int blocksize = Min( deflationSize, winEnd-winBeg );
+    const Int deflateBeg = winEnd-blocksize;
+
+    auto deflateInd = IR(deflateBeg,winEnd);
+    auto HBR = H( deflateInd, deflateInd );
+
+    const Int n = H.Height();
+
+    if( blocksize == 1 )
+    {
+        // TODO: Take a shortcut
+    }
+
+    // TODO: Only copy the upper-Hessenberg portion of HBR
+    Matrix<Real> TBR( HBR );
+    auto wBReal = wReal( IR(deflateBeg,winEnd), ALL );
+    auto wBImag = wImag( IR(deflateBeg,winEnd), ALL );
+    Matrix<Real> VBR;
+    Identity( VBR, blocksize, blocksize );
+    Int numUnconverged =
+      WindowedSingle
+      ( TBR, 0, blocksize, wBReal, wBImag, true, VBR, true, false );
+
+    // Clear the two diagonals below the upper-Hessenberg portion for
+    // SchurExchange
+    for( Int i=0; i<blocksize-3; ++i )
+    {
+        TBR(i+2,i) = zero;
+        TBR(i+3,i) = zero;
+    }
+    if( blocksize > 2 )
+        TBR(blocksize-1,blocksize-3) = zero;
+
+    vector<Real> work(blocksize);
+
+    Real etaBR = ( deflateBeg == winBeg ? zero : H(deflateBeg,deflateBeg-1) );
+    Int numDeflated = SpikeDeflation( TBR, VBR, etaBR, numUnconverged, work );
+    if( numDeflated == blocksize )
+    {
+        // The entire spike has deflated
+        etaBR = zero;
+    }
+    if( numDeflated > 0 )
+    {
+        // TODO: Sort diagonal blocks? 
+    }
+
+    // Reform eigenvalues
+    for( Int i=blocksize; i>numUnconverged; )
+    {
+        if( i == numUnconverged+1 || TBR(i,i-1) == zero )
+        {
+            // 1x1 block
+            wReal(deflateBeg+i) = TBR(i,i);
+            wImag(deflateBeg+i) = zero;
+            i -= 1;
+        }
+        else
+        {
+            // 2x2 block
+            Real alpha00 = TBR(i-1,i-1);
+            Real alpha10 = TBR(i,  i-1);
+            Real alpha01 = TBR(i-1,i  );
+            Real alpha11 = TBR(i,  i  );
+            Real c, s;
+            TwoByTwoSchur
+            ( alpha00, alpha01,
+              alpha10, alpha11, c, s,
+              wReal(deflateBeg+i-1), wImag(deflateBeg+i-1),
+              wReal(deflateBeg+i  ), wImag(deflateBeg+i  ) );
+            i -= 2;
+        }
+    }
+
+    const Int spikeSize = blocksize - numDeflated;
+    if( spikeSize < blocksize || etaBR == zero )
+    {
+        // Either we deflated at least one eigenvalue or we can simply
+        // rotate the deflation window into Schur form
+
+        if( spikeSize > 1 && etaBR != zero )
+        {
+            // The spike needs to be reduced to length one while maintaining
+            // the Hessenberg form of the deflation window
+            for( Int i=0; i<spikeSize; ++i )
+                work[i] = VBR(0,i);
+            // TODO
+        }
+    }
 }
 
 } // namespace hess_qr
@@ -1643,15 +1673,15 @@ void TestAhuesTisseur( bool print )
 
     Matrix<F> H;
     Zeros( H, n, n );
-    H.Set( 0, 0, F(1.) );
-    H.Set( 0, 1, F(1.1e5) );
-    H.Set( 0, 2, F(0.) );
-    H.Set( 1, 0, F(1.1e-8) );
-    H.Set( 1, 1, F(1.+1.e-2) );
-    H.Set( 1, 2, F(1.1e5) );
-    H.Set( 2, 0, F(0.) );
-    H.Set( 2, 1, F(1.1e-8) );
-    H.Set( 2, 2, F(1.+2.*1.e-2) );
+    H(0,0) = F(1.);
+    H(0,1) = F(1.1e5);
+    H(0,2) = F(0.);
+    H(1,0) = F(1.1e-8);
+    H(1,1) = F(1.+1.e-2);
+    H(1,2) = F(1.1e5);
+    H(2,0) = F(0.);
+    H(2,1) = F(1.1e-8);
+    H(2,2) = F(1.+2.*1.e-2);
     const Real HFrob = FrobeniusNorm( H );
     Output("|| H ||_F = ",HFrob);
     if( print )
@@ -1689,15 +1719,15 @@ void TestAhuesTisseurQuasi( bool print )
 
     Matrix<F> H;
     Zeros( H, n, n );
-    H.Set( 0, 0, F(1.) );
-    H.Set( 0, 1, F(1.1e5) );
-    H.Set( 0, 2, F(0.) );
-    H.Set( 1, 0, F(1.1e-8) );
-    H.Set( 1, 1, F(1.+1.e-2) );
-    H.Set( 1, 2, F(1.1e5) );
-    H.Set( 2, 0, F(0.) );
-    H.Set( 2, 1, F(1.1e-8) );
-    H.Set( 2, 2, F(1.+2.*1.e-2) );
+    H(0,0) = F(1.);
+    H(0,1) = F(1.1e5);
+    H(0,2) = F(0.);
+    H(1,0) = F(1.1e-8);
+    H(1,1) = F(1.+1.e-2);
+    H(1,2) = F(1.1e5);
+    H(2,0) = F(0.);
+    H(2,1) = F(1.1e-8);
+    H(2,2) = F(1.+2.*1.e-2);
     const Real HFrob = FrobeniusNorm( H );
     Output("|| H ||_F = ",HFrob);
     if( print )

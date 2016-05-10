@@ -96,8 +96,6 @@ inline void UnpackEntriesLocal
         front.workSparse.Empty();
         Zeros( front.workSparse, size, size );
         Zeros( front.LDense, lowerSize, size );
-        F* LDenseBuf = front.LDense.Buffer();
-        const Int LDenseLDim = front.LDense.LDim();
 
         Int numSparseEntries = 0;
         auto offsCopy = offs;
@@ -151,7 +149,7 @@ inline void UnpackEntriesLocal
                     // TODO: Avoid this binary search?
                     Int origOff = Find( node.origLowerStruct, target );
                     const Int row = node.origLowerRelInds[origOff];
-                    LDenseBuf[(row-size)+t*LDenseLDim] = value;
+                    front.LDense(row-size,t) = value;
                 }
             }
         }
@@ -161,8 +159,6 @@ inline void UnpackEntriesLocal
     else
     {
         Zeros( front.LDense, size+lowerSize, size );
-        F* LDenseBuf = front.LDense.Buffer();
-        const Int LDenseLDim = front.LDense.LDim();
         for( Int t=0; t<size; ++t )
         {
             const Int i = sep.inds[t];
@@ -183,14 +179,14 @@ inline void UnpackEntriesLocal
                 )
                 if( target < off+size )
                 {
-                    LDenseBuf[(target-off)+t*LDenseLDim] = value;
+                    front.LDense(target-off,t) = value;
                 }
                 else
                 {
                     // TODO: Avoid this binary search?
                     Int origOff = Find( node.origLowerStruct, target );
                     const Int row = node.origLowerRelInds[origOff];
-                    LDenseBuf[row+t*LDenseLDim] = value;
+                    front.LDense(row,t) = value;
                 }
             }
         }
@@ -742,8 +738,6 @@ void DistFront<F>::PullUpdate
         const Int size = node.size;
         const Int off = node.off;
 
-        F* LDenseBuf = front.LDense.Buffer();
-        const Int LDenseLDim = front.LDense.LDim();
         if( front.sparseLeaf )
         {
             LogicError("Sparse leaves not supported in DistFront::PullUpdated");
@@ -770,14 +764,14 @@ void DistFront<F>::PullUpdate
                     )
                     if( target < off+size )
                     {
-                        LDenseBuf[(target-off)+t*LDenseLDim] += value;
+                        front.LDense(target-off,t) += value;
                     }
                     else
                     {
                         // TODO: Avoid this binary search?
                         Int origOff = Find( node.origLowerStruct, target );
                         const Int row = node.origLowerRelInds[origOff];
-                        LDenseBuf[row+t*LDenseLDim] += value;
+                        front.LDense(row,t) += value;
                     }
                 }
             }

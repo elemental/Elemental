@@ -52,8 +52,6 @@ inline void LowerBackwardSolve
         X.matrix = W( IR(0,info.size), IR(0,numRHS) );
 
     const Int numChildren = front.children.size();
-    const F* WBuf = W.LockedBuffer();
-    const Int WLDim = W.LDim();
     for( Int c=0; c<numChildren; ++c )
     {
         // Set up a workspace for the child
@@ -66,13 +64,11 @@ inline void LowerBackwardSolve
 
         // Update the child's workspace
         const Int childUSize = childWB.Height();
-        F* childWBBuf = childWB.Buffer();
-        const Int childWBLDim = childWB.LDim();
         for( Int iChild=0; iChild<childUSize; ++iChild )
         {
             const Int i = info.childRelInds[c][iChild];
             for( Int j=0; j<numRHS; ++j )
-                childWBBuf[iChild+j*childWBLDim] = WBuf[i+j*WLDim];
+                childWB(iChild,j) = W(i,j);
         }
     }
     if( haveParent )
@@ -147,18 +143,17 @@ inline void LowerBackwardSolve
 
     // Pack the updates for the children
     vector<F> sendBuf( sendBufSize );
+    Matrix<F>& WLoc = W.Matrix();
     for( int q=0; q<commSize; ++q )
     {
         F* sendVals = &sendBuf[sendOffs[q]];
         const auto& recvInds = X.commMeta.childRecvInds[q];
         const Int numRecvInds = recvInds.size();
-        const F* WBuf = W.LockedBuffer();
-        const Int WLDim = W.LDim();
         for( Int k=0; k<numRecvInds; ++k )
         {
             const Int recvInd = recvInds[k];
             for( Int j=0; j<numRHS; ++j )
-                sendVals[k*numRHS+j] = WBuf[recvInd+j*WLDim];
+                sendVals[k*numRHS+j] = WLoc(recvInd,j);
         }
     }
     if( haveParent )
@@ -176,14 +171,13 @@ inline void LowerBackwardSolve
     // Unpack the updates using the send approach from the forward solve
     const Int myChild = ( info.child->onLeft ? 0 : 1 );
     const Int localHeight = childWB.LocalHeight();
-    F* childWBBuf = childWB.Buffer();
-    const Int childWBLDim = childWB.LDim();
+    Matrix<F>& childWBLoc = childWB.Matrix();
     for( Int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
     {
         const Int iUpdate = childWB.GlobalRow(iUpdateLoc);
         const int q = W.RowOwner(info.childRelInds[myChild][iUpdate]);
         for( Int j=0; j<numRHS; ++j )
-            childWBBuf[iUpdateLoc+j*childWBLDim] = recvBuf[recvOffs[q]++];
+            childWBLoc(iUpdateLoc,j) = recvBuf[recvOffs[q]++];
     }
     SwapClear( recvBuf );
     SwapClear( recvSizes );
@@ -251,8 +245,7 @@ inline void LowerBackwardSolve
 
     // Pack the updates
     vector<F> sendBuf( sendBufSize );
-    const F* WBuf = W.Buffer();
-    const Int WLDim = W.LDim();
+    Matrix<F>& WLoc = W.Matrix();
     for( int q=0; q<commSize; ++q )
     {
         F* sendVals = &sendBuf[sendOffs[q]];
@@ -262,7 +255,7 @@ inline void LowerBackwardSolve
         {
             const Int iLoc = recvInds[2*k+0];
             const Int jLoc = recvInds[2*k+1];
-            sendVals[k] = WBuf[iLoc+jLoc*WLDim];
+            sendVals[k] = WLoc(iLoc,jLoc);
         }
     }
     if( haveParent )
@@ -282,8 +275,7 @@ inline void LowerBackwardSolve
     const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     const Int localHeight = childWB.LocalHeight();
     const Int localWidth = childWB.LocalWidth();
-    F* childWBBuf = childWB.Buffer();
-    const Int childWBLDim = childWB.LDim();
+    Matrix<F>& childWBLoc = childWB.Matrix();
     for( Int iUpdateLoc=0; iUpdateLoc<localHeight; ++iUpdateLoc )
     {
         const Int iUpdate = childWB.GlobalRow(iUpdateLoc);
@@ -292,7 +284,7 @@ inline void LowerBackwardSolve
         {
             const Int j = childWB.GlobalCol(jLoc);
             const int q = W.Owner( i, j );
-            childWBBuf[iUpdateLoc+jLoc*childWBLDim] = recvBuf[recvOffs[q]++];
+            childWBLoc(iUpdateLoc,jLoc) = recvBuf[recvOffs[q]++];
         }
     }
     SwapClear( recvBuf );

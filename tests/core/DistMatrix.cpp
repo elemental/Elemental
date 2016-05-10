@@ -17,7 +17,6 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     DEBUG_ONLY(CallStackEntry cse("Check"))
     const Grid& g = A.Grid();
 
-    const Int commRank = g.Rank();
     const Int height = B.Height();
     const Int width = B.Width();
 

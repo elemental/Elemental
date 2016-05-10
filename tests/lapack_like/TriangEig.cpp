@@ -140,8 +140,6 @@ void TestTriangEig
   const Grid& g,
   Int testMatrix )
 {
-    typedef Base<F> Real;
-
     DistMatrix<F,U,V> A(g), AOrig(g), X(g);
     DistMatrix<F,S,STAR> w(g);
 

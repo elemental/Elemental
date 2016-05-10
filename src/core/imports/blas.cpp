@@ -2897,18 +2897,6 @@ void Trsv
                 if( conj )
                 {
                     if( !unitDiag ) 
-                        x[j*incx] /= A[j+j*ALDim];
-                    gamma = x[j*incx];
-                    for( BlasInt i=j+1; i<m; ++i )
-                    {
-                        delta = A[j+i*ALDim];
-                        delta *= gamma;
-                        x[i*incx] -= delta;
-                    }
-                }
-                else
-                {
-                    if( !unitDiag ) 
                     {
                         Conj( A[j+j*ALDim], delta );
                         x[j*incx] /= delta;
@@ -2917,6 +2905,18 @@ void Trsv
                     for( BlasInt i=j+1; i<m; ++i )
                     {
                         Conj( A[j+i*ALDim], delta );
+                        delta *= gamma;
+                        x[i*incx] -= delta;
+                    }
+                }
+                else
+                {
+                    if( !unitDiag ) 
+                        x[j*incx] /= A[j+j*ALDim];
+                    gamma = x[j*incx];
+                    for( BlasInt i=j+1; i<m; ++i )
+                    {
+                        delta = A[j+i*ALDim];
                         delta *= gamma;
                         x[i*incx] -= delta;
                     }

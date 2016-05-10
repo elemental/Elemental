@@ -49,8 +49,8 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         t.Set( k, 0, tau );
 
         // Temporarily set a1L = | v 1 |
-        const F alpha = alpha11.Get(0,0);
-        alpha11.Set(0,0,1);
+        const F alpha = alpha11(0);
+        alpha11(0) = 1;
 
         // A2R := A2R Hous(a1L^T,tau)
         //      = A2R (I - tau a1L^T conj(a1L))
@@ -60,7 +60,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         Ger( -tau, z01, a1L, A0L );
 
         // Reset alpha11's value
-        alpha11.Set(0,0,alpha);
+        alpha11(0) = alpha;
     }
     // Form d and rescale R
     auto R = A( IR(0,m), IR(jOff,n) );
@@ -77,8 +77,8 @@ PanelHouseholder
 ( DistMatrix<F>& A, ElementalMatrix<F>& t, ElementalMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(
-        CSE cse("rq::PanelHouseholder");
-        AssertSameGrids( A, t, d );
+      CSE cse("rq::PanelHouseholder");
+      AssertSameGrids( A, t, d );
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();

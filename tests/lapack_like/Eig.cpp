@@ -213,8 +213,6 @@ void EigBenchmark
   Int blockHeight,
   const Grid& g )
 {
-    const int gridRank = g.Rank();
-
     // TODO: Convert to distributed analogue
     DistMatrix<Complex<double>> A(m,m,g), AOrig(m,m,g);
     DistMatrix<Complex<double>> w(m,1,g), V(m,m,g), X(g);

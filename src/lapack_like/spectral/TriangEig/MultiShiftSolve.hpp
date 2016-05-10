@@ -54,22 +54,18 @@ void MultiShiftDiagonalBlockSolve
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
-    F* UBuf = U.Buffer();
-    const Int ULDim = U.LDim();
-
     // Default scale is 1
     Ones( scales, numShifts, 1 );
     
     // Compute infinity norms of columns of U (excluding diagonal)
     Matrix<Real> cNorm( n, 1 );
-    Real* cNormBuf = cNorm.Buffer();
-    cNormBuf[0] = Real(0);
+    cNorm(0) = 0;
     for( Int j=1; j<n; ++j )
     {
         //cNormBuf[j] = MaxNorm( U(IR(0,j),IR(j)) );
-        cNormBuf[j] = 0;
+        cNorm(j) = 0;
         for( Int i=0; i<j; ++i )
-            cNormBuf[j] = Max( cNormBuf[j], Abs(UBuf[i+j*ULDim]) );
+            cNorm(j) = Max( cNorm(j), Abs(U(i,j)) );
     }
 
     // Iterate through RHS's
@@ -80,20 +76,18 @@ void MultiShiftDiagonalBlockSolve
         // Initialize triangular system
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( U, diag );
-        const F shift = shifts.Get(j,0);
+        const F shift = shifts(j);
         const Real smallDiag = Max( ulp*OneAbs(shift), smallNum );
         for( Int k=0; k<xHeight; ++k )
         {
-            UBuf[k+k*ULDim] -= shift;
+            U(k,k) -= shift;
             // TODO: Perhaps preserve phase in complex plane
-            if( OneAbs(UBuf[k+k*ULDim]) < smallDiag )
-                UBuf[k+k*ULDim] = smallDiag;
+            if( OneAbs(U(k,k)) < smallDiag )
+                U(k,k) = smallDiag;
         }
         auto xj = X( IR(0,xHeight), IR(j) );
         Real scales_j = Real(1);
 
-        F* xjBuf = xj.Buffer();
-        
         // Determine largest entry of RHS
         Real xjMax = MaxNorm( xj );
         if( xjMax >= bigNum )
@@ -115,7 +109,7 @@ void MultiShiftDiagonalBlockSolve
         Real invMi = invGi;
         for( Int i=xHeight-1; i>=0; --i )
         {
-            const Real absUii = SafeAbs( UBuf[i+i*ULDim] );
+            const Real absUii = SafeAbs( U(i,i) );
             if( invGi<=smallNum || invMi<=smallNum || absUii<=smallNum )
             {
                 invGi = 0;
@@ -124,7 +118,7 @@ void MultiShiftDiagonalBlockSolve
             invMi = Min( invMi, absUii*invGi );
             if( i > 0 )
             {
-                invGi *= absUii/(absUii+cNormBuf[i]);
+                invGi *= absUii/(absUii+cNorm(i));
             }
         }
         invGi = Min( invGi, invMi );
@@ -132,7 +126,7 @@ void MultiShiftDiagonalBlockSolve
         if( invGi > smallNum )
         {
             // Call TRSV since estimated growth is not too large
-            blas::Trsv( 'U', 'N', 'N', xHeight, UBuf, ULDim, xjBuf, 1 );
+            blas::Trsv( 'U', 'N', 'N', xHeight, &U(0,0), U.LDim(), &xj(0), 1 );
         }
         else
         {
@@ -140,9 +134,9 @@ void MultiShiftDiagonalBlockSolve
             for( Int i=xHeight-1; i>=0; --i )
             {
                 // Perform division and check for overflow
-                const F Uii = UBuf[i+i*ULDim];
+                const F Uii = U(i,i);
                 const Real absUii = SafeAbs( Uii );
-                F Xij = xjBuf[i];
+                F Xij = xj(i);
                 Real absXij = SafeAbs( Xij );
                 if( absUii > smallNum )
                 {
@@ -182,7 +176,7 @@ void MultiShiftDiagonalBlockSolve
                         scales_j = Real(0);
                     }
                 }
-                xjBuf[i] = Xij;
+                xj(i) = Xij;
                 
                 if( i > 0 )
                 {
@@ -190,7 +184,7 @@ void MultiShiftDiagonalBlockSolve
                     // Check for possible overflows in AXPY
                     // Note: G(i+1) <= G(i) + | Xij | * cNorm(i)
                     absXij = SafeAbs( Xij );
-                    const Real cNorm_i = cNormBuf[i];
+                    const Real cNorm_i = cNorm(i);
                     if( absXij >= Real(1) &&
                         cNorm_i >= (bigNum-xjMax)/absXij )
                     {
@@ -214,12 +208,11 @@ void MultiShiftDiagonalBlockSolve
                     xjMax += absXij*cNorm_i;
 
                     // AXPY X(0:i,j) -= Xij*U(0:i,i)
-                    blas::Axpy( i, -Xij, &UBuf[i*ULDim], 1, xjBuf, 1 );
+                    blas::Axpy( i, -Xij, &U(0,i), 1, &xj(0), 1 );
                 }
             }
         }
-
-        scales.Set( j, 0, scales_j );
+        scales(j) = scales_j;
     }
 
     // Reset matrix diagonal
@@ -262,23 +255,19 @@ void MultiShiftDiagonalBlockSolve
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
-    F* UBuf = U.Buffer();
-    const Int ULDim = U.LDim();
-
     // Default scale is 1
     const Int numShifts = shifts.Height();
     Ones( scales, numShifts, 1 );
     
     // Compute infinity norms of columns of U (excluding diagonal)
     Matrix<Real> cNorm( n, 1 );
-    Real* cNormBuf = cNorm.Buffer();
-    cNormBuf[0] = Real(0);
+    cNorm(0) = 0;
     for( Int j=1; j<n; ++j )
     {
         //cNormBuf[j] = MaxNorm( ULoc(IR(0,j),IR(j)) );
-        cNormBuf[j] = 0;
+        cNorm(j) = 0;
         for( Int i=0; i<j; ++i )
-            cNormBuf[j] = Max( cNormBuf[j], Abs(UBuf[i+j*ULDim]) );
+            cNorm(j) = Max( cNorm(j), Abs(ULoc(i,j)) );
     }
 
     // Iterate through RHS's (skipping the first shift)
@@ -293,20 +282,18 @@ void MultiShiftDiagonalBlockSolve
         // Initialize triangular system
         // TODO: Only modify the first xHeight entries of the diagonal
         SetDiagonal( ULoc, diag );
-        const F shift = shiftsLoc.Get(jLoc,0);
+        const F shift = shiftsLoc(jLoc);
         const Real smallDiag = Max( ulp*OneAbs(shift), smallNum );
         for( Int k=0; k<xHeight; ++k )
         {
-            UBuf[k+k*ULDim] -= shift;
+            ULoc(k,k) -= shift;
             // TODO: Perhaps preserve phase in complex plane
-            if( OneAbs(UBuf[k+k*ULDim]) < smallDiag )
-                UBuf[k+k*ULDim] = smallDiag;
+            if( OneAbs(ULoc(k,k)) < smallDiag )
+                ULoc(k,k) = smallDiag;
         }
         auto xj = XLoc( IR(0,xHeight), IR(jLoc) );
         Real scales_j = Real(1);
 
-        F* xjBuf = xj.Buffer();
-        
         // Determine largest entry of RHS
         Real xjMax = MaxNorm( xj );
         if( xjMax >= bigNum )
@@ -328,7 +315,7 @@ void MultiShiftDiagonalBlockSolve
         Real invMi = invGi;
         for( Int i=xHeight-1; i>=0; --i )
         {
-            const Real absUii = SafeAbs( UBuf[i+i*ULDim] );
+            const Real absUii = SafeAbs( ULoc(i,i) );
             if( invGi<=smallNum || invMi<=smallNum || absUii<=smallNum )
             {
                 invGi = 0;
@@ -337,7 +324,7 @@ void MultiShiftDiagonalBlockSolve
             invMi = Min( invMi, absUii*invGi );
             if( i > 0 )
             {
-                invGi *= absUii/(absUii+cNormBuf[i]);
+                invGi *= absUii/(absUii+cNorm(i));
             }
         }
         invGi = Min( invGi, invMi );
@@ -345,7 +332,8 @@ void MultiShiftDiagonalBlockSolve
         if( invGi > smallNum )
         {
             // Call TRSV since estimated growth is not too large
-            blas::Trsv( 'U', 'N', 'N', xHeight, UBuf, ULDim, xjBuf, 1 );
+            blas::Trsv
+            ( 'U', 'N', 'N', xHeight, &ULoc(0,0), U.LDim(), &xj(0), 1 );
         }
         else
         {
@@ -353,9 +341,9 @@ void MultiShiftDiagonalBlockSolve
             for( Int i=xHeight-1; i>=0; --i )
             {
                 // Perform division and check for overflow
-                const F Uii = UBuf[i+i*ULDim];
+                const F Uii = ULoc(i,i);
                 const Real absUii = SafeAbs( Uii );
-                F Xij = xjBuf[i];
+                F Xij = xj(i);
                 Real absXij = SafeAbs( Xij );
                 if( absUii > smallNum )
                 {
@@ -395,7 +383,7 @@ void MultiShiftDiagonalBlockSolve
                         scales_j = Real(0);
                     }
                 }
-                xjBuf[i] = Xij;
+                xj(i) = Xij;
                 
                 if( i > 0 )
                 {
@@ -403,7 +391,7 @@ void MultiShiftDiagonalBlockSolve
                     // Check for possible overflows in AXPY
                     // Note: G(i+1) <= G(i) + | Xij | * cNorm(i)
                     absXij = SafeAbs( Xij );
-                    const Real cNorm_i = cNormBuf[i];
+                    const Real cNorm_i = cNorm(i);
                     if( absXij >= Real(1) &&
                         cNorm_i >= (bigNum-xjMax)/absXij )
                     {
@@ -427,12 +415,11 @@ void MultiShiftDiagonalBlockSolve
                     xjMax += absXij*cNorm_i;
 
                     // AXPY X(0:i,j) -= Xij*U(0:i,i)
-                    blas::Axpy( i, -Xij, &UBuf[i*ULDim], 1, xjBuf, 1 );
+                    blas::Axpy( i, -Xij, &ULoc(0,i), 1, &xj(0), 1 );
                 }
             }
         }
-
-        scalesLoc.Set( jLoc, 0, scales_j );
+        scalesLoc(jLoc) = scales_j;
     }
 
     // Reset matrix diagonal
@@ -494,10 +481,10 @@ void MultiShiftSolve
             const Real s = oneHalf*bigNum/xjMax;
             xj *= s;
             xjMax *= s;
-            scales.Set( j, 0, s*scales.Get(j,0) );
+            scales(j) *= s;
         }
         xjMax = Max( xjMax, 2*smallNum );
-        XMax.Set( j, 0, xjMax );
+        XMax(j) = xjMax;
     }
         
     // Perform block triangular solve
@@ -527,15 +514,15 @@ void MultiShiftSolve
         for( Int jActive=0; jActive<nActive; ++jActive )
         {
             const Int j = jActive + k;
-            const Real sigma = scalesUpdate.GetRealPart(jActive,0);
+            const Real sigma = RealPart( scalesUpdate(jActive) );
             if( sigma < Real(1) )
             {
-                scales.Set( j, 0, sigma*scales.Get(j,0) );
+                scales(j) *= sigma;
                 auto x0j = X( IR(0,k),    IR(j) );
                 auto x2j = X( IR(k+nb,j), IR(j) );
                 x0j *= sigma;
                 x2j *= sigma;
-                XMax.Set( j, 0, sigma*XMax.Get(j,0) );
+                XMax(j) *= sigma;
             }
         }
 
@@ -557,13 +544,13 @@ void MultiShiftSolve
                 const Int j = jActive + k;
                 // TODO: Skip first column?
                 auto xj = X( IR(0,j), IR(j) );
-                Real xjMax = XMax.Get(j,0);
+                Real xjMax = XMax(j);
                 Real X1Max = MaxNorm( X1(ALL,IR(jActive)) );
                 if( X1Max >= 1 &&
                     cNorm >= (bigNum-xjMax)/X1Max/nb )
                 {
                     const Real s = oneHalf/(X1Max*nb);
-                    scales.Set( j, 0, s*scales.Get(j,0) );
+                    scales(j) *= s;
                     xj *= s;
                     xjMax *= s;
                     X1Max *= s;
@@ -572,13 +559,13 @@ void MultiShiftSolve
                          cNorm*X1Max >= (bigNum-xjMax)/nb )
                 {
                     const Real s = oneHalf/nb;
-                    scales.Set( j, 0, s*scales.Get(j,0) );
+                    scales(j) *= s;
                     xj *= s;
                     xjMax *= s;
                     X1Max *= s;
                 }
                 xjMax += nb*cNorm*X1Max;
-                XMax.Set( j, 0, xjMax );
+                XMax(j) = xjMax;
             }
 
             // Update RHS with GEMM

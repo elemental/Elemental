@@ -37,7 +37,6 @@ int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {

@@ -39,12 +39,12 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
         //  \         | v |            / |     a21B |   |    0 |
         const F tau = LeftReflector( alpha21T, a21B );
-        t.Set(k,0,tau);
+        t(k) = tau;
 
         // Temporarily set a21 := | 1 |
         //                        | v |
-        const F beta = alpha21T.Get(0,0);
-        alpha21T.Set(0,0,F(1));
+        const F beta = alpha21T(0);
+        alpha21T(0) = F(1);
 
         // A2 := A2 Hous(a21,tau)^H
         //     = A2 (I - conj(tau) a21 a21^H)
@@ -67,7 +67,7 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
         Ger( -tau, a21, x12Adj, A22 );
 
         // Put beta back
-        alpha21T.Set(0,0,beta);
+        alpha21T(0) = beta;
     }
 }
 
@@ -87,10 +87,10 @@ inline void UUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
     t.SetGrid( g );
     t.Resize( tHeight, 1 );
 
-    DistMatrix<F,MC,STAR> a21_MC_STAR(g);
-    DistMatrix<F,MR,STAR> a21_MR_STAR(g);
-    DistMatrix<F,MC,STAR> x1_MC_STAR(g); 
-    DistMatrix<F,MR,STAR> x12Adj_MR_STAR(g);
+    DistMatrix<F,MC,STAR> a21_MC(g);
+    DistMatrix<F,MR,STAR> a21_MR(g);
+    DistMatrix<F,MC,STAR> x1_MC(g); 
+    DistMatrix<F,MR,STAR> x12Adj_MR(g);
 
     for( Int k=0; k<n-1; ++k )
     {
@@ -122,28 +122,28 @@ inline void UUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
         //     = A2 - conj(tau) (A2 a21) a21^H
         // -----------------------------------
         // x1 := A2 a21
-        a21_MR_STAR.AlignWith( A2 );
-        a21_MR_STAR = a21;
-        x1_MC_STAR.AlignWith( A2 );
-        Zeros( x1_MC_STAR, n, 1 );
-        LocalGemv( NORMAL, F(1), A2, a21_MR_STAR, F(0), x1_MC_STAR );
-        El::AllReduce( x1_MC_STAR, A2.RowComm() );
+        a21_MR.AlignWith( A2 );
+        a21_MR = a21;
+        x1_MC.AlignWith( A2 );
+        Zeros( x1_MC, n, 1 );
+        LocalGemv( NORMAL, F(1), A2, a21_MR, F(0), x1_MC );
+        El::AllReduce( x1_MC, A2.RowComm() );
         // A2 := A2 - conj(tau) x1 a21^H
-        LocalGer( -Conj(tau), x1_MC_STAR, a21_MR_STAR, A2 ); 
+        LocalGer( -Conj(tau), x1_MC, a21_MR, A2 ); 
 
         // A22 := Hous(a21,tau) A22
         //      = (I - tau a21 a21^H) A22
         //      = A22 - tau a21 (A22^H a21)^H
         // ----------------------------------
         // x12^H := (a21^H A22)^H = A22^H a21
-        a21_MC_STAR.AlignWith( A22 );
-        a21_MC_STAR = a21;
-        x12Adj_MR_STAR.AlignWith( A22 );
-        Zeros( x12Adj_MR_STAR, A22.Width(), 1 );
-        LocalGemv( ADJOINT, F(1), A22, a21_MC_STAR, F(0), x12Adj_MR_STAR );
-        El::AllReduce( x12Adj_MR_STAR, A22.ColComm() );
+        a21_MC.AlignWith( A22 );
+        a21_MC = a21;
+        x12Adj_MR.AlignWith( A22 );
+        Zeros( x12Adj_MR, A22.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), A22, a21_MC, F(0), x12Adj_MR );
+        El::AllReduce( x12Adj_MR, A22.ColComm() );
         // A22 := A22 - tau a21 x12
-        LocalGer( -tau, a21_MC_STAR, x12Adj_MR_STAR, A22 );
+        LocalGer( -tau, a21_MC, x12Adj_MR, A22 );
 
         // Put beta back 
         if( alpha21T.IsLocal(0,0) )

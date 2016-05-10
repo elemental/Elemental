@@ -41,12 +41,12 @@ inline void PanelHouseholder
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        t.Set( k, 0, tau );
+        t(k) = tau;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
-        const F alpha = alpha11.Get(0,0);
-        alpha11.Set(0,0,1);
+        const F alpha = alpha11(0);
+        alpha11(0) = 1;
 
         // AB2 := Hous(aB1,tau) AB2
         //      = (I - tau aB1 aB1^H) AB2
@@ -56,7 +56,7 @@ inline void PanelHouseholder
         Ger( -tau, aB1, z21, AB2 );
 
         // Replace alpha11's value
-        alpha11.Set(0,0,alpha);
+        alpha11(0) = alpha;
     }
     // Form d and rescale R
     auto R = A( IR(0,minDim), ALL );

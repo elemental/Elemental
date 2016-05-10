@@ -50,8 +50,6 @@ inline void LowerForwardSolve
     Zero( WB );
 
     // Update using the children (if they exist)
-    F* WBuf = W.Buffer();
-    const Int WLDim = W.LDim();
     for( Int c=0; c<numChildren; ++c )
     {
         auto& childW = X.children[c]->work;
@@ -60,13 +58,11 @@ inline void LowerForwardSolve
         const Int childUSize = childHeight-childSize;
 
         auto childU = childW( IR(childSize,childHeight), IR(0,numRHS) );
-        const F* childUBuf = childU.LockedBuffer();
-        const Int childULDim = childU.LDim();
         for( Int iChild=0; iChild<childUSize; ++iChild )
         {
             const Int iFront = info.childRelInds[c][iChild]; 
             for( Int j=0; j<numRHS; ++j )
-                WBuf[iFront+j*WLDim] += childUBuf[iChild+j*childULDim];
+                W(iFront,j) += childU(iChild,j);
         }
         childW.Empty();
     }
@@ -139,14 +135,13 @@ inline void LowerForwardSolve
     const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     auto packOffs = sendOffs;
     const Int localHeight = childU.LocalHeight();
-    const F* childUBuf = childU.LockedBuffer();
-    const Int childULDim = childU.LDim();
+    const Matrix<F>& childULoc = childU.LockedMatrix();
     for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
     {
         const Int iChild = childU.GlobalRow(iChildLoc);
         const Int q = W.RowOwner( info.childRelInds[myChild][iChild] );
         for( Int j=0; j<numRHS; ++j )
-            sendBuf[packOffs[q]++] = childUBuf[iChildLoc+j*childULDim];
+            sendBuf[packOffs[q]++] = childULoc(iChildLoc,j);
     }
     SwapClear( packOffs );
     childW.Empty();
@@ -163,16 +158,15 @@ inline void LowerForwardSolve
     SwapClear( sendOffs );
 
     // Unpack the child updates
+    Matrix<F>& WLoc = W.Matrix();
     for( int q=0; q<commSize; ++q )
     {
         const F* recvVals = &recvBuf[recvOffs[q]];
         const auto& recvInds = X.commMeta.childRecvInds[q];
         const Int numRecvInds = recvInds.size();
-        F* WBuf = W.Buffer();
-        const Int WLDim = W.LDim();
         for( Int k=0; k<numRecvInds; ++k )
             for( Int j=0; j<numRHS; ++j )
-                WBuf[recvInds[k]+j*WLDim] += recvVals[k*numRHS+j]; 
+                WLoc(recvInds[k],j) += recvVals[k*numRHS+j]; 
     }
     SwapClear( recvBuf );
     SwapClear( recvSizes );
@@ -250,8 +244,7 @@ inline void LowerForwardSolve
     auto packOffs = sendOffs;
     const Int localHeight = childU.LocalHeight();
     const Int localWidth = childU.LocalWidth();
-    const F* childUBuf = childU.LockedBuffer();
-    const Int childULDim = childU.LDim();
+    const Matrix<F>& childULoc = childU.LockedMatrix();
     for( Int iChildLoc=0; iChildLoc<localHeight; ++iChildLoc )
     {
         const Int iChild = childU.GlobalRow(iChildLoc);
@@ -264,7 +257,7 @@ inline void LowerForwardSolve
               if( packOffs[q] >= sendBufSize )
                   LogicError("packOffs[",q,"]=",packOffs[q]," >= ",sendBufSize);
             )
-            sendBuf[packOffs[q]++] = childUBuf[iChildLoc+jChildLoc*childULDim];
+            sendBuf[packOffs[q]++] = childULoc(iChildLoc,jChildLoc);
         }
     }
     SwapClear( packOffs );
@@ -282,17 +275,16 @@ inline void LowerForwardSolve
     SwapClear( sendOffs );
 
     // Unpack the child updates (with an Axpy)
+    Matrix<F>& WLoc = W.Matrix();
     for( int q=0; q<commSize; ++q )
     {
         const auto& recvInds = X.commMeta.childRecvInds[q];
         const Int numRecvInds = recvInds.size();
-        F* WBuf = W.Buffer();
-        const Int WLDim = W.LDim();
         for( Int k=0; k<numRecvInds/2; ++k )
         {
             const Int iLoc = recvInds[2*k+0];
             const Int jLoc = recvInds[2*k+1];
-            WBuf[iLoc+jLoc*WLDim] += recvBuf[recvOffs[q]+k];
+            WLoc(iLoc,jLoc) += recvBuf[recvOffs[q]+k];
         }
     }
     SwapClear( recvBuf );

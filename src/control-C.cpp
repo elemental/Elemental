@@ -25,28 +25,28 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG C, \
     ElDistMatrix_ ## SIG X ) \
   { EL_TRY( Lyapunov( *CReflect(A), *CReflect(C), *CReflect(X) ) ) } \
-  /* Ricatti
+  /* Riccati
      ======= */ \
-  ElError ElRicatti_ ## SIG \
+  ElError ElRiccati_ ## SIG \
   ( ElUpperOrLower uplo, \
     ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG K, \
     ElConstMatrix_ ## SIG L, ElMatrix_ ## SIG X ) \
-  { EL_TRY( Ricatti( CReflect(uplo), \
+  { EL_TRY( Riccati( CReflect(uplo), \
       *CReflect(A), *CReflect(K), *CReflect(L), *CReflect(X) ) ) } \
-  ElError ElRicattiDist_ ## SIG \
+  ElError ElRiccatiDist_ ## SIG \
   ( ElUpperOrLower uplo, \
     ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG K, \
     ElConstDistMatrix_ ## SIG L, ElDistMatrix_ ## SIG X ) \
-  { EL_TRY( Ricatti( CReflect(uplo), \
+  { EL_TRY( Riccati( CReflect(uplo), \
       *CReflect(A), *CReflect(K), *CReflect(L), *CReflect(X) ) ) } \
   /* Preformed
      --------- */ \
-  ElError ElRicattiPreformed_ ## SIG \
+  ElError ElRiccatiPreformed_ ## SIG \
   ( ElMatrix_ ## SIG W, ElMatrix_ ## SIG X ) \
-  { EL_TRY( Ricatti( *CReflect(W), *CReflect(X) ) ) } \
-  ElError ElRicattiPreformedDist_ ## SIG \
+  { EL_TRY( Riccati( *CReflect(W), *CReflect(X) ) ) } \
+  ElError ElRiccatiPreformedDist_ ## SIG \
   ( ElDistMatrix_ ## SIG W, ElDistMatrix_ ## SIG X ) \
-  { EL_TRY( Ricatti( *CReflect(W), *CReflect(X) ) ) } \
+  { EL_TRY( Riccati( *CReflect(W), *CReflect(X) ) ) } \
   /* Sylvester
      ========= */ \
   ElError ElSylvester_ ## SIG \
