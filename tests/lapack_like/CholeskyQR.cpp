@@ -18,7 +18,10 @@ void TestCorrectness
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
+    const Int m = A.Height();
     const Int n = A.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( A );
 
     // Form I - Q^H Q
     OutputFromRoot(g.Comm(),"Testing orthogonality of Q");
@@ -27,35 +30,27 @@ void TestCorrectness
     Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
     Herk( UPPER, ADJOINT, Base<F>(-1), Q_MC_MR, Base<F>(1), Z );
-    Real oneNormOfError = HermitianOneNorm( UPPER, Z );
-    Real infNormOfError = HermitianInfinityNorm( UPPER, Z );
-    Real frobNormOfError = HermitianFrobeniusNorm( UPPER, Z );
+    const Real infOrthogError = HermitianInfinityNorm( UPPER, Z );
+    const Real relOrthogError = infOrthogError / (eps*Max(m,n)*oneNormA);
     OutputFromRoot
-    (g.Comm(),
-     "||Q^H Q - I||_1  = ",oneNormOfError,"\n",Indent(),
-     "||Q^H Q - I||_oo = ",infNormOfError,"\n",Indent(),
-     "||Q^H Q - I||_F  = ",frobNormOfError);
+    (g.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n) || A ||_1) = ",relOrthogError);
     PopIndent();
 
     // Form A - Q R
     OutputFromRoot(g.Comm(),"Testing if A = QR");
     PushIndent();
-    const Real oneNormOfA = OneNorm( A );
-    const Real infNormOfA = InfinityNorm( A );
-    const Real frobNormOfA = FrobeniusNorm( A );
     LocalGemm( NORMAL, NORMAL, F(-1), Q, R, F(1), A );
-    oneNormOfError = OneNorm( A );
-    infNormOfError = InfinityNorm( A );
-    frobNormOfError = FrobeniusNorm( A );
+    const Real infNormError = InfinityNorm( A );
+    const Real relError = infNormError / (eps*Max(m,n)*oneNormA);
     OutputFromRoot
-    (g.Comm(),
-     "||A||_1       = ",oneNormOfA,"\n",Indent(),
-     "||A||_oo      = ",infNormOfA,"\n",Indent(),
-     "||A||_F       = ",frobNormOfA,"\n",Indent(),
-     "||A - QR||_1  = ",oneNormOfError,"\n",Indent(),
-     "||A - QR||_oo = ",infNormOfError,"\n",Indent(),
-     "||A - QR||_F  = ",frobNormOfError,"\n");
+    (g.Comm(),"||A - QR||_oo / (eps Max(m,n) || A ||_1) = ",relError);
     PopIndent();
+
+    // TODO: More refined failure conditions (especially in this case...)
+    if( relOrthogError > Real(10) )
+        LogicError("Relative orthog error was unacceptably large");
+    if( relError > Real(1) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F>

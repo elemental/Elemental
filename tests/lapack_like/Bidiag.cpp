@@ -22,8 +22,8 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
     const Int n = AOrig.Width();
-    const Real infNormAOrig = InfinityNorm( AOrig );
-    const Real frobNormAOrig = FrobeniusNorm( AOrig );
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormAOrig = OneNorm( AOrig );
     OutputFromRoot(g.Comm(),"Testing error...");
     PushIndent();
 
@@ -86,15 +86,16 @@ void TestCorrectness
     if( display )
         Display( B, "Error in rotated bidiagonal" );
     const Real infNormError = InfinityNorm( B );
-    const Real frobNormError = FrobeniusNorm( B );
+    const Real relError = infNormError / (Max(m,n)*oneNormAOrig*eps);
 
     OutputFromRoot
     (g.Comm(),
-     "||A||_oo = ",infNormAOrig,"\n",Indent(),
-     "||A||_F  = ",frobNormAOrig,"\n",Indent(),
-     "||B - Q^H A P||_oo = ",infNormError,"\n",Indent(),
-     "||B - Q^H A P||_F  = ",frobNormError);
+     "||B - Q^H A P||_oo / (max(m,n) || A ||_1 eps) = ",relError);
     PopIndent();
+
+    // TODO: Use a more refined failure condition
+    if( relError > Real(1) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F>

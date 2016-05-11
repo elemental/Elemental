@@ -11,14 +11,16 @@ using namespace El;
 
 template<typename F>
 void TestCorrectness
-( UpperOrLower uplo,
+(       UpperOrLower uplo,
   const DistMatrix<F>& T,
-  Base<F> alpha,
+        Base<F> alpha,
   const DistMatrix<F>& V,
-  const DistMatrix<F>& A )
+  const DistMatrix<F>& A,
+        Int numRHS=100 )
 {
     typedef Base<F> Real;
-    const Int m = V.Height();
+    const Int n = V.Height();
+    const Real eps = limits::Epsilon<Real>();
     const Grid& g = T.Grid();
 
     DistMatrix<F> B( A );
@@ -27,25 +29,22 @@ void TestCorrectness
     // Test correctness by multiplying a random set of vectors by 
     // A + alpha V V^H, then using the Cholesky factorization to solve.
     DistMatrix<F> X(g), Y(g);
-    Uniform( X, m, 100 );
-    Zeros( Y, m, 100 );
+    Uniform( X, n, numRHS );
+    Zeros( Y, n, numRHS );
     Hemm( LEFT, uplo, F(1), B, X, F(0), Y );
-    const Real maxNormT = MaxNorm( T );
-    const Real maxNormB = HermitianMaxNorm( uplo, B );
-    const Real frobNormB = HermitianFrobeniusNorm( uplo, B );
-    const Real frobNormY = FrobeniusNorm( Y );
+    const Real oneNormY = OneNorm( Y );
 
     cholesky::SolveAfter( uplo, NORMAL, T, Y );
     X -= Y;
-    const Real frobNormE = FrobeniusNorm( X );
+    const Real infNormE = InfinityNorm( X );
+    const Real relError = infNormE / (eps*n*oneNormY);
 
     OutputFromRoot
-    (g.Comm(),
-     "||T||_max = ",maxNormT,"\n",Indent(),
-     "||B||_max = ",maxNormB,"\n",Indent(),
-     "||B||_F   = ",frobNormB,"\n",Indent(),
-     "||Y||_F   = ",frobNormY,"\n",Indent(),
-     "||X - inv(B) X||_F  = ",frobNormE);
+    (g.Comm(),"|| X - B \\ Y ||_oo / (n eps || Y ||_1) = ",relError);
+
+    // TODO: Use a more refined failure condition
+    if( relError > Real(1) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F> 

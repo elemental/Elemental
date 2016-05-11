@@ -23,6 +23,7 @@ void TestCorrectness
     typedef Base<F> Real;
     const Grid& g = H.Grid();
     const Int m = H.Height();
+    const Real eps = limits::Epsilon<Real>();
 
     OutputFromRoot(g.Comm(),"Testing orthogonality of transform...");
     PushIndent();
@@ -67,26 +68,20 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    const Real oneNormError = OneNorm( Z );
-    const Real infNormError = InfinityNorm( Z );
     const Real frobNormError = FrobeniusNorm( Z );
+    const Real relError = frobNormError / (m*eps);
     if( order == FORWARD )
     {
-        OutputFromRoot
-        (g.Comm(),
-         "||Q Q^H - I||_1  = ",oneNormError,"\n",Indent(),
-         "||Q Q^H - I||_oo = ",infNormError,"\n",Indent(),
-         "||Q Q^H - I||_F  = ",frobNormError);
+        OutputFromRoot(g.Comm(), "||Q Q^H - I||_F / (m eps) = ",relError);
     }
     else
     {
-        OutputFromRoot
-        (g.Comm(),
-         "||Q^H Q - I||_1  = ",oneNormError,"\n",Indent(),
-         "||Q^H Q - I||_oo = ",infNormError,"\n",Indent(),
-         "||Q^H Q - I||_F  = ",frobNormError);
+        OutputFromRoot(g.Comm(), "||Q^H Q - I||_F / (m eps) = ",relError);
     }
     PopIndent();
+    // TODO: Use a more refined failure condition
+    if( relError > Real(10) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F>
