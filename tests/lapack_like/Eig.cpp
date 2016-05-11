@@ -82,6 +82,7 @@ void SequentialEigBenchmark
   Int m,
   Int testMatrix )
 {
+    Output( "Testing with ", TypeName<Real>() );
     Matrix<Complex<Real>> A(m,m), AOrig(m,m);
     Matrix<Complex<Real>> w(m,1), V(m,m);
     Matrix<Complex<Real>> X, tau;
@@ -230,6 +231,7 @@ void EigBenchmark
   Int blockHeight,
   const Grid& g )
 {
+    OutputFromRoot( g.Comm(), "Testing with ", TypeName<Real>() );
     // TODO: Convert to distributed analogue
     DistMatrix<Complex<Real>> A(m,m,g), AOrig(m,m,g);
     DistMatrix<Complex<Real>> w(m,1,g), V(m,m,g), X(g);
@@ -334,9 +336,16 @@ main( int argc, char* argv[] )
         const Grid grid( comm, gridHeight, order );
        
         if( commRank == 0 )
+        {
+            SequentialEigBenchmark<float>
+            ( testCorrectness, print, n, testMatrix );
             SequentialEigBenchmark<double>
             ( testCorrectness, print, n, testMatrix );
+        }
 
+        EigBenchmark<float>
+        ( testCorrectness, print, n, testMatrix,
+          distAED, blockHeight, grid );
         EigBenchmark<double>
         ( testCorrectness, print, n, testMatrix,
           distAED, blockHeight, grid );

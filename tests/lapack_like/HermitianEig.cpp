@@ -22,12 +22,15 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const Int n = Z.Height();
     const Int k = Z.Width();
+    const Real eps = limits::Epsilon<Real>();
 
     DistMatrix<F> X(g);
     Identity( X, k, k );
     Herk( uplo, ADJOINT, Real(-1), Z, Real(1), X );
-    Real frobNormE = FrobeniusNorm( X );
-    OutputFromRoot(g.Comm(),"||Z^H Z - I||_F  = ",frobNormE);
+    const Real infOrthogError = HermitianInfinityNorm( uplo, X );
+    const Real relOrthogError = infOrthogError / (eps*n);
+    OutputFromRoot(g.Comm(),"||Z^H Z - I||_oo / (eps n) = ",relOrthogError);
+
     // X := AZ
     X.AlignWith( Z );
     Zeros( X, n, k );
@@ -36,20 +39,28 @@ void TestCorrectness
     DistMatrix<F> ZW( Z );
     DiagonalScale( RIGHT, NORMAL, w, ZW );
     X -= ZW;
-    // Find the infinity norms of A, Z, and AZ-ZW
-    Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
-    frobNormE = FrobeniusNorm( X );
-    OutputFromRoot(g.Comm(),"||A Z - Z W||_F / ||A||_F = ",frobNormE/frobNormA);
+    const Real oneNormA = HermitianOneNorm( uplo, AOrig );
+    if( oneNormA == Real(0) )
+        LogicError("Tried to test relative accuracy on zero matrix...");
+    const Real infError = InfinityNorm( X );
+    const Real relError = infError / (n*eps*oneNormA);
+    OutputFromRoot(g.Comm(),"||A Z - Z W||_oo / (eps n ||A||_1) = ",relError);
+
+    // TODO: More refined failure conditions
+    if( relOrthogError > Real(200) ) // yes, really
+        LogicError("Relative orthogonality error was unacceptably large");
+    if( relError > Real(10) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
 void TestHermitianEig
-( bool testCorrectness,
+( Int m,
+  UpperOrLower uplo,
+  bool testCorrectness,
   bool print,
   bool onlyEigvals,
   bool clustered,
-  UpperOrLower uplo,
-  Int m, 
   SortType sort,
   const Grid& g,
   const HermitianEigSubset<Base<F>> subset,
@@ -115,6 +126,77 @@ void TestHermitianEig
     PopIndent();
 }
 
+
+template<typename F>
+void TestSuite
+( Int m,
+  UpperOrLower uplo,
+  char range,
+  Int il, Int iu,
+  Base<F> vl, Base<F> vu,
+  bool timeStages,
+  Int nbLocal,
+  bool avoidTrmv,
+  bool testCorrectness,
+  bool print,
+  bool onlyEigvals,
+  bool clustered,
+  SortType sort,
+  const Grid& g,
+  bool scalapack )
+{
+    OutputFromRoot(g.Comm(),"Will test with ",TypeName<F>());
+    PushIndent();
+
+    typedef Base<F> Real;
+    HermitianEigSubset<Real> subset;
+    if( range == 'I' )
+    {
+        subset.indexSubset = true;
+        subset.lowerIndex = il;
+        subset.upperIndex = iu;
+    }
+    else if( range == 'V' )
+    {
+        subset.rangeSubset = true;
+        subset.lowerBound = vl;
+        subset.upperBound = vu;
+    }
+
+    HermitianEigCtrl<F> ctrl;
+    ctrl.timeStages = timeStages;
+    ctrl.tridiagCtrl.symvCtrl.bsize = nbLocal;
+    ctrl.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+
+    OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
+    ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+    TestHermitianEig<F>
+    ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
+      sort, g, subset, ctrl, scalapack );
+
+    OutputFromRoot(g.Comm(),"Square row-major tridiag algorithms:");
+    ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+    ctrl.tridiagCtrl.order = ROW_MAJOR;
+    TestHermitianEig<F>
+    ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
+      sort, g, subset, ctrl, scalapack );
+
+    OutputFromRoot(g.Comm(),"Square column-major tridiag algorithms:");
+    ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+    ctrl.tridiagCtrl.order = COLUMN_MAJOR;
+    TestHermitianEig<F>
+    ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
+      sort, g, subset, ctrl, scalapack );
+
+    // Also test with non-standard distributions
+    OutputFromRoot(g.Comm(),"Nonstandard distributions:");
+    TestHermitianEig<F,MR,MC,MC>
+    ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
+      sort, g, subset, ctrl, scalapack );
+
+    PopIndent();
+}
+
 int 
 main( int argc, char* argv[] )
 {
@@ -172,80 +254,34 @@ main( int argc, char* argv[] )
             (g.Comm(),"Cannot test correctness with only eigenvalues.");
         ComplainIfDebug();
 
-        HermitianEigSubset<double> subset;
-        if( range == 'I' )
+        if( testReal )
         {
-            subset.indexSubset = true;
-            subset.lowerIndex = il;
-            subset.upperIndex = iu;
-        }
-        else if( range == 'V' )
-        {
-            subset.rangeSubset = true;
-            subset.lowerBound = vl;
-            subset.upperBound = vu;
-        }
+            TestSuite<float>
+            ( m, uplo, range, il, iu, float(vl), float(vu),
+              timeStages, nbLocal, avoidTrmv,
+              testCorrectness, print, onlyEigvals, clustered,
+              sort, g, scalapack );
 
-        HermitianEigCtrl<double> ctrl_d;
-        ctrl_d.timeStages = timeStages;
-        ctrl_d.tridiagCtrl.symvCtrl.bsize = nbLocal;
-        ctrl_d.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+            TestSuite<double>
+            ( m, uplo, range, il, iu, double(vl), double(vu),
+              timeStages, nbLocal, avoidTrmv,
+              testCorrectness, print, onlyEigvals, clustered,
+              sort, g, scalapack );
+         }
+         if( testCpx )
+         {
+            TestSuite<Complex<float>>
+            ( m, uplo, range, il, iu, float(vl), float(vu),
+              timeStages, nbLocal, avoidTrmv,
+              testCorrectness, print, onlyEigvals, clustered,
+              sort, g, scalapack );
 
-        HermitianEigCtrl<Complex<double>> ctrl_z;
-        ctrl_z.timeStages = timeStages;
-        ctrl_z.tridiagCtrl.symvCtrl.bsize = nbLocal;
-        ctrl_z.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
-
-        OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
-        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
-        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
-        if( testReal )
-            TestHermitianEig<double>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_d, scalapack );
-        if( testCpx )
-            TestHermitianEig<Complex<double>>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_z, scalapack );
-
-        OutputFromRoot(g.Comm(),"Square row-major tridiag algorithms:");
-        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_d.tridiagCtrl.order = ROW_MAJOR;
-        ctrl_z.tridiagCtrl.order = ROW_MAJOR;
-        if( testReal )
-            TestHermitianEig<double>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_d, scalapack );
-        if( testCpx )
-            TestHermitianEig<Complex<double>>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_z, scalapack );
-
-        OutputFromRoot(g.Comm(),"Square column-major tridiag algorithms:");
-        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_d.tridiagCtrl.order = COLUMN_MAJOR;
-        ctrl_z.tridiagCtrl.order = COLUMN_MAJOR;
-        if( testReal )
-            TestHermitianEig<double>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_d, scalapack );
-        if( testCpx )
-            TestHermitianEig<Complex<double>>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_z, scalapack );
-
-        // Also test with non-standard distributions
-        OutputFromRoot(g.Comm(),"Nonstandard distributions:");
-        if( testReal )
-            TestHermitianEig<double,MR,MC,MC>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_d, scalapack );
-        if( testCpx )
-            TestHermitianEig<Complex<double>,MR,MC,MC>
-            ( testCorrectness, print, onlyEigvals, clustered, 
-              uplo, m, sort, g, subset, ctrl_z, scalapack );
+            TestSuite<Complex<double>>
+            ( m, uplo, range, il, iu, double(vl), double(vu),
+              timeStages, nbLocal, avoidTrmv,
+              testCorrectness, print, onlyEigvals, clustered,
+              sort, g, scalapack );
+         }
     }
     catch( exception& e ) { ReportException(e); }
 

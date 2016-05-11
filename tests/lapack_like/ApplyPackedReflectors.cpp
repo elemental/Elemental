@@ -68,15 +68,15 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    const Real frobNormError = FrobeniusNorm( Z );
-    const Real relError = frobNormError / (m*eps);
+    const Real infNormError = InfinityNorm( Z );
+    const Real relError = infNormError / (m*eps);
     if( order == FORWARD )
     {
-        OutputFromRoot(g.Comm(), "||Q Q^H - I||_F / (m eps) = ",relError);
+        OutputFromRoot(g.Comm(), "||Q Q^H - I||_oo / (m eps) = ",relError);
     }
     else
     {
-        OutputFromRoot(g.Comm(), "||Q^H Q - I||_F / (m eps) = ",relError);
+        OutputFromRoot(g.Comm(), "||Q^H Q - I||_oo / (m eps) = ",relError);
     }
     PopIndent();
     // TODO: Use a more refined failure condition
