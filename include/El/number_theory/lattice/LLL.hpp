@@ -96,11 +96,11 @@ Achieved
     Real delta = limits::Max<Real>();
     for( Int i=0; i<minDim-1; ++i )
     {
-        const Real rho_i_i = R.GetRealPart(i,i);
+        const Real rho_i_i = RealPart(R(i,i));
         if( Abs(rho_i_i) <= ctrl.zeroTol )
             continue;
-        const Real rho_i_ip1 = Abs(R.Get(i,i+1));
-        const Real rho_ip1_ip1 = R.GetRealPart(i+1,i+1);
+        const Real rho_i_ip1 = Abs(R(i,i+1));
+        const Real rho_ip1_ip1 = RealPart(R(i+1,i+1));
 
         const Real deltaBound =
           (rho_ip1_ip1*rho_ip1_ip1+rho_i_ip1*rho_i_ip1)/(rho_i_i*rho_i_i);
@@ -123,23 +123,23 @@ Achieved
     {
         for( Int i=0; i<minDim-1; ++i )
         {
-            const F rho_ii = R.Get(i,i);
+            const F rho_ii = R(i,i);
             if( Abs(rho_ii) <= ctrl.zeroTol )
                 continue;
             else
-                eta = Max(eta,Abs(R.Get(i,i+1)/rho_ii));
+                eta = Max(eta,Abs(R(i,i+1)/rho_ii));
         }
     }
     else
     {
         for( Int i=0; i<minDim-1; ++i )
         {
-            const F rho_ii = R.Get(i,i);
+            const F rho_ii = R(i,i);
             if( Abs(rho_ii) <= ctrl.zeroTol )
                 continue;
             else
                 for( Int j=i+1; j<n; ++j )
-                    eta = Max(eta,Abs(R.Get(i,j)/rho_ii));
+                    eta = Max(eta,Abs(R(i,j)/rho_ii));
         }
     }
     eta /= ( IsComplex<F>::value ? Sqrt(Real(2)) : Real(1) );
@@ -161,7 +161,7 @@ Base<F> LogVolume( const Matrix<F>& R )
     Real logVol = 0;
     for( Int j=0; j<minDim; ++j )
     {
-        Real rho_j_j = R.GetRealPart(j,j);
+        Real rho_j_j = RealPart(R(j,j));
         if( rho_j_j > Real(0) )
             logVol += Log(rho_j_j);
     }

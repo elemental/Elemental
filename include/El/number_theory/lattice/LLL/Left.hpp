@@ -30,16 +30,10 @@ void ExpandQR
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
-    const F* BBuf = B.LockedBuffer();
-          F* QRBuf = QR.Buffer();  
-    const F* tBuf = t.LockedBuffer();
-    const Base<F>* dBuf = d.LockedBuffer();
-    const Int BLDim = B.LDim();
-    const Int QRLDim = QR.LDim();
 
     // Copy in the k'th column of B
     for( Int i=0; i<m; ++i )
-        QRBuf[i+k*QRLDim] = BBuf[i+k*BLDim];
+        QR(i,k) = B(i,k);
 
     if( time )
         applyHouseTimer.Start();
@@ -50,24 +44,24 @@ void ExpandQR
             // Apply the i'th Householder reflector
     
             // Temporarily replace QR(i,i) with 1
-            const Real alpha = RealPart(QRBuf[i+i*QRLDim]);
-            QRBuf[i+i*QRLDim] = 1;
+            const Real alpha = RealPart(QR(i,i));
+            QR(i,i) = 1;
 
             const F innerProd =
               blas::Dot
               ( m-i,
-                &QRBuf[i+i*QRLDim], 1,
-                &QRBuf[i+k*QRLDim], 1 );
+                &QR(i,i), 1,
+                &QR(i,k), 1 );
             blas::Axpy
-            ( m-i, -tBuf[i]*innerProd,
-              &QRBuf[i+i*QRLDim], 1,
-              &QRBuf[i+k*QRLDim], 1 );
+            ( m-i, -t(i)*innerProd,
+              &QR(i,i), 1,
+              &QR(i,k), 1 );
 
             // Fix the scaling
-            QRBuf[i+k*QRLDim] *= dBuf[i];
+            QR(i,k) *= d(i);
 
             // Restore H(i,i)
-            QRBuf[i+i*QRLDim] = alpha; 
+            QR(i,i) = alpha;
         }
     }
     if( time )
@@ -93,9 +87,7 @@ void HouseholderStep
         houseStepTimer.Start();
 
     // Perform the next step of Householder reduction
-    F* QRBuf = QR.Buffer();
-    const Int QRLDim = QR.LDim();
-    F& rhokk = QRBuf[k+k*QRLDim]; 
+    F& rhokk = QR(k,k); 
     if( time )
         houseViewTimer.Start();
     auto qr21 = QR( IR(k+1,END), IR(k) );
@@ -106,14 +98,14 @@ void HouseholderStep
     F tau = LeftReflector( rhokk, qr21 );
     if( time )
         houseReflectTimer.Stop();
-    t.Set( k, 0, tau );
+    t(k) = tau;
     if( RealPart(rhokk) < Real(0) )
     {
-        d.Set( k, 0, -1 );
+        d(k) = -1;
         rhokk *= -1;
     }
     else
-        d.Set( k, 0, +1 );
+        d(k) = +1;
 
     if( time )
         houseStepTimer.Stop();
@@ -140,18 +132,11 @@ bool Step
     if( ctrl.time )
         stepTimer.Start();
 
-    F* BBuf = B.Buffer();
-    F* UBuf = U.Buffer();
-    F* QRBuf = QR.Buffer();
-    const Int BLDim = B.LDim();
-    const Int ULDim = U.LDim();
-    const Int QRLDim = QR.LDim();
-
     while( true ) 
     {
         lll::ExpandQR( k, B, QR, t, d, ctrl.numOrthog, ctrl.time );
 
-        const Real oldNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+        const Real oldNorm = blas::Nrm2( m, &B(0,k), 1 );
         if( !limits::IsFinite(oldNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
         if( oldNorm > Real(1)/eps )
@@ -160,13 +145,13 @@ bool Step
         if( oldNorm <= ctrl.zeroTol )
         {
             for( Int i=0; i<m; ++i )
-                BBuf[i+k*BLDim] = 0;
+                B(i,k) = 0;
             for( Int i=0; i<m; ++i )
-                QRBuf[i+k*QRLDim] = 0;
+                QR(i,k) = 0;
             if( k < Min(m,n) )
             {
-                t.Set( k, 0, Real(2) );
-                d.Set( k, 0, Real(1) );
+                t(k) = Real(2);
+                d(k) = Real(1);
             }
             if( ctrl.time )
                 stepTimer.Stop();
@@ -177,30 +162,30 @@ bool Step
             roundTimer.Start();
         if( ctrl.variant == LLL_WEAK )
         {
-            const Real rho_km1_km1 = RealPart(QRBuf[(k-1)+(k-1)*QRLDim]);
+            const Real rho_km1_km1 = RealPart(QR(k-1,k-1));
             if( rho_km1_km1 > ctrl.zeroTol )
             {
                 // TODO: Add while loop?
-                F chi = QRBuf[(k-1)+k*QRLDim]/rho_km1_km1;
+                F chi = QR(k-1,k)/rho_km1_km1;
                 if( Abs(RealPart(chi)) > ctrl.eta ||
                     Abs(ImagPart(chi)) > ctrl.eta )
                 {
                     chi = Round(chi);
                     blas::Axpy
                     ( k, -chi,
-                      &QRBuf[(k-1)*QRLDim], 1,
-                      &QRBuf[ k   *QRLDim], 1 );
+                      &QR(0,k-1), 1,
+                      &QR(0,k  ), 1 );
 
                     blas::Axpy
                     ( m, -chi,
-                      &BBuf[(k-1)*BLDim], 1,
-                      &BBuf[ k   *BLDim], 1 );
+                      &B(0,k-1), 1,
+                      &B(0,k  ), 1 );
 
                     if( formU )
                         blas::Axpy
                         ( n, -chi,
-                          &UBuf[(k-1)*ULDim], 1,
-                          &UBuf[ k   *ULDim], 1 );
+                          &U(0,k-1), 1,
+                          &U(0,k  ), 1 );
                 }
             }
         }
@@ -215,15 +200,15 @@ bool Step
                 Int numNonzero = 0;
                 for( Int i=k-1; i>=0; --i )
                 {
-                    F chi = QRBuf[i+k*QRLDim]/QRBuf[i+i*QRLDim];
+                    F chi = QR(i,k)/QR(i,i);
                     if( Abs(RealPart(chi)) > ctrl.eta ||
                         Abs(ImagPart(chi)) > ctrl.eta )
                     {
                         chi = Round(chi);
                         blas::Axpy
                         ( i+1, -chi,
-                          &QRBuf[i*QRLDim], 1,
-                          &QRBuf[k*QRLDim], 1 );
+                          &QR(0,i), 1,
+                          &QR(0,k), 1 );
                         ++numNonzero;
                     }
                     else
@@ -238,15 +223,15 @@ bool Step
                 {
                     blas::Gemv
                     ( 'N', m, k,
-                      F(-1), &BBuf[0*BLDim], BLDim,
-                             &xBuf[0],       1,
-                      F(+1), &BBuf[k*BLDim], 1 );
+                      F(-1), &B(0,0),  B.LDim(),
+                             &xBuf[0], 1,
+                      F(+1), &B(0,k),  1 );
                     if( formU )
                         blas::Gemv
                         ( 'N', n, k,
-                          F(-1), &UBuf[0*ULDim], ULDim,
-                                 &xBuf[0],       1,
-                          F(+1), &UBuf[k*ULDim], 1 );
+                          F(-1), &U(0,0),  U.LDim(),
+                                 &xBuf[0], 1,
+                          F(+1), &U(0,k),  1 );
                 }
                 else
                 {
@@ -257,18 +242,18 @@ bool Step
                             continue;
                         blas::Axpy
                         ( m, -chi,
-                          &BBuf[i*BLDim], 1,
-                          &BBuf[k*BLDim], 1 );
+                          &B(0,i), 1,
+                          &B(0,k), 1 );
                         if( formU )
                             blas::Axpy
                             ( n, -chi,
-                              &UBuf[i*ULDim], 1,
-                              &UBuf[k*ULDim], 1 );
+                              &U(0,i), 1,
+                              &U(0,k), 1 );
                     }
                 }
             }
         }
-        const Real newNorm = blas::Nrm2( m, &BBuf[k*BLDim], 1 );
+        const Real newNorm = blas::Nrm2( m, &B(0,k), 1 );
         if( ctrl.time )
             roundTimer.Stop();
         if( !limits::IsFinite(newNorm) )
@@ -346,14 +331,14 @@ LLLInfo<Base<F>> LeftAlg
             // Perform the first step of Householder reduction
             lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
             lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-            if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+            if( RealPart(QR(0,0)) <= ctrl.zeroTol )
             {
                 auto b0 = B(ALL,IR(0));
                 auto QR0 = QR(ALL,IR(0));
                 Zero( b0 );
                 Zero( QR0 );
-                t.Set( 0, 0, Real(2) );
-                d.Set( 0, 0, Real(1) );
+                t(0) = Real(2);
+                d(0) = Real(1);
 
                 ColSwap( B, 0, (n-1)-nullity );
                 if( formU )
@@ -385,9 +370,9 @@ LLLInfo<Base<F>> LeftAlg
             continue;
         }
 
-        const Real rho_km1_km1 = QR.GetRealPart(k-1,k-1);
-        const F rho_km1_k = QR.Get(k-1,k);
-        const Real rho_k_k = ( k >= m ? Real(0) : QR.GetRealPart(k,k) ); 
+        const Real rho_km1_km1 = RealPart(QR(k-1,k-1));
+        const F rho_km1_k = QR(k-1,k);
+        const Real rho_k_k = ( k >= m ? Real(0) : RealPart(QR(k,k)) ); 
         
         const Real leftTerm = Sqrt(ctrl.delta)*rho_km1_km1;
         const Real rightTerm = lapack::SafeNorm(rho_k_k,rho_km1_k);
@@ -424,14 +409,14 @@ LLLInfo<Base<F>> LeftAlg
                     // We must reinitialize since we keep k=1
                     lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
                     lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-                    if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+                    if( RealPart(QR(0,0)) <= ctrl.zeroTol )
                     {
                         auto b0 = B(ALL,IR(0));
                         auto QR0 = QR(ALL,IR(0));
                         Zero( b0 );
                         Zero( QR0 );
-                        t.Set( 0, 0, Real(2) );
-                        d.Set( 0, 0, Real(1) );
+                        t(0) = Real(2);
+                        d(0) = Real(1);
 
                         ColSwap( B, 0, (n-1)-nullity );
                         if( formU )
@@ -541,14 +526,14 @@ LLLInfo<Base<F>> LeftDeepAlg
             // Perform the first step of Householder reduction
             lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
             lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-            if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+            if( RealPart(QR(0,0)) <= ctrl.zeroTol )
             {
                 auto b0 = B(ALL,IR(0));
                 auto QR0 = QR(ALL,IR(0));
                 Zero( b0 );
                 Zero( QR0 ); 
-                t.Set( 0, 0, Real(2) );
-                d.Set( 0, 0, Real(1) );
+                t(0) = Real(2);
+                d(0) = Real(1);
 
                 ColSwap( B, 0, (n-1)-nullity );
                 if( formU )
@@ -592,11 +577,11 @@ LLLInfo<Base<F>> LeftDeepAlg
         // where || b'_k ||_2 = R(k,k) and || b_k ||_2 = norm(R(1:k,k)),
         // if we count from one.
         const Int rColHeight = Min(k+1,minDim);
-        Real origNorm = blas::Nrm2( rColHeight, QR.LockedBuffer(0,k), 1 );
+        Real origNorm = blas::Nrm2( rColHeight, &QR(0,k), 1 );
         Real partialNorm = origNorm;
         for( Int i=0; i<Min(k,minDim); ++i )
         {
-            const Real rho_i_i = QR.GetRealPart(i,i);
+            const Real rho_i_i = RealPart(QR(i,i));
             const Real leftTerm = Sqrt(ctrl.delta)*rho_i_i;
             if( leftTerm > partialNorm )
             {
@@ -617,14 +602,14 @@ LLLInfo<Base<F>> LeftDeepAlg
                         lll::ExpandQR
                         ( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
                         lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-                        if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+                        if( RealPart(QR(0,0)) <= ctrl.zeroTol )
                         {
                             auto b0 = B(ALL,IR(0));
                             auto QR0 = QR(ALL,IR(0));
                             Zero( b0 );
                             Zero( QR0 );
-                            t.Set( 0, 0, Real(2) );
-                            d.Set( 0, 0, Real(1) );
+                            t(0) = Real(2);
+                            d(0) = Real(1);
 
                             ColSwap( B, 0, (n-1)-nullity );
                             if( formU )
@@ -651,7 +636,7 @@ LLLInfo<Base<F>> LeftDeepAlg
             else
             {
                 // Downdate the partial norm in the same manner as LAWN 176
-                Real gamma = Abs(QR.Get(i,k)) / partialNorm;
+                Real gamma = Abs(QR(i,k)) / partialNorm;
                 gamma = Max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
                 const Real ratio = partialNorm / origNorm; 
                 const Real phi = gamma*(ratio*ratio);
@@ -752,14 +737,14 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
             // Perform the first step of Householder reduction
             lll::ExpandQR( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
             lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-            if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+            if( RealPart(QR(0,0)) <= ctrl.zeroTol )
             {
                 auto b0 = B(ALL,IR(0));
                 auto QR0 = QR(ALL,IR(0));
                 Zero( b0 );
                 Zero( QR0 );
-                t.Set( 0, 0, Real(2) );
-                d.Set( 0, 0, Real(1) );
+                t(0) = Real(2);
+                d(0) = Real(1);
 
                 ColSwap( B, 0, (n-1)-nullity );
                 if( formU )
@@ -810,23 +795,23 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
                 // TODO: Perform this calculation more carefully, perhaps
                 //       with an equivalent of the scaled squaring approach
                 //       used for norms
-                F dot = blas::Dot(l-i+1,QR.Buffer(i,k),1,QR.Buffer(i,l),1);
-                Real nrm = blas::Nrm2(l-i+1,QR.Buffer(i,l),1);
+                F dot = blas::Dot(l-i+1,&QR(i,k),1,&QR(i,l),1);
+                Real nrm = blas::Nrm2(l-i+1,&QR(i,l),1);
                 F mu = (dot/nrm)/nrm;
                 if( ctrl.delta*Abs(RealPart(mu)) >= Real(1)/Real(2) ||
                     ctrl.delta*Abs(ImagPart(mu)) >= Real(1)/Real(2) )
                 {
                     F chi = Round(mu);
-                    x.Set( l-i, 0, chi );
+                    x(l-i) = chi;
                     blas::Axpy
                     ( l+1, -chi,
-                      QR.Buffer(0,l), 1,
-                      QR.Buffer(0,k), 1 );
+                      &QR(0,l), 1,
+                      &QR(0,k), 1 );
                     deepReduced = true;
                 }
             }
 
-            const Real rho_i_i = QR.GetRealPart(i,i);
+            const Real rho_i_i = RealPart(QR(i,i));
             const Real leftTerm = Sqrt(ctrl.delta)*rho_i_i;
             const Real partialNorm =
               blas::Nrm2( rColHeight-i, QR.LockedBuffer(i,k), 1 );
@@ -841,18 +826,18 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
                 // TODO: Apply these in a batch instead?
                 for( Int l=i; l<Min(k,minDim); ++l )
                 {
-                    F chi = x.Get(l-i,0);
+                    F chi = x(l-i);
                     if( Abs(RealPart(chi)) > 0 || Abs(ImagPart(chi)) > 0 )
                     {
                         blas::Axpy
                         ( m, -chi,
-                          B.Buffer(0,l), 1,
-                          B.Buffer(0,k), 1 );
+                          &B(0,l), 1,
+                          &B(0,k), 1 );
                         if( formU )
                             blas::Axpy
                             ( n, -chi,
-                              U.Buffer(0,l), 1,
-                              U.Buffer(0,k), 1 );
+                              &U(0,l), 1,
+                              &U(0,k), 1 );
                     }
                 }
 
@@ -867,14 +852,14 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
                         lll::ExpandQR
                         ( 0, B, QR, t, d, ctrl.numOrthog, ctrl.time );
                         lll::HouseholderStep( 0, QR, t, d, ctrl.time );
-                        if( QR.GetRealPart(0,0) <= ctrl.zeroTol )
+                        if( RealPart(QR(0,0)) <= ctrl.zeroTol )
                         {
                             auto b0 = B(ALL,IR(0));
                             auto QR0 = QR(ALL,IR(0));
                             Zero( b0 );
                             Zero( QR0 );
-                            t.Set( 0, 0, Real(2) );
-                            d.Set( 0, 0, Real(1) );
+                            t(0) = Real(2);
+                            d(0) = Real(1);
 
                             ColSwap( B, 0, (n-1)-nullity );
                             if( formU )

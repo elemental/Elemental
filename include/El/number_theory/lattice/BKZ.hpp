@@ -22,10 +22,10 @@ bool TrivialCoordinates( const Matrix<F>& v )
     const Int n = v.Height();    
     if( n == 0 )
         LogicError("Invalid coordinate length");
-    if( v.Get(0,0) != F(1) )
+    if( v(0) != F(1) )
         return false;
     for( Int i=1; i<n; ++i )
-        if( v.Get(i,0) != F(0) )
+        if( v(i) != F(0) )
             return false;
     return true;
 }
@@ -395,7 +395,7 @@ BKZInfo<Base<F>> BKZWithQ
             if( ctrl.logProjNorms )
             {
                 for( Int j=0; j<n; ++j )
-                    projNormsFile << QR.Get(j,j) << " ";    
+                    projNormsFile << QR(j,j) << " ";    
                 projNormsFile << endl;
             }
         }
@@ -421,7 +421,7 @@ BKZInfo<Base<F>> BKZWithQ
         const Real minProjNorm = minPair.first;
         const Int insertionInd = minPair.second;
 
-        const Real oldProjNorm = QREnum.Get(insertionInd,insertionInd);
+        const Real oldProjNorm = QREnum(insertionInd,insertionInd);
         const bool keptMin = ( minProjNorm < oldProjNorm );
         if( keptMin )
         {
@@ -443,7 +443,7 @@ BKZInfo<Base<F>> BKZWithQ
             if( ctrl.logNontrivialCoords )
             {
                 for( Int e=0; e<v.Height(); ++e )
-                    nontrivialCoordsFile << v.Get(e,0) << " ";
+                    nontrivialCoordsFile << v(e) << " ";
                 nontrivialCoordsFile << endl;
             }
             z = 0;
@@ -757,7 +757,7 @@ BKZInfo<Base<F>> BKZWithQ
             if( ctrl.logProjNorms )
             {
                 for( Int j=0; j<n; ++j )
-                    projNormsFile << QR.Get(j,j) << " ";             
+                    projNormsFile << QR(j,j) << " ";             
                 projNormsFile << endl;
             }
         }
@@ -782,7 +782,7 @@ BKZInfo<Base<F>> BKZWithQ
         const Real minProjNorm = minPair.first;
         const Int insertionInd = minPair.second;
 
-        const Real oldProjNorm = QREnum.Get(insertionInd,insertionInd);
+        const Real oldProjNorm = QREnum(insertionInd,insertionInd);
         const bool keptMin = ( minProjNorm < oldProjNorm );
         if( keptMin )
         {
@@ -804,7 +804,7 @@ BKZInfo<Base<F>> BKZWithQ
             if( ctrl.logNontrivialCoords )
             {
                 for( Int e=0; e<v.Height(); ++e )
-                    nontrivialCoordsFile << v.Get(e,0) << " ";
+                    nontrivialCoordsFile << v(e) << " ";
                 nontrivialCoordsFile << endl;
             }
             z = 0;

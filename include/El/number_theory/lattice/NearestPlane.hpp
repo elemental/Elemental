@@ -35,32 +35,24 @@ void NearestPlane
     // The result is an approximation of the difference between each column
     // of Y and the nearest lattice point.
     // TODO: Extract this into a separate routine that is shared with LLL
-    const F* BBuf = B.Buffer();
-    const F* QRBuf = QR.Buffer();
-    F* YBuf = Y.Buffer();
-    F* RYBuf = RY.Buffer();
-    const Int BLDim = B.LDim();
-    const Int QRLDim = QR.LDim();
-    const Int YLDim = Y.LDim();
-    const Int RYLDim = RY.LDim();
+    vector<F> xBuf(n);
     for( Int j=0; j<numRHS; ++j )
     {
-        F* yBuf = &YBuf[j*YLDim];
-        F* rYBuf = &RYBuf[j*RYLDim];
+        F* yBuf = &Y(0,j);
+        F* rYBuf = &RY(0,j);
 
         Int numNonzero=0;
-        vector<F> xBuf(n);
         for( Int i=n-1; i>=0; --i )
         {
-            F chi = rYBuf[i] / QRBuf[i+i*QRLDim];
+            F chi = rYBuf[i] / QR(i,i);
             if( Abs(RealPart(chi)) > ctrl.eta ||
                 Abs(ImagPart(chi)) > ctrl.eta )
             {
                 chi = Round(chi);
                 blas::Axpy
                 ( i+1, -chi,
-                  &QRBuf[i*QRLDim], 1,
-                  rYBuf,            1 );
+                  &QR(0,i), 1,
+                  rYBuf,    1 );
                 ++numNonzero;
             }
             else
@@ -72,7 +64,7 @@ void NearestPlane
         {
             blas::Gemv
             ( 'N', m, n,
-              F(-1), BBuf,       BLDim,
+              F(-1), B.Buffer(), B.LDim(),
                      &xBuf[0],   1,
               F(+1), yBuf,       1 );
         }
@@ -85,8 +77,8 @@ void NearestPlane
                     continue;
                 blas::Axpy
                 ( m, -chi,
-                  &BBuf[i*BLDim], 1,
-                  yBuf,           1 );
+                  &B(0,i), 1,
+                  yBuf,    1 );
             }
         }
     }
