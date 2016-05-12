@@ -93,7 +93,7 @@ void TestUT
   Conjugation conjugation,
   Int m,
   Int offset,
-  bool testCorrectness,
+  bool correctness,
   bool printMatrices )
 {
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
@@ -152,7 +152,7 @@ void TestUT
     OutputFromRoot(g.Comm(),"Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( printMatrices )
         Print( A, "A after factorization" );
-    if( testCorrectness )
+    if( correctness )
     {
         TestCorrectness
         ( side, uplo, order, conjugation, offset, printMatrices, H, t );
@@ -177,7 +177,7 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int offset = Input("--offset","diagonal offset for storage",0);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness  = Input
+        const bool correctness  = Input
             ("--correctness","test correctness?",true);
         const bool printMatrices = Input("--print","print matrices?",false);
 #ifdef EL_HAVE_MPC
@@ -212,40 +212,40 @@ main( int argc, char* argv[] )
 
         TestUT<float>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
         TestUT<Complex<float>>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
 
         TestUT<double>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
         TestUT<Complex<double>>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
 
 #ifdef EL_HAVE_QD
         TestUT<DoubleDouble>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
         TestUT<QuadDouble>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestUT<Quad>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
         TestUT<Complex<Quad>>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestUT<BigFloat>
         ( g, side, uplo, dir, conjugation, m, offset, 
-          testCorrectness, printMatrices );
+          correctness, printMatrices );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

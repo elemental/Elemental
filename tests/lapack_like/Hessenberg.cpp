@@ -12,6 +12,74 @@ using namespace El;
 template<typename F> 
 void TestCorrectness
 ( UpperOrLower uplo, 
+  const Matrix<F>& A, 
+  const Matrix<F>& t,
+        Matrix<F>& AOrig,
+  bool print,
+  bool display )
+{
+    typedef Base<F> Real;
+    const Int n = AOrig.Height();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormAOrig = OneNorm( AOrig );
+    Output("Testing error...");
+    PushIndent();
+
+    // Set H to the appropriate Hessenberg portion of A
+    Matrix<F> H( A );
+    if( uplo == LOWER )
+        MakeTrapezoidal( LOWER, H, 1 );
+    else
+        MakeTrapezoidal( UPPER, H, -1 );
+    if( print )
+        Print( H, "Hessenberg" );
+    if( display )
+        Display( H, "Hessenberg" );
+
+    if( print || display )
+    {
+        Matrix<F> Q;
+        Identity( Q, n, n );
+        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, t, Q );
+        if( print )
+            Print( Q, "Q" );
+        if( display )
+            Display( Q, "Q" );
+    }
+
+    // Reverse the accumulated Householder transforms
+    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, t, AOrig );
+    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, t, AOrig );
+    if( print )
+        Print( AOrig, "Manual Hessenberg" );
+    if( display )
+        Display( AOrig, "Manual Hessenberg" );
+
+    // Compare the appropriate portion of AOrig and B
+    if( uplo == LOWER )
+        MakeTrapezoidal( LOWER, AOrig, 1 );
+    else
+        MakeTrapezoidal( UPPER, AOrig, -1 );
+    H -= AOrig;
+    if( print )
+        Print( H, "Error in rotated Hessenberg" );
+    if( display )
+        Display( H, "Error in rotated Hessenberg" );
+    const Real infError = InfinityNorm( H );
+    const Real relError = infError / (n*eps*oneNormAOrig);
+
+    Output("||H - Q^H A Q||_oo / (eps n || A ||_1) = ",relError);
+
+    // TODO: Use a more refined failure condition
+    if( relError > Real(1) )
+        LogicError("Unacceptably large relative error");
+
+    PopIndent();
+}
+
+template<typename F> 
+void TestCorrectness
+( UpperOrLower uplo, 
   const DistMatrix<F>& A, 
   const DistMatrix<F,STAR,STAR>& t,
         DistMatrix<F>& AOrig,
@@ -21,8 +89,8 @@ void TestCorrectness
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = AOrig.Height();
-    const Real infNormAOrig = InfinityNorm( AOrig );
-    const Real frobNormAOrig = FrobeniusNorm( AOrig );
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormAOrig = OneNorm( AOrig );
     OutputFromRoot(g.Comm(),"Testing error...");
     PushIndent();
 
@@ -66,15 +134,59 @@ void TestCorrectness
         Print( H, "Error in rotated Hessenberg" );
     if( display )
         Display( H, "Error in rotated Hessenberg" );
-    const Real infNormError = InfinityNorm( H );
-    const Real frobNormError = FrobeniusNorm( H );
+    const Real infError = InfinityNorm( H );
+    const Real relError = infError / (n*eps*oneNormAOrig);
 
     OutputFromRoot
-    (g.Comm(),
-     "||A||_oo = ",infNormAOrig,"\n",Indent(),
-     "||A||_F  = ",frobNormAOrig,"\n",Indent(),
-     "||H - Q^H A Q||_oo = ",infNormError,"\n",Indent(),
-     "||H - Q^H A Q||_F  = ",frobNormError);
+    (g.Comm(),"||H - Q^H A Q||_oo / (eps n || A ||_1) = ",relError);
+
+    // TODO: Use a more refined failure condition
+    if( relError > Real(1) )
+        LogicError("Unacceptably large relative error");
+
+    PopIndent();
+}
+
+template<typename F>
+void TestHessenberg
+( UpperOrLower uplo,
+  Int n,
+  bool correctness, 
+  bool print,
+  bool display )
+{
+    Matrix<F> A, AOrig;
+    Matrix<F> t;
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
+    Uniform( A, n, n );
+    if( correctness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+    if( display )
+        Display( A, "A" );
+
+    Output("Starting reduction to Hessenberg form...");
+    Timer timer;
+    timer.Start();
+    Hessenberg( uplo, A, t );
+    const double runTime = timer.Stop();
+    // TODO: Flop calculation
+    Output(runTime," seconds");
+    if( print )
+    {
+        Print( A, "A after Hessenberg" );
+        Print( t, "t after Hessenberg" );
+    }
+    if( display )
+    {
+        Display( A, "A after Hessenberg" );
+        Display( t, "t after Hessenberg" );
+    }
+    if( correctness )
+        TestCorrectness( uplo, A, t, AOrig, print, display );
     PopIndent();
 }
 
@@ -83,7 +195,7 @@ void TestHessenberg
 ( const Grid& g,
   UpperOrLower uplo,
   Int n,
-  bool testCorrectness, 
+  bool correctness, 
   bool print,
   bool display )
 {
@@ -93,7 +205,7 @@ void TestHessenberg
     PushIndent();
 
     Uniform( A, n, n );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -119,7 +231,7 @@ void TestHessenberg
         Display( A, "A after Hessenberg" );
         Display( t, "t after Hessenberg" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( uplo, A, t, AOrig, print, display );
     PopIndent();
 }
@@ -137,8 +249,9 @@ main( int argc, char* argv[] )
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness = 
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
 #ifdef EL_HAVE_MPC
@@ -159,33 +272,65 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestHessenberg<float>
+            ( uplo, n, correctness, print, display );
+            TestHessenberg<Complex<float>>
+            ( uplo, n, correctness, print, display );
+
+            TestHessenberg<double>
+            ( uplo, n, correctness, print, display );
+            TestHessenberg<Complex<double>>
+            ( uplo, n, correctness, print, display );
+
+#ifdef EL_HAVE_QD
+            TestHessenberg<DoubleDouble>
+            ( uplo, n, correctness, print, display );
+            TestHessenberg<QuadDouble>
+            ( uplo, n, correctness, print, display );
+#endif
+
+#ifdef EL_HAVE_QUAD
+            TestHessenberg<Quad>
+            ( uplo, n, correctness, print, display );
+            TestHessenberg<Complex<Quad>>
+            ( uplo, n, correctness, print, display );
+#endif
+
+#ifdef EL_HAVE_MPC
+            TestHessenberg<BigFloat>
+            ( uplo, n, correctness, print, display );
+#endif
+        }
+
         TestHessenberg<float>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
         TestHessenberg<Complex<float>>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
 
         TestHessenberg<double>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
         TestHessenberg<Complex<double>>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
 
 #ifdef EL_HAVE_QD
         TestHessenberg<DoubleDouble>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
         TestHessenberg<QuadDouble>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestHessenberg<Quad>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
         TestHessenberg<Complex<Quad>>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestHessenberg<BigFloat>
-        ( g, uplo, n, testCorrectness, print, display );
+        ( g, uplo, n, correctness, print, display );
 #endif
     }
     catch( exception& e ) { ReportException(e); }
