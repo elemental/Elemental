@@ -12,40 +12,133 @@ using namespace El;
 template<typename F> 
 void TestCorrectness
 ( bool print, 
+  const Matrix<F>& A,
+  const Permutation& P,
+  const Matrix<F>& AOrig,
+        Int numRHS=100 )
+{
+    typedef Base<F> Real;
+    const Int n = AOrig.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
+
+    Output("Testing error...");
+
+    // Generate random right-hand sides
+    Matrix<F> X;
+    Uniform( X, n, numRHS );
+    auto Y( X );
+    const Real oneNormY = OneNorm( Y );
+    P.PermuteRows( Y );
+    lu::SolveAfter( NORMAL, A, Y );
+
+    // Now investigate the residual, ||AOrig Y - X||_oo
+    Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
+    const Real infError = InfinityNorm( X );
+    const Real relError = infError / (eps*n*Max(oneNormA,oneNormY));
+
+    // TODO: Use a rigorous failure condition
+    Output("||A X - Y||_oo / (eps n Max(||A||_1,||Y||_1)) = ",relError);
+    if( relError > Real(1000) )
+        LogicError("Unacceptably large relative error");
+}
+
+template<typename F> 
+void TestCorrectness
+( bool print, 
   const DistMatrix<F>& A,
   const DistPermutation& P,
-  const DistMatrix<F>& AOrig )
+  const DistMatrix<F>& AOrig,
+        Int numRHS=100 )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = AOrig.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
 
     OutputFromRoot(g.Comm(),"Testing error...");
 
     // Generate random right-hand sides
     DistMatrix<F> X(g);
-    Uniform( X, n, 100 );
+    Uniform( X, n, numRHS );
     auto Y( X );
+    const Real oneNormY = OneNorm( Y );
     P.PermuteRows( Y );
     lu::SolveAfter( NORMAL, A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    const Real infNormX = InfinityNorm( X );
-    const Real frobNormX = FrobeniusNorm( X );
     Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
-    const Real infNormError = InfinityNorm( X );
-    const Real frobNormError = FrobeniusNorm( X );
-    const Real infNormA = InfinityNorm( AOrig );
-    const Real frobNormA = FrobeniusNorm( AOrig );
+    const Real infError = InfinityNorm( X );
+    const Real relError = infError / (eps*n*Max(oneNormA,oneNormY));
 
+    // TODO: Use a rigorous failure condition
     OutputFromRoot
-    (g.Comm(),
-     "||A||_oo            = ",infNormA,"\n",Indent(),
-     "||A||_F             = ",frobNormA,"\n",Indent(),
-     "||X||_oo            = ",infNormX,"\n",Indent(),
-     "||X||_F             = ",frobNormX,"\n",Indent(),
-     "||A A^-1 X - X||_oo = ",infNormError,"\n",Indent(),
-     "||A A^-1 X - X||_F  = ",frobNormError);
+    (g.Comm(),"||A X - Y||_oo / (eps n Max(||A||_1,||Y||_1)) = ",relError);
+    if( relError > Real(1000) )
+        LogicError("Unacceptably large relative error");
+}
+
+template<typename F> 
+void TestLUMod
+( Int m,
+  bool conjugate,
+  Base<F> tau,
+  bool correctness,
+  bool print )
+{
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+    Matrix<F> A, AOrig;
+    Permutation P;
+
+    Uniform( A, m, m );
+    if( correctness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+
+    {
+        Output("Starting LU factorization...");
+        Timer timer;
+        timer.Start();
+        P.ReserveSwaps( m+2*m-1 );
+        LU( A, P );
+        const double runTime = timer.Stop();
+        const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
+        const double gFlops =
+          ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+        Output(runTime," seconds (",gFlops," GFlop/s)");
+    }
+
+    // TODO: Print permutation
+
+    // Generate random vectors u and v
+    Matrix<F> u, v;
+    Uniform( u, m, 1 );
+    Uniform( v, m, 1 );
+    if( correctness )
+    {
+        if( conjugate )
+            Ger( F(1), u, v, AOrig );
+        else
+            Geru( F(1), u, v, AOrig );
+    }
+
+    { 
+        Output("Starting rank-one LU modification...");
+        Timer timer;
+        timer.Start();
+        LUMod( A, P, u, v, conjugate, tau );
+        const double runTime = timer.Stop();
+        Output(runTime," seconds");
+    }
+
+    // TODO: Print permutation
+
+    if( correctness )
+        TestCorrectness( print, A, P, AOrig );
+    PopIndent();
 }
 
 template<typename F> 
@@ -54,7 +147,7 @@ void TestLUMod
   Int m,
   bool conjugate,
   Base<F> tau,
-  bool testCorrectness,
+  bool correctness,
   bool print )
 {
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
@@ -63,7 +156,7 @@ void TestLUMod
     DistPermutation P(g);
 
     Uniform( A, m, m );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -89,7 +182,7 @@ void TestLUMod
     DistMatrix<F> u(g), v(g);
     Uniform( u, m, 1 );
     Uniform( v, m, 1 );
-    if( testCorrectness )
+    if( correctness )
     {
         if( conjugate )
             Ger( F(1), u, v, AOrig );
@@ -110,7 +203,7 @@ void TestLUMod
 
     // TODO: Print permutation
 
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( print, A, P, AOrig );
     PopIndent();
 }
@@ -129,8 +222,9 @@ main( int argc, char* argv[] )
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const double tau = Input("--tau","pivot threshold",0.1);
         const bool conjugate = Input("--conjugate","conjugate v?",true);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
@@ -149,33 +243,65 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestLUMod<float>
+            ( m, conjugate, tau, correctness, print );
+            TestLUMod<Complex<float>>
+            ( m, conjugate, tau, correctness, print );
+
+            TestLUMod<double>
+            ( m, conjugate, tau, correctness, print );
+            TestLUMod<Complex<double>>
+            ( m, conjugate, tau, correctness, print );
+
+#ifdef EL_HAVE_QD
+            TestLUMod<DoubleDouble>
+            ( m, conjugate, tau, correctness, print );
+            TestLUMod<QuadDouble>
+            ( m, conjugate, tau, correctness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+            TestLUMod<Quad>
+            ( m, conjugate, tau, correctness, print );
+            TestLUMod<Complex<Quad>>
+            ( m, conjugate, tau, correctness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+            TestLUMod<BigFloat>
+            ( m, conjugate, tau, correctness, print );
+#endif
+        }
+
         TestLUMod<float>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
         TestLUMod<Complex<float>>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
 
         TestLUMod<double>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
         TestLUMod<Complex<double>>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
 
 #ifdef EL_HAVE_QD
         TestLUMod<DoubleDouble>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
         TestLUMod<QuadDouble>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestLUMod<Quad>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
         TestLUMod<Complex<Quad>>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestLUMod<BigFloat>
-        ( g, m, conjugate, tau, testCorrectness, print );
+        ( g, m, conjugate, tau, correctness, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

@@ -11,6 +11,63 @@ using namespace El;
 
 template<typename F>
 void TestCorrectness
+( const Matrix<F>& A,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d,
+        Matrix<F>& AOrig )
+{
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
+
+    Output("Testing orthogonality of Q...");
+    PushIndent();
+
+    // Form Z := Q Q^H as an approximation to identity
+    Matrix<F> Z;
+    Identity( Z, m, n );
+    rq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
+
+    // Form X := I - Q Q^H
+    Matrix<F> X;
+    Identity( X, minDim, minDim );
+    X -= ZUpper;
+
+    const Real infOrthogError = InfinityNorm( X );
+    const Real relOrthogError = infOrthogError / (eps*maxDim);
+    Output("||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
+    PopIndent();
+
+    Output("Testing if A = RQ...");
+    PushIndent();
+
+    // Form RQ - A
+    auto U( A );
+    MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
+    rq::ApplyQ( RIGHT, NORMAL, A, t, d, U );
+    U -= AOrig;
+    
+    const Real infError = InfinityNorm( U );
+    const Real relError = infError / (eps*maxDim*oneNormA);
+    Output("||A - RQ||_oo / (eps Max(m,n) ||A||_1)= ",relError);
+
+    PopIndent();
+
+    // TODO: More rigorous failure conditions
+    if( relOrthogError > Real(10) )
+        LogicError("Unacceptably large relative orthogonality error");
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
+}
+
+template<typename F>
+void TestCorrectness
 ( const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& t,
   const DistMatrix<Base<F>,MD,STAR>& d,
@@ -21,6 +78,9 @@ void TestCorrectness
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
 
     OutputFromRoot(g.Comm(),"Testing orthogonality of Q...");
     PushIndent();
@@ -30,48 +90,79 @@ void TestCorrectness
     Identity( Z, m, n );
     rq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
     rq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
-    auto ZUpper = View( Z, 0, 0, minDim, minDim );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
     DistMatrix<F> X(g);
     Identity( X, minDim, minDim );
     X -= ZUpper;
 
-    Real oneNormError = OneNorm( X );
-    Real infNormError = InfinityNorm( X );
-    Real frobNormError = FrobeniusNorm( X );
+    const Real infOrthogError = InfinityNorm( X );
+    const Real relOrthogError = infOrthogError / (eps*maxDim);
     OutputFromRoot
-    (g.Comm(),
-     "||Q^H Q - I||_1  = ",oneNormError,"\n",Indent(),
-     "||Q^H Q - I||_oo = ",infNormError,"\n",Indent(),
-     "||Q^H Q - I||_F  = ",frobNormError);
+    (g.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
     PopIndent();
 
     OutputFromRoot(g.Comm(),"Testing if A = RQ...");
     PushIndent();
 
-    // Form RQ
+    // Form RQ - A
     auto U( A );
     MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
     rq::ApplyQ( RIGHT, NORMAL, A, t, d, U );
-
-    // Form R Q - A
     U -= AOrig;
     
-    const Real oneNormA = OneNorm( AOrig );
-    const Real infNormA = InfinityNorm( AOrig );
-    const Real frobNormA = FrobeniusNorm( AOrig );
-    oneNormError = OneNorm( U );
-    infNormError = InfinityNorm( U );
-    frobNormError = FrobeniusNorm( U );
+    const Real infError = InfinityNorm( U );
+    const Real relError = infError / (eps*maxDim*oneNormA);
     OutputFromRoot
-    (g.Comm(),
-     "||A||_1       = ",oneNormA,"\n",Indent(),
-     "||A||_oo      = ",infNormA,"\n",Indent(),
-     "||A||_F       = ",frobNormA,"\n",Indent(),
-     "||A - RQ||_1  = ",oneNormError,"\n",Indent(),
-     "||A - RQ||_oo = ",infNormError,"\n",Indent(),
-     "||A - RQ||_F  = ",frobNormError);
+    (g.Comm(),"||A - RQ||_oo / (eps Max(m,n) ||A||_1)= ",relError);
+
+    PopIndent();
+
+    // TODO: More rigorous failure conditions
+    if( relOrthogError > Real(10) )
+        LogicError("Unacceptably large relative orthogonality error");
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
+}
+
+template<typename F>
+void TestRQ
+( Int m,
+  Int n,
+  bool correctness,
+  bool print )
+{
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+    Matrix<F> A, AOrig;
+    Matrix<F> t;
+    Matrix<Base<F>> d;
+
+    Uniform( A, m, n );
+    if( correctness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+
+    Output("Starting RQ factorization...");
+    Timer timer;
+    timer.Start();
+    RQ( A, t, d );
+    const double runTime = timer.Stop();
+    const double mD = double(m);
+    const double nD = double(n);
+    const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    Output(runTime," seconds (",gFlops," GFlop/s)");
+    if( print )
+    {
+        Print( A, "A after factorization" );
+        Print( t, "phases" );
+        Print( d, "diagonal" );
+    }
+    if( correctness )
+        TestCorrectness( A, t, d, AOrig );
     PopIndent();
 }
 
@@ -80,7 +171,7 @@ void TestRQ
 ( const Grid& g,
   Int m,
   Int n,
-  bool testCorrectness,
+  bool correctness,
   bool print )
 {
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
@@ -90,7 +181,7 @@ void TestRQ
     DistMatrix<Base<F>,MD,STAR> d(g);
 
     Uniform( A, m, n );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -113,7 +204,7 @@ void TestRQ
         Print( t, "phases" );
         Print( d, "diagonal" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( A, t, d, AOrig );
     PopIndent();
 }
@@ -131,8 +222,9 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
@@ -151,24 +243,65 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestRQ<float>( g, m, n, testCorrectness, print );
-        TestRQ<Complex<float>>( g, m, n, testCorrectness, print );
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestRQ<float>
+            ( m, n, correctness, print );
+            TestRQ<Complex<float>>
+            ( m, n, correctness, print );
 
-        TestRQ<double>( g, m, n, testCorrectness, print );
-        TestRQ<Complex<double>>( g, m, n, testCorrectness, print );
+            TestRQ<double>
+            ( m, n, correctness, print );
+            TestRQ<Complex<double>>
+            ( m, n, correctness, print );
 
 #ifdef EL_HAVE_QD
-        TestRQ<DoubleDouble>( g, m, n, testCorrectness, print );
-        TestRQ<QuadDouble>( g, m, n, testCorrectness, print );
+            TestRQ<DoubleDouble>
+            ( m, n, correctness, print );
+            TestRQ<QuadDouble>
+            ( m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestRQ<Quad>( g, m, n, testCorrectness, print );
-        TestRQ<Complex<Quad>>( g, m, n, testCorrectness, print );
+            TestRQ<Quad>
+            ( m, n, correctness, print );
+            TestRQ<Complex<Quad>>
+            ( m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestRQ<BigFloat>( g, m, n, testCorrectness, print );
+            TestRQ<BigFloat>
+            ( m, n, correctness, print );
+#endif
+        }
+
+        TestRQ<float>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<float>>
+        ( g, m, n, correctness, print );
+
+        TestRQ<double>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<double>>
+        ( g, m, n, correctness, print );
+
+#ifdef EL_HAVE_QD
+        TestRQ<DoubleDouble>
+        ( g, m, n, correctness, print );
+        TestRQ<QuadDouble>
+        ( g, m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestRQ<Quad>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<Quad>>
+        ( g, m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestRQ<BigFloat>
+        ( g, m, n, correctness, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

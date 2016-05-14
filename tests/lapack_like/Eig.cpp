@@ -21,6 +21,7 @@ void TestCorrectness
 {
     const Int n = A.Height();
     const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( A );
 
     // Find the residual R = AV-VW
     Matrix<Complex<Real>> R( V.Height(), V.Width() );
@@ -32,14 +33,12 @@ void TestCorrectness
     DiagonalScale( RIGHT, NORMAL, w, VW );
     R -= VW;
     
-    // Find the Frobenius norms of A and AV-VW
-    const Real frobNormA = FrobeniusNorm( A );
-    const Real frobNormR = FrobeniusNorm( R );
-    const Real relError = frobNormR / (eps*n*frobNormA); 
-    Output("|| A V - V W ||_F / (eps n || A ||_F) = ",relError);
+    const Real infError = InfinityNorm( R );
+    const Real relError = infError / (eps*n*oneNormA);
+    Output("|| A V - V W ||_oo / (eps n || A ||_1) = ",relError);
 
     // TODO: A more refined failure condition
-    if( relError > Real(10) )
+    if( relError > Real(100) )
         LogicError("Relative error was unacceptably large");
 }
 
@@ -52,6 +51,7 @@ void TestCorrectness
 {
     const Int n = A.Height();
     const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( A );
 
     // Find the residual R = AV-VW
     DistMatrix<Complex<Real>> R( V.Height(), V.Width(), A.Grid() );
@@ -63,24 +63,22 @@ void TestCorrectness
     DiagonalScale( RIGHT, NORMAL, w, VW );
     R -= VW;
     
-    // Find the Frobenius norms of A and AV-VW
-    const Real frobNormA = FrobeniusNorm( A );
-    const Real frobNormR = FrobeniusNorm( R );
-    const Real relError = frobNormR / (eps*n*frobNormA); 
+    const Real infError = InfinityNorm( R );
+    const Real relError = infError / (eps*n*oneNormA);
     OutputFromRoot
-    (A.Grid().Comm(),"|| A V - V W ||_F / (eps || A ||_F) = ",relError);
+    (A.Grid().Comm(),"|| A V - V W ||_oo / (eps n || A ||_1) = ",relError);
 
     // TODO: A more refined failure condition
-    if( relError > Real(10) )
+    if( relError > Real(100) )
         LogicError("Relative error was unacceptably large");
 }
 
 template<typename Real>
-void SequentialEigBenchmark
-( bool testCorrectness,
+void EigBenchmark
+( Int m,
+  bool correctness,
   bool print,
-  Int m,
-  Int testMatrix )
+  Int whichMatrix )
 {
     Output( "Testing with ", TypeName<Real>() );
     Matrix<Complex<Real>> A(m,m), AOrig(m,m);
@@ -90,7 +88,7 @@ void SequentialEigBenchmark
     const Real foxLiOmega = 16*M_PI;
 
     // Generate test matrix
-    switch( testMatrix )
+    switch( whichMatrix )
     {
     case 0: Gaussian( AOrig, m, m );       break;
     case 1: FoxLi( AOrig, m, foxLiOmega ); break;
@@ -141,7 +139,7 @@ void SequentialEigBenchmark
         Print( w, "eigenvalues:" );
         Print( V, "eigenvectors:" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( print, AOrig, w, V );
     PopIndent();
     
@@ -195,7 +193,7 @@ void SequentialEigBenchmark
         Print( w, "eigenvalues:" );
         Print( V, "eigenvectors:" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( print, AOrig, w, V );
     PopIndent();
 
@@ -216,20 +214,20 @@ void SequentialEigBenchmark
         Print( w, "eigenvalues:" );
         Print( V, "eigenvectors:" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( print, AOrig, w, V );
     PopIndent();
 }
 
 template<typename Real>
 void EigBenchmark
-( bool testCorrectness,
-  bool print,
+( const Grid& g,
   Int m,
-  Int testMatrix,
+  bool correctness,
+  bool print,
+  Int whichMatrix,
   bool distAED,
-  Int blockHeight,
-  const Grid& g )
+  Int blockHeight )
 {
     OutputFromRoot( g.Comm(), "Testing with ", TypeName<Real>() );
     // TODO: Convert to distributed analogue
@@ -239,7 +237,7 @@ void EigBenchmark
     const Real foxLiOmega = 16*M_PI;
     
     // Generate test matrix
-    switch( testMatrix )
+    switch( whichMatrix )
     {
     case 0: Gaussian( AOrig, m, m );       break;
     case 1: FoxLi( AOrig, m, foxLiOmega ); break;
@@ -292,7 +290,7 @@ void EigBenchmark
         Print( w, "eigenvalues:" );
         Print( V, "eigenvectors:" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( print, AOrig, w, V );
     PopIndent();
 }
@@ -319,11 +317,12 @@ main( int argc, char* argv[] )
           ("--distAED",
            "Distributed Aggressive Early Deflation? (it can be buggy...)",
            false);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
-        const Int testMatrix =
-          Input("--testMatrix","(0=Gaussian,1=Fox-Li,2=Grcar,3=Jordan)",0);
+        const Int whichMatrix =
+          Input("--whichMatrix","(0=Gaussian,1=Fox-Li,2=Grcar,3=Jordan)",0);
         ProcessInput();
         PrintInputReport();
 
@@ -335,20 +334,18 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR ); 
         const Grid grid( comm, gridHeight, order );
        
-        if( commRank == 0 )
+        if( sequential && commRank == 0 )
         {
-            SequentialEigBenchmark<float>
-            ( testCorrectness, print, n, testMatrix );
-            SequentialEigBenchmark<double>
-            ( testCorrectness, print, n, testMatrix );
+            EigBenchmark<float>
+            ( n, correctness, print, whichMatrix );
+            EigBenchmark<double>
+            ( n, correctness, print, whichMatrix );
         }
 
         EigBenchmark<float>
-        ( testCorrectness, print, n, testMatrix,
-          distAED, blockHeight, grid );
+        ( grid, n, correctness, print, whichMatrix, distAED, blockHeight );
         EigBenchmark<double>
-        ( testCorrectness, print, n, testMatrix,
-          distAED, blockHeight, grid );
+        ( grid, n, correctness, print, whichMatrix, distAED, blockHeight );
     }
     catch( exception& e ) { ReportException(e); }
 

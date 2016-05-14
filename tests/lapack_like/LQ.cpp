@@ -32,7 +32,7 @@ void TestCorrectness
     Identity( Z, m, n );
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
     lq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
-    auto ZUpper = View( Z, 0, 0, minDim, minDim );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
     Matrix<F> X;
@@ -47,12 +47,10 @@ void TestCorrectness
     Output("Testing if A = LQ...");
     PushIndent();
 
-    // Form L Q
+    // Form L Q - A
     auto L( A );
     MakeTrapezoidal( LOWER, L );
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, L );
-
-    // Form L Q - A
     L -= AOrig;
 
     const Real infError = InfinityNorm( L );
@@ -91,7 +89,7 @@ void TestCorrectness
     Identity( Z, m, n );
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
     lq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
-    auto ZUpper = View( Z, 0, 0, minDim, minDim );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
     DistMatrix<F> X(g);
@@ -107,12 +105,10 @@ void TestCorrectness
     OutputFromRoot(g.Comm(),"Testing if A = LQ...");
     PushIndent();
 
-    // Form L Q
+    // Form L Q - A
     auto L( A );
     MakeTrapezoidal( LOWER, L );
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, L );
-
-    // Form L Q - A
     L -= AOrig;
 
     const Real infError = InfinityNorm( L );

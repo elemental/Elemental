@@ -11,6 +11,62 @@ using namespace El;
 
 template<typename F>
 void TestCorrectness
+( const Matrix<F>& A,
+  const Matrix<F>& t,
+  const Matrix<Base<F>>& d,
+        Matrix<F>& AOrig )
+{
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
+
+    Output("Testing orthogonality of Q");
+    PushIndent();
+
+    // Form Z := Q^H Q as an approximation to identity
+    Matrix<F> Z;
+    Identity( Z, m, n );
+    qr::ApplyQ( LEFT, NORMAL, A, t, d, Z );
+    qr::ApplyQ( LEFT, ADJOINT, A, t, d, Z );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
+
+    // Form X := I - Q^H Q
+    Matrix<F> X;
+    Identity( X, minDim, minDim );
+    X -= ZUpper;
+
+    const Real infOrthogError = InfinityNorm( X );
+    const Real relOrthogError = infOrthogError / (eps*maxDim);
+    Output("||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
+    PopIndent();
+
+    Output("Testing if A ~= QR");
+    PushIndent();
+
+    // Form Q R
+    auto U( A );
+    MakeTrapezoidal( UPPER, U );
+    qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
+    U -= AOrig;
+    const Real infError = InfinityNorm( U ); 
+    const Real relError = infError / (eps*maxDim*oneNormA);
+    Output("||A - Q R||_oo / (eps Max(m,n) ||A||_1) = ",relError);
+
+    PopIndent();
+
+    // TODO: More rigorous failure condition
+    if( relOrthogError > Real(10) )
+        LogicError("Relative orthogonality error was unacceptably large");
+    if( relError > Real(10) )
+        LogicError("Relative error was unacceptably large"); 
+}
+
+template<typename F>
+void TestCorrectness
 ( const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& t,
   const DistMatrix<Base<F>,MD,STAR>& d,
@@ -20,7 +76,10 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = std::min(m,n);
+    const Int minDim = Min(m,n);
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
 
     OutputFromRoot(g.Comm(),"Testing orthogonality of Q");
     PushIndent();
@@ -30,48 +89,78 @@ void TestCorrectness
     Identity( Z, m, n );
     qr::ApplyQ( LEFT, NORMAL, A, t, d, Z );
     qr::ApplyQ( LEFT, ADJOINT, A, t, d, Z );
-    auto ZUpper = View( Z, 0, 0, minDim, minDim );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q^H Q
     DistMatrix<F> X(g);
     Identity( X, minDim, minDim );
     X -= ZUpper;
 
-    Real oneNormError = OneNorm( X );
-    Real infNormError = InfinityNorm( X );
-    Real frobNormError = FrobeniusNorm( X );
+    const Real infOrthogError = InfinityNorm( X );
+    const Real relOrthogError = infOrthogError / (eps*maxDim);
     OutputFromRoot
-    (g.Comm(),
-     "||Q^H Q - I||_1  = ",oneNormError,"\n",Indent(),
-     "||Q^H Q - I||_oo = ",infNormError,"\n",Indent(),
-     "||Q^H Q - I||_F  = ",frobNormError);
+    (g.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
     PopIndent();
 
-    OutputFromRoot(g.Comm(),"Testing if A = QR");
+    OutputFromRoot(g.Comm(),"Testing if A ~= QR");
     PushIndent();
 
     // Form Q R
     auto U( A );
     MakeTrapezoidal( UPPER, U );
     qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
-
-    // Form Q R - A
     U -= AOrig;
-    
-    const Real oneNormA = OneNorm( AOrig );
-    const Real infNormA = InfinityNorm( AOrig );
-    const Real frobNormA = FrobeniusNorm( AOrig );
-    oneNormError = OneNorm( U );
-    infNormError = InfinityNorm( U );
-    frobNormError = FrobeniusNorm( U );
+    const Real infError = InfinityNorm( U ); 
+    const Real relError = infError / (eps*maxDim*oneNormA);
     OutputFromRoot
-    (g.Comm(),
-     "||A||_1       = ",oneNormA,"\n",Indent(),
-     "||A||_oo      = ",infNormA,"\n",Indent(),
-     "||A||_F       = ",frobNormA,"\n",Indent(),
-     "||A - QR||_1  = ",oneNormError,"\n",Indent(),
-     "||A - QR||_oo = ",infNormError,"\n",Indent(),
-     "||A - QR||_F  = ",frobNormError);
+    (g.Comm(),"||A - Q R||_oo / (eps Max(m,n) ||A||_1) = ",relError);
+
+    PopIndent();
+
+    // TODO: More rigorous failure condition
+    if( relOrthogError > Real(10) )
+        LogicError("Relative orthogonality error was unacceptably large");
+    if( relError > Real(10) )
+        LogicError("Relative error was unacceptably large"); 
+}
+
+template<typename F>
+void TestQR
+( Int m,
+  Int n,
+  bool correctness,
+  bool print )
+{
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+    Matrix<F> A, AOrig;
+    Matrix<F> t;
+    Matrix<Base<F>> d;
+
+    Uniform( A, m, n );
+    if( correctness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+    const double mD = double(m);
+    const double nD = double(n);
+
+    Timer timer;
+    Output("Starting QR factorization...");
+    timer.Start();
+    QR( A, t, d );
+    const double runTime = timer.Stop();
+    const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    Output("Elemental: ",runTime," seconds. GFlops = ",gFlops);
+    if( print )
+    {
+        Print( A, "A after factorization" );
+        Print( t, "phases" );
+        Print( d, "diagonal" );
+    }
+    if( correctness )
+        TestCorrectness( A, t, d, AOrig );
     PopIndent();
 }
 
@@ -80,7 +169,7 @@ void TestQR
 ( const Grid& g,
   Int m,
   Int n,
-  bool testCorrectness,
+  bool correctness,
   bool print,
   bool scalapack )
 {
@@ -91,7 +180,7 @@ void TestQR
     DistMatrix<Base<F>,MD,STAR> d(g);
 
     Uniform( A, m, n );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -129,7 +218,7 @@ void TestQR
         Print( t, "phases" );
         Print( d, "diagonal" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( A, t, d, AOrig );
     PopIndent();
 }
@@ -139,7 +228,7 @@ void TestQR
 ( const Grid& g,
   Int m,
   Int n,
-  bool testCorrectness,
+  bool correctness,
   bool print )
 {
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
@@ -149,7 +238,7 @@ void TestQR
     DistMatrix<Base<F>,MD,STAR> d(g);
 
     Uniform( A, m, n );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -171,7 +260,7 @@ void TestQR
         Print( t, "phases" );
         Print( d, "diagonal" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( A, t, d, AOrig );
     PopIndent();
 }
@@ -189,8 +278,9 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",64);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
 #ifdef EL_HAVE_SCALAPACK
         const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
 #else
@@ -214,24 +304,65 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        TestQR<float>( g, m, n, testCorrectness, print, scalapack );
-        TestQR<Complex<float>>( g, m, n, testCorrectness, print, scalapack );
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestQR<float>
+            ( m, n, correctness, print );
+            TestQR<Complex<float>>
+            ( m, n, correctness, print );
 
-        TestQR<double>( g, m, n, testCorrectness, print, scalapack );
-        TestQR<Complex<double>>( g, m, n, testCorrectness, print, scalapack );
+            TestQR<double>
+            ( m, n, correctness, print );
+            TestQR<Complex<double>>
+            ( m, n, correctness, print );
 
 #ifdef EL_HAVE_QD
-        TestQR<DoubleDouble>( g, m, n, testCorrectness, print );
-        TestQR<QuadDouble>( g, m, n, testCorrectness, print );
+            TestQR<DoubleDouble>
+            ( m, n, correctness, print );
+            TestQR<QuadDouble>
+            ( m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestQR<Quad>( g, m, n, testCorrectness, print );
-        TestQR<Complex<Quad>>( g, m, n, testCorrectness, print );
+            TestQR<Quad>
+            ( m, n, correctness, print );
+            TestQR<Complex<Quad>>
+            ( m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestQR<BigFloat>( g, m, n, testCorrectness, print );
+            TestQR<BigFloat>
+            ( m, n, correctness, print );
+#endif
+        }
+
+        TestQR<float>
+        ( g, m, n, correctness, print, scalapack );
+        TestQR<Complex<float>>
+        ( g, m, n, correctness, print, scalapack );
+
+        TestQR<double>
+        ( g, m, n, correctness, print, scalapack );
+        TestQR<Complex<double>>
+        ( g, m, n, correctness, print, scalapack );
+
+#ifdef EL_HAVE_QD
+        TestQR<DoubleDouble>
+        ( g, m, n, correctness, print );
+        TestQR<QuadDouble>
+        ( g, m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestQR<Quad>
+        ( g, m, n, correctness, print );
+        TestQR<Complex<Quad>>
+        ( g, m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestQR<BigFloat>
+        ( g, m, n, correctness, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }
