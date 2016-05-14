@@ -11,8 +11,7 @@ namespace El {
 namespace syr2k {
 
 template<typename T>
-inline void
-LN
+void LN
 ( T alpha,
   const ElementalMatrix<T>& APre,
   const ElementalMatrix<T>& BPre,

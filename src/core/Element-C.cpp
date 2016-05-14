@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
-#include <El.h>
+#include <El-lite.hpp>
+#include <El-lite.h>
 using namespace El;
 
 extern "C" {
@@ -83,8 +83,8 @@ extern "C" {
      ================ */ \
   ElError ElSafeAbs_ ## SIG ( CREFLECT(F) alpha, Base<F>* alphaAbs ) \
   { EL_TRY( *alphaAbs = SafeAbs(CReflect(alpha)) ) } \
-  ElError ElFastAbs_ ## SIG ( CREFLECT(F) alpha, Base<F>* alphaAbs ) \
-  { EL_TRY( *alphaAbs = FastAbs(CReflect(alpha)) ) }
+  ElError ElOneAbs_ ## SIG ( CREFLECT(F) alpha, Base<F>* alphaAbs ) \
+  { EL_TRY( *alphaAbs = OneAbs(CReflect(alpha)) ) }
 
 #define C_PROTO_INT(SIG,T) \
   ElError ElAbs_i( T alpha, T* alphaAbs ) \

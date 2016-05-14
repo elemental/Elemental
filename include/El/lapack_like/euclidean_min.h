@@ -545,4 +545,8 @@ EL_EXPORT ElError ElGLMXDistSparse_z
 } // extern "C"
 #endif
 
+#ifdef __cplusplus
+#include <El/lapack_like/euclidean_min/CReflect.hpp>
+#endif
+
 #endif /* ifndef EL_LAPACK_EUCLIDEANMIN_C_H */

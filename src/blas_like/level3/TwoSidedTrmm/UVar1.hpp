@@ -15,8 +15,7 @@ namespace twotrmm {
 // The only reason a field is required is for the existence of 1/2, which is 
 // an artifact of the algorithm...
 template<typename F> 
-inline void
-UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
       CSE cse("twotrmm::UVar1");
@@ -49,7 +48,8 @@ UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         auto U22 = U( ind2, ind2 );
 
         // Y12 := U12 A22
-        Zeros( Y12, nb, A12.Width() );
+        Y12.Resize( nb, A12.Width() );
+        Zero( Y12 );
         Hemm( RIGHT, UPPER, F(1), A22, U12, F(0), Y12 );
 
         // A12 := U11 A12
@@ -73,8 +73,7 @@ UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 }
 
 template<typename F> 
-inline void
-UVar1
+void UVar1
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )
@@ -132,8 +131,10 @@ UVar1
         U12Adj_VC_STAR.AdjointPartialColAllGather( U12_STAR_MC );
         Z12Adj_MC_STAR.AlignWith( A22 );
         Z12Adj_MR_STAR.AlignWith( A22 );
-        Zeros( Z12Adj_MC_STAR, A12.Width(), nb );
-        Zeros( Z12Adj_MR_STAR, A12.Width(), nb );
+        Z12Adj_MC_STAR.Resize( A12.Width(), nb );
+        Z12Adj_MR_STAR.Resize( A12.Width(), nb );
+        Zero( Z12Adj_MC_STAR );
+        Zero( Z12Adj_MR_STAR );
         symm::LocalAccumulateRU
         ( ADJOINT, 
           F(1), A22, U12_STAR_MC, U12Adj_MR_STAR, 
@@ -167,7 +168,8 @@ UVar1
         A12_STAR_VR = A12;
         U12_STAR_VR.AlignWith( A12 );
         U12_STAR_VR = U12;
-        Zeros( X11_STAR_STAR, nb, nb );
+        X11_STAR_STAR.Resize( nb, nb );
+        Zero( X11_STAR_STAR );
         Her2k
         ( UPPER, NORMAL,
           F(1), A12_STAR_VR.Matrix(), U12_STAR_VR.Matrix(),

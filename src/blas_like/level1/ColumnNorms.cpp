@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
@@ -162,7 +163,8 @@ void ColumnTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     // ------------------------
     typedef Base<F> Real;
     const Int n = A.Width();
-    Zeros( norms, n, 1 );
+    norms.Resize( n, 1 );
+    Zero( norms );
  
     const Int numEntries = A.NumEntries();
     const Int* colBuf = A.LockedTargetBuffer();
@@ -193,7 +195,8 @@ void ColumnMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     // ---------------
     typedef Base<F> Real;
     const Int n = A.Width();
-    Zeros( norms, n, 1 );
+    norms.Resize( n, 1 );
+    Zero( norms );
 
     const Int numEntries = A.NumEntries();
     const Int* colBuf = A.LockedTargetBuffer();
@@ -219,7 +222,8 @@ void ColumnTwoNorms
 
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
-    Zeros( norms, A.Width(), 1 );
+    norms.Resize( A.Width(), 1 );
+    Zero( norms );
     A.InitializeMultMeta();
     const auto& meta = A.multMeta;
 
@@ -274,7 +278,8 @@ void ColumnMaxNorms
 
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
-    Zeros( norms, A.Width(), 1 );
+    norms.Resize( A.Width(), 1 );
+    Zero( norms );
     A.InitializeMultMeta();
     const auto& meta = A.multMeta;
 

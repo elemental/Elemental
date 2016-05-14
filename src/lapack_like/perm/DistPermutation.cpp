@@ -555,13 +555,16 @@ const DistPermutation& DistPermutation::operator=( const Permutation& P )
     numSwaps_ = P.numSwaps_;
     implicitSwapOrigins_ = P.implicitSwapOrigins_;
 
-    swapDests_.Resize( P.swapDests_.Height(), 1 );
-    swapOrigins_.Resize( P.swapOrigins_.Height(), 1 );
-    perm_.Resize( P.perm_.Height(), 1 );
-    invPerm_.Resize( P.invPerm_.Height(), 1 );
+    swapDests_.Resize( P.swapDests_.Height(), P.swapDests_.Width() );
     Copy( P.swapDests_, swapDests_.Matrix() );
+
+    swapOrigins_.Resize( P.swapOrigins_.Height(), P.swapOrigins_.Width() );
     Copy( P.swapOrigins_, swapOrigins_.Matrix() );
+
+    perm_.Resize( P.perm_.Height(), P.perm_.Width() );
     Copy( P.perm_, perm_.Matrix() );
+
+    invPerm_.Resize( P.invPerm_.Height(), P.invPerm_.Width() );
     Copy( P.invPerm_, invPerm_.Matrix() );
     
     parity_ = P.parity_;

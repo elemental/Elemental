@@ -15,37 +15,35 @@ void TestCorrectness
   UpperOrLower uplo,
   const DistMatrix<F>& A,
   const DistPermutation& p,
-  const DistMatrix<F>& AOrig )
+  const DistMatrix<F>& AOrig,
+        Int numRHS=100 )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
-    const Int m = AOrig.Height();
+    const Int n = AOrig.Height();
+    const Real eps = limits::Epsilon<Real>();
 
     // Test correctness by multiplying a random set of vectors by A, then
     // using the Cholesky factorization to solve.
     DistMatrix<F> X(g), Y(g);
-    Uniform( X, m, 100 );
-    Zeros( Y, m, 100 );
+    Uniform( X, n, numRHS );
+    Zeros( Y, n, numRHS );
     Hemm( LEFT, uplo, F(1), AOrig, X, F(0), Y );
-    const Real maxNormL = HermitianMaxNorm( uplo, A );
-    const Real maxNormA = HermitianMaxNorm( uplo, AOrig );
-    const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
-    const Real frobNormY = FrobeniusNorm( Y );
+    const Real oneNormY = OneNorm( Y );
 
     if( pivot )
         cholesky::SolveAfter( uplo, NORMAL, A, p, Y );
     else
         cholesky::SolveAfter( uplo, NORMAL, A, Y );
     X -= Y;
-    const Real frobNormE = FrobeniusNorm( X );
+    const Real infNormE = InfinityNorm( X );
+    const Real relErr = infNormE / (eps*n*oneNormY);
 
     OutputFromRoot
-    (g.Comm(),
-     "||L||_max              = ",maxNormL,"\n",Indent(),
-     "||A||_max              = ",maxNormA,"\n",Indent(),
-     "||A||_F                = ",frobNormA,"\n",Indent(),
-     "||Y||_F                = ",frobNormY,"\n",Indent(),
-     "||X - A \\ (A X) ||_F  = ",frobNormE);
+    (g.Comm(), "||X - A \\ Y ||_oo / (eps n || Y ||_1) = ",relErr);
+    // TODO: Use more refined failure criteria 
+    if( relErr > Real(1) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F> 

@@ -7,4 +7,5 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #define EL_INSTANTIATE_BLAS_LEVEL1
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>

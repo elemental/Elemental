@@ -17,15 +17,13 @@ Base<F> InfinityNorm( const Matrix<F>& A )
     typedef Base<F> Real;
     const Int height = A.Height();
     const Int width = A.Width();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
 
     Real maxRowSum = 0;
     for( Int i=0; i<height; ++i )
     {
         Real rowSum = 0;
         for( Int j=0; j<width; ++j )
-            rowSum += Abs(ABuf[i+j*ALDim]);
+            rowSum += Abs(A(i,j));
         maxRowSum = Max( maxRowSum, rowSum );
     }
     return maxRowSum;
@@ -58,15 +56,14 @@ Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
     {
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const F* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
+        const Matrix<F>& ALoc = A.LockedMatrix();
 
         vector<Real> myPartialRowSums( localHeight );
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             myPartialRowSums[iLoc] = 0;
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                myPartialRowSums[iLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
+                myPartialRowSums[iLoc] += Abs(ALoc(iLoc,jLoc));
         }
 
         // Sum our partial row sums to get the row sums over A[U,* ]

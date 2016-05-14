@@ -25,6 +25,10 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const Int n = X.Height();
     const Int k = X.Width();
+    const Real eps = limits::Epsilon<Real>();
+
+    const Real oneNormA = HermitianOneNorm( uplo, AOrig );
+    const Real oneNormB = HermitianOneNorm( uplo, BOrig );
 
     DistMatrix<Real,MR,STAR> w_MR_STAR(true,X.RowAlign(),g); 
     w_MR_STAR = w;
@@ -39,14 +43,12 @@ void TestCorrectness
         DiagonalScale( RIGHT, NORMAL, w_MR_STAR, Y );
         // Y := Y - AX = BXW - AX
         Hemm( LEFT, uplo, F(-1), AOrig, X, F(1), Y );
-
-        const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
-        const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
-        Real frobNormE = FrobeniusNorm( Y );
+        const Real infError = InfinityNorm( Y );
+        const Real relError = infError / (eps*n*Max(oneNormA,oneNormB));
         OutputFromRoot
         (g.Comm(),
-         "||A X - B X W||_F / max(||A||_F,||B||_F) = ", 
-         frobNormE/Max(frobNormA,frobNormB));
+         "||A X - B X W||_oo / (eps n max(||A||_1,||B||_1) = ", relError);
+
         DistMatrix<F> Z(g);
         Z = X;
         if( uplo == LOWER )
@@ -55,11 +57,17 @@ void TestCorrectness
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
-        frobNormE = FrobeniusNorm( Y );
+        const Real infOrthogError = HermitianInfinityNorm( uplo, Y );
+        const Real relOrthogError = infOrthogError / (eps*n*oneNormB);
         OutputFromRoot
         (g.Comm(),
-         "||X^H B X - I||_F  / max(||A||_F,||B||_F) = ", 
-         frobNormE/Max(frobNormA,frobNormB));
+         "||X^H B X - I||_oo  / (eps n ||B||_1) = ", relOrthogError);
+
+        // TODO: More refined failure conditions
+        if( relOrthogError > Real(200) )
+            LogicError("Relative orthogonality error was unacceptable");
+        if( relError > Real(100) )
+            LogicError("Relative error was unacceptably large");
     }
     else if( pencil == ABX )
     {
@@ -72,24 +80,23 @@ void TestCorrectness
         DistMatrix<F> Z( n, k, g );
         Hemm( LEFT, uplo, F(1), AOrig, Y, F(0), Z );
         // Set Z := Z - XW = ABX - XW
-        for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc )
+        const Matrix<Real>& w_MR_STARLoc = w_MR_STAR.LockedMatrix();
+        const Matrix<F>& XLoc = X.LockedMatrix();
+              Matrix<F>& ZLoc = Z.Matrix();
+        for( Int jLoc=0; jLoc<ZLoc.Width(); ++jLoc )
         {
-            const Real omega = w_MR_STAR.GetLocal(jLoc,0); 
-            for( Int iLoc=0; iLoc<Z.LocalHeight(); ++iLoc )
+            const Real omega = w_MR_STARLoc(jLoc); 
+            for( Int iLoc=0; iLoc<ZLoc.Height(); ++iLoc )
             {
-                const F chi = X.GetLocal(iLoc,jLoc);
-                const F zeta = Z.GetLocal(iLoc,jLoc);
-                Z.SetLocal(iLoc,jLoc,zeta-omega*chi);
+                ZLoc(iLoc,jLoc) -= omega*XLoc(iLoc,jLoc);
             }
         }
-        // Find the infinity norms of A, B, X, and ABX-XW
-        const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
-        const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
-        Real frobNormE = FrobeniusNorm( Z );
+        const Real infError = InfinityNorm( Z );
+        const Real relError = infError / (eps*n*Max(oneNormA,oneNormB));
         OutputFromRoot
         (g.Comm(),
-         "||A B X - X W||_F  / max(||A||_F,||B||_F) = ", 
-         frobNormE/Max(frobNormA,frobNormB));
+         "||A B X - X W||_oo  / (eps n Max(||A||_1,||B||_1)) = ",relError);
+
         Z = X;
         if( uplo == LOWER )
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, Z );
@@ -97,11 +104,17 @@ void TestCorrectness
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
-        frobNormE = FrobeniusNorm( Y );
+        const Real infOrthogError = HermitianInfinityNorm( uplo, Y );
+        const Real relOrthogError = infOrthogError / (eps*n*oneNormB);
         OutputFromRoot
         (g.Comm(),
-         "||X^H B X - I||_F / Max(||A||_F,||B||_F) = ", 
-         frobNormE/Max(frobNormA,frobNormB));
+         "||X^H B X - I||_oo / (eps n ||B||_1) = ",relOrthogError);
+
+        // TODO: More refined failure conditions
+        if( relOrthogError > Real(200) )
+            LogicError("Relative orthogonality error was unacceptable");
+        if( relError > Real(100) )
+            LogicError("Relative error was unacceptably large");
     }
     else /* pencil == BAX */
     {
@@ -114,24 +127,23 @@ void TestCorrectness
         DistMatrix<F> Z( n, k, g );
         Hemm( LEFT, uplo, F(1), BOrig, Y, F(0), Z );
         // Set Z := Z - XW = BAX-XW
-        for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc )
+        const Matrix<Real>& w_MR_STARLoc = w_MR_STAR.LockedMatrix();
+        const Matrix<F>& XLoc = X.LockedMatrix();
+              Matrix<F>& ZLoc = Z.Matrix();
+        for( Int jLoc=0; jLoc<ZLoc.Width(); ++jLoc )
         {
-            const Real omega = w_MR_STAR.GetLocal(jLoc,0); 
-            for( Int iLoc=0; iLoc<Z.LocalHeight(); ++iLoc )
+            const Real omega = w_MR_STARLoc(jLoc); 
+            for( Int iLoc=0; iLoc<ZLoc.Height(); ++iLoc )
             {
-                const F chi = X.GetLocal(iLoc,jLoc);
-                const F zeta = Z.GetLocal(iLoc,jLoc);
-                Z.SetLocal(iLoc,jLoc,zeta-omega*chi);
+                ZLoc(iLoc,jLoc) -= omega*XLoc(iLoc,jLoc);
             }
         }
-        // Find the infinity norms of A, B, X, and BAX-XW
-        const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
-        const Real frobNormB = HermitianFrobeniusNorm( uplo, BOrig );
-        Real frobNormE = FrobeniusNorm( Z );
+        const Real infError = InfinityNorm( Z );
+        const Real relError = infError / (eps*n*Max(oneNormA,oneNormB));
         OutputFromRoot
         (g.Comm(),
-         "||B A X - X W||_F / Max(||A||_F,||B||_F) = ", 
-         frobNormE/Max(frobNormA,frobNormB));
+         "||B A X - X W||_oo / (eps n Max(||A||_1,||B||_1)) = ",relError);
+
         Z = X;
         if( uplo == LOWER )
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, Z );
@@ -139,22 +151,28 @@ void TestCorrectness
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, Z );
         Identity( Y, k, k );
         Herk( uplo, ADJOINT, Real(-1), Z, Real(1), Y );
-        frobNormE = FrobeniusNorm( Y );
+        const Real infOrthogError = HermitianInfinityNorm( uplo, Y );
+        const Real relOrthogError = infOrthogError / (eps*n*oneNormB);
         OutputFromRoot
         (g.Comm(),
-         "||X^H B^-1 X - I||_F  / Max(||A||_F,||B||_F) = ", 
-         frobNormE/Max(frobNormA,frobNormB));
+         "||X^H B^-1 X - I||_oo  / (eps n ||B||_1) = ", relOrthogError);
+
+        // TODO: More refined failure conditions
+        if( relOrthogError > Real(200) )
+            LogicError("Relative orthogonality error was unacceptable");
+        if( relError > Real(100) )
+            LogicError("Relative error was unacceptably large");
     }
 }
 
 template<typename F,Dist U=MC,Dist V=MR,Dist S=VR>
 void TestHermitianGenDefEig
-( bool testCorrectness,
-  bool print,
+( Int m,
+  UpperOrLower uplo,
   Pencil pencil,
+  bool testCorrectness,
+  bool print,
   bool onlyEigvals,
-  UpperOrLower uplo, 
-  Int m,
   SortType sort,
   const Grid& g, 
   const HermitianEigSubset<Base<F>> subset, 
@@ -214,12 +232,80 @@ void TestHermitianGenDefEig
     PopIndent();
 }
 
+template<typename F>
+void TestSuite
+( Int m,
+  UpperOrLower uplo,
+  Pencil pencil,
+  char range,
+  Int il, Int iu,
+  Base<F> vl, Base<F> vu,
+  bool timeStages,
+  Int nbLocal,
+  bool avoidTrmv,
+  bool testCorrectness,
+  bool print,
+  bool onlyEigvals,
+  SortType sort,
+  const Grid& g )
+{
+    typedef Base<F> Real;
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
+    HermitianEigSubset<Real> subset;
+    if( range == 'I' )
+    {
+        subset.indexSubset = true;
+        subset.lowerIndex = il;
+        subset.upperIndex = iu;
+    }
+    else if( range == 'V' )
+    {
+        subset.rangeSubset = true;
+        subset.lowerBound = vl;
+        subset.upperBound = vu;
+    }
+
+    HermitianEigCtrl<F> ctrl;
+    ctrl.timeStages = timeStages;
+    ctrl.tridiagCtrl.symvCtrl.bsize = nbLocal;
+    ctrl.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+
+    OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
+    ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+    TestHermitianGenDefEig<F>
+    ( m, uplo, pencil, testCorrectness, print, 
+      onlyEigvals, sort, g, subset, ctrl );
+
+    OutputFromRoot(g.Comm(),"Square row-major algorithms:");
+    ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+    ctrl.tridiagCtrl.order = ROW_MAJOR;
+    TestHermitianGenDefEig<F>
+    ( m, uplo, pencil, testCorrectness, print, 
+      onlyEigvals, sort, g, subset, ctrl );
+
+    OutputFromRoot(g.Comm(),"Square column-major algorithms:");
+    ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+    ctrl.tridiagCtrl.order = COLUMN_MAJOR;
+    TestHermitianGenDefEig<F>
+    ( m, uplo, pencil, testCorrectness, print, 
+      onlyEigvals, sort, g, subset, ctrl );
+
+    // Also test with non-standard distributions
+    OutputFromRoot(g.Comm(),"Nonstandard distributions:");
+    TestHermitianGenDefEig<F,MR,MC,MC>
+    ( m, uplo, pencil, testCorrectness, print, 
+      onlyEigvals, sort, g, subset, ctrl );
+
+    PopIndent();
+}
+
 int 
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
     const int commSize = mpi::Size( comm );
 
     try
@@ -292,79 +378,30 @@ main( int argc, char* argv[] )
         (g.Comm(),"Will test ",( uplo==LOWER ? "lower" : "upper" )," ",
          pencilString," HermitianGenDefEig.");
 
-        HermitianEigSubset<double> subset;
-        if( range == 'I' )
+        if( testReal )
         {
-            subset.indexSubset = true;
-            subset.lowerIndex = il;
-            subset.upperIndex = iu;
+            TestSuite<float>
+            ( m, uplo, pencil, range, il, iu, float(vl), float(vu),
+              timeStages, nbLocal, avoidTrmv, testCorrectness, print,
+              onlyEigvals, sort, g );
+
+            TestSuite<double>
+            ( m, uplo, pencil, range, il, iu, double(vl), double(vu),
+              timeStages, nbLocal, avoidTrmv, testCorrectness, print,
+              onlyEigvals, sort, g );
         }
-        else if( range == 'V' )
+        if( testCpx )
         {
-            subset.rangeSubset = true;
-            subset.lowerBound = vl;
-            subset.upperBound = vu;
+            TestSuite<Complex<float>>
+            ( m, uplo, pencil, range, il, iu, float(vl), float(vu),
+              timeStages, nbLocal, avoidTrmv, testCorrectness, print,
+              onlyEigvals, sort, g );
+
+            TestSuite<Complex<double>>
+            ( m, uplo, pencil, range, il, iu, double(vl), double(vu),
+              timeStages, nbLocal, avoidTrmv, testCorrectness, print,
+              onlyEigvals, sort, g );
         }
-
-        HermitianEigCtrl<double> ctrl_d;
-        HermitianEigCtrl<Complex<double>> ctrl_z;
-        ctrl_d.timeStages = timeStages;
-        ctrl_z.timeStages = timeStages;
-        ctrl_d.tridiagCtrl.symvCtrl.bsize = nbLocal;
-        ctrl_z.tridiagCtrl.symvCtrl.bsize = nbLocal;
-        ctrl_d.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
-        ctrl_z.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
-
-        OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
-        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
-        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
-        if( testReal )
-            TestHermitianGenDefEig<double>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
-        if( testCpx )
-            TestHermitianGenDefEig<Complex<double>>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
-
-        OutputFromRoot(g.Comm(),"Square row-major algorithms:");
-        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_d.tridiagCtrl.order = ROW_MAJOR;
-        ctrl_z.tridiagCtrl.order = ROW_MAJOR;
-        if( testReal )
-            TestHermitianGenDefEig<double>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
-        if( testCpx )
-            TestHermitianGenDefEig<Complex<double>>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
-
-        OutputFromRoot(g.Comm(),"Square column-major algorithms:");
-        ctrl_d.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_z.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
-        ctrl_d.tridiagCtrl.order = COLUMN_MAJOR;
-        ctrl_z.tridiagCtrl.order = COLUMN_MAJOR;
-        if( testReal )
-            TestHermitianGenDefEig<double>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
-        if( testCpx )
-            TestHermitianGenDefEig<Complex<double>>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
-
-        // Also test with non-standard distributions
-        OutputFromRoot(g.Comm(),"Nonstandard distributions:");
-        if( testReal )
-            TestHermitianGenDefEig<double,MR,MC,MC>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_d );
-        if( testCpx )
-            TestHermitianGenDefEig<Complex<double>,MR,MC,MC>
-            ( testCorrectness, print, 
-              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl_z );
     }
     catch( exception& e ) { ReportException(e); }
 

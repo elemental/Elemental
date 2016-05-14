@@ -43,7 +43,7 @@ void RepeatedPowMod
 {
     double pLog = double(Log(double(p)));
     unsigned exponent = unsigned(nLog/pLog);
-    for( Int i=0; i<exponent; ++i )
+    for( unsigned i=0; i<exponent; ++i )
         PowMod( a, p, n, a );
 }
 
@@ -135,7 +135,7 @@ BigInt StageOne
     { 
         const double twoLog = Log(2.);
         unsigned twoExponent = unsigned(nLog/twoLog);
-        for( Int i=0; i<twoExponent; ++i )
+        for( unsigned i=0; i<twoExponent; ++i )
         {
             // a = a*a (mod n)
             a *= a;

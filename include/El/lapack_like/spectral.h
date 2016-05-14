@@ -9,6 +9,7 @@
 #ifndef EL_LAPACK_SPECTRAL_C_H
 #define EL_LAPACK_SPECTRAL_C_H
 
+#include <El/lapack_like/condense.h>
 #include <El/lapack_like/funcs.h>
 
 #ifdef __cplusplus
@@ -1364,6 +1365,10 @@ EL_EXPORT ElError ElSpectralCloudXDist_z
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/lapack_like/spectral/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_LAPACK_SPECTRAL_C_H */

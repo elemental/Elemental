@@ -95,9 +95,9 @@ LLVB
       AssertSameGrids( HPre, tPre, APre );
     )
 
-    DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
+    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR  > AProx( APre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& H = HProx.GetLocked();
     auto& t = tProx.GetLocked();
     auto& A = AProx.Get();

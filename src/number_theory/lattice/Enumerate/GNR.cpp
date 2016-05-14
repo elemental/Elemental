@@ -49,7 +49,7 @@ Real Helper
     Matrix<Int> indices;
     Zeros( indices, n+1, 1 );
     for( Int j=0; j<=n; ++j )
-        indices.Set( j, 0, j-1 );
+        indices(j) = j-1;
 
     // Note: We maintain the norms rather than their squares
     Matrix<Real> partialNorms;
@@ -58,7 +58,8 @@ Real Helper
     Zeros( v, n, 1 );
     if( n == 0 )
         return Real(0);
-    v.Set( 0, 0, Real(1) );
+    v(0) = Real(1);
+    Real* vBuf = &v(0);
 
     Matrix<Real> centers;
     Zeros( centers, n, 1 );
@@ -68,28 +69,13 @@ Real Helper
 
     Int lastNonzero = 0; // -1 if all indices are zero
 
-    const Real* uBuf = u.LockedBuffer();
-
-    const Real* dBuf = d.LockedBuffer();
-    const Real* NBuf = N.LockedBuffer();
-    const Int NLDim = N.LDim();
-
-    Int* indexBuf = indices.Buffer();
-    Real* partialNormBuf = partialNorms.Buffer();
-    Real* vBuf = v.Buffer();
-    Real* centerBuf = centers.Buffer();
-    Real* jumpBuf = jumps.Buffer();
-
-    Real* SBuf = S.Buffer();
-    const Int SLDim = S.LDim();
-
     Int k=0;
     while( true )
     {
-        Real diff = vBuf[k]-centerBuf[k];
-        Real rho_k = lapack::SafeNorm( partialNormBuf[k+1], diff*dBuf[k] );
-        partialNormBuf[k] = rho_k;
-        if( rho_k < uBuf[(n-1)-k] )
+        Real diff = vBuf[k]-centers(k);
+        Real rho_k = lapack::SafeNorm( partialNorms(k+1), diff*d(k) );
+        partialNorms(k) = rho_k;
+        if( rho_k < u((n-1)-k) )
         {
             if( k == 0 )
             {
@@ -100,15 +86,15 @@ Real Helper
             {
                 // Move down the tree
                 --k;
-                indexBuf[k] = Max(indexBuf[k],indexBuf[k+1]);
+                indices(k) = Max(indices(k),indices(k+1));
 
-                Real* sBuf = &SBuf[k*SLDim];
-                for( Int i=indexBuf[k+1]; i>=k+1; --i )
-                    sBuf[i] = sBuf[i+1] + vBuf[i]*NBuf[k+i*NLDim];
+                Real* s = &S(0,k);
+                for( Int i=indices(k+1); i>=k+1; --i )
+                    s[i] = s[i+1] + vBuf[i]*N(k,i);
 
-                centerBuf[k] = -SBuf[(k+1)+k*SLDim];
-                vBuf[k] = Round(centerBuf[k]);
-                jumpBuf[k] = Real(1);
+                centers(k) = -S(k+1,k);
+                vBuf[k] = Round(centers(k));
+                jumps(k) = Real(1);
             }
         }
         else
@@ -116,8 +102,8 @@ Real Helper
             // Move up the tree
             ++k;
             if( k == n )
-                return 2*u.Get(n-1,0)+1; // An arbitrary value > than u(n-1)
-            indexBuf[k] = k; // indicate that (i,j) are not synchronized
+                return 2*u(n-1)+1; // An arbitrary value > than u(n-1)
+            indices(k) = k; // indicate that (i,j) are not synchronized
             if( k >= lastNonzero )
             {
                 if( ctrl.innerProgress )
@@ -127,11 +113,11 @@ Real Helper
             }
             else
             {
-                if( vBuf[k] > centerBuf[k] )
-                    vBuf[k] -= jumpBuf[k];
+                if( vBuf[k] > centers(k) )
+                    vBuf[k] -= jumps(k);
                 else
-                    vBuf[k] += jumpBuf[k];
-                jumpBuf[k] += Real(1);
+                    vBuf[k] += jumps(k);
+                jumps(k) += Real(1);
             }
         }
     }
@@ -159,7 +145,7 @@ Real TransposedHelper
     Matrix<Int> indices;
     Zeros( indices, n+1, 1 );
     for( Int j=0; j<=n; ++j )
-        indices.Set( j, 0, j-1 );
+        indices(j) = j-1;
 
     // Note: We maintain the norms rather than their squares
     Matrix<Real> partialNorms;
@@ -168,7 +154,8 @@ Real TransposedHelper
     Zeros( v, n, 1 );
     if( n == 0 )
         return Real(0);
-    v.Set( 0, 0, Real(1) );
+    v(0) = Real(1);
+    Real* vBuf = &v(0);
 
     Matrix<Real> centers;
     Zeros( centers, n, 1 );
@@ -178,28 +165,13 @@ Real TransposedHelper
 
     Int lastNonzero = 0; // -1 if all indices are zero
 
-    const Real* uBuf = u.LockedBuffer();
-
-    const Real* dBuf = d.LockedBuffer();
-    const Real* NTransBuf = NTrans.LockedBuffer();
-    const Int NTransLDim = NTrans.LDim();
-
-    Int* indexBuf = indices.Buffer();
-    Real* partialNormBuf = partialNorms.Buffer();
-    Real* vBuf = v.Buffer();
-    Real* centerBuf = centers.Buffer();
-    Real* jumpBuf = jumps.Buffer();
-
-    Real* SBuf = S.Buffer();
-    const Int SLDim = S.LDim();
-
     Int k=0;
     while( true )
     {
-        Real diff = vBuf[k]-centerBuf[k];
-        Real rho_k = lapack::SafeNorm( partialNormBuf[k+1], diff*dBuf[k] );
-        partialNormBuf[k] = rho_k;
-        if( rho_k < uBuf[(n-1)-k] )
+        Real diff = v(k)-centers(k);
+        Real rho_k = lapack::SafeNorm( partialNorms(k+1), diff*d(k) );
+        partialNorms(k) = rho_k;
+        if( rho_k < u((n-1)-k) )
         {
             if( k == 0 )
             {
@@ -210,16 +182,16 @@ Real TransposedHelper
             {
                 // Move down the tree
                 --k;
-                indexBuf[k] = Max(indexBuf[k],indexBuf[k+1]);
+                indices(k) = Max(indices(k),indices(k+1));
 
-                      Real* sBuf = &SBuf[k*SLDim];
-                const Real* nBuf = &NTransBuf[k*NTransLDim];
-                for( Int i=indexBuf[k+1]; i>=k+1; --i )
-                    sBuf[i] = sBuf[i+1] + vBuf[i]*nBuf[i];
+                      Real* s = &S(0,k);
+                const Real* nBuf = &NTrans(0,k);
+                for( Int i=indices(k+1); i>=k+1; --i )
+                    s[i] = s[i+1] + vBuf[i]*nBuf[i];
 
-                centerBuf[k] = -SBuf[(k+1)+k*SLDim];
-                vBuf[k] = Round(centerBuf[k]);
-                jumpBuf[k] = Real(1);
+                centers(k) = -S(k+1,k);
+                vBuf[k] = Round(centers(k));
+                jumps(k) = Real(1);
             }
         }
         else
@@ -227,8 +199,8 @@ Real TransposedHelper
             // Move up the tree
             ++k;
             if( k == n )
-                return 2*u.Get(n-1,0)+1; // An arbitrary value > than u(n-1)
-            indexBuf[k] = k; // indicate that (i,j) are not synchronized
+                return 2*u(n-1)+1; // An arbitrary value > than u(n-1)
+            indices(k) = k; // indicate that (i,j) are not synchronized
             if( k >= lastNonzero )
             {
                 if( ctrl.innerProgress )
@@ -238,11 +210,11 @@ Real TransposedHelper
             }
             else
             {
-                if( vBuf[k] > centerBuf[k] )
-                    vBuf[k] -= jumpBuf[k];
+                if( vBuf[k] > centers(k) )
+                    vBuf[k] -= jumps(k);
                 else
-                    vBuf[k] += jumpBuf[k];
-                jumpBuf[k] += Real(1);
+                    vBuf[k] += jumps(k);
+                jumps(k) += Real(1);
             }
         }
     }

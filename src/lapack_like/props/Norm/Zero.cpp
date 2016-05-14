@@ -22,7 +22,7 @@ Int ZeroNorm( const Matrix<T>& A, Base<T> tol )
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            if( Abs(A.Get(i,j)) > tol )
+            if( Abs(A(i,j)) > tol )
                 ++numNonzeros;
     return numNonzeros;
 }

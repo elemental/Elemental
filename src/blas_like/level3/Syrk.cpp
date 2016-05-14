@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Syrk/LN.hpp"
 #include "./Syrk/LT.hpp"
@@ -59,7 +61,8 @@ void Syrk
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
@@ -89,7 +92,8 @@ void Syrk
 {
     DEBUG_ONLY(CSE cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
@@ -167,9 +171,10 @@ void Syrk
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
-        Zeros( C, m, m );
+        C.Resize( m, m );
     else
-        Zeros( C, n, n );
+        C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
@@ -256,9 +261,10 @@ void Syrk
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
-        Zeros( C, m, m );
+        C.Resize( m, m );
     else
-        Zeros( C, n, n );
+        C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 

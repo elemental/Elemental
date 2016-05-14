@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 // I haven't decided on the appropriate generalization to complex cosine/sine
 // pairs. For now, given phi, we will compute the corresponding partner as the

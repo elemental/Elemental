@@ -17,13 +17,11 @@ Base<T> MaxNorm( const Matrix<T>& A )
     typedef Base<T> Real;
     const Int height = A.Height();
     const Int width = A.Width();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
 
     Real maxAbs = 0;
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            maxAbs = Max( maxAbs, Abs(ABuf[i+j*ALDim]) );
+            maxAbs = Max( maxAbs, Abs(A(i,j)) );
 
     return maxAbs;
 }
@@ -53,21 +51,19 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const Matrix<T>& A )
     typedef Base<T> Real;
     const Int height = A.Height();
     const Int width = A.Width();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
 
     Real maxAbs = 0;
     if( uplo == UPPER )
     {
         for( Int j=0; j<width; ++j )
             for( Int i=0; i<=j; ++i )
-                maxAbs = Max( maxAbs, Abs(ABuf[i+j*ALDim]) );
+                maxAbs = Max( maxAbs, Abs(A(i,j)) );
     }
     else
     {
         for( Int j=0; j<width; ++j )
             for( Int i=j; i<height; ++i )
-                maxAbs = Max( maxAbs, Abs(ABuf[i+j*ALDim]) );
+                maxAbs = Max( maxAbs, Abs(A(i,j)) );
     }
     return maxAbs;
 }
@@ -159,8 +155,7 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
     {
         const Int localWidth = A.LocalWidth();
         const Int localHeight = A.LocalHeight();
-        const T* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
+        const Matrix<T>& ALoc = A.LockedMatrix();
 
         Real localMaxAbs = 0;
         if( uplo == UPPER )
@@ -170,7 +165,7 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
                 const Int j = A.GlobalCol(jLoc);
                 const Int numUpperRows = A.LocalRowOffset(j+1);
                 for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
-                    localMaxAbs = Max(localMaxAbs,Abs(ABuf[iLoc+jLoc*ALDim]));
+                    localMaxAbs = Max(localMaxAbs,Abs(ALoc(iLoc,jLoc)));
             }
         }
         else
@@ -180,7 +175,7 @@ Base<T> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
                 const Int j = A.GlobalCol(jLoc);
                 const Int numStrictlyUpperRows = A.LocalRowOffset(j);
                 for( Int iLoc=numStrictlyUpperRows; iLoc<localHeight; ++iLoc )
-                    localMaxAbs = Max(localMaxAbs,Abs(ABuf[iLoc+jLoc*ALDim]));
+                    localMaxAbs = Max(localMaxAbs,Abs(ALoc(iLoc,jLoc)));
             }
         }
         norm = mpi::AllReduce( localMaxAbs, mpi::MAX, A.DistComm() );

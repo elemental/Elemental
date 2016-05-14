@@ -26,7 +26,6 @@ int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -86,7 +85,8 @@ int main( int argc, char* argv[] )
         Matrix<double> YOrigNorms;
         ColumnTwoNorms( Y, YOrigNorms );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop(); 
+        OutputFromRoot(comm,timer.Partial()," seconds");
         if( display )
         {
             Display( X, "X" );
@@ -111,7 +111,8 @@ int main( int argc, char* argv[] )
             ldl::NestedDissection( graph, map, sep, info, ctrl );
         InvertMap( map, invMap );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         const Int rootSepSize = info.size;
         OutputFromRoot(comm,rootSepSize," vertices in root separator\n");
@@ -128,9 +129,11 @@ int main( int argc, char* argv[] )
 
         OutputFromRoot(comm,"Building ldl::DistFront tree...");
         mpi::Barrier( comm );
+        timer.Start();
         ldl::DistFront<double> front( A, map, sep, info );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         // Unpack the ldl::DistFront into a sparse matrix
         if( unpack )

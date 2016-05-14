@@ -9,6 +9,8 @@
 #ifndef EL_SPECTRAL_HPP
 #define EL_SPECTRAL_HPP
 
+#include <El/lapack_like/condense.hpp>
+
 namespace El {
 
 // Hermitian eigenvalue solvers
@@ -437,8 +439,6 @@ void RealToComplex
 
 // Compute eigenvectors of a triangular matrix
 // ===========================================
-// NOTE: This functionality is still experimental and should not yet be
-//       trusted
 template<typename F>
 void TriangEig
 (       Matrix<F>& U,
@@ -450,8 +450,6 @@ void TriangEig
 
 // Compute the eigendecomposition of a square matrix
 // =================================================
-// NOTE: This functionality is still experimental and should not yet be
-//       trusted
 template<typename F>
 void Eig
 ( Matrix<F>& A,

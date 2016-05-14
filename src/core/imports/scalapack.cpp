@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
 
 #ifdef EL_HAVE_SCALAPACK
 
@@ -1854,8 +1854,13 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, double* H, const int* descH, dcomplex* w, 
-  double* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n,
+  double* H, const int* descH,
+  dcomplex* w, 
+  double* Q, const int* descQ,
+  bool fullTriangle,
+  bool multiplyQ,
+  bool aed ) 
 {
     DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
@@ -1933,8 +1938,13 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, scomplex* H, const int* descH, scomplex* w, 
-  scomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n,
+  scomplex* H, const int* descH,
+  scomplex* w, 
+  scomplex* Q, const int* descQ,
+  bool fullTriangle,
+  bool multiplyQ,
+  bool aed ) 
 {
     DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     if( !multiplyQ )
@@ -1967,8 +1977,13 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, const int* descH, dcomplex* w, 
-  dcomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n,
+  dcomplex* H, const int* descH,
+  dcomplex* w, 
+  dcomplex* Q, const int* descQ,
+  bool fullTriangle,
+  bool multiplyQ,
+  bool aed ) 
 {
     DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
     if( !multiplyQ )

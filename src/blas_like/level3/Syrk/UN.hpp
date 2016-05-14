@@ -11,8 +11,7 @@ namespace El {
 namespace syrk {
 
 template<typename T>
-inline void
-UN
+void UN
 ( T alpha,
   const ElementalMatrix<T>& APre, 
         ElementalMatrix<T>& CPre,

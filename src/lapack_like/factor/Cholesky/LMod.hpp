@@ -31,13 +31,11 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
 
     Matrix<F> z21;
 
-    F* LBuf = L.Buffer();
-    const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
         const IR ind1( k ), ind2( k+1, END );
 
-        F& lambda11 = LBuf[k+k*ldl];
+        F& lambda11 = L(k,k);
         auto l21 = L( ind2, ind1 );
 
         auto v1 = V( ind1, ALL );
@@ -139,13 +137,11 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
 
     Matrix<F> z21;
 
-    F* LBuf = L.Buffer();
-    const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
         const IR ind1( k ), ind2( k+1, END );
 
-        F& lambda11 = LBuf[k+k*ldl];
+        F& lambda11 = L(k,k);
         auto l21 = L( ind2, ind1 );
 
         auto v1 = V( ind1, ALL );

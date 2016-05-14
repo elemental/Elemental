@@ -6,11 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
-// TODO: Add options for FastAbs instead of Abs
+// TODO: Add options for OneAbs instead of Abs
 
 template<typename F>
 ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )

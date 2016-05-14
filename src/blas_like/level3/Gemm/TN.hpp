@@ -12,8 +12,7 @@ namespace gemm {
 
 // Transpose Normal Gemm that avoids communicating the matrix A
 template<typename T> 
-inline void
-SUMMA_TNA
+void SUMMA_TNA
 ( Orientation orientA,
   T alpha,
   const ElementalMatrix<T>& APre,
@@ -70,8 +69,7 @@ SUMMA_TNA
 
 // Transpose Normal Gemm that avoids communicating the matrix B
 template<typename T> 
-inline void
-SUMMA_TNB
+void SUMMA_TNB
 ( Orientation orientA,
   T alpha,
   const ElementalMatrix<T>& APre,
@@ -125,8 +123,7 @@ SUMMA_TNB
 
 // Transpose Normal Gemm that avoids communicating the matrix C
 template<typename T> 
-inline void
-SUMMA_TNC
+void SUMMA_TNC
 ( Orientation orientA,
   T alpha,
   const ElementalMatrix<T>& APre,
@@ -179,8 +176,7 @@ SUMMA_TNC
 }
 
 template<typename T>
-inline void
-SUMMA_TN
+void SUMMA_TN
 ( Orientation orientA,
   T alpha,
   const ElementalMatrix<T>& A,

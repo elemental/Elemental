@@ -86,15 +86,11 @@ void MatrixNode<T>::Pull
  
     const Int width = X.Width();
     matrix.Resize( info.size, width );
-    const T* XBuf = X.LockedBuffer();
-    const Int XLDim = X.LDim();
-    T* thisBuf = matrix.Buffer();
-    const Int thisLDim = matrix.LDim();
     for( Int t=0; t<info.size; ++t )
     {
         const Int i = invMap[info.off+t];
         for( Int j=0; j<width; ++j )
-            thisBuf[t+j*thisLDim] = XBuf[i+j*XLDim];
+            matrix(t,j) = X(i,j);
     }
 
     // Clean up any pre-existing children if not the right amount
@@ -120,8 +116,6 @@ void MatrixNode<T>::Push
 
     const Int width = matrix.Width();
     X.Resize( info.off+info.size, width );
-    T* XBuf = X.Buffer();
-    const Int XLDim = X.LDim();
 
     function<void(const MatrixNode<T>&,const NodeInfo&)> push = 
       [&]( const MatrixNode<T>& matNode, const NodeInfo& infoNode ) 
@@ -130,13 +124,11 @@ void MatrixNode<T>::Push
           for( Int c=0; c<numChildren; ++c )
               push( *matNode.children[c], *infoNode.children[c] );
 
-          const T* nodeBuf = matNode.matrix.LockedBuffer();
-          const Int nodeLDim = matNode.matrix.LDim();
           for( Int t=0; t<infoNode.size; ++t )
           {
               const Int i = invMap[infoNode.off+t];
               for( Int j=0; j<width; ++j )
-                  XBuf[i+j*XLDim] = nodeBuf[t+j*nodeLDim];
+                  X(i,j) = matNode.matrix(t,j);
           }
       };
     push( *this, info ); 

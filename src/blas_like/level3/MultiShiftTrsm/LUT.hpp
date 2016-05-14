@@ -11,8 +11,7 @@ namespace El {
 namespace mstrsm {
 
 template<typename F>
-inline void
-LUT
+void LUT
 ( Orientation orientation,
         Matrix<F>& U,
   const Matrix<F>& shifts,
@@ -42,8 +41,7 @@ LUT
 }
 
 template<typename F>
-inline void
-LUT
+void LUT
 ( Orientation orientation,
   const ElementalMatrix<F>& UPre,
   const ElementalMatrix<F>& shiftsPre,

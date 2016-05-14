@@ -23,7 +23,7 @@ Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p )
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
-        sum += Pow( s.Get(j,0), p );
+        sum += Pow( s(j), p );
     return Pow( sum, 1/p );
 }
 
@@ -41,7 +41,7 @@ Base<F> HermitianKyFanSchattenNorm
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
-        sum += Pow( s.Get(j,0), p );
+        sum += Pow( s(j), p );
     return Pow( sum, 1/p );
 }
 
@@ -63,7 +63,7 @@ Base<F> SymmetricKyFanSchattenNorm
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
-        sum += Pow( s.Get(j,0), p );
+        sum += Pow( s(j), p );
     return Pow( sum, 1/p );
 }
 
@@ -83,9 +83,10 @@ Base<F> KyFanSchattenNorm( const ElementalMatrix<F>& A, Int k, Base<F> p )
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
+    Matrix<Real>& sTopLoc = sTop.Matrix();
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
-        localSum += Pow( sTop.GetLocal(j,0), p );
+        localSum += Pow( sTopLoc(j), p );
     const Real sum = mpi::AllReduce( localSum, sTop.ColComm() );
     return Pow( sum, 1/p );
 }
@@ -104,9 +105,10 @@ Base<F> HermitianKyFanSchattenNorm
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
+    Matrix<Real>& sTopLoc = sTop.Matrix();
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
-        localSum += Pow( sTop.GetLocal(j,0), p );
+        localSum += Pow( sTopLoc(j), p );
     const Real sum = mpi::AllReduce( localSum, sTop.ColComm() );
     return Pow( sum, 1/p );
 }
@@ -129,9 +131,10 @@ Base<F> SymmetricKyFanSchattenNorm
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
+    Matrix<Real>& sTopLoc = sTop.Matrix();
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
-        localSum += Pow( sTop.GetLocal(j,0), p );
+        localSum += Pow( sTopLoc(j), p );
     const Real sum = mpi::AllReduce( localSum, sTop.ColComm() );
     return Pow( sum, 1/p );
 }

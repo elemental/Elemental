@@ -19,11 +19,11 @@ void EnrichLattice( Matrix<F>& B, Matrix<F>& U, const Matrix<F>& v )
     Matrix<F> vTrans, W, Rv;
     Transpose( v, vTrans );
     LLL( vTrans, W, Rv );
-    if( vTrans.Get(0,0) == F(1) )
+    if( vTrans(0,0) == F(1) )
     {
         // Do nothing 
     }
-    else if( vTrans.Get(0,0) == F(-1) )
+    else if( vTrans(0,0) == F(-1) )
     {
         auto w0 = W( ALL, IR(0) );
         w0 *= F(-1);

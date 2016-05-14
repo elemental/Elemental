@@ -17,15 +17,13 @@ Base<F> OneNorm( const Matrix<F>& A )
     typedef Base<F> Real;
     const Int height = A.Height();
     const Int width = A.Width();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
 
     Real maxColSum = 0;
     for( Int j=0; j<width; ++j )
     {
         Real colSum = 0;
         for( Int i=0; i<height; ++i )
-            colSum += Abs(ABuf[i+j*ALDim]);
+            colSum += Abs(A(i,j));
         maxColSum = Max( maxColSum, colSum );
     }
     return maxColSum;
@@ -37,8 +35,6 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
     DEBUG_ONLY(CSE cse("HermitianOneNorm"))
     typedef Base<F> Real;
     const Int height = A.Height();
-    const F* ABuf = A.LockedBuffer();    
-    const Int ALDim = A.LDim();
 
     if( height != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
@@ -50,9 +46,9 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
         {
             Real colSum = 0;
             for( Int i=0; i<=j; ++i )
-                colSum += Abs(ABuf[i+j*ALDim]);
+                colSum += Abs(A(i,j));
             for( Int i=j+1; i<height; ++i )
-                colSum += Abs(ABuf[j+i*ALDim]);
+                colSum += Abs(A(j,i));
             maxColSum = Max( maxColSum, colSum );
         }
     }
@@ -62,9 +58,9 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
         {
             Real colSum = 0;
             for( Int i=0; i<j; ++i )
-                colSum += Abs(ABuf[j+i*ALDim]);
+                colSum += Abs(A(j,i));
             for( Int i=j; i<height; ++i )
-                colSum += Abs(ABuf[i+j*ALDim]);
+                colSum += Abs(A(i,j));
             maxColSum = Max( maxColSum, colSum );
         }
     }
@@ -89,15 +85,14 @@ Base<F> OneNorm( const AbstractDistMatrix<F>& A )
         // Compute the partial column sums defined by our local matrix, A[U,V]
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const F* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
+        const Matrix<F>& ALoc = A.LockedMatrix();
 
         vector<Real> myPartialColSums( localWidth );
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             myPartialColSums[jLoc] = 0;
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                myPartialColSums[jLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
+                myPartialColSums[jLoc] += Abs(ALoc(iLoc,jLoc));
         }
 
         // Sum our partial column sums to get the column sums over A[* ,V]
@@ -135,8 +130,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     {
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const F* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
+        const Matrix<F>& ALoc = A.LockedMatrix();
 
         if( uplo == UPPER )
         {
@@ -148,7 +142,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int numUpperRows = A.LocalRowOffset(j+1);
                 myPartialUpperColSums[jLoc] = 0;
                 for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
-                    myPartialUpperColSums[jLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
+                    myPartialUpperColSums[jLoc] += Abs(ALoc(iLoc,jLoc));
             }
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
@@ -156,8 +150,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int numLowerCols = A.LocalColOffset(i+1);
                 myPartialStrictlyUpperRowSums[iLoc] = 0;
                 for( Int jLoc=numLowerCols; jLoc<localWidth; ++jLoc )
-                    myPartialStrictlyUpperRowSums[iLoc] +=
-                      Abs(ABuf[iLoc+jLoc*ALDim]);
+                    myPartialStrictlyUpperRowSums[iLoc] += Abs(ALoc(iLoc,jLoc));
             }
 
             // Just place the sums into their appropriate places in a vector an 
@@ -192,7 +185,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int numStrictlyUpperRows = A.LocalRowOffset(j);
                 myPartialLowerColSums[jLoc] = 0;
                 for( Int iLoc=numStrictlyUpperRows; iLoc<localHeight; ++iLoc )
-                    myPartialLowerColSums[jLoc] += Abs(ABuf[iLoc+jLoc*ALDim]);
+                    myPartialLowerColSums[jLoc] += Abs(ALoc(iLoc,jLoc));
             }
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
@@ -200,8 +193,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 const Int numStrictlyLowerCols = A.LocalColOffset(i);
                 myPartialStrictlyLowerRowSums[iLoc] = 0;
                 for( Int jLoc=0; jLoc<numStrictlyLowerCols; ++jLoc )
-                    myPartialStrictlyLowerRowSums[iLoc] +=
-                      Abs(ABuf[iLoc+jLoc*ALDim]);
+                    myPartialStrictlyLowerRowSums[iLoc] += Abs(ALoc(iLoc,jLoc));
             }
 
             // Just place the sums into their appropriate places in a vector an 

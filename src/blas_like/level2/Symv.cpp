@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
 
 #include "./Symv/L.hpp"
 #include "./Symv/U.hpp"
@@ -103,8 +104,10 @@ void Symv
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, y.Height(), 1 );
-        Zeros( z_MR_STAR, y.Height(), 1 );
+        z_MC_STAR.Resize( y.Height(), 1 );
+        z_MR_STAR.Resize( y.Height(), 1 );
+        Zero( z_MC_STAR );
+        Zero( z_MR_STAR );
         if( uplo == LOWER )
         {
             symv::LocalColAccumulateL
@@ -141,8 +144,10 @@ void Symv
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, y.Width(), 1 );
-        Zeros( z_MR_STAR, y.Width(), 1 );
+        z_MC_STAR.Resize( y.Width(), 1 );
+        z_MR_STAR.Resize( y.Width(), 1 );
+        Zero( z_MC_STAR );
+        Zero( z_MR_STAR );
         if( uplo == LOWER )
         {
             symv::LocalColAccumulateL
@@ -183,8 +188,10 @@ void Symv
         DistMatrix<T,STAR,MR> z_STAR_MR(g);
         z_STAR_MC.AlignWith( A );
         z_STAR_MR.AlignWith( A );
-        Zeros( z_STAR_MC, 1, y.Height() );
-        Zeros( z_STAR_MR, 1, y.Height() );
+        z_STAR_MC.Resize( 1, y.Height() );
+        z_STAR_MR.Resize( 1, y.Height() );
+        Zero( z_STAR_MC );
+        Zero( z_STAR_MR );
         if( uplo == LOWER )
         {
             symv::LocalRowAccumulateL
@@ -225,8 +232,10 @@ void Symv
         DistMatrix<T,STAR,MR> z_STAR_MR(g);
         z_STAR_MR.AlignWith( A );
         z_STAR_MC.AlignWith( A );
-        Zeros( z_STAR_MC, 1, y.Width() );
-        Zeros( z_STAR_MR, 1, y.Width() );
+        z_STAR_MR.Resize( 1, y.Width() );
+        z_STAR_MC.Resize( 1, y.Width() );
+        Zero( z_STAR_MR );
+        Zero( z_STAR_MC );
         if( uplo == LOWER )
         {
             symv::LocalRowAccumulateL

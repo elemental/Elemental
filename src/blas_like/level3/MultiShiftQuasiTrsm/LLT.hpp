@@ -11,8 +11,7 @@ namespace El {
 namespace msquasitrsm {
 
 template<typename F>
-inline void
-LLTUnb
+void LLTUnb
 ( bool conjugate, const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LLTUnb"))
@@ -51,7 +50,7 @@ LLTUnb
                 const F delta22 = LBuf[(k+1)+(k+1)*ldl] - shifts.Get(j,0);
                 // Decompose D = L Q
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta12, &c, &s );
+                const F gamma11 = blas::Givens( delta11, delta12, c, s );
                 const F gamma21 =        c*delta21 + s*delta22;
                 const F gamma22 = -Conj(s)*delta21 + c*delta22;
 
@@ -91,8 +90,7 @@ LLTUnb
 }
 
 template<typename F>
-inline void
-LLT
+void LLT
 ( Orientation orientation, 
   const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
@@ -141,8 +139,7 @@ LLT
 
 // width(X) >> p
 template<typename F>
-inline void
-LLTLarge
+void LLTLarge
 ( Orientation orientation, 
   const ElementalMatrix<F>& LPre,
   const ElementalMatrix<F>& shiftsPre,
@@ -215,8 +212,7 @@ LLTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LLTMedium
+void LLTMedium
 ( Orientation orientation,
   const ElementalMatrix<F>& LPre,
   const ElementalMatrix<F>& shiftsPre,
@@ -295,8 +291,7 @@ LLTMedium
 
 // width(X) << p
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation, 
   const DistMatrix<F,colDist,STAR>& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
@@ -358,8 +353,7 @@ LLTSmall
 }
 
 template<typename F,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation, 
   const DistMatrix<F,STAR,rowDist>& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 

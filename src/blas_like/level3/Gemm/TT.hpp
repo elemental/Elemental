@@ -12,8 +12,7 @@ namespace gemm {
 
 // Transpose Transpose Gemm that avoids communicating the matrix A
 template<typename T>
-inline void
-SUMMA_TTA
+void SUMMA_TTA
 ( Orientation orientA,
   Orientation orientB,
   T alpha,
@@ -72,8 +71,7 @@ SUMMA_TTA
 
 // Transpose Transpose Gemm that avoids communicating the matrix B
 template<typename T>
-inline void
-SUMMA_TTB
+void SUMMA_TTB
 ( Orientation orientA,
   Orientation orientB,
   T alpha,
@@ -135,8 +133,7 @@ SUMMA_TTB
 
 // Transpose Transpose Gemm that avoids communicating the matrix C
 template<typename T>
-inline void
-SUMMA_TTC
+void SUMMA_TTC
 ( Orientation orientA,
   Orientation orientB,
   T alpha,
@@ -195,8 +192,7 @@ SUMMA_TTC
 }
 
 template<typename T>
-inline void
-SUMMA_TT
+void SUMMA_TT
 ( Orientation orientA,
   Orientation orientB,
   T alpha,

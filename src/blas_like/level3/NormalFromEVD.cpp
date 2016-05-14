@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 namespace El {
 
@@ -25,7 +27,8 @@ void NormalFromEVD
 
     const Int m = Z.Height();
     const Int n = Z.Width();
-    Zeros( A, m, m );
+    A.Resize( m, m );
+    Zero( A );
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
@@ -62,7 +65,8 @@ void NormalFromEVD
 
     const Int m = Z.Height();
     const Int n = Z.Width();
-    Zeros( A, m, m );
+    A.Resize( m, m );
+    Zero( A );
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {

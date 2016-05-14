@@ -45,8 +45,8 @@ LUVF
     )
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != diagLength )
-            LogicError("t must be the same length as H's offset diag");
+      if( t.Height() != diagLength )
+          LogicError("t must be the same length as H's offset diag");
     )
     Matrix<F> HPanCopy, SInv, Z;
 

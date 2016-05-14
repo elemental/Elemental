@@ -16,8 +16,7 @@ namespace trsm {
 //   X := X triuu(U)^-T, or
 //   X := X triuu(U)^-H
 template<typename F>
-inline void
-RUT
+void RUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,

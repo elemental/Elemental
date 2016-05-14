@@ -745,6 +745,11 @@ inline SafeProduct<Complex<double>> CReflect( const ElSafeProduct_z& prodC )
     return prod;
 }
 
+inline ElFileFormat CReflect( FileFormat format )
+{ return static_cast<ElFileFormat>(format); }
+inline FileFormat CReflect( ElFileFormat format )
+{ return static_cast<FileFormat>(format); }
+
 } // namespace El
 
 #endif // ifndef EL_CORE_CREFLECT_C_HPP

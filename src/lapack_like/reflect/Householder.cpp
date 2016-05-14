@@ -21,7 +21,7 @@ namespace El {
 //
 // The LAPACK convention defines tau such that
 //
-//   H = I - tau [1; v] [1, v'],
+//   H = I - tau [1; v] [1; v]',
 //
 // but adjoint(H) [chi; x] = [beta; 0]. 
 //
@@ -36,8 +36,6 @@ namespace El {
 // which is accomplished by setting tau=2, and v=0.
 //
 
-// TODO: Switch to 1/tau to be simplify discussions of UT transforms
-
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x )
 {
@@ -46,55 +44,10 @@ F LeftReflector( F& chi, Matrix<F>& x )
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
-    typedef Base<F> Real;
-
-    Real norm = Nrm2( x );
-    F alpha = chi;
-
-    if( norm == Real(0) && ImagPart(alpha) == Real(0) )
-    {
-        chi = -chi;
-        return F(2);
-    }
-
-    Real beta;
-    if( RealPart(alpha) <= 0 )
-        beta = lapack::SafeNorm( alpha, norm );
+    if( x.Width() == 1 )
+        return lapack::Reflector( x.Height()+1, chi, x.Buffer(), 1 );
     else
-        beta = -lapack::SafeNorm( alpha, norm );
-
-    // Rescale if the vector is too small
-    const Real safeMin = limits::SafeMin<Real>();
-    const Real epsilon = limits::Epsilon<Real>();
-    const Real safeInv = safeMin/epsilon;
-    Int count = 0;
-    if( Abs(beta) < safeInv )
-    {
-        Real invOfSafeInv = Real(1)/safeInv;
-        do
-        {
-            ++count;
-            x *= invOfSafeInv;
-            alpha *= invOfSafeInv;
-            beta *= invOfSafeInv;
-        } while( Abs(beta) < safeInv );
-
-        norm = Nrm2( x );
-        if( RealPart(alpha) <= 0 )
-            beta = lapack::SafeNorm( alpha, norm );
-        else
-            beta = -lapack::SafeNorm( alpha, norm );
-    }
-
-    F tau = (beta-Conj(alpha)) / beta;
-    x *= Real(1)/(alpha-beta);
-
-    // Undo the scaling
-    for( Int j=0; j<count; ++j )
-        beta *= safeInv;
-
-    chi = beta;
-    return tau;
+        return lapack::Reflector( x.Width()+1, chi, x.Buffer(), x.LDim() );
 }
 
 template<typename F>

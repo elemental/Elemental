@@ -51,8 +51,8 @@ EL_EXPORT ElError ElAbs_z( complex_double alpha, double* result );
 EL_EXPORT ElError ElSafeAbs_c( complex_float alpha, float* result );
 EL_EXPORT ElError ElSafeAbs_z( complex_double alpha, double* result );
 
-EL_EXPORT ElError ElFastAbs_c( complex_float alpha, float* result );
-EL_EXPORT ElError ElFastAbs_z( complex_double alpha, double* result );
+EL_EXPORT ElError ElOneAbs_c( complex_float alpha, float* result );
+EL_EXPORT ElError ElOneAbs_z( complex_double alpha, double* result );
 
 EL_EXPORT ElError ElSgn_i( ElInt alpha, bool symmetric, ElInt* result );
 EL_EXPORT ElError ElSgn_s( float alpha, bool symmetric, float* result );

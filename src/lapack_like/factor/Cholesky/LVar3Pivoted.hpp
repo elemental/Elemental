@@ -51,15 +51,10 @@ PanelFull
     // Form updated diagonal
     const Int height = d.Height();
     const Int k = X.Width();
-          F* dBuf = d.Buffer();
-    const F* XBuf = X.LockedBuffer();
-    const F* YBuf = Y.LockedBuffer();
-    const Int XLDim = X.LDim();
-    const Int YLDim = Y.LDim();
     for( Int i=0; i<height; ++i )
     {
-        dBuf[i] -= XBuf[i+(k-1)*XLDim]*YBuf[i+(k-1)*YLDim];
-        dBuf[i] = RealPart(dBuf[i]);
+        d(i) -= X(i,k-1)*Y(i,k-1);
+        d(i) = RealPart(d(i));
     }
 
     // Return maximum from it
@@ -89,11 +84,9 @@ PanelFull
     {
         const Int dLocalHeight = d.LocalHeight();
         const Int k = X.Width();
-        F* dBuf = d.Buffer();
-        const F* XBuf = X.LockedBuffer();
-        const F* YBuf = Y.LockedBuffer();
-        const Int XLDim = X.LDim();
-        const Int YLDim = Y.LDim();
+              Matrix<F>& dLoc = d.Matrix();
+        const Matrix<F>& XLoc = X.LockedMatrix();
+        const Matrix<F>& YLoc = Y.LockedMatrix();
 
         const Int dColShift = d.ColShift();
         const Int dColStride = d.ColStride();
@@ -103,8 +96,8 @@ PanelFull
             // TODO: Avoid repeated calls to LocalRow and use strides
             const Int iLocX = X.LocalRow(i);
             const Int iLocY = Y.LocalRow(i);
-            dBuf[iLoc] -= XBuf[iLocX+(k-1)*XLDim]*YBuf[iLocY+(k-1)*YLDim];
-            dBuf[iLoc] = RealPart(dBuf[iLoc]);
+            dLoc(iLoc) -= XLoc(iLocX,k-1)*YLoc(iLocY,k-1);
+            dLoc(iLoc) = RealPart(dLoc(iLoc));
         }
     }
 

@@ -16,8 +16,7 @@ namespace msquasitrsm {
 //       a thread safety issue.
 
 template<typename F>
-inline void
-LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
+void LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LLNUnb"))
     typedef Base<F> Real;
@@ -51,7 +50,7 @@ LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
                 const F delta22 = LBuf[(k+1)+(k+1)*ldl] - shifts.Get(j,0);
                 // Decompose D = L Q
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta12, &c, &s );
+                const F gamma11 = blas::Givens( delta11, delta12, c, s );
                 const F gamma21 =        c*delta21 + s*delta22;
                 const F gamma22 = -Conj(s)*delta21 + c*delta22;
 
@@ -94,8 +93,7 @@ LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename F>
-inline void
-LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
+void LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LLN"))
     const Int m = X.Height();
@@ -123,8 +121,7 @@ LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
-inline void
-LLNLarge
+void LLNLarge
 ( const ElementalMatrix<F>& LPre,
   const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
@@ -182,8 +179,7 @@ LLNLarge
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
-inline void
-LLNMedium
+void LLNMedium
 ( const ElementalMatrix<F>& LPre,
   const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
@@ -246,8 +242,7 @@ LLNMedium
 
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LLNSmall
+void LLNSmall
 ( const DistMatrix<F,     colDist,STAR        >& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,     colDist,STAR        >& X )

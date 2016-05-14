@@ -16,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateRUN
+void LocalAccumulateRUN
 ( Orientation orientation,
   UnitOrNonUnit diag, T alpha,
   const DistMatrix<T,MC,  MR  >& U,
@@ -65,8 +64,7 @@ LocalAccumulateRUN
 }
 
 template<typename T>
-inline void
-RUNA
+void RUNA
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
@@ -102,7 +100,8 @@ RUNA
 
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
-        Zeros( Z1Trans_MR_STAR, X1.Width(), X1.Height() );
+        Z1Trans_MR_STAR.Resize( X1.Width(), X1.Height() );
+        Zero( Z1Trans_MR_STAR );
         LocalAccumulateRUN
         ( TRANSPOSE, diag, T(1), U, X1_STAR_MC, Z1Trans_MR_STAR );
 
@@ -113,8 +112,7 @@ RUNA
 }
 
 template<typename T>
-inline void
-RUNCOld
+void RUNCOld
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
@@ -166,8 +164,7 @@ RUNCOld
 }
 
 template<typename T>
-inline void
-RUNC
+void RUNC
 ( UnitOrNonUnit diag, 
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
@@ -224,8 +221,7 @@ RUNC
 //   X := X triu(U), and
 //   X := X triuu(U)
 template<typename T>
-inline void
-RUN
+void RUN
 ( UnitOrNonUnit diag,
   const ElementalMatrix<T>& U,
         ElementalMatrix<T>& X )

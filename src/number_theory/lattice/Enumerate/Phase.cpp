@@ -73,15 +73,12 @@ void SparseToCoordinates
     v = y;
 
     // A custom rounded analogue of an upper-triangular solve
-    const F* NBuf = N.LockedBuffer();
-          F* vBuf = v.Buffer();
-    const Int NLDim = N.LDim();
     for( Int j=n-1; j>=0; --j )
     {
         F tau = 0;
         for( Int k=j+1; k<n; ++k ) 
-            tau += NBuf[j+k*NLDim]*vBuf[k];
-        vBuf[j] -= Round(tau);
+            tau += N(j,k)*v(k);
+        v(j) -= Round(tau);
     }
 }
 
@@ -97,17 +94,14 @@ void TransposedSparseToCoordinates
     v = y;
 
     // A custom rounded analogue of an upper-triangular solve
-    const F* NTransBuf = NTrans.LockedBuffer();
-          F* vBuf = v.Buffer();
-    const Int NTransLDim = NTrans.LDim();
     for( Int j=n-1; j>=0; --j )
     {
-        const F* nBuf = &NTransBuf[j*NTransLDim];
+        const F* nBuf = &NTrans(0,j);
 
         F tau = 0;
         for( Int k=j+1; k<n; ++k ) 
-            tau += nBuf[k]*vBuf[k];
-        vBuf[j] -= Round(tau);
+            tau += nBuf[k]*v(k);
+        v(j) -= Round(tau);
     }
 }
 
@@ -123,21 +117,15 @@ void BatchSparseToCoordinatesUnblocked
     const Int numRHS = Y.Width();
 
     // A custom rounded analogue of an upper-triangular solve
-    const F* NBuf = N.LockedBuffer();
-    const F* YBuf = Y.LockedBuffer();
-          F* VBuf = V.Buffer();
-    const Int NLDim = N.LDim();
-    const Int YLDim = Y.LDim();
-    const Int VLDim = V.LDim();
     for( Int l=0; l<numRHS; ++l )
     {
-              F* vBuf = &VBuf[l*VLDim];
-        const F* yBuf = &YBuf[l*YLDim];
+              F* vBuf = &V(0,l);
+        const F* yBuf = &Y(0,l);
         for( Int j=n-1; j>=0; --j )
         {
             F tau = 0;
             for( Int k=j+1; k<n; ++k ) 
-                tau += NBuf[j+k*NLDim]*vBuf[k];
+                tau += N(j,k)*vBuf[k];
             vBuf[j] = yBuf[j] + Round(vBuf[j]-tau); 
         }
     }
@@ -154,19 +142,13 @@ void BatchTransposedSparseToCoordinatesUnblocked
     const Int numRHS = Y.Width();
 
     // A custom rounded analogue of an upper-triangular solve
-    const F* NTransBuf = NTrans.LockedBuffer();
-    const F* YBuf = Y.LockedBuffer();
-          F* VBuf = V.Buffer();
-    const Int NTransLDim = NTrans.LDim();
-    const Int YLDim = Y.LDim();
-    const Int VLDim = V.LDim();
     for( Int l=0; l<numRHS; ++l )
     {
-              F* vBuf = &VBuf[l*VLDim];
-        const F* yBuf = &YBuf[l*YLDim];
+              F* vBuf = &V(0,l);
+        const F* yBuf = &Y(0,l);
         for( Int j=n-1; j>=0; --j )
         {
-            const F* nBuf = &NTransBuf[j*NTransLDim];
+            const F* nBuf = &NTrans(0,j);
 
             F tau = 0;
             for( Int k=j+1; k<n; ++k ) 

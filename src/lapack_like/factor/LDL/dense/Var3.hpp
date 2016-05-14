@@ -29,8 +29,7 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
     )
     typedef Base<F> Real;
     const Int n = A.Height();
-    const Int ldim = A.LDim();
-    F* ABuffer = A.Buffer();
+    const Int ALDim = A.LDim();
 
     if( conjugate )
     {
@@ -38,17 +37,17 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
         {
             const Int a21Height = n - (j+1);
 
-            const Real alpha11 = RealPart(ABuffer[j+j*ldim]);
+            const Real alpha11 = RealPart(A(j,j));
 
             DEBUG_ONLY(
               if( alpha11 == Real(0) )
                   throw ZeroPivotException();
             )
             const Real alpha11Inv = Real(1)/alpha11;
-            F* a21 = &ABuffer[(j+1)+ j   *ldim];
-            F* A22 = &ABuffer[(j+1)+(j+1)*ldim];
+            F* a21 = A.Buffer(j+1,j  );
+            F* A22 = A.Buffer(j+1,j+1);
 
-            blas::Her( 'L', a21Height, -alpha11Inv, a21, 1, A22, ldim );
+            blas::Her( 'L', a21Height, -alpha11Inv, a21, 1, A22, ALDim );
             blas::Scal( a21Height, alpha11Inv, a21, 1 );
         }
     }
@@ -58,16 +57,16 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
         {
             const Int a21Height = n - (j+1);
 
-            const F alpha11 = ABuffer[j+j*ldim];
+            const F alpha11 = A(j,j);
             DEBUG_ONLY(
               if( alpha11 == F(0) )
                   throw ZeroPivotException();
             )
             const F alpha11Inv = Real(1)/alpha11;
-            F* a21 = &ABuffer[(j+1)+ j   *ldim];
-            F* A22 = &ABuffer[(j+1)+(j+1)*ldim];
+            F* a21 = A.Buffer(j+1,j  );
+            F* A22 = A.Buffer(j+1,j+1);
 
-            blas::Syr( 'L', a21Height, -alpha11Inv, a21, 1, A22, ldim );
+            blas::Syr( 'L', a21Height, -alpha11Inv, a21, 1, A22, ALDim );
             blas::Scal( a21Height, alpha11Inv, a21, 1 );
         }
     }

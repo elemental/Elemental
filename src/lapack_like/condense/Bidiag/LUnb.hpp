@@ -46,11 +46,11 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
         //                  \          | v^T |                /
         const F tauP = RightReflector( alpha11, a12 );
-        tP.Set(k,0,tauP);
+        tP(k) = tauP;
 
         // Temporarily set a1R = | 1 v |
-        const F epsilonP = alpha11.Get(0,0);
-        alpha11.Set(0,0,F(1));
+        const F epsilonP = alpha11(0);
+        alpha11(0) = F(1);
 
         // A2R := A2R Hous(a1R^T,tauP)
         //      = A2R (I - tauP a1R^T conj(a1R))
@@ -64,7 +64,7 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         Ger( -tauP, w21, a1R, A2R );
 
         // Put epsilonP back 
-        alpha11.Set(0,0,epsilonP);
+        alpha11(0) = epsilonP;
 
         if( A22.Height() != 0 )
         {
@@ -75,12 +75,12 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilonQ |
             //  \          | u |            / | a21B     | = |    0     |
             const F tauQ = LeftReflector( alpha21T, a21B );
-            tQ.Set(k,0,tauQ);
+            tQ(k) = tauQ;
 
             // Temporarily set a21 = | 1 |
             //                       | u |
-            const F epsilonQ = alpha21T.Get(0,0);
-            alpha21T.Set(0,0,F(1));
+            const F epsilonQ = alpha21T(0);
+            alpha21T(0) = F(1);
 
             // A22 := Hous(a21,tauQ) A22
             //      = (I - tauQ a21 a21^H) A22
@@ -94,7 +94,7 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             Ger( -tauQ, a21, x12Adj, A22 );
 
             // Put epsilonQ back
-            alpha21T.Set(0,0,epsilonQ);
+            alpha21T(0) = epsilonQ;
         }
     }
 }

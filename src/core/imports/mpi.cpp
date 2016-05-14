@@ -8,7 +8,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
 
 // TODO: Introduce macros to shorten the explicit instantiation code
 
@@ -1775,7 +1775,8 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Gather
       ( const_cast<Complex<Real>*>(sbuf), 2*sc, TypeMap<Real>(),
-        rbuf,                             2*rc, TypeMap<Real>(), root, comm.comm ) );
+        rbuf,                             2*rc, TypeMap<Real>(),
+        root, comm.comm ) );
 #else
     SafeMpi
     ( MPI_Gather
@@ -2197,7 +2198,8 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Allgather
       ( const_cast<Complex<Real>*>(sbuf), 2*sc, TypeMap<Real>(),
-        rbuf,                             2*rc, TypeMap<Real>(), comm.comm ) );
+        rbuf,                             2*rc, TypeMap<Real>(),
+        comm.comm ) );
  #else
     SafeMpi
     ( MPI_Allgather
@@ -3013,15 +3015,10 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Complex<Real>>().op; 
-    else
-        opC = op.op;
-
 #ifdef EL_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
+        MPI_Op opC = SumOp<Real>().op;
         SafeMpi
         ( MPI_Reduce
           ( const_cast<Complex<Real>*>(sbuf),
@@ -3030,12 +3027,14 @@ EL_NO_RELEASE_EXCEPT
     }
     else
     {
+        MPI_Op opC = op.op;
         SafeMpi
         ( MPI_Reduce
           ( const_cast<Complex<Real>*>(sbuf),
             rbuf, count, TypeMap<Complex<Real>>(), opC, root, comm.comm ) );
     }
 #else
+    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
     SafeMpi
     ( MPI_Reduce
       ( const_cast<Complex<Real>*>(sbuf), 
@@ -3187,16 +3186,11 @@ EL_NO_RELEASE_EXCEPT
         return;
     if( count != 0 )
     {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Complex<Real>>().op; 
-        else
-            opC = op.op;
-
         const int commRank = Rank( comm );
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MPI_Op opC = SumOp<Real>().op;
             if( commRank == root )
             {
                 SafeMpi
@@ -3211,6 +3205,7 @@ EL_NO_RELEASE_EXCEPT
         }
         else
         {
+            MPI_Op opC = op.op;
             if( commRank == root )
             {
                 SafeMpi
@@ -3225,6 +3220,7 @@ EL_NO_RELEASE_EXCEPT
                     root, comm.comm ) );
         }
 #else
+        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
         if( commRank == root )
         {
             SafeMpi
@@ -3364,15 +3360,10 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(CSE cse("mpi::AllReduce"))
     if( count != 0 )
     {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Complex<Real>>().op; 
-        else
-            opC = op.op;
-
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MPI_Op opC = SumOp<Real>().op; 
             SafeMpi
             ( MPI_Allreduce
                 ( const_cast<Complex<Real>*>(sbuf),
@@ -3380,12 +3371,14 @@ EL_NO_RELEASE_EXCEPT
         }
         else
         {
+            MPI_Op opC = op.op;
             SafeMpi
             ( MPI_Allreduce
               ( const_cast<Complex<Real>*>(sbuf),
                 rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
         }
 #else
+        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
         SafeMpi
         ( MPI_Allreduce
           ( const_cast<Complex<Real>*>(sbuf), 
@@ -3515,27 +3508,24 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 || Size(comm) == 1 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Complex<Real>>().op; 
-    else
-        opC = op.op;
-
 #ifdef EL_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
+        MPI_Op opC = SumOp<Real>().op;
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
     }
     else
     {
+        MPI_Op opC = op.op;
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), 
             opC, comm.comm ) );
     }
 #else
+    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
     SafeMpi
     ( MPI_Allreduce
       ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
@@ -3681,30 +3671,27 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
     if( rc == 0 )
         return;
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Complex<Real>>().op; 
-    else
-        opC = op.op;
 
 #ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
-    AllReduce( sbuf, rc*commSize, opC, comm );
+    AllReduce( sbuf, rc*commSize, op, comm );
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
 #elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
 # ifdef EL_AVOID_COMPLEX_MPI
+    MPI_Op opC = ( op==SUM ? SumOp<Real>().op : op.op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( sbuf, rbuf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
 # else
+    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( sbuf, rbuf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
 # endif
 #else
     const int commSize = Size( comm );
-    Reduce( sbuf, rc*commSize, opC, 0, comm );
+    Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
 }
@@ -3859,16 +3846,13 @@ EL_NO_RELEASE_EXCEPT
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
 #elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Complex<Real>>().op; 
-    else
-        opC = op.op;
 # ifdef EL_AVOID_COMPLEX_MPI
+    MPI_Op opC = ( op==SUM ? SumOp<Real>().op : op.op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
 # else
+    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
@@ -4003,15 +3987,10 @@ void ReduceScatter
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(CSE cse("mpi::ReduceScatter"))
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Complex<Real>>().op; 
-    else
-        opC = op.op;
-
 #ifdef EL_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
+        MPI_Op opC = SumOp<Real>().op;
         int p;
         MPI_Comm_size( comm.comm, &p );
         vector<int> rcsDoubled(p);
@@ -4024,6 +4003,7 @@ EL_NO_RELEASE_EXCEPT
     }
     else
     {
+        MPI_Op opC = op.op;
         SafeMpi
         ( MPI_Reduce_scatter
           ( const_cast<Complex<Real>*>(sbuf),
@@ -4031,6 +4011,7 @@ EL_NO_RELEASE_EXCEPT
             opC, comm.comm ) );
     }
 #else
+    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
     SafeMpi
     ( MPI_Reduce_scatter
       ( const_cast<Complex<Real>*>(sbuf), 
@@ -4178,15 +4159,10 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(CSE cse("mpi::Scan"))
     if( count != 0 )
     {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Complex<Real>>().op; 
-        else
-            opC = op.op;
-
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MPI_Op opC = SumOp<Real>().op;
             SafeMpi
             ( MPI_Scan
               ( const_cast<Complex<Real>*>(sbuf),
@@ -4194,12 +4170,14 @@ EL_NO_RELEASE_EXCEPT
         }
         else
         {
+            MPI_Op opC = op.op;
             SafeMpi
             ( MPI_Scan
               ( const_cast<Complex<Real>*>(sbuf),
                 rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
         }
 #else
+        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
         SafeMpi
         ( MPI_Scan
           ( const_cast<Complex<Real>*>(sbuf), 
@@ -4335,27 +4313,24 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_ONLY(CSE cse("mpi::Scan"))
     if( count != 0 )
     {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Complex<Real>>().op; 
-        else
-            opC = op.op;
-
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MPI_Op opC = SumOp<Real>().op;
             SafeMpi
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
         }
         else
         {
+            MPI_Op opC = op.op;
             SafeMpi
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 comm.comm ) );
         }
 #else
+        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
         SafeMpi
         ( MPI_Scan
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 

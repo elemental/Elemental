@@ -133,8 +133,6 @@ void Front<F>::Pull
             }
             front.workSparse.Reserve( numEntriesTopLeft ); 
 
-            F* LDenseBuf = front.LDense.Buffer();
-            const Int LDenseLDim = front.LDense.LDim();
             for( Int t=0; t<node.size; ++t )
             {
                 const Int j = invReorder[node.off+t];
@@ -165,7 +163,7 @@ void Front<F>::Pull
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
-                        LDenseBuf[(row-node.size)+t*LDenseLDim] = value;
+                        front.LDense(row-node.size,t) = value;
                     }
                 }
             }
@@ -175,8 +173,6 @@ void Front<F>::Pull
         else
         {
             Zeros( front.LDense, node.size+lowerSize, node.size );
-            F* LDenseBuf = front.LDense.Buffer();
-            const Int LDenseLDim = front.LDense.LDim();
             for( Int t=0; t<node.size; ++t )
             {
                 const Int j = invReorder[node.off+t];
@@ -194,7 +190,7 @@ void Front<F>::Pull
                         continue;
                     else if( i < node.off+node.size )
                     {
-                        LDenseBuf[(i-node.off)+t*LDenseLDim] = value;
+                        front.LDense(i-node.off,t) = value;
                     }
                     else
                     {
@@ -204,7 +200,7 @@ void Front<F>::Pull
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
-                        LDenseBuf[row+t*LDenseLDim] = value;
+                        front.LDense(row,t) = value;
                     }
                 }
             }
@@ -246,9 +242,6 @@ void Front<F>::PullUpdate
         const Int* AColBuf = A.LockedTargetBuffer();
         const Int* AOffsetBuf = A.LockedOffsetBuffer();
 
-        F* LDenseBuf = front.LDense.Buffer();
-        const Int LDenseLDim = front.LDense.LDim();
-
         if( front.sparseLeaf )
         {
             LogicError("Sparse leaves not yet handled in Front::PullUpdate");
@@ -272,7 +265,7 @@ void Front<F>::PullUpdate
                         continue;
                     else if( i < node.off+node.size )
                     {
-                        LDenseBuf[(i-node.off)+t*LDenseLDim] += value;
+                        front.LDense(i-node.off,t) += value;
                     }
                     else
                     {
@@ -282,7 +275,7 @@ void Front<F>::PullUpdate
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
-                        LDenseBuf[row+t*LDenseLDim] += value;
+                        front.LDense(row,t) += value;
                     }
                 }
             }

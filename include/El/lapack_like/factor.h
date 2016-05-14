@@ -10,6 +10,7 @@
 #define EL_LAPACK_FACTOR_C_H
 
 #include <El/core/DistMatrix.h>
+#include <El/lapack_like/perm.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -1234,6 +1235,10 @@ EL_EXPORT ElError ElSkeletonDist_z
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/lapack_like/factor/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_LAPACK_FACTOR_C_H */

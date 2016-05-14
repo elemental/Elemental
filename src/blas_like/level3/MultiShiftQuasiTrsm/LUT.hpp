@@ -11,8 +11,7 @@ namespace El {
 namespace msquasitrsm {
 
 template<typename F>
-inline void
-LUTUnb
+void LUTUnb
 ( bool conjugate, const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LUTUnb"))
@@ -51,7 +50,7 @@ LUTUnb
                 const F delta22 = UBuf[(k+1)+(k+1)*ldU] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta21, &c, &s );
+                const F gamma11 = blas::Givens( delta11, delta21, c, s );
                 const F gamma12 =        c*delta12 + s*delta22;
                 const F gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -95,8 +94,7 @@ LUTUnb
 }
 
 template<typename Real>
-inline void
-LUTUnb
+void LUTUnb
 ( bool conjugate, 
   const Matrix<Real>& U, 
   const Matrix<Complex<Real>>& shifts, 
@@ -141,7 +139,7 @@ LUTUnb
                 const C delta22 = UBuf[(k+1)+(k+1)*ldU] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; C s;
-                const C gamma11 = blas::Givens( delta11, C(delta21), &c, &s );
+                const C gamma11 = blas::Givens( delta11, C(delta21), c, s );
                 const C gamma12 =        c*delta12 + s*delta22;
                 const C gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -204,8 +202,7 @@ LUTUnb
 }
 
 template<typename F>
-inline void
-LUT
+void LUT
 ( Orientation orientation, 
   const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
@@ -245,8 +242,7 @@ LUT
 }
 
 template<typename Real>
-inline void
-LUT
+void LUT
 ( Orientation orientation, 
   const Matrix<Real>& U, 
   const Matrix<Complex<Real>>& shifts, 
@@ -292,8 +288,7 @@ LUT
 
 // width(X) >> p
 template<typename F>
-inline void
-LUTLarge
+void LUTLarge
 ( Orientation orientation, 
   const ElementalMatrix<F>& UPre,
   const ElementalMatrix<F>& shiftsPre,
@@ -357,8 +352,7 @@ LUTLarge
 }
 
 template<typename Real>
-inline void
-LUTLarge
+void LUTLarge
 ( Orientation orientation, 
   const ElementalMatrix<Real>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
@@ -441,8 +435,7 @@ LUTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LUTMedium
+void LUTMedium
 ( Orientation orientation, 
   const ElementalMatrix<F>& UPre,
   const ElementalMatrix<F>& shiftsPre, 
@@ -512,8 +505,7 @@ LUTMedium
 }
 
 template<typename Real>
-inline void
-LUTMedium
+void LUTMedium
 ( Orientation orientation, 
   const ElementalMatrix<Real>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
@@ -598,8 +590,7 @@ LUTMedium
 
 // width(X) << p
 template<typename F,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LUTSmall
+void LUTSmall
 ( Orientation orientation, 
   const DistMatrix<F,STAR,             rowDist>& U, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts,
@@ -656,8 +647,7 @@ LUTSmall
 }
 
 template<typename Real,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LUTSmall
+void LUTSmall
 ( Orientation orientation, 
   const DistMatrix<Real,STAR,         rowDist>& U, 
   const DistMatrix<Complex<Real>,shiftColDist,shiftRowDist>& shifts,

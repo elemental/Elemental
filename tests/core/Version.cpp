@@ -13,7 +13,7 @@ int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    const Int commRank = mpi::Rank();
+    const Int commRank = mpi::Rank(mpi::COMM_WORLD);
 
     if( commRank == 0 )
     {

@@ -17,8 +17,7 @@ namespace quasitrsm {
 //   X := triuu(U)^-H X
 
 template<typename F>
-inline void
-LUTUnb
+void LUTUnb
 ( bool conjugate,
   const Matrix<F>& U,
         Matrix<F>& X,
@@ -57,7 +56,7 @@ LUTUnb
             const F delta22 = UBuf[(k+1)+(k+1)*ldu];
             // Decompose D = Q R
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+            const F gamma11 = lapack::Givens( delta11, delta21, c, s );
             const F gamma12 =        c*delta12 + s*delta22;
             const F gamma22 = -Conj(s)*delta12 + c*delta22;
             if( checkIfSingular )
@@ -114,8 +113,7 @@ LUTUnb
 }
 
 template<typename F>
-inline void
-LUT
+void LUT
 ( Orientation orientation,
   const Matrix<F>& U,
         Matrix<F>& X,
@@ -153,8 +151,7 @@ LUT
 
 // width(X) >> p
 template<typename F>
-inline void
-LUTLarge
+void LUTLarge
 ( Orientation orientation, 
   const ElementalMatrix<F>& UPre,
         ElementalMatrix<F>& XPre,
@@ -217,8 +214,7 @@ LUTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LUTMedium
+void LUTMedium
 ( Orientation orientation, 
   const ElementalMatrix<F>& UPre,
         ElementalMatrix<F>& XPre, 
@@ -282,8 +278,7 @@ LUTMedium
 
 // width(X) << p
 template<typename F,Dist rowDist>
-inline void
-LUTSmall
+void LUTSmall
 ( Orientation orientation, 
   const DistMatrix<F,STAR,rowDist>& U,
         DistMatrix<F,rowDist,STAR>& X,

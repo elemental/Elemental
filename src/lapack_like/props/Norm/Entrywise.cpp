@@ -21,7 +21,7 @@ Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p )
     const Int height = A.Height();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            sum += Pow( Abs(A.Get(i,j)), p );
+            sum += Pow( Abs(A(i,j)), p );
     return Pow( sum, 1/p );
 }
 
@@ -57,7 +57,7 @@ Base<F> HermitianEntrywiseNorm
         {
             for( Int i=0; i<j; ++i )
             {
-                const Real term = Pow( Abs(A.Get(i,j)), p );
+                const Real term = Pow( Abs(A(i,j)), p );
                 if( i ==j )
                     sum += term;
                 else
@@ -71,7 +71,7 @@ Base<F> HermitianEntrywiseNorm
         {
             for( Int i=j+1; i<height; ++i )
             {
-                const Real term = Pow( Abs(A.Get(i,j)), p );
+                const Real term = Pow( Abs(A(i,j)), p );
                 if( i ==j )
                     sum += term;
                 else
@@ -130,9 +130,10 @@ Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
         Real localSum = 0;
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
+        const Matrix<F>& ALoc = A.LockedMatrix();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                localSum += Pow( Abs(A.GetLocal(iLoc,jLoc)), p ); 
+                localSum += Pow( Abs(ALoc(iLoc,jLoc)), p );
         const Real sum = mpi::AllReduce( localSum, A.DistComm() );
         norm = Pow( sum, 1/p );
     }
@@ -160,11 +161,12 @@ Base<F> EntrywiseNorm( const DistMultiVec<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CSE cse("EntrywiseNorm"))
     typedef Base<F> Real;
+    const Matrix<F>& ALoc = A.LockedMatrix();
 
     Real localSum = 0;
     for( Int j=0; j<A.Width(); ++j )
         for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
-            localSum += Pow( Abs(A.GetLocal(iLoc,j)), p ); 
+            localSum += Pow( Abs(ALoc(iLoc,j)), p );
 
     const Real sum = mpi::AllReduce( localSum, A.Comm() );
     return Pow( sum, Real(1)/p );
@@ -184,6 +186,7 @@ Base<F> HermitianEntrywiseNorm
     {
         Real localSum = 0;
         const Int localWidth = A.LocalWidth();
+        const Matrix<F>& ALoc = A.LockedMatrix();
         if( uplo == UPPER )
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -193,7 +196,7 @@ Base<F> HermitianEntrywiseNorm
                 for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    const Real term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
+                    const Real term = Pow( Abs(ALoc(iLoc,jLoc)), p );
                     if( i ==j )
                         localSum += term;
                     else
@@ -211,7 +214,7 @@ Base<F> HermitianEntrywiseNorm
                      iLoc<A.LocalHeight(); ++iLoc )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    const Real term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
+                    const Real term = Pow( Abs(ALoc(iLoc,jLoc)), p );
                     if( i ==j )
                         localSum += term;
                     else

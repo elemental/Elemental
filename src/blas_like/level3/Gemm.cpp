@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Gemm/NN.hpp"
 #include "./Gemm/NT.hpp"
@@ -80,7 +81,8 @@ void Gemm
     DEBUG_ONLY(CSE cse("Gemm"))
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
-    Zeros( C, m, n );
+    C.Resize( m, n );
+    Zero( C );
     Gemm( orientA, orientB, alpha, A, B, T(0), C );
 }
 
@@ -125,7 +127,8 @@ void Gemm
     DEBUG_ONLY(CSE cse("Gemm"))
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
-    Zeros( C, m, n );
+    C.Resize( m, n );
+    Zero( C );
     Gemm( orientA, orientB, alpha, A, B, T(0), C, alg );
 }
 
@@ -250,7 +253,8 @@ void LocalGemm
     DEBUG_ONLY(CSE cse("LocalGemm"))
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
-    Zeros( C, m, n );
+    C.Resize( m, n );
+    Zero( C );
     LocalGemm( orientA, orientB, alpha, A, B, T(0), C );
 }
 

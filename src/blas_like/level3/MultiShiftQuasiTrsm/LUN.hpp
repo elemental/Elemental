@@ -11,8 +11,7 @@ namespace El {
 namespace msquasitrsm {
 
 template<typename F>
-inline void
-LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
+void LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(
       CSE cse("msquasitrsm::LUNUnb");
@@ -55,7 +54,7 @@ LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
                 const F delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta21, &c, &s );
+                const F gamma11 = blas::Givens( delta11, delta21, c, s );
                 const F gamma12 =        c*delta12 + s*delta22;
                 const F gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -93,8 +92,7 @@ LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename Real>
-inline void
-LUNUnb
+void LUNUnb
 ( const Matrix<Real>& U, 
   const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
@@ -144,7 +142,7 @@ LUNUnb
                 const C delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; C s;
-                const C gamma11 = blas::Givens( delta11, C(delta21), &c, &s );
+                const C gamma11 = blas::Givens( delta11, C(delta21), c, s );
                 const C gamma12 =        c*delta12 + s*delta22;
                 const C gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -200,8 +198,7 @@ LUNUnb
 }
 
 template<typename F>
-inline void
-LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
+void LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(CSE cse("msquasitrsm::LUN"))
     const Int m = X.Height();
@@ -236,8 +233,7 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename Real>
-inline void
-LUN
+void LUN
 ( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
@@ -277,8 +273,7 @@ LUN
 }
 
 template<typename F>
-inline void
-LUNLarge
+void LUNLarge
 ( const ElementalMatrix<F>& UPre,
   const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
@@ -343,8 +338,7 @@ LUNLarge
 }
 
 template<typename Real>
-inline void
-LUNLarge
+void LUNLarge
 ( const ElementalMatrix<Real>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
         ElementalMatrix<Real>& XRealPre, 
@@ -428,8 +422,7 @@ LUNLarge
 }
 
 template<typename F>
-inline void
-LUNMedium
+void LUNMedium
 ( const ElementalMatrix<F>& UPre,
   const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
@@ -499,8 +492,7 @@ LUNMedium
 }
 
 template<typename Real>
-inline void
-LUNMedium
+void LUNMedium
 ( const ElementalMatrix<Real>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
         ElementalMatrix<Real>& XRealPre, 
@@ -587,8 +579,7 @@ LUNMedium
 }
 
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LUNSmall
+void LUNSmall
 ( const DistMatrix<F,     colDist,STAR        >& U, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<F,     colDist,STAR        >& X )
@@ -649,8 +640,7 @@ LUNSmall
 }
 
 template<typename Real,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LUNSmall
+void LUNSmall
 ( const DistMatrix<Real,              colDist,STAR        >& U, 
   const DistMatrix<Complex<Real>,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<Real,              colDist,STAR        >& XReal,

@@ -9,6 +9,8 @@
 #ifndef EL_FACTOR_HPP
 #define EL_FACTOR_HPP
 
+#include <El/lapack_like/perm.hpp>
+#include <El/lapack_like/util.hpp>
 #include <El/lapack_like/factor/ldl/sparse/symbolic.hpp>
 #include <El/lapack_like/factor/ldl/sparse/numeric.hpp>
 

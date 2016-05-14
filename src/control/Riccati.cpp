@@ -6,7 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/lapack_like/funcs.hpp>
+#include <El/lapack_like/euclidean_min.hpp>
+#include <El/control.hpp>
 
 namespace El {
 
@@ -20,10 +24,10 @@ namespace El {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-void Ricatti
+void Riccati
 ( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Ricatti"))
+    DEBUG_ONLY(CSE cse("Riccati"))
     Sign( W, ctrl );
     const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
@@ -43,12 +47,12 @@ void Ricatti
 }
 
 template<typename F>
-void Ricatti
+void Riccati
 ( ElementalMatrix<F>& WPre,
   ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Ricatti"))
+    DEBUG_ONLY(CSE cse("Riccati"))
 
     DistMatrixReadProxy<F,F,MC,MR> WProx( WPre );
     auto& W = WProx.Get();
@@ -73,7 +77,7 @@ void Ricatti
 }
 
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo, 
   const Matrix<F>& A,
   const Matrix<F>& K,
@@ -95,7 +99,8 @@ void Ricatti
     const Int n = A.Height();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
-    Zeros( W, 2*n, 2*n );
+    W.Resize( 2*n, 2*n );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, n );
@@ -105,11 +110,11 @@ void Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    Ricatti( W, X, ctrl );
+    Riccati( W, X, ctrl );
 }
 
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo, 
   const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& K, 
@@ -133,7 +138,8 @@ void Ricatti
     const Int n = A.Height();
     DistMatrix<F> W(g), WTL(g), WTR(g),
                         WBL(g), WBR(g);
-    Zeros( W, 2*n, 2*n );
+    W.Resize( 2*n, 2*n );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, n );
@@ -143,26 +149,26 @@ void Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    Ricatti( W, X, ctrl );
+    Riccati( W, X, ctrl );
 }
 
 #define PROTO(F) \
-  template void Ricatti \
+  template void Riccati \
   ( Matrix<F>& W, \
     Matrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
-  template void Ricatti \
+  template void Riccati \
   ( ElementalMatrix<F>& W, \
     ElementalMatrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
-  template void Ricatti \
+  template void Riccati \
   ( UpperOrLower uplo, \
     const Matrix<F>& A, \
     const Matrix<F>& K, \
     const Matrix<F>& L, \
           Matrix<F>& X, \
     SignCtrl<Base<F>> ctrl ); \
-  template void Ricatti \
+  template void Riccati \
   ( UpperOrLower uplo, \
     const ElementalMatrix<F>& A, \
     const ElementalMatrix<F>& K, \
@@ -171,6 +177,10 @@ void Ricatti
     SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

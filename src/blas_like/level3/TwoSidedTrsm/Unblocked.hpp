@@ -13,8 +13,7 @@ namespace El {
 namespace twotrsm {
 
 template<typename F>
-inline void
-LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
+void LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
     DEBUG_ONLY(CSE cse("twotrsm::LUnb"))
     // Use the Variant 4 algorithm
@@ -66,8 +65,7 @@ LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 }
 
 template<typename F>
-inline void
-UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(CSE cse("twotrsm::UUnb"))
     // Use the Variant 4 algorithm

@@ -13,11 +13,6 @@ namespace El {
 
 // Input/Output
 // ------------
-inline ElFileFormat CReflect( FileFormat format )
-{ return static_cast<ElFileFormat>(format); }
-inline FileFormat CReflect( ElFileFormat format )
-{ return static_cast<FileFormat>(format); }
-
 inline ElColorMap CReflect( ColorMap map )
 { return static_cast<ElColorMap>(map); }
 inline ColorMap CReflect( ElColorMap map )

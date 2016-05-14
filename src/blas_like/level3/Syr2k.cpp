@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Syr2k/LN.hpp"
 #include "./Syr2k/LT.hpp"
@@ -65,7 +67,8 @@ void Syr2k
 {
     DEBUG_ONLY(CSE cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
 }
 
@@ -95,7 +98,8 @@ void Syr2k
 {
     DEBUG_ONLY(CSE cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
 }
 

@@ -195,13 +195,11 @@ static void PullLocalUnpackMulti
         ( *info.children[c], recvVals, mappedOwners, *XNode.children[c],
           off, offs, width );
 
-    T* XNodeBuf = XNode.matrix.Buffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
     for( Int t=0; t<info.size; ++t )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            XNodeBuf[t+j*XNodeLDim] = recvVals[offs[q]++];
+            XNode.matrix(t,j) = recvVals[offs[q]++];
     }
 }
 
@@ -251,13 +249,12 @@ static void PullUnpackMulti
     ( *info.child, recvVals, mappedOwners, *XNode.child, off, offs, width );
 
     const Int localHeight = XNode.matrix.LocalHeight();
-    T* XNodeBuf = XNode.matrix.Buffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
+    Matrix<T>& XNodeLoc = XNode.matrix.Matrix();
     for( Int tLoc=0; tLoc<localHeight; ++tLoc )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            XNodeBuf[tLoc+j*XNodeLDim] = recvVals[offs[q]++];
+            XNodeLoc(tLoc,j) = recvVals[offs[q]++];
     }
 }
 
@@ -270,8 +267,7 @@ void DistMultiVecNode<T>::Pull
 {
     DEBUG_ONLY(CSE cse("DistMultiVecNode::Pull"))
     const Int width = X.Width();
-    const T* XBuf = X.LockedMatrix().LockedBuffer();
-    const Int XLDim = X.LockedMatrix().LDim();
+    const Matrix<T>& XLoc = X.LockedMatrix();
     const Int firstLocalRow = X.FirstLocalRow();
     mpi::Comm comm = X.Comm();
     const int commSize = mpi::Size( comm );
@@ -288,14 +284,13 @@ void DistMultiVecNode<T>::Pull
     if( width == 1 )
     {
         for( Int s=0; s<numSendInds; ++s )
-            sendVals[s] = XBuf[meta.recvInds[s]-firstLocalRow];
+            sendVals[s] = XLoc(meta.recvInds[s]-firstLocalRow,0);
     }
     else
     {
         for( Int s=0; s<numSendInds; ++s )
             for( Int j=0; j<width; ++j )
-                sendVals[s*width+j] = 
-                  XBuf[meta.recvInds[s]-firstLocalRow+j*XLDim];
+                sendVals[s*width+j] = XLoc(meta.recvInds[s]-firstLocalRow,j);
     }
 
     // Reply with the values
@@ -380,14 +375,12 @@ static void PushLocalPackMulti
         ( *node.children[c], *XNode.children[c], mappedOwners,
           sendVals, off, offs );
 
-    const T* XNodeBuf = XNode.matrix.LockedBuffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
     const Int width = XNode.matrix.Width();
     for( Int t=0; t<node.size; ++t )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            sendVals[offs[q]*width+j] = XNodeBuf[t+j*XNodeLDim];
+            sendVals[offs[q]*width+j] = XNode.matrix(t,j);
         offs[q]++; 
     }
 }
@@ -439,14 +432,13 @@ static void PushPackMulti
     ( *node.child, *XNode.child, mappedOwners, sendVals, off, offs );
     
     const Int localHeight = XNode.matrix.LocalHeight();
-    const T* XNodeBuf = XNode.matrix.LockedBuffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
     const Int width = XNode.matrix.Width();
+    const Matrix<T>& XNodeLoc = XNode.matrix.LockedMatrix(); 
     for( Int tLoc=0; tLoc<localHeight; ++tLoc )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            sendVals[offs[q]*width+j] = XNodeBuf[tLoc+j*XNodeLDim];
+            sendVals[offs[q]*width+j] = XNodeLoc(tLoc,j);
         offs[q]++;
     }
 }
@@ -607,8 +599,7 @@ void DistMultiVecNode<T>::Push
     X.SetComm( comm );
     X.Resize( height, width );
     const Int firstLocalRow = X.FirstLocalRow();
-    T* XBuf = X.Matrix().Buffer();
-    const Int XLDim = X.Matrix().LDim();
+    Matrix<T>& XLoc = X.Matrix();
 
     meta.Initialize( *this, info, invMap, X );
     const int numSendInds = meta.mappedOwners.size();
@@ -661,7 +652,7 @@ void DistMultiVecNode<T>::Push
         {
             const Int i = meta.recvInds[s];
             const Int iLoc = i - firstLocalRow;
-            XBuf[iLoc] = recvVals[s];
+            XLoc(iLoc) = recvVals[s];
         }
     }
     else
@@ -671,7 +662,7 @@ void DistMultiVecNode<T>::Push
             const Int i = meta.recvInds[s];
             const Int iLoc = i - firstLocalRow;
             for( Int j=0; j<width; ++j )
-                XBuf[iLoc+j*XLDim] = recvVals[s*width+j];
+                XLoc(iLoc,j) = recvVals[s*width+j];
         }
         for( int q=0; q<commSize; ++q )
         {

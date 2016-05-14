@@ -13,7 +13,7 @@ namespace symv {
 // s += alpha A  q
 // t += alpha A' r
 template<typename T>
-inline void FusedRowPanelGemvs
+void FusedRowPanelGemvs
 ( bool conjugate, T alpha, 
   const Matrix<T>& A, const Matrix<T>& q, const Matrix<T>& r, 
                             Matrix<T>& s,       Matrix<T>& t,
@@ -41,7 +41,7 @@ inline void FusedRowPanelGemvs
 }
 
 template<typename T>
-inline void LocalColAccumulateUGeneral
+void LocalColAccumulateUGeneral
 ( T alpha, 
   const DistMatrix<T>& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -118,7 +118,7 @@ inline void LocalColAccumulateUGeneral
 }
 
 template<typename T>
-inline void LocalColAccumulateUSquareTwoTrmv
+void LocalColAccumulateUSquareTwoTrmv
 ( T alpha, 
   const DistMatrix<T>& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -246,7 +246,7 @@ inline void LocalColAccumulateUSquareTwoTrmv
 }
 
 template<typename T>
-inline void LocalColAccumulateU
+void LocalColAccumulateU
 ( T alpha, 
   const DistMatrix<T>& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -266,7 +266,7 @@ inline void LocalColAccumulateU
 }
 
 template<typename T>
-inline void LocalRowAccumulateU
+void LocalRowAccumulateU
 ( T alpha, 
   const DistMatrix<T>& A,
   const DistMatrix<T,STAR,MC>& x_STAR_MC,

@@ -15,8 +15,7 @@ namespace quasitrsm {
 //   X := triuu(U)^-1 X
 
 template<typename F>
-inline void
-LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
+void LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LUNUnb"))
     const Int m = X.Height();
@@ -50,7 +49,7 @@ LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
             const F delta22 = UBuf[(k+1)+(k+1)*ldu];
             // Decompose D = Q R
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+            const F gamma11 = lapack::Givens( delta11, delta21, c, s );
             const F gamma12 =        c*delta12 + s*delta22;
             const F gamma22 = -Conj(s)*delta12 + c*delta22;
             if( checkIfSingular )
@@ -98,8 +97,7 @@ LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 }
 
 template<typename F>
-inline void
-LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
+void LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(CSE cse("quasitrsm::LUN"))
     const Int m = X.Height();
@@ -134,8 +132,7 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 }
 
 template<typename F>
-inline void
-LUNLarge
+void LUNLarge
 ( const ElementalMatrix<F>& UPre,
         ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
@@ -198,8 +195,7 @@ LUNLarge
 }
 
 template<typename F>
-inline void
-LUNMedium
+void LUNMedium
 ( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
@@ -261,9 +257,9 @@ LUNMedium
 }
 
 template<typename F,Dist colDist>
-inline void
-LUNSmall
-( const DistMatrix<F,colDist,STAR>& U, DistMatrix<F,colDist,STAR>& X,
+void LUNSmall
+( const DistMatrix<F,colDist,STAR>& U,
+        DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

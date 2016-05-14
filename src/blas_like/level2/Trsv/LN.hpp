@@ -11,8 +11,7 @@ namespace El {
 namespace trsv {
 
 template<typename F>
-inline void
-LN
+void LN
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& xPre )
@@ -53,7 +52,8 @@ LN
         DistMatrix<F,MC,STAR> z1_MC_STAR(g), z2_MC_STAR(g);
 
         z_MC_STAR.AlignWith( L );
-        Zeros( z_MC_STAR, m, 1 );
+        z_MC_STAR.Resize( m, 1 );
+        Zero( z_MC_STAR );
 
         for( Int k=0; k<m; k+=bsize )
         {
@@ -92,7 +92,8 @@ LN
         DistMatrix<F,STAR,MC> z1_STAR_MC(g), z2_STAR_MC(g);
 
         z_STAR_MC.AlignWith( L );
-        Zeros( z_STAR_MC, 1, m );
+        z_STAR_MC.Resize( 1, m );
+        Zero( z_STAR_MC );
 
         for( Int k=0; k<m; k+=bsize )
         {

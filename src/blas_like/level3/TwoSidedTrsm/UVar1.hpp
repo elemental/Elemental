@@ -13,8 +13,7 @@ namespace El {
 namespace twotrsm {
 
 template<typename F> 
-inline void
-UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::UVar1");
@@ -47,7 +46,8 @@ UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         auto U11 = U( ind1, ind1 );
 
         // Y01 := A00 U01
-        Zeros( Y01, A01.Height(), A01.Width() );
+        Y01.Resize( A01.Height(), A01.Width() );
+        Zero( Y01 );
         Hemm( LEFT, UPPER, F(1), A00, U01, F(0), Y01 );
 
         // A01 := inv(U00)' A01
@@ -71,8 +71,7 @@ UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 }
 
 template<typename F> 
-inline void
-UVar1
+void UVar1
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )
@@ -130,8 +129,10 @@ UVar1
         U01_VR_STAR.AdjointPartialColAllGather( U01Adj_STAR_MR );
         Z01_MC_STAR.AlignWith( A00 );
         Z01_MR_STAR.AlignWith( A00 );
-        Zeros( Z01_MC_STAR, A01.Height(), A01.Width() );
-        Zeros( Z01_MR_STAR, A01.Height(), A01.Width() );
+        Z01_MC_STAR.Resize( A01.Height(), A01.Width() );
+        Z01_MR_STAR.Resize( A01.Height(), A01.Width() );
+        Zero( Z01_MC_STAR );
+        Zero( Z01_MR_STAR );
         symm::LocalAccumulateLU
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, Z01_MC_STAR, Z01_MR_STAR );
@@ -154,7 +155,8 @@ UVar1
         A01_VC_STAR = A01;
         U01_VC_STAR.AlignWith( A00 );
         U01_VC_STAR = U01_MC_STAR;
-        Zeros( X11_STAR_STAR, A11.Height(), A11.Width() );
+        X11_STAR_STAR.Resize( A11.Height(), A11.Width() );
+        Zero( X11_STAR_STAR );
         Her2k
         ( UPPER, ADJOINT,
           F(-1), A01_VC_STAR.Matrix(), U01_VC_STAR.Matrix(),

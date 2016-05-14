@@ -17,7 +17,6 @@ int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -72,12 +71,14 @@ int main( int argc, char* argv[] )
         Matrix<double> YOrigNorms;
         ColumnTwoNorms( Y, YOrigNorms );
         mpi::Barrier( comm );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         OutputFromRoot(comm,"Solving...");
         timer.Start();
         SymmetricSolve( A, Y, conjugate, tryLDL, ctrl );
-        OutputFromRoot(comm,timer.Stop()," seconds");
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
 
         OutputFromRoot(comm,"Checking error in computed solution...");
         Matrix<double> XNorms, YNorms;

@@ -162,6 +162,113 @@ template<typename Real,typename>
 Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
+// Safe division (in the sense of Baudin and Smith)
+// ------------------------------------------------
+namespace safe_div {
+
+template<typename Real>
+Real InternalRealPart
+( const Real& a,
+  const Real& b,
+  const Real& c,
+  const Real& d,
+  const Real& r,
+  const Real& t )
+{
+    const Real zero = Real(0);
+    if( r != zero )
+    {
+        Real br = b*r;
+        if( br != zero )
+        {
+            return (a + br)*t;
+        }
+        else
+        {
+            return a*t + (b*t)*r;
+        }
+    }
+    else
+    {
+        return (a + d*(b/c))*t;
+    }
+}
+
+template<typename Real>
+Complex<Real> Subinternal
+( const Real& a,
+  const Real& b,
+  const Real& c,
+  const Real& d )
+{
+    Real r = d/c;
+    Real t = 1/(c + d*r);
+    Real e = safe_div::InternalRealPart(a,b,c,d,r,t);
+    Real f = safe_div::InternalRealPart(b,-a,c,d,r,t);
+    return Complex<Real>(e,f);
+}
+
+template<typename Real>
+Complex<Real> Internal
+( const Complex<Real>& x,
+  const Complex<Real>& y )
+{
+    const Real a = x.real();
+    const Real b = x.imag();
+    const Real c = y.real();
+    const Real d = y.imag();
+    if( Abs(d) <= Abs(c) )
+        return safe_div::Subinternal(a,b,c,d);
+    else
+        return Conj(safe_div::Subinternal(b,a,d,c));
+}
+
+} // namespace safe_div
+
+template<typename Real,typename>
+Real SafeDiv( const Real& x, const Real& y )
+{ return x / y; }
+
+template<typename Real,typename>
+Complex<Real> SafeDiv
+( const Complex<Real>& x,
+  const Complex<Real>& y )
+{
+    const Real xMax = MaxAbs( x );
+    const Real yMax = MaxAbs( y );
+    const Real beta = 2;
+    const Real overflow = limits::Max<Real>();
+    const Real underflow = limits::SafeMin<Real>();
+    const Real eps = limits::Epsilon<Real>();
+    const Real betaEpsSq = beta / (eps*eps);
+
+    Real sigma=1;
+    Complex<Real> xScaled(x), yScaled(y);
+    if( xMax >= overflow/2 )
+    {
+        xScaled /= 2;
+        sigma *= 2;
+    }
+    if( yMax >= overflow/2 )
+    {
+        yScaled /= 2;
+        sigma /= 2;
+    }
+    if( xMax <= underflow*beta/eps )
+    {
+        xScaled *= betaEpsSq;
+        sigma /= betaEpsSq;
+    }
+    if( yMax <= underflow*beta/eps )
+    {
+        yScaled *= betaEpsSq;
+        sigma *= betaEpsSq;
+    }
+
+    Complex<Real> z = safe_div::Internal(xScaled,yScaled);
+    return z*sigma;
+}
+
 // Magnitude and sign
 // ==================
 template<typename T,typename>
@@ -175,12 +282,20 @@ Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
 
 template<typename Real,typename>
-Real FastAbs( const Real& alpha ) EL_NO_EXCEPT
+Real OneAbs( const Real& alpha ) EL_NO_EXCEPT
 { return Abs(alpha); }
 
 template<typename Real,typename>
-Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
+Real OneAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
+
+template<typename Real,typename>
+Real MaxAbs( const Real& alpha ) EL_NO_EXCEPT
+{ return Abs(alpha); }
+
+template<typename Real,typename>
+Real MaxAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
+{ return Max(Abs(RealPart(alpha)),Abs(ImagPart(alpha))); }
 
 template<typename Real,typename>
 Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT

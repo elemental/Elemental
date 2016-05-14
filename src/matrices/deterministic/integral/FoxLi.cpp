@@ -88,18 +88,17 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
 
     // Form the integral operator
     A.Resize( n, n );
-    DistMatrix<Real,MC,STAR> x_MC_STAR( A.Grid() );
-    DistMatrix<Real,MR,STAR> x_MR_STAR( A.Grid() );
-    x_MC_STAR.AlignWith( A ); 
-    x_MR_STAR.AlignWith( A );
-    x_MC_STAR = x;
-    x_MR_STAR = x;
+    DistMatrix<Real,MC,STAR> x_MC( A.Grid() );
+    DistMatrix<Real,MR,STAR> x_MR( A.Grid() );
+    x_MC.AlignWith( A ); 
+    x_MR.AlignWith( A );
+    x_MC = x;
+    x_MR = x;
     for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
     {
         for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
         {
-            const Real diff = x_MC_STAR.GetLocal(iLoc,0)-
-                              x_MR_STAR.GetLocal(jLoc,0);
+            const Real diff = x_MC.GetLocal(iLoc,0)-x_MR.GetLocal(jLoc,0);
             const Real theta = -omega*Pow(diff,2);
             const Real realPart = Cos(theta);
             const Real imagPart = Sin(theta);

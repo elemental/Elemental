@@ -23,7 +23,6 @@ void TestAssociativity
     // Test (alpha op(A) op(B) + beta C) X = alpha op(A) (op(B) X) + beta C X
     const Int numRHS = 100;
     const Int m = COrig.Height();
-    const Int n = COrig.Width();
     const Grid& g = A.Grid();
     DistMatrix<T> X(g), Y(g), Z(g);
     Uniform( X, m, numRHS );

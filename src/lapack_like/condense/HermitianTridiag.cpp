@@ -8,6 +8,39 @@
 */
 #include <El.hpp>
 
+namespace El {
+namespace herm_tridiag {
+
+template<typename F>
+void Ger2Sub
+( const DistMatrix<F,MC,STAR>& x_MC,
+  const DistMatrix<F,MC,STAR>& y_MC,
+  const DistMatrix<F,MR,STAR>& x_MR,
+  const DistMatrix<F,MR,STAR>& y_MR,
+        DistMatrix<F,MC,MR  >& A )
+{
+    DEBUG_ONLY(CSE cse("herm_tridiag::Ger2Sub"))
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const F* x_MC_Buf = x_MC.LockedBuffer();
+    const F* x_MR_Buf = x_MR.LockedBuffer();
+    const F* y_MC_Buf = y_MC.LockedBuffer();
+    const F* y_MR_Buf = y_MR.LockedBuffer();
+
+    Matrix<F>& ALoc = A.Matrix();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const F delta = Conj(x_MR_Buf[jLoc]);
+        const F gamma = Conj(y_MR_Buf[jLoc]);
+        F* aLoc = &ALoc(0,jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            aLoc[iLoc] -= y_MC_Buf[iLoc]*delta + x_MC_Buf[iLoc]*gamma;
+    }
+}
+
+} // namespace herm_tridiag
+} // namespace El
+
 #include "./HermitianTridiag/L.hpp"
 #include "./HermitianTridiag/LSquare.hpp"
 #include "./HermitianTridiag/U.hpp"

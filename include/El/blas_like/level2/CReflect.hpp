@@ -6,17 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_BLAS_CREFLECT_C_HPP
-#define EL_BLAS_CREFLECT_C_HPP
+#ifndef EL_BLAS_LEVEL2_CREFLECT_C_HPP
+#define EL_BLAS_LEVEL2_CREFLECT_C_HPP
 
 namespace El {
-
-// BLAS-like
-// ---------
-inline ElGemmAlgorithm CReflect( GemmAlgorithm alg )
-{ return static_cast<ElGemmAlgorithm>(alg); }
-inline GemmAlgorithm CReflect( ElGemmAlgorithm alg )
-{ return static_cast<GemmAlgorithm>(alg); }
 
 template<typename T>
 inline ElSymvCtrl
@@ -40,4 +33,4 @@ CReflect( const ElSymvCtrl& ctrlC )
 
 } // namespace El
 
-#endif // ifndef EL_BLAS_CREFLECT_C_HPP
+#endif // ifndef EL_BLAS_LEVEL2_CREFLECT_C_HPP

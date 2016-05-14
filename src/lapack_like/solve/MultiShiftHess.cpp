@@ -61,7 +61,7 @@ LN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,j), etakkp1, &c, &s );
+            lapack::Givens( W.Get(k,j), etakkp1, c, s );
             C.Set( k, j, c );
             S.Set( k, j, s );
 
@@ -158,7 +158,7 @@ UN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,j), etakkm1, &c, &s );
+            lapack::Givens( W.Get(k,j), etakkm1, c, s );
             C.Set( k, j, c );
             S.Set( k, j, s );
 
@@ -277,7 +277,7 @@ LN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,jLoc), etakkp1, &c, &s );
+            lapack::Givens( W.Get(k,jLoc), etakkp1, c, s );
             C.Set( k, jLoc, c );
             S.Set( k, jLoc, s );
 
@@ -397,7 +397,7 @@ UN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,jLoc), etakkm1, &c, &s );
+            lapack::Givens( W.Get(k,jLoc), etakkm1, c, s );
             C.Set( k, jLoc, c );
             S.Set( k, jLoc, s );
 

@@ -11,24 +11,28 @@ using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( const DistMatrix<F>& AOrig,
-  const DistMatrix<F>& A,
-  const DistPermutation& P,
-  const DistPermutation& Q,
+( const Matrix<F>& AOrig,
+  const Matrix<F>& A,
+  const Permutation& P,
+  const Permutation& Q,
   Int pivoting,
-  bool print )
+  bool print,
+  Int numRHS=100 )
 {
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
     const Int m = AOrig.Height();
+    const Int n = AOrig.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormAOrig = OneNorm( AOrig );
 
-    OutputFromRoot(g.Comm(),"Testing error...");
+    Output("Testing error...");
     PushIndent();
 
     // Generate random right-hand sides
-    DistMatrix<F> X(g);
-    Uniform( X, m, 100 );
+    Matrix<F> X;
+    Uniform( X, m, numRHS );
     auto Y( X );
+    const Real oneNormY = OneNorm( Y );
     if( pivoting == 0 )
         lu::SolveAfter( NORMAL, A, Y );
     else if( pivoting == 1 )
@@ -37,22 +41,136 @@ void TestCorrectness
         lu::SolveAfter( NORMAL, A, P, Q, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    const Real infNormX = InfinityNorm( X );
-    const Real frobNormX = FrobeniusNorm( X );
     Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
-    const Real infNormError = InfinityNorm( X );
-    const Real frobNormError = FrobeniusNorm( X );
-    const Real infNormA = InfinityNorm( AOrig );
-    const Real frobNormA = FrobeniusNorm( AOrig );
+    const Real infError = InfinityNorm( X );
+    const Real relError = infError / (eps*Max(m,n)*Max(oneNormAOrig,oneNormY));
+
+    Output
+    ("|| Y - A X ||_oo / (eps Max(m,n) Max(||A||_1,||Y||_1)) = ",relError);
+
+    // TODO: Use a more refined failure condition
+    if( relError > Real(10) )
+        LogicError("Relative error was unacceptably large");
+
+    PopIndent();
+}
+
+template<typename F> 
+void TestCorrectness
+( const DistMatrix<F>& AOrig,
+  const DistMatrix<F>& A,
+  const DistPermutation& P,
+  const DistPermutation& Q,
+  Int pivoting,
+  bool print,
+  Int numRHS=100 )
+{
+    typedef Base<F> Real;
+    const Grid& g = A.Grid();
+    const Int m = AOrig.Height();
+    const Int n = AOrig.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormAOrig = OneNorm( AOrig );
+
+    OutputFromRoot(g.Comm(),"Testing error...");
+    PushIndent();
+
+    // Generate random right-hand sides
+    DistMatrix<F> X(g);
+    Uniform( X, m, numRHS );
+    auto Y( X );
+    const Real oneNormY = OneNorm( Y );
+    if( pivoting == 0 )
+        lu::SolveAfter( NORMAL, A, Y );
+    else if( pivoting == 1 )
+        lu::SolveAfter( NORMAL, A, P, Y );
+    else
+        lu::SolveAfter( NORMAL, A, P, Q, Y );
+
+    // Now investigate the residual, ||AOrig Y - X||_oo
+    Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
+    const Real infError = InfinityNorm( X );
+    const Real relError = infError / (eps*Max(m,n)*Max(oneNormAOrig,oneNormY));
 
     OutputFromRoot
     (g.Comm(),
-     "||A||_oo            = ",infNormA,"\n",Indent(),
-     "||A||_F             = ",frobNormA,"\n",Indent(),
-     "||X||_oo            = ",infNormX,"\n",Indent(),
-     "||X||_F             = ",frobNormX,"\n",Indent(),
-     "||A A^-1 X - X||_oo = ",infNormError,"\n",Indent(),
-     "||A A^-1 X - X||_F  = ",frobNormError);
+     "|| Y - A X ||_oo / (eps Max(m,n) Max(||A||_1,||Y||_1)) = ",relError);
+
+    // TODO: Use a more refined failure condition
+    if( relError > Real(10) )
+        LogicError("Relative error was unacceptably large");
+
+    PopIndent();
+}
+
+template<typename F> 
+void TestLU
+( Int m,
+  Int pivoting, 
+  bool correctness,
+  bool forceGrowth,
+  bool print )
+{
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+    Matrix<F> A, AOrig;
+    Permutation P, Q;
+
+    if( forceGrowth )
+        GEPPGrowth( A, m );
+    else
+        Uniform( A, m, m );
+
+    if( correctness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+
+    Output("Starting LU factorization...");
+    Timer timer;
+    timer.Start();
+    if( pivoting == 0 )
+        LU( A );
+    else if( pivoting == 1 )
+        LU( A, P );
+    else if( pivoting == 2 )
+        LU( A, P, Q );
+    const double runTime = timer.Stop();
+    const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    Output(runTime," seconds (",gFlops," GFlop/s)");
+    if( print )
+    {
+        Print( A, "A after factorization" );
+        if( pivoting >= 1 )
+        {
+            // This needs to be rewritten in light of Permutation
+            /*
+            Matrix<Int> P;
+            Matrix<Int> p;
+            Print( P, "rowPiv after factorization" );
+            PivotsToPermutation( rowPiv, p );
+            Print( p, "p after factorization");
+            ExplicitPermutation( p, P );
+            Print( P, "P" );
+            */
+        }
+        if( pivoting == 2 )
+        {
+            // This needs to be rewritten in light of Permutation
+            /*
+            Matrix<Int> Q;
+            Matrix<Int> q;
+            Print( colPiv, "colPiv after factorization" );
+            PivotsToPermutation( colPiv, q );
+            Print( q, "q after factorization");
+            ExplicitPermutation( q, Q );
+            Print( Q, "Q" );
+            */
+        }
+    }
+    if( correctness )
+        TestCorrectness( AOrig, A, P, Q, pivoting, print );
     PopIndent();
 }
 
@@ -61,7 +179,7 @@ void TestLU
 ( const Grid& g,
   Int m,
   Int pivoting, 
-  bool testCorrectness,
+  bool correctness,
   bool forceGrowth,
   bool print )
 {
@@ -75,7 +193,7 @@ void TestLU
     else
         Uniform( A, m, m );
 
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
@@ -125,7 +243,7 @@ void TestLU
             */
         }
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( AOrig, A, P, Q, pivoting, print );
     PopIndent();
 }
@@ -145,8 +263,9 @@ main( int argc, char* argv[] )
         const Int pivot = Input("--pivot","0: none, 1: partial, 2: full",1);
         const bool forceGrowth = Input
             ("--forceGrowth","force element growth?",false);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness = 
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
@@ -173,33 +292,65 @@ main( int argc, char* argv[] )
         else if( pivot == 2 )
             OutputFromRoot(g.Comm(),"Testing LU with full pivoting");
 
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestLU<float>
+            ( m, pivot, correctness, forceGrowth, print );
+            TestLU<Complex<float>>
+            ( m, pivot, correctness, forceGrowth, print );
+
+            TestLU<double>
+            ( m, pivot, correctness, forceGrowth, print );
+            TestLU<Complex<double>>
+            ( m, pivot, correctness, forceGrowth, print );
+
+#ifdef EL_HAVE_QD
+            TestLU<DoubleDouble>
+            ( m, pivot, correctness, forceGrowth, print );
+            TestLU<QuadDouble>
+            ( m, pivot, correctness, forceGrowth, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+            TestLU<Quad>
+            ( m, pivot, correctness, forceGrowth, print );
+            TestLU<Complex<Quad>>
+            ( m, pivot, correctness, forceGrowth, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+            TestLU<BigFloat>
+            ( m, pivot, correctness, forceGrowth, print );
+#endif
+        }
+
         TestLU<float>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
         TestLU<Complex<float>>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
 
         TestLU<double>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
         TestLU<Complex<double>>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
 
 #ifdef EL_HAVE_QD
         TestLU<DoubleDouble>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
         TestLU<QuadDouble>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestLU<Quad>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
         TestLU<Complex<Quad>>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestLU<BigFloat>
-        ( g, m, pivot, testCorrectness, forceGrowth, print );
+        ( g, m, pivot, correctness, forceGrowth, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

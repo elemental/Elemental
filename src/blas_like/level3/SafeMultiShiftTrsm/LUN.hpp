@@ -11,6 +11,11 @@
 */
 
 namespace El {
+
+// Forward declaration
+template<typename T>
+Base<T> MaxNorm( const Matrix<T>& A );
+
 namespace safemstrsm {
 
 /*   Note: See "Robust Triangular Solves for Use in Condition
@@ -46,22 +51,19 @@ void LUNBlock
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
-    const F* UBuf = U.LockedBuffer();
-    const Int ULDim = U.LDim();
-
     // Default scale is 1
-    Ones( scales, numShifts, 1 );
+    scales.Resize( numShifts, 1 );
+    Fill( scales, F(1) );
     
     // Compute infinity norms of columns of U (excluding diagonal)
     Matrix<Real> cNorm( n, 1 );
-    Real* cNormBuf = cNorm.Buffer();
-    cNormBuf[0] = Real(0);
+    cNorm(0) = 0;
     for( Int j=1; j<n; ++j )
     {
-        //cNormBuf[j] = MaxNorm( U(IR(0,j),IR(j)) );
-        cNormBuf[j] = 0;
+        // cNorm[j] = MaxNorm( U(IR(0,j),IR(j)) );
+        cNorm(j) = 0;
         for( Int i=0; i<j; ++i )
-            cNormBuf[j] = Max( cNormBuf[j], Abs(UBuf[i+j*ULDim]) );
+            cNorm(j) = Max( cNorm(j), Abs(U(i,j)) );
     }
 
     // Iterate through RHS's
@@ -73,8 +75,6 @@ void LUNBlock
         auto xj = X( ALL, IR(j) );
         Real scales_j = Real(1);
 
-        F* xjBuf = xj.Buffer();
-        
         // Determine largest entry of RHS
         Real xjMax = MaxNorm( xj );
         if( xjMax >= bigNum )
@@ -96,7 +96,7 @@ void LUNBlock
         Real invMi = invGi;
         for( Int i=n-1; i>=0; --i )
         {
-            const Real absUii = SafeAbs( UBuf[i+i*ULDim] );
+            const Real absUii = SafeAbs( U(i,i) );
             if( invGi<=smallNum || invMi<=smallNum || absUii<=smallNum )
             {
                 invGi = 0;
@@ -105,7 +105,7 @@ void LUNBlock
             invMi = Min( invMi, absUii*invGi );
             if( i > 0 )
             {
-                invGi *= absUii/(absUii+cNormBuf[i]);
+                invGi *= absUii/(absUii+cNorm(i));
             }
         }
         invGi = Min( invGi, invMi );
@@ -113,7 +113,7 @@ void LUNBlock
         if( invGi > smallNum )
         {
             // Call TRSV since estimated growth is not too large
-            blas::Trsv( 'U', 'N', 'N', n, UBuf, ULDim, xjBuf, 1 );
+            blas::Trsv( 'U', 'N', 'N', n, &U(0,0), U.LDim(), &xj(0), 1 );
         }
         else
         {
@@ -121,9 +121,9 @@ void LUNBlock
             for( Int i=n-1; i>=0; --i )
             {
                 // Perform division and check for overflow
-                const F Uii = UBuf[i+i*ULDim];
+                const F Uii = U(i,i);
                 const Real absUii = SafeAbs( Uii );
-                F Xij = xjBuf[i];
+                F Xij = xj(i);
                 Real absXij = SafeAbs( Xij );
                 if( absUii > smallNum )
                 {
@@ -163,7 +163,7 @@ void LUNBlock
                         scales_j = Real(0);
                     }
                 }
-                xjBuf[i] = Xij;
+                xj(i) = Xij;
                 
                 if( i > 0 )
                 {
@@ -171,7 +171,7 @@ void LUNBlock
                     // Check for possible overflows in AXPY
                     // Note: G(i+1) <= G(i) + | Xij | * cNorm(i)
                     absXij = SafeAbs( Xij );
-                    const Real cNorm_i = cNormBuf[i];
+                    const Real cNorm_i = cNorm(i);
                     if( absXij >= Real(1) &&
                         cNorm_i >= (bigNum-xjMax)/absXij )
                     {
@@ -195,12 +195,11 @@ void LUNBlock
                     xjMax += absXij*cNorm_i;
 
                     // AXPY X(0:i,j) -= Xij*U(0:i,i)
-                    blas::Axpy( i, -Xij, &UBuf[i*ULDim], 1, xjBuf, 1 );
+                    blas::Axpy( i, -Xij, &U(0,i), 1, &xj(0), 1 );
                 }
             }
         }
-
-        scales.Set( j, 0, scales_j );
+        scales(j) = scales_j;
     }
 
     // Reset matrix diagonal
@@ -246,7 +245,9 @@ void LUN
           LogicError("Entries in matrix are too large");
     )
     
-    Ones( scales, n, 1 );
+    scales.Resize( n, 1 );
+    Fill( scales, F(1) );
+
     Matrix<F> scalesUpdate( n, 1 );
 
     // Determine largest entry of each RHS
@@ -260,10 +261,10 @@ void LUN
             const Real s = oneHalf*bigNum/xjMax;
             xj *= s;
             xjMax *= s;
-            scales.Set( j, 0, s*scales.Get(j,0) );
+            scales(j) *= s;
         }
         xjMax = Max( xjMax, 2*smallNum );
-        XMax.Set( j, 0, xjMax );
+        XMax(j) = xjMax;
     }
         
     // Perform block triangular solve
@@ -291,12 +292,12 @@ void LUN
             const Real sj = scalesUpdate.GetRealPart(j,0);
             if( sj < Real(1) )
             {
-                scales.Set( j, 0, sj*scales.Get(j,0) );
+                scales(j) *= sj;
                 auto X0j = X0( ALL, IR(j) );
                 auto X2j = X2( ALL, IR(j) );
                 X0j *= sj;
                 X2j *= sj;
-                XMax.Set( j, 0, sj*XMax.Get(j,0) );
+                XMax(j) *= sj;
             }
         }
 
@@ -316,13 +317,13 @@ void LUN
             for( Int j=0; j<n; ++j )
             {
                 auto xj = X( ALL, IR(j) );
-                Real xjMax = XMax.Get(j,0);
+                Real xjMax = XMax(j);
                 Real X1Max = MaxNorm( X1(ALL,IR(j)) );
                 if( X1Max >= 1 &&
                     cNorm >= (bigNum-xjMax)/X1Max/nb )
                 {
                     const Real s = oneHalf/(X1Max*nb);
-                    scales.Set( j, 0, s*scales.Get(j,0) );
+                    scales(j) *= s;
                     xj *= s;
                     xjMax *= s;
                     X1Max *= s;
@@ -331,13 +332,13 @@ void LUN
                          cNorm*X1Max >= (bigNum-xjMax)/nb )
                 {
                     const Real s = oneHalf/nb;
-                    scales.Set( j, 0, s*scales.Get(j,0) );
+                    scales(j) *= s;
                     xj *= s;
                     xjMax *= s;
                     X1Max *= s;
                 }
                 xjMax += nb*cNorm*X1Max;
-                XMax.Set( j, 0, xjMax );
+                XMax(j) = xjMax;
             }
 
             // Update RHS with GEMM
@@ -387,7 +388,9 @@ void LUN
     DistMatrix<F,VR,  STAR> scalesUpdate_VR_STAR(g);
     DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR( X.Grid() );
 
-    Ones( scales, n, 1 );
+    scales.Resize( n, 1 );
+    Fill( scales, F(1) );
+
     scalesUpdate_VR_STAR.Resize( n, 1 );
 
     const Int XLocalWidth = X.LocalWidth();

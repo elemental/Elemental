@@ -23,22 +23,21 @@ LVar3Unb( Matrix<F>& A )
     )
     typedef Base<F> Real;
     const Int n = A.Height();
-    const Int lda = A.LDim();
-    F* ABuffer = A.Buffer();
+    const Int ALDim = A.LDim();
     for( Int j=0; j<n; ++j )
     {
-        Real alpha11 = RealPart(ABuffer[j+j*lda]);
+        Real alpha11 = RealPart(A(j,j));
         if( alpha11 <= Real(0) )
             LogicError("A was not numerically HPD");
         alpha11 = Sqrt( alpha11 );
-        ABuffer[j+j*lda] = alpha11;
+        A(j,j) = alpha11;
 
         const Int a21Height = n-(j+1);
-        F* a21 = &ABuffer[(j+1)+ j   *lda];
-        F* A22 = &ABuffer[(j+1)+(j+1)*lda];
+        F* a21 = A.Buffer(j+1,j  );
+        F* A22 = A.Buffer(j+1,j+1);
 
         blas::Scal( a21Height, Real(1)/alpha11, a21, 1 );
-        blas::Her( 'L', a21Height, -Real(1), a21, 1, A22, lda );
+        blas::Her( 'L', a21Height, -Real(1), a21, 1, A22, ALDim );
     }
 }
 
@@ -53,24 +52,22 @@ ReverseLVar3Unb( Matrix<F>& A )
     )
     typedef Base<F> Real;
     const Int n = A.Height();
-    const Int lda = A.LDim();
-    F* ABuffer = A.Buffer();
     for( Int j=n-1; j>=0; --j )
     {
-        Real alpha = RealPart(ABuffer[j+j*lda]);
+        Real alpha = RealPart(A(j,j));
         if( alpha <= Real(0) )
             LogicError("A was not numerically HPD");
         alpha = Sqrt( alpha );
-        ABuffer[j+j*lda] = alpha;
+        A(j,j) = alpha;
 
         // TODO: Switch to BLAS calls
 
         for( Int k=0; k<j; ++k )
-            ABuffer[j+k*lda] /= alpha;
+            A(j,k) /= alpha;
 
         for( Int k=0; k<j; ++k )
             for( Int i=k; i<j; ++i )
-                ABuffer[i+k*lda] -= ABuffer[j+k*lda]*Conj(ABuffer[j+i*lda]);
+                A(i,k) -= A(j,k)*Conj(A(j,i));
     }
 }
 

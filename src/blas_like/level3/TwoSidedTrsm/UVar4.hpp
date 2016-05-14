@@ -13,8 +13,7 @@ namespace El {
 namespace twotrsm {
 
 template<typename F> 
-inline void
-UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
     DEBUG_ONLY(
       CSE cse("twotrsm::UVar4");
@@ -58,7 +57,8 @@ UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         Gemm( NORMAL, NORMAL, F(-1), A01, U12, F(1), A02 );
 
         // Y12 := A11 U12
-        Zeros( Y12, A12.Height(), A12.Width() );
+        Y12.Resize( A12.Height(), A12.Width() );
+        Zero( Y12 );
         Hemm( LEFT, UPPER, F(1), A11, U12, F(0), Y12 );
 
         // A12 := inv(U11)' A12
@@ -76,8 +76,7 @@ UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 }
 
 template<typename F> 
-inline void
-UVar4
+void UVar4
 ( UnitOrNonUnit diag, 
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )
@@ -153,10 +152,12 @@ UVar4
         U12Trans_VR_STAR.AlignWith( A02 );
         U12Trans_VR_STAR = U12Trans_MR_STAR;
         U12_STAR_VR.AlignWith( A02 );
-        Zeros( U12_STAR_VR, nb, A12.Width() );
+        U12_STAR_VR.Resize( nb, A12.Width() );
+        Zero( U12_STAR_VR ); 
         Transpose( U12Trans_VR_STAR.Matrix(), U12_STAR_VR.Matrix() );
         Y12_STAR_VR.AlignWith( A12 );
-        Zeros( Y12_STAR_VR, nb, A12.Width() );
+        Y12_STAR_VR.Resize( nb, A12.Width() );
+        Zero( Y12_STAR_VR );
         Hemm
         ( LEFT, UPPER, 
           F(1), A11_STAR_STAR.Matrix(), U12_STAR_VR.Matrix(), 

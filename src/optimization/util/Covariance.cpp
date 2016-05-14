@@ -54,17 +54,17 @@ void Covariance
     DistMatrix<F> ones(g), xMean(g);
     Ones( ones, numObs, 1 );
     Gemv( TRANSPOSE, F(1)/F(numObs), D, ones, xMean );
-    DistMatrix<F,MR,STAR> xMean_MR_STAR(g);
-    xMean_MR_STAR.AlignWith( D );
-    xMean_MR_STAR = xMean;
+    DistMatrix<F,MR,STAR> xMean_MR(g);
+    xMean_MR.AlignWith( D );
+    xMean_MR = xMean;
 
     // Subtract the mean from each column of D
     DistMatrix<F> DDev( D );
     for( Int iLoc=0; iLoc<DDev.LocalHeight(); ++iLoc )
         blas::Axpy
         ( DDev.LocalWidth(), F(-1), 
-          xMean_MR_STAR.LockedBuffer(), 1, 
-          DDev.Buffer(iLoc,0),          DDev.LDim() );
+          xMean_MR.LockedBuffer(), 1, 
+          DDev.Buffer(iLoc,0),     DDev.LDim() );
 
     // Form S := 1/(numObs-1) DDev DDev'
     Herk( LOWER, ADJOINT, Base<F>(1)/Base<F>(numObs-1), DDev, S );

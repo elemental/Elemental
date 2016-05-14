@@ -18,8 +18,7 @@ namespace trsm {
 
 // width(X) >> p
 template<typename F>
-inline void
-LUTLarge
+void LUTLarge
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,
@@ -81,8 +80,7 @@ LUTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LUTMedium
+void LUTMedium
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,
@@ -145,8 +143,7 @@ LUTMedium
 
 // width(X) << p
 template<typename F,Dist rowDist>
-inline void
-LUTSmall
+void LUTSmall
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const DistMatrix<F,STAR,rowDist>& U,

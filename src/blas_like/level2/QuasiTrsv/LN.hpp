@@ -11,8 +11,7 @@ namespace El {
 namespace quasitrsv {
 
 template<typename F>
-inline void
-LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
+void LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
       CSE cse("quasitrsv::LNUnb");
@@ -50,7 +49,7 @@ LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
             const F delta22 = LBuf[(k+1)+(k+1)*ldl];
             // Decompose D = L Q
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
+            const F gamma11 = lapack::Givens( delta11, delta12, c, s );
             const F gamma21 =        c*delta21 + s*delta22;
             const F gamma22 = -Conj(s)*delta21 + c*delta22; 
             if( checkIfSingular )
@@ -98,8 +97,7 @@ LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 }
 
 template<typename F>
-inline void
-LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
+void LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
       CSE cse("quasitrsv::LN");
@@ -146,8 +144,7 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 }
 
 template<typename F>
-inline void
-LN
+void LN
 ( const ElementalMatrix<F>& LPre,
         ElementalMatrix<F>& xPre, 
   bool checkIfSingular=false )
@@ -188,7 +185,8 @@ LN
         DistMatrix<F,MC,STAR> z1_MC_STAR(g), z2_MC_STAR(g);
 
         z_MC_STAR.AlignWith( L );
-        Zeros( z_MC_STAR, m, 1 );
+        z_MC_STAR.Resize( m, 1 );
+        Zero( z_MC_STAR );
 
         Int k=0;
         while( k < m )
@@ -233,7 +231,8 @@ LN
         DistMatrix<F,STAR,MC> z1_STAR_MC(g), z2_STAR_MC(g);
 
         z_STAR_MC.AlignWith( L );
-        Zeros( z_STAR_MC, 1, m );
+        z_STAR_MC.Resize( 1, m );
+        Zero( z_STAR_MC );
 
         Int k=0;
         while( k < m )

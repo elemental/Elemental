@@ -810,8 +810,52 @@ EL_EXPORT ElError ElTwoSidedTrsmDist_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_z A, ElConstDistMatrix_z B );
 
+/* Hermitian from EVD
+   ================== */
+EL_EXPORT ElError ElHermitianFromEVD_s
+( ElUpperOrLower uplo, ElMatrix_s A,
+  ElConstMatrix_s w, ElConstMatrix_s Z );
+EL_EXPORT ElError ElHermitianFromEVD_d
+( ElUpperOrLower uplo, ElMatrix_d A,
+  ElConstMatrix_d w, ElConstMatrix_d Z );
+EL_EXPORT ElError ElHermitianFromEVD_c
+( ElUpperOrLower uplo, ElMatrix_c A,
+  ElConstMatrix_s w, ElConstMatrix_c Z );
+EL_EXPORT ElError ElHermitianFromEVD_z
+( ElUpperOrLower uplo, ElMatrix_z A,
+  ElConstMatrix_d w, ElConstMatrix_z Z );
+
+EL_EXPORT ElError ElHermitianFromEVDDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A,
+  ElConstDistMatrix_s w, ElConstDistMatrix_s Z );
+EL_EXPORT ElError ElHermitianFromEVDDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A,
+  ElConstDistMatrix_d w, ElConstDistMatrix_d Z );
+EL_EXPORT ElError ElHermitianFromEVDDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A,
+  ElConstDistMatrix_s w, ElConstDistMatrix_c Z );
+EL_EXPORT ElError ElHermitianFromEVDDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A,
+  ElConstDistMatrix_d w, ElConstDistMatrix_z Z );
+
+/* NormalFromEVD
+   ============= */
+EL_EXPORT ElError ElNormalFromEVD_c
+( ElMatrix_c A, ElConstMatrix_c w, ElConstMatrix_c Z );
+EL_EXPORT ElError ElNormalFromEVD_z
+( ElMatrix_z A, ElConstMatrix_z w, ElConstMatrix_z Z );
+
+EL_EXPORT ElError ElNormalFromEVDDist_c
+( ElDistMatrix_c A, ElConstDistMatrix_c w, ElConstDistMatrix_c Z );
+EL_EXPORT ElError ElNormalFromEVDDist_z
+( ElDistMatrix_z A, ElConstDistMatrix_z w, ElConstDistMatrix_z Z );
+
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/blas_like/level3/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_BLAS_LEVEL3_C_H */

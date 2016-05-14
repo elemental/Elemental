@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
+#include <El-lite.hpp>
+#include <El/control.hpp>
 
 namespace El {
 
@@ -31,7 +32,8 @@ void Lyapunov
     const Int m = A.Height();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
-    Zeros( W, 2*m, 2*m );
+    W.Resize( 2*m, 2*m );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, m );
@@ -59,7 +61,8 @@ void Lyapunov
     const Int m = A.Height();
     DistMatrix<F> W(g), WTL(g), WTR(g),
                         WBL(g), WBR(g);
-    Zeros( W, 2*m, 2*m );
+    W.Resize( 2*m, 2*m );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, m );
@@ -82,6 +85,10 @@ void Lyapunov
     SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

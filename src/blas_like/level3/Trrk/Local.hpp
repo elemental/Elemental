@@ -120,8 +120,7 @@ void CheckInputTT
 
 // Local C := alpha A B + C
 template<typename T>
-inline void
-TrrkNNKernel
+void TrrkNNKernel
 ( UpperOrLower uplo, 
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
@@ -157,8 +156,7 @@ TrrkNNKernel
 
 // Distributed C := alpha A B + C
 template<typename T>
-inline void
-LocalTrrkKernel
+void LocalTrrkKernel
 ( UpperOrLower uplo, 
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
@@ -199,8 +197,7 @@ LocalTrrkKernel
 
 // Local C := alpha A B^{T/H} + C
 template<typename T>
-inline void
-TrrkNTKernel
+void TrrkNTKernel
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -237,8 +234,7 @@ TrrkNTKernel
 
 // Distributed C := alpha A B^{T/H} + C
 template<typename T>
-inline void
-LocalTrrkKernel
+void LocalTrrkKernel
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
@@ -280,8 +276,7 @@ LocalTrrkKernel
 
 // Local C := alpha A^{T/H} B + C
 template<typename T>
-inline void
-TrrkTNKernel
+void TrrkTNKernel
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -318,8 +313,7 @@ TrrkTNKernel
 
 // Distributed C := alpha A^{T/H} B + C
 template<typename T>
-inline void
-LocalTrrkKernel
+void LocalTrrkKernel
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
@@ -361,8 +355,7 @@ LocalTrrkKernel
 
 // Local C := alpha A^{T/H} B^{T/H} + C
 template<typename T>
-inline void
-TrrkTTKernel
+void TrrkTTKernel
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -400,8 +393,7 @@ TrrkTTKernel
 
 // Distributed C := alpha A^{T/H} B^{T/H} + C
 template<typename T>
-inline void
-LocalTrrkKernel
+void LocalTrrkKernel
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,

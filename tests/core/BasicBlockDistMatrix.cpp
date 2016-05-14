@@ -14,12 +14,11 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::Size( comm );
     const Int commRank = mpi::Rank( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
@@ -32,10 +31,10 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
 
         DistMatrix<Complex<double>,MC,MR,BLOCK> A(m,n,g,mb,nb);
         Fill( A, Complex<double>(1) );

@@ -6,8 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include <El.hpp>
-#include <El.h>
+#include <El-lite.hpp>
+#include <El/lapack_like/euclidean_min.hpp>
+#include <El-lite.h>
+#include <El/lapack_like/perm.h>
+#include <El/lapack_like/factor.h>
+#include <El/lapack_like/euclidean_min.h>
 using namespace El;
 
 extern "C" {
@@ -67,8 +71,9 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
   ( ElOrientation orientation, ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG B,   ElMatrix_ ## SIG X, \
     ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
-                          *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
+  { EL_TRY( LeastSquares \
+      ( CReflect(orientation), *CReflect(A), \
+        *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
   ElError ElLeastSquaresXDistSparse_ ## SIG \
   ( ElOrientation orientation, ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG B, ElDistMultiVec_ ## SIG X, \
