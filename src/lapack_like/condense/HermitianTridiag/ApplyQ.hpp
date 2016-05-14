@@ -14,8 +14,12 @@ namespace herm_tridiag {
 
 template<typename F>
 void ApplyQ
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation, 
+  const Matrix<F>& A,
+  const Matrix<F>& t,
+        Matrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("herm_tridiag::ApplyQ"))
     const bool normal = (orientation==NORMAL);
@@ -24,14 +28,18 @@ void ApplyQ
         ( (normal==onLeft) ^ (uplo==UPPER) ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( uplo==UPPER ? 1 : -1 );
+    // TODO: Check for error in RIGHT UPPER ADJOINT
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
 }
 
 template<typename F>
 void ApplyQ
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("hermi_tridiag::ApplyQ"))
