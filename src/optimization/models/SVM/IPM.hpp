@@ -193,9 +193,9 @@ void IPM
     const Int numEntriesA = A.NumEntries(); 
     G.Reserve( numEntriesA+3*m );
     for( Int e=0; e<numEntriesA; ++e )
-        G.QueueUpdate( A.Row(e), A.Col(e), -d.Get(A.Row(e),0)*A.Value(e) );
+        G.QueueUpdate( A.Row(e), A.Col(e), -d(A.Row(e))*A.Value(e) );
     for( Int e=0; e<m; ++e )
-        G.QueueUpdate( e, n, -d.Get(e,0) );
+        G.QueueUpdate( e, n, -d(e) );
     for( Int e=0; e<m; ++e )
     {
         G.QueueUpdate( e,   e+n+1, Real(-1) );
@@ -231,6 +231,10 @@ void IPM
     DistSparseMatrix<Real> Q(comm), AHat(comm), G(comm);
     DistMultiVec<Real> c(comm), b(comm), h(comm);
 
+    auto& dLoc = d.LockedMatrix();
+    auto& cLoc = c.Matrix();
+    auto& hLoc = h.Matrix();
+
     // Q := | I 0 0 |
     //      | 0 0 0 |
     //      | 0 0 0 |
@@ -257,7 +261,7 @@ void IPM
     Zeros( c, n+m+1, 1 );
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
         if( c.GlobalRow(iLoc) > n )
-            c.SetLocal( iLoc, 0, lambda );
+            cLoc(iLoc) = lambda;
 
     // AHat = []
     // =========
@@ -279,13 +283,13 @@ void IPM
         const Int i = A.Row(e);
         const Int j = A.Col(e);
         const Int iLoc = A.LocalRow(i);
-        const Real value = -d.GetLocal(iLoc,0)*A.Value(e);
+        const Real value = -dLoc(iLoc)*A.Value(e);
         G.QueueUpdate( i, j, value );
     }
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
-        G.QueueUpdate( i, n, -d.GetLocal(iLoc,0) );
+        G.QueueUpdate( i, n, -dLoc(iLoc) );
     }
     for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
     {
@@ -302,7 +306,7 @@ void IPM
     Zeros( h, 2*m, 1 );
     for( Int iLoc=0; iLoc<h.LocalHeight(); ++iLoc )
         if( h.GlobalRow(iLoc) < m )
-            h.SetLocal( iLoc, 0, Real(-1) );
+            hLoc(iLoc) = Real(-1);
         else
             break;
 

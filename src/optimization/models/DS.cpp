@@ -455,12 +455,15 @@ void Var2
     DistSparseMatrix<Real> AHat(comm), G(comm);
     DistMultiVec<Real> c(comm), bHat(comm), h(comm);
 
+    auto& bLoc = b.LockedMatrix();
+
     // c := [1;1;0;0]
     // ==============
     Zeros( c, 3*n+m, 1 );
+    auto& cLoc = c.Matrix();
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
         if( c.GlobalRow(iLoc) < 2*n )
-            c.SetLocal( iLoc, 0, Real(1) );
+            cLoc(iLoc) = Real(1);
 
     // G := | -I  0 0  0 |
     //      |  0 -I 0  0 |
@@ -484,9 +487,10 @@ void Var2
     // h := [0;0;lambda e;lambda e]
     // ============================
     Zeros( h, 4*n, 1 );
+    auto& hLoc = h.Matrix();
     for( Int iLoc=0; iLoc<h.LocalHeight(); ++iLoc )
         if( h.GlobalRow(iLoc) >= 2*n )
-            h.SetLocal( iLoc, 0, lambda );
+            hLoc(iLoc) = lambda;
 
     // \hat A := | A, -A,  I,  0 |
     //           | 0,  0, A^T, I |
@@ -517,7 +521,7 @@ void Var2
     for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
     {
         const Int i = b.GlobalRow(iLoc);
-        bHat.QueueUpdate( i, 0, b.GetLocal(iLoc,0) );
+        bHat.QueueUpdate( i, 0, bLoc(iLoc) );
     }
     bHat.ProcessQueues();
 
@@ -528,6 +532,7 @@ void Var2
 
     // x := u - v
     // ==========
+    auto& xHatLoc = xHat.LockedMatrix();
     Zeros( x, n, 1 );
     Int numRemoteUpdates = 0;
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
@@ -540,9 +545,9 @@ void Var2
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
-            x.QueueUpdate( i, 0, xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i, 0, xHatLoc(iLoc) );
         else if( i < 2*n )
-            x.QueueUpdate( i-n, 0, -xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i-n, 0, -xHatLoc(iLoc) );
         else
             break;
     }

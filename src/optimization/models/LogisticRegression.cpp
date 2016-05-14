@@ -31,9 +31,9 @@ Int LogisticRegression
     AL = G;
     for( Int j=0; j<numFeatures; ++j )
         for( Int i=0; i<numExamples; ++i )
-            AL.Set( i, j, AL.Get(i,j)*q.Get(i,0) );
+            AL(i,j) = AL(i,j)*q(i);
     for( Int i=0; i<numExamples; ++i )
-        A.Set( i, numFeatures, q.Get(i,0) );
+        A(i,numFeatures) = q(i);
 
     auto logisticProx = [&]( Matrix<Real>& y, Real rho )
                         { LogisticProx( y, y.Height()*rho ); };

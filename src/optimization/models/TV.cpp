@@ -125,6 +125,9 @@ void TV
     DistSparseMatrix<Real> Q(comm), A(comm), G(comm);
     DistMultiVec<Real> c(comm), bHat(comm), h(comm);
 
+    auto& bLoc = b.LockedMatrix();
+    auto& cLoc = c.Matrix();
+
     // Q := | I 0 |
     //      | 0 0 |
     // ============
@@ -151,10 +154,10 @@ void TV
     Zeros( c, 2*n-1, 1 );
     c.Reserve( b.LocalHeight() );
     for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-        c.QueueUpdate( b.GlobalRow(iLoc), 0, -b.GetLocal(iLoc,0) );
+        c.QueueUpdate( b.GlobalRow(iLoc), 0, -bLoc(iLoc) );
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
         if( c.GlobalRow(iLoc) > n )
-            c.SetLocal( iLoc, 0, lambda );
+            cLoc(iLoc) = lambda;
     c.ProcessQueues();
 
     // A := []

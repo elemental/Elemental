@@ -89,9 +89,9 @@ void LongOnlyPortfolio
         Matrix<Real> cHat;
         Zeros( cHat, n+4, 1 );
         for( Int i=0; i<n; ++i )
-            cHat.Set( i, 0, -c.Get(i,0) );
-        cHat.Set( n, 0, gamma );
-        cHat.Set( n+1, 0, gamma );
+            cHat(i) = -c(i);
+        cHat(n) = gamma;
+        cHat(n+1) = gamma;
 
         // Form A = [1^T, 0, 0, 0, 0]
         // ==========================
@@ -133,7 +133,7 @@ void LongOnlyPortfolio
                 G.QueueUpdate( i, i, Real(-1) ); 
             G.QueueUpdate( n, n+2, Real(-1) );
             for( Int i=0; i<n; ++i )
-                G.QueueUpdate( i+n+1, i, -Sqrt(d.Get(i,0)) );
+                G.QueueUpdate( i+n+1, i, -Sqrt(d(i)) );
             G.QueueUpdate( 2*n+1, n+3, Real(-1) );
             // This is the only portion which will not be sorted :-(
             for( Int e=0; e<numEntriesF; ++e )
@@ -151,10 +151,10 @@ void LongOnlyPortfolio
         // ==========================================
         Matrix<Real> h;
         Zeros( h, 2*n+r+8, 1 );
-        h.Set( 2*n+r+2, 0, Real(1) );
-        h.Set( 2*n+r+3, 0, Real(1) );
-        h.Set( 2*n+r+5, 0, Real(1) );
-        h.Set( 2*n+r+6, 0, Real(1) );
+        h(2*n+r+2) = Real(1);
+        h(2*n+r+3) = Real(1);
+        h(2*n+r+5) = Real(1);
+        h(2*n+r+6) = Real(1);
 
         // Form orders and firstInds
         // =========================
@@ -163,28 +163,28 @@ void LongOnlyPortfolio
         Zeros( firstInds, 2*n+r+8, 1 );
         for( Int i=0; i<n; ++i )
         {
-            orders.Set( i, 0, 1 );
-            firstInds.Set( i, 0, i );
+            orders(i) = 1;
+            firstInds(i) = i;
         }
         for( Int i=n; i<2*n+1; ++i )
         {
-            orders.Set( i, 0, n+1 );
-            orders.Set( i, 0, n );
+            orders(i) = n+1;
+            firstInds(i) = n;
         }
         for( Int i=2*n+1; i<2*n+r+2; ++i )
         {
-            orders.Set( i, 0, r+1 );
-            firstInds.Set( i, 0, 2*n+1 );
+            orders(i) = r+1;
+            firstInds(i) = 2*n+1;
         }
         for( Int i=2*n+r+2; i<2*n+r+5; ++i )
         {
-            orders.Set( i, 0, 3 );
-            firstInds.Set( i, 0, 2*n+r+2 );
+            orders(i) = 3;
+            firstInds(i) = 2*n+r+2;
         }
         for( Int i=2*n+r+5; i<2*n+r+8; ++i )
         {
-            orders.Set( i, 0, 3 );
-            firstInds.Set( i, 0, 2*n+r+5 );
+            orders(i) = 3;
+            firstInds(i) = 2*n+r+5;
         }
 
         // Solve the Second-Order Cone problem
@@ -223,6 +223,9 @@ void LongOnlyPortfolio
     // TODO: Expose this as a control parameter
     const bool useSOCP = true;
 
+    auto& cLoc = c.LockedMatrix();
+    auto& dLoc = d.LockedMatrix();
+
     if( useSOCP )
     {
         const Int r = F.Width();
@@ -245,7 +248,7 @@ void LongOnlyPortfolio
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
                 const Int i = c.GlobalRow(iLoc);
-                cHat.QueueUpdate( i, 0, -c.GetLocal(iLoc,0) );
+                cHat.QueueUpdate( i, 0, -cLoc(iLoc) );
             }
             cHat.ProcessQueues();
         }
@@ -339,7 +342,7 @@ void LongOnlyPortfolio
             for( Int iLoc=0; iLoc<dLocalHeight; ++iLoc )
             {
                 const Int i = d.GlobalRow(iLoc);
-                G.QueueUpdate( i+n+1, i, -Sqrt(d.GetLocal(iLoc,0)) );
+                G.QueueUpdate( i+n+1, i, -Sqrt(dLoc(iLoc)) );
             }
             const Int numEntriesF = F.NumLocalEntries(); 
             for( Int e=0; e<numEntriesF; ++e )
@@ -355,6 +358,7 @@ void LongOnlyPortfolio
         // Form h = [0; 0; 0; 0; 0; 1; 1; 0; 1; 1; 0]
         // ==========================================
         DistMultiVec<Real> h(comm);
+        auto& hLoc = h.Matrix();
         {
             Zeros( h, 2*n+r+8, 1 );
             const Int localHeight = h.LocalHeight();
@@ -363,13 +367,15 @@ void LongOnlyPortfolio
                 const Int i = h.GlobalRow(iLoc);
                 if( i == 2*n+r+2 || i == 2*n+r+3 ||
                     i == 2*n+r+5 || i == 2*n+r+6 )
-                    h.SetLocal( iLoc, 0, Real(1) );
+                    hLoc(iLoc) = Real(1);
             }
         }
 
         // Form orders and firstInds
         // =========================
         DistMultiVec<Int> orders(comm), firstInds(comm); 
+        auto& ordersLoc = orders.Matrix();
+        auto& firstIndsLoc = firstInds.Matrix();
         {
             Zeros( orders, 2*n+r+8, 1 );
             Zeros( firstInds, 2*n+r+8, 1 );
@@ -379,28 +385,28 @@ void LongOnlyPortfolio
                 const Int i = orders.GlobalRow(iLoc);
                 if( i < n )
                 {
-                    orders.SetLocal( iLoc, 0, 1 );
-                    firstInds.SetLocal( iLoc, 0, i );
+                    ordersLoc(iLoc) = 1;
+                    firstIndsLoc(iLoc) = i;
                 }
                 else if( i < 2*n+1 )
                 {
-                    orders.SetLocal( iLoc, 0, n+1 );
-                    firstInds.SetLocal( iLoc, 0, n );
+                    ordersLoc(iLoc) = n+1;
+                    firstIndsLoc(iLoc) = n;
                 }
                 else if( i < 2*n+r+2 )
                 {
-                    orders.SetLocal( iLoc, 0, r+1 );
-                    firstInds.SetLocal( iLoc, 0, 2*n+1 );
+                    ordersLoc(iLoc) = r+1;
+                    firstIndsLoc(iLoc) = 2*n+1;
                 }
                 else if( i < 2*n+r+5 )
                 {
-                    orders.SetLocal( iLoc, 0, 3 );
-                    firstInds.SetLocal( iLoc, 0, 2*n+r+2 );
+                    ordersLoc(iLoc) = 3;
+                    firstIndsLoc(iLoc) = 2*n+r+2;
                 }
                 else
                 {
-                    orders.SetLocal( iLoc, 0, 3 );
-                    firstInds.SetLocal( iLoc, 0, 2*n+r+5 );
+                    ordersLoc(iLoc) = 3;
+                    firstIndsLoc(iLoc) = 2*n+r+5;
                 }
             }
         }

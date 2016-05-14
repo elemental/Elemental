@@ -19,7 +19,7 @@ Int Degree( const Matrix<Int>& firstInds )
     const Int height = firstInds.Height();
     Int degree = 0;
     for( Int i=0; i<height; ++i )
-        if( i == firstInds.Get(i,0) )
+        if( i == firstInds(i) )
             ++degree;
     return degree;
 }
@@ -33,10 +33,11 @@ Int Degree( const ElementalMatrix<Int>& firstIndsPre )
 
     Int localDegree = 0;
     const Int localHeight = firstInds.LocalHeight();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = firstInds.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) )
+        if( i == firstIndsLoc(iLoc) )
             ++localDegree;
     }
     return mpi::AllReduce( localDegree, firstInds.DistComm() );
@@ -47,10 +48,11 @@ Int Degree( const DistMultiVec<Int>& firstInds )
     DEBUG_ONLY(CSE cse("soc::Degree"))
     Int localDegree = 0;
     const Int localHeight = firstInds.LocalHeight();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = firstInds.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) )
+        if( i == firstIndsLoc(iLoc) )
             ++localDegree;
     }
     return mpi::AllReduce( localDegree, firstInds.Comm() );

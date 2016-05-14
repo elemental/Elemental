@@ -144,6 +144,10 @@ void RNNLS
     DistMatrix<Int,VC,STAR> orders(g), firstInds(g);
     Zeros( orders, m+2*n+3, 1 );
     Zeros( firstInds, m+2*n+3, 1 );
+
+    auto& ordersLoc = orders.Matrix(); 
+    auto& firstIndsLoc = firstInds.Matrix();
+
     {
         const Int localHeight = orders.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -151,18 +155,18 @@ void RNNLS
             const Int i = orders.GlobalRow(iLoc);
             if( i < m+1 )
             {
-                orders.SetLocal( iLoc, 0, m+1 );
-                firstInds.SetLocal( iLoc, 0, 0 );
+                ordersLoc(iLoc) = m+1;
+                firstIndsLoc(iLoc) = 0;
             }
             else if( i < m+n+3 )
             {
-                orders.SetLocal( iLoc, 0, n+2 );
-                firstInds.SetLocal( iLoc, 0, m+1 );
+                ordersLoc(iLoc) = n+2;
+                firstIndsLoc(iLoc) = m+1;
             }
             else
             {
-                orders.SetLocal( iLoc, 0, 1 );
-                firstInds.SetLocal( iLoc, 0, i );
+                ordersLoc(iLoc) = 1;
+                firstIndsLoc(iLoc) = i;
             }
         }
     }
@@ -393,11 +397,12 @@ void RNNLS
     //      | 0 |
     DistMultiVec<Real> h(comm);
     Zeros( h, m+2*n+3, 1 ); 
+    auto& bLoc = b.LockedMatrix();
     {
         const Int bLocalHeight = b.LocalHeight();
         h.Reserve( bLocalHeight );
         for( Int iLoc=0; iLoc<bLocalHeight; ++iLoc )
-            h.QueueUpdate( b.GlobalRow(iLoc)+1, 0, b.GetLocal(iLoc,0) );
+            h.QueueUpdate( b.GlobalRow(iLoc)+1, 0, bLoc(iLoc) );
         h.ProcessQueues();
     }
     h.Set( m+n+2, 0, 1 );

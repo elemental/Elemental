@@ -41,8 +41,8 @@ void Dots
 
     for( Int i=0; i<height; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
+        const Int order = orders(i);
+        const Int firstInd = firstInds(i);
         DEBUG_ONLY(
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");

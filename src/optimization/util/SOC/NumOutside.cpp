@@ -29,11 +29,11 @@ Int NumOutside
     const Int height = x.Height();
     for( Int i=0; i<height; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
+        const Int order = orders(i);
+        const Int firstInd = firstInds(i);
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
-        const Real det = d.Get(i,0);
+        const Real det = d(i);
         if( det < Real(0) )
             ++numNonSO;
         i += order;
@@ -69,10 +69,12 @@ Int NumOutside
 
     Int numLocalNonSOC = 0;
     const Int localHeight = x.LocalHeight();
+    auto& dLoc = d.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) && d.GetLocal(iLoc,0) < Real(0) )
+        if( i == firstIndsLoc(iLoc) && dLoc(iLoc) < Real(0) )
             ++numLocalNonSOC;
     }
     return mpi::AllReduce( numLocalNonSOC, x.DistComm() );
@@ -92,10 +94,12 @@ Int NumOutside
 
     Int numLocalNonSOC = 0;
     const int localHeight = x.LocalHeight();
+    auto& dLoc = d.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) && d.GetLocal(iLoc,0) < Real(0) )
+        if( i == firstIndsLoc(iLoc) && dLoc(iLoc) < Real(0) )
             ++numLocalNonSOC;
     }
     return mpi::AllReduce( numLocalNonSOC, x.Comm() );

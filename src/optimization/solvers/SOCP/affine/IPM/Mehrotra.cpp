@@ -881,26 +881,26 @@ void Mehrotra
     {
         if( i < n )
         {
-            regTmp.Set( i, 0, gammaTmp*gammaTmp );
+            regTmp(i) = gammaTmp*gammaTmp;
         }
         else if( i < n+m )
         {
-            regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+            regTmp(i) = -deltaTmp*deltaTmp;
         }
         else
         {
             const Int iCone = i-(n+m);
-            const Int firstInd = sparseFirstInds.Get(iCone,0);
-            const Int order = sparseToOrigOrders.Get(iCone,0);
-            const Int sparseOrder = sparseOrders.Get(iCone,0);
+            const Int firstInd = sparseFirstInds(iCone);
+            const Int order = sparseToOrigOrders(iCone);
+            const Int sparseOrder = sparseOrders(iCone);
             const bool embedded = ( order != sparseOrder );
           
             // TODO: Use different diagonal modification for the auxiliary
             //       variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp.Set( i, 0, betaTmp*betaTmp );
+                regTmp(i) = betaTmp*betaTmp;
             else 
-                regTmp.Set( i, 0, -betaTmp*betaTmp );
+                regTmp(i) = -betaTmp*betaTmp;
         }
     }
     regTmp *= origTwoNormEst;
@@ -1348,6 +1348,10 @@ void Mehrotra
       cutoffSparse );
     const Int kSparse = sparseFirstInds.Height();
 
+    auto& sparseOrdersLoc = sparseOrders.LockedMatrix();
+    auto& sparseFirstIndsLoc = sparseFirstInds.LockedMatrix();
+    auto& sparseToOrigOrdersLoc = sparseToOrigOrders.LockedMatrix();
+
     DistSparseMultMeta metaOrig;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
@@ -1380,10 +1384,10 @@ void Mehrotra
         for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
         {
             const Int iCone = sparseFirstInds.GlobalRow(iLoc);
-            const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
-            const Int sparseOrder = sparseOrders.GetLocal(iLoc,0);
+            const Int order = sparseToOrigOrdersLoc(iLoc);
+            const Int sparseOrder = sparseOrdersLoc(iLoc);
             const bool embedded = ( order != sparseOrder ); 
-            const Int firstInd = sparseFirstInds.GetLocal(iLoc,0);
+            const Int firstInd = sparseFirstIndsLoc(iLoc);
             if( embedded && iCone == firstInd+sparseOrder-1 )
                 regTmp.QueueUpdate( n+m+iCone, 0, betaTmp*betaTmp );
             else

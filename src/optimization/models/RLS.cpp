@@ -350,11 +350,12 @@ void RLS
     //      | 1 |
     DistMultiVec<Real> h(comm);
     Zeros( h, m+n+3, 1 ); 
+    auto& bLoc = b.LockedMatrix();
     {
         const Int bLocalHeight = b.LocalHeight();
         h.Reserve( bLocalHeight );
         for( Int iLoc=0; iLoc<bLocalHeight; ++iLoc )
-            h.QueueUpdate( b.GlobalRow(iLoc)+1, 0, b.GetLocal(iLoc,0) );
+            h.QueueUpdate( b.GlobalRow(iLoc)+1, 0, bLoc(iLoc) );
         h.ProcessQueues();
     }
     h.Set( END, 0, 1 );

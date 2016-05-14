@@ -206,7 +206,7 @@ void KKT
     // Jzz = -z <> s
     // =============
     for( Int e=0; e<k; ++e )
-        J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
+        J.QueueUpdate( n+m+e, n+m+e, -s(e)/z(e) );
 
     J.ProcessQueues();
 }
@@ -307,7 +307,7 @@ void FinishKKT
     if( !J.FrozenSparsity() )
         J.Reserve( J.NumEntries()+k );
     for( Int e=0; e<k; ++e )
-        J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
+        J.QueueUpdate( n+m+e, n+m+e, -s(e)/z(e) );
     J.ProcessQueues();
 }
 
@@ -328,6 +328,8 @@ void KKT
     const Int numEntriesQ = Q.NumLocalEntries();
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesG = G.NumLocalEntries();
+    auto& sLoc = s.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     J.SetComm( A.Comm() );
     Zeros( J, n+m+k, n+m+k );
@@ -382,7 +384,7 @@ void KKT
     for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
     {
         const Int i = m+n + s.GlobalRow(iLoc);
-        const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
+        const Real value = -sLoc(iLoc)/zLoc(iLoc);
         J.QueueUpdate( i, i, value );
     }
     J.ProcessQueues();
@@ -477,6 +479,8 @@ void FinishKKT
         DistSparseMatrix<Real>& J )
 {
     DEBUG_ONLY(CSE cse("qp::affine::FinishKKT"))
+    auto& sLoc = s.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     // Pack -z <> s
     // ------------
@@ -486,7 +490,7 @@ void FinishKKT
     for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
     {
         const Int i = m+n + s.GlobalRow(iLoc);
-        const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
+        const Real value = -sLoc(iLoc)/zLoc(iLoc);
         J.QueueUpdate( i, i, value );
     }
     J.ProcessQueues();
@@ -568,6 +572,12 @@ void KKTRHS
     const Int n = rc.Height();
     const Int m = rb.Height();
     const int k = rh.Height();
+    auto& rcLoc = rc.LockedMatrix();
+    auto& rbLoc = rb.LockedMatrix();
+    auto& rhLoc = rh.LockedMatrix();
+    auto& rmuLoc = rmu.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
+
     d.SetComm( rc.Comm() );
     Zeros( d, n+m+k, 1 );
 
@@ -576,20 +586,19 @@ void KKTRHS
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
         Int i = rc.GlobalRow(iLoc);
-        Real value = -rc.GetLocal(iLoc,0);
+        Real value = -rcLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
         Int i = n + rb.GlobalRow(iLoc);
-        Real value = -rb.GetLocal(iLoc,0);
+        Real value = -rbLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
         Int i = n+m + rmu.GlobalRow(iLoc);
-        Real value = rmu.GetLocal(iLoc,0)/z.GetLocal(iLoc,0) - 
-                     rh.GetLocal(iLoc,0);
+        Real value = rmuLoc(iLoc)/zLoc(iLoc) - rhLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     d.ProcessQueues();
@@ -671,10 +680,11 @@ void ExpandCoreSolution
     dx.Reserve( dxNumEntries );
     dy.Reserve( dyNumEntries );
     dz.Reserve( dzNumEntries );
+    auto& dLoc = d.LockedMatrix();
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
-        const Real value = d.GetLocal(iLoc,0);
+        const Real value = dLoc(iLoc);
         if( i < n )
             dx.QueueUpdate( i, 0, value );
         else if( i < n+m )

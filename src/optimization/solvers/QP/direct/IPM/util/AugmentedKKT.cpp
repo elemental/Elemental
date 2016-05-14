@@ -117,7 +117,7 @@ void AugmentedKKT
 
     // x o inv(z) + gamma^2*I updates
     for( Int j=0; j<n; ++j )
-        J.QueueUpdate( j, j, z.Get(j,0)/x.Get(j,0)+gamma*gamma );
+        J.QueueUpdate( j, j, z(j)/x(j)+gamma*gamma );
 
     // Q update
     for( Int e=0; e<numEntriesQ; ++e )
@@ -161,6 +161,8 @@ void AugmentedKKT
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumLocalEntries();
     const Int numEntriesA = A.NumLocalEntries();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     J.SetComm( A.Comm() );
     Zeros( J, m+n, m+n );
@@ -205,7 +207,7 @@ void AugmentedKKT
     for( Int iLoc=0; iLoc<x.LocalHeight(); ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Real value = z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma;
+        const Real value = zLoc(iLoc)/xLoc(iLoc)+gamma*gamma;
         J.QueueUpdate( i, i, value );
     }
     // Pack Q
@@ -309,6 +311,11 @@ void AugmentedKKTRHS
     DEBUG_ONLY(CSE cse("qp::direct::FormAugmentedSystem"))
     const Int m = rb.Height();
     const Int n = x.Height();
+    auto& xLoc = x.LockedMatrix();
+    auto& rcLoc = rc.LockedMatrix();
+    auto& rbLoc = rb.LockedMatrix();
+    auto& rmuLoc = rmu.LockedMatrix();
+
     d.SetComm( x.Comm() );
     Zeros( d, m+n, 1 );
 
@@ -316,14 +323,13 @@ void AugmentedKKTRHS
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
         const Int i = rc.GlobalRow(iLoc);
-        const Real value = -rc.GetLocal(iLoc,0) -
-                            rmu.GetLocal(iLoc,0)/x.GetLocal(iLoc,0);
+        const Real value = -rcLoc(iLoc) - rmuLoc(iLoc)/xLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
         const Int i = rb.GlobalRow(iLoc) + n;
-        const Real value = -rb.GetLocal(iLoc,0);
+        const Real value = -rbLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     d.ProcessQueues();
@@ -407,6 +413,8 @@ void ExpandAugmentedSolution
     dy.SetComm( comm );
     dz.SetComm( comm );
 
+    auto& dLoc = d.LockedMatrix();
+
     // Extract dx and dy from [dx; dy]
     // ===============================
     Zeros( dx, n, 1 );
@@ -425,7 +433,7 @@ void ExpandAugmentedSolution
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
-        const Real value = d.GetLocal(iLoc,0);
+        const Real value = dLoc(iLoc);
         if( i < n )
             dx.QueueUpdate( i, 0, value );
         else

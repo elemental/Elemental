@@ -36,13 +36,11 @@ void PushPairInto
     const Int height = s.Height();
     for( Int i=0; i<height; ++i )
     {
-        const Real w0 = w.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
-        if( i == firstInd && w0 > wMaxNormLimit )
+        if( i == firstInds(i) && w(i) > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            s.Update( i, 0, Real(1)/wMaxNormLimit );
-            z.Update( i, 0, Real(1)/wMaxNormLimit );
+            s(i) += Real(1)/wMaxNormLimit;
+            z(i) += Real(1)/wMaxNormLimit;
         }
     }
 }
@@ -82,15 +80,18 @@ void PushPairInto
     soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 
     const Int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
+    auto& zLoc = z.Matrix();
+    auto& wLoc = w.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = s.GlobalRow(iLoc);
-        const Real w0 = w.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && w0 > wMaxNormLimit )
+        if( i == firstIndsLoc(iLoc) && wLoc(iLoc) > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
-            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
+            sLoc(iLoc) += Real(1)/wMaxNormLimit;
+            zLoc(iLoc) += Real(1)/wMaxNormLimit;
         }
     }
 }
@@ -111,15 +112,18 @@ void PushPairInto
     soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 
     const int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
+    auto& zLoc = z.Matrix();
+    auto& wLoc = w.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = s.GlobalRow(iLoc);
-        const Real w0 = w.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && w0 > wMaxNormLimit )
+        if( i == firstIndsLoc(iLoc) && wLoc(iLoc) > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
-            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
+            sLoc(iLoc) += Real(1)/wMaxNormLimit;
+            zLoc(iLoc) += Real(1)/wMaxNormLimit;
         }
     }
 }

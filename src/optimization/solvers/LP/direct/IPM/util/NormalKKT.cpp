@@ -73,7 +73,7 @@ void NormalKKT
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -112,16 +112,15 @@ void NormalKKT
       zProx( zPre, ctrl );
     auto& x = xProx.GetLocked();
     auto& z = zProx.GetLocked();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix(); 
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -158,7 +157,7 @@ void NormalKKT
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -207,14 +206,17 @@ void NormalKKT
     // TODO: Expose this value as a parameter
     const Real inflateRatio = Pow(limits::Epsilon<Real>(),Real(0.83));
 
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
+
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================
     DistMultiVec<Real> dInv(comm);
     dInv.Resize( n, 1 );
+    auto& dInvLoc = dInv.Matrix();
     const Int dInvLocalHeight = dInv.LocalHeight();
     for( Int iLoc=0; iLoc<dInvLocalHeight; ++iLoc )
-        dInv.SetLocal
-        ( iLoc, 0, Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0) + gamma*gamma) );
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc) + gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -262,7 +264,7 @@ void NormalKKTRHS
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -302,16 +304,15 @@ void NormalKKTRHS
       zProx( zPre, ctrl );
     auto& x = xProx.GetLocked();
     auto& z = zProx.GetLocked();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -347,7 +348,7 @@ void NormalKKTRHS
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -389,15 +390,15 @@ void NormalKKTRHS
     if( !mpi::Congruent( comm, z.Comm() ) )
         LogicError("Communicators of A and z must match");
 
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
+
     DistMultiVec<Real> dInv(comm);
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -434,7 +435,7 @@ void ExpandNormalSolution
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
@@ -482,16 +483,15 @@ void ExpandNormalSolution
       zProx( zPre, ctrl );
     auto& x = xProx.GetLocked();
     auto& z = zProx.GetLocked();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
@@ -535,7 +535,7 @@ void ExpandNormalSolution
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
@@ -573,16 +573,15 @@ void ExpandNormalSolution
 {
     DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
     const Int n = A.Width();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMultiVec<Real> dInv(A.Comm());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
