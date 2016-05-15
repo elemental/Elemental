@@ -15,8 +15,7 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
@@ -33,7 +32,7 @@ ComputeNewEstimates
     {
         HDiag = HDiagList[j];
         HSubdiag = HSubdiagList[j];
-        if( !activeConverged.Get(j,0) )
+        if( !activeConverged(j) )
         {
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
@@ -41,17 +40,16 @@ ComputeNewEstimates
                 ( basisSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(),
                   basisSize-1, basisSize-1 );
                 const Real est = Sqrt(w[0]);
-                activeEsts.Set( j, 0, Min(est,normCap) );
+                activeEsts(j) = Min(est,normCap);
             }
             else
-               activeEsts.Set( j, 0, normCap );
+               activeEsts(j) = normCap;
         }
     }
 }
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
@@ -64,8 +62,7 @@ ComputeNewEstimates
 }
 
 template<typename Real>
-inline void
-Restart
+void Restart
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
@@ -85,7 +82,7 @@ Restart
         HDiag = HDiagList[j];
         HSubdiag = HSubdiagList[j];
 
-        if( !activeConverged.Get(j,0) )
+        if( !activeConverged(j) )
         {
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
@@ -98,7 +95,7 @@ Restart
                 {
                     const Matrix<Complex<Real>>& V = VList[k];
                     auto v = V( ALL, IR(j) ); 
-                    Axpy( q.Get(k,0), v, u );
+                    Axpy( q(k), v, u );
                 }
                 Matrix<Complex<Real>>& V = VList[0];
                 auto v = V( ALL, IR(j) );
@@ -109,8 +106,7 @@ Restart
 }
 
 template<typename Real>
-inline void
-Restart
+void Restart
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
@@ -126,10 +122,12 @@ Restart
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 IRL
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::IRL"))
     using namespace pspec;
@@ -154,7 +152,7 @@ IRL
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     // MultiShiftTrsm currently requires write access
@@ -350,7 +348,7 @@ IRL
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 IRL
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 

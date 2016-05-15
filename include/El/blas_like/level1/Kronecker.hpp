@@ -30,7 +30,7 @@ void Kronecker
         {
             auto Cij = C( IR(iA*mB,(iA+1)*mB), IR(jA*nB,(jA+1)*nB) );
             Cij = B;
-            Scale( A.Get(iA,jA), Cij );
+            Scale( A(iA,jA), Cij );
         }
     }
 }
@@ -54,6 +54,7 @@ void Kronecker
 
     const Int localHeight = C.LocalHeight();
     const Int localWidth = C.LocalWidth();
+    auto& CLoc = C.Matrix();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = C.GlobalCol(jLoc);
@@ -64,7 +65,7 @@ void Kronecker
             const Int i = C.GlobalRow(iLoc);
             const Int iA = i / mB;
             const Int iB = i % mB;
-            C.SetLocal( iLoc, jLoc, A.Get(iA,jA)*B.Get(iB,jB) );
+            CLoc(iLoc,jLoc) = A(iA,jA)*B(iB,jB);
         }
     }
 }
@@ -128,7 +129,7 @@ void Kronecker
             const Int j = jA*nB + jB;
             for( Int iB=0; iB<mB; ++iB )
             {
-                const T valB = B.Get(iB,jB);
+                const T valB = B(iB,jB);
                 const Int i = iA*mB + iB;
                 C.QueueUpdate( i, j, valA*valB );
             }
@@ -154,7 +155,7 @@ void Kronecker
     {
         for( Int iA=0; iA<mA; ++iA )
         {
-            const T valA = A.Get(iA,jA);
+            const T valA = A(iA,jA);
             for( Int eB=0; eB<numEntriesB; ++eB )
             {
                 const Int iB = B.Row(eB);

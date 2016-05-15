@@ -41,10 +41,10 @@ ComputePartition( Matrix<F>& A )
     vector<Real> colSums(n-1,0), rowSums(n-1,0);
     for( Int j=0; j<n-1; ++j )
         for( Int i=j+1; i<n; ++i )
-            colSums[j] += Abs( A.Get(i,j) ); 
+            colSums[j] += Abs( A(i,j) ); 
     for( Int i=1; i<n-1; ++i )
         for( Int j=0; j<i; ++j )
-            rowSums[i-1] += Abs( A.Get(i,j) );
+            rowSums[i-1] += Abs( A(i,j) );
 
     // Compute the list of norms and its minimum value/index
     ValueInt<Real> part;

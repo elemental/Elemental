@@ -23,16 +23,9 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 
     const Int height = A.Height();
     const Int width = A.Width();
-    const T* ABuf = A.LockedBuffer();
-    const T* BBuf = B.LockedBuffer();
-          T* CBuf = C.Buffer();
-    const Int ALDim = A.LDim();
-    const Int BLDim = B.LDim();
-    const Int CLDim = C.LDim();
-
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            CBuf[i+j*CLDim] = ABuf[i+j*ALDim]*BBuf[i+j*BLDim];
+            C(i,j) = A(i,j)*B(i,j);
 }
 
 template<typename T> 

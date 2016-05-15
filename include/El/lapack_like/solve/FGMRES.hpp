@@ -22,7 +22,7 @@ namespace fgmres {
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
-inline Int Single
+Int Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         Matrix<F>& b,
@@ -109,7 +109,7 @@ inline Int Single
         // t := beta e_0
         // =============
         Zeros( t, restart+1, 1 );
-        t.Set( 0, 0, beta );
+        t(0) = beta;
 
         // Run one round of GMRES(restart)
         // ===============================
@@ -144,11 +144,11 @@ inline Int Single
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
                 auto vi = V( ALL, IR(i) );
-                H.Set( i, j, Dot(vi,w) );
+                H(i,j) = Dot(vi,w);
 
                 // w := w - H(i,j) v_i
                 // ^^^^^^^^^^^^^^^^^^^
-                Axpy( -H.Get(i,j), vi, w );
+                Axpy( -H(i,j), vi, w );
             }
             const Real delta = Nrm2( w );
             if( !limits::IsFinite(delta) )
@@ -168,19 +168,19 @@ inline Int Single
             // -----------------------------------------------
             for( Int i=0; i<j; ++i )
             {
-                const Real c = cs.Get(i,0);
-                const F s = sn.Get(i,0);
+                const Real& c = cs(i);
+                const F& s = sn(i);
                 const F sConj = Conj(s);
-                const F eta_i_j = H.Get(i,j);
-                const F eta_ip1_j = H.Get(i+1,j);
-                H.Set( i,   j,  c    *eta_i_j + s*eta_ip1_j );
-                H.Set( i+1, j, -sConj*eta_i_j + c*eta_ip1_j );
+                const F eta_i_j = H(i,j);
+                const F eta_ip1_j = H(i+1,j);
+                H(i,  j) =  c    *eta_i_j + s*eta_ip1_j;
+                H(i+1,j) = -sConj*eta_i_j + c*eta_ip1_j;
             }
 
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            const F eta_j_j = H.Get(j,j);
+            const F eta_j_j = H(j,j);
             const F eta_jp1_j = delta;
             if( !limits::IsFinite(RealPart(eta_j_j))   ||
                 !limits::IsFinite(ImagPart(eta_j_j))   ||
@@ -196,16 +196,16 @@ inline Int Single
                 !limits::IsFinite(RealPart(rho)) ||
                 !limits::IsFinite(ImagPart(rho)) )
                 RuntimeError("Givens rotation produced a non-finite number");
-            H.Set( j, j, rho );
-            cs.Set( j, 0, c );
-            sn.Set( j, 0, s );
+            H(j,j) = rho;
+            cs(j) = c;
+            sn(j) = s;
             // Apply the rotation to the rotated beta*e_0 vector
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             const F sConj = Conj(s);
-            const F tau_j = t.Get(j,0);
-            const F tau_jp1 = t.Get(j+1,0);
-            t.Set( j,   0,  c    *tau_j + s*tau_jp1 );
-            t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
+            const F tau_j = t(j);
+            const F tau_jp1 = t(j+1);
+            t(j)   =  c    *tau_j + s*tau_jp1;
+            t(j+1) = -sConj*tau_j + c*tau_jp1;
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
             auto tT = t( IR(0,j+1), ALL );
@@ -278,7 +278,7 @@ inline Int Single
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
-inline Int FGMRES
+Int FGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         Matrix<F>& B,
@@ -305,7 +305,7 @@ namespace fgmres {
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
-inline Int Single
+Int Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         DistMultiVec<F>& b,
@@ -401,7 +401,7 @@ inline Int Single
         // t := beta e_0
         // =============
         Zeros( t, restart+1, 1 );
-        t.Set( 0, 0, beta );
+        t(0) = beta;
 
         // Run one round of GMRES(restart)
         // ===============================
@@ -439,11 +439,11 @@ inline Int Single
                 // H(i,j) := v_i' w
                 // ^^^^^^^^^^^^^^^^
                 q.Matrix() = VLoc( ALL, IR(i) );
-                H.Set( i, j, Dot(q,w) );
+                H(i,j) = Dot(q,w);
 
                 // w := w - H(i,j) v_i
                 // ^^^^^^^^^^^^^^^^^^^
-                Axpy( -H.Get(i,j), q, w );
+                Axpy( -H(i,j), q, w );
             }
             const Real delta = Nrm2( w );
             if( !limits::IsFinite(delta) )
@@ -463,19 +463,19 @@ inline Int Single
             // -----------------------------------------------
             for( Int i=0; i<j; ++i )
             {
-                const Real c = cs.Get(i,0);
-                const F s = sn.Get(i,0);
+                const Real& c = cs(i);
+                const F& s = sn(i);
                 const F sConj = Conj(s);
-                const F eta_i_j = H.Get(i,j);
-                const F eta_ip1_j = H.Get(i+1,j);
-                H.Set( i,   j,  c    *eta_i_j + s*eta_ip1_j );
-                H.Set( i+1, j, -sConj*eta_i_j + c*eta_ip1_j );
+                const F eta_i_j = H(i,j);
+                const F eta_ip1_j = H(i+1,j);
+                H(i,  j) =  c    *eta_i_j + s*eta_ip1_j;
+                H(i+1,j) = -sConj*eta_i_j + c*eta_ip1_j;
             }
 
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            const F eta_j_j = H.Get(j,j);
+            const F eta_j_j = H(j,j);
             const F eta_jp1_j = delta;
             if( !limits::IsFinite(RealPart(eta_j_j))   ||
                 !limits::IsFinite(ImagPart(eta_j_j))   ||
@@ -491,16 +491,16 @@ inline Int Single
                 !limits::IsFinite(RealPart(rho)) ||
                 !limits::IsFinite(ImagPart(rho)) )
                 RuntimeError("Givens rotation produced a non-finite number");
-            H.Set( j, j, rho );
-            cs.Set( j, 0, c );
-            sn.Set( j, 0, s );
+            H(j,j) = rho;
+            cs(j) = c;
+            sn(j) = s;
             // Apply the rotation to the rotated beta*e_0 vector
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             const F sConj = Conj(s);
-            const F tau_j = t.Get(j,0);
-            const F tau_jp1 = t.Get(j+1,0);
-            t.Set( j,   0,  c    *tau_j + s*tau_jp1 );
-            t.Set( j+1, 0, -sConj*tau_j + c*tau_jp1 );
+            const F tau_j = t(j);
+            const F tau_jp1 = t(j+1);
+            t(j)   =  c    *tau_j + s*tau_jp1;
+            t(j+1) = -sConj*tau_j + c*tau_jp1;
             // Minimize the residual
             // ^^^^^^^^^^^^^^^^^^^^^
             auto tT = t( IR(0,j+1), ALL );
@@ -574,7 +574,7 @@ inline Int Single
 
 // TODO: Add support for an initial guess
 template<typename F,class ApplyAType,class PrecondType>
-inline Int FGMRES
+Int FGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         DistMultiVec<F>& B,

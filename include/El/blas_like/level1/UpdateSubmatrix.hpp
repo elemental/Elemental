@@ -30,7 +30,7 @@ void UpdateSubmatrix
         for( Int iSub=0; iSub<m; ++iSub )
         {
             const Int i = I[iSub];
-            A.Update( i, j, alpha*ASub.Get(iSub,jSub) );
+            A(i,j) += alpha*ASub(iSub,jSub);
         }
     }
 }
@@ -50,6 +50,7 @@ void UpdateSubmatrix
     {
         const Int ASubLocalHeight = ASub.LocalHeight();
         const Int ASubLocalWidth = ASub.LocalWidth();
+        auto& ASubLoc = ASub.LockedMatrix();
         A.Reserve( ASubLocalHeight*ASubLocalWidth );
         for( Int jLoc=0; jLoc<ASubLocalWidth; ++jLoc )
         {
@@ -57,8 +58,7 @@ void UpdateSubmatrix
             for( Int iLoc=0; iLoc<ASubLocalHeight; ++iLoc )
             {
                 const Int iSub = ASub.GlobalRow(iLoc);
-                A.QueueUpdate
-                ( I[iSub], J[jSub], alpha*ASub.GetLocal(iLoc,jLoc) );
+                A.QueueUpdate( I[iSub], J[jSub], alpha*ASubLoc(iLoc,jLoc) );
             }
         }
     }

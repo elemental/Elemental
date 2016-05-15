@@ -45,7 +45,7 @@ T Dotu( const Matrix<T>& A, const Matrix<T>& B )
     const Int height = A.Height();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            sum += A.Get(i,j)*B.Get(i,j);
+            sum += A(i,j)*B(i,j);
     return sum;
 }
 
@@ -67,11 +67,13 @@ T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
     if( A.Participating() )
     {
         T localInnerProd(0);
+        auto& ALoc = A.LockedMatrix();
+        auto& BLoc = B.LockedMatrix();
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                localInnerProd += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
+                localInnerProd += ALoc(iLoc,jLoc)*BLoc(iLoc,jLoc);
         innerProd = mpi::AllReduce( localInnerProd, A.DistComm() );
     }
     mpi::Broadcast( innerProd, A.Root(), A.CrossComm() );
@@ -94,9 +96,11 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
     T localInnerProd = 0;
     const Int localHeight = A.LocalHeight(); 
     const Int width = A.Width();
+    auto& ALoc = A.LockedMatrix();
+    auto& BLoc = B.LockedMatrix();
     for( Int j=0; j<width; ++j )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )    
-            localInnerProd += A.GetLocal(iLoc,j)*B.GetLocal(iLoc,j);
+            localInnerProd += ALoc(iLoc,j)*BLoc(iLoc,j);
     return mpi::AllReduce( localInnerProd, A.Comm() );
 }
 

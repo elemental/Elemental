@@ -29,7 +29,7 @@ void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 
     for( Int j=0; j<n-1; ++j )
     {
-        if( U.Get(j+1,j) != Real(0) )
+        if( U(j+1,j) != Real(0) )
         {
             // Compute the Schur decomposition of the 2x2 block.
             // TODO: Switch to an analytical formula which exploits the fact
@@ -37,7 +37,7 @@ void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
             lapack::HessenbergSchur
             ( 2, U.Buffer(j,j), U.LDim(), 
               w1.Buffer(), V11.Buffer(), V11.LDim(), fullTriangle, multiplyQ );
-            U.Set(j+1,j,0);
+            U(j+1,j) = 0;
 
             // Apply V11 from the right to U01
             auto U01 = U( IR(0,j), IR(j,j+2) );
@@ -72,7 +72,7 @@ void RealToComplex
 
     for( Int j=0; j<n-1; ++j )
     {
-        if( U.Get(j+1,j) != Real(0) )
+        if( U(j+1,j) != Real(0) )
         {
             // Compute the Schur decomposition of the 2x2 block.
             // TODO: Switch to an analytical formula which exploits the fact
@@ -80,7 +80,7 @@ void RealToComplex
             lapack::HessenbergSchur
             ( 2, U.Buffer(j,j), U.LDim(), 
               w1.Buffer(), V11.Buffer(), V11.LDim(), fullTriangle, multiplyV );
-            U.Set(j+1,j,0);
+            U(j+1,j) = 0;
 
             // Apply V11 from the right to Q1
             auto Q1 = Q( ALL, IR(j,j+2) );

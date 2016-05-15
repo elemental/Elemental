@@ -20,7 +20,7 @@ void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
     AReal.Resize( m, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            AReal.Set( i, j, A.GetRealPart(i,j) );
+            AReal(i,j) = RealPart(A(i,j));
 }
 
 template<typename T>

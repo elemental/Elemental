@@ -67,7 +67,7 @@ inline void TallAbsoluteProduct
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
-        s.Set( i, 0, Sqrt(s.Get(i,0)) );
+        s(i) = Sqrt(s(i));
 
     if( !avoidU )
     {
@@ -119,7 +119,7 @@ inline void TallRelativeProduct
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     for( Int i=0; i<n; ++i )
     {
-        const Real sigma = Sqrt(s.Get(i,0));
+        const Real sigma = Sqrt(s(i));
         if( sigma <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
@@ -127,7 +127,7 @@ inline void TallRelativeProduct
             break;
         }
         else
-            s.Set( i, 0, sigma );
+            s(i) = sigma;
     }
 
     if( !avoidU )
@@ -212,11 +212,10 @@ TallAbsoluteProduct
     HermitianEig( LOWER, C, s, V, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
-    {
-        const Int localHeight = s.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
-    }
+    const Int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        sLoc(iLoc) = Sqrt(sLoc(iLoc));
 
     if( !avoidU )
     {
@@ -291,9 +290,10 @@ TallRelativeProduct
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
+    auto& sLoc = s_STAR_STAR.Matrix();
     for( Int i=0; i<n; ++i )
     {
-        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        const Real lambda = sLoc(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s_STAR_STAR.Resize( i, 1 );
@@ -301,7 +301,7 @@ TallRelativeProduct
             break;
         }
         else
-            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
+            sLoc(i) = Sqrt(lambda);
     }
     Copy( s_STAR_STAR, s );
 
@@ -411,8 +411,9 @@ TallAbsoluteProduct
     const int k = s.Height();
     
     // Sigma := sqrt(Sigma^2)
+    auto& sLoc = s.Matrix();
     for( Int i=0; i<k; ++i )
-        s.SetLocal( i, 0, Sqrt(s.GetLocal(i,0)) );
+        sLoc(i) = Sqrt(sLoc(i));
 
     if( !avoidU )
     {
@@ -490,9 +491,10 @@ TallRelativeProduct
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
+    auto& sLoc = s.Matrix();
     for( Int i=0; i<n; ++i )
     {
-        const Real lambda = s.GetLocal(i,0);
+        const Real lambda = sLoc(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
@@ -500,7 +502,7 @@ TallRelativeProduct
             break;
         }
         else
-            s.SetLocal( i, 0, Sqrt(lambda) );
+            sLoc(i) = Sqrt(lambda);
     }
     const int k = s.Height();
 
@@ -608,7 +610,7 @@ WideAbsoluteProduct
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
-        s.Set( i, 0, Sqrt(s.Get(i,0)) );
+        s(i) = Sqrt(s(i));
 
     if( !avoidV )
     {
@@ -659,7 +661,7 @@ WideRelativeProduct
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
     for( Int i=0; i<m; ++i )
     {
-        const Real lambda = s.Get(i,0);
+        const Real lambda = s(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
@@ -667,7 +669,7 @@ WideRelativeProduct
             break;
         }
         else
-            s.Set( i, 0, Sqrt(lambda) );
+            s(i) = Sqrt(lambda);
     }
 
     if( !avoidV )
@@ -750,11 +752,10 @@ WideAbsoluteProduct
     HermitianEig( LOWER, C, s, U, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
-    {
-        const Int localHeight = s.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
-    }
+    const Int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        sLoc(iLoc) = Sqrt(sLoc(iLoc));
 
     if( !avoidV )
     {
@@ -827,9 +828,10 @@ WideRelativeProduct
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
+    auto& sLoc = s_STAR_STAR.Matrix();
     for( Int i=0; i<m; ++i )
     {
-        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        const Real lambda = sLoc(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s_STAR_STAR.Resize( i, 1 );
@@ -837,7 +839,7 @@ WideRelativeProduct
             break;
         }
         else
-            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
+            sLoc(i) = Sqrt(lambda);
     }
     Copy( s_STAR_STAR, s );
 
@@ -980,7 +982,7 @@ inline void TallAbsoluteProduct
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
-        s.Set( i, 0, Sqrt(s.Get(i,0)) );
+        s(i) = Sqrt(s(i));
 }
 
 template<typename F>
@@ -1010,14 +1012,14 @@ inline void TallRelativeProduct
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     for( Int i=0; i<n; ++i )
     {
-        const Real sigma = Sqrt(s.Get(i,0));
+        const Real sigma = Sqrt(s(i));
         if( sigma <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
             break;
         }
         else
-            s.Set( i, 0, sigma );
+            s(i) = sigma;
     }
 }
 
@@ -1081,8 +1083,9 @@ TallAbsoluteProduct
     
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
+        sLoc(iLoc) = Sqrt(sLoc(iLoc));
 }
 
 template<typename F>
@@ -1127,16 +1130,17 @@ TallRelativeProduct
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
+    auto& sLoc = s_STAR_STAR.Matrix();
     for( Int i=0; i<n; ++i )
     {
-        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        const Real lambda = sLoc(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s_STAR_STAR.Resize( i, 1 );
             break;
         }
         else
-            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
+            sLoc(i) = Sqrt(lambda);
     }
     Copy( s_STAR_STAR, s );
 }
@@ -1218,8 +1222,9 @@ TallAbsoluteProduct
     const int k = s.Height();
     
     // Sigma := sqrt(Sigma^2)
+    auto& sLoc = s.Matrix();
     for( Int i=0; i<k; ++i )
-        s.SetLocal( i, 0, Sqrt(s.GetLocal(i,0)) );
+        sLoc(i) = Sqrt(sLoc(i));
 }
 
 template<typename F>
@@ -1267,16 +1272,17 @@ TallRelativeProduct
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
+    auto& sLoc = s.Matrix();
     for( Int i=0; i<n; ++i )
     {
-        const Real lambda = s.GetLocal(i,0);
+        const Real lambda = sLoc(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
             break;
         }
         else
-            s.SetLocal( i, 0, Sqrt(lambda) );
+            sLoc(i) = Sqrt(lambda);
     }
     const int k = s.Height();
 }
@@ -1354,7 +1360,7 @@ WideAbsoluteProduct
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
-        s.Set( i, 0, Sqrt(s.Get(i,0)) );
+        s(i) = Sqrt(s(i));
 }
 
 template<typename F>
@@ -1385,14 +1391,14 @@ WideRelativeProduct
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
     for( Int i=0; i<m; ++i )
     {
-        const Real lambda = s.Get(i,0);
+        const Real lambda = s(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s.Resize( i, 1 );
             break;
         }
         else
-            s.Set( i, 0, Sqrt(lambda) );
+            s(i) = Sqrt(lambda);
     }
 }
 
@@ -1456,8 +1462,9 @@ WideAbsoluteProduct
     
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
+        sLoc(iLoc) = Sqrt(sLoc(iLoc));
 }
 
 template<typename F>
@@ -1502,16 +1509,17 @@ WideRelativeProduct
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
+    auto& sLoc = s_STAR_STAR.Matrix();
     for( Int i=0; i<m; ++i )
     {
-        const Real lambda = s_STAR_STAR.GetLocal(i,0);
+        const Real lambda = sLoc(i);
         if( lambda <= Real(0) || Sqrt(lambda) <= relTol*twoNorm )
         {
             s_STAR_STAR.Resize( i, 1 );
             break;
         }
         else
-            s_STAR_STAR.SetLocal( i, 0, Sqrt(lambda) );
+            sLoc(i) = Sqrt(lambda);
     }
     Copy( s_STAR_STAR, s );
 }

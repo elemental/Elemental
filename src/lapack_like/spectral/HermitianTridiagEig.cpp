@@ -64,13 +64,13 @@ inline void Helper
     C yLast = 1;
     for( Int j=0; j<n-1; ++j )
     {
-        const C psi = dSub.Get(j,0);
+        const C psi = dSub(j);
         const Real psiAbs = Abs(psi);
         if( psiAbs == Real(0) )
             yLast = 1;
         else
             yLast = ComplexFromPolar(Real(1),Arg(psi*yLast));
-        dSubReal.Set( j, 0, psiAbs );
+        dSubReal(j) = psiAbs;
     }
     HermitianTridiagEig( d, dSubReal, w, sort, subset );
 }
@@ -281,23 +281,23 @@ inline void Helper
     const Int n = d.Height();
     Matrix<Real> dSubReal( n-1, 1 );
     Matrix<C> y( n, 1 );
-    y.Set( 0, 0, 1 );
+    y(0) = 1;
     for( Int j=0; j<n-1; ++j )
     {
-        const C psi = dSub.Get(j,0);
+        const C psi = dSub(j);
         const Real psiAbs = Abs(psi);
         if( psiAbs == Real(0) )
-            y.Set( j+1, 0, 1 );
+            y(j+1) = 1;
         else
-            y.Set( j+1, 0, ComplexFromPolar(Real(1),Arg(psi*y.Get(j,0))) );
-        dSubReal.Set( j, 0, psiAbs );
+            y(j+1) = ComplexFromPolar(Real(1),Arg(psi*y(j)));
+        dSubReal(j) = psiAbs;
     }
     Matrix<Real> ZReal;
     HermitianTridiagEig( d, dSubReal, w, ZReal, sort, subset );
     Z.Resize( n, ZReal.Width() );
     for( Int j=0; j<ZReal.Width(); ++j )
         for( Int i=0; i<n; ++i )
-            Z.Set( i, j, y.Get(i,0)*ZReal.Get(i,j) );
+            Z(i,j) = y(i)*ZReal(i,j);
 }
 
 } // namespace herm_tridiag_eig

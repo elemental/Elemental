@@ -22,9 +22,6 @@ void DiagonalScale
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
-    const TDiag* dBuf = d.LockedBuffer();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
     if( side == LEFT )
     {
         DEBUG_ONLY(
@@ -33,9 +30,9 @@ void DiagonalScale
         )
         for( Int i=0; i<m; ++i )
         {
-            const T delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
+            const T delta = ( conj ? Conj(d(i)) : d(i) );
             for( Int j=0; j<n; ++j )
-                ABuf[i+j*ALDim] *= delta;
+                A(i,j) *= delta;
         }
     }
     else
@@ -46,9 +43,9 @@ void DiagonalScale
         )
         for( Int j=0; j<n; ++j )
         {
-            const T delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
+            const T delta = ( conj ? Conj(d(j)) : d(j) );
             for( Int i=0; i<m; ++i )
-                ABuf[i+j*ALDim] *= delta;
+                A(i,j) *= delta;
         }
     }
 }
@@ -236,15 +233,14 @@ void DiagonalScale
     )
     const bool conjugate = ( orientation == ADJOINT );
     const Int width = X.Width();
-    T* XBuf = X.Matrix().Buffer();
-    const Int XLDim = X.Matrix().LDim();
+    auto& XLoc = X.Matrix();
+    auto& dLoc = d.LockedMatrix();
     const Int localHeight = d.LocalHeight();
-    const TDiag* dBuf = d.LockedMatrix().LockedBuffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
     {
-        const T delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
+        const T delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
         for( Int j=0; j<width; ++j )
-            XBuf[iLoc+j*XLDim] *= delta;
+            XLoc(iLoc,j) *= delta;
     }
 }
 

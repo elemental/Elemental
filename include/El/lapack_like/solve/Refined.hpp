@@ -31,7 +31,7 @@ namespace El {
 namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int Single
+Int Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& b,
@@ -108,7 +108,7 @@ inline Int Single
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int Pair
+Int Pair
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& B,
@@ -283,7 +283,7 @@ inline Int Pair
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int Batch
+Int Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& B,
@@ -338,7 +338,7 @@ inline Int Batch
 } // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int RefinedSolve
+Int RefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& B,
@@ -361,7 +361,7 @@ inline Int RefinedSolve
 namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedSingle
+Int PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& b,
@@ -445,7 +445,7 @@ inline Int PromotedSingle
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedPair
+Int PromotedPair
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& B,
@@ -634,7 +634,7 @@ inline Int PromotedPair
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedBatch
+Int PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<F>& B,
@@ -693,7 +693,7 @@ inline Int PromotedBatch
 } // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline DisableIf<IsSame<F,Promote<F>>,Int>
+DisableIf<IsSame<F,Promote<F>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
@@ -715,7 +715,7 @@ PromotedRefinedSolve
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline EnableIf<IsSame<F,Promote<F>>,Int>
+EnableIf<IsSame<F,Promote<F>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
@@ -731,7 +731,7 @@ PromotedRefinedSolve
 namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int Single
+Int Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& b,
@@ -811,7 +811,7 @@ inline Int Single
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int Batch
+Int Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& B,
@@ -868,7 +868,7 @@ inline Int Batch
 } // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int RefinedSolve
+Int RefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& B,
@@ -888,7 +888,7 @@ inline Int RefinedSolve
 namespace refined_solve {
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedSingle
+Int PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& b,
@@ -973,7 +973,7 @@ inline Int PromotedSingle
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline Int PromotedBatch
+Int PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<F>& B,
@@ -1035,7 +1035,7 @@ inline Int PromotedBatch
 } // namespace refined_solve
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline DisableIf<IsSame<F,Promote<F>>,Int>
+DisableIf<IsSame<F,Promote<F>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
@@ -1054,7 +1054,7 @@ PromotedRefinedSolve
 }
 
 template<typename F,class ApplyAType,class ApplyAInvType>
-inline EnableIf<IsSame<F,Promote<F>>,Int>
+EnableIf<IsSame<F,Promote<F>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,

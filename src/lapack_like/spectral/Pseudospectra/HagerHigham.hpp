@@ -15,7 +15,7 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 OneNormConvergenceTest
 (       Matrix<Complex<Real>>& activeX,
   const Matrix<Complex<Real>>& activeY,
@@ -66,24 +66,24 @@ OneNormConvergenceTest
     for( Int j=0; j<numActiveShifts; ++j )
     {
         const Real gamma = blas::Nrm1( n, activeY.LockedBuffer(0,j), 1 );
-        activeEsts.Set( j, 0, gamma );
+        activeEsts(j) = gamma;
         if( numIts > 0 && valueInts[j].value <= innerProds[j] )
         {
-            activeConverged.Set( j, 0, 1 );
+            activeConverged(j) = 1;
         }
         else
         {
             for( Int i=0; i<n; ++i )
-                activeX.Set( i, j, 0 );
-            activeX.Set( valueInts[j].index, j, 1 );
-            activeItCounts.Update( j, 0, 1 );
+                activeX(i,j) = 0;
+            activeX( valueInts[j].index, j ) = 1;
+            ++activeItCounts(j);
         }
     }
     return activeConverged;
 }
 
 template<typename Real>
-inline DistMatrix<Int,MR,STAR>
+DistMatrix<Int,MR,STAR>
 OneNormConvergenceTest
 (       DistMatrix<Complex<Real>>& activeX,
   const DistMatrix<Complex<Real>>& activeY,
@@ -185,11 +185,12 @@ OneNormConvergenceTest
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 HagerHigham
 ( const Matrix<Complex<Real>>& U,
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
     using namespace pspec;
@@ -212,7 +213,7 @@ HagerHigham
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -322,8 +323,9 @@ HagerHigham
     // cancellation in large entries in inv(U - zI)
     for( Int j=0; j<numShifts; ++j )
         for( Int i=0; i<n; ++i )
-            X.Set( i, j, (i%2==0 ?  Real(i+n-1)/Real(n-1)  
-                                 : -Real(i+n-1)/Real(n-1) ) );
+            X(i,j) = 
+              (i%2==0 ?  Real(i+n-1)/Real(n-1)  
+                      : -Real(i+n-1)/Real(n-1) );
     if( psCtrl.schur )
         MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), UCopy, shifts, X );
     else
@@ -332,8 +334,8 @@ HagerHigham
     {
         const Real oneNorm = blas::Nrm1( n, X.LockedBuffer(0,j), 1 );
         const Real heurNorm = 2*oneNorm/(3*Real(n));
-        if( heurNorm > invNorms.Get(j,0) )
-            invNorms.Set( j, 0, heurNorm );
+        if( heurNorm > invNorms(j) )
+            invNorms(j) = heurNorm;
     }
 
     FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
@@ -341,11 +343,13 @@ HagerHigham
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 HagerHigham
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& Q, 
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& Q, 
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
     using namespace pspec;
@@ -368,7 +372,7 @@ HagerHigham
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -485,8 +489,8 @@ HagerHigham
         return itCounts;
     auto x = X( ALL, IR(0) );
     for( Int i=0; i<n; ++i )
-        x.Set( i, 0, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
-                             : -Real(i+n-1)/Real(n-1) ) );
+        x(i) = (i%2==0 ?  Real(i+n-1)/Real(n-1) 
+                       : -Real(i+n-1)/Real(n-1) );
     Matrix<C> yRep;
     Gemv( ADJOINT, C(1), Q, x, yRep );
     Matrix<C> Y( n, numShifts );
@@ -504,8 +508,8 @@ HagerHigham
     {
         const Real oneNorm = blas::Nrm1( n, X.LockedBuffer(0,j), 1 );
         const Real heurNorm = 2*oneNorm/(3*Real(n));
-        if( heurNorm > invNorms.Get(j,0) )
-            invNorms.Set( j, 0, heurNorm );
+        if( heurNorm > invNorms(j) )
+            invNorms(j) = heurNorm;
     }
 
     FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
@@ -513,7 +517,7 @@ HagerHigham
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 HagerHigham
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
@@ -710,7 +714,7 @@ HagerHigham
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 HagerHigham
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& QPre,

@@ -21,7 +21,7 @@ void FillDiagonal( Matrix<T>& A, T alpha, Int offset )
     {
         const Int i = j-offset;
         if( i >= 0 && i < height )
-            A.Set( i, j, alpha );
+            A(i,j) = alpha;
     }
 }
 

@@ -22,15 +22,12 @@ void UpdateMappedDiagonal
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
-    const S* dBuf = d.LockedBuffer();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
     EL_PARALLEL_FOR
     for( Int k=0; k<diagLength; ++k )
     {
         const Int i = iStart + k;
         const Int j = jStart + k;
-        func( ABuf[i+j*ALDim], dBuf[k] );
+        func( A(i,j), d(k) );
     }
 }
 
@@ -108,15 +105,14 @@ void UpdateMappedDiagonal
         const Int jLocStride = d.ColStride() / rowStride;
 
         const Int localDiagLength = d.LocalHeight();
-        const S* dBuf = d.LockedBuffer();
-        T* buffer = A.Buffer();
-        const Int ldim = A.LDim();
+        auto& ALoc = A.Matrix();
+        auto& dLoc = d.LockedMatrix();
         EL_PARALLEL_FOR
         for( Int k=0; k<localDiagLength; ++k )
         {
             const Int iLoc = iLocStart + k*iLocStride;
             const Int jLoc = jLocStart + k*jLocStride;
-            func( buffer[iLoc+jLoc*ldim], dBuf[k] );
+            func( ALoc(iLoc,jLoc), dLoc(k) );
         }
     }
 }

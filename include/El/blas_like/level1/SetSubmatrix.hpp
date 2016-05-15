@@ -29,7 +29,7 @@ void SetSubmatrix
         for( Int iSub=0; iSub<m; ++iSub )
         {
             const Int i = I[iSub];
-            A.Set( i, j, ASub.Get(iSub,jSub) );
+            A(i,j) = ASub(iSub,jSub);
         }
     }
 }

@@ -17,8 +17,7 @@ namespace pspec {
 const Int HCapacityInit = 10;
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList, 
   const vector<Matrix<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
@@ -41,16 +40,15 @@ ComputeNewEstimates
             ( krylovSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(), 
               krylovSize-1, krylovSize-1 );
             const Real est = Sqrt(w[0]);
-            activeEsts.Set( j, 0, Min(est,normCap) );
+            activeEsts(j) = Min(est,normCap);
         }
         else
-            activeEsts.Set( j, 0, normCap );
+            activeEsts(j) = normCap;
     }
 }
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList, 
   const vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
@@ -60,8 +58,7 @@ ComputeNewEstimates
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( vector<Matrix<Real>>& HDiagList,
   vector<Matrix<Real>>& HSubdiagList,
   Matrix<Complex<Real>>& activeShifts, 
@@ -102,8 +99,7 @@ Deflate
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( vector<Matrix<Real>>& HDiagList,
   vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
@@ -132,7 +128,7 @@ Deflate
     const Int n = ( activeX.LocalWidth()>0 ? HDiagList[0].Height() : 0 );
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.Get(swapFrom,0) )
+        if( convergedCopy.GetLocal(swapFrom,0) )
         {
             if( swapTo != swapFrom )
             {
@@ -217,10 +213,12 @@ Deflate
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 Lanczos
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::Lanczos"))
     using namespace pspec;
@@ -243,7 +241,7 @@ Lanczos
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
  
     // MultiShiftTrsm requires write access for now
@@ -402,7 +400,7 @@ Lanczos
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 Lanczos
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 

@@ -31,8 +31,8 @@ Helper( const SparseMatrix<F>& A, Int basisSize )
     HermitianTridiagEig( d, dSub, w, ASCENDING );
     
     pair<Real,Real> extremal;
-    extremal.first = Sqrt( Max(w.Get(0,0),Real(0)) );
-    extremal.second = Sqrt( Max(w.Get(k-1,0),Real(0)) );
+    extremal.first = Sqrt( Max(w(0),Real(0)) );
+    extremal.second = Sqrt( Max(w(k-1),Real(0)) );
     return extremal;
 }
 
@@ -55,8 +55,8 @@ Helper( const DistSparseMatrix<F>& A, Int basisSize )
     HermitianTridiagEig( d, dSub, w, ASCENDING );
     
     pair<Real,Real> extremal;
-    extremal.first = Sqrt( Max(w.Get(0,0),Real(0)) );
-    extremal.second = Sqrt( Max(w.Get(k-1,0),Real(0)) );
+    extremal.first = Sqrt( Max(w(0),Real(0)) );
+    extremal.second = Sqrt( Max(w(k-1),Real(0)) );
     return extremal;
 }
 
@@ -82,7 +82,7 @@ HermitianHelper( const SparseMatrix<F>& A, Int basisSize )
     extremal.second = MaxNorm(w);
     extremal.first = extremal.second;
     for( Int i=0; i<k; ++i )
-        extremal.first = Min(extremal.first,Abs(w.Get(i,0)));
+        extremal.first = Min(extremal.first,Abs(w(i)));
     return extremal;
 }
 
@@ -109,7 +109,7 @@ HermitianHelper( const DistSparseMatrix<F>& A, Int basisSize )
     extremal.second = MaxNorm(w);
     extremal.first = extremal.second;
     for( Int i=0; i<k; ++i )
-        extremal.first = Min(extremal.first,Abs(w.Get(i,0)));
+        extremal.first = Min(extremal.first,Abs(w(i)));
 
     return extremal;
 }

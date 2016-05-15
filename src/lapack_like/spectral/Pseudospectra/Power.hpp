@@ -15,8 +15,7 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( Matrix<Complex<Real>>& activeShifts, 
   Matrix<Int          >& activePreimage,
   Matrix<Complex<Real>>& activeX,
@@ -33,7 +32,7 @@ Deflate
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( activeConverged.Get(swapFrom,0) )
+        if( activeConverged(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -52,8 +51,7 @@ Deflate
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( Matrix<Complex<Real>>& activeShifts,
   Matrix<Int          >& activePreimage,
   Matrix<Real         >& activeXReal,
@@ -71,7 +69,7 @@ Deflate
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( activeConverged.Get(swapFrom,0) )
+        if( activeConverged(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -91,8 +89,7 @@ Deflate
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Complex<Real>        >& activeX,
@@ -117,7 +114,7 @@ Deflate
 
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.Get(swapFrom,0) )
+        if( convergedCopy.GetLocal(swapFrom,0) )
         {
             if( swapTo != swapFrom )
             {
@@ -143,8 +140,7 @@ Deflate
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Real                 >& activeXReal,
@@ -171,7 +167,7 @@ Deflate
 
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.Get(swapFrom,0) )
+        if( convergedCopy.GetLocal(swapFrom,0) )
         {
             if( swapTo != swapFrom )
             {
@@ -203,10 +199,12 @@ Deflate
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 Power
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CSE cse("pspec::Power"))
     using namespace pspec;
@@ -229,7 +227,7 @@ Power
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -331,7 +329,7 @@ Power
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 Power
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 

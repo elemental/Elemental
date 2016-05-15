@@ -120,7 +120,7 @@ void SVD
 
         if( compact )
         {
-            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
+            const Real twoNorm = ( k==0 ? Real(0) : s(0) );
             // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
             Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             if( ctrl.tol != Real(0) )
@@ -133,7 +133,7 @@ void SVD
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
-                if( s.Get(j,0) <= thresh )
+                if( s(j) <= thresh )
                 {
                     rank = j;
                     break;
@@ -257,7 +257,7 @@ void SVD
 
         if( ctrl.approach == COMPACT_SVD )
         {
-            const Real twoNorm = ( Min(m,n)==0 ? Real(0) : s.Get(0,0) );
+            const Real twoNorm = ( Min(m,n)==0 ? Real(0) : s(0) );
             // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
             Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             if( ctrl.tol != Real(0) )
@@ -270,7 +270,7 @@ void SVD
             Int rank = Min(m,n); 
             for( Int j=0; j<Min(m,n); ++j )
             {
-                if( s.Get(j,0) <= thresh )
+                if( s(j) <= thresh )
                 {
                     rank = j;
                     break;
@@ -379,7 +379,7 @@ void SVD
         ( m, n, AMod.Buffer(), descAMod.data(), s.Buffer() ); 
         if( compact )
         {
-            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
+            const Real twoNorm = ( k==0 ? Real(0) : s(0) );
             // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
             Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             if( ctrl.tol != Real(0) )
@@ -392,7 +392,7 @@ void SVD
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
-                if( s.Get(j,0) <= thresh )
+                if( s(j) <= thresh )
                 {
                     rank = j;
                     break;
@@ -470,7 +470,7 @@ void SVD
         const bool compact = ( ctrl.approach == COMPACT_SVD );
         if( compact )
         {
-            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
+            const Real twoNorm = ( k==0 ? Real(0) : s(0) );
             // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
             Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             if( ctrl.tol != Real(0) )
@@ -483,7 +483,7 @@ void SVD
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
-                if( s.Get(j,0) <= thresh )
+                if( s(j) <= thresh )
                 {
                     rank = j;
                     break;

@@ -15,8 +15,7 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline void
-Analytic
+void Analytic
 ( const Matrix<Complex<Real>>& w, 
   const Matrix<Complex<Real>>& shifts, 
         Matrix<Real         >& invNorms,
@@ -35,17 +34,17 @@ Analytic
 
     for( Int j=0; j<numShifts; ++j )
     {
-        const C shift = shifts.Get(j,0);
-        Real minDist = Abs(shift-w.Get(0,0));
+        const C shift = shifts(j);
+        Real minDist = Abs(shift-w(0));
         for( Int k=1; k<n; ++k )
         {
-            const Real dist = Abs(shift-w.Get(k,0));
+            const Real dist = Abs(shift-w(k));
             minDist = Min(dist,minDist);
         }
         Real alpha = Real(1)/minDist;
-        if( std::isnan(alpha) || alpha >= normCap )
+        if( !limits::IsFinite(alpha) || alpha >= normCap )
             alpha = normCap;
-        invNorms.Set( j, 0, alpha );
+        invNorms(j) = alpha;
     }
     
     snapCtrl.itCounts = false;
@@ -54,8 +53,7 @@ Analytic
 }
 
 template<typename Real>
-inline void
-Analytic
+void Analytic
 ( const ElementalMatrix<Complex<Real>>& w, 
   const ElementalMatrix<Complex<Real>>& shiftsPre,
         ElementalMatrix<Real>& invNormsPre,
@@ -98,7 +96,7 @@ Analytic
             minDist = Min(dist,minDist);
         }
         Real alpha = Real(1)/minDist;
-        if( std::isnan(alpha) || alpha >= normCap )
+        if( !limits::IsFinite(alpha) || alpha >= normCap )
             alpha = normCap;
         invNorms.SetLocal( jLoc, 0, alpha );
     }

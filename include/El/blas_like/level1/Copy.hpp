@@ -372,11 +372,12 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
     B.Resize( m, n );
     Zero( B );
     B.Reserve( mLoc*n );
+    auto& ALoc = A.LockedMatrix();
     for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
         for( Int j=0; j<n; ++j )
-            B.QueueUpdate( i, j, A.GetLocal(iLoc,j) );
+            B.QueueUpdate( i, j, ALoc(iLoc,j) );
     }
     B.ProcessQueues();
 }
@@ -394,13 +395,14 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     B.Resize( m, n );
     Zero( B );
     B.Reserve( mLoc*nLoc );
+    auto& ALoc = A.LockedMatrix();
     for( Int iLoc=0; iLoc<mLoc; ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
-            B.QueueUpdate( i, j, A.GetLocal(iLoc,jLoc) );
+            B.QueueUpdate( i, j, ALoc(iLoc,jLoc) );
         }
     }
     B.ProcessQueues();
@@ -443,7 +445,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
         FastResize( sendBuf, numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
-                sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
+                sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
           recvBuf.data(), entrySizes.data(), entryOffs.data(), 
@@ -454,7 +456,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
         const Int iOff = entryOffs[q]/n;
         const Int iSize = entrySizes[q]/n;
         for( Int t=0; t<entrySizes[q]; ++t )
-            X.Set( iOff+(t%iSize), t/iSize, recvBuf[entryOffs[q]+t] );
+            X( iOff+(t%iSize), t/iSize ) = recvBuf[entryOffs[q]+t];
     }
 }
 
@@ -492,7 +494,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
         FastResize( sendBuf, numLocalEntries );
         for( Int jLoc=0; jLoc<XDistLoc.Width(); ++jLoc )
             for( Int iLoc=0; iLoc<XDistLoc.Height(); ++iLoc )
-                sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc.Get(iLoc,jLoc);
+                sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
           (T*)0, entrySizes.data(), entryOffs.data(), root, comm );

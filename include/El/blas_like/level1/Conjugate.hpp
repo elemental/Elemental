@@ -23,7 +23,7 @@ void Conjugate( Matrix<Complex<Real>>& A )
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set(i,j,Conj(A.Get(i,j)));
+            A(i,j) = Conj(A(i,j));
 }
 
 template<typename T>
@@ -35,7 +35,7 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B )
     B.Resize( m, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            B.Set(i,j,Conj(A.Get(i,j)));
+            B(i,j) = Conj(A(i,j));
 }
 
 template<typename T>

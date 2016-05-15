@@ -29,7 +29,7 @@ void ImageAndKernel
     SVD( B, U, s, V, ctrl );
 
     const Int numSingVals = s.Height();
-    const Real twoNorm = ( numSingVals==0 ? Real(0) : s.Get(0,0) );
+    const Real twoNorm = ( numSingVals==0 ? Real(0) : s(0) );
 
     // TODO: Incorporate a user-defined (relative) threshold
     const Real relTol = Max(m,n)*eps;
@@ -38,7 +38,7 @@ void ImageAndKernel
     Int rank = numSingVals;
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.Get(j,0) <= tol )
+        if( s(j) <= tol )
         {
             rank = j;
             break;
@@ -157,7 +157,7 @@ void Kernel
     SVD( B, U, s, V, ctrl );
 
     const Int numSingVals = s.Height();
-    const Real twoNorm = ( numSingVals==0 ? Real(0) : s.Get(0,0) );
+    const Real twoNorm = ( numSingVals==0 ? Real(0) : s(0) );
 
     // TODO: Incorporate a user-defined (relative) threshold
     const Real relTol = Max(m,n)*eps;
@@ -166,7 +166,7 @@ void Kernel
     Int rank = numSingVals;
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.Get(j,0) <= tol )
+        if( s(j) <= tol )
         {
             rank = j;
             break;

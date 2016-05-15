@@ -31,7 +31,7 @@ namespace El {
 //
 
 template<typename F,class ApplyAType>
-inline void Lanczos
+void Lanczos
 (       Int n,
   const ApplyAType& applyA,
         Matrix<Base<F>>& T,
@@ -71,12 +71,12 @@ inline void Lanczos
         // w := w - T(k-1,k) v_{k-1}
         // -------------------------
         if( k > 0 )
-            Axpy( -T.Get(k-1,k), v_km1, v );
+            Axpy( -T(k-1,k), v_km1, v );
 
         // w := w - T(k,k) v_k
         // -------------------
         const Real tau = RealPart(Dot(v_k,v));
-        T.Set( k, k, tau );
+        T(k,k) = tau;
         Axpy( -tau, v_k, v );
 
         // v := w / || w ||_2
@@ -93,14 +93,13 @@ inline void Lanczos
         // -------------------------------------------
         if( k < basisSize-1 )
         {
-            T.Set( k+1, k,   beta );
-            T.Set( k,   k+1, beta );
+            T(k+1,k) = T(k,k+1) = beta;
         }
     }
 }
 
 template<typename F,class ApplyAType>
-inline Base<F> LanczosDecomp
+Base<F> LanczosDecomp
 (       Int n,
   const ApplyAType& applyA,
         Matrix<F>& V, 
@@ -145,13 +144,13 @@ inline Base<F> LanczosDecomp
         if( k > 0 )
         {
             auto v_km1 = V( ALL, IR(k-1) );
-            Axpy( -T.Get(k-1,k), v_km1, v );
+            Axpy( -T(k-1,k), v_km1, v );
         }
 
         // w := w - T(k,k) v_k
         // -------------------
         const Real tau = RealPart(Dot(v_k,v));
-        T.Set( k, k, tau );
+        T(k,k) = tau;
         Axpy( -tau, v_k, v );
 
         // v := w / || w ||_2
@@ -168,8 +167,7 @@ inline Base<F> LanczosDecomp
         // -----------------------------------------------
         if( k < basisSize-1 )
         {
-            T.Set( k+1, k,   beta );
-            T.Set( k,   k+1, beta );
+            T(k+1,k) = T(k,k+1) = beta;
             auto v_kp1 = V( ALL, IR(k+1) );
             v_kp1 = v;
         }
@@ -178,7 +176,7 @@ inline Base<F> LanczosDecomp
 }
 
 template<typename F,class ApplyAType>
-inline void Lanczos
+void Lanczos
 (       Int n,
   const ApplyAType& applyA,
         ElementalMatrix<Base<F>>& TPre,
@@ -189,6 +187,7 @@ inline void Lanczos
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
     auto& T = TProx.Get();
+    auto& TLoc = T.Matrix();
 
     const Real eps = limits::Epsilon<Real>();
     mpi::Comm comm = T.Grid().Comm();
@@ -228,12 +227,12 @@ inline void Lanczos
         // w := w - T(k-1,k) v_{k-1}
         // -------------------------
         if( k > 0 )
-            Axpy( -T.GetLocal(k-1,k), v_km1, v );
+            Axpy( -TLoc(k-1,k), v_km1, v );
 
         // w := w - T(k,k) v_k
         // -------------------
         const Real tau = RealPart(Dot(v_k,v));
-        T.Set( k, k, tau );
+        TLoc(k,k) = tau;
         Axpy( -tau, v_k, v );
 
         // v := w / || w ||_2
@@ -250,14 +249,13 @@ inline void Lanczos
         // -------------------------------------------
         if( k < basisSize-1 )
         {
-            T.Set( k+1, k,   beta );
-            T.Set( k,   k+1, beta );
+            TLoc(k+1,k) = TLoc(k,k+1) = beta;
         }
     }
 }
 
 template<typename F,class ApplyAType>
-inline Base<F> LanczosDecomp
+Base<F> LanczosDecomp
 (       Int n,
   const ApplyAType& applyA,
         DistMultiVec<F>& V, 
@@ -280,6 +278,7 @@ inline Base<F> LanczosDecomp
     Zeros( V, n, basisSize );
     Zeros( T, basisSize, basisSize );
     auto& VLoc = V.Matrix();
+    auto& TLoc = T.Matrix();
 
     // Choose the initial (unit-length) vector
     // ---------------------------------------
@@ -314,13 +313,13 @@ inline Base<F> LanczosDecomp
         if( k > 0 )
         {
             v_km1 = V( ALL, IR(k-1) );
-            Axpy( -T.GetLocal(k-1,k), v_km1, v );
+            Axpy( -TLoc(k-1,k), v_km1, v );
         }
 
         // w := w - T(k,k) v_k
         // -------------------
         const Real tau = RealPart(Dot(v_k,v));
-        T.Set( k, k, tau );
+        TLoc(k,k) = tau;
         Axpy( -tau, v_k, v );
 
         // v := w / || w ||_2
@@ -337,8 +336,7 @@ inline Base<F> LanczosDecomp
         // -----------------------------------------------
         if( k < basisSize-1 )
         {
-            T.Set( k+1, k,   beta );
-            T.Set( k,   k+1, beta );
+            TLoc(k+1,k) = TLoc(k,k+1) = beta;
             auto v_kp1Loc = VLoc( ALL, IR(k+1) );
             v_kp1Loc = v.Matrix();
         }

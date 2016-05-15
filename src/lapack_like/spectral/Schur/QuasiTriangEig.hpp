@@ -27,17 +27,17 @@ void QuasiTriangEig
     Int j=0;
     while( j < n )
     {
-        if( j == n-1 || dSub.Get(j,0) == F(0) )
+        if( j == n-1 || dSub(j) == F(0) )
         {
-            w.Set( j, 0, dMain.Get(j,0) );
+            w(j) = dMain(j);
             ++j;
         }
         else
         {
-            H11.Set( 0, 0, dMain.Get(j,0) );
-            H11.Set( 1, 0, dSub.Get(j,0) );
-            H11.Set( 0, 1, dSup.Get(j,0) );
-            H11.Set( 1, 1, dMain.Get(j+1,0) );
+            H11(0,0) = dMain(j);
+            H11(1,0) = dSub(j);
+            H11(0,1) = dSup(j);
+            H11(1,1) = dMain(j+1);
             lapack::HessenbergEig( 2, H11.Buffer(), H11.LDim(), w.Buffer(j,0) );
             j += 2;
         }

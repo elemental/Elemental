@@ -20,7 +20,7 @@ void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
     AImag.Resize( m, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            AImag.Set( i, j, A.GetImagPart(i,j) );
+            AImag(i,j) = ImagPart(A(i,j));
 }
 
 template<typename T>
