@@ -8,8 +8,35 @@
 */
 #include <El-lite.hpp>
 #include <El/blas_like/level1.hpp>
+#include "./NormsFromScaledSquares.hpp"
 
 namespace El {
+
+template<typename F>
+void RowTwoNormsHelper
+( const Matrix<F>& ALoc, Matrix<Base<F>>& normsLoc, mpi::Comm comm )
+{
+    DEBUG_ONLY(CSE cse("RowTwoNormsHelper"))
+    typedef Base<F> Real;
+    const Int mLocal = ALoc.Height();
+    const Int nLocal = ALoc.Width();
+
+    // TODO: Ensure that NaN's propagate
+    Matrix<Real> localScales(mLocal,1 ), localScaledSquares(mLocal,1);
+    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+    {
+        Real localScale = 0;
+        Real localScaledSquare = 1;
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            UpdateScaledSquare
+            ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
+
+        localScales(iLoc) = localScale;
+        localScaledSquares(iLoc) = localScaledSquare;
+    }
+
+    NormsFromScaledSquares( localScales, localScaledSquares, normsLoc, comm );
+}
 
 template<typename F>
 void RowTwoNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
@@ -17,13 +44,14 @@ void RowTwoNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
     DEBUG_ONLY(CSE cse("RowTwoNorms"))
     const Int m = A.Height();
     const Int n = A.Width();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-
     norms.Resize( m, 1 );
-    Base<F>* normBuf = norms.Buffer();
+    if( n == 0 )
+    {
+        Zero( norms );
+        return;
+    }
     for( Int i=0; i<m; ++i )
-        normBuf[i] = blas::Nrm2( n, &ABuf[i], ALDim );
+        norms(i) = blas::Nrm2( n, &A(i,0), A.LDim() );
 }
 
 template<typename F>
@@ -33,17 +61,13 @@ void RowMaxNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-
     norms.Resize( m, 1 );
-    Real* normBuf = norms.Buffer();
     for( Int i=0; i<m; ++i )
     {
         Real rowMax = 0;
         for( Int j=0; j<n; ++j )
-            rowMax = Max(rowMax,Abs(ABuf[i+j*ALDim]));
-        normBuf[i] = rowMax;
+            rowMax = Max(rowMax,Abs(A(i,j)));
+        norms(i) = rowMax;
     }
 }
 
@@ -52,24 +76,14 @@ void RowTwoNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
 {
     DEBUG_ONLY(CSE cse("RowTwoNorms"))
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
     norms.AlignWith( A );
-
-    // TODO: Switch to more stable parallel norm computation using scaling
     norms.Resize( A.Height(), 1 );
-    Base<F>* normBuf = norms.Buffer();
-    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+    if( A.Width() == 0 )
     {
-        Base<F> localNorm = blas::Nrm2( nLocal, &ABuf[iLoc], ALDim );
-        normBuf[iLoc] = localNorm*localNorm;
+        Zero( norms );
+        return;
     }
-
-    mpi::AllReduce( normBuf, mLocal, mpi::SUM, A.RowComm() );
-    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-        normBuf[iLoc] = Sqrt(normBuf[iLoc]);
+    RowTwoNormsHelper( A.LockedMatrix(), norms.Matrix(), A.RowComm() );
 }
 
 template<typename F,Dist U,Dist V>
@@ -111,7 +125,6 @@ void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
     norms.Resize( m, 1 );
-    Real* normBuf = norms.Buffer();
     for( Int i=0; i<m; ++i )
     {
         Real scale = 0;
@@ -120,7 +133,7 @@ void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
         const Int numConn = offsetBuf[i+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
             UpdateScaledSquare( valBuf[e], scale, scaledSquare );
-        normBuf[i] = scale*Sqrt(scaledSquare);
+        norms(i) = scale*Sqrt(scaledSquare);
     }
 }
 
@@ -134,7 +147,6 @@ void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
     norms.Resize( m, 1 );
-    Real* normBuf = norms.Buffer();
     for( Int i=0; i<m; ++i )
     {
         Real rowMax = 0;
@@ -142,7 +154,7 @@ void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
         const Int numConn = offsetBuf[i+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
             rowMax = Max(rowMax,Abs(valBuf[e]));
-        normBuf[i] = rowMax;
+        norms(i) = rowMax;
     }
 }
 
@@ -157,7 +169,7 @@ void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 
     norms.SetComm( A.Comm() );
     norms.Resize( A.Height(), 1 );
-    Real* normBuf = norms.Matrix().Buffer();
+    auto& normLoc = norms.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         Real scale = 0;
@@ -166,7 +178,7 @@ void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
         const Int numConn = offsetBuf[iLoc+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
             UpdateScaledSquare( valBuf[e], scale, scaledSquare );
-        normBuf[iLoc] = scale*Sqrt(scaledSquare);
+        normLoc(iLoc) = scale*Sqrt(scaledSquare);
     }
 }
 
@@ -181,7 +193,7 @@ void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 
     norms.SetComm( A.Comm() );
     norms.Resize( A.Height(), 1 );
-    Real* normBuf = norms.Matrix().Buffer();
+    auto& normsLoc = norms.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         Real rowMax = 0;
@@ -189,33 +201,43 @@ void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
         const Int numConn = offsetBuf[iLoc+1] - offset;
         for( Int e=offset; e<offset+numConn; ++e )
             rowMax = Max(rowMax,Abs(valBuf[e]));
-        normBuf[iLoc] = rowMax;
+        normsLoc(iLoc) = rowMax;
     }
 }
 
 #define PROTO_DIST(F,U,V) \
   template void RowTwoNorms \
-  ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& norms ); \
+  ( const DistMatrix<F,U,V>& X, \
+          DistMatrix<Base<F>,U,STAR>& norms ); \
   template void RowMaxNorms \
-  ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,U,STAR>& norms );
+  ( const DistMatrix<F,U,V>& X, \
+          DistMatrix<Base<F>,U,STAR>& norms );
 
 #define PROTO(F) \
   template void RowTwoNorms \
-  ( const Matrix<F>& X, Matrix<Base<F>>& norms ); \
+  ( const Matrix<F>& X, \
+          Matrix<Base<F>>& norms ); \
   template void RowMaxNorms \
-  ( const Matrix<F>& X, Matrix<Base<F>>& norms ); \
+  ( const Matrix<F>& X, \
+          Matrix<Base<F>>& norms ); \
   template void RowTwoNorms \
-  ( const DistMultiVec<F>& X, DistMultiVec<Base<F>>& norms ); \
+  ( const DistMultiVec<F>& X, \
+          DistMultiVec<Base<F>>& norms ); \
   template void RowMaxNorms \
-  ( const DistMultiVec<F>& X, DistMultiVec<Base<F>>& norms ); \
+  ( const DistMultiVec<F>& X, \
+          DistMultiVec<Base<F>>& norms ); \
   template void RowTwoNorms \
-  ( const SparseMatrix<F>& A, Matrix<Base<F>>& norms ); \
+  ( const SparseMatrix<F>& A, \
+          Matrix<Base<F>>& norms ); \
   template void RowMaxNorms \
-  ( const SparseMatrix<F>& A, Matrix<Base<F>>& norms ); \
+  ( const SparseMatrix<F>& A, \
+          Matrix<Base<F>>& norms ); \
   template void RowTwoNorms \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms ); \
+  ( const DistSparseMatrix<F>& A, \
+          DistMultiVec<Base<F>>& norms ); \
   template void RowMaxNorms \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms ); \
+  ( const DistSparseMatrix<F>& A, \
+          DistMultiVec<Base<F>>& norms ); \
   PROTO_DIST(F,MC,  MR  ) \
   PROTO_DIST(F,MC,  STAR) \
   PROTO_DIST(F,MD,  STAR) \
