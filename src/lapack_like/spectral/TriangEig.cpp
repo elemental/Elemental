@@ -65,7 +65,7 @@ void TriangEig
     //SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
     triang_eig::MultiShiftSolve( U, shifts, X, scales );
     SetDiagonal( X, scales );
-    
+
     // Normalize eigenvectors
     // TODO: Exploit the upper-triangular structure
     DistMatrix<Base<F>,MR,STAR> colNorms(g);

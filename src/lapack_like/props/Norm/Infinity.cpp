@@ -24,7 +24,11 @@ Base<F> InfinityNorm( const Matrix<F>& A )
         Real rowSum = 0;
         for( Int j=0; j<width; ++j )
             rowSum += Abs(A(i,j));
-        maxRowSum = Max( maxRowSum, rowSum );
+
+        if( limits::IsFinite(rowSum) )
+            maxRowSum = Max( maxRowSum, rowSum );
+        else
+            maxRowSum = rowSum;
     }
     return maxRowSum;
 }
@@ -74,7 +78,12 @@ Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
         // Find the maximum out of the row sums
         Real myMaxRowSum = 0;
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            myMaxRowSum = Max( myMaxRowSum, myRowSums[iLoc] );
+        {
+            if( limits::IsFinite(myRowSums[iLoc]) )
+                myMaxRowSum = Max( myMaxRowSum, myRowSums[iLoc] );
+            else
+                myMaxRowSum = myRowSums[iLoc];
+        }
 
         // Find the global maximum row sum by searching over the U team
         norm = mpi::AllReduce( myMaxRowSum, mpi::MAX, A.ColComm() );
@@ -116,7 +125,11 @@ Base<F> InfinityNorm( const SparseMatrix<F>& A )
         Real rowSum = 0;
         for( Int k=thisOff; k<nextOff; ++k )
             rowSum += Abs(valBuf[k]);
-        maxRowSum = Max(rowSum,maxRowSum);
+
+        if( limits::IsFinite(rowSum) )
+            maxRowSum = Max( maxRowSum, rowSum );
+        else
+            maxRowSum = rowSum;
     }
 
     return maxRowSum;
@@ -139,7 +152,11 @@ Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
         Real rowSum = 0;
         for( Int k=thisOff; k<nextOff; ++k )
             rowSum += Abs(valBuf[k]);
-        maxLocRowSum = Max(rowSum,maxLocRowSum);
+
+        if( limits::IsFinite(rowSum) )
+            maxLocRowSum = Max( maxLocRowSum, rowSum );
+        else
+            maxLocRowSum = rowSum;
     }
 
     return mpi::AllReduce( maxLocRowSum, mpi::MAX, A.Comm() );

@@ -124,6 +124,7 @@ Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
     DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
     Real norm;
+    // TODO: Extract this logic into a helper routine
     if( A.Participating() )
     {
         Real locScale=0, locScaledSquare=1;

@@ -98,7 +98,7 @@ void TestCorrectness
     Output("||A X - X W||_oo / (eps n ||A||_1) = ",relError);
 
     // TODO: More rigorous failure condition
-    if( relError > Real(10) )
+    if( relError > Real(10) || !limits::IsFinite(relError) )
         LogicError("Unacceptably large relative error");
 }
 
@@ -127,7 +127,7 @@ void TestCorrectness
     OutputFromRoot
     (g.Comm(),"||A X - X W||_oo / (eps n ||A||_1) = ",relError);
     // TODO: More rigorous failure condition
-    if( relError > Real(10) )
+    if( relError > Real(10) || !limits::IsFinite(relError) )
         LogicError("Unacceptably large relative error");
 }
 

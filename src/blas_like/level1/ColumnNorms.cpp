@@ -12,18 +12,70 @@
 namespace El {
 
 template<typename F>
+void ColumnTwoNormsHelper
+( const Matrix<F>& ALoc, Matrix<Base<F>>& normsLoc, mpi::Comm comm )
+{
+    DEBUG_ONLY(CSE cse("ColumnTwoNormsHelper"))
+    typedef Base<F> Real;
+    const Int mLocal = ALoc.Height();
+    const Int nLocal = ALoc.Width();
+
+    // TODO: Ensure that NaN's propagate
+    vector<Real> localScales( nLocal ),
+                 localScaledSquares( nLocal );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+    {
+        Real localScale = 0;
+        Real localScaledSquare = 1;
+        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            UpdateScaledSquare
+            ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
+
+        localScales[jLoc] = localScale;
+        localScaledSquares[jLoc] = localScaledSquare;
+    }
+
+    // Find the maximum relative scales
+    vector<Real> scales( nLocal );
+    mpi::AllReduce
+    ( localScales.data(), scales.data(), nLocal, mpi::MAX, comm );
+
+    // Equilibrate the local scaled sums
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+    {
+        const Real scale = scales[jLoc];
+        if( scale != 0 )
+        {
+            // Equilibrate our local scaled sum to the maximum scale
+            Real relScale = localScales[jLoc]/scale;
+            localScaledSquares[jLoc] *= relScale*relScale;
+        }
+        else
+            localScaledSquares[jLoc] = 0;
+    }
+
+    // Combine the local contributions
+    vector<Real> scaledSquares( nLocal );
+    mpi::AllReduce
+    ( localScaledSquares.data(), scaledSquares.data(), nLocal, mpi::SUM, comm );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        normsLoc(jLoc) = scales[jLoc]*Sqrt(scaledSquares[jLoc]);
+}
+
+template<typename F>
 void ColumnTwoNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
     const Int m = X.Height();
     const Int n = X.Width();
-    const F* XBuf = X.LockedBuffer();
-    const Int XLDim = X.LDim(); 
-
     norms.Resize( n, 1 );
-    Base<F>* normBuf = norms.Buffer(); 
+    if( m == 0 )
+    {
+        Zero( norms );
+        return;
+    }
     for( Int j=0; j<n; ++j )
-        normBuf[j] = blas::Nrm2( m, &XBuf[j*XLDim], 1 );
+        norms(j) = blas::Nrm2( m, &X(0,j), 1 );
 }
 
 template<typename F>
@@ -33,17 +85,19 @@ void ColumnMaxNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
-    const F* XBuf = X.LockedBuffer();
-    const Int XLDim = X.LDim();
-
     norms.Resize( n, 1 );
-    Base<F>* normBuf = norms.Buffer();
+    if( m == 0 )
+    {
+        Zero( norms );
+        return;
+    }
     for( Int j=0; j<n; ++j )
     {
+        // TODO: Ensure that NaN's propagate
         Real colMax = 0;
         for( Int i=0; i<m; ++i )
-            colMax = Max(colMax,Abs(XBuf[i+j*XLDim]));
-        normBuf[j] = colMax;
+            colMax = Max(colMax,Abs(X(i,j)));
+        norms(j) = colMax;
     }
 }
 
@@ -52,25 +106,16 @@ void ColumnTwoNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
+    const Int m = A.Height();
     const Int n = A.Width();
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    const F* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
     norms.AlignWith( A );
-
-    // TODO: Switch to more stable parallel norm computation using scaling
     norms.Resize( n, 1 );
-    Base<F>* normBuf = norms.Buffer();
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+    if( m == 0 )
     {
-        Base<F> localNorm = blas::Nrm2(mLocal,&ABuf[jLoc*ALDim],1);
-        normBuf[jLoc] = localNorm*localNorm;
+        Zero( norms );
+        return;       
     }
-
-    mpi::AllReduce( normBuf, nLocal, mpi::SUM, A.ColComm() );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        normBuf[jLoc] = Sqrt(normBuf[jLoc]);
+    ColumnTwoNormsHelper( A.LockedMatrix(), norms.Matrix(), A.ColComm() );
 }
 
 template<typename F,Dist U,Dist V>
@@ -89,54 +134,9 @@ template<typename F>
 void ColumnTwoNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
-    typedef Base<F> Real;
-    const Int localHeight = X.LocalHeight();
     const Int width = X.Width();
-    const F* XBuf = X.LockedMatrix().LockedBuffer();
-    const Int XLDim = X.LockedMatrix().LDim();
-    mpi::Comm comm = X.Comm();
-
     norms.Resize( width, 1 );
-    Real* normBuf = norms.Buffer();
-
-    vector<Real> localScales( width ),
-                 localScaledSquares( width );
-    for( Int j=0; j<width; ++j )
-    {
-        Real localScale = 0;
-        Real localScaledSquare = 1;
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            UpdateScaledSquare
-            ( XBuf[iLoc+j*XLDim], localScale, localScaledSquare );
-
-        localScales[j] = localScale;
-        localScaledSquares[j] = localScaledSquare;
-    }
-
-    // Find the maximum relative scales
-    vector<Real> scales( width );
-    mpi::AllReduce( localScales.data(), scales.data(), width, mpi::MAX, comm );
-
-    // Equilibrate the local scaled sums
-    for( Int j=0; j<width; ++j )
-    {
-        const Real scale = scales[j];
-        if( scale != 0 )
-        {
-            // Equilibrate our local scaled sum to the maximum scale
-            Real relScale = localScales[j]/scale;
-            localScaledSquares[j] *= relScale*relScale;
-        }
-        else
-            localScaledSquares[j] = 0;
-    }
-
-    // Combine the local contributions
-    vector<Real> scaledSquares( width );
-    mpi::AllReduce
-    ( localScaledSquares.data(), scaledSquares.data(), width, mpi::SUM, comm );
-    for( Int j=0; j<width; ++j )
-        normBuf[j] = scales[j]*Sqrt(scaledSquares[j]);
+    ColumnTwoNormsHelper( X.LockedMatrix(), norms, X.Comm() );
 }
 
 template<typename F>
@@ -165,18 +165,19 @@ void ColumnTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     const Int n = A.Width();
     norms.Resize( n, 1 );
     Zero( norms );
+
+    // TODO: Switch to more stable norm computation using scaling
  
     const Int numEntries = A.NumEntries();
     const Int* colBuf = A.LockedTargetBuffer();
     const F* values = A.LockedValueBuffer();
-    Real* normBuf = norms.Buffer(); 
     for( Int e=0; e<numEntries; ++e )
-        normBuf[colBuf[e]] += Abs(values[e])*Abs(values[e]);
+        norms(colBuf[e]) += Abs(values[e])*Abs(values[e]);
 
     // Convert from sums of squares to two-norms
     // -----------------------------------------
     for( Int i=0; i<n; ++i )
-        normBuf[i] = Sqrt(normBuf[i]);
+        norms(i) = Sqrt(norms(i));
 }
 
 template<typename F>
@@ -201,9 +202,8 @@ void ColumnMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     const Int numEntries = A.NumEntries();
     const Int* colBuf = A.LockedTargetBuffer();
     const F* values = A.LockedValueBuffer();
-    Real* normBuf = norms.Buffer(); 
     for( Int e=0; e<numEntries; ++e )
-        normBuf[colBuf[e]] = Max(normBuf[colBuf[e]],Abs(values[e]));
+        norms(colBuf[e]) = Max(norms(colBuf[e]),Abs(values[e]));
 }
 
 template<typename F>
@@ -219,6 +219,8 @@ void ColumnTwoNorms
     Transpose( A, ATrans );
     RowTwoNorms( ATrans, norms );
     */
+
+    // TODO: Switch to more stable parallel norm computation using scaling
 
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
@@ -247,19 +249,19 @@ void ColumnTwoNorms
     // Form the sums of squares of the columns
     // ---------------------------------------
     const Int firstLocalRow = norms.FirstLocalRow();
-    Real* normBuf = norms.Matrix().Buffer();
+    auto& normsLoc = norms.Matrix();
     for( Int s=0; s<numRecvInds; ++s )
     {
         const Int i = meta.sendInds[s];
         const Int iLoc = i - firstLocalRow;
-        normBuf[iLoc] += recvVals[s];
+        normsLoc(iLoc) += recvVals[s];
     }
     
     // Take the square-roots
     // ---------------------
     const Int localHeight = norms.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        normBuf[iLoc] = Sqrt(normBuf[iLoc]);
+        normsLoc(iLoc) = Sqrt(normsLoc(iLoc));
 }
 
 template<typename F>
@@ -304,12 +306,12 @@ void ColumnMaxNorms
     // Form the maxima over all the values received
     // --------------------------------------------
     const Int firstLocalRow = norms.FirstLocalRow();
-    Real* normBuf = norms.Matrix().Buffer();
+    auto& normsLoc = norms.Matrix();
     for( Int s=0; s<numRecvInds; ++s )
     {
         const Int i = meta.sendInds[s];
         const Int iLoc = i - firstLocalRow;
-        normBuf[iLoc] = Max(normBuf[iLoc],recvVals[s]);
+        normsLoc(iLoc) = Max(normsLoc(iLoc),recvVals[s]);
     }
 }
 
@@ -324,18 +326,17 @@ void ColumnTwoNorms
     DEBUG_ONLY(CSE cse("pspec::ColumnTwoNorms"))
     const Int m = XReal.Height();
     const Int n = XReal.Width();
-    const Real* XRealBuf = XReal.LockedBuffer();
-    const Real* XImagBuf = XImag.LockedBuffer();
-    const Int XRealLDim = XReal.LDim();
-    const Int XImagLDim = XImag.LDim();
-
     norms.Resize( n, 1 );
-    Real* normBuf = norms.Buffer();
+    if( m == 0 )
+    {
+        Zero( norms );
+        return;
+    }
     for( Int j=0; j<n; ++j )
     {
-        Real alpha = blas::Nrm2( m, &XRealBuf[j*XRealLDim], 1 );
-        Real beta  = blas::Nrm2( m, &XImagBuf[j*XImagLDim], 1 );
-        normBuf[j] = lapack::SafeNorm(alpha,beta);
+        Real alpha = blas::Nrm2( m, &XReal(0,j), 1 );
+        Real beta  = blas::Nrm2( m, &XImag(0,j), 1 );
+        norms(j) = lapack::SafeNorm(alpha,beta);
     }
 }
 
@@ -348,28 +349,30 @@ void ColumnTwoNorms
     DEBUG_ONLY(CSE cse("pspec::ColumnTwoNorms"))
     if( XReal.RowAlign() != norms.ColAlign() )
         LogicError("Invalid norms alignment");
+    const Int m = XReal.Height();
     const Int n = XReal.Width();
+    norms.Resize( n, 1 );
+    if( m == 0 )
+    {
+        Zero( norms );
+        return;
+    }
     const Int mLocal = XReal.LocalHeight();
     const Int nLocal = XReal.LocalWidth();
-    const Real* XRealBuf = XReal.LockedBuffer();
-    const Real* XImagBuf = XImag.LockedBuffer();
-    const Int XRealLDim = XReal.LDim();
-    const Int XImagLDim = XImag.LDim();
 
     // TODO: Switch to more stable parallel norm computation using scaling
-    norms.Resize( n, 1 );
-    Real* normBuf = norms.Buffer();
+    auto& normsLoc = norms.Matrix();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        Real alpha = blas::Nrm2( mLocal, &XRealBuf[jLoc*XRealLDim], 1 );
-        Real beta  = blas::Nrm2( mLocal, &XImagBuf[jLoc*XImagLDim], 1 );
+        Real alpha = blas::Nrm2( mLocal, XReal.LockedBuffer(0,jLoc), 1 );
+        Real beta  = blas::Nrm2( mLocal, XImag.LockedBuffer(0,jLoc), 1 );
         Real gamma = lapack::SafeNorm(alpha,beta);
-        normBuf[jLoc] = gamma*gamma;
+        normsLoc(jLoc) = gamma*gamma;
     }
 
-    mpi::AllReduce( normBuf, nLocal, mpi::SUM, XReal.ColComm() );
+    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, XReal.ColComm() );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        normBuf[jLoc] = Sqrt(normBuf[jLoc]);
+        normsLoc(jLoc) = Sqrt(normsLoc(jLoc));
 }
 
 template<typename Real,typename>
