@@ -403,6 +403,7 @@ if(NOT EL_DISABLE_QD)
     unset(CMAKE_REQUIRED_INCLUDES)
   endif()
   if(EL_HAVE_QD)
+    set(EL_HAVE_QD TRUE) # Switch from '1' to 'TRUE' for Make
     list(APPEND MATH_LIBS ${QD_LIBRARIES})
     list(APPEND MATH_LIBS_AT_CONFIG ${QD_LIBRARIES})
     message(STATUS "Including ${QD_INCLUDES} to add support for QD")
@@ -494,6 +495,7 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
         }")
       check_cxx_source_compiles("${MPC_CODE}" EL_HAVE_MPC)
       if(EL_HAVE_MPC)
+        set(EL_HAVE_MPC TRUE) # Switch from '1' to 'TRUE' for Make
         list(APPEND MATH_LIBS
           ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
         list(APPEND MATH_LIBS_AT_CONFIG
