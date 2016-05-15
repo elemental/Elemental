@@ -1,9 +1,10 @@
 
 function(MakeString ITEMS ITEMSTRING)
-  set(${ITEMSTRING} PARENT_SCOPE)
+  set(${ITEMSTRING})
   foreach(ITEM ${${ITEMS}})
-    set(${ITEMSTRING} "${${ITEMSTRING}} ${ITEM}" PARENT_SCOPE)
+    set(${ITEMSTRING} "${${ITEMSTRING}} ${ITEM}")
   endforeach()
+  set(${ITEMSTRING} ${${ITEMSTRING}} PARENT_SCOPE)
 endfunction()
 
 function(MakeLibString LIBS LIBSTRING)
@@ -14,8 +15,9 @@ endfunction()
 function(MakeIncString INCPATHS INCSTRING)
   set(${INCSTRING} PARENT_SCOPE)
   foreach(INCPATH ${${INCPATHS}})
-    set(${INCSTRING} "${${INCSTRING}} -I${INCPATH}" PARENT_SCOPE)
+    set(${INCSTRING} "${${INCSTRING}} -I${INCPATH}")
   endforeach()
+  set(${INCSTRING} ${${INCSTRING}} PARENT_SCOPE)
 endfunction()
 
 MakeLibString(MATH_LIBS MATH_LIBSTRING)
