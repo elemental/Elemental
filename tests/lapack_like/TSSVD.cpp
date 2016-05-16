@@ -22,6 +22,9 @@ void TestCorrectness
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( A );
 
     // Form I - U^H U
     OutputFromRoot(g.Comm(),"Testing orthogonality of U...");
@@ -29,54 +32,44 @@ void TestCorrectness
     DistMatrix<F> Z(g);
     Identity( Z, minDim, minDim );
     Herk( UPPER, ADJOINT, Real(-1), U, Real(1), Z );
-    Real oneNormError = HermitianOneNorm( UPPER, Z );
-    Real infNormError = HermitianInfinityNorm( UPPER, Z );
-    Real frobNormError = HermitianFrobeniusNorm( UPPER, Z );
+    const Real infOrthogUError = HermitianInfinityNorm( UPPER, Z );
+    const Real relOrthogUError = infOrthogUError / (eps*maxDim);
     OutputFromRoot
-    (g.Comm(),
-     "||U^H U - I||_1  = ",oneNormError,"\n",Indent(),
-     "||U^H U - I||_oo = ",infNormError,"\n",Indent(),
-     "||U^H U - I||_F  = ",frobNormError);
+    (g.Comm(),"||U' U - I||_oo / (eps Max(m,n)) = ",relOrthogUError);
     PopIndent();
 
     // Form I - V^H V
-    OutputFromRoot(g.Comm(),"Testing orthogonality of U...");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of V...");
     PushIndent();
     Identity( Z, minDim, minDim );
     Herk( UPPER, ADJOINT, Real(-1), V, Real(1), Z );
-    oneNormError = HermitianOneNorm( UPPER, Z );
-    infNormError = HermitianInfinityNorm( UPPER, Z );
-    frobNormError = HermitianFrobeniusNorm( UPPER, Z );
+    const Real infOrthogVError = HermitianInfinityNorm( UPPER, Z );
+    const Real relOrthogVError = infOrthogVError / (eps*maxDim);
     OutputFromRoot
-    (g.Comm(),
-     "||V^H V - I||_1  = ",oneNormError,"\n",Indent(),
-     "||V^H V - I||_oo = ",infNormError,"\n",Indent(),
-     "||V^H V - I||_F  = ",frobNormError);
+    (g.Comm(),"||V' V - I||_oo / (eps Max(m,n)) = ",relOrthogVError);
     PopIndent();
 
     // Form A - U S V^H
-    OutputFromRoot(g.Comm(),"Testing if A = U S V^H...");
+    OutputFromRoot(g.Comm(),"Testing if A = U S V'...");
     PushIndent();
-    const Real oneNormA = OneNorm( A );
-    const Real infNormA = InfinityNorm( A );
-    const Real frobNormA = FrobeniusNorm( A );
     auto VCopy( V );
     DiagonalScale( RIGHT, NORMAL, s, VCopy );
     LocalGemm( NORMAL, ADJOINT, F(-1), U, VCopy, F(1), A );
     if( print )
-        Print( A, "A - U S V^H" );
-    oneNormError = OneNorm( A );
-    infNormError = InfinityNorm( A );
-    frobNormError = FrobeniusNorm( A );
+        Print( A, "A - U S V'" );
+    const Real infError = InfinityNorm( A );
+    const Real relError = infError / (eps*maxDim*oneNormA);
     OutputFromRoot
-    (g.Comm(),
-     "||A||_1            = ",oneNormA,"\n",Indent(),
-     "||A||_oo           = ",infNormA,"\n",Indent(),
-     "||A||_F            = ",frobNormA,"\n",Indent(),
-     "||A - U S V^H||_1  = ",oneNormError,"\n",Indent(),
-     "||A - U S V^H||_oo = ",infNormError,"\n",Indent(),
-     "||A - U S V^H||_F  = ",frobNormError);
+    (g.Comm(),"||A - U S V'||_oo / (eps Max(m,n) ||A||_1) = ",relError);
     PopIndent();
+
+    // TODO: More rigorous failure conditions
+    if( relOrthogUError > Real(10) )
+        LogicError("Unacceptably large relative orthog error for U");
+    if( relOrthogVError > Real(10) )
+        LogicError("Unacceptably large relative orthog error for V");
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
 }
 
 template<typename F>
@@ -84,7 +77,7 @@ void TestSVD
 ( const Grid& g,
   Int m,
   Int n,
-  bool testCorrectness,
+  bool correctness,
   bool print )
 {
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
@@ -98,7 +91,7 @@ void TestSVD
     if( print )
         Print( A, "A" );
 
-    OutputFromRoot(g.Comm(),"Starting TSQR factorization...");
+    OutputFromRoot(g.Comm(),"Starting TS-SVD factorization...");
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
@@ -112,7 +105,7 @@ void TestSVD
         Print( s, "s" );
         Print( V, "V" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( A, U, s, V, print );
     PopIndent();
 }
@@ -129,8 +122,8 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -141,11 +134,15 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
         OutputFromRoot(g.Comm(),"Will test TSSVD");
 
-        TestSVD<float>( g, m, n, testCorrectness, print );
-        TestSVD<Complex<float>>( g, m, n, testCorrectness, print );
+        TestSVD<float>
+        ( g, m, n, correctness, print );
+        TestSVD<Complex<float>>
+        ( g, m, n, correctness, print );
 
-        TestSVD<double>( g, m, n, testCorrectness, print );
-        TestSVD<Complex<double>>( g, m, n, testCorrectness, print );
+        TestSVD<double>
+        ( g, m, n, correctness, print );
+        TestSVD<Complex<double>>
+        ( g, m, n, correctness, print );
     }
     catch( exception& e ) { ReportException(e); }
 

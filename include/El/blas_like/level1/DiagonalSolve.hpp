@@ -63,14 +63,11 @@ void SymmetricDiagonalSolve
         Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("SymmetricDiagonalSolve"))
-    typedef Base<F> Real;
     const Int n = A.Width();
-
     DEBUG_ONLY(
       if( d.Height() != n )
           LogicError("Invalid symmetric diagonal solve dimension");
     )
-
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i ) 
             A(i,j) /= d(i)*d(j);

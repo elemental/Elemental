@@ -138,8 +138,6 @@ void TestTriangEig
   bool print,
   Int whichMatrix )
 {
-    typedef Base<F> Real;
-
     Matrix<F> A, AOrig, X;
     Matrix<F> w;
 
@@ -264,8 +262,6 @@ void TestTriangEig
   bool print,
   Int whichMatrix )
 {
-    typedef Base<F> Real;
-
     DistMatrix<F,U,V> A(g), AOrig(g), X(g);
     DistMatrix<F,S,STAR> w(g);
 

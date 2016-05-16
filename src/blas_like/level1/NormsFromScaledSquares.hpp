@@ -30,7 +30,7 @@ void NormsFromScaledSquares
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Real scale = scales(jLoc);
-        if( scale != 0 )
+        if( scale != Real(0) )
         {
             // Equilibrate our local scaled sum to the maximum scale
             Real relScale = localScales(jLoc)/scale;

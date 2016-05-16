@@ -172,9 +172,7 @@ template<typename F>
 void ColumnMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 {
     DEBUG_ONLY(CSE cse("ColumnMaxNorms"))
-    typedef Base<F> Real;
-    const Int n = A.Width();
-    norms.Resize( n, 1 );
+    norms.Resize( A.Width(), 1 );
     Zero( norms );
 
     const Int numEntries = A.NumEntries();
@@ -190,10 +188,6 @@ void ColumnTwoNorms
 {
     DEBUG_ONLY(CSE cse("ColumnTwoNorms"))
     typedef Base<F> Real;
-    // TODO: Switch to more stable parallel norm computation using scaling
-
-    // Modify the communication pattern from an adjoint Multiply
-    // =========================================================
     norms.Resize( A.Width(), 1 );
     Zero( norms );
     A.InitializeMultMeta();
@@ -201,37 +195,63 @@ void ColumnTwoNorms
 
     // Pack the send values 
     // --------------------
-    vector<Real> sendVals( meta.numRecvInds, 0 );
+    vector<Real> sendScales( meta.numRecvInds, 0 ),
+                 sendScaledSquares( meta.numRecvInds, 1 );
     const Int numEntries = A.NumLocalEntries();
     const F* values = A.LockedValueBuffer();
     for( Int e=0; e<numEntries; ++e )
-        sendVals[meta.colOffs[e]] += Abs(values[e])*Abs(values[e]);
+    {
+        const Int jOff = meta.colOffs[e];
+        UpdateScaledSquare
+        ( values[e], sendScales[jOff], sendScaledSquares[jOff] );
+    }
 
-    // Inject the updates into the network
-    // -----------------------------------
+    // Transmit the scales
+    // -------------------
     const Int numRecvInds = meta.sendInds.size();
-    vector<Real> recvVals( numRecvInds );
+    vector<Real> recvScales( numRecvInds ), recvScaledSquares( numRecvInds );
     mpi::AllToAll
-    ( sendVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
-      recvVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+    ( sendScales.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+      recvScales.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+      A.Comm() );
+    mpi::AllToAll
+    ( sendScaledSquares.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+      recvScaledSquares.data(), meta.sendSizes.data(), meta.sendOffs.data(),
       A.Comm() );
 
-    // Form the sums of squares of the columns
-    // ---------------------------------------
+    // Equilibrate the scales
+    // ----------------------
     const Int firstLocalRow = norms.FirstLocalRow();
+    const Int localHeight = norms.LocalHeight();
+    vector<Real> scales(localHeight,0), squaredScales(localHeight,1);
+    for( Int s=0; s<numRecvInds; ++s )
+    {
+        const Int i = meta.sendInds[s];
+        const Int iLoc = i - firstLocalRow;
+        scales[iLoc] = Max( scales[iLoc], recvScales[s] );
+    }
+
+    // Combine the equilibrated scaled squares into norms
+    // --------------------------------------------------
     auto& normsLoc = norms.Matrix();
     for( Int s=0; s<numRecvInds; ++s )
     {
         const Int i = meta.sendInds[s];
         const Int iLoc = i - firstLocalRow;
-        normsLoc(iLoc) += recvVals[s];
+        if( scales[iLoc] != Real(0) )
+        {
+            Real relScale = recvScales[s] / scales[iLoc];    
+            recvScaledSquares[s] *= relScale*relScale;
+            normsLoc(iLoc) += recvScaledSquares[s];
+        }
     }
-    
-    // Take the square-roots
-    // ---------------------
-    const Int localHeight = norms.LocalHeight();
+
+    // Take the square-root and rescale
+    // --------------------------------
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        normsLoc(iLoc) = Sqrt(normsLoc(iLoc));
+    {
+        normsLoc(iLoc) = scales[iLoc]*Sqrt(normsLoc(iLoc));
+    }
 }
 
 template<typename F>
@@ -240,9 +260,6 @@ void ColumnMaxNorms
 {
     DEBUG_ONLY(CSE cse("ColumnMaxNorms"))
     typedef Base<F> Real;
-
-    // Modify the communication pattern from an adjoint Multiply
-    // =========================================================
     norms.Resize( A.Width(), 1 );
     Zero( norms );
     A.InitializeMultMeta();

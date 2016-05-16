@@ -17,7 +17,11 @@ void TestCorrectness
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
+    const Int m = A.Height();
     const Int n = A.Width();
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( A );
 
     // Form I - Q^H Q
     OutputFromRoot(g.Comm(),"Testing orthogonality of Q...");
@@ -25,35 +29,29 @@ void TestCorrectness
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     Herk( UPPER, ADJOINT, Real(-1), Q, Real(1), Z );
-    Real oneNormError = HermitianOneNorm( UPPER, Z );
-    Real infNormError = HermitianInfinityNorm( UPPER, Z );
-    Real frobNormError = HermitianFrobeniusNorm( UPPER, Z );
+    const Real infOrthogError = HermitianInfinityNorm( UPPER, Z );
+    const Real relOrthogError = infOrthogError / (eps*maxDim);
     OutputFromRoot
     (g.Comm(),
-     "||Q^H Q - I||_1  = ",oneNormError,"\n",Indent(),
-     "||Q^H Q - I||_oo = ",infNormError,"\n",Indent(),
-     "||Q^H Q - I||_F  = ",frobNormError);
+     "||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
     PopIndent();
 
     // Form A - Q R
-    OutputFromRoot(g.Comm(),"Testing if A = QR...");
+    OutputFromRoot(g.Comm(),"Testing if A ~= QR...");
     PushIndent();
-    const Real oneNormA = OneNorm( A );
-    const Real infNormA = InfinityNorm( A );
-    const Real frobNormA = FrobeniusNorm( A );
     LocalGemm( NORMAL, NORMAL, F(-1), Q, R, F(1), A );
-    oneNormError = OneNorm( A );
-    infNormError = InfinityNorm( A );
-    frobNormError = FrobeniusNorm( A );
+    const Real infError = InfinityNorm( A );
+    const Real relError = infError / (eps*maxDim*oneNormA);
     OutputFromRoot
-    (g.Comm(),
-     "||A||_1       = ",oneNormA,"\n",Indent(),
-     "||A||_oo      = ",infNormA,"\n",Indent(),
-     "||A||_F       = ",frobNormA,"\n",Indent(),
-     "||A - QR||_1  = ",oneNormError,"\n",Indent(),
-     "||A - QR||_oo = ",infNormError,"\n",Indent(),
-     "||A - QR||_F  = ",frobNormError);
+    (g.Comm(),"||A - QR||_oo / (eps Max(m,n) ||A||_1) = ",relError);
+
     PopIndent();
+
+    // TODO: More rigorous failure conditions
+    if( relOrthogError > Real(10) )
+        LogicError("Unacceptably large relative orthogonality error");
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
 }
 
 template<typename F>
@@ -61,7 +59,7 @@ void TestQR
 ( const Grid& g,
   Int m,
   Int n,
-  bool testCorrectness,
+  bool correctness,
   bool print )
 {
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
@@ -92,7 +90,7 @@ void TestQR
         Print( AFact, "Q" );
         Print( R, "R" );
     }
-    if( testCorrectness )
+    if( correctness )
         TestCorrectness( AFact, R, A );
     PopIndent();
 }
@@ -109,8 +107,8 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
@@ -128,24 +126,33 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
         OutputFromRoot(comm,"Will test TSQR");
 
-        TestQR<float>( g, m, n, testCorrectness, print );
-        TestQR<Complex<float>>( g, m, n, testCorrectness, print );
+        TestQR<float>
+        ( g, m, n, correctness, print );
+        TestQR<Complex<float>>
+        ( g, m, n, correctness, print );
 
-        TestQR<double>( g, m, n, testCorrectness, print );
-        TestQR<Complex<double>>( g, m, n, testCorrectness, print );
+        TestQR<double>
+        ( g, m, n, correctness, print );
+        TestQR<Complex<double>>
+        ( g, m, n, correctness, print );
 
 #ifdef EL_HAVE_QD
-        TestQR<DoubleDouble>( g, m, n, testCorrectness, print );
-        TestQR<QuadDouble>( g, m, n, testCorrectness, print );
+        TestQR<DoubleDouble>
+        ( g, m, n, correctness, print );
+        TestQR<QuadDouble>
+        ( g, m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestQR<Quad>( g, m, n, testCorrectness, print );
-        TestQR<Complex<Quad>>( g, m, n, testCorrectness, print );
+        TestQR<Quad>
+        ( g, m, n, correctness, print );
+        TestQR<Complex<Quad>>
+        ( g, m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestQR<BigFloat>( g, m, n, testCorrectness, print );
+        TestQR<BigFloat>
+        ( g, m, n, correctness, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

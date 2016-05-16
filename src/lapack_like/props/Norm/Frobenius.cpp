@@ -118,39 +118,46 @@ Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
     return HermitianFrobeniusNorm( uplo, A );
 }
 
+template<typename Real>
+Real NormFromScaledSquare
+( Real localScale, Real localScaledSquare, mpi::Comm comm )
+{
+    // Find the maximum relative scale
+    const Real scale = mpi::AllReduce( localScale, mpi::MAX, comm );
+
+    if( scale != Real(0) )
+    {
+        // Equilibrate our local scaled sum to the maximum scale
+        Real relScale = localScale/scale;
+        localScaledSquare *= relScale*relScale;
+
+        // The scaled square is now the sum of the local contributions
+        const Real scaledSquare = mpi::AllReduce( localScaledSquare, comm );
+        return scale*Sqrt(scaledSquare);
+    }
+    else
+      return 0;
+}
+
 template<typename F> 
 Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
     Real norm;
-    // TODO: Extract this logic into a helper routine
     if( A.Participating() )
     {
-        Real locScale=0, locScaledSquare=1;
+        Real localScale=0, localScaledSquare=1;
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
         const Matrix<F>& ALoc = A.LockedMatrix();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 UpdateScaledSquare
-                ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
-
-        // Find the maximum relative scale
-        mpi::Comm comm = A.DistComm();
-        const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
-
-        norm = 0;
-        if( scale != Real(0) )
-        {
-            // Equilibrate our local scaled sum to the maximum scale
-            Real relScale = locScale/scale;
-            locScaledSquare *= relScale*relScale;
-
-            // The scaled square is now the sum of the local contributions
-            const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
-            norm = scale*Sqrt(scaledSquare);
-        }
+                ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
+        
+        norm = NormFromScaledSquare
+          ( localScale, localScaledSquare, A.DistComm() );
     }
     mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;
@@ -161,31 +168,13 @@ Base<F> FrobeniusNorm( const DistSparseMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
-    Real norm;
-
-    Real locScale=0, locScaledSquare=1;
+    Real localScale=0, localScaledSquare=1;
     const Int numLocalEntries = A.NumLocalEntries();
     const F* valBuf = A.LockedValueBuffer();
     for( Int k=0; k<numLocalEntries; ++k )
-        UpdateScaledSquare( valBuf[k], locScale, locScaledSquare );
+        UpdateScaledSquare( valBuf[k], localScale, localScaledSquare );
 
-    // Find the maximum relative scale
-    mpi::Comm comm = A.Comm();
-    const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
-
-    norm = 0;
-    if( scale != Real(0) )
-    {
-        // Equilibrate our local scaled sum to the maximum scale
-        Real relScale = locScale/scale;
-        locScaledSquare *= relScale*relScale;
-
-        // The scaled square is now the sum of the local contributions
-        const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
-        norm = scale*Sqrt(scaledSquare);
-    }
-
-    return norm;
+    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
 }
 
 template<typename F>
@@ -200,8 +189,8 @@ Base<F> HermitianFrobeniusNorm
     Real norm;
     if( A.Participating() )
     {
-        Real locScale = 0;
-        Real locScaledSquare = 1;
+        Real localScale = 0;
+        Real localScaledSquare = 1;
         const Int localWidth = A.LocalWidth();
         const Int localHeight = A.LocalHeight();
         const Matrix<F>& ALoc = A.LockedMatrix();
@@ -215,10 +204,10 @@ Base<F> HermitianFrobeniusNorm
                 {
                     const Int i = A.GlobalRow(iLoc);
                     UpdateScaledSquare
-                    ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
+                    ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
                     if( i != j )
                         UpdateScaledSquare
-                        ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
+                        ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
                 }
             }
         }
@@ -232,29 +221,16 @@ Base<F> HermitianFrobeniusNorm
                 {
                     const Int i = A.GlobalRow(iLoc);
                     UpdateScaledSquare
-                    ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
+                    ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
                     if( i != j )
                         UpdateScaledSquare
-                        ( ALoc(iLoc,jLoc), locScale, locScaledSquare );
+                        ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
                 }
             }
         }
 
-        // Find the maximum relative scale
-        const Real scale = mpi::AllReduce( locScale, mpi::MAX, A.DistComm() );
-
-        norm = 0;
-        if( scale != Real(0) )
-        {
-            // Equilibrate our local scaled sum to the maximum scale
-            Real relScale = locScale/scale;
-            locScaledSquare *= relScale*relScale;
-
-            // The scaled square is now the sum of the local contributions
-            const Real scaledSquare = 
-                mpi::AllReduce( locScaledSquare, A.DistComm() );
-            norm = scale*Sqrt(scaledSquare);
-        }
+        norm = NormFromScaledSquare
+          ( localScale, localScaledSquare, A.DistComm() );
     }
     mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;
@@ -266,9 +242,8 @@ Base<F> HermitianFrobeniusNorm
 {
     DEBUG_ONLY(CSE cse("HermitianFrobeniusNorm"))
     typedef Base<F> Real;
-    Real norm;
 
-    Real locScale=0, locScaledSquare=1;
+    Real localScale=0, localScaledSquare=1;
     const Int numLocalEntries = A.NumLocalEntries();
     const Int* rowBuf = A.LockedSourceBuffer();
     const Int* colBuf = A.LockedTargetBuffer();
@@ -280,30 +255,14 @@ Base<F> HermitianFrobeniusNorm
         const F value = valBuf[k];
         if( (uplo==UPPER && i<j) || (uplo==LOWER && i>j) )
         {
-            UpdateScaledSquare( value, locScale, locScaledSquare );
-            UpdateScaledSquare( value, locScale, locScaledSquare );
+            UpdateScaledSquare( value, localScale, localScaledSquare );
+            UpdateScaledSquare( value, localScale, localScaledSquare );
         }
         else if( i ==j )
-            UpdateScaledSquare( value, locScale, locScaledSquare );
+            UpdateScaledSquare( value, localScale, localScaledSquare );
     }
 
-    // Find the maximum relative scale
-    mpi::Comm comm = A.Comm();
-    const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
-
-    norm = 0;
-    if( scale != Real(0) )
-    {
-        // Equilibrate our local scaled sum to the maximum scale
-        Real relScale = locScale/scale;
-        locScaledSquare *= relScale*relScale;
-
-        // The scaled square is now the sum of the local contributions
-        const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
-        norm = scale*Sqrt(scaledSquare);
-    }
-
-    return norm;
+    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
 }
 
 template<typename F>
@@ -327,31 +286,15 @@ Base<F> FrobeniusNorm( const DistMultiVec<F>& A )
 {
     DEBUG_ONLY(CSE cse("FrobeniusNorm"))
     typedef Base<F> Real;
-    Real norm;
-    Real locScale=0, locScaledSquare=1;
+    Real localScale=0, localScaledSquare=1;
     const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
     const Matrix<F>& ALoc = A.LockedMatrix();
     for( Int j=0; j<width; ++j )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            UpdateScaledSquare( ALoc(iLoc,j), locScale, locScaledSquare );
+            UpdateScaledSquare( ALoc(iLoc,j), localScale, localScaledSquare );
 
-    // Find the maximum relative scale
-    mpi::Comm comm = A.Comm();
-    const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
-
-    norm = 0;
-    if( scale != Real(0) )
-    {
-        // Equilibrate our local scaled sum to the maximum scale
-        Real relScale = locScale/scale;
-        locScaledSquare *= relScale*relScale;
-
-        // The scaled square is now the sum of the local contributions
-        const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
-        norm = scale*Sqrt(scaledSquare);
-    }
-    return norm;
+    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
 }
 
 #define PROTO(F) \
