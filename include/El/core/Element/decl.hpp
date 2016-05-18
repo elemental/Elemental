@@ -12,15 +12,252 @@
 namespace El {
 
 template<typename Real>
-using Complex = std::complex<Real>;
-// NOTE: It appears that instantiating std::complex for Real=__float128
-//       is undefined. This is disappointing; and instantiating std::complex
-//       for Real=BigFloat is likely to be even more problematic. There may
-//       be a need for using a loose wrapper around std::complex when 
-//       Real is not in the approved list of datatypes,
-//       {float,double,long double}.
+class Complex
+{
+public:
+    Real real, imag;
+};
 
-typedef Complex<float>  scomplex;
+template<>
+class Complex<float> : public std::complex<float>
+{
+public:
+    typedef float realType;
+    using std::complex<realType>::operator=;
+    using std::complex<realType>::operator-=;
+    using std::complex<realType>::operator+=;
+    using std::complex<realType>::operator*=;
+    using std::complex<realType>::operator/=;
+
+    Complex( const int& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const long long int& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const realType& a=realType(0) )
+    : std::complex<realType>(a)
+    { }
+    Complex( const realType& a, const realType& b )
+    : std::complex<realType>(a,b)
+    { }
+    Complex( const std::complex<realType>& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( std::complex<realType>&& a )
+    : std::complex<realType>(std::move(a))
+    { }
+
+    // Conversion constructors
+    Complex( const double& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const std::complex<double>& a )
+    : std::complex<realType>(a)
+    { }
+#ifdef EL_HAVE_QUAD
+    Complex( const Quad& a )
+    : std::complex<realType>(realType(a))
+    { }
+    Complex( const std::complex<Quad>& a )
+    : std::complex<realType>(realType(a.real()),realType(a.imag()))
+    { }
+#endif
+};
+
+template<>
+class Complex<double> : public std::complex<double>
+{
+public:
+    typedef double realType;
+    using std::complex<realType>::operator=;
+    using std::complex<realType>::operator-=;
+    using std::complex<realType>::operator+=;
+    using std::complex<realType>::operator*=;
+    using std::complex<realType>::operator/=;
+
+    Complex( const int& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const long long int& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const realType& a=realType(0) )
+    : std::complex<realType>(a)
+    { }
+    Complex( const realType& a, const realType& b )
+    : std::complex<realType>(a,b)
+    { }
+    Complex( const std::complex<realType>& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( std::complex<realType>&& a )
+    : std::complex<realType>(std::move(a))
+    { }
+
+    // Conversion constructors
+    Complex( const float& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const std::complex<float>& a )
+    : std::complex<realType>(a)
+    { }
+#ifdef EL_HAVE_QUAD
+    Complex( const Quad& a )
+    : std::complex<realType>(realType(a))
+    { }
+    Complex( const std::complex<Quad>& a )
+    : std::complex<realType>(realType(a.real()),realType(a.imag()))
+    { }
+#endif
+};
+
+#ifdef EL_HAVE_QUAD
+template<>
+class Complex<Quad> : public std::complex<Quad>
+{
+public:
+    typedef Quad realType;
+    using std::complex<realType>::operator=;
+    using std::complex<realType>::operator-=;
+    using std::complex<realType>::operator+=;
+    using std::complex<realType>::operator*=;
+    using std::complex<realType>::operator/=;
+
+    Complex( const int& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const long long int& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const realType& a=realType(0) )
+    : std::complex<realType>(a)
+    { }
+    Complex( const realType& a, const realType& b )
+    : std::complex<realType>(a,b)
+    { }
+    Complex( const std::complex<realType>& a )
+    : std::complex<realType>(a) { }
+    Complex( std::complex<realType>&& a )
+    : std::complex<realType>(std::move(a))
+    { }
+
+    // Conversion constructors
+    Complex( const float& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const std::complex<float>& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const double& a )
+    : std::complex<realType>(a)
+    { }
+    Complex( const std::complex<double>& a )
+    : std::complex<realType>(a)
+    { }
+};
+#endif
+
+template<typename Real>
+inline Complex<Real>
+operator-( const Complex<Real>& a )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    return -aStd;
+}
+
+template<typename Real>
+inline Complex<Real>
+operator+( const Complex<Real>& a, const Complex<Real>& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return aStd + bStd;
+}
+template<typename Real>
+inline Complex<Real>
+operator-( const Complex<Real>& a, const Complex<Real>& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return aStd - bStd;
+}
+template<typename Real>
+inline Complex<Real>
+operator*( const Complex<Real>& a, const Complex<Real>& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return aStd * bStd;
+}
+template<typename Real>
+inline Complex<Real>
+operator/( const Complex<Real>& a, const Complex<Real>& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return aStd / bStd;
+}
+
+template<typename Real>
+inline Complex<Real>
+operator+( const Complex<Real>& a, const Real& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    return aStd + b;
+}
+template<typename Real>
+inline Complex<Real>
+operator-( const Complex<Real>& a, const Real& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    return aStd - b;
+}
+template<typename Real>
+inline Complex<Real>
+operator*( const Complex<Real>& a, const Real& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    return aStd * b;
+}
+template<typename Real>
+inline Complex<Real>
+operator/( const Complex<Real>& a, const Real& b )
+{
+    auto& aStd = static_cast<const std::complex<Real>&>(a);
+    return aStd / b;
+}
+
+template<typename Real>
+inline Complex<Real>
+operator+( const Real& a, const Complex<Real>& b )
+{
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return a + bStd;
+}
+template<typename Real>
+inline Complex<Real>
+operator-( const Real& a, const Complex<Real>& b )
+{
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return a - bStd;
+}
+template<typename Real>
+inline Complex<Real>
+operator*( const Real& a, const Complex<Real>& b )
+{
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return a * bStd;
+}
+template<typename Real>
+inline Complex<Real>
+operator/( const Real& a, const Complex<Real>& b )
+{
+    auto& bStd = static_cast<const std::complex<Real>&>(b);
+    return a / bStd;
+}
+
+typedef Complex<float> scomplex;
 typedef Complex<double> dcomplex;
 #ifdef EL_HAVE_QUAD
 typedef Complex<Quad> qcomplex;

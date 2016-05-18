@@ -2602,7 +2602,7 @@ void Syr2
     // A += x' y + y' x
     const char trans = 'T';
     const BlasInt k = 1;
-    const scomplex beta = 1.;
+    const scomplex beta = 1.f;
     EL_BLAS(csyr2k)
     ( &uplo, &trans, &m, &k, &alpha, x, &incx, y, &incy, &beta, A, &ALDim );
 }
