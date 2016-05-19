@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -15,10 +15,10 @@ namespace lll {
 // Put the k'th column of B into the k'th column of QR and then rotate
 // said column with the first k-1 (scaled) Householder reflectors.
 
-template<typename F>
+template<typename Z, typename F>
 void ExpandQR
 ( Int k,
-  const Matrix<F>& B,
+  const Matrix<Z>& B,
         Matrix<F>& QR,
   const Matrix<F>& t,
   const Matrix<Base<F>>& d,
@@ -33,7 +33,7 @@ void ExpandQR
 
     // Copy in the k'th column of B
     for( Int i=0; i<m; ++i )
-        QR(i,k) = B(i,k);
+        QR(i,k) = F(B(i,k));
 
     if( time )
         applyHouseTimer.Start();
@@ -111,12 +111,24 @@ void HouseholderStep
         houseStepTimer.Stop();
 }
 
+template<typename Z, typename F>
+Base<F> Norm2
+( Matrix<Z>& B,
+  Int k )
+{
+    Matrix<F> col;
+    auto bcol = B(ALL, IR(k));
+    Copy(bcol, col);
+    return El::FrobeniusNorm(col);
+}
+
+
 // Return true if the new column is a zero vector
-template<typename F>
+template<typename Z, typename F>
 bool Step
 ( Int k,
-  Matrix<F>& B,
-  Matrix<F>& U,
+  Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -128,18 +140,18 @@ bool Step
     const Int m = B.Height();
     const Int n = B.Width();
     const Real eps = limits::Epsilon<Real>();
-
+    const Real thresh = Pow(limits::Epsilon<Real>(), Real(0.5));
     if( ctrl.time )
         stepTimer.Start();
 
+    Real oldNorm = lll::Norm2<Z,F>(B, k);      
+    bool colUpdated = false;
+
     while( true ) 
     {
-        lll::ExpandQR( k, B, QR, t, d, ctrl.numOrthog, ctrl.time );
-
-        const Real oldNorm = blas::Nrm2( m, &B(0,k), 1 );
-        if( !limits::IsFinite(oldNorm) )
+        if( !ctrl.unsafeSizeReduct && !limits::IsFinite(oldNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
-        if( oldNorm > Real(1)/eps )
+        if( !ctrl.unsafeSizeReduct && oldNorm > Real(1)/eps )
             RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
         if( oldNorm <= ctrl.zeroTol )
@@ -158,8 +170,11 @@ bool Step
             return true;
         }
 
+        lll::ExpandQR( k, B, QR, t, d, ctrl.numOrthog, ctrl.time );
+
         if( ctrl.time )
             roundTimer.Start();
+
         if( ctrl.variant == LLL_WEAK )
         {
             const Real rho_km1_km1 = RealPart(QR(k-1,k-1));
@@ -177,15 +192,17 @@ bool Step
                       &QR(0,k  ), 1 );
 
                     blas::Axpy
-                    ( m, -chi,
+                    ( m, Z(-chi),
                       &B(0,k-1), 1,
                       &B(0,k  ), 1 );
 
                     if( formU )
                         blas::Axpy
-                        ( n, -chi,
+                        ( n, Z(-chi),
                           &U(0,k-1), 1,
                           &U(0,k  ), 1 );
+
+                    colUpdated = true;
                 }
             }
         }
@@ -218,27 +235,34 @@ bool Step
                 if( numNonzero == 0 )
                     break;
 
+                colUpdated = true;
+
                 const float nonzeroRatio = float(numNonzero)/float(k); 
-                if( nonzeroRatio >= ctrl.blockingThresh )
+                if( nonzeroRatio >= ctrl.blockingThresh && k >= ctrl.minColThresh )
                 {
+                    vector<Z> xzBuf(k);
+                    // Need array of type Z
+                    for( Int i=0; i<k; ++i)
+                        xzBuf[i] = Z(xBuf[i]);
+                
                     blas::Gemv
                     ( 'N', m, k,
-                      F(-1), &B(0,0),  B.LDim(),
-                             &xBuf[0], 1,
-                      F(+1), &B(0,k),  1 );
+                      Z(-1), &B(0,0),  B.LDim(),
+                             &xzBuf[0], 1,
+                      Z(+1), &B(0,k),  1 );
                     if( formU )
                         blas::Gemv
                         ( 'N', n, k,
-                          F(-1), &U(0,0),  U.LDim(),
-                                 &xBuf[0], 1,
-                          F(+1), &U(0,k),  1 );
+                          Z(-1), &U(0,0),  U.LDim(),
+                                 &xzBuf[0], 1,
+                          Z(+1), &U(0,k),  1 );
                 }
                 else
                 {
                     for( Int i=k-1; i>=0; --i )
                     {
-                        const F chi = xBuf[i];
-                        if( chi == F(0) )
+                        const Z chi = Z(xBuf[i]);
+                        if( chi == Z(0) )
                             continue;
                         blas::Axpy
                         ( m, -chi,
@@ -253,14 +277,34 @@ bool Step
                 }
             }
         }
-        const Real newNorm = blas::Nrm2( m, &B(0,k), 1 );
         if( ctrl.time )
             roundTimer.Stop();
-        if( !limits::IsFinite(newNorm) )
+ 
+        if( !colUpdated )
+        {
+            break;
+        }
+
+        colUpdated = false;
+
+        Real newNorm = lll::Norm2<Z,F>(B, k);
+        auto rCol  = QR( ALL, IR(k) );
+        Real rNorm = El::FrobeniusNorm(rCol);
+
+        if( Abs(newNorm - rNorm)/newNorm >= thresh )
+        {
+            if( ctrl.progress )
+                Output("Repeating size reduction with k=", k, 
+                       " because ||bk||=", newNorm, ", ||rk||=", rNorm);
+            continue;
+        }
+
+        if( !ctrl.unsafeSizeReduct && !limits::IsFinite(newNorm) )
             RuntimeError("Encountered an unbounded norm; increase precision");
-        if( newNorm > Real(1)/eps )
+        if( !ctrl.unsafeSizeReduct && newNorm > Real(1)/eps )
             RuntimeError("Encountered norm greater than 1/eps, where eps=",eps);
 
+        
         if( newNorm > ctrl.reorthogTol*oldNorm )
         {
             break;
@@ -269,6 +313,8 @@ bool Step
             Output
             ("  Reorthogonalizing with k=",k,
              " since oldNorm=",oldNorm," and newNorm=",newNorm);
+
+        oldNorm = newNorm;
     }
     lll::HouseholderStep( k, QR, t, d, ctrl.time );
     if( ctrl.time )
@@ -277,10 +323,10 @@ bool Step
 }
 
 // Consider explicitly returning both Q and R rather than just R (in 'QR')
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>> LeftAlg
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -464,10 +510,10 @@ LLLInfo<Base<F>> LeftAlg
     return info;
 }
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>> LeftDeepAlg
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -679,10 +725,10 @@ LLLInfo<Base<F>> LeftDeepAlg
     return info;
 }
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>> LeftDeepReduceAlg
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -830,12 +876,12 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
                     if( Abs(RealPart(chi)) > 0 || Abs(ImagPart(chi)) > 0 )
                     {
                         blas::Axpy
-                        ( m, -chi,
+                        ( m, Z(-chi),
                           &B(0,l), 1,
                           &B(0,k), 1 );
                         if( formU )
                             blas::Axpy
-                            ( n, -chi,
+                            ( n, Z(-chi),
                               &U(0,l), 1,
                               &U(0,k), 1 );
                     }

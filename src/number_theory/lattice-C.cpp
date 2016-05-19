@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -21,6 +21,9 @@ ElError ElLLLCtrlDefault_s( ElLLLCtrl_s* ctrl )
     ctrl->variant = EL_LLL_NORMAL;
     ctrl->recursive = false;
     ctrl->cutoff = 10;
+    ctrl->precisionFudge = 2.0f;
+    ctrl->minColThresh = 0;
+    ctrl->unsafeSizeReduct = false;
     ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
@@ -43,6 +46,9 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
     ctrl->variant = EL_LLL_NORMAL;
     ctrl->recursive = false;
     ctrl->cutoff = 10;
+    ctrl->precisionFudge = 2;
+    ctrl->minColThresh = 0;
+    ctrl->unsafeSizeReduct = false;
     ctrl->presort = false;
     ctrl->smallestFirst = true;
     ctrl->reorthogTol = 0;
@@ -125,6 +131,7 @@ ElError ElLLLCtrlDefault_d( ElLLLCtrl_d* ctrl )
       ( CReflect(alpha), n, NSqrt, \
         *CReflect(B), *CReflect(U), CReflect(ctrl) ) ) }
 
+#define EL_NO_COMPLEX_PROTO
 #define EL_NO_INT_PROTO
 #include <El/macros/CInstantiate.h>
 

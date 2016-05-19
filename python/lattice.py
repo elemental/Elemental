@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2016, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -40,6 +40,9 @@ class LLLCtrl_s(ctypes.Structure):
               ("variant",c_uint),
               ("recursive",bType),
               ("cutoff",iType),
+              ("precisionFudge",sType),
+              ("minColThresh",iType),
+              ("unsafeSizeReduct",bType),
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",sType),
@@ -58,6 +61,9 @@ class LLLCtrl_d(ctypes.Structure):
               ("variant",c_uint),
               ("recursive",bType),
               ("cutoff",iType),
+              ("precisionFudge",dType),
+              ("minColThresh",iType),
+              ("unsafeSizeReduct",bType),
               ("presort",bType),
               ("smallestFirst",bType),
               ("reorthogTol",dType),
