@@ -19,52 +19,112 @@
 namespace El {
 
 template<typename T>
-void Trrk
+void TrrkInternal
 ( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientA, Orientation orientB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Trrk"))
+    DEBUG_ONLY(CSE cse("TrrkInternal"))
     ScaleTrapezoid( beta, uplo, C );
-    if( orientationOfA==NORMAL && orientationOfB==NORMAL )
+    if( orientA==NORMAL && orientB==NORMAL )
         trrk::TrrkNN( uplo, alpha, A, B, C );
-    else if( orientationOfA==NORMAL )
-        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, C );
-    else if( orientationOfB==NORMAL )
-        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, C );
+    else if( orientA==NORMAL )
+        trrk::TrrkNT( uplo, orientB, alpha, A, B, C );
+    else if( orientB==NORMAL )
+        trrk::TrrkTN( uplo, orientA, alpha, A, B, C );
     else
-        trrk::TrrkTT( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
+        trrk::TrrkTT( uplo, orientA, orientB, alpha, A, B, C );
+}
+
+#ifdef EL_HAVE_MKL
+template<typename T,typename=EnableIf<IsBlasScalar<T>>>
+void TrrkMKL
+( UpperOrLower uplo, 
+  Orientation orientA, Orientation orientB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    DEBUG_ONLY(CSE cse("TrrkMKL"))
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char orientAChar = OrientationToChar( orientA );
+    const char orientBChar = OrientationToChar( orientB );
+
+    mkl::Trrk 
+    ( uploChar, orientAChar, orientBChar,
+      alpha, A.LockedBuffer(), A.LDim(),
+             B.LockedBuffer(), B.LDim(),
+      beta,  C.Buffer(),       C.LDim() );
+}
+#endif
+
+template<typename T,typename=EnableIf<IsBlasScalar<T>>>
+void TrrkHelper
+( UpperOrLower uplo, 
+  Orientation orientA, Orientation orientB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    DEBUG_ONLY(CSE cse("TrrkHelper"))
+#ifdef EL_HAVE_MKL
+    TrrkMKL( uplo, orientA, orientB, alpha, A, B, beta, C );
+#else
+    TrrkInternal( uplo, orientA, orientB, alpha, A, B, beta, C );
+#endif
+}
+
+template<typename T,typename=DisableIf<IsBlasScalar<T>>,typename=void>
+void TrrkHelper
+( UpperOrLower uplo, 
+  Orientation orientA, Orientation orientB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    DEBUG_ONLY(CSE cse("TrrkHelper"))
+    TrrkInternal( uplo, orientA, orientB, alpha, A, B, beta, C );
 }
 
 template<typename T>
 void Trrk
-( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
+( UpperOrLower uplo, 
+  Orientation orientA, Orientation orientB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C )
+{
+    DEBUG_ONLY(CSE cse("Trrk"))
+    TrrkHelper( uplo, orientA, orientB, alpha, A, B, beta, C );
+}
+
+template<typename T>
+void Trrk
+( UpperOrLower uplo, Orientation orientA, Orientation orientB,
   T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
   T beta,        ElementalMatrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("Trrk"))
     ScaleTrapezoid( beta, uplo, C );
-    if( orientationOfA==NORMAL && orientationOfB==NORMAL )
+    if( orientA==NORMAL && orientB==NORMAL )
         trrk::TrrkNN( uplo, alpha, A, B, C );
-    else if( orientationOfA==NORMAL )
-        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, C );
-    else if( orientationOfB==NORMAL )
-        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, C );
+    else if( orientA==NORMAL )
+        trrk::TrrkNT( uplo, orientB, alpha, A, B, C );
+    else if( orientB==NORMAL )
+        trrk::TrrkTN( uplo, orientA, alpha, A, B, C );
     else
-        trrk::TrrkTT( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
+        trrk::TrrkTT( uplo, orientA, orientB, alpha, A, B, C );
 }
 
 #define PROTO(T) \
   template void Trrk \
   ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const Matrix<T>& A, const Matrix<T>& B, \
+    Orientation orientA, Orientation orientB, \
+    T alpha, const Matrix<T>& A, \
+             const Matrix<T>& B, \
     T beta,        Matrix<T>& C ); \
   template void Trrk \
   ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
+    Orientation orientA, Orientation orientB, \
+    T alpha, const ElementalMatrix<T>& A, \
+             const ElementalMatrix<T>& B, \
     T beta,        ElementalMatrix<T>& C ); \
   template void LocalTrrk \
    ( UpperOrLower uplo, \
@@ -72,18 +132,18 @@ void Trrk
               const DistMatrix<T,STAR,MR  >& B, \
      T beta,        DistMatrix<T>& C ); \
   template void LocalTrrk \
-  ( UpperOrLower uplo, Orientation orientationOfB, \
+  ( UpperOrLower uplo, Orientation orientB, \
     T alpha, const DistMatrix<T,MC,STAR>& A, \
              const DistMatrix<T,MR,STAR>& B, \
     T beta,        DistMatrix<T>& C ); \
   template void LocalTrrk \
-  ( UpperOrLower uplo, Orientation orientationOfA, \
+  ( UpperOrLower uplo, Orientation orientA, \
     T alpha, const DistMatrix<T,STAR,MC>& A, \
              const DistMatrix<T,STAR,MR>& B, \
     T beta,        DistMatrix<T>& C ); \
   template void LocalTrrk \
   ( UpperOrLower uplo, \
-    Orientation orientationOfA, Orientation orientationOfB, \
+    Orientation orientA, Orientation orientB, \
     T alpha, const DistMatrix<T,STAR,MC  >& A, \
              const DistMatrix<T,MR,  STAR>& B, \
     T beta,        DistMatrix<T>& C );

@@ -97,8 +97,42 @@ void imatcopy
 // NOTE: These are filler routines not provided by MKL
 template<typename T>
 void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
+( Orientation orientation,
+  BlasInt m, BlasInt n,
   T alpha, T* A, BlasInt lda, BlasInt ldb );
+
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        float alpha,
+  const float* A, BlasInt ALDim,
+  const float* B, BlasInt BLDim,
+        float beta,
+        float* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        double alpha,
+  const double* A, BlasInt ALDim,
+  const double* B, BlasInt BLDim,
+        double beta,
+        double* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        scomplex alpha,
+  const scomplex* A, BlasInt ALDim,
+  const scomplex* B, BlasInt BLDim,
+        scomplex beta,
+        scomplex* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        dcomplex alpha,
+  const dcomplex* A, BlasInt ALDim,
+  const dcomplex* B, BlasInt BLDim,
+        dcomplex beta,
+        dcomplex* C, BlasInt CLDim );
 
 } // namespace mkl
 } // namespace El
