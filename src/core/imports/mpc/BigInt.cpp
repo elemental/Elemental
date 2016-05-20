@@ -13,6 +13,11 @@
 
 namespace El {
 
+void BigInt::Init( int numBits )
+{
+    mpz_init2( Pointer(), numBits );
+}
+
 mpz_ptr BigInt::Pointer()
 { return mpzInt_; }
 
@@ -39,8 +44,7 @@ int BigInt::NumBits() const
 BigInt::BigInt()
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [default]"))
-    int numBits = mpc::NumIntBits();
-    mpz_init2( Pointer(), numBits );
+    Init();
 }
 
 // Copy constructors
@@ -50,7 +54,7 @@ BigInt::BigInt( const BigInt& a, int numBits )
     DEBUG_ONLY(CSE cse("BigInt::BigInt [BigInt]"))
     if( &a != this )
     {
-        mpz_init2( mpzInt_, numBits );
+        Init( numBits );
         mpz_set( mpzInt_, a.mpzInt_ );
     }
     DEBUG_ONLY(
@@ -62,21 +66,21 @@ BigInt::BigInt( const BigInt& a, int numBits )
 BigInt::BigInt( const unsigned& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [unsigned]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     mpz_set_ui( Pointer(), a );
 }
 
 BigInt::BigInt( const unsigned long& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [unsigned long]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     mpz_set_ui( Pointer(), a );
 }
 
 BigInt::BigInt( const unsigned long long& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [unsigned long long]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
         unsigned long aLong = static_cast<unsigned long>(a);
@@ -97,21 +101,21 @@ BigInt::BigInt( const unsigned long long& a, int numBits )
 BigInt::BigInt( const int& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [int]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     mpz_set_si( Pointer(), a );
 }
 
 BigInt::BigInt( const long int& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [long int]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     mpz_set_si( Pointer(), a );
 }
 
 BigInt::BigInt( const long long int& a, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [long long int]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     if( (a >= 0 && a <= static_cast<long long>(LONG_MAX)) ||
         (a <  0 && a >= static_cast<long long>(LONG_MIN)) )
     {
@@ -136,14 +140,14 @@ BigInt::BigInt( const long long int& a, int numBits )
 BigInt::BigInt( const char* str, int base, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [char*]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     mpz_set_str( Pointer(), str, base );
 }
 
 BigInt::BigInt( const std::string& str, int base, int numBits )
 {
     DEBUG_ONLY(CSE cse("BigInt::BigInt [string]"))
-    mpz_init2( Pointer(), numBits );
+    Init( numBits );
     mpz_set_str( Pointer(), str.c_str(), base );
 }
 
@@ -819,6 +823,150 @@ BigInt operator*( const BigInt& a, const BigInt& b )
 { return BigInt(a) *= b; }
 
 BigInt operator/( const BigInt& a, const BigInt& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const BigInt& a, const unsigned& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const BigInt& a, const unsigned& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const BigInt& a, const unsigned& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const BigInt& a, const unsigned& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const BigInt& a, const unsigned long& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const BigInt& a, const unsigned long& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const BigInt& a, const unsigned long& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const BigInt& a, const unsigned long& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const BigInt& a, const unsigned long long& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const BigInt& a, const unsigned long long& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const BigInt& a, const unsigned long long& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const BigInt& a, const unsigned long long& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const BigInt& a, const int& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const BigInt& a, const int& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const BigInt& a, const int& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const BigInt& a, const int& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const BigInt& a, const long int& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const BigInt& a, const long int& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const BigInt& a, const long int& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const BigInt& a, const long int& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const BigInt& a, const long long int& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const BigInt& a, const long long int& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const BigInt& a, const long long int& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const BigInt& a, const long long int& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const unsigned& a, const BigInt& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const unsigned& a, const BigInt& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const unsigned& a, const BigInt& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const unsigned& a, const BigInt& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const unsigned long& a, const BigInt& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const unsigned long& a, const BigInt& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const unsigned long& a, const BigInt& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const unsigned long& a, const BigInt& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const unsigned long long& a, const BigInt& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const unsigned long long& a, const BigInt& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const unsigned long long& a, const BigInt& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const unsigned long long& a, const BigInt& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const int& a, const BigInt& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const int& a, const BigInt& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const int& a, const BigInt& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const int& a, const BigInt& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const long int& a, const BigInt& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const long int& a, const BigInt& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const long int& a, const BigInt& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const long int& a, const BigInt& b )
+{ return BigInt(a) /= b; }
+
+BigInt operator+( const long long int& a, const BigInt& b )
+{ return BigInt(a) += b; }
+
+BigInt operator-( const long long int& a, const BigInt& b )
+{ return BigInt(a) -= b; }
+
+BigInt operator*( const long long int& a, const BigInt& b )
+{ return BigInt(a) *= b; }
+
+BigInt operator/( const long long int& a, const BigInt& b )
 { return BigInt(a) /= b; }
 
 BigInt operator%( const BigInt& a, const BigInt& b )

@@ -11,6 +11,17 @@
 
 namespace El {
 
+void BigFloat::SetNumLimbs( mpfr_prec_t prec )
+{
+    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+}
+
+void BigFloat::Init( mpfr_prec_t prec )
+{
+    mpfr_init2( mpfrFloat_, prec );
+    SetNumLimbs( prec );
+}
+
 mpfr_ptr BigFloat::Pointer()
 { return mpfrFloat_; }
 
@@ -29,7 +40,7 @@ mpfr_prec_t BigFloat::Precision() const
 void BigFloat::SetPrecision( mpfr_prec_t prec )
 {
     mpfr_set_prec( mpfrFloat_, prec ); 
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    SetNumLimbs( prec );
 }
 
 size_t BigFloat::NumLimbs() const
@@ -38,9 +49,7 @@ size_t BigFloat::NumLimbs() const
 BigFloat::BigFloat()
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [default]"))
-    mpfr_prec_t prec = mpc::Precision();
-    mpfr_init2( mpfrFloat_, prec );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    Init();
 }
 
 // Copy constructors
@@ -50,8 +59,7 @@ BigFloat::BigFloat( const BigFloat& a, mpfr_prec_t prec )
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [BigFloat]"))
     if( &a != this )
     {
-        numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-        mpfr_init2( mpfrFloat_, prec );
+        Init( prec );
         mpfr_set( mpfrFloat_, a.mpfrFloat_, mpc::RoundingMode() );
     }
     DEBUG_ONLY(
@@ -63,80 +71,70 @@ BigFloat::BigFloat( const BigFloat& a, mpfr_prec_t prec )
 BigFloat::BigFloat( const BigInt& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [BigInt]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_z( Pointer(), a.LockedPointer(), mpc::RoundingMode() ); 
 }
 
 BigFloat::BigFloat( const unsigned& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_ui( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const unsigned long& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned long]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_ui( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const unsigned long long& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [unsigned long long]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_uj( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [int]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_si( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const long int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long int]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_si( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const long long int& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long long int]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_sj( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const float& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [float]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_flt( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const double& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [double]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_d( Pointer(), a, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const long double& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [long double]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_ld( Pointer(), a, mpc::RoundingMode() ); 
 }
 
@@ -144,8 +142,7 @@ BigFloat::BigFloat( const long double& a, mpfr_prec_t prec )
 BigFloat::BigFloat( const DoubleDouble& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [DoubleDouble]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     // Set to the high portion
     mpfr_set_d( Pointer(), a.x[0], mpc::RoundingMode() );
     // Add in the low portion 
@@ -164,8 +161,7 @@ BigFloat::BigFloat( const DoubleDouble& a, mpfr_prec_t prec )
 BigFloat::BigFloat( const QuadDouble& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [QuadDouble]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     // Set to the high portion
     mpfr_set_d( Pointer(), a.x[0], mpc::RoundingMode() );
     // Add in the low portions 
@@ -187,8 +183,7 @@ BigFloat::BigFloat( const QuadDouble& a, mpfr_prec_t prec )
 BigFloat::BigFloat( const Quad& a, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [Quad]"))
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
 #ifdef EL_HAVE_MPFR_FLOAT128
     mpfr_set_float128( Pointer(), a, mpc::RoundingMode() );
 #else
@@ -212,17 +207,15 @@ BigFloat::BigFloat( const Quad& a, mpfr_prec_t prec )
 BigFloat::BigFloat( const char* str, int base, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [char*]"))
-    mpfr_init2( Pointer(), prec );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
+    Init( prec );
     mpfr_set_str( Pointer(), str, base, mpc::RoundingMode() );
 }
 
 BigFloat::BigFloat( const std::string& str, int base, mpfr_prec_t prec )
 {
     DEBUG_ONLY(CSE cse("BigFloat::BigFloat [string]"))
-    mpfr_init2( Pointer(), prec );
+    Init( prec );
     mpfr_set_str( Pointer(), str.c_str(), base, mpc::RoundingMode() );
-    numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
 }
 
 // Move constructor
@@ -475,6 +468,34 @@ BigFloat& BigFloat::operator+=( const double& a )
     return *this;
 }
 
+#ifdef EL_HAVE_QUAD
+BigFloat& BigFloat::operator+=( const Quad& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [Quad]"))
+    BigFloat aBig(a);
+    mpfr_add( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+BigFloat& BigFloat::operator+=( const DoubleDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [DoubleDouble]"))
+    BigFloat aBig(a);
+    mpfr_add( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator+=( const QuadDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator+= [QuadDouble]"))
+    BigFloat aBig(a);
+    mpfr_add( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
 BigFloat& BigFloat::operator+=( const BigInt& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator+= [BigInt]"))
@@ -563,6 +584,34 @@ BigFloat& BigFloat::operator-=( const double& a )
     mpfr_sub_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
     return *this;
 }
+
+#ifdef EL_HAVE_QUAD
+BigFloat& BigFloat::operator-=( const Quad& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [Quad]"))
+    BigFloat aBig(a);
+    mpfr_sub( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+BigFloat& BigFloat::operator-=( const DoubleDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [DoubleDouble]"))
+    BigFloat aBig(a);
+    mpfr_sub( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator-=( const QuadDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator-= [QuadDouble]"))
+    BigFloat aBig(a);
+    mpfr_sub( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
 
 BigFloat& BigFloat::operator-=( const BigInt& a )
 {
@@ -679,6 +728,34 @@ BigFloat& BigFloat::operator*=( const double& a )
     return *this;
 }
 
+#ifdef EL_HAVE_QUAD
+BigFloat& BigFloat::operator*=( const Quad& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [Quad]"))
+    BigFloat aBig(a);
+    mpfr_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+BigFloat& BigFloat::operator*=( const DoubleDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [DoubleDouble]"))
+    BigFloat aBig(a);
+    mpfr_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator*=( const QuadDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator*= [QuadDouble]"))
+    BigFloat aBig(a);
+    mpfr_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
 BigFloat& BigFloat::operator*=( const BigInt& a )
 {
     DEBUG_ONLY(CSE cse("BigFloat::operator*= [BigInt]"))
@@ -767,6 +844,34 @@ BigFloat& BigFloat::operator/=( const double& a )
     mpfr_div_d( Pointer(), Pointer(), a, mpc::RoundingMode() );
     return *this;
 }
+
+#ifdef EL_HAVE_QUAD
+BigFloat& BigFloat::operator/=( const Quad& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [Quad]"))
+    BigFloat aBig(a);
+    mpfr_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+BigFloat& BigFloat::operator/=( const DoubleDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [DoubleDouble]"))
+    BigFloat aBig(a);
+    mpfr_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+BigFloat& BigFloat::operator/=( const QuadDouble& a )
+{
+    DEBUG_ONLY(CSE cse("BigFloat::operator/= [QuadDouble]"))
+    BigFloat aBig(a);
+    mpfr_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
 
 BigFloat& BigFloat::operator/=( const BigInt& a )
 {
@@ -1009,37 +1114,234 @@ byte* BigFloat::Deserialize( byte* buf )
 
 BigFloat operator+( const BigFloat& a, const BigFloat& b )
 { return BigFloat(a) += b; }
-
 BigFloat operator-( const BigFloat& a, const BigFloat& b )
 { return BigFloat(a) -= b; }
-
 BigFloat operator*( const BigFloat& a, const BigFloat& b )
 { return BigFloat(a) *= b; }
-
 BigFloat operator/( const BigFloat& a, const BigFloat& b )
 { return BigFloat(a) /= b; }
 
+BigFloat operator+( const BigFloat& a, const unsigned& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const unsigned& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const unsigned& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const unsigned& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const unsigned long& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const unsigned long& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const unsigned long& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const unsigned long& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const unsigned long long& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const unsigned long long& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const unsigned long long& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const unsigned long long& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const int& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const int& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const int& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const int& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const long int& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const long int& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const long int& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const long int& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const long long int& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const long long int& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const long long int& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const long long int& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const float& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const float& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const float& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const float& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const double& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const double& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const double& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const double& b )
+{ return BigFloat(a) /= b; }
+
+#ifdef EL_HAVE_QUAD
+BigFloat operator+( const BigFloat& a, const Quad& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const Quad& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const Quad& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const Quad& b )
+{ return BigFloat(a) /= b; }
+#endif
+
+#ifdef EL_HAVE_QD
+BigFloat operator+( const BigFloat& a, const DoubleDouble& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const DoubleDouble& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const DoubleDouble& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const DoubleDouble& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const BigFloat& a, const QuadDouble& b )
+{ return BigFloat(a) += b; }
+BigFloat operator-( const BigFloat& a, const QuadDouble& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const BigFloat& a, const QuadDouble& b )
+{ return BigFloat(a) *= b; }
+BigFloat operator/( const BigFloat& a, const QuadDouble& b )
+{ return BigFloat(a) /= b; }
+#endif
+
+BigFloat operator+( const unsigned& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const unsigned& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const unsigned& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const unsigned& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const unsigned long& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const unsigned long& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const unsigned long& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const unsigned long& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const unsigned long long& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const unsigned long long& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const unsigned long long& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const unsigned long long& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const int& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const int& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const int& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const int& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const long int& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const long int& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const long int& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const long int& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const long long int& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const long long int& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const long long int& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const long long int& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const float& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const float& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const float& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const float& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const double& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const double& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const double& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const double& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+#ifdef EL_HAVE_QUAD
+BigFloat operator+( const Quad& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const Quad& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const Quad& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const Quad& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+#endif
+
+#ifdef EL_HAVE_QD
+BigFloat operator+( const DoubleDouble& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const DoubleDouble& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const DoubleDouble& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const DoubleDouble& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+
+BigFloat operator+( const QuadDouble& a, const BigFloat& b )
+{ return BigFloat(b) += a; }
+BigFloat operator-( const QuadDouble& a, const BigFloat& b )
+{ return BigFloat(a) -= b; }
+BigFloat operator*( const QuadDouble& a, const BigFloat& b )
+{ return BigFloat(b) *= a; }
+BigFloat operator/( const QuadDouble& a, const BigFloat& b )
+{ return BigFloat(a) /= b; }
+#endif
+
 BigFloat operator<<( const BigFloat& a, const int& b )
 { return BigFloat(a) <<= b; }
-
 BigFloat operator<<( const BigFloat& a, const long int& b )
 { return BigFloat(a) <<= b; }
-
 BigFloat operator<<( const BigFloat& a, const unsigned& b )
 { return BigFloat(a) <<= b; }
-
 BigFloat operator<<( const BigFloat& a, const long unsigned& b )
 { return BigFloat(a) <<= b; }
 
 BigFloat operator>>( const BigFloat& a, const int& b )
 { return BigFloat(a) >>= b; }
-
 BigFloat operator>>( const BigFloat& a, const long int& b )
 { return BigFloat(a) >>= b; }
-
 BigFloat operator>>( const BigFloat& a, const unsigned& b )
 { return BigFloat(a) >>= b; }
-
 BigFloat operator>>( const BigFloat& a, const long unsigned& b )
 { return BigFloat(a) >>= b; }
 
