@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -176,10 +176,10 @@ Base<F> LogVolume( const Matrix<F>& R )
 
 namespace El {
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>> LLLWithQ
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -213,12 +213,12 @@ LLLInfo<Base<F>> LLLWithQ
     {
         if( ctrl.jumpstart )
             LogicError("Cannot combine jumpstarting with presorting");
-        QRCtrl<Real> qrCtrl;
+        QRCtrl<Base<Z>> qrCtrl;
         qrCtrl.smallestFirst = ctrl.smallestFirst;
 
         auto BCopy = B;
-        Matrix<F> tPre;
-        Matrix<Real> dPre;
+        Matrix<Z> tPre;
+        Matrix<Base<Z>> dPre;
         Permutation Omega;
         // TODO: Add support for qr::ProxyHouseholder as well
         El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
@@ -232,25 +232,20 @@ LLLInfo<Base<F>> LLLWithQ
     const bool formU = true;
     LLLInfo<Real> info;
     if( ctrl.variant == LLL_DEEP_REDUCE )
-    {
         info = lll::LeftDeepReduceAlg( B, U, QR, t, d, formU, ctrl );
-    }
     else if( ctrl.variant == LLL_DEEP )
-    {
-        info = lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
-    }
+        return lll::LeftDeepAlg( B, U, QR, t, d, formU, ctrl );
     else
-    {
         info = lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
-    }
+
     info.firstSwap = Min(info.firstSwap,firstSwap);
     return info;
 }
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>> LLL
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
@@ -265,10 +260,10 @@ LLLInfo<Base<F>> LLL
     return info;
 }
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>>
 LLLWithQ
-( Matrix<F>& B,
+( Matrix<Z>& B,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -293,12 +288,12 @@ LLLWithQ
         if( ctrl.jumpstart )
             LogicError("Cannot combine jumpstarting with presorting");
 
-        QRCtrl<Real> qrCtrl;
+        QRCtrl<Base<Z>> qrCtrl;
         qrCtrl.smallestFirst = ctrl.smallestFirst;
 
         auto BCopy = B;
-        Matrix<F> tPre;
-        Matrix<Real> dPre;
+        Matrix<Z> tPre;
+        Matrix<Base<Z>> dPre;
         Permutation Omega;
         // TODO: Add support for qr::ProxyHouseholder as well
         El::QR( BCopy, tPre, dPre, Omega, qrCtrl );
@@ -309,7 +304,7 @@ LLLWithQ
     }
 
     const bool formU = false;
-    Matrix<F> U;
+    Matrix<Z> U;
     if( ctrl.variant == LLL_DEEP_REDUCE )
     {
         // Start with standard LLL
@@ -353,10 +348,10 @@ LLLWithQ
         return lll::LeftAlg( B, U, QR, t, d, formU, ctrl );
 }
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>>
 LLL
-( Matrix<F>& B,
+( Matrix<Z>& B,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
@@ -405,13 +400,13 @@ bool IsInteger( const Matrix<F>& A )
 
 namespace lll {
 
-template<typename RealLower,typename F>
+template<typename Z, typename F, typename RealZLower, typename RealLower>
 LLLInfo<RealLower>
 LowerPrecisionMerge
-( const Matrix<F>& CL,
-  const Matrix<F>& CR,
-        Matrix<F>& B,
-        Matrix<F>& U,
+( const Matrix<Z>& CL,
+  const Matrix<Z>& CR,
+        Matrix<Z>& B,
+        Matrix<Z>& U,
         Matrix<F>& QR,
         Matrix<F>& t,
         Matrix<Base<F>>& d,
@@ -420,15 +415,21 @@ LowerPrecisionMerge
 {
     DEBUG_ONLY(CSE cse("lll::LowerPrecisionMerge"))
     typedef ConvertBase<F,RealLower> FLower;
-    const string typeString = TypeName<RealLower>();
+    typedef ConvertBase<Z,RealZLower> ZLower;
+    const string typeStringF = TypeName<RealLower>();
+    const string typeStringZ = TypeName<RealZLower>();
 
     const Int n = B.Width();
     const Int firstHalf = n-(n/2);
 
     if( ctrl.progress || ctrl.time )
-        Output("  Dropping to " + typeString);
-    Matrix<FLower> BLower;
+    {
+        Output("  Dropping B  to " + typeStringZ);
+        Output("  Dropping QR to " + typeStringF);
+    }
+    Matrix<ZLower> BLower;
     BLower.Resize( B.Height(), n );
+    
     // Interleave CL and CR to reform B before running LLL again
     // NOTE: This does not seem to make a substantial difference
     for( Int jSub=0; jSub<n/2; ++jSub )
@@ -446,7 +447,7 @@ LowerPrecisionMerge
         auto bL = BLower( ALL, IR(n-1) );
         Copy( cL, bL );
     }
-
+ 
     LLLCtrl<RealLower> ctrlLower( ctrl );
     ctrlLower.recursive = false;
     RealLower eps = limits::Epsilon<RealLower>();
@@ -457,7 +458,8 @@ LowerPrecisionMerge
     if( ctrl.time )
         timer.Start();
     LLLInfo<RealLower> infoLower;
-    Matrix<FLower> UNewLower, tLower;
+    Matrix<ZLower> UNewLower;
+    Matrix<FLower> tLower;
     Matrix<RealLower> dLower;
     if( maintainU )
         infoLower =
@@ -466,7 +468,7 @@ LowerPrecisionMerge
         infoLower =
           LLLWithQ( BLower, QRLower, tLower, dLower, ctrlLower );
     if( ctrl.time )
-        Output("  " + typeString + " LLL took ",timer.Stop()," seconds");
+        Output("  (" + typeStringZ + "," + typeStringF + ") LLL took ",timer.Stop()," seconds");
     Copy( BLower, B );
     Copy( QRLower, QR );
     Copy( tLower, t );
@@ -474,21 +476,21 @@ LowerPrecisionMerge
 
     if( maintainU )
     {
-        Matrix<F> UNew;
+        Matrix<Z> UNew;
         Copy( UNewLower, UNew );
         auto UCopy( U );
-        Gemm( NORMAL, NORMAL, F(1), UCopy, UNew, F(0), U );
+        Gemm( NORMAL, NORMAL, Z(1), UCopy, UNew, Z(0), U );
     }
 
     return infoLower;
 }
 
-template<typename RealLower,typename F>
+template<typename Z, typename F, typename RealLower>
 bool TryLowerPrecisionMerge
-( const Matrix<F>& CL,
-  const Matrix<F>& CR,
-        Matrix<F>& B,
-        Matrix<F>& U,
+( const Matrix<Z>& CL,
+  const Matrix<Z>& CR,
+        Matrix<Z>& B,
+        Matrix<Z>& U,
         Matrix<F>& QR,
         Matrix<F>& t,
         Matrix<Base<F>>& d,
@@ -498,30 +500,36 @@ bool TryLowerPrecisionMerge
         LLLInfo<Base<F>>& info )
 {
     bool succeeded = false;
-    if( MantissaIsLonger<Base<F>,RealLower>::value &&
+    if( MantissaIsLonger<Base<Z>,RealLower>::value &&
         MantissaBits<RealLower>::value >= neededPrec )
     {
         try
         {
-            info = LowerPrecisionMerge<RealLower>
-              ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
+            if (MantissaIsLonger<F,RealLower>::value)
+            {
+                info = LowerPrecisionMerge<Z,F,RealLower,RealLower>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
+            }
+            else
+            {
+                info = LowerPrecisionMerge<Z,F,RealLower,F>
+                  ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
+            }
             succeeded = true;
         }
         catch( std::exception& e )
-        {
-            Output("e.what()=",e.what());
-        }
+        { Output("e.what()=",e.what()); }
     }
     return succeeded;
 }
 
 #ifdef EL_HAVE_MPC
-template<typename F>
+template<typename Z,typename F>
 bool TryLowerPrecisionBigFloatMerge
-( const Matrix<F>& CL,
-  const Matrix<F>& CR,
-        Matrix<F>& B,
-        Matrix<F>& U,
+( const Matrix<Z>& CL,
+  const Matrix<Z>& CR,
+        Matrix<Z>& B,
+        Matrix<Z>& U,
         Matrix<F>& QR,
         Matrix<F>& t,
         Matrix<Base<F>>& d,
@@ -542,7 +550,7 @@ bool TryLowerPrecisionBigFloatMerge
             mpc::SetPrecision( neededPrec );
             try
             {
-                info = LowerPrecisionMerge<BigFloat>
+                info = LowerPrecisionMerge<Z,F,BigFloat,F>
                   ( CL, CR, B, U, QR, t, d, maintainU, ctrl );
                 succeeded = true;
             }
@@ -557,11 +565,11 @@ bool TryLowerPrecisionBigFloatMerge
 }
 #endif
 
-template<typename Real>
+template<typename ZReal, typename Real>
 LLLInfo<Real>
 RecursiveHelper
-( Matrix<Real>& B,
-  Matrix<Real>& U,
+( Matrix<ZReal>& B,
+  Matrix<ZReal>& U,
   Matrix<Real>& QR,
   Matrix<Real>& t,
   Matrix<Real>& d,
@@ -572,6 +580,7 @@ RecursiveHelper
     DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
 
     typedef Real F;
+    typedef ZReal Z;
     const Int n = B.Width();
     if( n < ctrl.cutoff )
     {
@@ -606,13 +615,14 @@ RecursiveHelper
         LLLInfo<Real> leftInfo;
         if( maintainU )
         {
-            Matrix<F> ULNew, QRL, tL;
+            Matrix<Z> ULNew;
+            Matrix<F> QRL, tL;
             Matrix<Real> dL;
             leftInfo = RecursiveLLLWithQ( CL, ULNew, QRL, tL, dL, ctrl );
 
             auto UL = U( ALL, indL );
             auto ULCopy( UL );
-            Gemm( NORMAL, NORMAL, F(1), ULCopy, ULNew, F(0), UL );
+            Gemm( NORMAL, NORMAL, Z(1), ULCopy, ULNew, Z(0), UL );
         }
         else
         {
@@ -630,13 +640,14 @@ RecursiveHelper
         LLLInfo<Real> rightInfo;
         if( maintainU )
         {
-            Matrix<F> URNew, QRR, tR;
+            Matrix<Z> URNew;
+            Matrix<F> QRR, tR;
             Matrix<Real> dR;
             rightInfo = RecursiveLLLWithQ( CR, URNew, QRR, tR, dR, ctrl );
 
             auto UR = U( ALL, indR );
             auto URCopy( UR );
-            Gemm( NORMAL, NORMAL, F(1), URCopy, URNew, F(0), UR );
+            Gemm( NORMAL, NORMAL, Z(1), URCopy, URNew, Z(0), UR );
         }
         else
         {
@@ -666,10 +677,15 @@ RecursiveHelper
         Int numPrevSwaps = info.numSwaps;
         if( isInteger )
         {
-            const Real CLOneNorm = OneNorm( CL );
-            const Real CROneNorm = OneNorm( CR );
-            const Real CLMaxNorm = MaxNorm( CL );
-            const Real CRMaxNorm = MaxNorm( CR );
+            // Can we use QR for this without recomputing norms?
+            Matrix<F> CLF;
+            Copy(CL, CLF);
+            Matrix<F> CRF;
+            Copy(CR, CRF);
+            const Real CLOneNorm = OneNorm( CLF );
+            const Real CROneNorm = OneNorm( CRF );
+            const Real CLMaxNorm = MaxNorm( CLF );
+            const Real CRMaxNorm = MaxNorm( CRF );
             // TODO: Incorporate norm of U if maintaining U
             if( ctrl.progress )
             {
@@ -678,9 +694,8 @@ RecursiveHelper
                 Output("  || C_L ||_max = ",CLMaxNorm);
                 Output("  || C_R ||_max = ",CRMaxNorm);
             }
-
             const Real COneNorm = Max(CLOneNorm,CROneNorm);
-            const Real fudge = 2; // TODO: Make tunable
+            const Real fudge = ctrl.precisionFudge; // TODO: Make tunable
             const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
             if( ctrl.progress || ctrl.time )
             {
@@ -688,26 +703,26 @@ RecursiveHelper
                 Output("  Needed precision: ",neededPrec);
             }
 
-            succeeded = TryLowerPrecisionMerge<float>
+            succeeded = TryLowerPrecisionMerge<Z,F,float>
               ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
             if( !succeeded )
-                succeeded = TryLowerPrecisionMerge<double>
+                succeeded = TryLowerPrecisionMerge<Z,F,double>
                   ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #ifdef EL_HAVE_QD
             if( !succeeded )
-                succeeded = TryLowerPrecisionMerge<DoubleDouble>
+                succeeded = TryLowerPrecisionMerge<Z,F,DoubleDouble>
                   ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
             if( !succeeded )
-                succeeded = TryLowerPrecisionMerge<QuadDouble>
+                succeeded = TryLowerPrecisionMerge<Z,F,QuadDouble>
                   ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #elif defined(EL_HAVE_QUAD)
             if( !succeeded )
-                succeeded = TryLowerPrecisionMerge<Quad>
+                succeeded = TryLowerPrecisionMerge<Z,F,Quad>
                   ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #endif
 #ifdef EL_HAVE_MPC
             if( !succeeded )
-                succeeded = TryLowerPrecisionBigFloatMerge
+                succeeded = TryLowerPrecisionBigFloatMerge<Z,F>
                   ( CL, CR, B, U, QR, t, d, maintainU, ctrl, neededPrec, info );
 #endif
 
@@ -717,7 +732,7 @@ RecursiveHelper
         // TODO: Allow for dropping with non-integer coefficients?
 
         if( !succeeded )
-        {
+        { 
             // Interleave CL and CR to reform B before running LLL again
             for( Int jSub=0; jSub<n/2; ++jSub )
             {
@@ -983,10 +998,10 @@ RecursiveHelper
 
 } // namespace lll
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>>
 RecursiveLLLWithQ
-( Matrix<F>& B,
+( Matrix<Z>& B,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -1000,17 +1015,17 @@ RecursiveLLLWithQ
 
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
-    Matrix<F> U;
+    Matrix<Z> U;
     bool maintainU=false;
     return
       lll::RecursiveHelper( B, U, QR, t, d, numShuffles, maintainU, ctrlMod );
 }
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>>
 RecursiveLLLWithQ
-( Matrix<F>& B,
-  Matrix<F>& U,
+( Matrix<Z>& B,
+  Matrix<Z>& U,
   Matrix<F>& QR,
   Matrix<F>& t,
   Matrix<Base<F>>& d,
@@ -1029,10 +1044,10 @@ RecursiveLLLWithQ
       ( B, U, QR, t, d, numShuffles, maintainU, ctrlMod );
 }
 
-template<typename F>
+template<typename Z, typename F>
 LLLInfo<Base<F>>
 LLL
-( Matrix<F>& B,
+( Matrix<Z>& B,
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("LLL"))
@@ -1042,15 +1057,15 @@ LLL
     return LLL( B, R, ctrl );
 }
 
-template<typename F>
-void DeepColSwap( Matrix<F>& B, Int i, Int k )
+template<typename Z>
+void DeepColSwap( Matrix<Z>& B, Int i, Int k )
 {
     const Int m = B.Height();
     auto bi = B( ALL, IR(i) );
     auto bk = B( ALL, IR(k) );
     auto bkCopy( bk );
 
-    F* BBuf = B.Buffer();
+    Z* BBuf = B.Buffer();
     const Int BLDim = B.LDim();
     for( Int l=k-1; l>=i; --l )
         blas::Copy( m, &BBuf[l*BLDim], 1, &BBuf[(l+1)*BLDim], 1 );
@@ -1058,15 +1073,15 @@ void DeepColSwap( Matrix<F>& B, Int i, Int k )
     bi = bkCopy;
 }
 
-template<typename F>
-void DeepRowSwap( Matrix<F>& B, Int i, Int k )
+template<typename Z>
+void DeepRowSwap( Matrix<Z>& B, Int i, Int k )
 {
     const Int n = B.Width();
     auto bi = B( IR(i), ALL );
     auto bk = B( IR(k), ALL );
     auto bkCopy( bk );
 
-    F* BBuf = B.Buffer();
+    Z* BBuf = B.Buffer();
     const Int BLDim = B.LDim();
     for( Int l=k-1; l>=i; --l )
         blas::Copy( n, &BBuf[l], BLDim, &BBuf[l+1], BLDim );

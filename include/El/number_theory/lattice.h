@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -52,6 +52,9 @@ typedef struct
     ElLLLVariant variant;
     bool recursive;
     ElInt cutoff;
+    float precisionFudge;
+    ElInt minColThresh;
+    bool unsafeSizeReduct;
     bool presort;
     bool smallestFirst;
     float reorthogTol;
@@ -72,6 +75,9 @@ typedef struct
     ElLLLVariant variant;
     bool recursive;
     ElInt cutoff;
+    double precisionFudge;
+    ElInt minColThresh;
+    bool unsafeSizeReduct;
     bool presort;
     bool smallestFirst;
     double reorthogTol;
