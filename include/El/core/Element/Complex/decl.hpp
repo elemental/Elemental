@@ -321,6 +321,12 @@ public:
     inline Complex<BigFloat>& operator/=( const unsigned long long& a );
     inline Complex<BigFloat>& operator/=( const unsigned long& a );
     inline Complex<BigFloat>& operator/=( const unsigned& a );
+
+    inline size_t SerializedSize() const;
+
+    inline       byte* Serialize( byte* buf ) const;
+    inline const byte* Deserialize( const byte* buf );
+    inline       byte* Deserialize( byte* buf );
 };
 #endif // EL_HAVE_MPC
 

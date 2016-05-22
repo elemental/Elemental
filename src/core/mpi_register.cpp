@@ -37,7 +37,7 @@ El::mpi::Datatype DoubleDoubleType, QuadDoubleType;
 El::mpi::Datatype QuadType, QuadComplexType;
 #endif
 #ifdef EL_HAVE_MPC
-El::mpi::Datatype BigIntType, BigFloatType;
+El::mpi::Datatype BigIntType, BigFloatType, BigFloatComplexType;
 #endif
 
 // (Int,Scalar) datatypes
@@ -51,7 +51,7 @@ El::mpi::Datatype DoubleDoubleIntType, QuadDoubleIntType;
 El::mpi::Datatype QuadIntType, QuadComplexIntType;
 #endif
 #ifdef EL_HAVE_MPC
-El::mpi::Datatype BigIntIntType, BigFloatIntType;
+El::mpi::Datatype BigIntIntType, BigFloatIntType, BigFloatComplexIntType;
 #endif
 
 // (Int,Int,Scalar) datatypes
@@ -65,7 +65,7 @@ El::mpi::Datatype DoubleDoubleEntryType, QuadDoubleEntryType;
 El::mpi::Datatype QuadEntryType, QuadComplexEntryType;
 #endif
 #ifdef EL_HAVE_MPC
-El::mpi::Datatype BigIntEntryType, BigFloatEntryType;
+El::mpi::Datatype BigIntEntryType, BigFloatEntryType, BigFloatComplexEntryType;
 #endif
 
 // Operations
@@ -86,7 +86,7 @@ El::mpi::Op minBigIntOp, maxBigIntOp;
 El::mpi::Op sumBigIntOp;
 
 El::mpi::Op minBigFloatOp, maxBigFloatOp;
-El::mpi::Op sumBigFloatOp;
+El::mpi::Op sumBigFloatOp, sumBigFloatComplexOp;
 #endif
 
 // (Int,Scalar) datatype operations
@@ -172,7 +172,9 @@ function<BigFloat(const BigFloat&,const BigFloat&)>
   userBigFloatFunc, userBigFloatCommFunc;
 El::mpi::Op userBigFloatOp, userBigFloatCommOp;
 
-// TODO: Complex BigFloat functions and ops
+function<Complex<BigFloat>(const Complex<BigFloat>&,const Complex<BigFloat>&)>
+  userComplexBigFloatFunc, userComplexBigFloatCommFunc;
+El::mpi::Op userComplexBigFloatOp, userComplexBigFloatCommOp;
 #endif
 
 // TODO: ValueInt<Real> user functions and ops
@@ -844,6 +846,19 @@ void SetUserReduceFunc
         ::userBigFloatFunc = func;
 }
 
+template<>
+void SetUserReduceFunc
+( function<Complex<BigFloat>
+  (const Complex<BigFloat>&,
+   const Complex<BigFloat>&)> func,
+  bool commutative )
+{
+    if( commutative )
+        ::userComplexBigFloatCommFunc = func;
+    else
+        ::userComplexBigFloatFunc = func;
+}
+
 static void
 UserBigFloatReduce
 ( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
@@ -859,6 +874,24 @@ EL_NO_EXCEPT
         b.Deserialize(outData);
 
         b = ::userBigFloatFunc(a,b);
+        outData = b.Serialize(outData); 
+    }
+}
+static void
+UserComplexBigFloatReduce
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    Complex<BigFloat> a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        b.Deserialize(outData);
+
+        b = ::userComplexBigFloatFunc(a,b);
         outData = b.Serialize(outData); 
     }
 }
@@ -878,6 +911,24 @@ EL_NO_EXCEPT
         b.Deserialize(outData);
 
         b = ::userBigFloatCommFunc(a,b);
+        outData = b.Serialize(outData); 
+    }
+}
+static void
+UserComplexBigFloatReduceComm
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    Complex<BigFloat> a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        b.Deserialize(outData);
+
+        b = ::userComplexBigFloatCommFunc(a,b);
         outData = b.Serialize(outData); 
     }
 }
@@ -925,6 +976,24 @@ SumBigFloat( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {
     BigFloat a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        b.Deserialize(outData);
+
+        b += a;
+        outData = b.Serialize(outData); 
+    }
+}
+static void
+SumBigFloatComplex
+( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    Complex<BigFloat> a, b;
     auto inData  = static_cast<const byte*>(inVoid);
     auto outData = static_cast<      byte*>(outVoid);
     const int length = *lengthPtr;
@@ -1321,9 +1390,14 @@ Datatype& ValueIntType<Complex<Quad>>() EL_NO_EXCEPT
 #endif
 #ifdef EL_HAVE_MPC
 template<>
-Datatype& ValueIntType<BigInt>() EL_NO_EXCEPT { return ::BigIntIntType; }
+Datatype& ValueIntType<BigInt>() EL_NO_EXCEPT
+{ return ::BigIntIntType; }
 template<>
-Datatype& ValueIntType<BigFloat>() EL_NO_EXCEPT { return ::BigFloatIntType; }
+Datatype& ValueIntType<BigFloat>() EL_NO_EXCEPT
+{ return ::BigFloatIntType; }
+template<>
+Datatype& ValueIntType<Complex<BigFloat>>() EL_NO_EXCEPT
+{ return ::BigFloatComplexIntType; }
 #endif
 
 template<typename R> static Datatype& EntryType() EL_NO_EXCEPT;
@@ -1356,9 +1430,14 @@ Datatype& EntryType<Complex<Quad>>() EL_NO_EXCEPT
 #endif
 #ifdef EL_HAVE_MPC
 template<>
-Datatype& EntryType<BigInt>() EL_NO_EXCEPT { return ::BigIntEntryType; }
+Datatype& EntryType<BigInt>() EL_NO_EXCEPT
+{ return ::BigIntEntryType; }
 template<>
-Datatype& EntryType<BigFloat>() EL_NO_EXCEPT { return ::BigFloatEntryType; }
+Datatype& EntryType<BigFloat>() EL_NO_EXCEPT
+{ return ::BigFloatEntryType; }
+template<>
+Datatype& EntryType<Complex<BigFloat>>() EL_NO_EXCEPT
+{ return ::BigFloatComplexEntryType; }
 #endif
 
 template<> Datatype TypeMap<byte>() EL_NO_EXCEPT
@@ -1395,9 +1474,12 @@ template<> Datatype TypeMap<Complex<Quad>>() EL_NO_EXCEPT
 { return ::QuadComplexType; }
 #endif
 #ifdef EL_HAVE_MPC
-template<> Datatype TypeMap<BigInt>() EL_NO_EXCEPT { return ::BigIntType; }
-template<> Datatype TypeMap<BigFloat>() EL_NO_EXCEPT { return ::BigFloatType; }
-// TODO: Complex<BigFloat>?
+template<> Datatype TypeMap<BigInt>() EL_NO_EXCEPT
+{ return ::BigIntType; }
+template<> Datatype TypeMap<BigFloat>() EL_NO_EXCEPT
+{ return ::BigFloatType; }
+template<> Datatype TypeMap<Complex<BigFloat>>() EL_NO_EXCEPT
+{ return ::BigFloatComplexType; }
 #endif
 
 /* I'm not sure of whether it is better to manually implement these
@@ -1453,6 +1535,8 @@ template<> Datatype TypeMap<ValueInt<BigInt>>() EL_NO_EXCEPT
 { return ValueIntType<BigInt>(); }
 template<> Datatype TypeMap<ValueInt<BigFloat>>() EL_NO_EXCEPT
 { return ValueIntType<BigFloat>(); }
+template<> Datatype TypeMap<ValueInt<Complex<BigFloat>>>() EL_NO_EXCEPT
+{ return ValueIntType<Complex<BigFloat>>(); }
 #endif
 
 template<> Datatype TypeMap<Entry<Int>>() EL_NO_EXCEPT
@@ -1482,6 +1566,8 @@ template<> Datatype TypeMap<Entry<BigInt>>() EL_NO_EXCEPT
 { return EntryType<BigInt>(); }
 template<> Datatype TypeMap<Entry<BigFloat>>() EL_NO_EXCEPT
 { return EntryType<BigFloat>(); }
+template<> Datatype TypeMap<Entry<Complex<BigFloat>>>() EL_NO_EXCEPT
+{ return EntryType<Complex<BigFloat>>(); }
 #endif
 
 template<typename T>
@@ -1568,6 +1654,34 @@ void CreateValueIntType<BigFloat>() EL_NO_EXCEPT
     CreateStruct( 2, blockLengths, displs, typeList, tempType );
 
     Datatype& type = ValueIntType<BigFloat>();
+    MPI_Aint extent = packedSize + sizeof(Int);
+    CreateResized( tempType, 0, extent, type );
+}
+
+template<>
+void CreateValueIntType<Complex<BigFloat>>() EL_NO_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("CreateValueIntType [Complex<BigFloat>]"))
+
+    Datatype typeList[2];
+    typeList[0] = TypeMap<Complex<BigFloat>>();
+    typeList[1] = TypeMap<Int>();
+    
+    int blockLengths[2];
+    blockLengths[0] = 1;
+    blockLengths[1] = 1; 
+
+    BigFloat alpha;
+    const size_t packedSize = alpha.SerializedSize();
+
+    MPI_Aint displs[2];
+    displs[0] = 0;
+    displs[1] = packedSize;
+
+    Datatype tempType;
+    CreateStruct( 2, blockLengths, displs, typeList, tempType );
+
+    Datatype& type = ValueIntType<Complex<BigFloat>>();
     MPI_Aint extent = packedSize + sizeof(Int);
     CreateResized( tempType, 0, extent, type );
 }
@@ -1684,6 +1798,37 @@ void CreateEntryType<BigFloat>() EL_NO_EXCEPT
     MPI_Aint extent = 2*sizeof(Int) + packedSize;
     CreateResized( tempType, 0, extent, type );
 }
+
+template<>
+void CreateEntryType<Complex<BigFloat>>() EL_NO_EXCEPT
+{
+    DEBUG_ONLY(CSE cse("CreateEntryType [Complex<BigFloat>]"))
+
+    Datatype typeList[3];
+    typeList[0] = TypeMap<Int>();
+    typeList[1] = TypeMap<Int>();
+    typeList[2] = TypeMap<Complex<BigFloat>>();
+    
+    int blockLengths[3];
+    blockLengths[0] = 1;
+    blockLengths[1] = 1; 
+    blockLengths[2] = 1; 
+
+    MPI_Aint displs[3];
+    displs[0] = 0;
+    displs[1] = sizeof(Int);
+    displs[2] = 2*sizeof(Int);
+
+    Datatype tempType;
+    CreateStruct( 3, blockLengths, displs, typeList, tempType );
+
+    BigFloat alpha;
+    const auto packedSize = alpha.SerializedSize();
+
+    Datatype& type = EntryType<Complex<BigFloat>>();
+    MPI_Aint extent = 2*sizeof(Int) + packedSize;
+    CreateResized( tempType, 0, extent, type );
+}
 #endif
 
 template void CreateEntryType<Int>() EL_NO_EXCEPT;
@@ -1711,8 +1856,11 @@ void CreateBigIntFamily()
 void CreateBigFloatFamily()
 {
     CreateBigFloatType();
+    CreateContiguous( 2, ::BigFloatType, ::BigFloatComplexType );
     CreateValueIntType<BigFloat>();
+    CreateValueIntType<Complex<BigFloat>>();
     CreateEntryType<BigFloat>();
+    CreateEntryType<Complex<BigFloat>>();
 }
 
 void DestroyBigIntFamily()
@@ -1724,8 +1872,11 @@ void DestroyBigIntFamily()
 
 void DestroyBigFloatFamily()
 {
+    Free( EntryType<Complex<BigFloat>>() );
     Free( EntryType<BigFloat>() );
+    Free( ValueIntType<Complex<BigFloat>>() );
     Free( ValueIntType<BigFloat>() );
+    Free( ::BigFloatComplexType );
     Free( ::BigFloatType );
 }
 #endif
@@ -1856,7 +2007,13 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     ( (UserFunction*)UserBigFloatReduce, false, ::userBigFloatOp );
     Create
     ( (UserFunction*)UserBigFloatReduceComm, true, ::userBigFloatCommOp );
-    // TODO: Complex versions
+
+    Create
+    ( (UserFunction*)UserComplexBigFloatReduce, false,
+      ::userComplexBigFloatOp );
+    Create
+    ( (UserFunction*)UserComplexBigFloatReduceComm, true,
+      ::userComplexBigFloatCommOp );
 #endif
    
     // Functions for scalar types
@@ -1884,7 +2041,7 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     Create( (UserFunction*)MaxBigFloat, true, ::maxBigFloatOp );
     Create( (UserFunction*)MinBigFloat, true, ::minBigFloatOp );
     Create( (UserFunction*)SumBigFloat, true, ::sumBigFloatOp );
-    // TODO: Complex sum
+    Create( (UserFunction*)SumBigFloatComplex, true, ::sumBigFloatComplexOp );
 #endif
     // Functions for the value and integer
     // -----------------------------------
@@ -2041,6 +2198,8 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
     Free( ::userBigIntCommOp );
     Free( ::userBigFloatOp );
     Free( ::userBigFloatCommOp );
+    Free( ::userComplexBigFloatOp );
+    Free( ::userComplexBigFloatCommOp );
 #endif
 
 #ifdef EL_HAVE_QD
@@ -2064,6 +2223,7 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
     Free( ::maxBigFloatOp );
     Free( ::minBigFloatOp );
     Free( ::sumBigFloatOp );
+    Free( ::sumBigFloatComplexOp );
 #endif
 
     Free( ::maxLocIntOp );
@@ -2159,6 +2319,11 @@ template<> Op UserOp<BigFloat>() EL_NO_EXCEPT
 { return ::userBigFloatOp; }
 template<> Op UserCommOp<BigFloat>() EL_NO_EXCEPT
 { return ::userBigFloatCommOp; }
+
+template<> Op UserOp<Complex<BigFloat>>() EL_NO_EXCEPT
+{ return ::userComplexBigFloatOp; }
+template<> Op UserCommOp<Complex<BigFloat>>() EL_NO_EXCEPT
+{ return ::userComplexBigFloatCommOp; }
 #endif
 
 #ifdef EL_HAVE_QD
@@ -2185,6 +2350,8 @@ template<> Op SumOp<BigInt>() EL_NO_EXCEPT { return ::sumBigIntOp; }
 template<> Op MaxOp<BigFloat>() EL_NO_EXCEPT { return ::maxBigFloatOp; }
 template<> Op MinOp<BigFloat>() EL_NO_EXCEPT { return ::minBigFloatOp; }
 template<> Op SumOp<BigFloat>() EL_NO_EXCEPT { return ::sumBigFloatOp; }
+template<> Op SumOp<Complex<BigFloat>>() EL_NO_EXCEPT
+{ return ::sumBigFloatComplexOp; }
 #endif
 
 template<> Op MaxLocOp<Int>() EL_NO_EXCEPT { return ::maxLocIntOp; }

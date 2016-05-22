@@ -1138,6 +1138,72 @@ Complex<BigFloat>& Complex<BigFloat>::operator/=( const unsigned& a )
     mpc_div_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
     return *this;
 }
+
+size_t Complex<BigFloat>::SerializedSize() const
+{
+    return 2*sizeof(mpfr_prec_t)+
+           2*sizeof(mpfr_sign_t)+
+           2*sizeof(mpfr_exp_t)+
+           2*sizeof(mp_limb_t)*numLimbs_;
+}
+
+byte* Complex<BigFloat>::Serialize( byte* buf ) const
+{
+    //DEBUG_ONLY(CSE cse("Complex<BigFloat>::Serialize"))
+    // NOTE: We don't have to necessarily serialize the precisions, as
+    //       they are known a priori (as long as the user does not fiddle
+    //       with SetPrecision)
+    // 
+
+    std::memcpy( buf, &mpcFloat_->re->_mpfr_prec, sizeof(mpfr_prec_t) );
+    buf += sizeof(mpfr_prec_t);
+    std::memcpy( buf, &mpcFloat_->re->_mpfr_sign, sizeof(mpfr_sign_t) );
+    buf += sizeof(mpfr_sign_t);
+    std::memcpy( buf, &mpcFloat_->re->_mpfr_exp, sizeof(mpfr_exp_t) );
+    buf += sizeof(mpfr_exp_t);
+    std::memcpy( buf, mpcFloat_->re->_mpfr_d, numLimbs_*sizeof(mp_limb_t) );
+    buf += numLimbs_*sizeof(mp_limb_t);
+
+    std::memcpy( buf, &mpcFloat_->im->_mpfr_prec, sizeof(mpfr_prec_t) );
+    buf += sizeof(mpfr_prec_t);
+    std::memcpy( buf, &mpcFloat_->im->_mpfr_sign, sizeof(mpfr_sign_t) );
+    buf += sizeof(mpfr_sign_t);
+    std::memcpy( buf, &mpcFloat_->im->_mpfr_exp, sizeof(mpfr_exp_t) );
+    buf += sizeof(mpfr_exp_t);
+    std::memcpy( buf, mpcFloat_->im->_mpfr_d, numLimbs_*sizeof(mp_limb_t) );
+    buf += numLimbs_*sizeof(mp_limb_t);
+
+    return buf;
+}
+
+const byte* Complex<BigFloat>::Deserialize( const byte* buf )
+{
+    //DEBUG_ONLY(CSE cse("Complex<BigFloat>::Deserialize"))
+    // TODO: Ensure that the precisions matched already
+
+    std::memcpy( &mpcFloat_->re->_mpfr_prec, buf, sizeof(mpfr_prec_t) );
+    buf += sizeof(mpfr_prec_t);
+    std::memcpy( &mpcFloat_->re->_mpfr_sign, buf, sizeof(mpfr_sign_t) );
+    buf += sizeof(mpfr_sign_t);
+    std::memcpy( &mpcFloat_->re->_mpfr_exp, buf, sizeof(mpfr_exp_t) );
+    buf += sizeof(mpfr_exp_t);
+    std::memcpy( mpcFloat_->re->_mpfr_d, buf, numLimbs_*sizeof(mp_limb_t) );
+    buf += numLimbs_*sizeof(mp_limb_t);
+
+    std::memcpy( &mpcFloat_->im->_mpfr_prec, buf, sizeof(mpfr_prec_t) );
+    buf += sizeof(mpfr_prec_t);
+    std::memcpy( &mpcFloat_->im->_mpfr_sign, buf, sizeof(mpfr_sign_t) );
+    buf += sizeof(mpfr_sign_t);
+    std::memcpy( &mpcFloat_->im->_mpfr_exp, buf, sizeof(mpfr_exp_t) );
+    buf += sizeof(mpfr_exp_t);
+    std::memcpy( mpcFloat_->im->_mpfr_d, buf, numLimbs_*sizeof(mp_limb_t) );
+    buf += numLimbs_*sizeof(mp_limb_t);
+
+    return buf;
+}
+
+byte* Complex<BigFloat>::Deserialize( byte* buf )
+{ return const_cast<byte*>(Deserialize(static_cast<const byte*>(buf))); }
 #endif // EL_HAVE_MPC
 
 template<typename Real>

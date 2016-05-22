@@ -1064,7 +1064,6 @@ BigFloat::operator BigInt() const
 
 size_t BigFloat::SerializedSize() const
 {
-    DEBUG_ONLY(CSE cse("BigFloat::SerializedSize"))
     return sizeof(mpfr_prec_t)+
            sizeof(mpfr_sign_t)+
            sizeof(mpfr_exp_t)+
