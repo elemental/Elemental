@@ -48,6 +48,7 @@ template<> std::string TypeName<Complex<Quad>>();
 #ifdef EL_HAVE_MPC
 template<> std::string TypeName<BigInt>();
 template<> std::string TypeName<BigFloat>();
+template<> std::string TypeName<Complex<BigFloat>>();
 #endif
 
 // For usage in EnableIf
@@ -109,6 +110,8 @@ template<> struct IsScalar<BigInt>
 { static const bool value=true; };
 template<> struct IsScalar<BigFloat>
 { static const bool value=true; };
+template<> struct IsScalar<Complex<BigFloat>>
+{ static const bool value=true; };
 #endif
 
 template<typename T> struct IsBlasScalar
@@ -122,21 +125,33 @@ template<> struct IsBlasScalar<Complex<float>>
 template<> struct IsBlasScalar<Complex<double>>
 { static const bool value=true; };
 
-template<typename T> struct IsField { static const bool value=false; };
-template<> struct IsField<float> { static const bool value=true; };
-template<> struct IsField<double> { static const bool value=true; };
-template<> struct IsField<Complex<float>> { static const bool value=true; };
-template<> struct IsField<Complex<double>> { static const bool value=true; };
+template<typename T> struct IsField
+{ static const bool value=false; };
+template<> struct IsField<float>
+{ static const bool value=true; };
+template<> struct IsField<double>
+{ static const bool value=true; };
+template<> struct IsField<Complex<float>>
+{ static const bool value=true; };
+template<> struct IsField<Complex<double>>
+{ static const bool value=true; };
 #ifdef EL_HAVE_QD
-template<> struct IsField<DoubleDouble> { static const bool value=true; };
-template<> struct IsField<QuadDouble> { static const bool value=true; };
+template<> struct IsField<DoubleDouble>
+{ static const bool value=true; };
+template<> struct IsField<QuadDouble>
+{ static const bool value=true; };
 #endif
 #ifdef EL_HAVE_QUAD
-template<> struct IsField<Quad> { static const bool value=true; };
-template<> struct IsField<Complex<Quad>> { static const bool value=true; };
+template<> struct IsField<Quad>
+{ static const bool value=true; };
+template<> struct IsField<Complex<Quad>>
+{ static const bool value=true; };
 #endif
 #ifdef EL_HAVE_MPC
-template<> struct IsField<BigFloat> { static const bool value=true; };
+template<> struct IsField<BigFloat>
+{ static const bool value=true; };
+template<> struct IsField<Complex<BigFloat>>
+{ static const bool value=true; };
 #endif
 
 template<typename Real,typename RealNew>
@@ -170,7 +185,7 @@ template<> struct PromoteHelper<double> { typedef BigFloat type; };
  #endif
 #endif
 
-// Until we have full Complex support (e.g., Complex<BigFloat>) we cannot
+// Until we have full Complex support (e.g., Complex<DoubleDouble>) we cannot
 // trivially extend the above to complex data. We therefore explicitly
 // avoid a conversion from a supported complex type to a nonsupported type.
 // But note that this breaks the assumption that
@@ -179,19 +194,18 @@ template<> struct PromoteHelper<double> { typedef BigFloat type; };
 //
 template<typename Real> struct PromoteHelper<Complex<Real>>
 { typedef Complex<typename PromoteHelper<Real>::type> type; };
-#ifdef EL_HAVE_QD
+#ifdef EL_HAVE_QUAD
 template<> struct PromoteHelper<Complex<double>>
-{ typedef Complex<double> type; };
-#else
- #ifdef EL_HAVE_QUAD
-  #ifdef EL_HAVE_MPC
-template<> struct PromoteHelper<Complex<Quad>>
 { typedef Complex<Quad> type; };
-  #endif
- #elif defined(EL_HAVE_MPC)
-template<> struct PromoteHelper<Complex<double>>
-{ typedef Complex<double> type; };
+ #ifdef EL_HAVE_MPC
+template<> struct PromoteHelper<Complex<Quad>>
+//{ typedef Complex<BigFloat> type; };
+{ typedef Complex<Quad> type; };
  #endif
+#elif defined(EL_HAVE_MPC)
+template<> struct PromoteHelper<Complex<double>>
+//{ typedef Complex<BigFloat> type; };
+{ typedef Complex<double> type; };
 #endif
 
 template<typename F> using Promote = typename PromoteHelper<F>::type;
@@ -261,6 +275,7 @@ template<> struct IsData<Complex<Quad>> { static const bool value=true; };
 #ifdef EL_HAVE_MPC
 template<> struct IsData<BigInt> { static const bool value=true; };
 template<> struct IsData<BigFloat> { static const bool value=true; };
+template<> struct IsData<Complex<BigFloat>> { static const bool value=true; };
 #endif
 
 // Basic element manipulation and I/O
@@ -341,11 +356,18 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real Conj( const Real& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Complex<Real> Conj( const Complex<Real>& alpha ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_MPC
+Complex<BigFloat> Conj( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT;
+#endif
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void Conj( const Real& alpha, Real& alphaConj ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void Conj( const Complex<Real>& alpha, Complex<Real>& alphaConj ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_MPC
+void Conj
+( const Complex<BigFloat>& alpha, Complex<BigFloat>& alphaConj ) EL_NO_EXCEPT;
+#endif
 
 // Complex argument
 // ----------------
@@ -354,13 +376,21 @@ Base<F> Arg( const F& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Arg( const Complex<Quad>& alpha );
 #endif
+#ifdef EL_HAVE_MPC
+template<> BigFloat Arg( const Complex<BigFloat>& alpha );
+#endif
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Complex<Real> ComplexFromPolar( const Real& r, const Real& theta=0 );
 #ifdef EL_HAVE_QUAD
-template<> Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta );
+template<>
+Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta );
+#endif
+#ifdef EL_HAVE_MPC
+template<>
+Complex<BigFloat> ComplexFromPolar( const BigFloat& r, const BigFloat& theta );
 #endif
 
 // Safe division (in the sense of Baudin and Smith)
@@ -389,6 +419,7 @@ template<> Quad Abs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #ifdef EL_HAVE_MPC
 template<> BigInt Abs( const BigInt& alpha ) EL_NO_EXCEPT;
 template<> BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT;
+template<> BigFloat Abs( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT;
 #endif
 
 // Carefully avoid unnecessary overflow in an absolute value computation
@@ -398,9 +429,6 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT;
-#ifdef EL_HAVE_QUAD
-template<> Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
-#endif
 
 // Return the sum of the absolute values of the real and imaginary components
 // --------------------------------------------------------------------------
@@ -440,6 +468,7 @@ template<> Complex<Quad> Exp( const Complex<Quad>& alpha ) EL_NO_EXCEPT;
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT;
+template<> Complex<BigFloat> Exp( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT;
 #endif
 
 template<typename F,typename T,
@@ -464,8 +493,15 @@ template<>
 Complex<Quad> Pow( const Complex<Quad>& alpha, const Quad& beta );
 #endif
 #ifdef EL_HAVE_MPC
-template<> BigInt Pow( const BigInt& alpha, const BigInt& beta );
-template<> BigFloat Pow( const BigFloat& alpha, const BigFloat& beta );
+template<>
+BigInt
+Pow( const BigInt& alpha, const BigInt& beta );
+template<>
+BigFloat
+Pow( const BigFloat& alpha, const BigFloat& beta );
+template<>
+Complex<BigFloat>
+Pow( const Complex<BigFloat>& alpha, const Complex<BigFloat>& beta );
 
 // Versions which accept exponents of a different type
 BigInt Pow( const BigInt& alpha, const unsigned& beta );
@@ -478,6 +514,7 @@ BigFloat Pow( const BigFloat& alpha, const int& beta );
 BigFloat Pow( const BigFloat& alpha, const long int& beta );
 BigFloat Pow( const BigFloat& alpha, const long long int& beta );
 BigFloat Pow( const BigFloat& alpha, const BigInt& beta );
+// TODO: Complex<BigFloat> variants
 
 // Versions which avoid temporaries
 void Pow
@@ -518,6 +555,7 @@ template<> Complex<Quad> Log( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Log( const BigFloat& alpha );
+template<> Complex<BigFloat> Log( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename Integer,typename=EnableIf<IsIntegral<Integer>>,typename=void>
@@ -538,6 +576,7 @@ template<> Complex<Quad> Log2( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Log2( const BigFloat& alpha );
+template<> Complex<BigFloat> Log2( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename Integer,typename=EnableIf<IsIntegral<Integer>>,typename=void>
@@ -558,6 +597,7 @@ template<> Complex<Quad> Log10( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Log10( const BigFloat& alpha );
+template<> Complex<BigFloat> Log10( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename Integer,typename=EnableIf<IsIntegral<Integer>>,typename=void>
@@ -583,14 +623,19 @@ template<> Complex<Quad> Sqrt( const Complex<Quad>& alpha );
 #ifdef EL_HAVE_MPC
 template<> BigInt Sqrt( const BigInt& alpha );
 template<> BigFloat Sqrt( const BigFloat& alpha );
+template<> Complex<BigFloat> Sqrt( const Complex<BigFloat>& alpha );
 #endif
 
 // Versions which avoid temporaries if necessary
 template<typename F,typename=EnableIf<IsScalar<F>>>
 void Sqrt( const F& alpha, F& sqrtAlpha );
 #ifdef EL_HAVE_MPC
-template<> void Sqrt( const BigInt& alpha, BigInt& sqrtAlpha );
-template<> void Sqrt( const BigFloat& alpha, BigFloat& sqrtAlpha );
+template<> void Sqrt
+( const BigInt& alpha, BigInt& sqrtAlpha );
+template<> void Sqrt
+( const BigFloat& alpha, BigFloat& sqrtAlpha );
+template<> void Sqrt
+( const Complex<BigFloat>& alpha, Complex<BigFloat>& sqrtAlpha );
 #endif
 
 template<typename Integer,typename=EnableIf<IsIntegral<Integer>>>
@@ -622,6 +667,7 @@ template<> Complex<Quad> Cos( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Cos( const BigFloat& alpha );
+template<> Complex<BigFloat> Cos( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -636,6 +682,7 @@ template<> Complex<Quad> Sin( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Sin( const BigFloat& alpha );
+template<> Complex<BigFloat> Sin( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -650,6 +697,7 @@ template<> Complex<Quad> Tan( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Tan( const BigFloat& alpha );
+template<> Complex<BigFloat> Tan( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -664,6 +712,7 @@ template<> Complex<Quad> Acos( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Acos( const BigFloat& alpha );
+template<> Complex<BigFloat> Acos( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -678,6 +727,7 @@ template<> Complex<Quad> Asin( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Asin( const BigFloat& alpha );
+template<> Complex<BigFloat> Asin( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -692,6 +742,7 @@ template<> Complex<Quad> Atan( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Atan( const BigFloat& alpha );
+template<> Complex<BigFloat> Atan( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
@@ -721,6 +772,7 @@ template<> Complex<Quad> Cosh( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Cosh( const BigFloat& alpha );
+template<> Complex<BigFloat> Cosh( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -735,6 +787,7 @@ template<> Complex<Quad> Sinh( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Sinh( const BigFloat& alpha );
+template<> Complex<BigFloat> Sinh( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -749,6 +802,7 @@ template<> Complex<Quad> Tanh( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Tanh( const BigFloat& alpha );
+template<> Complex<BigFloat> Tanh( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -763,6 +817,7 @@ template<> Complex<Quad> Acosh( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Acosh( const BigFloat& alpha );
+template<> Complex<BigFloat> Acosh( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -777,6 +832,7 @@ template<> Complex<Quad> Asinh( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Asinh( const BigFloat& alpha );
+template<> Complex<BigFloat> Asinh( const Complex<BigFloat>& alpha );
 #endif
 
 template<typename F,typename=EnableIf<IsField<F>>>
@@ -791,6 +847,7 @@ template<> Complex<Quad> Atanh( const Complex<Quad>& alpha );
 #endif
 #ifdef EL_HAVE_MPC
 template<> BigFloat Atanh( const BigFloat& alpha );
+template<> Complex<BigFloat> Atanh( const Complex<BigFloat>& alpha );
 #endif
 
 // Rounding

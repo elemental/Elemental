@@ -78,6 +78,9 @@ string TypeName<BigInt>()
 template<>
 string TypeName<BigFloat>()
 { return string("BigFloat"); }
+template<>
+string TypeName<Complex<BigFloat>>()
+{ return string("Complex<BigFloat>"); }
 #endif
 
 // Basic element manipulation and I/O
@@ -105,6 +108,22 @@ istream& operator>>( istream& is, Quad& alpha )
 }
 #endif
 
+// Conjugate
+// ---------
+#ifdef EL_HAVE_MPC
+Complex<BigFloat> Conj( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> alphaConj;
+    Conj( alpha, alphaConj );
+    return alphaConj;
+}
+
+void Conj( const Complex<BigFloat>& alpha, Complex<BigFloat>& alphaConj )
+{
+    mpc_conj( alphaConj.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+}
+#endif
+
 // Return the complex argument
 // ---------------------------
 #ifdef EL_HAVE_QUAD
@@ -118,6 +137,16 @@ Quad Arg( const Complex<Quad>& alphaPre )
     return cargq(alpha);
 }
 #endif
+#ifdef EL_HAVE_MPC
+template<>
+BigFloat Arg( const Complex<BigFloat>& alpha )
+{
+    BigFloat arg;
+    arg.SetPrecision( alpha.Precision() );
+    mpc_arg( arg.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return arg;
+}
+#endif
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
@@ -128,6 +157,21 @@ Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta )
     const Quad realPart = r*cosq(theta);
     const Quad imagPart = r*sinq(theta);
     return Complex<Quad>(realPart,imagPart);
+}
+#endif
+#ifdef EL_HAVE_MPC
+template<>
+Complex<BigFloat> ComplexFromPolar( const BigFloat& r, const BigFloat& theta )
+{
+    BigFloat sinTheta, cosTheta;
+    sinTheta.SetPrecision( theta.Precision() );
+    cosTheta.SetPrecision( theta.Precision() );
+    mpfr_sin_cos
+    ( sinTheta.Pointer(),
+      cosTheta.Pointer(),
+      theta.LockedPointer(),
+      mpc::RoundingMode() );
+    return Complex<BigFloat>(r*cosTheta,r*sinTheta);
 }
 #endif
 
@@ -175,16 +219,14 @@ BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
     mpfr_abs( absAlpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return absAlpha;
 }
-#endif
 
-#ifdef EL_HAVE_QUAD
 template<>
-Quad SafeAbs( const Complex<Quad>& alpha ) EL_NO_EXCEPT
+BigFloat Abs( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT
 {
-    // NOTE: We would need to implement our own version of the LAPACK routine.
-    //       Since quad-precision is likely to be plenty, we will call Abs 
-    //       for now.
-    return Abs(alpha); 
+    BigFloat absAlpha;
+    absAlpha.SetPrecision( alpha.Precision() );
+    mpc_abs( absAlpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return absAlpha;
 }
 #endif
 
@@ -251,6 +293,15 @@ BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT
     BigFloat beta;
     beta.SetPrecision( alpha.Precision() );
     mpfr_exp( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
+
+template<>
+Complex<BigFloat> Exp( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_exp( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -453,6 +504,19 @@ BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
     return gamma;
 }
 
+template<>
+Complex<BigFloat>
+Pow( const Complex<BigFloat>& alpha, const Complex<BigFloat>& beta )
+{
+    Complex<BigFloat> gamma;
+    mpc_pow
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta.LockedPointer(),
+      mpc::RoundingMode() );
+    return gamma;
+}
+
 BigFloat Pow( const BigFloat& alpha, const unsigned& beta )
 {
     BigFloat gamma;
@@ -546,6 +610,15 @@ BigFloat Log( const BigFloat& alpha )
     mpfr_log( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Log( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_log( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 #ifdef EL_HAVE_QD
@@ -580,6 +653,13 @@ BigFloat Log2( const BigFloat& alpha )
     ( log2Alpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return log2Alpha;
 }
+
+template<>
+Complex<BigFloat> Log2( const Complex<BigFloat>& alpha )
+{
+    auto logAlpha = Log( alpha );
+    return logAlpha / Log(BigFloat(2));
+}
 #endif
 
 #ifdef EL_HAVE_QD
@@ -611,6 +691,16 @@ BigFloat Log10( const BigFloat& alpha )
     BigFloat log10Alpha;
     log10Alpha.SetPrecision( alpha.Precision() );
     mpfr_log10
+    ( log10Alpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return log10Alpha;
+}
+
+template<>
+Complex<BigFloat> Log10( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> log10Alpha;
+    log10Alpha.SetPrecision( alpha.Precision() );
+    mpc_log10
     ( log10Alpha.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return log10Alpha;
 }
@@ -656,6 +746,13 @@ void Sqrt( const BigFloat& alpha, BigFloat& alphaSqrt )
 }
 
 template<>
+void Sqrt( const Complex<BigFloat>& alpha, Complex<BigFloat>& alphaSqrt )
+{
+    mpc_sqrt
+    ( alphaSqrt.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+}
+
+template<>
 BigInt Sqrt( const BigInt& alpha )
 {
     BigInt alphaSqrt;
@@ -667,6 +764,15 @@ template<>
 BigFloat Sqrt( const BigFloat& alpha )
 {
     BigFloat alphaSqrt;
+    alphaSqrt.SetPrecision( alpha.Precision() );
+    Sqrt( alpha, alphaSqrt );
+    return alphaSqrt;
+}
+
+template<>
+Complex<BigFloat> Sqrt( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> alphaSqrt;
     alphaSqrt.SetPrecision( alpha.Precision() );
     Sqrt( alpha, alphaSqrt );
     return alphaSqrt;
@@ -738,6 +844,15 @@ BigFloat Cos( const BigFloat& alpha )
     mpfr_cos( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Cos( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_cos( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Sin( const Int& alpha ) { return std::sin(alpha); }
@@ -775,6 +890,15 @@ BigFloat Sin( const BigFloat& alpha )
     mpfr_sin( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Sin( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_sin( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Tan( const Int& alpha ) { return std::tan(alpha); }
@@ -810,6 +934,15 @@ BigFloat Tan( const BigFloat& alpha )
     BigFloat beta;
     beta.SetPrecision( alpha.Precision() );
     mpfr_tan( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
+
+template<>
+Complex<BigFloat> Tan( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_tan( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -851,6 +984,15 @@ BigFloat Acos( const BigFloat& alpha )
     mpfr_acos( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Acos( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_acos( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Asin( const Int& alpha ) { return std::asin(alpha); }
@@ -888,6 +1030,15 @@ BigFloat Asin( const BigFloat& alpha )
     mpfr_asin( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Asin( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_asin( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Atan( const Int& alpha ) { return std::atan(alpha); }
@@ -923,6 +1074,15 @@ BigFloat Atan( const BigFloat& alpha )
     BigFloat beta;
     beta.SetPrecision( alpha.Precision() );
     mpfr_atan( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
+
+template<>
+Complex<BigFloat> Atan( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_atan( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -995,6 +1155,15 @@ BigFloat Cosh( const BigFloat& alpha )
     mpfr_cosh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Cosh( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_cosh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Sinh( const Int& alpha ) { return std::sinh(alpha); }
@@ -1032,6 +1201,15 @@ BigFloat Sinh( const BigFloat& alpha )
     mpfr_sinh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Sinh( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_sinh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Tanh( const Int& alpha ) { return std::tanh(alpha); }
@@ -1067,6 +1245,15 @@ BigFloat Tanh( const BigFloat& alpha )
     BigFloat beta;
     beta.SetPrecision( alpha.Precision() );
     mpfr_tanh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
+
+template<>
+Complex<BigFloat> Tanh( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_tanh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif
@@ -1108,6 +1295,15 @@ BigFloat Acosh( const BigFloat& alpha )
     mpfr_acosh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Acosh( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_acosh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Asinh( const Int& alpha ) { return std::asinh(alpha); }
@@ -1145,6 +1341,15 @@ BigFloat Asinh( const BigFloat& alpha )
     mpfr_asinh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
+
+template<>
+Complex<BigFloat> Asinh( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_asinh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
 #endif
 
 double Atanh( const Int& alpha ) { return std::atanh(alpha); }
@@ -1180,6 +1385,15 @@ BigFloat Atanh( const BigFloat& alpha )
     BigFloat beta;
     beta.SetPrecision( alpha.Precision() );
     mpfr_atanh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
+    return beta;
+}
+
+template<>
+Complex<BigFloat> Atanh( const Complex<BigFloat>& alpha )
+{
+    Complex<BigFloat> beta;
+    beta.SetPrecision( alpha.Precision() );
+    mpc_atanh( beta.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
     return beta;
 }
 #endif

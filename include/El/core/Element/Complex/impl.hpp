@@ -52,6 +52,15 @@ Complex<float>::Complex( const std::complex<Quad>& a )
 : std::complex<float>(float(a.real()),float(a.imag()))
 { }
 #endif
+#ifdef EL_HAVE_QD
+Complex<float>::Complex( const DoubleDouble& a )
+: std::complex<float>(float(a))
+{ }
+
+Complex<float>::Complex( const QuadDouble& a )
+: std::complex<float>(float(a))
+{ }
+#endif
 #ifdef EL_HAVE_MPC
 Complex<float>::Complex( const BigFloat& a )
 : std::complex<float>(realType(a))
@@ -101,6 +110,15 @@ Complex<double>::Complex( const Quad& a )
 
 Complex<double>::Complex( const std::complex<Quad>& a )
 : std::complex<double>(double(a.real()),double(a.imag()))
+{ }
+#endif
+#ifdef EL_HAVE_QD
+Complex<double>::Complex( const DoubleDouble& a )
+: std::complex<double>(double(a))
+{ }
+
+Complex<double>::Complex( const QuadDouble& a )
+: std::complex<double>(double(a))
 { }
 #endif
 #ifdef EL_HAVE_MPC
@@ -153,6 +171,16 @@ Complex<Quad>::Complex( const double& a )
 Complex<Quad>::Complex( const std::complex<double>& a )
 : std::complex<Quad>(a)
 { }
+
+#ifdef EL_HAVE_QD
+Complex<Quad>::Complex( const DoubleDouble& a )
+: std::complex<Quad>(Quad(a))
+{ }
+
+Complex<Quad>::Complex( const QuadDouble& a )
+: std::complex<Quad>(Quad(a))
+{ }
+#endif
 
 #ifdef EL_HAVE_MPC
 Complex<Quad>::Complex( const BigFloat& a )
@@ -332,6 +360,22 @@ Complex<BigFloat>::Complex( const std::complex<Quad>& a, mpfr_prec_t prec )
 }
 #endif
 
+#ifdef EL_HAVE_QD
+Complex<BigFloat>::Complex( const DoubleDouble& a, mpfr_prec_t prec )
+{
+    Init( prec );
+    BigFloat aBig(a);
+    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+}
+
+Complex<BigFloat>::Complex( const QuadDouble& a, mpfr_prec_t prec )
+{
+    Init( prec );
+    BigFloat aBig(a);
+    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+}
+#endif
+
 Complex<BigFloat>::Complex( const realType& a, mpfr_prec_t prec )
 {
     Init( prec );
@@ -372,6 +416,727 @@ Complex<BigFloat>::~Complex()
         mpfr_clear( mpcFloat_->re );
     if( mpcFloat_->im->_mpfr_d != 0 )
         mpfr_clear( mpcFloat_->im );
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<BigFloat>& a )
+{
+    mpc_set( Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const BigFloat& a )
+{
+    mpc_set_fr( Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const BigInt& a )
+{
+    mpc_set_z( Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+#ifdef EL_HAVE_QUAD
+Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<Quad>& a )
+{
+    BigFloat aReal(a.real()), aImag(a.imag());
+    mpc_set_fr_fr
+    ( Pointer(),
+      aReal.LockedPointer(),
+      aImag.LockedPointer(),
+      mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const Quad& a )
+{
+    BigFloat aBig(a);
+    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+Complex<BigFloat>& Complex<BigFloat>::operator=( const DoubleDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const QuadDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<double>& a )
+{
+    mpc_set_d_d( Pointer(), a.real(), a.imag(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const double& a )
+{
+    mpc_set_d( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<float>& a )
+{
+    mpc_set_d_d
+    ( Pointer(),
+      static_cast<double>(a.real()),
+      static_cast<double>(a.imag()),
+      mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const float& a )
+{
+    mpc_set_d( Pointer(), static_cast<double>(a), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const long long int& a )
+{
+    mpc_set_sj( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const long int& a )
+{
+    mpc_set_si( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const int& a )
+{
+    mpc_set_si( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const unsigned long long& a )
+{
+    mpc_set_uj( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const unsigned long& a )
+{
+    mpc_set_ui( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( const unsigned& a )
+{
+    mpc_set_ui( Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<BigFloat>& a )
+{
+    mpc_add( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const BigFloat& a )
+{
+    mpc_add_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const BigInt& a )
+{
+    BigFloat aBig(a);
+    mpc_add_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+#ifdef EL_HAVE_QUAD
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<Quad>& a )
+{
+    BigFloat tmp;
+    // NOTE: There is no mpc_add_fr_fr...
+    tmp = a.real();
+    mpfr_add
+    ( RealPointer(), RealPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    tmp = a.imag();
+    mpfr_add
+    ( ImagPointer(), ImagPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const Quad& a )
+{
+    BigFloat aBig(a);
+    mpc_add_fr
+    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const DoubleDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_add_fr
+    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const QuadDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_add_fr
+    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<double>& a )
+{
+    // NOTE: There is no mpc_add_d_d...
+    mpfr_add_d( RealPointer(), RealPointer(), a.real(), mpc::RoundingMode() );
+    mpfr_add_d( ImagPointer(), ImagPointer(), a.imag(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const double& a )
+{
+    // NOTE: There is no mpc_add_d...
+    mpfr_add_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<float>& a )
+{
+    // NOTE: There is no mpc_add_d_d...
+    mpfr_add_d
+    ( RealPointer(),
+      RealPointer(),
+      static_cast<double>(a.real()),
+      mpc::RoundingMode() );
+    mpfr_add_d
+    ( ImagPointer(),
+      ImagPointer(),
+      static_cast<double>(a.imag()),
+      mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const float& a )
+{
+    // NOTE: There is no mpc_add_d...
+    mpfr_add_d
+    ( RealPointer(),
+      RealPointer(),
+      static_cast<double>(a),
+      mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const long long int& a )
+{
+    // TODO: Only convert to BigFloat if too big for long int
+    BigFloat aBig(a);
+    mpc_add_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const long int& a )
+{
+    if( a < 0 )
+    {
+        mpc_sub_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned long>(-a), mpc::RoundingMode() );
+    }
+    else
+    {
+        mpc_add_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned long>(a), mpc::RoundingMode() );
+    }
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const int& a )
+{
+    if( a < 0 )
+    {
+        mpc_sub_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned>(-a), mpc::RoundingMode() );
+    }
+    else
+    {
+        mpc_add_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned>(a), mpc::RoundingMode() );
+    }
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const unsigned long long& a )
+{
+    // TODO: Only convert to BigFloat if too big for unsigned long
+    BigFloat aBig(a);
+    mpc_add_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const unsigned long& a )
+{
+    mpc_add_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const unsigned& a )
+{
+    mpc_add_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<BigFloat>& a )
+{
+    mpc_sub( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const BigFloat& a )
+{
+    mpc_sub_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const BigInt& a )
+{
+    BigFloat aBig(a);
+    mpc_sub_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+#ifdef EL_HAVE_QUAD
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<Quad>& a )
+{
+    // NOTE: There is no mpc_sub_fr_fr...
+    BigFloat tmp;
+    tmp = a.real();
+    mpfr_sub
+    ( RealPointer(), RealPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    tmp = a.imag();
+    mpfr_sub
+    ( ImagPointer(), ImagPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const Quad& a )
+{
+    BigFloat aBig(a);
+    mpc_sub_fr
+    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const DoubleDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_sub_fr
+    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const QuadDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_sub_fr
+    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<double>& a )
+{
+    // NOTE: There is no mpc_sub_d_d...
+    mpfr_sub_d( RealPointer(), RealPointer(), a.real(), mpc::RoundingMode() );
+    mpfr_sub_d( ImagPointer(), ImagPointer(), a.imag(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const double& a )
+{
+    // NOTE: There is no mpc_sub_d...
+    mpfr_sub_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<float>& a )
+{
+    // NOTE: There is no mpc_sub_d_d...
+    mpfr_sub_d
+    ( RealPointer(),
+      RealPointer(),
+      static_cast<double>(a.real()),
+      mpc::RoundingMode() );
+    mpfr_sub_d
+    ( ImagPointer(),
+      ImagPointer(),
+      static_cast<double>(a.imag()),
+      mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const float& a )
+{
+    // NOTE: There is no mpc_sub_d...
+    mpfr_sub_d
+    ( RealPointer(),
+      RealPointer(),
+      static_cast<double>(a),
+      mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const long long int& a )
+{
+    // TODO: Only convert to BigFloat if too big for long int
+    BigFloat aBig(a);
+    mpc_sub_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const long int& a )
+{
+    if( a < 0 )
+    {
+        mpc_add_ui
+        ( Pointer(), Pointer(), static_cast<unsigned long>(-a),
+          mpc::RoundingMode() );
+    }
+    else
+    {
+        mpc_sub_ui
+        ( Pointer(), Pointer(), static_cast<unsigned long>(a),
+          mpc::RoundingMode() );
+    }
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const int& a )
+{
+    if( a < 0 )
+    {
+        mpc_add_ui
+        ( Pointer(), Pointer(), static_cast<unsigned>(-a),
+          mpc::RoundingMode() );
+    }
+    else
+    {
+        mpc_sub_ui
+        ( Pointer(), Pointer(), static_cast<unsigned>(a),
+          mpc::RoundingMode() );
+    }
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const unsigned long long& a )
+{
+    // TODO: Only convert to BigFloat if too big for unsigned long
+    BigFloat aBig(a);
+    mpc_sub_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const unsigned long& a )
+{
+    mpc_sub_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const unsigned& a )
+{
+    mpc_sub_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<BigFloat>& a )
+{
+    mpc_mul( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const BigFloat& a )
+{
+    mpc_mul_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const BigInt& a )
+{
+    BigFloat aBig(a);
+    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+#ifdef EL_HAVE_QUAD
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<Quad>& a )
+{
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const Quad& a )
+{
+    BigFloat aBig(a);
+    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const DoubleDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const QuadDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<double>& a )
+{
+    // NOTE: There is no mpc_mul_d_d...
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const double& a )
+{
+    // NOTE: There is no mpc_mul_d...
+    mpfr_mul_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
+    mpfr_mul_d( ImagPointer(), ImagPointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<float>& a )
+{
+    // NOTE: There is no mpc_mul_d_d...
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const float& a )
+{
+    // NOTE: There is no mpc_mul_d...
+    const double aDbl = static_cast<double>(a);
+    mpfr_mul_d( RealPointer(), RealPointer(), aDbl, mpc::RoundingMode() );
+    mpfr_mul_d( ImagPointer(), ImagPointer(), aDbl, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const long long int& a )
+{
+    // TODO: Only convert to BigFloat if too big for long int
+    BigFloat aBig(a);
+    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const long int& a )
+{
+    mpc_mul_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const int& a )
+{
+    mpc_mul_si( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const unsigned long long& a )
+{
+    // TODO: Only convert to BigFloat if too big for long int
+    BigFloat aBig(a);
+    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const unsigned long& a )
+{
+    mpc_mul_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const unsigned& a )
+{
+    mpc_mul_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<BigFloat>& a )
+{
+    mpc_div( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const BigFloat& a )
+{
+    mpc_div_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const BigInt& a )
+{
+    BigFloat aBig(a);
+    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+#ifdef EL_HAVE_QUAD
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<Quad>& a )
+{
+    // NOTE: There i no mpc_div_fr_fr...
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const Quad& a )
+{
+    BigFloat aBig(a);
+    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+#ifdef EL_HAVE_QD
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const DoubleDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const QuadDouble& a )
+{
+    BigFloat aBig(a);
+    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+#endif
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<double>& a )
+{
+    // NOTE: There is no mpc_div_d_d...
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const double& a )
+{
+    // NOTE: There is no mpc_div_d...
+    mpfr_div_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
+    mpfr_div_d( ImagPointer(), ImagPointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<float>& a )
+{
+    // NOTE: There is no mpc_div_d_d...
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const float& a )
+{
+    // NOTE: There is no mpc_div_d...
+    const double aDbl = static_cast<double>(a);
+    mpfr_div_d( RealPointer(), RealPointer(), aDbl, mpc::RoundingMode() );
+    mpfr_div_d( ImagPointer(), ImagPointer(), aDbl, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const long long int& a )
+{
+    // TODO: Only convert to BigFloat if necessary
+    BigFloat aBig(a);
+    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const long int& a )
+{
+    // NOTE: There is no mpc_div_si...
+    if( a < 0 )
+    {
+        mpc_div_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned long>(-a), mpc::RoundingMode() );
+        mpc_neg( Pointer(), Pointer(), mpc::RoundingMode() );
+    }
+    else
+    {
+        mpc_div_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned long>(a), mpc::RoundingMode() );
+    }
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const int& a )
+{
+    // NOTE: There is no mpc_div_si...
+    if( a < 0 )
+    {
+        mpc_div_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned>(-a), mpc::RoundingMode() );
+        mpc_neg( Pointer(), Pointer(), mpc::RoundingMode() );
+    }
+    else
+    {
+        mpc_div_ui
+        ( Pointer(), Pointer(),
+          static_cast<unsigned>(a), mpc::RoundingMode() );
+    }
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const unsigned long long& a )
+{
+    // TODO: Only convert to BigFloat if necessary
+    BigFloat aBig(a);
+    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const unsigned long& a )
+{
+    mpc_div_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const unsigned& a )
+{
+    mpc_div_ui( Pointer(), Pointer(), a, mpc::RoundingMode() );
+    return *this;
 }
 #endif // EL_HAVE_MPC
 

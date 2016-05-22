@@ -34,6 +34,7 @@ class Complex<float> : public std::complex<float>
 {
 public:
     typedef float realType;
+    // TODO: Extend operators to other types?
     using std::complex<realType>::operator=;
     using std::complex<realType>::operator-=;
     using std::complex<realType>::operator+=;
@@ -52,6 +53,10 @@ public:
     inline Complex( const Quad& a );
     inline Complex( const std::complex<Quad>& a );
 #endif
+#ifdef EL_HAVE_QD
+    inline Complex( const DoubleDouble& a );
+    inline Complex( const QuadDouble& a );
+#endif
 #ifdef EL_HAVE_MPC
     inline Complex( const BigFloat& a );
     inline Complex( const Complex<BigFloat>& a );
@@ -63,6 +68,7 @@ class Complex<double> : public std::complex<double>
 {
 public:
     typedef double realType;
+    // TODO: Extend operators to other types?
     using std::complex<realType>::operator=;
     using std::complex<realType>::operator-=;
     using std::complex<realType>::operator+=;
@@ -80,6 +86,10 @@ public:
 #ifdef EL_HAVE_QUAD
     inline Complex( const Quad& a );
     inline Complex( const std::complex<Quad>& a );
+#endif
+#ifdef EL_HAVE_QD
+    inline Complex( const DoubleDouble& a );
+    inline Complex( const QuadDouble& a );
 #endif
 #ifdef EL_HAVE_MPC
     inline Complex( const BigFloat& a );
@@ -93,6 +103,7 @@ class Complex<Quad> : public std::complex<Quad>
 {
 public:
     typedef Quad realType;
+    // TODO: Extend operators to other types?
     using std::complex<realType>::operator=;
     using std::complex<realType>::operator-=;
     using std::complex<realType>::operator+=;
@@ -109,6 +120,10 @@ public:
     inline Complex( const std::complex<float>& a );
     inline Complex( const double& a );
     inline Complex( const std::complex<double>& a );
+#ifdef EL_HAVE_QD
+    inline Complex( const DoubleDouble& a );
+    inline Complex( const QuadDouble& a );
+#endif
 #ifdef EL_HAVE_MPC
     inline Complex( const BigFloat& a );
     inline Complex( const Complex<BigFloat>& a );
@@ -179,6 +194,12 @@ public:
     inline Complex
     ( const std::complex<Quad>& a, mpfr_prec_t prec=mpc::Precision() );
 #endif
+#ifdef EL_HAVE_QD
+    inline Complex
+    ( const DoubleDouble& a, mpfr_prec_t prec=mpc::Precision() );
+    inline Complex
+    ( const QuadDouble& a, mpfr_prec_t prec=mpc::Precision() );
+#endif
     inline Complex
     ( const realType& a, mpfr_prec_t prec=mpc::Precision() );
     inline Complex
@@ -190,6 +211,116 @@ public:
             mpfr_prec_t prec=mpc::Precision() );
     inline Complex( Complex<realType>&& a );
     inline ~Complex();
+
+    inline Complex<BigFloat>& operator=( const Complex<BigFloat>& a );
+    inline Complex<BigFloat>& operator=( const BigFloat& a );
+    inline Complex<BigFloat>& operator=( const BigInt& a );
+#ifdef EL_HAVE_QUAD
+    inline Complex<BigFloat>& operator=( const Complex<Quad>& a );
+    inline Complex<BigFloat>& operator=( const Quad& a );
+#endif
+#ifdef EL_HAVE_QD
+    inline Complex<BigFloat>& operator=( const QuadDouble& a );
+    inline Complex<BigFloat>& operator=( const DoubleDouble& a );
+#endif
+    inline Complex<BigFloat>& operator=( const Complex<double>& a );
+    inline Complex<BigFloat>& operator=( const double& a );
+    inline Complex<BigFloat>& operator=( const Complex<float>& a );
+    inline Complex<BigFloat>& operator=( const float& a );
+    inline Complex<BigFloat>& operator=( const long long int& a );
+    inline Complex<BigFloat>& operator=( const long int& a );
+    inline Complex<BigFloat>& operator=( const int& a );
+    inline Complex<BigFloat>& operator=( const unsigned long long& a );
+    inline Complex<BigFloat>& operator=( const unsigned long& a );
+    inline Complex<BigFloat>& operator=( const unsigned& a );
+
+    inline Complex<BigFloat>& operator+=( const Complex<BigFloat>& a );
+    inline Complex<BigFloat>& operator+=( const BigFloat& a );
+    inline Complex<BigFloat>& operator+=( const BigInt& a );
+#ifdef EL_HAVE_QUAD
+    inline Complex<BigFloat>& operator+=( const Complex<Quad>& a );
+    inline Complex<BigFloat>& operator+=( const Quad& a );
+#endif
+#ifdef EL_HAVE_QD
+    inline Complex<BigFloat>& operator+=( const QuadDouble& a );
+    inline Complex<BigFloat>& operator+=( const DoubleDouble& a );
+#endif
+    inline Complex<BigFloat>& operator+=( const Complex<double>& a );
+    inline Complex<BigFloat>& operator+=( const double& a );
+    inline Complex<BigFloat>& operator+=( const Complex<float>& a );
+    inline Complex<BigFloat>& operator+=( const float& a );
+    inline Complex<BigFloat>& operator+=( const long long int& a );
+    inline Complex<BigFloat>& operator+=( const long int& a );
+    inline Complex<BigFloat>& operator+=( const int& a );
+    inline Complex<BigFloat>& operator+=( const unsigned long long& a );
+    inline Complex<BigFloat>& operator+=( const unsigned long& a );
+    inline Complex<BigFloat>& operator+=( const unsigned& a );
+
+    inline Complex<BigFloat>& operator-=( const Complex<BigFloat>& a );
+    inline Complex<BigFloat>& operator-=( const BigFloat& a );
+    inline Complex<BigFloat>& operator-=( const BigInt& a );
+#ifdef EL_HAVE_QUAD
+    inline Complex<BigFloat>& operator-=( const Complex<Quad>& a );
+    inline Complex<BigFloat>& operator-=( const Quad& a );
+#endif
+#ifdef EL_HAVE_QD
+    inline Complex<BigFloat>& operator-=( const QuadDouble& a );
+    inline Complex<BigFloat>& operator-=( const DoubleDouble& a );
+#endif
+    inline Complex<BigFloat>& operator-=( const Complex<double>& a );
+    inline Complex<BigFloat>& operator-=( const double& a );
+    inline Complex<BigFloat>& operator-=( const Complex<float>& a );
+    inline Complex<BigFloat>& operator-=( const float& a );
+    inline Complex<BigFloat>& operator-=( const long long int& a );
+    inline Complex<BigFloat>& operator-=( const long int& a );
+    inline Complex<BigFloat>& operator-=( const int& a );
+    inline Complex<BigFloat>& operator-=( const unsigned long long& a );
+    inline Complex<BigFloat>& operator-=( const unsigned long& a );
+    inline Complex<BigFloat>& operator-=( const unsigned& a );
+
+    inline Complex<BigFloat>& operator*=( const Complex<BigFloat>& a );
+    inline Complex<BigFloat>& operator*=( const BigFloat& a );
+    inline Complex<BigFloat>& operator*=( const BigInt& a );
+#ifdef EL_HAVE_QUAD
+    inline Complex<BigFloat>& operator*=( const Complex<Quad>& a );
+    inline Complex<BigFloat>& operator*=( const Quad& a );
+#endif
+#ifdef EL_HAVE_QD
+    inline Complex<BigFloat>& operator*=( const QuadDouble& a );
+    inline Complex<BigFloat>& operator*=( const DoubleDouble& a );
+#endif
+    inline Complex<BigFloat>& operator*=( const Complex<double>& a );
+    inline Complex<BigFloat>& operator*=( const double& a );
+    inline Complex<BigFloat>& operator*=( const Complex<float>& a );
+    inline Complex<BigFloat>& operator*=( const float& a );
+    inline Complex<BigFloat>& operator*=( const long long int& a );
+    inline Complex<BigFloat>& operator*=( const long int& a );
+    inline Complex<BigFloat>& operator*=( const int& a );
+    inline Complex<BigFloat>& operator*=( const unsigned long long& a );
+    inline Complex<BigFloat>& operator*=( const unsigned long& a );
+    inline Complex<BigFloat>& operator*=( const unsigned& a );
+
+    inline Complex<BigFloat>& operator/=( const Complex<BigFloat>& a );
+    inline Complex<BigFloat>& operator/=( const BigFloat& a );
+    inline Complex<BigFloat>& operator/=( const BigInt& a );
+#ifdef EL_HAVE_QUAD
+    inline Complex<BigFloat>& operator/=( const Complex<Quad>& a );
+    inline Complex<BigFloat>& operator/=( const Quad& a );
+#endif
+#ifdef EL_HAVE_QD
+    inline Complex<BigFloat>& operator/=( const QuadDouble& a );
+    inline Complex<BigFloat>& operator/=( const DoubleDouble& a );
+#endif
+    inline Complex<BigFloat>& operator/=( const Complex<double>& a );
+    inline Complex<BigFloat>& operator/=( const double& a );
+    inline Complex<BigFloat>& operator/=( const Complex<float>& a );
+    inline Complex<BigFloat>& operator/=( const float& a );
+    inline Complex<BigFloat>& operator/=( const long long int& a );
+    inline Complex<BigFloat>& operator/=( const long int& a );
+    inline Complex<BigFloat>& operator/=( const int& a );
+    inline Complex<BigFloat>& operator/=( const unsigned long long& a );
+    inline Complex<BigFloat>& operator/=( const unsigned long& a );
+    inline Complex<BigFloat>& operator/=( const unsigned& a );
 };
 #endif // EL_HAVE_MPC
 
