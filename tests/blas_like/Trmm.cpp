@@ -168,6 +168,11 @@ main( int argc, char* argv[] )
           m, n,
           BigFloat(3),
           g, print );
+        TestTrmm<Complex<BigFloat>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<BigFloat>(3),
+          g, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

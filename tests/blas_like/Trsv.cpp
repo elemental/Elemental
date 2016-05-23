@@ -115,6 +115,7 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestTrsv<BigFloat>( uplo, orientation, diag, n, g, print );
+        TestTrsv<Complex<BigFloat>>( uplo, orientation, diag, n, g, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

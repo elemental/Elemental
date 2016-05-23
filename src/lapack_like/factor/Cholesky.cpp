@@ -257,6 +257,7 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 #define PROTO_QUAD PROTO_BASE(Quad)
 #define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
 #define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
+#define PROTO_COMPLEX_BIGFLOAT PROTO_BASE(Complex<BigFloat>)
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

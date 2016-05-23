@@ -242,6 +242,10 @@ main( int argc, char* argv[] )
         ( conjugate, uplo, orientation, m, k,
           BigFloat(3), BigFloat(4),
           g, print, correctness, nbLocal );
+        TestSyr2k<Complex<BigFloat>>
+        ( conjugate, uplo, orientation, m, k,
+          Complex<BigFloat>(3), Complex<BigFloat>(4),
+          g, print, correctness, nbLocal );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

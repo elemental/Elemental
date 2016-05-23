@@ -127,6 +127,10 @@ main( int argc, char* argv[] )
         ( uplo, m,
           BigFloat(3), BigFloat(4),
           print, g, nbLocal );
+        TestSymv<Complex<BigFloat>>
+        ( uplo, m,
+          Complex<BigFloat>(3), Complex<BigFloat>(4),
+          print, g, nbLocal );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

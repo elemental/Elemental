@@ -198,6 +198,7 @@ template struct SafeProduct<Complex<Quad>>;
 #endif
 #ifdef EL_HAVE_MPC
 template struct SafeProduct<BigFloat>;
+template struct SafeProduct<Complex<BigFloat>>;
 #endif
 
 } // namespace El

@@ -254,6 +254,8 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
         TestTwoSidedTrmm<BigFloat>
         ( uplo, diag, m, g, print, correctness );
+        TestTwoSidedTrmm<Complex<BigFloat>>
+        ( uplo, diag, m, g, print, correctness );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

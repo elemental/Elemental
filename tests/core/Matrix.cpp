@@ -71,6 +71,7 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
             TestMatrix<BigInt>( m, n, ldim );
             TestMatrix<BigFloat>( m, n, ldim );
+            TestMatrix<Complex<BigFloat>>( m, n, ldim );
 #endif
         }
     }

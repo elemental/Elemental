@@ -553,7 +553,7 @@ void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
 { 
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::Reserve"))
     const Int currSize = remoteUpdates.size();
-    remoteUpdates.reserve( currSize + numRemoteUpdates ); 
+    remoteUpdates.reserve( currSize+numRemoteUpdates );
 }
 
 template<typename T>
@@ -647,7 +647,7 @@ template<typename T>
 void AbstractDistMatrix<T>::ReservePulls( Int numPulls ) const
 { 
     DEBUG_ONLY(CSE cse("AbstractDistMatrix::ReservePulls"))
-    remotePulls_.reserve( numPulls ); 
+    remotePulls_.reserve( numPulls );
 }
 
 template<typename T>

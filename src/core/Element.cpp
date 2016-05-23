@@ -565,6 +565,18 @@ BigFloat Pow( const BigFloat& alpha, const BigInt& beta )
     Pow( alpha, beta, gamma );
     return gamma;
 }
+
+Complex<BigFloat>
+Pow( const Complex<BigFloat>& alpha, const BigFloat& beta )
+{
+    Complex<BigFloat> gamma;
+    mpc_pow_fr
+    ( gamma.Pointer(),
+      alpha.LockedPointer(),
+      beta.LockedPointer(),
+      mpc::RoundingMode() );
+    return gamma;
+}
 #endif
 
 // Inverse exponentiation

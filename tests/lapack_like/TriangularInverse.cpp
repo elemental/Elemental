@@ -212,6 +212,8 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
             TestTriangularInverse<BigFloat>
             ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<Complex<BigFloat>>
+            ( uplo, diag, m, correctness, print );
 #endif
         }
 
@@ -241,6 +243,8 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestTriangularInverse<BigFloat>
+        ( g, uplo, diag, m, correctness, print );
+        TestTriangularInverse<Complex<BigFloat>>
         ( g, uplo, diag, m, correctness, print );
 #endif
     }

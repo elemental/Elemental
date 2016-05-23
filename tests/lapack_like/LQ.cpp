@@ -261,6 +261,8 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
             TestLQ<BigFloat>
             ( m, n, correctness, print );
+            TestLQ<Complex<BigFloat>>
+            ( m, n, correctness, print );
 #endif
         }
 
@@ -290,6 +292,8 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestLQ<BigFloat>
+        ( g, m, n, correctness, print );
+        TestLQ<Complex<BigFloat>>
         ( g, m, n, correctness, print );
 #endif
     }

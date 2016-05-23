@@ -199,13 +199,11 @@ template<> struct PromoteHelper<Complex<double>>
 { typedef Complex<Quad> type; };
  #ifdef EL_HAVE_MPC
 template<> struct PromoteHelper<Complex<Quad>>
-//{ typedef Complex<BigFloat> type; };
-{ typedef Complex<Quad> type; };
+{ typedef Complex<BigFloat> type; };
  #endif
 #elif defined(EL_HAVE_MPC)
 template<> struct PromoteHelper<Complex<double>>
-//{ typedef Complex<BigFloat> type; };
-{ typedef Complex<double> type; };
+{ typedef Complex<BigFloat> type; };
 #endif
 
 template<typename F> using Promote = typename PromoteHelper<F>::type;
@@ -514,6 +512,7 @@ BigFloat Pow( const BigFloat& alpha, const int& beta );
 BigFloat Pow( const BigFloat& alpha, const long int& beta );
 BigFloat Pow( const BigFloat& alpha, const long long int& beta );
 BigFloat Pow( const BigFloat& alpha, const BigInt& beta );
+Complex<BigFloat> Pow( const Complex<BigFloat>& alpha, const BigFloat& beta );
 // TODO: Complex<BigFloat> variants
 
 // Versions which avoid temporaries

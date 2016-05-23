@@ -329,6 +329,7 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
             TestBidiag<BigFloat>( m, n, correctness, print, display );
+            TestBidiag<Complex<BigFloat>>( m, n, correctness, print, display );
 #endif
         }
 
@@ -350,6 +351,7 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestBidiag<BigFloat>( g, m, n, correctness, print, display );
+        TestBidiag<Complex<BigFloat>>( g, m, n, correctness, print, display );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

@@ -11,6 +11,8 @@
 #include <El/lapack_like/factor.hpp>
 #include <El/matrices.hpp>
 
+#include <El/io.hpp>
+
 namespace El {
 
 // Draw the spectrum from the specified half-open interval on the real line,

@@ -57,6 +57,9 @@ template<>
 BigInt SampleUniform( const BigInt& a, const BigInt& b );
 template<>
 BigFloat SampleUniform( const BigFloat& a, const BigFloat& b );
+template<>
+Complex<BigFloat> SampleUniform
+( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
 #endif
 
 // The complex extension of the normal distribution can actually be quite
@@ -83,6 +86,9 @@ Complex<Quad> SampleNormal( const Complex<Quad>& mean, const Quad& stddev );
 #ifdef EL_HAVE_MPC
 template<>
 BigFloat SampleNormal( const BigFloat& mean, const BigFloat& stddev );
+template<>
+Complex<BigFloat> SampleNormal
+( const Complex<BigFloat>& mean, const BigFloat& stddev );
 #endif
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 

@@ -355,6 +355,11 @@ template void omatcopy
   BigFloat alpha,
   const BigFloat* A, BlasInt ALDim,
         BigFloat* B, BlasInt BLDim );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<BigFloat> alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim,
+        Complex<BigFloat>* B, BlasInt BLDim );
 #endif
 
 void omatcopy
@@ -482,6 +487,11 @@ template void omatcopy
   BigFloat alpha,
   const BigFloat* A, BlasInt ALDim, BlasInt stridea,
         BigFloat* B, BlasInt BLDim, BlasInt strideb );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<BigFloat> alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, BlasInt stridea,
+        Complex<BigFloat>* B, BlasInt BLDim, BlasInt strideb );
 #endif
 
 void imatcopy
@@ -564,6 +574,9 @@ template void imatcopy
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha, BigFloat* A, BlasInt ALDim, BlasInt BLDim );
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<BigFloat> alpha, Complex<BigFloat>* A, BlasInt ALDim, BlasInt BLDim );
 #endif
 
 void Trrk

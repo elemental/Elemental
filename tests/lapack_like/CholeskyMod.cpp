@@ -41,7 +41,7 @@ void TestCorrectness
     Output("|| X - B \\ Y ||_oo / (n eps || Y ||_1) = ",relError);
 
     // TODO: Use a more refined failure condition
-    if( relError > Real(1) )
+    if( relError > Real(10) )
         LogicError("Relative error was unacceptably large");
 }
 
@@ -79,7 +79,7 @@ void TestCorrectness
     (g.Comm(),"|| X - B \\ Y ||_oo / (n eps || Y ||_1) = ",relError);
 
     // TODO: Use a more refined failure condition
-    if( relError > Real(1) )
+    if( relError > Real(10) )
         LogicError("Relative error was unacceptably large");
 }
 
@@ -253,6 +253,8 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
             TestCholeskyMod<BigFloat>
             ( uplo, m, n, alpha, correctness, print );
+            TestCholeskyMod<Complex<BigFloat>>
+            ( uplo, m, n, alpha, correctness, print );
 #endif
         }
 
@@ -282,6 +284,8 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestCholeskyMod<BigFloat>
+        ( g, uplo, m, n, alpha, correctness, print );
+        TestCholeskyMod<Complex<BigFloat>>
         ( g, uplo, m, n, alpha, correctness, print );
 #endif
     }

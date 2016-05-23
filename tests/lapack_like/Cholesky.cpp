@@ -42,7 +42,7 @@ void TestCorrectness
     OutputFromRoot
     (g.Comm(), "||X - A \\ Y ||_oo / (eps n || Y ||_1) = ",relErr);
     // TODO: Use more refined failure criteria 
-    if( relErr > Real(1) )
+    if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
 }
 
@@ -200,6 +200,9 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestCholesky<BigFloat>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+        TestCholesky<Complex<BigFloat>>
         ( g, uplo, pivot, m, nbLocal,
           print, printDiag, correctness, false );
 #endif

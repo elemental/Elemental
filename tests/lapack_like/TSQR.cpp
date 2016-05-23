@@ -153,6 +153,8 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
         TestQR<BigFloat>
         ( g, m, n, correctness, print );
+        TestQR<Complex<BigFloat>>
+        ( g, m, n, correctness, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

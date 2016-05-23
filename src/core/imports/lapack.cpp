@@ -622,7 +622,9 @@ template Quad SafeNorm( const Quad& alpha, const Complex<Quad>& beta );
 // =============
 template<typename T>
 void Copy
-( char uplo, BlasInt m, BlasInt n, const T* A, BlasInt lda, T* B, BlasInt ldb )
+( char uplo, BlasInt m, BlasInt n,
+  const T* A, BlasInt lda,
+        T* B, BlasInt ldb )
 {
     if( std::toupper(uplo) == 'L' )
     {
@@ -645,30 +647,41 @@ void Copy
 }
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
-  const Int* A, BlasInt lda, Int* B, BlasInt ldb );
+  const Int* A, BlasInt lda,
+        Int* B, BlasInt ldb );
 #ifdef EL_HAVE_QD
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
-  const DoubleDouble* A, BlasInt lda, DoubleDouble* B, BlasInt ldb );
+  const DoubleDouble* A, BlasInt lda,
+        DoubleDouble* B, BlasInt ldb );
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
-  const QuadDouble* A, BlasInt lda, QuadDouble* B, BlasInt ldb );
+  const QuadDouble* A, BlasInt lda,
+        QuadDouble* B, BlasInt ldb );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
-  const Quad* A, BlasInt lda, Quad* B, BlasInt ldb );
+  const Quad* A, BlasInt lda,
+        Quad* B, BlasInt ldb );
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
-  const Complex<Quad>* A, BlasInt lda, Complex<Quad>* B, BlasInt ldb );
+  const Complex<Quad>* A, BlasInt lda,
+        Complex<Quad>* B, BlasInt ldb );
 #endif
 #ifdef EL_HAVE_MPC
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
-  const BigInt* A, BlasInt lda, BigInt* B, BlasInt ldb );
+  const BigInt* A, BlasInt lda,
+        BigInt* B, BlasInt ldb );
 template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
-  const BigFloat* A, BlasInt lda, BigFloat* B, BlasInt ldb );
+  const BigFloat* A, BlasInt lda,
+        BigFloat* B, BlasInt ldb );
+template void Copy
+( char uplo, BlasInt m, BlasInt n, 
+  const Complex<BigFloat>* A, BlasInt lda,
+        Complex<BigFloat>* B, BlasInt ldb );
 #endif
 
 void Copy
@@ -754,6 +767,11 @@ template BigFloat Givens
   const BigFloat& gamma,
   BigFloat& c,
   BigFloat& s );
+template Complex<BigFloat> Givens
+( const Complex<BigFloat>& phi,
+  const Complex<BigFloat>& gamma,
+  BigFloat& c,
+  Complex<BigFloat>& s );
 #endif
 
 // Generate a Householder reflector
@@ -849,6 +867,8 @@ template Complex<Quad> Reflector
 #ifdef EL_HAVE_MPC
 template BigFloat Reflector
 ( BlasInt n, BigFloat& chi, BigFloat* x, BlasInt incx );
+template Complex<BigFloat> Reflector
+( BlasInt n, Complex<BigFloat>& chi, Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 // Compute the EVD of a symmetric tridiagonal matrix
@@ -4116,7 +4136,7 @@ void HessenbergSchur
         RuntimeError("shseqr's failed to compute all eigenvalues");
 
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<float>(wr[i],wi[i]);
+        w[i] = Complex<float>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -4149,7 +4169,7 @@ void HessenbergSchur
         RuntimeError("dhseqr's failed to compute all eigenvalues");
     
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<double>(wr[i],wi[i]);
+        w[i] = Complex<double>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -4242,7 +4262,7 @@ void HessenbergSchur
         RuntimeError("shseqr's failed to compute all eigenvalues");
 
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<float>(wr[i],wi[i]);
+        w[i] = Complex<float>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -4277,7 +4297,7 @@ void HessenbergSchur
         RuntimeError("dhseqr's failed to compute all eigenvalues");
     
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<double>(wr[i],wi[i]);
+        w[i] = Complex<double>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -4422,7 +4442,7 @@ void Schur
 
     // Return the complex eigenvalues
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<float>(wr[i],wi[i]);
+        w[i] = Complex<float>(wr[i],wi[i]);
 }
 
 void Schur
@@ -4471,7 +4491,7 @@ void Schur
 
     // Return the complex eigenvalues
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<double>(wr[i],wi[i]);
+        w[i] = Complex<double>(wr[i],wi[i]);
 }
 
 void Schur
@@ -4624,7 +4644,7 @@ void Schur
 
     // Return the complex eigenvalues
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<float>(wr[i],wi[i]);
+        w[i] = Complex<float>(wr[i],wi[i]);
 }
 
 void Schur
@@ -4689,7 +4709,7 @@ void Schur
 
     // Return the complex eigenvalues
     for( BlasInt i=0; i<n; ++i )
-        w[i] = El::Complex<double>(wr[i],wi[i]);
+        w[i] = Complex<double>(wr[i],wi[i]);
 }
 
 void Schur

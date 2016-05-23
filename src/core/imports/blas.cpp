@@ -605,6 +605,11 @@ template void Axpy
   const BigFloat& alpha, 
   const BigFloat* x, BlasInt incx,
         BigFloat* y, BlasInt incy );
+template void Axpy
+( BlasInt n,
+  const Complex<BigFloat>& alpha, 
+  const Complex<BigFloat>* x, BlasInt incx,
+        Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 void Axpy
@@ -674,6 +679,10 @@ template void Copy
 ( BlasInt n,
   const BigFloat* x, BlasInt incx, 
         BigFloat* y, BlasInt incy );
+template void Copy
+( BlasInt n,
+  const Complex<BigFloat>* x, BlasInt incx, 
+        Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 void Copy
@@ -760,6 +769,10 @@ template BigFloat Dot
 ( BlasInt n,
   const BigFloat* x, BlasInt incx, 
   const BigFloat* y, BlasInt incy );
+template Complex<BigFloat> Dot
+( BlasInt n,
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 // NOTE: I am under the impression that it is generally unsafe to return 
@@ -833,6 +846,10 @@ template BigFloat Dotu
 ( BlasInt n,
   const BigFloat* x, BlasInt incx, 
   const BigFloat* y, BlasInt incy );
+template Complex<BigFloat> Dotu
+( BlasInt n,
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 double Dotu
@@ -863,6 +880,7 @@ template Quad Nrm2( BlasInt n, const Complex<Quad>* x, BlasInt incx );
 #endif
 #ifdef EL_HAVE_MPC
 template BigFloat Nrm2( BlasInt n, const BigFloat* x, BlasInt incx );
+template BigFloat Nrm2( BlasInt n, const Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 double Nrm2( BlasInt n, const double* x, BlasInt incx )
@@ -903,6 +921,7 @@ template BlasInt MaxInd( BlasInt n, const Complex<Quad>* x, BlasInt incx );
 #ifdef EL_HAVE_MPC
 template BlasInt MaxInd( BlasInt n, const BigInt* x, BlasInt incx );
 template BlasInt MaxInd( BlasInt n, const BigFloat* x, BlasInt incx );
+template BlasInt MaxInd( BlasInt n, const Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 BlasInt MaxInd( BlasInt n, const float* x, BlasInt incx )
@@ -1011,6 +1030,11 @@ template BigFloat Givens
   const BigFloat& gamma,
   BigFloat& c,
   BigFloat& s );
+template Complex<BigFloat> Givens
+( const Complex<BigFloat>& phi,
+  const Complex<BigFloat>& gamma,
+  BigFloat& c,
+  Complex<BigFloat>& s );
 #endif
 
 float Givens
@@ -1118,6 +1142,12 @@ template void Rot
   BigFloat* y, BlasInt incy,
   const BigFloat& c,
   const BigFloat& s );
+template void Rot
+( BlasInt n,
+  Complex<BigFloat>* x, BlasInt incx,
+  Complex<BigFloat>* y, BlasInt incy,
+  const BigFloat& c,
+  const Complex<BigFloat>& s );
 #endif
 
 void Rot
@@ -1188,6 +1218,10 @@ template void Scal
 ( BlasInt n,
   const BigFloat& alpha,
   BigFloat* x, BlasInt incx );
+template void Scal
+( BlasInt n,
+  const Complex<BigFloat>& alpha,
+  Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 template<typename T>
@@ -1209,6 +1243,12 @@ template void Scal
 ( BlasInt n,
   const Quad& alpha,
   Complex<Quad>* x, BlasInt incx );
+#endif
+#ifdef EL_HAVE_MPC
+template void Scal
+( BlasInt n,
+  const BigFloat& alpha,
+  Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 void Scal( BlasInt n, const float& alpha, float* x, BlasInt incx )
@@ -1244,6 +1284,7 @@ template Quad Nrm1( BlasInt n, const Complex<Quad>* x, BlasInt incx );
 #ifdef EL_HAVE_MPC
 template BigInt Nrm1( BlasInt n, const BigInt* x, BlasInt incx );
 template BigFloat Nrm1( BlasInt n, const BigFloat* x, BlasInt incx );
+template BigFloat Nrm1( BlasInt n, const Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 double Nrm1( BlasInt n, const double* x, BlasInt incx )
@@ -1276,6 +1317,7 @@ template Quad NrmInf( BlasInt n, const Complex<Quad>* x, BlasInt incx );
 #ifdef EL_HAVE_MPC
 template BigInt NrmInf( BlasInt n, const BigInt* x, BlasInt incx );
 template BigFloat NrmInf( BlasInt n, const BigFloat* x, BlasInt incx );
+template BigFloat NrmInf( BlasInt n, const Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 template<typename T>
@@ -1308,6 +1350,10 @@ template void Swap
 ( BlasInt n, BigInt* x, BlasInt incx, BigInt* y, BlasInt incy );
 template void Swap
 ( BlasInt n, BigFloat* x, BlasInt incx, BigFloat* y, BlasInt incy );
+template void Swap
+( BlasInt n,
+  Complex<BigFloat>* x, BlasInt incx,
+  Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 void Swap( BlasInt n, float* x, BlasInt incx, float* y, BlasInt incy )
@@ -1470,6 +1516,13 @@ template void Gemv
   const BigFloat* x, BlasInt incx, 
   const BigFloat& beta,
         BigFloat* y, BlasInt incy );
+template void Gemv
+( char trans, BlasInt m, BlasInt n, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim,
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 void Gemv
@@ -1590,6 +1643,12 @@ template void Ger
   const BigFloat* x, BlasInt incx, 
   const BigFloat* y, BlasInt incy, 
         BigFloat* A, BlasInt ALDim );
+template void Ger
+( BlasInt m, BlasInt n, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>* y, BlasInt incy, 
+        Complex<BigFloat>* A, BlasInt ALDim );
 #endif
 
 void Ger
@@ -1696,6 +1755,12 @@ template void Geru
   const BigFloat* x, BlasInt incx, 
   const BigFloat* y, BlasInt incy, 
         BigFloat* A, BlasInt ALDim );
+template void Geru
+( BlasInt m, BlasInt n, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>* y, BlasInt incy, 
+        Complex<BigFloat>* A, BlasInt ALDim );
 #endif
 
 void Geru
@@ -1872,6 +1937,13 @@ template void Hemv
   const BigFloat* x, BlasInt incx, 
   const BigFloat& beta,
         BigFloat* y, BlasInt incy );
+template void Hemv
+( char uplo, BlasInt m, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 void Hemv
@@ -1991,6 +2063,11 @@ template void Her
   const BigFloat& alpha,
   const BigFloat* x, BlasInt incx,
         BigFloat* A, BlasInt ALDim );
+template void Her
+( char uplo, BlasInt m, 
+  const BigFloat& alpha,
+  const Complex<BigFloat>* x, BlasInt incx,
+        Complex<BigFloat>* A, BlasInt ALDim );
 #endif
 
 void Her
@@ -2123,6 +2200,12 @@ template void Her2
   const BigFloat* x, BlasInt incx, 
   const BigFloat* y, BlasInt incy, 
         BigFloat* A, BlasInt ALDim );
+template void Her2
+( char uplo, BlasInt m, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>* y, BlasInt incy, 
+        Complex<BigFloat>* A, BlasInt ALDim );
 #endif
 
 void Her2
@@ -2299,6 +2382,13 @@ template void Symv
   const BigFloat* x, BlasInt incx, 
   const BigFloat& beta,
         BigFloat* y, BlasInt incy );
+template void Symv
+( char uplo, BlasInt m, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* y, BlasInt incy );
 #endif
 
 void Symv
@@ -2424,6 +2514,11 @@ template void Syr
   const BigFloat& alpha,
   const BigFloat* x, BlasInt incx,
         BigFloat* A, BlasInt ALDim );
+template void Syr
+( char uplo, BlasInt m, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* x, BlasInt incx,
+        Complex<BigFloat>* A, BlasInt ALDim );
 #endif
 
 void Syr
@@ -2571,6 +2666,12 @@ template void Syr2
   const BigFloat* x, BlasInt incx, 
   const BigFloat* y, BlasInt incy, 
         BigFloat* A, BlasInt ALDim );
+template void Syr2
+( char uplo, BlasInt m, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* x, BlasInt incx, 
+  const Complex<BigFloat>* y, BlasInt incy, 
+        Complex<BigFloat>* A, BlasInt ALDim );
 #endif
 
 void Syr2
@@ -2783,6 +2884,10 @@ template void Trmv
 ( char uplo, char trans, char diag, BlasInt m,
   const BigFloat* A, BlasInt ALDim,
         BigFloat* x, BlasInt incx );
+template void Trmv
+( char uplo, char trans, char diag, BlasInt m,
+  const Complex<BigFloat>* A, BlasInt ALDim,
+        Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 void Trmv
@@ -2950,6 +3055,10 @@ template void Trsv
 ( char uplo, char trans, char diag, BlasInt m,
   const BigFloat* A, BlasInt ALDim,
         BigFloat* x, BlasInt incx );
+template void Trsv
+( char uplo, char trans, char diag, BlasInt m,
+  const Complex<BigFloat>* A, BlasInt ALDim,
+        Complex<BigFloat>* x, BlasInt incx );
 #endif
 
 void Trsv
@@ -3255,6 +3364,14 @@ template void Gemm
   const BigFloat* B, BlasInt BLDim,
   const BigFloat& beta,
         BigFloat* C, BlasInt CLDim );
+template void Gemm
+( char transA, char transB,
+  BlasInt m, BlasInt n, BlasInt k, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim,
+  const Complex<BigFloat>* B, BlasInt BLDim,
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* C, BlasInt CLDim );
 #endif
 
 void Gemm
@@ -3659,6 +3776,13 @@ template void Hemm
   const BigFloat* B, BlasInt BLDim,
   const BigFloat& beta,
         BigFloat* C, BlasInt CLDim );
+template void Hemm
+( char side, char uplo, BlasInt m, BlasInt n,
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const Complex<BigFloat>* B, BlasInt BLDim,
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* C, BlasInt CLDim );
 #endif
 
 void Hemm
@@ -3913,6 +4037,14 @@ template void Her2k
   const BigFloat* B, BlasInt BLDim,
   const BigFloat& beta,
         BigFloat* C, BlasInt CLDim );
+template void Her2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const Complex<BigFloat>* B, BlasInt BLDim,
+  const BigFloat& beta,
+        Complex<BigFloat>* C, BlasInt CLDim );
 #endif
 
 void Her2k
@@ -4136,6 +4268,13 @@ template void Herk
   const BigFloat* A, BlasInt ALDim, 
   const BigFloat& beta,
         BigFloat* C, BlasInt CLDim );
+template void Herk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  const BigFloat& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const BigFloat& beta,
+        Complex<BigFloat>* C, BlasInt CLDim );
 #endif
 
 void Herk
@@ -4421,6 +4560,13 @@ template void Symm
   const BigFloat* B, BlasInt BLDim,
   const BigFloat& beta,
         BigFloat* C, BlasInt CLDim );
+template void Symm
+( char side, char uplo, BlasInt m, BlasInt n,
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const Complex<BigFloat>* B, BlasInt BLDim,
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* C, BlasInt CLDim );
 #endif
 
 void Symm
@@ -4658,6 +4804,14 @@ template void Syr2k
   const BigFloat* B, BlasInt BLDim,
   const BigFloat& beta,
         BigFloat* C, BlasInt CLDim );
+template void Syr2k
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const Complex<BigFloat>* B, BlasInt BLDim,
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* C, BlasInt CLDim );
 #endif
 
 void Syr2k
@@ -4875,6 +5029,13 @@ template void Syrk
   const BigFloat* A, BlasInt ALDim, 
   const BigFloat& beta,
         BigFloat* C, BlasInt CLDim );
+template void Syrk
+( char uplo, char trans,
+  BlasInt n, BlasInt k, 
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim, 
+  const Complex<BigFloat>& beta,
+        Complex<BigFloat>* C, BlasInt CLDim );
 #endif
 
 void Syrk
@@ -5009,6 +5170,12 @@ template void Trmm
   const BigFloat& alpha,
   const BigFloat* A, BlasInt ALDim,
         BigFloat* B, BlasInt BLDim );
+template void Trmm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim,
+        Complex<BigFloat>* B, BlasInt BLDim );
 #endif
 
 void Trmm
@@ -5344,6 +5511,12 @@ template void Trsm
   const BigFloat& alpha,
   const BigFloat* A, BlasInt ALDim,
         BigFloat* B, BlasInt BLDim );
+template void Trsm
+( char side, char uplo, char trans, char unit,
+  BlasInt m, BlasInt n,
+  const Complex<BigFloat>& alpha,
+  const Complex<BigFloat>* A, BlasInt ALDim,
+        Complex<BigFloat>* B, BlasInt BLDim );
 #endif
 
 void Trsm

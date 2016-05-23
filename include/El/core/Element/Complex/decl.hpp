@@ -160,10 +160,11 @@ public:
     inline void SetPrecision( mpfr_prec_t );
     inline size_t NumLimbs() const;
 
-    inline void real( BigFloat& realPart ) const;
     inline BigFloat real() const;
-    inline void imag( BigFloat& imagPart ) const;
     inline BigFloat imag() const;
+
+    inline void real( const BigFloat& realPart );
+    inline void imag( const BigFloat& imagPart );
 
     inline Complex();
     inline Complex
@@ -322,6 +323,8 @@ public:
     inline Complex<BigFloat>& operator/=( const unsigned long& a );
     inline Complex<BigFloat>& operator/=( const unsigned& a );
 
+    inline void Zero();
+
     inline size_t SerializedSize() const;
 
     inline       byte* Serialize( byte* buf ) const;
@@ -329,6 +332,13 @@ public:
     inline       byte* Deserialize( byte* buf );
 };
 #endif // EL_HAVE_MPC
+
+#ifdef EL_HAVE_MPC
+inline bool operator==
+( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
+inline bool operator!=
+( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
+#endif
 
 template<typename Real>
 inline Complex<Real> operator-( const Complex<Real>& a );

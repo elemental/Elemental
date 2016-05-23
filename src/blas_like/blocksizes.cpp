@@ -34,6 +34,7 @@ Int localSymvComplexQuadBlocksize = 64;
 #ifdef EL_HAVE_MPC
 Int localSymvBigIntBlocksize = 64;
 Int localSymvBigFloatBlocksize = 64;
+Int localSymvComplexBigFloatBlocksize = 64;
 #endif
 
 Int localTrr2kIntBlocksize = 64;
@@ -52,6 +53,7 @@ Int localTrr2kComplexQuadBlocksize = 64;
 #ifdef EL_HAVE_MPC
 Int localTrr2kBigIntBlocksize = 64;
 Int localTrr2kBigFloatBlocksize = 64;
+Int localTrr2kComplexBigFloatBlocksize = 64;
 #endif
 
 Int localTrrkIntBlocksize = 64;
@@ -70,6 +72,7 @@ Int localTrrkComplexQuadBlocksize = 64;
 #ifdef EL_HAVE_MPC
 Int localTrrkBigIntBlocksize = 64;
 Int localTrrkBigFloatBlocksize = 64;
+Int localTrrkComplexBigFloatBlocksize = 64;
 #endif
 
 }
@@ -159,6 +162,10 @@ void SetLocalSymvBlocksize<BigInt>( Int blocksize )
 template<>
 void SetLocalSymvBlocksize<BigFloat>( Int blocksize )
 { ::localSymvBigFloatBlocksize = blocksize; }
+
+template<>
+void SetLocalSymvBlocksize<Complex<BigFloat>>( Int blocksize )
+{ ::localSymvComplexBigFloatBlocksize = blocksize; }
 #endif
 
 template<>
@@ -207,6 +214,9 @@ Int LocalSymvBlocksize<BigInt>()
 template<>
 Int LocalSymvBlocksize<BigFloat>()
 { return ::localSymvBigFloatBlocksize; }
+template<>
+Int LocalSymvBlocksize<Complex<BigFloat>>()
+{ return ::localSymvComplexBigFloatBlocksize; }
 #endif
 
 template<>
@@ -256,6 +266,9 @@ void SetLocalTrr2kBlocksize<BigInt>( Int blocksize )
 template<>
 void SetLocalTrr2kBlocksize<BigFloat>( Int blocksize )
 { ::localTrr2kBigFloatBlocksize = blocksize; }
+template<>
+void SetLocalTrr2kBlocksize<Complex<BigFloat>>( Int blocksize )
+{ ::localTrr2kComplexBigFloatBlocksize = blocksize; }
 #endif
 
 template<>
@@ -305,6 +318,9 @@ Int LocalTrr2kBlocksize<BigInt>()
 template<>
 Int LocalTrr2kBlocksize<BigFloat>()
 { return ::localTrr2kBigFloatBlocksize; }
+template<>
+Int LocalTrr2kBlocksize<Complex<BigFloat>>()
+{ return ::localTrr2kComplexBigFloatBlocksize; }
 #endif
 
 template<>
@@ -354,6 +370,9 @@ void SetLocalTrrkBlocksize<BigInt>( Int blocksize )
 template<>
 void SetLocalTrrkBlocksize<BigFloat>( Int blocksize )
 { ::localTrrkBigFloatBlocksize = blocksize; }
+template<>
+void SetLocalTrrkBlocksize<Complex<BigFloat>>( Int blocksize )
+{ ::localTrrkComplexBigFloatBlocksize = blocksize; }
 #endif
 
 template<>
@@ -403,6 +422,9 @@ Int LocalTrrkBlocksize<BigInt>()
 template<>
 Int LocalTrrkBlocksize<BigFloat>()
 { return ::localTrrkBigFloatBlocksize; }
+template<>
+Int LocalTrrkBlocksize<Complex<BigFloat>>()
+{ return ::localTrrkComplexBigFloatBlocksize; }
 #endif
 
 } // namespace El

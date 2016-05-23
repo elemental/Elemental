@@ -250,6 +250,8 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
             TestLDL<BigFloat>
             ( m, conjugated, nbLocal, correctness, print );
+            TestLDL<Complex<BigFloat>>
+            ( m, conjugated, nbLocal, correctness, print );
 #endif
         }
 
@@ -279,6 +281,8 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestLDL<BigFloat>
+        ( g, m, conjugated, nbLocal, correctness, print );
+        TestLDL<Complex<BigFloat>>
         ( g, m, conjugated, nbLocal, correctness, print );
 #endif
     }

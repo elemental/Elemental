@@ -186,6 +186,11 @@ main( int argc, char* argv[] )
           m, n,
           BigFloat(3), BigFloat(4),
           g, print );
+        TestSymm<Complex<BigFloat>>
+        ( conjugate, side, uplo,
+          m, n,
+          Complex<BigFloat>(3), Complex<BigFloat>(4),
+          g, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

@@ -66,6 +66,12 @@
 #endif
 #endif
 
+#if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGFLOAT)
+#ifndef PROTO_COMPLEX_BIGFLOAT
+# define PROTO_COMPLEX_BIGFLOAT PROTO_COMPLEX(Complex<BigFloat>)
+#endif
+#endif
+
 #ifndef EL_NO_INT_PROTO
 PROTO_INT(Int)
 #if defined(EL_ENABLE_BIGINT) && defined(EL_HAVE_MPC)
@@ -104,6 +110,9 @@ PROTO_COMPLEX_DOUBLE
 #if defined(EL_ENABLE_QUAD) && defined(EL_HAVE_QUAD)
 PROTO_COMPLEX_QUAD
 #endif
+#if defined(EL_ENABLE_BIGFLOAT) && defined(EL_HAVE_MPC)
+PROTO_COMPLEX_BIGFLOAT
+#endif
 #endif
 
 #undef PROTO
@@ -122,6 +131,7 @@ PROTO_COMPLEX_QUAD
 #undef PROTO_COMPLEX_FLOAT
 #undef PROTO_COMPLEX_DOUBLE
 #undef PROTO_COMPLEX_QUAD
+#undef PROTO_COMPLEX_BIGFLOAT
 
 #undef EL_ENABLE_DOUBLEDOUBLE
 #undef EL_ENABLE_QUADDOUBLE

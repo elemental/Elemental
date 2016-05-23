@@ -27,6 +27,7 @@ template<> void SetLocalSymvBlocksize<Complex<Quad>>( Int blocksize );
 #ifdef EL_HAVE_MPC
 template<> void SetLocalSymvBlocksize<BigInt>( Int blocksize );
 template<> void SetLocalSymvBlocksize<BigFloat>( Int blocksize );
+template<> void SetLocalSymvBlocksize<Complex<BigFloat>>( Int blocksize );
 #endif
 
 template<typename T> Int LocalSymvBlocksize();
@@ -46,6 +47,7 @@ template<> Int LocalSymvBlocksize<Complex<Quad>>();
 #ifdef EL_HAVE_MPC
 template<> Int LocalSymvBlocksize<BigInt>();
 template<> Int LocalSymvBlocksize<BigFloat>();
+template<> Int LocalSymvBlocksize<Complex<BigFloat>>();
 #endif
 
 template<typename T>

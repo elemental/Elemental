@@ -235,27 +235,27 @@ void Complex<BigFloat>::SetPrecision( mpfr_prec_t prec )
 size_t Complex<BigFloat>::NumLimbs() const
 { return numLimbs_; }
 
-void Complex<BigFloat>::real( BigFloat& realPart ) const
+void Complex<BigFloat>::real( const BigFloat& realPart )
 {
-    mpc_real( realPart.Pointer(), LockedPointer(), mpc::RoundingMode() );
+    mpfr_set( RealPointer(), realPart.LockedPointer(), mpc::RoundingMode() );
+}
+
+void Complex<BigFloat>::imag( const BigFloat& imagPart )
+{
+    mpfr_set( ImagPointer(), imagPart.LockedPointer(), mpc::RoundingMode() );
 }
 
 BigFloat Complex<BigFloat>::real() const
 {
     BigFloat realPart;
-    real( realPart );
+    mpc_real( realPart.Pointer(), LockedPointer(), mpc::RoundingMode() );
     return realPart;
-}
-
-void Complex<BigFloat>::imag( BigFloat& imagPart ) const
-{
-    mpc_imag( imagPart.Pointer(), LockedPointer(), mpc::RoundingMode() );
 }
 
 BigFloat Complex<BigFloat>::imag() const
 {
     BigFloat imagPart;
-    imag( imagPart );
+    mpc_imag( imagPart.Pointer(), LockedPointer(), mpc::RoundingMode() );
     return imagPart;
 }
 
@@ -1139,6 +1139,12 @@ Complex<BigFloat>& Complex<BigFloat>::operator/=( const unsigned& a )
     return *this;
 }
 
+void Complex<BigFloat>::Zero()
+{
+    mpfr_set_zero( RealPointer(), 0 );
+    mpfr_set_zero( ImagPointer(), 0 );
+}
+
 size_t Complex<BigFloat>::SerializedSize() const
 {
     return 2*sizeof(mpfr_prec_t)+
@@ -1205,6 +1211,21 @@ const byte* Complex<BigFloat>::Deserialize( const byte* buf )
 byte* Complex<BigFloat>::Deserialize( byte* buf )
 { return const_cast<byte*>(Deserialize(static_cast<const byte*>(buf))); }
 #endif // EL_HAVE_MPC
+
+#ifdef EL_HAVE_MPC
+bool operator==
+( const Complex<BigFloat>& a, const Complex<BigFloat>& b )
+{
+    int result = mpc_cmp( a.LockedPointer(), b.LockedPointer() );
+    return result == 0;
+}
+
+bool operator!=
+( const Complex<BigFloat>& a, const Complex<BigFloat>& b )
+{
+    return !(a == b);
+}
+#endif
 
 template<typename Real>
 Complex<Real>

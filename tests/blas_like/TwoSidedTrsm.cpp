@@ -251,7 +251,9 @@ main( int argc, char* argv[] )
 #endif
 
 #ifdef EL_HAVE_MPC
-       TestTwoSidedTrsm<BigFloat>
+        TestTwoSidedTrsm<BigFloat>
+        ( uplo, diag, m, g, print, correctness );
+        TestTwoSidedTrsm<Complex<BigFloat>>
         ( uplo, diag, m, g, print, correctness );
 #endif
     }

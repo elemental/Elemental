@@ -295,6 +295,15 @@ main( int argc, char* argv[] )
           colAlignA, rowAlignA,
           colAlignB, rowAlignB,
           colAlignC, rowAlignC );
+        TestGemm<Complex<BigFloat>>
+        ( orientA, orientB,
+          m, n, k,
+          Complex<BigFloat>(3), Complex<BigFloat>(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

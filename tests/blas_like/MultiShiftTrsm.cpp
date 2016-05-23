@@ -191,6 +191,11 @@ main( int argc, char* argv[] )
           m, n,
           BigFloat(3),
           g, print );
+        TestMultiShiftTrsm<Complex<BigFloat>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<BigFloat>(3),
+          g, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

@@ -110,17 +110,47 @@ inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 // Replacement for std::memcpy, which is known to often be suboptimal.
 // Notice the sizeof(T) is no longer required.
 template<typename T>
-void MemCopy( T* dest, const T* source, size_t numEntries );
+void MemCopy
+(       T* dest,
+  const T* source,
+        size_t numEntries );
 #ifdef EL_HAVE_MPC
-void MemCopy( BigInt* dest, const BigInt* source, size_t numEntries );
-void MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries );
+void MemCopy
+(       BigInt* dest,
+  const BigInt* source,
+        size_t numEntries );
+void MemCopy
+(       BigFloat* dest,
+  const BigFloat* source,
+        size_t numEntries );
+void MemCopy
+(       Complex<BigFloat>* dest,
+  const Complex<BigFloat>* source,
+        size_t numEntries );
 #endif
 
 template<typename T>
-void MemSwap( T* a, T* b, T* temp, size_t numEntries );
+void MemSwap
+( T* a,
+  T* b,
+  T* temp,
+  size_t numEntries );
 #ifdef EL_HAVE_MPC
-void MemSwap( BigInt* a, BigInt* b, BigInt* temp, size_t numEntries );
-void MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries );
+void MemSwap
+( BigInt* a,
+  BigInt* b,
+  BigInt* temp,
+  size_t numEntries );
+void MemSwap
+( BigFloat* a,
+  BigFloat* b,
+  BigFloat* temp,
+  size_t numEntries );
+void MemSwap
+( Complex<BigFloat>* a,
+  Complex<BigFloat>* b,
+  Complex<BigFloat>* temp,
+  size_t numEntries );
 #endif
 
 // Generalization of std::memcpy so that unit strides are not required
@@ -135,6 +165,9 @@ void StridedMemCopy
 void StridedMemCopy
 (       BigFloat* dest,   Int destStride,
   const BigFloat* source, Int sourceStride, Int numEntries );
+void StridedMemCopy
+(       Complex<BigFloat>* dest,   Int destStride,
+  const Complex<BigFloat>* source, Int sourceStride, Int numEntries );
 #endif
 
 template<typename S,typename T>
@@ -151,6 +184,7 @@ void MemZero( T* buffer, size_t numEntries );
 #ifdef EL_HAVE_MPC
 void MemZero( BigInt* buffer, size_t numEntries );
 void MemZero( BigFloat* buffer, size_t numEntries );
+void MemZero( Complex<BigFloat>* buffer, size_t numEntries );
 #endif
 
 // Clear the contents of x by swapping with an empty object of the same type
@@ -189,6 +223,13 @@ inline void FastResize( vector<BigFloat>& v, Int numEntries )
 inline void FastResize( vector<ValueInt<BigFloat>>& v, Int numEntries )
 { v.resize( numEntries ); }
 inline void FastResize( vector<Entry<BigFloat>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+
+inline void FastResize( vector<Complex<BigFloat>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<ValueInt<Complex<BigFloat>>>& v, Int numEntries )
+{ v.resize( numEntries ); }
+inline void FastResize( vector<Entry<Complex<BigFloat>>>& v, Int numEntries )
 { v.resize( numEntries ); }
 #endif
 

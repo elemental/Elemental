@@ -173,6 +173,9 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
         TestQuasiTrsm<BigFloat>
         ( print, side, uplo, orientation, m, n, BigFloat(3), g );
+        TestQuasiTrsm<Complex<BigFloat>>
+        ( print, side, uplo, orientation, m, n, Complex<BigFloat>(3), g );
+
 #endif
     }
     catch( exception& e ) { ReportException(e); }

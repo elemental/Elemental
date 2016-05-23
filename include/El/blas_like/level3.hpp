@@ -28,6 +28,7 @@ template<> void SetLocalTrrkBlocksize<Complex<Quad>>( Int blocksize );
 #ifdef EL_HAVE_MPC
 template<> void SetLocalTrrkBlocksize<BigInt>( Int blocksize );
 template<> void SetLocalTrrkBlocksize<BigFloat>( Int blocksize );
+template<> void SetLocalTrrkBlocksize<Complex<BigFloat>>( Int blocksize );
 #endif
 
 template<typename T> void SetLocalTrr2kBlocksize( Int blocksize );
@@ -47,6 +48,7 @@ template<> void SetLocalTrr2kBlocksize<Complex<Quad>>( Int blocksize );
 #ifdef EL_HAVE_MPC
 template<> void SetLocalTrr2kBlocksize<BigInt>( Int blocksize );
 template<> void SetLocalTrr2kBlocksize<BigFloat>( Int blocksize );
+template<> void SetLocalTrr2kBlocksize<Complex<BigFloat>>( Int blocksize );
 #endif
 
 template<typename T> Int LocalTrrkBlocksize();
@@ -66,6 +68,7 @@ template<> Int LocalTrrkBlocksize<Complex<Quad>>();
 #ifdef EL_HAVE_MPC
 template<> Int LocalTrrkBlocksize<BigInt>();
 template<> Int LocalTrrkBlocksize<BigFloat>();
+template<> Int LocalTrrkBlocksize<Complex<BigFloat>>();
 #endif
 
 template<typename T> Int LocalTrr2kBlocksize();
@@ -85,6 +88,7 @@ template<> Int LocalTrr2kBlocksize<Complex<Quad>>();
 #ifdef EL_HAVE_MPC
 template<> Int LocalTrr2kBlocksize<BigInt>();
 template<> Int LocalTrr2kBlocksize<BigFloat>();
+template<> Int LocalTrr2kBlocksize<Complex<BigFloat>>();
 #endif
 
 // Gemm

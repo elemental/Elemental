@@ -263,6 +263,12 @@ main( int argc, char* argv[] )
           g, print, correctness, nbLocal,
           colAlignA, rowAlignA, colAlignC, rowAlignC,
           contigA, contigC );
+        TestSyrk<Complex<BigFloat>>
+        ( conjugate, uplo, orientation, m, k,
+          Complex<BigFloat>(3), Complex<BigFloat>(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

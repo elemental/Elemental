@@ -125,28 +125,8 @@ template<>
 Complex<Quad> SampleUniform( const Complex<Quad>& a, const Complex<Quad>& b )
 {
     Complex<Quad> sample;
-
-#ifdef EL_HAVE_CXX11RANDOM
-    std::mt19937& gen = Generator();
-    std::uniform_real_distribution<long double> 
-      realUni((long double)RealPart(a),(long double)RealPart(b));
-    SetRealPart( sample, Quad(realUni(gen)) ); 
-
-    std::uniform_real_distribution<long double> 
-      imagUni((long double)ImagPart(a),(long double)ImagPart(b));
-    SetImagPart( sample, Quad(imagUni(gen)) );
-#else
-    Quad aReal = RealPart(a);
-    Quad aImag = ImagPart(a);
-    Quad bReal = RealPart(b);
-    Quad bImag = ImagPart(b);
-    Quad realPart = (Quad(rand())/(Quad(RAND_MAX)+1))*(bReal-aReal) + aReal;
-    SetRealPart( sample, realPart );
-
-    Quad imagPart = (Quad(rand())/(Quad(RAND_MAX)+1))*(bImag-aImag) + aImag;
-    SetImagPart( sample, imagPart );
-#endif
-
+    sample.real( SampleUniform( a.real(), b.real() ) );
+    sample.imag( SampleUniform( a.imag(), b.imag() ) );
     return sample;
 }
 #endif // ifdef EL_HAVE_QUAD
@@ -177,6 +157,16 @@ BigFloat SampleUniform( const BigFloat& a, const BigFloat& b )
             break;
     }
     return a + sample*(b-a);
+}
+
+template<>
+Complex<BigFloat> SampleUniform
+( const Complex<BigFloat>& a, const Complex<BigFloat>& b )
+{
+    Complex<BigFloat> sample;
+    sample.real( SampleUniform( a.real(), b.real() ) );
+    sample.imag( SampleUniform( a.imag(), b.imag() ) );
+    return sample;
 }
 #endif // ifdef EL_HAVE_MPC
 
@@ -300,36 +290,8 @@ Complex<Quad> SampleNormal( const Complex<Quad>& mean, const Quad& stddev )
     Quad stddevAdj = stddev;
     stddevAdj /= Sqrt(Quad(2));
 
-#ifdef EL_HAVE_CXX11RANDOM
-    std::mt19937& gen = Generator();
-
-    std::normal_distribution<long double> 
-      realNormal( (long double)RealPart(mean), (long double)stddevAdj );
-    SetRealPart( sample, Quad(realNormal(gen)) );
-
-    std::normal_distribution<long double>
-      imagNormal( (long double)ImagPart(mean), (long double)stddevAdj );
-    SetImagPart( sample, Quad(imagNormal(gen)) );
-#else
-    // Run Marsiglia's polar method
-    // ============================
-    // NOTE: Half of the generated samples are thrown away in the case that
-    //       F is real.
-    while( true )
-    {
-        const Quad U = SampleUniform<Quad>(-1,1);
-        const Quad V = SampleUniform<Quad>(-1,1);
-        const Quad S = Sqrt(U*U+V*V);
-        if( S > Quad(0) && S < Quad(1) )
-        {
-            const Quad W = Sqrt(-2*Log(S)/S);
-            SetRealPart( sample, RealPart(mean) + stddevAdj*U*W );
-            SetImagPart( sample, ImagPart(mean) + stddevAdj*V*W );
-            break;
-        }
-    }
-#endif
-
+    sample.real( SampleNormal( mean.real(), stddevAdj ) );
+    sample.imag( SampleNormal( mean.imag(), stddevAdj ) );
     return sample;
 }
 #endif // ifdef EL_HAVE_QUAD
@@ -357,6 +319,20 @@ BigFloat SampleNormal( const BigFloat& mean, const BigFloat& stddev )
         }
     }
 
+    return sample;
+}
+
+template<>
+Complex<BigFloat> SampleNormal
+( const Complex<BigFloat>& mean, const BigFloat& stddev )
+{
+    // TODO: Consider saving factor of two from Marsiglia's
+    Complex<BigFloat> sample;
+    BigFloat stddevAdj = stddev;
+    stddevAdj /= Sqrt(BigFloat(2));
+
+    sample.real( SampleNormal( mean.real(), stddevAdj ) );
+    sample.imag( SampleNormal( mean.imag(), stddevAdj ) );
     return sample;
 }
 #endif // ifdef EL_HAVE_MPC

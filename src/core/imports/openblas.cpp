@@ -165,6 +165,11 @@ template void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha, const BigFloat* A, BlasInt lda,
                         BigFloat* B, BlasInt ldb );
+template void omatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<BigFloat> alpha,
+  const Complex<BigFloat>* A, BlasInt lda,
+        Complex<BigFloat>* B, BlasInt ldb );
 #endif
 
 void imatcopy
@@ -245,6 +250,9 @@ template void imatcopy
 template void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   BigFloat alpha, BigFloat* A, BlasInt lda, BlasInt ldb );
+template void imatcopy
+( Orientation orientation, BlasInt m, BlasInt n,
+  Complex<BigFloat> alpha, Complex<BigFloat>* A, BlasInt lda, BlasInt ldb );
 #endif
 
 } // namespace openblas

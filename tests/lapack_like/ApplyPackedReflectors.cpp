@@ -246,6 +246,9 @@ main( int argc, char* argv[] )
         TestUT<BigFloat>
         ( g, side, uplo, dir, conjugation, m, offset, 
           correctness, printMatrices );
+        TestUT<Complex<BigFloat>>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          correctness, printMatrices );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

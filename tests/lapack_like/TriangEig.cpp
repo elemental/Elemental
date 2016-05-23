@@ -504,6 +504,9 @@ main( int argc, char* argv[] )
         if( testReal && testNonstandard )
             TestTriangEig<BigFloat>
             ( g, n, correctness, print, whichMatrix );
+        if( testCpx && testNonstandard )
+            TestTriangEig<Complex<BigFloat>>
+            ( g, n, correctness, print, whichMatrix );
 #endif
     }
     catch( exception& e ) { ReportException(e); }
