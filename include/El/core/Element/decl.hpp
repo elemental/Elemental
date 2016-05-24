@@ -10,7 +10,6 @@
 #define EL_ELEMENT_DECL_HPP
 
 #include <El/core/Element/Complex/decl.hpp>
-#include <El/core/Element/Complex/impl.hpp>
 
 namespace El {
 
@@ -316,13 +315,13 @@ void ImagPart( const Complex<Real>& alpha, Real& alphaImag ) EL_NO_EXCEPT;
 
 template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 struct Caster {
-    static T Cast( S alpha )
+    static T Cast( const S& alpha )
     { return T(alpha); }
 };
 
 template<typename S,typename T>
 struct Caster<S,Complex<T>,void> {
-    static Complex<T> Cast( S alpha )
+    static Complex<T> Cast( const S& alpha )
     { return Complex<T>( T(RealPart(alpha)), T(ImagPart(alpha)) ); }
 };
 

@@ -544,10 +544,10 @@ bool TryLowerPrecisionBigFloatMerge
         // Only move down to a lower-precision MPFR type if the jump is
         // substantial. The current value has been naively chosen.
         const mpfr_prec_t minPrecDiff = 32;
-        mpfr_prec_t inputPrec = mpc::Precision();
+        mpfr_prec_t inputPrec = mpfr::Precision();
         if( neededPrec <= inputPrec-minPrecDiff )
         {
-            mpc::SetPrecision( neededPrec );
+            mpfr::SetPrecision( neededPrec );
             try
             {
                 info = LowerPrecisionMerge<Z,F,BigFloat,F>
@@ -558,7 +558,7 @@ bool TryLowerPrecisionBigFloatMerge
             {
                 Output("e.what()=",e.what());
             }
-            mpc::SetPrecision( inputPrec );
+            mpfr::SetPrecision( inputPrec );
         }
     }
     return succeeded;

@@ -221,13 +221,13 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
         DistMatrixTest<BigInt>( m, n, g, print );
         OutputFromRoot(comm,"Setting BigInt precision to 512 bits");
-        mpc::SetMinIntBits( 512 );
+        mpfr::SetMinIntBits( 512 );
         DistMatrixTest<BigInt>( m, n, g, print );
 
         DistMatrixTest<BigFloat>( m, n, g, print );
         DistMatrixTest<Complex<BigFloat>>( m, n, g, print );
         OutputFromRoot(comm,"Setting BigFloat precision to 512 bits");
-        mpc::SetPrecision( 512 );
+        mpfr::SetPrecision( 512 );
         DistMatrixTest<BigFloat>( m, n, g, print );
         DistMatrixTest<Complex<BigFloat>>( m, n, g, print );
 #endif

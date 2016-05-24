@@ -66,7 +66,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport(); 
 
-        mpc::SetMinIntBits( minIntBits );
+        mpfr::SetMinIntBits( minIntBits );
 
         factor::PollardRhoCtrl rhoCtrl;
         rhoCtrl.numSteps = numSteps;
@@ -118,7 +118,7 @@ int main( int argc, char* argv[] )
             //    2^(2^8) + 1 = 1238926361552897 * p_{62},
             // where p_{62} is a 62-digit prime.
             // Note that this should only take about 30 seconds.
-            mpc::SetMinIntBits( 1024 );
+            mpfr::SetMinIntBits( 1024 );
             BigInt z = Pow(BigInt(2),Pow(BigInt(2),BigInt(8))) + 1; 
             Output("z=2^(2^8)+1=",z); 
             FactorRho( z, rhoCtrl );
@@ -141,7 +141,7 @@ int main( int argc, char* argv[] )
             // p=372098406910139347411473978297737029649599583843164650153,
             // where p-1=23*32*1049*1627*139999*1284223*7475317*341342347*
             //           2456044907*9909876848747
-            mpc::SetMinIntBits( 4096 );
+            mpfr::SetMinIntBits( 4096 );
             BigInt z = Pow(BigInt(2),BigInt(2098)) + 1;
             pm1Ctrl.smooth1 = 5*Pow(10UL,9UL);
             pm1Ctrl.smooth2 = Pow(10UL,13UL);

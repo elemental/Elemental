@@ -33,7 +33,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        mpc::SetPrecision( prec );
+        mpfr::SetPrecision( prec );
 
         Matrix<BigFloat> B, ySub;
         if( transposeBasis )

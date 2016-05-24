@@ -242,7 +242,7 @@ void CreateBigIntType()
 {
     BigInt alpha;
     const auto packedSize = alpha.SerializedSize();
-    const int numLimbs = mpc::NumIntLimbs();
+    const int numLimbs = mpfr::NumIntLimbs();
 
     Datatype typeList[2];
     typeList[0] = TypeMap<int>();
@@ -1671,7 +1671,7 @@ void CreateValueIntType<Complex<BigFloat>>() EL_NO_EXCEPT
     blockLengths[0] = 1;
     blockLengths[1] = 1; 
 
-    BigFloat alpha;
+    Complex<BigFloat> alpha;
     const size_t packedSize = alpha.SerializedSize();
 
     MPI_Aint displs[2];
@@ -1822,7 +1822,7 @@ void CreateEntryType<Complex<BigFloat>>() EL_NO_EXCEPT
     Datatype tempType;
     CreateStruct( 3, blockLengths, displs, typeList, tempType );
 
-    BigFloat alpha;
+    Complex<BigFloat> alpha;
     const auto packedSize = alpha.SerializedSize();
 
     Datatype& type = EntryType<Complex<BigFloat>>();
@@ -1905,7 +1905,7 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     CreateContiguous( 4, MPI_DOUBLE, ::QuadComplexType );
 
 #endif
-    // NOTE: The BigFloat types are created by mpc::SetPrecision previously
+    // NOTE: The BigFloat types are created by mpfr::SetPrecision previously
     //       within El::Initialize
 
     // A value and an integer

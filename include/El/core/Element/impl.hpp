@@ -9,6 +9,8 @@
 #ifndef EL_ELEMENT_IMPL_HPP
 #define EL_ELEMENT_IMPL_HPP
 
+#include <El/core/Element/Complex/impl.hpp>
+
 namespace El {
 
 // Basic element manipulation and I/O

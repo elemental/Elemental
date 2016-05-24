@@ -276,7 +276,7 @@ main( int argc, char* argv[] )
             LogicError("Invalid pivot value");
 
 #ifdef EL_HAVE_MPC
-        mpc::SetPrecision( prec );
+        mpfr::SetPrecision( prec );
 #endif
 
         if( gridHeight == 0 )

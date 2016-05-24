@@ -192,7 +192,7 @@ void Initialize( int& argc, char**& argv )
     InitializeRandom();
 
     // Create the types and ops
-    // NOTE: mpc::SetPrecision created the BigFloat types
+    // NOTE: mpfr::SetPrecision created the BigFloat types
     mpi::CreateCustom();
 }
 

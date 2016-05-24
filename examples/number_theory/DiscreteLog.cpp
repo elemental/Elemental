@@ -29,7 +29,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport(); 
 
-        mpc::SetMinIntBits( minIntBits );
+        mpfr::SetMinIntBits( minIntBits );
 
         dlog::PollardRhoCtrl rhoCtrl;
         rhoCtrl.a0 = a0;

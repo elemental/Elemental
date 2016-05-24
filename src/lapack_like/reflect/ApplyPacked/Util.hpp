@@ -12,36 +12,36 @@
 namespace El {
 
 template<typename F> 
-inline void
-FixDiagonal
+void FixDiagonal
 ( Conjugation conjugation, const Matrix<F>& t, Matrix<F>& SInv )
 {
     DEBUG_ONLY(CSE cse("FixDiagonal"))
     for( Int j=0; j<SInv.Height(); ++j )
     {
-        const F value = t.Get(j,0);
+        const F value = t(j);
         if( conjugation == CONJUGATED )
-            SInv.Set(j,j,F(1)/Conj(value));
+            SInv(j,j) = F(1)/Conj(value);
         else
-            SInv.Set(j,j,F(1)/value);
+            SInv(j,j) = F(1)/value;
     }
 }
 
 template<typename F> 
-inline void
-FixDiagonal
+void FixDiagonal
 ( Conjugation conjugation,
   const DistMatrix<F,STAR,STAR>& t,
         DistMatrix<F,STAR,STAR>& SInv )
 {
     DEBUG_ONLY(CSE cse("FixDiagonal"))
+    auto& tLoc = t.LockedMatrix();
+    auto& SInvLoc = SInv.Matrix();
     for( Int j=0; j<SInv.Height(); ++j )
     {
-        const F value = t.GetLocal(j,0);
+        const F value = tLoc(j);
         if( conjugation == CONJUGATED )
-            SInv.SetLocal( j, j, F(1)/Conj(value) );
+            SInvLoc(j,j) = F(1)/Conj(value);
         else
-            SInv.SetLocal( j, j, F(1)/value );
+            SInvLoc(j,j) = F(1)/value;
     }
 }
 

@@ -32,8 +32,8 @@ void InitializeRandom( bool deterministic )
     srand( seed );
 
 #ifdef EL_HAVE_MPC
-    mpc::SetMinIntBits( 256 );
-    mpc::SetPrecision( 256 );
+    mpfr::SetMinIntBits( 256 );
+    mpfr::SetPrecision( 256 );
     gmp_randinit_default( ::gmpRandState );
     gmp_randseed_ui( ::gmpRandState, seed );
 #endif
@@ -50,7 +50,7 @@ std::mt19937& Generator()
 { return ::generator; }
 
 #ifdef EL_HAVE_MPC
-namespace mpc {
+namespace mpfr {
 
 void RandomState( gmp_randstate_t randState )
 {
@@ -64,7 +64,7 @@ void RandomState( gmp_randstate_t randState )
     randState->_mp_algdata._mp_lc = ::gmpRandState->_mp_algdata._mp_lc;
 }
 
-} // namespace mpc
+} // namespace mpfr
 #endif
 
 bool BooleanCoinFlip()
@@ -137,7 +137,7 @@ BigInt SampleUniform( const BigInt& a, const BigInt& b )
 {
     BigInt sample; 
     gmp_randstate_t randState;
-    mpc::RandomState( randState );
+    mpfr::RandomState( randState );
     
     mpz_urandomb( sample.Pointer(), randState, b.NumBits() );
     return a+Mod(sample,b-a);
@@ -148,7 +148,7 @@ BigFloat SampleUniform( const BigFloat& a, const BigFloat& b )
 {
     BigFloat sample; 
     gmp_randstate_t randState;
-    mpc::RandomState( randState );
+    mpfr::RandomState( randState );
 
     while( 1 )
     {

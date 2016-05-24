@@ -135,12 +135,12 @@ bool TryLowerPrecisionBigFloat
     if( !IsFixedPrecision<Real>::value )
     {
         const mpfr_prec_t minPrecDiff = 32;
-        mpfr_prec_t inputPrec = mpc::Precision();
+        mpfr_prec_t inputPrec = mpfr::Precision();
         if( neededPrec <= inputPrec-minPrecDiff )
         {
             if( ctrl.progress )
                 Output("Dropping to precision=",neededPrec);
-            mpc::SetPrecision( neededPrec );
+            mpfr::SetPrecision( neededPrec );
             try
             {
                 Matrix<F> BLower, QRLower, tLower;
@@ -153,7 +153,7 @@ bool TryLowerPrecisionBigFloat
                 auto infoLower =
                   BKZWithQ
                   ( BLower, QRLower, tLower, dLower, ctrlLower );
-                mpc::SetPrecision( inputPrec );
+                mpfr::SetPrecision( inputPrec );
                 info = infoLower;
                 Copy( BLower, B );
                 Copy( QRLower, QR );
@@ -165,7 +165,7 @@ bool TryLowerPrecisionBigFloat
             {
                 Output("e.what()=",e.what());
             }
-            mpc::SetPrecision( inputPrec );
+            mpfr::SetPrecision( inputPrec );
         }
     }
     return succeeded;
@@ -187,12 +187,12 @@ bool TryLowerPrecisionBigFloat
     if( !IsFixedPrecision<Real>::value )
     {
         const mpfr_prec_t minPrecDiff = 32;
-        mpfr_prec_t inputPrec = mpc::Precision();
+        mpfr_prec_t inputPrec = mpfr::Precision();
         if( neededPrec <= inputPrec-minPrecDiff )
         {
             if( ctrl.progress )
                 Output("Dropping to precision=",neededPrec);
-            mpc::SetPrecision( neededPrec );
+            mpfr::SetPrecision( neededPrec );
             try
             {
                 Matrix<F> BLower, ULower, QRLower, tLower;
@@ -206,7 +206,7 @@ bool TryLowerPrecisionBigFloat
                 auto infoLower =
                   BKZWithQ
                   ( BLower, ULower, QRLower, tLower, dLower, ctrlLower );
-                mpc::SetPrecision( inputPrec );
+                mpfr::SetPrecision( inputPrec );
                 info = infoLower;
                 Copy( BLower, B );
                 Copy( ULower, U );
@@ -219,7 +219,7 @@ bool TryLowerPrecisionBigFloat
             {
                 Output("e.what()=",e.what());
             }
-            mpc::SetPrecision( inputPrec );
+            mpfr::SetPrecision( inputPrec );
         }
     }
     return succeeded;
@@ -1079,10 +1079,10 @@ bool TryLowerPrecisionBigFloatMerge
         // Only move down to a lower-precision MPFR type if the jump is
         // substantial. The current value has been naively chosen.
         const mpfr_prec_t minPrecDiff = 32;
-        mpfr_prec_t inputPrec = mpc::Precision();
+        mpfr_prec_t inputPrec = mpfr::Precision();
         if( neededPrec <= inputPrec-minPrecDiff )
         {
-            mpc::SetPrecision( neededPrec );
+            mpfr::SetPrecision( neededPrec );
             try
             {
                 info = LowerPrecisionMerge<BigFloat>
@@ -1093,7 +1093,7 @@ bool TryLowerPrecisionBigFloatMerge
             {
                 Output("e.what()=",e.what());
             }
-            mpc::SetPrecision( inputPrec );
+            mpfr::SetPrecision( inputPrec );
         }
     }
     return succeeded;

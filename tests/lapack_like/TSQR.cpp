@@ -117,7 +117,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
 #ifdef EL_HAVE_MPC
-        mpc::SetPrecision( prec );
+        mpfr::SetPrecision( prec );
 #endif
 
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );

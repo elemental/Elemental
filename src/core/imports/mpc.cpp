@@ -24,7 +24,7 @@ const BigInt& BigIntZero() { return ::bigIntZero; }
 const BigInt& BigIntOne()  { return ::bigIntOne;  }
 const BigInt& BigIntTwo()  { return ::bigIntTwo;  }
 
-namespace mpc {
+namespace mpfr {
 
 mpfr_prec_t Precision()
 { return mpfr_get_default_prec(); }
@@ -81,7 +81,18 @@ mpfr_rnd_t RoundingMode()
 Int BinaryToDecimalPrecision( mpfr_prec_t prec )
 { return Int(Floor(prec*std::log10(2.))); }
 
+} // namespace mpfr
+
+namespace mpc {
+
+mpc_rnd_t RoundingMode()
+{
+    const auto& realRound = mpfr::RoundingMode();
+    return MPC_RND(realRound,realRound);
+}
+
 } // namespace mpc
+
 } // namespace El
 
 #endif // ifdef EL_HAVE_MPC

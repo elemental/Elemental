@@ -143,7 +143,7 @@ private:
     size_t numLimbs_;
 
     inline void SetNumLimbs( mpfr_prec_t prec );
-    inline void Init( mpfr_prec_t prec=mpc::Precision() );
+    inline void Init( mpfr_prec_t prec=mpfr::Precision() );
 
 public:
     typedef BigFloat realType;
@@ -168,51 +168,52 @@ public:
 
     inline Complex();
     inline Complex
-    ( const unsigned& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const unsigned& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const unsigned long long& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const unsigned long long& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const int& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const int& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const long long int& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const long long int& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const BigInt& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const BigInt& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
     ( const BigInt& a,
       const BigInt& b,
-            mpfr_prec_t prec=mpc::Precision() );
+            mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const float& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const float& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const std::complex<float>& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const std::complex<float>& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const double& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const double& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const std::complex<double>& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const std::complex<double>& a, mpfr_prec_t prec=mpfr::Precision() );
 #ifdef EL_HAVE_QUAD
     inline Complex
-    ( const Quad& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const Quad& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const std::complex<Quad>& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const std::complex<Quad>& a, mpfr_prec_t prec=mpfr::Precision() );
 #endif
 #ifdef EL_HAVE_QD
     inline Complex
-    ( const DoubleDouble& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const DoubleDouble& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
-    ( const QuadDouble& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const QuadDouble& a, mpfr_prec_t prec=mpfr::Precision() );
 #endif
     inline Complex
-    ( const realType& a, mpfr_prec_t prec=mpc::Precision() );
+    ( const realType& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
     ( const realType& a,
       const realType& b,
-            mpfr_prec_t prec=mpc::Precision() );
+            mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
     ( const Complex<realType>& a,
-            mpfr_prec_t prec=mpc::Precision() );
+            mpfr_prec_t prec=mpfr::Precision() );
     inline Complex( Complex<realType>&& a );
     inline ~Complex();
 
+    inline Complex<BigFloat>& operator=( Complex<BigFloat>&& a );
     inline Complex<BigFloat>& operator=( const Complex<BigFloat>& a );
     inline Complex<BigFloat>& operator=( const BigFloat& a );
     inline Complex<BigFloat>& operator=( const BigInt& a );

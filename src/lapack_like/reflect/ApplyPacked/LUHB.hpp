@@ -30,8 +30,7 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F> 
-inline void
-LUHB
+void LUHB
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
@@ -80,8 +79,7 @@ LUHB
 }
 
 template<typename F> 
-inline void
-LUHB
+void LUHB
 ( Conjugation conjugation,
   Int offset, 
   const ElementalMatrix<F>& HPre,

@@ -19,7 +19,7 @@
 
 namespace El {
 
-namespace mpc {
+namespace mpfr {
 
 void RandomState( gmp_randstate_t randState );
 
@@ -37,6 +37,12 @@ void FreeMPI();
 
 mpfr_rnd_t RoundingMode();
 
+} // namespace mpfr
+
+namespace mpc {
+
+mpc_rnd_t RoundingMode();
+
 } // namespace mpc
 
 class BigInt
@@ -44,7 +50,7 @@ class BigInt
 private:
     mpz_t mpzInt_;
 
-    void Init( int numBits=mpc::NumIntBits() );
+    void Init( int numBits=mpfr::NumIntBits() );
 
 public:
     mpz_ptr Pointer();
@@ -55,16 +61,16 @@ public:
     int NumBits() const;
 
     BigInt();
-    BigInt( const BigInt& a, int numBits=mpc::NumIntBits() );
-    BigInt( const unsigned& a, int numBits=mpc::NumIntBits() );
-    BigInt( const unsigned long& a, int numBits=mpc::NumIntBits() );
-    BigInt( const unsigned long long& a, int numBits=mpc::NumIntBits() );
-    BigInt( const int& a, int numBits=mpc::NumIntBits() );
-    BigInt( const long int& a, int numBits=mpc::NumIntBits() );
-    BigInt( const long long int& a, int numBits=mpc::NumIntBits() );
-    BigInt( const double& a, int numBits=mpc::NumIntBits() );
-    BigInt( const char* str, int base, int numBits=mpc::NumIntBits() );
-    BigInt( const std::string& str, int base, int numBits=mpc::NumIntBits() );
+    BigInt( const BigInt& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const unsigned& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const unsigned long& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const unsigned long long& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const int& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const long int& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const long long int& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const double& a, int numBits=mpfr::NumIntBits() );
+    BigInt( const char* str, int base, int numBits=mpfr::NumIntBits() );
+    BigInt( const std::string& str, int base, int numBits=mpfr::NumIntBits() );
     BigInt( BigInt&& a );
     ~BigInt();
 
@@ -150,10 +156,10 @@ public:
     explicit operator QuadDouble() const;
 #endif
 
-    size_t SerializedSize( int numLimbs=mpc::NumIntLimbs() ) const;
-          byte* Serialize( byte* buf, int numLimbs=mpc::NumIntLimbs() ) const;
-          byte* Deserialize( byte* buf, int numLimbs=mpc::NumIntLimbs() );
-    const byte* Deserialize( const byte* buf, int numLimbs=mpc::NumIntLimbs() );
+    size_t SerializedSize( int numLimbs=mpfr::NumIntLimbs() ) const;
+          byte* Serialize( byte* buf, int numLimbs=mpfr::NumIntLimbs() ) const;
+          byte* Deserialize( byte* buf, int numLimbs=mpfr::NumIntLimbs() );
+    const byte* Deserialize( const byte* buf, int numLimbs=mpfr::NumIntLimbs() );
 
     size_t ThinSerializedSize() const;
           byte* ThinSerialize( byte* buf ) const;
@@ -317,7 +323,7 @@ private:
     size_t numLimbs_;
 
     void SetNumLimbs( mpfr_prec_t prec );
-    void Init( mpfr_prec_t prec=mpc::Precision() );
+    void Init( mpfr_prec_t prec=mpfr::Precision() );
 
 public:
     mpfr_ptr    Pointer();
@@ -332,27 +338,27 @@ public:
     //       due to the ambiguity is would cause with respect to the
     //       constructors which accept an integer and an (optional) precision
     BigFloat();
-    BigFloat( const BigFloat& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const BigInt& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const unsigned& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const unsigned long& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const unsigned long long& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const int& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const long int& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const long long int& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const float& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const double& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const long double& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const BigFloat& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const BigInt& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const unsigned& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const unsigned long& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const unsigned long long& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const int& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const long int& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const long long int& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const float& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const double& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const long double& a, mpfr_prec_t prec=mpfr::Precision() );
 #ifdef EL_HAVE_QD
-    BigFloat( const DoubleDouble& a, mpfr_prec_t prec=mpc::Precision() );
-    BigFloat( const QuadDouble& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const DoubleDouble& a, mpfr_prec_t prec=mpfr::Precision() );
+    BigFloat( const QuadDouble& a, mpfr_prec_t prec=mpfr::Precision() );
 #endif
 #ifdef EL_HAVE_QUAD
-    BigFloat( const Quad& a, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const Quad& a, mpfr_prec_t prec=mpfr::Precision() );
 #endif
-    BigFloat( const char* str, int base, mpfr_prec_t prec=mpc::Precision() );
+    BigFloat( const char* str, int base, mpfr_prec_t prec=mpfr::Precision() );
     BigFloat
-    ( const std::string& str, int base, mpfr_prec_t prec=mpc::Precision() );
+    ( const std::string& str, int base, mpfr_prec_t prec=mpfr::Precision() );
     BigFloat( BigFloat&& a );
     ~BigFloat();
 

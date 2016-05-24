@@ -168,7 +168,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
 #ifdef EL_HAVE_MPC
-        mpc::SetPrecision( prec );
+        mpfr::SetPrecision( prec );
 #endif
 
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );

@@ -43,15 +43,15 @@ main( int argc, char* argv[] )
 #endif
 #ifdef EL_HAVE_MPC
         QueryLimits<BigFloat>( "BigFloat (Default):" );
-        mpc::SetPrecision( 64 );
+        mpfr::SetPrecision( 64 );
         QueryLimits<BigFloat>( "BigFloat (64):" );
-        mpc::SetPrecision( 128 );
+        mpfr::SetPrecision( 128 );
         QueryLimits<BigFloat>( "BigFloat (128):" );
-        mpc::SetPrecision( 256 );
+        mpfr::SetPrecision( 256 );
         QueryLimits<BigFloat>( "BigFloat (256):" );
-        mpc::SetPrecision( 512 );
+        mpfr::SetPrecision( 512 );
         QueryLimits<BigFloat>( "BigFloat (512):" );
-        mpc::SetPrecision( 1024 );
+        mpfr::SetPrecision( 1024 );
         QueryLimits<BigFloat>( "BigFloat (1024):" );
 #endif
     }

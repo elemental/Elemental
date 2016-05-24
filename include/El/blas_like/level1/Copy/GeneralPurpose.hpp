@@ -33,6 +33,8 @@ void Helper
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
+    auto& ALoc = A.LockedMatrix();
+    auto& BLoc = B.Matrix();
 
     // TODO: Break into smaller pieces to avoid excessive memory usage?
     vector<Entry<S>> remoteEntries;
@@ -57,8 +59,6 @@ void Helper
 
         remoteEntries.reserve( localHeight*localWidth );
         distOwners.reserve( localHeight*localWidth );
-        const S* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -70,10 +70,10 @@ void Helper
                 const int ownerRow = ownerRows[iLoc];
                 const Int localRow = localRows[iLoc];
                 const bool isLocalRow = ( BPartic && ownerRow == colRank );
-                const S alpha = ABuf[iLoc+jLoc*ALDim];
+                const S& alpha = ALoc(iLoc,jLoc);
                 if( noRedundant && isLocalRow && isLocalCol )
                 {
-                    B.SetLocal( localRow, localCol, Caster<S,T>::Cast(alpha) );
+                    BLoc(localRow,localCol) = Caster<S,T>::Cast(alpha);
                 }
                 else
                 {
@@ -150,12 +150,10 @@ void Helper
         mpi::Broadcast( recvBufSize, 0, B.RedundantComm() );
         FastResize( recvBuf, recvBufSize );
         mpi::Broadcast( recvBuf.data(), recvBufSize, 0, B.RedundantComm() );
-        T* BBuf = B.Buffer();
-        const Int BLDim = B.LDim();
         for( Int k=0; k<recvBufSize; ++k )
         {
             const auto& entry = recvBuf[k];
-            BBuf[entry.i+entry.j*BLDim] = Caster<S,T>::Cast(entry.value);
+            BLoc(entry.i,entry.j) = Caster<S,T>::Cast(entry.value);
         }
     }
 }

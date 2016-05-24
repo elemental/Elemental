@@ -237,25 +237,25 @@ size_t Complex<BigFloat>::NumLimbs() const
 
 void Complex<BigFloat>::real( const BigFloat& realPart )
 {
-    mpfr_set( RealPointer(), realPart.LockedPointer(), mpc::RoundingMode() );
+    mpfr_set( RealPointer(), realPart.LockedPointer(), mpfr::RoundingMode() );
 }
 
 void Complex<BigFloat>::imag( const BigFloat& imagPart )
 {
-    mpfr_set( ImagPointer(), imagPart.LockedPointer(), mpc::RoundingMode() );
+    mpfr_set( ImagPointer(), imagPart.LockedPointer(), mpfr::RoundingMode() );
 }
 
 BigFloat Complex<BigFloat>::real() const
 {
     BigFloat realPart;
-    mpc_real( realPart.Pointer(), LockedPointer(), mpc::RoundingMode() );
+    mpc_real( realPart.Pointer(), LockedPointer(), mpfr::RoundingMode() );
     return realPart;
 }
 
 BigFloat Complex<BigFloat>::imag() const
 {
     BigFloat imagPart;
-    mpc_imag( imagPart.Pointer(), LockedPointer(), mpc::RoundingMode() );
+    mpc_imag( imagPart.Pointer(), LockedPointer(), mpfr::RoundingMode() );
     return imagPart;
 }
 
@@ -394,12 +394,20 @@ Complex<BigFloat>::Complex
 
 Complex<BigFloat>::Complex( const Complex<realType>& a, mpfr_prec_t prec )
 {
-    Init( prec );
-    mpc_set_fr_fr
-    ( Pointer(),
-      a.LockedRealPointer(),
-      a.LockedImagPointer(),
-      mpc::RoundingMode() ); 
+    DEBUG_ONLY(CSE cse("Complex<BigFloat>::Complex"))
+    if( &a != this )
+    {
+        Init( prec );
+        mpc_set_fr_fr
+        ( Pointer(),
+          a.LockedRealPointer(),
+          a.LockedImagPointer(),
+          mpc::RoundingMode() ); 
+    }
+    DEBUG_ONLY(
+    else
+        LogicError("Tried to construct Complex<BigFloat> with itself");
+    )
 }
 
 Complex<BigFloat>::Complex( Complex<realType>&& a )
@@ -416,6 +424,14 @@ Complex<BigFloat>::~Complex()
         mpfr_clear( mpcFloat_->re );
     if( mpcFloat_->im->_mpfr_d != 0 )
         mpfr_clear( mpcFloat_->im );
+}
+
+Complex<BigFloat>& Complex<BigFloat>::operator=( Complex<BigFloat>&& a )
+{
+    DEBUG_ONLY(CSE cse("Complex<BigFloat>::operator= [move]"))
+    mpc_swap( Pointer(), a.Pointer() );
+    std::swap( numLimbs_, a.numLimbs_ );
+    return *this;
 }
 
 Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<BigFloat>& a )
@@ -562,10 +578,10 @@ Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<Quad>& a )
     // NOTE: There is no mpc_add_fr_fr...
     tmp = a.real();
     mpfr_add
-    ( RealPointer(), RealPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    ( RealPointer(), RealPointer(), tmp.Pointer(), mpfr::RoundingMode() );
     tmp = a.imag();
     mpfr_add
-    ( ImagPointer(), ImagPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    ( ImagPointer(), ImagPointer(), tmp.Pointer(), mpfr::RoundingMode() );
     return *this;
 }
 
@@ -599,15 +615,15 @@ Complex<BigFloat>& Complex<BigFloat>::operator+=( const QuadDouble& a )
 Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<double>& a )
 {
     // NOTE: There is no mpc_add_d_d...
-    mpfr_add_d( RealPointer(), RealPointer(), a.real(), mpc::RoundingMode() );
-    mpfr_add_d( ImagPointer(), ImagPointer(), a.imag(), mpc::RoundingMode() );
+    mpfr_add_d( RealPointer(), RealPointer(), a.real(), mpfr::RoundingMode() );
+    mpfr_add_d( ImagPointer(), ImagPointer(), a.imag(), mpfr::RoundingMode() );
     return *this;
 }
 
 Complex<BigFloat>& Complex<BigFloat>::operator+=( const double& a )
 {
     // NOTE: There is no mpc_add_d...
-    mpfr_add_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
+    mpfr_add_d( RealPointer(), RealPointer(), a, mpfr::RoundingMode() );
     return *this;
 }
 
@@ -618,12 +634,12 @@ Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<float>& a )
     ( RealPointer(),
       RealPointer(),
       static_cast<double>(a.real()),
-      mpc::RoundingMode() );
+      mpfr::RoundingMode() );
     mpfr_add_d
     ( ImagPointer(),
       ImagPointer(),
       static_cast<double>(a.imag()),
-      mpc::RoundingMode() );
+      mpfr::RoundingMode() );
     return *this;
 }
 
@@ -634,7 +650,7 @@ Complex<BigFloat>& Complex<BigFloat>::operator+=( const float& a )
     ( RealPointer(),
       RealPointer(),
       static_cast<double>(a),
-      mpc::RoundingMode() );
+      mpfr::RoundingMode() );
     return *this;
 }
 
@@ -726,10 +742,10 @@ Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<Quad>& a )
     BigFloat tmp;
     tmp = a.real();
     mpfr_sub
-    ( RealPointer(), RealPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    ( RealPointer(), RealPointer(), tmp.Pointer(), mpfr::RoundingMode() );
     tmp = a.imag();
     mpfr_sub
-    ( ImagPointer(), ImagPointer(), tmp.Pointer(), mpc::RoundingMode() );
+    ( ImagPointer(), ImagPointer(), tmp.Pointer(), mpfr::RoundingMode() );
     return *this;
 }
 
@@ -763,15 +779,15 @@ Complex<BigFloat>& Complex<BigFloat>::operator-=( const QuadDouble& a )
 Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<double>& a )
 {
     // NOTE: There is no mpc_sub_d_d...
-    mpfr_sub_d( RealPointer(), RealPointer(), a.real(), mpc::RoundingMode() );
-    mpfr_sub_d( ImagPointer(), ImagPointer(), a.imag(), mpc::RoundingMode() );
+    mpfr_sub_d( RealPointer(), RealPointer(), a.real(), mpfr::RoundingMode() );
+    mpfr_sub_d( ImagPointer(), ImagPointer(), a.imag(), mpfr::RoundingMode() );
     return *this;
 }
 
 Complex<BigFloat>& Complex<BigFloat>::operator-=( const double& a )
 {
     // NOTE: There is no mpc_sub_d...
-    mpfr_sub_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
+    mpfr_sub_d( RealPointer(), RealPointer(), a, mpfr::RoundingMode() );
     return *this;
 }
 
@@ -782,12 +798,12 @@ Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<float>& a )
     ( RealPointer(),
       RealPointer(),
       static_cast<double>(a.real()),
-      mpc::RoundingMode() );
+      mpfr::RoundingMode() );
     mpfr_sub_d
     ( ImagPointer(),
       ImagPointer(),
       static_cast<double>(a.imag()),
-      mpc::RoundingMode() );
+      mpfr::RoundingMode() );
     return *this;
 }
 
@@ -798,7 +814,7 @@ Complex<BigFloat>& Complex<BigFloat>::operator-=( const float& a )
     ( RealPointer(),
       RealPointer(),
       static_cast<double>(a),
-      mpc::RoundingMode() );
+      mpfr::RoundingMode() );
     return *this;
 }
 
@@ -926,8 +942,8 @@ Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<double>& a )
 Complex<BigFloat>& Complex<BigFloat>::operator*=( const double& a )
 {
     // NOTE: There is no mpc_mul_d...
-    mpfr_mul_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
-    mpfr_mul_d( ImagPointer(), ImagPointer(), a, mpc::RoundingMode() );
+    mpfr_mul_d( RealPointer(), RealPointer(), a, mpfr::RoundingMode() );
+    mpfr_mul_d( ImagPointer(), ImagPointer(), a, mpfr::RoundingMode() );
     return *this;
 }
 
@@ -943,8 +959,8 @@ Complex<BigFloat>& Complex<BigFloat>::operator*=( const float& a )
 {
     // NOTE: There is no mpc_mul_d...
     const double aDbl = static_cast<double>(a);
-    mpfr_mul_d( RealPointer(), RealPointer(), aDbl, mpc::RoundingMode() );
-    mpfr_mul_d( ImagPointer(), ImagPointer(), aDbl, mpc::RoundingMode() );
+    mpfr_mul_d( RealPointer(), RealPointer(), aDbl, mpfr::RoundingMode() );
+    mpfr_mul_d( ImagPointer(), ImagPointer(), aDbl, mpfr::RoundingMode() );
     return *this;
 }
 
@@ -1051,8 +1067,8 @@ Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<double>& a )
 Complex<BigFloat>& Complex<BigFloat>::operator/=( const double& a )
 {
     // NOTE: There is no mpc_div_d...
-    mpfr_div_d( RealPointer(), RealPointer(), a, mpc::RoundingMode() );
-    mpfr_div_d( ImagPointer(), ImagPointer(), a, mpc::RoundingMode() );
+    mpfr_div_d( RealPointer(), RealPointer(), a, mpfr::RoundingMode() );
+    mpfr_div_d( ImagPointer(), ImagPointer(), a, mpfr::RoundingMode() );
     return *this;
 }
 
@@ -1068,8 +1084,8 @@ Complex<BigFloat>& Complex<BigFloat>::operator/=( const float& a )
 {
     // NOTE: There is no mpc_div_d...
     const double aDbl = static_cast<double>(a);
-    mpfr_div_d( RealPointer(), RealPointer(), aDbl, mpc::RoundingMode() );
-    mpfr_div_d( ImagPointer(), ImagPointer(), aDbl, mpc::RoundingMode() );
+    mpfr_div_d( RealPointer(), RealPointer(), aDbl, mpfr::RoundingMode() );
+    mpfr_div_d( ImagPointer(), ImagPointer(), aDbl, mpfr::RoundingMode() );
     return *this;
 }
 
@@ -1155,7 +1171,7 @@ size_t Complex<BigFloat>::SerializedSize() const
 
 byte* Complex<BigFloat>::Serialize( byte* buf ) const
 {
-    //DEBUG_ONLY(CSE cse("Complex<BigFloat>::Serialize"))
+    DEBUG_ONLY(CSE cse("Complex<BigFloat>::Serialize"))
     // NOTE: We don't have to necessarily serialize the precisions, as
     //       they are known a priori (as long as the user does not fiddle
     //       with SetPrecision)
@@ -1184,7 +1200,7 @@ byte* Complex<BigFloat>::Serialize( byte* buf ) const
 
 const byte* Complex<BigFloat>::Deserialize( const byte* buf )
 {
-    //DEBUG_ONLY(CSE cse("Complex<BigFloat>::Deserialize"))
+    DEBUG_ONLY(CSE cse("Complex<BigFloat>::Deserialize"))
     // TODO: Ensure that the precisions matched already
 
     std::memcpy( &mpcFloat_->re->_mpfr_prec, buf, sizeof(mpfr_prec_t) );
