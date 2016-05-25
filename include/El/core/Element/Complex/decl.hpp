@@ -425,6 +425,14 @@ typedef Complex<Quad> qcomplex;
 typedef Complex<BigFloat> acomplex;
 #endif
 
+// Returning the underlying, or "base", real field
+// -----------------------------------------------
+// Note: The following is for internal usage only; please use Base
+template<typename Real> struct BaseHelper                { typedef Real type; };
+template<typename Real> struct BaseHelper<Complex<Real>> { typedef Real type; };
+
+template<typename F> using Base = typename BaseHelper<F>::type;
+
 } // namespace El
 
 #endif // ifndef EL_ELEMENT_COMPLEX_DECL_HPP

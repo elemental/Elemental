@@ -10,6 +10,7 @@
 #define EL_ELEMENT_DECL_HPP
 
 #include <El/core/Element/Complex/decl.hpp>
+#include <El/core/types.hpp>
 
 namespace El {
 
@@ -124,15 +125,48 @@ template<> struct IsBlasScalar<Complex<float>>
 template<> struct IsBlasScalar<Complex<double>>
 { static const bool value=true; };
 
+template<typename T> struct IsPacked
+{ static const bool value=false; };
+template<> struct IsPacked<byte>
+{ static const bool value=true; };
+template<> struct IsPacked<unsigned>
+{ static const bool value=true; };
+template<> struct IsPacked<unsigned long>
+{ static const bool value=true; };
+template<> struct IsPacked<unsigned long long>
+{ static const bool value=true; };
+template<> struct IsPacked<int>
+{ static const bool value=true; };
+template<> struct IsPacked<long int>
+{ static const bool value=true; };
+template<> struct IsPacked<long long int>
+{ static const bool value=true; };
+template<> struct IsPacked<float>
+{ static const bool value=true; };
+template<> struct IsPacked<double>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QD
+template<> struct IsPacked<DoubleDouble>
+{ static const bool value=true; };
+template<> struct IsPacked<QuadDouble>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_QUAD
+template<> struct IsPacked<Quad>
+{ static const bool value=true; };
+#endif
+template<typename T> struct IsPacked<Complex<T>>
+{ static const bool value=IsPacked<T>::value; };
+template<typename T> struct IsPacked<ValueInt<T>>
+{ static const bool value=IsPacked<T>::value; };
+template<typename T> struct IsPacked<Entry<T>>
+{ static const bool value=IsPacked<T>::value; };
+
 template<typename T> struct IsField
 { static const bool value=false; };
 template<> struct IsField<float>
 { static const bool value=true; };
 template<> struct IsField<double>
-{ static const bool value=true; };
-template<> struct IsField<Complex<float>>
-{ static const bool value=true; };
-template<> struct IsField<Complex<double>>
 { static const bool value=true; };
 #ifdef EL_HAVE_QD
 template<> struct IsField<DoubleDouble>
@@ -143,15 +177,13 @@ template<> struct IsField<QuadDouble>
 #ifdef EL_HAVE_QUAD
 template<> struct IsField<Quad>
 { static const bool value=true; };
-template<> struct IsField<Complex<Quad>>
-{ static const bool value=true; };
 #endif
 #ifdef EL_HAVE_MPC
 template<> struct IsField<BigFloat>
 { static const bool value=true; };
-template<> struct IsField<Complex<BigFloat>>
-{ static const bool value=true; };
 #endif
+template<typename T> struct IsField<Complex<T>>
+{ static const bool value=IsField<T>::value; };
 
 template<typename Real,typename RealNew>
 struct ConvertBaseHelper
@@ -162,6 +194,20 @@ struct ConvertBaseHelper<Complex<Real>,RealNew>
 
 template<typename F,typename RealNew>
 using ConvertBase = typename ConvertBaseHelper<F,RealNew>::type;
+
+// For querying whether or not an element's type is complex
+// --------------------------------------------------------
+// NOTE: This does not guarantee that the type is a field
+// NOTE: IsReal is not the negation of IsComplex
+template<typename Real> struct IsReal
+{ static const bool value=IsScalar<Real>::value; };
+template<typename Real> struct IsReal<Complex<Real>>
+{ static const bool value=false; };
+
+template<typename Real> struct IsComplex
+{ static const bool value=false; };
+template<typename Real> struct IsComplex<Complex<Real>>
+{ static const bool value=true; };
 
 // Increase the precision (if possible)
 // ------------------------------------
@@ -206,28 +252,6 @@ template<> struct PromoteHelper<Complex<double>>
 #endif
 
 template<typename F> using Promote = typename PromoteHelper<F>::type;
-
-// Returning the underlying, or "base", real field
-// -----------------------------------------------
-// Note: The following is for internal usage only; please use Base
-template<typename Real> struct BaseHelper                { typedef Real type; };
-template<typename Real> struct BaseHelper<Complex<Real>> { typedef Real type; };
-
-template<typename F> using Base = typename BaseHelper<F>::type;
-
-// For querying whether or not an element's type is complex
-// --------------------------------------------------------
-// NOTE: This does not guarantee that the type is a field
-// NOTE: IsReal is not the negation of IsComplex
-template<typename Real> struct IsReal
-{ static const bool value=IsScalar<Real>::value; };
-template<typename Real> struct IsReal<Complex<Real>>
-{ static const bool value=false; };
-
-template<typename Real> struct IsComplex
-{ static const bool value=false; };
-template<typename Real> struct IsComplex<Complex<Real>>
-{ static const bool value=true; };
 
 template<typename S,typename T>
 struct CanCast

@@ -100,7 +100,6 @@ enum FortranLogicalEnum
 #include <El/core/imports/qt5.hpp>
 
 #include <El/core/Element/decl.hpp>
-#include <El/core/types.hpp>
 #include <El/core/Serialize.hpp>
 #include <El/core/imports/mpi.hpp>
 #include <El/core/imports/choice.hpp>

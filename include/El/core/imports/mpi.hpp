@@ -294,94 +294,25 @@ void Translate
 
 // Utilities
 void Barrier( Comm comm=COMM_WORLD ) EL_NO_RELEASE_EXCEPT;
+
 template<typename T>
 void Wait( Request<T>& request ) EL_NO_RELEASE_EXCEPT;
-template<typename T>
+
+template<typename T,typename=EnableIf<IsPacked<T>>>
 void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
+
 template<typename T>
 void WaitAll( int numRequests, Request<T>* requests ) EL_NO_RELEASE_EXCEPT;
-template<typename T>
-void WaitAll
-( int numRequests, Request<T>* requests, Status* statuses )
+
+template<typename T,typename=EnableIf<IsPacked<T>>>
+void WaitAll( int numRequests, Request<T>* requests, Status* statuses )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Wait( Request<BigInt>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<BigInt>* requests, Status* statuses )
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void WaitAll( int numRequests, Request<T>* requests, Status* statuses )
 EL_NO_RELEASE_EXCEPT;
 
-// TODO: Group all {BigInt,BigFloat,Complex<BigFloat>} specializations below
-//       via std::enable_if into a group of unserialized implementations
-template<>
-void Wait
-( Request<ValueInt<BigInt>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<ValueInt<BigInt>>* requests, Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Wait
-( Request<Entry<BigInt>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<Entry<BigInt>>* requests, Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Wait
-( Request<BigFloat>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<BigFloat>* requests, Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Wait
-( Request<Complex<BigFloat>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<Complex<BigFloat>>* requests, Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Wait
-( Request<ValueInt<BigFloat>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<ValueInt<BigFloat>>* requests, Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Wait
-( Request<ValueInt<Complex<BigFloat>>>& request, Status& status )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<ValueInt<Complex<BigFloat>>>* requests,
-  Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Wait
-( Request<Entry<BigFloat>>& request, Status& status ) EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<Entry<BigFloat>>* requests, Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Wait
-( Request<Entry<Complex<BigFloat>>>& request, Status& status )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void WaitAll
-( int numRequests, Request<Entry<Complex<BigFloat>>>* requests,
-  Status* statuses )
-EL_NO_RELEASE_EXCEPT;
-#endif
 template<typename T>
 bool Test( Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 bool IProbe
@@ -400,56 +331,19 @@ void SetUserReduceFunc
 
 // Send
 // ----
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedSend
 ( const Real* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void TaggedSend
-( const BigInt* buf, int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSend
-( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSend
-( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedSend
-( const BigFloat* buf, int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSend
-( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedSend
-( const Complex<BigFloat>* buf, int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSend
-( const ValueInt<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSend
-( const Entry<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedSend( const T* buf, int count, int to, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 
 // If the tag is irrelevant
 template<typename T>
@@ -467,65 +361,18 @@ void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking send
 // -----------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedISend
 ( const Real* buf, int count, int to, int tag, Comm comm,
   Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-// NOTE: The following simply throws an exception since I believe that the
-//       buffer needs to persist despite being temporary internally
-template<>
-void TaggedISend
-( const BigInt* buf, int count, int to, int tag, Comm comm,
-  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISend
-( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
-  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISend
-( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
-  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedISend
-( const BigFloat* buf, int count, int to, int tag, Comm comm,
-  Request<BigFloat>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
-  Request<ValueInt<BigFloat>>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISend
-( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
-  Request<Entry<BigFloat>>& request )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedISend
-( const Complex<BigFloat>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<Complex<BigFloat>>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISend
-( const ValueInt<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<ValueInt<Complex<BigFloat>>>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISend
-( const Entry<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<Entry<Complex<BigFloat>>>& request )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedISend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedISend
+( const T* buf, int count, int to, int tag, Comm comm,
+  Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
@@ -543,59 +390,18 @@ void ISend( T b, int to, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking ready-mode send
 // ----------------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedIRSend
 ( const Real* buf, int count, int to, int tag, Comm comm,
   Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-// NOTE: The following simply throws an exception since I believe that the
-//       buffer needs to persist despite being temporary internally
-template<>
-void TaggedIRSend
-( const BigInt* buf, int count, int to, int tag, Comm comm,
-  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRSend
-( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
-  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRSend
-( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
-  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedIRSend
-( const BigFloat* buf, int count, int to, int tag, Comm comm,
-  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRSend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
-  Request<ValueInt<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRSend
-( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
-  Request<Entry<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedIRSend
-( const Complex<BigFloat>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<Complex<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRSend
-( const ValueInt<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<ValueInt<Complex<BigFloat>>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRSend
-( const Entry<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<Entry<Complex<BigFloat>>>& request ) EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedIRSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedIRSend
+( const T* buf, int count, int to, int tag, Comm comm,
+  Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
@@ -613,67 +419,20 @@ void IRSend( T b, int to, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking synchronous Send
 // -----------------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedISSend
 ( const Real* buf, int count, int to, int tag, Comm comm,
   Request<Real>& request )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void TaggedISSend
-( const BigInt* buf, int count, int to, int tag, Comm comm,
-  Request<BigInt>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISSend
-( const ValueInt<BigInt>* buf, int count, int to, int tag, Comm comm,
-  Request<ValueInt<BigInt>>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISSend
-( const Entry<BigInt>* buf, int count, int to, int tag, Comm comm,
-  Request<Entry<BigInt>>& request )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedISSend
-( const BigFloat* buf, int count, int to, int tag, Comm comm,
-  Request<BigFloat>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISSend
-( const ValueInt<BigFloat>* buf, int count, int to, int tag, Comm comm,
-  Request<ValueInt<BigFloat>>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISSend
-( const Entry<BigFloat>* buf, int count, int to, int tag, Comm comm,
-  Request<Entry<BigFloat>>& request )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedISSend
-( const Complex<BigFloat>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<Complex<BigFloat>>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISSend
-( const ValueInt<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<ValueInt<Complex<BigFloat>>>& request )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedISSend
-( const Entry<Complex<BigFloat>>* buf,
-  int count, int to, int tag, Comm comm,
-  Request<Entry<Complex<BigFloat>>>& request )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedISSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
   Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedISSend
+( const T* buf, int count, int to, int tag, Comm comm,
+  Request<T>& request )
+EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
@@ -692,53 +451,17 @@ EL_NO_RELEASE_EXCEPT;
 
 // Recv
 // ----
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedRecv
 ( Real* buf, int count, int from, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void TaggedRecv
-( BigInt* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedRecv
-( ValueInt<BigInt>* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedRecv
-( Entry<BigInt>* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedRecv
-( BigFloat* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedRecv
-( ValueInt<BigFloat>* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedRecv
-( Entry<BigFloat>* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedRecv
-( Complex<BigFloat>* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedRecv
-( ValueInt<Complex<BigFloat>>* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedRecv
-( Entry<Complex<BigFloat>>* buf, int count, int from, int tag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedRecv
 ( Complex<Real>* buf, int count, int from, int tag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedRecv
+( T* buf, int count, int from, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
@@ -756,59 +479,18 @@ T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking recv
 // -----------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, 
   Request<Real>& request ) EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-// NOTE: The following simply throws an exception since I believe that the
-//       buffer needs to persist despite being temporary internally
-template<>
-void TaggedIRecv
-( BigInt* buf, int count, int from, int tag, Comm comm,
-  Request<BigInt>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRecv
-( ValueInt<BigInt>* buf, int count, int from, int tag, Comm comm,
-  Request<ValueInt<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRecv
-( Entry<BigInt>* buf, int count, int from, int tag, Comm comm,
-  Request<Entry<BigInt>>& request ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedIRecv
-( BigFloat* buf, int count, int from, int tag, Comm comm,
-  Request<BigFloat>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRecv
-( ValueInt<BigFloat>* buf, int count, int from, int tag, Comm comm,
-  Request<ValueInt<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRecv
-( Entry<BigFloat>* buf, int count, int from, int tag, Comm comm,
-  Request<Entry<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedIRecv
-( Complex<BigFloat>* buf,
-  int count, int from, int tag, Comm comm,
-  Request<Complex<BigFloat>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRecv
-( ValueInt<Complex<BigFloat>>* buf,
-  int count, int from, int tag, Comm comm,
-  Request<ValueInt<Complex<BigFloat>>>& request ) EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedIRecv
-( Entry<Complex<BigFloat>>* buf,
-  int count, int from, int tag, Comm comm,
-  Request<Entry<Complex<BigFloat>>>& request ) EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedIRecv
 ( Complex<Real>* buf, int count, int from, int tag, Comm comm, 
   Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedIRecv
+( T* buf, int count, int from, int tag, Comm comm, 
+  Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // If the tag is irrelevant
 template<typename T>
@@ -826,68 +508,20 @@ T IRecv( int from, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT;
 
 // SendRecv
 // --------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedSendRecv
 ( const Real* sbuf, int sc, int to,   int stag,
         Real* rbuf, int rc, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void TaggedSendRecv
-( const BigInt* sbuf, int sc, int to,   int stag,
-        BigInt* rbuf, int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( const ValueInt<BigInt>* sbuf, int sc, int to,   int stag,
-        ValueInt<BigInt>* rbuf, int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( const Entry<BigInt>* sbuf, int sc, int to,   int stag,
-        Entry<BigInt>* rbuf, int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedSendRecv
-( const BigFloat* sbuf, int sc, int to,   int stag,
-        BigFloat* rbuf, int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( const ValueInt<BigFloat>* sbuf, int sc, int to,   int stag,
-        ValueInt<BigFloat>* rbuf, int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( const Entry<BigFloat>* sbuf, int sc, int to,   int stag,
-        Entry<BigFloat>* rbuf, int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedSendRecv
-( const Complex<BigFloat>* sbuf, int sc, int to,   int stag,
-        Complex<BigFloat>* rbuf, int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( const ValueInt<Complex<BigFloat>>* sbuf,
-  int sc, int to,   int stag,
-        ValueInt<Complex<BigFloat>>* rbuf,
-  int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( const Entry<Complex<BigFloat>>* sbuf,
-  int sc, int to,   int stag,
-        Entry<Complex<BigFloat>>* rbuf,
-  int rc, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedSendRecv
 ( const Complex<Real>* sbuf, int sc, int to,   int stag,
         Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedSendRecv
+( const T* sbuf, int sc, int to,   int stag,
+        T* rbuf, int rc, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 // If the tags are irrelevant
@@ -908,61 +542,18 @@ T SendRecv( T sb, int to, int from, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer SendRecv
 // ----------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedSendRecv
 ( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void TaggedSendRecv
-( BigInt* buf, int count, int to, int stag, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( ValueInt<BigInt>* buf, int count, int to, int stag, int from, int rtag,
-  Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( Entry<BigInt>* buf, int count, int to, int stag, int from, int rtag,
-  Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedSendRecv
-( BigFloat* buf, int count, int to, int stag, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( ValueInt<BigFloat>* buf, int count, int to, int stag, int from, int rtag,
-  Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( Entry<BigFloat>* buf, int count, int to, int stag, int from, int rtag,
-  Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void TaggedSendRecv
-( Complex<BigFloat>* buf,
-  int count, int to, int stag, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( ValueInt<Complex<BigFloat>>* buf,
-  int count, int to, int stag, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void TaggedSendRecv
-( Entry<Complex<BigFloat>>* buf,
-  int count, int to, int stag, int from, int rtag, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void TaggedSendRecv
 ( Complex<Real>* buf, int count, int to, int stag, int from, int rtag, 
   Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void TaggedSendRecv
+( T* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // If the tags don't matter
 template<typename T>
@@ -974,45 +565,14 @@ EL_NO_RELEASE_EXCEPT;
 
 // Broadcast
 // ---------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Broadcast( Real* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Broadcast( BigInt* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Broadcast( ValueInt<BigInt>* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Broadcast( Entry<BigInt>* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Broadcast( BigFloat* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Broadcast( ValueInt<BigFloat>* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Broadcast( Entry<BigFloat>* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Broadcast
-( Complex<BigFloat>* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Broadcast
-( ValueInt<Complex<BigFloat>>* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Broadcast
-( Entry<Complex<BigFloat>>* buf, int count, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Broadcast( T* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 // If the message length is one
@@ -1021,54 +581,16 @@ void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking broadcast
 // ----------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void IBroadcast
 ( Real* buf, int count, int root, Comm comm, Request<Real>& request );
-#ifdef EL_HAVE_MPC
-template<>
-void IBroadcast
-( BigInt* buf, int count, int root, Comm comm, Request<BigInt>& request );
-template<>
-void IBroadcast
-( ValueInt<BigInt>* buf, int count, int root, Comm comm,
-  Request<ValueInt<BigInt>>& request );
-template<>
-void IBroadcast
-( Entry<BigInt>* buf, int count, int root, Comm comm,
-  Request<Entry<BigInt>>& request );
-
-template<>
-void IBroadcast
-( BigFloat* buf, int count, int root, Comm comm, Request<BigFloat>& request );
-template<>
-void IBroadcast
-( ValueInt<BigFloat>* buf, int count, int root, Comm comm,
-  Request<ValueInt<BigFloat>>& request );
-template<>
-void IBroadcast
-( Entry<BigFloat>* buf, int count, int root, Comm comm,
-  Request<Entry<BigFloat>>& request );
-
-template<>
-void IBroadcast
-( Complex<BigFloat>* buf,
-  int count, int root, Comm comm,
-  Request<Complex<BigFloat>>& request );
-template<>
-void IBroadcast
-( ValueInt<Complex<BigFloat>>* buf,
-  int count, int root, Comm comm,
-  Request<ValueInt<Complex<BigFloat>>>& request );
-template<>
-void IBroadcast
-( Entry<Complex<BigFloat>>* buf,
-  int count, int root, Comm comm,
-  Request<Entry<Complex<BigFloat>>>& request );
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void IBroadcast
 ( Complex<Real>* buf, int count, int root, Comm comm,
   Request<Complex<Real>>& request );
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void IBroadcast
+( T* buf, int count, int root, Comm comm, Request<T>& request );
 
 // If the message length is one
 template<typename T>
@@ -1082,427 +604,120 @@ void IBroadcast( T& b, int root, Comm comm, Request<T>& request );
 // Linux platforms due to the "optimistic" allocation policy. Therefore we will
 // go ahead and allow std::terminate to be called should such an std::bad_alloc
 // exception occur in a Release build
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Gather
-( const BigInt* sbuf, int sc,
-        BigInt* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const ValueInt<BigInt>* sbuf, int sc,
-        ValueInt<BigInt>* rbuf, int rc,
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const Entry<BigInt>* sbuf, int sc,
-        Entry<BigInt>* rbuf, int rc,
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Gather
-( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const ValueInt<BigFloat>* sbuf, int sc,
-        ValueInt<BigFloat>* rbuf, int rc,
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const Entry<BigFloat>* sbuf, int sc,
-        Entry<BigFloat>* rbuf, int rc,
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Gather
-( const Complex<BigFloat>* sbuf, int sc,
-        Complex<BigFloat>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const ValueInt<Complex<BigFloat>>* sbuf, int sc,
-        ValueInt<Complex<BigFloat>>* rbuf, int rc,
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const Entry<Complex<BigFloat>>* sbuf, int sc,
-        Entry<Complex<BigFloat>>* rbuf, int rc,
-  int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void  Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Gather
+( const T* sbuf, int sc,
+        T* rbuf, int rc, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Non-blocking gather
 // -------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void IGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm,
   Request<Real>& request );
-#ifdef EL_HAVE_MPC
-template<>
-void IGather
-( const BigInt* sbuf, int sc,
-        BigInt* rbuf, int rc, int root, Comm comm,
-  Request<BigInt>& request );
-template<>
-void IGather
-( const ValueInt<BigInt>* sbuf, int sc,
-        ValueInt<BigInt>* rbuf, int rc,
-  int root, Comm comm,
-  Request<ValueInt<BigInt>>& request );
-template<>
-void IGather
-( const Entry<BigInt>* sbuf, int sc,
-        Entry<BigInt>* rbuf, int rc,
-  int root, Comm comm,
-  Request<Entry<BigInt>>& request );
-
-template<>
-void IGather
-( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc,
-  int root, Comm comm,
-  Request<BigFloat>& request );
-template<>
-void IGather
-( const ValueInt<BigFloat>* sbuf, int sc,
-        ValueInt<BigFloat>* rbuf, int rc,
-  int root, Comm comm,
-  Request<ValueInt<BigFloat>>& request );
-template<>
-void IGather
-( const Entry<BigFloat>* sbuf, int sc,
-        Entry<BigFloat>* rbuf, int rc,
-  int root, Comm comm,
-  Request<Entry<BigFloat>>& request );
-
-template<>
-void IGather
-( const Complex<BigFloat>* sbuf, int sc,
-        Complex<BigFloat>* rbuf, int rc,
-  int root, Comm comm,
-  Request<Complex<BigFloat>>& request );
-template<>
-void IGather
-( const ValueInt<Complex<BigFloat>>* sbuf, int sc,
-        ValueInt<Complex<BigFloat>>* rbuf, int rc,
-  int root, Comm comm,
-  Request<ValueInt<Complex<BigFloat>>>& request );
-template<>
-void IGather
-( const Entry<Complex<BigFloat>>* sbuf, int sc,
-        Entry<Complex<BigFloat>>* rbuf, int rc,
-  int root, Comm comm,
-  Request<Entry<Complex<BigFloat>>>& request );
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void IGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc,
   int root, Comm comm,
   Request<Complex<Real>>& request );
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void IGather
+( const T* sbuf, int sc,
+        T* rbuf, int rc, int root, Comm comm,
+  Request<T>& request );
 
 // Gather with variable recv sizes
 // -------------------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds,
   int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Gather
-( const BigInt* sbuf, int sc,
-        BigInt* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const ValueInt<BigInt>* sbuf, int sc,
-        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const Entry<BigInt>* sbuf, int sc,
-        Entry<BigInt>* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Gather
-( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const ValueInt<BigFloat>* sbuf, int sc,
-        ValueInt<BigFloat>* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const Entry<BigFloat>* sbuf, int sc,
-        Entry<BigFloat>* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Gather
-( const Complex<BigFloat>* sbuf, int sc,
-        Complex<BigFloat>* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const ValueInt<Complex<BigFloat>>* sbuf, int sc,
-        ValueInt<Complex<BigFloat>>* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Gather
-( const Entry<Complex<BigFloat>>* sbuf, int sc,
-        Entry<Complex<BigFloat>>* rbuf, const int* rcs, const int* rds,
-  int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, 
   int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Gather
+( const T* sbuf, int sc,
+        T* rbuf, const int* rcs, const int* rds,
+  int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // AllGather
 // ---------
 // NOTE: See the corresponding note for Gather on std::bad_alloc exceptions
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void AllGather
-( const BigInt* sbuf, int sc,
-        BigInt* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const ValueInt<BigInt>* sbuf, int sc,
-        ValueInt<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const Entry<BigInt>* sbuf, int sc,
-        Entry<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllGather
-( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const ValueInt<BigFloat>* sbuf, int sc,
-        ValueInt<BigFloat>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const Entry<BigFloat>* sbuf, int sc,
-        Entry<BigFloat>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllGather
-( const Complex<BigFloat>* sbuf, int sc,
-        Complex<BigFloat>* rbuf, int rc, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const ValueInt<Complex<BigFloat>>* sbuf, int sc,
-        ValueInt<Complex<BigFloat>>* rbuf, int rc, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const Entry<Complex<BigFloat>>* sbuf, int sc,
-        Entry<Complex<BigFloat>>* rbuf, int rc, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void AllGather
+( const T* sbuf, int sc,
+        T* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // AllGather with variable recv sizes
 // ----------------------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void AllGather
-( const BigInt* sbuf, int sc,
-        BigInt* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const ValueInt<BigInt>* sbuf, int sc,
-        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const Entry<BigInt>* sbuf, int sc,
-        Entry<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllGather
-( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const ValueInt<BigFloat>* sbuf, int sc,
-        ValueInt<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const Entry<BigFloat>* sbuf, int sc,
-        Entry<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllGather
-( const Complex<BigFloat>* sbuf, int sc,
-        Complex<BigFloat>* rbuf, const int* rcs, const int* rds,
-  Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const ValueInt<Complex<BigFloat>>* sbuf, int sc,
-        ValueInt<Complex<BigFloat>>* rbuf, const int* rcs, const int* rds,
-  Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllGather
-( const Entry<Complex<BigFloat>>* sbuf, int sc,
-        Entry<Complex<BigFloat>>* rbuf, const int* rcs, const int* rds,
-  Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds,
   Comm comm )
 EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void AllGather
+( const T* sbuf, int sc,
+        T* rbuf, const int* rcs, const int* rds, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 // Scatter
 // -------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scatter
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Scatter
-( const BigInt* sbuf, int sc,
-        BigInt* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( const ValueInt<BigInt>* sbuf, int sc,
-        ValueInt<BigInt>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( const Entry<BigInt>* sbuf, int sc,
-        Entry<BigInt>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scatter
-( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( const ValueInt<BigFloat>* sbuf, int sc,
-        ValueInt<BigFloat>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( const Entry<BigFloat>* sbuf, int sc,
-        Entry<BigFloat>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scatter
-( const Complex<BigFloat>* sbuf, int sc,
-        Complex<BigFloat>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( const ValueInt<Complex<BigFloat>>* sbuf, int sc,
-        ValueInt<Complex<BigFloat>>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( const Entry<Complex<BigFloat>>* sbuf, int sc,
-        Entry<Complex<BigFloat>>* rbuf, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scatter
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Scatter
+( const T* sbuf, int sc,
+        T* rbuf, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+
 // In-place option
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Scatter( BigInt* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter( ValueInt<BigInt>* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter( Entry<BigInt>* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scatter( BigFloat* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter( ValueInt<BigFloat>* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter( Entry<BigFloat>* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scatter
-( Complex<BigFloat>* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( ValueInt<Complex<BigFloat>>* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scatter
-( Entry<Complex<BigFloat>>* buf, int sc, int rc, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Scatter( T* buf, int sc, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 // TODO: MPI_Scatterv support
@@ -1510,126 +725,37 @@ EL_NO_RELEASE_EXCEPT;
 // AllToAll
 // --------
 // NOTE: See the corresponding note on std::bad_alloc for Gather
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllToAll
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void AllToAll
-( const BigInt* sbuf, int sc,
-        BigInt* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const ValueInt<BigInt>* sbuf, int sc,
-        ValueInt<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const Entry<BigInt>* sbuf, int sc,
-        Entry<BigInt>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllToAll
-( const BigFloat* sbuf, int sc,
-        BigFloat* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const ValueInt<BigFloat>* sbuf, int sc,
-        ValueInt<BigFloat>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const Entry<BigFloat>* sbuf, int sc,
-        Entry<BigFloat>* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllToAll
-( const Complex<BigFloat>* sbuf, int sc,
-        Complex<BigFloat>* rbuf, int rc, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const ValueInt<Complex<BigFloat>>* sbuf, int sc,
-        ValueInt<Complex<BigFloat>>* rbuf, int rc, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const Entry<Complex<BigFloat>>* sbuf, int sc,
-        Entry<Complex<BigFloat>>* rbuf, int rc, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllToAll
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm )
 EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void AllToAll
+( const T* sbuf, int sc,
+        T* rbuf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // AllToAll with non-uniform send/recv sizes
 // -----------------------------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllToAll
 ( const Real* sbuf, const int* scs, const int* sds,
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void AllToAll
-( const BigInt* sbuf, const int* scs, const int* sds,
-        BigInt* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const ValueInt<BigInt>* sbuf, const int* scs, const int* sds,
-        ValueInt<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const Entry<BigInt>* sbuf, const int* scs, const int* sds,
-        Entry<BigInt>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllToAll
-( const BigFloat* sbuf, const int* scs, const int* sds,
-        BigFloat* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const ValueInt<BigFloat>* sbuf, const int* scs, const int* sds,
-        ValueInt<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const Entry<BigFloat>* sbuf, const int* scs, const int* sds,
-        Entry<BigFloat>* rbuf, const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllToAll
-( const Complex<BigFloat>* sbuf,
-  const int* scs, const int* sds,
-        Complex<BigFloat>* rbuf,
-  const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const ValueInt<Complex<BigFloat>>* sbuf,
-  const int* scs, const int* sds,
-        ValueInt<Complex<BigFloat>>* rbuf,
-  const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllToAll
-( const Entry<Complex<BigFloat>>* sbuf,
-  const int* scs, const int* sds,
-        Entry<Complex<BigFloat>>* rbuf,
-  const int* rcs, const int* rds, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllToAll
 ( const Complex<Real>* sbuf, const int* scs, const int* sds,
         Complex<Real>* rbuf, const int* rcs, const int* rds,
   Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void AllToAll
+( const T* sbuf, const int* scs, const int* sds,
+        T* rbuf, const int* rcs, const int* rds, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T>
@@ -1641,64 +767,18 @@ vector<T> AllToAll
 
 // Reduce
 // ------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Reduce
 ( const Real* sbuf, Real* rbuf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Reduce
-( const BigInt* sbuf, BigInt* rbuf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( const ValueInt<BigInt>* sbuf,
-        ValueInt<BigInt>* rbuf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( const Entry<BigInt>* sbuf,
-        Entry<BigInt>* rbuf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Reduce
-( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( const ValueInt<BigFloat>* sbuf,
-        ValueInt<BigFloat>* rbuf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( const Entry<BigFloat>* sbuf,
-        Entry<BigFloat>* rbuf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Reduce
-( const Complex<BigFloat>* sbuf,
-        Complex<BigFloat>* rbuf,
-  int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( const ValueInt<Complex<BigFloat>>* sbuf,
-        ValueInt<Complex<BigFloat>>* rbuf,
-  int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( const Entry<Complex<BigFloat>>* sbuf,
-        Entry<Complex<BigFloat>>* rbuf,
-  int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Reduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, 
   int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Reduce
+( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
 inline void Reduce
@@ -1740,45 +820,14 @@ T Reduce( T sb, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer reduce
 // --------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Reduce( Real* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Reduce( BigInt* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce( ValueInt<BigInt>* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce( Entry<BigInt>* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Reduce( BigFloat* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce( ValueInt<BigFloat>* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce( Entry<BigFloat>* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Reduce
-( Complex<BigFloat>* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( ValueInt<Complex<BigFloat>>* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Reduce
-( Entry<Complex<BigFloat>>* buf, int count, Op op, int root, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Reduce( T* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
@@ -1799,60 +848,15 @@ void Reduce( T* buf, int count, int root, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // AllReduce
 // ---------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllReduce
-( const BigInt* sbuf, BigInt* rbuf, int count, Op op, Comm comm )
+( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce
-( const ValueInt<BigInt>* sbuf,
-        ValueInt<BigInt>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce
-( const Entry<BigInt>* sbuf,
-        Entry<BigInt>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllReduce
-( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce
-( const ValueInt<BigFloat>* sbuf,
-        ValueInt<BigFloat>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce
-( const Entry<BigFloat>* sbuf,
-        Entry<BigFloat>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllReduce
-( const Complex<BigFloat>* sbuf,
-        Complex<BigFloat>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce
-( const ValueInt<Complex<BigFloat>>* sbuf,
-        ValueInt<Complex<BigFloat>>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce
-( const Entry<Complex<BigFloat>>* sbuf,
-        Entry<Complex<BigFloat>>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
-void AllReduce
-( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op,
-  Comm comm )
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
@@ -1894,42 +898,14 @@ T AllReduce( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer AllReduce
 // -----------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllReduce( Real* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void AllReduce( BigInt* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce( ValueInt<BigInt>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce( Entry<BigInt>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllReduce( BigFloat* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce( ValueInt<BigFloat>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce( Entry<BigFloat>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void AllReduce( Complex<BigFloat>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce( ValueInt<Complex<BigFloat>>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void AllReduce( Entry<Complex<BigFloat>>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void AllReduce( T* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
@@ -1950,53 +926,15 @@ void AllReduce( T* buf, int count, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // ReduceScatter
 // -------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void ReduceScatter( BigInt* sbuf, BigInt* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( ValueInt<BigInt>* sbuf, ValueInt<BigInt>* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( Entry<BigInt>* sbuf, Entry<BigInt>* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void ReduceScatter( BigFloat* sbuf, BigFloat* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( ValueInt<BigFloat>* sbuf, ValueInt<BigFloat>* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( Entry<BigFloat>* sbuf, Entry<BigFloat>* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void ReduceScatter
-( Complex<BigFloat>* sbuf,
-  Complex<BigFloat>* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( ValueInt<Complex<BigFloat>>* sbuf,
-  ValueInt<Complex<BigFloat>>* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( Entry<Complex<BigFloat>>* sbuf,
-  Entry<Complex<BigFloat>>* rbuf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void ReduceScatter
 ( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void ReduceScatter( T* sbuf, T* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
@@ -2018,42 +956,14 @@ EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer ReduceScatter
 // ---------------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void ReduceScatter( BigInt* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter( ValueInt<BigInt>* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter( Entry<BigInt>* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void ReduceScatter( BigFloat* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter( ValueInt<BigFloat>* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter( Entry<BigFloat>* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void ReduceScatter( Complex<BigFloat>* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter( ValueInt<Complex<BigFloat>>* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter( Entry<Complex<BigFloat>>* buf, int rc, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void ReduceScatter( T* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
@@ -2074,64 +984,18 @@ void ReduceScatter( T* buf, int rc, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Variable-length ReduceScatter
 // -----------------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void ReduceScatter
 ( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void ReduceScatter
-( const BigInt* sbuf, BigInt* rbuf, const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( const ValueInt<BigInt>* sbuf,
-        ValueInt<BigInt>* rbuf, const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( const Entry<BigInt>* sbuf,
-        Entry<BigInt>* rbuf, const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void ReduceScatter
-( const BigFloat* sbuf, BigFloat* rbuf, const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( const ValueInt<BigFloat>* sbuf,
-        ValueInt<BigFloat>* rbuf, const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( const Entry<BigFloat>* sbuf,
-        Entry<BigFloat>* rbuf, const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void ReduceScatter
-( const Complex<BigFloat>* sbuf,
-        Complex<BigFloat>* rbuf,
-  const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( const ValueInt<Complex<BigFloat>>* sbuf,
-        ValueInt<Complex<BigFloat>>* rbuf,
-  const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void ReduceScatter
-( const Entry<Complex<BigFloat>>* sbuf,
-        Entry<Complex<BigFloat>>* rbuf,
-  const int* rcs, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void ReduceScatter
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs, Op op, 
   Comm comm ) EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void ReduceScatter
+( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
 inline void ReduceScatter
@@ -2153,57 +1017,15 @@ EL_NO_RELEASE_EXCEPT;
 
 // Scan
 // ----
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scan( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Scan( const BigInt* sbuf, BigInt* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan
-( const ValueInt<BigInt>* sbuf,
-        ValueInt<BigInt>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan
-( const Entry<BigInt>* sbuf,
-        Entry<BigInt>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scan( const BigFloat* sbuf, BigFloat* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan
-( const ValueInt<BigFloat>* sbuf,
-        ValueInt<BigFloat>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan
-( const Entry<BigFloat>* sbuf,
-        Entry<BigFloat>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scan
-( const Complex<BigFloat>* sbuf,
-        Complex<BigFloat>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan
-( const ValueInt<Complex<BigFloat>>* sbuf,
-        ValueInt<Complex<BigFloat>>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan
-( const Entry<Complex<BigFloat>>* sbuf,
-        Entry<Complex<BigFloat>>* rbuf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scan
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
@@ -2245,42 +1067,14 @@ T Scan( T sb, Comm comm ) EL_NO_RELEASE_EXCEPT;
 
 // Single-buffer scan
 // ------------------
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scan( Real* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
-#ifdef EL_HAVE_MPC
-template<>
-void Scan( BigInt* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan( ValueInt<BigInt>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan( Entry<BigInt>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scan( BigFloat* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan( ValueInt<BigFloat>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan( Entry<BigFloat>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-
-template<>
-void Scan( Complex<BigFloat>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan( ValueInt<Complex<BigFloat>>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-template<>
-void Scan( Entry<Complex<BigFloat>>* buf, int count, Op op, Comm comm )
-EL_NO_RELEASE_EXCEPT;
-#endif
-template<typename Real>
+template<typename Real,typename=EnableIf<IsPacked<Real>>>
 void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
+EL_NO_RELEASE_EXCEPT;
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void Scan( T* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT;
 
 template<typename T,class OpClass,typename=DisableIf<IsData<OpClass>>>
