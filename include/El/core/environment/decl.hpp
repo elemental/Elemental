@@ -109,66 +109,39 @@ inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 
 // Replacement for std::memcpy, which is known to often be suboptimal.
 // Notice the sizeof(T) is no longer required.
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 void MemCopy
 (       T* dest,
   const T* source,
         size_t numEntries );
-#ifdef EL_HAVE_MPC
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void MemCopy
-(       BigInt* dest,
-  const BigInt* source,
+(       T* dest,
+  const T* source,
         size_t numEntries );
-void MemCopy
-(       BigFloat* dest,
-  const BigFloat* source,
-        size_t numEntries );
-void MemCopy
-(       Complex<BigFloat>* dest,
-  const Complex<BigFloat>* source,
-        size_t numEntries );
-#endif
 
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 void MemSwap
 ( T* a,
   T* b,
   T* temp,
   size_t numEntries );
-#ifdef EL_HAVE_MPC
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void MemSwap
-( BigInt* a,
-  BigInt* b,
-  BigInt* temp,
+( T* a,
+  T* b,
+  T* temp,
   size_t numEntries );
-void MemSwap
-( BigFloat* a,
-  BigFloat* b,
-  BigFloat* temp,
-  size_t numEntries );
-void MemSwap
-( Complex<BigFloat>* a,
-  Complex<BigFloat>* b,
-  Complex<BigFloat>* temp,
-  size_t numEntries );
-#endif
 
 // Generalization of std::memcpy so that unit strides are not required
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 void StridedMemCopy
 (       T* dest,   Int destStride,
   const T* source, Int sourceStride, Int numEntries );
-#ifdef EL_HAVE_MPC
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void StridedMemCopy
-(       BigInt* dest,   Int destStride,
-  const BigInt* source, Int sourceStride, Int numEntries );
-void StridedMemCopy
-(       BigFloat* dest,   Int destStride,
-  const BigFloat* source, Int sourceStride, Int numEntries );
-void StridedMemCopy
-(       Complex<BigFloat>* dest,   Int destStride,
-  const Complex<BigFloat>* source, Int sourceStride, Int numEntries );
-#endif
+(       T* dest,   Int destStride,
+  const T* source, Int sourceStride, Int numEntries );
 
 template<typename S,typename T>
 inline void CopySTL( const S& a, T& b )
@@ -179,13 +152,10 @@ inline void CopySTL( const S& a, T& b )
 
 // Replacement for std::memset, which is likely suboptimal and hard to extend
 // to non-POD datatypes. Notice that sizeof(T) is no longer required.
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 void MemZero( T* buffer, size_t numEntries );
-#ifdef EL_HAVE_MPC
-void MemZero( BigInt* buffer, size_t numEntries );
-void MemZero( BigFloat* buffer, size_t numEntries );
-void MemZero( Complex<BigFloat>* buffer, size_t numEntries );
-#endif
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void MemZero( T* buffer, size_t numEntries );
 
 // Clear the contents of x by swapping with an empty object of the same type
 template<typename T>
@@ -193,10 +163,7 @@ void SwapClear( T& x );
 
 // Reserve memory in a vector without zero-initializing the variables unless
 // valgrind is currently running or the datatype *requires* construction.
-//
-// TODO: Introduce a POD attribute for Elemental's types and specialize for
-//       non-POD.
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 inline void FastResize( vector<T>& v, Int numEntries )
 {
 #ifdef EL_ZERO_INIT
@@ -210,28 +177,9 @@ inline void FastResize( vector<T>& v, Int numEntries )
     v.reserve( numEntries );
 #endif
 }
-#ifdef EL_HAVE_MPC
-inline void FastResize( vector<BigInt>& v, Int numEntries )
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+inline void FastResize( vector<T>& v, Int numEntries )
 { v.resize( numEntries ); }
-inline void FastResize( vector<ValueInt<BigInt>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<Entry<BigInt>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-
-inline void FastResize( vector<BigFloat>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<ValueInt<BigFloat>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<Entry<BigFloat>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-
-inline void FastResize( vector<Complex<BigFloat>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<ValueInt<Complex<BigFloat>>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<Entry<Complex<BigFloat>>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-#endif
 
 inline void BuildStream( ostringstream& os ) { }
 
