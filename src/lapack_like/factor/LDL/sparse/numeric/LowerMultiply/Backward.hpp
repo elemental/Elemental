@@ -63,7 +63,7 @@ inline void LowerBackwardMultiply
         {
             const Int i = info.childRelInds[c][iChild];
             for( Int j=0; j<numRHS; ++j )
-                childWB.Set( iChild, j, W.Get(i,j) );
+                childWB(iChild,j) = W(i,j);
         }
     }
 

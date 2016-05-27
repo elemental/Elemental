@@ -338,14 +338,14 @@ void Front<F>::Push
                 for( Int s=t; s<node.size; ++s )
                 {
                     const Int i = invReorder[node.off+s];
-                    A.QueueUpdate( i, j, front.LDense.Get(s,t) );
+                    A.QueueUpdate( i, j, front.LDense(s,t) );
                 }
 
                 // Push in the connectivity 
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = invReorder[node.lowerStruct[s]];
-                    A.QueueUpdate( i, j, front.LDense.Get(s+node.size,t) );
+                    A.QueueUpdate( i, j, front.LDense(s+node.size,t) );
                 }
             }
         }
@@ -399,14 +399,14 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
                 for( Int s=t; s<node.size; ++s )
                 {
                     const Int i = node.off+s;
-                    A.QueueUpdate( i, j, front.LDense.Get(s,t) );
+                    A.QueueUpdate( i, j, front.LDense(s,t) );
                 }
 
                 // Push in the connectivity 
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = node.lowerStruct[s];
-                    A.QueueUpdate( i, j, front.LDense.Get(s+node.size,t) );
+                    A.QueueUpdate( i, j, front.LDense(s+node.size,t) );
                 }
             }
         }

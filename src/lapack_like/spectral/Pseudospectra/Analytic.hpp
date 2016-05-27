@@ -65,6 +65,7 @@ void Analytic
 
     DistMatrixReadProxy<C,C,VR,STAR> shiftsProx( shiftsPre );
     auto& shifts = shiftsProx.GetLocked();
+    auto& shiftsLoc = shifts.LockedMatrix();
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -82,23 +83,25 @@ void Analytic
     Zeros( invNorms, numShifts, 1 );
     if( n == 0 )
         return;
+    auto& invNormsLoc = invNorms.Matrix();
 
     DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
+    auto& wLoc = w_STAR_STAR.LockedMatrix();
 
     const Int numLocShifts = shifts.LocalHeight();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
-        const C shift = shifts.GetLocal(jLoc,0);
-        Real minDist = Abs(shift-w_STAR_STAR.GetLocal(0,0));
+        const C shift = shiftsLoc(jLoc);
+        Real minDist = Abs(shift-wLoc(0));
         for( Int k=1; k<n; ++k )
         {
-            const Real dist = Abs(shift-w_STAR_STAR.GetLocal(k,0));
+            const Real dist = Abs(shift-wLoc(k));
             minDist = Min(dist,minDist);
         }
         Real alpha = Real(1)/minDist;
         if( !limits::IsFinite(alpha) || alpha >= normCap )
             alpha = normCap;
-        invNorms.SetLocal( jLoc, 0, alpha );
+        invNormsLoc(jLoc) = alpha;
     }
 
     snapCtrl.itCounts = false;

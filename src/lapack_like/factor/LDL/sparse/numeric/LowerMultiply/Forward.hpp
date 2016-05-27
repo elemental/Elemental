@@ -66,7 +66,7 @@ inline void LowerForwardMultiply
         {
             const Int iFront = info.childRelInds[c][iChild]; 
             for( Int j=0; j<numRHS; ++j )
-                W.Update( iFront, j, childU.Get(iChild,j) );
+                W(iFront,j) += childU(iChild,j);
         }
         childW.Empty();
     }

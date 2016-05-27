@@ -13,8 +13,7 @@ namespace El {
 namespace schur {
 
 template<typename F>
-inline void
-QR
+void QR
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
   bool fullTriangle,
@@ -39,8 +38,7 @@ QR
 }
 
 template<typename F>
-inline void
-QR
+void QR
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
   Matrix<F>& Q, 
@@ -68,8 +66,7 @@ QR
 }
 
 template<typename F>
-inline void
-QR
+void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
   bool fullTriangle,
@@ -145,8 +142,7 @@ QR
 }
 
 template<typename F>
-inline void
-QR
+void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
   DistMatrix<F,MC,MR,BLOCK>& Q,
@@ -224,8 +220,7 @@ QR
 }
 
 template<typename F>
-inline void
-QR
+void QR
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle,
@@ -312,8 +307,7 @@ QR
 }
 
 template<typename F>
-inline void
-QR
+void QR
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Complex<Base<F>>>& w, 
   ElementalMatrix<F>& QPre,

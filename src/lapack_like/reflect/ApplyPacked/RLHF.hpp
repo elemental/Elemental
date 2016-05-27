@@ -29,7 +29,7 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F> 
-inline void
+void
 RLHF
 ( Conjugation conjugation,
   Int offset, 
@@ -77,7 +77,7 @@ RLHF
 }
 
 template<typename F> 
-inline void
+void
 RLHF
 ( Conjugation conjugation,
   Int offset, 

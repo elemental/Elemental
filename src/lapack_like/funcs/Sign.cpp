@@ -17,7 +17,7 @@ namespace El {
 namespace sign {
 
 template<typename F>
-inline void
+void
 NewtonStep
 ( const Matrix<F>& X,
         Matrix<F>& XNew,
@@ -48,7 +48,7 @@ NewtonStep
 }
 
 template<typename F>
-inline void
+void
 NewtonStep
 ( const DistMatrix<F>& X,
         DistMatrix<F>& XNew, 
@@ -79,7 +79,7 @@ NewtonStep
 }
 
 template<typename F>
-inline void
+void
 NewtonSchulzStep
 ( const Matrix<F>& X,
         Matrix<F>& XTmp,
@@ -98,7 +98,7 @@ NewtonSchulzStep
 }
 
 template<typename F>
-inline void
+void
 NewtonSchulzStep
 ( const DistMatrix<F>& X,
         DistMatrix<F>& XTmp,
@@ -120,7 +120,7 @@ NewtonSchulzStep
 // "Functions of Matrices: Theory and Computation" for motivation behind
 // the different choices of p, which are usually in {0,1,2}
 template<typename F>
-inline Int
+Int
 Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("sign::Newton"))
@@ -159,7 +159,7 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 }
 
 template<typename F>
-inline Int
+Int
 Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("sign::Newton"))
@@ -270,11 +270,11 @@ void HermitianSign
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         if( omega >= 0 )
-            w.Set(i,0,Real(1));
+            w(i) = Real(1);
         else
-            w.Set(i,0,Real(-1));
+            w(i) = Real(-1);
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues
@@ -304,13 +304,13 @@ void HermitianSign
         const Real omega = w.Get(i,0);
         if( omega >= 0 )
         {
-            wSgn.Set(i,0,Real(1));
-            wAbs.Set(i,0,omega);
+            wSgn(i) = Real(1);
+            wAbs(i) = omega;
         }
         else
         {
-            wSgn.Set(i,0,Real(-1));
-            wAbs.Set(i,0,-omega);
+            wSgn(i) = Real(-1);
+            wAbs(i) = -omega;
         }
     }
 

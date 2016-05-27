@@ -134,7 +134,7 @@ Panel
                 aB1.MakeReal(0,0);
 
             // Store x21 := a21/delta11 and y21 := a21
-            const F delta11Inv = F(1)/A.Get(k,k);
+            const F delta11Inv = F(1)/A(k,k);
             auto a21 = A( ind2, ind1 );
             auto x21 = X( ind2, ind1 ); 
             auto y21 = Y( ind2, ind1 ); 
@@ -152,7 +152,7 @@ Panel
             auto XB0 = X( indB, ind0 );
             auto Y10 = Y( ind1, ind0 );
             auto AB1 = A( indB, ind1 );
-            const F psi = AB1.Get(0,1);
+            const F psi = AB1(0,1);
             Gemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
             AB1.Set(0,1,psi);
             if( conjugate )
@@ -180,7 +180,7 @@ Panel
 
             // Only leave the main diagonal of D in A, so that routines like
             // Trsm can still be used. Thus, return the subdiagonal.
-            dSub.Set( k, 0, D11.Get(1,0) );
+            dSub.Set( k, 0, D11(1,0) );
             D11.Set( 1, 0, F(0) );
         }
         k += pivot.nb;

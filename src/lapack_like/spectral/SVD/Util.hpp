@@ -13,8 +13,7 @@ namespace El {
 namespace svd {
 
 template<typename F>
-inline bool
-CheckScale( ElementalMatrix<F>& A, Base<F>& scale )
+bool CheckScale( ElementalMatrix<F>& A, Base<F>& scale )
 {
     scale = 1;
     typedef Base<F> Real;

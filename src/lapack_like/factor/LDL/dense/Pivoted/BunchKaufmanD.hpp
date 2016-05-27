@@ -14,7 +14,7 @@ namespace ldl {
 namespace pivot {
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CSE cse("ldl::pivot::BunchKaufmanD"))
@@ -23,7 +23,7 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_D );
 
-    const Real alpha11Abs = Abs(A.Get(0,0));
+    const Real alpha11Abs = Abs(A(0,0));
     const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
     const auto a21Max = VectorMaxAbsLoc( A(ind2,ind1) );
@@ -62,7 +62,7 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
 }
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CSE cse("ldl::pivot::BunchKaufmanD"))
@@ -112,7 +112,7 @@ BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
 // TODO: Switch to the simpler panel update scheme used for Cholesky
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 PanelBunchKaufmanD
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Base<F> gamma )
 {
@@ -137,7 +137,7 @@ PanelBunchKaufmanD
         Gemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
-    const Real alpha11Abs = Abs(zB1.Get(0,0));
+    const Real alpha11Abs = Abs(zB1(0));
     const auto a21Max = VectorMaxAbsLoc( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
@@ -197,10 +197,11 @@ PanelBunchKaufmanD
 }
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 PanelBunchKaufmanD
 ( const DistMatrix<F>& A, 
-  const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
+  const DistMatrix<F,MC,STAR>& X,
+  const DistMatrix<F,MR,STAR>& Y, 
   Base<F> gamma )
 {
     DEBUG_ONLY(CSE cse("ldl::pivot::PanelBunchKaufmanD"))

@@ -20,7 +20,7 @@ namespace El {
 namespace herm_tridiag_eig {
 
 template<typename Real>
-inline void Helper
+void Helper
 (       Matrix<Real>& d,
         Matrix<Real>& dSub,
         Matrix<Real>& w,
@@ -51,7 +51,7 @@ inline void Helper
 }
 
 template<typename Real>
-inline void Helper
+void Helper
 (       Matrix<Real>& d,
         Matrix<Complex<Real>>& dSub,
         Matrix<Real>& w,
@@ -92,7 +92,7 @@ void HermitianTridiagEig
 namespace herm_tridiag_eig {
 
 template<typename Real>
-inline void Helper
+void Helper
 ( const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& dSub,
         ElementalMatrix<Real>& wPre,
@@ -138,7 +138,7 @@ inline void Helper
 }
 
 template<typename Real>
-inline void Helper
+void Helper
 ( const ElementalMatrix<Real         >& d,
   const ElementalMatrix<Complex<Real>>& dSub,
         ElementalMatrix<Real         >& wPre, 
@@ -161,20 +161,22 @@ inline void Helper
     Copy( d, d_STAR_STAR );
     dSub_STAR_STAR.Resize( n-1, 1, n );
     Copy( dSub, dSub_STAR_STAR );
+    auto& dSubLoc = dSub_STAR_STAR.Matrix();
 
     DistMatrix<double,STAR,STAR> dSubReal(g);
     dSubReal.Resize( n-1, 1, n );
+    auto& dSubRealLoc = dSubReal.Matrix();
 
     Complex<double> yLast = 1;
     for( Int j=0; j<n-1; ++j )
     {
-        const Complex<double> psi = dSub_STAR_STAR.GetLocal(j,0);
+        const Complex<double> psi = dSubLoc(j);
         const double psiAbs = Abs(psi);
         if( psiAbs == double(0) )
             yLast = 1;
         else
             yLast = ComplexFromPolar(double(1),Arg(psi*yLast));
-        dSubReal.SetLocal( j, 0, psiAbs );
+        dSubRealLoc(j) = psiAbs;
     }
 
     herm_tridiag_eig::Info info;
@@ -200,8 +202,9 @@ inline void Helper
             wVector.data(), w.ColComm() );
     }
     w.Resize( info.numGlobalEigenvalues, 1 );
+    auto& wLoc = w.Matrix();
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-        w.SetLocal( iLoc, 0, Real(wVector[iLoc]) );
+        wLoc(iLoc) = Real(wVector[iLoc]);
 
     Sort( w, sort );
 }
@@ -226,7 +229,7 @@ void HermitianTridiagEig
 namespace herm_tridiag_eig {
 
 template<typename Real>
-inline void Helper
+void Helper
 (       Matrix<Real>& d,
         Matrix<Real>& dSub,
         Matrix<Real>& w,
@@ -269,7 +272,7 @@ inline void Helper
 // (Y^H T Y) ZHat = ZHat Lambda
 // T (Y ZHat) = (Y ZHat) Lambda
 template<typename Real>
-inline void Helper
+void Helper
 (       Matrix<Real>& d,
         Matrix<Complex<Real>>& dSub,
         Matrix<Real>& w, 
@@ -318,7 +321,7 @@ void HermitianTridiagEig
 namespace herm_tridiag_eig {
 
 template<typename Real>
-inline void Helper
+void Helper
 ( const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& dSub,
         ElementalMatrix<Real>& wPre, 
@@ -392,7 +395,7 @@ inline void Helper
 }
 
 template<typename Real>
-inline void Helper
+void Helper
 ( const ElementalMatrix<Real         >& d,
   const ElementalMatrix<Complex<Real>>& dSub,
         ElementalMatrix<Real         >& wPre, 

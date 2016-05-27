@@ -39,15 +39,15 @@ void HermitianSVD
     Matrix<Base<F>> sSgn(n,1);
     for( Int j=0; j<n; ++j )
     {
-        const Base<F> sigma = s.Get( j, 0 );
+        const Base<F> sigma = s(j);
         if( sigma >= 0 )
         {
-            sSgn.Set( j, 0, Base<F>(1) );
+            sSgn(j) = Base<F>(1);
         }
         else
         {
-            sSgn.Set( j, 0, Base<F>(-1) );
-            s.Set( j, 0, -sigma );
+            sSgn(j) = Base<F>(-1);
+            s(j) = -sigma;
         }
     }
 
@@ -57,8 +57,8 @@ void HermitianSVD
     for( Int j=0; j<n; ++j )
     {
         MemCopy( VPerm.Buffer(0,j), V.Buffer(0,pairs[j].index), n ); 
-        s.Set( j, 0, pairs[j].value );
-        sSgnPerm.Set( j, 0, sSgn.Get(pairs[j].index,0) );
+        s(j) = pairs[j].value;
+        sSgnPerm(j) = sSgn(pairs[j].index);
     }
     V = VPerm;
     U = V;

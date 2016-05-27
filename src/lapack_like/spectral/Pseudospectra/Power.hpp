@@ -47,7 +47,7 @@ void Deflate
         }
     }
     if( progress )
-        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+        Output("Deflation took ",timer.Stop()," seconds");
 }
 
 template<typename Real>
@@ -85,7 +85,7 @@ void Deflate
         }
     }
     if( progress )
-        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+        Output("Deflation took ",timer.Stop()," seconds");
 }
 
 template<typename Real>
@@ -111,10 +111,11 @@ void Deflate
     DistMatrix<Int, STAR,STAR> itCountsCopy( activeItCounts );
     DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
     DistMatrix<Complex<Real>,VC,STAR> XCopy( activeX );
+    auto& convergedLoc = convergedCopy.Matrix();
 
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.GetLocal(swapFrom,0) )
+        if( convergedLoc(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -136,7 +137,7 @@ void Deflate
     activeX        = XCopy;
 
     if( progress && activeShifts.Grid().Rank() == 0 )
-        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+        Output("Deflation took ",timer.Stop()," seconds");
 }
 
 template<typename Real>
@@ -164,10 +165,11 @@ void Deflate
     DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
     DistMatrix<Real,VC,STAR> XRealCopy( activeXReal ),
                              XImagCopy( activeXImag );
+    auto& convergedLoc = convergedCopy.Matrix();
 
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.GetLocal(swapFrom,0) )
+        if( convergedLoc(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -194,7 +196,7 @@ void Deflate
     {
         mpi::Barrier( activeShifts.Grid().Comm() );
         if( activeShifts.Grid().Rank() == 0 )
-            cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+            Output("Deflation took ",timer.Stop()," seconds");
     }
 }
 
@@ -296,9 +298,9 @@ Power
         if( progress )
         {
             const double iterTime = timer.Stop();
-            cout << "iteration " << numIts << ": " << iterTime 
-                 << " seconds, " << numDone << " of " << numShifts 
-                 << " converged" << endl;
+            Output
+            ("iteration ",numIts,": ",iterTime," seconds, ",
+             numDone," of ",numShifts," converged");
         }
 
         ++numIts;
@@ -366,11 +368,12 @@ Power
     {
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
+        auto& preimageLoc = preimage.Matrix();
         const Int numLocShifts = preimage.LocalHeight();
         for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
             const Int i = preimage.GlobalRow(iLoc);
-            preimage.SetLocal( iLoc, 0, i );
+            preimageLoc(iLoc) =  i;
         }
     }
 
@@ -443,9 +446,9 @@ Power
         if( progress && g.Rank() == 0 )
         {
             const double iterTime = timer.Stop();
-            cout << "iteration " << numIts << ": " << iterTime 
-                 << " seconds, " << numDone << " of " << numShifts 
-                 << " converged" << endl;
+            Output
+            ("iteration ",numIts,": ",iterTime," seconds, ",
+             numDone," of ",numShifts," converged");
         }
 
         ++numIts;

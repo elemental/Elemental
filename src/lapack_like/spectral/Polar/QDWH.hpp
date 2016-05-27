@@ -25,8 +25,7 @@ namespace El {
 namespace polar {
 
 template<typename F>
-inline QDWHInfo
-QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const QDWHCtrl& ctrl )
+QDWHInfo QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWHInner"))
     typedef Base<F> Real;
@@ -117,8 +116,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 }
 
 template<typename F>
-inline QDWHInfo
-QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
+QDWHInfo QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
     typedef Base<F> Real;
@@ -153,8 +151,7 @@ QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
 }
 
 template<typename F>
-inline QDWHInfo
-QDWH( Matrix<F>& A, Matrix<F>& P, const QDWHCtrl& ctrl )
+QDWHInfo QDWH( Matrix<F>& A, Matrix<F>& P, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
     Matrix<F> ACopy( A );
@@ -166,7 +163,7 @@ QDWH( Matrix<F>& A, Matrix<F>& P, const QDWHCtrl& ctrl )
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWHInner
 ( ElementalMatrix<F>& APre, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 {
@@ -265,7 +262,7 @@ QDWHInner
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWH( ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("polar::QDWH"))
@@ -305,7 +302,7 @@ QDWH( ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWH
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& PPre, 
@@ -331,7 +328,7 @@ QDWH
 namespace herm_polar {
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWHInner
 ( UpperOrLower uplo,
   Matrix<F>& A,
@@ -436,7 +433,7 @@ QDWHInner
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWH( UpperOrLower uplo, Matrix<F>& A, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
@@ -461,7 +458,7 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, const QDWHCtrl& ctrl )
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWH
 ( UpperOrLower uplo,
   Matrix<F>& A,
@@ -479,7 +476,7 @@ QDWH
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWHInner
 ( UpperOrLower uplo,
   ElementalMatrix<F>& APre,
@@ -586,7 +583,7 @@ QDWHInner
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
     DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
@@ -615,7 +612,7 @@ QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 }
 
 template<typename F>
-inline QDWHInfo
+QDWHInfo
 QDWH
 ( UpperOrLower uplo,
   ElementalMatrix<F>& APre,

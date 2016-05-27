@@ -26,11 +26,32 @@ void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );  
 
-// NOTE: These are filler routines since they are not provided by OpenBLAS
+// Filler routine not provided by MKL
 template<typename T>
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha, const T* A, BlasInt lda, T* B, BlasInt ldb );  
+  T alpha, const T* A, BlasInt lda,
+                 T* B, BlasInt ldb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i+j*ldb] = A[i+j*lda];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = A[i+j*lda];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*ldb] = Conj(A[i+j*lda]);
+    }
+}
 
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -45,11 +66,15 @@ void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb );  
 
-// NOTE: These are filler routines since they are not provided by OpenBLAS
+// Filler routine not provided by MKL
 template<typename T>
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha, T* A, BlasInt lda, BlasInt ldb );  
+  T alpha, T* A, BlasInt lda, BlasInt ldb )
+{
+    // TODO
+    LogicError("This version of imatcopy not yet supported");
+}
 
 } // namespace openblas
 } // namespace El

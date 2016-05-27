@@ -28,7 +28,7 @@ SafeProduct<Base<F>> AfterCholesky
     const Real scale = Real(n)/Real(2);
     for( Int i=0; i<n; ++i )
     {
-        const Real delta = RealPart(d.Get(i,0));
+        const Real delta = RealPart(d(i));
         det.kappa += Log(delta)/scale;
     }
 
@@ -36,7 +36,7 @@ SafeProduct<Base<F>> AfterCholesky
 }
 
 template<typename F>
-inline SafeProduct<Base<F>> 
+SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
@@ -88,7 +88,7 @@ SafeProduct<Base<F>> AfterCholesky
 }
 
 template<typename F> 
-inline SafeProduct<Base<F>> 
+SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))

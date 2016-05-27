@@ -29,8 +29,8 @@ InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
     typedef Base<F> Real;
     const Int n = d.Height();
     DEBUG_ONLY(
-        if( n != 0 && dSub.Height() != n-1 )
-            LogicError("dSub was the wrong length");
+      if( n != 0 && dSub.Height() != n-1 )
+          LogicError("dSub was the wrong length");
     )
     InertiaType inertia;
     inertia.numPositive = inertia.numNegative = inertia.numZero = 0;
@@ -38,10 +38,10 @@ InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
     Int k=0;
     while( k < n )
     {
-        const Int nb = ( k<n-1 && dSub.Get(k,0) != F(0) ? 2 : 1 );
+        const Int nb = ( k<n-1 && dSub(k) != F(0) ? 2 : 1 );
         if( nb == 1 )
         {
-            const Real delta = d.Get(k,0);
+            const Real delta = d(k);
             if( delta > Real(0) )
                 ++inertia.numPositive; 
             else if( delta < Real(0) )
@@ -62,7 +62,7 @@ InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
 }
 
 template<typename F>
-inline InertiaType
+InertiaType
 Inertia
 ( const DistMatrix<Base<F>,MC,STAR>& d, 
   const DistMatrix<Base<F>,MC,STAR>& dPrev, 

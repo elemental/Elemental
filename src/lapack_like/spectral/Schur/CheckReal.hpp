@@ -70,18 +70,21 @@ void CheckRealSchur( const ElementalMatrix<Real>& UPre, bool standardForm )
     auto uSub = GetDiagonal(U,-1);
     DistMatrix<Real,STAR,STAR> uMain_STAR_STAR( uMain ),
                                uSub_STAR_STAR( uSub );
+    auto& uMainLoc = uMain_STAR_STAR.Matrix();
+    auto& uSubLoc = uSub_STAR_STAR.Matrix();
 
     const Int n = U.Height();
     if( standardForm )
     {
         auto uSup = GetDiagonal(U,+1);
         DistMatrix<Real,STAR,STAR> uSup_STAR_STAR( uSup );
+        auto& uSupLoc = uSup_STAR_STAR.Matrix();
         for( Int j=0; j<n-1; ++j )
         {
-            const Real thisDiag = uMain_STAR_STAR.GetLocal(j,  0);
-            const Real nextDiag = uMain_STAR_STAR.GetLocal(j+1,0);
-            const Real thisSub = uSub_STAR_STAR.GetLocal(j,0);
-            const Real thisSup = uSup_STAR_STAR.GetLocal(j,0);
+            const Real thisDiag = uMainLoc(j);
+            const Real nextDiag = uMainLoc(j+1);
+            const Real thisSub = uSubLoc(j);
+            const Real thisSup = uSupLoc(j);
             if( thisSub != Real(0) && thisDiag != nextDiag ) 
                 LogicError
                 ("Diagonal of 2x2 block was not constant: ",thisDiag," and ",
@@ -95,8 +98,8 @@ void CheckRealSchur( const ElementalMatrix<Real>& UPre, bool standardForm )
         return;
     for( Int j=0; j<n-2; ++j )
     {
-        const Real thisSub = uSub_STAR_STAR.GetLocal(j,  0);
-        const Real nextSub = uSub_STAR_STAR.GetLocal(j+1,0);
+        const Real thisSub = uSubLoc(j);
+        const Real nextSub = uSubLoc(j+1);
         if( thisSub != Real(0) && nextSub != Real(0) )
             LogicError
             ("Quasi-triangular assumption broken at j=",j,

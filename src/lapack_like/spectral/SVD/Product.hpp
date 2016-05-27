@@ -18,7 +18,7 @@ namespace svd {
 // =========================
 
 template<typename F>
-inline void TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<F>& U, 
         Matrix<Base<F>>& s,
@@ -84,7 +84,7 @@ inline void TallAbsoluteProduct
 }
 
 template<typename F>
-inline void TallRelativeProduct
+void TallRelativeProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -145,7 +145,7 @@ inline void TallRelativeProduct
 }
 
 template<typename F>
-inline void TallProduct
+void TallProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -162,8 +162,7 @@ inline void TallProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
         ElementalMatrix<Base<F>>& s, 
@@ -232,8 +231,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<F>& UPre,
         ElementalMatrix<Base<F>>& s, 
@@ -252,8 +250,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
         ElementalMatrix<Base<F>>& s, 
@@ -320,8 +317,7 @@ TallRelativeProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<F>& UPre,
         ElementalMatrix<Base<F>>& s, 
@@ -340,7 +336,7 @@ TallRelativeProduct
 }
 
 template<typename F>
-inline void TallProduct
+void TallProduct
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<F>& U,
         ElementalMatrix<Base<F>>& s, 
@@ -357,8 +353,7 @@ inline void TallProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<F,VC,STAR>& U,
         DistMatrix<Base<F>,STAR,STAR>& s, 
@@ -432,8 +427,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         ElementalMatrix<F>& UPre,
         ElementalMatrix<Base<F>>& sPre, 
@@ -452,8 +446,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<F,VC,STAR>& U,
         DistMatrix<Base<F>,STAR,STAR>& s, 
@@ -523,8 +516,7 @@ TallRelativeProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         ElementalMatrix<F>& UPre,
         ElementalMatrix<Base<F>>& sPre, 
@@ -560,8 +552,7 @@ void TallProduct
 }
 
 template<typename F>
-inline void
-WideAbsoluteProduct
+void WideAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -625,8 +616,7 @@ WideAbsoluteProduct
 }
 
 template<typename F>
-inline void
-WideRelativeProduct
+void WideRelativeProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -685,7 +675,7 @@ WideRelativeProduct
 }
 
 template<typename F>
-inline void WideProduct
+void WideProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -702,8 +692,7 @@ inline void WideProduct
 }
 
 template<typename F>
-inline void
-WideAbsoluteProduct
+void WideAbsoluteProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
         ElementalMatrix<Base<F>>& s, 
@@ -770,8 +759,7 @@ WideAbsoluteProduct
 }
 
 template<typename F>
-inline void
-WideAbsoluteProduct
+void WideAbsoluteProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<F>& UPre,
         ElementalMatrix<Base<F>>& s, 
@@ -790,8 +778,7 @@ WideAbsoluteProduct
 }
 
 template<typename F>
-inline void
-WideRelativeProduct
+void WideRelativeProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
         ElementalMatrix<Base<F>>& s, 
@@ -856,8 +843,7 @@ WideRelativeProduct
 }
 
 template<typename F>
-inline void
-WideRelativeProduct
+void WideRelativeProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<F>& UPre,
         ElementalMatrix<Base<F>>& s, 
@@ -876,7 +862,7 @@ WideRelativeProduct
 }
 
 template<typename F>
-inline void WideProduct
+void WideProduct
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<F>& U,
         ElementalMatrix<Base<F>>& s, 
@@ -939,7 +925,7 @@ void Product
 // =======================
 
 template<typename F>
-inline void TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol )
@@ -986,7 +972,7 @@ inline void TallAbsoluteProduct
 }
 
 template<typename F>
-inline void TallRelativeProduct
+void TallRelativeProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> relTol )
@@ -1024,7 +1010,7 @@ inline void TallRelativeProduct
 }
 
 template<typename F>
-inline void TallProduct
+void TallProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
@@ -1038,8 +1024,7 @@ inline void TallProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
@@ -1089,8 +1074,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
@@ -1102,8 +1086,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
@@ -1146,8 +1129,7 @@ TallRelativeProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
@@ -1159,7 +1141,7 @@ TallRelativeProduct
 }
 
 template<typename F>
-inline void TallProduct
+void TallProduct
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol,
@@ -1173,8 +1155,7 @@ inline void TallProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& s, 
   Base<F> tol )
@@ -1228,8 +1209,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallAbsoluteProduct
+void TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         ElementalMatrix<Base<F>>& sPre, 
   Base<F> tol )
@@ -1242,8 +1222,7 @@ TallAbsoluteProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& s, 
   Base<F> relTol )
@@ -1288,8 +1267,7 @@ TallRelativeProduct
 }
 
 template<typename F>
-inline void
-TallRelativeProduct
+void TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         ElementalMatrix<Base<F>>& sPre, 
   Base<F> relTol )
@@ -1316,8 +1294,7 @@ void TallProduct
 }
 
 template<typename F>
-inline void
-WideAbsoluteProduct
+void WideAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol )
@@ -1364,8 +1341,7 @@ WideAbsoluteProduct
 }
 
 template<typename F>
-inline void
-WideRelativeProduct
+void WideRelativeProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> relTol )
@@ -1403,7 +1379,7 @@ WideRelativeProduct
 }
 
 template<typename F>
-inline void WideProduct
+void WideProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
@@ -1417,8 +1393,7 @@ inline void WideProduct
 }
 
 template<typename F>
-inline void
-WideAbsoluteProduct
+void WideAbsoluteProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
@@ -1468,8 +1443,7 @@ WideAbsoluteProduct
 }
 
 template<typename F>
-inline void
-WideAbsoluteProduct
+void WideAbsoluteProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol )
@@ -1481,8 +1455,7 @@ WideAbsoluteProduct
 }
 
 template<typename F>
-inline void
-WideRelativeProduct
+void WideRelativeProduct
 ( const DistMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
@@ -1525,8 +1498,7 @@ WideRelativeProduct
 }
 
 template<typename F>
-inline void
-WideRelativeProduct
+void WideRelativeProduct
 ( const ElementalMatrix<F>& APre,
         ElementalMatrix<Base<F>>& s, 
   Base<F> relTol )
@@ -1538,7 +1510,7 @@ WideRelativeProduct
 }
 
 template<typename F>
-inline void WideProduct
+void WideProduct
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s, 
   Base<F> tol,

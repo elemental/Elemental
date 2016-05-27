@@ -23,7 +23,7 @@ inline Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real alphaAbs = Abs(A.Get(i,j));
+            const Real alphaAbs = Abs(A(i,j));
             if( alphaAbs > Real(0) )
                 minAbs = Min(minAbs,alphaAbs);
         }
@@ -90,11 +90,13 @@ inline void GeometricColumnScaling
     ColumnMaxNorms( A, maxScaling );
     ColumnMinAbsNonzero( A, maxScaling, geomScaling );
     const Int nLocal = A.LocalWidth();
+    auto& maxScalingLoc = maxScaling.Matrix();
+    auto& geomScalingLoc = geomScaling.Matrix();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Real maxAbs = maxScaling.GetLocal(jLoc,0);
-        const Real minAbs = geomScaling.GetLocal(jLoc,0);
-        geomScaling.SetLocal(jLoc,0,Sqrt(minAbs*maxAbs));
+        const Real maxAbs = maxScalingLoc(jLoc);
+        const Real minAbs = geomScalingLoc(jLoc);
+        geomScalingLoc(jLoc) = Sqrt(minAbs*maxAbs);
     }
 }
 
@@ -119,33 +121,37 @@ inline void StackedGeometricColumnScaling
     const Int nLocal = A.LocalWidth();
     geomScaling.AlignWith( maxScalingA );
     geomScaling.Resize( A.Width(), 1 );
+    auto& ALoc = A.LockedMatrix();
+    auto& BLoc = B.LockedMatrix();
+    auto& geomScalingLoc = geomScaling.Matrix();
+    auto& maxScalingALoc = maxScalingA.Matrix();
+    auto& maxScalingBLoc = maxScalingB.Matrix();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        Real minAbs = Max(maxScalingA.GetLocal(jLoc,0),
-                          maxScalingB.GetLocal(jLoc,0));
+        Real minAbs = Max(maxScalingALoc(jLoc),maxScalingBLoc(jLoc));
         for( Int iLoc=0; iLoc<mLocalA; ++iLoc )
         {
-            const Real absVal = Abs(A.GetLocal(iLoc,jLoc));  
+            const Real absVal = Abs(ALoc(iLoc,jLoc));  
             if( absVal > 0 && absVal < minAbs )
                 minAbs = Min(minAbs,absVal);
         }
         for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
         {
-            const Real absVal = Abs(B.GetLocal(iLoc,jLoc));  
+            const Real absVal = Abs(BLoc(iLoc,jLoc));  
             if( absVal > 0 && absVal < minAbs )
                 minAbs = Min(minAbs,absVal);
         }
-        geomScaling.SetLocal( jLoc, 0, minAbs );
+        geomScalingLoc(jLoc) = minAbs;
     }
     mpi::AllReduce( geomScaling.Buffer(), nLocal, mpi::MIN, A.ColComm() );
 
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Real maxAbsA = maxScalingA.GetLocal(jLoc,0);
-        const Real maxAbsB = maxScalingB.GetLocal(jLoc,0);
+        const Real maxAbsA = maxScalingALoc(jLoc);
+        const Real maxAbsB = maxScalingBLoc(jLoc);
         const Real maxAbs = Max(maxAbsA,maxAbsB);
-        const Real minAbs = geomScaling.GetLocal(jLoc,0);
-        geomScaling.SetLocal(jLoc,0,Sqrt(minAbs*maxAbs));
+        const Real minAbs = geomScalingLoc(jLoc);
+        geomScalingLoc(jLoc) = Sqrt(minAbs*maxAbs);
     }
 }
 
@@ -160,11 +166,13 @@ inline void GeometricRowScaling
     RowMaxNorms( A, maxScaling );
     RowMinAbsNonzero( A, maxScaling, geomScaling );
     const Int mLocal = A.LocalHeight();
+    auto& maxScalingLoc = maxScaling.Matrix();
+    auto& geomScalingLoc = geomScaling.Matrix();
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
-        const Real maxAbs = maxScaling.GetLocal(iLoc,0);
-        const Real minAbs = geomScaling.GetLocal(iLoc,0);
-        geomScaling.SetLocal(iLoc,0,Sqrt(minAbs*maxAbs));
+        const Real maxAbs = maxScalingLoc(iLoc);
+        const Real minAbs = geomScalingLoc(iLoc);
+        geomScalingLoc(iLoc) = Sqrt(minAbs*maxAbs);
     }
 }
 

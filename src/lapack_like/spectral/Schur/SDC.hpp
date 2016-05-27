@@ -23,8 +23,7 @@ namespace El {
 namespace schur {
 
 template<typename F>
-inline ValueInt<Base<F>>
-ComputePartition( Matrix<F>& A )
+ValueInt<Base<F>> ComputePartition( Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("schur::ComputePartition"))
     typedef Base<F> Real;
@@ -70,8 +69,7 @@ ComputePartition( Matrix<F>& A )
 // most practical computations, it is at least O(n^2) work, which should dwarf
 // the O(n lg p) unparallelized component of this algorithm.
 template<typename F>
-inline ValueInt<Base<F>>
-ComputePartition( DistMatrix<F>& A )
+ValueInt<Base<F>> ComputePartition( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("schur::ComputePartition"))
     typedef Base<F> Real;
@@ -89,6 +87,7 @@ ComputePartition( DistMatrix<F>& A )
     vector<Real> colSums(n-1,0), rowSums(n-1,0);
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
+    auto& ALoc = A.LockedMatrix();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);
@@ -99,8 +98,8 @@ ComputePartition( DistMatrix<F>& A )
                 const Int i = A.GlobalRow(iLoc);
                 if( i > j )
                 {
-                    colSums[j] += Abs( A.GetLocal(iLoc,jLoc) ); 
-                    rowSums[i-1] += Abs( A.GetLocal(iLoc,jLoc) );
+                    colSums[j] += Abs( ALoc(iLoc,jLoc) ); 
+                    rowSums[i-1] += Abs( ALoc(iLoc,jLoc) );
                 }
             }
         }
@@ -131,8 +130,7 @@ ComputePartition( DistMatrix<F>& A )
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<Base<F>>
-SignDivide
+ValueInt<Base<F>> SignDivide
 ( Matrix<F>& A,
   Matrix<F>& G,
   bool returnQ,
@@ -175,8 +173,7 @@ SignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-SignDivide
+ValueInt<Base<F>> SignDivide
 ( DistMatrix<F>& A,
   DistMatrix<F>& G,
   bool returnQ, 
@@ -220,8 +217,7 @@ SignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-RandomizedSignDivide
+ValueInt<Base<F>> RandomizedSignDivide
 ( Matrix<F>& A,
   Matrix<F>& G,
   bool returnQ,
@@ -284,8 +280,7 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-RandomizedSignDivide
+ValueInt<Base<F>> RandomizedSignDivide
 ( DistMatrix<F>& A,
   DistMatrix<F>& G,
   bool returnQ,
@@ -350,7 +345,7 @@ RandomizedSignDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
@@ -415,9 +410,8 @@ SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
 }
 
 template<typename Real>
-inline ValueInt<Real>
-SpectralDivide
-( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
+ValueInt<Real>
+SpectralDivide( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -486,7 +480,7 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A,
   Matrix<Real>& Q,
@@ -554,7 +548,7 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real>>& A,
   Matrix<Complex<Real>>& Q, 
@@ -627,7 +621,7 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
@@ -694,9 +688,8 @@ SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
 }
 
 template<typename Real>
-inline ValueInt<Real>
-SpectralDivide
-( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
+ValueInt<Real>
+SpectralDivide( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -768,7 +761,7 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A,
   DistMatrix<Real>& Q,
@@ -838,7 +831,7 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real>>& A,
   DistMatrix<Complex<Real>>& Q,
@@ -914,7 +907,7 @@ SpectralDivide
 }
 
 template<typename F>
-inline void
+void
 SDC
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w, 
@@ -958,7 +951,7 @@ SDC
 }
 
 template<typename F>
-inline void
+void
 SDC
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
@@ -1081,7 +1074,7 @@ inline void SplitGrid
 }
 
 template<typename F,typename EigType>
-inline void PushSubproblems
+void PushSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub,
@@ -1110,7 +1103,7 @@ inline void PushSubproblems
 }
 
 template<typename F,typename EigType>
-inline void PullSubproblems
+void PullSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
@@ -1172,7 +1165,7 @@ inline void PullSubproblems
 }
 
 template<typename F>
-inline void
+void
 SDC
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Complex<Base<F>>>& wPre, 
@@ -1247,7 +1240,7 @@ SDC
 }
 
 template<typename F,typename EigType>
-inline void PushSubproblems
+void PushSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub,
@@ -1282,7 +1275,7 @@ inline void PushSubproblems
 }
 
 template<typename F,typename EigType>
-inline void PullSubproblems
+void PullSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
@@ -1360,7 +1353,7 @@ inline void PullSubproblems
 }
 
 template<typename F>
-inline void
+void
 SDC
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Complex<Base<F>>>& wPre, 

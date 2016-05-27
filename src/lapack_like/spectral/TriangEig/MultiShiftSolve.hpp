@@ -655,11 +655,11 @@ void MultiShiftSolve
         // Apply scalings on RHS
         scalesUpdate_MR_STAR.AlignWith( X1 );
         scalesUpdate_MR_STAR = scalesUpdate_VR_STAR;
+        auto& scalesUpdateLoc = scalesUpdate_MR_STAR.Matrix();
         const Int X1LocalWidth = X1.LocalWidth();
         for( Int jActiveLoc=0; jActiveLoc<X1LocalWidth; ++jActiveLoc )
         {
-            const Real sigma =
-              scalesUpdate_MR_STAR.GetLocalRealPart(jActiveLoc,0);
+            const Real sigma = RealPart(scalesUpdateLoc(jActiveLoc));
             if( sigma < Real(1) )
             {
                 // X1 has already been rescaled, but X0 and X2 have not
@@ -674,7 +674,7 @@ void MultiShiftSolve
             {
                 // Force the value to one so the diagonal scale does not
                 // have an effect. This is somewhat of a hack.
-                scalesUpdate_MR_STAR.Set(jActiveLoc,0,F(1));
+                scalesUpdateLoc(jActiveLoc) = F(1);
             }
         }
         auto scalesActive = scales(IR(k,END),ALL);

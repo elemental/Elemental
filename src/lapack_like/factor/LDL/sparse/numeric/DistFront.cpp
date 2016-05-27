@@ -891,7 +891,7 @@ void DistFront<F>::Unpack
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
-                    A.QueueUpdate( i, t+node.off, front.LDense.Get(s,t) );
+                    A.QueueUpdate( i, t+node.off, front.LDense(s,t) );
             }
         }
         else
@@ -900,15 +900,14 @@ void DistFront<F>::Unpack
             {
                 const Int i = node.off + s;
                 for( Int t=0; t<=s; ++t ) 
-                    A.QueueUpdate( i, t+node.off, front.LDense.Get(s,t) );
+                    A.QueueUpdate( i, t+node.off, front.LDense(s,t) );
             }
 
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
-                    A.QueueUpdate
-                    ( i, t+node.off, front.LDense.Get(node.size+s,t) );
+                    A.QueueUpdate( i, t+node.off, front.LDense(node.size+s,t) );
             }
         }
       };

@@ -289,79 +289,6 @@ void omatcopy
       reinterpret_cast<      MKL_Complex16*>(B), BLDim );
 }
 
-template<typename T>
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha,
-  const T* A, BlasInt ALDim,
-        T* B, BlasInt BLDim )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i+j*BLDim] = A[i+j*ALDim];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*BLDim] = A[i+j*ALDim];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j+i*BLDim] = Conj(A[i+j*ALDim]);
-    }
-}
-
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt ALDim,
-                   Int* B, BlasInt BLDim );
-#ifdef EL_HAVE_QD
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  DoubleDouble alpha,
-  const DoubleDouble* A, BlasInt ALDim,
-        DoubleDouble* B, BlasInt BLDim );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  QuadDouble alpha,
-  const QuadDouble* A, BlasInt ALDim,
-        QuadDouble* B, BlasInt BLDim );
-#endif
-#ifdef EL_HAVE_QUAD
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Quad alpha,
-  const Quad* A, BlasInt ALDim,
-        Quad* B, BlasInt BLDim );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<Quad> alpha,
-  const Complex<Quad>* A, BlasInt ALDim,
-        Complex<Quad>* B, BlasInt BLDim );
-#endif
-#ifdef EL_HAVE_MPC
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  BigInt alpha,
-  const BigInt* A, BlasInt ALDim,
-        BigInt* B, BlasInt BLDim );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  BigFloat alpha,
-  const BigFloat* A, BlasInt ALDim,
-        BigFloat* B, BlasInt BLDim );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<BigFloat> alpha,
-  const Complex<BigFloat>* A, BlasInt ALDim,
-        Complex<BigFloat>* B, BlasInt BLDim );
-#endif
-
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   float alpha,
@@ -420,80 +347,6 @@ void omatcopy
       reinterpret_cast<      MKL_Complex16*>(B), BLDim, strideb );
 }
 
-template<typename T>
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha,
-  const T* A, BlasInt ALDim, BlasInt stridea,
-        T* B, BlasInt BLDim, BlasInt strideb )
-{
-    if( orientation == NORMAL )
-    {
-        for( BlasInt j=0; j<n; ++j )
-            for( BlasInt i=0; i<m; ++i )
-                B[i*strideb+j*BLDim] = A[i*stridea+j*ALDim];
-    }
-    else if( orientation == TRANSPOSE )
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*BLDim] = A[i*stridea+j*ALDim];
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-            for( BlasInt j=0; j<n; ++j )
-                B[j*strideb+i*BLDim] = Conj(A[i*stridea+j*ALDim]);
-    }
-}
-
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha,
-  const Int* A, BlasInt ALDim, BlasInt stridea,
-        Int* B, BlasInt BLDim, BlasInt strideb );
-#ifdef EL_HAVE_QD
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  DoubleDouble alpha,
-  const DoubleDouble* A, BlasInt ALDim, BlasInt stridea,
-        DoubleDouble* B, BlasInt BLDim, BlasInt strideb );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  QuadDouble alpha,
-  const QuadDouble* A, BlasInt ALDim, BlasInt stridea,
-        QuadDouble* B, BlasInt BLDim, BlasInt strideb );
-#endif
-#ifdef EL_HAVE_QUAD
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Quad alpha,
-  const Quad* A, BlasInt ALDim, BlasInt stridea,
-        Quad* B, BlasInt BLDim, BlasInt strideb );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<Quad> alpha,
-  const Complex<Quad>* A, BlasInt ALDim, BlasInt stridea,
-        Complex<Quad>* B, BlasInt BLDim, BlasInt strideb );
-#endif
-#ifdef EL_HAVE_MPC
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  BigInt alpha,
-  const BigInt* A, BlasInt ALDim, BlasInt stridea,
-        BigInt* B, BlasInt BLDim, BlasInt strideb );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  BigFloat alpha,
-  const BigFloat* A, BlasInt ALDim, BlasInt stridea,
-        BigFloat* B, BlasInt BLDim, BlasInt strideb );
-template void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<BigFloat> alpha,
-  const Complex<BigFloat>* A, BlasInt ALDim, BlasInt stridea,
-        Complex<BigFloat>* B, BlasInt BLDim, BlasInt strideb );
-#endif
-
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, float* A, BlasInt ALDim, BlasInt BLDim )
@@ -539,45 +392,6 @@ void imatcopy
     ( ordering, trans, m, n, alphaMKL,
       reinterpret_cast<MKL_Complex16*>(A), ALDim, BLDim );
 }
-
-template<typename T>
-void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha, T* A, BlasInt ALDim, BlasInt BLDim )
-{
-    LogicError("This routine not yet written");
-}
-
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, Int* A, BlasInt ALDim, BlasInt BLDim );
-#ifdef EL_HAVE_QD
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  DoubleDouble alpha, DoubleDouble* A, BlasInt ALDim, BlasInt BLDim );
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  QuadDouble alpha, QuadDouble* A, BlasInt ALDim, BlasInt BLDim );
-#endif
-#ifdef EL_HAVE_QUAD
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Quad alpha, Quad* A, BlasInt ALDim, BlasInt BLDim );
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<Quad> alpha, Complex<Quad>* A, BlasInt ALDim, BlasInt BLDim );
-#endif
-#ifdef EL_HAVE_MPC
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  BigInt alpha, BigInt* A, BlasInt ALDim, BlasInt BLDim );
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  BigFloat alpha, BigFloat* A, BlasInt ALDim, BlasInt BLDim );
-template void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<BigFloat> alpha, Complex<BigFloat>* A, BlasInt ALDim, BlasInt BLDim );
-#endif
 
 void Trrk
 ( char uplo, char transA, char transB,

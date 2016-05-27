@@ -31,7 +31,7 @@ UnbObj( Matrix<F>& A )
         auto a21     = A( ind2, ind1 );
         auto A22     = A( ind2, ind2 );
 
-        F alpha = alpha11.Get(0,0);
+        F alpha = alpha11(0);
         if( alpha == F(0) )
             throw SingularMatrixException();
         a21 *= 1/alpha;
@@ -48,7 +48,7 @@ Unb( Matrix<F>& A )
     const Int n = A.Width();
     for( Int j=0; j<Min(m,n); ++j )
     {
-        const F alpha = A.Get(j,j);
+        const F alpha = A(j,j);
         if( alpha == F(0) )
             throw SingularMatrixException();
 

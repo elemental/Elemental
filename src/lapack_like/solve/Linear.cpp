@@ -28,8 +28,7 @@ void Panel
 
 // Short-circuited form of LU factorization with partial pivoting
 template<typename F> 
-inline void
-RowEchelon( Matrix<F>& A, Matrix<F>& B )
+void RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(
       CSE cse("RowEchelon");
@@ -78,8 +77,7 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
 
 // Short-circuited form of LU factorization with partial pivoting
 template<typename F> 
-inline void
-RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
+void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
     DEBUG_ONLY(
       CSE cse("RowEchelon");

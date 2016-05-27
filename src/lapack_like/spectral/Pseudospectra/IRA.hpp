@@ -106,7 +106,7 @@ void Restart
                 {
                     const Matrix<Complex<Real>>& V = VList[k];
                     auto v = V( ALL, IR(j) ); 
-                    Axpy( Q.Get(k,maxIdx), v, u );
+                    Axpy( Q(k,maxIdx), v, u );
                 }
                 Matrix<Complex<Real>>& V = VList[0];
                 auto v = V( ALL, IR(j) );
@@ -165,7 +165,7 @@ void Restart
                     auto vImag = VImag( ALL, IR(j) ); 
                     for( Int i=0; i<n; ++i )
                         v(i) = Complex<Real>(vReal(i),vImag(i));
-                    Axpy( Q.Get(k,maxIdx), v, u );
+                    Axpy( Q(k,maxIdx), v, u );
                 }
                 Matrix<Real>& VReal = VRealList[0];
                 Matrix<Real>& VImag = VImagList[0];

@@ -15,8 +15,7 @@ namespace El {
 namespace svd {
 
 template<typename F>
-inline void
-ChanUpper
+void ChanUpper
 ( DistMatrix<F>& A,
   DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
@@ -133,8 +132,7 @@ ChanUpper
 }
 
 template<typename F>
-inline void
-ChanUpper
+void ChanUpper
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
@@ -152,8 +150,7 @@ ChanUpper
 }
 
 template<typename F>
-inline void
-ChanUpper
+void ChanUpper
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
@@ -176,8 +173,7 @@ ChanUpper
 }
 
 template<typename F>
-inline void
-ChanUpper
+void ChanUpper
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
@@ -194,8 +190,7 @@ ChanUpper
 //----------------------------------------------------------------------------//
 
 template<typename F>
-inline void
-Chan
+void Chan
 ( DistMatrix<F>& A,
   DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
@@ -238,8 +233,7 @@ Chan
 }
 
 template<typename F>
-inline void
-Chan
+void Chan
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
@@ -261,8 +255,7 @@ Chan
 //----------------------------------------------------------------------------//
 
 template<typename F>
-inline void
-Chan
+void Chan
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
@@ -296,8 +289,7 @@ Chan
 }
 
 template<typename F>
-inline void
-Chan
+void Chan
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )

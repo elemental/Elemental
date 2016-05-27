@@ -27,7 +27,7 @@ using El::schur::PullSubproblems;
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
     DEBUG_ONLY(CSE cse("herm_eig::QDWHDivide"))
@@ -70,7 +70,7 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 QDWHDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
@@ -118,7 +118,7 @@ QDWHDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
@@ -187,7 +187,7 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
@@ -258,7 +258,7 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
@@ -306,7 +306,7 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
@@ -355,7 +355,7 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A, 
@@ -404,7 +404,7 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,

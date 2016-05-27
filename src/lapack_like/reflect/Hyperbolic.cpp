@@ -27,9 +27,9 @@ F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
           LogicError("chi must be a scalar");
     )
 
-    F alpha = chi.Get( 0, 0 );
+    F alpha = chi(0);
     const F tau = LeftHyperbolicReflector( alpha, x );
-    chi.Set( 0, 0, alpha );
+    chi(0) = alpha;
 
     return tau;
 }

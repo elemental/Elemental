@@ -89,10 +89,7 @@ void HermitianFunction
     const Int n = w.Height();
     Matrix<C> fw( n, 1 );
     for( Int i=0; i<n; ++i )
-    {
-        const Real omega = w.Get(i,0);
-        fw.Set(i,0,func(omega));
-    }
+        fw(i) = func(w(i));
 
     // A := Z f(Omega) Z^H
     NormalFromEVD( A, fw, Z );

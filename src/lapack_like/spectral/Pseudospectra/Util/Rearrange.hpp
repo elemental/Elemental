@@ -91,6 +91,7 @@ void RestoreOrdering
     DistMatrix<Int,STAR,STAR> preimageCopy( preimage );
     DistMatrix<T,STAR,STAR> xCopy( x );
     const Int numShifts = preimage.Height();
+    // TODO: Significantly lower the latency
     for( Int j=0; j<numShifts; ++j )
     {
         const Int dest = preimageCopy.Get(j,0);
@@ -109,6 +110,7 @@ void RestoreOrdering
     DistMatrix<T1, STAR,STAR> xCopy( x );
     DistMatrix<T2, STAR,STAR> yCopy( y );
     const Int numShifts = preimage.Height();
+    // TODO: Significantly lower the latency
     for( Int j=0; j<numShifts; ++j )
     {
         const Int dest = preimageCopy.Get(j,0);

@@ -40,7 +40,7 @@ OneNormConvergenceTest
         valueInts[j].value = 0;
         for( Int i=0; i<n; ++i )
         {
-            const Real absVal = Abs(activeZ.Get(i,j));
+            const Real absVal = Abs(activeZ(i,j));
             if( absVal > valueInts[j].value )
             {
                 valueInts[j].value = absVal;
@@ -120,6 +120,11 @@ OneNormConvergenceTest
     activeConverged.AlignWith( activeEsts );
     Zeros( activeConverged, numActiveShifts, 1 );
 
+    auto& activeXLoc = activeX.Matrix();
+    auto& activeZLoc = activeZ.LockedMatrix();
+    auto& activeEstsLoc = activeEsts.Matrix();
+    auto& activeConvergedLoc = activeConverged.Matrix();
+
     // Compute the infinity norm of each local column of Z and its location
     const Int numLocShifts = activeEsts.LocalHeight();
     vector<ValueInt<Real>> valueInts(numLocShifts);
@@ -129,7 +134,7 @@ OneNormConvergenceTest
         valueInts[jLoc].index = 0;
         for( Int iLoc=0; iLoc<nLoc; ++iLoc )
         {
-            const Real absVal = Abs(activeZ.GetLocal(iLoc,jLoc));
+            const Real absVal = Abs(activeZLoc(iLoc,jLoc));
             if( absVal > valueInts[jLoc].value )
             {
                 valueInts[jLoc].value = absVal;
@@ -166,15 +171,15 @@ OneNormConvergenceTest
     // Check for convergence
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
-        activeEsts.SetLocal( jLoc, 0, oneNorms[jLoc] );
+        activeEstsLoc(jLoc) = oneNorms[jLoc];
         if( numIts > 0 && valueInts[jLoc].value <= innerProds[jLoc] )
         {
-            activeConverged.SetLocal( jLoc, 0, 1 );
+            activeConvergedLoc(jLoc) = 1;
         }
         else
         {
             for( Int iLoc=0; iLoc<nLoc; ++iLoc )
-                activeX.SetLocal( iLoc, jLoc, 0 );
+                activeXLoc(iLoc,jLoc) = 0;
             const Int j = activeEsts.GlobalRow(jLoc);
             activeX.Set( valueInts[jLoc].index, j, 1 );
             activeItCounts.Update( j, 0, 1 );
@@ -676,14 +681,14 @@ HagerHigham
 
     // Solve one final linear system to attempt to counteract possible
     // cancellation in large entries in inv(U - zI)
+    auto& XLoc = X.Matrix();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         for( Int iLoc=0; iLoc<nLoc; ++iLoc )
         {
             const Int i = X.GlobalRow(iLoc);
-            X.SetLocal
-            ( iLoc, jLoc, (i%2==0 ?  Real(i+n-1)/Real(n-1) : 
-                                    -Real(i+n-1)/Real(n-1) ) );
+            XLoc(iLoc,jLoc) = (i%2==0 ?  Real(i+n-1)/Real(n-1) : 
+                                        -Real(i+n-1)/Real(n-1) );
         }
     }
     if( psCtrl.schur )
@@ -701,11 +706,12 @@ HagerHigham
     DistMatrix<Real,MR,STAR> invNorms_MR_STAR(g);
     invNorms_MR_STAR.AlignWith( X );
     invNorms_MR_STAR = invNorms;
+    auto& invNormsLoc = invNorms_MR_STAR.Matrix();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         const Real heurNorm = 2*oneNorms[jLoc]/(3*Real(n));
-        if( heurNorm > invNorms_MR_STAR.GetLocal(jLoc,0) )
-            invNorms_MR_STAR.SetLocal( jLoc, 0, heurNorm );
+        if( heurNorm > invNormsLoc(jLoc) )
+            invNormsLoc(jLoc) =  heurNorm;
     }
     invNorms = invNorms_MR_STAR;
 
@@ -925,11 +931,12 @@ HagerHigham
     DistMatrix<Real,MR,STAR> invNorms_MR_STAR(g);
     invNorms_MR_STAR.AlignWith( X );
     invNorms_MR_STAR = invNorms;
+    auto& invNormsLoc = invNorms_MR_STAR.Matrix();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         const Real heurNorm = 2*oneNorms[jLoc]/(3*Real(n));
-        if( heurNorm > invNorms_MR_STAR.GetLocal(jLoc,0) )
-            invNorms_MR_STAR.SetLocal( jLoc, 0, heurNorm );
+        if( heurNorm > invNormsLoc(jLoc) )
+            invNormsLoc(jLoc) =  heurNorm;
     }
     invNorms = invNorms_MR_STAR;
 

@@ -331,11 +331,12 @@ void FixColumns( DistMatrix<F,U,V>& X )
     DistMatrix<Real,V,STAR> norms( X.Grid() );
     ColumnTwoNorms( X, norms );
     const Int nLocal = X.LocalWidth();
+    auto& normsLoc = norms.Matrix();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Int j = X.GlobalCol(jLoc);
         auto x = X( ALL, IR(j) );
-        Real norm = norms.GetLocal(jLoc,0);
+        Real norm = normsLoc(jLoc);
         if( norm == Real(0) )
         {
             MakeGaussian( x );
@@ -420,11 +421,15 @@ FindConverged
     activeConverged.AlignWith( activeEsts );
     Zeros( activeConverged, activeEsts.Height(), 1 );
 
+    auto& activeEstsLoc = activeEsts.LockedMatrix();
+    auto& lastActiveEstsLoc = lastActiveEsts.LockedMatrix();
+    auto& activeConvergedLoc = activeConverged.Matrix();
+
     const Int numLocShifts=activeEsts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
-        const Real lastEst = lastActiveEsts.GetLocal(iLoc,0);
-        const Real currEst = activeEsts.GetLocal(iLoc,0);
+        const Real lastEst = lastActiveEstsLoc(iLoc);
+        const Real currEst = activeEstsLoc(iLoc);
         bool converged = false;
         if( currEst >= normCap )
             converged = true;
@@ -432,7 +437,7 @@ FindConverged
             converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
 
         if( converged )
-            activeConverged.SetLocal( iLoc, 0, 1 );
+            activeConvergedLoc(iLoc) = 1;
         else
         {
             const Int i = activeEsts.GlobalRow(iLoc);

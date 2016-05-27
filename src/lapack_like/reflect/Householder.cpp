@@ -55,9 +55,9 @@ F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(CSE cse("LeftReflector"))
 
-    F alpha = chi.Get( 0, 0 );
+    F alpha = chi(0);
     const F tau = LeftReflector( alpha, x );
-    chi.Set( 0, 0, alpha );
+    chi(0) = alpha;
 
     return tau;
 }

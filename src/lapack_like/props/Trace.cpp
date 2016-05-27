@@ -22,7 +22,7 @@ T Trace( const Matrix<T>& A )
     T trace = 0;
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )
-        trace += d.Get(i,0);
+        trace += d(i);
     return trace;
 }
 

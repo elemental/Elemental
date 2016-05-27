@@ -78,7 +78,7 @@ void Deflate
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( activeConverged.Get(swapFrom,0) )
+        if( activeConverged(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -125,10 +125,12 @@ void Deflate
     DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
     DistMatrix<Complex<Real>,VC,STAR> XOldCopy( activeXOld ), XCopy( activeX );
 
+    auto& convergedLoc = convergedCopy.Matrix();
+
     const Int n = ( activeX.LocalWidth()>0 ? HDiagList[0].Height() : 0 );
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.GetLocal(swapFrom,0) )
+        if( convergedLoc(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -139,14 +141,14 @@ void Deflate
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     const Int localTo = activeX.LocalCol(swapTo);
                     DEBUG_ONLY(
-                        if( HDiagList[localFrom].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HDiagList[localTo].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localFrom].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
-                        if( HSubdiagList[localTo].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
+                      if( HDiagList[localFrom].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HDiagList[localTo].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HSubdiagList[localFrom].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
+                      if( HSubdiagList[localTo].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
                     )
                     std::swap( HDiagList[localFrom], HDiagList[localTo] );
                     std::swap( HSubdiagList[localFrom], HSubdiagList[localTo] );
@@ -155,10 +157,10 @@ void Deflate
                 {
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     DEBUG_ONLY(
-                        if( HDiagList[localFrom].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localFrom].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
+                      if( HDiagList[localFrom].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HSubdiagList[localFrom].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
                     )
                     const Int partner = activeX.ColOwner(swapTo);
                     mpi::TaggedSendRecv
@@ -172,10 +174,10 @@ void Deflate
                 {
                     const Int localTo = activeX.LocalCol(swapTo);
                     DEBUG_ONLY(
-                        if( HDiagList[localTo].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localTo].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
+                      if( HDiagList[localTo].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HSubdiagList[localTo].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
                     )
                     const Int partner = activeX.ColOwner(swapFrom);
                     mpi::TaggedSendRecv
@@ -440,11 +442,12 @@ Lanczos
     {
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
+        auto& preimageLoc = preimage.Matrix();
         const Int numLocShifts = preimage.LocalHeight();
         for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
             const Int i = preimage.GlobalRow(iLoc);
-            preimage.SetLocal( iLoc, 0, i );
+            preimageLoc(iLoc) = i;
         }
     }
 

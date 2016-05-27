@@ -13,8 +13,7 @@ namespace El {
 namespace eig {
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( Matrix<Real>& A,
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& X ) 
@@ -35,8 +34,7 @@ Helper
 }
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( Matrix<Complex<Real>>& A,
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& X ) 
@@ -53,8 +51,7 @@ Helper
 }
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( ElementalMatrix<Real>& APre, 
   ElementalMatrix<Complex<Real>>& w,
   ElementalMatrix<Complex<Real>>& XPre ) 
@@ -81,8 +78,7 @@ Helper
 }
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( ElementalMatrix<Complex<Real>>& APre, 
   ElementalMatrix<Complex<Real>>& w,
   ElementalMatrix<Complex<Real>>& XPre ) 
@@ -106,8 +102,7 @@ Helper
 } // namespace eig
 
 template<typename F>
-inline void
-Eig
+void Eig
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
   Matrix<Complex<Base<F>>>& X ) 
@@ -117,8 +112,7 @@ Eig
 }
 
 template<typename F>
-inline void
-Eig
+void Eig
 ( ElementalMatrix<F>& A, 
   ElementalMatrix<Complex<Base<F>>>& w,
   ElementalMatrix<Complex<Base<F>>>& X ) 

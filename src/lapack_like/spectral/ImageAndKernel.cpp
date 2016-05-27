@@ -78,9 +78,10 @@ void ImageAndKernel
     const Real tol = twoNorm*relTol;
 
     Int rank = numSingVals;
+    auto& sLoc = s.Matrix();
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.GetLocal(j,0) <= tol )
+        if( sLoc(j) <= tol )
         {
             rank = j;
             break;
@@ -204,9 +205,10 @@ void Kernel
     const Real tol = twoNorm*relTol;
 
     Int rank = numSingVals;
+    auto& sLoc = s.Matrix();
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.GetLocal(j,0) <= tol )
+        if( sLoc(j) <= tol )
         {
             rank = j;
             break;

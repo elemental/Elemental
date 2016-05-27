@@ -15,8 +15,7 @@ namespace El {
 namespace svd {
 
 template<typename F>
-inline void
-GolubReinsch
+void GolubReinsch
 ( DistMatrix<F>& A,
   DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
@@ -160,8 +159,7 @@ GolubReinsch
 }
 
 template<typename F>
-inline void
-GolubReinsch
+void GolubReinsch
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
@@ -180,8 +178,7 @@ GolubReinsch
 
 #ifdef EL_HAVE_FLA_BSVD
 template<typename F>
-inline void
-GolubReinschFlame
+void GolubReinschFlame
 ( DistMatrix<F>& A,
   DistMatrix<F>& U,
   ElementalMatrix<Base<F>>& s, 
@@ -329,8 +326,7 @@ GolubReinschFlame
 }
 
 template<typename F>
-inline void
-GolubReinschFlame
+void GolubReinschFlame
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& UPre,
   ElementalMatrix<Base<F>>& s, 
@@ -348,8 +344,7 @@ GolubReinschFlame
 }
 
 template<>
-inline void
-GolubReinsch
+void GolubReinsch
 ( ElementalMatrix<double>& A,
   ElementalMatrix<double>& U,
   ElementalMatrix<double>& s, 
@@ -364,8 +359,7 @@ GolubReinsch
 }
 
 template<>
-inline void
-GolubReinsch
+void GolubReinsch
 ( ElementalMatrix<Complex<double>>& A,
   ElementalMatrix<Complex<double>>& U,
   ElementalMatrix<double>& s, 
@@ -383,8 +377,7 @@ GolubReinsch
 #endif // EL_HAVE_FLA_BSVD
 
 template<typename F>
-inline void
-GolubReinsch
+void GolubReinsch
 ( DistMatrix<F>& A,
   ElementalMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
@@ -457,8 +450,7 @@ GolubReinsch
 }
 
 template<typename F>
-inline void
-GolubReinsch
+void GolubReinsch
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )

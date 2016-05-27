@@ -32,7 +32,7 @@ namespace expand_packed_reflectors {
 //
 
 template<typename F>
-inline void
+void
 LV
 ( Conjugation conjugation,
   Int offset,
@@ -117,7 +117,7 @@ LV
 }
 
 template<typename F>
-inline void
+void
 LV
 ( Conjugation conjugation,
   Int offset, 

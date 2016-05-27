@@ -21,7 +21,7 @@ Base<F> TwoCondition( const Matrix<F>& A )
     Real cond = 1;
     const Int numVals = s.Height();
     if( numVals > 0 )
-        cond = s.Get(0,0) / s.Get(numVals-1,0);
+        cond = s(0) / s(numVals-1);
     return cond;
 }
 

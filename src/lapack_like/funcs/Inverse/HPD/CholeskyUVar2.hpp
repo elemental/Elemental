@@ -18,7 +18,7 @@ namespace hpd_inv {
 
 // TODO: Rewrite this routine without partition tracking
 template<typename F> 
-inline void
+void
 CholeskyUVar2( Matrix<F>& A )
 {
     DEBUG_ONLY(
@@ -56,7 +56,7 @@ CholeskyUVar2( Matrix<F>& A )
 
 // TODO: Rewrite this routine without partition tracking
 template<typename F> 
-inline void
+void
 CholeskyUVar2( ElementalMatrix<F>& APre )
 {
     DEBUG_ONLY(

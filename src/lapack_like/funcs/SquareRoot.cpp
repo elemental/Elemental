@@ -188,7 +188,7 @@ void HPSDSquareRoot
     const Int n = w.Height();
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         minEig = Min(minEig,omega);
     }
 
@@ -203,11 +203,11 @@ void HPSDSquareRoot
     // Overwrite the eigenvalues with f(w)
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         if( omega > Real(0) )
-            w.Set(i,0,Sqrt(omega));
+            w(i) = Sqrt(omega);
         else
-            w.Set(i,0,0);
+            w(i) = 0;
     }
 
     // Form the pseudoinverse
