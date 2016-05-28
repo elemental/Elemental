@@ -13,7 +13,7 @@ namespace El {
 namespace hessenberg {
 
 template<typename F>
-inline void UUnb( Matrix<F>& A, Matrix<F>& t )
+void UUnb( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(CSE cse("hessenberg::UUnb"))
     const Int n = A.Height();
@@ -72,7 +72,7 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void UUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
+void UUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(CSE cse("hessenberg::UUnb"))
 

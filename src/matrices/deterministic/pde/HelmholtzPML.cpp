@@ -15,7 +15,7 @@ namespace El {
 namespace pml {
 
 template<typename Real>
-inline Complex<Real> 
+Complex<Real> 
 Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 {
     DEBUG_ONLY(
@@ -30,7 +30,7 @@ Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 }
 
 template<typename Real>
-inline Complex<Real>
+Complex<Real>
 sInv( Int j, Int n, Int numPmlPoints, Real h, Real pmlExp, Real sigma, Real k )
 {
     if( j < numPmlPoints-1 )
@@ -78,11 +78,11 @@ void HelmholtzPML
 
         const C mainTerm = (xTermL+xTermR) - omega*omega*sInvM;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -xTermL );
+            H(i,i-1) = -xTermL;
         if( x != n-1 )
-            H.Set( i, i+1, -xTermR );
+            H(i,i+1) = -xTermR;
     }
 }
 
@@ -262,15 +262,15 @@ void HelmholtzPML
         const C mainTerm = (xTermL+xTermR+yTermL+yTermR) - 
                            omega*omega*sxInvM*syInvM;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -xTermL );
+            H(i,i-1) = -xTermL;
         if( x != nx-1 )
-            H.Set( i, i+1, -xTermR );
+            H(i,i+1) = -xTermR;
         if( y != 0 )
-            H.Set( i, i-nx, -yTermL );
+            H(i,i-nx) = -yTermL;
         if( y != ny-1 )
-            H.Set( i, i+nx, -yTermR );
+            H(i,i+nx) = -yTermR;
     }
 }
 
@@ -521,19 +521,19 @@ void HelmholtzPML
         const C mainTerm = (xTermL+xTermR+yTermL+yTermR+zTermL+zTermR) - 
                            omega*omega*sxInvM*syInvM*szInvM;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -xTermL );
+            H(i,i-1) = -xTermL;
         if( x != nx-1 )
-            H.Set( i, i+1, -xTermR );
+            H(i,i+1) = -xTermR;
         if( y != 0 )
-            H.Set( i, i-nx, -yTermL );
+            H(i,i-nx) = -yTermL;
         if( y != ny-1 )
-            H.Set( i, i+nx, -yTermR );
+            H(i,i+nx) = -yTermR;
         if( z != 0 )
-            H.Set( i, i-nx*ny, -zTermL );
+            H(i,i-nx*ny) = -zTermL;
         if( z != nz-1 )
-            H.Set( i, i+nx*ny, -zTermR );
+            H(i,i+nx*ny) = -zTermR;
     }
 }
 

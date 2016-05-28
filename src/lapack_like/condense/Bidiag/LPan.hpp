@@ -13,7 +13,7 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-inline void
+void
 LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 {
     const Int nX = X.Width();
@@ -156,7 +156,7 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 }
 
 template<typename F>
-inline void
+void
 LPan
 ( DistMatrix<F>& A,
   DistMatrix<F,STAR,STAR>& tP,

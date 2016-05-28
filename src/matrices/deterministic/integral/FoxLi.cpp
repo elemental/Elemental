@@ -25,14 +25,14 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
     for( Int j=0; j<n-1; ++j )
     {
         const Real betaInv = 2*Sqrt(1-Pow(j+Real(1),-2)/4);
-        e.Set( j, 0, 1/betaInv );
+        e(j) = 1/betaInv;
     }
     Matrix<Real> x, Z;
     HermitianTridiagEig( d, e, x, Z, UNSORTED );
     auto z = Z( IR(0), ALL );
     Matrix<Real> sqrtWeights( z ), sqrtWeightsTrans;
     for( Int j=0; j<n; ++j )
-        sqrtWeights.Set( 0, j, Sqrt(Real(2))*Abs(sqrtWeights.Get(0,j)) );
+        sqrtWeights(0,j) = Sqrt(Real(2))*Abs(sqrtWeights(0,j));
     herm_eig::Sort( x, sqrtWeights, ASCENDING );
     Transpose( sqrtWeights, sqrtWeightsTrans );
 
@@ -42,10 +42,10 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
     {
         for( Int i=0; i<n; ++i )
         {
-            const Real theta = -omega*Pow(x.Get(i,0)-x.Get(j,0),2);
+            const Real theta = -omega*Pow(x(i)-x(j),2);
             const Real realPart = Cos(theta);
             const Real imagPart = Sin(theta);
-            A.Set( i, j, phi*C(realPart,imagPart) );
+            A(i,j) = phi*C(realPart,imagPart);
         }
     }
 
@@ -70,20 +70,21 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
     DistMatrix<Real,VR,STAR> d(g), e(g); 
     Zeros( d, n, 1 );
     e.Resize( n-1, 1 );
+    auto& eLoc = e.Matrix();
     for( Int iLoc=0; iLoc<e.LocalHeight(); ++iLoc )
     {
         const Int i = e.GlobalRow(iLoc);
         const Real betaInv = 2*Sqrt(1-Pow(i+Real(1),-2)/4);
-        e.SetLocal( iLoc, 0, 1/betaInv );
+        eLoc(iLoc) = 1/betaInv;
     }
     DistMatrix<Real,VR,STAR> x(g);
     DistMatrix<Real,STAR,VR> Z(g);
     HermitianTridiagEig( d, e, x, Z, UNSORTED );
     auto z = Z( IR(0), ALL );
     DistMatrix<Real,STAR,VR> sqrtWeights( z );
+    auto& sqrtWeightsLoc = sqrtWeights.Matrix();
     for( Int jLoc=0; jLoc<sqrtWeights.LocalWidth(); ++jLoc )
-        sqrtWeights.SetLocal
-            ( 0, jLoc, Sqrt(Real(2))*Abs(sqrtWeights.GetLocal(0,jLoc)) );
+        sqrtWeightsLoc(0,jLoc) = Sqrt(Real(2))*Abs(sqrtWeightsLoc(0,jLoc));
     herm_eig::Sort( x, sqrtWeights, ASCENDING );
 
     // Form the integral operator
@@ -94,15 +95,18 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
     x_MR.AlignWith( A );
     x_MC = x;
     x_MR = x;
+    auto& ALoc = A.Matrix();
+    auto& x_MCLoc = x_MC.Matrix();
+    auto& x_MRLoc = x_MR.Matrix();
     for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
     {
         for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
         {
-            const Real diff = x_MC.GetLocal(iLoc,0)-x_MR.GetLocal(jLoc,0);
+            const Real diff = x_MCLoc(iLoc)-x_MRLoc(jLoc);
             const Real theta = -omega*Pow(diff,2);
             const Real realPart = Cos(theta);
             const Real imagPart = Sin(theta);
-            A.SetLocal( iLoc, jLoc, phi*C(realPart,imagPart) );
+            ALoc(iLoc,jLoc) = phi*C(realPart,imagPart);
         }
     }
 

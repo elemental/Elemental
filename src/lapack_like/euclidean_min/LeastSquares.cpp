@@ -152,7 +152,7 @@ void LeastSquares
 namespace ls {
 
 template<typename F>
-inline void Equilibrated
+void Equilibrated
 ( const SparseMatrix<F>& A,
   const Matrix<F>& B, 
         Matrix<F>& X,
@@ -227,9 +227,9 @@ inline void Equilibrated
     Matrix<Real> reg;
     reg.Resize( m+n, 1 );
     for( Int i=0; i<Max(m,n); ++i )
-        reg.Set( i, 0, gammaTmp*gammaTmp );
+        reg(i) = gammaTmp*gammaTmp;
     for( Int i=Max(m,n); i<m+n; ++i )
-        reg.Set( i, 0, -deltaTmp*deltaTmp );
+        reg(i) = -deltaTmp*deltaTmp;
     SparseMatrix<F> JOrig;
     JOrig = J;
     UpdateRealPartOfDiagonal( J, Real(1), reg );

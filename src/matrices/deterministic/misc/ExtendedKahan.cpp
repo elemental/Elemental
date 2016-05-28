@@ -24,7 +24,7 @@
 namespace El {
 
 template<typename F> 
-inline void MakeExtendedKahan
+void MakeExtendedKahan
 ( Matrix<F>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
@@ -65,12 +65,12 @@ inline void MakeExtendedKahan
     {
         const Real gamma = Pow(zeta,Real(i));
         for( Int j=0; j<n; ++j )
-            A.Set( i, j, gamma*A.Get(i,j) );
+            A(i,j) *= gamma;
     }
 }
 
 template<typename F>
-inline void MakeExtendedKahan
+void MakeExtendedKahan
 ( ElementalMatrix<F>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
@@ -108,12 +108,13 @@ inline void MakeExtendedKahan
 
     // Now scale A by S
     const Real zeta = Sqrt(Real(1)-phi*phi);
+    auto& ALoc = A.Matrix();
     for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
         const Real gamma = Pow(zeta,Real(i));
         for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
-            A.SetLocal( iLoc, jLoc, gamma*A.GetLocal(iLoc,jLoc) );
+            ALoc(iLoc,jLoc) *= gamma;
     }
 }
 

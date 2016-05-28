@@ -13,7 +13,7 @@ namespace El {
 namespace triang_inv {
 
 template<typename F>
-inline void
+void
 LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
 {
     DEBUG_ONLY(
@@ -43,7 +43,7 @@ LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
 }
 
 template<typename F>
-inline void
+void
 LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 {
     DEBUG_ONLY(
@@ -74,7 +74,7 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 }
 
 template<typename F>
-inline void
+void
 LVar3( UnitOrNonUnit diag, ElementalMatrix<F>& LPre )
 {
     DEBUG_ONLY(

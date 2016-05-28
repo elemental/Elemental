@@ -22,7 +22,7 @@
 namespace El {
 
 template<typename Real>
-inline Real DampScaling( Real alpha )
+Real DampScaling( Real alpha )
 {
     static const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -32,7 +32,7 @@ inline Real DampScaling( Real alpha )
 }
 
 template<typename Real>
-inline Real SquareRootScaling( Real alpha )
+Real SquareRootScaling( Real alpha )
 {
     return Sqrt(alpha);
 }

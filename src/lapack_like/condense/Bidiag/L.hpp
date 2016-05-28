@@ -18,7 +18,7 @@ namespace bidiag {
 // NOTE: Very little is changed versus the upper case. Perhaps they should be
 //       combined.
 template<typename F>
-inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
     DEBUG_ONLY(CSE cse("bidiag::L"))
     const Int m = A.Height();
@@ -86,7 +86,7 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 // NOTE: Very little is different from the upper case. Perhaps they should
 //       be combined.
 template<typename F> 
-inline void
+void
 L
 ( DistMatrix<F>& A, 
   DistMatrix<F,STAR,STAR>& tP,
@@ -176,7 +176,7 @@ L
 }
 
 template<typename F> 
-inline void
+void
 L
 ( ElementalMatrix<F>& APre, 
   ElementalMatrix<F>& tPPre,

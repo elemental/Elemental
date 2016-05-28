@@ -12,7 +12,7 @@ namespace El {
 
 // TODO: Move these into BLAS1?
 template<typename F>
-inline Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
+Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 {
     DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;
@@ -32,7 +32,7 @@ inline Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 }
 
 template<typename F>
-inline Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
+Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
 {
     DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;
@@ -48,7 +48,7 @@ inline Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
 }
 
 template<typename F>
-inline Base<F> MinAbsNonzero
+Base<F> MinAbsNonzero
 ( const ElementalMatrix<F>& A, Base<F> upperBound )
 {
     DEBUG_ONLY(CSE cse("MinAbsNonzero"))
@@ -64,7 +64,7 @@ inline Base<F> MinAbsNonzero
 }
 
 template<typename F>
-inline Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
+Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
 {
     DEBUG_ONLY(CSE cse("MinAbsNonzero"))
     typedef Base<F> Real;
@@ -80,7 +80,7 @@ inline Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
 }
 
 template<typename F,Dist U,Dist V>
-inline void GeometricColumnScaling
+void GeometricColumnScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,V,STAR>& geomScaling )
 {
@@ -101,7 +101,7 @@ inline void GeometricColumnScaling
 }
 
 template<typename F,Dist U,Dist V>
-inline void StackedGeometricColumnScaling
+void StackedGeometricColumnScaling
 ( const DistMatrix<F,      U,V   >& A, 
   const DistMatrix<F,      U,V   >& B,
         DistMatrix<Base<F>,V,STAR>& geomScaling )
@@ -156,7 +156,7 @@ inline void StackedGeometricColumnScaling
 }
 
 template<typename F,Dist U,Dist V>
-inline void GeometricRowScaling
+void GeometricRowScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,U,STAR>& geomScaling )
 {

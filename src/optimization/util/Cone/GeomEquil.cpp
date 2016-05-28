@@ -16,7 +16,7 @@
 namespace El {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real DampScaling( Real alpha )
+Real DampScaling( Real alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )

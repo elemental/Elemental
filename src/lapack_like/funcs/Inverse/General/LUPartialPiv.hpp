@@ -64,8 +64,7 @@ void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
 }
 
 template<typename F> 
-inline void
-LUPartialPiv( Matrix<F>& A )
+void LUPartialPiv( Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )
@@ -142,8 +141,7 @@ void AfterLUPartialPiv
 }
 
 template<typename F> 
-inline void
-LUPartialPiv( ElementalMatrix<F>& A )
+void LUPartialPiv( ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )

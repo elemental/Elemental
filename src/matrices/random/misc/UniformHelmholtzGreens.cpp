@@ -42,32 +42,32 @@ void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
             if( radiusSq > 0 && radiusSq <= 1 )
                 break;
         }
-        X.Set( 0, j, x0 );
-        X.Set( 1, j, x1 );
-        X.Set( 2, j, x2 );
+        X(0,j) = x0;
+        X(1,j) = x1;
+        X(2,j) = x2;
     }
     
     A.Resize( n, n );
     for( Int j=0; j<n; ++j )
     {
-        const Real xj0 = X.Get(0,j);
-        const Real xj1 = X.Get(1,j);
-        const Real xj2 = X.Get(2,j);
+        const Real xj0 = X(0,j);
+        const Real xj1 = X(1,j);
+        const Real xj2 = X(2,j);
         for( Int i=0; i<n; ++i )
         {
             if( i == j ) 
             {
-                A.Set( i, j, 0 );
+                A(i,j) = 0;
             }
             else
             {
-                const Real d0 = X.Get(0,i)-xj0;
-                const Real d1 = X.Get(1,i)-xj1;
-                const Real d2 = X.Get(2,i)-xj2;
+                const Real d0 = X(0,i)-xj0;
+                const Real d1 = X(1,i)-xj1;
+                const Real d2 = X(2,i)-xj2;
                 const Real gamma = k0*Sqrt(d0*d0+d1*d1+d2*d2);
                 const Real realPart = Cos(gamma)/gamma;
                 const Real imagPart = Sin(gamma)/gamma;
-                A.Set( i, j, C(realPart,imagPart) );
+                A(i,j) = C(realPart,imagPart);
             }
         }
     }

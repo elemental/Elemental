@@ -13,8 +13,7 @@
 namespace El {
 
 template<typename F> 
-inline void
-MakeLegendre( Matrix<F>& A )
+void MakeLegendre( Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("MakeLegendre"))
     if( A.Height() != A.Width() )
@@ -26,14 +25,13 @@ MakeLegendre( Matrix<F>& A )
     {
         const F gamma = F(1) / Pow( F(2)*F(j+1), F(2) );
         const F beta = F(1) / (F(2)*Sqrt(F(1)-gamma));
-        A.Set( j+1, j, beta );
-        A.Set( j, j+1, beta );
+        A(j+1,j) = beta;
+        A(j,j+1) = beta;
     }
 }
 
 template<typename F>
-inline void
-MakeLegendre( AbstractDistMatrix<F>& A )
+void MakeLegendre( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("MakeLegendre"))
     if( A.Height() != A.Width() )
@@ -42,6 +40,7 @@ MakeLegendre( AbstractDistMatrix<F>& A )
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
+    auto& ALoc = A.Matrix();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);
@@ -53,7 +52,7 @@ MakeLegendre( AbstractDistMatrix<F>& A )
                 const Int k = Max( i, j );
                 const F gamma = F(1) / Pow( F(2)*F(k), F(2) );
                 const F beta = F(1) / (F(2)*Sqrt(F(1)-gamma));
-                A.SetLocal( iLoc, jLoc, beta );
+                ALoc(iLoc,jLoc) = beta;
             }
         }
     }

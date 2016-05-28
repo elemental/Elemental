@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real DampScaling( Real alpha )
+Real DampScaling( Real alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -86,6 +86,8 @@ void RuizEquil
 
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid()), colScaleB(B.Grid());
+    auto& colScaleLoc = colScale.Matrix();
+    auto& colScaleBLoc = colScaleB.Matrix();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -94,9 +96,7 @@ void RuizEquil
         ColumnMaxNorms( A, colScale );
         ColumnMaxNorms( B, colScaleB );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            colScale.SetLocal
-            ( jLoc, 0, Max(colScale.GetLocal(jLoc,0),
-                           colScaleB.GetLocal(jLoc,0)) );
+            colScaleLoc(jLoc) = Max(colScaleLoc(jLoc),colScaleBLoc(jLoc));
         EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
@@ -151,8 +151,7 @@ void RuizEquil
         ColumnMaxNorms( A, scales );
         ColumnMaxNorms( B, maxAbsValsB );
         for( Int j=0; j<n; ++j )
-            scales.Set
-            ( j, 0, Max(scales.Get(j,0),maxAbsValsB.Get(j,0)) );
+            scales(j) = Max(scales(j),maxAbsValsB(j));
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );

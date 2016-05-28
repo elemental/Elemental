@@ -16,7 +16,7 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
     DEBUG_ONLY(CSE cse("bidiag::U"))
     const Int m = A.Height();
@@ -81,7 +81,7 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 }
 
 template<typename F> 
-inline void
+void
 U
 ( DistMatrix<F>& A, 
   DistMatrix<F,STAR,STAR>& tP,
@@ -172,7 +172,7 @@ U
 }
 
 template<typename F> 
-inline void
+void
 U
 ( ElementalMatrix<F>& APre, 
   ElementalMatrix<F>& tPPre,

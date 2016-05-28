@@ -13,7 +13,7 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
     DEBUG_ONLY(
       CSE cse("bidiag::LUnb");
@@ -100,7 +100,7 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 }
 
 template<typename F> 
-inline void LUnb
+void LUnb
 ( ElementalMatrix<F>& APre, 
   ElementalMatrix<F>& tPPre,
   ElementalMatrix<F>& tQPre )

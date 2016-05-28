@@ -27,11 +27,11 @@ void Helmholtz( Matrix<F>& H, Int n, F shift )
     const F mainTerm = 2*hInvSquared - shift;
     for( Int i=0; i<n; ++i )
     {
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( i != 0 )
-            H.Set( i, i-1, -hInvSquared );
+            H(i,i-1) = -hInvSquared;
         if( i != n-1 )
-            H.Set( i, i+1, -hInvSquared );
+            H(i,i+1) = -hInvSquared;
     }
 }
 
@@ -128,15 +128,15 @@ void Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
         const Int x = i % nx;
         const Int y = i/nx;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -hxInvSquared );
+            H(i,i-1) = -hxInvSquared;
         if( x != nx-1 )
-            H.Set( i, i+1, -hxInvSquared );
+            H(i,i+1) = -hxInvSquared;
         if( y != 0 )
-            H.Set( i, i-nx, -hyInvSquared );
+            H(i,i-nx) = -hyInvSquared;
         if( y != ny-1 )
-            H.Set( i, i+nx, -hyInvSquared );
+            H(i,i+nx) = -hyInvSquared;
     }
 }
 
@@ -265,19 +265,19 @@ void Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
         const Int y = (i/nx) % ny;
         const Int z = i/(nx*ny);
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -hxInvSquared );
+            H(i,i-1) = -hxInvSquared;
         if( x != nx-1 )
-            H.Set( i, i+1, -hxInvSquared );
+            H(i,i+1) = -hxInvSquared;
         if( y != 0 )
-            H.Set( i, i-nx, -hyInvSquared );
+            H(i,i-nx) = -hyInvSquared;
         if( y != ny-1 )
-            H.Set( i, i+nx, -hyInvSquared );
+            H(i,i+nx) = -hyInvSquared;
         if( z != 0 )
-            H.Set( i, i-nx*ny, -hzInvSquared );
+            H(i,i-nx*ny) = -hzInvSquared;
         if( z != nz-1 )
-            H.Set( i, i+nx*ny, -hzInvSquared );
+            H(i,i+nx*ny) = -hzInvSquared;
     }
 }
 

@@ -20,7 +20,7 @@ void Diagonal( Matrix<S>& D, const vector<T>& d )
     Zeros( D, n, n );
 
     for( Int j=0; j<n; ++j )
-        D.Set( j, j, d[j] );
+        D(j,j) = d[j];
 }
 
 template<typename S,typename T> 
@@ -33,7 +33,7 @@ void Diagonal( Matrix<S>& D, const Matrix<T>& d )
     Zeros( D, n, n );
 
     for( Int j=0; j<n; ++j )
-        D.Set( j, j, d.Get(j,0) );
+        D(j,j) = d(j);
 }
 
 template<typename S,typename T>
@@ -64,7 +64,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = D.GlobalCol(jLoc);
-        D.Set( j, j, d.Get(j,0) );
+        D.Set( j, j, d(j) );
     }
 }
 
@@ -99,7 +99,7 @@ void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d )
     Zeros( D, n, n );
     D.Reserve( n );
     for( Int j=0; j<n; ++j )
-        D.QueueUpdate( j, j, d.Get(j,0) );
+        D.QueueUpdate( j, j, d(j) );
     D.ProcessQueues();
 }
 

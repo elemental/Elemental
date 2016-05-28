@@ -20,7 +20,7 @@ namespace hessenberg {
 // NOTE: It would be possible to avoid the space for U if we were more careful
 //       about applying the portion interleaved with the Hessenberg matrix.
 template<typename F>
-inline void LPan
+void LPan
 ( Matrix<F>& A,
   Matrix<F>& t,
   Matrix<F>& U,
@@ -114,7 +114,7 @@ inline void LPan
 }
 
 template<typename F>
-inline void LPan
+void LPan
 ( DistMatrix<F>& A,
   DistMatrix<F,STAR,STAR>& t,
   DistMatrix<F,MC,  STAR>& U_MC_STAR,

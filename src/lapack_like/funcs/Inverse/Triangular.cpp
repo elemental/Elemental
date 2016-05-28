@@ -15,8 +15,7 @@ namespace El {
 namespace triang_inv {
 
 template<typename F>
-inline void
-Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
+void Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
 {
     DEBUG_ONLY(CSE cse("triang_inv::Var3"))
     if( uplo == LOWER )
@@ -26,8 +25,7 @@ Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
 }
 
 template<typename F>
-inline void
-Var3( UpperOrLower uplo, UnitOrNonUnit diag, ElementalMatrix<F>& A  )
+void Var3( UpperOrLower uplo, UnitOrNonUnit diag, ElementalMatrix<F>& A  )
 {
     DEBUG_ONLY(CSE cse("triang_inv::Var3"))
     if( uplo == LOWER )

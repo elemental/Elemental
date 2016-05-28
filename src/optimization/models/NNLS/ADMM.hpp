@@ -25,7 +25,7 @@ namespace nnls {
 //
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Int
+Int
 ADMM
 ( const Matrix<Real>& A,
   const Matrix<Real>& B,
@@ -43,7 +43,7 @@ ADMM
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Int
+Int
 ADMM
 ( const ElementalMatrix<Real>& APre,
   const ElementalMatrix<Real>& B, 

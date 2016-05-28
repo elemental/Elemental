@@ -26,7 +26,7 @@ namespace qp {
 namespace box {
 
 template<typename Real,typename>
-inline Int
+Int
 ADMM
 ( const Matrix<Real>& Q,
   const Matrix<Real>& C, 
@@ -136,7 +136,7 @@ ADMM
 }
 
 template<typename Real,typename>
-inline Int
+Int
 ADMM
 ( const ElementalMatrix<Real>& QPre,
   const ElementalMatrix<Real>& CPre, 

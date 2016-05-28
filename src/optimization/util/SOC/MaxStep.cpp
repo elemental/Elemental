@@ -111,9 +111,14 @@ namespace soc {
 namespace {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real ChooseStepLength
-( Real x0, Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
-  Real delta=limits::Epsilon<Real>() )
+Real ChooseStepLength
+( const Real& x0,
+  const Real& y0,
+  const Real& xDet,
+  const Real& yDet,
+  const Real& xTRy,
+  const Real& upperBound, 
+  const Real& delta=limits::Epsilon<Real>() )
 {
     DEBUG_ONLY(CSE cse("ChooseStepLength"))
     Real step;

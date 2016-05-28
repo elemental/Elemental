@@ -13,7 +13,7 @@ namespace El {
 namespace {
 
 template<typename Real>
-inline EnableIf<IsReal<Real>,function<Real(Real,Real)>>
+EnableIf<IsReal<Real>,function<Real(Real,Real)>>
 OpToReduce( mpi::Op op )
 {
     function<Real(Real,Real)> reduce;
@@ -29,7 +29,7 @@ OpToReduce( mpi::Op op )
 }
 
 template<typename F>
-inline EnableIf<IsComplex<F>,function<F(F,F)>>
+EnableIf<IsComplex<F>,function<F(F,F)>>
 OpToReduce( mpi::Op op )
 {
     function<F(F,F)> reduce;
@@ -58,23 +58,19 @@ void AllReduce
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-          F* xBuf = x.Buffer();
-    const Int* orderBuf = orders.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     auto reduce = OpToReduce<F>( op );
     for( Int i=0; i<height; )
     {
-        const Int order = orderBuf[i];
-        const Int firstInd = firstIndBuf[i];
+        const Int order = orders(i);
+        const Int firstInd = firstInds(i);
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
-        F coneRes = xBuf[i];
+        F coneRes = x(i);
         for( Int j=i+1; j<i+order; ++j )
-            coneRes = reduce(coneRes,xBuf[j]);
+            coneRes = reduce(coneRes,x(j));
         for( Int j=i; j<i+order; ++j )
-            xBuf[j] = coneRes;
+            x(j) = coneRes;
 
         i += order;
     }

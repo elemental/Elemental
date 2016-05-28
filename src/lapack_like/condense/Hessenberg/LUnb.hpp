@@ -13,7 +13,7 @@ namespace El {
 namespace hessenberg {
 
 template<typename F>
-inline void LUnb( Matrix<F>& A, Matrix<F>& t )
+void LUnb( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(CSE cse("hessenberg::LUnb"))
     const Int n = A.Height();
@@ -70,7 +70,7 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void LUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
+void LUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(CSE cse("hessenberg::LUnb"))
 

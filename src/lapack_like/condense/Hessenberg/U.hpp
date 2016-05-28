@@ -16,7 +16,7 @@ namespace El {
 namespace hessenberg {
 
 template<typename F>
-inline void U( Matrix<F>& A, Matrix<F>& t )
+void U( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(
       CSE cse("hessenberg::U");
@@ -75,7 +75,7 @@ inline void U( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void U( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
+void U( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
     DEBUG_ONLY(
       CSE cse("hessenberg::U");
