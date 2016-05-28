@@ -880,18 +880,47 @@ void DistFront<F>::Unpack
         const Int structSize = node.lowerStruct.size();
         if( front.sparseLeaf )
         {
+            // Queue the diagonal block
             const Int numEntries = front.LSparse.NumEntries();
-            for( Int e=0; e<numEntries; ++e )
-                A.QueueUpdate
-                ( front.LSparse.Row(e)+node.off, 
-                  front.LSparse.Col(e)+node.off,
-                  front.LSparse.Value(e) );
+            if( numEntries == 0 )
+            {
+                // Since the matrix has not yet been factored, use the original
+                // sparse matrix in front.workSparse
+                const Int numWorkEntries = front.workSparse.NumEntries();
+                for( Int e=0; e<numWorkEntries; ++e )
+                {
+                    const F value = front.workSparse.Value(e);
+                    if( value != F(0) )
+                        A.QueueUpdate
+                        ( front.workSparse.Row(e)+node.off, 
+                          front.workSparse.Col(e)+node.off,
+                          value );
+                }
+            }
+            else
+            {
+                // The matrix has already been factored
+                for( Int e=0; e<numEntries; ++e )
+                {
+                    const F value = front.LSparse.Value(e);
+                    if( value != F(0) )
+                        A.QueueUpdate
+                        ( front.LSparse.Row(e)+node.off, 
+                          front.LSparse.Col(e)+node.off,
+                          value );
+                }
+            }
 
+            // Queue the lower conectivity
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
-                    A.QueueUpdate( i, t+node.off, front.LDense(s,t) );
+                {
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
+                }
             }
         }
         else
@@ -900,14 +929,22 @@ void DistFront<F>::Unpack
             {
                 const Int i = node.off + s;
                 for( Int t=0; t<=s; ++t ) 
-                    A.QueueUpdate( i, t+node.off, front.LDense(s,t) );
+                {
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
+                }
             }
 
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
-                    A.QueueUpdate( i, t+node.off, front.LDense(node.size+s,t) );
+                {
+                    const F value = front.LDense(node.size+s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
+                }
             }
         }
       };
@@ -942,7 +979,11 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                        A.QueueUpdate( i, t+node.off, FTL.GetLocal(sLoc,tLoc) );
+                    {
+                        const F value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != F(0) )
+                            A.QueueUpdate( i, t+node.off, value );
+                    }
                 }
             }
 
@@ -952,8 +993,10 @@ void DistFront<F>::Unpack
                 const Int i = node.lowerStruct[s];
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
-                    Int t = FBL.GlobalCol(tLoc);
-                    A.QueueUpdate( i, t+node.off, FBL.GetLocal(sLoc,tLoc) );
+                    const Int t = FBL.GlobalCol(tLoc);
+                    const F value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
                 }
             }
         }
@@ -975,7 +1018,11 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                        A.QueueUpdate( i, t+node.off, FTL.GetLocal(sLoc,tLoc) );
+                    {
+                        const F value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != F(0) )
+                            A.QueueUpdate( i, t+node.off, value );
+                    }
                 }
             }
 
@@ -985,8 +1032,10 @@ void DistFront<F>::Unpack
                 const Int i = node.lowerStruct[s];
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
-                    Int t = FBL.GlobalCol(tLoc);
-                    A.QueueUpdate( i, t+node.off, FBL.GetLocal(sLoc,tLoc) );
+                    const Int t = FBL.GlobalCol(tLoc);
+                    const F value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
                 }
             }
         }

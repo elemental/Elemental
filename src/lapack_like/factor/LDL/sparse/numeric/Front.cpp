@@ -302,6 +302,7 @@ void Front<F>::Push
     Zeros( A, n, n );
 
     // Reserve space for the lower triangle
+    // TODO: Compensate for sparse leaves
     Int numLower = 0;
     function<void(const Front<F>&)> countLower = 
       [&]( const Front<F>& front )
@@ -326,7 +327,53 @@ void Front<F>::Push
         const Int lowerSize = node.lowerStruct.size();
         if( front.sparseLeaf )
         {
-            LogicError("Sparse leaves not yet supported in Front::Push");
+            // Push in the diagonal block
+            const Int numEntries = front.LSparse.NumEntries();
+            if( numEntries == 0 )
+            {
+                // We have not yet factored, so use the original sparse matrix
+                // stored in front.workSparse
+                const Int numWorkEntries = front.workSparse.NumEntries();
+                for( Int e=0; e<numWorkEntries; ++e )
+                {
+                    const Int iSparse = front.workSparse.Row(e);
+                    const Int jSparse = front.workSparse.Col(e);
+                    const F value = front.workSparse.Value(e);
+                    if( iSparse < jSparse || value == F(0) )
+                        continue;
+
+                    const Int j = invReorder[jSparse + node.off];
+                    A.QueueUpdate( invReorder[iSparse+node.off], j, value );
+                }
+            }
+            else
+            {
+                // We have already factored, so use front.LSparse
+                for( Int e=0; e<numEntries; ++e )
+                {
+                    const Int iSparse = front.LSparse.Row(e);
+                    const Int jSparse = front.LSparse.Col(e);
+                    const F value = front.LSparse.Value(e);
+                    if( iSparse < jSparse || value == F(0) )
+                        continue;
+
+                    const Int j = invReorder[jSparse + node.off];
+                    A.QueueUpdate( invReorder[iSparse+node.off], j, value );
+                }
+            }
+
+            // Push in the lower connectivity
+            for( Int t=0; t<node.size; ++t )
+            {
+                const Int j = invReorder[node.off+t];
+                for( Int s=0; s<lowerSize; ++s )
+                {
+                    const Int i = invReorder[node.lowerStruct[s]];
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, j, value );
+                }
+            }
         }
         else
         {
@@ -338,14 +385,18 @@ void Front<F>::Push
                 for( Int s=t; s<node.size; ++s )
                 {
                     const Int i = invReorder[node.off+s];
-                    A.QueueUpdate( i, j, front.LDense(s,t) );
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, j, value );
                 }
 
                 // Push in the connectivity 
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = invReorder[node.lowerStruct[s]];
-                    A.QueueUpdate( i, j, front.LDense(s+node.size,t) );
+                    const F value = front.LDense(s+node.size,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, j, value );
                 }
             }
         }
@@ -364,6 +415,7 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
     Zeros( A, n, n );
 
     // Reserve space for the lower triangle
+    // TODO: Compensate for sparse leaves
     Int numLower = 0;
     function<void(const Front<F>&)> countLower = 
       [&]( const Front<F>& front )
@@ -382,12 +434,62 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
       {
         const Int numChildren = node.children.size();
         for( Int c=0; c<numChildren; ++c )
+        {
+            PushIndent();
             push( *node.children[c], *front.children[c] );
+            PopIndent();
+        }
 
         const Int lowerSize = node.lowerStruct.size();
         if( front.sparseLeaf )
         {
-            LogicError("Sparse leaves not yet supported for Front::Unpack");
+            // Push in the diagonal block
+            const Int numEntries = front.LSparse.NumEntries();
+            if( numEntries == 0 )
+            {
+                // We have not yet factored, so use the original sparse matrix
+                // stored in front.workSparse
+                const Int numWorkEntries = front.workSparse.NumEntries();
+                for( Int e=0; e<numWorkEntries; ++e )
+                {
+                    const Int iSparse = front.workSparse.Row(e);
+                    const Int jSparse = front.workSparse.Col(e);
+                    const F value = front.workSparse.Value(e);
+                    if( iSparse < jSparse || value == F(0) )
+                        continue;
+
+                    const Int j = jSparse + node.off;
+                    A.QueueUpdate( iSparse+node.off, j, value );
+                }
+            }
+            else
+            {
+                // We have already factored, so use front.LSparse
+                for( Int e=0; e<numEntries; ++e )
+                {
+                    const Int iSparse = front.LSparse.Row(e);
+                    const Int jSparse = front.LSparse.Col(e);
+                    const F value = front.LSparse.Value(e);
+                    if( iSparse < jSparse || value == F(0) )
+                        continue;
+
+                    const Int j = jSparse + node.off;
+                    A.QueueUpdate( iSparse+node.off, j, value );
+                }
+            }
+
+            // Push in the lower connectivity
+            for( Int t=0; t<node.size; ++t )
+            {
+                const Int j = node.off+t;
+                for( Int s=0; s<lowerSize; ++s )
+                {
+                    const Int i = node.lowerStruct[s];
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, j, value );
+                }
+            }
         }
         else
         {
@@ -399,14 +501,18 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
                 for( Int s=t; s<node.size; ++s )
                 {
                     const Int i = node.off+s;
-                    A.QueueUpdate( i, j, front.LDense(s,t) );
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, j, value );
                 }
 
                 // Push in the connectivity 
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = node.lowerStruct[s];
-                    A.QueueUpdate( i, j, front.LDense(s+node.size,t) );
+                    const F value = front.LDense(s+node.size,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, j, value );
                 }
             }
         }
@@ -460,8 +566,20 @@ Int Front<F>::NumEntries() const
 
         if( front.sparseLeaf )
         {
-            // Add in L
-            numEntries += front.LSparse.NumEntries();
+            // Count the diagonal block
+            const Int numSparseEntries = front.LSparse.NumEntries();
+            if( numSparseEntries == 0 )
+            {
+                // The matrix has not yet been factored
+                numEntries += front.workSparse.NumEntries();
+            }
+            else
+            {
+                // The matrix has already been factored
+                numEntries += numSparseEntries;
+            }
+
+            // Count the connectivity
             numEntries += front.LDense.Height() * front.LDense.Width();
         }
         else
@@ -488,7 +606,18 @@ Int Front<F>::NumTopLeftEntries() const
             count( *child );
         if( front.sparseLeaf )
         {
-            numEntries += front.LSparse.NumEntries();
+            // Count the diagonal block
+            const Int numSparseEntries = front.LSparse.NumEntries();
+            if( numSparseEntries == 0 )
+            {
+                // The matrix has not yet been factored
+                numEntries += front.workSparse.NumEntries();
+            }
+            else
+            {
+                // The matrix has already been factored
+                numEntries += numSparseEntries;
+            }
         }
         else
         {
@@ -540,6 +669,10 @@ double Front<F>::FactorGFlops() const
         double realFrontFlops=0;
         if( front.sparseLeaf )
         {
+            if( front.LSparse.NumEntries() == 0 &&
+                front.workSparse.NumEntries() != 0 )
+                LogicError("Matrix has not yet been factored");
+
             // Count the flops from the sparse factorization
             const Int* offsetBuf = front.LSparse.LockedOffsetBuffer();
             for( Int j=0; j<n; ++j )
@@ -578,6 +711,10 @@ double Front<F>::SolveGFlops( Int numRHS ) const
         double realFrontFlops = 0;
         if( front.sparseLeaf ) 
         {
+            if( front.LSparse.NumEntries() == 0 &&
+                front.workSparse.NumEntries() != 0 )
+                LogicError("Matrix has not yet been factored");
+
             const double numEntries = front.LSparse.NumEntries();
             realFrontFlops = (numEntries+m*n)*numRHS;
         }

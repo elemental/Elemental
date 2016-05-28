@@ -1838,7 +1838,7 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const Int n = Input("--n","random matrix size",80);
+        const Int n = Input("--n","random matrix size",60);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
