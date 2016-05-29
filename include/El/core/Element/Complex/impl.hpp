@@ -232,6 +232,7 @@ Complex<Quad>::Complex( const std::complex<Quad>& a )
 #endif
 
 #ifdef EL_HAVE_QD
+// TODO: Avoid redundancy between DoubleDouble and QuadDouble impl's
 Complex<DoubleDouble>::Complex() { }
 
 template<typename S>
@@ -394,6 +395,178 @@ Complex<DoubleDouble>::operator/=( const Complex<S>& b )
 
 Complex<DoubleDouble>&
 Complex<DoubleDouble>::operator/=( const Complex<DoubleDouble>& b )
+{
+    // Note that GCC uses the (faster and less stable) textbook algorithm
+    auto a = *this;
+    SmithDiv
+    ( a.realPart, a.imagPart, 
+      b.realPart, b.imagPart,
+      realPart, imagPart );
+    return *this;
+}
+
+Complex<QuadDouble>::Complex() { }
+
+template<typename S>
+Complex<QuadDouble>::Complex( const S& a )
+{ realPart = a; imagPart = 0; }
+template<typename S>
+Complex<QuadDouble>::Complex( const Complex<S>& a )
+{ realPart = a.real(); imagPart = a.imag(); }
+
+template<typename S,typename T>
+Complex<QuadDouble>::Complex( const S& a, const T& b )
+{ realPart = a; imagPart = b; }
+
+Complex<QuadDouble>::Complex( const Complex<QuadDouble>& a )
+{ realPart = a.realPart; imagPart = a.imagPart; }
+
+Complex<QuadDouble>::~Complex()
+{ }
+
+QuadDouble Complex<QuadDouble>::real() const
+{ return realPart; }
+
+QuadDouble Complex<QuadDouble>::imag() const
+{ return imagPart; }
+
+void Complex<QuadDouble>::real( const QuadDouble& newReal )
+{ realPart = newReal; }
+
+void Complex<QuadDouble>::imag( const QuadDouble& newImag )
+{ imagPart = newImag; }
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator=( const S& a )
+{
+    realPart = a;
+    imagPart = 0;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator=( const Complex<S>& a )
+{
+    realPart = a.real();
+    imagPart = a.imag();
+    return *this;
+}
+
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator=( const Complex<QuadDouble>& a )
+{
+    realPart = a.realPart;
+    imagPart = a.imagPart;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator+=( const S& a )
+{
+    realPart += a;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator+=( const Complex<S>& a )
+{
+    realPart += a.real();
+    imagPart += a.imag();
+    return *this;
+}
+
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator+=( const Complex<QuadDouble>& a )
+{
+    realPart += a.realPart;
+    imagPart += a.imagPart;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator-=( const S& a )
+{
+    realPart -= a;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator-=( const Complex<S>& a )
+{
+    realPart -= a.real();
+    imagPart -= a.imag();
+    return *this;
+}
+
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator-=( const Complex<QuadDouble>& a )
+{
+    realPart -= a.realPart;
+    imagPart -= a.imagPart;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator*=( const S& a )
+{
+    realPart *= a;
+    imagPart *= a;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator*=( const Complex<S>& a )
+{
+    const QuadDouble aReal = a.real();
+    const QuadDouble aImag = a.imag();
+
+    const QuadDouble newReal = aReal*realPart - aImag*imagPart;
+    imagPart = aReal*imagPart + aImag*realPart;
+    realPart = newReal;
+    return *this;
+}
+
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator*=( const Complex<QuadDouble>& a )
+{
+    const QuadDouble newReal = a.realPart*realPart - a.imagPart*imagPart;
+    imagPart = a.realPart*imagPart + a.imagPart*realPart;
+    realPart = newReal;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator/=( const S& b )
+{
+    realPart /= b;
+    imagPart /= b;
+    return *this;
+}
+
+template<typename S>
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator/=( const Complex<S>& b )
+{
+    // Note that GCC uses the (faster and less stable) textbook algorithm
+    auto a = *this;
+    SmithDiv
+    ( a.realPart, a.imagPart, 
+      QuadDouble(b.real()), QuadDouble(b.imag()),
+      realPart, imagPart );
+    return *this;
+}
+
+Complex<QuadDouble>&
+Complex<QuadDouble>::operator/=( const Complex<QuadDouble>& b )
 {
     // Note that GCC uses the (faster and less stable) textbook algorithm
     auto a = *this;
@@ -1324,6 +1497,18 @@ bool operator!=
 {
     return !(a == b);
 }
+
+bool operator==
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
+{
+    return a.real() == b.real() && a.imag() == b.imag();
+}
+
+bool operator!=
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
+{
+    return !(a == b);
+}
 #endif
 #ifdef EL_HAVE_MPC
 bool operator==
@@ -1351,6 +1536,13 @@ operator-( const Complex<Real>& a )
 Complex<DoubleDouble> operator-( const Complex<DoubleDouble>& a )
 {
     Complex<DoubleDouble> aNeg;
+    aNeg.realPart = -aNeg.realPart;
+    aNeg.imagPart = -aNeg.imagPart;
+    return aNeg;
+}
+Complex<QuadDouble> operator-( const Complex<QuadDouble>& a )
+{
+    Complex<QuadDouble> aNeg;
     aNeg.realPart = -aNeg.realPart;
     aNeg.imagPart = -aNeg.imagPart;
     return aNeg;
@@ -1397,7 +1589,7 @@ operator/( const Complex<Real>& a, const Complex<Real>& b )
     auto& bStd = static_cast<const std::complex<Real>&>(b);
     return aStd / bStd;
 }
-#ifdef EL_HAVE_MPC
+#ifdef EL_HAVE_QD
 Complex<DoubleDouble> operator+
 ( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
 {
@@ -1423,6 +1615,38 @@ Complex<DoubleDouble> operator/
 ( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
 {
     Complex<DoubleDouble> c;
+    SmithDiv
+    ( a.realPart, a.imagPart,
+      b.realPart, b.imagPart,
+      c.realPart, c.imagPart );
+    return c;
+}
+
+Complex<QuadDouble> operator+
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c(a);
+    c += b;
+    return c;
+}
+Complex<QuadDouble> operator-
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c(a);
+    c -= b;
+    return c;
+}
+Complex<QuadDouble> operator*
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c(a);
+    c *= b;
+    return c;
+}
+Complex<QuadDouble> operator/
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c;
     SmithDiv
     ( a.realPart, a.imagPart,
       b.realPart, b.imagPart,
@@ -1493,7 +1717,7 @@ operator/( const Complex<Real>& a, const Real& b )
     auto& aStd = static_cast<const std::complex<Real>&>(a);
     return aStd / b;
 }
-#ifdef EL_HAVE_MPC
+#ifdef EL_HAVE_QD
 Complex<DoubleDouble> operator+
 ( const Complex<DoubleDouble>& a, const DoubleDouble& b )
 {
@@ -1519,6 +1743,36 @@ Complex<DoubleDouble> operator/
 ( const Complex<DoubleDouble>& a, const DoubleDouble& b )
 {
     Complex<DoubleDouble> c(a);
+    c.realPart /= b;
+    c.imagPart /= b;
+    return c;
+}
+
+Complex<QuadDouble> operator+
+( const Complex<QuadDouble>& a, const QuadDouble& b )
+{
+    Complex<QuadDouble> c(a);
+    c += b;
+    return c;
+}
+Complex<QuadDouble> operator-
+( const Complex<QuadDouble>& a, const QuadDouble& b )
+{
+    Complex<QuadDouble> c(a);
+    c -= b;
+    return c;
+}
+Complex<QuadDouble> operator*
+( const Complex<QuadDouble>& a, const QuadDouble& b )
+{
+    Complex<QuadDouble> c(a);
+    c *= b;
+    return c;
+}
+Complex<QuadDouble> operator/
+( const Complex<QuadDouble>& a, const QuadDouble& b )
+{
+    Complex<QuadDouble> c(a);
     c.realPart /= b;
     c.imagPart /= b;
     return c;
@@ -1587,7 +1841,7 @@ operator/( const Real& a, const Complex<Real>& b )
     auto& bStd = static_cast<const std::complex<Real>&>(b);
     return a / bStd;
 }
-#ifdef EL_HAVE_MPC
+#ifdef EL_HAVE_QD
 Complex<DoubleDouble> operator+
 ( const DoubleDouble& a, const Complex<DoubleDouble>& b )
 {
@@ -1616,6 +1870,39 @@ Complex<DoubleDouble> operator/
     Complex<DoubleDouble> c;
     SmithDiv
     ( a, DoubleDouble(0),
+      b.realPart, b.imagPart,
+      c.realPart, c.imagPart );
+    return c;
+}
+
+Complex<QuadDouble> operator+
+( const QuadDouble& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c(b);
+    c += a;
+    return c;
+}
+Complex<QuadDouble> operator-
+( const QuadDouble& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c;
+    c.realPart = a - b.realPart;
+    c.imagPart =   - b.imagPart;
+    return c;
+}
+Complex<QuadDouble> operator*
+( const QuadDouble& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c(b);
+    c *= a;
+    return c;
+}
+Complex<QuadDouble> operator/
+( const QuadDouble& a, const Complex<QuadDouble>& b )
+{
+    Complex<QuadDouble> c;
+    SmithDiv
+    ( a, QuadDouble(0),
       b.realPart, b.imagPart,
       c.realPart, c.imagPart );
     return c;

@@ -124,41 +124,98 @@ public:
 
     inline ~Complex();
 
-    inline DoubleDouble real() const;
-    inline DoubleDouble imag() const;
+    inline realType real() const;
+    inline realType imag() const;
 
-    inline void real( const DoubleDouble& newReal );
-    inline void imag( const DoubleDouble& newImag );
-
-    template<typename S>
-    inline Complex<DoubleDouble>& operator=( const S& a );
-    template<typename S>
-    inline Complex<DoubleDouble>& operator=( const Complex<S>& a );
-    inline Complex<DoubleDouble>& operator=( const Complex<DoubleDouble>& a );
+    inline void real( const realType& newReal );
+    inline void imag( const realType& newImag );
 
     template<typename S>
-    inline Complex<DoubleDouble>& operator+=( const S& a );
+    inline Complex<realType>& operator=( const S& a );
     template<typename S>
-    inline Complex<DoubleDouble>& operator+=( const Complex<S>& a );
-    inline Complex<DoubleDouble>& operator+=( const Complex<DoubleDouble>& a );
+    inline Complex<realType>& operator=( const Complex<S>& a );
+    inline Complex<realType>& operator=( const Complex<realType>& a );
 
     template<typename S>
-    inline Complex<DoubleDouble>& operator-=( const S& a );
+    inline Complex<realType>& operator+=( const S& a );
     template<typename S>
-    inline Complex<DoubleDouble>& operator-=( const Complex<S>& a );
-    inline Complex<DoubleDouble>& operator-=( const Complex<DoubleDouble>& a );
+    inline Complex<realType>& operator+=( const Complex<S>& a );
+    inline Complex<realType>& operator+=( const Complex<realType>& a );
 
     template<typename S>
-    inline Complex<DoubleDouble>& operator*=( const S& a );
+    inline Complex<realType>& operator-=( const S& a );
     template<typename S>
-    inline Complex<DoubleDouble>& operator*=( const Complex<S>& a );
-    inline Complex<DoubleDouble>& operator*=( const Complex<DoubleDouble>& a );
+    inline Complex<realType>& operator-=( const Complex<S>& a );
+    inline Complex<realType>& operator-=( const Complex<realType>& a );
 
     template<typename S>
-    inline Complex<DoubleDouble>& operator/=( const S& a );
+    inline Complex<realType>& operator*=( const S& a );
     template<typename S>
-    inline Complex<DoubleDouble>& operator/=( const Complex<S>& a );
-    inline Complex<DoubleDouble>& operator/=( const Complex<DoubleDouble>& a );
+    inline Complex<realType>& operator*=( const Complex<S>& a );
+    inline Complex<realType>& operator*=( const Complex<realType>& a );
+
+    template<typename S>
+    inline Complex<realType>& operator/=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator/=( const Complex<S>& a );
+    inline Complex<realType>& operator/=( const Complex<realType>& a );
+};
+
+template<>
+class Complex<QuadDouble>
+{
+public:
+    typedef QuadDouble realType;
+    realType realPart, imagPart;
+
+    template<typename S>
+    inline Complex( const S& a );
+    template<typename S>
+    inline Complex( const Complex<S>& a );
+
+    template<typename S,typename T>
+    inline Complex( const S& a, const T& b );
+
+    inline Complex();
+    inline Complex( const Complex<realType>& a );
+
+    inline ~Complex();
+
+    inline realType real() const;
+    inline realType imag() const;
+
+    inline void real( const realType& newReal );
+    inline void imag( const realType& newImag );
+
+    template<typename S>
+    inline Complex<realType>& operator=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator=( const Complex<S>& a );
+    inline Complex<realType>& operator=( const Complex<realType>& a );
+
+    template<typename S>
+    inline Complex<realType>& operator+=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator+=( const Complex<S>& a );
+    inline Complex<realType>& operator+=( const Complex<realType>& a );
+
+    template<typename S>
+    inline Complex<realType>& operator-=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator-=( const Complex<S>& a );
+    inline Complex<realType>& operator-=( const Complex<realType>& a );
+
+    template<typename S>
+    inline Complex<realType>& operator*=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator*=( const Complex<S>& a );
+    inline Complex<realType>& operator*=( const Complex<realType>& a );
+
+    template<typename S>
+    inline Complex<realType>& operator/=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator/=( const Complex<S>& a );
+    inline Complex<realType>& operator/=( const Complex<realType>& a );
 };
 #endif
 
@@ -191,11 +248,11 @@ public:
     inline void SetPrecision( mpfr_prec_t );
     inline size_t NumLimbs() const;
 
-    inline BigFloat real() const;
-    inline BigFloat imag() const;
+    inline realType real() const;
+    inline realType imag() const;
 
-    inline void real( const BigFloat& newReal );
-    inline void imag( const BigFloat& newImag );
+    inline void real( const realType& newReal );
+    inline void imag( const realType& newImag );
 
     inline Complex();
 
@@ -239,96 +296,96 @@ public:
     inline ~Complex();
 
     template<typename S>
-    inline Complex<BigFloat>& operator=( const Complex<S>& a );
+    inline Complex<realType>& operator=( const Complex<S>& a );
     template<typename S>
-    inline Complex<BigFloat>& operator=( const S& a );
+    inline Complex<realType>& operator=( const S& a );
 
-    inline Complex<BigFloat>& operator=( Complex<BigFloat>&& a );
-    inline Complex<BigFloat>& operator=( const Complex<BigFloat>& a );
-    inline Complex<BigFloat>& operator=( const BigFloat& a );
-    inline Complex<BigFloat>& operator=( const BigInt& a );
-    inline Complex<BigFloat>& operator=( const Complex<double>& a );
-    inline Complex<BigFloat>& operator=( const double& a );
-    inline Complex<BigFloat>& operator=( const Complex<float>& a );
-    inline Complex<BigFloat>& operator=( const float& a );
-    inline Complex<BigFloat>& operator=( const long long int& a );
-    inline Complex<BigFloat>& operator=( const long int& a );
-    inline Complex<BigFloat>& operator=( const int& a );
-    inline Complex<BigFloat>& operator=( const unsigned long long& a );
-    inline Complex<BigFloat>& operator=( const unsigned long& a );
-    inline Complex<BigFloat>& operator=( const unsigned& a );
-
-    template<typename S>
-    inline Complex<BigFloat>& operator+=( const S& a );
-    template<typename S>
-    inline Complex<BigFloat>& operator+=( const Complex<S>& a );
-
-    inline Complex<BigFloat>& operator+=( const Complex<BigFloat>& a );
-    inline Complex<BigFloat>& operator+=( const BigFloat& a );
-    inline Complex<BigFloat>& operator+=( const Complex<double>& a );
-    inline Complex<BigFloat>& operator+=( const double& a );
-    inline Complex<BigFloat>& operator+=( const Complex<float>& a );
-    inline Complex<BigFloat>& operator+=( const float& a );
-    inline Complex<BigFloat>& operator+=( const long long int& a );
-    inline Complex<BigFloat>& operator+=( const long int& a );
-    inline Complex<BigFloat>& operator+=( const int& a );
-    inline Complex<BigFloat>& operator+=( const unsigned long long& a );
-    inline Complex<BigFloat>& operator+=( const unsigned long& a );
-    inline Complex<BigFloat>& operator+=( const unsigned& a );
+    inline Complex<realType>& operator=( Complex<realType>&& a );
+    inline Complex<realType>& operator=( const Complex<realType>& a );
+    inline Complex<realType>& operator=( const realType& a );
+    inline Complex<realType>& operator=( const BigInt& a );
+    inline Complex<realType>& operator=( const Complex<double>& a );
+    inline Complex<realType>& operator=( const double& a );
+    inline Complex<realType>& operator=( const Complex<float>& a );
+    inline Complex<realType>& operator=( const float& a );
+    inline Complex<realType>& operator=( const long long int& a );
+    inline Complex<realType>& operator=( const long int& a );
+    inline Complex<realType>& operator=( const int& a );
+    inline Complex<realType>& operator=( const unsigned long long& a );
+    inline Complex<realType>& operator=( const unsigned long& a );
+    inline Complex<realType>& operator=( const unsigned& a );
 
     template<typename S>
-    inline Complex<BigFloat>& operator-=( const S& a );
+    inline Complex<realType>& operator+=( const S& a );
     template<typename S>
-    inline Complex<BigFloat>& operator-=( const Complex<S>& a );
+    inline Complex<realType>& operator+=( const Complex<S>& a );
 
-    inline Complex<BigFloat>& operator-=( const Complex<BigFloat>& a );
-    inline Complex<BigFloat>& operator-=( const BigFloat& a );
-    inline Complex<BigFloat>& operator-=( const Complex<double>& a );
-    inline Complex<BigFloat>& operator-=( const double& a );
-    inline Complex<BigFloat>& operator-=( const Complex<float>& a );
-    inline Complex<BigFloat>& operator-=( const float& a );
-    inline Complex<BigFloat>& operator-=( const long long int& a );
-    inline Complex<BigFloat>& operator-=( const long int& a );
-    inline Complex<BigFloat>& operator-=( const int& a );
-    inline Complex<BigFloat>& operator-=( const unsigned long long& a );
-    inline Complex<BigFloat>& operator-=( const unsigned long& a );
-    inline Complex<BigFloat>& operator-=( const unsigned& a );
-
-    template<typename S>
-    inline Complex<BigFloat>& operator*=( const S& a );
-    template<typename S>
-    inline Complex<BigFloat>& operator*=( const Complex<S>& a );
-
-    inline Complex<BigFloat>& operator*=( const Complex<BigFloat>& a );
-    inline Complex<BigFloat>& operator*=( const BigFloat& a );
-    inline Complex<BigFloat>& operator*=( const Complex<double>& a );
-    inline Complex<BigFloat>& operator*=( const double& a );
-    inline Complex<BigFloat>& operator*=( const Complex<float>& a );
-    inline Complex<BigFloat>& operator*=( const float& a );
-    inline Complex<BigFloat>& operator*=( const long long int& a );
-    inline Complex<BigFloat>& operator*=( const long int& a );
-    inline Complex<BigFloat>& operator*=( const int& a );
-    inline Complex<BigFloat>& operator*=( const unsigned long long& a );
-    inline Complex<BigFloat>& operator*=( const unsigned long& a );
-    inline Complex<BigFloat>& operator*=( const unsigned& a );
+    inline Complex<realType>& operator+=( const Complex<realType>& a );
+    inline Complex<realType>& operator+=( const realType& a );
+    inline Complex<realType>& operator+=( const Complex<double>& a );
+    inline Complex<realType>& operator+=( const double& a );
+    inline Complex<realType>& operator+=( const Complex<float>& a );
+    inline Complex<realType>& operator+=( const float& a );
+    inline Complex<realType>& operator+=( const long long int& a );
+    inline Complex<realType>& operator+=( const long int& a );
+    inline Complex<realType>& operator+=( const int& a );
+    inline Complex<realType>& operator+=( const unsigned long long& a );
+    inline Complex<realType>& operator+=( const unsigned long& a );
+    inline Complex<realType>& operator+=( const unsigned& a );
 
     template<typename S>
-    inline Complex<BigFloat>& operator/=( const S& a );
+    inline Complex<realType>& operator-=( const S& a );
     template<typename S>
-    inline Complex<BigFloat>& operator/=( const Complex<S>& a );
+    inline Complex<realType>& operator-=( const Complex<S>& a );
 
-    inline Complex<BigFloat>& operator/=( const Complex<BigFloat>& a );
-    inline Complex<BigFloat>& operator/=( const BigFloat& a );
-    inline Complex<BigFloat>& operator/=( const Complex<double>& a );
-    inline Complex<BigFloat>& operator/=( const double& a );
-    inline Complex<BigFloat>& operator/=( const Complex<float>& a );
-    inline Complex<BigFloat>& operator/=( const float& a );
-    inline Complex<BigFloat>& operator/=( const long long int& a );
-    inline Complex<BigFloat>& operator/=( const long int& a );
-    inline Complex<BigFloat>& operator/=( const int& a );
-    inline Complex<BigFloat>& operator/=( const unsigned long long& a );
-    inline Complex<BigFloat>& operator/=( const unsigned long& a );
-    inline Complex<BigFloat>& operator/=( const unsigned& a );
+    inline Complex<realType>& operator-=( const Complex<realType>& a );
+    inline Complex<realType>& operator-=( const realType& a );
+    inline Complex<realType>& operator-=( const Complex<double>& a );
+    inline Complex<realType>& operator-=( const double& a );
+    inline Complex<realType>& operator-=( const Complex<float>& a );
+    inline Complex<realType>& operator-=( const float& a );
+    inline Complex<realType>& operator-=( const long long int& a );
+    inline Complex<realType>& operator-=( const long int& a );
+    inline Complex<realType>& operator-=( const int& a );
+    inline Complex<realType>& operator-=( const unsigned long long& a );
+    inline Complex<realType>& operator-=( const unsigned long& a );
+    inline Complex<realType>& operator-=( const unsigned& a );
+
+    template<typename S>
+    inline Complex<realType>& operator*=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator*=( const Complex<S>& a );
+
+    inline Complex<realType>& operator*=( const Complex<realType>& a );
+    inline Complex<realType>& operator*=( const realType& a );
+    inline Complex<realType>& operator*=( const Complex<double>& a );
+    inline Complex<realType>& operator*=( const double& a );
+    inline Complex<realType>& operator*=( const Complex<float>& a );
+    inline Complex<realType>& operator*=( const float& a );
+    inline Complex<realType>& operator*=( const long long int& a );
+    inline Complex<realType>& operator*=( const long int& a );
+    inline Complex<realType>& operator*=( const int& a );
+    inline Complex<realType>& operator*=( const unsigned long long& a );
+    inline Complex<realType>& operator*=( const unsigned long& a );
+    inline Complex<realType>& operator*=( const unsigned& a );
+
+    template<typename S>
+    inline Complex<realType>& operator/=( const S& a );
+    template<typename S>
+    inline Complex<realType>& operator/=( const Complex<S>& a );
+
+    inline Complex<realType>& operator/=( const Complex<realType>& a );
+    inline Complex<realType>& operator/=( const realType& a );
+    inline Complex<realType>& operator/=( const Complex<double>& a );
+    inline Complex<realType>& operator/=( const double& a );
+    inline Complex<realType>& operator/=( const Complex<float>& a );
+    inline Complex<realType>& operator/=( const float& a );
+    inline Complex<realType>& operator/=( const long long int& a );
+    inline Complex<realType>& operator/=( const long int& a );
+    inline Complex<realType>& operator/=( const int& a );
+    inline Complex<realType>& operator/=( const unsigned long long& a );
+    inline Complex<realType>& operator/=( const unsigned long& a );
+    inline Complex<realType>& operator/=( const unsigned& a );
 
     inline void Zero();
 
@@ -345,6 +402,10 @@ inline bool operator==
 ( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
 inline bool operator!=
 ( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+inline bool operator==
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
+inline bool operator!=
+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
 #endif
 #ifdef EL_HAVE_MPC
 inline bool operator==
@@ -357,6 +418,7 @@ template<typename Real>
 inline Complex<Real> operator-( const Complex<Real>& a );
 #ifdef EL_HAVE_QD
 inline Complex<DoubleDouble> operator-( const Complex<DoubleDouble>& a );
+inline Complex<QuadDouble> operator-( const Complex<QuadDouble>& a );
 #endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat> operator-( const Complex<BigFloat>& a );
@@ -383,6 +445,14 @@ inline Complex<DoubleDouble>
 operator*( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
 inline Complex<DoubleDouble>
 operator/( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+inline Complex<QuadDouble>
+operator+( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
+inline Complex<QuadDouble>
+operator-( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
+inline Complex<QuadDouble>
+operator*( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
+inline Complex<QuadDouble>
+operator/( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
 #endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat>
@@ -416,6 +486,14 @@ inline Complex<DoubleDouble>
 operator*( const Complex<DoubleDouble>& a, const DoubleDouble& b );
 inline Complex<DoubleDouble>
 operator/( const Complex<DoubleDouble>& a, const DoubleDouble& b );
+inline Complex<QuadDouble>
+operator+( const Complex<QuadDouble>& a, const QuadDouble& b );
+inline Complex<QuadDouble>
+operator-( const Complex<QuadDouble>& a, const QuadDouble& b );
+inline Complex<QuadDouble>
+operator*( const Complex<QuadDouble>& a, const QuadDouble& b );
+inline Complex<QuadDouble>
+operator/( const Complex<QuadDouble>& a, const QuadDouble& b );
 #endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat>
@@ -449,6 +527,14 @@ inline Complex<DoubleDouble>
 operator*( const DoubleDouble& a, const Complex<DoubleDouble>& b );
 inline Complex<DoubleDouble>
 operator/( const DoubleDouble& a, const Complex<DoubleDouble>& b );
+inline Complex<QuadDouble>
+operator+( const QuadDouble& a, const Complex<QuadDouble>& b );
+inline Complex<QuadDouble>
+operator-( const QuadDouble& a, const Complex<QuadDouble>& b );
+inline Complex<QuadDouble>
+operator*( const QuadDouble& a, const Complex<QuadDouble>& b );
+inline Complex<QuadDouble>
+operator/( const QuadDouble& a, const Complex<QuadDouble>& b );
 #endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat>
@@ -468,7 +554,7 @@ typedef Complex<Quad> qcomplex;
 #endif
 #ifdef EL_HAVE_QD
 typedef Complex<DoubleDouble> ddcomplex;
-//typedef Complex<QuadDouble> qdcomplex;
+typedef Complex<QuadDouble> qdcomplex;
 #endif
 #ifdef EL_HAVE_MPC
 typedef Complex<BigFloat> acomplex;
@@ -509,7 +595,11 @@ template<> struct IsScalar<Complex<double>>
 #ifdef EL_HAVE_QD
 template<> struct IsScalar<DoubleDouble>
 { static const bool value=true; };
+template<> struct IsScalar<Complex<DoubleDouble>>
+{ static const bool value=true; };
 template<> struct IsScalar<QuadDouble>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<QuadDouble>>
 { static const bool value=true; };
 #endif
 #ifdef EL_HAVE_QUAD
