@@ -26,7 +26,7 @@ template<typename Real>
 class Complex
 {
 public:
-    Real real, imag;
+    Real realPart, imagPart;
 };
 
 template<>
