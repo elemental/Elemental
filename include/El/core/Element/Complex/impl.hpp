@@ -11,189 +11,403 @@
 
 namespace El {
 
-Complex<float>::Complex( const int& a )
-: std::complex<float>(a)
+// c := a / b using the textbook algorithm
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void NaiveDiv
+( const Real& aReal, const Real& aImag,
+  const Real& bReal, const Real& bImag,
+        Real& cReal,       Real& cImag )
+{
+    const Real den = bReal*bReal + bImag*bImag;
+    cReal = (aReal*bReal + aImag*bImag) / den;
+    cImag = (aImag*bReal - aReal*bImag) / den;
+}
+
+// c := a / b using Smith's algorithm
+// See Fig. 3 from Baudin and Smith
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void SmithDiv
+( const Real& aReal, const Real& aImag,
+  const Real& bReal, const Real& bImag,
+        Real& cReal,       Real& cImag )
+{
+    if( Abs(bImag) <= Abs(bReal) )
+    {
+        const Real r = bImag/bReal;
+        const Real den = bReal + bImag*r;
+        cReal = (aReal + aImag*r) / den;
+        cImag = (aImag - aReal*r) / den;
+    }
+    else
+    {
+        const Real r = bReal/bImag; 
+        const Real den = bReal*r + bImag;
+        cReal = (aReal*r + aImag) / den;
+        cImag = (aImag*r - aReal) / den;
+    }
+}
+
+namespace safe_div {
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void InternalRealPart
+( const Real& aReal, const Real& aImag,
+  const Real& bReal, const Real& bImag,
+  const Real& r,
+  const Real& t,
+        Real& result )
+{
+    const Real zero = Real(0);
+    if( r != zero )
+    {
+        Real br = aImag*r;
+        if( br != zero )
+        {
+            result = (aReal + br)*t;
+        }
+        else
+        {
+            result = aReal*t + (aImag*t)*r;
+        }
+    }
+    else
+    {
+        result = (aReal + bImag*(aImag/bReal))*t;
+    }
+}
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void Subinternal
+( const Real& aReal, const Real& aImag,
+  const Real& bReal, const Real& bImag,
+        Real& cReal,       Real& cImag )
+{
+    Real r = bImag/bReal;
+    Real t = 1/(bReal + bImag*r);
+    safe_div::InternalRealPart(aReal,aImag,bReal,bImag,r,t,cReal);
+    safe_div::InternalRealPart(aImag,-aReal,bReal,bImag,r,t,cImag);
+}
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void Internal
+( const Real& aReal, const Real& aImag,
+  const Real& bReal, const Real& bImag,
+        Real& cReal,       Real& cImag )
+{
+    if( Abs(bImag) <= Abs(bReal) )
+    {
+        safe_div::Subinternal(aReal,aImag,bReal,bImag,cReal,cImag);
+    }
+    else
+    {
+        safe_div::Subinternal(aImag,aReal,bImag,bReal,cReal,cImag);
+        cImag = -cImag;
+    }
+}
+
+} // namespace safe_div
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void SafeDiv
+( const Real& aReal, const Real& aImag,
+  const Real& bReal, const Real& bImag,
+        Real& cReal,       Real& cImag )
+{
+    const Real aMax = Max( Abs(aReal), Abs(aImag) );
+    const Real bMax = Max( Abs(bReal), Abs(bImag) );
+    const Real beta = 2;
+    const Real overflow = limits::Max<Real>();
+    const Real underflow = limits::SafeMin<Real>();
+    const Real eps = limits::Epsilon<Real>();
+    const Real betaEpsSq = beta / (eps*eps);
+
+    Real sigma=1;
+    Real aRealScaled=aReal, aImagScaled=aImag,
+         bRealScaled=bReal, bImagScaled=bImag;
+    if( aMax >= overflow/2 )
+    {
+        aRealScaled /= 2;
+        aImagScaled /= 2;
+        sigma *= 2;
+    }
+    if( bMax >= overflow/2 )
+    {
+        bRealScaled /= 2;
+        bImagScaled /= 2;
+        sigma /= 2;
+    }
+    if( aMax <= underflow*beta/eps )
+    {
+        aRealScaled *= betaEpsSq;
+        aImagScaled *= betaEpsSq;
+        sigma /= betaEpsSq;
+    }
+    if( bMax <= underflow*beta/eps )
+    {
+        bRealScaled *= betaEpsSq;
+        bImagScaled *= betaEpsSq;
+        sigma *= betaEpsSq;
+    }
+
+    safe_div::Internal
+    ( aRealScaled, aImagScaled,
+      bRealScaled, bImagScaled,
+      cReal,       cImag );
+    cReal *= sigma;
+    cImag *= sigma;
+}
+
+// Complex<float>
+// ==============
+template<typename S>
+Complex<float>::Complex( const S& a )
+: std::complex<float>(float(a))
 { }
 
-Complex<float>::Complex( const long long int& a )
-: std::complex<float>(a)
+template<typename S>
+Complex<float>::Complex( const Complex<S>& a )
+: std::complex<float>(float(a.real()),float(a.imag()))
 { }
 
-Complex<float>::Complex( const float& a )
-: std::complex<float>(a)
+template<typename S,typename T>
+Complex<float>::Complex( const S& a, const T& b )
+: std::complex<float>(float(a),float(b))
 { }
 
-Complex<float>::Complex( const float& a, const float& b )
-: std::complex<float>(a,b)
+Complex<float>::Complex()
+: std::complex<float>()
 { }
-
 Complex<float>::Complex( const std::complex<float>& a )
 : std::complex<float>(a)
 { }
 
-Complex<float>::Complex( std::complex<float>&& a )
-: std::complex<float>(std::move(a))
+// Complex<double>
+// ===============
+template<typename S>
+Complex<double>::Complex( const S& a )
+: std::complex<double>(double(a))
 { }
 
-Complex<float>::Complex( const double& a )
-: std::complex<float>(a)
+template<typename S>
+Complex<double>::Complex( const Complex<S>& a )
+: std::complex<double>(double(a.real()),double(a.imag()))
 { }
 
-Complex<float>::Complex( const std::complex<double>& a )
-: std::complex<float>(a)
+template<typename S,typename T>
+Complex<double>::Complex( const S& a, const T& b )
+: std::complex<double>(double(a),double(b))
 { }
 
-#ifdef EL_HAVE_QUAD
-Complex<float>::Complex( const Quad& a )
-: std::complex<float>(float(a))
+Complex<double>::Complex()
+: std::complex<double>()
 { }
-
-Complex<float>::Complex( const std::complex<Quad>& a )
-: std::complex<float>(float(a.real()),float(a.imag()))
-{ }
-#endif
-#ifdef EL_HAVE_QD
-Complex<float>::Complex( const DoubleDouble& a )
-: std::complex<float>(float(a))
-{ }
-
-Complex<float>::Complex( const QuadDouble& a )
-: std::complex<float>(float(a))
-{ }
-#endif
-#ifdef EL_HAVE_MPC
-Complex<float>::Complex( const BigFloat& a )
-: std::complex<float>(realType(a))
-{ }
-
-Complex<float>::Complex( const Complex<BigFloat>& a )
-: std::complex<float>(float(a.real()),float(a.imag()))
-{ }
-#endif
-
-Complex<double>::Complex( const int& a )
-: std::complex<double>(a)
-{ }
-
-Complex<double>::Complex( const long long int& a )
-: std::complex<double>(a)
-{ }
-
-Complex<double>::Complex( const double& a )
-: std::complex<double>(a)
-{ }
-
-Complex<double>::Complex( const double& a, const double& b )
-: std::complex<double>(a,b)
-{ }
-
 Complex<double>::Complex( const std::complex<double>& a )
 : std::complex<double>(a)
 { }
 
-Complex<double>::Complex( std::complex<double>&& a )
-: std::complex<double>(std::move(a))
-{ }
-
-Complex<double>::Complex( const float& a )
-: std::complex<double>(a)
-{ }
-
-Complex<double>::Complex( const std::complex<float>& a )
-: std::complex<double>(a)
-{ }
-
 #ifdef EL_HAVE_QUAD
-Complex<double>::Complex( const Quad& a )
-: std::complex<double>(double(a))
+// Complex<Quad>
+// =============
+template<typename S>
+Complex<Quad>::Complex( const S& a )
+: std::complex<Quad>(Quad(a))
 { }
 
-Complex<double>::Complex( const std::complex<Quad>& a )
-: std::complex<double>(double(a.real()),double(a.imag()))
-{ }
-#endif
-#ifdef EL_HAVE_QD
-Complex<double>::Complex( const DoubleDouble& a )
-: std::complex<double>(double(a))
+template<typename S>
+Complex<Quad>::Complex( const Complex<S>& a )
+: std::complex<Quad>(Quad(a.real()),Quad(a.imag()))
 { }
 
-Complex<double>::Complex( const QuadDouble& a )
-: std::complex<double>(double(a))
-{ }
-#endif
-#ifdef EL_HAVE_MPC
-Complex<double>::Complex( const BigFloat& a )
-: std::complex<double>(double(a))
+template<typename S,typename T>
+Complex<Quad>::Complex( const S& a, const T& b )
+: std::complex<Quad>(Quad(a),Quad(b))
 { }
 
-Complex<double>::Complex( const Complex<BigFloat>& a )
-: std::complex<double>(double(a.real()),double(a.imag()))
+Complex<Quad>::Complex()
+: std::complex<Quad>()
 { }
-#endif
-
-#ifdef EL_HAVE_QUAD
-Complex<Quad>::Complex( const int& a )
-: std::complex<Quad>(a)
-{ }
-
-Complex<Quad>::Complex( const long long int& a )
-: std::complex<Quad>(a)
-{ }
-
-Complex<Quad>::Complex( const Quad& a )
-: std::complex<Quad>(a)
-{ }
-
-Complex<Quad>::Complex( const Quad& a, const Quad& b )
-: std::complex<Quad>(a,b)
-{ }
-
 Complex<Quad>::Complex( const std::complex<Quad>& a )
 : std::complex<Quad>(a)
 { }
-
-Complex<Quad>::Complex( std::complex<Quad>&& a )
-: std::complex<Quad>(std::move(a))
-{ }
-
-Complex<Quad>::Complex( const float& a )
-: std::complex<Quad>(a)
-{ }
-
-Complex<Quad>::Complex( const std::complex<float>& a )
-: std::complex<Quad>(a)
-{ }
-
-Complex<Quad>::Complex( const double& a )
-: std::complex<Quad>(a)
-{ }
-
-Complex<Quad>::Complex( const std::complex<double>& a )
-: std::complex<Quad>(a)
-{ }
+#endif
 
 #ifdef EL_HAVE_QD
-Complex<Quad>::Complex( const DoubleDouble& a )
-: std::complex<Quad>(Quad(a))
+Complex<DoubleDouble>::Complex() { }
+
+template<typename S>
+Complex<DoubleDouble>::Complex( const S& a )
+{ realPart = a; imagPart = 0; }
+template<typename S>
+Complex<DoubleDouble>::Complex( const Complex<S>& a )
+{ realPart = a.real(); imagPart = a.imag(); }
+
+template<typename S,typename T>
+Complex<DoubleDouble>::Complex( const S& a, const T& b )
+{ realPart = a; imagPart = b; }
+
+Complex<DoubleDouble>::Complex( const Complex<DoubleDouble>& a )
+{ realPart = a.realPart; imagPart = a.imagPart; }
+
+Complex<DoubleDouble>::~Complex()
 { }
 
-Complex<Quad>::Complex( const QuadDouble& a )
-: std::complex<Quad>(Quad(a))
-{ }
+DoubleDouble Complex<DoubleDouble>::real() const
+{ return realPart; }
+
+DoubleDouble Complex<DoubleDouble>::imag() const
+{ return imagPart; }
+
+void Complex<DoubleDouble>::real( const DoubleDouble& newReal )
+{ realPart = newReal; }
+
+void Complex<DoubleDouble>::imag( const DoubleDouble& newImag )
+{ imagPart = newImag; }
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator=( const S& a )
+{
+    realPart = a;
+    imagPart = 0;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator=( const Complex<S>& a )
+{
+    realPart = a.real();
+    imagPart = a.imag();
+    return *this;
+}
+
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator=( const Complex<DoubleDouble>& a )
+{
+    realPart = a.realPart;
+    imagPart = a.imagPart;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator+=( const S& a )
+{
+    realPart += a;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator+=( const Complex<S>& a )
+{
+    realPart += a.real();
+    imagPart += a.imag();
+    return *this;
+}
+
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator+=( const Complex<DoubleDouble>& a )
+{
+    realPart += a.realPart;
+    imagPart += a.imagPart;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator-=( const S& a )
+{
+    realPart -= a;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator-=( const Complex<S>& a )
+{
+    realPart -= a.real();
+    imagPart -= a.imag();
+    return *this;
+}
+
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator-=( const Complex<DoubleDouble>& a )
+{
+    realPart -= a.realPart;
+    imagPart -= a.imagPart;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator*=( const S& a )
+{
+    realPart *= a;
+    imagPart *= a;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator*=( const Complex<S>& a )
+{
+    const DoubleDouble aReal = a.real();
+    const DoubleDouble aImag = a.imag();
+
+    const DoubleDouble newReal = aReal*realPart - aImag*imagPart;
+    imagPart = aReal*imagPart + aImag*realPart;
+    realPart = newReal;
+    return *this;
+}
+
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator*=( const Complex<DoubleDouble>& a )
+{
+    const DoubleDouble newReal = a.realPart*realPart - a.imagPart*imagPart;
+    imagPart = a.realPart*imagPart + a.imagPart*realPart;
+    realPart = newReal;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator/=( const S& b )
+{
+    realPart /= b;
+    imagPart /= b;
+    return *this;
+}
+
+template<typename S>
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator/=( const Complex<S>& b )
+{
+    // Note that GCC uses the (faster and less stable) textbook algorithm
+    auto a = *this;
+    SmithDiv
+    ( a.realPart, a.imagPart, 
+      DoubleDouble(b.real()), DoubleDouble(b.imag()),
+      realPart, imagPart );
+    return *this;
+}
+
+Complex<DoubleDouble>&
+Complex<DoubleDouble>::operator/=( const Complex<DoubleDouble>& b )
+{
+    // Note that GCC uses the (faster and less stable) textbook algorithm
+    auto a = *this;
+    SmithDiv
+    ( a.realPart, a.imagPart, 
+      b.realPart, b.imagPart,
+      realPart, imagPart );
+    return *this;
+}
 #endif
 
 #ifdef EL_HAVE_MPC
-Complex<Quad>::Complex( const BigFloat& a )
-: std::complex<Quad>(Quad(a))
-{ }
-
-Complex<Quad>::Complex( const Complex<BigFloat>& a )
-: std::complex<Quad>(Quad(a.real()),Quad(a.imag()))
-{ }
-#endif
-#endif
-
-#ifdef EL_HAVE_MPC
+// Complex<BigFloat>
+// =================
 void Complex<BigFloat>::SetNumLimbs( mpfr_prec_t prec )
 {
     numLimbs_ = (prec-1) / GMP_NUMB_BITS + 1;
@@ -235,33 +449,53 @@ void Complex<BigFloat>::SetPrecision( mpfr_prec_t prec )
 size_t Complex<BigFloat>::NumLimbs() const
 { return numLimbs_; }
 
-void Complex<BigFloat>::real( const BigFloat& realPart )
+void Complex<BigFloat>::real( const BigFloat& newReal )
 {
-    mpfr_set( RealPointer(), realPart.LockedPointer(), mpfr::RoundingMode() );
+    mpfr_set( RealPointer(), newReal.LockedPointer(), mpfr::RoundingMode() );
 }
 
-void Complex<BigFloat>::imag( const BigFloat& imagPart )
+void Complex<BigFloat>::imag( const BigFloat& newImag )
 {
-    mpfr_set( ImagPointer(), imagPart.LockedPointer(), mpfr::RoundingMode() );
+    mpfr_set( ImagPointer(), newImag.LockedPointer(), mpfr::RoundingMode() );
 }
 
 BigFloat Complex<BigFloat>::real() const
 {
-    BigFloat realPart;
-    mpc_real( realPart.Pointer(), LockedPointer(), mpfr::RoundingMode() );
-    return realPart;
+    BigFloat realCopy;
+    mpc_real( realCopy.Pointer(), LockedPointer(), mpfr::RoundingMode() );
+    return realCopy;
 }
 
 BigFloat Complex<BigFloat>::imag() const
 {
-    BigFloat imagPart;
-    mpc_imag( imagPart.Pointer(), LockedPointer(), mpfr::RoundingMode() );
-    return imagPart;
+    BigFloat imagCopy;
+    mpc_imag( imagCopy.Pointer(), LockedPointer(), mpfr::RoundingMode() );
+    return imagCopy;
 }
 
 Complex<BigFloat>::Complex()
 {
     Init();
+}
+
+template<typename S>
+Complex<BigFloat>::Complex( const S& a, mpfr_prec_t prec )
+{
+    Init( prec );
+    BigFloat aBig(a);
+    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+}
+
+template<typename S>
+Complex<BigFloat>::Complex( const Complex<S>& a, mpfr_prec_t prec )
+{
+    Init( prec );
+    BigFloat aRealBig(a.real()), aImagBig(a.imag());
+    mpc_set_fr_fr
+    ( Pointer(),
+      aRealBig.LockedPointer(),
+      aImagBig.LockedPointer(),
+      mpc::RoundingMode() );
 }
 
 Complex<BigFloat>::Complex
@@ -340,42 +574,6 @@ Complex<BigFloat>::Complex( const std::complex<double>& a, mpfr_prec_t prec )
     mpc_set_d_d( Pointer(), a.real(), a.imag(), mpc::RoundingMode() );
 }
 
-#ifdef EL_HAVE_QUAD
-Complex<BigFloat>::Complex( const Quad& a, mpfr_prec_t prec )
-{
-    Init( prec );
-    BigFloat aBig(a);
-    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
-}
-
-Complex<BigFloat>::Complex( const std::complex<Quad>& a, mpfr_prec_t prec )
-{
-    Init( prec );
-    BigFloat aRealBig(a.real()), aImagBig(a.imag());
-    mpc_set_fr_fr
-    ( Pointer(),
-      aRealBig.LockedPointer(),
-      aImagBig.LockedPointer(),
-      mpc::RoundingMode() );
-}
-#endif
-
-#ifdef EL_HAVE_QD
-Complex<BigFloat>::Complex( const DoubleDouble& a, mpfr_prec_t prec )
-{
-    Init( prec );
-    BigFloat aBig(a);
-    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
-}
-
-Complex<BigFloat>::Complex( const QuadDouble& a, mpfr_prec_t prec )
-{
-    Init( prec );
-    BigFloat aBig(a);
-    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
-}
-#endif
-
 Complex<BigFloat>::Complex( const realType& a, mpfr_prec_t prec )
 {
     Init( prec );
@@ -452,41 +650,24 @@ Complex<BigFloat>& Complex<BigFloat>::operator=( const BigInt& a )
     return *this;
 }
 
-#ifdef EL_HAVE_QUAD
-Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<Quad>& a )
-{
-    BigFloat aReal(a.real()), aImag(a.imag());
-    mpc_set_fr_fr
-    ( Pointer(),
-      aReal.LockedPointer(),
-      aImag.LockedPointer(),
-      mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator=( const Quad& a )
-{
-    BigFloat aBig(a);
-    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
-    return *this;
-}
-#endif
-
-#ifdef EL_HAVE_QD
-Complex<BigFloat>& Complex<BigFloat>::operator=( const DoubleDouble& a )
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator=( const S& a )
 {
     BigFloat aBig(a);
     mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
-Complex<BigFloat>& Complex<BigFloat>::operator=( const QuadDouble& a )
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<S>& a )
 {
-    BigFloat aBig(a);
-    mpc_set_fr( Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    // Only perform one memory allocation
+    BigFloat tmp(a.real());
+    mpfr_set_fr( RealPointer(), tmp.LockedPointer(), mpfr::RoundingMode() );
+    tmp = a.imag();
+    mpfr_set_fr( ImagPointer(), tmp.LockedPointer(), mpfr::RoundingMode() );
     return *this;
 }
-#endif
 
 Complex<BigFloat>& Complex<BigFloat>::operator=( const Complex<double>& a )
 {
@@ -552,27 +733,16 @@ Complex<BigFloat>& Complex<BigFloat>::operator=( const unsigned& a )
     return *this;
 }
 
-Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<BigFloat>& a )
-{
-    mpc_add( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator+=( const BigFloat& a )
-{
-    mpc_add_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator+=( const BigInt& a )
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const S& a )
 {
     BigFloat aBig(a);
     mpc_add_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
     return *this;
 }
 
-#ifdef EL_HAVE_QUAD
-Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<Quad>& a )
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<S>& a )
 {
     BigFloat tmp;
     // NOTE: There is no mpc_add_fr_fr...
@@ -585,32 +755,17 @@ Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<Quad>& a )
     return *this;
 }
 
-Complex<BigFloat>& Complex<BigFloat>::operator+=( const Quad& a )
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<BigFloat>& a )
 {
-    BigFloat aBig(a);
-    mpc_add_fr
-    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
-    return *this;
-}
-#endif
-
-#ifdef EL_HAVE_QD
-Complex<BigFloat>& Complex<BigFloat>::operator+=( const DoubleDouble& a )
-{
-    BigFloat aBig(a);
-    mpc_add_fr
-    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    mpc_add( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
-Complex<BigFloat>& Complex<BigFloat>::operator+=( const QuadDouble& a )
+Complex<BigFloat>& Complex<BigFloat>::operator+=( const BigFloat& a )
 {
-    BigFloat aBig(a);
-    mpc_add_fr
-    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    mpc_add_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
-#endif
 
 Complex<BigFloat>& Complex<BigFloat>::operator+=( const Complex<double>& a )
 {
@@ -716,27 +871,17 @@ Complex<BigFloat>& Complex<BigFloat>::operator+=( const unsigned& a )
     return *this;
 }
 
-Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<BigFloat>& a )
-{
-    mpc_sub( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator-=( const BigFloat& a )
-{
-    mpc_sub_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator-=( const BigInt& a )
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const S& a )
 {
     BigFloat aBig(a);
-    mpc_sub_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    mpc_sub_fr
+    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
-#ifdef EL_HAVE_QUAD
-Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<Quad>& a )
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<S>& a )
 {
     // NOTE: There is no mpc_sub_fr_fr...
     BigFloat tmp;
@@ -749,32 +894,17 @@ Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<Quad>& a )
     return *this;
 }
 
-Complex<BigFloat>& Complex<BigFloat>::operator-=( const Quad& a )
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<BigFloat>& a )
 {
-    BigFloat aBig(a);
-    mpc_sub_fr
-    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
-    return *this;
-}
-#endif
-
-#ifdef EL_HAVE_QD
-Complex<BigFloat>& Complex<BigFloat>::operator-=( const DoubleDouble& a )
-{
-    BigFloat aBig(a);
-    mpc_sub_fr
-    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    mpc_sub( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
 
-Complex<BigFloat>& Complex<BigFloat>::operator-=( const QuadDouble& a )
+Complex<BigFloat>& Complex<BigFloat>::operator-=( const BigFloat& a )
 {
-    BigFloat aBig(a);
-    mpc_sub_fr
-    ( Pointer(), Pointer(), aBig.LockedPointer(), mpc::RoundingMode() );
+    mpc_sub_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
-#endif
 
 Complex<BigFloat>& Complex<BigFloat>::operator-=( const Complex<double>& a )
 {
@@ -880,6 +1010,22 @@ Complex<BigFloat>& Complex<BigFloat>::operator-=( const unsigned& a )
     return *this;
 }
 
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const S& a )
+{
+    BigFloat aBig(a);
+    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<S>& a )
+{
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
 Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<BigFloat>& a )
 {
     mpc_mul( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
@@ -891,45 +1037,6 @@ Complex<BigFloat>& Complex<BigFloat>::operator*=( const BigFloat& a )
     mpc_mul_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
-
-Complex<BigFloat>& Complex<BigFloat>::operator*=( const BigInt& a )
-{
-    BigFloat aBig(a);
-    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-#ifdef EL_HAVE_QUAD
-Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<Quad>& a )
-{
-    Complex<BigFloat> aBig(a.real(),a.imag());
-    mpc_mul( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator*=( const Quad& a )
-{
-    BigFloat aBig(a);
-    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-#endif
-
-#ifdef EL_HAVE_QD
-Complex<BigFloat>& Complex<BigFloat>::operator*=( const DoubleDouble& a )
-{
-    BigFloat aBig(a);
-    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator*=( const QuadDouble& a )
-{
-    BigFloat aBig(a);
-    mpc_mul_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-#endif
 
 Complex<BigFloat>& Complex<BigFloat>::operator*=( const Complex<double>& a )
 {
@@ -1004,6 +1111,23 @@ Complex<BigFloat>& Complex<BigFloat>::operator*=( const unsigned& a )
     return *this;
 }
 
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<S>& a )
+{
+    // NOTE: There i no mpc_div_fr_fr...
+    Complex<BigFloat> aBig(a.real(),a.imag());
+    mpc_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
+template<typename S>
+Complex<BigFloat>& Complex<BigFloat>::operator/=( const S& a )
+{
+    BigFloat aBig(a);
+    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
+    return *this;
+}
+
 Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<BigFloat>& a )
 {
     mpc_div( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
@@ -1015,46 +1139,6 @@ Complex<BigFloat>& Complex<BigFloat>::operator/=( const BigFloat& a )
     mpc_div_fr( Pointer(), Pointer(), a.LockedPointer(), mpc::RoundingMode() );
     return *this;
 }
-
-Complex<BigFloat>& Complex<BigFloat>::operator/=( const BigInt& a )
-{
-    BigFloat aBig(a);
-    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-#ifdef EL_HAVE_QUAD
-Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<Quad>& a )
-{
-    // NOTE: There i no mpc_div_fr_fr...
-    Complex<BigFloat> aBig(a.real(),a.imag());
-    mpc_div( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator/=( const Quad& a )
-{
-    BigFloat aBig(a);
-    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-#endif
-
-#ifdef EL_HAVE_QD
-Complex<BigFloat>& Complex<BigFloat>::operator/=( const DoubleDouble& a )
-{
-    BigFloat aBig(a);
-    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-
-Complex<BigFloat>& Complex<BigFloat>::operator/=( const QuadDouble& a )
-{
-    BigFloat aBig(a);
-    mpc_div_fr( Pointer(), Pointer(), aBig.Pointer(), mpc::RoundingMode() );
-    return *this;
-}
-#endif
 
 Complex<BigFloat>& Complex<BigFloat>::operator/=( const Complex<double>& a )
 {
@@ -1228,6 +1312,19 @@ byte* Complex<BigFloat>::Deserialize( byte* buf )
 { return const_cast<byte*>(Deserialize(static_cast<const byte*>(buf))); }
 #endif // EL_HAVE_MPC
 
+#ifdef EL_HAVE_QD
+bool operator==
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
+{
+    return a.real() == b.real() && a.imag() == b.imag();
+}
+
+bool operator!=
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
+{
+    return !(a == b);
+}
+#endif
 #ifdef EL_HAVE_MPC
 bool operator==
 ( const Complex<BigFloat>& a, const Complex<BigFloat>& b )
@@ -1250,6 +1347,15 @@ operator-( const Complex<Real>& a )
     auto& aStd = static_cast<const std::complex<Real>&>(a);
     return -aStd;
 }
+#ifdef EL_HAVE_QD
+Complex<DoubleDouble> operator-( const Complex<DoubleDouble>& a )
+{
+    Complex<DoubleDouble> aNeg;
+    aNeg.realPart = -aNeg.realPart;
+    aNeg.imagPart = -aNeg.imagPart;
+    return aNeg;
+}
+#endif
 #ifdef EL_HAVE_MPC
 Complex<BigFloat> operator-( const Complex<BigFloat>& a )
 {
@@ -1291,6 +1397,39 @@ operator/( const Complex<Real>& a, const Complex<Real>& b )
     auto& bStd = static_cast<const std::complex<Real>&>(b);
     return aStd / bStd;
 }
+#ifdef EL_HAVE_MPC
+Complex<DoubleDouble> operator+
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c(a);
+    c += b;
+    return c;
+}
+Complex<DoubleDouble> operator-
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c(a);
+    c -= b;
+    return c;
+}
+Complex<DoubleDouble> operator*
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c(a);
+    c *= b;
+    return c;
+}
+Complex<DoubleDouble> operator/
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c;
+    SmithDiv
+    ( a.realPart, a.imagPart,
+      b.realPart, b.imagPart,
+      c.realPart, c.imagPart );
+    return c;
+}
+#endif
 #ifdef EL_HAVE_MPC
 Complex<BigFloat> operator+
 ( const Complex<BigFloat>& a, const Complex<BigFloat>& b )
@@ -1355,6 +1494,37 @@ operator/( const Complex<Real>& a, const Real& b )
     return aStd / b;
 }
 #ifdef EL_HAVE_MPC
+Complex<DoubleDouble> operator+
+( const Complex<DoubleDouble>& a, const DoubleDouble& b )
+{
+    Complex<DoubleDouble> c(a);
+    c += b;
+    return c;
+}
+Complex<DoubleDouble> operator-
+( const Complex<DoubleDouble>& a, const DoubleDouble& b )
+{
+    Complex<DoubleDouble> c(a);
+    c -= b;
+    return c;
+}
+Complex<DoubleDouble> operator*
+( const Complex<DoubleDouble>& a, const DoubleDouble& b )
+{
+    Complex<DoubleDouble> c(a);
+    c *= b;
+    return c;
+}
+Complex<DoubleDouble> operator/
+( const Complex<DoubleDouble>& a, const DoubleDouble& b )
+{
+    Complex<DoubleDouble> c(a);
+    c.realPart /= b;
+    c.imagPart /= b;
+    return c;
+}
+#endif
+#ifdef EL_HAVE_MPC
 Complex<BigFloat> operator+
 ( const Complex<BigFloat>& a, const BigFloat& b )
 {
@@ -1418,6 +1588,40 @@ operator/( const Real& a, const Complex<Real>& b )
     return a / bStd;
 }
 #ifdef EL_HAVE_MPC
+Complex<DoubleDouble> operator+
+( const DoubleDouble& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c(b);
+    c += a;
+    return c;
+}
+Complex<DoubleDouble> operator-
+( const DoubleDouble& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c;
+    c.realPart = a - b.realPart;
+    c.imagPart =   - b.imagPart;
+    return c;
+}
+Complex<DoubleDouble> operator*
+( const DoubleDouble& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c(b);
+    c *= a;
+    return c;
+}
+Complex<DoubleDouble> operator/
+( const DoubleDouble& a, const Complex<DoubleDouble>& b )
+{
+    Complex<DoubleDouble> c;
+    SmithDiv
+    ( a, DoubleDouble(0),
+      b.realPart, b.imagPart,
+      c.realPart, c.imagPart );
+    return c;
+}
+#endif
+#ifdef EL_HAVE_MPC
 Complex<BigFloat> operator+
 ( const BigFloat& a, const Complex<BigFloat>& b )
 {
@@ -1451,6 +1655,87 @@ Complex<BigFloat> operator/
     return c;
 }
 #endif
+
+template<typename Real,typename>
+Real NaiveDiv( const Real& a, const Real& b )
+{ return a / b; }
+template<typename Real,typename>
+Complex<Real> NaiveDiv
+( const Real& a,
+  const Complex<Real>& b )
+{
+    Real cReal, cImag;
+    NaiveDiv( a, Real(0), b.real(), b.imag(), cReal, cImag );
+    return Complex<Real>(cReal,cImag);
+}
+template<typename Real,typename>
+Complex<Real> NaiveDiv
+( const Complex<Real>& a,
+  const Real& b )
+{ return a / b; }
+template<typename Real,typename>
+Complex<Real> NaiveDiv
+( const Complex<Real>& a,
+  const Complex<Real>& b )
+{
+    Real cReal, cImag;
+    NaiveDiv( a.real(), a.imag(), b.real(), b.imag(), cReal, cImag );
+    return Complex<Real>(cReal,cImag);
+}
+
+template<typename Real,typename>
+Real SmithDiv( const Real& a, const Real& b )
+{ return a / b; }
+template<typename Real,typename>
+Complex<Real> SmithDiv
+( const Real& a,
+  const Complex<Real>& b )
+{
+    Real cReal, cImag;
+    SmithDiv( a, Real(0), b.real(), b.imag(), cReal, cImag );
+    return Complex<Real>(cReal,cImag);
+}
+template<typename Real,typename>
+Complex<Real> SmithDiv
+( const Complex<Real>& a,
+  const Real& b )
+{ return a / b; }
+template<typename Real,typename>
+Complex<Real> SmithDiv
+( const Complex<Real>& a,
+  const Complex<Real>& b )
+{
+    Real cReal, cImag;
+    SmithDiv( a.real(), a.imag(), b.real(), b.imag(), cReal, cImag );
+    return Complex<Real>(cReal,cImag);
+}
+
+template<typename Real,typename>
+Real SafeDiv( const Real& a, const Real& b )
+{ return a / b; }
+template<typename Real,typename>
+Complex<Real> SafeDiv
+( const Real& a,
+  const Complex<Real>& b )
+{
+    Real cReal, cImag;
+    SafeDiv( a, Real(0), b.real(), b.imag(), cReal, cImag );
+    return Complex<Real>(cReal,cImag);
+}
+template<typename Real,typename>
+Complex<Real> SafeDiv
+( const Complex<Real>& a,
+  const Real& b )
+{ return a / b; }
+template<typename Real,typename>
+Complex<Real> SafeDiv
+( const Complex<Real>& a,
+  const Complex<Real>& b )
+{
+    Real cReal, cImag;
+    SafeDiv( a.real(), a.imag(), b.real(), b.imag(), cReal, cImag );
+    return Complex<Real>(cReal,cImag);
+}
 
 } // namespace El
 

@@ -41,26 +41,16 @@ public:
     using std::complex<realType>::operator*=;
     using std::complex<realType>::operator/=;
 
-    inline Complex( const int& a );
-    inline Complex( const long long int& a );
-    inline Complex( const realType& a=realType(0) );
-    inline Complex( const realType& a, const realType& b );
+    template<typename S>
+    inline Complex( const S& a );
+    template<typename S>
+    inline Complex( const Complex<S>& a );
+    
+    template<typename S,typename T>
+    inline Complex( const S& a, const T& b );
+
+    inline Complex();
     inline Complex( const std::complex<realType>& a );
-    inline Complex( std::complex<realType>&& a );
-    inline Complex( const double& a );
-    inline Complex( const std::complex<double>& a );
-#ifdef EL_HAVE_QUAD
-    inline Complex( const Quad& a );
-    inline Complex( const std::complex<Quad>& a );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex( const DoubleDouble& a );
-    inline Complex( const QuadDouble& a );
-#endif
-#ifdef EL_HAVE_MPC
-    inline Complex( const BigFloat& a );
-    inline Complex( const Complex<BigFloat>& a );
-#endif
 };
 
 template<>
@@ -75,26 +65,16 @@ public:
     using std::complex<realType>::operator*=;
     using std::complex<realType>::operator/=;
 
-    inline Complex( const int& a );
-    inline Complex( const long long int& a );
-    inline Complex( const realType& a=realType(0) );
-    inline Complex( const realType& a, const realType& b );
+    template<typename S>
+    inline Complex( const S& a );
+    template<typename S>
+    inline Complex( const Complex<S>& a );
+
+    template<typename S,typename T>
+    inline Complex( const S& a, const T& b );
+
+    inline Complex();
     inline Complex( const std::complex<realType>& a );
-    inline Complex( std::complex<realType>&& a );
-    inline Complex( const float& a );
-    inline Complex( const std::complex<float>& a );
-#ifdef EL_HAVE_QUAD
-    inline Complex( const Quad& a );
-    inline Complex( const std::complex<Quad>& a );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex( const DoubleDouble& a );
-    inline Complex( const QuadDouble& a );
-#endif
-#ifdef EL_HAVE_MPC
-    inline Complex( const BigFloat& a );
-    inline Complex( const Complex<BigFloat>& a );
-#endif
 };
 
 #ifdef EL_HAVE_QUAD
@@ -110,24 +90,75 @@ public:
     using std::complex<realType>::operator*=;
     using std::complex<realType>::operator/=;
 
-    inline Complex( const int& a );
-    inline Complex( const long long int& a );
-    inline Complex( const realType& a=realType(0) );
-    inline Complex( const realType& a, const realType& b );
+    template<typename S>
+    inline Complex( const S& a );
+    template<typename S>
+    inline Complex( const Complex<S>& a );
+
+    template<typename S,typename T>
+    inline Complex( const S& a, const T& b );
+
+    inline Complex();
     inline Complex( const std::complex<realType>& a );
-    inline Complex( std::complex<realType>&& a );
-    inline Complex( const float& a );
-    inline Complex( const std::complex<float>& a );
-    inline Complex( const double& a );
-    inline Complex( const std::complex<double>& a );
+};
+#endif
+
 #ifdef EL_HAVE_QD
-    inline Complex( const DoubleDouble& a );
-    inline Complex( const QuadDouble& a );
-#endif
-#ifdef EL_HAVE_MPC
-    inline Complex( const BigFloat& a );
-    inline Complex( const Complex<BigFloat>& a );
-#endif
+template<>
+class Complex<DoubleDouble>
+{
+public:
+    typedef DoubleDouble realType;
+    realType realPart, imagPart;
+
+    template<typename S>
+    inline Complex( const S& a );
+    template<typename S>
+    inline Complex( const Complex<S>& a );
+
+    template<typename S,typename T>
+    inline Complex( const S& a, const T& b );
+
+    inline Complex();
+    inline Complex( const Complex<realType>& a );
+
+    inline ~Complex();
+
+    inline DoubleDouble real() const;
+    inline DoubleDouble imag() const;
+
+    inline void real( const DoubleDouble& newReal );
+    inline void imag( const DoubleDouble& newImag );
+
+    template<typename S>
+    inline Complex<DoubleDouble>& operator=( const S& a );
+    template<typename S>
+    inline Complex<DoubleDouble>& operator=( const Complex<S>& a );
+    inline Complex<DoubleDouble>& operator=( const Complex<DoubleDouble>& a );
+
+    template<typename S>
+    inline Complex<DoubleDouble>& operator+=( const S& a );
+    template<typename S>
+    inline Complex<DoubleDouble>& operator+=( const Complex<S>& a );
+    inline Complex<DoubleDouble>& operator+=( const Complex<DoubleDouble>& a );
+
+    template<typename S>
+    inline Complex<DoubleDouble>& operator-=( const S& a );
+    template<typename S>
+    inline Complex<DoubleDouble>& operator-=( const Complex<S>& a );
+    inline Complex<DoubleDouble>& operator-=( const Complex<DoubleDouble>& a );
+
+    template<typename S>
+    inline Complex<DoubleDouble>& operator*=( const S& a );
+    template<typename S>
+    inline Complex<DoubleDouble>& operator*=( const Complex<S>& a );
+    inline Complex<DoubleDouble>& operator*=( const Complex<DoubleDouble>& a );
+
+    template<typename S>
+    inline Complex<DoubleDouble>& operator/=( const S& a );
+    template<typename S>
+    inline Complex<DoubleDouble>& operator/=( const Complex<S>& a );
+    inline Complex<DoubleDouble>& operator/=( const Complex<DoubleDouble>& a );
 };
 #endif
 
@@ -163,10 +194,16 @@ public:
     inline BigFloat real() const;
     inline BigFloat imag() const;
 
-    inline void real( const BigFloat& realPart );
-    inline void imag( const BigFloat& imagPart );
+    inline void real( const BigFloat& newReal );
+    inline void imag( const BigFloat& newImag );
 
     inline Complex();
+
+    template<typename S>
+    inline Complex( const S& a, mpfr_prec_t prec=mpfr::Precision() );
+    template<typename S>
+    inline Complex( const Complex<S>& a, mpfr_prec_t prec=mpfr::Precision() );
+
     inline Complex
     ( const unsigned& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
@@ -189,18 +226,6 @@ public:
     ( const double& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
     ( const std::complex<double>& a, mpfr_prec_t prec=mpfr::Precision() );
-#ifdef EL_HAVE_QUAD
-    inline Complex
-    ( const Quad& a, mpfr_prec_t prec=mpfr::Precision() );
-    inline Complex
-    ( const std::complex<Quad>& a, mpfr_prec_t prec=mpfr::Precision() );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex
-    ( const DoubleDouble& a, mpfr_prec_t prec=mpfr::Precision() );
-    inline Complex
-    ( const QuadDouble& a, mpfr_prec_t prec=mpfr::Precision() );
-#endif
     inline Complex
     ( const realType& a, mpfr_prec_t prec=mpfr::Precision() );
     inline Complex
@@ -213,18 +238,15 @@ public:
     inline Complex( Complex<realType>&& a );
     inline ~Complex();
 
+    template<typename S>
+    inline Complex<BigFloat>& operator=( const Complex<S>& a );
+    template<typename S>
+    inline Complex<BigFloat>& operator=( const S& a );
+
     inline Complex<BigFloat>& operator=( Complex<BigFloat>&& a );
     inline Complex<BigFloat>& operator=( const Complex<BigFloat>& a );
     inline Complex<BigFloat>& operator=( const BigFloat& a );
     inline Complex<BigFloat>& operator=( const BigInt& a );
-#ifdef EL_HAVE_QUAD
-    inline Complex<BigFloat>& operator=( const Complex<Quad>& a );
-    inline Complex<BigFloat>& operator=( const Quad& a );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex<BigFloat>& operator=( const QuadDouble& a );
-    inline Complex<BigFloat>& operator=( const DoubleDouble& a );
-#endif
     inline Complex<BigFloat>& operator=( const Complex<double>& a );
     inline Complex<BigFloat>& operator=( const double& a );
     inline Complex<BigFloat>& operator=( const Complex<float>& a );
@@ -236,17 +258,13 @@ public:
     inline Complex<BigFloat>& operator=( const unsigned long& a );
     inline Complex<BigFloat>& operator=( const unsigned& a );
 
+    template<typename S>
+    inline Complex<BigFloat>& operator+=( const S& a );
+    template<typename S>
+    inline Complex<BigFloat>& operator+=( const Complex<S>& a );
+
     inline Complex<BigFloat>& operator+=( const Complex<BigFloat>& a );
     inline Complex<BigFloat>& operator+=( const BigFloat& a );
-    inline Complex<BigFloat>& operator+=( const BigInt& a );
-#ifdef EL_HAVE_QUAD
-    inline Complex<BigFloat>& operator+=( const Complex<Quad>& a );
-    inline Complex<BigFloat>& operator+=( const Quad& a );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex<BigFloat>& operator+=( const QuadDouble& a );
-    inline Complex<BigFloat>& operator+=( const DoubleDouble& a );
-#endif
     inline Complex<BigFloat>& operator+=( const Complex<double>& a );
     inline Complex<BigFloat>& operator+=( const double& a );
     inline Complex<BigFloat>& operator+=( const Complex<float>& a );
@@ -258,17 +276,13 @@ public:
     inline Complex<BigFloat>& operator+=( const unsigned long& a );
     inline Complex<BigFloat>& operator+=( const unsigned& a );
 
+    template<typename S>
+    inline Complex<BigFloat>& operator-=( const S& a );
+    template<typename S>
+    inline Complex<BigFloat>& operator-=( const Complex<S>& a );
+
     inline Complex<BigFloat>& operator-=( const Complex<BigFloat>& a );
     inline Complex<BigFloat>& operator-=( const BigFloat& a );
-    inline Complex<BigFloat>& operator-=( const BigInt& a );
-#ifdef EL_HAVE_QUAD
-    inline Complex<BigFloat>& operator-=( const Complex<Quad>& a );
-    inline Complex<BigFloat>& operator-=( const Quad& a );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex<BigFloat>& operator-=( const QuadDouble& a );
-    inline Complex<BigFloat>& operator-=( const DoubleDouble& a );
-#endif
     inline Complex<BigFloat>& operator-=( const Complex<double>& a );
     inline Complex<BigFloat>& operator-=( const double& a );
     inline Complex<BigFloat>& operator-=( const Complex<float>& a );
@@ -280,17 +294,13 @@ public:
     inline Complex<BigFloat>& operator-=( const unsigned long& a );
     inline Complex<BigFloat>& operator-=( const unsigned& a );
 
+    template<typename S>
+    inline Complex<BigFloat>& operator*=( const S& a );
+    template<typename S>
+    inline Complex<BigFloat>& operator*=( const Complex<S>& a );
+
     inline Complex<BigFloat>& operator*=( const Complex<BigFloat>& a );
     inline Complex<BigFloat>& operator*=( const BigFloat& a );
-    inline Complex<BigFloat>& operator*=( const BigInt& a );
-#ifdef EL_HAVE_QUAD
-    inline Complex<BigFloat>& operator*=( const Complex<Quad>& a );
-    inline Complex<BigFloat>& operator*=( const Quad& a );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex<BigFloat>& operator*=( const QuadDouble& a );
-    inline Complex<BigFloat>& operator*=( const DoubleDouble& a );
-#endif
     inline Complex<BigFloat>& operator*=( const Complex<double>& a );
     inline Complex<BigFloat>& operator*=( const double& a );
     inline Complex<BigFloat>& operator*=( const Complex<float>& a );
@@ -302,17 +312,13 @@ public:
     inline Complex<BigFloat>& operator*=( const unsigned long& a );
     inline Complex<BigFloat>& operator*=( const unsigned& a );
 
+    template<typename S>
+    inline Complex<BigFloat>& operator/=( const S& a );
+    template<typename S>
+    inline Complex<BigFloat>& operator/=( const Complex<S>& a );
+
     inline Complex<BigFloat>& operator/=( const Complex<BigFloat>& a );
     inline Complex<BigFloat>& operator/=( const BigFloat& a );
-    inline Complex<BigFloat>& operator/=( const BigInt& a );
-#ifdef EL_HAVE_QUAD
-    inline Complex<BigFloat>& operator/=( const Complex<Quad>& a );
-    inline Complex<BigFloat>& operator/=( const Quad& a );
-#endif
-#ifdef EL_HAVE_QD
-    inline Complex<BigFloat>& operator/=( const QuadDouble& a );
-    inline Complex<BigFloat>& operator/=( const DoubleDouble& a );
-#endif
     inline Complex<BigFloat>& operator/=( const Complex<double>& a );
     inline Complex<BigFloat>& operator/=( const double& a );
     inline Complex<BigFloat>& operator/=( const Complex<float>& a );
@@ -334,6 +340,12 @@ public:
 };
 #endif // EL_HAVE_MPC
 
+#ifdef EL_HAVE_QD
+inline bool operator==
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+inline bool operator!=
+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+#endif
 #ifdef EL_HAVE_MPC
 inline bool operator==
 ( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
@@ -343,6 +355,9 @@ inline bool operator!=
 
 template<typename Real>
 inline Complex<Real> operator-( const Complex<Real>& a );
+#ifdef EL_HAVE_QD
+inline Complex<DoubleDouble> operator-( const Complex<DoubleDouble>& a );
+#endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat> operator-( const Complex<BigFloat>& a );
 #endif
@@ -359,6 +374,16 @@ operator*( const Complex<Real>& a, const Complex<Real>& b );
 template<typename Real>
 inline Complex<Real>
 operator/( const Complex<Real>& a, const Complex<Real>& b );
+#ifdef EL_HAVE_QD
+inline Complex<DoubleDouble>
+operator+( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+inline Complex<DoubleDouble>
+operator-( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+inline Complex<DoubleDouble>
+operator*( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+inline Complex<DoubleDouble>
+operator/( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b );
+#endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat>
 operator+( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
@@ -382,6 +407,16 @@ operator*( const Complex<Real>& a, const Real& b );
 template<typename Real>
 inline Complex<Real>
 operator/( const Complex<Real>& a, const Real& b );
+#ifdef EL_HAVE_QD
+inline Complex<DoubleDouble>
+operator+( const Complex<DoubleDouble>& a, const DoubleDouble& b );
+inline Complex<DoubleDouble>
+operator-( const Complex<DoubleDouble>& a, const DoubleDouble& b );
+inline Complex<DoubleDouble>
+operator*( const Complex<DoubleDouble>& a, const DoubleDouble& b );
+inline Complex<DoubleDouble>
+operator/( const Complex<DoubleDouble>& a, const DoubleDouble& b );
+#endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat>
 operator+( const Complex<BigFloat>& a, const BigFloat& b );
@@ -405,6 +440,16 @@ operator*( const Real& a, const Complex<Real>& b );
 template<typename Real>
 inline Complex<Real>
 operator/( const Real& a, const Complex<Real>& b );
+#ifdef EL_HAVE_QD
+inline Complex<DoubleDouble>
+operator+( const DoubleDouble& a, const Complex<DoubleDouble>& b );
+inline Complex<DoubleDouble>
+operator-( const DoubleDouble& a, const Complex<DoubleDouble>& b );
+inline Complex<DoubleDouble>
+operator*( const DoubleDouble& a, const Complex<DoubleDouble>& b );
+inline Complex<DoubleDouble>
+operator/( const DoubleDouble& a, const Complex<DoubleDouble>& b );
+#endif
 #ifdef EL_HAVE_MPC
 inline Complex<BigFloat>
 operator+( const BigFloat& a, const Complex<BigFloat>& b );
@@ -421,6 +466,10 @@ typedef Complex<double> dcomplex;
 #ifdef EL_HAVE_QUAD
 typedef Complex<Quad> qcomplex;
 #endif
+#ifdef EL_HAVE_QD
+typedef Complex<DoubleDouble> ddcomplex;
+//typedef Complex<QuadDouble> qdcomplex;
+#endif
 #ifdef EL_HAVE_MPC
 typedef Complex<BigFloat> acomplex;
 #endif
@@ -432,6 +481,92 @@ template<typename Real> struct BaseHelper                { typedef Real type; };
 template<typename Real> struct BaseHelper<Complex<Real>> { typedef Real type; };
 
 template<typename F> using Base = typename BaseHelper<F>::type;
+
+// For querying whether an element's type is a scalar
+// --------------------------------------------------
+template<typename T> struct IsScalar
+{ static const bool value=false; };
+template<> struct IsScalar<unsigned>
+{ static const bool value=true; };
+template<> struct IsScalar<int>
+{ static const bool value=true; };
+template<> struct IsScalar<unsigned long>
+{ static const bool value=true; };
+template<> struct IsScalar<long int>
+{ static const bool value=true; };
+template<> struct IsScalar<unsigned long long>
+{ static const bool value=true; };
+template<> struct IsScalar<long long int>
+{ static const bool value=true; };
+template<> struct IsScalar<float>
+{ static const bool value=true; };
+template<> struct IsScalar<double>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<float>>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<double>>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QD
+template<> struct IsScalar<DoubleDouble>
+{ static const bool value=true; };
+template<> struct IsScalar<QuadDouble>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_QUAD
+template<> struct IsScalar<Quad>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<Quad>>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_MPC
+template<> struct IsScalar<BigInt>
+{ static const bool value=true; };
+template<> struct IsScalar<BigFloat>
+{ static const bool value=true; };
+template<> struct IsScalar<Complex<BigFloat>>
+{ static const bool value=true; };
+#endif
+
+// For querying whether or not an element's type is complex
+// --------------------------------------------------------
+// NOTE: This does not guarantee that the type is a field
+// NOTE: IsReal is not the negation of IsComplex
+template<typename Real> struct IsReal
+{ static const bool value=IsScalar<Real>::value; };
+template<typename Real> struct IsReal<Complex<Real>>
+{ static const bool value=false; };
+
+template<typename Real> struct IsComplex
+{ static const bool value=false; };
+template<typename Real> struct IsComplex<Complex<Real>>
+{ static const bool value=true; };
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real NaiveDiv( const Real& a, const Real& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> NaiveDiv( const Real& a, const Complex<Real>& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> NaiveDiv( const Complex<Real>& a, const Real& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> NaiveDiv( const Complex<Real>& a, const Complex<Real>& b );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SmithDiv( const Real& a, const Real& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> SmithDiv( const Real& a, const Complex<Real>& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> SmithDiv( const Complex<Real>& a, const Real& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> SmithDiv( const Complex<Real>& a, const Complex<Real>& b );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SafeDiv( const Real& a, const Real& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> SafeDiv( const Real& a, const Complex<Real>& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> SafeDiv( const Complex<Real>& a, const Real& b );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Complex<Real> SafeDiv( const Complex<Real>& a, const Complex<Real>& b );
 
 } // namespace El
 

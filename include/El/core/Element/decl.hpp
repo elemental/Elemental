@@ -9,6 +9,25 @@
 #ifndef EL_ELEMENT_DECL_HPP
 #define EL_ELEMENT_DECL_HPP
 
+namespace El {
+
+template<typename S,typename T>
+using IsSame = std::is_same<S,T>;
+
+template<typename Condition,class T=void>
+using EnableIf = typename std::enable_if<Condition::value,T>::type;
+template<typename Condition,class T=void>
+using DisableIf = typename std::enable_if<!Condition::value,T>::type;
+
+template<typename T>
+struct IsIntegral { static const bool value = std::is_integral<T>::value; };
+#ifdef EL_HAVE_MPC
+template<>
+struct IsIntegral<BigInt> { static const bool value = true; };
+#endif
+
+} // namespace El
+
 #include <El/core/Element/Complex/decl.hpp>
 #include <El/core/types.hpp>
 
@@ -51,69 +70,8 @@ template<> std::string TypeName<BigFloat>();
 template<> std::string TypeName<Complex<BigFloat>>();
 #endif
 
-// For usage in EnableIf
-// =====================
-
-template<typename S,typename T>
-using IsSame = std::is_same<S,T>;
-
-template<typename Condition,class T=void>
-using EnableIf = typename std::enable_if<Condition::value,T>::type;
-template<typename Condition,class T=void>
-using DisableIf = typename std::enable_if<!Condition::value,T>::type;
-
 // Types that Matrix, DistMatrix, etc. are instantiatable with
 // -----------------------------------------------------------
-template<typename T>
-struct IsIntegral { static const bool value = std::is_integral<T>::value; };
-#ifdef EL_HAVE_MPC
-template<>
-struct IsIntegral<BigInt> { static const bool value = true; };
-#endif
-
-template<typename T> struct IsScalar
-{ static const bool value=false; };
-template<> struct IsScalar<unsigned>
-{ static const bool value=true; };
-template<> struct IsScalar<int>
-{ static const bool value=true; };
-template<> struct IsScalar<unsigned long>
-{ static const bool value=true; };
-template<> struct IsScalar<long int>
-{ static const bool value=true; };
-template<> struct IsScalar<unsigned long long>
-{ static const bool value=true; };
-template<> struct IsScalar<long long int>
-{ static const bool value=true; };
-template<> struct IsScalar<float>
-{ static const bool value=true; };
-template<> struct IsScalar<double>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<float>>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<double>>
-{ static const bool value=true; };
-#ifdef EL_HAVE_QD
-template<> struct IsScalar<DoubleDouble>
-{ static const bool value=true; };
-template<> struct IsScalar<QuadDouble>
-{ static const bool value=true; };
-#endif
-#ifdef EL_HAVE_QUAD
-template<> struct IsScalar<Quad>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<Quad>>
-{ static const bool value=true; };
-#endif
-#ifdef EL_HAVE_MPC
-template<> struct IsScalar<BigInt>
-{ static const bool value=true; };
-template<> struct IsScalar<BigFloat>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<BigFloat>>
-{ static const bool value=true; };
-#endif
-
 template<typename T> struct IsBlasScalar
 { static const bool value=false; };
 template<> struct IsBlasScalar<float>
@@ -194,20 +152,6 @@ struct ConvertBaseHelper<Complex<Real>,RealNew>
 
 template<typename F,typename RealNew>
 using ConvertBase = typename ConvertBaseHelper<F,RealNew>::type;
-
-// For querying whether or not an element's type is complex
-// --------------------------------------------------------
-// NOTE: This does not guarantee that the type is a field
-// NOTE: IsReal is not the negation of IsComplex
-template<typename Real> struct IsReal
-{ static const bool value=IsScalar<Real>::value; };
-template<typename Real> struct IsReal<Complex<Real>>
-{ static const bool value=false; };
-
-template<typename Real> struct IsComplex
-{ static const bool value=false; };
-template<typename Real> struct IsComplex<Complex<Real>>
-{ static const bool value=true; };
 
 // Increase the precision (if possible)
 // ------------------------------------
