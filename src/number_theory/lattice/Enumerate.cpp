@@ -276,7 +276,7 @@ Base<F> ShortVectorEnumeration
     }
     // TODO: Non-integer drop?
 
-    const Real b0ProjNorm = R(0,0);
+    const Real b0ProjNorm = RealPart(R(0,0));
     if( b0ProjNorm < normUpperBound )
     {
         Zeros( v, n, 1 );
@@ -488,7 +488,7 @@ MultiShortVectorEnumeration
     auto modNormUpperBounds( normUpperBounds );
     for( Int j=0; j<numNested; ++j )
     {
-        const Real bProjNorm = R(j,j);
+        const Real bProjNorm = RealPart(R(j,j));
         if( bProjNorm < normUpperBounds(j) )
             modNormUpperBounds(j) = bProjNorm;
     }
@@ -691,7 +691,7 @@ Base<F> ShortestVectorEnumeration
     if( n == 0 )
         return Real(0);
 
-    const Real normUpperBound = R(0,0);
+    const Real normUpperBound = RealPart(R(0,0));
     return ShortestVectorEnumeration( B, R, normUpperBound, v, ctrl );
 }
 
@@ -709,7 +709,7 @@ Base<F> ShortestVectorEnrichment
     if( n == 0 )
         return Real(0);
 
-    const Real normUpperBound = R(0,0);
+    const Real normUpperBound = RealPart(R(0,0));
     return ShortestVectorEnrichment( B, R, normUpperBound, v, ctrl );
 }
 
@@ -728,7 +728,7 @@ Base<F> ShortestVectorEnrichment
     if( n == 0 )
         return Real(0);
 
-    const Real normUpperBound = R(0,0);
+    const Real normUpperBound = RealPart(R(0,0));
     return ShortestVectorEnrichment( B, U, R, normUpperBound, v, ctrl );
 }
 
@@ -778,7 +778,7 @@ Base<F> ShortestVectorEnumeration
     }
     // TODO: Non-integer drop?
 
-    const Real b0Norm = R(0,0);
+    const Real b0Norm = RealPart(R(0,0));
     Zeros( v, n, 1 );
     v(0) = F(1);
 
@@ -862,11 +862,11 @@ MultiShortestVectorEnumeration
     Int satisfiedIndex = -1;
     for( Int j=0; j<numNested; ++j )
     {
-        if( R(j,j) <= normUpperBounds(j) )
+        if( RealPart(R(j,j)) <= normUpperBounds(j) )
         {
             satisfiedBound = true;
             satisfiedIndex = j;
-            targetNorms(j) = R(j,j);
+            targetNorms(j) = RealPart(R(j,j));
 
             Zeros( v, n-satisfiedIndex, 1 );
             v(0) = F(1);
@@ -902,7 +902,7 @@ MultiShortestVectorEnumeration
         {
             Zeros( v, n, 1 );
             v(0) = F(1);
-            return pair<Real,Int>(R(0,0),0);
+            return pair<Real,Int>(RealPart(R(0,0)),0);
         }
     }
 }
