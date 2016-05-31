@@ -29,7 +29,7 @@ Int AlgebraicRelationSearch
     Identity( B, m, n );
     auto bLastRow = B( IR(m-1), ALL );
     for( Int j=0; j<n; ++j )
-        bLastRow.Set( 0, j, Pow(alpha,Real(j)) );
+        bLastRow(0,j) = Pow(alpha,Real(j));
     Scale( NSqrt, bLastRow );
 
     Matrix<F> R;

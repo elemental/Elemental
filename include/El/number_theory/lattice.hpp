@@ -236,25 +236,25 @@ struct LLLCtrl
 
 // TODO: Maintain B in BigInt form
 
-template<typename Z, typename F=Z>
+template<typename Z,typename F=Z>
 LLLInfo<Base<F>> LLL
 ( Matrix<Z>& B,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename Z, typename F=Z>
+template<typename Z,typename F=Z>
 LLLInfo<Base<F>> LLL
 ( Matrix<Z>& B,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename Z, typename F=Z>
+template<typename Z,typename F=Z>
 LLLInfo<Base<F>> LLL
 ( Matrix<Z>& B,
   Matrix<Z>& U,
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename Z, typename F=Z>
+template<typename Z,typename F=Z>
 LLLInfo<Base<F>> LLLWithQ
 ( Matrix<Z>& B,
   Matrix<F>& QR,
@@ -262,7 +262,7 @@ LLLInfo<Base<F>> LLLWithQ
   Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
-template<typename Z, typename F=Z>
+template<typename Z,typename F=Z>
 LLLInfo<Base<F>> LLLWithQ
 ( Matrix<Z>& B,
   Matrix<Z>& U,

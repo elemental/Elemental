@@ -15,7 +15,7 @@ namespace lll {
 // Put the k'th column of B into the k'th column of QR and then rotate
 // said column with the first k-1 (scaled) Householder reflectors.
 
-template<typename Z, typename F>
+template<typename Z,typename F>
 void ExpandQR
 ( Int k,
   const Matrix<Z>& B,
@@ -111,7 +111,7 @@ void HouseholderStep
         houseStepTimer.Stop();
 }
 
-template<typename Z, typename F>
+template<typename Z,typename F>
 Base<F> Norm2
 ( Matrix<Z>& B,
   Int k )
@@ -124,7 +124,7 @@ Base<F> Norm2
 
 
 // Return true if the new column is a zero vector
-template<typename Z, typename F>
+template<typename Z,typename F>
 bool Step
 ( Int k,
   Matrix<Z>& B,
@@ -323,7 +323,7 @@ bool Step
 }
 
 // Consider explicitly returning both Q and R rather than just R (in 'QR')
-template<typename Z, typename F>
+template<typename Z,typename F>
 LLLInfo<Base<F>> LeftAlg
 ( Matrix<Z>& B,
   Matrix<Z>& U,
@@ -510,7 +510,7 @@ LLLInfo<Base<F>> LeftAlg
     return info;
 }
 
-template<typename Z, typename F>
+template<typename Z,typename F>
 LLLInfo<Base<F>> LeftDeepAlg
 ( Matrix<Z>& B,
   Matrix<Z>& U,
@@ -725,7 +725,7 @@ LLLInfo<Base<F>> LeftDeepAlg
     return info;
 }
 
-template<typename Z, typename F>
+template<typename Z,typename F>
 LLLInfo<Base<F>> LeftDeepReduceAlg
 ( Matrix<Z>& B,
   Matrix<Z>& U,

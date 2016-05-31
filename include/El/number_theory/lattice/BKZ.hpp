@@ -961,8 +961,6 @@ BKZ
 // C.f. The analogue of Lehmer's version of Euclid's algorithm that Schnorr
 // mentions at the end of "Progress on BKZ and Lattice Reduction".
 //
-// NOTE: Until Complex<BigFloat> exists, we must have different implementations
-//       for real and complex F
 
 // TODO: Provide a way to display when changing precision without showing
 //       all of the backtracks and deep insertions.
@@ -1100,19 +1098,20 @@ bool TryLowerPrecisionBigFloatMerge
 }
 #endif
 
-template<typename Real>
-BKZInfo<Real>
+template<typename F>
+BKZInfo<Base<F>>
 RecursiveHelper
-( Matrix<Real>& B,
-  Matrix<Real>& U,
-  Matrix<Real>& QR,
-  Matrix<Real>& t,
-  Matrix<Real>& d,
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
   Int numShuffles,
   bool maintainU,
-  const BKZCtrl<Real>& ctrl )
+  const BKZCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("bkz::RecursiveHelper"))
+    typedef Base<F> Real;
     if( maintainU )
         LogicError("Recursive BKZ does not yet support computing U");
 
@@ -1154,7 +1153,7 @@ RecursiveHelper
             timer.Start();
         BKZInfo<Real> leftInfo;
         {
-            Matrix<Real> QRL, tL;
+            Matrix<F> QRL, tL;
             Matrix<Real> dL;
             leftInfo = RecursiveBKZWithQ( CL, QRL, tL, dL, ctrl ); 
         }
@@ -1166,7 +1165,7 @@ RecursiveHelper
             timer.Start();
         BKZInfo<Real> rightInfo;
         {
-            Matrix<Real> QRR, tR;
+            Matrix<F> QRR, tR;
             Matrix<Real> dR;
             rightInfo = RecursiveBKZWithQ( CR, QRR, tR, dR, ctrl );
         }
@@ -1232,163 +1231,6 @@ RecursiveHelper
 #ifdef EL_HAVE_MPC
             if( !succeeded )
                 succeeded = TryLowerPrecisionBigFloatMerge
-                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
-#endif
-            if( succeeded )
-                info.numSwaps += numPrevSwaps;
-        }
-        // TODO: Allow for dropping with non-integer vectors?
-
-        if( !succeeded )
-        {
-            // Interleave CL and CR to reform B before running BKZ again
-            for( Int jSub=0; jSub<n/2; ++jSub )
-            {
-                auto cl = CL( ALL, IR(jSub) );
-                auto cr = CR( ALL, IR(jSub) ); 
-                auto bl = B( ALL, IR(2*jSub) );
-                auto br = B( ALL, IR(2*jSub+1) );
-                bl = cl;
-                br = cr;
-            }
-            if( firstHalf > n/2 )
-            {
-                auto cl = CL( ALL, IR(firstHalf-1) );
-                auto bl = B( ALL, IR(n-1) ); 
-                bl = cl;
-            }
-            
-            auto ctrlMod( ctrl );
-            ctrlMod.recursive = false;
-            ctrlMod.lllCtrl.recursive = false;
-            info = BKZWithQ( B, QR, t, d, ctrlMod );
-            info.numSwaps += numPrevSwaps;
-        }
-    }
-    return info;
-}
-
-// Same as the above, but with the Complex<BigFloat> datatype avoided
-template<typename Real>
-BKZInfo<Real>
-RecursiveHelper
-( Matrix<Complex<Real>>& B,
-  Matrix<Complex<Real>>& U,
-  Matrix<Complex<Real>>& QR,
-  Matrix<Complex<Real>>& t,
-  Matrix<Real>& d,
-  Int numShuffles,
-  bool maintainU,
-  const BKZCtrl<Real>& ctrl )
-{
-    DEBUG_ONLY(CSE cse("bkz::RecursiveHelper"))
-    if( maintainU )
-        LogicError("Recursive BKZ does not yet support computing U");
-
-    const Int n = B.Width();
-    if( n <= Max(ctrl.lllCtrl.cutoff,ctrl.blocksize) )
-    {
-        auto ctrlMod( ctrl );
-        ctrlMod.recursive = false;
-        ctrlMod.lllCtrl.recursive = false;
-        if( maintainU )
-            return BKZWithQ( B, U, QR, t, d, ctrlMod );
-        else
-            return BKZWithQ( B, QR, t, d, ctrlMod );
-    }
-    Timer timer;
-
-    // Reduce the entire matrix with LLL before attempting BKZ.
-    // Deep reductions should probably not be used due to the expense.
-    BKZInfo<Real> info;
-    info.numSwaps = 0;
-    auto lllCtrlMod( ctrl.lllCtrl );
-    lllCtrlMod.recursive = true;
-    auto lllInfo = LLL( B, QR, lllCtrlMod );
-    info.numSwaps += lllInfo.numSwaps;
-
-    for( Int shuffle=0; shuffle<=numShuffles; ++shuffle )
-    {
-        if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
-            Output("Shuffle=",shuffle);
-        auto C( B ); 
-
-        const Int firstHalf = n-(n/2);
-        auto CL = C( ALL, IR(0,firstHalf) );
-        auto CR = C( ALL, IR(firstHalf,n) );
-
-        double leftTime;
-        if( ctrl.lllCtrl.time )
-            timer.Start();
-        LLLInfo<Real> leftInfo;
-        {
-            Matrix<Complex<Real>> QRL, tL;
-            Matrix<Real> dL;
-            leftInfo = RecursiveBKZWithQ( CL, QRL, tL, dL, ctrl ); 
-        }
-        if( ctrl.lllCtrl.time )
-            leftTime = timer.Stop(); 
-
-        double rightTime;
-        if( ctrl.lllCtrl.time )
-            timer.Start();
-        LLLInfo<Real> rightInfo;
-        {
-            Matrix<Complex<Real>> QRR, tR;
-            Matrix<Real> dR;
-            rightInfo = RecursiveBKZWithQ( CR, QRR, tR, dR, ctrl );
-        }
-        if( ctrl.lllCtrl.time )
-            rightTime = timer.Stop();
-
-        info.numSwaps += leftInfo.numSwaps + rightInfo.numSwaps;
-        if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
-        {
-            Output("n=",n);
-            Output("  left swaps=",leftInfo.numSwaps);
-            Output("  right swaps=",rightInfo.numSwaps);
-        }
-        if( ctrl.lllCtrl.time )
-        {
-            Output("  left time:  ",leftTime," seconds");
-            Output("  right time: ",rightTime," seconds");
-        }
-
-        bool succeeded = false;
-        Int numPrevSwaps = info.numSwaps;
-        const bool isInteger = IsInteger( B );
-        if( isInteger )
-        {
-            const Real CLOneNorm = OneNorm( CL );
-            const Real CROneNorm = OneNorm( CR );
-            const Real CLMaxNorm = MaxNorm( CL );
-            const Real CRMaxNorm = MaxNorm( CR );
-            if( ctrl.lllCtrl.progress )
-            {
-                Output("  || C_L ||_1 = ",CLOneNorm);
-                Output("  || C_R ||_1 = ",CROneNorm);
-                Output("  || C_L ||_max = ",CLMaxNorm);
-                Output("  || C_R ||_max = ",CRMaxNorm);
-            }
-
-            const Real COneNorm = Max(CLOneNorm,CROneNorm);
-            const Real fudge = 2; // TODO: Make tunable
-            const unsigned neededPrec = unsigned(Ceil(Log2(COneNorm)*fudge));
-            if( ctrl.lllCtrl.progress || ctrl.lllCtrl.time )
-            {
-                Output("  || C ||_1 = ",COneNorm);
-                Output("  Needed precision: ",neededPrec);
-            }
-
-            succeeded = TryLowerPrecisionMerge<float>
-              ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
-            if( !succeeded )
-                succeeded = TryLowerPrecisionMerge<double>
-                  ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
-        // There is not yet support for Complex<{Quad,Double}Double>
-#ifdef EL_HAVE_QUAD
-            if( !succeeded )
-                succeeded = TryLowerPrecisionMerge<Quad>
                   ( CL, CR, B, QR, t, d, ctrl, neededPrec, info );
 #endif
             if( succeeded )

@@ -276,7 +276,7 @@ Matrix<Base<F>> NestedColumnTwoNorms( const Matrix<F>& Z, Int numNested=1 )
         for( Int i=numNested-1; i>=0; --i )
         {
             UpdateScaledSquare( zBuf[i], scale, scaledSquare );
-            colNorms.Set( j, i, scale*Sqrt(scaledSquare) );
+            colNorms(j,i) = scale*Sqrt(scaledSquare);
         }
     }
     return colNorms;
@@ -356,7 +356,7 @@ Matrix<Base<F>> BatchSparseToNormLowerBound
     Matrix<Real> normBounds;
     Zeros( normBounds, numRHS, 1 );
     for( Int j=0; j<numRHS; ++j )
-        normBounds.Set( j, 0, SparseToNormLowerBound(d,Y(ALL,IR(j))) );
+        normBounds(j) = SparseToNormLowerBound(d,Y(ALL,IR(j)));
     return normBounds;
 }
 
@@ -478,7 +478,7 @@ public:
     Real InsertionNorm() const
     {
         const Int insertionIndex = InsertionIndex();
-        return normUpperBounds_.Get(insertionIndex,0);
+        return normUpperBounds_(insertionIndex);
     }
 
     void Flush()
@@ -527,8 +527,8 @@ public:
         {
             for( Int k=0; k<insertionBound_; ++k )
             {
-                const Real bNorm = colNorms.Get(j,k);
-                if( bNorm < normUpperBounds_.Get(k,0) && bNorm != Real(0) )
+                const Real bNorm = colNorms(j,k);
+                if( bNorm < normUpperBounds_(k) && bNorm != Real(0) )
                 {
                     const Range<Int> subInd(k,END);
 
@@ -536,7 +536,7 @@ public:
                     auto vCand = VCand_(subInd,IR(j));
 
                     Output
-                    ("normUpperBound=",normUpperBounds_.Get(k,0),
+                    ("normUpperBound=",normUpperBounds_(k),
                      ", bNorm=",bNorm,", k=",k);
                     Print( y, "y" );
 
@@ -562,7 +562,7 @@ public:
                     Gemv( NORMAL, Real(1), B_(ALL,subInd), v_, Real(0), b );
                     Print( b, "b" );
 
-                    normUpperBounds_.Set(k,0,bNorm);
+                    normUpperBounds_(k) = bNorm;
                     foundVector_ = true;
                     insertionBound_ = k+1;
                 }
@@ -874,7 +874,7 @@ PhaseEnumeration
     DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
     const Int n = N.Height();
     if( n <= 1 )
-        return pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
+        return pair<Real,Int>(2*normUpperBounds(0)+1,0);
 
     // TODO: Make starting index modifiable
     const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
@@ -923,7 +923,7 @@ PhaseEnumeration
     }
     else
     {
-        return pair<Real,Int>(2*normUpperBounds.Get(0,0)+1,0);
+        return pair<Real,Int>(2*normUpperBounds(0)+1,0);
     }
 }
 
@@ -945,7 +945,7 @@ Real PhaseEnumeration
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
     Matrix<Real> normUpperBounds(1,1);
-    normUpperBounds.Set(0,0,normUpperBound);
+    normUpperBounds(0) = normUpperBound;
     auto pair = 
       PhaseEnumeration
       ( B, d, N, normUpperBounds,
@@ -1026,7 +1026,6 @@ Real PhaseEnumeration
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#define EL_NO_COMPLEX_PROTO
 #include <El/macros/Instantiate.h>
 
 } // namespace El

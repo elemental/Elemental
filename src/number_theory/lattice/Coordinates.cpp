@@ -54,10 +54,10 @@ bool LatticeCoordinates
     //       member of the null-space of (the original) A
     Matrix<F> xM;
     xM = UA( IR(0,infoA.rank), IR(infoB.rank) );
-    if( UA.Get(infoA.rank,infoB.rank) == F(1) )
+    if( UA(infoA.rank,infoB.rank) == F(1) )
         xM *= F(-1);
     DEBUG_ONLY(
-      else if( UA.Get(infoA.rank,infoB.rank) != F(-1) )
+      else if( UA(infoA.rank,infoB.rank) != F(-1) )
           RuntimeError("Invalid member of null space");
     )
 
@@ -96,6 +96,7 @@ bool LatticeCoordinates
     const Matrix<F>& y, \
           Matrix<F>& x );
 
+// We need to generalize the {-1,+1} assumption above before enabling Complex
 #define EL_NO_COMPLEX_PROTO
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

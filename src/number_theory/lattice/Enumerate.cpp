@@ -171,23 +171,23 @@ Matrix<Real> AonoPruning()
     // "A Faster Method for Computing Gama-Nguyen-Regev's Extreme
     // Pruning Coefficients".
     Matrix<Real> controlBounds(17,1);
-    controlBounds.Set( 0, 0, Real(0.1318) );
-    controlBounds.Set( 1, 0, Real(0.1859) );
-    controlBounds.Set( 2, 0, Real(0.2240) );
-    controlBounds.Set( 3, 0, Real(0.2326) );
-    controlBounds.Set( 4, 0, Real(0.2336) );
-    controlBounds.Set( 5, 0, Real(0.2565) );
-    controlBounds.Set( 6, 0, Real(0.2871) );
-    controlBounds.Set( 7, 0, Real(0.3353) );
-    controlBounds.Set( 8, 0, Real(0.3978) );
-    controlBounds.Set( 9, 0, Real(0.4860) );
-    controlBounds.Set( 10, 0, Real(0.5808) );
-    controlBounds.Set( 11, 0, Real(0.6936) );
-    controlBounds.Set( 12, 0, Real(0.8241) );
-    controlBounds.Set( 13, 0, Real(0.9191) );
-    controlBounds.Set( 14, 0, Real(1) );
-    controlBounds.Set( 15, 0, Real(1) );
-    controlBounds.Set( 16, 0, Real(1) );
+    controlBounds(0) = Real(0.1318);
+    controlBounds(1) = Real(0.1859);
+    controlBounds(2) = Real(0.2240);
+    controlBounds(3) = Real(0.2326);
+    controlBounds(4) = Real(0.2336);
+    controlBounds(5) = Real(0.2565);
+    controlBounds(6) = Real(0.2871);
+    controlBounds(7) = Real(0.3353);
+    controlBounds(8) = Real(0.3978);
+    controlBounds(9) = Real(0.4860);
+    controlBounds(10) = Real(0.5808);
+    controlBounds(11) = Real(0.6936);
+    controlBounds(12) = Real(0.8241);
+    controlBounds(13) = Real(0.9191);
+    controlBounds(14) = Real(1);
+    controlBounds(15) = Real(1);
+    controlBounds(16) = Real(1);
     return controlBounds;
 }
 
@@ -199,7 +199,7 @@ Matrix<Real> PrunedUpperBounds( Int n, Real normUpperBound, bool linear )
     if( linear )
     {
         for( Int j=0; j<n; ++j )
-            upperBounds.Set( j, 0, Sqrt(Real(j+1)/Real(n))*normUpperBound );
+            upperBounds(j) = Sqrt(Real(j+1)/Real(n))*normUpperBound;
         return upperBounds;
     }
 
@@ -217,10 +217,10 @@ Matrix<Real> PrunedUpperBounds( Int n, Real normUpperBound, bool linear )
               LogicError("Invalid ceiling index of ",ceilIndex);
         )
         // TODO: Use spline instead of linear interpolation?
-        const Real floorVal = controlBounds.Get(floorIndex,0);
-        const Real ceilVal = controlBounds.Get(ceilIndex,0);
+        const Real floorVal = controlBounds(floorIndex);
+        const Real ceilVal = controlBounds(ceilIndex);
         const Real interp = ceilVal*indexFrac + floorVal*(1-indexFrac);
-        upperBounds.Set( j, 0, Sqrt(interp)*normUpperBound );
+        upperBounds(j) = Sqrt(interp)*normUpperBound;
     }
     return upperBounds;
 }
@@ -276,11 +276,11 @@ Base<F> ShortVectorEnumeration
     }
     // TODO: Non-integer drop?
 
-    const Real b0ProjNorm = R.Get(0,0);
+    const Real b0ProjNorm = R(0,0);
     if( b0ProjNorm < normUpperBound )
     {
         Zeros( v, n, 1 );
-        v.Set( 0, 0, F(1) );
+        v(0) = F(1);
         return b0ProjNorm; 
     }
     Timer timer;
@@ -488,9 +488,9 @@ MultiShortVectorEnumeration
     auto modNormUpperBounds( normUpperBounds );
     for( Int j=0; j<numNested; ++j )
     {
-        const Real bProjNorm = R.Get(j,j);
-        if( bProjNorm < normUpperBounds.Get(j,0) )
-            modNormUpperBounds.Set(j,0,bProjNorm);
+        const Real bProjNorm = R(j,j);
+        if( bProjNorm < normUpperBounds(j) )
+            modNormUpperBounds(j) = bProjNorm;
     }
 
     Timer timer;
@@ -502,7 +502,7 @@ MultiShortVectorEnumeration
     if( ctrl.enumType == GNR_ENUM )
     {
         // GNR enumeration does not yet support multi-enumeration
-        const Real normUpperBound = modNormUpperBounds.Get(0,0);
+        const Real normUpperBound = modNormUpperBounds(0);
 
         auto upperBounds =
           svp::PrunedUpperBounds( n, normUpperBound, ctrl.linearBounding );
@@ -596,11 +596,11 @@ MultiShortVectorEnumeration
         }
         for( Int j=0; j<numNested; ++j )
         {
-            if( modNormUpperBounds.Get(j,0) < normUpperBounds.Get(j,0) )
+            if( modNormUpperBounds(j) < normUpperBounds(j) )
             {
                 Zeros( v, n-j, 1 );
-                v.Set( 0, 0, F(1) );
-                return pair<Real,Int>(modNormUpperBounds.Get(j,0),j);
+                v(0) = F(1);
+                return pair<Real,Int>(modNormUpperBounds(j),j);
             }
         }
         return pair<Real,Int>(2*normUpperBound+1,0);
@@ -644,7 +644,7 @@ MultiShortVectorEnumeration
     else
     {
         // Full enumeration does not (yet) support multi-enumeration
-        const Real normUpperBound = modNormUpperBounds.Get(0,0);
+        const Real normUpperBound = modNormUpperBounds(0);
 
         Matrix<Real> upperBounds;
         Zeros( upperBounds, n, 1 );
@@ -665,11 +665,11 @@ MultiShortVectorEnumeration
         {
             for( Int j=0; j<numNested; ++j )
             {
-                if( modNormUpperBounds.Get(j,0) < normUpperBounds.Get(j,0) )
+                if( modNormUpperBounds(j) < normUpperBounds(j) )
                 {
                     Zeros( v, n-j, 1 );
-                    v.Set( 0, 0, F(1) );
-                    return pair<Real,Int>(modNormUpperBounds.Get(j,0),j);
+                    v(0) = F(1);
+                    return pair<Real,Int>(modNormUpperBounds(j),j);
                 }
             }
             return pair<Real,Int>(result,0);
@@ -691,7 +691,7 @@ Base<F> ShortestVectorEnumeration
     if( n == 0 )
         return Real(0);
 
-    const Real normUpperBound = R.Get(0,0);
+    const Real normUpperBound = R(0,0);
     return ShortestVectorEnumeration( B, R, normUpperBound, v, ctrl );
 }
 
@@ -709,7 +709,7 @@ Base<F> ShortestVectorEnrichment
     if( n == 0 )
         return Real(0);
 
-    const Real normUpperBound = R.Get(0,0);
+    const Real normUpperBound = R(0,0);
     return ShortestVectorEnrichment( B, R, normUpperBound, v, ctrl );
 }
 
@@ -728,7 +728,7 @@ Base<F> ShortestVectorEnrichment
     if( n == 0 )
         return Real(0);
 
-    const Real normUpperBound = R.Get(0,0);
+    const Real normUpperBound = R(0,0);
     return ShortestVectorEnrichment( B, U, R, normUpperBound, v, ctrl );
 }
 
@@ -778,9 +778,9 @@ Base<F> ShortestVectorEnumeration
     }
     // TODO: Non-integer drop?
 
-    const Real b0Norm = R.Get(0,0);
+    const Real b0Norm = R(0,0);
     Zeros( v, n, 1 );
-    v.Set( 0, 0, F(1) );
+    v(0) = F(1);
 
     bool satisfiedBound = ( b0Norm <= normUpperBound ? true : false );
     Real targetNorm = Min(normUpperBound,b0Norm);
@@ -804,7 +804,7 @@ Base<F> ShortestVectorEnumeration
         else
         {
             Zeros( v, n, 1 );
-            v.Set( 0, 0, F(1) );
+            v(0) = F(1);
             return b0Norm;
         }
     }
@@ -862,14 +862,14 @@ MultiShortestVectorEnumeration
     Int satisfiedIndex = -1;
     for( Int j=0; j<numNested; ++j )
     {
-        if( R.Get(j,j) <= normUpperBounds.Get(j,0) )
+        if( R(j,j) <= normUpperBounds(j) )
         {
             satisfiedBound = true;
             satisfiedIndex = j;
-            targetNorms.Set( j, 0, R.Get(j,j) );
+            targetNorms(j) = R(j,j);
 
             Zeros( v, n-satisfiedIndex, 1 );
-            v.Set( 0, 0, F(1) );
+            v(0) = F(1);
 
             break;
         }
@@ -883,10 +883,10 @@ MultiShortestVectorEnumeration
         const Real normCand = result.first;
         const Int indexCand = result.second;
 
-        if( normCand < targetNorms.Get(indexCand,0) )
+        if( normCand < targetNorms(indexCand) )
         {
             v = vCand;
-            targetNorms.Set(indexCand,0,normCand);
+            targetNorms(indexCand) = normCand;
             satisfiedBound = true;
             satisfiedIndex = indexCand;
             // Y-sparse enumeration does not benefit from repetition
@@ -896,13 +896,13 @@ MultiShortestVectorEnumeration
         else if( satisfiedBound )
         {
             return pair<Real,Int>
-                   (targetNorms.Get(satisfiedIndex,0),satisfiedIndex);
+                   (targetNorms(satisfiedIndex),satisfiedIndex);
         }
         else
         {
             Zeros( v, n, 1 );
-            v.Set( 0, 0, F(1) );
-            return pair<Real,Int>(R.Get(0,0),0);
+            v(0) = F(1);
+            return pair<Real,Int>(R(0,0),0);
         }
     }
 }
@@ -948,7 +948,7 @@ MultiShortestVectorEnrichment
     const Real retNorm = ret.first;
     const Int retIndex = ret.second;
 
-    if( retNorm < normUpperBounds.Get(retIndex,0) )
+    if( retNorm < normUpperBounds(retIndex) )
     {
         auto BSub = B(ALL,IR(retIndex,END));
         EnrichLattice( BSub, v );
@@ -1000,7 +1000,7 @@ MultiShortestVectorEnrichment
     const Real retNorm = ret.first;
     const Int retIndex = ret.second;
 
-    if( retNorm < normUpperBounds.Get(retIndex,0) )
+    if( retNorm < normUpperBounds(retIndex) )
     {
         const Range<Int> subInd(retIndex,END);
         auto BSub = B( ALL, subInd );
@@ -1080,13 +1080,11 @@ MultiShortestVectorEnrichment
           Matrix<F>& v, \
     const EnumCtrl<Base<F>>& ctrl );
 
-#define EL_NO_COMPLEX_PROTO
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#define EL_NO_COMPLEX_PROTO
 #include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -220,7 +220,37 @@ Real TransposedHelper
     }
 }
 
-// TODO: Complex version here
+template<typename F,typename=DisableIf<IsReal<Real>>,typename=void>
+Base<F> Helper
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+  const Matrix<Base<F>>& u,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("svp::gnr_enum::Helper"))
+    const Int n = N.Height();
+    if( n != N.Width() )
+        LogicError("Expected height(N) = width(N)");
+    // TODO: Complex enumeration
+    LogicError("This routine is not yet written");
+}
+
+template<typename F,typename=DisableIf<IsReal<Real>>,typename=void>
+Base<F> TransposedHelper
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& NTrans,
+  const Matrix<Base<F>>& u,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl )
+{
+    DEBUG_ONLY(CSE cse("svp::gnr_enum::Helper"))
+    const Int n = NTrans.Height();
+    if( n != NTrans.Width() )
+        LogicError("Expected height(N) = width(N)");
+    // TODO: Complex enumeration
+    LogicError("This routine is not yet written");
+}
 
 } // namespace gnr_enum
 
@@ -260,7 +290,6 @@ Base<F> GNREnumeration
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#define EL_NO_COMPLEX_PROTO
 #include <El/macros/Instantiate.h>
 
 } // namespace El

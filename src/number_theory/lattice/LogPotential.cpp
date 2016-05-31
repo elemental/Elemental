@@ -22,7 +22,7 @@ Base<F> LatticeLogPotential( const Matrix<F>& R )
     // TODO: Carefully check this
     Real logPotential=0;
     for( Int j=0; j<minDim; ++j )
-        logPotential += 2*(n-j)*Log(Abs(R.Get(j,j)));
+        logPotential += 2*(n-j)*Log(Abs(R(j,j)));
     return logPotential;
 }
 
