@@ -8,7 +8,6 @@
 */
 #include <El.hpp>
 using namespace El;
-
 template<typename F> 
 void TestTrsm
 ( LeftOrRight side,
@@ -147,6 +146,17 @@ main( int argc, char* argv[] )
         ( side, uplo, orientation, diag,
           m, n,
           QuadDouble(3),
+          g, print );
+
+        TestTrsm<Complex<DoubleDouble>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<DoubleDouble>(3),
+          g, print );
+        TestTrsm<Complex<QuadDouble>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<QuadDouble>(3),
           g, print );
 #endif
 

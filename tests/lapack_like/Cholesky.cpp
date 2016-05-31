@@ -187,6 +187,13 @@ main( int argc, char* argv[] )
         TestCholesky<QuadDouble>
         ( g, uplo, pivot, m, nbLocal,
           print, printDiag, correctness, false );
+
+        TestCholesky<Complex<DoubleDouble>>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+        TestCholesky<Complex<QuadDouble>>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
 #endif
 
 #ifdef EL_HAVE_QUAD

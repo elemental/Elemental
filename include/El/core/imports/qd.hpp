@@ -14,10 +14,6 @@
 
 namespace El {
 
-#ifdef EL_HAVE_MPC
-class BigFloat;
-#endif
-
 // The dd_real and qd_real classes unfortunately do not provide a means of
 // assignment directly from an integer, which would break the large amount of
 // Elemental (user and library) code which makes use of assignments of the
@@ -29,23 +25,19 @@ struct DoubleDouble : public dd_real
 {
     DoubleDouble() { }
 
+    template<typename T,typename=EnableIf<IsScalar<T>>>
+    DoubleDouble( const T& a );
+
     DoubleDouble( const unsigned& a ): dd_real(double(a)) { }
-    // TODO: More accurate conversion
-    DoubleDouble( const unsigned long& a ): dd_real(double(a)) { }
-    // TODO: More accurate conversion
-    DoubleDouble( const unsigned long long& a ): dd_real(double(a)) { }
     DoubleDouble( const int& a ) : dd_real(a) { }
-    // TODO: More accurate conversion
-    DoubleDouble( const long int& a ) : dd_real(double(a)) { }
-    // TODO: More accurate conversion
-    DoubleDouble( long long int a ): dd_real(double(a)) { }
     DoubleDouble( const float& a ) : dd_real(double(a)) { }
     DoubleDouble( const double& a ) : dd_real(a) { }
     DoubleDouble( const dd_real& a ) : dd_real(a) { }
-#ifdef EL_HAVE_QUAD
-    DoubleDouble( const Quad& a );
-#endif
     DoubleDouble( const char* s ) : dd_real(s) { }
+
+    template<typename T>
+    DoubleDouble& operator=( const T& a )
+    { dd_real::operator=(DoubleDouble(a)); return *this; }
 
     DoubleDouble& operator=( const dd_real& a )
     { dd_real::operator=(a); return *this; }
@@ -55,112 +47,68 @@ struct DoubleDouble : public dd_real
     { dd_real::operator=(a); return *this; }
     DoubleDouble& operator=( const unsigned& a )
     { dd_real::operator=(double(a)); return *this; }
-    DoubleDouble& operator=( const unsigned long& a )
-    { dd_real::operator=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator=( const unsigned long long& a )
-    { dd_real::operator=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator=( const int& a )
     { dd_real::operator=(double(a)); return *this; }
-    DoubleDouble& operator=( const long int& a )
-    { dd_real::operator=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator=( const long long int& a )
-    { dd_real::operator=(DoubleDouble(a)); return *this; }
-#ifdef EL_HAVE_QUAD
-    DoubleDouble& operator=( const Quad& a )
-    { dd_real::operator=(DoubleDouble(a)); return *this; }
-#endif
     DoubleDouble& operator=( const char* s )
     { dd_real::operator=(s); return *this; }
 
+    template<typename T>
+    DoubleDouble& operator+=( const T& a )
+    { dd_real::operator+=(DoubleDouble(a)); return *this; }
+
     DoubleDouble& operator+=( const unsigned& a )
     { dd_real::operator+=(double(a)); return *this; }
-    DoubleDouble& operator+=( const unsigned long& a )
-    { dd_real::operator+=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator+=( const unsigned long long& a )
-    { dd_real::operator+=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator+=( const int& a )
     { dd_real::operator+=(double(a)); return *this; }
-    DoubleDouble& operator+=( const long int& a )
-    { dd_real::operator+=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator+=( const long long int& a )
-    { dd_real::operator+=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator+=( const float& a )
     { dd_real::operator+=(a); return *this; }
     DoubleDouble& operator+=( const double& a )
     { dd_real::operator+=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    DoubleDouble& operator+=( const Quad& a )
-    { dd_real::operator+=(DoubleDouble(a)); return *this; }
-#endif
     DoubleDouble& operator+=( const dd_real& a )
     { dd_real::operator+=(a); return *this; }
 
+    template<typename T>
+    DoubleDouble& operator-=( const T& a )
+    { dd_real::operator-=(DoubleDouble(a)); return *this; }
+
     DoubleDouble& operator-=( const unsigned& a )
     { dd_real::operator-=(double(a)); return *this; }
-    DoubleDouble& operator-=( const unsigned long& a )
-    { dd_real::operator-=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator-=( const unsigned long long& a )
-    { dd_real::operator-=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator-=( const int& a )
     { dd_real::operator-=(double(a)); return *this; }
-    DoubleDouble& operator-=( const long int& a )
-    { dd_real::operator-=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator-=( const long long int& a )
-    { dd_real::operator-=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator-=( const float& a )
     { dd_real::operator-=(double(a)); return *this; }
     DoubleDouble& operator-=( const double& a )
     { dd_real::operator-=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    DoubleDouble& operator-=( const Quad& a )
-    { dd_real::operator-=(DoubleDouble(a)); return *this; }
-#endif
     DoubleDouble& operator-=( const dd_real& a )
     { dd_real::operator-=(a); return *this; }
 
+    template<typename T>
+    DoubleDouble& operator*=( const T& a )
+    { dd_real::operator*=(DoubleDouble(a)); return *this; }
+
     DoubleDouble& operator*=( const unsigned& a )
     { dd_real::operator*=(double(a)); return *this; }
-    DoubleDouble& operator*=( const unsigned long& a )
-    { dd_real::operator*=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator*=( const unsigned long long& a )
-    { dd_real::operator*=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator*=( const int& a )
     { dd_real::operator*=(double(a)); return *this; }
-    DoubleDouble& operator*=( const long int& a )
-    { dd_real::operator*=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator*=( const long long int& a )
-    { dd_real::operator*=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator*=( const float& a )
     { dd_real::operator*=(double(a)); return *this; }
     DoubleDouble& operator*=( const double& a )
     { dd_real::operator*=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    DoubleDouble& operator*=( const Quad& a )
-    { dd_real::operator*=(DoubleDouble(a)); return *this; }
-#endif
     DoubleDouble& operator*=( const dd_real& a )
     { dd_real::operator*=(a); return *this; }
 
+    template<typename T>
+    DoubleDouble& operator/=( const T& a )
+    { dd_real::operator/=(DoubleDouble(a)); return *this; }
+
     DoubleDouble& operator/=( const unsigned& a )
     { dd_real::operator/=(double(a)); return *this; }
-    DoubleDouble& operator/=( const unsigned long& a )
-    { dd_real::operator/=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator/=( const unsigned long long& a )
-    { dd_real::operator/=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator/=( const int& a )
     { dd_real::operator/=(double(a)); return *this; }
-    DoubleDouble& operator/=( const long int& a )
-    { dd_real::operator/=(DoubleDouble(a)); return *this; }
-    DoubleDouble& operator/=( const long long int& a )
-    { dd_real::operator/=(DoubleDouble(a)); return *this; }
     DoubleDouble& operator/=( const float& a )
     { dd_real::operator/=(double(a)); return *this; }
     DoubleDouble& operator/=( const double& a )
     { dd_real::operator/=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    DoubleDouble& operator/=( const Quad& a )
-    { dd_real::operator/=(DoubleDouble(a)); return *this; }
-#endif
     DoubleDouble& operator/=( const dd_real& a )
     { dd_real::operator/=(a); return *this; }
 
@@ -175,6 +123,7 @@ struct DoubleDouble : public dd_real
     explicit operator long long int() const;
     explicit operator float() const { return to_double(*this); }
     explicit operator double() const { return to_double(*this); }
+    explicit operator long double() const;
 #ifdef EL_HAVE_QUAD
     explicit operator Quad() const;
 #endif
@@ -182,6 +131,20 @@ struct DoubleDouble : public dd_real
     explicit operator BigFloat() const;
 #endif
 };
+
+template<typename T,typename>
+DoubleDouble::DoubleDouble( const T& a )
+{
+    T b = a;
+    x[0] = double(b);
+    b -= x[0];
+    x[1] = double(b);
+}
+
+inline bool operator==( const DoubleDouble& a, const DoubleDouble& b )
+{ return static_cast<const dd_real&>(a) == static_cast<const dd_real&>(b); }
+inline bool operator!=( const DoubleDouble& a, const DoubleDouble& b )
+{ return !(a==b); }
 
 inline DoubleDouble operator+( const DoubleDouble& a, const DoubleDouble& b )
 { return static_cast<const dd_real&>(a) + static_cast<const dd_real&>(b); }
@@ -417,143 +380,100 @@ inline DoubleDouble operator/
 struct QuadDouble : public qd_real
 {
     QuadDouble() { }
+
+    template<typename T,typename=EnableIf<IsScalar<T>>>
+    QuadDouble( const T& a );
+
     QuadDouble( const unsigned& a ) : qd_real(double(a)) { }
-    QuadDouble( const unsigned long& a ) : qd_real(DoubleDouble(a)) { }
-    QuadDouble( const unsigned long long& a ) : qd_real(DoubleDouble(a)) { }
     QuadDouble( const int& a ) : qd_real(a) { }
-    QuadDouble( const long int& a ) : qd_real(DoubleDouble(a)) { }
-    QuadDouble( const long long int& a ) : qd_real(DoubleDouble(a)) { }
     QuadDouble( const float& a ) : qd_real(double(a)) { }
     QuadDouble( const double& a ) : qd_real(a) { }
     QuadDouble( const dd_real& a ) : qd_real(a) { } 
     QuadDouble( const qd_real& a ) : qd_real(a) { } 
-#ifdef EL_HAVE_QUAD
-    QuadDouble( const Quad& a );
-#endif
     QuadDouble( const char* s ) : qd_real(s) { }
+
+    template<typename T>
+    QuadDouble& operator=( const T& a )
+    { qd_real::operator=(QuadDouble(a)); return *this; }
 
     QuadDouble& operator=( const dd_real& a )
     { qd_real::operator=(a); return *this; }
     QuadDouble& operator=( const qd_real& a )
     { qd_real::operator=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    QuadDouble& operator=( const Quad& a )
-    { qd_real::operator=(QuadDouble(a)); return *this; }
-#endif
     QuadDouble& operator=( const double& a )
     { qd_real::operator=(a); return *this; }
     QuadDouble& operator=( const float& a )
     { qd_real::operator=(double(a)); return *this; }
     QuadDouble& operator=( const unsigned& a )
     { qd_real::operator=(double(a)); return *this; }
-    QuadDouble& operator=( const unsigned long& a )
-    { qd_real::operator=(QuadDouble(a)); return *this; }
-    QuadDouble& operator=( const unsigned long long& a )
-    { qd_real::operator=(QuadDouble(a)); return *this; }
     QuadDouble& operator=( const int& a )
     { qd_real::operator=(a); return *this; }
-    QuadDouble& operator=( const long int& a )
-    { qd_real::operator=(QuadDouble(a)); return *this; }
-    QuadDouble& operator=( const long long int& a )
-    { qd_real::operator=(QuadDouble(a)); return *this; }
     QuadDouble& operator=( const char* s )
     { qd_real::operator=(s); return *this; }
 
+    template<typename T>
+    QuadDouble& operator+=( const T& a )
+    { qd_real::operator+=(QuadDouble(a)); return *this; }
+
     QuadDouble& operator+=( const unsigned& a )
     { qd_real::operator+=(double(a)); return *this; }
-    QuadDouble& operator+=( const unsigned long& a )
-    { qd_real::operator+=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator+=( const unsigned long long& a )
-    { qd_real::operator+=(DoubleDouble(a)); return *this; }
     QuadDouble& operator+=( const int& a )
     { qd_real::operator+=(double(a)); return *this; }
-    QuadDouble& operator+=( const long int& a )
-    { qd_real::operator+=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator+=( const long long int& a )
-    { qd_real::operator+=(DoubleDouble(a)); return *this; }
     QuadDouble& operator+=( const float& a )
     { qd_real::operator+=(double(a)); return *this; }
     QuadDouble& operator+=( const double& a )
     { qd_real::operator+=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    QuadDouble& operator+=( const Quad& a )
-    { qd_real::operator+=(QuadDouble(a)); return *this; }
-#endif
     QuadDouble& operator+=( const dd_real& a )
     { qd_real::operator+=(a); return *this; }
     QuadDouble& operator+=( const qd_real& a )
     { qd_real::operator+=(a); return *this; }
 
+    template<typename T>
+    QuadDouble& operator-=( const T& a )
+    { qd_real::operator-=(QuadDouble(a)); return *this; }
+
     QuadDouble& operator-=( const unsigned& a )
     { qd_real::operator-=(double(a)); return *this; }
-    QuadDouble& operator-=( const unsigned long& a )
-    { qd_real::operator-=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator-=( const unsigned long long& a )
-    { qd_real::operator-=(DoubleDouble(a)); return *this; }
     QuadDouble& operator-=( const int& a )
     { qd_real::operator-=(double(a)); return *this; }
-    QuadDouble& operator-=( const long int& a )
-    { qd_real::operator-=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator-=( const long long int& a )
-    { qd_real::operator-=(DoubleDouble(a)); return *this; }
     QuadDouble& operator-=( const float& a )
     { qd_real::operator-=(double(a)); return *this; }
     QuadDouble& operator-=( const double& a )
     { qd_real::operator-=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    QuadDouble& operator-=( const Quad& a )
-    { qd_real::operator-=(QuadDouble(a)); return *this; }
-#endif
     QuadDouble& operator-=( const dd_real& a )
     { qd_real::operator-=(a); return *this; }
     QuadDouble& operator-=( const qd_real& a )
     { qd_real::operator-=(a); return *this; }
 
+    template<typename T>
+    QuadDouble& operator*=( const T& a )
+    { qd_real::operator*=(QuadDouble(a)); return *this; }
+
     QuadDouble& operator*=( const unsigned& a )
     { qd_real::operator*=(double(a)); return *this; }
-    QuadDouble& operator*=( const unsigned long& a )
-    { qd_real::operator*=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator*=( const unsigned long long& a )
-    { qd_real::operator*=(DoubleDouble(a)); return *this; }
     QuadDouble& operator*=( const int& a )
     { qd_real::operator*=(double(a)); return *this; }
-    QuadDouble& operator*=( const long int& a )
-    { qd_real::operator*=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator*=( const long long int& a )
-    { qd_real::operator*=(DoubleDouble(a)); return *this; }
     QuadDouble& operator*=( const float& a )
     { qd_real::operator*=(double(a)); return *this; }
     QuadDouble& operator*=( const double& a )
     { qd_real::operator*=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    QuadDouble& operator*=( const Quad& a )
-    { qd_real::operator*=(QuadDouble(a)); return *this; }
-#endif
     QuadDouble& operator*=( const dd_real& a )
     { qd_real::operator*=(a); return *this; }
     QuadDouble& operator*=( const qd_real& a )
     { qd_real::operator*=(a); return *this; }
 
+    template<typename T>
+    QuadDouble& operator/=( const T& a )
+    { qd_real::operator/=(QuadDouble(a)); return *this; }
+
     QuadDouble& operator/=( const unsigned& a )
     { qd_real::operator/=(double(a)); return *this; }
-    QuadDouble& operator/=( const unsigned long& a )
-    { qd_real::operator/=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator/=( const unsigned long long& a )
-    { qd_real::operator/=(DoubleDouble(a)); return *this; }
     QuadDouble& operator/=( const int& a )
     { qd_real::operator/=(double(a)); return *this; }
-    QuadDouble& operator/=( const long int& a )
-    { qd_real::operator/=(DoubleDouble(a)); return *this; }
-    QuadDouble& operator/=( const long long int& a )
-    { qd_real::operator/=(DoubleDouble(a)); return *this; }
     QuadDouble& operator/=( const float& a )
     { qd_real::operator/=(double(a)); return *this; }
     QuadDouble& operator/=( const double& a )
     { qd_real::operator/=(a); return *this; }
-#ifdef EL_HAVE_QUAD
-    QuadDouble& operator/=( const Quad& a )
-    { qd_real::operator/=(QuadDouble(a)); return *this; }
-#endif
     QuadDouble& operator/=( const dd_real& a )
     { qd_real::operator/=(a); return *this; }
     QuadDouble& operator/=( const qd_real& a )
@@ -568,6 +488,7 @@ struct QuadDouble : public qd_real
     explicit operator int() const { return to_int(*this); }
     explicit operator float() const { return to_double(*this); }
     explicit operator double() const { return to_double(*this); }
+    explicit operator long double() const;
     explicit operator long long int() const;
     explicit operator DoubleDouble() const { return to_dd_real(*this); }
 #ifdef EL_HAVE_QUAD
@@ -577,6 +498,23 @@ struct QuadDouble : public qd_real
     explicit operator BigFloat() const;
 #endif
 };
+
+template<typename T,typename>
+QuadDouble::QuadDouble( const T& a )
+{
+    T b = a;
+    x[0] = double(b);
+    for( Int j=1; j<4; ++j )
+    {
+        b -= x[j-1];
+        x[j] = double(b);
+    }
+}
+
+inline bool operator==( const QuadDouble& a, const QuadDouble& b )
+{ return static_cast<const qd_real&>(a) == static_cast<const qd_real&>(b); }
+inline bool operator!=( const QuadDouble& a, const QuadDouble& b )
+{ return !(a==b); }
 
 inline QuadDouble operator+
 ( const QuadDouble& a, const QuadDouble& b )

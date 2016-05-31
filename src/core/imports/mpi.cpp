@@ -3065,10 +3065,16 @@ MPI_PROTO(Entry<Complex<double>>)
 #ifdef EL_HAVE_QD
 MPI_PROTO(DoubleDouble)
 MPI_PROTO(QuadDouble)
+MPI_PROTO(Complex<DoubleDouble>)
+MPI_PROTO(Complex<QuadDouble>)
 MPI_PROTO(ValueInt<DoubleDouble>)
 MPI_PROTO(ValueInt<QuadDouble>)
+MPI_PROTO(ValueInt<Complex<DoubleDouble>>)
+MPI_PROTO(ValueInt<Complex<QuadDouble>>)
 MPI_PROTO(Entry<DoubleDouble>)
 MPI_PROTO(Entry<QuadDouble>)
+MPI_PROTO(Entry<Complex<DoubleDouble>>)
+MPI_PROTO(Entry<Complex<QuadDouble>>)
 #endif
 #ifdef EL_HAVE_QUAD
 MPI_PROTO(Quad)

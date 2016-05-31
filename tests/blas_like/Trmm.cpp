@@ -147,6 +147,17 @@ main( int argc, char* argv[] )
           m, n,
           QuadDouble(3),
           g, print );
+
+        TestTrmm<Complex<DoubleDouble>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<DoubleDouble>(3),
+          g, print );
+        TestTrmm<Complex<QuadDouble>>
+        ( side, uplo, orientation, diag,
+          m, n,
+          Complex<QuadDouble>(3),
+          g, print );
 #endif
 
 #ifdef EL_HAVE_QUAD

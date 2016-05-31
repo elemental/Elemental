@@ -106,6 +106,9 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_QD
         TestTrsv<DoubleDouble>( uplo, orientation, diag, n, g, print );
         TestTrsv<QuadDouble>( uplo, orientation, diag, n, g, print );
+
+        TestTrsv<Complex<DoubleDouble>>( uplo, orientation, diag, n, g, print );
+        TestTrsv<Complex<QuadDouble>>( uplo, orientation, diag, n, g, print );
 #endif
 
 #ifdef EL_HAVE_QUAD

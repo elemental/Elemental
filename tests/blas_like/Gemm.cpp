@@ -262,6 +262,25 @@ main( int argc, char* argv[] )
           colAlignA, rowAlignA,
           colAlignB, rowAlignB,
           colAlignC, rowAlignC );
+
+        TestGemm<Complex<DoubleDouble>>
+        ( orientA, orientB,
+          m, n, k,
+          Complex<DoubleDouble>(3), Complex<DoubleDouble>(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
+        TestGemm<Complex<QuadDouble>>
+        ( orientA, orientB,
+          m, n, k,
+          Complex<QuadDouble>(3), Complex<QuadDouble>(4),
+          g,
+          print, correctness,
+          colAlignA, rowAlignA,
+          colAlignB, rowAlignB,
+          colAlignC, rowAlignC );
 #endif
 
 #ifdef EL_HAVE_QUAD

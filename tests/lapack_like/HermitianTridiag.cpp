@@ -380,6 +380,13 @@ main( int argc, char* argv[] )
                 TestHermitianTridiag<QuadDouble>
                 ( uplo, m, correctness, print, display );
             }
+            if( testCpx )
+            {
+                TestHermitianTridiag<Complex<DoubleDouble>>
+                ( uplo, m, correctness, print, display );
+                TestHermitianTridiag<Complex<QuadDouble>>
+                ( uplo, m, correctness, print, display );
+            }
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -418,6 +425,13 @@ main( int argc, char* argv[] )
             TestHermitianTridiag<DoubleDouble>
             ( g, uplo, m, nbLocal, avoidTrmv, correctness, print, display );
             TestHermitianTridiag<QuadDouble>
+            ( g, uplo, m, nbLocal, avoidTrmv, correctness, print, display );
+        }
+        if( testCpx )
+        {
+            TestHermitianTridiag<Complex<DoubleDouble>>
+            ( g, uplo, m, nbLocal, avoidTrmv, correctness, print, display );
+            TestHermitianTridiag<Complex<QuadDouble>>
             ( g, uplo, m, nbLocal, avoidTrmv, correctness, print, display );
         }
 #endif

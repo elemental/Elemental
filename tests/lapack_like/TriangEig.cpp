@@ -450,17 +450,27 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_QD
             if( testReal && testNonstandard )
+            {
                 TestTriangEig<DoubleDouble>
                 ( n, correctness, print, whichMatrix );
-            // TODO: Determine why NaN's appear for the Jordan matrix
-            if( testReal && testNonstandard )
                 TestTriangEig<QuadDouble>
                 ( n, correctness, print, whichMatrix );
+            }
+            if( testCpx && testNonstandard )
+            {
+                TestTriangEig<Complex<DoubleDouble>>
+                ( n, correctness, print, whichMatrix );
+                TestTriangEig<Complex<QuadDouble>>
+                ( n, correctness, print, whichMatrix );
+            }
 #endif
 
 #ifdef EL_HAVE_MPC
             if( testReal && testNonstandard )
                 TestTriangEig<BigFloat>
+                ( n, correctness, print, whichMatrix );
+            if( testCpx && testNonstandard )
+                TestTriangEig<Complex<BigFloat>>
                 ( n, correctness, print, whichMatrix );
 #endif
         }
@@ -493,11 +503,19 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_QD
         if( testReal && testNonstandard )
+        {
             TestTriangEig<DoubleDouble>
             ( g, n, correctness, print, whichMatrix );
-        if( testReal && testNonstandard )
             TestTriangEig<QuadDouble>
             ( g, n, correctness, print, whichMatrix );
+        }
+        if( testCpx && testNonstandard )
+        {
+            TestTriangEig<Complex<DoubleDouble>>
+            ( g, n, correctness, print, whichMatrix );
+            TestTriangEig<Complex<QuadDouble>>
+            ( g, n, correctness, print, whichMatrix );
+        }
 #endif
 
 #ifdef EL_HAVE_MPC

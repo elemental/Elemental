@@ -191,6 +191,8 @@ template struct SafeProduct<Complex<double>>;
 #ifdef EL_HAVE_QD
 template struct SafeProduct<DoubleDouble>;
 template struct SafeProduct<QuadDouble>;
+template struct SafeProduct<Complex<DoubleDouble>>;
+template struct SafeProduct<Complex<QuadDouble>>;
 #endif
 #ifdef EL_HAVE_QUAD
 template struct SafeProduct<Quad>;

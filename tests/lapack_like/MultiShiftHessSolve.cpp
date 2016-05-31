@@ -269,6 +269,11 @@ main( int argc, char* argv[] )
             ( uplo, orient, m, n, correctness, print, display );
             TestHessenberg<QuadDouble>
             ( uplo, orient, m, n, correctness, print, display );
+
+            TestHessenberg<Complex<DoubleDouble>>
+            ( uplo, orient, m, n, correctness, print, display );
+            TestHessenberg<Complex<QuadDouble>>
+            ( uplo, orient, m, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -298,6 +303,11 @@ main( int argc, char* argv[] )
         TestHessenberg<DoubleDouble>
         ( grid, uplo, orient, m, n, correctness, print, display );
         TestHessenberg<QuadDouble>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+
+        TestHessenberg<Complex<DoubleDouble>>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+        TestHessenberg<Complex<QuadDouble>>
         ( grid, uplo, orient, m, n, correctness, print, display );
 #endif
 

@@ -260,6 +260,11 @@ main( int argc, char* argv[] )
             ( m, n, correctness, print );
             TestRQ<QuadDouble>
             ( m, n, correctness, print );
+
+            TestRQ<Complex<DoubleDouble>>
+            ( m, n, correctness, print );
+            TestRQ<Complex<QuadDouble>>
+            ( m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -291,6 +296,11 @@ main( int argc, char* argv[] )
         TestRQ<DoubleDouble>
         ( g, m, n, correctness, print );
         TestRQ<QuadDouble>
+        ( g, m, n, correctness, print );
+
+        TestRQ<Complex<DoubleDouble>>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<QuadDouble>>
         ( g, m, n, correctness, print );
 #endif
 

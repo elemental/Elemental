@@ -51,9 +51,9 @@ void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y )
             {
                 for( Int i=0; i<mX; ++i )
                 {
-                    const T alpha = X.Get(i,j);
-                    X.Set( i, j, Conj(Y.Get(j,i)) );
-                    Y.Set( j, i, Conj(alpha)      );
+                    const T alpha = X(i,j);
+                    X(i,j) = Conj(Y(j,i));
+                    Y(j,i) = Conj(alpha);
                 }
             }
             else
@@ -283,9 +283,9 @@ void SymmetricSwap
             A.Conjugate( from, to );
         // Diagonal swap
         {
-            const T value = A.Get(from,from);
-            A.Set( from, from, A.Get(to,to) );
-            A.Set( to,   to,   value        );
+            const T value = A(from,from);
+            A(from,from) = A(to,to);
+            A(to,to) = value;
             if( conjugate )
             {
                 A.MakeReal( to, to );
@@ -319,9 +319,9 @@ void SymmetricSwap
             A.Conjugate( to, from );
         // Diagonal swap
         {
-            const T value = A.Get(from,from);
-            A.Set( from, from, A.Get(to,to) );
-            A.Set( to,   to,   value        );
+            const T value = A(from,from);
+            A(from,from) = A(to,to);
+            A(to,to) = value;
             if( conjugate )
             {
                 A.MakeReal( to, to );

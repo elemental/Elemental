@@ -1489,7 +1489,7 @@ byte* Complex<BigFloat>::Deserialize( byte* buf )
 bool operator==
 ( const Complex<DoubleDouble>& a, const Complex<DoubleDouble>& b )
 {
-    return a.real() == b.real() && a.imag() == b.imag();
+    return (a.real() == b.real()) && (a.imag() == b.imag());
 }
 
 bool operator!=
@@ -1501,11 +1501,59 @@ bool operator!=
 bool operator==
 ( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
 {
-    return a.real() == b.real() && a.imag() == b.imag();
+    return (a.real() == b.real()) && (a.imag() == b.imag());
 }
 
 bool operator!=
 ( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b )
+{
+    return !(a == b);
+}
+
+bool operator==
+( const Complex<DoubleDouble>& a, const DoubleDouble& b )
+{
+    return (a.real() == b) && (a.imag() == DoubleDouble(0));
+}
+
+bool operator!=
+( const Complex<DoubleDouble>& a, const DoubleDouble& b )
+{
+    return !(a == b);
+}
+
+bool operator==
+( const Complex<QuadDouble>& a, const QuadDouble& b )
+{
+    return (a.real() == b) && (a.imag() == QuadDouble(0));
+}
+
+bool operator!=
+( const Complex<QuadDouble>& a, const QuadDouble& b )
+{
+    return !(a == b);
+}
+
+bool operator==
+( const DoubleDouble& a, const Complex<DoubleDouble>& b )
+{
+    return (a == b.real()) && (DoubleDouble(0) == b.imag());
+}
+
+bool operator!=
+( const DoubleDouble& a, const Complex<DoubleDouble>& b )
+{
+    return !(a == b);
+}
+
+bool operator==
+( const QuadDouble& a, const Complex<QuadDouble>& b )
+{
+    return (a == b.real()) && (QuadDouble(0) == b.imag());
+}
+
+bool operator!=
+( const QuadDouble& a, const Complex<QuadDouble>& b )
 {
     return !(a == b);
 }
@@ -1523,6 +1571,34 @@ bool operator!=
 {
     return !(a == b);
 }
+
+bool operator==
+( const Complex<BigFloat>& a, const BigFloat& b )
+{
+    int realRes = mpfr_cmp( a.LockedRealPointer(), b.LockedPointer() );
+    int imagRes = mpfr_cmp_si( a.LockedImagPointer(), 0 );
+    return (realRes == 0) && (imagRes == 0);
+}
+
+bool operator!=
+( const Complex<BigFloat>& a, const BigFloat& b )
+{
+    return !(a == b);
+}
+
+bool operator==
+( const BigFloat& a, const Complex<BigFloat>& b )
+{
+    int realRes = mpfr_cmp( a.LockedPointer(), b.LockedRealPointer() );
+    int imagRes = mpfr_cmp_si( b.LockedImagPointer(), 0 );
+    return (realRes == 0) && (imagRes == 0);
+}
+
+bool operator!=
+( const BigFloat& a, const Complex<BigFloat>& b )
+{
+    return !(a == b);
+}
 #endif
 
 template<typename Real>
@@ -1536,15 +1612,15 @@ operator-( const Complex<Real>& a )
 Complex<DoubleDouble> operator-( const Complex<DoubleDouble>& a )
 {
     Complex<DoubleDouble> aNeg;
-    aNeg.realPart = -aNeg.realPart;
-    aNeg.imagPart = -aNeg.imagPart;
+    aNeg.realPart = -a.realPart;
+    aNeg.imagPart = -a.imagPart;
     return aNeg;
 }
 Complex<QuadDouble> operator-( const Complex<QuadDouble>& a )
 {
     Complex<QuadDouble> aNeg;
-    aNeg.realPart = -aNeg.realPart;
-    aNeg.imagPart = -aNeg.imagPart;
+    aNeg.realPart = -a.realPart;
+    aNeg.imagPart = -a.imagPart;
     return aNeg;
 }
 #endif

@@ -239,6 +239,19 @@ main( int argc, char* argv[] )
           g, print, correctness, nbLocal,
           colAlignA, rowAlignA, colAlignC, rowAlignC,
           contigA, contigC );
+
+        TestSyrk<Complex<DoubleDouble>>
+        ( conjugate, uplo, orientation, m, k,
+          Complex<DoubleDouble>(3), Complex<DoubleDouble>(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
+        TestSyrk<Complex<QuadDouble>>
+        ( conjugate, uplo, orientation, m, k,
+          Complex<QuadDouble>(3), Complex<QuadDouble>(4),
+          g, print, correctness, nbLocal,
+          colAlignA, rowAlignA, colAlignC, rowAlignC,
+          contigA, contigC );
 #endif
 
 #ifdef EL_HAVE_QUAD

@@ -742,6 +742,10 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     CreateContiguous( 2, MPI_DOUBLE, TypeMap<DoubleDouble>() );
     CreateContiguous( 4, MPI_DOUBLE, TypeMap<QuadDouble>() );
+    CreateContiguous
+    ( 2, TypeMap<DoubleDouble>(), TypeMap<Complex<DoubleDouble>>() );
+    CreateContiguous
+    ( 2, TypeMap<QuadDouble>(), TypeMap<Complex<QuadDouble>>() );
 #endif
 #ifdef EL_HAVE_QUAD
     CreateContiguous( 2, MPI_DOUBLE, TypeMap<Quad>() );
@@ -765,6 +769,8 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     CreateValueIntType<DoubleDouble>();
     CreateValueIntType<QuadDouble>();
+    CreateValueIntType<Complex<DoubleDouble>>();
+    CreateValueIntType<Complex<QuadDouble>>();
 #endif
 #ifdef EL_HAVE_QUAD
     CreateValueIntType<Quad>();
@@ -781,6 +787,8 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     CreateEntryType<DoubleDouble>();
     CreateEntryType<QuadDouble>();
+    CreateEntryType<Complex<DoubleDouble>>();
+    CreateEntryType<Complex<QuadDouble>>();
 #endif
 #ifdef EL_HAVE_QUAD
     CreateEntryType<Quad>();
@@ -799,6 +807,8 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     CreateUserOps<DoubleDouble>();
     CreateUserOps<QuadDouble>();
+    CreateUserOps<Complex<DoubleDouble>>();
+    CreateUserOps<Complex<QuadDouble>>();
 #endif
 #ifdef EL_HAVE_QUAD
     CreateUserOps<Quad>();
@@ -820,6 +830,9 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     CreateMaxOp<QuadDouble>();
     CreateMinOp<QuadDouble>();
     CreateSumOp<QuadDouble>();
+
+    CreateSumOp<Complex<DoubleDouble>>();
+    CreateSumOp<Complex<QuadDouble>>();
 #endif
 #ifdef EL_HAVE_QUAD
     CreateMaxOp<Quad>();
@@ -946,6 +959,8 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     FreeUserOps<DoubleDouble>();
     FreeUserOps<QuadDouble>();
+    FreeUserOps<Complex<DoubleDouble>>();
+    FreeUserOps<Complex<QuadDouble>>();
 #endif
 #ifdef EL_HAVE_QUAD
     FreeUserOps<Quad>();
@@ -960,6 +975,8 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     FreeScalarOps<DoubleDouble>();
     FreeScalarOps<QuadDouble>();
+    FreeScalarOps<Complex<DoubleDouble>>();
+    FreeScalarOps<Complex<QuadDouble>>();
 #endif
 #ifdef EL_HAVE_QUAD
     FreeScalarOps<Quad>();
@@ -990,6 +1007,8 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     Free( Types<Entry<DoubleDouble>>::type );
     Free( Types<Entry<QuadDouble>>::type );
+    Free( Types<Entry<Complex<DoubleDouble>>>::type );
+    Free( Types<Entry<Complex<QuadDouble>>>::type );
 #endif
 #ifdef EL_HAVE_QUAD
     Free( Types<Entry<Quad>>::type );
@@ -1006,6 +1025,8 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #ifdef EL_HAVE_QD
     Free( Types<ValueInt<DoubleDouble>>::type );
     Free( Types<ValueInt<QuadDouble>>::type );
+    Free( Types<ValueInt<Complex<DoubleDouble>>>::type );
+    Free( Types<ValueInt<Complex<QuadDouble>>>::type );
 #endif
 #ifdef EL_HAVE_QUAD
     Free( Types<ValueInt<Quad>>::type );
@@ -1013,6 +1034,8 @@ void DestroyCustom() EL_NO_RELEASE_EXCEPT
 #endif
 
 #ifdef EL_HAVE_QD
+    Free( Types<Complex<DoubleDouble>>::type );
+    Free( Types<Complex<QuadDouble>>::type );
     Free( Types<DoubleDouble>::type );
     Free( Types<QuadDouble>::type );
 #endif

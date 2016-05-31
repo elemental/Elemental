@@ -238,6 +238,11 @@ main( int argc, char* argv[] )
             ( m, conjugated, nbLocal, correctness, print );
             TestLDL<QuadDouble>
             ( m, conjugated, nbLocal, correctness, print );
+
+            TestLDL<Complex<DoubleDouble>>
+            ( m, conjugated, nbLocal, correctness, print );
+            TestLDL<Complex<QuadDouble>>
+            ( m, conjugated, nbLocal, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -269,6 +274,11 @@ main( int argc, char* argv[] )
         TestLDL<DoubleDouble>
         ( g, m, conjugated, nbLocal, correctness, print );
         TestLDL<QuadDouble>
+        ( g, m, conjugated, nbLocal, correctness, print );
+
+        TestLDL<Complex<DoubleDouble>>
+        ( g, m, conjugated, nbLocal, correctness, print );
+        TestLDL<Complex<QuadDouble>>
         ( g, m, conjugated, nbLocal, correctness, print );
 #endif
 

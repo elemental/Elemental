@@ -431,6 +431,8 @@ void HermitianSign
 #define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
 #define PROTO_DOUBLEDOUBLE PROTO_BASE(DoubleDouble)
 #define PROTO_QUADDOUBLE PROTO_BASE(QuadDouble)
+#define PROTO_COMPLEX_DOUBLEDOUBLE PROTO_BASE(Complex<DoubleDouble>)
+#define PROTO_COMPLEX_QUADDOUBLE PROTO_BASE(Complex<QuadDouble>)
 #define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
 #define PROTO_COMPLEX_BIGFLOAT PROTO_BASE(Complex<BigFloat>)
 

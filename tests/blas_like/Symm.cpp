@@ -165,6 +165,17 @@ main( int argc, char* argv[] )
           m, n,
           QuadDouble(3), QuadDouble(4),
           g, print );
+
+        TestSymm<Complex<DoubleDouble>>
+        ( conjugate, side, uplo,
+          m, n,
+          Complex<DoubleDouble>(3), Complex<DoubleDouble>(4),
+          g, print );
+        TestSymm<Complex<QuadDouble>>
+        ( conjugate, side, uplo,
+          m, n,
+          Complex<QuadDouble>(3), Complex<QuadDouble>(4),
+          g, print );
 #endif
 
 #ifdef EL_HAVE_QUAD

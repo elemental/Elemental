@@ -242,6 +242,11 @@ main( int argc, char* argv[] )
         ( uplo, diag, m, g, print, correctness );
         TestTwoSidedTrmm<QuadDouble>
         ( uplo, diag, m, g, print, correctness );
+
+        TestTwoSidedTrmm<Complex<DoubleDouble>>
+        ( uplo, diag, m, g, print, correctness );
+        TestTwoSidedTrmm<Complex<QuadDouble>>
+        ( uplo, diag, m, g, print, correctness );
 #endif
 
 #ifdef EL_HAVE_QUAD

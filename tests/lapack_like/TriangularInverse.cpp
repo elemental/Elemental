@@ -200,6 +200,11 @@ main( int argc, char* argv[] )
             ( uplo, diag, m, correctness, print );
             TestTriangularInverse<QuadDouble>
             ( uplo, diag, m, correctness, print );
+
+            TestTriangularInverse<Complex<DoubleDouble>>
+            ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<Complex<QuadDouble>>
+            ( uplo, diag, m, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -231,6 +236,11 @@ main( int argc, char* argv[] )
         TestTriangularInverse<DoubleDouble>
         ( g, uplo, diag, m, correctness, print );
         TestTriangularInverse<QuadDouble>
+        ( g, uplo, diag, m, correctness, print );
+
+        TestTriangularInverse<Complex<DoubleDouble>>
+        ( g, uplo, diag, m, correctness, print );
+        TestTriangularInverse<Complex<QuadDouble>>
         ( g, uplo, diag, m, correctness, print );
 #endif
 

@@ -311,47 +311,75 @@ main( int argc, char* argv[] )
 
         if( sequential && mpi::Rank() == 0 )
         {
-            TestBidiag<float>( m, n, correctness, print, display );
-            TestBidiag<Complex<float>>( m, n, correctness, print, display );
+            TestBidiag<float>
+            ( m, n, correctness, print, display );
+            TestBidiag<Complex<float>>
+            ( m, n, correctness, print, display );
 
-            TestBidiag<double>( m, n, correctness, print, display );
-            TestBidiag<Complex<double>>( m, n, correctness, print, display );
+            TestBidiag<double>
+            ( m, n, correctness, print, display );
+            TestBidiag<Complex<double>>
+            ( m, n, correctness, print, display );
 
 #ifdef EL_HAVE_QD
-            TestBidiag<DoubleDouble>( m, n, correctness, print, display );
-            TestBidiag<QuadDouble>( m, n, correctness, print, display );
+            TestBidiag<DoubleDouble>
+            ( m, n, correctness, print, display );
+            TestBidiag<QuadDouble>
+            ( m, n, correctness, print, display );
+            TestBidiag<Complex<DoubleDouble>>
+            ( m, n, correctness, print, display );
+            TestBidiag<Complex<QuadDouble>>
+            ( m, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
-            TestBidiag<Quad>( m, n, correctness, print, display );
-            TestBidiag<Complex<Quad>>( m, n, correctness, print, display );
+            TestBidiag<Quad>
+            ( m, n, correctness, print, display );
+            TestBidiag<Complex<Quad>>
+            ( m, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_MPC
-            TestBidiag<BigFloat>( m, n, correctness, print, display );
-            TestBidiag<Complex<BigFloat>>( m, n, correctness, print, display );
+            TestBidiag<BigFloat>
+            ( m, n, correctness, print, display );
+            TestBidiag<Complex<BigFloat>>
+            ( m, n, correctness, print, display );
 #endif
         }
 
-        TestBidiag<float>( g, m, n, correctness, print, display );
-        TestBidiag<Complex<float>>( g, m, n, correctness, print, display );
+        TestBidiag<float>
+        ( g, m, n, correctness, print, display );
+        TestBidiag<Complex<float>>
+        ( g, m, n, correctness, print, display );
 
-        TestBidiag<double>( g, m, n, correctness, print, display );
-        TestBidiag<Complex<double>>( g, m, n, correctness, print, display );
+        TestBidiag<double>
+        ( g, m, n, correctness, print, display );
+        TestBidiag<Complex<double>>
+        ( g, m, n, correctness, print, display );
 
 #ifdef EL_HAVE_QD
-        TestBidiag<DoubleDouble>( g, m, n, correctness, print, display );
-        TestBidiag<QuadDouble>( g, m, n, correctness, print, display );
+        TestBidiag<DoubleDouble>
+        ( g, m, n, correctness, print, display );
+        TestBidiag<QuadDouble>
+        ( g, m, n, correctness, print, display );
+        TestBidiag<Complex<DoubleDouble>>
+        ( g, m, n, correctness, print, display );
+        TestBidiag<Complex<QuadDouble>>
+        ( g, m, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
-        TestBidiag<Quad>( g, m, n, correctness, print, display );
-        TestBidiag<Complex<Quad>>( g, m, n, correctness, print, display );
+        TestBidiag<Quad>
+        ( g, m, n, correctness, print, display );
+        TestBidiag<Complex<Quad>>
+        ( g, m, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_MPC
-        TestBidiag<BigFloat>( g, m, n, correctness, print, display );
-        TestBidiag<Complex<BigFloat>>( g, m, n, correctness, print, display );
+        TestBidiag<BigFloat>
+        ( g, m, n, correctness, print, display );
+        TestBidiag<Complex<BigFloat>>
+        ( g, m, n, correctness, print, display );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

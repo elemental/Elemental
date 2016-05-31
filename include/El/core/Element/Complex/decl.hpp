@@ -406,12 +406,40 @@ inline bool operator==
 ( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
 inline bool operator!=
 ( const Complex<QuadDouble>& a, const Complex<QuadDouble>& b );
+
+inline bool operator==
+( const Complex<DoubleDouble>& a, const DoubleDouble& b );
+inline bool operator!=
+( const Complex<DoubleDouble>& a, const DoubleDouble& b );
+inline bool operator==
+( const Complex<QuadDouble>& a, const QuadDouble& b );
+inline bool operator!=
+( const Complex<QuadDouble>& a, const QuadDouble& b );
+
+inline bool operator==
+( const DoubleDouble& a, const Complex<DoubleDouble>& b );
+inline bool operator!=
+( const DoubleDouble& a, const Complex<DoubleDouble>& b );
+inline bool operator==
+( const QuadDouble& a, const Complex<QuadDouble>& b );
+inline bool operator!=
+( const QuadDouble& a, const Complex<QuadDouble>& b );
 #endif
 #ifdef EL_HAVE_MPC
 inline bool operator==
 ( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
 inline bool operator!=
 ( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
+
+inline bool operator==
+( const Complex<BigFloat>& a, const BigFloat& b );
+inline bool operator!=
+( const Complex<BigFloat>& a, const BigFloat& b );
+
+inline bool operator==
+( const BigFloat& a, const Complex<BigFloat>& b );
+inline bool operator!=
+( const BigFloat& a, const Complex<BigFloat>& b );
 #endif
 
 template<typename Real>
@@ -567,55 +595,6 @@ template<typename Real> struct BaseHelper                { typedef Real type; };
 template<typename Real> struct BaseHelper<Complex<Real>> { typedef Real type; };
 
 template<typename F> using Base = typename BaseHelper<F>::type;
-
-// For querying whether an element's type is a scalar
-// --------------------------------------------------
-template<typename T> struct IsScalar
-{ static const bool value=false; };
-template<> struct IsScalar<unsigned>
-{ static const bool value=true; };
-template<> struct IsScalar<int>
-{ static const bool value=true; };
-template<> struct IsScalar<unsigned long>
-{ static const bool value=true; };
-template<> struct IsScalar<long int>
-{ static const bool value=true; };
-template<> struct IsScalar<unsigned long long>
-{ static const bool value=true; };
-template<> struct IsScalar<long long int>
-{ static const bool value=true; };
-template<> struct IsScalar<float>
-{ static const bool value=true; };
-template<> struct IsScalar<double>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<float>>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<double>>
-{ static const bool value=true; };
-#ifdef EL_HAVE_QD
-template<> struct IsScalar<DoubleDouble>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<DoubleDouble>>
-{ static const bool value=true; };
-template<> struct IsScalar<QuadDouble>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<QuadDouble>>
-{ static const bool value=true; };
-#endif
-#ifdef EL_HAVE_QUAD
-template<> struct IsScalar<Quad>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<Quad>>
-{ static const bool value=true; };
-#endif
-#ifdef EL_HAVE_MPC
-template<> struct IsScalar<BigInt>
-{ static const bool value=true; };
-template<> struct IsScalar<BigFloat>
-{ static const bool value=true; };
-template<> struct IsScalar<Complex<BigFloat>>
-{ static const bool value=true; };
-#endif
 
 // For querying whether or not an element's type is complex
 // --------------------------------------------------------

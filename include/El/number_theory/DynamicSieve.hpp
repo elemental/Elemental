@@ -224,8 +224,9 @@ void DynamicSieve<T,TSmall>::AugmentPrimes
             p += 2;
 
             T factorBound = T(std::sqrt(p)) + 1;
-            boundIter =
-              std::lower_bound( boundIter, begIter+pIndex, factorBound );
+            auto endIter = begIter;
+            endIter += pIndex;
+            boundIter = std::lower_bound( boundIter, endIter, factorBound );
             const T indexEnd = T(boundIter-begIter);
 
             T remainder = 1; // this could be an arbitrary nonzero

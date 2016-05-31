@@ -605,8 +605,18 @@ Real SafeNorm( const Complex<Real>& alpha, const Real& beta )
 { return SafeNorm( alpha.real(), alpha.imag(), beta ); }
 template float SafeNorm( const Complex<float>& alpha, const float& beta );
 template double SafeNorm( const Complex<double>& alpha, const double& beta );
+#ifdef EL_HAVE_QD
+template DoubleDouble SafeNorm
+( const Complex<DoubleDouble>& alpha, const DoubleDouble& beta );
+template QuadDouble SafeNorm
+( const Complex<QuadDouble>& alpha, const QuadDouble& beta );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( const Complex<Quad>& alpha, const Quad& beta );
+#endif
+#ifdef EL_HAVE_MPC
+template BigFloat SafeNorm
+( const Complex<BigFloat>& alpha, const BigFloat& beta );
 #endif
 
 template<typename Real>
@@ -614,8 +624,18 @@ Real SafeNorm( const Real& alpha, const Complex<Real>& beta )
 { return SafeNorm( beta, alpha ); }
 template float SafeNorm( const float& alpha, const Complex<float>& beta );
 template double SafeNorm( const double& alpha, const Complex<double>& beta );
+#ifdef EL_HAVE_QD
+template DoubleDouble
+SafeNorm( const DoubleDouble& alpha, const Complex<DoubleDouble>& beta );
+template QuadDouble
+SafeNorm( const QuadDouble& alpha, const Complex<QuadDouble>& beta );
+#endif
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( const Quad& alpha, const Complex<Quad>& beta );
+#endif
+#ifdef EL_HAVE_BIGFLOAT
+template BigFloat SafeNorm
+( const BigFloat& alpha, const Complex<BigFloat>& beta );
 #endif
 
 // Copy a matrix
@@ -658,6 +678,14 @@ template void Copy
 ( char uplo, BlasInt m, BlasInt n, 
   const QuadDouble* A, BlasInt lda,
         QuadDouble* B, BlasInt ldb );
+template void Copy
+( char uplo, BlasInt m, BlasInt n, 
+  const Complex<DoubleDouble>* A, BlasInt lda,
+        Complex<DoubleDouble>* B, BlasInt ldb );
+template void Copy
+( char uplo, BlasInt m, BlasInt n, 
+  const Complex<QuadDouble>* A, BlasInt lda,
+        Complex<QuadDouble>* B, BlasInt ldb );
 #endif
 #ifdef EL_HAVE_QUAD
 template void Copy
@@ -749,6 +777,16 @@ template QuadDouble Givens
   const QuadDouble& gamma,
   QuadDouble& c,
   QuadDouble& s );
+template Complex<DoubleDouble> Givens
+( const Complex<DoubleDouble>& phi,
+  const Complex<DoubleDouble>& gamma,
+  DoubleDouble& c,
+  Complex<DoubleDouble>& s );
+template Complex<QuadDouble> Givens
+( const Complex<QuadDouble>& phi,
+  const Complex<QuadDouble>& gamma,
+  QuadDouble& c,
+  Complex<QuadDouble>& s );
 #endif
 #ifdef EL_HAVE_QUAD
 template Quad Givens
@@ -857,6 +895,14 @@ template DoubleDouble Reflector
 ( BlasInt n, DoubleDouble& chi, DoubleDouble* x, BlasInt incx );
 template QuadDouble Reflector
 ( BlasInt n, QuadDouble& chi, QuadDouble* x, BlasInt incx );
+template Complex<DoubleDouble> Reflector
+( BlasInt n,
+  Complex<DoubleDouble>& chi,
+  Complex<DoubleDouble>* x, BlasInt incx );
+template Complex<QuadDouble> Reflector
+( BlasInt n,
+  Complex<QuadDouble>& chi,
+  Complex<QuadDouble>* x, BlasInt incx );
 #endif
 #ifdef EL_HAVE_QUAD
 template Quad Reflector

@@ -34,65 +34,66 @@ Int CoinFlip();
 template<typename T>
 T UnitCell();
 
-template<typename T=double>
-T SampleUniform( const T& a=T(0), const T& b=UnitCell<T>() );
+template<typename Real=double,typename=EnableIf<IsReal<Real>>>
+Real SampleUniformNaive
+( const Real& a=Real(0), const Real& b=UnitCell<Real>() );
 
-template<>
-Int SampleUniform<Int>( const Int& a, const Int& b );
+template<typename Real=double,
+         typename=EnableIf<IsReal<Real>>,
+         typename=DisableIf<IsIntegral<Real>>,
+         typename=EnableIf<IsStdScalar<Real>>>
+Real SampleUniform( const Real& a=Real(0), const Real& b=UnitCell<Real>() );
 
-#ifdef EL_HAVE_QD
-template<>
-DoubleDouble SampleUniform( const DoubleDouble& a, const DoubleDouble& b );
-template<>
-QuadDouble SampleUniform( const QuadDouble& a, const QuadDouble& b );
-#endif
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>,
+         typename=DisableIf<IsIntegral<Real>>,
+         typename=DisableIf<IsStdScalar<Real>>,
+         typename=void>
+Real SampleUniform( const Real& a=Real(0), const Real& b=UnitCell<Real>() );
+
+template<typename F,
+         typename=EnableIf<IsComplex<F>>>
+F SampleUniform( const F& a=F(0), const F& b=UnitCell<F>() );
+
 #ifdef EL_HAVE_QUAD
+// __float128 is usually first-class in the STL, but not here :-(
 template<>
 Quad SampleUniform( const Quad& a, const Quad& b );
-template<>
-Complex<Quad> SampleUniform( const Complex<Quad>& a, const Complex<Quad>& b );
 #endif
 #ifdef EL_HAVE_MPC
 template<>
-BigInt SampleUniform( const BigInt& a, const BigInt& b );
-template<>
 BigFloat SampleUniform( const BigFloat& a, const BigFloat& b );
-template<>
-Complex<BigFloat> SampleUniform
-( const Complex<BigFloat>& a, const Complex<BigFloat>& b );
 #endif
 
-// The complex extension of the normal distribution can actually be quite
-// technical, and so we will use the simplest case, where both the real and
-// imaginary components are independently drawn with the same standard 
-// deviation, but different means.
+template<typename T,typename=EnableIf<IsIntegral<T>>,typename=void>
+T SampleUniform( const T& a, const T& b );
+template<>
+Int SampleUniform( const Int& a, const Int& b );
+#ifdef EL_HAVE_MPC
+template<>
+BigInt SampleUniform( const BigInt& a, const BigInt& b );
+#endif
+
+// The complex extension of the normal distribution can be technical;
+// we use the simplest case, where both components are independently drawn with
+// the same standard deviation but different means.
 template<typename T=double>
+T SampleNormalMarsiglia( const T& mean=T(0), const Base<T>& stddev=Base<T>(1) );
+template<typename T=double,typename=EnableIf<IsStdScalar<T>>>
+T SampleNormal( const T& mean=T(0), const Base<T>& stddev=Base<T>(1) );
+template<typename T,typename=DisableIf<IsStdScalar<T>>,typename=void>
 T SampleNormal( const T& mean=T(0), const Base<T>& stddev=Base<T>(1) );
 
-#ifdef EL_HAVE_QD
-template<>
-DoubleDouble
-SampleNormal( const DoubleDouble& mean, const DoubleDouble& stddev );
-template<>
-QuadDouble
-SampleNormal( const QuadDouble& mean, const QuadDouble& stddev );
-#endif
 #ifdef EL_HAVE_QUAD
+// __float128 is usually first-class in the STL, but not here :-(
 template<>
 Quad SampleNormal( const Quad& mean, const Quad& stddev );
 template<>
 Complex<Quad> SampleNormal( const Complex<Quad>& mean, const Quad& stddev );
 #endif
-#ifdef EL_HAVE_MPC
-template<>
-BigFloat SampleNormal( const BigFloat& mean, const BigFloat& stddev );
-template<>
-Complex<BigFloat> SampleNormal
-( const Complex<BigFloat>& mean, const BigFloat& stddev );
-#endif
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
-// origin of the ring implied by the type T using the most natural metric.
+// additive identity of the ring T using the most natural metric.
 template<typename F> 
 F SampleBall( const F& center=F(0), const Base<F>& radius=Base<F>(1) );
 template<typename Real,typename=EnableIf<IsReal<Real>>> 

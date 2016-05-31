@@ -170,6 +170,17 @@ main( int argc, char* argv[] )
           m, n,
           QuadDouble(3),
           g, print );
+
+        TestMultiShiftTrsm<Complex<DoubleDouble>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<DoubleDouble>(3),
+          g, print );
+        TestMultiShiftTrsm<Complex<QuadDouble>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<QuadDouble>(3),
+          g, print );
 #endif
 
 #ifdef EL_HAVE_QUAD

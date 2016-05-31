@@ -1861,6 +1861,10 @@ int main( int argc, char* argv[] )
 #ifdef EL_HAVE_QUAD
         TestAhuesTisseur<Quad>( print );
 #endif
+#ifdef EL_HAVE_QD
+        TestAhuesTisseur<DoubleDouble>( print );
+        TestAhuesTisseur<QuadDouble>( print );
+#endif
 #ifdef EL_HAVE_MPC
         TestAhuesTisseur<BigFloat>( print );
 #endif
@@ -1882,6 +1886,10 @@ int main( int argc, char* argv[] )
         TestRandom<double>( n, print );
 #ifdef EL_HAVE_QUAD
         TestRandom<Quad>( n, print );
+#endif
+#ifdef EL_HAVE_QD
+        TestRandom<DoubleDouble>( n, print );
+        TestRandom<QuadDouble>( n, print );
 #endif
 #ifdef EL_HAVE_MPC
         TestRandom<BigFloat>( n, print );

@@ -109,40 +109,50 @@ T UnitCell()
     return cell;
 }
 
-template<typename T>
-T SampleUniform( const T& a, const T& b )
+template<typename Real,typename>
+Real SampleUniformNaive( const Real& a, const Real& b )
 {
-    typedef Base<T> Real;
-    T sample;
-
+    // TODO: A better general-purpose uniform random number generator
+    //       that draws random bits?
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
-    std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
-    SetRealPart( sample, realUni(gen) ); 
-    if( IsComplex<T>::value )
-    {
-        std::uniform_real_distribution<Real> imagUni(ImagPart(a),ImagPart(b));
-        SetImagPart( sample, imagUni(gen) );
-    }
+    std::uniform_real_distribution<long double>
+      uni((long double)a,(long double)b);
+    return uni(gen);
 #else
-    Real aReal = RealPart(a);
-    Real aImag = ImagPart(a);
-    Real bReal = RealPart(b);
-    Real bImag = ImagPart(b);
-    Real realPart = (Real(rand())/(Real(RAND_MAX)+1))*(bReal-aReal) + aReal;
-    SetRealPart( sample, realPart );
-    if( IsComplex<T>::value )
-    {
-        Real imagPart = (Real(rand())/(Real(RAND_MAX)+1))*(bImag-aImag) + aImag;
-        SetImagPart( sample, imagPart );
-    }
+    return (Real(rand())/(Real(RAND_MAX)+1))*(b-a) + a;
 #endif
+}
 
+template<typename Real,typename,typename,typename>
+Real SampleUniform( const Real& a, const Real& b )
+{
+#ifdef EL_HAVE_CXX11RANDOM
+    std::mt19937& gen = Generator();
+    std::uniform_real_distribution<Real> uni(a,b);
+    return uni(gen);
+#else
+    return (Real(rand())/(Real(RAND_MAX)+1))*(b-a) + a;
+#endif
+}
+
+template<typename Real,typename,typename,typename,typename>
+Real SampleUniform( const Real& a, const Real& b )
+{
+    return SampleUniformNaive( a, b );
+}
+
+template<typename F,typename>
+F SampleUniform( const F& a, const F& b )
+{
+    F sample;
+    sample.real( SampleUniform( a.real(), b.real() ) );
+    sample.imag( SampleUniform( a.imag(), b.imag() ) );
     return sample;
 }
 
 template<typename F>
-F SampleNormal( const F& mean, const Base<F>& stddev )
+F SampleNormalMarsiglia( const F& mean, const Base<F>& stddev )
 {
     typedef Base<F> Real;
     F sample;
@@ -151,24 +161,14 @@ F SampleNormal( const F& mean, const Base<F>& stddev )
     if( IsComplex<F>::value )
         stddevAdj /= Sqrt(Real(2));
 
-#ifdef EL_HAVE_CXX11RANDOM
-    std::mt19937& gen = Generator();
-    std::normal_distribution<Real> realNormal( RealPart(mean), stddevAdj );
-    SetRealPart( sample, realNormal(gen) );
-    if( IsComplex<F>::value )
-    {
-        std::normal_distribution<Real> imagNormal( ImagPart(mean), stddevAdj );
-        SetImagPart( sample, imagNormal(gen) );
-    }
-#else
     // Run Marsiglia's polar method
     // ============================
     // NOTE: Half of the generated samples are thrown away in the case that
     //       F is real.
     while( true )
     {
-        const Real U = SampleUniform<Real>(-1,1);
-        const Real V = SampleUniform<Real>(-1,1);
+        const Real U = SampleUniform(Real(-1),Real(1));
+        const Real V = SampleUniform(Real(-1),Real(1));
         const Real S = Sqrt(U*U+V*V);
         if( S > Real(0) && S < Real(1) )
         {
@@ -179,23 +179,49 @@ F SampleNormal( const F& mean, const Base<F>& stddev )
             break;
         }
     }
-#endif
-
     return sample;
 }
+
+template<typename F,typename>
+F SampleNormal( const F& mean, const Base<F>& stddev )
+{
+#ifdef EL_HAVE_CXX11RANDOM
+    typedef Base<F> Real;
+    Real stddevAdj = stddev;
+    if( IsComplex<F>::value )
+        stddevAdj /= Sqrt(Real(2));
+
+    F sample;
+    std::mt19937& gen = Generator();
+    std::normal_distribution<Real> realNormal( RealPart(mean), stddevAdj );
+    SetRealPart( sample, realNormal(gen) );
+    if( IsComplex<F>::value )
+    {
+        std::normal_distribution<Real> imagNormal( ImagPart(mean), stddevAdj );
+        SetImagPart( sample, imagNormal(gen) );
+    }
+    return sample;
+#else
+    return SampleNormalMarsiglia( mean, stddev );
+#endif
+}
+
+template<typename F,typename,typename>
+F SampleNormal( const F& mean, const Base<F>& stddev )
+{ return SampleNormalMarsiglia( mean, stddev ); }
 
 template<typename F>
 F SampleBall( const F& center, const Base<F>& radius )
 {
     typedef Base<F> Real;
-    const Real r = SampleUniform<Real>(0,radius);
-    const Real angle = SampleUniform<Real>(0,Real(2*Pi<Real>()));
+    const Real r = SampleUniform(Real(0),radius);
+    const Real angle = SampleUniform(Real(0),2*Pi<Real>());
     return center + F(r*Cos(angle),r*Sin(angle));
 }
 
 template<typename Real,typename>
 Real SampleBall( const Real& center, const Real& radius )
-{ return SampleUniform<Real>(center-radius,center+radius); }
+{ return SampleUniform(center-radius,center+radius); }
 
 } // namespace El
 

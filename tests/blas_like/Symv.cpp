@@ -109,6 +109,15 @@ main( int argc, char* argv[] )
         ( uplo, m,
           QuadDouble(3), QuadDouble(4),
           print, g, nbLocal );
+
+        TestSymv<Complex<DoubleDouble>>
+        ( uplo, m,
+          Complex<DoubleDouble>(3), Complex<DoubleDouble>(4),
+          print, g, nbLocal );
+        TestSymv<Complex<QuadDouble>>
+        ( uplo, m,
+          Complex<QuadDouble>(3), Complex<QuadDouble>(4),
+          print, g, nbLocal );
 #endif
 
 #ifdef EL_HAVE_QUAD

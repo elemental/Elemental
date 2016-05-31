@@ -200,6 +200,11 @@ main( int argc, char* argv[] )
         ( print, side, uplo, orientation, m, n, DoubleDouble(3), g );
         TestSafeMultiShiftTrsm<QuadDouble>
         ( print, side, uplo, orientation, m, n, QuadDouble(3), g );
+
+        TestSafeMultiShiftTrsm<Complex<DoubleDouble>>
+        ( print, side, uplo, orientation, m, n, Complex<DoubleDouble>(3), g );
+        TestSafeMultiShiftTrsm<Complex<QuadDouble>>
+        ( print, side, uplo, orientation, m, n, Complex<QuadDouble>(3), g );
 #endif
 
 #ifdef EL_HAVE_MPC

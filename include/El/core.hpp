@@ -82,6 +82,19 @@ typedef unsigned Unsigned;
 typedef __float128 Quad;
 #endif
 
+// Forward declarations
+// --------------------
+#ifdef EL_HAVE_QD
+struct DoubleDouble;
+struct QuadDouble;
+#endif
+#ifdef EL_HAVE_MPC
+class BigInt;
+class BigFloat;
+#endif
+template<typename Real>
+class Complex;
+
 // Convert CMake configuration into a typedef and an enum
 typedef EL_FORT_LOGICAL FortranLogical;
 enum FortranLogicalEnum
@@ -89,6 +102,91 @@ enum FortranLogicalEnum
   FORTRAN_TRUE=EL_FORT_TRUE,
   FORTRAN_FALSE=EL_FORT_FALSE
 };
+
+template<typename S,typename T>
+using IsSame = std::is_same<S,T>;
+
+template<typename Condition,class T=void>
+using EnableIf = typename std::enable_if<Condition::value,T>::type;
+template<typename Condition,class T=void>
+using DisableIf = typename std::enable_if<!Condition::value,T>::type;
+
+template<typename T>
+struct IsIntegral { static const bool value = std::is_integral<T>::value; };
+#ifdef EL_HAVE_MPC
+template<>
+struct IsIntegral<BigInt> { static const bool value = true; };
+#endif
+
+// For querying whether an element's type is a scalar
+// --------------------------------------------------
+template<typename T> struct IsScalar
+{ static const bool value=false; };
+template<> struct IsScalar<unsigned>
+{ static const bool value=true; };
+template<> struct IsScalar<int>
+{ static const bool value=true; };
+template<> struct IsScalar<unsigned long>
+{ static const bool value=true; };
+template<> struct IsScalar<long int>
+{ static const bool value=true; };
+template<> struct IsScalar<unsigned long long>
+{ static const bool value=true; };
+template<> struct IsScalar<long long int>
+{ static const bool value=true; };
+template<> struct IsScalar<float>
+{ static const bool value=true; };
+template<> struct IsScalar<double>
+{ static const bool value=true; };
+template<> struct IsScalar<long double>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QD
+template<> struct IsScalar<DoubleDouble>
+{ static const bool value=true; };
+template<> struct IsScalar<QuadDouble>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_QUAD
+template<> struct IsScalar<Quad>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_MPC
+template<> struct IsScalar<BigInt>
+{ static const bool value=true; };
+template<> struct IsScalar<BigFloat>
+{ static const bool value=true; };
+#endif
+template<typename T> struct IsScalar<Complex<T>>
+{ static const bool value=IsScalar<T>::value; };
+
+// For querying whether an element's type is supported by the STL's math
+// ---------------------------------------------------------------------
+template<typename T> struct IsStdScalar
+{ static const bool value=false; };
+template<> struct IsStdScalar<unsigned>
+{ static const bool value=true; };
+template<> struct IsStdScalar<int>
+{ static const bool value=true; };
+template<> struct IsStdScalar<unsigned long>
+{ static const bool value=true; };
+template<> struct IsStdScalar<long int>
+{ static const bool value=true; };
+template<> struct IsStdScalar<unsigned long long>
+{ static const bool value=true; };
+template<> struct IsStdScalar<long long int>
+{ static const bool value=true; };
+template<> struct IsStdScalar<float>
+{ static const bool value=true; };
+template<> struct IsStdScalar<double>
+{ static const bool value=true; };
+template<> struct IsStdScalar<long double>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QUAD
+template<> struct IsStdScalar<Quad>
+{ static const bool value=true; };
+#endif
+template<typename T> struct IsStdScalar<Complex<T>>
+{ static const bool value=IsStdScalar<T>::value; };
 
 } // namespace El
 

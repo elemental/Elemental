@@ -231,6 +231,13 @@ main( int argc, char* argv[] )
         TestUT<QuadDouble>
         ( g, side, uplo, dir, conjugation, m, offset, 
           correctness, printMatrices );
+
+        TestUT<Complex<DoubleDouble>>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          correctness, printMatrices );
+        TestUT<Complex<QuadDouble>>
+        ( g, side, uplo, dir, conjugation, m, offset, 
+          correctness, printMatrices );
 #endif
 
 #ifdef EL_HAVE_QUAD

@@ -141,6 +141,11 @@ main( int argc, char* argv[] )
         ( g, m, n, correctness, print );
         TestQR<QuadDouble>
         ( g, m, n, correctness, print );
+
+        TestQR<Complex<DoubleDouble>>
+        ( g, m, n, correctness, print );
+        TestQR<Complex<QuadDouble>>
+        ( g, m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD

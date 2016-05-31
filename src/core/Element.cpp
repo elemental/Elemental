@@ -49,12 +49,6 @@ string TypeName<float>()
 template<>
 string TypeName<double>()
 { return string("double"); }
-template<>
-string TypeName<Complex<float>>()
-{ return string("Complex<float>"); }
-template<>
-string TypeName<Complex<double>>()
-{ return string("Complex<double>"); }
 #ifdef EL_HAVE_QD
 template<>
 string TypeName<DoubleDouble>()
@@ -67,9 +61,6 @@ string TypeName<QuadDouble>()
 template<>
 string TypeName<Quad>()
 { return string("Quad"); }
-template<>
-string TypeName<Complex<Quad>>()
-{ return string("Complex<Quad>"); }
 #endif
 #ifdef EL_HAVE_MPC
 template<>
@@ -78,9 +69,6 @@ string TypeName<BigInt>()
 template<>
 string TypeName<BigFloat>()
 { return string("BigFloat"); }
-template<>
-string TypeName<Complex<BigFloat>>()
-{ return string("Complex<BigFloat>"); }
 #endif
 
 // Basic element manipulation and I/O
@@ -110,6 +98,37 @@ istream& operator>>( istream& is, Quad& alpha )
 
 // Conjugate
 // ---------
+#ifdef EL_HAVE_QD
+Complex<DoubleDouble> Conj( const Complex<DoubleDouble>& alpha )
+{
+    Complex<DoubleDouble> alphaConj;
+    alphaConj.realPart = alpha.realPart; 
+    alphaConj.imagPart = -alpha.imagPart;
+    return alphaConj;
+}
+Complex<QuadDouble> Conj( const Complex<QuadDouble>& alpha )
+{
+    Complex<QuadDouble> alphaConj;
+    alphaConj.realPart = alpha.realPart; 
+    alphaConj.imagPart = -alpha.imagPart;
+    return alphaConj;
+}
+
+void Conj
+( const Complex<DoubleDouble>& alpha,
+        Complex<DoubleDouble>& alphaConj )
+{
+    alphaConj.realPart = alpha.realPart; 
+    alphaConj.imagPart = -alpha.imagPart;
+}
+void Conj
+( const Complex<QuadDouble>& alpha,
+        Complex<QuadDouble>& alphaConj )
+{
+    alphaConj.realPart = alpha.realPart; 
+    alphaConj.imagPart = -alpha.imagPart;
+}
+#endif
 #ifdef EL_HAVE_MPC
 Complex<BigFloat> Conj( const Complex<BigFloat>& alpha )
 {
@@ -150,8 +169,23 @@ BigFloat Arg( const Complex<BigFloat>& alpha )
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
+#ifdef EL_HAVE_QD
+Complex<DoubleDouble>
+ComplexFromPolar( const DoubleDouble& r, const DoubleDouble& theta )
+{
+    const DoubleDouble realPart = r*Cos(theta);
+    const DoubleDouble imagPart = r*Sin(theta);
+    return Complex<DoubleDouble>(realPart,imagPart);
+}
+Complex<QuadDouble>
+ComplexFromPolar( const QuadDouble& r, const QuadDouble& theta )
+{
+    const QuadDouble realPart = r*Cos(theta);
+    const QuadDouble imagPart = r*Sin(theta);
+    return Complex<QuadDouble>(realPart,imagPart);
+}
+#endif
 #ifdef EL_HAVE_QUAD
-template<>
 Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta )
 {
     const Quad realPart = r*cosq(theta);
@@ -160,7 +194,6 @@ Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta )
 }
 #endif
 #ifdef EL_HAVE_MPC
-template<>
 Complex<BigFloat> ComplexFromPolar( const BigFloat& r, const BigFloat& theta )
 {
     BigFloat sinTheta, cosTheta;
@@ -178,20 +211,38 @@ Complex<BigFloat> ComplexFromPolar( const BigFloat& r, const BigFloat& theta )
 // Magnitude and sign
 // ==================
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Abs( const DoubleDouble& alpha ) EL_NO_EXCEPT
 { return fabs(alpha); }
 
-template<>
 QuadDouble Abs( const QuadDouble& alpha ) EL_NO_EXCEPT
 { return fabs(alpha); }
+
+DoubleDouble Abs( const Complex<DoubleDouble>& alpha ) EL_NO_EXCEPT
+{
+    DoubleDouble realPart=alpha.realPart, imagPart=alpha.imagPart;
+    const DoubleDouble scale = Max(Abs(realPart),Abs(imagPart));
+    if( scale == DoubleDouble(0) )
+        return scale;
+    realPart /= scale;
+    imagPart /= scale;
+    return scale*Sqrt(realPart*realPart + imagPart*imagPart);
+}
+
+QuadDouble Abs( const Complex<QuadDouble>& alpha ) EL_NO_EXCEPT
+{
+    QuadDouble realPart=alpha.realPart, imagPart=alpha.imagPart;
+    const QuadDouble scale = Max(Abs(realPart),Abs(imagPart));
+    if( scale == QuadDouble(0) )
+        return scale;
+    realPart /= scale;
+    imagPart /= scale;
+    return scale*Sqrt(realPart*realPart + imagPart*imagPart);
+}
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Abs( const Quad& alpha ) EL_NO_EXCEPT { return fabsq(alpha); }
 
-template<>
 Quad Abs( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 { 
     __complex128 alpha;
@@ -202,7 +253,6 @@ Quad Abs( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigInt Abs( const BigInt& alpha ) EL_NO_EXCEPT
 {
     BigInt absAlpha;
@@ -211,7 +261,6 @@ BigInt Abs( const BigInt& alpha ) EL_NO_EXCEPT
     return absAlpha;
 }
 
-template<>
 BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
 {
     BigFloat absAlpha;
@@ -220,7 +269,6 @@ BigFloat Abs( const BigFloat& alpha ) EL_NO_EXCEPT
     return absAlpha;
 }
 
-template<>
 BigFloat Abs( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT
 {
     BigFloat absAlpha;
@@ -261,20 +309,16 @@ BigFloat Sgn( const BigFloat& alpha, bool symmetric ) EL_NO_EXCEPT
 double Exp( const Int& alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Exp( const DoubleDouble& alpha ) EL_NO_EXCEPT
 { return exp(alpha); }
 
-template<>
 QuadDouble Exp( const QuadDouble& alpha ) EL_NO_EXCEPT
 { return exp(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Exp( const Quad& alpha ) EL_NO_EXCEPT { return expq(alpha); }
 
-template<>
 Complex<Quad> Exp( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 {
     __complex128 alpha;
@@ -287,7 +331,6 @@ Complex<Quad> Exp( const Complex<Quad>& alphaPre ) EL_NO_EXCEPT
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT
 {
     BigFloat beta;
@@ -296,7 +339,6 @@ BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT
     return beta;
 }
 
-template<>
 Complex<BigFloat> Exp( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT
 {
     Complex<BigFloat> beta;
@@ -307,21 +349,17 @@ Complex<BigFloat> Exp( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT
 #endif
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Pow( const DoubleDouble& alpha, const DoubleDouble& beta )
 { return pow(alpha,beta); }
 
-template<>
 QuadDouble Pow( const QuadDouble& alpha, const QuadDouble& beta )
 { return pow(alpha,beta); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Pow( const Quad& alpha, const Quad& beta )
 { return powq(alpha,beta); }
 
-template<>
 Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre )
 {
     __complex128 alpha, beta;
@@ -334,7 +372,6 @@ Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre )
     return Complex<Quad>(crealq(gamma),cimagq(gamma));
 }
 
-template<>
 Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Quad& betaPre )
 {
     __complex128 alpha, beta;
@@ -376,7 +413,6 @@ void Pow( const BigInt& alpha, const unsigned long long& beta, BigInt& gamma )
     mpz_pow_ui( gamma.Pointer(), alpha.LockedPointer(), betaLong );
 }
 
-template<>
 BigInt Pow( const BigInt& alpha, const BigInt& beta )
 {
     BigInt gamma;
@@ -496,7 +532,6 @@ void Pow( const BigFloat& alpha, const BigInt& beta, BigFloat& gamma )
       beta.LockedPointer(), mpfr::RoundingMode() );
 }
 
-template<>
 BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
 {
     BigFloat gamma;
@@ -504,7 +539,6 @@ BigFloat Pow( const BigFloat& alpha, const BigFloat& beta )
     return gamma;
 }
 
-template<>
 Complex<BigFloat>
 Pow( const Complex<BigFloat>& alpha, const Complex<BigFloat>& beta )
 {
@@ -582,20 +616,16 @@ Pow( const Complex<BigFloat>& alpha, const BigFloat& beta )
 // Inverse exponentiation
 // ----------------------
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Log( const DoubleDouble& alpha )
 { return log(alpha); }
 
-template<>
 QuadDouble Log( const QuadDouble& alpha )
 { return log(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Log( const Quad& alpha ) { return logq(alpha); }
 
-template<>
 Complex<Quad> Log( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -608,13 +638,11 @@ Complex<Quad> Log( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 double Log( const BigInt& alpha )
 {
     return double(Log(BigFloat(alpha)));
 }
 
-template<>
 BigFloat Log( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -623,7 +651,6 @@ BigFloat Log( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Log( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -634,29 +661,30 @@ Complex<BigFloat> Log( const Complex<BigFloat>& alpha )
 #endif
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Log2( const DoubleDouble& alpha )
 { return Log(alpha)/DoubleDouble(dd_real::_log2); }
 
-template<>
 QuadDouble Log2( const QuadDouble& alpha )
+{ return Log(alpha)/QuadDouble(qd_real::_log2); }
+
+Complex<DoubleDouble> Log2( const Complex<DoubleDouble>& alpha )
+{ return Log(alpha)/DoubleDouble(dd_real::_log2); }
+
+Complex<QuadDouble> Log2( const Complex<QuadDouble>& alpha )
 { return Log(alpha)/QuadDouble(qd_real::_log2); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Log2( const Quad& alpha )
 { return log2q(alpha); }
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 double Log2( const BigInt& alpha )
 {
     return double(Log2(BigFloat(alpha)));
 }
 
-template<>
 BigFloat Log2( const BigFloat& alpha )
 {
     BigFloat log2Alpha;
@@ -666,7 +694,6 @@ BigFloat Log2( const BigFloat& alpha )
     return log2Alpha;
 }
 
-template<>
 Complex<BigFloat> Log2( const Complex<BigFloat>& alpha )
 {
     auto logAlpha = Log( alpha );
@@ -675,29 +702,30 @@ Complex<BigFloat> Log2( const Complex<BigFloat>& alpha )
 #endif
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Log10( const DoubleDouble& alpha )
 { return Log(alpha)/DoubleDouble(dd_real::_log10); }
 
-template<>
 QuadDouble Log10( const QuadDouble& alpha )
+{ return Log(alpha)/QuadDouble(qd_real::_log10); }
+
+Complex<DoubleDouble> Log10( const Complex<DoubleDouble>& alpha )
+{ return Log(alpha)/DoubleDouble(dd_real::_log10); }
+
+Complex<QuadDouble> Log10( const Complex<QuadDouble>& alpha )
 { return Log(alpha)/QuadDouble(qd_real::_log10); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Log10( const Quad& alpha )
 { return log10q(alpha); }
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 double Log10( const BigInt& alpha )
 {
     return double(Log10(BigFloat(alpha)));
 }
 
-template<>
 BigFloat Log10( const BigFloat& alpha )
 {
     BigFloat log10Alpha;
@@ -707,7 +735,6 @@ BigFloat Log10( const BigFloat& alpha )
     return log10Alpha;
 }
 
-template<>
 Complex<BigFloat> Log10( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> log10Alpha;
@@ -722,18 +749,14 @@ template<>
 Int Sqrt( const Int& alpha ) { return Int(sqrt(alpha)); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Sqrt( const DoubleDouble& alpha ) { return sqrt(alpha); }
 
-template<>
 QuadDouble Sqrt( const QuadDouble& alpha ) { return sqrt(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Sqrt( const Quad& alpha ) { return sqrtq(alpha); }
 
-template<>
 Complex<Quad> Sqrt( const Complex<Quad>& alphaPre )
 { 
     __complex128 alpha;
@@ -746,25 +769,21 @@ Complex<Quad> Sqrt( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 void Sqrt( const BigInt& alpha, BigInt& alphaSqrt )
 { mpz_sqrt( alphaSqrt.Pointer(), alpha.LockedPointer() ); }
 
-template<>
 void Sqrt( const BigFloat& alpha, BigFloat& alphaSqrt )
 {
     mpfr_sqrt
     ( alphaSqrt.Pointer(), alpha.LockedPointer(), mpfr::RoundingMode() );
 }
 
-template<>
 void Sqrt( const Complex<BigFloat>& alpha, Complex<BigFloat>& alphaSqrt )
 {
     mpc_sqrt
     ( alphaSqrt.Pointer(), alpha.LockedPointer(), mpc::RoundingMode() );
 }
 
-template<>
 BigInt Sqrt( const BigInt& alpha )
 {
     BigInt alphaSqrt;
@@ -772,7 +791,6 @@ BigInt Sqrt( const BigInt& alpha )
     return alphaSqrt;
 }
 
-template<>
 BigFloat Sqrt( const BigFloat& alpha )
 {
     BigFloat alphaSqrt;
@@ -781,7 +799,6 @@ BigFloat Sqrt( const BigFloat& alpha )
     return alphaSqrt;
 }
 
-template<>
 Complex<BigFloat> Sqrt( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> alphaSqrt;
@@ -824,18 +841,14 @@ BigInt ISqrt( const BigInt& alpha )
 double Cos( const Int& alpha ) { return std::cos(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Cos( const DoubleDouble& alpha ) { return cos(alpha); }
 
-template<>
 QuadDouble Cos( const QuadDouble& alpha ) { return cos(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Cos( const Quad& alpha ) { return cosq(alpha); }
 
-template<>
 Complex<Quad> Cos( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -848,7 +861,6 @@ Complex<Quad> Cos( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Cos( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -857,7 +869,6 @@ BigFloat Cos( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Cos( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -870,18 +881,14 @@ Complex<BigFloat> Cos( const Complex<BigFloat>& alpha )
 double Sin( const Int& alpha ) { return std::sin(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Sin( const DoubleDouble& alpha ) { return sin(alpha); }
 
-template<>
 QuadDouble Sin( const QuadDouble& alpha ) { return sin(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Sin( const Quad& alpha ) { return sinq(alpha); }
 
-template<>
 Complex<Quad> Sin( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -894,7 +901,6 @@ Complex<Quad> Sin( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Sin( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -903,7 +909,6 @@ BigFloat Sin( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Sin( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -916,18 +921,14 @@ Complex<BigFloat> Sin( const Complex<BigFloat>& alpha )
 double Tan( const Int& alpha ) { return std::tan(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Tan( const DoubleDouble& alpha ) { return tan(alpha); }
 
-template<>
 QuadDouble Tan( const QuadDouble& alpha ) { return tan(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Tan( const Quad& alpha ) { return tanq(alpha); }
 
-template<>
 Complex<Quad> Tan( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -940,7 +941,6 @@ Complex<Quad> Tan( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Tan( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -949,7 +949,6 @@ BigFloat Tan( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Tan( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -964,18 +963,14 @@ Complex<BigFloat> Tan( const Complex<BigFloat>& alpha )
 double Acos( const Int& alpha ) { return std::acos(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Acos( const DoubleDouble& alpha ) { return acos(alpha); }
 
-template<>
 QuadDouble Acos( const QuadDouble& alpha ) { return acos(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Acos( const Quad& alpha ) { return acosq(alpha); }
 
-template<>
 Complex<Quad> Acos( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -988,7 +983,6 @@ Complex<Quad> Acos( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Acos( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -997,7 +991,6 @@ BigFloat Acos( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Acos( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1010,18 +1003,14 @@ Complex<BigFloat> Acos( const Complex<BigFloat>& alpha )
 double Asin( const Int& alpha ) { return std::asin(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Asin( const DoubleDouble& alpha ) { return asin(alpha); }
 
-template<>
 QuadDouble Asin( const QuadDouble& alpha ) { return asin(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Asin( const Quad& alpha ) { return asinq(alpha); }
 
-template<>
 Complex<Quad> Asin( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1034,7 +1023,6 @@ Complex<Quad> Asin( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Asin( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1043,7 +1031,6 @@ BigFloat Asin( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Asin( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1056,18 +1043,14 @@ Complex<BigFloat> Asin( const Complex<BigFloat>& alpha )
 double Atan( const Int& alpha ) { return std::atan(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Atan( const DoubleDouble& alpha ) { return atan(alpha); }
 
-template<>
 QuadDouble Atan( const QuadDouble& alpha ) { return atan(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Atan( const Quad& alpha ) { return atanq(alpha); }
 
-template<>
 Complex<Quad> Atan( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1080,7 +1063,6 @@ Complex<Quad> Atan( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Atan( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1089,7 +1071,6 @@ BigFloat Atan( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Atan( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1102,22 +1083,18 @@ Complex<BigFloat> Atan( const Complex<BigFloat>& alpha )
 double Atan2( const Int& y, const Int& x ) { return std::atan2( y, x ); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Atan2( const DoubleDouble& y, const DoubleDouble& x )
 { return atan2(y,x); }
 
-template<>
 QuadDouble Atan2( const QuadDouble& y, const QuadDouble& x )
 { return atan2(y,x); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Atan2( const Quad& y, const Quad& x ) { return atan2q( y, x ); }
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Atan2( const BigFloat& y, const BigFloat& x )
 {
     BigFloat alpha;
@@ -1135,18 +1112,14 @@ BigFloat Atan2( const BigFloat& y, const BigFloat& x )
 double Cosh( const Int& alpha ) { return std::cosh(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Cosh( const DoubleDouble& alpha ) { return cosh(alpha); }
 
-template<>
 QuadDouble Cosh( const QuadDouble& alpha ) { return cosh(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Cosh( const Quad& alpha ) { return coshq(alpha); }
 
-template<>
 Complex<Quad> Cosh( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1159,7 +1132,6 @@ Complex<Quad> Cosh( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Cosh( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1168,7 +1140,6 @@ BigFloat Cosh( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Cosh( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1181,18 +1152,14 @@ Complex<BigFloat> Cosh( const Complex<BigFloat>& alpha )
 double Sinh( const Int& alpha ) { return std::sinh(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Sinh( const DoubleDouble& alpha ) { return sinh(alpha); }
 
-template<>
 QuadDouble Sinh( const QuadDouble& alpha ) { return sinh(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Sinh( const Quad& alpha ) { return sinhq(alpha); }
 
-template<>
 Complex<Quad> Sinh( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1205,7 +1172,6 @@ Complex<Quad> Sinh( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Sinh( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1214,7 +1180,6 @@ BigFloat Sinh( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Sinh( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1227,18 +1192,14 @@ Complex<BigFloat> Sinh( const Complex<BigFloat>& alpha )
 double Tanh( const Int& alpha ) { return std::tanh(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Tanh( const DoubleDouble& alpha ) { return tanh(alpha); }
 
-template<>
 QuadDouble Tanh( const QuadDouble& alpha ) { return tanh(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Tanh( const Quad& alpha ) { return tanhq(alpha); }
 
-template<>
 Complex<Quad> Tanh( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1251,7 +1212,6 @@ Complex<Quad> Tanh( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Tanh( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1260,7 +1220,6 @@ BigFloat Tanh( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Tanh( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1275,18 +1234,14 @@ Complex<BigFloat> Tanh( const Complex<BigFloat>& alpha )
 double Acosh( const Int& alpha ) { return std::acosh(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Acosh( const DoubleDouble& alpha ) { return acosh(alpha); }
 
-template<>
 QuadDouble Acosh( const QuadDouble& alpha ) { return acosh(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Acosh( const Quad& alpha ) { return acoshq(alpha); }
 
-template<>
 Complex<Quad> Acosh( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1299,7 +1254,6 @@ Complex<Quad> Acosh( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Acosh( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1308,7 +1262,6 @@ BigFloat Acosh( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Acosh( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1321,18 +1274,14 @@ Complex<BigFloat> Acosh( const Complex<BigFloat>& alpha )
 double Asinh( const Int& alpha ) { return std::asinh(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Asinh( const DoubleDouble& alpha ) { return asinh(alpha); }
 
-template<>
 QuadDouble Asinh( const QuadDouble& alpha ) { return asinh(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Asinh( const Quad& alpha ) { return asinhq(alpha); }
 
-template<>
 Complex<Quad> Asinh( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1345,7 +1294,6 @@ Complex<Quad> Asinh( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Asinh( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1354,7 +1302,6 @@ BigFloat Asinh( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Asinh( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;
@@ -1367,18 +1314,14 @@ Complex<BigFloat> Asinh( const Complex<BigFloat>& alpha )
 double Atanh( const Int& alpha ) { return std::atanh(alpha); }
 
 #ifdef EL_HAVE_QD
-template<>
 DoubleDouble Atanh( const DoubleDouble& alpha ) { return atanh(alpha); }
 
-template<>
 QuadDouble Atanh( const QuadDouble& alpha ) { return atanh(alpha); }
 #endif
 
 #ifdef EL_HAVE_QUAD
-template<>
 Quad Atanh( const Quad& alpha ) { return atanhq(alpha); }
 
-template<>
 Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 {
     __complex128 alpha;
@@ -1391,7 +1334,6 @@ Complex<Quad> Atanh( const Complex<Quad>& alphaPre )
 #endif
 
 #ifdef EL_HAVE_MPC
-template<>
 BigFloat Atanh( const BigFloat& alpha )
 {
     BigFloat beta;
@@ -1400,7 +1342,6 @@ BigFloat Atanh( const BigFloat& alpha )
     return beta;
 }
 
-template<>
 Complex<BigFloat> Atanh( const Complex<BigFloat>& alpha )
 {
     Complex<BigFloat> beta;

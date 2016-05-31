@@ -230,7 +230,7 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
     // Equilibrate the local scaled sums to the maximum scale
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        if( scales[jLoc] != 0 )
+        if( scales[jLoc] != Real(0) )
         {
             const Real relScale = localScales[jLoc]/scales[jLoc];
             localScaledSquares[jLoc] *= relScale*relScale;
@@ -247,7 +247,7 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
     norms.resize( localWidth );
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        if( scales[jLoc] != 0 )
+        if( scales[jLoc] != Real(0) )
             norms[jLoc] = scales[jLoc]*Sqrt(scaledSquares[jLoc]);
         else
             norms[jLoc] = 0;
@@ -287,7 +287,7 @@ void ReplaceColNorms
     // Equilibrate the local scaled sums to the maximum scale
     for( Int s=0; s<numInaccurate; ++s )
     {
-        if( scales[s] != 0 )
+        if( scales[s] != Real(0) )
         {
             const Real relScale = localScales[s]/scales[s];
             localScaledSquares[s] *= relScale*relScale;
@@ -303,7 +303,7 @@ void ReplaceColNorms
     for( Int s=0; s<numInaccurate; ++s )
     {
         const Int jLoc = inaccurateNorms[s];
-        if( scales[s] != 0 )
+        if( scales[s] != Real(0) )
             norms[jLoc] = scales[s]*Sqrt(scaledSquares[s]);
         else
             norms[jLoc] = 0;

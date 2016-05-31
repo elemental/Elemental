@@ -241,6 +241,11 @@ main( int argc, char* argv[] )
             ( uplo, m, n, alpha, correctness, print );
             TestCholeskyMod<QuadDouble>
             ( uplo, m, n, alpha, correctness, print );
+
+            TestCholeskyMod<Complex<DoubleDouble>>
+            ( uplo, m, n, alpha, correctness, print );
+            TestCholeskyMod<Complex<QuadDouble>>
+            ( uplo, m, n, alpha, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -272,6 +277,11 @@ main( int argc, char* argv[] )
         TestCholeskyMod<DoubleDouble>
         ( g, uplo, m, n, alpha, correctness, print );
         TestCholeskyMod<QuadDouble>
+        ( g, uplo, m, n, alpha, correctness, print );
+
+        TestCholeskyMod<Complex<DoubleDouble>>
+        ( g, uplo, m, n, alpha, correctness, print );
+        TestCholeskyMod<Complex<QuadDouble>>
         ( g, uplo, m, n, alpha, correctness, print );
 #endif
 

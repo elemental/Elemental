@@ -224,6 +224,15 @@ main( int argc, char* argv[] )
         ( conjugate, uplo, orientation, m, k,
           QuadDouble(3), QuadDouble(4),
           g, print, correctness, nbLocal );
+
+        TestSyr2k<Complex<DoubleDouble>>
+        ( conjugate, uplo, orientation, m, k,
+          Complex<DoubleDouble>(3), Complex<DoubleDouble>(4),
+          g, print, correctness, nbLocal );
+        TestSyr2k<Complex<QuadDouble>>
+        ( conjugate, uplo, orientation, m, k,
+          Complex<QuadDouble>(3), Complex<QuadDouble>(4),
+          g, print, correctness, nbLocal );
 #endif
 
 #ifdef EL_HAVE_QUAD

@@ -40,9 +40,9 @@ main( int argc, char* argv[] )
         if( mpi::Rank(comm) == 0 )
         {
             for( Int j=0; j<numRows; ++j )
-                rowInds[j] = SampleUniform<Int>(0,n);
+                rowInds[j] = SampleUniform(0,n);
             for( Int j=0; j<numCols; ++j )
-                colInds[j] = SampleUniform<Int>(0,n);
+                colInds[j] = SampleUniform(0,n);
         }
         mpi::Broadcast( rowInds.data(), numRows, 0, comm );
         mpi::Broadcast( colInds.data(), numCols, 0, comm );

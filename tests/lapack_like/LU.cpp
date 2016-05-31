@@ -49,7 +49,7 @@ void TestCorrectness
     ("|| Y - A X ||_oo / (eps Max(m,n) Max(||A||_1,||Y||_1)) = ",relError);
 
     // TODO: Use a more refined failure condition
-    if( relError > Real(10) )
+    if( pivoting > 0 && relError > Real(100) )
         LogicError("Relative error was unacceptably large");
 
     PopIndent();
@@ -97,7 +97,7 @@ void TestCorrectness
      "|| Y - A X ||_oo / (eps Max(m,n) Max(||A||_1,||Y||_1)) = ",relError);
 
     // TODO: Use a more refined failure condition
-    if( relError > Real(10) )
+    if( pivoting > 0 && relError > Real(100) )
         LogicError("Relative error was unacceptably large");
 
     PopIndent();
@@ -309,6 +309,11 @@ main( int argc, char* argv[] )
             ( m, pivot, correctness, forceGrowth, print );
             TestLU<QuadDouble>
             ( m, pivot, correctness, forceGrowth, print );
+
+            TestLU<Complex<DoubleDouble>>
+            ( m, pivot, correctness, forceGrowth, print );
+            TestLU<Complex<QuadDouble>>
+            ( m, pivot, correctness, forceGrowth, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -340,6 +345,11 @@ main( int argc, char* argv[] )
         TestLU<DoubleDouble>
         ( g, m, pivot, correctness, forceGrowth, print );
         TestLU<QuadDouble>
+        ( g, m, pivot, correctness, forceGrowth, print );
+
+        TestLU<Complex<DoubleDouble>>
+        ( g, m, pivot, correctness, forceGrowth, print );
+        TestLU<Complex<QuadDouble>>
         ( g, m, pivot, correctness, forceGrowth, print );
 #endif
 

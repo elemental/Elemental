@@ -260,6 +260,11 @@ main( int argc, char* argv[] )
             ( m, conjugate, tau, correctness, print );
             TestLUMod<QuadDouble>
             ( m, conjugate, tau, correctness, print );
+
+            TestLUMod<Complex<DoubleDouble>>
+            ( m, conjugate, tau, correctness, print );
+            TestLUMod<Complex<QuadDouble>>
+            ( m, conjugate, tau, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -291,6 +296,11 @@ main( int argc, char* argv[] )
         TestLUMod<DoubleDouble>
         ( g, m, conjugate, tau, correctness, print );
         TestLUMod<QuadDouble>
+        ( g, m, conjugate, tau, correctness, print );
+
+        TestLUMod<Complex<DoubleDouble>>
+        ( g, m, conjugate, tau, correctness, print );
+        TestLUMod<Complex<QuadDouble>>
         ( g, m, conjugate, tau, correctness, print );
 #endif
 
