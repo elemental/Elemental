@@ -412,33 +412,33 @@ Matrix<Base<F>> BatchTransposedSparseToNorm
     return BatchTransposedCoordinatesToNorms( d, NTrans, V, numNested );
 }
 
-template<typename Real>
+template<typename F>
 class PhaseEnumerationCache
 {
 private:
-    const Matrix<Real>& B_;
-    const Matrix<Real>& d_;
-    const Matrix<Real>& N_;
-          Matrix<Real> NTrans_;
-          Matrix<Real> normUpperBounds_;
+    const Matrix<F>& B_;
+    const Matrix<Base<F>>& d_;
+    const Matrix<F>& N_;
+          Matrix<F> NTrans_;
+          Matrix<Base<F>> normUpperBounds_;
     bool foundVector_=false;
 
     Int numQueued_=0;
-    Matrix<Real> Y_;
-    Matrix<Real> VCand_;
+    Matrix<F> Y_;
+    Matrix<F> VCand_;
 
     Int insertionBound_;
-    Matrix<Real> v_;
+    Matrix<F> v_;
 
     Int blocksize_=32;
     bool useTranspose_=true;
 
 public:
     PhaseEnumerationCache
-    ( const Matrix<Real>& B,
-      const Matrix<Real>& d,
-      const Matrix<Real>& N,
-      const Matrix<Real>& normUpperBounds,
+    ( const Matrix<F>& B,
+      const Matrix<Base<F>>& d,
+      const Matrix<F>& N,
+      const Matrix<Base<F>>& normUpperBounds,
             Int batchSize=256,
             Int blocksize=32,
             bool useTranspose=true )
@@ -460,7 +460,7 @@ public:
     Int Height() const { return N_.Height(); }
 
     bool FoundVector() const { return foundVector_; }
-    const Matrix<Real>& BestVector() const { return v_; }
+    const Matrix<F>& BestVector() const { return v_; }
 
     Int InsertionIndex() const
     {
@@ -475,7 +475,7 @@ public:
         }
     }
 
-    Real InsertionNorm() const
+    Base<F> InsertionNorm() const
     {
         const Int insertionIndex = InsertionIndex();
         return normUpperBounds_(insertionIndex);
@@ -488,7 +488,7 @@ public:
 
         auto YActive = Y_( ALL, IR(0,numQueued_) );
 
-        Matrix<Real> colNorms;
+        Matrix<Base<F>> colNorms;
         if( useTranspose_ )
         {
             // TODO: Add this as an option
@@ -499,15 +499,20 @@ public:
             ( NTrans_, YActive, VCand_, blocksize_ );
             const double transformTime = timer.Stop();
             const double n = YActive.Height();
-            const double transformGflops = double(numQueued_)*n*n/(1.e9*transformTime);
-            Output(numQueued_," transforms: ",timer.Stop()," seconds (",transformGflops," GFlop/s");
+            const double transformGflops =
+              double(numQueued_)*n*n/(1.e9*transformTime);
+            Output
+            (numQueued_," transforms: ",timer.Stop()," seconds (",
+             transformGflops," GFlop/s");
             timer.Start();
             colNorms =
               BatchTransposedCoordinatesToNorms
               ( d_, NTrans_, VCand_, insertionBound_ );
             const double normTime = timer.Stop();
             const double normGflops = double(numQueued_)*n*n/(1.e9*normTime);
-            Output(numQueued_," norms: ",timer.Stop()," seconds (",normGflops," GFlop/s");
+            Output
+            (numQueued_," norms: ",timer.Stop()," seconds (",
+             normGflops," GFlop/s");
             */
 
             BatchTransposedSparseToCoordinates
@@ -527,8 +532,8 @@ public:
         {
             for( Int k=0; k<insertionBound_; ++k )
             {
-                const Real bNorm = colNorms(j,k);
-                if( bNorm < normUpperBounds_(k) && bNorm != Real(0) )
+                const Base<F> bNorm = colNorms(j,k);
+                if( bNorm < normUpperBounds_(k) && bNorm != Base<F>(0) )
                 {
                     const Range<Int> subInd(k,END);
 
@@ -541,10 +546,10 @@ public:
                     Print( y, "y" );
 
                     // Check that the reverse transformation holds
-                    Matrix<Real> yCheck;
+                    Matrix<F> yCheck;
                     CoordinatesToSparse( N_(subInd,subInd), vCand, yCheck );
                     yCheck -= y;
-                    if( FrobeniusNorm(yCheck) != Real(0) )
+                    if( FrobeniusNorm(yCheck) != Base<F>(0) )
                     {
                         Print( B_(ALL,subInd), "B" );
                         Print( d_(subInd,ALL), "d" );
@@ -557,9 +562,9 @@ public:
                     Copy( vCand, v_ );
                     Print( v_, "v" );
 
-                    Matrix<Real> b;
+                    Matrix<F> b;
                     Zeros( b, B_.Height(), 1 );
-                    Gemv( NORMAL, Real(1), B_(ALL,subInd), v_, Real(0), b );
+                    Gemv( NORMAL, F(1), B_(ALL,subInd), v_, F(0), b );
                     Print( b, "b" );
 
                     normUpperBounds_(k) = bNorm;
@@ -573,7 +578,7 @@ public:
         Zero( Y_ );
     }
 
-    void Enqueue( const Matrix<Real>& y )
+    void Enqueue( const Matrix<Base<F>>& y )
     {
         MemCopy( Y_.Buffer(0,numQueued_), y.LockedBuffer(), y.Height() ); 
 
@@ -582,22 +587,23 @@ public:
             Flush();
     }
 
+    // TODO: Generalize to the Gaussian integers
     void Enqueue( const vector<pair<Int,Int>>& y )
     {
-        Real* yBuf = Y_.Buffer(0,numQueued_);
+        F* yBuf = Y_.Buffer(0,numQueued_);
 
         const Int numEntries = y.size();
         for( Int e=0; e<numEntries; ++e )
-            yBuf[y[e].first] = Real(y[e].second);
+            yBuf[y[e].first] = F(y[e].second);
 
         ++numQueued_;
         if( numQueued_ == Y_.Width() )
             Flush();
     }
 
-    void Enqueue( const vector<pair<Int,Real>>& y )
+    void Enqueue( const vector<pair<Int,F>>& y )
     {
-        Real* yBuf = Y_.Buffer(0,numQueued_);
+        F* yBuf = Y_.Buffer(0,numQueued_);
 
         const Int numEntries = y.size();
         for( Int e=0; e<numEntries; ++e )
@@ -650,10 +656,12 @@ struct PhaseEnumerationCtrl
 // TODO: Reverse the enumeration order since nonzeros are more likely to happen
 //       at the bottom of the vector. This will require changing the arguments
 //       to this routine.
-template<typename Real>
+//
+// TODO: Generalize to Gaussian integers
+template<typename F>
 void PhaseEnumerationLeafInner
-(       PhaseEnumerationCache<Real>& cache,
-  const PhaseEnumerationCtrl<Real>& ctrl,
+(       PhaseEnumerationCache<F>& cache,
+  const PhaseEnumerationCtrl<Base<F>>& ctrl,
         vector<pair<Int,Int>>& y,
   const Int beg,
   const Int baseInfNorm,
@@ -715,10 +723,10 @@ void PhaseEnumerationLeafInner
     }
 }
 
-template<typename Real>
+template<typename F>
 void PhaseEnumerationLeaf
-(       PhaseEnumerationCache<Real>& cache,
-  const PhaseEnumerationCtrl<Real>& ctrl,
+(       PhaseEnumerationCache<F>& cache,
+  const PhaseEnumerationCtrl<Base<F>>& ctrl,
         vector<pair<Int,Int>>& y,
   const bool zeroSoFar )
 {
@@ -739,10 +747,10 @@ void PhaseEnumerationLeaf
 // TODO: Reverse the enumeration order since nonzeros are more likely to happen
 //       at the bottom of the vector. This will require changing the arguments
 //       to this routine.
-template<typename Real>
+template<typename F>
 void PhaseEnumerationNodeInner
-(       PhaseEnumerationCache<Real>& cache,
-  const PhaseEnumerationCtrl<Real>& ctrl,
+(       PhaseEnumerationCache<F>& cache,
+  const PhaseEnumerationCtrl<Base<F>>& ctrl,
         vector<pair<Int,Int>>& y,
   const Int phase,
   const Int beg,
@@ -837,10 +845,10 @@ void PhaseEnumerationNodeInner
     }
 }
 
-template<typename Real>
+template<typename F>
 void PhaseEnumerationNode
-(       PhaseEnumerationCache<Real>& cache,
-  const PhaseEnumerationCtrl<Real>& ctrl,
+(       PhaseEnumerationCache<F>& cache,
+  const PhaseEnumerationCtrl<Base<F>>& ctrl,
         vector<pair<Int,Int>>& y,
   const Int phase,
   const bool zeroSoFar )
@@ -854,13 +862,13 @@ void PhaseEnumerationNode
       baseInfNorm, baseOneNorm, zeroSoFar ); 
 }
 
-template<typename Real>
-pair<Real,Int>
+template<typename F>
+pair<Base<F>,Int>
 PhaseEnumeration
-( const Matrix<Real>& B,
-  const Matrix<Real>& d,
-  const Matrix<Real>& N,
-  const Matrix<Real>& normUpperBounds,
+( const Matrix<F>& B,
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+  const Matrix<Base<F>>& normUpperBounds,
         Int startIndex,
         Int phaseLength,
         double enqueueProb,
@@ -868,13 +876,13 @@ PhaseEnumeration
   const vector<Int>& maxInfNorms,
   const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
-        Matrix<Real>& v,
+        Matrix<F>& v,
         Int progressLevel )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
     const Int n = N.Height();
     if( n <= 1 )
-        return pair<Real,Int>(2*normUpperBounds(0)+1,0);
+        return pair<Base<F>,Int>(2*normUpperBounds(0)+1,0);
 
     // TODO: Make starting index modifiable
     const Int numPhases = ((n-startIndex)+phaseLength-1)/phaseLength;
@@ -889,7 +897,7 @@ PhaseEnumeration
     const Int batchSize = 512;
     const Int blocksize = 32;
     const bool useTranspose = true;
-    PhaseEnumerationCache<Real>
+    PhaseEnumerationCache<F>
       cache( B, d, N, normUpperBounds, batchSize, blocksize, useTranspose );
 
     const bool earlyExit = false;
@@ -899,7 +907,7 @@ PhaseEnumeration
     for( Int phase=0; phase<=numPhases; ++phase )
         phaseOffsets[phase] = Min(startIndex+phase*phaseLength,n);
 
-    PhaseEnumerationCtrl<Real>
+    PhaseEnumerationCtrl<Base<F>>
       ctrl
       (phaseOffsets,
        minInfNorms,maxInfNorms,
@@ -917,22 +925,22 @@ PhaseEnumeration
     if( cache.FoundVector() )
     {
         v = cache.BestVector();
-        const Real insertionNorm = cache.InsertionNorm();
+        const Base<F> insertionNorm = cache.InsertionNorm();
         const Int insertionIndex = cache.InsertionIndex();
-        return pair<Real,Int>(insertionNorm,insertionIndex);
+        return pair<Base<F>,Int>(insertionNorm,insertionIndex);
     }
     else
     {
-        return pair<Real,Int>(2*normUpperBounds(0)+1,0);
+        return pair<Base<F>,Int>(2*normUpperBounds(0)+1,0);
     }
 }
 
-template<typename Real>
-Real PhaseEnumeration
-( const Matrix<Real>& B,
-  const Matrix<Real>& d,
-  const Matrix<Real>& N,
-        Real normUpperBound,
+template<typename F>
+Base<F> PhaseEnumeration
+( const Matrix<F>& B,
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+        Base<F> normUpperBound,
         Int startIndex,
         Int phaseLength,
         double enqueueProb,
@@ -940,11 +948,11 @@ Real PhaseEnumeration
   const vector<Int>& maxInfNorms,
   const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
-        Matrix<Real>& v,
+        Matrix<F>& v,
         Int progressLevel )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
-    Matrix<Real> normUpperBounds(1,1);
+    Matrix<Base<F>> normUpperBounds(1,1);
     normUpperBounds(0) = normUpperBound;
     auto pair = 
       PhaseEnumeration

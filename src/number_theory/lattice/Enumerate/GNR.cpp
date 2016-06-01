@@ -220,7 +220,7 @@ Real TransposedHelper
     }
 }
 
-template<typename F,typename=DisableIf<IsReal<Real>>,typename=void>
+template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
 Base<F> Helper
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& N,
@@ -236,7 +236,7 @@ Base<F> Helper
     LogicError("This routine is not yet written");
 }
 
-template<typename F,typename=DisableIf<IsReal<Real>>,typename=void>
+template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
 Base<F> TransposedHelper
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& NTrans,

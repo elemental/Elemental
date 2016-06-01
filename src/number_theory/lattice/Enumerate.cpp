@@ -285,7 +285,7 @@ Base<F> ShortVectorEnumeration
     }
     Timer timer;
 
-    auto d = GetDiagonal( R );
+    auto d = GetRealPartOfDiagonal( R );
     auto N( R );
     DiagonalSolve( LEFT, NORMAL, d, N );
 
@@ -342,7 +342,7 @@ Base<F> ShortVectorEnumeration
             RNew = BNew;
             qr::ExplicitTriang( RNew ); 
 
-            auto dNew = GetDiagonal( RNew );
+            auto dNew = GetRealPartOfDiagonal( RNew );
             auto NNew( RNew );
             DiagonalSolve( LEFT, NORMAL, dNew, NNew );
 
@@ -495,7 +495,7 @@ MultiShortVectorEnumeration
 
     Timer timer;
 
-    auto d = GetDiagonal( R );
+    auto d = GetRealPartOfDiagonal( R );
     auto N( R );
     DiagonalSolve( LEFT, NORMAL, d, N );
 
@@ -555,7 +555,7 @@ MultiShortVectorEnumeration
             RNew = BNew;
             qr::ExplicitTriang( RNew ); 
 
-            auto dNew = GetDiagonal( RNew );
+            auto dNew = GetRealPartOfDiagonal( RNew );
             auto NNew( RNew );
             DiagonalSolve( LEFT, NORMAL, dNew, NNew );
 

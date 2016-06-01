@@ -395,7 +395,7 @@ BKZInfo<Base<F>> BKZWithQ
             if( ctrl.logProjNorms )
             {
                 for( Int j=0; j<n; ++j )
-                    projNormsFile << QR(j,j) << " ";    
+                    projNormsFile << RealPart(QR(j,j)) << " ";    
                 projNormsFile << endl;
             }
         }
@@ -409,7 +409,7 @@ BKZInfo<Base<F>> BKZWithQ
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Range<Int> windowInd = IR(j,Min(j+ctrl.multiEnumWindow,k+1));
-        auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
+        auto normUpperBounds = GetRealPartOfDiagonal(QR(windowInd,windowInd));
         Scale( Min(Sqrt(ctrl.lllCtrl.delta),Real(1)), normUpperBounds );
         const auto minPair = 
           MultiShortestVectorEnrichment
@@ -421,7 +421,7 @@ BKZInfo<Base<F>> BKZWithQ
         const Real minProjNorm = minPair.first;
         const Int insertionInd = minPair.second;
 
-        const Real oldProjNorm = QREnum(insertionInd,insertionInd);
+        const Real oldProjNorm = RealPart(QREnum(insertionInd,insertionInd));
         const bool keptMin = ( minProjNorm < oldProjNorm );
         if( keptMin )
         {
@@ -757,7 +757,7 @@ BKZInfo<Base<F>> BKZWithQ
             if( ctrl.logProjNorms )
             {
                 for( Int j=0; j<n; ++j )
-                    projNormsFile << QR(j,j) << " ";             
+                    projNormsFile << RealPart(QR(j,j)) << " ";             
                 projNormsFile << endl;
             }
         }
@@ -770,7 +770,7 @@ BKZInfo<Base<F>> BKZWithQ
         if( ctrl.variableEnumType )
             enumCtrl.enumType = ctrl.enumTypeFunc(j);
         const Range<Int> windowInd = IR(j,Min(j+ctrl.multiEnumWindow,k+1));
-        auto normUpperBounds = GetDiagonal(QR(windowInd,windowInd));
+        auto normUpperBounds = GetRealPartOfDiagonal(QR(windowInd,windowInd));
         Scale( Min(Sqrt(ctrl.lllCtrl.delta),Real(1)), normUpperBounds );
         const auto minPair =
           MultiShortestVectorEnrichment
@@ -782,7 +782,7 @@ BKZInfo<Base<F>> BKZWithQ
         const Real minProjNorm = minPair.first;
         const Int insertionInd = minPair.second;
 
-        const Real oldProjNorm = QREnum(insertionInd,insertionInd);
+        const Real oldProjNorm = RealPart(QREnum(insertionInd,insertionInd));
         const bool keptMin = ( minProjNorm < oldProjNorm );
         if( keptMin )
         {

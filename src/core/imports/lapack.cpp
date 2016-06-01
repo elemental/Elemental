@@ -633,7 +633,7 @@ SafeNorm( const QuadDouble& alpha, const Complex<QuadDouble>& beta );
 #ifdef EL_HAVE_QUAD
 template Quad SafeNorm( const Quad& alpha, const Complex<Quad>& beta );
 #endif
-#ifdef EL_HAVE_BIGFLOAT
+#ifdef EL_HAVE_MPC
 template BigFloat SafeNorm
 ( const BigFloat& alpha, const Complex<BigFloat>& beta );
 #endif

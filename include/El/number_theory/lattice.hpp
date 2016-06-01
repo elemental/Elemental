@@ -494,12 +494,12 @@ template<typename F>
 Base<F> TransposedSparseToNorm
 ( const Matrix<Base<F>>& d, const Matrix<F>& NTrans, const Matrix<F>& y );
 
-template<typename Real>
-Real PhaseEnumeration
-( const Matrix<Real>& B,
-  const Matrix<Real>& d,
-  const Matrix<Real>& N,
-        Real normUpperBound,
+template<typename F>
+Base<F> PhaseEnumeration
+( const Matrix<F>& B,
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+        Base<F> normUpperBound,
         Int startIndex,
         Int phaseLength,
         double enqueueProb,
@@ -507,15 +507,15 @@ Real PhaseEnumeration
   const vector<Int>& maxInfNorms,
   const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
-        Matrix<Real>& v,
+        Matrix<F>& v,
         Int progressLevel=0 );
-template<typename Real>
-std::pair<Real,Int>
+template<typename F>
+std::pair<Base<F>,Int>
 PhaseEnumeration
-( const Matrix<Real>& B,
-  const Matrix<Real>& d,
-  const Matrix<Real>& N,
-  const Matrix<Real>& normUpperBounds,
+( const Matrix<F>& B,
+  const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+  const Matrix<Base<F>>& normUpperBounds,
         Int startIndex,
         Int phaseLength,
         double enqueueProb,
@@ -523,7 +523,7 @@ PhaseEnumeration
   const vector<Int>& maxInfNorms,
   const vector<Int>& minOneNorms,
   const vector<Int>& maxOneNorms,
-        Matrix<Real>& v,
+        Matrix<F>& v,
         Int progressLevel=0 );
 
 } // namespace svp
