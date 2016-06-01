@@ -337,13 +337,6 @@ Complex<Quad> ComplexFromPolar( const Quad& r, const Quad& theta );
 Complex<BigFloat> ComplexFromPolar( const BigFloat& r, const BigFloat& theta );
 #endif
 
-// Safe division (in the sense of Baudin and Smith)
-// ------------------------------------------------
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-Real SafeDiv( const Real& x, const Real& y );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-Complex<Real> SafeDiv( const Complex<Real>& x, const Complex<Real>& y );
-
 // Magnitude and sign
 // ==================
 
