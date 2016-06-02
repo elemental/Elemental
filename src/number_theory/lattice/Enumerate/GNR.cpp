@@ -64,9 +64,6 @@ Real Helper
     Matrix<Real> centers;
     Zeros( centers, n, 1 );
 
-    Matrix<Real> jumps;
-    Zeros( jumps, n, 1 );
-
     Int k=0;
     Real* vBuf = &v(0);
     while( true )
@@ -93,7 +90,6 @@ Real Helper
 
                 centers(k) = -partialSums(k+1,k);
                 vBuf[k] = Round(centers(k));
-                jumps(k) = Real(1);
             }
         }
         else
@@ -120,11 +116,20 @@ Real Helper
             }
             else
             {
+                const Real dist = Abs(vBuf[k]-centers(k));
                 if( vBuf[k] > centers(k) )
-                    vBuf[k] -= jumps(k);
+                {
+                    const Real reflection = centers(k) - dist;
+                    vBuf[k] = Floor(reflection);
+                } 
                 else
-                    vBuf[k] += jumps(k);
-                jumps(k) += Real(1);
+                {
+                    const Real reflection = centers(k) + dist;
+                    if( reflection == Ceil(reflection) )
+                        vBuf[k] = reflection + 1; 
+                    else
+                        vBuf[k] = Ceil(reflection);
+                }
             }
         }
     }
@@ -167,9 +172,6 @@ Real TransposedHelper
     Matrix<Real> centers;
     Zeros( centers, n, 1 );
 
-    Matrix<Real> jumps;
-    Zeros( jumps, n, 1 );
-
     Int lastNonzero = 0; // -1 if all sumIndices are zero
 
     Int k=0;
@@ -198,7 +200,6 @@ Real TransposedHelper
 
                 centers(k) = -partialSums(k+1,k);
                 vBuf[k] = Round(centers(k));
-                jumps(k) = Real(1);
             }
         }
         else
@@ -208,20 +209,36 @@ Real TransposedHelper
             if( k == n )
                 return 2*u(n-1)+1; // An arbitrary value > than u(n-1)
             sumIndices(k) = k; // indicate that (i,j) are not synchronized
-            if( k >= lastNonzero )
+            if( k == lastNonzero+1 )
             {
-                vBuf[k] += Real(1);
+                // Seed the new nonzero entry
+                vBuf[k] = Real(1);
                 lastNonzero = k;
                 if( ctrl.innerProgress )
                     Output("lastNonzero: ",lastNonzero);
             }
+            else if( k == lastNonzero )
+            {
+                // Walk outward from zero in Z+
+                vBuf[k] += Real(1);
+                lastNonzero = k;
+            }
             else
             {
+                const Real dist = Abs(vBuf[k]-centers(k));
                 if( vBuf[k] > centers(k) )
-                    vBuf[k] -= jumps(k);
+                {
+                    const Real reflection = centers(k) - dist;
+                    vBuf[k] = Floor(reflection);
+                } 
                 else
-                    vBuf[k] += jumps(k);
-                jumps(k) += Real(1);
+                {
+                    const Real reflection = centers(k) + dist;
+                    if( reflection == Ceil(reflection) )
+                        vBuf[k] = reflection + 1;
+                    else
+                        vBuf[k] = Ceil(reflection);
+                }
             }
         }
     }
