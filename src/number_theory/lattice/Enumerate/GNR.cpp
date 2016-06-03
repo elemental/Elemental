@@ -28,19 +28,101 @@ namespace svp {
 namespace gnr_enum {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-Real Helper
-( const Matrix<Real>& d,
-  const Matrix<Real>& N,
-  const Matrix<Real>& upperBounds,
-        Matrix<Real>& v,
-  const EnumCtrl<Real>& ctrl )
+inline Real NextClosest( const Real& position, const Real& center )
+{
+    const Real dist = Abs(position-center);
+    if( position > center )
+    {
+        const Real reflection = center - dist;
+        return Floor(reflection);
+    } 
+    else
+    {
+        const Real reflection = center + dist;
+        if( reflection == Ceil(reflection) )
+            return reflection + 1;
+        else
+            return Ceil(reflection);
+    }
+}
+
+template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
+inline F NextClosest( const F& position, const F& center )
+{
+    typedef Base<F> Real;
+    const Real realPos = position.real();
+    const Real imagPos = position.imag();
+    const Real realCenter = center.real();
+    const Real imagCenter = center.imag();
+
+    const Real realDist = Abs(realPos-realCenter);
+    const Real imagDist = Abs(imagPos-imagCenter);
+
+    LogicError("This routine is not yet written");
+}
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+inline Real WalkOutward( const Real& position )
+{
+    // The coset Z modulo multiplication by -1 can be represented by Z+
+    return position + 1;
+}
+
+template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
+inline F WalkOutward( const F& position )
+{
+    typedef Base<F> Real;
+    Real realPos = position.real();
+    Real imagPos = position.imag();
+
+    // The coset Z^2 modulo multiplication by i can be represented by the set
+    //
+    //    { (a,b) in Z^2 : a > 0, |b| < a } U {(0,0)}, 
+    //
+    // and the origin can be ignored for our purposes. We traverse this set by
+    // searching each admissible value of b after incrementing a.
+
+    if( imagPos > Real(0) )
+    {
+        if( imagPos == realPos-1 )
+            imagPos = -1;
+        else
+            imagPos += 1;
+    }
+    else if( imagPos < Real(0) )
+    {
+        if( imagPos == -(realPos-1) )
+        {
+            realPos += 1;
+            imagPos = 0;
+        }
+        else
+        {
+            imagPos -= 1;
+        }
+    }
+    else
+    {
+        imagPos += 1;
+    }
+    return Complex<Real>(realPos,imagPos);
+}
+
+template<typename F>
+Base<F> Helper
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& N,
+  const Matrix<Base<F>>& upperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svp::gnr_enum::Helper"))
+    typedef Base<F> Real;
     const Int n = N.Height();
     if( n != N.Width() )
         LogicError("Expected height(N) = width(N)");
 
-    Matrix<Real> partialSums;
+    Matrix<F> partialSums;
     Zeros( partialSums, n+1, n );
 
     // The 'sumIndices' vector is indexed differently from the 'r' from
@@ -58,17 +140,17 @@ Real Helper
     Zeros( v, n, 1 );
     if( n == 0 )
         return Real(0);
-    v(0) = Real(1);
+    v(0) = F(1);
     Int lastNonzero = 0; // will be set to -1 if all sumIndices are zero
 
-    Matrix<Real> centers;
+    Matrix<F> centers;
     Zeros( centers, n, 1 );
 
     Int k=0;
-    Real* vBuf = &v(0);
+    F* vBuf = &v(0);
     while( true )
     {
-        const Real entry = d(k)*(vBuf[k] - centers(k));
+        const F entry = d(k)*(vBuf[k] - centers(k));
         const Real partialNorm = lapack::SafeNorm( partialNorms(k+1), entry );
         partialNorms(k) = partialNorm;
         if( partialNorm < upperBounds((n-1)-k) )
@@ -84,7 +166,7 @@ Real Helper
                 --k;
                 sumIndices(k) = Max(sumIndices(k),sumIndices(k+1));
 
-                Real* s = &partialSums(0,k);
+                F* s = &partialSums(0,k);
                 for( Int i=sumIndices(k+1); i>=k+1; --i )
                     s[i] = s[i+1] + N(k,i)*vBuf[i];
 
@@ -97,58 +179,46 @@ Real Helper
             // Move up the tree
             ++k;
             if( k == n )
+            {
                 // Return an arbitrary value greater than upperBounds(n-1)
                 return 2*upperBounds(n-1)+1;
+            }
             sumIndices(k) = k; // indicate that (i,j) are not synchronized
             if( k == lastNonzero+1 )
             {
                 // Seed the new nonzero entry
-                vBuf[k] = Real(1);
+                vBuf[k] = F(1);
                 lastNonzero = k;
                 if( ctrl.innerProgress )
                     Output("lastNonzero: ",lastNonzero);
             }
             else if( k == lastNonzero )
             {
-                // Walk outward from zero in Z+
-                vBuf[k] += Real(1);
-                lastNonzero = k;
+                vBuf[k] = WalkOutward( vBuf[k] );
             }
             else
             {
-                const Real dist = Abs(vBuf[k]-centers(k));
-                if( vBuf[k] > centers(k) )
-                {
-                    const Real reflection = centers(k) - dist;
-                    vBuf[k] = Floor(reflection);
-                } 
-                else
-                {
-                    const Real reflection = centers(k) + dist;
-                    if( reflection == Ceil(reflection) )
-                        vBuf[k] = reflection + 1; 
-                    else
-                        vBuf[k] = Ceil(reflection);
-                }
+                vBuf[k] = NextClosest( vBuf[k], centers(k) );
             }
         }
     }
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-Real TransposedHelper
-( const Matrix<Real>& d,
-  const Matrix<Real>& NTrans,
-  const Matrix<Real>& u,
-        Matrix<Real>& v,
-  const EnumCtrl<Real>& ctrl )
+template<typename F>
+Base<F> TransposedHelper
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& NTrans,
+  const Matrix<Base<F>>& upperBounds,
+        Matrix<F>& v,
+  const EnumCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("svp::gnr_enum::TransposedHelper"))
+    typedef Base<F> Real;
     const Int n = NTrans.Height();
     if( n != NTrans.Width() )
         LogicError("Expected height(N) = width(N)");
 
-    Matrix<Real> partialSums;
+    Matrix<F> partialSums;
     Zeros( partialSums, n+1, n );
 
     // The 'sumIndices' vector is indexed differently from the 'r' from
@@ -166,21 +236,20 @@ Real TransposedHelper
     Zeros( v, n, 1 );
     if( n == 0 )
         return Real(0);
-    v(0) = Real(1);
-    Real* vBuf = &v(0);
-
-    Matrix<Real> centers;
-    Zeros( centers, n, 1 );
-
+    v(0) = F(1);
     Int lastNonzero = 0; // -1 if all sumIndices are zero
 
+    Matrix<F> centers;
+    Zeros( centers, n, 1 );
+
     Int k=0;
+    F* vBuf = &v(0);
     while( true )
     {
-        const Real entry = d(k)*(vBuf[k] - centers(k));
+        const F entry = d(k)*(vBuf[k] - centers(k));
         const Real partialNorm = lapack::SafeNorm( partialNorms(k+1), entry );
         partialNorms(k) = partialNorm;
-        if( partialNorm < u((n-1)-k) )
+        if( partialNorm < upperBounds((n-1)-k) )
         {
             if( k == 0 )
             {
@@ -193,8 +262,8 @@ Real TransposedHelper
                 --k;
                 sumIndices(k) = Max(sumIndices(k),sumIndices(k+1));
 
-                      Real* s = &partialSums(0,k);
-                const Real* nBuf = &NTrans(0,k);
+                      F* s = &partialSums(0,k);
+                const F* nBuf = &NTrans(0,k);
                 for( Int i=sumIndices(k+1); i>=k+1; --i )
                     s[i] = s[i+1] + nBuf[i]*vBuf[i];
 
@@ -207,73 +276,29 @@ Real TransposedHelper
             // Move up the tree
             ++k;
             if( k == n )
-                return 2*u(n-1)+1; // An arbitrary value > than u(n-1)
+            {
+                // Return an arbitrary value > than upperBounds(n-1)
+                return 2*upperBounds(n-1)+1;
+            }
             sumIndices(k) = k; // indicate that (i,j) are not synchronized
             if( k == lastNonzero+1 )
             {
                 // Seed the new nonzero entry
-                vBuf[k] = Real(1);
+                vBuf[k] = F(1);
                 lastNonzero = k;
                 if( ctrl.innerProgress )
                     Output("lastNonzero: ",lastNonzero);
             }
             else if( k == lastNonzero )
             {
-                // Walk outward from zero in Z+
-                vBuf[k] += Real(1);
-                lastNonzero = k;
+                vBuf[k] = WalkOutward( vBuf[k] );
             }
             else
             {
-                const Real dist = Abs(vBuf[k]-centers(k));
-                if( vBuf[k] > centers(k) )
-                {
-                    const Real reflection = centers(k) - dist;
-                    vBuf[k] = Floor(reflection);
-                } 
-                else
-                {
-                    const Real reflection = centers(k) + dist;
-                    if( reflection == Ceil(reflection) )
-                        vBuf[k] = reflection + 1;
-                    else
-                        vBuf[k] = Ceil(reflection);
-                }
+                vBuf[k] = NextClosest( vBuf[k], centers(k) );
             }
         }
     }
-}
-
-template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
-Base<F> Helper
-( const Matrix<Base<F>>& d,
-  const Matrix<F>& N,
-  const Matrix<Base<F>>& u,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
-{
-    DEBUG_ONLY(CSE cse("svp::gnr_enum::Helper"))
-    const Int n = N.Height();
-    if( n != N.Width() )
-        LogicError("Expected height(N) = width(N)");
-    // TODO: Complex enumeration
-    LogicError("This routine is not yet written");
-}
-
-template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
-Base<F> TransposedHelper
-( const Matrix<Base<F>>& d,
-  const Matrix<F>& NTrans,
-  const Matrix<Base<F>>& u,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
-{
-    DEBUG_ONLY(CSE cse("svp::gnr_enum::Helper"))
-    const Int n = NTrans.Height();
-    if( n != NTrans.Width() )
-        LogicError("Expected height(N) = width(N)");
-    // TODO: Complex enumeration
-    LogicError("This routine is not yet written");
 }
 
 } // namespace gnr_enum
@@ -282,7 +307,7 @@ template<typename F>
 Base<F> GNREnumeration
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& N,
-  const Matrix<Base<F>>& u,
+  const Matrix<Base<F>>& upperBounds,
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
@@ -291,11 +316,11 @@ Base<F> GNREnumeration
     {
         Matrix<F> NTrans;
         Transpose( N, NTrans );
-        return gnr_enum::TransposedHelper( d, NTrans, u, v, ctrl );
+        return gnr_enum::TransposedHelper( d, NTrans, upperBounds, v, ctrl );
     }
     else
     {
-        return gnr_enum::Helper( d, N, u, v, ctrl );
+        return gnr_enum::Helper( d, N, upperBounds, v, ctrl );
     }
 }
 
