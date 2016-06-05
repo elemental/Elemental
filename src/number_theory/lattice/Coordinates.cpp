@@ -54,12 +54,11 @@ bool LatticeCoordinates
     //       member of the null-space of (the original) A
     Matrix<F> xM;
     xM = UA( IR(0,infoA.rank), IR(infoB.rank) );
-    if( UA(infoA.rank,infoB.rank) == F(1) )
-        xM *= F(-1);
-    DEBUG_ONLY(
-      else if( UA(infoA.rank,infoB.rank) != F(-1) )
-          RuntimeError("Invalid member of null space");
-    )
+    const F gamma = UA(infoA.rank,infoB.rank);
+    if( Abs(gamma) != Real(1) )
+        LogicError("Invalid member of null space");
+    else
+        xM *= -Conj(gamma);
 
     // Map xM back to the original coordinates using the portion of the 
     // unimodular transformation of B (U_B) which produced the image of B 
@@ -96,8 +95,6 @@ bool LatticeCoordinates
     const Matrix<F>& y, \
           Matrix<F>& x );
 
-// We need to generalize the {-1,+1} assumption above before enabling Complex
-#define EL_NO_COMPLEX_PROTO
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

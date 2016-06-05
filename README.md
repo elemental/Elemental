@@ -22,7 +22,15 @@ The [documentation for Elemental](http://libelemental.org/documentation) is buil
 ### Unique features
 
 Elemental supports a wide collection of sequential and distributed-memory
-functionality, including:
+functionality, including sequential and distributed-memory support for the
+datatypes:
+
+- float, Complex<float>
+- double, Complex<float>
+- DoubleDouble, Complex<DoubleDouble> (on top of QD's *dd_real*)
+- QuadDouble, Complex<QuadDouble> (on top of QD's *qd_real*)
+- Quad, Complex<Quad> (on top of GCC's *__float128*)
+- BigFloat, Complex<BigFloat> (on top of MPFR's *mpfr_t* and MPC's *mpc_t*)
 
 **Convex optimization**:
 * (Arbitrary-precision) dense and sparse Interior Point Methods for
@@ -65,8 +73,8 @@ functionality, including:
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
 
 **Lattice reduction**:
-* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to linearly-dependent bases
-* Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1)
+* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases
+* Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) to complex bases
  incorporating ["y-sparse" enumeration](https://eprint.iacr.org/2014/980)
 * Integer images/kernels and relation-finding
 
