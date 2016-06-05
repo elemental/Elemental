@@ -249,9 +249,10 @@ Base<F> Helper
 {
     DEBUG_ONLY(CSE cse("svp::gnr_enum::Helper"))
     typedef Base<F> Real;
-    const Int n = N.Height();
-    if( n != N.Width() )
-        LogicError("Expected height(N) = width(N)");
+    const Int m = N.Height();
+    const Int n = N.Width();
+    if( n > m )
+        LogicError("Expected height(N) >= width(N)");
 
     Matrix<F> partialSums;
     Zeros( partialSums, n+1, n );
@@ -348,9 +349,10 @@ Base<F> TransposedHelper
 {
     DEBUG_ONLY(CSE cse("svp::gnr_enum::TransposedHelper"))
     typedef Base<F> Real;
+    const Int m = NTrans.Width();
     const Int n = NTrans.Height();
-    if( n != NTrans.Width() )
-        LogicError("Expected height(N) = width(N)");
+    if( n > m )
+        LogicError("Expected height(N) >= width(N)");
 
     Matrix<F> partialSums;
     Zeros( partialSums, n+1, n );

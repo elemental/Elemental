@@ -240,6 +240,7 @@ Base<F> ShortVectorEnumeration
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
+    const Int minDim = Min(m,n);
     v.Resize( n, 1 );
 
     if( normUpperBound <= Real(0) )
@@ -287,7 +288,8 @@ Base<F> ShortVectorEnumeration
 
     auto d = GetRealPartOfDiagonal( R );
     auto N( R );
-    DiagonalSolve( LEFT, NORMAL, d, N );
+    auto NT = N( IR(0,minDim), ALL );
+    DiagonalSolve( LEFT, NORMAL, d, NT );
 
     if( ctrl.enumType == GNR_ENUM )
     {
@@ -344,7 +346,8 @@ Base<F> ShortVectorEnumeration
 
             auto dNew = GetRealPartOfDiagonal( RNew );
             auto NNew( RNew );
-            DiagonalSolve( LEFT, NORMAL, dNew, NNew );
+            auto NNewT = NNew( IR(0,minDim), ALL );
+            DiagonalSolve( LEFT, NORMAL, dNew, NNewT );
 
             if( ctrl.progress )
                 Output("Starting trial ",trial);
@@ -448,6 +451,7 @@ MultiShortVectorEnumeration
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
+    const Int minDim = Min(m,n);
     v.Resize( n, 1 );
 
     // TODO: Guarantee normUpperBounds are positive?
@@ -497,7 +501,8 @@ MultiShortVectorEnumeration
 
     auto d = GetRealPartOfDiagonal( R );
     auto N( R );
-    DiagonalSolve( LEFT, NORMAL, d, N );
+    auto NT = N( IR(0,minDim), ALL );
+    DiagonalSolve( LEFT, NORMAL, d, NT );
 
     if( ctrl.enumType == GNR_ENUM )
     {
@@ -557,7 +562,8 @@ MultiShortVectorEnumeration
 
             auto dNew = GetRealPartOfDiagonal( RNew );
             auto NNew( RNew );
-            DiagonalSolve( LEFT, NORMAL, dNew, NNew );
+            auto NNewT = NNew( IR(0,minDim), ALL );
+            DiagonalSolve( LEFT, NORMAL, dNew, NNewT );
 
             if( ctrl.progress )
                 Output("Starting trial ",trial);

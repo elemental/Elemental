@@ -67,7 +67,6 @@ void AjtaiTypeBasis( AbstractDistMatrix<T>& APre, Int n, Base<T> alpha )
         auto& dLoc = d.Matrix();
         for( Int jLoc=0; jLoc<ALocWidth; ++jLoc )
         {
-            const Int j = A.GlobalCol( jLoc );
             for( Int iLoc=0; iLoc<ALocHeight; ++iLoc )
             {
                 ALoc(iLoc,jLoc) = SampleUniform(T(0),T(dLoc(jLoc,0)/Real(2)));

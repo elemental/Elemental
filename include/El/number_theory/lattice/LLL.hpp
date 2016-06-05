@@ -576,7 +576,6 @@ RecursiveHelper
   const LLLCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
-    typedef Base<Z> ZReal;
     typedef Base<F> Real;
     const Int n = B.Width();
     if( n < ctrl.cutoff )

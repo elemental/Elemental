@@ -18,14 +18,14 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const Int n = Input("--n","problem size",80);
-        const Real radius = Input("--radius","sampling radius",Real(1.e7));
+        const Int n = Input("--n","problem size",20);
+        const Real radius = Input("--radius","sampling radius",Real(1.e6));
         const Real delta = Input("--delta","delta for LLL",Real(0.9999));
         const Real eta =
           Input
           ("--eta","eta for LLL",
            Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9)));
-        const Int blocksize = Input("--blocksize","BKZ blocksize",20);
+        const Int blocksize = Input("--blocksize","BKZ blocksize",15);
         const bool earlyAbort = Input("--earlyAbort","early abort BKZ?",false);
         const Int numEnumsBeforeAbort =
           Input("--numEnumsBeforeAbort","num enums before early aborting",1000);
@@ -50,12 +50,12 @@ int main( int argc, char* argv[] )
         const bool timeEnum = Input("--timeEnum","time enum?",true);
         const bool innerEnumProgress =
           Input("--innerEnumProgress","inner enum progress?",false);
-        const bool fullEnum = Input("--fullEnum","SVP via full enum?",false);
         ProcessInput();
         PrintInputReport();
 
         Matrix<F> B; 
         KnapsackTypeBasis( B, n, radius );
+        const Int m = B.Height();
         const Real BOrigOne = OneNorm( B ); 
         Output("|| B_orig ||_1 = ",BOrigOne);
         if( print )
@@ -123,47 +123,36 @@ int main( int argc, char* argv[] )
             ("SVP Challenge NOT solved via BKZ: || b_0 ||_2=",b0Norm,
              " > targetRatio*GH(L)=",challenge);
 
-        if( !succeeded || fullEnum )
+        if( !succeeded )
         {
-            const Int start = 0; 
-            const Int numCols = n;
-            const Range<Int> subInd( start, start+numCols );
-            auto BSub = B( ALL, subInd );
-            auto RSub = R( subInd, subInd );
-
-            const Real target = ( start==0 ? challenge : RealPart(RSub(0,0)) );
+            const Real target = RealPart(R(0,0));
 
             Timer timer;
             Matrix<F> v;
             EnumCtrl<Real> enumCtrl;
             enumCtrl.enumType = FULL_ENUM;
             timer.Start();
-            Real result;
-            if( fullEnum )
-              result = 
-                ShortestVectorEnumeration( BSub, RSub, target, v, enumCtrl );
-            else
-              result = 
-                ShortVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+            Real result = 
+              ShortestVectorEnumeration( B, R, target, v, enumCtrl );
             Output("Enumeration: ",timer.Stop()," seconds");
+
             if( result < target )
             {
-                Print( BSub, "BSub" );
                 Print( v, "v" );
                 Matrix<F> x;
-                Zeros( x, n, 1 );
-                Gemv( NORMAL, F(1), BSub, v, F(0), x );
+                Zeros( x, m, 1 );
+                Gemv( NORMAL, F(1), B, v, F(0), x );
                 Print( x, "x" );
                 const Real xNorm = FrobeniusNorm( x );
                 Output("|| x ||_2 = ",xNorm);
                 Output("Claimed || x ||_2 = ",result);
                 Print( x, "x" );
 
-                EnrichLattice( BSub, v );
-                Print( B, "BNew" );
+                EnrichLattice( B, v );
+                Print( B, "BFinal" );
             }
             else
-                Output("Enumeration failed after ",timer.Stop()," seconds");
+                Output("Previous result was optimal");
         }
     }
     catch( std::exception& e ) { ReportException(e); }
