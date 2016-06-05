@@ -1,9 +1,0 @@
-# Compute paths
-get_filename_component(EL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(EL_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
-
-# Our library dependencies (contains definitions for IMPORTED targets)
-include("${EL_CMAKE_DIR}/ElTargets.cmake")
-
-# These are IMPORTED targets created by FooBarTargets.cmake
-set(El_LIBRARIES El)

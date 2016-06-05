@@ -459,7 +459,7 @@ target_link_libraries(El ${LINK_LIBS})
 if(EL_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS El EXPORT ElTargets DESTINATION lib)
+install(TARGETS El EXPORT ElementalTargets DESTINATION lib)
 
 # Decide if/how to install the Python interface
 # ---------------------------------------------
@@ -633,38 +633,33 @@ include(CPack)
 
 # ProjectConfig
 # =====
-# Create ElConfig.cmake for find_package.
+# Create ElementalConfig.cmake for find_package.
 # Add all targets to the build-tree export set
 export(TARGETS El pmrrr ElSuiteSparse
-  FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
+  FILE "${PROJECT_BINARY_DIR}/ElementalTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
-export(PACKAGE El)
+export(PACKAGE Elemental)
 
-# Create the ElConfig.cmake and ElConfigVersion files
+# Create the ElementalConfig.cmake and ElementalConfigVersion files
 file(RELATIVE_PATH REL_INCLUDE_DIR "${PROJECT_BINARY_DIR}"
-    "${PROJECT_BINARY_DIR}include")
+  "${PROJECT_BINARY_DIR}/include")
 # ... for the build tree
-configure_file("${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfig.cmake.in"
-    "${PROJECT_BINARY_DIR}/ElConfig.cmake" @ONLY)
+configure_file(
+  "${PROJECT_SOURCE_DIR}/cmake/configure_files/ElementalConfig.cmake.in"
+  "${PROJECT_BINARY_DIR}/ElementalConfig.cmake" @ONLY)
 # ... for both
 configure_file(
-    "${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfigVersion.cmake.in"
-    "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake" @ONLY)
+  "${PROJECT_SOURCE_DIR}/cmake/configure_files/ElementalConfigVersion.cmake.in"
+  "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake" @ONLY)
 
-# Install the ElConfig.cmake and ElConfigVersion.cmake
+# Install the ElementalConfig.cmake and ElementalConfigVersion.cmake
 set(INSTALL_CMAKE_DIR CMake)
 install(FILES
-    "${PROJECT_BINARY_DIR}/ElConfig.cmake"
-    "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake"
-    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  "${PROJECT_BINARY_DIR}/ElementalConfig.cmake"
+  "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake"
+  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
-install(EXPORT ElTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
-# Subproject
-# ==========
-# If Elemental is a subproject, then pass some variables to the parent
-if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  include(ElSub)
-endif()
+install(EXPORT ElementalTargets
+  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
