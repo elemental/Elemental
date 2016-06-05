@@ -70,7 +70,7 @@ int main( int argc, char* argv[] )
         const bool progressLLL =
           Input("--progressLLL","print LLL progress?",false); 
         const bool progressBKZ =
-          Input("--progressBKZ","print BKZ progress?",false); 
+          Input("--progressBKZ","print BKZ progress?",true); 
         const bool print = Input("--print","output all matrices?",true);
         const bool logFailedEnums =
           Input("--logFailedEnums","log failed enumerations in BKZ?",false);
@@ -91,10 +91,6 @@ int main( int argc, char* argv[] )
         const bool probEnum =
           Input("--probEnum","probabalistic enumeration *after* BKZ?",true);
         const bool fullEnum = Input("--fullEnum","SVP via full enum?",false);
-        const bool enumOnSubset = Input("--enumOnSubset","enum on subset?",false);
-        const Int subsetStart = Input("--subsetStart","start of subset",0);
-        const Int subsetSize = Input("--subsetSize","num cols in subset",60);
-        const bool doubleCycle = Input("--doubleCycle","cycle last vectors?",false);
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec =
           Input("--prec","MPFR precision",mpfr_prec_t(1024));
@@ -305,96 +301,47 @@ int main( int argc, char* argv[] )
             ("SVP Challenge NOT solved via BKZ: || b_0 ||_2=",b0Norm,
              " > targetRatio*GH(L)=",challenge);
 
-        if( !succeeded || fullEnum || (enumOnSubset && subsetStart != 0) )
+        if( !succeeded || fullEnum )
         {
-            const Int start = ( enumOnSubset ? subsetStart : 0 ); 
-            const Int numCols = ( enumOnSubset ? subsetSize : n );
+            const Int start = 0; 
+            const Int numCols = n;
             const Range<Int> subInd( start, start+numCols );
             auto BSub = B( ALL, subInd );
             auto RSub = R( subInd, subInd );
 
-            const Real target = ( start == 0 ? challenge : RSub.Get(0,0) );
+            const Real target = ( start == 0 ? challenge : RSub(0,0) );
 
             Timer timer;
-            if( enumOnSubset && doubleCycle && subsetSize >= 2 )
+            Matrix<F> v;
+            EnumCtrl<Real> enumCtrl;
+            enumCtrl.enumType = ( probEnum ? GNR_ENUM : FULL_ENUM );
+            timer.Start();
+            Real result;
+            if( fullEnum )
+              result = 
+                ShortestVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+            else
+              result = 
+                ShortVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+            Output("Enumeration: ",timer.Stop()," seconds");
+            if( result < target )
             {
-                Matrix<double> v;
-                EnumCtrl<double> enumCtrl;
-                enumCtrl.enumType = ( probEnum ? GNR_ENUM : FULL_ENUM );
-                enumCtrl.numTrials = 1;
+                Print( BSub, "BSub" );
+                Print( v, "v" );
+                Matrix<Real> x;
+                Zeros( x, m, 1 );
+                Gemv( NORMAL, Real(1), BSub, v, Real(0), x );
+                Print( x, "x" );
+                const Real xNorm = FrobeniusNorm( x );
+                Output("|| x ||_2 = ",xNorm);
+                Output("Claimed || x ||_2 = ",result);
+                Write( x, shortestVecFile, ASCII, "x" );
 
-                Matrix<double> BSubSwap;
-                Zeros( BSubSwap, m, subsetSize );
-                auto BL = B( ALL, IR(start,start+subsetSize-2) );
-                auto BSubSwapL = BSubSwap( ALL, IR(0,subsetSize-2) );
-                Copy( BL, BSubSwapL );
-                for( Int j=start+subsetSize-2; j<n-1; ++j )
-                {
-                    auto bj = B( ALL, IR(j) ); 
-                    auto bSubSwapj = BSubSwap( ALL, IR(subsetSize-2) );
-                    Copy( bj, bSubSwapj );
-                    for( Int k=j+1; k<n-1; ++k )
-                    {
-                        auto bk = B( ALL, IR(k) );
-                        auto bSubSwapk = BSubSwap( ALL, IR(subsetSize-1) ); 
-                        Copy( bk, bSubSwapk );
-                        Matrix<double> RSubSwap( BSubSwap );
-                        Output("Cycling with j=",j,", k=",k);
-                        qr::ExplicitTriang( RSubSwap );
-                        timer.Start();
-                        Real result =
-                          ShortestVectorEnumeration
-                          ( BSubSwap, RSubSwap, double(target), v, enumCtrl );
-                        Output("Enumeration: ",timer.Stop()," seconds");
-                        if( result < RSubSwap.Get(0,0)-double(0.001) )
-                        {
-                            Print( BSubSwap, "BSubSwap" );
-                            Print( v, "v" );
-                            Matrix<double> x;
-                            Zeros( x, m, 1 );
-                            Gemv( NORMAL, 1., BSubSwap, v, 0., x );
-                            Print( x, "x" );
-                            const double xNorm = FrobeniusNorm( x );
-                            Output("|| x ||_2 = ",xNorm);
-                            Output("Claimed || x ||_2 = ",result);
-                            Write( x, shortestVecFile, ASCII, "x" );
-                        }
-                    }
-                }
+                EnrichLattice( BSub, v );
+                Print( B, "BNew" );
             }
             else
-            {
-                Matrix<F> v;
-                EnumCtrl<Real> enumCtrl;
-                enumCtrl.enumType = ( probEnum ? GNR_ENUM : FULL_ENUM );
-                timer.Start();
-                Real result;
-                if( fullEnum )
-                  result = 
-                    ShortestVectorEnumeration( BSub, RSub, target, v, enumCtrl );
-                else
-                  result = 
-                    ShortVectorEnumeration( BSub, RSub, target, v, enumCtrl );
-                Output("Enumeration: ",timer.Stop()," seconds");
-                if( result < target )
-                {
-                    Print( BSub, "BSub" );
-                    Print( v, "v" );
-                    Matrix<Real> x;
-                    Zeros( x, m, 1 );
-                    Gemv( NORMAL, Real(1), BSub, v, Real(0), x );
-                    Print( x, "x" );
-                    const Real xNorm = FrobeniusNorm( x );
-                    Output("|| x ||_2 = ",xNorm);
-                    Output("Claimed || x ||_2 = ",result);
-                    Write( x, shortestVecFile, ASCII, "x" );
-
-                    EnrichLattice( BSub, v );
-                    Print( B, "BNew" );
-                }
-                else
-                    Output("Enumeration failed after ",timer.Stop()," seconds");
-            }
+                Output("Enumeration failed after ",timer.Stop()," seconds");
         }
     }
     catch( std::exception& e ) { ReportException(e); }

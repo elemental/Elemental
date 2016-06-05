@@ -18,58 +18,189 @@ namespace svp {
 //   "Lattice enumeration using extreme pruning", Eurocrypt 2010.
 //
 // Note that our algorithm uses 'R' to denote the upper triangular matrix from
-// the QR factorization of B and 'u' to denote the sequence of upper-bounds
+// the QR factorization of B and 'upperBounds' to denote the sequence of
+// upper-bounds
 //
-//     u(0)^2 <= u(1)^2 <= ... <= u(n-1)^2.
+//     upperBounds(0) <= upperBounds(1) <= ... <= upperBounds(n-1)
 //
+// such that upperBounds(j) bounds the two-norm of the last j+1 entries of
+// R v = (diag(d) N) v.
 //
-// TODO: Extend the following to handle complex lattices.
+// The "GNR" enumeration algorithm has been extended to support complex
+// arithmetic below by reformulating the original algorithm in terms of 
+// a vector of states, each of which allows for a simple traversal of a 
+// discrete spiral in the complex plane that is centered about a particular
+// point (with the initial direction and orientation of the spiral chosen
+// based upon the difference between the center and its rounding).
+//
+// While it is possible to easily analytically solve for the "next closest"
+// integer to a given real number relative to a given integer with O(1) work,
+// and such a  solution can easily drive a walk "outward" from a center point, 
+// the author is not aware of an O(1) analogue in the complex plane.
+//
+// The easier part of generalizing GNR enumeration is in generalizing the notion
+// of traversing Z modulo multiplication by -1 (which can be represented by Z+)
+// to Z^2 modulo multiplication by i. In particular, the latter can be 
+// represented by 
+//
+//     { (a,b) in Z^2 : a > 0, |b| < a } U {(0,0)},
+//
+// which can be easily traversed by trying each admissible b after incrementing
+// a.
+
+// An example of traversing a clockwise Z^2 spiral which begins rightward
+// (which makes the most sense if the target center was rounded up and left)
+// is given here:
+//
+//           20- ...
+//           |
+//           19  6 - 7 - 8 - 9
+//           |   |           |
+//           18  5   0 - 1   10
+//           |   |       |   |
+//           17  4 - 3 - 2   11
+//           |               |
+//           16- 15- 14- 13- 12
+//
+// where the root node, marked as 0, was the complex rounding of the
+// (non-integer) center. Since the legs of the spiral are of length 
+//
+//   1, 1, 2, 2, 3, 3, etc.
+//
+// we can easily traverse the spiral with O(1) state. And, while such an
+// ordering of Z^2 does not precisely equate with an ordering based upon the
+// distance to the center node, it is a reasonable approximation and there are
+// no tie-breaking subtleties.
+//
 
 namespace gnr_enum {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real NextClosest( const Real& position, const Real& center )
+template<typename Real>
+struct SpiralState
 {
-    const Real dist = Abs(position-center);
-    if( position > center )
+    bool forward;
+    Real jump;
+    Real position;
+
+    void Initialize( const Real& center )
     {
-        const Real reflection = center - dist;
-        return Floor(reflection);
-    } 
-    else
-    {
-        const Real reflection = center + dist;
-        if( reflection == Ceil(reflection) )
-            return reflection + 1;
-        else
-            return Ceil(reflection);
+        position = Round(center);
+        forward = (position <= center);
+        jump = 1;
     }
-}
 
-template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
-inline F NextClosest( const F& position, const F& center )
+    Real Step()
+    {
+        if( forward ) 
+            position += jump;
+        else
+            position -= jump;
+        forward = !forward;
+        jump += 1;
+        return position;
+    }
+};
+
+template<typename Real>
+struct SpiralState<Complex<Real>>
 {
-    typedef Base<F> Real;
-    const Real realPos = position.real();
-    const Real imagPos = position.imag();
-    const Real realCenter = center.real();
-    const Real imagCenter = center.imag();
+    Int legLength;
+    Int numSteps;
+    Int direction; // 0=right, 1=down, 2=left, 3=up
+    bool clockwise;
+    bool firstLeg;
 
-    const Real realDist = Abs(realPos-realCenter);
-    const Real imagDist = Abs(imagPos-imagCenter);
+    Complex<Real> position;
 
-    LogicError("This routine is not yet written");
-}
+    void Initialize( const Complex<Real>& center )
+    {
+        legLength = 1;
+        numSteps = 0; 
+        firstLeg = true;
+
+        const Real realCenter = center.real();
+        const Real imagCenter = center.imag();
+        const Real realStart = Round(realCenter);
+        const Real imagStart = Round(imagCenter);
+        position = Complex<Real>(realStart,imagStart);
+        const Real realDist = Abs(realCenter-realStart);
+        const Real imagDist = Abs(imagCenter-imagStart);
+        if( realDist < imagDist )
+        {
+            if( realCenter > realStart )
+            {
+                direction = 0; // right
+                clockwise = (imagCenter < imagStart);
+            }
+            else
+            {
+                direction = 2; // left
+                clockwise = (imagCenter > imagStart);
+            }
+        }
+        else
+        {
+            if( imagCenter > imagStart )
+            {
+                direction = 3; // up
+                clockwise = (realCenter > realStart);
+            }
+            else
+            {
+                direction = 2; // left
+                clockwise = (realCenter < realStart);
+            }
+        }
+    }
+    
+    Complex<Real> Step()
+    {
+        Real realPos = position.real();
+        Real imagPos = position.imag();
+        if( direction == 0 )
+            realPos += 1;
+        else if( direction == 1 )
+            imagPos -= 1;
+        else if( direction == 2 )
+            realPos -= 1;
+        else if( direction == 3 )
+            imagPos += 1;
+            
+        ++numSteps;
+        if( numSteps == legLength )
+        {
+            numSteps = 0;
+
+            if( clockwise )
+                direction = Mod( direction+1, 4 );
+            else
+                direction = Mod( direction-1, 4 );
+
+            if( firstLeg )
+            {
+                firstLeg = false;
+            }
+            else
+            {
+                ++legLength;
+                firstLeg = true;
+            }
+        }
+
+        position = Complex<Real>(realPos,imagPos);
+        return position;
+    }
+};
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real WalkOutward( const Real& position )
+inline Real ConstrainedSpiral( const Real& position )
 {
     // The coset Z modulo multiplication by -1 can be represented by Z+
     return position + 1;
 }
 
 template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
-inline F WalkOutward( const F& position )
+inline F ConstrainedSpiral( const F& position )
 {
     typedef Base<F> Real;
     Real realPos = position.real();
@@ -146,6 +277,8 @@ Base<F> Helper
     Matrix<F> centers;
     Zeros( centers, n, 1 );
 
+    vector<SpiralState<F>> spiralStates(n);
+
     Int k=0;
     F* vBuf = &v(0);
     while( true )
@@ -172,6 +305,7 @@ Base<F> Helper
 
                 centers(k) = -partialSums(k+1,k);
                 vBuf[k] = Round(centers(k));
+                spiralStates[k].Initialize( centers(k) );
             }
         }
         else
@@ -194,11 +328,11 @@ Base<F> Helper
             }
             else if( k == lastNonzero )
             {
-                vBuf[k] = WalkOutward( vBuf[k] );
+                vBuf[k] = ConstrainedSpiral( vBuf[k] );
             }
             else
             {
-                vBuf[k] = NextClosest( vBuf[k], centers(k) );
+                vBuf[k] = spiralStates[k].Step();
             }
         }
     }
@@ -242,6 +376,8 @@ Base<F> TransposedHelper
     Matrix<F> centers;
     Zeros( centers, n, 1 );
 
+    vector<SpiralState<F>> spiralStates(n);
+
     Int k=0;
     F* vBuf = &v(0);
     while( true )
@@ -269,6 +405,7 @@ Base<F> TransposedHelper
 
                 centers(k) = -partialSums(k+1,k);
                 vBuf[k] = Round(centers(k));
+                spiralStates[k].Initialize( centers(k) );
             }
         }
         else
@@ -291,11 +428,11 @@ Base<F> TransposedHelper
             }
             else if( k == lastNonzero )
             {
-                vBuf[k] = WalkOutward( vBuf[k] );
+                vBuf[k] = ConstrainedSpiral( vBuf[k] );
             }
             else
             {
-                vBuf[k] = NextClosest( vBuf[k], centers(k) );
+                vBuf[k] = spiralStates[k].Step();
             }
         }
     }

@@ -11,6 +11,7 @@
 
 namespace El {
 
+// TODO: Add correctness tests for this routine
 template<typename F>
 void NearestPlane
 ( const Matrix<F>& B,

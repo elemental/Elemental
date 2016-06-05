@@ -15,6 +15,7 @@ template<typename F>
 void EnrichLattice( Matrix<F>& B, Matrix<F>& U, const Matrix<F>& v )
 {
     const Int n = B.Width();
+    typedef Base<F> Real;
 
     Matrix<F> vTrans, W, Rv;
     Transpose( v, vTrans );
@@ -23,10 +24,10 @@ void EnrichLattice( Matrix<F>& B, Matrix<F>& U, const Matrix<F>& v )
     {
         // Do nothing 
     }
-    else if( vTrans(0,0) == F(-1) )
+    else if( Abs(vTrans(0,0)) == Real(1) )
     {
         auto w0 = W( ALL, IR(0) );
-        w0 *= F(-1);
+        w0 *= vTrans(0,0);
     }
     else
     {
