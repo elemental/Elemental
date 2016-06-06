@@ -25,12 +25,12 @@ Elemental supports a wide collection of sequential and distributed-memory
 functionality, including sequential and distributed-memory support for the
 datatypes:
 
-- float, Complex<float>
-- double, Complex<float>
-- DoubleDouble, Complex<DoubleDouble> (on top of QD's *dd_real*)
-- QuadDouble, Complex<QuadDouble> (on top of QD's *qd_real*)
-- Quad, Complex<Quad> (on top of GCC's *__float128*)
-- BigFloat, Complex<BigFloat> (on top of MPFR's *mpfr_t* and MPC's *mpc_t*)
+- `float`, `El::Complex<float>`
+- `double`, `El::Complex<float>`
+- `El::DoubleDouble`, `El::Complex<El::DoubleDouble>` (on top of QD's *dd_real*)
+- `El::QuadDouble`, `El::Complex<El::QuadDouble>` (on top of QD's *qd_real*)
+- `El::Quad`, `El::Complex<El::Quad>` (on top of GCC's *__float128*)
+- `El::BigFloat`, `El::Complex<El::BigFloat>` (on top of MPFR's *mpfr_t* and MPC's *mpc_t*)
 
 **Convex optimization**:
 * (Arbitrary-precision) dense and sparse Interior Point Methods for
