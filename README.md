@@ -113,6 +113,7 @@ which is distributed under the (equally permissive)
 can only be used for research purposes (and can be easily disabled), and 
 [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/), which is 
 distributed under the terms of the [GNU Lesser General Public License, version 2.1 or later](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).
+Lastly, [QD](http://crd-legacy.lbl.gov/~dhbailey/mpdist/) is distributed under the terms of the [LBNL-BSD-License](http://crd.lbl.gov/~dhbailey/mpdist/LBNL-BSD-License.doc).
 
 ### Dependencies
 
@@ -150,6 +151,8 @@ attempts to automatically download and install the library.
 * MPI2 (typically [MPICH](http://www.mpich.org/), [MVAPICH](http://mvapich.cse.ohio-state.edu/), or [OpenMPI](http://www.open-mpi.org/))
 
 **Auxiliary libraries**
+
+* [QD](http://crd-legacy.lbl.gov/~dhbailey/mpdist/) for efficient software analogues of 128-bit and 256-bit floating-point arithmetic (**Note:** QD is licensed under the [LBNL-BSD-License](http://crd.lbl.gov/~dhbailey/mpdist/LBNL-BSD-License.doc), which is a slight modification of the BSD License)
 
 * [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/) for quad-precision support (especially for iterative refinement). (**Note:** libquadmath is licensed under the [GNU Lesser General Public License, version 2.1 or later](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html))
 
