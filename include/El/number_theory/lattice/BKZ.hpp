@@ -11,6 +11,195 @@
 
 namespace El {
 
+// Block Korkin-Zolotarev (BKZ) reduction
+// ======================================
+// TODO: Tailor BKZInfo; it is currently a copy of LLLInfo
+template<typename Real>
+struct BKZInfo
+{
+    Real delta;
+    Real eta; 
+    Int rank;
+    Int nullity; 
+    Int numSwaps;
+    Int numEnums;
+    Int numEnumFailures;
+    Real logVol;
+
+    template<typename OtherReal>
+    BKZInfo<Real>& operator=( const BKZInfo<OtherReal>& info )
+    {
+        delta = Real(info.delta);
+        eta = Real(info.eta);
+        rank = info.rank;
+        nullity = info.nullity;
+        numSwaps = info.numSwaps;
+        numEnums = info.numEnums;
+        numEnumFailures = info.numEnumFailures;
+        logVol = Real(info.logVol);
+        return *this;
+    }
+
+    BKZInfo() { }
+    BKZInfo( const BKZInfo<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    BKZInfo( const BKZInfo<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+template<typename Real>
+struct BKZCtrl
+{
+    Int blocksize=20;
+    bool time=false;
+    bool progress=false;
+
+    bool earlyAbort=false;
+    Int numEnumsBeforeAbort=1000; // only used if earlyAbort=true
+
+    bool variableBlocksize=false;
+    function<Int(Int)> blocksizeFunc;
+
+    bool variableEnumType=false;
+    function<EnumType(Int)> enumTypeFunc;
+
+    // Y-sparse enumeration supports simultaneous searches for improving a
+    // contiguous window of vectors
+    Int multiEnumWindow=15;
+
+    bool skipInitialLLL=false;
+    bool jumpstart=false;
+    Int startCol=0;
+
+    EnumCtrl<Real> enumCtrl;
+
+    // Rather than running LLL after a productive enumeration, one could run
+    // BKZ with a smaller blocksize (perhaps with early abort)
+    bool subBKZ=true;
+    function<Int(Int)> subBlocksizeFunc =
+      function<Int(Int)>( []( Int bsize )
+      { return Max(Min(bsize/2,Int(20)),Int(2)); } );
+    bool subEarlyAbort = true;
+    Int subNumEnumsBeforeAbort = 100;
+
+    // This seems to be *more* expensive but lead to higher quality (perhaps).
+    // Note that this is different from GNR recursion and uses a tree method
+    // with shuffling at each merge.
+    bool recursive=false;
+
+    bool logFailedEnums=false;
+    std::string failedEnumFile="BKZFailedEnums.txt";
+
+    bool logStreakSizes=false;
+    std::string streakSizesFile="BKZStreakSizes.txt";
+
+    bool logNontrivialCoords=false;
+    std::string nontrivialCoordsFile="BKZNontrivialCoords.txt";
+
+    bool logNorms=false;
+    std::string normsFile="BKZNorms.txt";
+
+    bool logProjNorms=false;
+    std::string projNormsFile="BKZProjNorms.txt";
+
+    bool checkpoint=false;
+    FileFormat checkpointFormat=ASCII;
+    std::string checkpointFileBase="BKZCheckpoint";
+    std::string tourFileBase="BKZTour";
+
+    LLLCtrl<Real> lllCtrl;
+
+    // We frequently need to convert datatypes, so make this easy
+    template<typename OtherReal>
+    BKZCtrl<Real>& operator=( const BKZCtrl<OtherReal>& ctrl )
+    {
+        blocksize = ctrl.blocksize;
+        time = ctrl.time;
+        progress = ctrl.progress;
+
+        earlyAbort = ctrl.earlyAbort;
+        numEnumsBeforeAbort = ctrl.numEnumsBeforeAbort;
+
+        variableBlocksize = ctrl.variableBlocksize;
+        blocksizeFunc = ctrl.blocksizeFunc;
+
+        variableEnumType = ctrl.variableEnumType;
+        enumTypeFunc = ctrl.enumTypeFunc;
+
+        multiEnumWindow = ctrl.multiEnumWindow;
+
+        skipInitialLLL = ctrl.skipInitialLLL;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+
+        enumCtrl = ctrl.enumCtrl;
+
+        subBKZ = ctrl.subBKZ;
+        subBlocksizeFunc = ctrl.subBlocksizeFunc;
+        subEarlyAbort = ctrl.subEarlyAbort;
+        subNumEnumsBeforeAbort = ctrl.subNumEnumsBeforeAbort;
+
+        recursive = ctrl.recursive;
+
+        logFailedEnums = ctrl.logFailedEnums;
+        logStreakSizes = ctrl.logStreakSizes;
+        logNontrivialCoords = ctrl.logNontrivialCoords;
+        logNorms = ctrl.logNorms;
+        logProjNorms = ctrl.logProjNorms;
+        checkpoint = ctrl.checkpoint;
+        failedEnumFile = ctrl.failedEnumFile;
+        streakSizesFile = ctrl.streakSizesFile;
+        nontrivialCoordsFile = ctrl.nontrivialCoordsFile;
+        normsFile = ctrl.normsFile;
+        projNormsFile = ctrl.projNormsFile;
+        checkpointFileBase = ctrl.checkpointFileBase;
+        tourFileBase = ctrl.tourFileBase;
+        checkpointFormat = ctrl.checkpointFormat;
+
+        lllCtrl = ctrl.lllCtrl;
+        return *this;
+    }
+
+    BKZCtrl() { }
+    BKZCtrl( const BKZCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    BKZCtrl( const BKZCtrl<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  Matrix<F>& R,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& R,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZWithQ
+( Matrix<F>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
+template<typename F>
+BKZInfo<Base<F>> BKZWithQ
+( Matrix<F>& B,
+  Matrix<F>& U,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const BKZCtrl<Base<F>>& ctrl=BKZCtrl<Base<F>>() );
+
 namespace bkz {
 
 static Timer enumTimer, bkzTimer;

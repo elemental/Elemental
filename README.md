@@ -12,12 +12,13 @@ and absorbed, then greatly expanded upon, the functionality from the
 sparse-direct solver [Clique](http://www.github.com/poulson/Clique.git), which 
 was originally released during a project on [Parallel Sweeping Preconditioners](http://epubs.siam.org/doi/abs/10.1137/120871985).
 
-Please visit [the download page](http://libelemental.org/download/) for
-details about recent and upcoming releases.
+The development branch is currently at least six months ahead of the last 
+major release; you may find these (now outdated) releases at
+[the download page](http://libelemental.org/download/).
 
 ### Documentation
 
-The [documentation for Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org) and the [Read the Docs Theme](http://docs.readthedocs.org/en/latest/theme.html)
+The (now outdated) [documentation for Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org) and the [Read the Docs Theme](http://docs.readthedocs.org/en/latest/theme.html)
 
 ### Unique features
 
@@ -26,7 +27,7 @@ functionality, including sequential and distributed-memory support for the
 datatypes:
 
 - `float`, `El::Complex<float>`
-- `double`, `El::Complex<float>`
+- `double`, `El::Complex<double>`
 - `El::DoubleDouble`, `El::Complex<El::DoubleDouble>` (on top of QD's *dd_real*)
 - `El::QuadDouble`, `El::Complex<El::QuadDouble>` (on top of QD's *qd_real*)
 - `El::Quad`, `El::Complex<El::Quad>` (on top of GCC's *__float128*)

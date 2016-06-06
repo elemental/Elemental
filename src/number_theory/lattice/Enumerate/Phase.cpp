@@ -578,23 +578,9 @@ public:
         Zero( Y_ );
     }
 
-    void Enqueue( const Matrix<Base<F>>& y )
+    void Enqueue( const Matrix<F>& y )
     {
         MemCopy( Y_.Buffer(0,numQueued_), y.LockedBuffer(), y.Height() ); 
-
-        ++numQueued_;
-        if( numQueued_ == Y_.Width() )
-            Flush();
-    }
-
-    // TODO: Generalize to the Gaussian integers
-    void Enqueue( const vector<pair<Int,Int>>& y )
-    {
-        F* yBuf = Y_.Buffer(0,numQueued_);
-
-        const Int numEntries = y.size();
-        for( Int e=0; e<numEntries; ++e )
-            yBuf[y[e].first] = F(y[e].second);
 
         ++numQueued_;
         if( numQueued_ == Y_.Width() )
@@ -614,7 +600,7 @@ public:
             Flush();
     }
 
-    void MaybeEnqueue( const vector<pair<Int,Int>>& y, double enqueueProb=1. )
+    void MaybeEnqueue( const vector<pair<Int,F>>& y, double enqueueProb=1. )
     {
         if( enqueueProb >= 1. || SampleUniform<double>(0,1) <= enqueueProb )
             Enqueue( y );
@@ -662,7 +648,7 @@ template<typename F>
 void PhaseEnumerationLeafInner
 (       PhaseEnumerationCache<F>& cache,
   const PhaseEnumerationCtrl<Base<F>>& ctrl,
-        vector<pair<Int,Int>>& y,
+        vector<pair<Int,F>>& y,
   const Int beg,
   const Int baseInfNorm,
   const Int baseOneNorm,
@@ -727,7 +713,7 @@ template<typename F>
 void PhaseEnumerationLeaf
 (       PhaseEnumerationCache<F>& cache,
   const PhaseEnumerationCtrl<Base<F>>& ctrl,
-        vector<pair<Int,Int>>& y,
+        vector<pair<Int,F>>& y,
   const bool zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeaf"))
@@ -751,7 +737,7 @@ template<typename F>
 void PhaseEnumerationNodeInner
 (       PhaseEnumerationCache<F>& cache,
   const PhaseEnumerationCtrl<Base<F>>& ctrl,
-        vector<pair<Int,Int>>& y,
+        vector<pair<Int,F>>& y,
   const Int phase,
   const Int beg,
   const Int baseInfNorm,
@@ -849,7 +835,7 @@ template<typename F>
 void PhaseEnumerationNode
 (       PhaseEnumerationCache<F>& cache,
   const PhaseEnumerationCtrl<Base<F>>& ctrl,
-        vector<pair<Int,Int>>& y,
+        vector<pair<Int,F>>& y,
   const Int phase,
   const bool zeroSoFar )
 {
@@ -915,7 +901,7 @@ PhaseEnumeration
        enqueueProb,
        earlyExit,progressLevel);
 
-    vector<pair<Int,Int>> y;
+    vector<pair<Int,F>> y;
     Int phase=0;
     bool zeroSoFar = true;
     PhaseEnumerationNode( cache, ctrl, y, phase, zeroSoFar );

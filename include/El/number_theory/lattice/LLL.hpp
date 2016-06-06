@@ -9,6 +9,38 @@
 #ifndef EL_LATTICE_LLL_HPP
 #define EL_LATTICE_LLL_HPP
 
+// Lenstra-Lenstra-Lovasz (LLL) lattice reduction
+// ==============================================
+// A reduced basis, say D, is an LLL(delta) reduction of an m x n matrix B if
+//
+//    B U = D = Q R,
+//
+// where U is unimodular (integer-valued with absolute determinant of 1)
+// and Q R is a floating-point QR factorization of D that satisfies the three
+//  properties:
+//
+//   1. R has non-negative diagonal
+//
+//   2. R is (eta) size-reduced:
+//
+//        | R(i,j) / R(i,i) | < phi(F) eta,  for all i < j, and
+//
+//      where phi(F) is 1 for a real field F or sqrt(2) for a complex
+//      field F, and
+//
+//   3. R is (delta) Lovasz reduced:
+//
+//        delta R(i,i)^2 <= R(i+1,i+1)^2 + |R(i,i+1)|^2,  for all i.
+//
+// Please see
+//
+//   Henri Cohen, "A course in computational algebraic number theory"
+// 
+// for more information on the "MLLL" variant of LLL used by Elemental to 
+// handle linearly dependent vectors (the algorithm was originally suggested by
+// Mike Pohst).
+//
+
 // The implementations of Householder-based LLL in this file are extensions of
 // the algorithm discussed in:
 //
@@ -63,6 +95,221 @@
 //
 
 namespace El {
+
+template<typename Real>
+struct LLLInfo
+{
+    Real delta;
+    Real eta;
+    Int rank;
+    Int nullity;
+    Int numSwaps=0;
+    Int firstSwap;
+    Real logVol;
+
+    template<typename OtherReal>
+    LLLInfo<Real>& operator=( const LLLInfo<OtherReal>& info )
+    {
+        delta = Real(info.delta);
+        eta = Real(info.eta);
+        rank = info.rank;
+        nullity = info.nullity;
+        numSwaps = info.numSwaps;
+        firstSwap = info.firstSwap;
+        logVol = Real(info.logVol);
+        return *this;
+    }
+
+    LLLInfo() { }
+    LLLInfo( const LLLInfo<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    LLLInfo( const LLLInfo<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+// Return the Gaussian estimate of the minimum-length vector
+// 
+//   GH(L) = (1/sqrt(pi)) Gamma(n/2+1)^{1/n} |det(L)|^{1/n}.
+//
+// where n is the rank of the lattice L.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real LatticeGaussianHeuristic( Int n, Real logVol )
+{
+    return Exp((LogGamma(Real(n)/Real(2)+Real(1))+logVol)/Real(n))/
+           Sqrt(Pi<Real>());
+}
+
+enum LLLVariant {
+  // A 'weak' LLL reduction only ensures that | R(i,i+1) / R(i,i) | is
+  // bounded above by eta (or, for complex data, by sqrt(2) eta), but it often
+  // produces much lower-quality basis vectors
+  LLL_WEAK,
+  LLL_NORMAL,
+  // LLL with 'deep insertion' is no longer guaranteed to be polynomial time
+  // but produces significantly higher quality bases than normal LLL.
+  // See Schnorr and Euchner's "Lattice Basis Reduction: Improved Practical
+  // Algorithms and Solving Subset Sum Problems".
+  LLL_DEEP,
+  // Going one step further, one can perform additional size reduction before
+  // checking each deep insertion condition. See Schnorr's article
+  // "Progress on LLL and Lattice Reduction" in the book "The LLL Algorithm",
+  // edited by Nguyen and Vallee.
+  LLL_DEEP_REDUCE
+};
+
+template<typename Real>
+struct LLLCtrl
+{
+    Real delta=Real(3)/Real(4);
+    Real eta=Real(1)/Real(2) + Pow(limits::Epsilon<Real>(),Real(0.9));
+
+    LLLVariant variant=LLL_NORMAL;
+    bool recursive=false;
+    Int cutoff=10;
+
+    // Fudge factor for determining whether to drop precision
+    Real precisionFudge=Real(2);
+
+    Int minColThresh = 0;
+
+    // Ignore precision limits for QR factorization?
+    bool unsafeSizeReduct=false;
+
+    // Preprocessing with a "rank-obscuring" column-pivoted QR factorization
+    // (in the manner suggested by Wubben et al.) can greatly decrease
+    // the number of swaps within LLL in some circumstances
+    bool presort=false;
+    bool smallestFirst=true;
+
+    // If the size-reduced column has a two-norm that is less than or
+    // equal to `reorthogTol` times the  original two-norm, then reorthog.
+    Real reorthogTol=0;
+
+    // The number of times to execute the orthogonalization
+    Int numOrthog=1;
+
+    // If a size-reduced column has a two-norm less than or equal to 'zeroTol',
+    // then it is interpreted as a zero vector (and forced to zero)
+    Real zeroTol=Pow(limits::Epsilon<Real>(),Real(0.9));
+
+    // Exploit the sparsity in the size reduction Axpy's unless at least the 
+    // following percentage of reductions were non-trivial
+    float blockingThresh = 0.5f;
+
+    bool progress=false;
+    bool time=false;
+
+    // If 'jumpstart' is true, start LLL under the assumption that the first
+    // 'startCol' columns are already processed
+    bool jumpstart=false;
+    Int startCol=0;
+
+    // In case of conversion from BigFloat to BigFloat with different precision
+    LLLCtrl<Real>& operator=( const LLLCtrl<Real>& ctrl )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        const Real etaMin = Real(1)/Real(2)+Pow(eps,Real(0.9));
+        const Real zeroTolMin = Pow(eps,Real(0.9));
+
+        delta = Real(ctrl.delta);
+        // NOTE: This does *not* seem to be equivalent to Max if the precisions
+        //       are different
+        eta = Real(ctrl.eta);
+        if( eta < etaMin )
+            eta = etaMin;
+        precisionFudge = Real(ctrl.precisionFudge);
+        minColThresh = ctrl.minColThresh;
+        unsafeSizeReduct = ctrl.unsafeSizeReduct;
+        variant = ctrl.variant;
+        recursive = ctrl.recursive;
+        cutoff = ctrl.cutoff;
+        presort = ctrl.presort;
+        smallestFirst = ctrl.smallestFirst;
+        reorthogTol = Real(ctrl.reorthogTol);
+        numOrthog = ctrl.numOrthog;
+        // NOTE: This does *not* seem to be equivalent to Max if the precisions
+        //       are different
+        zeroTol = Real(ctrl.zeroTol);
+        if( zeroTol < zeroTolMin )
+            zeroTol = zeroTolMin;
+        blockingThresh = ctrl.blockingThresh;
+        progress = ctrl.progress;
+        time = ctrl.time;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+        return *this;
+    }
+
+    // We frequently need to convert datatypes, so make this easy
+    template<typename OtherReal>
+    LLLCtrl<Real>& operator=( const LLLCtrl<OtherReal>& ctrl )
+    {
+        const Real eps = limits::Epsilon<Real>();
+        const Real etaMin = Real(1)/Real(2)+Pow(eps,Real(0.9));
+        const Real zeroTolMin = Pow(eps,Real(0.9));
+
+        delta = Real(ctrl.delta);
+        eta = Max(etaMin,Real(ctrl.eta));
+        precisionFudge = Real(ctrl.precisionFudge);
+        minColThresh = ctrl.minColThresh;
+        unsafeSizeReduct = ctrl.unsafeSizeReduct;
+        variant = ctrl.variant;
+        recursive = ctrl.recursive;
+        cutoff = ctrl.cutoff;
+        presort = ctrl.presort;
+        smallestFirst = ctrl.smallestFirst;
+        reorthogTol = Real(ctrl.reorthogTol);
+        numOrthog = ctrl.numOrthog;
+        zeroTol = Max(zeroTolMin,Real(ctrl.zeroTol));
+        blockingThresh = ctrl.blockingThresh;
+        progress = ctrl.progress;
+        time = ctrl.time;
+        jumpstart = ctrl.jumpstart;
+        startCol = ctrl.startCol;
+        return *this;
+    }
+
+    LLLCtrl() { }
+    LLLCtrl( const LLLCtrl<Real>& ctrl ) { *this = ctrl; }
+    template<typename OtherReal>
+    LLLCtrl( const LLLCtrl<OtherReal>& ctrl ) { *this = ctrl; }
+};
+
+// TODO: Maintain B in BigInt form
+
+template<typename Z,typename F=Z>
+LLLInfo<Base<F>> LLL
+( Matrix<Z>& B,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename Z,typename F=Z>
+LLLInfo<Base<F>> LLL
+( Matrix<Z>& B,
+  Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename Z,typename F=Z>
+LLLInfo<Base<F>> LLL
+( Matrix<Z>& B,
+  Matrix<Z>& U,
+  Matrix<F>& R,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename Z,typename F=Z>
+LLLInfo<Base<F>> LLLWithQ
+( Matrix<Z>& B,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
+
+template<typename Z,typename F=Z>
+LLLInfo<Base<F>> LLLWithQ
+( Matrix<Z>& B,
+  Matrix<Z>& U,
+  Matrix<F>& QR,
+  Matrix<F>& t,
+  Matrix<Base<F>>& d,
+  const LLLCtrl<Base<F>>& ctrl=LLLCtrl<Base<F>>() );
 
 namespace lll {
 
