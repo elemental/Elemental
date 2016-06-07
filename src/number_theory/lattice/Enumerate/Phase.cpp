@@ -609,7 +609,6 @@ public:
     ~PhaseEnumerationCache() { }
 };
 
-template<typename Real>
 struct PhaseEnumerationCtrl
 {
   const vector<Int>& phaseOffsets;
@@ -642,23 +641,22 @@ struct PhaseEnumerationCtrl
 template<typename F>
 void PhaseEnumerationLeafInner
 (       PhaseEnumerationCache<F>& cache,
-  const PhaseEnumerationCtrl<Base<F>>& ctrl,
+  const PhaseEnumerationCtrl& ctrl,
         vector<pair<Int,F>>& y,
   const Int beg,
   const Int baseInf,
-  const Int baseOne,
-  const bool zeroSoFar )
+  const Int baseOne )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeafInner"))
-    typedef Base<F> Real;
     const Int n = ctrl.phaseOffsets.back();
     const Int minInf = ctrl.minInfNorms.back();
     const Int maxInf = ctrl.maxInfNorms.back();
     const Int minOne = ctrl.minOneNorms.back();
     const Int maxOne = ctrl.maxOneNorms.back();
+    const bool constrained = (y.size() == 0);
 
     SpiralState<F> spiral;
-    spiral.Initialize( zeroSoFar );
+    spiral.Initialize( constrained );
     while( true )
     {
         const F beta = spiral.Step();
@@ -691,7 +689,7 @@ void PhaseEnumerationLeafInner
             {
                 y.emplace_back( i, beta );
                 PhaseEnumerationLeafInner
-                ( cache, ctrl, y, i+1, newInf, newOne, false );
+                ( cache, ctrl, y, i+1, newInf, newOne );
                 y.pop_back();
             }
         }
@@ -701,9 +699,8 @@ void PhaseEnumerationLeafInner
 template<typename F>
 void PhaseEnumerationLeaf
 (       PhaseEnumerationCache<F>& cache,
-  const PhaseEnumerationCtrl<Base<F>>& ctrl,
-        vector<pair<Int,F>>& y,
-  const bool zeroSoFar )
+  const PhaseEnumerationCtrl& ctrl,
+        vector<pair<Int,F>>& y )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeaf"))
 
@@ -715,23 +712,20 @@ void PhaseEnumerationLeaf
     const Int beg = ctrl.phaseOffsets[ctrl.phaseOffsets.size()-2];
     const Int baseInf = 0;
     const Int baseOne = 0;
-    PhaseEnumerationLeafInner
-    ( cache, ctrl, y, beg, baseInf, baseOne, zeroSoFar );
+    PhaseEnumerationLeafInner( cache, ctrl, y, beg, baseInf, baseOne );
 }
 
 template<typename F>
 void PhaseEnumerationNodeInner
 (       PhaseEnumerationCache<F>& cache,
-  const PhaseEnumerationCtrl<Base<F>>& ctrl,
+  const PhaseEnumerationCtrl& ctrl,
         vector<pair<Int,F>>& y,
   const Int phase,
   const Int beg,
   const Int baseInf,
-  const Int baseOne,
-  const bool zeroSoFar )
+  const Int baseOne )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationNodeInner"))
-    typedef Base<F> Real;
     const Int n = cache.Height();
     if( ctrl.earlyExit && cache.FoundVector() )
         return;
@@ -742,21 +736,22 @@ void PhaseEnumerationNodeInner
     const Int maxInf = ctrl.maxInfNorms[phase];
     const Int minOne = ctrl.minOneNorms[phase];
     const Int maxOne = ctrl.maxOneNorms[phase];
+    const bool constrained = (y.size() == 0);
 
     if( nextPhaseBeg >= n )
     {
-        PhaseEnumerationLeaf( cache, ctrl, y, zeroSoFar );
+        PhaseEnumerationLeaf( cache, ctrl, y );
         return;
     }
 
     if( beg == phaseBeg && minInf == 0 && minOne == 0 )
     {
         // This phase can be all zeroes, so move to the next phase
-        PhaseEnumerationNode( cache, ctrl, y, phase+1, zeroSoFar );
+        PhaseEnumerationNode( cache, ctrl, y, phase+1 );
     }
 
     SpiralState<F> spiral;
-    spiral.Initialize( zeroSoFar );
+    spiral.Initialize( constrained );
     while( true )
     {
         const F beta = spiral.Step();
@@ -779,7 +774,7 @@ void PhaseEnumerationNodeInner
                 y.emplace_back( i, beta );
                 if( phase < ctrl.progressLevel )
                     Output("phase ",phase,": y[",i,"]=",beta);
-                PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
+                PhaseEnumerationNode( cache, ctrl, y, phase+1 );
                 y.pop_back();
             }
         }
@@ -796,7 +791,7 @@ void PhaseEnumerationNodeInner
                 PhaseEnumerationNodeInner
                 ( cache, ctrl, y, 
                   phase, i+1,
-                  phaseInf, phaseOne, false );
+                  phaseInf, phaseOne );
                 y.pop_back();
             }
         }
@@ -806,10 +801,9 @@ void PhaseEnumerationNodeInner
 template<typename F>
 void PhaseEnumerationNode
 (       PhaseEnumerationCache<F>& cache,
-  const PhaseEnumerationCtrl<Base<F>>& ctrl,
+  const PhaseEnumerationCtrl& ctrl,
         vector<pair<Int,F>>& y,
-  const Int phase,
-  const bool zeroSoFar )
+  const Int phase )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationNode"))
     const Int baseInfNorm = 0;
@@ -817,7 +811,7 @@ void PhaseEnumerationNode
     PhaseEnumerationNodeInner
     ( cache, ctrl, y,
       phase, ctrl.phaseOffsets[phase],
-      baseInfNorm, baseOneNorm, zeroSoFar ); 
+      baseInfNorm, baseOneNorm ); 
 }
 
 template<typename F>
@@ -865,7 +859,7 @@ PhaseEnumeration
     for( Int phase=0; phase<=numPhases; ++phase )
         phaseOffsets[phase] = Min(startIndex+phase*phaseLength,n);
 
-    PhaseEnumerationCtrl<Base<F>>
+    PhaseEnumerationCtrl
       ctrl
       (phaseOffsets,
        minInfNorms,maxInfNorms,
@@ -875,8 +869,7 @@ PhaseEnumeration
 
     vector<pair<Int,F>> y;
     Int phase=0;
-    bool zeroSoFar = true;
-    PhaseEnumerationNode( cache, ctrl, y, phase, zeroSoFar );
+    PhaseEnumerationNode( cache, ctrl, y, phase );
 
     cache.Flush();
 
