@@ -162,6 +162,13 @@ struct SpiralState
     Real jump;
     Real position;
 
+    void Initialize()
+    {
+        position = 0;
+        forward = true;
+        jump = 1;
+    }
+
     void Initialize( const Real& center )
     {
         position = Round(center);
@@ -191,6 +198,16 @@ struct SpiralState<Complex<Real>>
     bool firstLeg;
 
     Complex<Real> position;
+
+    void Initialize()
+    {
+        legLength = 1;
+        numSteps = 0;
+        firstLeg = true;
+        position = 0;
+        direction = 1; // right
+        clockwise = true;
+    }
 
     void Initialize( const Complex<Real>& center )
     {

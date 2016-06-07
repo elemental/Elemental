@@ -639,71 +639,106 @@ struct PhaseEnumerationCtrl
   { }
 };
 
-// TODO: Reverse the enumeration order since nonzeros are more likely to happen
-//       at the bottom of the vector. This will require changing the arguments
-//       to this routine.
-//
-// TODO: Generalize to Gaussian integers
 template<typename F>
 void PhaseEnumerationLeafInner
 (       PhaseEnumerationCache<F>& cache,
   const PhaseEnumerationCtrl<Base<F>>& ctrl,
         vector<pair<Int,F>>& y,
   const Int beg,
-  const Int baseInfNorm,
-  const Int baseOneNorm,
+  const Int baseInf,
+  const Int baseOne,
   const bool zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeafInner"))
+    typedef Base<F> Real;
     const Int n = ctrl.phaseOffsets.back();
     const Int minInf = ctrl.minInfNorms.back();
     const Int maxInf = ctrl.maxInfNorms.back();
     const Int minOne = ctrl.minOneNorms.back();
     const Int maxOne = ctrl.maxOneNorms.back();
 
-    const Int bound = Min(maxInf,maxOne-baseOneNorm);
-    for( Int absBeta=1; absBeta<=bound; ++absBeta )
+    const Int bound = Min(maxInf,maxOne-baseOne);
+    if( zeroSoFar )
     {
-        const Int newOneNorm = baseOneNorm + absBeta;
-        const Int newInfNorm = Max(baseInfNorm,absBeta);
-
-        if( newOneNorm >= minOne && newInfNorm >= minInf )
+        F beta = 1;
+        while( true )
         {
-            // We can insert +-|beta| into any position and be admissible,
-            // so enqueue each possibility
-            for( Int i=beg; i<n; ++i )
+            const Int betaInf = Int(MaxAbs(beta));
+            const Int betaOne = Int(OneAbs(beta));
+            const Int newInf = Max(betaInf,baseInf);
+            const Int newOne = betaOne + baseOne;
+            if( newInf > maxInf || newOne > maxOne )
+                break;
+
+            if( newOne >= minOne && newInf >= minInf )
             {
-                y.emplace_back( i, absBeta );
-                cache.MaybeEnqueue( y, ctrl.enqueueProb );
-
-                if( !zeroSoFar )
+                for( Int i=beg; i<n; ++i )
                 {
-                    y.back() = pair<Int,Int>(i,-absBeta);
-                    cache.MaybeEnqueue( y, ctrl.enqueueProb );
+                    if( ctrl.enqueueProb >= 1. ||
+                        SampleUniform<double>(0,1) <= ctrl.enqueueProb )
+                    {
+                        y.emplace_back( i, beta );
+                        cache.Enqueue( y );
+                        y.pop_back();
+                    }
                 }
-
-                y.pop_back();
             }
-        }
 
-        if( newOneNorm < maxOne )
-        {
-            // We can insert +-|beta| into any position and still have room
-            // left for the one norm bound, so do so and then recurse
-            for( Int i=beg; i<n-1; ++i )
+            if( newOne < maxOne )
             {
-                y.emplace_back( i, absBeta );
-                PhaseEnumerationLeafInner
-                ( cache, ctrl, y, i+1, newInfNorm, newOneNorm, false );
-
-                if( !zeroSoFar )
+                // We can insert beta into any position and still have room
+                // left for the one norm bound, so do so and then recurse
+                for( Int i=beg; i<n-1; ++i )
                 {
-                    y.back().second = -absBeta;
+                    y.emplace_back( i, beta );
                     PhaseEnumerationLeafInner
-                    ( cache, ctrl, y, i+1, newInfNorm, newOneNorm, false );
+                    ( cache, ctrl, y, i+1, newInf, newOne, false );
+                    y.pop_back();
                 }
+            }
 
-                y.pop_back();
+            beta = ConstrainedSpiral( beta );
+        }
+    }
+    else
+    {
+        SpiralState<F> spiral;
+        spiral.Initialize();
+        while( true )
+        {
+            const F beta = spiral.Step();
+            const Int betaInf = Int(MaxAbs(beta));
+            const Int betaOne = Int(OneAbs(beta));
+            const Int newInf = Max(betaInf,baseInf);
+            const Int newOne = betaOne + baseOne;
+            if( newInf > maxInf || newOne > maxOne )
+                break;
+
+            if( newOne >= minOne && newInf >= minInf )
+            {
+                for( Int i=beg; i<n; ++i )
+                {
+                    if( ctrl.enqueueProb >= 1. ||
+                        SampleUniform<double>(0,1) <= ctrl.enqueueProb )
+                    {
+                        y.emplace_back( i, beta );
+                        cache.Enqueue( y );
+                        y.pop_back();
+                    }
+                }
+            }
+
+            if( newOne < maxOne )
+            {
+                // We can insert beta into any position and still have room
+                // left for the one norm bound, so do so and then recurse
+                for( Int i=beg; i<n-1; ++i )
+                {
+                    y.emplace_back( i, beta );
+                    PhaseEnumerationLeafInner
+                    ( cache, ctrl, y, i+1, newInf, newOne, false );
+                    y.pop_back();
+                }
             }
         }
     }
@@ -724,15 +759,12 @@ void PhaseEnumerationLeaf
         cache.MaybeEnqueue( y, ctrl.enqueueProb );
 
     const Int beg = ctrl.phaseOffsets[ctrl.phaseOffsets.size()-2];
-    const Int baseInfNorm = 0;
-    const Int baseOneNorm = 0;
+    const Int baseInf = 0;
+    const Int baseOne = 0;
     PhaseEnumerationLeafInner
-    ( cache, ctrl, y, beg, baseInfNorm, baseOneNorm, zeroSoFar );
+    ( cache, ctrl, y, beg, baseInf, baseOne, zeroSoFar );
 }
 
-// TODO: Reverse the enumeration order since nonzeros are more likely to happen
-//       at the bottom of the vector. This will require changing the arguments
-//       to this routine.
 template<typename F>
 void PhaseEnumerationNodeInner
 (       PhaseEnumerationCache<F>& cache,
@@ -740,11 +772,12 @@ void PhaseEnumerationNodeInner
         vector<pair<Int,F>>& y,
   const Int phase,
   const Int beg,
-  const Int baseInfNorm,
-  const Int baseOneNorm,
+  const Int baseInf,
+  const Int baseOne,
   const bool zeroSoFar )
 {
     DEBUG_ONLY(CSE cse("svp::PhaseEnumerationNodeInner"))
+    typedef Base<F> Real;
     const Int n = cache.Height();
     if( ctrl.earlyExit && cache.FoundVector() )
         return;
@@ -768,64 +801,101 @@ void PhaseEnumerationNodeInner
         PhaseEnumerationNode( cache, ctrl, y, phase+1, zeroSoFar );
     }
 
-    const Int bound = Min(maxInf,maxOne-baseOneNorm);
-    for( Int absBeta=1; absBeta<=bound; ++absBeta ) 
+    if( zeroSoFar )
     {
-        const Int phaseOneNorm = baseOneNorm + absBeta;
-        const Int phaseInfNorm = Max( baseInfNorm, absBeta );
-
-        if( phaseOneNorm >= minOne && phaseInfNorm >= minInf )
+        F beta = 1;
+        while( true )
         {
-            // We could insert +-|beta| into any position and still have
-            // an admissible choice for the current phase, so procede to
-            // the next phase with each such choice
+            const Int betaInf = Int(MaxAbs(beta));
+            const Int betaOne = Int(OneAbs(beta));
+            const Int phaseInf = Max( betaInf, baseInf );
+            const Int phaseOne = betaOne + baseOne;
+            if( phaseOne > maxOne || phaseInf > maxInf )
+                break;
 
-            for( Int i=beg; i<nextPhaseBeg; ++i )
+            if( phaseOne >= minOne && phaseInf >= minInf )
             {
-                // Fix y[i] = +|beta| and move to the next phase
-                y.emplace_back( i, absBeta );
-                if( phase < ctrl.progressLevel )
-                    Output("phase ",phase,": y[",i,"]=",absBeta);
-                PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
+                // We could insert beta into any position and still have
+                // an admissible choice for the current phase, so procede to
+                // the next phase with each such choice
 
-                if( !zeroSoFar )
+                for( Int i=beg; i<nextPhaseBeg; ++i )
                 {
-                    // Fix y[i] = -|beta| and move to the next phase
-                    y.back().second = -absBeta;
+                    // Fix y[i] = beta and move to the next phase
+                    y.emplace_back( i, beta );
                     if( phase < ctrl.progressLevel )
-                        Output("phase ",phase,": y[",i,"]=",-absBeta);
+                        Output("phase ",phase,": y[",i,"]=",beta);
                     PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
+                    y.pop_back();
                 }
-                
-                y.pop_back();
             }
-        }
 
-        if( phaseOneNorm < maxOne )
-        {
-            // Inserting +-|beta| into any position still leaves us with
-            // room in the current phase
-
-            for( Int i=beg; i<nextPhaseBeg; ++i )
+            if( phaseOne < maxOne )
             {
-                // Fix y[i] = +|beta| and move to y[i+1]
-                y.emplace_back( i, absBeta ); 
-                PhaseEnumerationNodeInner
-                ( cache, ctrl, y, 
-                  phase, i+1,
-                  phaseInfNorm, phaseOneNorm, false );
+                // Inserting beta into any position still leaves us with
+                // room in the current phase
 
-                if( !zeroSoFar )
+                for( Int i=beg; i<nextPhaseBeg; ++i )
                 {
-                    // Fix y[i] = -|beta| and move to y[i+1]
-                    y.back().second = -absBeta;
+                    // Fix y[i] = beta and move to y[i+1]
+                    y.emplace_back( i, beta ); 
                     PhaseEnumerationNodeInner
-                    ( cache, ctrl, y,
+                    ( cache, ctrl, y, 
                       phase, i+1,
-                      phaseInfNorm, phaseOneNorm, false );
+                      phaseInf, phaseOne, false );
+                    y.pop_back();
                 }
-               
-                y.pop_back();
+            }
+
+            beta = ConstrainedSpiral( beta );
+        }
+    }
+    else
+    {
+        SpiralState<F> spiral;
+        spiral.Initialize();
+        while( true )
+        {
+            const F beta = spiral.Step();
+            const Int betaInf = Int(MaxAbs(beta));
+            const Int betaOne = Int(OneAbs(beta));
+            const Int phaseInf = Max( betaInf, baseInf );
+            const Int phaseOne = betaOne + baseOne;
+            if( phaseOne > maxOne || phaseInf > maxInf )
+                break;
+
+            if( phaseOne >= minOne && phaseInf >= minInf )
+            {
+                // We could insert beta into any position and still have
+                // an admissible choice for the current phase, so procede to
+                // the next phase with each such choice
+
+                for( Int i=beg; i<nextPhaseBeg; ++i )
+                {
+                    // Fix y[i] = beta and move to the next phase
+                    y.emplace_back( i, beta );
+                    if( phase < ctrl.progressLevel )
+                        Output("phase ",phase,": y[",i,"]=",beta);
+                    PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
+                    y.pop_back();
+                }
+            }
+
+            if( phaseOne < maxOne )
+            {
+                // Inserting beta into any position still leaves us with
+                // room in the current phase
+
+                for( Int i=beg; i<nextPhaseBeg; ++i )
+                {
+                    // Fix y[i] = beta and move to y[i+1]
+                    y.emplace_back( i, beta ); 
+                    PhaseEnumerationNodeInner
+                    ( cache, ctrl, y, 
+                      phase, i+1,
+                      phaseInf, phaseOne, false );
+                    y.pop_back();
+                }
             }
         }
     }
