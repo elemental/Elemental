@@ -111,17 +111,16 @@ Base<F> Helper
                 return 2*upperBounds(n-1)+1;
             }
             sumIndices(k) = k; // indicate that (i,j) are not synchronized
-            if( k == lastNonzero+1 )
+            if( k > lastNonzero )
             {
-                // Seed the new nonzero entry
-                vBuf[k] = F(1);
+                // NOTE: We should have k == lastNonzero+1 
+
+                // Seed a constrained spiral out from zero
+                spiralStates[k].Initialize( true );
+                vBuf[k] = spiralStates[k].Step();
                 lastNonzero = k;
                 if( ctrl.innerProgress )
                     Output("lastNonzero: ",lastNonzero);
-            }
-            else if( k == lastNonzero )
-            {
-                vBuf[k] = ConstrainedSpiral( vBuf[k] );
             }
             else
             {
@@ -212,17 +211,16 @@ Base<F> TransposedHelper
                 return 2*upperBounds(n-1)+1;
             }
             sumIndices(k) = k; // indicate that (i,j) are not synchronized
-            if( k == lastNonzero+1 )
+            if( k > lastNonzero )
             {
-                // Seed the new nonzero entry
-                vBuf[k] = F(1);
+                // NOTE: We should have k == lastNonzero+1 
+
+                // Seed a constrained spiral out from zero
+                spiralStates[k].Initialize( true );
+                vBuf[k] = spiralStates[k].Step();
                 lastNonzero = k;
                 if( ctrl.innerProgress )
                     Output("lastNonzero: ",lastNonzero);
-            }
-            else if( k == lastNonzero )
-            {
-                vBuf[k] = ConstrainedSpiral( vBuf[k] );
             }
             else
             {

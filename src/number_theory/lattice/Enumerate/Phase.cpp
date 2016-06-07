@@ -657,88 +657,42 @@ void PhaseEnumerationLeafInner
     const Int minOne = ctrl.minOneNorms.back();
     const Int maxOne = ctrl.maxOneNorms.back();
 
-    const Int bound = Min(maxInf,maxOne-baseOne);
-    if( zeroSoFar )
+    SpiralState<F> spiral;
+    spiral.Initialize( zeroSoFar );
+    while( true )
     {
-        F beta = 1;
-        while( true )
+        const F beta = spiral.Step();
+        const Int betaInf = Int(MaxAbs(beta));
+        const Int betaOne = Int(OneAbs(beta));
+        const Int newInf = Max(betaInf,baseInf);
+        const Int newOne = betaOne + baseOne;
+        if( newInf > maxInf || newOne > maxOne )
+            break;
+
+        if( newOne >= minOne && newInf >= minInf )
         {
-            const Int betaInf = Int(MaxAbs(beta));
-            const Int betaOne = Int(OneAbs(beta));
-            const Int newInf = Max(betaInf,baseInf);
-            const Int newOne = betaOne + baseOne;
-            if( newInf > maxInf || newOne > maxOne )
-                break;
-
-            if( newOne >= minOne && newInf >= minInf )
+            for( Int i=beg; i<n; ++i )
             {
-                for( Int i=beg; i<n; ++i )
-                {
-                    if( ctrl.enqueueProb >= 1. ||
-                        SampleUniform<double>(0,1) <= ctrl.enqueueProb )
-                    {
-                        y.emplace_back( i, beta );
-                        cache.Enqueue( y );
-                        y.pop_back();
-                    }
-                }
-            }
-
-            if( newOne < maxOne )
-            {
-                // We can insert beta into any position and still have room
-                // left for the one norm bound, so do so and then recurse
-                for( Int i=beg; i<n-1; ++i )
+                if( ctrl.enqueueProb >= 1. ||
+                    SampleUniform<double>(0,1) <= ctrl.enqueueProb )
                 {
                     y.emplace_back( i, beta );
-                    PhaseEnumerationLeafInner
-                    ( cache, ctrl, y, i+1, newInf, newOne, false );
+                    cache.Enqueue( y );
                     y.pop_back();
                 }
             }
-
-            beta = ConstrainedSpiral( beta );
         }
-    }
-    else
-    {
-        SpiralState<F> spiral;
-        spiral.Initialize();
-        while( true )
+
+        if( newOne < maxOne )
         {
-            const F beta = spiral.Step();
-            const Int betaInf = Int(MaxAbs(beta));
-            const Int betaOne = Int(OneAbs(beta));
-            const Int newInf = Max(betaInf,baseInf);
-            const Int newOne = betaOne + baseOne;
-            if( newInf > maxInf || newOne > maxOne )
-                break;
-
-            if( newOne >= minOne && newInf >= minInf )
+            // We can insert beta into any position and still have room
+            // left for the one norm bound, so do so and then recurse
+            for( Int i=beg; i<n-1; ++i )
             {
-                for( Int i=beg; i<n; ++i )
-                {
-                    if( ctrl.enqueueProb >= 1. ||
-                        SampleUniform<double>(0,1) <= ctrl.enqueueProb )
-                    {
-                        y.emplace_back( i, beta );
-                        cache.Enqueue( y );
-                        y.pop_back();
-                    }
-                }
-            }
-
-            if( newOne < maxOne )
-            {
-                // We can insert beta into any position and still have room
-                // left for the one norm bound, so do so and then recurse
-                for( Int i=beg; i<n-1; ++i )
-                {
-                    y.emplace_back( i, beta );
-                    PhaseEnumerationLeafInner
-                    ( cache, ctrl, y, i+1, newInf, newOne, false );
-                    y.pop_back();
-                }
+                y.emplace_back( i, beta );
+                PhaseEnumerationLeafInner
+                ( cache, ctrl, y, i+1, newInf, newOne, false );
+                y.pop_back();
             }
         }
     }
@@ -801,101 +755,49 @@ void PhaseEnumerationNodeInner
         PhaseEnumerationNode( cache, ctrl, y, phase+1, zeroSoFar );
     }
 
-    if( zeroSoFar )
+    SpiralState<F> spiral;
+    spiral.Initialize( zeroSoFar );
+    while( true )
     {
-        F beta = 1;
-        while( true )
+        const F beta = spiral.Step();
+        const Int betaInf = Int(MaxAbs(beta));
+        const Int betaOne = Int(OneAbs(beta));
+        const Int phaseInf = Max( betaInf, baseInf );
+        const Int phaseOne = betaOne + baseOne;
+        if( phaseOne > maxOne || phaseInf > maxInf )
+            break;
+
+        if( phaseOne >= minOne && phaseInf >= minInf )
         {
-            const Int betaInf = Int(MaxAbs(beta));
-            const Int betaOne = Int(OneAbs(beta));
-            const Int phaseInf = Max( betaInf, baseInf );
-            const Int phaseOne = betaOne + baseOne;
-            if( phaseOne > maxOne || phaseInf > maxInf )
-                break;
+            // We could insert beta into any position and still have
+            // an admissible choice for the current phase, so procede to
+            // the next phase with each such choice
 
-            if( phaseOne >= minOne && phaseInf >= minInf )
+            for( Int i=beg; i<nextPhaseBeg; ++i )
             {
-                // We could insert beta into any position and still have
-                // an admissible choice for the current phase, so procede to
-                // the next phase with each such choice
-
-                for( Int i=beg; i<nextPhaseBeg; ++i )
-                {
-                    // Fix y[i] = beta and move to the next phase
-                    y.emplace_back( i, beta );
-                    if( phase < ctrl.progressLevel )
-                        Output("phase ",phase,": y[",i,"]=",beta);
-                    PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
-                    y.pop_back();
-                }
+                // Fix y[i] = beta and move to the next phase
+                y.emplace_back( i, beta );
+                if( phase < ctrl.progressLevel )
+                    Output("phase ",phase,": y[",i,"]=",beta);
+                PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
+                y.pop_back();
             }
-
-            if( phaseOne < maxOne )
-            {
-                // Inserting beta into any position still leaves us with
-                // room in the current phase
-
-                for( Int i=beg; i<nextPhaseBeg; ++i )
-                {
-                    // Fix y[i] = beta and move to y[i+1]
-                    y.emplace_back( i, beta ); 
-                    PhaseEnumerationNodeInner
-                    ( cache, ctrl, y, 
-                      phase, i+1,
-                      phaseInf, phaseOne, false );
-                    y.pop_back();
-                }
-            }
-
-            beta = ConstrainedSpiral( beta );
         }
-    }
-    else
-    {
-        SpiralState<F> spiral;
-        spiral.Initialize();
-        while( true )
+
+        if( phaseOne < maxOne )
         {
-            const F beta = spiral.Step();
-            const Int betaInf = Int(MaxAbs(beta));
-            const Int betaOne = Int(OneAbs(beta));
-            const Int phaseInf = Max( betaInf, baseInf );
-            const Int phaseOne = betaOne + baseOne;
-            if( phaseOne > maxOne || phaseInf > maxInf )
-                break;
+            // Inserting beta into any position still leaves us with
+            // room in the current phase
 
-            if( phaseOne >= minOne && phaseInf >= minInf )
+            for( Int i=beg; i<nextPhaseBeg; ++i )
             {
-                // We could insert beta into any position and still have
-                // an admissible choice for the current phase, so procede to
-                // the next phase with each such choice
-
-                for( Int i=beg; i<nextPhaseBeg; ++i )
-                {
-                    // Fix y[i] = beta and move to the next phase
-                    y.emplace_back( i, beta );
-                    if( phase < ctrl.progressLevel )
-                        Output("phase ",phase,": y[",i,"]=",beta);
-                    PhaseEnumerationNode( cache, ctrl, y, phase+1, false );
-                    y.pop_back();
-                }
-            }
-
-            if( phaseOne < maxOne )
-            {
-                // Inserting beta into any position still leaves us with
-                // room in the current phase
-
-                for( Int i=beg; i<nextPhaseBeg; ++i )
-                {
-                    // Fix y[i] = beta and move to y[i+1]
-                    y.emplace_back( i, beta ); 
-                    PhaseEnumerationNodeInner
-                    ( cache, ctrl, y, 
-                      phase, i+1,
-                      phaseInf, phaseOne, false );
-                    y.pop_back();
-                }
+                // Fix y[i] = beta and move to y[i+1]
+                y.emplace_back( i, beta ); 
+                PhaseEnumerationNodeInner
+                ( cache, ctrl, y, 
+                  phase, i+1,
+                  phaseInf, phaseOne, false );
+                y.pop_back();
             }
         }
     }

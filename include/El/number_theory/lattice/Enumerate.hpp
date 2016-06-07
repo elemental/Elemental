@@ -158,183 +158,214 @@ namespace svp {
 template<typename Real>
 struct SpiralState
 {
-    bool forward;
-    Real jump;
-    Real position;
+private:
+    bool constrained_;
+    Real position_;
 
-    void Initialize()
+    // Only relevant if unconstrained
+    bool forward_;
+    Real jump_;
+
+public:
+
+    void Initialize( bool constrain=false )
     {
-        position = 0;
-        forward = true;
-        jump = 1;
+        constrained_ = constrain;
+        position_ = 0;
+        if( constrained_ )
+            return;
+
+        forward_ = true;
+        jump_ = 1;
     }
 
     void Initialize( const Real& center )
     {
-        position = Round(center);
-        forward = (position <= center);
-        jump = 1;
+        constrained_ = false;
+        position_ = Round(center);
+        forward_ = (position_ <= center);
+        jump_ = 1;
     }
 
     Real Step()
     {
-        if( forward )
-            position += jump;
+        if( constrained_ )
+        {
+            position_ += 1;
+        }
         else
-            position -= jump;
-        forward = !forward;
-        jump += 1;
-        return position;
+        {
+            if( forward_ )
+                position_ += jump_;
+            else
+                position_ -= jump_;
+            forward_ = !forward_;
+            jump_ += 1;
+        }
+        return position_;
     }
 };
 
 template<typename Real>
-struct SpiralState<Complex<Real>>
+class SpiralState<Complex<Real>>
 {
-    Int legLength;
-    Int numSteps;
-    Int direction; // 0=right, 1=down, 2=left, 3=up
-    bool clockwise;
-    bool firstLeg;
+private:
+    bool constrained_;
+    Complex<Real> position_;
 
-    Complex<Real> position;
+    // Only relevant if unconstrained
+    Int legLength_;
+    Int numSteps_;
+    Int direction_; // 0=right, 1=down, 2=left, 3=up
+    bool clockwise_;
+    bool firstLeg_;
 
-    void Initialize()
+    Complex<Real> ConstrainedStep()
     {
-        legLength = 1;
-        numSteps = 0;
-        firstLeg = true;
-        position = 0;
-        direction = 1; // right
-        clockwise = true;
+        Real realPos = position_.real();
+        Real imagPos = position_.imag();
+
+        // The coset Z^2 modulo multiplication by i can be represented by the
+        // set
+        // 
+        //    { (a,b) in Z^2 : a > 0, |b| < a } U {(0,0)}, 
+        //
+        // and the origin can be ignored for our purposes. We traverse this set
+        // by searching each admissible value of b after incrementing a.
+
+        if( imagPos > Real(0) )
+        {
+            if( imagPos == realPos-1 )
+                imagPos = -1;
+            else
+                imagPos += 1;
+        }
+        else if( imagPos < Real(0) )
+        {
+            if( imagPos == -(realPos-1) )
+            {
+                realPos += 1;
+                imagPos = 0;
+            }
+            else
+            {
+                imagPos -= 1;
+            }
+        }
+        else
+        {
+            imagPos += 1;
+        }
+        position_ = Complex<Real>(realPos,imagPos);
+        return position_;
+    }
+
+    Complex<Real> UnconstrainedStep()
+    {
+        Real realPos = position_.real();
+        Real imagPos = position_.imag();
+        if( direction_ == 0 )
+            realPos += 1;
+        else if( direction_ == 1 )
+            imagPos -= 1;
+        else if( direction_ == 2 )
+            realPos -= 1;
+        else if( direction_ == 3 )
+            imagPos += 1;
+
+        ++numSteps_;
+        if( numSteps_ == legLength_ )
+        {
+            numSteps_ = 0;
+
+            if( clockwise_ )
+                direction_ = Mod( direction_+1, 4 );
+            else
+                direction_ = Mod( direction_-1, 4 );
+
+            if( firstLeg_ )
+            {
+                firstLeg_ = false;
+            }
+            else
+            {
+                ++legLength_;
+                firstLeg_ = true;
+            }
+        }
+
+        position_ = Complex<Real>(realPos,imagPos);
+        return position_;
+    }
+
+public:
+
+    void Initialize( bool constrain=false )
+    {
+        constrained_ = constrain;
+        position_ = 0;
+        if( constrained_ )
+            return;    
+
+        legLength_ = 1;
+        numSteps_ = 0;
+        firstLeg_ = true;
+
+        direction_ = 1; // right
+        clockwise_ = true;
     }
 
     void Initialize( const Complex<Real>& center )
     {
-        legLength = 1;
-        numSteps = 0;
-        firstLeg = true;
+        constrained_ = false;
+
+        legLength_ = 1;
+        numSteps_ = 0;
+        firstLeg_ = true;
 
         const Real realCenter = center.real();
         const Real imagCenter = center.imag();
         const Real realStart = Round(realCenter);
         const Real imagStart = Round(imagCenter);
-        position = Complex<Real>(realStart,imagStart);
+        position_ = Complex<Real>(realStart,imagStart);
         const Real realDist = Abs(realCenter-realStart);
         const Real imagDist = Abs(imagCenter-imagStart);
         if( realDist < imagDist )
         {
             if( realCenter > realStart )
             {
-                direction = 0; // right
-                clockwise = (imagCenter < imagStart);
+                direction_ = 0; // right
+                clockwise_ = (imagCenter < imagStart);
             }
             else
             {
-                direction = 2; // left
-                clockwise = (imagCenter > imagStart);
+                direction_ = 2; // left
+                clockwise_ = (imagCenter > imagStart);
             }
         }
         else
         {
             if( imagCenter > imagStart )
             {
-                direction = 3; // up
-                clockwise = (realCenter > realStart);
+                direction_ = 3; // up
+                clockwise_ = (realCenter > realStart);
             }
             else
             {
-                direction = 2; // left
-                clockwise = (realCenter < realStart);
+                direction_ = 2; // left
+                clockwise_ = (realCenter < realStart);
             }
         }
     }
 
     Complex<Real> Step()
     {
-        Real realPos = position.real();
-        Real imagPos = position.imag();
-        if( direction == 0 )
-            realPos += 1;
-        else if( direction == 1 )
-            imagPos -= 1;
-        else if( direction == 2 )
-            realPos -= 1;
-        else if( direction == 3 )
-            imagPos += 1;
-
-        ++numSteps;
-        if( numSteps == legLength )
-        {
-            numSteps = 0;
-
-            if( clockwise )
-                direction = Mod( direction+1, 4 );
-            else
-                direction = Mod( direction-1, 4 );
-
-            if( firstLeg )
-            {
-                firstLeg = false;
-            }
-            else
-            {
-                ++legLength;
-                firstLeg = true;
-            }
-        }
-
-        position = Complex<Real>(realPos,imagPos);
-        return position;
+        if( constrained_ )
+            return ConstrainedStep();
+        else
+            return UnconstrainedStep();
     }
 };
-
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real ConstrainedSpiral( const Real& position )
-{
-    // The coset Z modulo multiplication by -1 can be represented by Z+
-    return position + 1;
-}
-
-template<typename F,typename=DisableIf<IsReal<F>>,typename=void>
-inline F ConstrainedSpiral( const F& position )
-{
-    typedef Base<F> Real;
-    Real realPos = position.real();
-    Real imagPos = position.imag();
-
-    // The coset Z^2 modulo multiplication by i can be represented by the set
-    //
-    //    { (a,b) in Z^2 : a > 0, |b| < a } U {(0,0)}, 
-    //
-    // and the origin can be ignored for our purposes. We traverse this set by
-    // searching each admissible value of b after incrementing a.
-
-    if( imagPos > Real(0) )
-    {
-        if( imagPos == realPos-1 )
-            imagPos = -1;
-        else
-            imagPos += 1;
-    }
-    else if( imagPos < Real(0) )
-    {
-        if( imagPos == -(realPos-1) )
-        {
-            realPos += 1;
-            imagPos = 0;
-        }
-        else
-        {
-            imagPos -= 1;
-        }
-    }
-    else
-    {
-        imagPos += 1;
-    }
-    return Complex<Real>(realPos,imagPos);
-}
 
 // If successful, fills 'v' with the integer coordinates of the columns of 
 // an m x n matrix B (represented by its n x n upper-triangular Gaussian Normal
