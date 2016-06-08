@@ -407,6 +407,7 @@ void Trrk
 {
     EL_BLAS(sgemmt)
     ( &uplo, &transA, &transB,
+      &n, &k,
       &alpha, A, &ALDim, B, &BLDim,
       &beta,  C, &CLDim );
 }
@@ -421,6 +422,7 @@ void Trrk
 {
     EL_BLAS(dgemmt)
     ( &uplo, &transA, &transB,
+      &n, &k,
       &alpha, A, &ALDim, B, &BLDim,
       &beta,  C, &CLDim );
 }
@@ -435,6 +437,7 @@ void Trrk
 {
     EL_BLAS(cgemmt)
     ( &uplo, &transA, &transB,
+      &n, &k,
       &alpha, A, &ALDim, B, &BLDim,
       &beta,  C, &CLDim );
 }
@@ -449,6 +452,7 @@ void Trrk
 {
     EL_BLAS(zgemmt)
     ( &uplo, &transA, &transB,
+      &n, &k,
       &alpha, A, &ALDim, B, &BLDim,
       &beta,  C, &CLDim );
 }

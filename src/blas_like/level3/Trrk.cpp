@@ -49,9 +49,11 @@ void TrrkMKL
     const char uploChar = UpperOrLowerToChar( uplo );
     const char orientAChar = OrientationToChar( orientA );
     const char orientBChar = OrientationToChar( orientB );
-
+    const auto n = C.Height();
+    const auto k = orientA == NORMAL ? A.Width() : A.Height(); 
     mkl::Trrk 
     ( uploChar, orientAChar, orientBChar,
+      n, k, 
       alpha, A.LockedBuffer(), A.LDim(),
              B.LockedBuffer(), B.LDim(),
       beta,  C.Buffer(),       C.LDim() );
