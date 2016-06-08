@@ -3,6 +3,7 @@
 </p>
 
 [![Build Status](https://api.travis-ci.org/elemental/Elemental.svg?branch=master)](https://travis-ci.org/elemental/Elemental)
+[![Join the chat at https://gitter.im/elemental](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/elemental?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **Elemental** is a modern C++ library for distributed-memory dense and
 sparse-direct linear algebra and optimization.
