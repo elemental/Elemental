@@ -37,7 +37,7 @@ void TrrkInternal
         trrk::TrrkTT( uplo, orientA, orientB, alpha, A, B, C );
 }
 
-#ifdef EL_HAVE_MKL
+#ifdef EL_HAVE_MKL_GEMMT
 template<typename T,typename=EnableIf<IsBlasScalar<T>>>
 void TrrkMKL
 ( UpperOrLower uplo, 
@@ -66,7 +66,7 @@ void TrrkHelper
   T beta,        Matrix<T>& C )
 {
     DEBUG_ONLY(CSE cse("TrrkHelper"))
-#ifdef EL_HAVE_MKL
+#ifdef EL_HAVE_MKL_GEMMT
     TrrkMKL( uplo, orientA, orientB, alpha, A, B, beta, C );
 #else
     TrrkInternal( uplo, orientA, orientB, alpha, A, B, beta, C );
