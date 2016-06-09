@@ -29,7 +29,7 @@ Int TSQR( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
     Int zeroNorm;
     qr::TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.t0, treeData.d0 );
+    QR( treeData.QR0, treeData.phase0, treeData.signature0 );
     qr::ts::Reduce( A, treeData );
     if( A.ColRank() == 0 )
         zeroNorm = SVT( qr::ts::RootQR(A,treeData), tau, relative );

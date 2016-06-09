@@ -552,7 +552,7 @@ void TSQR
 
     qr::TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.t0, treeData.d0 );
+    QR( treeData.QR0, treeData.phase0, treeData.signature0 );
     qr::ts::Reduce( A, treeData );
     if( A.ColRank() == 0 )
         SVD( qr::ts::RootQR(A,treeData), s.Matrix() );
@@ -593,7 +593,7 @@ void TSQR
     Copy( A, U );
     qr::TreeData<F> treeData;
     treeData.QR0 = U.LockedMatrix();
-    QR( treeData.QR0, treeData.t0, treeData.d0 );
+    QR( treeData.QR0, treeData.phase0, treeData.signature0 );
     qr::ts::Reduce( U, treeData );
     if( U.ColRank() == 0 )
     {

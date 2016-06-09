@@ -18,8 +18,8 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<F>& t, 
-  const Matrix<Base<F>>& d,
+  const Matrix<F>& phase, 
+  const Matrix<Base<F>>& signature,
   const Matrix<F>& B,       
         Matrix<F>& X )
 {
@@ -47,7 +47,7 @@ void SolveAfter
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
         // Apply Q' to X 
-        lq::ApplyQ( LEFT, ADJOINT, A, t, d, X );
+        lq::ApplyQ( LEFT, ADJOINT, A, phase, signature, X );
     }
     else // orientation in {TRANSPOSE,ADJOINT}
     {
@@ -61,7 +61,7 @@ void SolveAfter
             Conjugate( X );
 
         // Apply Q to X
-        lq::ApplyQ( LEFT, NORMAL, A, t, d, X );
+        lq::ApplyQ( LEFT, NORMAL, A, phase, signature, X );
 
         // Shrink X to its new height
         X.Resize( m, X.Width() );
@@ -78,8 +78,8 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& t, 
-  const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& phase, 
+  const ElementalMatrix<Base<F>>& signature,
   const ElementalMatrix<F>& B, 
         ElementalMatrix<F>& XPre )
 {
@@ -116,7 +116,7 @@ void SolveAfter
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
         // Apply Q' to X 
-        lq::ApplyQ( LEFT, ADJOINT, A, t, d, X );
+        lq::ApplyQ( LEFT, ADJOINT, A, phase, signature, X );
 
         if( orientation == TRANSPOSE )
             Conjugate( X );
@@ -130,7 +130,7 @@ void SolveAfter
             Conjugate( X );
 
         // Apply Q to X
-        lq::ApplyQ( LEFT, NORMAL, A, t, d, X );
+        lq::ApplyQ( LEFT, NORMAL, A, phase, signature, X );
 
         // Shrink X to its new height
         X.Resize( m, X.Width() );

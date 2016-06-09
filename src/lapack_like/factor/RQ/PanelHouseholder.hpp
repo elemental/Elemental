@@ -13,8 +13,11 @@ namespace El {
 namespace rq {
 
 template<typename F> 
-inline void
-PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
+void
+PanelHouseholder
+( Matrix<F>& A,
+  Matrix<F>& phase,
+  Matrix<Base<F>>& signature )
 {
     DEBUG_ONLY(CSE cse("rq::PanelHouseholder"))
     typedef Base<F> Real;
@@ -24,8 +27,8 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
     const Int iOff = m-minDim;
     const Int jOff = n-minDim;
 
-    t.Resize( minDim, 1 );
-    d.Resize( minDim, 1 );
+    phase.Resize( minDim, 1 );
+    signature.Resize( minDim, 1 );
 
     Matrix<F> z01;
     for( Int k=minDim-1; k>=0; --k )
@@ -46,7 +49,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
         //                \        |1  |            /
         const F tau = RightReflector( alpha11, a10 );
-        t.Set( k, 0, tau );
+        phase(k) = tau;
 
         // Temporarily set a1L = | v 1 |
         const F alpha = alpha11(0);
@@ -64,21 +67,23 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
     }
     // Form d and rescale R
     auto R = A( IR(0,m), IR(jOff,n) );
-    GetRealPartOfDiagonal(R,d);
-    auto sgn = []( Real delta )
+    GetRealPartOfDiagonal(R,signature);
+    auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, function<Real(Real)>(sgn) );
-    DiagonalScaleTrapezoid( RIGHT, UPPER, NORMAL, d, R, -iOff );
+    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    DiagonalScaleTrapezoid( RIGHT, UPPER, NORMAL, signature, R, -iOff );
 }
 
 template<typename F> 
-inline void
+void
 PanelHouseholder
-( DistMatrix<F>& A, ElementalMatrix<F>& t, ElementalMatrix<Base<F>>& d )
+( DistMatrix<F>& A,
+  ElementalMatrix<F>& phase,
+  ElementalMatrix<Base<F>>& signature )
 {
     DEBUG_ONLY(
       CSE cse("rq::PanelHouseholder");
-      AssertSameGrids( A, t, d );
+      AssertSameGrids( A, phase, signature );
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -90,7 +95,7 @@ PanelHouseholder
     const Int minDim = Min(m,n);
     const Int iOff = m-minDim;
     const Int jOff = n-minDim;
-    t.Resize( minDim, 1 );
+    phase.Resize( minDim, 1 );
 
     for( Int k=minDim-1; k>=0; --k )
     {
@@ -110,7 +115,7 @@ PanelHouseholder
         //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
         //                \        |1  |            /
         const F tau = RightReflector( alpha11, a10 );
-        t.Set( k, 0, tau );
+        phase.Set( k, 0, tau );
 
         // Temporarily set a1L = | v 1 |
         F alpha = 0;
@@ -139,11 +144,11 @@ PanelHouseholder
     }
     // Form d and rescale R
     auto R = A( IR(0,m), IR(jOff,n) );
-    GetRealPartOfDiagonal(R,d);
-    auto sgn = []( Real delta )
+    GetRealPartOfDiagonal(R,signature);
+    auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, function<Real(Real)>(sgn) );
-    DiagonalScaleTrapezoid( RIGHT, UPPER, NORMAL, d, R, -iOff );
+    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    DiagonalScaleTrapezoid( RIGHT, UPPER, NORMAL, signature, R, -iOff );
 }
 
 } // namespace rq

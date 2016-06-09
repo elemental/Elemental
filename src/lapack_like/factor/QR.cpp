@@ -24,27 +24,27 @@ namespace El {
 template<typename F> 
 void QR
 ( Matrix<F>& A,
-  Matrix<F>& t,
-  Matrix<Base<F>>& d )
+  Matrix<F>& phase,
+  Matrix<Base<F>>& signature )
 {
     DEBUG_ONLY(CSE cse("QR"))
-    qr::Householder( A, t, d );
+    qr::Householder( A, phase, signature );
 }
 
 template<typename F> 
 void QR
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& t, 
-  ElementalMatrix<Base<F>>& d )
+  ElementalMatrix<F>& phase, 
+  ElementalMatrix<Base<F>>& signature )
 {
     DEBUG_ONLY(CSE cse("QR"))
-    qr::Householder( A, t, d );
+    qr::Householder( A, phase, signature );
 }
 
 template<typename F,typename>
 void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<F,MR,STAR,BLOCK>& t )
+  DistMatrix<F,MR,STAR,BLOCK>& phase )
 {
     DEBUG_ONLY(CSE cse("QR"))
     AssertScaLAPACKSupport();
@@ -52,14 +52,14 @@ void QR
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.AlignWith( A );
-    t.Resize( minDim, 1 ); 
+    phase.AlignWith( A );
+    phase.Resize( minDim, 1 ); 
 
     const int bHandle = blacs::Handle( A );
     const int context = blacs::GridInit( bHandle, A );
     auto descA = FillDesc( A, context );
 
-    scalapack::QR( m, n, A.Buffer(), descA.data(), t.Buffer() );
+    scalapack::QR( m, n, A.Buffer(), descA.data(), phase.Buffer() );
 
     blacs::FreeGrid( context );
     blacs::FreeHandle( bHandle );
@@ -72,46 +72,46 @@ void QR
 template<typename F> 
 void QR
 ( Matrix<F>& A,
-  Matrix<F>& t, 
-  Matrix<Base<F>>& d,
+  Matrix<F>& phase, 
+  Matrix<Base<F>>& signature,
   Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
-    qr::BusingerGolub( A, t, d, Omega, ctrl );
+    qr::BusingerGolub( A, phase, signature, Omega, ctrl );
 }
 
 template<typename F> 
 void QR
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& t, 
-  ElementalMatrix<Base<F>>& d,
+  ElementalMatrix<F>& phase, 
+  ElementalMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CSE cse("QR"))
-    qr::BusingerGolub( A, t, d, Omega, ctrl );
+    qr::BusingerGolub( A, phase, signature, Omega, ctrl );
 }
 
 #define PROTO_BASE(F) \
   template void QR \
   ( Matrix<F>& A, \
-    Matrix<F>& t, \
-    Matrix<Base<F>>& d ); \
+    Matrix<F>& phase, \
+    Matrix<Base<F>>& signature ); \
   template void QR \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& t, \
-    ElementalMatrix<Base<F>>& d ); \
+    ElementalMatrix<F>& phase, \
+    ElementalMatrix<Base<F>>& signature ); \
   template void QR \
   ( Matrix<F>& A, \
-    Matrix<F>& t, \
-    Matrix<Base<F>>& d, \
+    Matrix<F>& phase, \
+    Matrix<Base<F>>& signature, \
     Permutation& Omega, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void QR \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& t, \
-    ElementalMatrix<Base<F>>& d, \
+    ElementalMatrix<F>& phase, \
+    ElementalMatrix<Base<F>>& signature, \
     DistPermutation& Omega, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
@@ -156,28 +156,28 @@ void QR
   ( LeftOrRight side, \
     Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<F>& t, \
-    const Matrix<Base<F>>& d, \
+    const Matrix<F>& phase, \
+    const Matrix<Base<F>>& signature, \
           Matrix<F>& B ); \
   template void qr::ApplyQ \
   ( LeftOrRight side, \
     Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& t, \
-    const ElementalMatrix<Base<F>>& d, \
+    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<Base<F>>& signature, \
           ElementalMatrix<F>& B ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<F>& t, \
-    const Matrix<Base<F>>& d, \
+    const Matrix<F>& phase, \
+    const Matrix<Base<F>>& signature, \
     const Matrix<F>& B, \
           Matrix<F>& X ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& t, \
-    const ElementalMatrix<Base<F>>& d, \
+    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<Base<F>>& signature, \
     const ElementalMatrix<F>& B, \
           ElementalMatrix<F>& X ); \
   template void qr::Cholesky \
@@ -203,7 +203,7 @@ void QR
   PROTO_BASE(F) \
   template void QR \
   ( DistMatrix<F,MC,MR,BLOCK>& A, \
-    DistMatrix<F,MR,STAR,BLOCK>& t );
+    DistMatrix<F,MR,STAR,BLOCK>& phase );
 
 #define PROTO_QUAD PROTO_BASE(Quad)
 #define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)

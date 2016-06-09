@@ -16,9 +16,9 @@ template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    LQ( A, t, d );
+    Matrix<F> phase;
+    Matrix<Base<F>> signature;
+    LQ( A, phase, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -32,9 +32,9 @@ void ExplicitTriang( ElementalMatrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    LQ( A, t, d );
+    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    LQ( A, phase, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -47,14 +47,14 @@ template<typename F>
 void ExplicitUnitary( Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    LQ( A, t, d );
+    Matrix<F> phase;
+    Matrix<Base<F>> signature;
+    LQ( A, phase, signature );
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Q );
     A = Q;
 }
 
@@ -67,15 +67,15 @@ void ExplicitUnitary( ElementalMatrix<F>& APre )
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    LQ( A, t, d );
+    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    LQ( A, phase, signature );
 
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<F> Q(g);
     Q.AlignWith( A );
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Q );
     Copy( Q, APre );
 }
 
@@ -83,9 +83,9 @@ template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A )
 {
     DEBUG_ONLY(CSE cse("lq::Explicit"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    LQ( A, t, d );
+    Matrix<F> phase;
+    Matrix<Base<F>> signature;
+    LQ( A, phase, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -97,7 +97,7 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Q );
     A = Q;
 }
 
@@ -110,9 +110,9 @@ void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    LQ( A, t, d );
+    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    LQ( A, phase, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -124,7 +124,7 @@ void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<F> Q(g);
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Q );
     Copy( Q, APre );
 }
 

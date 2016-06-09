@@ -30,12 +30,13 @@ void Skeleton
     // Find the row permutation
     Matrix<F> B;
     Adjoint( A, B );
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    QR( B, t, d, PR, ctrl );
-    const Int numSteps = t.Height();
+    Matrix<F> phase;
+    Matrix<Base<F>> signature;
+    QR( B, phase, signature, PR, ctrl );
+    const Int numSteps = phase.Height();
 
     // Form pinv(AR')=pinv(AR)'
+    // TODO: Use least squares solve instead
     Adjoint( A, B );
     PR.PermuteCols( B );
     B.Resize( B.Height(), numSteps );
@@ -51,9 +52,10 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, t, d, PC, secondCtrl );
+    QR( B, phase, signature, PC, secondCtrl );
 
     // Form pinv(AC)
+    // TODO: Use least squares solve instead
     B = A;
     PC.PermuteCols( B );
     B.Resize( B.Height(), numSteps );
@@ -81,12 +83,13 @@ void Skeleton
     // Find the row permutation
     DistMatrix<F> B(g);
     Adjoint( A, B );
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    QR( B, t, d, PR, ctrl );
-    const Int numSteps = t.Height();
+    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    QR( B, phase, signature, PR, ctrl );
+    const Int numSteps = phase.Height();
 
     // Form pinv(AR')=pinv(AR)'
+    // TODO: Use least squares solve instead
     Adjoint( A, B );
     PR.PermuteCols( B );
     B.Resize( B.Height(), numSteps );
@@ -102,9 +105,10 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, t, d, PC, secondCtrl );
+    QR( B, phase, signature, PC, secondCtrl );
 
     // Form pinv(AC)
+    // TODO: Use least squares solve instead
     B = A;
     PC.PermuteCols( B );
     B.Resize( B.Height(), numSteps );

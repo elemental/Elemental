@@ -54,8 +54,8 @@ ValueInt<Real> FindPivot
 template<typename F> 
 void BusingerGolub
 (       Matrix<F>& A,
-        Matrix<F>& t,
-        Matrix<Base<F>>& d,
+        Matrix<F>& phase,
+        Matrix<Base<F>>& signature,
         Permutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
@@ -67,8 +67,8 @@ void BusingerGolub
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Int maxSteps = ( ctrl.boundRank ? Min(ctrl.maxRank,minDim) : minDim );
-    t.Resize( maxSteps, 1 );
-    d.Resize( maxSteps, 1 );
+    phase.Resize( maxSteps, 1 );
+    signature.Resize( maxSteps, 1 );
 
     Matrix<F> z21;
 
@@ -122,7 +122,7 @@ void BusingerGolub
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        t(k) = tau;
+        phase(k) = tau;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -162,13 +162,13 @@ void BusingerGolub
 
     // Form d and rescale R
     auto R = A( IR(0,k), ALL );
-    GetRealPartOfDiagonal(R,d);
-    auto sgn = [&]( Real delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( d, function<Real(Real)>(sgn) );
-    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
+    GetRealPartOfDiagonal(R,signature);
+    auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
+    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 
     // Ensure that t is the correct length
-    t.Resize( k, 1 );
+    phase.Resize( k, 1 );
 }
 
 // TODO: Implement lambda op which is registered to MPI but can easily
@@ -314,14 +314,14 @@ void ReplaceColNorms
 template<typename F>
 void BusingerGolub
 ( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& t, 
-  ElementalMatrix<Base<F>>& d,
+  ElementalMatrix<F>& phase, 
+  ElementalMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
       CSE cse("qr::BusingerGolub");
-      AssertSameGrids( APre, t, d );
+      AssertSameGrids( APre, phase, signature );
     )
     typedef Base<F> Real;
     const Real zero(0), one(1);
@@ -334,8 +334,8 @@ void BusingerGolub
     const Int minDim = Min(m,n);
     const Int mLocal = A.LocalHeight();
     const Int maxSteps = ( ctrl.boundRank ? Min(ctrl.maxRank,minDim) : minDim );
-    t.Resize( maxSteps, 1 );
-    d.Resize( maxSteps, 1 );
+    phase.Resize( maxSteps, 1 );
+    signature.Resize( maxSteps, 1 );
 
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
@@ -419,7 +419,7 @@ void BusingerGolub
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        t.Set( k, 0, tau );
+        phase.Set( k, 0, tau );
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -481,13 +481,13 @@ void BusingerGolub
 
     // Form d and rescale R
     auto R = A( IR(0,k), ALL );
-    GetRealPartOfDiagonal(R,d);
-    auto sgn = [&]( Real delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( d, function<Real(Real)>(sgn) );
-    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
+    GetRealPartOfDiagonal(R,signature);
+    auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
+    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 
     // Ensure that t is the correct length
-    t.Resize( k, 1 );
+    phase.Resize( k, 1 );
 }
 
 } // namespace qr

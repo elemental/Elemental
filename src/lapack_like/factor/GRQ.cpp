@@ -13,26 +13,26 @@ namespace El {
 template<typename F> 
 void GRQ
 ( Matrix<F>& A,
-  Matrix<F>& tA,
-  Matrix<Base<F>>& dA, 
+  Matrix<F>& phaseA,
+  Matrix<Base<F>>& signatureA, 
   Matrix<F>& B,
-  Matrix<F>& tB,
-  Matrix<Base<F>>& dB )
+  Matrix<F>& phaseB,
+  Matrix<Base<F>>& signatureB )
 {
     DEBUG_ONLY(CSE cse("GRQ"))
-    RQ( A, tA, dA );
-    rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
-    QR( B, tB, dB );
+    RQ( A, phaseA, signatureA );
+    rq::ApplyQ( RIGHT, ADJOINT, A, phaseA, signatureA, B );
+    QR( B, phaseB, signatureB );
 }
 
 template<typename F> 
 void GRQ
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tA,
-  ElementalMatrix<Base<F>>& dA,
+  ElementalMatrix<F>& phaseA,
+  ElementalMatrix<Base<F>>& signatureA,
   ElementalMatrix<F>& BPre, 
-  ElementalMatrix<F>& tB,
-  ElementalMatrix<Base<F>>& dB )
+  ElementalMatrix<F>& phaseB,
+  ElementalMatrix<Base<F>>& signatureB )
 {
     DEBUG_ONLY(CSE cse("GRQ"))
 
@@ -40,9 +40,9 @@ void GRQ
     auto& A = AProx.Get();
     auto& B = BProx.Get();
 
-    RQ( A, tA, dA );
-    rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
-    QR( B, tB, dB );
+    RQ( A, phaseA, signatureA );
+    rq::ApplyQ( RIGHT, ADJOINT, A, phaseA, signatureA, B );
+    QR( B, phaseB, signatureB );
 }
 
 namespace grq {
@@ -51,10 +51,10 @@ template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(CSE cse("grq::ExplicitTriang"))
-    Matrix<F> tA;
-    Matrix<Base<F>> dA;
-    RQ( A, tA, dA );
-    rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
+    Matrix<F> phaseA;
+    Matrix<Base<F>> signatureA;
+    RQ( A, phaseA, signatureA );
+    rq::ApplyQ( RIGHT, ADJOINT, A, phaseA, signatureA, B );
     MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
     qr::ExplicitTriang( B );
 }
@@ -69,10 +69,10 @@ void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
     auto& B = BProx.Get();
 
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> tA(g);
-    DistMatrix<Base<F>,MD,STAR> dA(g);
-    RQ( A, tA, dA );
-    rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
+    DistMatrix<F,MD,STAR> phaseA(g);
+    DistMatrix<Base<F>,MD,STAR> signatureA(g);
+    RQ( A, phaseA, signatureA );
+    rq::ApplyQ( RIGHT, ADJOINT, A, phaseA, signatureA, B );
     MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
     qr::ExplicitTriang( B );
 }
@@ -83,18 +83,18 @@ void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 #define PROTO(F) \
   template void GRQ \
   ( Matrix<F>& A, \
-    Matrix<F>& tA, \
-    Matrix<Base<F>>& dA, \
+    Matrix<F>& phaseA, \
+    Matrix<Base<F>>& signatureA, \
     Matrix<F>& B, \
-    Matrix<F>& tB, \
-    Matrix<Base<F>>& dB ); \
+    Matrix<F>& phaseB, \
+    Matrix<Base<F>>& signatureB ); \
   template void GRQ \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& tA, \
-    ElementalMatrix<Base<F>>& dA, \
+    ElementalMatrix<F>& phaseA, \
+    ElementalMatrix<Base<F>>& signatureA, \
     ElementalMatrix<F>& B, \
-    ElementalMatrix<F>& tB, \
-    ElementalMatrix<Base<F>>& dB ); \
+    ElementalMatrix<F>& phaseB, \
+    ElementalMatrix<Base<F>>& signatureB ); \
   template void grq::ExplicitTriang \
   ( Matrix<F>& A, Matrix<F>& B ); \
   template void grq::ExplicitTriang \
