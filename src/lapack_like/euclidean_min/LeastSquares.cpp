@@ -21,20 +21,20 @@ void Overwrite
 {
     DEBUG_ONLY(CSE cse("ls::Overwrite"))
 
-    Matrix<F> t;
-    Matrix<Base<F>> d;
+    Matrix<F> phase;
+    Matrix<Base<F>> signature;
 
     const Int m = A.Height();
     const Int n = A.Width();
     if( m >= n )
     {
-        QR( A, t, d );
-        qr::SolveAfter( orientation, A, t, d, B, X );
+        QR( A, phase, signature );
+        qr::SolveAfter( orientation, A, phase, signature, B, X );
     }
     else
     {
-        LQ( A, t, d );
-        lq::SolveAfter( orientation, A, t, d, B, X );
+        LQ( A, phase, signature );
+        lq::SolveAfter( orientation, A, phase, signature, B, X );
     }
 }
 
@@ -50,20 +50,20 @@ void Overwrite
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    DistMatrix<F,MD,STAR> t(A.Grid());
-    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    DistMatrix<F,MD,STAR> phase(A.Grid());
+    DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
 
     const Int m = A.Height();
     const Int n = A.Width();
     if( m >= n )
     {
-        QR( A, t, d );
-        qr::SolveAfter( orientation, A, t, d, B, X );
+        QR( A, phase, signature );
+        qr::SolveAfter( orientation, A, phase, signature, B, X );
     }
     else
     {
-        LQ( A, t, d );
-        lq::SolveAfter( orientation, A, t, d, B, X );
+        LQ( A, phase, signature );
+        lq::SolveAfter( orientation, A, phase, signature, B, X );
     }
 }
 

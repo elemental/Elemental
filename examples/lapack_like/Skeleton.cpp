@@ -21,16 +21,20 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",20);
         const Int n = Input("--width","width of matrix",100);
-        const Int r = Input("--rank","rank of matrix",5);
-        const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
+        Int targetRank = Input("--rank","rank of matrix",5);
+        Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
         const Real tol = Input("--tol","tolerance for ID",Real(-1));
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
+        const Int minDim = Min( m, n );
+        targetRank = Min( targetRank, minDim );
+        maxSteps = Min( maxSteps, targetRank );
+
         DistMatrix<C> U, V;
-        Uniform( U, m, r );
-        Uniform( V, n, r );
+        Uniform( U, m, targetRank );
+        Uniform( V, n, targetRank );
         DistMatrix<C> A;
         Gemm( NORMAL, ADJOINT, C(1), U, V, A );
         const Real frobA = FrobeniusNorm( A );
