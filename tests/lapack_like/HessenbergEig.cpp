@@ -25,41 +25,41 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
     const Real smallNum = safeMin*(Real(n)/ulp);
 
     // Search up the subdiagonal
-    for( Int k=n-1; k>0; --k )
+    for( Int k=n-2; k>=0; --k )
     {
-        const F eta_km1_km1 = H(k-1,k-1);
-        const F eta_km1_k = H(k-1,k  );
-        const Real eta_k_km1 = RealPart( H(k,k-1) );
-        const F eta_k_k = H(k,k);
-        if( OneAbs(eta_k_km1) <= smallNum )
+        const F eta00 = H(k,k);
+        const F eta01 = H(k,k+1);
+        const Real eta10 = RealPart( H(k+1,k) );
+        const F eta11 = H(k+1,k+1);
+        if( OneAbs(eta10) <= smallNum )
         {
-            return k;
+            return k+1;
         }
 
-        Real localScale = OneAbs(eta_km1_km1) + OneAbs(eta_k_k);
+        Real localScale = OneAbs(eta00) + OneAbs(eta11);
         if( localScale == Real(0) )
         {
             // Search outward a bit to get a sense of the matrix's local scale
-            if( k-2 >= 0 )
-                localScale += Abs( RealPart( H(k-1,k-2) ) );
-            if( k+1 <= n-1 )
-                localScale += Abs( RealPart( H(k+1,k  ) ) );
+            if( k-1 >= 0 )
+                localScale += Abs( RealPart( H(k,k-1) ) );
+            if( k+2 <= n-1 )
+                localScale += Abs( RealPart( H(k+2,k+1) ) );
         }
         
-        if( Abs(eta_k_km1) <= ulp*localScale )
+        if( Abs(eta10) <= ulp*localScale )
         {
-            const Real maxOff = Max( Abs(eta_k_km1), OneAbs(eta_km1_k) );
-            const Real minOff = Min( Abs(eta_k_km1), OneAbs(eta_km1_k) ); 
+            const Real maxOff = Max( Abs(eta10), OneAbs(eta01) );
+            const Real minOff = Min( Abs(eta10), OneAbs(eta01) ); 
 
-            const Real diagDiff = OneAbs(eta_km1_km1-eta_k_k);
-            const Real maxDiag = Max( OneAbs(eta_k_k), diagDiff );
-            const Real minDiag = Min( OneAbs(eta_k_k), diagDiff );
+            const Real diagDiff = OneAbs(eta00-eta11);
+            const Real maxDiag = Max( OneAbs(eta11), diagDiff );
+            const Real minDiag = Min( OneAbs(eta11), diagDiff );
 
             const Real sigma = maxDiag + maxOff;
             if( minOff*(maxOff/sigma) <=
                 Max(smallNum,ulp*(minDiag*(maxDiag/sigma))) )
             {
-                return k;
+                return k+1;
             }
         }
     }
@@ -125,12 +125,12 @@ ChooseSingleShiftStart
     const Real ulp = limits::Precision<Real>();
 
     const Int n = H.Height();
-    for( Int k=n-2; k>0; --k )
+    for( Int k=n-3; k>=0; --k )
     {
-        const Real eta10 = RealPart( H(k,k-1) );
-        const F& eta11 = H(k,  k  );
-        const F& eta22 = H(k+1,k+1);
-        Real eta21 = RealPart( H(k+1,k) );
+        const Real eta10 = RealPart( H(k+1,k) );
+        const F& eta11 = H(k+1,k+1);
+        const F& eta22 = H(k+2,k+2);
+        Real eta21 = RealPart( H(k+2,k+1) );
 
         F eta11Shift = eta11 - shift;
         const Real sigma = OneAbs(eta11Shift) + Abs(eta21);    
@@ -139,7 +139,7 @@ ChooseSingleShiftStart
         if( Abs(eta10)*Abs(eta21) <=
             ulp*(OneAbs(eta11Shift)*(OneAbs(eta11)+OneAbs(eta22))) ) 
         {
-            return std::make_tuple(k,eta11Shift,Complex<Real>(eta21));
+            return std::make_tuple(k+1,eta11Shift,Complex<Real>(eta21));
         }
     }
     // Start at the top
@@ -209,13 +209,13 @@ Int ChooseDoubleShiftStart
     const Int n = H.Height();
 
     v.resize( 3 );
-    for( Int k=n-3; k>=0; --k )
+    for( Int k=n-4; k+1>=0; --k )
     {
-        const Real& eta11 = H(k,  k  );
-        const Real& eta12 = H(k,  k+1);
-        const Real& eta21 = H(k+1,k  );
-        const Real& eta22 = H(k+1,k+1);
-        const Real& eta32 = H(k+2,k+1);
+        const Real& eta11 = H(k+1,k+1);
+        const Real& eta12 = H(k+1,k+2);
+        const Real& eta21 = H(k+2,k+1);
+        const Real& eta22 = H(k+2,k+2);
+        const Real& eta32 = H(k+3,k+2);
   
         Real scale = Abs(eta11-shift1Real) + Abs(shift1Imag) + Abs(eta21);
         Real eta21Scale = eta21 / scale;
@@ -231,17 +231,17 @@ Int ChooseDoubleShiftStart
         v[0] /= scale;
         v[1] /= scale;
         v[2] /= scale;
-        if( k == 0 )
+        if( k == -1 )
         {
-            return k;
+            return 0;
         }
         
-        const Real& eta00 = H(k-1,k-1);
-        const Real& eta10 = H(k,  k-1);
+        const Real& eta00 = H(k,  k);
+        const Real& eta10 = H(k+1,k);
         if( Abs(eta10)*(Abs(v[1])+Abs(v[2])) <= 
             ulp*Abs(v[0])*(Abs(eta00)+Abs(eta11)+Abs(eta22)) )
         {
-            return k;
+            return k+1;
         }
     }
     // This should never be reached but is to avoid compiler warnings
@@ -563,6 +563,23 @@ void ImplicitQQuadraticSeed
 }
 
 template<typename Real>
+void IntroduceBulge
+( const Matrix<Real>& H,
+  const Real& shift0Real, const Real& shift0Imag, 
+  const Real& shift1Real, const Real& shift1Imag,
+        Real* v )
+{
+    const Int n = H.Height();
+    ImplicitQQuadraticSeed
+    ( H,
+      shift0Real, shift0Imag,
+      shift1Real, shift1Imag,
+      v ); 
+    Real beta = v[0];
+    v[0] = lapack::Reflector( n, beta, &v[1], 1 );
+}
+
+template<typename Real>
 void PairShifts( vector<Real>& realShifts, vector<Real>& imagShifts )
 {
     const Int numShifts = realShifts.size();
@@ -612,6 +629,366 @@ void PairShifts( vector<Real>& realShifts, vector<Real>& imagShifts )
 }
 
 template<typename Real>
+void ComputeReflectors
+( Matrix<Real>& H,
+  Int winBeg,
+  vector<Real>& realShifts,
+  vector<Real>& imagShifts,
+  Matrix<Real>& W,
+  Int packetBeg,
+  Int firstFull,
+  Int lastFull,
+  bool have2x2 )
+{
+    const Real zero(0);
+    const Real ulp = limits::Precision<Real>();
+
+    // Set aside space for a Householder vector for a candidate reinflation of
+    // a deflated bulge
+    vector<Real> wCand(3);
+
+    if( have2x2 )
+    {
+        const Int bulge = lastFull+1;
+        const Real realShift0 = realShifts[2*bulge];
+        const Real imagShift0 = imagShifts[2*bulge];
+        const Real realShift1 = realShifts[2*bulge+1];
+        const Real imagShift1 = imagShifts[2*bulge+1];
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        Real* w = &W(0,bulge);
+
+        if( bulgeBeg == winBeg-1 )
+        {
+            IntroduceBulge
+            ( H(IR(bulgeBeg+1,bulgeBeg+3),IR(bulgeBeg+1,bulgeBeg+3)),
+              realShift0, imagShift0,
+              realShift1, imagShift1,
+              w ); 
+        }
+        else
+        {
+            // Find the reflection for chasing the 2x2 bulge
+            Real beta = H( bulgeBeg+1, bulgeBeg );
+            w[1] = H( bulgeBeg+2, bulgeBeg );
+            w[0] = lapack::Reflector( 2, beta, &w[1], 1 );
+            H( bulgeBeg+1, bulgeBeg ) = beta;
+            H( bulgeBeg+2, bulgeBeg ) = zero;
+        }
+    }
+    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+    {
+        const Real realShift0 = realShifts[2*bulge];
+        const Real imagShift0 = imagShifts[2*bulge];
+        const Real realShift1 = realShifts[2*bulge+1];
+        const Real imagShift1 = imagShifts[2*bulge+1];
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        Real* w = &W(0,bulge);
+        auto ind1 = IR(bulgeBeg+1,bulgeBeg+4);
+        auto H11BR = H(ind1,ind1);
+
+        if( bulgeBeg == winBeg-1 )
+        {
+            IntroduceBulge
+            ( H11BR,
+              realShift0, imagShift0,
+              realShift1, imagShift1,
+              w ); 
+        }
+        else
+        {
+            // Prepare to chase the bulge down a step
+            Real& eta00 = H(bulgeBeg,  bulgeBeg  );
+            Real& eta10 = H(bulgeBeg+1,bulgeBeg  );
+            Real& eta11 = H(bulgeBeg+1,bulgeBeg+1);
+            Real& eta20 = H(bulgeBeg+2,bulgeBeg  );
+            Real& eta22 = H(bulgeBeg+2,bulgeBeg+2);
+            Real& eta30 = H(bulgeBeg+3,bulgeBeg  );
+            Real& eta31 = H(bulgeBeg+3,bulgeBeg+1);
+            Real& eta32 = H(bulgeBeg+3,bulgeBeg+2);
+
+            Real beta = eta10;
+            w[1] = eta20;
+            w[2] = eta30;
+            w[0] = lapack::Reflector( 3, beta, &w[1], 1 );
+                    
+            // "Vigilantly" search for a deflation
+            // (deflation within the interior is exceedingly rare,
+            //  but this check should be essentially free)
+            if( eta30 != zero || eta31 != zero || eta32 == zero )
+            {
+                // Bulge has not collapsed
+                eta10 = beta;
+                eta20 = zero;
+                eta30 = zero;
+            }
+            else
+            {
+                // Bulge has collapsed
+                IntroduceBulge
+                ( H11BR,
+                  realShift0, imagShift0,
+                  realShift1, imagShift1,
+                  wCand.data() ); 
+                Real innerProd = wCand[0]*(eta10+wCand[1]*eta20);
+                if( Abs(eta20-innerProd*wCand[1]) + Abs(innerProd*wCand[2]) >=
+                    ulp*(Abs(eta00)+Abs(eta11)+Abs(eta22)) )
+                {
+                    // The proposed bulge was unacceptable;
+                    // continue using the collapsed one with regret
+                    eta10 = beta;
+                    eta20 = zero;
+                    eta30 = zero;
+                }
+                else
+                {
+                    // Accept the proposed replacement bulge
+                    eta10 -= innerProd;
+                    eta20 = zero; 
+                    eta30 = zero;
+                    w[0] = wCand[0];
+                    w[1] = wCand[1];
+                    w[2] = wCand[2];
+                }
+            }
+        }
+    }
+}
+
+template<typename Real>
+void ApplyReflectorsFromLeft
+( Matrix<Real>& H,
+  Int winBeg,
+  Int packetBeg,
+  Int transformEnd,
+  Matrix<Real>& W,
+  Int firstFull,
+  Int lastFull,
+  bool have2x2,
+  bool accumulate )
+{
+    if( have2x2 )
+    {
+        const Int bulge = lastFull+1;
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        const Real* w = &W(0,bulge);
+
+        for( Int j=Max(bulgeBeg+1,winBeg); j<transformEnd; ++j )
+        {
+            Real& eta1 = H(bulgeBeg+1,j);
+            Real& eta2 = H(bulgeBeg+2,j);
+
+            // Apply I - tau*[1;v]*[1;v]', where tau is stored in
+            // w[0] and v is stored in w[1]
+            Real innerProd = w[0]*(eta1+w[1]*eta2);
+            eta1 -=      innerProd;
+            eta2 -= w[1]*innerProd;
+        }
+    }
+    for( Int j=Max(packetBeg,winBeg); j<transformEnd; ++j )
+    {
+        const Int lastBulge = Min( lastFull, (j-packetBeg-1)/3 );
+        for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+        {
+            const Int bulgeBeg = packetBeg + 3*bulge;
+            const Real* w = &W(0,bulge);
+            Real& eta1 = H(bulgeBeg+1,j); 
+            Real& eta2 = H(bulgeBeg+2,j);
+            Real& eta3 = H(bulgeBeg+3,j);
+
+            // Apply I - tau*[1;v]*[1;v]', where tau is stored in
+            // w[0] and v is stored in w[1] and w[2]
+            Real innerProd = w[0]*(eta1+w[1]*eta2+w[2]*eta3);
+            eta1 -=      innerProd;
+            eta2 -= w[1]*innerProd;
+            eta3 -= w[2]*innerProd;
+        }
+    }
+}
+
+template<typename Real>
+void ApplyReflectorsFromRight
+( Matrix<Real>& H,
+  Int winBeg,
+  Int winEnd,
+  Int ghostCol,
+  Int slabSize,
+  Int packetBeg,
+  Int transformBeg,
+  Matrix<Real>& Z,
+  bool wantSchurVecs,
+  Matrix<Real>& U,
+  Matrix<Real>& W,
+  Int firstFull,
+  Int lastFull,
+  bool have2x2,
+  bool accumulate )
+{
+    const Int nZ = Z.Height();
+    // The first relative index of the slab that is in the window
+    // (with 4x4 bulges being introduced at winBeg-1)
+    const Int slabActive = Max(0,(winBeg-1)-ghostCol);
+    if( have2x2 )
+    {
+        const Int bulge = lastFull+1;
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        const Real* w = &W(0,bulge);
+        auto HR = H(ALL,IR(bulgeBeg,END));
+
+        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+3); ++j )
+        {
+            Real& eta1 = HR(j,1);
+            Real& eta2 = HR(j,2);
+
+            Real innerProd = w[0]*(eta1+eta2*w[1]);
+            eta1 -= innerProd;
+            eta2 -= innerProd*w[1];
+        }
+
+        if( accumulate )
+        {
+            Int kU = bulgeBeg - ghostCol - 1; // TODO: Check for off-by-one
+            auto UR = U(ALL,IR(kU,END));
+            for( Int j=slabActive; j<slabSize; ++j ) 
+            {
+                Real& ups1 = UR(j,1);
+                Real& ups2 = UR(j,2);
+
+                Real innerProd = w[0]*(ups1+ups2*w[1]);
+                ups1 -= innerProd;
+                ups2 -= innerProd*w[1];
+            }
+        }
+        else if( wantSchurVecs )
+        {
+            auto ZR = Z(ALL,IR(bulgeBeg,END));
+            for( Int j=0; j<nZ; ++j )
+            {
+                Real& zeta1 = ZR(j,1);
+                Real& zeta2 = ZR(j,2);
+
+                Real innerProd = w[0]*(zeta1+zeta2*w[1]);
+                zeta1 -= innerProd;
+                zeta2 -= innerProd*w[1];
+            }
+        }
+    }
+    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+    {
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        const Real* w = &W(0,bulge);
+        auto HR = H(ALL,IR(bulgeBeg,END));
+
+        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+4); ++j )
+        {
+            Real& eta1 = HR(j,1);
+            Real& eta2 = HR(j,2);
+            Real& eta3 = HR(j,3);
+
+            Real innerProd = w[0]*(eta1+eta2*w[1]+eta3*w[2]);
+            eta1 -= innerProd;
+            eta2 -= innerProd*w[1];
+            eta3 -= innerProd*w[2];
+        }
+
+        if( accumulate )
+        {
+            Int kU = bulgeBeg - ghostCol - 1; // TODO: Check for off-by-one
+            auto UR = U(ALL,IR(kU,END));
+            for( Int j=slabActive; j<slabSize; ++j ) 
+            {
+                Real& ups1 = UR(j,1);
+                Real& ups2 = UR(j,2);
+                Real& ups3 = UR(j,3);
+
+                Real innerProd = w[0]*(ups1+ups2*w[1]+ups3*w[2]);
+                ups1 -= innerProd;
+                ups2 -= innerProd*w[1];
+                ups3 -= innerProd*w[2];
+            }
+        }
+        else if( wantSchurVecs )
+        {
+            auto ZR = Z(ALL,IR(bulgeBeg,END));
+            for( Int j=0; j<nZ; ++j )
+            {
+                Real& zeta1 = ZR(j,1);
+                Real& zeta2 = ZR(j,2);
+                Real& zeta3 = ZR(j,3);
+
+                Real innerProd = w[0]*(zeta1+zeta2*w[1]+zeta3*w[2]);
+                zeta1 -= innerProd;
+                zeta2 -= innerProd*w[1];
+                zeta3 -= innerProd*w[2];
+            }
+        }
+    }
+}
+
+template<typename Real>
+void VigilantDeflation
+( Matrix<Real>& H,
+  Int winBeg,
+  Int winEnd,
+  Int packetBeg,
+  Int vigFirst,
+  Int vigLast )
+{
+    const Real zero(0);
+    const Real ulp = limits::Precision<Real>();
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real smallNum = safeMin*(Real(H.Height())/ulp);
+
+    // NOTE: LAPACK has a strange increment of vigLast by one if
+    //       packetBeg is equal to winBeg-3 here...
+    for( Int bulge=vigLast; bulge>=vigFirst; --bulge )
+    {
+        const Int k = Min( winEnd-2, packetBeg+3*bulge );
+        Real& eta00 = H(k  ,k  );
+        Real& eta01 = H(k  ,k+1);
+        Real& eta10 = H(k+1,k  );
+        Real& eta11 = H(k+1,k+1);
+        const Real eta00Abs = Abs(eta00);
+        const Real eta10Abs = Abs(eta10);
+        const Real eta11Abs = Abs(eta11);
+
+        if( eta10 == zero )
+            continue;
+        Real localScale = eta00Abs + eta11Abs;
+        if( localScale == zero )
+        {
+            if( k >= winBeg+3 )
+                localScale += Abs(H(k,k-3));
+            if( k >= winBeg+2 )
+                localScale += Abs(H(k,k-2));
+            if( k >= winBeg+1 )
+                localScale += Abs(H(k,k-1));
+            if( k < winEnd-2 )
+                localScale += Abs(H(k+2,k+1));
+            if( k < winEnd-3 )
+                localScale += Abs(H(k+3,k+1));
+            if( k < winEnd-4 )
+                localScale += Abs(H(k+4,k+1));
+        }
+        if( eta10Abs <= Max(smallNum,ulp*localScale) )
+        {
+            const Real eta01Abs = Abs(eta01);
+            const Real diagDiffAbs = Abs(eta00-eta11);
+            Real offMax = Max( eta10Abs, eta01Abs );
+            Real offMin = Min( eta10Abs, eta01Abs );
+            Real diagMax = Max( eta11Abs, diagDiffAbs );
+            Real diagMin = Min( eta11Abs, diagDiffAbs );
+            Real scale = diagMax + offMax;
+            Real localScale2 = diagMin*(diagMax/scale);
+            if( localScale2 == zero ||
+                offMin*(offMax/scale) <= Max(smallNum,ulp*localScale2) )
+            {
+                eta10 = zero;
+            }
+        }
+    }
+}
+
+template<typename Real>
 void SmallBulgeSweep
 ( Matrix<Real>& H,
   Int winBeg,
@@ -626,12 +1003,9 @@ void SmallBulgeSweep
   Matrix<Real>& WAccum,
   bool accumulate=true )
 {
-    const Real zero(0), one(1);
+    const Real zero(0);
     const Int n = H.Height();
     const Int nZ = Z.Height();
-    const Real ulp = limits::Precision<Real>();
-    const Real safeMin = limits::SafeMin<Real>();
-    const Real smallNum = safeMin*(Real(n)/ulp);
 
     const Int numShifts = realShifts.size();
     DEBUG_ONLY(
@@ -654,10 +1028,6 @@ void SmallBulgeSweep
     // length 3 (following the LAPACK convention that 'tau' will lie in the
     // first entry and 'v' will begin in the second entry).
     W.Resize( 3, numBulges );
-
-    // Set aside space for a Householder vector for a candidate reinflation of
-    // a deflated bulge
-    vector<Real> wCand(3);
 
     // Each time a new 4x4 bulge is introduced into the upper-left corner
     // of the matrix, we think of the bulge as having started at index
@@ -702,121 +1072,10 @@ void SmallBulgeSweep
               ( (lastFull+1) < numBulges &&
                 packetBeg+3*(lastFull+1) == winEnd-3 );
 
-            if( have2x2 )
-            {
-                const Int bulge = lastFull+1;
-                const Int k = packetBeg + 3*bulge;
-                Real* w = &W(0,bulge);
+            ComputeReflectors
+            ( H, winBeg, realShifts, imagShifts, W,
+              packetBeg, firstFull, lastFull, have2x2 );
 
-                if( k == winBeg-1 )
-                {
-                    // Introduce a 2x2 bulge
-                    auto H11 = H( IR(k+1,k+3), IR(k+1,k+3) );
-                    ImplicitQQuadraticSeed
-                    ( H11,
-                      realShifts[2*bulge],   imagShifts[2*bulge],
-                      realShifts[2*bulge+1], imagShifts[2*bulge+1],
-                      w ); 
-                    Real beta = w[0];
-                    w[0] = lapack::Reflector( 2, beta, &w[1], 1 );
-                }
-                else
-                {
-                    // Find the reflection for chasing the 2x2 bulge
-                    Real beta = H( k+1, k );
-                    w[1] = H( k+2, k );
-                    w[0] = lapack::Reflector( 2, beta, &w[1], 1 );
-                    H( k+1, k ) = beta;
-                    H( k+2, k ) = zero;
-                }
-            }
-            for( Int bulge=lastFull; bulge>=firstFull; --bulge )
-            {
-                const Int k = packetBeg + 3*bulge;
-                Real* w = &W(0,bulge);
-
-                if( k == winBeg-1 )
-                {
-                    // Introduce the bulge into the upper-left corner
-                    auto H11 = H( IR(k+1,k+4), IR(k+1,k+4) );
-                    ImplicitQQuadraticSeed
-                    ( H11,
-                      realShifts[2*bulge],   imagShifts[2*bulge],
-                      realShifts[2*bulge+1], imagShifts[2*bulge+1],
-                      w ); 
-
-                    Real alpha = w[0];
-                    w[0] = lapack::Reflector( 3, alpha, &w[1], 1 );
-                }
-                else
-                {
-                    // Prepare to chase the bulge down a step
-                    Real& eta_k_k     = H(k,  k  );
-                    Real& eta_kp1_k   = H(k+1,k  );
-                    Real& eta_kp1_kp1 = H(k+1,k+1);
-                    Real& eta_kp2_k   = H(k+2,k  );
-                    Real& eta_kp2_kp2 = H(k+2,k+2);
-                    Real& eta_kp3_k   = H(k+3,k  );
-                    Real& eta_kp3_kp1 = H(k+3,k+1);
-                    Real& eta_kp3_kp2 = H(k+3,k+2);
-
-                    Real beta = eta_kp1_k;
-                    w[1]  = eta_kp2_k;
-                    w[2]  = eta_kp3_k;
-                    w[0] = lapack::Reflector( 3, beta, &w[1], 1 );
-                    
-                    // "Vigilantly" search for a deflation
-                    // (deflation within the interior is exceedingly rare,
-                    //  but this check should be essentially free)
-                    if( eta_kp3_k   != zero ||
-                        eta_kp3_kp1 != zero ||
-                        eta_kp3_kp2 == zero )
-                    {
-                        // Bulge has not collapsed
-                        eta_kp1_k = beta;
-                        eta_kp2_k = zero;
-                        eta_kp3_k = zero;
-                    }
-                    else
-                    {
-                        // Bulge has collapsed
-                        auto H11 = H( IR(k+1,k+4), IR(k+1,k+4) );
-                        ImplicitQQuadraticSeed
-                        ( H11,
-                          realShifts[2*bulge],   imagShifts[2*bulge],
-                          realShifts[2*bulge+1], imagShifts[2*bulge+1],
-                          wCand.data() ); 
-                        Real alpha = wCand[0];
-                        wCand[0] = lapack::Reflector( 3, alpha, &wCand[1], 1 );
-                        Real innerProd =
-                          wCand[0]*(eta_kp1_k+wCand[1]*eta_kp2_k);
-                        if( Abs(eta_kp2_k-innerProd*wCand[1]) +
-                            Abs(innerProd*wCand[2]) >=
-                            ulp*(Abs(eta_k_k)+
-                                 Abs(eta_kp1_kp1)+
-                                 Abs(eta_kp2_kp2)) )
-                        {
-                            // The proposed bulge was unacceptable;
-                            // continue using the collapsed one with regret
-                            eta_kp1_k = beta;
-                            eta_kp2_k = zero;
-                            eta_kp3_k = zero;
-                        }
-                        else
-                        {
-                            // Accept the proposed replacement bulge
-                            eta_kp1_k -= innerProd;
-                            eta_kp2_k = zero; 
-                            eta_kp3_k = zero;
-                            w[0] = wCand[0];
-                            w[1] = wCand[1];
-                            w[2] = wCand[2];
-                        }
-                    }
-                }
-            }
-
-            // Apply reflections from the left
             Int transformEnd;
             if( accumulate )
                 transformEnd = Min( slabEnd, winEnd );
@@ -824,193 +1083,30 @@ void SmallBulgeSweep
                 transformEnd = n;
             else
                 transformEnd = winEnd;
-            if( have2x2 )
-            {
-                const Int bulge = lastFull+1;
-                const Int k = packetBeg + 3*bulge;
-                const Real* w = &W(0,bulge);
 
-                for( Int j=Max(k+1,winBeg); j<transformEnd; ++j )
-                {
-                    Real& eta_kp1_j = H(k+1,j);
-                    Real& eta_kp2_j = H(k+2,j);
+            ApplyReflectorsFromLeft
+            ( H, winBeg, packetBeg, transformEnd, W,
+              firstFull, lastFull, have2x2, accumulate );
 
-                    // Apply I - tau*[1;v]*[1;v]', where tau is stored in
-                    // w[0] and v is stored in w[1]
-                    Real innerProd = w[0]*(eta_kp1_j+w[1]*eta_kp2_j);
-                    eta_kp1_j -=      innerProd;
-                    eta_kp2_j -= w[1]*innerProd;
-                }
-            }
-            for( Int j=Max(packetBeg,winBeg); j<transformEnd; ++j )
-            {
-                const Int lastBulge = Min( lastFull, (j-packetBeg-1)/3 );
-                for( Int bulge=lastFull; bulge>=firstFull; --bulge )
-                {
-                    const Int k = packetBeg + 3*bulge;
-                    const Real* w = &W(0,bulge);
-                    Real& eta_kp1_j = H(k+1,j); 
-                    Real& eta_kp2_j = H(k+2,j);
-                    Real& eta_kp3_j = H(k+3,j);
-
-                    // Apply I - tau*[1;v]*[1;v]', where tau is stored in
-                    // w[0] and v is stored in w[1] and w[2]
-                    Real innerProd =
-                      w[0]*(eta_kp1_j+w[1]*eta_kp2_j+w[2]*eta_kp3_j);
-                    eta_kp1_j -=      innerProd;
-                    eta_kp2_j -= w[1]*innerProd;
-                    eta_kp3_j -= w[2]*innerProd;
-                }
-            }
-
-            // Apply reflections from the right
             Int transformBeg;
             if( accumulate )
-                transformBeg = Max( winBeg, ghostBeg );
+                transformBeg = Max( winBeg, ghostCol );
             else if( fullTriangle )
                 transformBeg = 0;
             else
                 transformBeg = winBeg;
-            if( have2x2 )
-            {
-                const Int bulge = lastFull+1;
-                const Int k = packetBeg + 3*bulge;
-                const Real* w = &W(0,bulge);
 
-                for( Int j=transformBeg; j<Min(winEnd,k+3); ++j )
-                {
-                    Real& eta_j_kp1 = H(j,k+1);
-                    Real& eta_j_kp2 = H(j,k+2);
-
-                    Real innerProd = w[0]*(eta_j_kp1+eta_j_kp2*w[1]);
-                    eta_j_kp1 -= innerProd;
-                    eta_j_kp2 -= innerProd*w[1];
-                }
-
-                if( accumulate )
-                {
-                    Int kU = k - ghostBeg - 1; // TODO: Check for off-by-one
-                    for( Int j=Max(0,(winBeg-1)-ghostBeg); j<slabSize; ++j ) 
-                    {
-                        Real& ups_j_kUp1 = U(j,kU+1);
-                        Real& ups_j_kUp2 = U(j,kU+2);
-
-                        Real innerProd = w[0]*(ups_j_kUp1+ups_j_kUp2*w[1]);
-                        ups_j_kUp1 -= innerProd;
-                        ups_j_kUp2 -= innerProd*w[1];
-                    }
-                }
-                else if( wantSchurVecs )
-                {
-                    for( Int j=0; j<nZ; ++j )
-                    {
-                        Real& zeta_j_kp1 = Z(j,k+1);
-                        Real& zeta_j_kp2 = Z(j,k+2);
-
-                        Real innerProd = w[0]*(zeta_j_kp1+zeta_j_kp2*w[1]);
-                        zeta_j_kp1 -= innerProd;
-                        zeta_j_kp2 -= innerProd*w[1];
-                    }
-                }
-            }
-            for( Int bulge=lastFull; bulge>=firstFull; --bulge )
-            {
-                const Int k = packetBeg + 3*bulge;
-                const Real* w = &W(0,bulge);
-
-                for( Int j=transformBeg; j<Min(winEnd,k+4); ++j )
-                {
-                    Real& eta_j_kp1 = H(j,k+1);
-                    Real& eta_j_kp2 = H(j,k+2);
-                    Real& eta_j_kp3 = H(j,k+3);
-
-                    Real innerProd =
-                      w[0]*(eta_j_kp1+eta_j_kp2*w[1]+eta_j_kp3*w[2]);
-                    eta_j_kp1 -= innerProd;
-                    eta_j_kp2 -= innerProd*w[1];
-                    eta_j_kp3 -= innerProd*w[2];
-                }
-
-                if( accumulate )
-                {
-                    Int kU = k - ghostBeg - 1; // TODO: Check for off-by-one
-                    for( Int j=Max(0,(winBeg-1)-ghostBeg); j<slabSize; ++j ) 
-                    {
-                        Real& ups_j_kUp1 = U(j,kU+1);
-                        Real& ups_j_kUp2 = U(j,kU+2);
-                        Real& ups_j_kUp3 = U(j,kU+3);
-
-                        Real innerProd =
-                          w[0]*(ups_j_kUp1+ups_j_kUp2*w[1]+ups_j_kUp3*w[2]);
-                        ups_j_kUp1 -= innerProd;
-                        ups_j_kUp2 -= innerProd*w[1];
-                        ups_j_kUp3 -= innerProd*w[2];
-                    }
-                }
-                else if( wantSchurVecs )
-                {
-                    for( Int j=0; j<nZ; ++j )
-                    {
-                        Real& zeta_j_kp1 = Z(j,k+1);
-                        Real& zeta_j_kp2 = Z(j,k+2);
-                        Real& zeta_j_kp3 = Z(j,k+3);
-
-                        Real innerProd =
-                          w[0]*(zeta_j_kp1+zeta_j_kp2*w[1]+zeta_j_kp3*w[2]);
-                        zeta_j_kp1 -= innerProd;
-                        zeta_j_kp2 -= innerProd*w[1];
-                        zeta_j_kp3 -= innerProd*w[2];
-                    }
-                }
-            }
+            ApplyReflectorsFromRight
+            ( H, winBeg, winEnd, ghostCol, slabSize, packetBeg, transformBeg,
+              Z, wantSchurVecs, U, W,
+              firstFull, lastFull, have2x2, accumulate );
 
             // Vigilant deflation check using Ahues/Tisseur criteria
             const Int vigFirst =
               ( packetBeg+3*firstFull == winBeg-1 ? firstFull+1 : firstFull );
             const Int vigLast = ( have2x2 ? lastFull+1 : lastFull );
-            // NOTE: LAPACK has a strange increment of vigLast by one if
-            //       packetBeg is equal to winBeg-3 here...
-            for( Int bulge=vigLast; bulge>=vigFirst; --bulge )
-            {
-                const Int k = Min( winEnd-2, packetBeg+3*bulge );
-                Real& eta00 = H(k  ,k  );
-                Real& eta01 = H(k  ,k+1);
-                Real& eta10 = H(k+1,k  );
-                Real& eta11 = H(k+1,k+1);
-
-                if( eta10 == zero )
-                    continue;
-                Real localScale = Abs(eta00) + Abs(eta11);
-                if( localScale == zero )
-                {
-                    if( k >= winBeg+3 )
-                        localScale += Abs(H(k,k-3));
-                    if( k >= winBeg+2 )
-                        localScale += Abs(H(k,k-2));
-                    if( k >= winBeg+1 )
-                        localScale += Abs(H(k,k-1));
-                    if( k < winEnd-2 )
-                        localScale += Abs(H(k+2,k+1));
-                    if( k < winEnd-3 )
-                        localScale += Abs(H(k+3,k+1));
-                    if( k < winEnd-4 )
-                        localScale += Abs(H(k+4,k+1));
-                }
-                if( Abs(eta10) <= Max(smallNum,ulp*localScale) )
-                {
-                    Real offMax = Max( Abs(eta10), Abs(eta01) );
-                    Real offMin = Min( Abs(eta10), Abs(eta01) ); 
-                    Real diagMax = Max( Abs(eta11), Abs(eta00-eta11) );
-                    Real diagMin = Min( Abs(eta11), Abs(eta00-eta11) );
-                    Real scale = diagMax + offMax;
-                    Real localScale2 = diagMin*(diagMax/scale);
-                    if( localScale2 == zero ||
-                        offMin*(offMax/scale) <= Max(smallNum,ulp*localScale2) )
-                    {
-                        eta10 = zero;
-                    }
-                }
-            }
+            VigilantDeflation
+            ( H, winBeg, winEnd, packetBeg, vigFirst, vigLast );
 
             // Fill in the last row of the translated full bulges
             //
@@ -1042,52 +1138,36 @@ void SmallBulgeSweep
         }
         if( accumulate )
         {
+            // TODO: Debug this section's index ranges
             const Int transformBeg = ( fullTriangle ? 0 : winBeg );
             const Int transformEnd = ( fullTriangle ? n : winEnd );
  
-            const Int k1 = Max( 0, winBeg-(ghostBeg+1) );
+            const Int k1 = Max( 0, winBeg-(ghostCol+1) );
             const Int nU = ((slabSize-1)-Max(0,slabEnd-winEnd)) - k1;
             
             const Int j = Min(slabEnd,winEnd);
 
+            auto contractInd = IR(k1,k1+nU);
+            auto UAccum = U( contractInd, contractInd );
+
             // Horizontal far-from-diagonal application
             const Int horzSize = transformEnd-transformBeg;
-            Zeros( WAccum, nU, horzSize );
-            blas::Gemm
-            ( 'C', 'N', nU, horzSize, nU, 
-              Real(1), &U(k1,k1),         U.LDim(),
-                       &H(ghostBeg+k1,j), H.LDim(),
-              Real(0), WAccum.Buffer(), WAccum.LDim() );
-            lapack::Copy
-            ( 'A', nU, horzSize,
-              WAccum.Buffer(), WAccum.LDim(),
-              &H(ghostBeg+k1,j), H.LDim() );
+            auto horzInd = IR(ghostBeg+k1,ghostBeg+k1+nU);
+            auto HHorzFar = H( horzInd, IR(j,j+horzSize) );
+            Gemm( ADJOINT, NORMAL, Real(1), UAccum, HHorzFar, WAccum );
+            HHorzFar = WAccum;
 
             // Vertical far-from-diagonal application
-            const Int vertSize = Max( winBeg, ghostBeg ) - transformBeg; 
-            Zeros( WAccum, vertSize, nU );
-            blas::Gemm
-            ( 'N', 'N', vertSize, nU, nU, 
-              Real(1), &H(transformBeg,ghostBeg+k1), H.LDim(),
-                       &U(k1,k1),                    U.LDim(),
-              Real(0), WAccum.Buffer(), WAccum.LDim() );
-            lapack::Copy
-            ( 'A', vertSize, nU,
-              WAccum.Buffer(), WAccum.LDim(),
-              &H(transformBeg,ghostBeg+k1), H.LDim() );
+            auto vertInd = IR(transformBeg,Max(winBeg,ghostBeg));
+            auto HVertFar = H( vertInd, horzInd );
+            Gemm( NORMAL, NORMAL, Real(1), HVertFar, UAccum, WAccum );
+            HVertFar = WAccum;
 
             if( wantSchurVecs )
             {
-                Zeros( WAccum, nZ, nU );
-                blas::Gemm
-                ( 'N', 'N', nZ, nU, nU,
-                  Real(1), &Z(0,ghostBeg+k1), Z.LDim(),
-                           &U(k1,k1),         U.LDim(),
-                  Real(0), WAccum.Buffer(), WAccum.LDim() );
-                blas::Copy
-                ( 'A', nZ, nU,
-                  WAccum.Buffer(), WAccum.LDim(),
-                  &Z(0,ghostBeg+k1), Z.LDim() );
+                auto ZSub = Z( ALL, horzInd );
+                Gemm( NORMAL, NORMAL, Real(1), ZSub, UAccum, WAccum );
+                ZSub = WAccum;
             }
         }
     }
@@ -1287,12 +1367,12 @@ Int WindowedSingle
     const Int scaleEnd = ( fullTriangle ? n : winEnd );
     for( Int i=winBeg+1; i<winEnd; ++i )
     {
-        if( ImagPart(H(i,i-1)) != zero )
+        F& eta = H(i,i-1);
+        if( ImagPart(eta) != zero )
         {
-            const F eta_i_im1 = H(i,i-1);
-            F phase = eta_i_im1 / OneAbs(eta_i_im1);
+            F phase = eta / OneAbs(eta);
             phase = Conj(phase) / Abs(phase);
-            H(i,i-1) = Abs(eta_i_im1);
+            eta = Abs(eta);
             blas::Scal( scaleEnd-i, phase, &H(i,i), H.LDim() );
             blas::Scal
             ( Min(scaleEnd,i+2)-scaleBeg, Conj(phase), &H(scaleBeg,i), 1 );
