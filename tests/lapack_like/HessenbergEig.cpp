@@ -826,7 +826,7 @@ void ApplyReflectorsFromRight
     const Int nZ = Z.Height();
     // The first relative index of the slab that is in the window
     // (with 4x4 bulges being introduced at winBeg-1)
-    const Int slabActive = Max(0,(winBeg-1)-ghostCol);
+    const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
     if( have2x2 )
     {
         const Int bulge = lastFull+1;
@@ -848,7 +848,7 @@ void ApplyReflectorsFromRight
         {
             Int kU = bulgeBeg - ghostCol - 1; // TODO: Check for off-by-one
             auto UR = U(ALL,IR(kU,END));
-            for( Int j=slabActive; j<slabSize; ++j ) 
+            for( Int j=slabRelBeg; j<slabSize; ++j ) 
             {
                 Real& ups1 = UR(j,1);
                 Real& ups2 = UR(j,2);
@@ -894,7 +894,7 @@ void ApplyReflectorsFromRight
         {
             Int kU = bulgeBeg - ghostCol - 1; // TODO: Check for off-by-one
             auto UR = U(ALL,IR(kU,END));
-            for( Int j=slabActive; j<slabSize; ++j ) 
+            for( Int j=slabRelBeg; j<slabSize; ++j ) 
             {
                 Real& ups1 = UR(j,1);
                 Real& ups2 = UR(j,2);
@@ -1142,23 +1142,23 @@ void SmallBulgeSweep
             const Int transformBeg = ( fullTriangle ? 0 : winBeg );
             const Int transformEnd = ( fullTriangle ? n : winEnd );
  
-            const Int k1 = Max( 0, winBeg-(ghostCol+1) );
-            const Int nU = ((slabSize-1)-Max(0,slabEnd-winEnd)) - k1;
-            
-            const Int j = Min(slabEnd,winEnd);
+            const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
+            const Int slabWinEnd = Min(slabEnd,winEnd);
 
-            auto contractInd = IR(k1,k1+nU);
+            const Int nU = (slabSize-1) - Max(0,slabEnd-winEnd) - slabRelBeg;
+
+            auto contractInd = IR(0,nU) + slabRelBeg;
             auto UAccum = U( contractInd, contractInd );
 
             // Horizontal far-from-diagonal application
             const Int horzSize = transformEnd-transformBeg;
-            auto horzInd = IR(ghostBeg+k1,ghostBeg+k1+nU);
-            auto HHorzFar = H( horzInd, IR(j,j+horzSize) );
+            auto horzInd = IR(0,nU) + (ghostCol+slabRelBeg);
+            auto HHorzFar = H( horzInd, IR(0,horzSize)+slabWinEnd );
             Gemm( ADJOINT, NORMAL, Real(1), UAccum, HHorzFar, WAccum );
             HHorzFar = WAccum;
 
             // Vertical far-from-diagonal application
-            auto vertInd = IR(transformBeg,Max(winBeg,ghostBeg));
+            auto vertInd = IR(transformBeg,Max(winBeg,ghostCol));
             auto HVertFar = H( vertInd, horzInd );
             Gemm( NORMAL, NORMAL, Real(1), HVertFar, UAccum, WAccum );
             HVertFar = WAccum;
