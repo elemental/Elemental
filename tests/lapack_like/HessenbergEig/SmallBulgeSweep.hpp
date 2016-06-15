@@ -286,141 +286,30 @@ void ComputeReflectors
 template<typename Real>
 void ApplyReflector( Real& eta1, Real& eta2, const Real* w )
 {
-    // Apply I - tau*[1;v]*[1;v]', where tau is stored in
-    // w[0] and v is stored in w[1]
-    const Real innerProd = w[0]*(eta1+eta2*w[1]);
+    // Apply I - tau*[1;nu0]*[1;nu0]'
+    const Real& tau = w[0];
+    const Real& nu0 = w[1];
+
+    const Real innerProd = tau*(eta1+eta2*nu0);
     eta1 -= innerProd;
-    eta2 -= innerProd*w[1];
+    eta2 -= innerProd*nu0;
 }
 
 template<typename Real>
 void ApplyReflector( Real& eta1, Real& eta2, Real& eta3, const Real* w )
 {
-    // Apply I - tau*[1;v]*[1;v]', where tau is stored in
-    // w[0] and v is stored in w[1] and w[2]
-    const Real innerProd = w[0]*(eta1+eta2*w[1]+eta3*w[2]);
+    // Apply I - tau*[1;v]*[1;v]', where v=[nu0;nu1]
+    const Real& tau = w[0]; 
+    const Real& nu0 = w[1];
+    const Real& nu1 = w[2];
+
+    const Real innerProd = tau*(eta1+eta2*nu0+eta3*nu1);
     eta1 -= innerProd;
-    eta2 -= innerProd*w[1];
-    eta3 -= innerProd*w[2];
+    eta2 -= innerProd*nu0;
+    eta3 -= innerProd*nu1;
 }
 
-template<typename Real>
-void ApplyReflectors
-( Matrix<Real>& H,
-  Int winBeg,
-  Int winEnd,
-  Int slabSize,
-  Int ghostCol,
-  Int packetBeg,
-  Int transformBeg,
-  Int transformEnd,
-  Matrix<Real>& Z,
-  bool wantSchurVecs,
-  Matrix<Real>& U,
-  Matrix<Real>& W,
-  Int firstFull,
-  Int lastFull,
-  bool have2x2,
-  bool accumulate )
-{
-    DEBUG_ONLY(CSE cse("small_bulge_sweep::ApplyReflectors"))
-
-    // Apply from the left
-    // ===================
-    if( have2x2 )
-    {
-        const Int bulge = lastFull+1;
-        const Int bulgeBeg = packetBeg + 3*bulge;
-        const Real* w = &W(0,bulge);
-
-        DEBUG_ONLY(
-          if( bulgeBeg+1 < winBeg )
-              LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
-        )
-        for( Int j=bulgeBeg+1; j<transformEnd; ++j )
-        {
-            ApplyReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
-        }
-    }
-    for( Int j=Max(packetBeg,winBeg); j<transformEnd; ++j )
-    {
-        const Int lastBulge = Min( lastFull, (j-packetBeg-1)/3 );
-        for( Int bulge=firstFull; bulge<=lastBulge; ++bulge )
-        {
-            const Int bulgeBeg = packetBeg + 3*bulge;
-            const Real* w = &W(0,bulge);
-            ApplyReflector
-            ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
-        }
-    }
-
-    // Apply from the right (excluding the fourth row to support vig. deflation)
-    // =========================================================================
-    const Int nZ = Z.Height();
-    // The first relative index of the slab that is in the window
-    // (with 4x4 bulges being introduced at winBeg-1)
-    const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
-    if( have2x2 )
-    {
-        const Int bulge = lastFull+1;
-        const Int bulgeBeg = packetBeg + 3*bulge;
-        const Real* w = &W(0,bulge);
-        auto HR = H(ALL,IR(bulgeBeg,END));
-
-        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+3); ++j )
-        {
-            ApplyReflector( HR(j,1), HR(j,2), w );
-        }
-
-        if( accumulate )
-        {
-            Int kU = bulgeBeg - ghostCol;
-            auto UR = U(ALL,IR(kU,END));
-            for( Int j=slabRelBeg; j<slabSize; ++j ) 
-            {
-                ApplyReflector( UR(j,0), UR(j,1), w );
-            }
-        }
-        else if( wantSchurVecs )
-        {
-            auto ZR = Z(ALL,IR(bulgeBeg,END));
-            for( Int j=0; j<nZ; ++j )
-            {
-                ApplyReflector( ZR(j,1), ZR(j,2), w );
-            }
-        }
-    }
-    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
-    {
-        const Int bulgeBeg = packetBeg + 3*bulge;
-        const Real* w = &W(0,bulge);
-        auto HR = H(ALL,IR(bulgeBeg,END));
-
-        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+4); ++j )
-        {
-            ApplyReflector( HR(j,1), HR(j,2), HR(j,3), w );
-        }
-
-        if( accumulate )
-        {
-            Int kU = bulgeBeg - ghostCol;
-            auto UR = U(ALL,IR(kU,END));
-            for( Int j=slabRelBeg; j<slabSize; ++j ) 
-            {
-                ApplyReflector( UR(j,0), UR(j,1), UR(j,2), w );
-            }
-        }
-        else if( wantSchurVecs )
-        {
-            auto ZR = Z(ALL,IR(bulgeBeg,END));
-            for( Int j=0; j<nZ; ++j )
-            {
-                ApplyReflector( ZR(j,1), ZR(j,2), ZR(j,3), w );
-            }
-        }
-    }
-}
-
+// To be performed during the application of the reflections from the right
 template<typename Real>
 void VigilantDeflation
 ( Matrix<Real>& H,
@@ -483,6 +372,159 @@ void VigilantDeflation
                 eta10 = zero;
             }
         }
+    }
+}
+
+template<typename Real>
+void ApplyReflectors
+( Matrix<Real>& H,
+  Int winBeg,
+  Int winEnd,
+  Int slabSize,
+  Int ghostCol,
+  Int packetBeg,
+  Int transformBeg,
+  Int transformEnd,
+  Matrix<Real>& Z,
+  bool wantSchurVecs,
+  Matrix<Real>& U,
+  Matrix<Real>& W,
+  Int firstFull,
+  Int lastFull,
+  bool have2x2,
+  bool accumulate )
+{
+    DEBUG_ONLY(CSE cse("small_bulge_sweep::ApplyReflectors"))
+
+    // Apply from the left
+    // ===================
+    if( have2x2 )
+    {
+        const Int bulge = lastFull+1;
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        const Real* w = &W(0,bulge);
+
+        DEBUG_ONLY(
+          if( bulgeBeg+1 < winBeg )
+              LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
+        )
+
+        for( Int j=bulgeBeg+1; j<transformEnd; ++j )
+        {
+            ApplyReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
+        }
+    }
+    for( Int j=Max(packetBeg,winBeg); j<transformEnd; ++j )
+    {
+        const Int lastBulge = Min( lastFull, (j-packetBeg-1)/3 );
+        for( Int bulge=firstFull; bulge<=lastBulge; ++bulge )
+        {
+            const Int bulgeBeg = packetBeg + 3*bulge;
+            const Real* w = &W(0,bulge);
+            ApplyReflector
+            ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
+        }
+    }
+
+    // Apply from the right (excluding the fourth row to support vig. deflation)
+    // =========================================================================
+    const Int nZ = Z.Height();
+    // The first relative index of the slab that is in the window
+    // (with 4x4 bulges being introduced at winBeg-1)
+    const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
+    if( have2x2 )
+    {
+        const Int bulge = lastFull+1;
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        const Real* w = &W(0,bulge);
+
+        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+3); ++j )
+        {
+            ApplyReflector( H(j,bulgeBeg+1), H(j,bulgeBeg+2), w );
+        }
+
+        if( accumulate )
+        {
+            const Int kU = bulgeBeg - ghostCol;
+            for( Int j=slabRelBeg; j<slabSize; ++j ) 
+            {
+                ApplyReflector( U(j,kU), U(j,kU+1), w );
+            }
+        }
+        else if( wantSchurVecs )
+        {
+            for( Int j=0; j<nZ; ++j )
+            {
+                ApplyReflector( Z(j,bulgeBeg+1), Z(j,bulgeBeg+2), w );
+            }
+        }
+    }
+    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+    {
+        const Int bulgeBeg = packetBeg + 3*bulge;
+        const Real* w = &W(0,bulge);
+
+        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+4); ++j )
+        {
+            ApplyReflector
+            ( H(j,bulgeBeg+1), H(j,bulgeBeg+2), H(j,bulgeBeg+3), w );
+        }
+
+        if( accumulate )
+        {
+            const Int kU = bulgeBeg - ghostCol;
+            for( Int j=slabRelBeg; j<slabSize; ++j ) 
+            {
+                ApplyReflector( U(j,kU), U(j,kU+1), U(j,kU+2), w );
+            }
+        }
+        else if( wantSchurVecs )
+        {
+            for( Int j=0; j<nZ; ++j )
+            {
+                ApplyReflector
+                ( Z(j,bulgeBeg+1), Z(j,bulgeBeg+2), Z(j,bulgeBeg+3), w );
+            }
+        }
+    }
+
+    // Vigilant deflation check using Ahues/Tisseur criteria
+    // =====================================================
+    const Int vigFirst =
+      ( packetBeg+3*firstFull == winBeg-1 ? firstFull+1 : firstFull );
+    const Int vigLast = ( have2x2 ? lastFull+1 : lastFull );
+    small_bulge_sweep::VigilantDeflation
+    ( H, winBeg, winEnd, packetBeg, vigFirst, vigLast );
+
+    // Form the last row of the result of applying from the right:
+    //
+    // | X X X X X |     | X X X X X |
+    // | X X X X X |     | X X X X X |
+    // | X X X X X | |-> |   X X X X |
+    // | X X X X X |     |   X X X X |
+    // |       X X |     |   X X X X |
+    //
+    // The last row is introduced from the transformation
+    //
+    //   H(k+4,k+1:k+3) -= tau H(k+4,k+1:k+3) [1; nu0; nu1] [1; nu0; nu1]'.
+    //
+    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing 
+    //
+    //   innerProd = tau H(k+4,k+1:k+3) [1; nu0; nu1]
+    //             = tau H(k+4,k+3) nu1
+    //
+    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+    {
+        const Int k = packetBeg + 3*bulge;
+        const Real* w = &W(0,bulge);
+        const Real& tau = w[0];
+        const Real& nu0 = w[1];
+        const Real& nu1 = w[2];
+
+        const Real innerProd = tau*H(k+4,k+3)*nu1;
+        H(k+4,k+1) = -innerProd;
+        H(k+4,k+2) = -innerProd*nu0;
+        H(k+4,k+3) -= innerProd*nu1;
     }
 }
 
@@ -597,41 +639,6 @@ void SmallBulgeSweep
               slabSize, ghostCol, packetBeg, transformBeg, transformEnd,
               Z, wantSchurVecs, U, W,
               firstFull, lastFull, have2x2, accumulate );
-
-            // Vigilant deflation check using Ahues/Tisseur criteria
-            const Int vigFirst =
-              ( packetBeg+3*firstFull == winBeg-1 ? firstFull+1 : firstFull );
-            const Int vigLast = ( have2x2 ? lastFull+1 : lastFull );
-            small_bulge_sweep::VigilantDeflation
-            ( H, winBeg, winEnd, packetBeg, vigFirst, vigLast );
-
-            // Fill in the last row of the translated full bulges
-            //
-            // | X X X X X |     | X X X X X |
-            // | X X X X X |     | X X X X X |
-            // | X X X X X | |-> |   X X X X |
-            // | X X X X X |     |   X X X X |
-            // |       X X |     |   X X X X |
-            //
-            // where the last row is only introduced from the transformation
-            //
-            //   H(k+4,k+1:k+3) -= tau H(k+4,k+1:k+3) [1; v0; v1] [1; v0; v1]'.
-            //
-            // For convenience, since H(k+4,k+1:k+2)=0, we start by computing 
-            //
-            //   innerProd = tau H(k+4,k+1:k+3) [1; v0; v1]
-            //             = tau H(k+4,k+3) v1
-            //
-            for( Int bulge=lastFull; bulge>=firstFull; --bulge )
-            {
-                const Int k = packetBeg + 3*bulge;
-                const Real* w = &W(0,bulge);
-
-                const Real innerProd = w[0]*w[2]*H(k+4,k+3);
-                H(k+4,k+1) = -innerProd;
-                H(k+4,k+2) = -innerProd*w[1];
-                H(k+4,k+3) -= innerProd*w[2];
-            }
         }
         if( accumulate )
         {
