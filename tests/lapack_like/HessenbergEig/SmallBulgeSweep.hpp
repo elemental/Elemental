@@ -284,6 +284,27 @@ void ComputeReflectors
 }
 
 template<typename Real>
+void ApplyReflector( Real& eta1, Real& eta2, const Real* w )
+{
+    // Apply I - tau*[1;v]*[1;v]', where tau is stored in
+    // w[0] and v is stored in w[1]
+    const Real innerProd = w[0]*(eta1+eta2*w[1]);
+    eta1 -= innerProd;
+    eta2 -= innerProd*w[1];
+}
+
+template<typename Real>
+void ApplyReflector( Real& eta1, Real& eta2, Real& eta3, const Real* w )
+{
+    // Apply I - tau*[1;v]*[1;v]', where tau is stored in
+    // w[0] and v is stored in w[1] and w[2]
+    const Real innerProd = w[0]*(eta1+eta2*w[1]+eta3*w[2]);
+    eta1 -= innerProd;
+    eta2 -= innerProd*w[1];
+    eta3 -= innerProd*w[2];
+}
+
+template<typename Real>
 void ApplyReflectors
 ( Matrix<Real>& H,
   Int winBeg,
@@ -318,14 +339,7 @@ void ApplyReflectors
         )
         for( Int j=bulgeBeg+1; j<transformEnd; ++j )
         {
-            Real& eta1 = H(bulgeBeg+1,j);
-            Real& eta2 = H(bulgeBeg+2,j);
-
-            // Apply I - tau*[1;v]*[1;v]', where tau is stored in
-            // w[0] and v is stored in w[1]
-            Real innerProd = w[0]*(eta1+w[1]*eta2);
-            eta1 -=      innerProd;
-            eta2 -= w[1]*innerProd;
+            ApplyReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
         }
     }
     for( Int j=Max(packetBeg,winBeg); j<transformEnd; ++j )
@@ -335,21 +349,13 @@ void ApplyReflectors
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
             const Real* w = &W(0,bulge);
-            Real& eta1 = H(bulgeBeg+1,j); 
-            Real& eta2 = H(bulgeBeg+2,j);
-            Real& eta3 = H(bulgeBeg+3,j);
-
-            // Apply I - tau*[1;v]*[1;v]', where tau is stored in
-            // w[0] and v is stored in w[1] and w[2]
-            Real innerProd = w[0]*(eta1+w[1]*eta2+w[2]*eta3);
-            eta1 -=      innerProd;
-            eta2 -= w[1]*innerProd;
-            eta3 -= w[2]*innerProd;
+            ApplyReflector
+            ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
         }
     }
 
-    // Apply from the right
-    // ====================
+    // Apply from the right (excluding the fourth row to support vig. deflation)
+    // =========================================================================
     const Int nZ = Z.Height();
     // The first relative index of the slab that is in the window
     // (with 4x4 bulges being introduced at winBeg-1)
@@ -363,12 +369,7 @@ void ApplyReflectors
 
         for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+3); ++j )
         {
-            Real& eta1 = HR(j,1);
-            Real& eta2 = HR(j,2);
-
-            Real innerProd = w[0]*(eta1+eta2*w[1]);
-            eta1 -= innerProd;
-            eta2 -= innerProd*w[1];
+            ApplyReflector( HR(j,1), HR(j,2), w );
         }
 
         if( accumulate )
@@ -377,12 +378,7 @@ void ApplyReflectors
             auto UR = U(ALL,IR(kU,END));
             for( Int j=slabRelBeg; j<slabSize; ++j ) 
             {
-                Real& ups1 = UR(j,0);
-                Real& ups2 = UR(j,1);
-
-                Real innerProd = w[0]*(ups1+ups2*w[1]);
-                ups1 -= innerProd;
-                ups2 -= innerProd*w[1];
+                ApplyReflector( UR(j,0), UR(j,1), w );
             }
         }
         else if( wantSchurVecs )
@@ -390,12 +386,7 @@ void ApplyReflectors
             auto ZR = Z(ALL,IR(bulgeBeg,END));
             for( Int j=0; j<nZ; ++j )
             {
-                Real& zeta1 = ZR(j,1);
-                Real& zeta2 = ZR(j,2);
-
-                Real innerProd = w[0]*(zeta1+zeta2*w[1]);
-                zeta1 -= innerProd;
-                zeta2 -= innerProd*w[1];
+                ApplyReflector( ZR(j,1), ZR(j,2), w );
             }
         }
     }
@@ -407,14 +398,7 @@ void ApplyReflectors
 
         for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+4); ++j )
         {
-            Real& eta1 = HR(j,1);
-            Real& eta2 = HR(j,2);
-            Real& eta3 = HR(j,3);
-
-            Real innerProd = w[0]*(eta1+eta2*w[1]+eta3*w[2]);
-            eta1 -= innerProd;
-            eta2 -= innerProd*w[1];
-            eta3 -= innerProd*w[2];
+            ApplyReflector( HR(j,1), HR(j,2), HR(j,3), w );
         }
 
         if( accumulate )
@@ -423,14 +407,7 @@ void ApplyReflectors
             auto UR = U(ALL,IR(kU,END));
             for( Int j=slabRelBeg; j<slabSize; ++j ) 
             {
-                Real& ups1 = UR(j,0);
-                Real& ups2 = UR(j,1);
-                Real& ups3 = UR(j,2);
-
-                Real innerProd = w[0]*(ups1+ups2*w[1]+ups3*w[2]);
-                ups1 -= innerProd;
-                ups2 -= innerProd*w[1];
-                ups3 -= innerProd*w[2];
+                ApplyReflector( UR(j,0), UR(j,1), UR(j,2), w );
             }
         }
         else if( wantSchurVecs )
@@ -438,14 +415,7 @@ void ApplyReflectors
             auto ZR = Z(ALL,IR(bulgeBeg,END));
             for( Int j=0; j<nZ; ++j )
             {
-                Real& zeta1 = ZR(j,1);
-                Real& zeta2 = ZR(j,2);
-                Real& zeta3 = ZR(j,3);
-
-                Real innerProd = w[0]*(zeta1+zeta2*w[1]+zeta3*w[2]);
-                zeta1 -= innerProd;
-                zeta2 -= innerProd*w[1];
-                zeta3 -= innerProd*w[2];
+                ApplyReflector( ZR(j,1), ZR(j,2), ZR(j,3), w );
             }
         }
     }
