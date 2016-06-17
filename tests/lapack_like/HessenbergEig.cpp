@@ -263,6 +263,76 @@ void TestRandomQuasi( Int n, bool print )
         Print( R );
 }
 
+template<typename Real>
+void TestSmallBulgeSweep
+( Int n,
+  Int numShiftPairs,
+  Int winBeg,
+  Int winEnd,
+  bool fullTriangle,
+  bool wantSchurVecs, 
+  bool accumulate,
+  bool print )
+{
+    DEBUG_ONLY(CSE cse("TestSmallBulgeSweep"))
+    Matrix<Real> H;
+    Uniform( H, n, n );
+    MakeTrapezoidal( UPPER, H, -1 );
+
+    auto HOrig( H );
+    if( print )
+        Print( HOrig, "HOrig" );
+    
+    const Int numShifts = 2*numShiftPairs;
+    if( print )
+        Output("Shift pairs:");
+    vector<Real> realShifts(numShifts), imagShifts(numShifts);
+    for( Int i=0; i<numShiftPairs; ++i ) 
+    {
+        const Real sigmaReal = SampleUniform<Real>();
+        const Real sigmaImag = SampleUniform<Real>();
+        if( print )
+        {
+            Output(sigmaReal," + ",sigmaImag,"i");
+            Output(sigmaReal," - ",sigmaImag,"i");
+        }
+        realShifts[2*i+0] =  sigmaReal;
+        realShifts[2*i+1] =  sigmaReal;
+        imagShifts[2*i+0] =  sigmaImag;
+        imagShifts[2*i+1] = -sigmaImag;
+    }
+
+    Matrix<Real> Z; 
+    Identity( Z, n, n );
+    Matrix<Real> U, W, WAccum;
+    hess_qr::SmallBulgeSweep
+    ( H, winBeg, winEnd, realShifts, imagShifts,
+      fullTriangle, Z, wantSchurVecs, U, W, WAccum, accumulate );
+    if( print )
+    {
+        Print( H, "H" );
+        if( wantSchurVecs )
+            Print( Z, "Z" );
+    }
+
+    auto HNonHess( H );
+    MakeTrapezoidal( LOWER, HNonHess, -2 );
+    const Real nonHessNorm = FrobeniusNorm( HNonHess );
+    Output("Non-Hessenberg Frobenius norm: ",nonHessNorm);
+
+    MakeTrapezoidal( UPPER, H, -1 );
+
+    if( fullTriangle && wantSchurVecs )
+    {
+        auto E( H );
+        Matrix<Real> Y;
+        Gemm( ADJOINT, NORMAL, Real(1), Z, HOrig, Y );
+        Gemm( NORMAL, NORMAL, Real(-1), Y, Z, Real(1), E );
+        const Real consistencyRelErr = FrobeniusNorm(E) / FrobeniusNorm(HOrig);
+        Output("|| Z' HOrig Z - H ||_F / || HOrig ||_F = ",consistencyRelErr);
+    }
+}
+
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -325,6 +395,16 @@ int main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
         TestRandom<BigFloat>( n, print );
 #endif
+
+        const Int numShiftPairs = n/2;
+        const Int winBeg = 0;
+        const Int winEnd = n;
+        const bool fullTriangle = true;
+        const bool wantSchurVecs = true;
+        const bool accumulate = true;
+        TestSmallBulgeSweep<double>
+        ( n, numShiftPairs, winBeg, winEnd,
+          fullTriangle, wantSchurVecs, accumulate, print );
     }
     catch( std::exception& e ) { ReportException(e); }
 

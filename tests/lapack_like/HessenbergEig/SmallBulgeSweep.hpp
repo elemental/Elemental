@@ -164,9 +164,9 @@ void ComputeReflectors
   vector<Real>& imagShifts,
   Matrix<Real>& W,
   Int packetBeg,
-  Int firstFull,
-  Int lastFull,
-  bool have2x2 )
+  Int fullBeg,
+  Int fullEnd,
+  bool have3x3 )
 {
     DEBUG_ONLY(CSE cse("small_bulge_sweep::ComputeReflectors"))
     const Real zero(0);
@@ -176,9 +176,9 @@ void ComputeReflectors
     // a deflated bulge
     vector<Real> wCand(3);
 
-    if( have2x2 )
+    if( have3x3 )
     {
-        const Int bulge = lastFull+1;
+        const Int bulge = fullEnd;
         const Real realShift0 = realShifts[2*bulge];
         const Real imagShift0 = imagShifts[2*bulge];
         const Real realShift1 = realShifts[2*bulge+1];
@@ -196,7 +196,7 @@ void ComputeReflectors
         }
         else
         {
-            // Find the reflection for chasing the 2x2 bulge
+            // Find the reflection for chasing the 3x3 bulge
             Real beta = H( bulgeBeg+1, bulgeBeg );
             w[1] = H( bulgeBeg+2, bulgeBeg );
             w[0] = lapack::Reflector( 2, beta, &w[1], 1 );
@@ -204,7 +204,7 @@ void ComputeReflectors
             H( bulgeBeg+2, bulgeBeg ) = zero;
         }
     }
-    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+    for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
     {
         const Real realShift0 = realShifts[2*bulge];
         const Real imagShift0 = imagShifts[2*bulge];
@@ -226,14 +226,9 @@ void ComputeReflectors
         else
         {
             // Prepare to chase the bulge down a step
-            Real& eta00 = H(bulgeBeg,  bulgeBeg  );
-            Real& eta10 = H(bulgeBeg+1,bulgeBeg  );
-            Real& eta11 = H(bulgeBeg+1,bulgeBeg+1);
-            Real& eta20 = H(bulgeBeg+2,bulgeBeg  );
-            Real& eta22 = H(bulgeBeg+2,bulgeBeg+2);
-            Real& eta30 = H(bulgeBeg+3,bulgeBeg  );
-            Real& eta31 = H(bulgeBeg+3,bulgeBeg+1);
-            Real& eta32 = H(bulgeBeg+3,bulgeBeg+2);
+            Real& eta10 = H(bulgeBeg+1,bulgeBeg);
+            Real& eta20 = H(bulgeBeg+2,bulgeBeg);
+            Real& eta30 = H(bulgeBeg+3,bulgeBeg);
 
             Real beta = eta10;
             w[1] = eta20;
@@ -243,6 +238,8 @@ void ComputeReflectors
             // "Vigilantly" search for a deflation
             // (deflation within the interior is exceedingly rare,
             //  but this check should be essentially free)
+            const Real& eta31 = H(bulgeBeg+3,bulgeBeg+1);
+            const Real& eta32 = H(bulgeBeg+3,bulgeBeg+2);
             if( eta30 != zero || eta31 != zero || eta32 == zero )
             {
                 // Bulge has not collapsed
@@ -259,6 +256,10 @@ void ComputeReflectors
                   realShift1, imagShift1,
                   wCand.data() ); 
                 Real innerProd = wCand[0]*(eta10+wCand[1]*eta20);
+
+                const Real& eta00 = H(bulgeBeg,  bulgeBeg  );
+                const Real& eta11 = H(bulgeBeg+1,bulgeBeg+1);
+                const Real& eta22 = H(bulgeBeg+2,bulgeBeg+2);
                 if( Abs(eta20-innerProd*wCand[1]) + Abs(innerProd*wCand[2]) >=
                     ulp*(Abs(eta00)+Abs(eta11)+Abs(eta22)) )
                 {
@@ -316,8 +317,8 @@ void VigilantDeflation
   Int winBeg,
   Int winEnd,
   Int packetBeg,
-  Int vigFirst,
-  Int vigLast )
+  Int vigBeg,
+  Int vigEnd )
 {
     DEBUG_ONLY(CSE cse("small_bulge_sweep::VigilantDeflation"))
     const Real zero(0);
@@ -325,9 +326,9 @@ void VigilantDeflation
     const Real safeMin = limits::SafeMin<Real>();
     const Real smallNum = safeMin*(Real(H.Height())/ulp);
 
-    // NOTE: LAPACK has a strange increment of vigLast by one if
+    // NOTE: LAPACK has a strange increment of vigEnd by one if
     //       packetBeg is equal to winBeg-3 here...
-    for( Int bulge=vigLast; bulge>=vigFirst; --bulge )
+    for( Int bulge=vigEnd-1; bulge>=vigBeg; --bulge )
     {
         const Int k = Min( winEnd-2, packetBeg+3*bulge );
         Real& eta00 = H(k  ,k  );
@@ -389,18 +390,31 @@ void ApplyReflectors
   bool wantSchurVecs,
   Matrix<Real>& U,
   Matrix<Real>& W,
-  Int firstFull,
-  Int lastFull,
-  bool have2x2,
+  Int fullBeg,
+  Int fullEnd,
+  bool have3x3,
   bool accumulate )
 {
     DEBUG_ONLY(CSE cse("small_bulge_sweep::ApplyReflectors"))
 
     // Apply from the left
     // ===================
-    if( have2x2 )
+    for( Int j=Max(ghostCol,winBeg); j<transformEnd; ++j )
     {
-        const Int bulge = lastFull+1;
+        // Avoid re-applying freshly generated reflections
+        // (which is only relevant when (j-packetBeg) % 3 = 0)
+        const Int applyBulgeEnd = Min( fullEnd, (j-packetBeg+2)/3 );
+        for( Int bulge=fullBeg; bulge<applyBulgeEnd; ++bulge )
+        {
+            const Int bulgeBeg = packetBeg + 3*bulge;
+            const Real* w = &W(0,bulge);
+            ApplyReflector
+            ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
+        }
+    }
+    if( have3x3 )
+    {
+        const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const Real* w = &W(0,bulge);
 
@@ -414,17 +428,6 @@ void ApplyReflectors
             ApplyReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
         }
     }
-    for( Int j=Max(packetBeg,winBeg); j<transformEnd; ++j )
-    {
-        const Int lastBulge = Min( lastFull, (j-packetBeg-1)/3 );
-        for( Int bulge=firstFull; bulge<=lastBulge; ++bulge )
-        {
-            const Int bulgeBeg = packetBeg + 3*bulge;
-            const Real* w = &W(0,bulge);
-            ApplyReflector
-            ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
-        }
-    }
 
     // Apply from the right (excluding the fourth row to support vig. deflation)
     // =========================================================================
@@ -432,69 +435,69 @@ void ApplyReflectors
     // The first relative index of the slab that is in the window
     // (with 4x4 bulges being introduced at winBeg-1)
     const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
-    if( have2x2 )
+    if( have3x3 )
     {
-        const Int bulge = lastFull+1;
+        const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const Real* w = &W(0,bulge);
 
-        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+3); ++j )
+        for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
         {
-            ApplyReflector( H(j,bulgeBeg+1), H(j,bulgeBeg+2), w );
+            ApplyReflector( H(i,bulgeBeg+1), H(i,bulgeBeg+2), w );
         }
 
         if( accumulate )
         {
             const Int kU = bulgeBeg - ghostCol;
-            for( Int j=slabRelBeg; j<slabSize; ++j ) 
+            for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
             {
-                ApplyReflector( U(j,kU), U(j,kU+1), w );
+                ApplyReflector( U(i,kU), U(i,kU+1), w );
             }
         }
         else if( wantSchurVecs )
         {
-            for( Int j=0; j<nZ; ++j )
+            for( Int i=0; i<nZ; ++i )
             {
-                ApplyReflector( Z(j,bulgeBeg+1), Z(j,bulgeBeg+2), w );
+                ApplyReflector( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), w );
             }
         }
     }
-    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+    for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
         const Real* w = &W(0,bulge);
 
-        for( Int j=transformBeg; j<Min(winEnd,bulgeBeg+4); ++j )
+        for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+4); ++i )
         {
             ApplyReflector
-            ( H(j,bulgeBeg+1), H(j,bulgeBeg+2), H(j,bulgeBeg+3), w );
+            ( H(i,bulgeBeg+1), H(i,bulgeBeg+2), H(i,bulgeBeg+3), w );
         }
 
         if( accumulate )
         {
             const Int kU = bulgeBeg - ghostCol;
-            for( Int j=slabRelBeg; j<slabSize; ++j ) 
+            for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
             {
-                ApplyReflector( U(j,kU), U(j,kU+1), U(j,kU+2), w );
+                ApplyReflector( U(i,kU), U(i,kU+1), U(i,kU+2), w );
             }
         }
         else if( wantSchurVecs )
         {
-            for( Int j=0; j<nZ; ++j )
+            for( Int i=0; i<nZ; ++i )
             {
                 ApplyReflector
-                ( Z(j,bulgeBeg+1), Z(j,bulgeBeg+2), Z(j,bulgeBeg+3), w );
+                ( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), Z(i,bulgeBeg+3), w );
             }
         }
     }
 
     // Vigilant deflation check using Ahues/Tisseur criteria
     // =====================================================
-    const Int vigFirst =
-      ( packetBeg+3*firstFull == winBeg-1 ? firstFull+1 : firstFull );
-    const Int vigLast = ( have2x2 ? lastFull+1 : lastFull );
+    const Int vigBeg =
+      ( packetBeg+3*fullBeg == winBeg-1 ? fullBeg+1 : fullBeg );
+    const Int vigEnd = ( have3x3 ? fullEnd+1 : fullEnd );
     small_bulge_sweep::VigilantDeflation
-    ( H, winBeg, winEnd, packetBeg, vigFirst, vigLast );
+    ( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd );
 
     // Form the last row of the result of applying from the right:
     //
@@ -513,7 +516,8 @@ void ApplyReflectors
     //   innerProd = tau H(k+4,k+1:k+3) [1; nu0; nu1]
     //             = tau H(k+4,k+3) nu1
     //
-    for( Int bulge=lastFull; bulge>=firstFull; --bulge )
+    const Int lastRowBulgeEnd = Min( fullEnd, (winEnd-packetBeg-2)/3 );
+    for( Int bulge=lastRowBulgeEnd-1; bulge>=fullBeg; --bulge )
     {
         const Int k = packetBeg + 3*bulge;
         const Real* w = &W(0,bulge);
@@ -545,6 +549,7 @@ void SmallBulgeSweep
   Matrix<Real>& WAccum,
   bool accumulate=true )
 {
+    DEBUG_ONLY(CSE cse("hess_qr::SmallBulgeSweep"))
     const Real zero(0);
     const Int n = H.Height();
     const Int nZ = Z.Height();
@@ -558,7 +563,7 @@ void SmallBulgeSweep
     )
     const Int numBulges = numShifts / 2;
 
-    PairShifts( realShifts, imagShifts );
+    small_bulge_sweep::PairShifts( realShifts, imagShifts );
 
     // TODO: Decide if this is strictly necessary
     H(winBeg+2,winBeg) = zero;
@@ -604,19 +609,17 @@ void SmallBulgeSweep
         const Int packetEnd = Min(ghostCol+ghostStride,ghostEnd);
         for( Int packetBeg=ghostCol; packetBeg<packetEnd; ++packetBeg )
         {
-            const Int firstFull = Max( 0, ((winBeg-1)-packetBeg+2)/3 );
-            const Int numFull = Min( numBulges, (winEnd-packetBeg-1)/3 );
-            const Int lastFull = firstFull+numFull-1;
+            const Int fullBeg = Max( 0, ((winBeg-1)-packetBeg+2)/3 );
+            const Int fullEnd = Min( numBulges, (winEnd-packetBeg-1)/3 );
 
             // 2x2 reflectors can only occur if a bulge occupies the 3x3 in the
             // bottom-right corner (which begins at index winEnd-3)
-            const bool have2x2 =
-              ( (lastFull+1) < numBulges &&
-                packetBeg+3*(lastFull+1) == winEnd-3 );
+            const bool have3x3 =
+              ( fullEnd < numBulges && packetBeg+3*fullEnd == winEnd-3 );
 
             small_bulge_sweep::ComputeReflectors
             ( H, winBeg, realShifts, imagShifts, W,
-              packetBeg, firstFull, lastFull, have2x2 );
+              packetBeg, fullBeg, fullEnd, have3x3 );
 
             Int transformBeg;
             if( accumulate )
@@ -638,11 +641,10 @@ void SmallBulgeSweep
             ( H, winBeg, winEnd,
               slabSize, ghostCol, packetBeg, transformBeg, transformEnd,
               Z, wantSchurVecs, U, W,
-              firstFull, lastFull, have2x2, accumulate );
+              fullBeg, fullEnd, have3x3, accumulate );
         }
         if( accumulate )
         {
-            // TODO: Debug this section's index ranges
             const Int transformBeg = ( fullTriangle ? 0 : winBeg );
             const Int transformEnd = ( fullTriangle ? n : winEnd );
  
@@ -655,9 +657,11 @@ void SmallBulgeSweep
             auto UAccum = U( contractInd, contractInd );
 
             // Horizontal far-from-diagonal application
-            const Int horzSize = transformEnd-transformBeg;
-            auto horzInd = IR(0,nU) + (ghostCol+slabRelBeg);
-            auto HHorzFar = H( horzInd, IR(0,horzSize)+slabWinEnd );
+            const Int rightIndBeg = Min(ghostCol+slabSize,winEnd);
+            const Int rightIndEnd = transformEnd;
+            const auto rightInd = IR(rightIndBeg,rightIndEnd);
+            auto horzInd = IR(0,nU) + (ghostCol+slabRelBeg+1);
+            auto HHorzFar = H( horzInd, rightInd );
             Gemm( ADJOINT, NORMAL, Real(1), UAccum, HHorzFar, WAccum );
             HHorzFar = WAccum;
 
