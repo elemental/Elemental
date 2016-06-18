@@ -23,7 +23,7 @@ void Gemm
            const Matrix<T>& B, 
   T beta,        Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Gemm"))
+    DEBUG_CSE
     if( orientA == NORMAL && orientB == NORMAL )
     {
         if( A.Height() != C.Height() ||
@@ -78,7 +78,7 @@ void Gemm
            const Matrix<T>& B, 
                  Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Gemm"))
+    DEBUG_CSE
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
     C.Resize( m, n );
@@ -94,7 +94,7 @@ void Gemm
   T beta,        ElementalMatrix<T>& C, 
   GemmAlgorithm alg )
 {
-    DEBUG_ONLY(CSE cse("Gemm"))
+    DEBUG_CSE
     C *= beta;
     if( orientA == NORMAL && orientB == NORMAL )
     {
@@ -124,7 +124,7 @@ void Gemm
            const ElementalMatrix<T>& B,
                  ElementalMatrix<T>& C, GemmAlgorithm alg )
 {
-    DEBUG_ONLY(CSE cse("Gemm"))
+    DEBUG_CSE
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
     C.Resize( m, n );
@@ -139,8 +139,8 @@ void LocalGemm
            const ElementalMatrix<T>& B,
   T beta,        ElementalMatrix<T>& C )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalGemm");
       if( orientA == NORMAL && orientB == NORMAL )
       {
           if( A.ColDist() != C.ColDist() ||
@@ -250,7 +250,7 @@ void LocalGemm
            const ElementalMatrix<T>& B,
                  ElementalMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("LocalGemm"))
+    DEBUG_CSE
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientB==NORMAL ? B.Width() : B.Height() );
     C.Resize( m, n );

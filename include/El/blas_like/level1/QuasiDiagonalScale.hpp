@@ -20,7 +20,7 @@ void QuasiDiagonalScale
         Matrix<F>& X,
   bool conjugated )
 {
-    DEBUG_ONLY(CSE cse("QuasiDiagonalScale"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int n = X.Width();
     Matrix<F> D( 2, 2 );
@@ -100,7 +100,7 @@ void LeftQuasiDiagonalScale
   const DistMatrix<F,U,V>& XNext,
   bool conjugated )
 {
-    DEBUG_ONLY(CSE cse("LeftQuasiDiagonalScale"))
+    DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int m = X.Height();
@@ -185,7 +185,7 @@ void RightQuasiDiagonalScale
   const DistMatrix<F,U,V>& XNext,
   bool conjugated )
 {
-    DEBUG_ONLY(CSE cse("LeftQuasiDiagonalScale"))
+    DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int n = X.Width();
@@ -265,7 +265,7 @@ QuasiDiagonalScale
         DistMatrix<F,U,V>& X,
   bool conjugated )
 {
-    DEBUG_ONLY(CSE cse("QuasiDiagonalScale"))
+    DEBUG_CSE
     const Grid& g = X.Grid();
     const Int colAlign = X.ColAlign();
     const Int rowAlign = X.RowAlign();

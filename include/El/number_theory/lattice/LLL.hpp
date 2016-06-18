@@ -325,7 +325,7 @@ Achieved
 ( const Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::Achieved"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = R.Height();
     const Int n = R.Width();
@@ -399,7 +399,7 @@ Achieved
 template<typename F>
 Base<F> LogVolume( const Matrix<F>& R )
 {
-    DEBUG_ONLY(CSE cse("lll::LogVolume"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = R.Height();
     const Int n = R.Width();
@@ -432,7 +432,7 @@ LLLInfo<Base<F>> LLLWithQ
   Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LLLWithQ"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     if( ctrl.recursive && ctrl.cutoff < n )
@@ -496,7 +496,7 @@ LLLInfo<Base<F>> LLL
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LLL"))
+    DEBUG_CSE
     if( ctrl.jumpstart && ctrl.startCol > 0 )
         LogicError("Cannot jumpstart from this interface");
     typedef Base<F> Real;
@@ -516,7 +516,7 @@ LLLWithQ
   Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LLLWithQ"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     if( ctrl.recursive && ctrl.cutoff < n )
@@ -602,7 +602,7 @@ LLL
   Matrix<F>& R,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LLL"))
+    DEBUG_CSE
     if( ctrl.jumpstart && ctrl.startCol > 0 )
         LogicError("Cannot jumpstart from this interface");
     typedef Base<F> Real;
@@ -630,7 +630,7 @@ LLL
 template<typename F>
 bool IsInteger( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("IsInteger"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const F* ABuf = A.LockedBuffer();
@@ -658,7 +658,7 @@ LowerPrecisionMerge
         bool maintainU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::LowerPrecisionMerge"))
+    DEBUG_CSE
     typedef ConvertBase<F,RealLower> FLower;
     typedef ConvertBase<Z,RealZLower> ZLower;
     const string typeStringF = TypeName<RealLower>();
@@ -822,7 +822,7 @@ RecursiveHelper
   bool maintainU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::RecursiveHelper"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     if( n < ctrl.cutoff )
@@ -1043,7 +1043,7 @@ RecursiveLLLWithQ
   Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RecursiveLLLWithQ"))
+    DEBUG_CSE
     if( ctrl.jumpstart && ctrl.startCol > 0 )
         Output("Warning: Recursive LLL ignores jumpstarts");
     auto ctrlMod( ctrl );
@@ -1067,7 +1067,7 @@ RecursiveLLLWithQ
   Matrix<Base<F>>& d,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RecursiveLLL"))
+    DEBUG_CSE
     if( ctrl.jumpstart && ctrl.startCol > 0 )
         Output("Warning: Recursive LLL ignores jumpstarts");
     auto ctrlMod( ctrl );
@@ -1086,7 +1086,7 @@ LLL
 ( Matrix<Z>& B,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LLL"))
+    DEBUG_CSE
     if( ctrl.jumpstart && ctrl.startCol > 0 )
         LogicError("Cannot jumpstart LLL from this interface");
     Matrix<F> R;

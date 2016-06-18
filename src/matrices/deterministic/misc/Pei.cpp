@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void Pei( Matrix<T>& P, Int n, T alpha )
 {
-    DEBUG_ONLY(CSE cse("Pei"))
+    DEBUG_CSE
     Ones( P, n, n );
     ShiftDiagonal( P, alpha );
 }
@@ -23,7 +23,7 @@ void Pei( Matrix<T>& P, Int n, T alpha )
 template<typename T>
 void Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
 {
-    DEBUG_ONLY(CSE cse("Pei"))
+    DEBUG_CSE
     Ones( P, n, n );
     ShiftDiagonal( P, alpha );
 }

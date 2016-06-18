@@ -24,8 +24,8 @@ void LocalAccumulateLUT
   const DistMatrix<T,MC,STAR>& X,
         DistMatrix<T,MR,STAR>& Z )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateLUT");
       AssertSameGrids( U, X, Z );
       if( U.Height() != U.Width() ||
           U.Height() != X.Height() ||
@@ -72,8 +72,8 @@ void LUTA
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUTA");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -122,8 +122,8 @@ void LUTCOld
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUTCOld");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -188,8 +188,8 @@ void LUTC
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUTC");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -251,7 +251,7 @@ void LUT
   const ElementalMatrix<T>& U,
         ElementalMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::LUT"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         LUTA( orientation, diag, U, X );

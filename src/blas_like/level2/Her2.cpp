@@ -16,7 +16,7 @@ void Her2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Her2"))
+    DEBUG_CSE
     Syr2( uplo, T(alpha), x, y, A, true );
 }
 
@@ -26,7 +26,7 @@ void Her2
   T alpha, const ElementalMatrix<T>& x, const ElementalMatrix<T>& y,
                  ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Her2"))
+    DEBUG_CSE
     Syr2( uplo, T(alpha), x, y, A, true );
 }
 

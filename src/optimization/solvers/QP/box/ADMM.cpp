@@ -35,7 +35,7 @@ ADMM
         Matrix<Real>& Z, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::box::ADMM"))
+    DEBUG_CSE
     const Int n = Q.Height();
     const Int k = C.Width();
 
@@ -131,7 +131,7 @@ ADMM
         ++numIter;
     }
     if( ctrl.maxIter == numIter )
-        cout << "ADMM failed to converge" << endl;
+        Output("ADMM failed to converge");
     return numIter;
 }
 
@@ -145,7 +145,7 @@ ADMM
         ElementalMatrix<Real>& ZPre, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::box::ADMM"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       QProx( QPre ),
@@ -253,7 +253,7 @@ ADMM
         ++numIter;
     }
     if( ctrl.maxIter == numIter && grid.Rank() == 0 )
-        cout << "ADMM failed to converge" << endl;
+        Output("ADMM failed to converge");
     return numIter;
 }
 

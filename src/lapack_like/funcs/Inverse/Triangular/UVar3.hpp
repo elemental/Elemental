@@ -16,8 +16,8 @@ template<typename F>
 void
 UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::UVar3Unb");
       if( U.Height() != U.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -46,8 +46,8 @@ template<typename F>
 void
 UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::UVar3");
       if( U.Height() != U.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -79,8 +79,8 @@ template<typename F>
 void
 UVar3( UnitOrNonUnit diag, ElementalMatrix<F>& UPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::UVar3");
       if( UPre.Height() != UPre.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )

@@ -21,7 +21,7 @@ Int LogisticRegression
         Regularization penalty, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LogisticRegression"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]
@@ -76,7 +76,7 @@ Int LogisticRegression
   Real gamma, Regularization penalty, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LogisticRegression"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]

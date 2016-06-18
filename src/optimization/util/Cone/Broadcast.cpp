@@ -17,29 +17,25 @@ void Broadcast
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("cone::Broadcast"))
+    DEBUG_CSE
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    F* xBuf = x.Buffer();
-    const Int* orderBuf = orders.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     for( Int i=0; i<height; )
     {
-        const Int order = orderBuf[i];
-        const Int firstInd = firstIndBuf[i];
+        const Int order = orders(i);
+        const Int firstInd = firstInds(i);
         DEBUG_ONLY(
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
 
-        const F x0 = xBuf[i]; 
+        const F x0 = x(i); 
         for( Int j=i+1; j<i+order; ++j )
-            xBuf[j] = x0;
+            x(j) = x0;
 
         i += order;
     }
@@ -52,7 +48,7 @@ void Broadcast
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("cone::Broadcast"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -163,7 +159,7 @@ void Broadcast
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("cone::Broadcast"))
+    DEBUG_CSE
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();

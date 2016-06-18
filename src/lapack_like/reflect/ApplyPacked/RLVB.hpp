@@ -38,8 +38,8 @@ RLVB
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLVB");
       if( H.Height() != A.Width() )
           LogicError("H's height must match A's width");
     )
@@ -88,10 +88,8 @@ RLVB
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLVB");
-      AssertSameGrids( HPre, tPre, APre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( HPre, tPre, APre ))
 
     DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );

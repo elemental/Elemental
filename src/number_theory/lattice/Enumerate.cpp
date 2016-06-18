@@ -236,7 +236,7 @@ Base<F> ShortVectorEnumeration
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ShortVectorEnumeration"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -447,7 +447,7 @@ MultiShortVectorEnumeration
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("MultiShortVectorEnumeration"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -690,7 +690,7 @@ Base<F> ShortestVectorEnumeration
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ShortestVectorEnumeration"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -708,7 +708,7 @@ Base<F> ShortestVectorEnrichment
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ShortestVectorEnrichment"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -727,7 +727,7 @@ Base<F> ShortestVectorEnrichment
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ShortestVectorEnrichment"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -748,7 +748,7 @@ Base<F> ShortestVectorEnumeration
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ShortestVectorEnumeration"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -825,7 +825,7 @@ MultiShortestVectorEnumeration
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("MultiShortestVectorEnumeration"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -921,7 +921,7 @@ Base<F> ShortestVectorEnrichment
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ShortestVectorEnrichment"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -943,7 +943,7 @@ MultiShortestVectorEnrichment
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("MultiShortestVectorEnrichment"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -972,7 +972,7 @@ Base<F> ShortestVectorEnrichment
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ShortestVectorEnrichment"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -995,7 +995,7 @@ MultiShortestVectorEnrichment
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("MultiShortestVectorEnrichment"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );

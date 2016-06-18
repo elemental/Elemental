@@ -17,7 +17,7 @@ void HCat
   const Matrix<T>& B,
         Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("HCat"))
+    DEBUG_CSE
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat");
     const Int m = A.Height();
@@ -38,7 +38,7 @@ void VCat
   const Matrix<T>& B,
         Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("VCat"))
+    DEBUG_CSE
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat");
     const Int mA = A.Height();
@@ -59,7 +59,7 @@ inline void HCat
   const ElementalMatrix<T>& B, 
         ElementalMatrix<T>& CPre )
 {
-    DEBUG_ONLY(CSE cse("Copy"))
+    DEBUG_CSE
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat");
     const Int m = A.Height();
@@ -83,7 +83,7 @@ void VCat
   const ElementalMatrix<T>& B, 
         ElementalMatrix<T>& CPre )
 {
-    DEBUG_ONLY(CSE cse("VCat"))
+    DEBUG_CSE
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat");
     const Int mA = A.Height();
@@ -107,7 +107,7 @@ void HCat
   const SparseMatrix<T>& B, 
         SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("HCat"))
+    DEBUG_CSE
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat"); 
 
@@ -133,7 +133,7 @@ void VCat
   const SparseMatrix<T>& B, 
         SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("VCat"))
+    DEBUG_CSE
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat"); 
 
@@ -159,7 +159,7 @@ void HCat
   const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("HCat"))
+    DEBUG_CSE
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat"); 
     /*
@@ -191,7 +191,7 @@ void VCat
   const DistSparseMatrix<T>& B, 
         DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("VCat"))
+    DEBUG_CSE
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat"); 
     /*
@@ -222,7 +222,7 @@ void HCat
   const DistMultiVec<T>& B,
         DistMultiVec<T>& C )
 {
-    DEBUG_ONLY(CSE cse("HCat"))
+    DEBUG_CSE
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height for HCat");
 
@@ -251,7 +251,7 @@ void VCat
   const DistMultiVec<T>& B,
         DistMultiVec<T>& C )
 {
-    DEBUG_ONLY(CSE cse("VCat"))
+    DEBUG_CSE
     if( A.Width() != B.Width() )
         LogicError("A and B must be the same width for VCat");
 

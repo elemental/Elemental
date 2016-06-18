@@ -39,7 +39,7 @@ Base<F> Helper
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svp::gnr_enum::Helper"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = N.Height();
     const Int n = N.Width();
@@ -138,7 +138,7 @@ Base<F> TransposedHelper
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svp::gnr_enum::TransposedHelper"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = NTrans.Width();
     const Int n = NTrans.Height();
@@ -240,7 +240,7 @@ Base<F> GNREnumeration
         Matrix<F>& v,
   const EnumCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svp::GNREnumeration"))
+    DEBUG_CSE
     if( ctrl.explicitTranspose )
     {
         Matrix<F> NTrans;

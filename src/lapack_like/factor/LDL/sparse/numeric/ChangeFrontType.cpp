@@ -25,7 +25,7 @@ namespace ldl {
 template<typename F>
 void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse )
 {
-    DEBUG_ONLY(CSE cse("ChangeFrontType"))
+    DEBUG_CSE
 
     if( type == SYMM_1D || type == SYMM_2D || 
         type == ConvertTo1D(front.type) || type == ConvertTo2D(front.type) )
@@ -44,7 +44,7 @@ void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse )
 template<typename F>
 void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
 {
-    DEBUG_ONLY(CSE cse("ChangeFrontType"))
+    DEBUG_CSE
 
     if( type == SYMM_1D || type == ConvertTo1D(front.type) )
     {

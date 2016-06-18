@@ -20,7 +20,7 @@ void NMF
         Matrix<Real>& Y,
   const NMFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NMF"))
+    DEBUG_CSE
 
     Matrix<Real> AAdj, XAdj, YAdj;
     Adjoint( A, AAdj );
@@ -41,7 +41,7 @@ void NMF
         ElementalMatrix<Real>& YPre,
   const NMFCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NMF"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre );

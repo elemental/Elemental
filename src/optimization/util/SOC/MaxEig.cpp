@@ -18,17 +18,12 @@ void MaxEig
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxEig"))
+    DEBUG_CSE
     soc::LowerNorms( x, maxEigs, orders, firstInds );
-
-          Real* maxEigBuf = maxEigs.Buffer();
-    const Real* xBuf = x.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] ) 
-            maxEigBuf[i] = xBuf[i]+maxEigBuf[i];
+        if( i == firstInds(i) ) 
+            maxEigs(i) += x(i);
 }
 
 template<typename Real,typename>
@@ -39,7 +34,7 @@ void MaxEig
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxEig"))
+    DEBUG_CSE
     AssertSameGrids( xPre, maxEigsPre, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -73,7 +68,7 @@ void MaxEig
 
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
-            maxEigBuf[iLoc] = xBuf[iLoc] + maxEigBuf[iLoc];
+            maxEigBuf[iLoc] += xBuf[iLoc];
 }
 
 template<typename Real,typename>
@@ -84,7 +79,7 @@ void MaxEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxEig"))
+    DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     DEBUG_ONLY(
@@ -102,7 +97,7 @@ void MaxEig
 
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
-            maxEigBuf[iLoc] = xBuf[iLoc] + maxEigBuf[iLoc];
+            maxEigBuf[iLoc] += xBuf[iLoc];
 }
 
 template<typename Real,typename>
@@ -111,18 +106,15 @@ Real MaxEig
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxEig"))
+    DEBUG_CSE
     Matrix<Real> maxEigs;
     soc::MaxEig( x, maxEigs, orders, firstInds );
-
-    const Real* maxEigBuf = maxEigs.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     Real maxEig = limits::Lowest<Real>();
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] ) 
-            maxEig = Max(maxEigBuf[i],maxEig);
+        if( i == firstInds(i) ) 
+            maxEig = Max(maxEigs(i),maxEig);
     return maxEig;
 }
 
@@ -133,7 +125,7 @@ Real MaxEig
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxEig"))
+    DEBUG_CSE
     AssertSameGrids( x, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -164,7 +156,7 @@ Real MaxEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxEig"))
+    DEBUG_CSE
     DistMultiVec<Real> maxEigs(x.Comm());
     soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 

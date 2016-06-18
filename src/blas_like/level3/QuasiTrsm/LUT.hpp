@@ -23,7 +23,7 @@ void LUTUnb
         Matrix<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LUTUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -119,8 +119,8 @@ void LUT
         Matrix<F>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LUT");
       if( orientation == NORMAL )
           LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -157,8 +157,8 @@ void LUTLarge
         ElementalMatrix<F>& XPre,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LUTLarge");
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -220,8 +220,8 @@ void LUTMedium
         ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LUTMedium");
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -284,8 +284,8 @@ void LUTSmall
         DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LUTSmall");
       AssertSameGrids( U, X );
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");

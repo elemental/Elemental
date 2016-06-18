@@ -17,7 +17,7 @@ namespace El {
 template<typename T>
 void AjtaiTypeBasis( Matrix<T>& A, Int n, Base<T> alpha )
 {
-    DEBUG_ONLY(CSE cse("AjtaiTypeBasis"))
+    DEBUG_CSE
     typedef Base<T> Real;
 
     Zeros( A, n, n );
@@ -39,7 +39,7 @@ void AjtaiTypeBasis( Matrix<T>& A, Int n, Base<T> alpha )
 template<typename T>
 void AjtaiTypeBasis( AbstractDistMatrix<T>& APre, Int n, Base<T> alpha )
 {
-    DEBUG_ONLY(CSE cse("AjtaiTypeBasis"))
+    DEBUG_CSE
     typedef Base<T> Real;
     DistMatrixWriteProxy<T,T,MC,MR> AProx( APre );
     auto& A = AProx.Get();

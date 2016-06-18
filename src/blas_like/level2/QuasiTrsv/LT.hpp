@@ -15,8 +15,8 @@ void LTUnb
 ( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LTUnb");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -103,8 +103,8 @@ void LT
 ( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LT");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -165,8 +165,8 @@ void LT
         ElementalMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LT");
       AssertSameGrids( LPre, xPre );
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");

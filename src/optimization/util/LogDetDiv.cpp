@@ -11,9 +11,12 @@
 namespace El {
 
 template<typename F>
-Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
+Base<F> LogDetDiv
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+  const Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("LogDetDiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
         LogicError("A and B must be square matrices of the same size");
@@ -50,9 +53,10 @@ Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, 
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& B )
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("LogDetDiv"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )

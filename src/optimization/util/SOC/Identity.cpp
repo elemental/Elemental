@@ -17,7 +17,7 @@ void Identity
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Identity"))
+    DEBUG_CSE
     const Int height = orders.Height();
     DEBUG_ONLY(
       if( firstInds.Height() != height || 
@@ -25,13 +25,10 @@ void Identity
           LogicError("orders and firstInds should vectors of the same height");
     )
 
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     Zeros( x, height, 1 );
-    Real* xBuf = x.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] )
-            xBuf[i] = 1;
+        if( i == firstInds(i) )
+            x(i) = 1;
 }
 
 template<typename Real,typename>
@@ -40,7 +37,7 @@ void Identity
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("soc::Identity"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -82,7 +79,7 @@ void Identity
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Identity"))
+    DEBUG_CSE
 
     const Int height = orders.Height();
     DEBUG_ONLY(

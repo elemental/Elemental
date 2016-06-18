@@ -15,11 +15,10 @@ namespace El {
 namespace cholesky {
 
 template<typename F>
-inline void
-UUnblockedPivoted( Matrix<F>& A, Permutation& P )
+void UUnblockedPivoted( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UUnblockedPivoted");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -62,13 +61,12 @@ UUnblockedPivoted( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-UUnblockedPivoted
+void UUnblockedPivoted
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UUnblockedPivoted");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
@@ -117,8 +115,7 @@ UUnblockedPivoted
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
-inline void
-UPanelPivoted
+void UPanelPivoted
 ( Matrix<F>& AFull,
   Permutation& PFull, 
   Matrix<F>& X,
@@ -126,7 +123,7 @@ UPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -186,7 +183,7 @@ UPanelPivoted
 }
 
 template<typename F>
-inline void
+void
 UPanelPivoted
 ( DistMatrix<F>& AFull,
   DistPermutation& PFull,
@@ -195,7 +192,7 @@ UPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -258,11 +255,10 @@ UPanelPivoted
 }
 
 template<typename F>
-inline void
-UVar3( Matrix<F>& A, Permutation& P )
+void UVar3( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UVar3");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -290,13 +286,12 @@ UVar3( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-UVar3
+void UVar3
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UVar3");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

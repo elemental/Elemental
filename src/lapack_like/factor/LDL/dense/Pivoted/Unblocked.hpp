@@ -14,10 +14,10 @@ namespace ldl {
 namespace pivot {
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 Select( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::Select"))
+    DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -31,10 +31,10 @@ Select( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 }
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 Select( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::Select"))
+    DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -49,7 +49,7 @@ Select( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 
 // Unblocked sequential pivoted LDL
 template<typename F>
-inline void
+void
 Unblocked
 ( Matrix<F>& A,
   Matrix<F>& dSub,
@@ -58,8 +58,8 @@ Unblocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::pivot::Unblocked");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -135,7 +135,7 @@ Unblocked
 }
 
 template<typename F>
-inline void
+void
 Unblocked
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& dSub, 
@@ -144,8 +144,8 @@ Unblocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::pivot::Unblocked");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       AssertSameGrids( APre, dSub );

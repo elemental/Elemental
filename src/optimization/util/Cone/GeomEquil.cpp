@@ -38,7 +38,7 @@ void GeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -55,7 +55,7 @@ void GeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -179,7 +179,7 @@ void GeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -358,7 +358,7 @@ void GeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();

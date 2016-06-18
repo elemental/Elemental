@@ -15,7 +15,7 @@ template<typename T>
 void ConjugateSubmatrix
 ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("ConjugateSubmatrix"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -35,7 +35,7 @@ template<typename T>
 void ConjugateSubmatrix
 ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("ConjugateSubmatrix"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 

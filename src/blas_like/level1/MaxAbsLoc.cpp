@@ -16,7 +16,7 @@ namespace El {
 template<typename T>
 ValueInt<Base<T>> VectorMaxAbsLoc( const Matrix<T>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMaxAbsLoc"))
+    DEBUG_CSE
     typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -65,7 +65,7 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const Matrix<T>& x )
 template<typename T>
 ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMaxAbsLoc"))
+    DEBUG_CSE
     typedef Base<T> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -130,7 +130,7 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
 template<typename T>
 Entry<Base<T>> MaxAbsLoc( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MaxAbsLoc"))
+    DEBUG_CSE
     typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -166,8 +166,8 @@ Entry<Base<T>> MaxAbsLoc( const Matrix<T>& A )
 template<typename T>
 Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MaxAbsLoc");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -217,7 +217,7 @@ Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& A )
 template<typename T>
 Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MaxAbsLoc"))
+    DEBUG_CSE
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -251,7 +251,7 @@ Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& A )
 template<typename T>
 Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MaxAbsLoc"))
+    DEBUG_CSE
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -285,8 +285,8 @@ Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& A )
 template<typename T>
 Entry<Base<T>> SymmetricMaxAbsLoc( UpperOrLower uplo, const Matrix<T>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMaxAbsLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -341,8 +341,8 @@ template<typename T>
 Entry<Base<T>> SymmetricMaxAbsLoc
 ( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMaxAbsLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
@@ -415,7 +415,7 @@ template<typename T>
 Entry<Base<T>> SymmetricMaxAbsLoc
 ( UpperOrLower uplo, const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricMaxAbsLoc"))
+    DEBUG_CSE
     typedef Base<T> Real;
 
     Entry<Real> pivot;
@@ -451,7 +451,7 @@ template<typename T>
 Entry<Base<T>> SymmetricMaxAbsLoc
 ( UpperOrLower uplo, const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricMaxAbsLoc"))
+    DEBUG_CSE
     typedef Base<T> Real;
 
     Entry<Real> pivot;

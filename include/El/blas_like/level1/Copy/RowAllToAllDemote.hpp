@@ -17,7 +17,7 @@ void RowAllToAllDemote
   ( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>()>& A, 
           DistMatrix<T,                U,             V   >& B )
 {
-    DEBUG_ONLY(CSE cse("copy::RowAllToAllDemote"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -121,7 +121,7 @@ void RowAllToAllDemote
   ( const DistMatrix<T,PartialUnionCol<U,V>(),Partial<V>(),BLOCK>& A, 
           DistMatrix<T,                U,             V   ,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::RowAllToAllDemote"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

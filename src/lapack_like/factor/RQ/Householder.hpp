@@ -22,7 +22,7 @@ Householder
   Matrix<F>& phase,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("rq::Householder"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -63,10 +63,8 @@ Householder
   ElementalMatrix<F>& phasePre, 
   ElementalMatrix<Base<F>>& signaturePre )
 {
-    DEBUG_ONLY(
-      CSE cse("rq::Householder");
-      AssertSameGrids( APre, phasePre, signaturePre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, phasePre, signaturePre ))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);

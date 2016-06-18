@@ -19,7 +19,7 @@ void UpdateSubmatrix
         T alpha, 
   const Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("UpdateSubmatrix"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -44,7 +44,7 @@ void UpdateSubmatrix
         T alpha,
   const AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("UpdateSubmatrix"))
+    DEBUG_CSE
     // TODO: Intelligently pick the redundant rank to pack from?
     if( ASub.RedundantRank() == 0 )
     {

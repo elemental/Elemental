@@ -18,7 +18,7 @@ Real ComplementRatio
 ( const Matrix<Real>& s,
   const Matrix<Real>& z )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
+    DEBUG_CSE
     const Int k = s.Height();
     const Real* sBuf = s.LockedBuffer();
     const Real* zBuf = z.LockedBuffer();
@@ -39,7 +39,7 @@ Real ComplementRatio
 ( const ElementalMatrix<Real>& sPre,
   const ElementalMatrix<Real>& zPre )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
+    DEBUG_CSE
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -73,7 +73,7 @@ Real ComplementRatio
 ( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
+    DEBUG_CSE
     const Int localHeight = s.LocalHeight();
     const Real* sBuf = s.LockedMatrix().LockedBuffer();
     const Real* zBuf = z.LockedMatrix().LockedBuffer();

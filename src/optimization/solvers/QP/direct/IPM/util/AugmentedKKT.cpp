@@ -36,7 +36,7 @@ void AugmentedKKT
   const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -61,7 +61,7 @@ void AugmentedKKT
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -91,7 +91,7 @@ void AugmentedKKT
   const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumEntries();
@@ -156,7 +156,7 @@ void AugmentedKKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumLocalEntries();
@@ -240,7 +240,7 @@ void AugmentedKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKTRHS"))
+    DEBUG_CSE
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), yInd(n,n+m);
@@ -269,7 +269,7 @@ void AugmentedKKTRHS
   const ElementalMatrix<Real>& rmu,
         ElementalMatrix<Real>& dPre )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::AugmentedKKTRHS"))
+    DEBUG_CSE
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -308,7 +308,7 @@ void AugmentedKKTRHS
   const DistMultiVec<Real>& rmu, 
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::FormAugmentedSystem"))
+    DEBUG_CSE
     const Int m = rb.Height();
     const Int n = x.Height();
     auto& xLoc = x.LockedMatrix();
@@ -345,7 +345,7 @@ void ExpandAugmentedSolution
         Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
+    DEBUG_CSE
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
 
@@ -373,7 +373,7 @@ void ExpandAugmentedSolution
         ElementalMatrix<Real>& dy, 
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.GetLocked();
@@ -405,7 +405,7 @@ void ExpandAugmentedSolution
         DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::ExpandAugmentedSolution"))
+    DEBUG_CSE
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
     mpi::Comm comm = z.Comm();

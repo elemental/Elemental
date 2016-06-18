@@ -18,8 +18,8 @@ namespace El {
 template<typename T>
 void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trtrmm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -32,10 +32,10 @@ void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 template<typename T>
 void Trtrmm( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("Trtrmm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
     )
     if( uplo == LOWER )
         trtrmm::LVar1( A, conjugate );

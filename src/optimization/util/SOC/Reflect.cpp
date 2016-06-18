@@ -17,23 +17,17 @@ void Reflect
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Reflect"))
-
+    DEBUG_CSE
     const Int height = x.Height();
-
     DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
     )
-
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-    Real* xBuf = x.Buffer(); 
-    
     for( Int i=0; i<height; ++i )
-        if( i != firstIndBuf[i] )
-            xBuf[i] = -xBuf[i];
+        if( i != firstInds(i) )
+            x(i) = -x(i);
 }
 
 template<typename Real,typename>
@@ -42,7 +36,7 @@ void Reflect
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("soc::Reflect"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -81,7 +75,7 @@ void Reflect
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Reflect"))
+    DEBUG_CSE
 
     DEBUG_ONLY(
       const Int height = x.Height();

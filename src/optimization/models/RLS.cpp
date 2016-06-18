@@ -46,7 +46,7 @@ void RLS
         Matrix<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -115,7 +115,7 @@ void RLS
         ElementalMatrix<Real>& xPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RLS"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),
@@ -202,7 +202,7 @@ void RLS
         Matrix<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -274,7 +274,7 @@ void RLS
         DistMultiVec<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

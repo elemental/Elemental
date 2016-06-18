@@ -30,7 +30,7 @@ void TV
         ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("TV"))
+    DEBUG_CSE
     mpi::Comm comm = b.Grid().Comm();
     DistMultiVec<Real> bDMV(comm), xDMV(comm);
     bDMV = b;
@@ -46,7 +46,7 @@ void TV
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("TV"))
+    DEBUG_CSE
     const Int n = b.Height();
     const Range<Int> xInd(0,n), tInd(n,2*n-1);
 
@@ -118,7 +118,7 @@ void TV
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("TV"))
+    DEBUG_CSE
     const Int n = b.Height();
     mpi::Comm comm = b.Comm();
 

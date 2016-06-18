@@ -15,7 +15,7 @@ namespace El {
 template<typename F>
 void Haar( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Haar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -25,7 +25,7 @@ void Haar( Matrix<F>& A, Int n )
 template<typename F>
 void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 {
-    DEBUG_ONLY(CSE cse("ImplicitHaar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -35,7 +35,7 @@ void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 template<typename F>
 void Haar( ElementalMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Haar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -48,7 +48,7 @@ void ImplicitHaar
   ElementalMatrix<F>& t, 
   ElementalMatrix<Base<F>>& d, Int n )
 {
-    DEBUG_ONLY(CSE cse("Haar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );

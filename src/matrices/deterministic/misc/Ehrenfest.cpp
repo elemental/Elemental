@@ -21,7 +21,7 @@ namespace El {
 template<typename F>
 void Ehrenfest( Matrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ehrenfest"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     Zeros( P, n, n );
@@ -37,7 +37,7 @@ void Ehrenfest( Matrix<F>& P, Int n )
 template<typename F>
 void Ehrenfest( AbstractDistMatrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ehrenfest"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     Zeros( P, n, n );
@@ -54,7 +54,7 @@ void Ehrenfest( AbstractDistMatrix<F>& P, Int n )
 template<typename F>
 void EhrenfestStationary( Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("EhrenfestStationary"))    
+    DEBUG_CSE
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n-1 );
@@ -68,7 +68,7 @@ void EhrenfestStationary( Matrix<F>& PInf, Int n )
 template<typename F>
 void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("EhrenfestStationary"))    
+    DEBUG_CSE
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n-1 );
@@ -82,7 +82,7 @@ void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 template<typename F>
 void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ehrenfest"))
+    DEBUG_CSE
     Ehrenfest( P, n );
     EhrenfestStationary( PInf, n );
 }
@@ -90,7 +90,7 @@ void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
 template<typename F>
 void Ehrenfest( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ehrenfest"))
+    DEBUG_CSE
     Ehrenfest( P, n );
     PInf.SetGrid( P.Grid() );
     PInf.AlignWith( P.DistData() );
@@ -100,7 +100,7 @@ void Ehrenfest( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 template<typename F>
 void EhrenfestDecay( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("EhrenfestDecay"))
+    DEBUG_CSE
     Ehrenfest( A, n );
     Matrix<F> PInf;
     EhrenfestStationary( PInf, n );
@@ -110,7 +110,7 @@ void EhrenfestDecay( Matrix<F>& A, Int n )
 template<typename F>
 void EhrenfestDecay( ElementalMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("EhrenfestDecay"))
+    DEBUG_CSE
     Ehrenfest( A, n );
     unique_ptr<ElementalMatrix<F>> PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );

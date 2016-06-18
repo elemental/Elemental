@@ -43,7 +43,7 @@ int BigInt::NumBits() const
 
 BigInt::BigInt()
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [default]"))
+    DEBUG_CSE
     Init();
 }
 
@@ -51,7 +51,7 @@ BigInt::BigInt()
 // -----------------
 BigInt::BigInt( const BigInt& a, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [BigInt]"))
+    DEBUG_CSE
     if( &a != this )
     {
         Init( numBits );
@@ -65,21 +65,21 @@ BigInt::BigInt( const BigInt& a, int numBits )
 
 BigInt::BigInt( const unsigned& a, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [unsigned]"))
+    DEBUG_CSE
     Init( numBits );
     mpz_set_ui( Pointer(), a );
 }
 
 BigInt::BigInt( const unsigned long& a, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [unsigned long]"))
+    DEBUG_CSE
     Init( numBits );
     mpz_set_ui( Pointer(), a );
 }
 
 BigInt::BigInt( const unsigned long long& a, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [unsigned long long]"))
+    DEBUG_CSE
     Init( numBits );
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
@@ -100,21 +100,21 @@ BigInt::BigInt( const unsigned long long& a, int numBits )
 
 BigInt::BigInt( const int& a, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [int]"))
+    DEBUG_CSE
     Init( numBits );
     mpz_set_si( Pointer(), a );
 }
 
 BigInt::BigInt( const long int& a, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [long int]"))
+    DEBUG_CSE
     Init( numBits );
     mpz_set_si( Pointer(), a );
 }
 
 BigInt::BigInt( const long long int& a, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [long long int]"))
+    DEBUG_CSE
     Init( numBits );
     if( (a >= 0 && a <= static_cast<long long>(LONG_MAX)) ||
         (a <  0 && a >= static_cast<long long>(LONG_MIN)) )
@@ -139,14 +139,14 @@ BigInt::BigInt( const long long int& a, int numBits )
 
 BigInt::BigInt( const char* str, int base, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [char*]"))
+    DEBUG_CSE
     Init( numBits );
     mpz_set_str( Pointer(), str, base );
 }
 
 BigInt::BigInt( const std::string& str, int base, int numBits )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [string]"))
+    DEBUG_CSE
     Init( numBits );
     mpz_set_str( Pointer(), str.c_str(), base );
 }
@@ -155,48 +155,48 @@ BigInt::BigInt( const std::string& str, int base, int numBits )
 // ----------------
 BigInt::BigInt( BigInt&& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::BigInt [move]"))
+    DEBUG_CSE
     Pointer()->_mp_d = 0;
     mpz_swap( Pointer(), a.Pointer() );
 }
 
 BigInt::~BigInt()
 {
-    DEBUG_ONLY(CSE cse("BigInt::~BigInt"))
+    DEBUG_CSE
     if( Pointer()->_mp_d != 0 )
         mpz_clear( Pointer() );
 }
 
 void BigInt::Zero()
 {
-    DEBUG_ONLY(CSE cse("BigInt::Zero"))
+    DEBUG_CSE
     mpzInt_->_mp_size = 0;
 }
 
 BigInt& BigInt::operator=( const BigInt& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [BigInt]"))
+    DEBUG_CSE
     mpz_set( Pointer(), a.LockedPointer() );
     return *this;
 }
 
 BigInt& BigInt::operator=( const unsigned& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [unsigned]"))
+    DEBUG_CSE
     mpz_set_ui( Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator=( const unsigned long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [unsigned long]"))
+    DEBUG_CSE
     mpz_set_ui( Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator=( const unsigned long long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [unsigned long long]"))
+    DEBUG_CSE
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
         unsigned long aLong = static_cast<unsigned long>(a);
@@ -217,21 +217,21 @@ BigInt& BigInt::operator=( const unsigned long long& a )
 
 BigInt& BigInt::operator=( const int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [int]"))
+    DEBUG_CSE
     mpz_set_si( Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator=( const long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [long int]"))
+    DEBUG_CSE
     mpz_set_si( Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator=( const long long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [long long int]"))
+    DEBUG_CSE
     if( (a >= 0 && a <= static_cast<long long>(LONG_MAX)) ||
         (a <  0 && a >= static_cast<long long>(LONG_MIN)) )
     {
@@ -256,21 +256,21 @@ BigInt& BigInt::operator=( const long long int& a )
 
 BigInt& BigInt::operator=( const double& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [double]"))
+    DEBUG_CSE
     mpz_set_d( Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator=( BigInt&& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator= [move]"))
+    DEBUG_CSE
     mpz_swap( Pointer(), a.Pointer() );
     return *this;
 }
 
 BigInt& BigInt::operator+=( const int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+= [int]"))
+    DEBUG_CSE
     if( a >= 0 )
         return *this += static_cast<unsigned>(a);
     else
@@ -279,7 +279,7 @@ BigInt& BigInt::operator+=( const int& a )
 
 BigInt& BigInt::operator+=( const long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+= [long int]"))
+    DEBUG_CSE
     if( a >= 0 )
         return *this += static_cast<unsigned long>(a);
     else
@@ -288,7 +288,7 @@ BigInt& BigInt::operator+=( const long int& a )
 
 BigInt& BigInt::operator+=( const long long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+= [long long int]"))
+    DEBUG_CSE
     if( a >= 0 )
     {
         if( a <= static_cast<long>(ULONG_MAX) )
@@ -318,21 +318,21 @@ BigInt& BigInt::operator+=( const long long int& a )
 
 BigInt& BigInt::operator+=( const unsigned& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+= [unsigned]"))
+    DEBUG_CSE
     mpz_add_ui( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator+=( const unsigned long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+= [unsigned long]"))
+    DEBUG_CSE
     mpz_add_ui( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator+=( const unsigned long long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+= [unsigned long long]"))
+    DEBUG_CSE
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
         unsigned long aLong = static_cast<unsigned long>(a);
@@ -348,14 +348,14 @@ BigInt& BigInt::operator+=( const unsigned long long& a )
 
 BigInt& BigInt::operator+=( const BigInt& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+= [BigInt]"))
+    DEBUG_CSE
     mpz_add( Pointer(), Pointer(), a.LockedPointer() );
     return *this;
 }
 
 BigInt& BigInt::operator-=( const int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-= [int]"))
+    DEBUG_CSE
     if( a >= 0 )
         return *this -= static_cast<unsigned>(a);
     else
@@ -364,7 +364,7 @@ BigInt& BigInt::operator-=( const int& a )
 
 BigInt& BigInt::operator-=( const long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-= [long int]"))
+    DEBUG_CSE
     if( a >= 0 )
         return *this -= static_cast<unsigned long>(a);
     else
@@ -373,7 +373,7 @@ BigInt& BigInt::operator-=( const long int& a )
 
 BigInt& BigInt::operator-=( const long long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-= [long long int]"))
+    DEBUG_CSE
     if( a >= 0 )
     {
         if( a <= static_cast<long long int>(ULONG_MAX) )
@@ -403,21 +403,21 @@ BigInt& BigInt::operator-=( const long long int& a )
 
 BigInt& BigInt::operator-=( const unsigned& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-= [unsigned]"))
+    DEBUG_CSE
     mpz_sub_ui( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator-=( const unsigned long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-= [unsigned long]"))
+    DEBUG_CSE
     mpz_sub_ui( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator-=( const unsigned long long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-= [unsigned long long]"))
+    DEBUG_CSE
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
         unsigned long aLong = static_cast<unsigned long>(a);
@@ -433,7 +433,7 @@ BigInt& BigInt::operator-=( const unsigned long long& a )
 
 BigInt& BigInt::operator-=( const BigInt& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-= [BigInt]"))
+    DEBUG_CSE
     mpz_sub( Pointer(), Pointer(), a.LockedPointer() );
     return *this;
 }
@@ -466,21 +466,21 @@ BigInt BigInt::operator--(int)
 
 BigInt& BigInt::operator*=( const int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator*= [int]"))
+    DEBUG_CSE
     mpz_mul_si( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator*=( const long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator*= [long int]"))
+    DEBUG_CSE
     mpz_mul_si( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator*=( const long long int& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator*= [long long int]"))
+    DEBUG_CSE
     if( (a >= 0 && a <= static_cast<long long int>(LONG_MAX)) ||
         (a <  0 && a >  static_cast<long long int>(LONG_MIN)) )
     {
@@ -497,21 +497,21 @@ BigInt& BigInt::operator*=( const long long int& a )
 
 BigInt& BigInt::operator*=( const unsigned& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator*= [unsigned]"))
+    DEBUG_CSE
     mpz_mul_ui( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator*=( const unsigned long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator*= [unsigned long]"))
+    DEBUG_CSE
     mpz_mul_ui( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator*=( const unsigned long long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator*= [unsigned long long]"))
+    DEBUG_CSE
     if( a <= static_cast<unsigned long long>(ULONG_MAX) )
     {
         unsigned long aLong = static_cast<unsigned long>(a);
@@ -527,21 +527,21 @@ BigInt& BigInt::operator*=( const unsigned long long& a )
 
 BigInt& BigInt::operator*=( const BigInt& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator*= [BigInt]"))
+    DEBUG_CSE
     mpz_mul( Pointer(), Pointer(), a.LockedPointer() );
     return *this;
 }
 
 BigInt& BigInt::operator/=( const BigInt& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator/= [BigInt]"))
+    DEBUG_CSE
     mpz_tdiv_q( Pointer(), Pointer(), a.LockedPointer() );
     return *this;
 }
 
 BigInt BigInt::operator-() const
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator-"))
+    DEBUG_CSE
     BigInt alphaNeg(*this);
     mpz_neg( alphaNeg.Pointer(), alphaNeg.Pointer() );
     return alphaNeg;
@@ -549,7 +549,7 @@ BigInt BigInt::operator-() const
 
 BigInt BigInt::operator+() const
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator+"))
+    DEBUG_CSE
     BigInt alpha(*this);
     return alpha;
 }
@@ -589,28 +589,28 @@ BigInt& BigInt::operator%=( const unsigned& b )
 
 BigInt& BigInt::operator<<=( const unsigned& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator<<= [unsigned]"))
+    DEBUG_CSE
     mpz_mul_2exp( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator<<=( const unsigned long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator<<= [unsigned long]"))
+    DEBUG_CSE
     mpz_mul_2exp( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator>>=( const unsigned& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator>>= [unsigned]"))
+    DEBUG_CSE
     mpz_div_2exp( Pointer(), Pointer(), a );
     return *this;
 }
 
 BigInt& BigInt::operator>>=( const unsigned long& a )
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator>>= [unsigned long]"))
+    DEBUG_CSE
     mpz_div_2exp( Pointer(), Pointer(), a );
     return *this;
 }
@@ -686,14 +686,14 @@ BigInt::operator long double() const
 #ifdef EL_HAVE_QD
 BigInt::operator DoubleDouble() const
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator DoubleDouble"))
+    DEBUG_CSE
     // This is not lossless in situations where it could be :-/
     return DoubleDouble(operator double());
 }
 
 BigInt::operator QuadDouble() const
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator QuadDouble"))
+    DEBUG_CSE
     // This is not lossless in situations where it could be :-/
     return QuadDouble(operator double());
 }
@@ -702,7 +702,7 @@ BigInt::operator QuadDouble() const
 #ifdef EL_HAVE_QUAD
 BigInt::operator Quad() const
 {
-    DEBUG_ONLY(CSE cse("BigInt::operator Quad"))
+    DEBUG_CSE
     // This is not lossless in situations where it could be :-/
     return Quad(operator double());
 }
@@ -710,14 +710,14 @@ BigInt::operator Quad() const
 
 size_t BigInt::ThinSerializedSize() const
 {
-    DEBUG_ONLY(CSE cse("BigInt::ThinSerializedSize"))
+    DEBUG_CSE
     return sizeof(int) + sizeof(mp_limb_t)*NumLimbs();
 }
 
 size_t BigInt::SerializedSize( int numLimbs ) const
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("BigInt::SerializedSize");
       if( numLimbs < NumLimbs() )
           LogicError
           ("Upper bound of numLimbs=",numLimbs," < ",NumLimbs());
@@ -727,7 +727,7 @@ size_t BigInt::SerializedSize( int numLimbs ) const
 
 byte* BigInt::ThinSerialize( byte* buf ) const
 {
-    DEBUG_ONLY(CSE cse("BigInt::ThinSerialize"))
+    DEBUG_CSE
     // NOTE: We don't have to necessarily serialize the precisions, as
     //       they are known a priori (as long as the user does not fiddle
     //       with SetPrecision)
@@ -743,8 +743,8 @@ byte* BigInt::ThinSerialize( byte* buf ) const
 
 byte* BigInt::Serialize( byte* buf, int numLimbs ) const
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("BigInt::Serialize");
       if( numLimbs < NumLimbs() )
           LogicError
           ("Upper bound of numLimbs=",numLimbs," < ",NumLimbs());
@@ -765,7 +765,7 @@ byte* BigInt::Serialize( byte* buf, int numLimbs ) const
 
 const byte* BigInt::ThinDeserialize( const byte* buf )
 {
-    DEBUG_ONLY(CSE cse("BigInt::ThinDeserialize"))
+    DEBUG_CSE
     int signedNumLimbsDynamic;
     std::memcpy( &signedNumLimbsDynamic, buf, sizeof(int) );
     buf += sizeof(int);
@@ -783,7 +783,7 @@ const byte* BigInt::ThinDeserialize( const byte* buf )
 
 const byte* BigInt::Deserialize( const byte* buf, int numLimbs )
 {
-    DEBUG_ONLY(CSE cse("BigInt::Deserialize"))
+    DEBUG_CSE
     int signedNumLimbsDynamic;
     std::memcpy( &signedNumLimbsDynamic, buf, sizeof(int) );
     buf += sizeof(int);
@@ -1142,7 +1142,7 @@ bool operator!=( const long long int& a, const BigInt& b )
 
 std::ostream& operator<<( std::ostream& os, const BigInt& alpha )
 {
-    DEBUG_ONLY(CSE cse("operator<<(std::ostream&,const BigInt&)"))
+    DEBUG_CSE
     std::ostringstream osFormat;
     osFormat << "%.";
     osFormat << BinaryToDecimalPrecision(Int(alpha.NumBits()))+1;
@@ -1162,7 +1162,7 @@ std::ostream& operator<<( std::ostream& os, const BigInt& alpha )
 
 std::istream& operator>>( std::istream& is, BigInt& alpha )
 {
-    DEBUG_ONLY(CSE cse("operator>>(std::istream&,BigInt&)"))
+    DEBUG_CSE
     std::string token;
     is >> token;
     const int base = 10;

@@ -23,7 +23,7 @@ void MultiShiftTrsm
   const Matrix<F>& shifts,
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
+    DEBUG_CSE
     X *= alpha;
     if( side == LEFT && uplo == UPPER )
     {
@@ -46,7 +46,7 @@ void MultiShiftTrsm
   const ElementalMatrix<F>& shifts, 
         ElementalMatrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("MultiShiftTrsm"))
+    DEBUG_CSE
     X *= alpha;
     if( side == LEFT && uplo == UPPER )
     {

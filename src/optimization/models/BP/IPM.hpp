@@ -41,7 +41,7 @@ void LPIPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -77,7 +77,7 @@ void LPIPM
         ElementalMatrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -114,7 +114,7 @@ void LPIPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -155,7 +155,7 @@ void LPIPM
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -220,7 +220,7 @@ void SOCPIPM
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -264,7 +264,7 @@ void SOCPIPM
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -310,7 +310,7 @@ void SOCPIPM
         ElementalMatrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -373,7 +373,7 @@ void SOCPIPM
         DistMultiVec<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -448,7 +448,7 @@ void SOCPIPM
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -517,7 +517,7 @@ void SOCPIPM
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -588,7 +588,7 @@ void SOCPIPM
         ElementalMatrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -679,7 +679,7 @@ void SOCPIPM
         DistMultiVec<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

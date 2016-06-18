@@ -18,8 +18,8 @@ void Geru
   const Matrix<T>& y,
         Matrix<T>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Geru");
       if( ( x.Height() != 1 && x.Width() != 1 ) ||
           ( y.Height() != 1 && y.Width() != 1 ) )
           LogicError("x and y must be vectors");
@@ -44,8 +44,8 @@ void Geru
   const ElementalMatrix<T>& y,
         ElementalMatrix<T>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Geru");
       AssertSameGrids( APre, x, y );
       if( ( x.Width() != 1 && x.Height() != 1 ) ||
           ( y.Width() != 1 && y.Height() != 1 )   )

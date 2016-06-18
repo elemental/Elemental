@@ -26,7 +26,7 @@ template<typename F>
 void DiagonalSolve
 ( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DiagonalSolve"))
+    DEBUG_CSE
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -45,7 +45,7 @@ template<typename F>
 void DiagonalSolve
 ( const DistNodeInfo& info, const DistFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DiagonalSolve"))
+    DEBUG_CSE
 
     if( front.child == nullptr )
     {
@@ -65,7 +65,7 @@ template<typename F>
 void DiagonalSolve
 ( const DistNodeInfo& info, const DistFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DiagonalSolve"))
+    DEBUG_CSE
 
     if( front.child == nullptr )
     {

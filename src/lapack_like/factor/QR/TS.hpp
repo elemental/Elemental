@@ -16,8 +16,8 @@ namespace ts {
 template<typename F>
 void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("qr::ts::Reduce");
       if( A.RowDist() != STAR )
           LogicError("Invalid row distribution for TSQR");
     )
@@ -184,8 +184,8 @@ RootSignature( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 template<typename F>
 void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("qr::ts::Scatter");
       if( A.RowDist() != STAR )
           LogicError("Invalid row distribution for TSQR");
     )

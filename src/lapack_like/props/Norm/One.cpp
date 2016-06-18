@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 Base<F> OneNorm( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("OneNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -32,7 +32,7 @@ Base<F> OneNorm( const Matrix<F>& A )
 template<typename F>
 Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianOneNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int height = A.Height();
 
@@ -70,14 +70,14 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 Base<F> SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricOneNorm"))
+    DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
 Base<F> OneNorm( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("OneNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
@@ -115,7 +115,7 @@ Base<F> OneNorm( const AbstractDistMatrix<F>& A )
 template<typename F>
 Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianOneNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
@@ -226,14 +226,14 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 template<typename F>
 Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricOneNorm"))
+    DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
 Base<F> OneNorm( const SparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("OneNorm"))
+    DEBUG_CSE
     SparseMatrix<F> ATrans;
     Transpose( A, ATrans );
     return InfinityNorm( ATrans );
@@ -242,7 +242,7 @@ Base<F> OneNorm( const SparseMatrix<F>& A )
 template<typename F>
 Base<F> OneNorm( const DistSparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("OneNorm"))
+    DEBUG_CSE
     DistSparseMatrix<F> ATrans(A.Comm());
     Transpose( A, ATrans );
     return InfinityNorm( ATrans );

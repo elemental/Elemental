@@ -40,7 +40,7 @@ Real SquareRootScaling( Real alpha )
 template<typename F>
 void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     // TODO: Ensure A is symmetric
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -125,7 +125,7 @@ void SymmetricGeomEquil
   ElementalMatrix<Base<F>>& dPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -226,7 +226,7 @@ void SymmetricGeomEquil
   Matrix<Base<F>>& d,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -313,7 +313,7 @@ void SymmetricGeomEquil
   DistMultiVec<Base<F>>& d,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();

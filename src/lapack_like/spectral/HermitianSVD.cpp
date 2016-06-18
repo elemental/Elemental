@@ -23,7 +23,7 @@ void HermitianSVD
   Matrix<F>& V,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     if( !overwrite )
     {
         auto ACopy( A );
@@ -73,7 +73,7 @@ void HermitianSVD
         Matrix<Base<F>>& s,
         Matrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     auto ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -88,7 +88,7 @@ void HermitianSVD
   ElementalMatrix<F>& V,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( !overwrite )
     {
@@ -137,7 +137,7 @@ void HermitianSVD
         ElementalMatrix<Base<F>>& s, 
         ElementalMatrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -153,7 +153,7 @@ void HermitianSVD
   Matrix<Base<F>>& s,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     if( !overwrite )
     {
         Matrix<F> ACopy( A );
@@ -177,7 +177,7 @@ template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo, const Matrix<F>& A, Matrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }
@@ -189,7 +189,7 @@ void HermitianSVD
   ElementalMatrix<Base<F>>& s,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     if( !overwrite )
     {
         DistMatrix<F> ACopy( A );
@@ -214,7 +214,7 @@ void HermitianSVD
   const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }

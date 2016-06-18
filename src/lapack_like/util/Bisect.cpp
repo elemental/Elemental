@@ -25,7 +25,7 @@ Int Bisect
   vector<Int>& perm,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Bisect [Graph]"))
+    DEBUG_CSE
 #ifdef EL_HAVE_METIS
     // METIS assumes that there are no self-connections or connections 
     // outside the sources, so we must manually remove them from our graph
@@ -102,7 +102,7 @@ Int Bisect
         bool& onLeft, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Bisect [DistGraph]"))
+    DEBUG_CSE
 #ifdef EL_HAVE_METIS
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size( comm );
@@ -322,7 +322,7 @@ Int Bisect
 
 void EnsurePermutation( const vector<Int>& map )
 {
-    DEBUG_ONLY(CSE cse("EnsurePermutation"))
+    DEBUG_CSE
     const Int numSources = map.size();
     vector<Int> timesMapped( numSources, 0 );
     for( Int i=0; i<numSources; ++i )
@@ -336,7 +336,7 @@ void EnsurePermutation( const vector<Int>& map )
 
 void EnsurePermutation( const DistMap& map )
 {
-    DEBUG_ONLY(CSE cse("EnsurePermutation"))
+    DEBUG_CSE
     mpi::Comm comm = map.Comm();
     const int commRank = mpi::Rank( comm );
     const Int numSources = map.NumSources();
@@ -359,8 +359,8 @@ void BuildChildrenFromPerm
   Int leftChildSize, Graph& leftChild,
   Int rightChildSize, Graph& rightChild )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("BuildChildrenFromPerm");
       const Int sepSize = graph.NumSources() - leftChildSize - rightChildSize;
     )
     const Int numSources = graph.NumSources();
@@ -438,7 +438,7 @@ void BuildChildFromPerm
         bool& onLeft,
         DistGraph& child )
 {
-    DEBUG_ONLY(CSE cse("BuildChildFromPerm"))
+    DEBUG_CSE
     const Int numTargets = graph.NumTargets();
     const Int numLocalSources = graph.NumLocalSources();
     DEBUG_ONLY(

@@ -18,18 +18,13 @@ void MinEig
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     soc::LowerNorms( x, minEigs, orders, firstInds );
 
     const Int height = x.Height();
-
-          Real* minEigBuf = minEigs.Buffer();
-    const Real* xBuf = x.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] ) 
-            minEigBuf[i] = xBuf[i]-minEigBuf[i];
+        if( i == firstInds(i) ) 
+            minEigs(i) = x(i)-minEigs(i);
 }
 
 template<typename Real,typename>
@@ -40,7 +35,7 @@ void MinEig
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     AssertSameGrids( xPre, minEigsPre, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -85,7 +80,7 @@ void MinEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     DEBUG_ONLY(
@@ -112,18 +107,15 @@ Real MinEig
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     Matrix<Real> minEigs;
     soc::MinEig( x, minEigs, orders, firstInds );
-
-    const Real* minEigBuf = minEigs.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     Real minEig = limits::Max<Real>();
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] ) 
-            minEig = Min(minEigBuf[i],minEig);
+        if( i == firstInds(i) ) 
+            minEig = Min(minEigs(i),minEig);
     return minEig;
 }
 
@@ -134,7 +126,7 @@ Real MinEig
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     AssertSameGrids( x, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -165,7 +157,7 @@ Real MinEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     DistMultiVec<Real> minEigs(x.Comm());
     soc::MinEig( x, minEigs, orders, firstInds, cutoff );
 

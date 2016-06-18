@@ -56,7 +56,7 @@ template<typename T>
 void RestoreOrdering
 ( const Matrix<Int>& preimage, Matrix<T>& x )
 {
-    DEBUG_ONLY(CSE cse("pspec::RestoreOrdering"))
+    DEBUG_CSE
     auto xCopy = x;
     const Int numShifts = preimage.Height();
     for( Int j=0; j<numShifts; ++j )
@@ -70,7 +70,7 @@ template<typename T1,typename T2>
 void
 RestoreOrdering( const Matrix<Int>& preimage, Matrix<T1>& x, Matrix<T2>& y )
 {
-    DEBUG_ONLY(CSE cse("pspec::RestoreOrdering"))
+    DEBUG_CSE
     auto xCopy = x;
     auto yCopy = y;
     const Int numShifts = preimage.Height();
@@ -87,7 +87,7 @@ void RestoreOrdering
 ( const ElementalMatrix<Int>& preimage,
         ElementalMatrix<T>& x )
 {
-    DEBUG_ONLY(CSE cse("pspec::RestoreOrdering"))
+    DEBUG_CSE
     DistMatrix<Int,STAR,STAR> preimageCopy( preimage );
     DistMatrix<T,STAR,STAR> xCopy( x );
     const Int numShifts = preimage.Height();
@@ -105,7 +105,7 @@ void RestoreOrdering
         ElementalMatrix<T1>& x,
         ElementalMatrix<T2>& y )
 {
-    DEBUG_ONLY(CSE cse("pspec::RestoreOrdering"))
+    DEBUG_CSE
     DistMatrix<Int,STAR,STAR> preimageCopy( preimage );
     DistMatrix<T1, STAR,STAR> xCopy( x );
     DistMatrix<T2, STAR,STAR> yCopy( y );
@@ -123,8 +123,8 @@ template<typename T1,typename T2>
 void ExtractList
 ( const vector<Matrix<T1>>& vecList, Matrix<T2>& list, Int i )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::ExtractList");
       if( vecList.size() != 0 && vecList[0].Height() <= i )
           LogicError("Invalid index");
     )
@@ -138,7 +138,7 @@ template<typename T1,typename T2>
 void ExtractList
 ( const vector<Matrix<T1>>& matList, Matrix<T2>& list, Int i, Int j )
 {
-    DEBUG_ONLY(CSE cse("pspec::ExtractList"))
+    DEBUG_CSE
     const Int numMats = matList.size();
     list.Resize( numMats, 1 );
     for( Int k=0; k<numMats; ++k )
@@ -149,8 +149,8 @@ template<typename T1,typename T2>
 void PlaceList
 ( vector<Matrix<T1>>& vecList, const Matrix<T2>& list, Int i )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::PlaceList");
       if( vecList.size() != 0 && vecList[0].Height() <= i )
           LogicError("Invalid index");
       if( Int(vecList.size()) != list.Height() )
@@ -167,8 +167,8 @@ template<typename T1,typename T2>
 void PlaceList
 ( vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::PlaceList");
       if( Int(matList.size()) != list.Height() )
           LogicError("List sizes do not match");
       if( list.Width() != 1 )
@@ -183,8 +183,8 @@ template<typename T1,typename T2>
 void UpdateList
 ( vector<Matrix<T1>>& matList, const Matrix<T2>& list, Int i, Int j )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::UpdateList");
       if( Int(matList.size()) != list.Height() )
           LogicError("List sizes do not match");
       if( list.Width() != 1 )
@@ -199,8 +199,8 @@ template<typename T1,typename T2>
 void PushBackList
 ( vector<Matrix<T1>>& vecList, const Matrix<T2>& list )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::PushBackList"); 
       if( Int(vecList.size()) != list.Height() )
           LogicError("List sizes do not match");
       if( list.Width() != 1 )

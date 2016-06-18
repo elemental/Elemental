@@ -31,9 +31,9 @@ void MultiShiftDiagonalBlockSolve
         Matrix<F>& X,
         Matrix<F>& scales )
 {
+    DEBUG_CSE
     typedef Base<F> Real;
     DEBUG_ONLY(
-      CSE cse("triang_eig::MultiShiftDiagonalBlockSolve");
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -226,9 +226,9 @@ void MultiShiftDiagonalBlockSolve
         DistMatrix<F,STAR,VR>& X,
         DistMatrix<F,VR,STAR>& scales )
 {
+    DEBUG_CSE
     typedef Base<F> Real;
     DEBUG_ONLY(
-      CSE cse("triang_eig::MultiShiftDiagonalBlockSolve");
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -438,10 +438,10 @@ void MultiShiftSolve
         Matrix<F>& X,
         Matrix<F>& scales ) 
 {
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DEBUG_ONLY(
-      CSE cse("triang_eig:MultiShiftSolve");
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -581,10 +581,10 @@ void MultiShiftSolve
         ElementalMatrix<F>& XPre,
         ElementalMatrix<F>& scalesPre ) 
 {
+    DEBUG_CSE
     typedef Base<F> Real;
   
     DEBUG_ONLY(
-      CSE cse("triang_eig::MultiShiftSolve");
       if( UPre.Height() != UPre.Width() )
           LogicError("Triangular matrix must be square");
       if( UPre.Width() != XPre.Height() )

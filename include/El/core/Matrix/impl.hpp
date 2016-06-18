@@ -29,10 +29,8 @@ Matrix<T>::Matrix( Int height, Int width, bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(Max(height,1))
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::Matrix");
-      AssertValidDimensions( height, width );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidDimensions( height, width ))
     memory_.Require( ldim_ * width );
     data_ = memory_.Buffer();
     // TODO: Consider explicitly zeroing
@@ -44,10 +42,8 @@ Matrix<T>::Matrix
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(ldim)
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::Matrix");
-      AssertValidDimensions( height, width, ldim );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidDimensions( height, width, ldim ))
     memory_.Require( ldim*width );
     data_ = memory_.Buffer();
 }
@@ -59,10 +55,8 @@ Matrix<T>::Matrix
   height_(height), width_(width), ldim_(ldim), 
   data_(const_cast<T*>(buffer))
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::Matrix");
-      AssertValidDimensions( height, width, ldim );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidDimensions( height, width, ldim ))
 }
 
 template<typename T>
@@ -72,10 +66,8 @@ Matrix<T>::Matrix
   height_(height), width_(width), ldim_(ldim), 
   data_(buffer)
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::Matrix");
-      AssertValidDimensions( height, width, ldim );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidDimensions( height, width, ldim ))
 }
 
 template<typename T>
@@ -84,7 +76,7 @@ Matrix<T>::Matrix( const Matrix<T>& A )
   height_(0), width_(0), ldim_(1), 
   data_(nullptr)
 {
-    DEBUG_ONLY(CSE cse("Matrix::Matrix( const Matrix& )"))
+    DEBUG_CSE
     if( &A != this )
         *this = A;
     else
@@ -107,8 +99,8 @@ Matrix<T>::~Matrix() { }
 template<typename T>
 void Matrix<T>::Empty( bool freeMemory )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Empty()");
       if( FixedSize() )
           LogicError("Cannot empty a fixed-size matrix" );
     )
@@ -118,8 +110,8 @@ void Matrix<T>::Empty( bool freeMemory )
 template<typename T>
 void Matrix<T>::Resize( Int height, Int width )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Resize(height,width)");
       AssertValidDimensions( height, width );
       if( FixedSize() && ( height != height_ || width != width_ ) )
       {
@@ -137,8 +129,8 @@ void Matrix<T>::Resize( Int height, Int width )
 template<typename T>
 void Matrix<T>::Resize( Int height, Int width, Int ldim )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Resize(height,width,ldim)");
       AssertValidDimensions( height, width, ldim );
       if( FixedSize() && 
           ( height != height_ || width != width_ || ldim != ldim_ ) )
@@ -158,8 +150,8 @@ void Matrix<T>::Resize( Int height, Int width, Int ldim )
 template<typename T>
 void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Attach");
       if( FixedSize() )
           LogicError("Cannot attach a new buffer to a view with fixed size");
     )
@@ -169,8 +161,8 @@ void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
 template<typename T>
 void Matrix<T>::LockedAttach( Int height, Int width, const T* buffer, Int ldim )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::LockedAttach");
       if( FixedSize() )
           LogicError("Cannot attach a new buffer to a view with fixed size");
     )
@@ -180,8 +172,8 @@ void Matrix<T>::LockedAttach( Int height, Int width, const T* buffer, Int ldim )
 template<typename T>
 void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Control");
       if( FixedSize() )
           LogicError("Cannot attach a new buffer to a view with fixed size");
     )
@@ -196,7 +188,7 @@ void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
 template<typename T>
 Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    DEBUG_CSE
     if( this->Locked() )
         return LockedView( *this, I, J );
     else
@@ -206,7 +198,7 @@ Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J )
 template<typename T>
 const Matrix<T> Matrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    DEBUG_CSE
     return LockedView( *this, I, J );
 }
 
@@ -216,7 +208,7 @@ template<typename T>
 Matrix<T> Matrix<T>::operator()
 ( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    DEBUG_CSE
     Matrix<T> ASub; 
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -226,7 +218,7 @@ template<typename T>
 Matrix<T> Matrix<T>::operator()
 ( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    DEBUG_CSE
     Matrix<T> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -236,7 +228,7 @@ template<typename T>
 Matrix<T> Matrix<T>::operator()
 ( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator()"))
+    DEBUG_CSE
     Matrix<T> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -247,7 +239,7 @@ Matrix<T> Matrix<T>::operator()
 template<typename T>
 const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator="))
+    DEBUG_CSE
     Copy( A, *this );
     return *this;
 }
@@ -257,7 +249,7 @@ const Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
 template<typename T>
 Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator=( Matrix&& )"))
+    DEBUG_CSE
     if( Viewing() || A.Viewing() )
     {
         operator=( (const Matrix<T>&)A );
@@ -279,7 +271,7 @@ Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
 template<typename T>
 const Matrix<T>& Matrix<T>::operator*=( T alpha )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator*=( T )"))
+    DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -289,7 +281,7 @@ const Matrix<T>& Matrix<T>::operator*=( T alpha )
 template<typename T>
 const Matrix<T>& Matrix<T>::operator+=( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<T>& )"))
+    DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -297,7 +289,7 @@ const Matrix<T>& Matrix<T>::operator+=( const Matrix<T>& A )
 template<typename T>
 const Matrix<T>& Matrix<T>::operator-=( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Matrix::operator+=( const Matrix<T>& )"))
+    DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -324,8 +316,8 @@ Int Matrix<T>::DiagonalLength( Int offset ) const EL_NO_EXCEPT
 template<typename T>
 T* Matrix<T>::Buffer() EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Buffer");
       if( Locked() )
           LogicError("Cannot return non-const buffer of locked Matrix");
     )
@@ -335,8 +327,8 @@ T* Matrix<T>::Buffer() EL_NO_RELEASE_EXCEPT
 template<typename T>
 T* Matrix<T>::Buffer( Int i, Int j ) EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Buffer");
       if( Locked() )
           LogicError("Cannot return non-const buffer of locked Matrix");
     )
@@ -351,7 +343,7 @@ const T* Matrix<T>::LockedBuffer() const EL_NO_EXCEPT { return data_; }
 template<typename T>
 const T* Matrix<T>::LockedBuffer( Int i, Int j ) const EL_NO_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("Matrix::LockedBuffer"))
+    DEBUG_CSE
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     return &data_[i+j*ldim_];
@@ -384,10 +376,8 @@ template<typename T>
 T Matrix<T>::Get( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::Get");
-      AssertValidEntry( i, j );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidEntry( i, j ))
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     return CRef( i, j );
@@ -397,10 +387,8 @@ template<typename T>
 Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::GetRealPart");
-      AssertValidEntry( i, j );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidEntry( i, j ))
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     return El::RealPart( CRef( i, j ) );
@@ -410,10 +398,8 @@ template<typename T>
 Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::GetImagPart");
-      AssertValidEntry( i, j );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidEntry( i, j ))
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     return El::ImagPart( CRef( i, j ) );
@@ -423,8 +409,8 @@ template<typename T>
 void Matrix<T>::Set( Int i, Int j, T alpha ) 
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Set");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -443,8 +429,8 @@ template<typename T>
 void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::SetRealPart");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -463,8 +449,8 @@ template<typename T>
 void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::SetImagPart");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -483,8 +469,8 @@ template<typename T>
 void Matrix<T>::Update( Int i, Int j, T alpha ) 
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Update");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -503,8 +489,8 @@ template<typename T>
 void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::UpdateRealPart");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -523,8 +509,8 @@ template<typename T>
 void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::UpdateImagPart");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -543,8 +529,8 @@ template<typename T>
 void Matrix<T>::MakeReal( Int i, Int j )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::MakeReal");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -556,8 +542,8 @@ template<typename T>
 void Matrix<T>::Conjugate( Int i, Int j )
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::Conjugate");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -640,10 +626,8 @@ template<typename T>
 const T& Matrix<T>::operator()( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(
-      CSE cse("Matrix::operator()( Int i, Int j ) const");
-      AssertValidEntry( i, j );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertValidEntry( i, j ))
     return data_[i+j*ldim_];
 }
 
@@ -658,8 +642,8 @@ template<typename T>
 T& Matrix<T>::operator()( Int i, Int j ) 
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Matrix::operator()( Int i, Int j )");
       AssertValidEntry( i, j );
       if( Locked() )
           LogicError("Cannot modify data of locked matrices");
@@ -673,7 +657,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void Matrix<T>::AssertValidDimensions( Int height, Int width ) const
 {
-    DEBUG_ONLY(CSE cse("Matrix::AssertValidDimensions"))
+    DEBUG_CSE
     if( height < 0 || width < 0 )
         LogicError("Height and width must be non-negative");
 }
@@ -681,7 +665,7 @@ void Matrix<T>::AssertValidDimensions( Int height, Int width ) const
 template<typename T>
 void Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
 {
-    DEBUG_ONLY(CSE cse("Matrix::AssertValidDimensions"))
+    DEBUG_CSE
     AssertValidDimensions( height, width );
     if( ldim < height )
         LogicError("Leading dimension must be no less than height");
@@ -692,7 +676,7 @@ void Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
 template<typename T>
 void Matrix<T>::AssertValidEntry( Int i, Int j ) const
 {
-    DEBUG_ONLY(CSE cse("Matrix::AssertValidEntry"))
+    DEBUG_CSE
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     if( i < 0 || j < 0 )

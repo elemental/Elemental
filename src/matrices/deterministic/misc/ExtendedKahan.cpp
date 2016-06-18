@@ -27,7 +27,7 @@ template<typename F>
 void MakeExtendedKahan
 ( Matrix<F>& A, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
@@ -73,7 +73,7 @@ template<typename F>
 void MakeExtendedKahan
 ( ElementalMatrix<F>& A, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
@@ -121,7 +121,7 @@ void MakeExtendedKahan
 template<typename F>
 void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("ExtendedKahan"))
+    DEBUG_CSE
     const Int n = 3*(1u<<k);
     A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );
@@ -130,7 +130,7 @@ void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 template<typename F>
 void ExtendedKahan( ElementalMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("ExtendedKahan"))
+    DEBUG_CSE
     const Int n = 3*(1u<<k);
     A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );

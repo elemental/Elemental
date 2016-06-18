@@ -17,8 +17,8 @@ template<typename T>
 void PartialRowAllGather
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ) 
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("copy::PartialRowAllGather");
       if( B.ColDist() != A.ColDist() ||
           B.RowDist() != Partial(A.RowDist()) ) 
           LogicError("Incompatible distributions");
@@ -122,7 +122,7 @@ void PartialRowAllGather
 ( const BlockMatrix<T>& A, 
         BlockMatrix<T>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::PartialRowAllGather"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

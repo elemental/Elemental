@@ -27,7 +27,7 @@ void QR
   Matrix<F>& phase,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("QR"))
+    DEBUG_CSE
     qr::Householder( A, phase, signature );
 }
 
@@ -37,7 +37,7 @@ void QR
   ElementalMatrix<F>& phase, 
   ElementalMatrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("QR"))
+    DEBUG_CSE
     qr::Householder( A, phase, signature );
 }
 
@@ -46,7 +46,7 @@ void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   DistMatrix<F,MR,STAR,BLOCK>& phase )
 {
-    DEBUG_ONLY(CSE cse("QR"))
+    DEBUG_CSE
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int m = A.Height();
@@ -77,7 +77,7 @@ void QR
   Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QR"))
+    DEBUG_CSE
     qr::BusingerGolub( A, phase, signature, Omega, ctrl );
 }
 
@@ -89,7 +89,7 @@ void QR
   DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QR"))
+    DEBUG_CSE
     qr::BusingerGolub( A, phase, signature, Omega, ctrl );
 }
 

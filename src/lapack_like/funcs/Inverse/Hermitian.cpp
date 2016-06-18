@@ -14,7 +14,7 @@ template<typename F>
 void HermitianInverse
 ( UpperOrLower uplo, Matrix<F>& A, const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianInverse"))
+    DEBUG_CSE
     SymmetricInverse( uplo, A, true, ctrl );
 }
 
@@ -23,7 +23,7 @@ void HermitianInverse
 ( UpperOrLower uplo, ElementalMatrix<F>& A, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianInverse"))
+    DEBUG_CSE
     SymmetricInverse( uplo, A, true, ctrl );
 }
 
@@ -32,7 +32,7 @@ void LocalHermitianInverse
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LocalHermitianInverse"))
+    DEBUG_CSE
     SymmetricInverse( uplo, A.Matrix(), true, ctrl );
 }
 

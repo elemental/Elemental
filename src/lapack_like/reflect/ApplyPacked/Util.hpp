@@ -15,7 +15,7 @@ template<typename F>
 void FixDiagonal
 ( Conjugation conjugation, const Matrix<F>& t, Matrix<F>& SInv )
 {
-    DEBUG_ONLY(CSE cse("FixDiagonal"))
+    DEBUG_CSE
     for( Int j=0; j<SInv.Height(); ++j )
     {
         const F value = t(j);
@@ -32,7 +32,7 @@ void FixDiagonal
   const DistMatrix<F,STAR,STAR>& t,
         DistMatrix<F,STAR,STAR>& SInv )
 {
-    DEBUG_ONLY(CSE cse("FixDiagonal"))
+    DEBUG_CSE
     auto& tLoc = t.LockedMatrix();
     auto& SInvLoc = SInv.Matrix();
     for( Int j=0; j<SInv.Height(); ++j )

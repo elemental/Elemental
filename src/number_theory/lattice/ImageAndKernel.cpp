@@ -17,7 +17,7 @@ void LatticeImageAndKernel
         Matrix<F>& K,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LatticeImageAndKernel"))
+    DEBUG_CSE
 
     Matrix<F> BCopy( B );
     Matrix<F> U, R;
@@ -47,7 +47,7 @@ void LatticeImage
         Matrix<F>& M,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LatticeImage"))
+    DEBUG_CSE
     // TODO: Avoid computing the kernel?
     Matrix<F> K;
     LatticeImageAndKernel( B, M, K, ctrl );
@@ -59,7 +59,7 @@ void LatticeKernel
         Matrix<F>& K,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LatticeKernel"))
+    DEBUG_CSE
     // TODO: Take the shortcuts suggested in Algorithm 2.7.2 of Henri Cohen's
     //       "A course in computational algebraic number theory".
 

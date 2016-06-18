@@ -15,7 +15,7 @@ namespace El {
 template<typename S,typename T> 
 void Diagonal( Matrix<S>& D, const vector<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -26,7 +26,7 @@ void Diagonal( Matrix<S>& D, const vector<T>& d )
 template<typename S,typename T> 
 void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -39,7 +39,7 @@ void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -54,7 +54,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -71,7 +71,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -92,7 +92,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 template<typename S,typename T>
 void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -106,7 +106,7 @@ void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();

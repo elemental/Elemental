@@ -17,7 +17,7 @@ void ImplicitQQuadraticSeed
   const Real& shift1Real, const Real& shift1Imag,
         Real* v )
 {
-    DEBUG_ONLY(CSE cse("small_bulge_sweep::ImplicitQQuadraticSeed"))
+    DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
     DEBUG_ONLY(
@@ -95,7 +95,7 @@ void IntroduceBulge
   const Real& shift1Real, const Real& shift1Imag,
         Real* v )
 {
-    DEBUG_ONLY(CSE cse("small_bulge_sweep::IntroduceBulge"))
+    DEBUG_CSE
     const Int n = H.Height();
     ImplicitQQuadraticSeed
     ( H,
@@ -109,7 +109,7 @@ void IntroduceBulge
 template<typename Real>
 void PairShifts( vector<Real>& realShifts, vector<Real>& imagShifts )
 {
-    DEBUG_ONLY(CSE cse("small_bulge_sweep::PairShifts"))
+    DEBUG_CSE
     const Int numShifts = realShifts.size();
     const Real zero(0);
 
@@ -168,7 +168,7 @@ void ComputeReflectors
   Int fullEnd,
   bool have3x3 )
 {
-    DEBUG_ONLY(CSE cse("small_bulge_sweep::ComputeReflectors"))
+    DEBUG_CSE
     const Real zero(0);
     const Real ulp = limits::Precision<Real>();
 
@@ -320,7 +320,7 @@ void VigilantDeflation
   Int vigBeg,
   Int vigEnd )
 {
-    DEBUG_ONLY(CSE cse("small_bulge_sweep::VigilantDeflation"))
+    DEBUG_CSE
     const Real zero(0);
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();
@@ -395,7 +395,7 @@ void ApplyReflectors
   bool have3x3,
   bool accumulate )
 {
-    DEBUG_ONLY(CSE cse("small_bulge_sweep::ApplyReflectors"))
+    DEBUG_CSE
 
     // Apply from the left
     // ===================
@@ -549,7 +549,7 @@ void SmallBulgeSweep
   Matrix<Real>& WAccum,
   bool accumulate=true )
 {
-    DEBUG_ONLY(CSE cse("hess_qr::SmallBulgeSweep"))
+    DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
     const Int nZ = Z.Height();

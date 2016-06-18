@@ -15,21 +15,21 @@ namespace El {
 template<typename F> 
 void Inverse( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("Inverse"))
+    DEBUG_CSE
     inverse::LUPartialPiv( A );
 }
 
 template<typename F> 
 void Inverse( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("Inverse"))
+    DEBUG_CSE
     inverse::LUPartialPiv( A );
 }
 
 template<typename F>
 void LocalInverse( DistMatrix<F,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("LocalInverse"))
+    DEBUG_CSE
     Inverse( A.Matrix() );
 }
 

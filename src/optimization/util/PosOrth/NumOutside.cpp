@@ -14,16 +14,14 @@ namespace pos_orth {
 template<typename Real,typename>
 Int NumOutside( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
-    const Real* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
 
     Int numNonPos = 0;
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            if( ABuf[i+j*ALDim] <= Real(0) )
+            if( A(i,j) <= Real(0) )
                 ++numNonPos;
     return numNonPos;
 }
@@ -31,7 +29,7 @@ Int NumOutside( const Matrix<Real>& A )
 template<typename Real,typename>
 Int NumOutside( const SparseMatrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
+    DEBUG_CSE
     const Int numEntries = A.NumEntries();
     const Real* valBuf = A.LockedValueBuffer();
 
@@ -45,7 +43,7 @@ Int NumOutside( const SparseMatrix<Real>& A )
 template<typename Real,typename>
 Int NumOutside( const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
+    DEBUG_CSE
     Int numNonPos = 0;
     if( A.Participating() )
     {
@@ -59,7 +57,7 @@ Int NumOutside( const AbstractDistMatrix<Real>& A )
 template<typename Real,typename>
 Int NumOutside( const DistSparseMatrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
+    DEBUG_CSE
     const Int numLocalEntries = A.NumLocalEntries(); 
     const Real* valBuf = A.LockedValueBuffer();
 
@@ -74,7 +72,7 @@ Int NumOutside( const DistSparseMatrix<Real>& A )
 template<typename Real,typename>
 Int NumOutside( const DistMultiVec<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NumOutside"))
+    DEBUG_CSE
     const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
     const Real* ABuf = A.LockedMatrix().LockedBuffer();

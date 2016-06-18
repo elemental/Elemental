@@ -21,7 +21,7 @@ void Helper
         Matrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     if( ctrl.useIPM )
     {
         if( ctrl.useSOCP )
@@ -40,7 +40,7 @@ void Helper
         Matrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     if( ctrl.useIPM )
     {
         if( ctrl.useSOCP )
@@ -59,7 +59,7 @@ void Helper
         Matrix<Complex<Real>>& x,
   const BPCtrl<Complex<Real>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     bp::SOCPIPM( A, b, x, ctrl.ipmCtrl );
 }
 
@@ -70,7 +70,7 @@ void Helper
         ElementalMatrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     if( ctrl.useIPM )
     {
         if( ctrl.useSOCP )
@@ -89,7 +89,7 @@ void Helper
         ElementalMatrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     if( ctrl.useIPM )
     {
         if( ctrl.useSOCP )
@@ -108,7 +108,7 @@ void Helper
         ElementalMatrix<Complex<Real>>& x,
   const BPCtrl<Complex<Real>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     bp::SOCPIPM( A, b, x, ctrl.ipmCtrl );
 }
 
@@ -119,7 +119,7 @@ void Helper
         Matrix<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM-based BP not yet supported for sparse matrices");
     if( ctrl.useSOCP )
@@ -135,7 +135,7 @@ void Helper
         Matrix<Complex<Real>>& x,
   const BPCtrl<Complex<Real>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     bp::SOCPIPM( A, b, x, ctrl.ipmCtrl );
 }
 
@@ -146,7 +146,7 @@ void Helper
         DistMultiVec<Real>& x,
   const BPCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM-based BP not yet supported for sparse matrices");
     if( ctrl.useSOCP )
@@ -162,7 +162,7 @@ void Helper
         DistMultiVec<Complex<Real>>& x,
   const BPCtrl<Complex<Real>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::Helper"))
+    DEBUG_CSE
     bp::SOCPIPM( A, b, x, ctrl.ipmCtrl );
 }
 

@@ -20,8 +20,8 @@ void USquare
   ElementalMatrix<F>& tPre,
   const SymvCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("herm_tridiag::USquare");
       AssertSameGrids( APre, tPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

@@ -125,10 +125,8 @@ void TrrkNNKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("TrrkNNKernel");
-      CheckInputNN( A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInputNN( A, B, C ))
     Matrix<T> AT, AB;
     Matrix<T> BL, BR;
     Matrix<T> CTL, CTR,
@@ -162,10 +160,8 @@ void LocalTrrkKernel
            const DistMatrix<T,STAR,MR  >& B,
                  DistMatrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("LocalTrrkKernel");
-      CheckInput( A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
     DistMatrix<T,MC,STAR> AT(g), AB(g);
@@ -203,10 +199,8 @@ void TrrkNTKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("TrrkNTKernel");
-      CheckInputNT( orientationOfB, A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInputNT( orientationOfB, A, B, C ))
     Matrix<T> AT, AB;
     Matrix<T> BT, BB;
     Matrix<T> CTL, CTR,
@@ -241,10 +235,8 @@ void LocalTrrkKernel
            const DistMatrix<T,MR,STAR>& B,
                  DistMatrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("LocalTrrkKernel");
-      CheckInput( A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
     DistMatrix<T,MC,STAR> AT(g), AB(g);
@@ -282,10 +274,8 @@ void TrrkTNKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("TrrkTNKernel");
-      CheckInputTN( orientationOfA, A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInputTN( orientationOfA, A, B, C ))
     Matrix<T> AL, AR;
     Matrix<T> BL, BR;
     Matrix<T> CTL, CTR,
@@ -320,10 +310,8 @@ void LocalTrrkKernel
            const DistMatrix<T,STAR,MR>& B,
                  DistMatrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("LocalTrrkKernel");
-      CheckInput( A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
@@ -362,10 +350,8 @@ void TrrkTTKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("TrrkTTKernel");
-      CheckInputTT( orientationOfA, orientationOfB, A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInputTT( orientationOfA, orientationOfB, A, B, C ))
     Matrix<T> AL, AR;
     Matrix<T> BT, BB;
     Matrix<T> CTL, CTR,
@@ -401,10 +387,8 @@ void LocalTrrkKernel
            const DistMatrix<T,MR,  STAR>& B,
                  DistMatrix<T>& C )
 {
-    DEBUG_ONLY(
-      CSE cse("LocalTrrkKernel");
-      CheckInput( A, B, C );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
@@ -441,11 +425,9 @@ void TrrkNN
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("trrk::TrrkNN");
-      CheckInputNN( A, B, C );
-    )
+    DEBUG_ONLY(CheckInputNN( A, B, C ))
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkNNKernel( uplo, alpha, A, B, C );
@@ -485,11 +467,9 @@ void TrrkNT
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("trrk::TrrkNT");
-      CheckInputNT( orientationOfB, A, B, C );
-    )
+    DEBUG_ONLY(CheckInputNT( orientationOfB, A, B, C ))
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkNTKernel( uplo, orientationOfB, alpha, A, B, C );
@@ -529,11 +509,9 @@ void TrrkTN
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("trrk::TrrkTN");
-      CheckInputTN( orientationOfA, A, B, C );
-    )
+    DEBUG_ONLY(CheckInputTN( orientationOfA, A, B, C ))
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkTNKernel( uplo, orientationOfA, alpha, A, B, C );
@@ -573,11 +551,9 @@ void TrrkTT
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
                  Matrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("trrk::TrrkTT");
-      CheckInputTT( orientationOfA, orientationOfB, A, B, C );
-    )
+    DEBUG_ONLY(CheckInputTT( orientationOfA, orientationOfB, A, B, C ))
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkTTKernel( uplo, orientationOfA, orientationOfB, alpha, A, B, C );
@@ -619,11 +595,9 @@ void LocalTrrk
            const DistMatrix<T,STAR,MR  >& B,
   T beta,        DistMatrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("LocalTrrk");
-      CheckInput( A, B, C );
-    )
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 
@@ -667,11 +641,9 @@ void LocalTrrk
            const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("LocalTrrk");
-      CheckInput( A, B, C );
-    )
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 
@@ -715,11 +687,9 @@ void LocalTrrk
            const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("LocalTrrk");
-      CheckInput( A, B, C );
-    )
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 
@@ -763,11 +733,9 @@ void LocalTrrk
            const DistMatrix<T,MR,  STAR>& B,
   T beta,        DistMatrix<T>& C )
 {
+    DEBUG_CSE
     using namespace trrk;
-    DEBUG_ONLY(
-      CSE cse("LocalTrrk");
-      CheckInput( A, B, C );
-    )
+    DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
     ScaleTrapezoid( beta, uplo, C );
 

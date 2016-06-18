@@ -75,9 +75,11 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift )
+  bool primalInit,
+  bool dualInit,
+  bool standardShift )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -196,9 +198,11 @@ void Initialize
         ElementalMatrix<Real>& y,
         ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift )
+  bool primalInit,
+  bool dualInit,
+  bool standardShift )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -321,10 +325,12 @@ void Initialize
   const vector<Int>& invMap, 
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift,
+  bool primalInit,
+  bool dualInit,
+  bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    DEBUG_CSE
     const Int m = b.Height();
     const Int n = c.Width();
     const Int k = h.Height();
@@ -464,10 +470,12 @@ void Initialize
         vector<Int>& mappedSources,
         vector<Int>& mappedTargets,
         vector<Int>& colOffs,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit,
+  bool dualInit,
+  bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::Initialize"))
+    DEBUG_CSE
     const Int m = b.Height();
     const Int n = c.Height();
     const Int k = h.Height();

@@ -37,7 +37,7 @@ void Lanczos
         Matrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("Lanczos"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real eps = limits::Epsilon<Real>();
 
@@ -107,7 +107,7 @@ Base<F> LanczosDecomp
         Matrix<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("LanczosDecomp"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real eps = limits::Epsilon<Real>();
 
@@ -182,7 +182,7 @@ void Lanczos
         ElementalMatrix<Base<F>>& TPre,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("Lanczos"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
@@ -263,7 +263,7 @@ Base<F> LanczosDecomp
         DistMultiVec<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("LanczosDecomp"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );

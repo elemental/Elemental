@@ -15,7 +15,7 @@ namespace El {
 template<typename F>
 void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("Wigner"))
+    DEBUG_CSE
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }
@@ -23,7 +23,7 @@ void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev )
 template<typename F>
 void Wigner( ElementalMatrix<F>& A, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("Wigner"))
+    DEBUG_CSE
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }

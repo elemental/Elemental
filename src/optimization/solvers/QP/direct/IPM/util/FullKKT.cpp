@@ -39,7 +39,7 @@ void KKT
   const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -91,7 +91,7 @@ void KKT
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -148,7 +148,7 @@ void KKT
   const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -231,7 +231,7 @@ void KKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumLocalEntries();
@@ -335,7 +335,7 @@ void KKTRHS
   const Matrix<Real>& z, 
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::KKTRHS"))
+    DEBUG_CSE
     const Int m = rb.Height();
     const Int n = rc.Height();
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
@@ -362,7 +362,7 @@ void KKTRHS
   const ElementalMatrix<Real>& z, 
         ElementalMatrix<Real>& dPre )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::KKTRHS"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -393,7 +393,7 @@ void KKTRHS
   const DistMultiVec<Real>& z, 
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::KKTRHS"))
+    DEBUG_CSE
     const Int m = rb.Height();
     const Int n = rc.Height();
     d.SetComm( rmu.Comm() );
@@ -429,7 +429,7 @@ void ExpandSolution
         Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::ExpandSolution"))
+    DEBUG_CSE
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
@@ -441,7 +441,7 @@ void ExpandSolution
         ElementalMatrix<Real>& dy, 
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::ExpandSolution"))
+    DEBUG_CSE
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
@@ -453,7 +453,7 @@ void ExpandSolution
         DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::ExpandSolution"))
+    DEBUG_CSE
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 

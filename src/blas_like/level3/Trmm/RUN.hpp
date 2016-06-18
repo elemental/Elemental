@@ -23,8 +23,8 @@ void LocalAccumulateRUN
   const DistMatrix<T,STAR,MC  >& X,
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateRUN");
       AssertSameGrids( U, X, ZTrans );
       if( U.Height() != U.Width() || U.Height() != X.Width() ||
           U.Height() != ZTrans.Height() )
@@ -69,8 +69,8 @@ void RUNA
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RUNA");
       AssertSameGrids( UPre, XPre );
       // TODO: More input checks
     )
@@ -117,8 +117,8 @@ void RUNCOld
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RUNCOld");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
           LogicError
@@ -169,8 +169,8 @@ void RUNC
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RUNC");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
           LogicError
@@ -226,7 +226,7 @@ void RUN
   const ElementalMatrix<T>& U,
         ElementalMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::RUN"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
         RUNA( diag, U, X );

@@ -18,7 +18,7 @@ namespace El {
 template<typename T>
 void Spy( const Matrix<T>& A, string title, Base<T> tol )
 {
-    DEBUG_ONLY(CSE cse("Spy"))
+    DEBUG_CSE
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
@@ -45,7 +45,7 @@ void Spy( const Matrix<T>& A, string title, Base<T> tol )
 template<typename T>
 void Spy( const AbstractDistMatrix<T>& A, string title, Base<T> tol )
 {
-    DEBUG_ONLY(CSE cse("Spy"))
+    DEBUG_CSE
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");

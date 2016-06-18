@@ -24,7 +24,7 @@ void SOCP
         Matrix<Real>& z,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -44,7 +44,7 @@ void SOCP
         ElementalMatrix<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -64,7 +64,7 @@ void SOCP
         Matrix<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -84,7 +84,7 @@ void SOCP
         DistMultiVec<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -107,7 +107,7 @@ void SOCP
         Matrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -131,7 +131,7 @@ void SOCP
         ElementalMatrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -155,7 +155,7 @@ void SOCP
         Matrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -179,7 +179,7 @@ void SOCP
         DistMultiVec<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,

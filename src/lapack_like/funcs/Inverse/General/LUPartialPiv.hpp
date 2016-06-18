@@ -22,7 +22,7 @@ namespace inverse {
 template<typename F> 
 void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
 {
-    DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
 
@@ -66,7 +66,7 @@ void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
 template<typename F> 
 void LUPartialPiv( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     Permutation P;
@@ -79,7 +79,7 @@ void AfterLUPartialPiv
 (       ElementalMatrix<F>& APre,
   const DistPermutation& P )
 {
-    DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -143,7 +143,7 @@ void AfterLUPartialPiv
 template<typename F> 
 void LUPartialPiv( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();

@@ -23,7 +23,7 @@ void Dots
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Dots"))
+    DEBUG_CSE
     const Int height = x.Height();
     DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
@@ -34,10 +34,6 @@ void Dots
           LogicError("x and y must be the same size");
     )
     Zeros( z, x.Height(), x.Width() );
-
-    const Real* xBuf = x.LockedBuffer();
-    const Real* yBuf = y.LockedBuffer();
-          Real* zBuf = z.Buffer();
 
     for( Int i=0; i<height; )
     {
@@ -50,7 +46,7 @@ void Dots
 
         // Compute the inner-product between two SOC members and broadcast
         // the result over an equivalently-sized z_i
-        zBuf[i] = blas::Dot( order, &xBuf[i], 1, &yBuf[i], 1 );
+        z(i) = blas::Dot( order, &x(i), 1, &y(i), 1 );
         i += order;
     }
 }
@@ -65,7 +61,7 @@ void Dots
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Dots"))
+    DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -190,7 +186,7 @@ void Dots
   const DistMultiVec<Int>& firstInds,
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Dots"))
+    DEBUG_CSE
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();

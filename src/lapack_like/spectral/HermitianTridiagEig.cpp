@@ -85,7 +85,7 @@ void HermitianTridiagEig
         SortType sort, 
   const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
+    DEBUG_CSE
     herm_tridiag_eig::Helper( d, dSub, w, sort, subset );
 }
 
@@ -219,7 +219,7 @@ void HermitianTridiagEig
         SortType sort,
   const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
+    DEBUG_CSE
     herm_tridiag_eig::Helper( d, dSub, w, sort, subset );
 }
 
@@ -314,7 +314,7 @@ void HermitianTridiagEig
         SortType sort,
   const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
+    DEBUG_CSE
     herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
 }
 
@@ -510,7 +510,7 @@ void HermitianTridiagEig
         SortType sort,
   const HermitianEigSubset<Base<F>>& subset )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiagEig"))
+    DEBUG_CSE
     herm_tridiag_eig::Helper( d, dSub, w, Z, sort, subset );
 }
 
@@ -522,7 +522,7 @@ Int HermitianTridiagEigEstimate
         Real vl,
         Real vu )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiagEigEstimate"))
+    DEBUG_CSE
     const Int n = d.Height();
     DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() );
     DistMatrix<double,STAR,STAR> dSub_STAR_STAR( d.Grid() );
@@ -549,7 +549,7 @@ void HermitianTridiagEigPostEstimate
         Real vl,
         Real vu )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiagEigPostEstimate"))
+    DEBUG_CSE
 
     ElementalProxyCtrl wCtrl, ZCtrl;
     wCtrl.colConstrain = true;

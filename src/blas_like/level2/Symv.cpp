@@ -24,8 +24,8 @@ void Symv
         Matrix<T>& y,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Symv");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -67,20 +67,20 @@ void Symv
   bool conjugate,
   const SymvCtrl<T>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("Symv");
-        AssertSameGrids( APre, x, yPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( ( x.Width() != 1 && x.Height() != 1 ) ||
-            ( yPre.Width() != 1 && yPre.Height() != 1 ) )
-            LogicError("x and y are assumed to be vectors");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
-        if( APre.Height() != xLength || APre.Height() != yLength )
-            LogicError
-            ("Nonconformal Symv: \n",DimsString(APre,"A"),"\n",
-             DimsString(x,"x"),"\n",DimsString(yPre,"y"));
+      AssertSameGrids( APre, x, yPre );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( ( x.Width() != 1 && x.Height() != 1 ) ||
+          ( yPre.Width() != 1 && yPre.Height() != 1 ) )
+          LogicError("x and y are assumed to be vectors");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
+      if( APre.Height() != xLength || APre.Height() != yLength )
+          LogicError
+          ("Nonconformal Symv: \n",DimsString(APre,"A"),"\n",
+           DimsString(x,"x"),"\n",DimsString(yPre,"y"));
     )
     const Grid& g = APre.Grid();
 

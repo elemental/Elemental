@@ -17,7 +17,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Scatter"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int m = A.Height();
@@ -93,7 +93,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC,BLOCK>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Scatter"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );
@@ -105,7 +105,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         DistMatrix<T,STAR,STAR>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Scatter"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -141,7 +141,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC,BLOCK>& A,
         DistMatrix<T,STAR,STAR,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Scatter"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

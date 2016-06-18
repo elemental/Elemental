@@ -14,7 +14,7 @@ template<typename F>
 void LUTUnb
 ( bool conjugate, const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUTUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -101,7 +101,7 @@ void LUTUnb
         Matrix<Real>& XReal,
         Matrix<Real>& XImag )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUTUnb"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Int m = XReal.Height();
     const Int n = XReal.Width();
@@ -206,10 +206,10 @@ void LUT
 ( Orientation orientation, 
   const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("msquasitrsm::LUT");
-        if( orientation == NORMAL )
-            LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
+      if( orientation == NORMAL )
+          LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int bsize = Blocksize();
@@ -248,8 +248,8 @@ void LUT
   const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUT");
       if( orientation == NORMAL )
           LogicError("QuasiTrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -294,8 +294,8 @@ void LUTLarge
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUTLarge");
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -359,8 +359,8 @@ void LUTLarge
         ElementalMatrix<Real>& XRealPre, 
         ElementalMatrix<Real>& XImagPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUTLarge");
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -441,8 +441,8 @@ void LUTMedium
   const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUTMedium");
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -512,8 +512,8 @@ void LUTMedium
         ElementalMatrix<Real>& XRealPre, 
         ElementalMatrix<Real>& XImagPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUTMedium");
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
@@ -596,8 +596,8 @@ void LUTSmall
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<F,     rowDist,STAR        >& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUTSmall");
       AssertSameGrids( U, shifts, X );
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");
@@ -654,8 +654,8 @@ void LUTSmall
         DistMatrix<Real,              rowDist,STAR        >& XReal,
         DistMatrix<Real,              rowDist,STAR        >& XImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUTSmall");
       AssertSameGrids( U, shifts, XReal, XImag );
       if( orientation == NORMAL )
           LogicError("TrsmLUT expects a (Conjugate)Transpose option");

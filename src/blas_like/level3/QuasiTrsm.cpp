@@ -24,24 +24,25 @@ namespace El {
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
+  F alpha, const ElementalMatrix<F>& A,
+                 ElementalMatrix<F>& B,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("QuasiTrsm");
-        AssertSameGrids( A, B );
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
-        }
+      AssertSameGrids( A, B );
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal Trsm");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal Trsm");
+      }
     )
     B *= alpha;
     // Call the single right-hand side algorithm if appropriate
@@ -118,11 +119,12 @@ void QuasiTrsm
 template<typename F>
 void LocalQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X,
+  F alpha, const DistMatrix<F,STAR,STAR>& A,
+                 ElementalMatrix<F>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalQuasiTrsm");
       if( (side == LEFT && X.ColDist() != STAR) ||
           (side == RIGHT && X.RowDist() != STAR) )
           LogicError
@@ -136,23 +138,24 @@ void LocalQuasiTrsm
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const Matrix<F>& A, Matrix<F>& B,
+  F alpha, const Matrix<F>& A,
+                 Matrix<F>& B,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("QuasiTrsm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
-        }
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal Trsm");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal Trsm");
+      }
     )
     B *= alpha;
     // Call the single right-hand side algorithm if appropriate

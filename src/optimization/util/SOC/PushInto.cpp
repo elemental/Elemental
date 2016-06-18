@@ -18,7 +18,7 @@ void PushInto
   const Matrix<Int>& firstInds,
   Real minDist )
 {
-    DEBUG_ONLY(CSE cse("soc::PushInto"))
+    DEBUG_CSE
 
     Matrix<Real> d;
     soc::LowerNorms( x, d, orders, firstInds );
@@ -41,7 +41,7 @@ void PushInto
   const ElementalMatrix<Int>& firstIndsPre,
   Real minDist, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::PushInto"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -81,7 +81,7 @@ void PushInto
   const DistMultiVec<Int>& firstInds, 
   Real minDist, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::PushInto"))
+    DEBUG_CSE
 
     DistMultiVec<Real> d(x.Comm());
     soc::LowerNorms( x, d, orders, firstInds, cutoff );

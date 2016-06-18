@@ -15,7 +15,7 @@ namespace trtrmm {
 template<typename T>
 void LVar1( Matrix<T>& L, bool conjugate=false )
 {
-    DEBUG_ONLY(CSE cse("trtrmm::LVar1"))
+    DEBUG_CSE
     const Int n = L.Height();
     const Int bsize = Blocksize();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -40,8 +40,8 @@ void LVar1( Matrix<T>& L, bool conjugate=false )
 template<typename T>
 void LVar1( ElementalMatrix<T>& LPre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trtrmm::LVar1");
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
     )

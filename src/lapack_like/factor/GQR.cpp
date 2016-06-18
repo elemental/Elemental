@@ -19,7 +19,7 @@ void GQR
   Matrix<F>& phaseB,
   Matrix<Base<F>>& signatureB )
 {
-    DEBUG_ONLY(CSE cse("GQR"))
+    DEBUG_CSE
     QR( A, phaseA, signatureA );
     qr::ApplyQ( LEFT, ADJOINT, A, phaseA, signatureA, B );
     RQ( B, phaseB, signatureB );
@@ -34,7 +34,7 @@ void GQR
   ElementalMatrix<F>& phaseB,
   ElementalMatrix<Base<F>>& signatureB )
 {
-    DEBUG_ONLY(CSE cse("GQR"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
@@ -50,7 +50,7 @@ namespace gqr {
 template<typename F> 
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("gqr::ExplicitTriang"))
+    DEBUG_CSE
     Matrix<F> phaseA;
     Matrix<Base<F>> signatureA;
     QR( A, phaseA, signatureA );
@@ -62,7 +62,7 @@ void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 template<typename F> 
 void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CSE cse("gqr::ExplicitTriang"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();

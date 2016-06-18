@@ -16,7 +16,7 @@ template<typename F>
 SafeProduct<Base<F>> AfterCholesky
 ( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -39,7 +39,7 @@ template<typename F>
 SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
+    DEBUG_CSE
     SafeProduct<Base<F>> det( A.Height() );
     try
     {
@@ -58,7 +58,7 @@ template<typename F>
 SafeProduct<Base<F>> AfterCholesky
 ( UpperOrLower uplo, const ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
@@ -91,7 +91,7 @@ template<typename F>
 SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();

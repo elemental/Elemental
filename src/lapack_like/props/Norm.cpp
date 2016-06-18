@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 Base<F> Norm( const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("Norm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -47,7 +47,7 @@ Base<F> Norm( const Matrix<F>& A, NormType type )
 template<typename F>
 Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("SymmetricNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -81,7 +81,7 @@ Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 template<typename F>
 Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("HermitianNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -115,7 +115,7 @@ Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 template<typename F> 
 Base<F> Norm( const ElementalMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("Norm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -150,7 +150,7 @@ template<typename F>
 Base<F> SymmetricNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("SymmetricNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -185,7 +185,7 @@ template<typename F>
 Base<F> HermitianNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("HermitianNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {

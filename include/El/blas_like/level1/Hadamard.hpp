@@ -16,7 +16,7 @@ namespace El {
 template<typename T> 
 void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Hadamard"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     C.Resize( A.Height(), A.Width() );
@@ -34,7 +34,7 @@ void Hadamard
   const ElementalMatrix<T>& B, 
         ElementalMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Hadamard"))
+    DEBUG_CSE
     const ElementalData ADistData = A.DistData();
     const ElementalData BDistData = B.DistData();
     ElementalData CDistData = C.DistData();
@@ -57,7 +57,7 @@ template<typename T>
 void Hadamard
 ( const DistMultiVec<T>& A, const DistMultiVec<T>& B, DistMultiVec<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Hadamard"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     C.SetComm( A.Comm() );

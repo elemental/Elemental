@@ -18,7 +18,7 @@ void LowerNorms
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
+    DEBUG_CSE
     const Int height = x.Height();
     DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
@@ -27,19 +27,15 @@ void LowerNorms
           LogicError("orders and firstInds should be of the same height as x");
     )
 
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     auto xLower = x;
-    Real* xLowerBuf = xLower.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] )
-            xLowerBuf[i] = 0;
+        if( i == firstInds(i) )
+            xLower(i) = 0;
 
     soc::Dots( xLower, xLower, lowerNorms, orders, firstInds );
-    Real* lowerNormBuf = lowerNorms.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] )
-            lowerNormBuf[i] = Sqrt(lowerNormBuf[i]);
+        if( i == firstInds(i) )
+            lowerNorms(i) = Sqrt(lowerNorms(i));
 }
 
 template<typename Real,typename>
@@ -50,7 +46,7 @@ void LowerNorms
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
+    DEBUG_CSE
     AssertSameGrids( xPre, lowerNormsPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -101,7 +97,7 @@ void LowerNorms
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
+    DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     DEBUG_ONLY(

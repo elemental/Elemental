@@ -18,8 +18,8 @@ void Cannon_NN
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::Cannon_NN");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -105,8 +105,8 @@ void SUMMA_NNA
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::SUMMA_NNA");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -159,8 +159,8 @@ void SUMMA_NNB
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::SUMMA_NNB");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -210,8 +210,8 @@ void SUMMA_NNC
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::SUMMA_NNC");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -261,8 +261,8 @@ void SUMMA_NNDot
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::SUMMA_NNDot");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
           APre.Width() != BPre.Height() )
@@ -360,7 +360,7 @@ void SUMMA_NN
         ElementalMatrix<T>& C,
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
-    DEBUG_ONLY(CSE cse("gemm::SUMMA_NN"))
+    DEBUG_CSE
     const Int m = C.Height();
     const Int n = C.Width();
     const Int sumDim = A.Width();

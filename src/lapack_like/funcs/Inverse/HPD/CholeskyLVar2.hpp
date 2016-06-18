@@ -21,8 +21,8 @@ template<typename F>
 void
 CholeskyLVar2( Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("hpd_inv::CholeskyLVar2");
       if( A.Height() != A.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -61,8 +61,8 @@ template<typename F>
 void
 CholeskyLVar2( ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("hpd_inv::CholeskyLVar2");
       if( APre.Height() != APre.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )

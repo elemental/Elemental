@@ -21,7 +21,7 @@ namespace El {
 template<typename F> 
 void Triangle( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Triangle"))
+    DEBUG_CSE
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
     Zeros( A, n, n );
@@ -32,7 +32,7 @@ void Triangle( Matrix<F>& A, Int n )
 template<typename F>
 void Triangle( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Triangle"))
+    DEBUG_CSE
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
     Zeros( A, n, n );

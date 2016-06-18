@@ -26,7 +26,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissectionRecursion"))
+    DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int* offsetBuf = graph.LockedOffsetBuffer();
     const Int* sourceBuf = graph.LockedSourceBuffer();
@@ -183,7 +183,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissectionRecursion"))
+    DEBUG_CSE
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -316,7 +316,7 @@ void NaturalNestedDissection
         NodeInfo& node,
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissection"))
+    DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
@@ -346,7 +346,7 @@ void NaturalNestedDissection
         Int cutoff, 
         bool storeFactRecvInds )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissection"))
+    DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused 
 
     DistMap perm( graph.NumSources(), graph.Comm() );

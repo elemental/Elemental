@@ -18,8 +18,8 @@ void ColAllGather
 ( const ElementalMatrix<T>& A, 
         ElementalMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::ColAllGather");
       if( B.ColDist() != A.RowDist() ||
           B.RowDist() != Collect(A.ColDist()) )
           LogicError("Incompatible distributions");
@@ -37,8 +37,8 @@ void ColAllGather
 ( const BlockMatrix<T>& A, 
         BlockMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::ColAllGather");
       if( B.ColDist() != A.RowDist() ||
           B.RowDist() != Collect(A.ColDist()) )
           LogicError("Incompatible distributions");

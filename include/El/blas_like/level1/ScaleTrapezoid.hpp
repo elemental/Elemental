@@ -14,7 +14,7 @@ namespace El {
 template<typename T,typename S>
 void ScaleTrapezoid( S alphaS, UpperOrLower uplo, Matrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    DEBUG_CSE
     if( alphaS == S(1) )
         return; 
     const Int height = A.Height();
@@ -50,7 +50,7 @@ void
 ScaleTrapezoid
 ( S alphaS, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    DEBUG_CSE
     if( alphaS == S(1) )
         return; 
     const Int height = A.Height();
@@ -95,7 +95,7 @@ template<typename T,typename S>
 void
 ScaleTrapezoid( S alpha, UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    DEBUG_CSE
     if( alpha == S(1) )
         return; 
     const Int numEntries = A.NumEntries();
@@ -115,7 +115,7 @@ template<typename T,typename S>
 void
 ScaleTrapezoid( S alpha, UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("ScaleTrapezoid"))
+    DEBUG_CSE
     if( alpha == S(1) )
         return; 
     const Int numLocalEntries = A.NumLocalEntries();

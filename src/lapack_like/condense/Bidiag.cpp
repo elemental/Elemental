@@ -17,7 +17,7 @@ namespace El {
 template<typename F>
 void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-    DEBUG_ONLY(CSE cse("Bidiag"))
+    DEBUG_CSE
     if( A.Height() >= A.Width() )
         bidiag::U( A, tP, tQ );
     else
@@ -30,7 +30,7 @@ void Bidiag
   ElementalMatrix<F>& tP,
   ElementalMatrix<F>& tQ )
 {
-    DEBUG_ONLY(CSE cse("Bidiag"))
+    DEBUG_CSE
     if( A.Height() >= A.Width() )
         bidiag::U( A, tP, tQ );
     else
@@ -42,7 +42,7 @@ namespace bidiag {
 template<typename F>
 void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
 {
-    DEBUG_ONLY(CSE cse("bidiag::Explicit"))
+    DEBUG_CSE
     Matrix<F> tP, tQ;
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
@@ -75,7 +75,7 @@ void Explicit
   DistMatrix<F>& P,
   DistMatrix<F>& Q )
 {
-    DEBUG_ONLY(CSE cse("bidiag::Explicit"))
+    DEBUG_CSE
     DistMatrix<F,MD,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
@@ -108,7 +108,7 @@ void Explicit
   ElementalMatrix<F>& PPre,
   ElementalMatrix<F>& QPre )
 {
-    DEBUG_ONLY(CSE cse("bidiag::Explicit"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR>
@@ -123,7 +123,7 @@ void Explicit
 template<typename F>
 void ExplicitCondensed( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("bidiag::ExplicitCondensed"))
+    DEBUG_CSE
     Matrix<F> tP, tQ;
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )
@@ -141,7 +141,7 @@ void ExplicitCondensed( Matrix<F>& A )
 template<typename F> 
 void ExplicitCondensed( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("bidiag::ExplicitCondensed"))
+    DEBUG_CSE
     DistMatrix<F,STAR,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );
     if( A.Height() >= A.Width() )

@@ -17,8 +17,8 @@ namespace twotrmm {
 template<typename F> 
 void LVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::LVar5");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( L.Height() != L.Width() )
@@ -78,8 +78,8 @@ void LVar5
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& LPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::LVar5");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( L.Height() != L.Width() )

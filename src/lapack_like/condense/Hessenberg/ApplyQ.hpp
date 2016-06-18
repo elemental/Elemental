@@ -17,7 +17,7 @@ void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("hessenberg::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -41,7 +41,7 @@ void ApplyQ
   const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("hessenberg::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );

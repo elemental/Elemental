@@ -19,7 +19,7 @@ void CoordinatesToSparse
   const Matrix<F>& v,
         Matrix<F>& y )
 {
-    DEBUG_ONLY(CSE cse("svp::CoordinatesToSparse"))
+    DEBUG_CSE
     y = v;
     Trmv( UPPER, NORMAL, UNIT, N, y );
     Round( y );
@@ -31,7 +31,7 @@ void TransposedCoordinatesToSparse
   const Matrix<F>& v,
         Matrix<F>& y )
 {
-    DEBUG_ONLY(CSE cse("svp::TransposedCoordinatesToSparse"))
+    DEBUG_CSE
     y = v;
     Trmv( LOWER, TRANSPOSE, UNIT, NTrans, y );
     Round( y );
@@ -43,7 +43,7 @@ void BatchCoordinatesToSparse
   const Matrix<F>& V,
         Matrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToSparse"))
+    DEBUG_CSE
     Y = V;
     Trmm( LEFT, UPPER, NORMAL, UNIT, F(1), N, Y );
     Round( Y );
@@ -55,7 +55,7 @@ void BatchTransposedCoordinatesToSparse
   const Matrix<F>& V,
         Matrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchTransposedCoordinatesToSparse"))
+    DEBUG_CSE
     Y = V;
     Trmm( LEFT, LOWER, TRANSPOSE, UNIT, F(1), NTrans, Y );
     Round( Y );
@@ -67,7 +67,7 @@ void SparseToCoordinates
   const Matrix<F>& y,
         Matrix<F>& v )
 {
-    DEBUG_ONLY(CSE cse("svp::SparseToCoordinates"))
+    DEBUG_CSE
     const Int n = N.Height();
 
     v = y;
@@ -88,7 +88,7 @@ void TransposedSparseToCoordinates
   const Matrix<F>& y,
         Matrix<F>& v )
 {
-    DEBUG_ONLY(CSE cse("svp::TransposedSparseToCoordinates"))
+    DEBUG_CSE
     const Int n = NTrans.Height();
 
     v = y;
@@ -112,7 +112,7 @@ void BatchSparseToCoordinatesUnblocked
   const Matrix<F>& Y,
         Matrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchSparseToCoordinatesUnblocked"))
+    DEBUG_CSE
     const Int n = N.Height();
     const Int numRHS = Y.Width();
 
@@ -137,7 +137,7 @@ void BatchTransposedSparseToCoordinatesUnblocked
   const Matrix<F>& Y,
         Matrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchTransposedSparseToCoordinatesUnblocked"))
+    DEBUG_CSE
     const Int n = NTrans.Height();
     const Int numRHS = Y.Width();
 
@@ -166,7 +166,7 @@ void BatchSparseToCoordinates
         Matrix<F>& V,
         Int blocksize )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchSparseToCoordinates"))
+    DEBUG_CSE
     const Int n = N.Height();
     const Int numRHS = Y.Width();
 
@@ -202,7 +202,7 @@ void BatchTransposedSparseToCoordinates
         Matrix<F>& V,
         Int blocksize )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchTransposedSparseToCoordinates"))
+    DEBUG_CSE
     const Int n = NTrans.Height();
     const Int numRHS = Y.Width();
 
@@ -237,7 +237,7 @@ Base<F> CoordinatesToNorm
   const Matrix<F>& N,
   const Matrix<F>& v )
 {
-    DEBUG_ONLY(CSE cse("svp::CoordinatesToNorm"))
+    DEBUG_CSE
     Matrix<F> z( v );
     Trmv( UPPER, NORMAL, UNIT, N, z );
     DiagonalScale( LEFT, NORMAL, d, z );
@@ -250,7 +250,7 @@ Base<F> TransposedCoordinatesToNorm
   const Matrix<F>& NTrans,
   const Matrix<F>& v )
 {
-    DEBUG_ONLY(CSE cse("svp::TransposedCoordinatesToNorm"))
+    DEBUG_CSE
     Matrix<F> z( v );
     Trmv( LOWER, TRANSPOSE, UNIT, NTrans, z );
     DiagonalScale( LEFT, NORMAL, d, z );
@@ -260,7 +260,7 @@ Base<F> TransposedCoordinatesToNorm
 template<typename F>
 Matrix<Base<F>> NestedColumnTwoNorms( const Matrix<F>& Z, Int numNested=1 )
 {
-    DEBUG_ONLY(CSE cse("svp::NestedColumnTwoNorms"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = Z.Height();
     const Int numRHS = Z.Width();
@@ -289,7 +289,7 @@ Matrix<Base<F>> BatchCoordinatesToNorms
   const Matrix<F>& V,
         Int numNested=1 )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchCoordinatesToNorms"))
+    DEBUG_CSE
     Matrix<F> Z( V );
     // TODO: Decide whether this branch is necessary or not...
     if( V.Width() == 1 )
@@ -308,7 +308,7 @@ Matrix<Base<F>> BatchTransposedCoordinatesToNorms
   const Matrix<F>& V,
         Int numNested=1 )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchTransposedCoordinatesToNorms"))
+    DEBUG_CSE
     Matrix<F> Z( V );
     // TODO: Decide whether this branch is necessary or not...
     if( V.Width() == 1 )
@@ -325,7 +325,7 @@ Base<F> SparseToNormLowerBound
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& y )
 {
-    DEBUG_ONLY(CSE cse("svp::SparseToNormLowerBound"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = d.Height();
     const Real* dBuf = d.LockedBuffer();
@@ -350,7 +350,7 @@ Matrix<Base<F>> BatchSparseToNormLowerBound
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchSparseToNormLowerBound"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int numRHS = Y.Width();
     Matrix<Real> normBounds;
@@ -366,7 +366,7 @@ Base<F> SparseToNorm
   const Matrix<F>& N,
   const Matrix<F>& y )
 {
-    DEBUG_ONLY(CSE cse("svp::SparseToNorm"))
+    DEBUG_CSE
     Matrix<F> v;
     SparseToCoordinates( N, y, v );
     return CoordinatesToNorm( d, N, v );
@@ -378,7 +378,7 @@ Base<F> TransposedSparseToNorm
   const Matrix<F>& NTrans,
   const Matrix<F>& y )
 {
-    DEBUG_ONLY(CSE cse("svp::TransposedSparseToNorm"))
+    DEBUG_CSE
     Matrix<F> v;
     TransposedSparseToCoordinates( NTrans, y, v );
     return TransposedCoordinatesToNorm( d, NTrans, v );
@@ -392,7 +392,7 @@ Matrix<Base<F>> BatchSparseToNorm
         Int blocksize,
         Int numNested=1 )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchSparseToNorm"))
+    DEBUG_CSE
     Matrix<F> V;
     BatchSparseToCoordinates( N, Y, V, blocksize );
     return BatchCoordinatesToNorms( d, N, V, numNested );
@@ -406,7 +406,7 @@ Matrix<Base<F>> BatchTransposedSparseToNorm
         Int blocksize,
         Int numNested=1 )
 {
-    DEBUG_ONLY(CSE cse("svp::BatchTransposedSparseToNorm"))
+    DEBUG_CSE
     Matrix<F> V;
     BatchTransposedSparseToCoordinates( NTrans, Y, V, blocksize );
     return BatchTransposedCoordinatesToNorms( d, NTrans, V, numNested );
@@ -647,7 +647,7 @@ void PhaseEnumerationLeafInner
   const Int baseInf,
   const Int baseOne )
 {
-    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeafInner"))
+    DEBUG_CSE
     const Int n = ctrl.phaseOffsets.back();
     const Int minInf = ctrl.minInfNorms.back();
     const Int maxInf = ctrl.maxInfNorms.back();
@@ -702,7 +702,7 @@ void PhaseEnumerationLeaf
   const PhaseEnumerationCtrl& ctrl,
         vector<pair<Int,F>>& y )
 {
-    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationLeaf"))
+    DEBUG_CSE
 
     // Enqueue the zero phase if it is admissible
     if( ctrl.minInfNorms.back() == Int(0) &&
@@ -725,7 +725,7 @@ void PhaseEnumerationNodeInner
   const Int baseInf,
   const Int baseOne )
 {
-    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationNodeInner"))
+    DEBUG_CSE
     const Int n = cache.Height();
     if( ctrl.earlyExit && cache.FoundVector() )
         return;
@@ -805,7 +805,7 @@ void PhaseEnumerationNode
         vector<pair<Int,F>>& y,
   const Int phase )
 {
-    DEBUG_ONLY(CSE cse("svp::PhaseEnumerationNode"))
+    DEBUG_CSE
     const Int baseInfNorm = 0;
     const Int baseOneNorm = 0;
     PhaseEnumerationNodeInner
@@ -831,7 +831,7 @@ PhaseEnumeration
         Matrix<F>& v,
         Int progressLevel )
 {
-    DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
+    DEBUG_CSE
     const Int n = N.Height();
     if( n <= 1 )
         return pair<Base<F>,Int>(2*normUpperBounds(0)+1,0);
@@ -902,7 +902,7 @@ Base<F> PhaseEnumeration
         Matrix<F>& v,
         Int progressLevel )
 {
-    DEBUG_ONLY(CSE cse("svp::PhaseEnumeration"))
+    DEBUG_CSE
     Matrix<Base<F>> normUpperBounds(1,1);
     normUpperBounds(0) = normUpperBound;
     auto pair = 

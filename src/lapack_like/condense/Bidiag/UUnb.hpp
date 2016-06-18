@@ -15,7 +15,7 @@ namespace bidiag {
 template<typename F>
 void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-    DEBUG_ONLY(CSE cse("bidiag::UUnb"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int tPHeight = Max(n-1,0);
@@ -103,10 +103,8 @@ void UUnb
   ElementalMatrix<F>& tPPre,
   ElementalMatrix<F>& tQPre )
 {
-    DEBUG_ONLY(
-      CSE cse("bidiag::UUnb");
-      AssertSameGrids( APre, tPPre, tQPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, tPPre, tQPre ))
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );

@@ -27,7 +27,7 @@ namespace El {
 template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = EM"));
+    DEBUG_CSE
     copy::Gather( A, *this );
     return *this;
 }

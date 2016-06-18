@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void OneTwoOne( Matrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("OneTwoOne"))
+    DEBUG_CSE
     Zeros( A, n, n );
     FillDiagonal( A, T(1), -1 );
     FillDiagonal( A, T(2),  0 );
@@ -25,7 +25,7 @@ void OneTwoOne( Matrix<T>& A, Int n )
 template<typename T>
 void OneTwoOne( AbstractDistMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("OneTwoOne"))
+    DEBUG_CSE
     Zeros( A, n, n );
     FillDiagonal( A, T(1), -1 );
     FillDiagonal( A, T(2),  0 );

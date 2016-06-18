@@ -19,7 +19,7 @@ void DiagonalSolve
         Matrix<F>& A, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("DiagonalSolve"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
@@ -62,7 +62,7 @@ void SymmetricDiagonalSolve
 ( const Matrix<Base<F>>& d, 
         Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricDiagonalSolve"))
+    DEBUG_CSE
     const Int n = A.Width();
     DEBUG_ONLY(
       if( d.Height() != n )
@@ -80,8 +80,8 @@ void DiagonalSolve
         DistMatrix<F,U,V>& A,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalSolve");
       AssertSameGrids( dPre, A );
     )
     if( side == LEFT )
@@ -121,7 +121,7 @@ void DiagonalSolve
         ElementalMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("DiagonalSolve"))
+    DEBUG_CSE
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
@@ -136,8 +136,8 @@ void DiagonalSolve
         SparseMatrix<F>& A,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
     )
@@ -182,8 +182,8 @@ void DiagonalSolve
 template<typename F>
 void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricDiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
@@ -219,8 +219,8 @@ void DiagonalSolve
         DistSparseMatrix<F>& A,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( !mpi::Congruent( d.Comm(), A.Comm() ) )
@@ -289,8 +289,8 @@ void SymmetricDiagonalSolve
 ( const DistMultiVec<Base<F>>& d,
         DistSparseMatrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricDiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
@@ -343,7 +343,7 @@ void DiagonalSolve
         DistMultiVec<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("DiagonalSolve"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), X.Comm() ) )

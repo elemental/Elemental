@@ -27,7 +27,7 @@ namespace El {
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [MC,MR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -36,7 +36,7 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [MC,STAR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -45,7 +45,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,MR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -54,7 +54,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,MD]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -63,7 +63,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [MR,MC]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -72,7 +72,7 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [MR,STAR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -81,7 +81,7 @@ DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,MC]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -90,7 +90,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [VC,STAR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -99,7 +99,7 @@ DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,VC]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -108,7 +108,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [VR,STAR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -117,7 +117,7 @@ DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,VR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -126,7 +126,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [STAR,STAR]"))
+    DEBUG_CSE
     copy::ColFilter( A, *this );
     return *this;
 }
@@ -134,7 +134,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CSE cse("[MD,STAR] = [CIRC,CIRC]"))
+    DEBUG_CSE
     DistMatrix<T,MC,MR> A_MC_MR( this->Grid() );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;
@@ -145,7 +145,7 @@ DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DM = EM"))
+    DEBUG_CSE
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \

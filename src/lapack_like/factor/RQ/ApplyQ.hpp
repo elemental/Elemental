@@ -21,7 +21,7 @@ void ApplyQ
   const Matrix<Base<F>>& signature,
         Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("rq::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;
@@ -75,7 +75,7 @@ void ApplyQ
   const ElementalMatrix<Base<F>>& signature,
         ElementalMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CSE cse("rq::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;

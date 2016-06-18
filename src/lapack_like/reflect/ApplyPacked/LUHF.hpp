@@ -37,8 +37,8 @@ void LUHF
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUHF");
       if( H.Width() != A.Height() )
           LogicError("H's width must match A's height");
     )
@@ -85,10 +85,8 @@ void LUHF
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUHF");
-      AssertSameGrids( HPre, tPre, APre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( HPre, tPre, APre ))
 
     DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );

@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void GCDMatrix( Matrix<T>& G, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("GCDMatrix"))
+    DEBUG_CSE
     G.Resize( m, n );
     auto gcdFill = []( Int i, Int j ) { return T(GCD(i+1,j+1)); };
     IndexDependentFill( G, function<T(Int,Int)>(gcdFill) );
@@ -24,7 +24,7 @@ void GCDMatrix( Matrix<T>& G, Int m, Int n )
 template<typename T>
 void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("GCDMatrix"))
+    DEBUG_CSE
     G.Resize( m, n );
     auto gcdFill = []( Int i, Int j ) { return T(GCD(i+1,j+1)); };
     IndexDependentFill( G, function<T(Int,Int)>(gcdFill) );

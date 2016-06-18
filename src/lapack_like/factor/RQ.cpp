@@ -25,7 +25,7 @@ void RQ
   Matrix<F>& phase,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("RQ"))
+    DEBUG_CSE
     rq::Householder( A, phase, signature );
 }
 
@@ -35,7 +35,7 @@ void RQ
   ElementalMatrix<F>& phase, 
   ElementalMatrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("RQ"))
+    DEBUG_CSE
     rq::Householder( A, phase, signature );
 }
 

@@ -21,7 +21,7 @@ void ApplyQ
   const Matrix<F>& t,
         Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = 
@@ -42,7 +42,7 @@ void ApplyQ
   const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("hermi_tridiag::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = 

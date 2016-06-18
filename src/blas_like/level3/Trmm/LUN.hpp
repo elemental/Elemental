@@ -24,8 +24,8 @@ void LocalAccumulateLUN
   const DistMatrix<T,STAR,MR  >& XTrans,
         DistMatrix<T,MC,  STAR>& Z )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateLUN");
       AssertSameGrids( U, XTrans, Z );
       if( U.Height() != U.Width() ||
           U.Height() != XTrans.Width() ||
@@ -75,8 +75,8 @@ void LUNA
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUNA");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
           LogicError
@@ -123,8 +123,8 @@ void LUNCOld
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUNCOld");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
           LogicError
@@ -184,8 +184,8 @@ void LUNC
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUNC");
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
           LogicError
@@ -239,7 +239,7 @@ void LUN
   const ElementalMatrix<T>& U,
         ElementalMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::LUN"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         LUNA( diag, U, X );

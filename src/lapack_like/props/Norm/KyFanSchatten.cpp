@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("KyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -31,7 +31,7 @@ template<typename F>
 Base<F> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -49,7 +49,7 @@ template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -70,7 +70,7 @@ Base<F> SymmetricKyFanSchattenNorm
 template<typename F> 
 Base<F> KyFanSchattenNorm( const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("KyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -95,7 +95,7 @@ template<typename F>
 Base<F> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -117,7 +117,7 @@ template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 

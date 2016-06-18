@@ -48,7 +48,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
@@ -390,7 +390,7 @@ void Mehrotra
         ElementalMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = true;
 
@@ -776,7 +776,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
 
@@ -1237,7 +1237,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
 

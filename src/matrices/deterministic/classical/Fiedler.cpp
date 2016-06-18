@@ -15,7 +15,7 @@ namespace El {
 template<typename F> 
 void Fiedler( Matrix<F>& A, const vector<F>& c )
 {
-    DEBUG_ONLY(CSE cse("Fiedler"))
+    DEBUG_CSE
     const Int n = c.size();
     A.Resize( n, n );
     auto fiedlerFill = [&]( Int i, Int j ) { return Abs(c[i]-c[j]); };
@@ -25,7 +25,7 @@ void Fiedler( Matrix<F>& A, const vector<F>& c )
 template<typename F>
 void Fiedler( AbstractDistMatrix<F>& A, const vector<F>& c )
 {
-    DEBUG_ONLY(CSE cse("Fiedler"))
+    DEBUG_CSE
     const Int n = c.size();
     A.Resize( n, n );
     auto fiedlerFill = [&]( Int i, Int j ) { return Abs(c[i]-c[j]); };

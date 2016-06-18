@@ -15,7 +15,7 @@ namespace lq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
+    DEBUG_CSE
     Matrix<F> phase;
     Matrix<Base<F>> signature;
     LQ( A, phase, signature );
@@ -30,7 +30,7 @@ void ExplicitTriang( Matrix<F>& A )
 template<typename F>
 void ExplicitTriang( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
+    DEBUG_CSE
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> phase(g);
     DistMatrix<Base<F>,MD,STAR> signature(g);
@@ -46,7 +46,7 @@ void ExplicitTriang( ElementalMatrix<F>& A )
 template<typename F>
 void ExplicitUnitary( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
+    DEBUG_CSE
     Matrix<F> phase;
     Matrix<Base<F>> signature;
     LQ( A, phase, signature );
@@ -61,7 +61,7 @@ void ExplicitUnitary( Matrix<F>& A )
 template<typename F>
 void ExplicitUnitary( ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
+    DEBUG_CSE
     const Grid& g = APre.Grid();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -82,7 +82,7 @@ void ExplicitUnitary( ElementalMatrix<F>& APre )
 template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::Explicit"))
+    DEBUG_CSE
     Matrix<F> phase;
     Matrix<Base<F>> signature;
     LQ( A, phase, signature );
@@ -104,7 +104,7 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
 template<typename F>
 void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("lq::Explicit"))
+    DEBUG_CSE
     const Grid& g = APre.Grid();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

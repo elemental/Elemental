@@ -15,7 +15,7 @@ namespace El {
 template<typename Real>
 void FourierIdentity( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("FourierIdentity"))
+    DEBUG_CSE
     A.Resize( n, 2*n );
     auto AL = A( IR(0,n), IR(0,n) );
     auto AR = A( IR(0,n), IR(n,2*n) );
@@ -26,7 +26,7 @@ void FourierIdentity( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void FourierIdentity( ElementalMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("FourierIdentity"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     A.Resize( n, 2*n );

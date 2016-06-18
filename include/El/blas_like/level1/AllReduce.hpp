@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
-    DEBUG_ONLY(CSE cse("AllReduce"))
+    DEBUG_CSE
     if( mpi::Size(comm) == 1 )
         return;
     const Int height = A.Height();
@@ -48,7 +48,7 @@ void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
 template<typename T>
 void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
-    DEBUG_ONLY(CSE cse("AllReduce"))
+    DEBUG_CSE
     if( mpi::Size(comm) == 1 )
         return;
     if( !A.Participating() )

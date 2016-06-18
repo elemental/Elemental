@@ -18,7 +18,7 @@ void SetSubmatrix
   const vector<Int>& J, 
   const Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("SetSubmatrix"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -41,7 +41,7 @@ void SetSubmatrix
   const vector<Int>& J, 
   const AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("SetSubmatrix"))
+    DEBUG_CSE
     // Set the appropriate portion of A to zero before updating
     for( auto& i : I )
         if( A.IsLocalRow(i) )

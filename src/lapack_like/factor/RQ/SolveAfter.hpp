@@ -23,7 +23,7 @@ void SolveAfter
   const Matrix<F>& B,       
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("rq::SolveAfter"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( m > n )
@@ -82,7 +82,7 @@ void SolveAfter
   const ElementalMatrix<F>& B, 
         ElementalMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("lq::SolveAfter"))
+    DEBUG_CSE
     const Int m = APre.Height();
     const Int n = APre.Width();
     if( m > n )

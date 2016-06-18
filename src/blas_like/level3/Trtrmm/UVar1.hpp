@@ -15,7 +15,7 @@ namespace trtrmm {
 template<typename T>
 void UVar1( Matrix<T>& U, bool conjugate=false )
 {
-    DEBUG_ONLY(CSE cse("trtrmm::UVar1"))
+    DEBUG_CSE
     const Int n = U.Height();
     const Int bsize = Blocksize();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE ); 
@@ -40,8 +40,8 @@ void UVar1( Matrix<T>& U, bool conjugate=false )
 template<typename T>
 void UVar1( ElementalMatrix<T>& UPre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trtrmm::UVar1");
       if( UPre.Height() != UPre.Width() )
           LogicError("U must be square");
     )

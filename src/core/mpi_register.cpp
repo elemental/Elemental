@@ -531,7 +531,7 @@ EL_NO_EXCEPT
 template<typename T,typename=EnableIf<IsPacked<T>>>
 static void CreateValueIntType() EL_NO_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("CreateValueIntType"))
+    DEBUG_CSE
 
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
@@ -561,7 +561,7 @@ static void CreateValueIntType() EL_NO_EXCEPT
 template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void CreateValueIntType() EL_NO_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("CreateValueIntType [packed]"))
+    DEBUG_CSE
 
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
@@ -588,7 +588,7 @@ void CreateValueIntType() EL_NO_EXCEPT
 template<typename T,typename=EnableIf<IsPacked<T>>>
 static void CreateEntryType() EL_NO_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("CreateEntryType"))
+    DEBUG_CSE
 
     Datatype typeList[3];
     typeList[0] = TypeMap<Int>();
@@ -622,7 +622,7 @@ static void CreateEntryType() EL_NO_EXCEPT
 template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void CreateEntryType() EL_NO_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("CreateEntryType [packed]"))
+    DEBUG_CSE
 
     Datatype typeList[3];
     typeList[0] = TypeMap<Int>();

@@ -37,8 +37,8 @@ void LLVB
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLVB");
       if( H.Height() != A.Height() )
           LogicError("H and A must have the same height");
     )
@@ -86,8 +86,8 @@ void LLVB
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLVB");
       if( HPre.Height() != APre.Height() )
           LogicError("H and A must have the same height");
       AssertSameGrids( HPre, tPre, APre );

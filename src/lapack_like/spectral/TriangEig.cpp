@@ -18,7 +18,7 @@ template<typename F>
 void TriangEig( Matrix<F>& U, Matrix<F>& X ) 
 {
   
-    DEBUG_ONLY(CSE cse("TriangEig"))
+    DEBUG_CSE
     const Int m = U.Height();
 
     // Make X the negative of the strictly upper triangle of  U
@@ -46,7 +46,7 @@ void TriangEig
 ( const ElementalMatrix<F>& UPre, 
         ElementalMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("TriangEig"))
+    DEBUG_CSE
       
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );

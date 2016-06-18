@@ -22,7 +22,7 @@ template<typename F>
 void HermitianUniformSpectrum
 ( Matrix<F>& A, Int n, Base<F> lower, Base<F> upper )
 {
-    DEBUG_ONLY(CSE cse("HermitianUniformSpectrum"))
+    DEBUG_CSE
     A.Resize( n, n );
     typedef Base<F> Real;
 
@@ -46,7 +46,7 @@ template<typename F>
 void HermitianUniformSpectrum
 ( ElementalMatrix<F>& APre, Int n, Base<F> lower, Base<F> upper )
 {
-    DEBUG_ONLY(CSE cse("HermitianUniformSpectrum"))
+    DEBUG_CSE
     APre.Resize( n, n );
     const Grid& grid = APre.Grid();
     typedef Base<F> Real;

@@ -16,7 +16,7 @@ namespace El {
 template<typename T>
 void Round( Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Round"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     T* ABuf = A.Buffer();

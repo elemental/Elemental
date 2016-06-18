@@ -17,7 +17,7 @@ namespace triang_inv {
 template<typename F>
 void Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
 {
-    DEBUG_ONLY(CSE cse("triang_inv::Var3"))
+    DEBUG_CSE
     if( uplo == LOWER )
         LVar3( diag, A );
     else
@@ -27,7 +27,7 @@ void Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
 template<typename F>
 void Var3( UpperOrLower uplo, UnitOrNonUnit diag, ElementalMatrix<F>& A  )
 {
-    DEBUG_ONLY(CSE cse("triang_inv::Var3"))
+    DEBUG_CSE
     if( uplo == LOWER )
         LVar3( diag, A );
     else
@@ -39,7 +39,7 @@ void Var3( UpperOrLower uplo, UnitOrNonUnit diag, ElementalMatrix<F>& A  )
 template<typename F>
 void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("TriangularInverse"))
+    DEBUG_CSE
     triang_inv::Var3( uplo, diag, A );
 }
 
@@ -47,7 +47,7 @@ template<typename F>
 void TriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, ElementalMatrix<F>& A  )
 {
-    DEBUG_ONLY(CSE cse("TriangularInverse"))
+    DEBUG_CSE
     triang_inv::Var3( uplo, diag, A );
 }
 
@@ -55,7 +55,7 @@ template<typename F>
 void LocalTriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("LocalTriangularInverse"))
+    DEBUG_CSE
     TriangularInverse( uplo, diag, A.Matrix() );
 }
 

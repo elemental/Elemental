@@ -36,7 +36,7 @@ DistMatrixNode<T>::DistMatrixNode
   const DistMultiVec<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CSE cse("DistMatrixNode::DistMatrixNode"))
+    DEBUG_CSE
     Pull( invMap, info, X );
 }
 
@@ -44,7 +44,7 @@ template<typename T>
 DistMatrixNode<T>::DistMatrixNode( const DistMultiVecNode<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CSE cse("DistMatrixNode::DistMatrixNode"))
+    DEBUG_CSE
     *this = X;
 }
 
@@ -59,7 +59,7 @@ template<typename T>
 const DistMatrixNode<T>&
 DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
 {
-    DEBUG_ONLY(CSE cse("DistMatrixNode::operator="))
+    DEBUG_CSE
 
     if( X.child == nullptr )
     {
@@ -89,7 +89,7 @@ void DistMatrixNode<T>::Pull
   const DistNodeInfo& info,
   const DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CSE cse("DistMatrixNode::Pull"))
+    DEBUG_CSE
     DistMultiVecNode<T> XMultiVec( invMap, info, X );
     *this = XMultiVec;
 }
@@ -100,7 +100,7 @@ void DistMatrixNode<T>::Push
   const DistNodeInfo& info,
         DistMultiVec<T>& X ) const
 {
-    DEBUG_ONLY(CSE cse("DistMatrixNode::Push"))
+    DEBUG_CSE
     DistMultiVecNode<T> XMultiVec( *this );
     XMultiVec.Push( invMap, info, X );
 }
@@ -109,7 +109,7 @@ void DistMatrixNode<T>::Push
 template<typename T>
 void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
 {
-    DEBUG_ONLY(CSE cse("DistMatrixNode::ComputeCommMetas"))
+    DEBUG_CSE
     if( commMeta.numChildSendInds.size() != 0 )
         return;
     if( child == nullptr )

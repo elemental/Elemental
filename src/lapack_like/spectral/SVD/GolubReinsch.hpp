@@ -22,7 +22,7 @@ void GolubReinsch
   DistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch [DistMatrix Decomp]"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -166,7 +166,7 @@ void GolubReinsch
   ElementalMatrix<F>& VPre,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch [ElementalMatrix Decomp]"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
@@ -185,7 +185,7 @@ void GolubReinschFlame
   DistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame [DistMatrix Decomp]"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -333,7 +333,7 @@ void GolubReinschFlame
   ElementalMatrix<F>& VPre,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame [ElementalMatrix Decomp]"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
@@ -351,7 +351,7 @@ void GolubReinsch
   ElementalMatrix<double>& V,
   const SVDCtrl<double>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch<double> [ElementalMatrix Decomp]"))
+    DEBUG_CSE
     if( ctrl.avoidLibflame )
         GolubReinsch( A, U, s, V, ctrl );
     else
@@ -366,9 +366,7 @@ void GolubReinsch
   ElementalMatrix<Complex<double>>& V,
   const SVDCtrl<double>& ctrl )
 {
-    DEBUG_ONLY(
-      CSE cse("svd::GolubReinsch<Complex<double>> [ElementalMatrix Decomp]")
-    )
+    DEBUG_CSE
     if( ctrl.avoidLibflame )
         GolubReinsch( A, U, s, V, ctrl );
     else
@@ -382,7 +380,7 @@ void GolubReinsch
   ElementalMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch [DistMatrix values]"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -455,7 +453,7 @@ void GolubReinsch
   ElementalMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch [ElementalMatrix values]"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     GolubReinsch( A, s, ctrl );

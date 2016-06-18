@@ -203,7 +203,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ExtremalSingValEst"))
+    DEBUG_CSE
     return extremal_sing_val::Helper( A, basisSize );
 }
 
@@ -211,7 +211,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ExtremalSingValEst"))
+    DEBUG_CSE
     return extremal_sing_val::Helper( A, basisSize );
 }
 
@@ -219,7 +219,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("HermitianExtremalSingValEst"))
+    DEBUG_CSE
     return extremal_sing_val::HermitianHelper( A, basisSize );
 }
 
@@ -227,7 +227,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("HermitianExtremalSingValEst"))
+    DEBUG_CSE
     return extremal_sing_val::HermitianHelper( A, basisSize );
 }
 

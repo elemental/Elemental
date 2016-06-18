@@ -27,11 +27,13 @@ namespace svm {
 
 template<typename Real>
 void IPM
-( const Matrix<Real>& A, const Matrix<Real>& d, 
-        Real lambda,           Matrix<Real>& x,
+( const Matrix<Real>& A,
+  const Matrix<Real>& d, 
+        Real lambda,
+        Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> wInd(0,n), betaInd(n,n+1), zInd(n+1,n+m+1);
@@ -87,11 +89,13 @@ void IPM
 
 template<typename Real>
 void IPM
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& d, 
-        Real lambda,                       ElementalMatrix<Real>& x, 
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& d, 
+        Real lambda,
+        ElementalMatrix<Real>& x, 
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -154,7 +158,7 @@ void IPM
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> wInd(0,n), betaInd(n,n+1), zInd(n+1,n+m+1);
@@ -223,7 +227,7 @@ void IPM
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

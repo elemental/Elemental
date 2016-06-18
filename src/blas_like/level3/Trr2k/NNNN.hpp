@@ -24,8 +24,8 @@ void Trr2kNNNN
   const ElementalMatrix<T>& DPre,
         ElementalMatrix<T>& EPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trr2k::Trr2kNNNN");
       if( EPre.Height() != EPre.Width()  || APre.Width()  != CPre.Width()  ||
           APre.Height() != EPre.Height() || CPre.Height() != EPre.Height() ||
           BPre.Width()  != EPre.Width()  || DPre.Width()  != EPre.Width()  ||

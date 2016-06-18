@@ -18,7 +18,7 @@ void LongOnlyPortfolio
         Matrix<Real>& x,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
+    DEBUG_CSE
     const Int n = c.Height();
 
     // Rather than making a copy of Sigma to form gamma*Sigma, scale c
@@ -45,7 +45,7 @@ void LongOnlyPortfolio
         DistMultiVec<Real>& x,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
+    DEBUG_CSE
     const Int n = c.Height();
     mpi::Comm comm = c.Comm();
 
@@ -74,7 +74,7 @@ void LongOnlyPortfolio
         Matrix<Real>& x,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
+    DEBUG_CSE
     const Int n = c.Height();
  
     // TODO: Expose this as a control parameter
@@ -215,7 +215,7 @@ void LongOnlyPortfolio
         DistMultiVec<Real>& x,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LongOnlyPortfolio"))
+    DEBUG_CSE
     const Int n = c.Height();
     mpi::Comm comm = c.Comm();
     const int commRank = mpi::Rank(comm);

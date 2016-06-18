@@ -24,7 +24,7 @@ Int ModelFit
         Matrix<Real>& w, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ModelFit"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -111,7 +111,7 @@ Int ModelFit
         ElementalMatrix<Real>& wPre, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ModelFit"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),

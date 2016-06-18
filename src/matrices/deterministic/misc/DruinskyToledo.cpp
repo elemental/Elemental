@@ -24,7 +24,7 @@ namespace El {
 template<typename F> 
 void DruinskyToledo( Matrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("DruinskyToledo"))
+    DEBUG_CSE
     const Int n = 2*k;
     Zeros( A, n, n );
     if( k == 0 )
@@ -67,7 +67,7 @@ void DruinskyToledo( Matrix<F>& A, Int k )
 template<typename F> 
 void DruinskyToledo( ElementalMatrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("DruinskyToledo"))
+    DEBUG_CSE
     const Int n = 2*k;
     Zeros( A, n, n );
     if( k == 0 )

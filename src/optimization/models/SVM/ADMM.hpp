@@ -15,11 +15,13 @@ namespace svm {
 
 template<typename Real>
 Int ADMM
-( const Matrix<Real>& G, const Matrix<Real>& q, 
-        Real gamma,            Matrix<Real>& w,
+( const Matrix<Real>& G,
+  const Matrix<Real>& q, 
+        Real gamma,
+        Matrix<Real>& w,
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::ADMM"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]
@@ -57,7 +59,7 @@ Int ADMM
         ElementalMatrix<Real>& w, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::ADMM"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]

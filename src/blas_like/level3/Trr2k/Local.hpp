@@ -25,7 +25,7 @@ void LocalTrr2kKernel
   T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
                  ElementalMatrix<T>& E )
 {
-    DEBUG_ONLY(CSE cse("LocalTrr2kKernel"))
+    DEBUG_CSE
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;
@@ -129,7 +129,7 @@ void LocalTrr2k
   T gamma,       ElementalMatrix<T>& E )
 {
     using namespace trr2k;
-    DEBUG_ONLY(CSE cse("LocalTrr2k"))
+    DEBUG_CSE
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;

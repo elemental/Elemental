@@ -18,7 +18,7 @@ void Reshape
   const Matrix<T>& A,
         Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Reshape"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( m*n != mNew*nNew )
@@ -42,7 +42,7 @@ void Reshape
 template<typename T>
 Matrix<T> Reshape( Int mNew, Int nNew, const Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Reshape"))
+    DEBUG_CSE
     Matrix<T> B;
     Reshape( mNew, nNew, A, B );
     return B;
@@ -57,7 +57,7 @@ void Reshape
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Reshape"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
@@ -102,7 +102,7 @@ void Reshape
   const SparseMatrix<T>& A,
         SparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Reshape"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
@@ -142,7 +142,7 @@ void Reshape
   const DistSparseMatrix<T>& A,
         DistSparseMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Reshape"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumLocalEntries();

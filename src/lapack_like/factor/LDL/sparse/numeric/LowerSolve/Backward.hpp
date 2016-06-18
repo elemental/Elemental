@@ -31,7 +31,7 @@ inline void LowerBackwardSolve
   const Front<F>& front,
         MatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerBackwardSolve"))
+    DEBUG_CSE
 
     auto* dupMV = X.duplicateMV;
     auto* dupMat = X.duplicateMat;
@@ -88,7 +88,7 @@ inline void LowerBackwardSolve
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMultiVecNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerBackwardSolve [DistMultiVecNode]"))
+    DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardSolve
@@ -192,7 +192,7 @@ inline void LowerBackwardSolve
   const DistFront<F>& front,
         DistMatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerBackwardSolve [DistMatrixNode]"))
+    DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardSolve

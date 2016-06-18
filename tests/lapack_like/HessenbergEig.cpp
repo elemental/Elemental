@@ -274,7 +274,7 @@ void TestSmallBulgeSweep
   bool accumulate,
   bool print )
 {
-    DEBUG_ONLY(CSE cse("TestSmallBulgeSweep"))
+    DEBUG_CSE
     Matrix<Real> H;
     Uniform( H, n, n );
     MakeTrapezoidal( UPPER, H, -1 );

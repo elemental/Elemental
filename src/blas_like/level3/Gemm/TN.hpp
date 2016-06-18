@@ -19,8 +19,8 @@ void SUMMA_TNA
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::SUMMA_TNA");    
       AssertSameGrids( APre, BPre, CPre );
       if( orientA == NORMAL )
           LogicError("A must be (Conjugate)Transposed");
@@ -76,8 +76,8 @@ void SUMMA_TNB
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::SUMMA_TNB");
       AssertSameGrids( APre, BPre, CPre );
       if( orientA == NORMAL )
           LogicError("A must be (Conjugate)Transposed");
@@ -130,8 +130,8 @@ void SUMMA_TNC
   const ElementalMatrix<T>& BPre,
         ElementalMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemm::SUMMA_TNC");
       AssertSameGrids( APre, BPre, CPre );
       if( orientA == NORMAL )
           LogicError("A must be (Conjugate)Transposed");
@@ -184,7 +184,7 @@ void SUMMA_TN
         ElementalMatrix<T>& C,
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
-    DEBUG_ONLY(CSE cse("gemm::SUMMA_TN"))
+    DEBUG_CSE
     const Int m = C.Height();
     const Int n = C.Width();
     const Int k = A.Height();

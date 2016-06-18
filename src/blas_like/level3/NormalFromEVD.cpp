@@ -20,7 +20,7 @@ void NormalFromEVD
   const Matrix<Complex<Real>>& w,
   const Matrix<Complex<Real>>& Z )
 {
-    DEBUG_ONLY(CSE cse("NormalFromEVD"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     Matrix<C> Y1, Z1Copy;
@@ -48,7 +48,7 @@ void NormalFromEVD
   const ElementalMatrix<Complex<Real>>& wPre, 
   const ElementalMatrix<Complex<Real>>& ZPre )
 {
-    DEBUG_ONLY(CSE cse("NormalFromEVD"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );

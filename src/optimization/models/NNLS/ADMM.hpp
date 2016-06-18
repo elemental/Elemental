@@ -32,7 +32,7 @@ ADMM
         Matrix<Real>& X, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::ADMM"))
+    DEBUG_CSE
     const Real maxReal = limits::Max<Real>();
 
     Matrix<Real> Q, C;
@@ -50,7 +50,7 @@ ADMM
         ElementalMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::ADMM"))
+    DEBUG_CSE
     const Real maxReal = limits::Max<Real>();
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );

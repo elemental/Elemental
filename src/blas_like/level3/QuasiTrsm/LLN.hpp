@@ -17,7 +17,7 @@ namespace quasitrsm {
 template<typename F>
 void LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLNUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -105,7 +105,7 @@ void LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 void LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLN"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -136,7 +136,7 @@ void LLNLarge
         ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -191,7 +191,7 @@ void LLNMedium
         ElementalMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -247,8 +247,8 @@ void LLNSmall
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

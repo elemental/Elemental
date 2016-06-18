@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void Her( UpperOrLower uplo, Base<T> alpha, const Matrix<T>& x, Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Her"))
+    DEBUG_CSE
     Syr( uplo, T(alpha), x, A, true );
 }
 
@@ -24,7 +24,7 @@ void Her
   Base<T> alpha, const ElementalMatrix<T>& x, 
                        ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Her"))
+    DEBUG_CSE
     Syr( uplo, T(alpha), x, A, true );
 }
 

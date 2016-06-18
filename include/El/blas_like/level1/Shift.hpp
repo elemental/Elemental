@@ -14,7 +14,7 @@ namespace El {
 template<typename T,typename S>
 void Shift( Matrix<T>& A, S alpha )
 {
-    DEBUG_ONLY(CSE cse("Shift"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
@@ -25,14 +25,14 @@ void Shift( Matrix<T>& A, S alpha )
 template<typename T,typename S>
 void Shift( AbstractDistMatrix<T>& A, S alpha )
 {
-    DEBUG_ONLY(CSE cse("Shift"))
+    DEBUG_CSE
     Shift( A.Matrix(), alpha );
 }
 
 template<typename T,typename S>
 void Shift( DistMultiVec<T>& A, S alpha )
 {
-    DEBUG_ONLY(CSE cse("Shift"))
+    DEBUG_CSE
     Shift( A.Matrix(), alpha );
 }
 

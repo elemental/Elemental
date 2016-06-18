@@ -198,7 +198,7 @@ void Initialize( int& argc, char**& argv )
 
 void Finalize()
 {
-    DEBUG_ONLY(CSE cse("Finalize"))
+    DEBUG_CSE
     if( ::numElemInits <= 0 )
     { 
         cerr << "Finalized Elemental more times than initialized" << endl;
@@ -389,7 +389,7 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full )
 
 Int Find( const vector<Int>& sortedInds, Int index )
 {
-    DEBUG_ONLY(CSE cse("Find"))
+    DEBUG_CSE
     auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
     DEBUG_ONLY(
       if( it == sortedInds.cend() )

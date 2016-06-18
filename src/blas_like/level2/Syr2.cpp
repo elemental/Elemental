@@ -17,8 +17,8 @@ void Syr2
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, 
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Syr2");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( (x.Width() != 1 && x.Height() != 1) ||
@@ -56,8 +56,8 @@ void Syr2
            const ElementalMatrix<T>& y,
                  ElementalMatrix<T>& APre, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Syr2");
       AssertSameGrids( APre, x, y );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

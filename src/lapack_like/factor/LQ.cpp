@@ -23,7 +23,7 @@ void LQ
   Matrix<F>& phase,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("LQ"))
+    DEBUG_CSE
     lq::Householder( A, phase, signature );
 }
 
@@ -33,7 +33,7 @@ void LQ
   ElementalMatrix<F>& phase, 
   ElementalMatrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("LQ"))
+    DEBUG_CSE
     lq::Householder( A, phase, signature );
 }
 

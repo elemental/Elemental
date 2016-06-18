@@ -540,7 +540,7 @@ void RPCA
         Matrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RPCA"))
+    DEBUG_CSE
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl ); 
     else
@@ -554,7 +554,7 @@ void RPCA
         ElementalMatrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RPCA"))
+    DEBUG_CSE
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl ); 
     else

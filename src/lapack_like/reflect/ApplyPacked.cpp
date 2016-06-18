@@ -35,7 +35,7 @@ void ApplyPackedReflectors
   Conjugation conjugation,
   Int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("ApplyPackedReflectors"))
+    DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )
@@ -97,7 +97,7 @@ void ApplyPackedReflectors
   const ElementalMatrix<F>& H, const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("ApplyPackedReflectors"))
+    DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )

@@ -18,7 +18,7 @@ namespace herm_eig {
 template<typename F>
 void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::Sort"))
+    DEBUG_CSE
     if( sort == UNSORTED )
         return;
 
@@ -43,7 +43,7 @@ template<typename Real,typename F>
 void Sort
 ( ElementalMatrix<Real>& w, ElementalMatrix<F>& Z, SortType sort )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::Sort"))
+    DEBUG_CSE
     if( sort == UNSORTED )
         return;
 

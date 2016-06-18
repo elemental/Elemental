@@ -203,7 +203,7 @@ inline void ComputeStructAndRelInds
 
 Int Analysis( NodeInfo& node, Int myOff )
 {
-    DEBUG_ONLY(CSE cse("ldl::Analysis"))
+    DEBUG_CSE
 
     // Recurse on the children
     // NOTE: Cleanup of existing info children should be added
@@ -290,7 +290,7 @@ Int Analysis( NodeInfo& node, Int myOff )
 
 void Analysis( DistNodeInfo& node, bool computeFactRecvInds )
 {
-    DEBUG_ONLY(CSE cse("ldl::Analysis"))
+    DEBUG_CSE
 
     node.grid = new Grid( node.comm );
 

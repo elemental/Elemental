@@ -22,8 +22,8 @@ void ChanUpper
   DistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("svd::ChanUpper [DistMatrix Decomp]");
       AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -139,7 +139,7 @@ void ChanUpper
   ElementalMatrix<F>& VPre,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::ChanUpper [ElementalMatrix Decomp]"))
+    DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
@@ -155,8 +155,8 @@ void ChanUpper
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("svd::ChanUpper [DistMatrix values]");
       AssertSameGrids( A, s );
       if( ctrl.valChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint");
@@ -178,7 +178,7 @@ void ChanUpper
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::ChanUpper [ElementalMatrix values]"))
+    DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     ChanUpper( A, s, ctrl );
@@ -197,8 +197,8 @@ void Chan
   DistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("svd::Chan [DistMatrix Decomp]");
       AssertSameGrids( A, U, s, V );
       if( ctrl.fullChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
@@ -240,7 +240,7 @@ void Chan
   ElementalMatrix<F>& VPre,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::Chan [ElementalMatrix Decomp]"))
+    DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
@@ -260,7 +260,7 @@ void Chan
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::Chan [DistMatrix values]"))
+    DEBUG_CSE
 
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
@@ -294,7 +294,7 @@ void Chan
   ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::Chan [ElementalMatrix values]"))
+    DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     Chan( A, s, ctrl );

@@ -15,7 +15,7 @@ namespace qr {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::ExplicitTriang"))
+    DEBUG_CSE
     Matrix<F> phase;
     Matrix<Base<F>> signature;
     if( ctrl.colPiv )
@@ -33,7 +33,7 @@ void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 template<typename F>
 void ExplicitTriang( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::ExplicitTriang"))
+    DEBUG_CSE
     DistMatrix<F,MD,STAR> phase(A.Grid());
     DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
     if( ctrl.colPiv )
@@ -52,7 +52,7 @@ template<typename F>
 void ExplicitUnitary
 ( Matrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
+    DEBUG_CSE
     Matrix<F> phase;
     Matrix<Base<F>> signature;
     if( ctrl.colPiv )
@@ -82,7 +82,7 @@ template<typename F>
 void ExplicitUnitary
 ( ElementalMatrix<F>& APre, bool thinQR, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::ExplicitUnitary"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -120,7 +120,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::Explicit"))
+    DEBUG_CSE
     Matrix<F> phase;
     Matrix<Base<F>> signature;
     if( ctrl.colPiv )
@@ -161,7 +161,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::Explicit"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -208,7 +208,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::Explicit"))
+    DEBUG_CSE
     Matrix<F> phase;
     Matrix<Base<F>> signature;
     Permutation Omega;
@@ -247,7 +247,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qr::Explicit"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();

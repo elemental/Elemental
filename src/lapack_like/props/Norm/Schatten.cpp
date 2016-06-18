@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> SchattenNorm( const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SchattenNorm"))
+    DEBUG_CSE
     const Int minDim = Min(A.Height(),A.Width());
     return KyFanSchattenNorm( A, minDim, p );
 }
@@ -22,7 +22,7 @@ template<typename F>
 Base<F> HermitianSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianSchattenNorm"))
+    DEBUG_CSE
     const Int minDim = A.Height();
     return HermitianKyFanSchattenNorm( uplo, A, minDim, p );
 }
@@ -31,7 +31,7 @@ template<typename F>
 Base<F> SymmetricSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricSchattenNorm"))
+    DEBUG_CSE
     const Int minDim = A.Height();
     return SymmetricKyFanSchattenNorm( uplo, A, minDim, p );
 }
@@ -39,7 +39,7 @@ Base<F> SymmetricSchattenNorm
 template<typename F> 
 Base<F> SchattenNorm( const ElementalMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SchattenNorm"))
+    DEBUG_CSE
     const Int minDim = Min(A.Height(),A.Width());
     return KyFanSchattenNorm( A, minDim, p );
 }
@@ -48,7 +48,7 @@ template<typename F>
 Base<F> HermitianSchattenNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianSchattenNorm"))
+    DEBUG_CSE
     const Int minDim = A.Height();
     return HermitianKyFanSchattenNorm( uplo, A, minDim, p );
 }
@@ -57,7 +57,7 @@ template<typename F>
 Base<F> SymmetricSchattenNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricSchattenNorm"))
+    DEBUG_CSE
     const Int minDim = A.Height();
     return HermitianKyFanSchattenNorm( uplo, A, minDim, p );
 }

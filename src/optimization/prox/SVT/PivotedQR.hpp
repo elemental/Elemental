@@ -17,8 +17,8 @@ namespace svt {
 template<typename F>
 Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("svt::PivotedQR");
       if( numSteps > Min(A.Height(),A.Width()) )
           LogicError("number of steps is too large");
     )
@@ -64,8 +64,8 @@ template<typename F>
 Int PivotedQR
 ( ElementalMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("svt::PivotedQR");
       if( numSteps > Min(APre.Height(),APre.Width()) )
           LogicError("number of steps is too large");
     )

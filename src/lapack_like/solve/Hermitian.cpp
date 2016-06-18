@@ -18,7 +18,7 @@ void Overwrite
   Matrix<F>& A, Matrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_solve::Overwrite"))
+    DEBUG_CSE
     symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -28,7 +28,7 @@ void Overwrite
   ElementalMatrix<F>& A, ElementalMatrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_solve::Overwrite"))
+    DEBUG_CSE
     symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -40,7 +40,7 @@ void HermitianSolve
   const Matrix<F>& A, Matrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSolve"))
+    DEBUG_CSE
     SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -50,7 +50,7 @@ void HermitianSolve
   const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSolve"))
+    DEBUG_CSE
     SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -60,7 +60,7 @@ void HermitianSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B, 
   bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSolve"))
+    DEBUG_CSE
     SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 
@@ -70,7 +70,7 @@ void HermitianSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
   bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSolve"))
+    DEBUG_CSE
     SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 

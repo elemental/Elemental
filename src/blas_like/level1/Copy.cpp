@@ -13,7 +13,7 @@ namespace El {
 
 void Copy( const Graph& A, Graph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy (G to G)"))
+    DEBUG_CSE
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
 
@@ -28,7 +28,7 @@ void Copy( const Graph& A, Graph& B )
 
 void Copy( const Graph& A, DistGraph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy (G to DG)"))
+    DEBUG_CSE
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
 
@@ -44,7 +44,7 @@ void Copy( const Graph& A, DistGraph& B )
 
 void Copy( const DistGraph& A, Graph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy (DG to G)"))
+    DEBUG_CSE
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
     mpi::Comm comm = A.Comm();
@@ -62,7 +62,7 @@ void Copy( const DistGraph& A, Graph& B )
 
 void Copy( const DistGraph& A, DistGraph& B )
 {
-    DEBUG_ONLY(CSE cse("Copy (DG to DG)"))
+    DEBUG_CSE
     const Int numSources = A.NumSources();
     const Int numTargets = A.NumTargets();
     
@@ -78,7 +78,7 @@ void Copy( const DistGraph& A, DistGraph& B )
 
 void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
 {
-    DEBUG_ONLY(CSE cse("CopyFromRoot (DG to G)"))
+    DEBUG_CSE
     const mpi::Comm comm = distGraph.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
@@ -106,7 +106,7 @@ void CopyFromRoot( const DistGraph& distGraph, Graph& graph )
 
 void CopyFromNonRoot( const DistGraph& distGraph, int root )
 {
-    DEBUG_ONLY(CSE cse("CopyFromNonRoot (DG)"))
+    DEBUG_CSE
     const mpi::Comm comm = distGraph.Comm();
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );

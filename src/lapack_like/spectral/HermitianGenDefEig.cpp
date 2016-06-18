@@ -24,8 +24,8 @@ void HermitianGenDefEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("HermitianGenDefEig");
       if( A.Height() != A.Width() || B.Height() != B.Width() )
           LogicError("Hermitian matrices must be square.");
     )
@@ -49,8 +49,8 @@ void HermitianGenDefEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("HermitianGenDefEig");
       AssertSameGrids( APre, BPre, w );
       if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
           LogicError("Hermitian matrices must be square.");
@@ -83,8 +83,8 @@ void HermitianGenDefEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("HermitianGenDefEig");
       if( A.Height() != A.Width() || B.Height() != B.Width() )
           LogicError("Hermitian matrices must be square.");
     )
@@ -119,8 +119,8 @@ void HermitianGenDefEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("HermitianGenDefEig");
       AssertSameGrids( APre, BPre, w, XPre );
       if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
           LogicError("Hermitian matrices must be square.");

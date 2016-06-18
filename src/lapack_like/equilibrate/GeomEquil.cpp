@@ -30,7 +30,7 @@ void GeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -124,7 +124,7 @@ void StackedGeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -246,7 +246,7 @@ void GeomEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -345,7 +345,7 @@ void StackedGeomEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -475,7 +475,7 @@ void GeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -589,7 +589,7 @@ void StackedGeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -751,7 +751,7 @@ void GeomEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -876,7 +876,7 @@ void StackedGeomEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();

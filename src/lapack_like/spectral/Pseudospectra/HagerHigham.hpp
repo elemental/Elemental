@@ -24,7 +24,7 @@ OneNormConvergenceTest
         Matrix<Int >& activeItCounts,
         Int numIts )
 {
-    DEBUG_ONLY(CSE cse("pspec::OneNormConvergenceTest"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Int n = activeX.Height();
 
@@ -92,25 +92,25 @@ OneNormConvergenceTest
         DistMatrix<Int ,VR,STAR>& activeItCounts,
         Int numIts )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("pspec::OneNormConvergenceTest");
-        if( activeX.Height() != activeY.Height() || 
-            activeY.Height() != activeZ.Height() )
-            LogicError("active{X,Y,Z} should be the same height");
-        if( activeX.Width() != activeY.Width() || 
-            activeY.Width() != activeZ.Width() )
-            LogicError("active{X,Y,Z} should be the same height");
-        if( activeX.ColAlign() != activeY.ColAlign() || 
-            activeY.ColAlign() != activeZ.ColAlign() )
-            LogicError("active{X,Y,Z} should be column aligned");
-        if( activeX.RowAlign() != activeY.RowAlign() || 
-            activeY.RowAlign() != activeZ.RowAlign() )
-            LogicError("active{X,Y,Z} should be row aligned");
-        if( activeZ.RowAlign() != activeEsts.ColAlign() )
-            LogicError("Invalid activeZ alignment");
-        if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
-            activeEsts.ColAlign() )
-            LogicError("Invalid column alignment");
+      if( activeX.Height() != activeY.Height() || 
+          activeY.Height() != activeZ.Height() )
+          LogicError("active{X,Y,Z} should be the same height");
+      if( activeX.Width() != activeY.Width() || 
+          activeY.Width() != activeZ.Width() )
+          LogicError("active{X,Y,Z} should be the same height");
+      if( activeX.ColAlign() != activeY.ColAlign() || 
+          activeY.ColAlign() != activeZ.ColAlign() )
+          LogicError("active{X,Y,Z} should be column aligned");
+      if( activeX.RowAlign() != activeY.RowAlign() || 
+          activeY.RowAlign() != activeZ.RowAlign() )
+          LogicError("active{X,Y,Z} should be row aligned");
+      if( activeZ.RowAlign() != activeEsts.ColAlign() )
+          LogicError("Invalid activeZ alignment");
+      if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
+          activeEsts.ColAlign() )
+          LogicError("Invalid column alignment");
     )
     typedef Complex<Real> C;
     const Int nLoc = activeX.LocalHeight();
@@ -197,7 +197,7 @@ HagerHigham
   Matrix<Real>& invNorms,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -356,7 +356,7 @@ HagerHigham
   Matrix<Real>& invNorms,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -529,7 +529,7 @@ HagerHigham
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadProxy<C,C,MC,MR> UProx( UPre );
@@ -728,7 +728,7 @@ HagerHigham
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 

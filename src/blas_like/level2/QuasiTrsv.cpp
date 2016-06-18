@@ -21,7 +21,7 @@ void QuasiTrsv
 ( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& x, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("QuasiTrsv"))
+    DEBUG_CSE
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -44,7 +44,7 @@ void QuasiTrsv
   const ElementalMatrix<F>& A, ElementalMatrix<F>& x, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("QuasiTrsv"))
+    DEBUG_CSE
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )

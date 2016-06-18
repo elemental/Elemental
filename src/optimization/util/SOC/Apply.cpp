@@ -21,7 +21,7 @@ void Apply
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
@@ -29,16 +29,9 @@ void Apply
     cone::Broadcast( yRoots, orders, firstInds );
 
     const Int height = x.Height();
-    const Real* xBuf     = x.LockedBuffer();
-    const Real* xRootBuf = xRoots.LockedBuffer();
-    const Real* yBuf     = y.LockedBuffer();
-    const Real* yRootBuf = yRoots.LockedBuffer();
-          Real* zBuf = z.Buffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     for( Int i=0; i<height; ++i )
-        if( i != firstIndBuf[i] )
-            zBuf[i] += xRootBuf[i]*yBuf[i] + yRootBuf[i]*xBuf[i];
+        if( i != firstInds(i) )
+            z(i) += xRoots(i)*y(i) + yRoots(i)*x(i);
 }
 
 template<typename Real,typename>
@@ -50,7 +43,7 @@ void Apply
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -103,7 +96,7 @@ void Apply
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
@@ -135,7 +128,7 @@ void Apply
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     // TODO?: Optimize
     Matrix<Real> z;
     soc::Apply( x, y, z, orders, firstInds );
@@ -150,7 +143,7 @@ void Apply
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     // TODO?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid());
     soc::Apply( x, y, z, orders, firstInds, cutoff );
@@ -165,7 +158,7 @@ void Apply
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     // TODO?: Optimize
     DistMultiVec<Real> z(x.Comm());
     soc::Apply( x, y, z, orders, firstInds, cutoff );

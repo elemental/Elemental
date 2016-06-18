@@ -24,7 +24,7 @@ void SafeMultiShiftTrsm
   F alpha, Matrix<F>& A, const Matrix<F>& shifts,
   Matrix<F>& B, Matrix<F>& scales )
 {
-    DEBUG_ONLY(CSE cse("SafeMultiShiftTrsm"))
+    DEBUG_CSE
     B *= alpha;
     if( side == LEFT && uplo == UPPER && orientation == NORMAL)
     {
@@ -42,7 +42,7 @@ void SafeMultiShiftTrsm
   F alpha, const ElementalMatrix<F>& A, const ElementalMatrix<F>& shifts, 
   ElementalMatrix<F>& B, ElementalMatrix<F>& scales )
 {
-    DEBUG_ONLY(CSE cse("SafeMultiShiftTrsm"))
+    DEBUG_CSE
     B *= alpha;
     if( side == LEFT && uplo == UPPER && orientation == NORMAL)
     {

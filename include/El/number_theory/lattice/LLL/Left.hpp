@@ -25,7 +25,7 @@ void ExpandQR
   Int numOrthog,
   bool time )
 {
-    DEBUG_ONLY(CSE cse("lll::ExpandQR"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -76,7 +76,7 @@ void HouseholderStep
   Matrix<Base<F>>& d,
   bool time )
 {
-    DEBUG_ONLY(CSE cse("lll::HouseholderStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = QR.Height();
     const Int n = QR.Width();
@@ -135,7 +135,7 @@ bool Step
   bool formU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::Step"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -333,7 +333,7 @@ LLLInfo<Base<F>> LeftAlg
   bool formU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::LeftAlg"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( ctrl.time )
     {
@@ -520,7 +520,7 @@ LLLInfo<Base<F>> LeftDeepAlg
   bool formU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::LeftDeepAlg"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( ctrl.delta <= Real(1)/Real(2) )
         LogicError
@@ -735,7 +735,7 @@ LLLInfo<Base<F>> LeftDeepReduceAlg
   bool formU,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lll::LeftDeepReduceAlg"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( ctrl.delta <= Real(1)/Real(2) )
         LogicError

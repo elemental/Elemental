@@ -16,7 +16,7 @@ template<typename T>
 inline void
 Ascii( const Matrix<T>& A, string basename="matrix", string title="" )
 {
-    DEBUG_ONLY(CSE cse("write::Ascii"))
+    DEBUG_CSE
     string filename = basename + "." + FileExtension(ASCII);
     ofstream file( filename.c_str() );
     if( !file.is_open() )

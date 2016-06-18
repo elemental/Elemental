@@ -21,7 +21,7 @@ void ComputeNewEstimates
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
+    DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -55,7 +55,7 @@ void ComputeNewEstimates
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
+    DEBUG_CSE
     ComputeNewEstimates
     ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), 
       activeEsts.Matrix() );
@@ -68,7 +68,7 @@ void Restart
   const Matrix<Int>& activeConverged,
   vector<Matrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CSE cse("pspec::Restart"))
+    DEBUG_CSE
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )
@@ -112,7 +112,7 @@ void Restart
   const DistMatrix<Int,MR,STAR>& activeConverged,
   vector<DistMatrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CSE cse("pspec::Restart"))
+    DEBUG_CSE
     const Int basisSize = HDiagList[0].size();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -129,7 +129,7 @@ IRL
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::IRL"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -355,7 +355,7 @@ IRL
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::IRL"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 

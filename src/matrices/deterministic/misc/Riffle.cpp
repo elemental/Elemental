@@ -21,7 +21,7 @@ namespace El {
 template<typename F>
 void Riffle( Matrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n+1 );
@@ -44,7 +44,7 @@ void Riffle( Matrix<F>& P, Int n )
 template<typename F>
 void Riffle( AbstractDistMatrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n+1 );
@@ -67,7 +67,7 @@ void Riffle( AbstractDistMatrix<F>& P, Int n )
 template<typename F>
 void RiffleStationary( Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleStationary"))    
+    DEBUG_CSE
     typedef Base<F> Real;
     // NOTE: This currently requires quadratic time
     vector<Real> sigma(n,0), sigmaTmp(n,0);
@@ -90,7 +90,7 @@ void RiffleStationary( Matrix<F>& PInf, Int n )
 template<typename F>
 void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleStationary"))    
+    DEBUG_CSE
     typedef Base<F> Real;
     // NOTE: This currently requires quadratic time
     vector<Real> sigma(n,0), sigmaTmp(n,0);
@@ -113,7 +113,7 @@ void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
 template<typename F>
 void Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     Riffle( P, n );
     RiffleStationary( PInf, n );
 }
@@ -121,7 +121,7 @@ void Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
 template<typename F>
 void Riffle( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     Riffle( P, n );
     PInf.SetGrid( P.Grid() );
     PInf.AlignWith( P.DistData() );
@@ -131,7 +131,7 @@ void Riffle( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 template<typename F>
 void RiffleDecay( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleDecay"))
+    DEBUG_CSE
     Riffle( A, n );
     Matrix<F> PInf;
     RiffleStationary( PInf, n );
@@ -141,7 +141,7 @@ void RiffleDecay( Matrix<F>& A, Int n )
 template<typename F>
 void RiffleDecay( ElementalMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleDecay"))
+    DEBUG_CSE
     Riffle( A, n );
     unique_ptr<ElementalMatrix<F>> PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );

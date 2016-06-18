@@ -13,11 +13,10 @@ namespace El {
 namespace cholesky {
 
 template<typename F>
-inline void
-UVar3Unb( Matrix<F>& A )
+void UVar3Unb( Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UVar3Unb");
       if( A.Height() != A.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -47,11 +46,10 @@ UVar3Unb( Matrix<F>& A )
 }
 
 template<typename F>
-inline void
-ReverseUVar3Unb( Matrix<F>& A )
+void ReverseUVar3Unb( Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::ReverseUVar3Unb");
       if( A.Height() != A.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -77,11 +75,10 @@ ReverseUVar3Unb( Matrix<F>& A )
 }
 
 template<typename F> 
-inline void
-UVar3( Matrix<F>& A )
+void UVar3( Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UVar3");
       if( A.Height() != A.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -105,11 +102,10 @@ UVar3( Matrix<F>& A )
 }
 
 template<typename F> 
-inline void
-ReverseUVar3( Matrix<F>& A )
+void ReverseUVar3( Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::ReverseUVar3");
       if( A.Height() != A.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -134,11 +130,10 @@ ReverseUVar3( Matrix<F>& A )
 }
 
 template<typename F> 
-inline void
-UVar3( AbstractDistMatrix<F>& APre )
+void UVar3( AbstractDistMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UVar3");
       if( APre.Height() != APre.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -185,11 +180,10 @@ UVar3( AbstractDistMatrix<F>& APre )
 }
 
 template<typename F> 
-inline void
-ReverseUVar3( AbstractDistMatrix<F>& APre )
+void ReverseUVar3( AbstractDistMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::ReverseUVar3");
       if( APre.Height() != APre.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )

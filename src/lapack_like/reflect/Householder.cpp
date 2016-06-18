@@ -39,8 +39,8 @@ namespace El {
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LeftReflector");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -53,7 +53,7 @@ F LeftReflector( F& chi, Matrix<F>& x )
 template<typename F>
 F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CSE cse("LeftReflector"))
+    DEBUG_CSE
 
     F alpha = chi(0);
     const F tau = LeftReflector( alpha, x );
@@ -65,8 +65,8 @@ F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LeftReflector");
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -89,8 +89,8 @@ F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 template<typename F>
 F LeftReflector( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LeftReflector");
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
     )
@@ -116,8 +116,8 @@ F LeftReflector( F& chi, ElementalMatrix<F>& x )
 template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
       if( x.Height() != 1 && x.Width() != 1 )
@@ -132,8 +132,8 @@ F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F RightReflector( F& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -146,8 +146,8 @@ F RightReflector( F& chi, Matrix<F>& x )
 template<typename F>
 F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -170,8 +170,8 @@ F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 template<typename F>
 F RightReflector( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       if( x.Height() != 1 )
           LogicError("x must be a row vector");
     )

@@ -103,7 +103,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
 {
-    DEBUG_ONLY(CSE cse("ADM::MakeSizeConsistent"))
+    DEBUG_CSE
 
     const Int msgSize = 2;
     Int message[msgSize];
@@ -135,8 +135,8 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::SetRoot");
       if( root < 0 || root >= CrossSize() )
           LogicError("Invalid root");
     )
@@ -157,7 +157,7 @@ template<typename T>
 AbstractDistMatrix<T>& 
 AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
 {
-    DEBUG_ONLY(CSE cse("ADM::operator=(ADM&&)"))
+    DEBUG_CSE
     if( Viewing() || A.Viewing() )
     {
         El::Copy( A, *this );
@@ -187,7 +187,7 @@ template<typename T>
 const AbstractDistMatrix<T>&
 AbstractDistMatrix<T>::operator*=( T alpha )
 {
-    DEBUG_ONLY(CSE cse("ADM::operator*=(T)"))    
+    DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -297,8 +297,8 @@ int AbstractDistMatrix<T>::Owner( Int i, Int j ) const EL_NO_EXCEPT
 template<typename T>
 Int AbstractDistMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 { 
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::LocalRow");
       if( !IsLocalRow(i) )
           LogicError
           ("Row ",i," is owned by ",RowOwner(i),", not ",ColRank());
@@ -309,8 +309,8 @@ Int AbstractDistMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 template<typename T>
 Int AbstractDistMatrix<T>::LocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::LocalCol");
       if( !IsLocalCol(j) )
           LogicError
           ("Column ",j," is owned by ",ColOwner(j),", not ",RowRank());
@@ -322,8 +322,8 @@ template<typename T>
 Int AbstractDistMatrix<T>::LocalRow( Int i, int rowOwner ) const
 EL_NO_RELEASE_EXCEPT
 { 
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::LocalRow(i,rowOwner)");
       if( RowOwner(i) != rowOwner )
           LogicError
           ("Row ",i,"is owned by ",RowOwner(i)," not ",rowOwner);
@@ -335,8 +335,8 @@ template<typename T>
 Int AbstractDistMatrix<T>::LocalCol( Int j, int colOwner ) const
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::LocalCol(j,colOwner)");
       if( ColOwner(j) != colOwner )
           LogicError
           ("Column ",j,"is owned by ",ColOwner(j),", not ",colOwner);
@@ -368,8 +368,8 @@ T
 AbstractDistMatrix<T>::Get( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::Get");
       if( !grid_->InGrid() )
           LogicError("Get should only be called in-grid");
     )
@@ -390,8 +390,8 @@ Base<T>
 AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::GetRealPart");
       if( !grid_->InGrid() )
           LogicError("Get should only be called in-grid");
     )
@@ -412,8 +412,8 @@ Base<T>
 AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
 EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ADM::GetImagPart");
       if( !grid_->InGrid() )
           LogicError("Get should only be called in-grid");
     )
@@ -439,7 +439,7 @@ void
 AbstractDistMatrix<T>::Set( Int i, Int j, T value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::Set"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         SetLocal( LocalRow(i), LocalCol(j), value );
 }
@@ -455,7 +455,7 @@ void
 AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::SetRealPart"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         SetLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
@@ -470,7 +470,7 @@ template<typename T>
 void AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::SetImagPart"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         SetLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
@@ -485,7 +485,7 @@ void
 AbstractDistMatrix<T>::Update( Int i, Int j, T value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::Update"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         UpdateLocal( LocalRow(i), LocalCol(j), value );
 }
@@ -501,7 +501,7 @@ void
 AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::UpdateRealPart"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         UpdateLocalRealPart( LocalRow(i), LocalCol(j), value );
 }
@@ -516,7 +516,7 @@ template<typename T>
 void AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::UpdateImagPart"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         UpdateLocalImagPart( LocalRow(i), LocalCol(j), value );
 }
@@ -531,7 +531,7 @@ void
 AbstractDistMatrix<T>::MakeReal( Int i, Int j )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::MakeReal"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         MakeLocalReal( LocalRow(i), LocalCol(j) );
 }
@@ -541,7 +541,7 @@ void
 AbstractDistMatrix<T>::Conjugate( Int i, Int j )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("ADM::Conjugate"))
+    DEBUG_CSE
     if( IsLocal(i,j) )
         ConjugateLocal( LocalRow(i), LocalCol(j) );
 }
@@ -551,7 +551,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
 { 
-    DEBUG_ONLY(CSE cse("AbstractDistMatrix::Reserve"))
+    DEBUG_CSE
     const Int currSize = remoteUpdates.size();
     remoteUpdates.reserve( currSize+numRemoteUpdates );
 }
@@ -560,7 +560,7 @@ template<typename T>
 void AbstractDistMatrix<T>::QueueUpdate( const Entry<T>& entry )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueueUpdate"))
+    DEBUG_CSE
     // NOTE: We cannot always simply locally update since it can (and has)
     //       lead to the processors in the same redundant communicator having
     //       different results after ProcessQueues()
@@ -578,7 +578,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
 {
-    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessQueues"))
+    DEBUG_CSE
     const auto& g = Grid();
     const Dist colDist = ColDist();
     const Dist rowDist = RowDist();
@@ -646,21 +646,21 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
 template<typename T>
 void AbstractDistMatrix<T>::ReservePulls( Int numPulls ) const
 { 
-    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ReservePulls"))
+    DEBUG_CSE
     remotePulls_.reserve( numPulls );
 }
 
 template<typename T>
 void AbstractDistMatrix<T>::QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("AbstractDistMatrix::QueuePull"))
+    DEBUG_CSE
     remotePulls_.push_back( ValueInt<Int>{i,j} );
 }
 
 template<typename T>
 void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) const
 {
-    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
+    DEBUG_CSE
     const auto& g = Grid();
     const Dist colDist = ColDist();
     const Dist rowDist = RowDist();
@@ -750,7 +750,7 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) 
 template<typename T>
 void AbstractDistMatrix<T>::ProcessPullQueue( vector<T>& pullVec, bool includeViewers ) const
 {
-    DEBUG_ONLY(CSE cse("AbstractDistMatrix::ProcessPullQueue"))
+    DEBUG_CSE
     pullVec.resize( remotePulls_.size() );
     ProcessPullQueue( pullVec.data(), includeViewers );
 }

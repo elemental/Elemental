@@ -16,7 +16,7 @@ template<typename T>
 inline void
 MatrixMarket( Matrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CSE cse("read::MatrixMarket"))
+    DEBUG_CSE
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
@@ -221,7 +221,7 @@ template<typename T>
 inline void
 MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CSE cse("read::MatrixMarket"))
+    DEBUG_CSE
     // TODO: Use a WriteProxy instead
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )

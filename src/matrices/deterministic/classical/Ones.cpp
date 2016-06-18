@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void Ones( Matrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ones"))
+    DEBUG_CSE
     A.Resize( m, n );
     Fill( A, T(1) );
 }
@@ -23,7 +23,7 @@ void Ones( Matrix<T>& A, Int m, Int n )
 template<typename T>
 void Ones( AbstractDistMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ones"))
+    DEBUG_CSE
     A.Resize( m, n );
     Fill( A, T(1) );
 }
@@ -31,7 +31,7 @@ void Ones( AbstractDistMatrix<T>& A, Int m, Int n )
 template<typename T>
 void Ones( DistMultiVec<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ones"))
+    DEBUG_CSE
     A.Resize( m, n );
     Fill( A, T(1) );
 }
@@ -39,7 +39,7 @@ void Ones( DistMultiVec<T>& A, Int m, Int n )
 template<typename T>
 void Ones( SparseMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ones"))
+    DEBUG_CSE
     Zeros( A, m, n );
     Fill( A, T(1) );  
 }
@@ -47,7 +47,7 @@ void Ones( SparseMatrix<T>& A, Int m, Int n )
 template<typename T>
 void Ones( DistSparseMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ones"))
+    DEBUG_CSE
     Zeros( A, m, n );
     Fill( A, T(1) );  
 }

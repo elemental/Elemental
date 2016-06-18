@@ -20,8 +20,8 @@ Base<F> FrobeniusNorm( const DistMultiVec<F>& A );
 template<typename F>
 Base<F> Nrm2( const Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Nrm2");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("Expected vector input");
     )
@@ -36,8 +36,8 @@ Base<F> Nrm2( const Matrix<F>& x )
 template<typename F>
 Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Nrm2");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -47,8 +47,8 @@ Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 template<typename F>
 Base<F> Nrm2( const DistMultiVec<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Nrm2");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )

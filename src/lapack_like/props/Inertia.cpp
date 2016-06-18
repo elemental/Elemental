@@ -16,7 +16,7 @@ InertiaType Inertia
   Matrix<F>& A,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Inertia"))
+    DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     Permutation p;
@@ -31,7 +31,7 @@ InertiaType Inertia
   ElementalMatrix<F>& APre, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Inertia"))
+    DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
 

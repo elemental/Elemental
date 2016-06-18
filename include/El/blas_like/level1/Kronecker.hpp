@@ -17,7 +17,7 @@ void Kronecker
   const Matrix<T>& B,
         Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int mB = B.Height();
@@ -41,7 +41,7 @@ void Kronecker
   const Matrix<T>& B,
         ElementalMatrix<T>& CPre )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<T,T,MC,MR> CProx( CPre );
     auto& C = CProx.Get();
@@ -76,7 +76,7 @@ void Kronecker
   const SparseMatrix<T>& B,
         SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int mB = B.Height();
@@ -109,7 +109,7 @@ template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A, const Matrix<T>& B, SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int mB = B.Height();
@@ -142,7 +142,7 @@ template<typename T>
 void Kronecker
 ( const Matrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int mB = B.Height();
@@ -175,7 +175,7 @@ template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int mB = B.Height();
@@ -230,7 +230,7 @@ template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A, const Matrix<T>& B, DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -238,7 +238,7 @@ template<typename T>
 void Kronecker
 ( const Matrix<T>& A, const SparseMatrix<T>& B, DistSparseMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Kronecker"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 

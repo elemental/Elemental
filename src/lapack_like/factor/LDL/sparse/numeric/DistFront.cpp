@@ -44,7 +44,7 @@ DistFront<F>::DistFront
   bool conjugate )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CSE cse("DistFront::DistFront"))
+    DEBUG_CSE
     Pull( A, reordering, sep, info, conjugate );
 }
 
@@ -56,7 +56,7 @@ DistFront<F>::~DistFront()
 }
 
 template<typename F>
-inline void UnpackEntriesLocal
+void UnpackEntriesLocal
 ( const Separator& sep,
   const NodeInfo& node, 
         Front<F>& front, 
@@ -67,7 +67,7 @@ inline void UnpackEntriesLocal
         vector<int>& offs, 
         vector<int>& entryOffs )
 {
-    DEBUG_ONLY(CSE cse("UnpackEntriesLocal"))
+    DEBUG_CSE
 
     // Delete any existing children
     for( auto* childFront : front.children )
@@ -194,7 +194,7 @@ inline void UnpackEntriesLocal
 }
 
 template<typename F>
-inline void UnpackEntries
+void UnpackEntries
 ( const DistSeparator& sep, 
   const DistNodeInfo& node, 
         DistFront<F>& front,
@@ -205,7 +205,7 @@ inline void UnpackEntries
         vector<int>& offs, 
         vector<int>& entryOffs )
 {
-    DEBUG_ONLY(CSE cse("UnpackEntries"))
+    DEBUG_CSE
     const Grid& grid = *node.grid;
 
     if( sep.child == nullptr )
@@ -277,7 +277,7 @@ void DistFront<F>::Pull
   const DistNodeInfo& rootInfo,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("DistFront::Pull"))
+    DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     Pull
     ( A, reordering, rootSep, rootInfo, 
@@ -296,8 +296,8 @@ void DistFront<F>::Pull
         vector<Int>& colOffs,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DistFront::Pull");
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
@@ -510,7 +510,7 @@ void DistFront<F>::PullUpdate
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo )
 {
-    DEBUG_ONLY(CSE cse("DistFront::PullUpdate"))
+    DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     PullUpdate
     ( A, reordering, rootSep, rootInfo, mappedSources, mappedTargets, colOffs );
@@ -527,8 +527,8 @@ void DistFront<F>::PullUpdate
         vector<Int>& mappedTargets,
         vector<Int>& colOffs )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DistFront::PullUpdate");
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
@@ -845,7 +845,7 @@ void DistFront<F>::Push
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::Push"))
+    DEBUG_CSE
     LogicError("This routine needs to be written");
 }
 
@@ -855,7 +855,7 @@ void DistFront<F>::Unpack
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::Unpack"))
+    DEBUG_CSE
     mpi::Comm comm = rootInfo.grid->Comm();
     A.SetComm( comm );
     const Int n = rootInfo.off + rootInfo.size;
@@ -1049,7 +1049,7 @@ template<typename F>
 const DistFront<F>& 
 DistFront<F>::operator=( const DistFront<F>& front )
 {
-    DEBUG_ONLY(CSE cse("DistFront::operator="))
+    DEBUG_CSE
     isHermitian = front.isHermitian;
     type = front.type;
     if( front.child == nullptr )
@@ -1084,7 +1084,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
 template<typename F>
 Int DistFront<F>::NumLocalEntries() const
 {
-    DEBUG_ONLY(CSE cse("DistFront::NumLocalEntries"))
+    DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1110,7 +1110,7 @@ Int DistFront<F>::NumLocalEntries() const
 template<typename F>
 Int DistFront<F>::NumTopLeftLocalEntries() const
 {
-    DEBUG_ONLY(CSE cse("DistFront::NumTopLeftLocalEntries"))
+    DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1142,7 +1142,7 @@ Int DistFront<F>::NumTopLeftLocalEntries() const
 template<typename F>
 Int DistFront<F>::NumBottomLeftLocalEntries() const
 {
-    DEBUG_ONLY(CSE cse("DistFront::NumBottomLeftLocalEntries"))
+    DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1176,7 +1176,7 @@ Int DistFront<F>::NumBottomLeftLocalEntries() const
 template<typename F>
 double DistFront<F>::LocalFactorGFlops( bool selInv ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::LocalFactorGFlops"))
+    DEBUG_CSE
     double gflops = 0.;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1214,7 +1214,7 @@ double DistFront<F>::LocalFactorGFlops( bool selInv ) const
 template<typename F>
 double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::LocalSolveGFlops"))
+    DEBUG_CSE
     double gflops = 0.;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1250,7 +1250,7 @@ double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
 template<typename F>
 void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::ComputeRecvInds"))
+    DEBUG_CSE
 
     vector<int> gridHeights, gridWidths;
     GetChildGridDims( info, gridHeights, gridWidths );
@@ -1329,7 +1329,7 @@ template<typename F>
 void DistFront<F>::ComputeCommMeta
 ( const DistNodeInfo& info, bool computeRecvInds ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::ComputeCommMeta"))
+    DEBUG_CSE
     commMeta.Empty();
     if( child == nullptr )
         return;

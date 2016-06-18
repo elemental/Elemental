@@ -18,7 +18,7 @@ namespace msquasitrsm {
 template<typename F>
 void LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLNUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -95,7 +95,7 @@ void LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename F>
 void LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLN"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -126,7 +126,7 @@ void LLNLarge
   const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -184,7 +184,7 @@ void LLNMedium
   const ElementalMatrix<F>& shiftsPre, 
         ElementalMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -247,8 +247,8 @@ void LLNSmall
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,     colDist,STAR        >& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

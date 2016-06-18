@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 Matrix<T> Full( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Full"))
+    DEBUG_CSE
     Matrix<T> B;
     Copy( A, B );
     return B;

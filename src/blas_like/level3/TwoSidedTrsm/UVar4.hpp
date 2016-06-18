@@ -15,8 +15,8 @@ namespace twotrsm {
 template<typename F> 
 void UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrsm::UVar4");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( U.Height() != U.Width() )
@@ -81,8 +81,8 @@ void UVar4
         ElementalMatrix<F>& APre,
   const ElementalMatrix<F>& UPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrsm::UVar4");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( UPre.Height() != UPre.Width() )

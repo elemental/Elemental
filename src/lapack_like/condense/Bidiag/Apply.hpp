@@ -17,7 +17,7 @@ void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("bidiag::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -32,7 +32,7 @@ void ApplyP
 ( LeftOrRight side, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("bidiag::ApplyP"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -48,7 +48,7 @@ void ApplyQ
   const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("bidiag::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -64,7 +64,7 @@ void ApplyP
   const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("bidiag::ApplyP"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );

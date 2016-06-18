@@ -38,8 +38,8 @@ RUHB
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RUHB");
       if( A.Width() != H.Width() )
           LogicError("H and A must have the same width");
     )
@@ -88,8 +88,8 @@ RUHB
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RUHB");
       if( APre.Width() != HPre.Width() )
           LogicError("H and A must have the same width");
       AssertSameGrids( HPre, tPre, APre );

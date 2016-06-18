@@ -19,7 +19,7 @@ void Ger2Sub
   const DistMatrix<F,MR,STAR>& y_MR,
         DistMatrix<F,MC,MR  >& A )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag::Ger2Sub"))
+    DEBUG_CSE
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const F* x_MC_Buf = x_MC.LockedBuffer();
@@ -53,7 +53,7 @@ namespace El {
 template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiag"))
+    DEBUG_CSE
     if( uplo == LOWER )
         herm_tridiag::L( A, t );
     else
@@ -67,7 +67,7 @@ void HermitianTridiag
   ElementalMatrix<F>& tPre,
   const HermitianTridiagCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianTridiag"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR> tProx( tPre );
@@ -154,7 +154,7 @@ namespace herm_tridiag {
 template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag::ExplicitCondensed"))
+    DEBUG_CSE
     Matrix<F> t;
     HermitianTridiag( uplo, A, t );
     if( uplo == UPPER )
@@ -169,7 +169,7 @@ void ExplicitCondensed
   ElementalMatrix<F>& A, 
   const HermitianTridiagCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag::ExplicitCondensed"))
+    DEBUG_CSE
     DistMatrix<F,STAR,STAR> t(A.Grid());
     HermitianTridiag( uplo, A, t, ctrl );
     if( uplo == UPPER )

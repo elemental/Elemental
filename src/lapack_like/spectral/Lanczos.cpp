@@ -16,7 +16,7 @@ void Lanczos
         Matrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("Lanczos"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -38,7 +38,7 @@ Base<F> LanczosDecomp
         Matrix<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("LanczosDecomp"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -58,7 +58,7 @@ void Lanczos
         ElementalMatrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("Lanczos"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -80,7 +80,7 @@ Base<F> LanczosDecomp
         DistMultiVec<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("LanczosDecomp"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");

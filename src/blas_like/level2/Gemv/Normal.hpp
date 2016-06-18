@@ -18,8 +18,8 @@ void Normal
   T beta,
         ElementalMatrix<T>& yPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemv::Normal");
       AssertSameGrids( APre, x, yPre );
       if( ( x.Width() != 1 && x.Height() != 1 ) ||
           ( yPre.Width() != 1 && yPre.Height() != 1 )   )
@@ -112,8 +112,8 @@ void Normal
   T beta,
         DistMatrix<T,VC,STAR>& y )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemv::Normal");
       AssertSameGrids( A, x, y );
       if( x.Width() != 1 || y.Width() != 1 )
           LogicError("x and y are assumed to be column vectors");

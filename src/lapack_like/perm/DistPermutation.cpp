@@ -18,8 +18,8 @@ void PermuteCols
   const PermutationMeta& oldMeta,
   bool inverse=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("PermuteCols");
       if( A.RowComm() != oldMeta.comm )
           LogicError("Invalid communicator in metadata");
       if( A.RowAlign() != oldMeta.align )
@@ -115,8 +115,8 @@ void PermuteRows
   const PermutationMeta& oldMeta,
   bool inverse=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("PermuteRows");
       if( A.ColComm() != oldMeta.comm )
           LogicError("Invalid communicator in metadata");
       if( A.ColAlign() != oldMeta.align )
@@ -216,8 +216,8 @@ void InvertPermutation
 ( const AbstractDistMatrix<Int>& pPre,
         AbstractDistMatrix<Int>& pInvPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("InvertPermutation");
       if( pPre.Width() != 1 )
           LogicError("p must be a column vector");
     )
@@ -295,7 +295,7 @@ void InvertPermutation
 DistPermutation::DistPermutation( const Grid& g )
 : grid_(g)
 { 
-    DEBUG_ONLY(CSE cse("DistPermutation::DistPermutation"))
+    DEBUG_CSE
     swapDests_.SetGrid( g );
     swapOrigins_.SetGrid( g );
     perm_.SetGrid( g );
@@ -304,7 +304,7 @@ DistPermutation::DistPermutation( const Grid& g )
 
 void DistPermutation::SetGrid( const Grid& g )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::SetGrid"))
+    DEBUG_CSE
     Empty();
     swapDests_.SetGrid( g );
     swapOrigins_.SetGrid( g );
@@ -314,7 +314,7 @@ void DistPermutation::SetGrid( const Grid& g )
 
 void DistPermutation::Empty()
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::Empty"))
+    DEBUG_CSE
     size_ = 0;
 
     parity_ = false;
@@ -342,7 +342,7 @@ void DistPermutation::Empty()
 
 void DistPermutation::MakeIdentity( Int size )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::MakeIdentity"))
+    DEBUG_CSE
 
     if( !swapSequence_ )
     {
@@ -365,7 +365,7 @@ void DistPermutation::MakeIdentity( Int size )
 
 void DistPermutation::ReserveSwaps( Int maxSwaps )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::ReserveSwaps"))
+    DEBUG_CSE
 
     // Arbitrary permutations can trivially support arbitrarily many swaps
     if( !swapSequence_ )
@@ -381,8 +381,8 @@ void DistPermutation::ReserveSwaps( Int maxSwaps )
 
 void DistPermutation::RowSwap( Int origin, Int dest )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DistPermutation::RowSwap");
       if( origin < 0 || origin >= size_ || dest < 0 || dest >= size_ )
           LogicError
           ("Attempted swap (",origin,",",dest,") for perm. of size ",size_);
@@ -436,7 +436,7 @@ void DistPermutation::RowSwap( Int origin, Int dest )
 void DistPermutation::RowSwapSequence
 ( const DistPermutation& P, Int offset )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::RowSwapSequence"))
+    DEBUG_CSE
     if( P.swapSequence_ )
     {
         const Int numSwapAppends = P.numSwaps_;
@@ -477,7 +477,7 @@ void DistPermutation::RowSwapSequence
   const ElementalMatrix<Int>& swapDestsPre,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::RowSwapSequence"))
+    DEBUG_CSE
     DistMatrixReadProxy<Int,Int,STAR,STAR>
       swapOriginsProx( swapOriginsPre ),
       swapDestsProx( swapDestsPre );
@@ -496,7 +496,7 @@ void DistPermutation::ImplicitRowSwapSequence
 ( const ElementalMatrix<Int>& swapDestsPre,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::ImplicitRowSwapSequence"))
+    DEBUG_CSE
     DistMatrixReadProxy<Int,Int,STAR,STAR> swapDestsProx( swapDestsPre );
     auto& swapDests = swapDestsProx.GetLocked();
     auto& swapDestsLoc = swapDests.LockedMatrix();
@@ -511,7 +511,7 @@ void DistPermutation::ImplicitRowSwapSequence
 
 void DistPermutation::SetImage( Int origin, Int dest )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::SetImage"))
+    DEBUG_CSE
     MakeArbitrary();
     perm_.Set( origin, 0, dest );
     staleParity_ = true;
@@ -521,7 +521,7 @@ void DistPermutation::SetImage( Int origin, Int dest )
 
 void DistPermutation::MakeArbitrary()
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::MakeArbitrary"))
+    DEBUG_CSE
     if( !swapSequence_ )
         return;
 
@@ -549,7 +549,7 @@ void DistPermutation::MakeArbitrary()
 
 const DistPermutation& DistPermutation::operator=( const Permutation& P )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::operator="))
+    DEBUG_CSE
     if( grid_.Size() != 1 )
         LogicError("Invalid grid size for sequential copy");
 
@@ -581,7 +581,7 @@ const DistPermutation& DistPermutation::operator=( const Permutation& P )
 
 const DistPermutation& DistPermutation::operator=( const DistPermutation& P )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::operator="))
+    DEBUG_CSE
     SetGrid( P.grid_ );
 
     size_ = P.size_;
@@ -608,7 +608,7 @@ const DistPermutation& DistPermutation::operator=( const DistPermutation& P )
 
 bool DistPermutation::Parity() const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::Parity"))
+    DEBUG_CSE
     if( staleParity_ )
     {
         if( swapSequence_ )
@@ -666,7 +666,7 @@ bool DistPermutation::IsImplicitSwapSequence() const
 
 const DistMatrix<Int,VC,STAR> DistPermutation::SwapOrigins() const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::SwapOrigins"))
+    DEBUG_CSE
     if( !swapSequence_ || !implicitSwapOrigins_ )
         LogicError("Swap origins are not explicitly stored");
     return swapOrigins_(IR(0,numSwaps_),ALL);
@@ -674,7 +674,7 @@ const DistMatrix<Int,VC,STAR> DistPermutation::SwapOrigins() const
 
 const DistMatrix<Int,VC,STAR> DistPermutation::SwapDestinations() const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::SwapDestinations"))
+    DEBUG_CSE
     if( !swapSequence_ )
         LogicError("Swap destinations are not explicitly stored");
     return swapDests_(IR(0,numSwaps_),ALL);
@@ -683,7 +683,7 @@ const DistMatrix<Int,VC,STAR> DistPermutation::SwapDestinations() const
 template<typename T>
 void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::PermuteCols"))
+    DEBUG_CSE
     // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
@@ -772,7 +772,7 @@ template<typename T>
 void DistPermutation::InversePermuteCols
 ( AbstractDistMatrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::InversePermuteCols"))
+    DEBUG_CSE
     // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
@@ -855,7 +855,7 @@ void DistPermutation::InversePermuteCols
 template<typename T>
 void DistPermutation::PermuteRows( AbstractDistMatrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::PermuteRows"))
+    DEBUG_CSE
     // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
@@ -939,7 +939,7 @@ template<typename T>
 void DistPermutation::InversePermuteRows
 ( AbstractDistMatrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::InversePermuteRows"))
+    DEBUG_CSE
     // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
@@ -1026,7 +1026,7 @@ void DistPermutation::PermuteSymmetrically
   bool conjugate,
   Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::PermuteSymmetrically"))
+    DEBUG_CSE
     // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
@@ -1091,7 +1091,7 @@ void DistPermutation::InversePermuteSymmetrically
   bool conjugate,
   Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::InversePermuteSymmetrically"))
+    DEBUG_CSE
     // TODO: Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
@@ -1151,7 +1151,7 @@ void DistPermutation::InversePermuteSymmetrically
 
 void DistPermutation::ExplicitVector( AbstractDistMatrix<Int>& p ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::ExplicitVector"))
+    DEBUG_CSE
     p.SetGrid( grid_ );
     if( swapSequence_ )
     {
@@ -1170,7 +1170,7 @@ void DistPermutation::ExplicitVector( AbstractDistMatrix<Int>& p ) const
 
 void DistPermutation::ExplicitMatrix( AbstractDistMatrix<Int>& P ) const
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::ExplicitMatrix"))
+    DEBUG_CSE
     P.SetGrid( grid_ );
 
     DistMatrix<Int,VC,STAR> p_VC_STAR(grid_);

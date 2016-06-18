@@ -17,7 +17,7 @@ void AllGather
 ( const DistMatrix<T,        U,           V   >& A, 
         DistMatrix<T,Collect<U>(),Collect<V>()>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::AllGather"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -94,7 +94,7 @@ void AllGather
 ( const DistMatrix<T,        U,           V   ,BLOCK>& A, 
         DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::AllGather"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

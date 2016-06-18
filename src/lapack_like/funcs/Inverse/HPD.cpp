@@ -16,7 +16,7 @@ namespace El {
 template<typename F>
 void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HPDInverse"))
+    DEBUG_CSE
     if( uplo == LOWER )
         hpd_inv::CholeskyLVar2( A );
     else
@@ -26,7 +26,7 @@ void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 template<typename F>
 void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HPDInverse"))
+    DEBUG_CSE
     if( uplo == LOWER )
         hpd_inv::CholeskyLVar2( A );
     else
@@ -36,7 +36,7 @@ void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A )
 template<typename F>
 void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("LocalHPDInverse"))
+    DEBUG_CSE
     HPDInverse( uplo, A.Matrix() );
 }
 

@@ -142,7 +142,7 @@ ProxyHouseholder
   bool usePanelPerm=false,
   bool smallestFirst=false )
 {
-    DEBUG_ONLY(CSE cse("qr::ProxyHouseholder"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -199,7 +199,7 @@ ProxyHouseholder
 }
 
 template<typename F,class ProxyType> 
-inline void
+void
 ProxyHouseholder
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& phasePre, 
@@ -209,10 +209,8 @@ ProxyHouseholder
   bool usePanelPerm=false,
   bool smallestFirst=false )
 {
-    DEBUG_ONLY(
-      CSE cse("qr::ProxyHouseholder");
-      AssertSameGrids( APre, phasePre, signaturePre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, phasePre, signaturePre ))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);

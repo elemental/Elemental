@@ -24,7 +24,7 @@ void EmbeddingMaps
         Matrix<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
-    DEBUG_ONLY(CSE cse("soc::EmbeddingMaps"))
+    DEBUG_CSE
     const Int k = orders.Height();
 
     // Form the metadata for the original index domain
@@ -37,18 +37,18 @@ void EmbeddingMaps
         const Int order = orders.Get(i,0);
 
         for( Int e=0; e<order; ++e )
-            origToSparseFirstInds.Set( i+e, 0, iSparse );
+            origToSparseFirstInds(i+e) = iSparse;
 
         if( order > cutoffSparse )
         {
             for( Int e=0; e<order; ++e )
-                origToSparseOrders.Set( i+e, 0, order+2 );
+                origToSparseOrders(i+e) = order+2;
             iSparse += order+2;
         }
         else
         {
             for( Int e=0; e<order; ++e )
-                origToSparseOrders.Set( i+e, 0, order );
+                origToSparseOrders(i+e) = order;
             iSparse += order;
         }
         i += order;
@@ -61,21 +61,21 @@ void EmbeddingMaps
     iSparse = 0;
     for( Int i=0; i<k; )
     {
-        const Int order = orders.Get(i,0);
+        const Int order = orders(i);
         if( order > cutoffSparse )
         {
             for( Int e=0; e<order+2; ++e )
-                sparseToOrigOrders.Set( iSparse+e, 0, order );
+                sparseToOrigOrders(iSparse+e) = order;
             for( Int e=0; e<order+2; ++e )
-                sparseToOrigFirstInds.Set( iSparse+e, 0, i );
+                sparseToOrigFirstInds(iSparse+e) = i;
             iSparse += order+2;
         }
         else
         {
             for( Int e=0; e<order; ++e )
-                sparseToOrigOrders.Set( iSparse+e, 0, order );
+                sparseToOrigOrders(iSparse+e) = order;
             for( Int e=0; e<order; ++e )
-                sparseToOrigFirstInds.Set( iSparse+e, 0, i );
+                sparseToOrigFirstInds(iSparse+e) = i;
             iSparse += order;
         }
         i += order;
@@ -93,7 +93,7 @@ void EmbeddingMaps
         DistMultiVec<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
-    DEBUG_ONLY(CSE cse("soc::EmbeddingMaps"))
+    DEBUG_CSE
     const Int k = orders.Height();
     mpi::Comm comm = orders.Comm();
     const int commSize = mpi::Size( comm );

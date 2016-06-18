@@ -18,8 +18,8 @@ namespace hessenberg {
 template<typename F>
 void L( Matrix<F>& A, Matrix<F>& t )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("hessenberg::L");
       // Is this requirement necessary?!?
       if( t.Viewing() )
           LogicError("t must not be a view");
@@ -76,8 +76,8 @@ void L( Matrix<F>& A, Matrix<F>& t )
 template<typename F> 
 void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("hessenberg::L");
       AssertSameGrids( APre, tPre );
     )
 

@@ -16,7 +16,7 @@ void ProductLanczos
         Matrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczos"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -61,7 +61,7 @@ Base<F> ProductLanczosDecomp
         Matrix<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -104,7 +104,7 @@ void ProductLanczos
         ElementalMatrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczos"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -150,7 +150,7 @@ Base<F> ProductLanczosDecomp
         DistMultiVec<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

@@ -14,7 +14,7 @@ namespace El {
 template<typename T> 
 void Circulant( Matrix<T>& A, const Matrix<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Circulant"))
+    DEBUG_CSE
     const Int n = a.Height();
     A.Resize( n, n );
     // NOTE: gcc (Ubuntu 5.2.1-22ubuntu2) 5.2.1 20151010 segfaults here
@@ -26,7 +26,7 @@ void Circulant( Matrix<T>& A, const Matrix<T>& a )
 template<typename T> 
 void Circulant( Matrix<T>& A, const vector<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Circulant"))
+    DEBUG_CSE
     const Int n = a.size();
     A.Resize( n, n );
     // NOTE: gcc (Ubuntu 5.2.1-22ubuntu2) 5.2.1 20151010 segfaults here
@@ -38,7 +38,7 @@ void Circulant( Matrix<T>& A, const vector<T>& a )
 template<typename T>
 void Circulant( AbstractDistMatrix<T>& A, const Matrix<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Circulant"))
+    DEBUG_CSE
     const Int n = a.Height();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) -> T { return a.Get(Mod(i-j,n),0); };
@@ -48,7 +48,7 @@ void Circulant( AbstractDistMatrix<T>& A, const Matrix<T>& a )
 template<typename T>
 void Circulant( AbstractDistMatrix<T>& A, const vector<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Circulant"))
+    DEBUG_CSE
     const Int n = a.size();
     A.Resize( n, n );
     auto circFill = [&]( Int i, Int j ) -> T { return a[Mod(i-j,n)]; };

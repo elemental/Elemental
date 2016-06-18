@@ -20,7 +20,7 @@ void Inverse
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Inverse"))
+    DEBUG_CSE
 
     Matrix<Real> dInv;
     soc::Dets( x, dInv, orders, firstInds );
@@ -42,7 +42,7 @@ void Inverse
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Inverse"))
+    DEBUG_CSE
     AssertSameGrids( xPre, xInvPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -81,7 +81,7 @@ void Inverse
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Inverse"))
+    DEBUG_CSE
 
     DistMultiVec<Real> dInv(x.Comm());
     soc::Dets( x, dInv, orders, firstInds, cutoff );

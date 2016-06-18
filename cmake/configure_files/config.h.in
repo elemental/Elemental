@@ -74,7 +74,8 @@
 #cmakedefine EL_DISABLE_MKL_CSRMV
 
 /* Miscellaneous configuration options */
-#define EL_RESTRICT @RESTRICT@
+#define EL_RESTRICT @EL_RESTRICT@
+#cmakedefine EL_HAVE_PRETTY_FUNCTION
 #cmakedefine EL_HAVE_OPENMP
 #cmakedefine EL_HAVE_OMP_COLLAPSE
 #cmakedefine EL_HAVE_QT5

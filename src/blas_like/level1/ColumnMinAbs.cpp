@@ -14,7 +14,7 @@ namespace El {
 template<typename F>
 void ColumnMinAbs( const Matrix<F>& X, Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -34,7 +34,7 @@ void ColumnMinAbsNonzero
   const Matrix<Base<F>>& upperBounds,
         Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -56,7 +56,7 @@ template<typename F,Dist U,Dist V>
 void ColumnMinAbs
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbs"))
+    DEBUG_CSE
     const Int n = A.Width();
     mins.AlignWith( A );
     mins.Resize( n, 1 );
@@ -70,7 +70,7 @@ void ColumnMinAbsNonzero
   const DistMatrix<Base<F>,V,STAR>& upperBounds,
         DistMatrix<Base<F>,V,STAR>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
+    DEBUG_CSE
     if( upperBounds.ColAlign() != A.RowAlign() )
         LogicError("upperBounds was not properly aligned");
     const Int n = A.Width();
@@ -84,7 +84,7 @@ void ColumnMinAbsNonzero
 template<typename F>
 void ColumnMinAbs( const DistMultiVec<F>& X, Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbs"))
+    DEBUG_CSE
     ColumnMinAbs( X.LockedMatrix(), mins );
     AllReduce( mins, X.Comm(), mpi::MIN );
 }
@@ -95,7 +95,7 @@ void ColumnMinAbsNonzero
   const Matrix<Base<F>>& upperBounds, 
         Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
+    DEBUG_CSE
     ColumnMinAbsNonzero( X.LockedMatrix(), upperBounds, mins );
     AllReduce( mins, X.Comm(), mpi::MIN );
 }
@@ -103,7 +103,7 @@ void ColumnMinAbsNonzero
 template<typename F>
 void ColumnMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbs"))
+    DEBUG_CSE
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.
     /*
@@ -137,7 +137,7 @@ void ColumnMinAbsNonzero
   const Matrix<Base<F>>& upperBounds,
         Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
+    DEBUG_CSE
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.
     /*
@@ -172,7 +172,7 @@ template<typename F>
 void ColumnMinAbs
 ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.
@@ -229,7 +229,7 @@ void ColumnMinAbsNonzero
   const DistMultiVec<Base<F>>& upperBounds,
         DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("ColumnMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.

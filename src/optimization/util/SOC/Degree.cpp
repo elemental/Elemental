@@ -15,7 +15,7 @@ namespace soc {
 
 Int Degree( const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Degree"))
+    DEBUG_CSE
     const Int height = firstInds.Height();
     Int degree = 0;
     for( Int i=0; i<height; ++i )
@@ -26,7 +26,7 @@ Int Degree( const Matrix<Int>& firstInds )
 
 Int Degree( const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("soc::Degree"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Int,Int,VC,STAR> firstIndsProx( firstIndsPre );
     auto& firstInds = firstIndsProx.GetLocked();
@@ -45,7 +45,7 @@ Int Degree( const ElementalMatrix<Int>& firstIndsPre )
 
 Int Degree( const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Degree"))
+    DEBUG_CSE
     Int localDegree = 0;
     const Int localHeight = firstInds.LocalHeight();
     auto& firstIndsLoc = firstInds.LockedMatrix();

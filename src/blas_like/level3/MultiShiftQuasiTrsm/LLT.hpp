@@ -14,7 +14,7 @@ template<typename F>
 void LLTUnb
 ( bool conjugate, const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLTUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -94,8 +94,8 @@ void LLT
 ( Orientation orientation, 
   const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -145,8 +145,8 @@ void LLTLarge
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -218,8 +218,8 @@ void LLTMedium
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -297,8 +297,8 @@ void LLTSmall
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,colDist,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -359,8 +359,8 @@ void LLTSmall
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,rowDist,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

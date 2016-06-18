@@ -31,7 +31,7 @@ void ClassicalNT
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("ClassicalNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
 
     Matrix<PReal> sProm, zProm;
@@ -68,7 +68,7 @@ void ClassicalNT
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ClassicalNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
@@ -118,7 +118,7 @@ void ClassicalNT
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ClassicalNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = s.Comm();
 
@@ -158,7 +158,7 @@ void VandenbergheNT
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("VandenbergheNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int n = s.Height();
 
@@ -218,7 +218,7 @@ void VandenbergheNT
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("VandenbergheNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     const Grid& grid = sPre.Grid();
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
@@ -295,7 +295,7 @@ void VandenbergheNT
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("VandenbergheNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = s.Comm();
 
@@ -361,7 +361,7 @@ void NesterovTodd
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
+    DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds );
@@ -378,7 +378,7 @@ void NesterovTodd
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
+    DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );
@@ -394,7 +394,7 @@ void NesterovTodd
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
+    DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );

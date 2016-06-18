@@ -14,21 +14,21 @@ namespace El {
 template<typename T>
 T Dot( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dot"))
+    DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dot"))
+    DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dot"))
+    DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
@@ -37,7 +37,7 @@ T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 template<typename T> 
 T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dotu"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     T sum(0);
@@ -52,7 +52,7 @@ T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 template<typename T> 
 T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dotu"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     AssertSameGrids( A, B );
@@ -83,7 +83,7 @@ T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 template<typename T>
 T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dotu"))
+    DEBUG_CSE
     if( !mpi::Congruent( A.Comm(), B.Comm() ) )
         LogicError("A and B must be congruent");
     if( A.Height() != B.Height() || A.Width() != B.Width() )

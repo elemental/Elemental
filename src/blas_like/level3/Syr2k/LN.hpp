@@ -18,8 +18,8 @@ void LN
         ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("syr2k::LN");
       AssertSameGrids( APre, BPre, CPre );
       if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() ||
           BPre.Height() != CPre.Height() || BPre.Height() != CPre.Width() ||

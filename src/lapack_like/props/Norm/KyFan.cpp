@@ -13,28 +13,28 @@ namespace El {
 template<typename F> 
 Base<F> KyFanNorm( const Matrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("KyFanNorm"))
+    DEBUG_CSE
     return KyFanSchattenNorm( A, k, Base<F>(1) );
 }
 
 template<typename F>
 Base<F> HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("HermitianKyFanNorm"))
+    DEBUG_CSE
     return HermitianKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
 }
 
 template<typename F>
 Base<F> SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("SymmetricKyFanNorm"))
+    DEBUG_CSE
     return SymmetricKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
 }
 
 template<typename F> 
 Base<F> KyFanNorm( const ElementalMatrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("KyFanNorm"))
+    DEBUG_CSE
     return KyFanSchattenNorm( A, k, Base<F>(1) );
 }
 
@@ -42,7 +42,7 @@ template<typename F>
 Base<F> HermitianKyFanNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("HermitianKyFanNorm"))
+    DEBUG_CSE
     return HermitianKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
 }
 
@@ -50,7 +50,7 @@ template<typename F>
 Base<F> SymmetricKyFanNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k )
 {
-    DEBUG_ONLY(CSE cse("SymmetricKyFanNorm"))
+    DEBUG_CSE
     return SymmetricKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
 }
 

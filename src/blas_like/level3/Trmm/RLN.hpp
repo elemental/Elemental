@@ -24,8 +24,8 @@ void LocalAccumulateRLN
   const DistMatrix<T,STAR,MC  >& X,
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateRLN");
       AssertSameGrids( L, X, ZTrans );
       if( L.Height() != L.Width() ||
           L.Height() != X.Width() ||
@@ -74,8 +74,8 @@ void RLNA
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLNA");
       AssertSameGrids( LPre, XPre );
       // TODO: More checks
     )
@@ -124,8 +124,8 @@ void RLNCOld
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLNCOld");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -175,8 +175,8 @@ void RLNC
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLNC");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -231,7 +231,7 @@ void RLN
   const ElementalMatrix<T>& L,
         ElementalMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::RLN"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         RLNA( diag, L, X );

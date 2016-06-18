@@ -27,7 +27,7 @@ void ProcessEvents( int numMsecs )
 template<typename Real>
 void Display( const Matrix<Real>& A, string title )
 {
-    DEBUG_ONLY(CSE cse("Display"))
+    DEBUG_CSE
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
     {
@@ -58,7 +58,7 @@ void Display( const Matrix<Real>& A, string title )
 template<typename Real>
 void Display( const Matrix<Complex<Real>>& A, string title )
 {
-    DEBUG_ONLY(CSE cse("Display"))
+    DEBUG_CSE
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
     {
@@ -96,7 +96,7 @@ void Display( const Matrix<Complex<Real>>& A, string title )
 template<typename T>
 void Display( const AbstractDistMatrix<T>& A, string title )
 {
-    DEBUG_ONLY(CSE cse("Display"))
+    DEBUG_CSE
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -113,7 +113,7 @@ void Display( const AbstractDistMatrix<T>& A, string title )
 template<typename T>
 void Display( const DistMultiVec<T>& X, string title )
 {
-    DEBUG_ONLY(CSE cse("Display [DistMultiVec]"))
+    DEBUG_CSE
     const int commRank = mpi::Rank( X.Comm() );
     if( commRank == 0 )
     {
@@ -129,7 +129,7 @@ void Display( const DistMultiVec<T>& X, string title )
 
 void Display( const Graph& graph, string title )
 {
-    DEBUG_ONLY(CSE cse("Display [Graph]"))
+    DEBUG_CSE
 #ifdef HAVE_QT5
     graph.AssertConsistent();
     auto graphMat = new Matrix<int>;
@@ -157,7 +157,7 @@ void Display( const Graph& graph, string title )
 
 void Display( const DistGraph& graph, string title )
 {
-    DEBUG_ONLY(CSE cse("Display [DistGraph]"))
+    DEBUG_CSE
     const mpi::Comm comm = graph.Comm();
     const int commRank = mpi::Rank( comm );
 
@@ -176,7 +176,7 @@ void Display( const DistGraph& graph, string title )
 template<typename Real>
 void Display( const SparseMatrix<Real>& A, string title )
 {
-    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
+    DEBUG_CSE
 #ifdef HAVE_QT5
     A.AssertConsistent();
     auto AFull = new Matrix<double>;
@@ -206,7 +206,7 @@ void Display( const SparseMatrix<Real>& A, string title )
 template<typename Real>
 void Display( const SparseMatrix<Complex<Real>>& A, string title )
 {
-    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
+    DEBUG_CSE
 #ifdef HAVE_QT5
     A.AssertConsistent();
     auto AFull = new Matrix<Complex<double>>;
@@ -240,7 +240,7 @@ void Display( const SparseMatrix<Complex<Real>>& A, string title )
 template<typename T>
 void Display( const DistSparseMatrix<T>& A, string title )
 {
-    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
+    DEBUG_CSE
     A.AssertLocallyConsistent();
     const mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
@@ -260,7 +260,7 @@ void Display( const DistSparseMatrix<T>& A, string title )
 void DisplayLocal
 ( const ldl::DistNodeInfo& info, bool beforeFact, string title )
 {
-    DEBUG_ONLY(CSE cse("DisplayLocal [ldl::DistNodeInfo]"))
+    DEBUG_CSE
 #ifdef HAVE_QT5
     const int n = info.distNodes.back().size + info.distNodes.back().off;
     auto graphMat = new Matrix<int>;

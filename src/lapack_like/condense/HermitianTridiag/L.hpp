@@ -18,8 +18,8 @@ namespace herm_tridiag {
 template<typename F>
 void L( Matrix<F>& A, Matrix<F>& t )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("herm_tridiag::L");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -65,8 +65,8 @@ void L
   ElementalMatrix<F>& tPre, 
   const SymvCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("herm_tridiag::L");
       AssertSameGrids( APre, tPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

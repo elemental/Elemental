@@ -22,8 +22,8 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Syrk");
       if( orientation == NORMAL )
       {
           if( A.Height() != C.Height() || A.Height() != C.Width() )
@@ -59,7 +59,7 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     C.Resize( n, n );
     Zero( C );
@@ -72,7 +72,7 @@ void Syrk
   T alpha, const ElementalMatrix<T>& A, 
   T beta,        ElementalMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     ScaleTrapezoid( beta, uplo, C );
     if( uplo == LOWER && orientation == NORMAL )
         syrk::LN( alpha, A, C, conjugate );
@@ -90,7 +90,7 @@ void Syrk
   T alpha, const ElementalMatrix<T>& A, 
                  ElementalMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     C.Resize( n, n );
     Zero( C );
@@ -103,7 +103,7 @@ void Syrk
   T alpha, const SparseMatrix<T>& A, 
   T beta,        SparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
 
     if( orientation == NORMAL )
     {
@@ -167,7 +167,7 @@ void Syrk
   T alpha, const SparseMatrix<T>& A, 
                  SparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
@@ -184,7 +184,7 @@ void Syrk
   T alpha, const DistSparseMatrix<T>& A, 
   T beta,        DistSparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
 
     if( orientation == NORMAL )
     {
@@ -257,7 +257,7 @@ void Syrk
   T alpha, const DistSparseMatrix<T>& A, 
                  DistSparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )

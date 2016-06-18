@@ -17,7 +17,7 @@ namespace El {
 template<typename Real,typename>
 void Sort( Matrix<Real>& X, SortType sort )
 {
-    DEBUG_ONLY(CSE cse("Sort"))
+    DEBUG_CSE
     if( sort == UNSORTED )
         return;
     const Int m = X.Height();
@@ -35,7 +35,7 @@ void Sort( Matrix<Real>& X, SortType sort )
 template<typename Real,typename>
 void Sort( ElementalMatrix<Real>& X, SortType sort )
 {
-    DEBUG_ONLY(CSE cse("Sort"))
+    DEBUG_CSE
     if( sort == UNSORTED )
         return;
 
@@ -62,7 +62,7 @@ void Sort( ElementalMatrix<Real>& X, SortType sort )
 template<typename Real,typename>
 vector<ValueInt<Real>> TaggedSort( const Matrix<Real>& x, SortType sort )
 {
-    DEBUG_ONLY(CSE cse("TaggedSort"))
+    DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
     if( m != 1 && n != 1 )
@@ -91,7 +91,7 @@ template<typename Real,typename>
 vector<ValueInt<Real>>
 TaggedSort( const ElementalMatrix<Real>& x, SortType sort )
 {
-    DEBUG_ONLY(CSE cse("TaggedSort"))
+    DEBUG_CSE
     if( x.ColDist()==STAR && x.RowDist()==STAR )
     {
         return TaggedSort( x.LockedMatrix(), sort );

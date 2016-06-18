@@ -45,7 +45,7 @@ void LUMod
   bool conjugate,
   Base<F> tau )
 {
-    DEBUG_ONLY(CSE cse("LUMod"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -292,7 +292,7 @@ void LUMod
   bool conjugate,
   Base<F> tau )
 {
-    DEBUG_ONLY(CSE cse("LUMod"))
+    DEBUG_CSE
     const Grid& g = APre.Grid();
     typedef Base<F> Real;
 

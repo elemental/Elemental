@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void Hankel( Matrix<T>& A, Int m, Int n, const vector<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Hankel"))
+    DEBUG_CSE
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
@@ -29,7 +29,7 @@ void Hankel( Matrix<T>& A, Int m, Int n, const vector<T>& a )
 template<typename T>
 void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const vector<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Hankel"))
+    DEBUG_CSE
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");

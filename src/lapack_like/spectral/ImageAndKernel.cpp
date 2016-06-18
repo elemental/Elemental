@@ -16,7 +16,7 @@ void ImageAndKernel
         Matrix<F>& M,
         Matrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("ImageAndKernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -57,7 +57,7 @@ void ImageAndKernel
         ElementalMatrix<F>& M,
         ElementalMatrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("ImageAndKernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -99,7 +99,7 @@ void Image
 ( const Matrix<F>& B,
         Matrix<F>& M )
 {
-    DEBUG_ONLY(CSE cse("Image"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -121,7 +121,7 @@ void Image
 ( const ElementalMatrix<F>& B,
         ElementalMatrix<F>& M )
 {
-    DEBUG_ONLY(CSE cse("Image"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -144,7 +144,7 @@ void Kernel
 ( const Matrix<F>& B,
         Matrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("Kernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -183,7 +183,7 @@ void Kernel
 ( const ElementalMatrix<F>& B,
         ElementalMatrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("Kernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();

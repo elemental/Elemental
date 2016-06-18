@@ -13,28 +13,28 @@ namespace El {
 template<typename F> 
 Base<F> NuclearNorm( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("NuclearNorm"))
+    DEBUG_CSE
     return SchattenNorm( A, Base<F>(1) );
 }
 
 template<typename F>
 Base<F> HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianNuclearNorm"))
+    DEBUG_CSE
     return HermitianSchattenNorm( uplo, A, Base<F>(1) );
 }
 
 template<typename F>
 Base<F> SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricNuclearNorm"))
+    DEBUG_CSE
     return SymmetricSchattenNorm( uplo, A, Base<F>(1) );
 }
 
 template<typename F> 
 Base<F> NuclearNorm( const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("NuclearNorm"))
+    DEBUG_CSE
     return SchattenNorm( A, Base<F>(1) );
 }
 
@@ -42,7 +42,7 @@ template<typename F>
 Base<F> HermitianNuclearNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianNuclearNorm"))
+    DEBUG_CSE
     return HermitianSchattenNorm( uplo, A, Base<F>(1) );
 }
 
@@ -50,7 +50,7 @@ template<typename F>
 Base<F> SymmetricNuclearNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricNuclearNorm"))
+    DEBUG_CSE
     return SymmetricSchattenNorm( uplo, A, Base<F>(1) );
 }
 

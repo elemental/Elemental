@@ -50,29 +50,29 @@ void LocalColAccumulateUGeneral
         DistMatrix<T,MR,STAR>& z_MR_STAR,
   bool conjugate, const SymvCtrl<T>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("symv::LocalColAccumulateUGeneral");
-        AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
-        if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
-            z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
-            LogicError("Expected x and z to be column vectors");
-        if( A.Height() != A.Width() || 
-            A.Height() != x_MC_STAR.Height() ||
-            A.Height() != x_MR_STAR.Height() ||
-            A.Height() != z_MC_STAR.Height() ||
-            A.Height() != z_MR_STAR.Height() )
-            LogicError
-            ("Nonconformal: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x[MC,* ] ~ ",x_MC_STAR.Height()," x ",x_MC_STAR.Width(),"\n",
-             "  x[MR,* ] ~ ",x_MR_STAR.Height()," x ",x_MR_STAR.Width(),"\n",
-             "  z[MC,* ] ~ ",z_MC_STAR.Height()," x ",z_MC_STAR.Width(),"\n",
-             "  z[MR,* ] ~ ",z_MR_STAR.Height()," x ",z_MR_STAR.Width(),"\n");
-        if( x_MC_STAR.ColAlign() != A.ColAlign() ||
-            x_MR_STAR.ColAlign() != A.RowAlign() ||
-            z_MC_STAR.ColAlign() != A.ColAlign() ||
-            z_MR_STAR.ColAlign() != A.RowAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
+      if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
+          z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
+          LogicError("Expected x and z to be column vectors");
+      if( A.Height() != A.Width() || 
+          A.Height() != x_MC_STAR.Height() ||
+          A.Height() != x_MR_STAR.Height() ||
+          A.Height() != z_MC_STAR.Height() ||
+          A.Height() != z_MR_STAR.Height() )
+          LogicError
+          ("Nonconformal: \n",
+           "  A ~ ",A.Height()," x ",A.Width(),"\n",
+           "  x[MC,* ] ~ ",x_MC_STAR.Height()," x ",x_MC_STAR.Width(),"\n",
+           "  x[MR,* ] ~ ",x_MR_STAR.Height()," x ",x_MR_STAR.Width(),"\n",
+           "  z[MC,* ] ~ ",z_MC_STAR.Height()," x ",z_MC_STAR.Width(),"\n",
+           "  z[MR,* ] ~ ",z_MR_STAR.Height()," x ",z_MR_STAR.Width(),"\n");
+      if( x_MC_STAR.ColAlign() != A.ColAlign() ||
+          x_MR_STAR.ColAlign() != A.RowAlign() ||
+          z_MC_STAR.ColAlign() != A.ColAlign() ||
+          z_MR_STAR.ColAlign() != A.RowAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -127,31 +127,31 @@ void LocalColAccumulateUSquareTwoTrmv
         DistMatrix<T,MR,STAR>& z_MR_STAR,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("symv::LocalColAccumulateUTwoTrmv");
-        AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
-        if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
-            z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
-            LogicError("Expected x and z to be column vectors");
-        if( A.Height() != A.Width() || 
-            A.Height() != x_MC_STAR.Height() ||
-            A.Height() != x_MR_STAR.Height() ||
-            A.Height() != z_MC_STAR.Height() ||
-            A.Height() != z_MR_STAR.Height() )
-            LogicError
-            ("Nonconformal: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x[MC,* ] ~ ",x_MC_STAR.Height()," x ",x_MC_STAR.Width(),"\n",
-             "  x[MR,* ] ~ ",x_MR_STAR.Height()," x ",x_MR_STAR.Width(),"\n",
-             "  z[MC,* ] ~ ",z_MC_STAR.Height()," x ",z_MC_STAR.Width(),"\n",
-             "  z[MR,* ] ~ ",z_MR_STAR.Height()," x ",z_MR_STAR.Width(),"\n");
-        if( x_MC_STAR.ColAlign() != A.ColAlign() ||
-            x_MR_STAR.ColAlign() != A.RowAlign() ||
-            z_MC_STAR.ColAlign() != A.ColAlign() ||
-            z_MR_STAR.ColAlign() != A.RowAlign() )
-            LogicError("Partial matrix distributions are misaligned");
-        if( A.Grid().Height() != A.Grid().Width() )
-            LogicError("Grid must be square");
+      AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
+      if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
+          z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
+          LogicError("Expected x and z to be column vectors");
+      if( A.Height() != A.Width() || 
+          A.Height() != x_MC_STAR.Height() ||
+          A.Height() != x_MR_STAR.Height() ||
+          A.Height() != z_MC_STAR.Height() ||
+          A.Height() != z_MR_STAR.Height() )
+          LogicError
+          ("Nonconformal: \n",
+           "  A ~ ",A.Height()," x ",A.Width(),"\n",
+           "  x[MC,* ] ~ ",x_MC_STAR.Height()," x ",x_MC_STAR.Width(),"\n",
+           "  x[MR,* ] ~ ",x_MR_STAR.Height()," x ",x_MR_STAR.Width(),"\n",
+           "  z[MC,* ] ~ ",z_MC_STAR.Height()," x ",z_MC_STAR.Width(),"\n",
+           "  z[MR,* ] ~ ",z_MR_STAR.Height()," x ",z_MR_STAR.Width(),"\n");
+      if( x_MC_STAR.ColAlign() != A.ColAlign() ||
+          x_MR_STAR.ColAlign() != A.RowAlign() ||
+          z_MC_STAR.ColAlign() != A.ColAlign() ||
+          z_MR_STAR.ColAlign() != A.RowAlign() )
+          LogicError("Partial matrix distributions are misaligned");
+      if( A.Grid().Height() != A.Grid().Width() )
+          LogicError("Grid must be square");
     )
 
     const Int localHeight = A.LocalHeight();
@@ -255,7 +255,7 @@ void LocalColAccumulateU
         DistMatrix<T,MR,STAR>& z_MR_STAR,
   bool conjugate, const SymvCtrl<T>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("symv::LocalColAccumulateU"))
+    DEBUG_CSE
     if( ctrl.avoidTrmvBasedLocalSymv || A.Grid().Height() != A.Grid().Width() )
         LocalColAccumulateUGeneral
         ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate,
@@ -275,29 +275,29 @@ void LocalRowAccumulateU
         DistMatrix<T,STAR,MR>& z_STAR_MR,
   bool conjugate, const SymvCtrl<T>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("symv::LocalRowAccumulateU");
-        AssertSameGrids( A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
-        if( x_STAR_MC.Height() != 1 || x_STAR_MR.Height() != 1 ||
-            z_STAR_MC.Height() != 1 || z_STAR_MR.Height() != 1 )
-            LogicError("Expected x and z to be row vectors");
-        if( A.Height() != A.Width() || 
-            A.Height() != x_STAR_MC.Width() ||
-            A.Height() != x_STAR_MR.Width() ||
-            A.Height() != z_STAR_MC.Width() ||
-            A.Height() != z_STAR_MR.Width() )
-            LogicError
-            ("Nonconformal: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x[* ,MC] ~ ",x_STAR_MC.Height()," x ",x_STAR_MC.Width(),"\n",
-             "  x[* ,MR] ~ ",x_STAR_MR.Height()," x ",x_STAR_MR.Width(),"\n",
-             "  z[* ,MC] ~ ",z_STAR_MC.Height()," x ",z_STAR_MC.Width(),"\n",
-             "  z[* ,MR] ~ ",z_STAR_MR.Height()," x ",z_STAR_MR.Width(),"\n");
-        if( x_STAR_MC.RowAlign() != A.ColAlign() ||
-            x_STAR_MR.RowAlign() != A.RowAlign() ||
-            z_STAR_MC.RowAlign() != A.ColAlign() ||
-            z_STAR_MR.RowAlign() != A.RowAlign() )
-            LogicError("Partial matrix distributions are misaligned");
+      AssertSameGrids( A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
+      if( x_STAR_MC.Height() != 1 || x_STAR_MR.Height() != 1 ||
+          z_STAR_MC.Height() != 1 || z_STAR_MR.Height() != 1 )
+          LogicError("Expected x and z to be row vectors");
+      if( A.Height() != A.Width() || 
+          A.Height() != x_STAR_MC.Width() ||
+          A.Height() != x_STAR_MR.Width() ||
+          A.Height() != z_STAR_MC.Width() ||
+          A.Height() != z_STAR_MR.Width() )
+          LogicError
+          ("Nonconformal: \n",
+           "  A ~ ",A.Height()," x ",A.Width(),"\n",
+           "  x[* ,MC] ~ ",x_STAR_MC.Height()," x ",x_STAR_MC.Width(),"\n",
+           "  x[* ,MR] ~ ",x_STAR_MR.Height()," x ",x_STAR_MR.Width(),"\n",
+           "  z[* ,MC] ~ ",z_STAR_MC.Height()," x ",z_STAR_MC.Width(),"\n",
+           "  z[* ,MR] ~ ",z_STAR_MR.Height()," x ",z_STAR_MR.Width(),"\n");
+      if( x_STAR_MC.RowAlign() != A.ColAlign() ||
+          x_STAR_MR.RowAlign() != A.RowAlign() ||
+          z_STAR_MC.RowAlign() != A.ColAlign() ||
+          z_STAR_MR.RowAlign() != A.RowAlign() )
+          LogicError("Partial matrix distributions are misaligned");
     )
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );

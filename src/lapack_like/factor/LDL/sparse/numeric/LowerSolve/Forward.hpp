@@ -26,12 +26,12 @@ namespace El {
 namespace ldl {
 
 template<typename F> 
-inline void LowerForwardSolve
+void LowerForwardSolve
 ( const NodeInfo& info, 
   const Front<F>& front,
         MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerForwardSolve"))
+    DEBUG_CSE
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -75,12 +75,12 @@ inline void LowerForwardSolve
 }
 
 template<typename F>
-inline void LowerForwardSolve
+void LowerForwardSolve
 ( const DistNodeInfo& info,
   const DistFront<F>& front,
         DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerForwardSolve"))
+    DEBUG_CSE
 
     const bool frontIs1D = FrontIs1D( front.type );
     const Grid& grid = ( frontIs1D ? front.L1D.Grid() : front.L2D.Grid() );
@@ -180,13 +180,13 @@ inline void LowerForwardSolve
 }
 
 template<typename F>
-inline void LowerForwardSolve
+void LowerForwardSolve
 ( const DistNodeInfo& info,
   const DistFront<F>& front,
         DistMatrixNode<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::DistLowerForwardSolve");
       if( FrontIs1D(front.type) )
           LogicError("Front was not 2D");
     )

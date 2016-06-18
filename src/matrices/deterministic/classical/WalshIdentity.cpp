@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void WalshIdentity( Matrix<T>& A, Int k, bool binary )
 {
-    DEBUG_ONLY(CSE cse("WalshIdentity"))
+    DEBUG_CSE
     if( k < 1 )
       LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
@@ -29,7 +29,7 @@ void WalshIdentity( Matrix<T>& A, Int k, bool binary )
 template<typename T>
 void WalshIdentity( ElementalMatrix<T>& A, Int k, bool binary )
 {
-    DEBUG_ONLY(CSE cse("WalshIdentity"))
+    DEBUG_CSE
     if( k < 1 )
       LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;

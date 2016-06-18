@@ -19,7 +19,7 @@ Full
   Permutation& P,
   Permutation& Q )
 {
-    DEBUG_ONLY(CSE cse("lu::Full"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -64,7 +64,7 @@ Full
   DistPermutation& P,
   DistPermutation& Q )
 {
-    DEBUG_ONLY(CSE cse("lu::Full"))
+    DEBUG_CSE
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);

@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void ThreeValued( Matrix<T>& A, Int m, Int n, double p )
 {
-    DEBUG_ONLY(CSE cse("ThreeValued"))
+    DEBUG_CSE
     A.Resize( m, n );
     auto tripleCoin = [=]() -> T
     { 
@@ -30,7 +30,7 @@ void ThreeValued( Matrix<T>& A, Int m, Int n, double p )
 template<typename T>
 void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p )
 {
-    DEBUG_ONLY(CSE cse("ThreeValued"))
+    DEBUG_CSE
     A.Resize( m, n );
     if( A.RedundantRank() == 0 )
         ThreeValued( A.Matrix(), A.LocalHeight(), A.LocalWidth(), p );

@@ -36,8 +36,8 @@ void LLHF
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLHF");
       if( H.Width() != A.Height() )
           LogicError("H's width must match A's height");
     )
@@ -82,8 +82,8 @@ void LLHF
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLHF");
       if( HPre.Width() != APre.Height() )
           LogicError("H's width must match A's height");
       AssertSameGrids( HPre, tPre, APre );

@@ -16,7 +16,7 @@ void TransposeAxpyContract
 ( T alpha, const ElementalMatrix<T>& A, 
                  ElementalMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("TransposeAxpyContract"))
+    DEBUG_CSE
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == V && A.RowDist() == U )
@@ -52,7 +52,7 @@ void TransposeAxpyContract
 ( T alpha, const BlockMatrix<T>& A, 
                  BlockMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("TransposeAxpyContract"))
+    DEBUG_CSE
     LogicError("Not yet implemented");
 }
 
@@ -61,7 +61,7 @@ void AdjointAxpyContract
 ( T alpha, const ElementalMatrix<T>& A,
                  ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("AdjointAxpyContract"))
+    DEBUG_CSE
     TransposeAxpyContract( alpha, A, B, true );
 }
 
@@ -70,7 +70,7 @@ void AdjointAxpyContract
 ( T alpha, const BlockMatrix<T>& A,
                  BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("AdjointAxpyContract"))
+    DEBUG_CSE
     TransposeAxpyContract( alpha, A, B, true );
 }
 

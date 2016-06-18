@@ -41,7 +41,7 @@ void KKT
         Matrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -94,7 +94,7 @@ void KKT
         ElementalMatrix<Real>& JPre, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -149,7 +149,7 @@ void KKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -222,7 +222,7 @@ void StaticKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -299,7 +299,7 @@ void FinishKKT
   const Matrix<Real>& z,
         SparseMatrix<Real>& J )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::FinishKKT"))
+    DEBUG_CSE
     const Int k = s.Height();
 
     // Jzz = -z <> s
@@ -321,7 +321,7 @@ void KKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -401,7 +401,7 @@ void StaticKKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -478,7 +478,7 @@ void FinishKKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::FinishKKT"))
+    DEBUG_CSE
     auto& sLoc = s.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
@@ -505,7 +505,7 @@ void KKTRHS
   const Matrix<Real>& z, 
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const Int k = rh.Height();
@@ -534,7 +534,7 @@ void KKTRHS
   const ElementalMatrix<Real>& z, 
         ElementalMatrix<Real>& dPre )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -568,7 +568,7 @@ void KKTRHS
   const DistMultiVec<Real>& z, 
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const int k = rh.Height();
@@ -612,7 +612,7 @@ void ExpandCoreSolution
         Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
+    DEBUG_CSE
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
     dx = d(IR(0,  n    ),ALL);
@@ -628,7 +628,7 @@ void ExpandCoreSolution
         ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.GetLocked();
@@ -649,7 +649,7 @@ void ExpandCoreSolution
         DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
+    DEBUG_CSE
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
@@ -709,7 +709,7 @@ void ExpandSolution
         Matrix<Real>& dz,
         Matrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
@@ -733,7 +733,7 @@ void ExpandSolution
         ElementalMatrix<Real>& dz,
         ElementalMatrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
@@ -757,7 +757,7 @@ void ExpandSolution
         DistMultiVec<Real>& dz,
         DistMultiVec<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )

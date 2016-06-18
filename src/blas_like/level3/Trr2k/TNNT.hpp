@@ -22,7 +22,7 @@ void Trr2kTNNT
   T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
                  ElementalMatrix<T>& E )
 {
-    DEBUG_ONLY(CSE cse("trr2k::Trr2kTNNT"))
+    DEBUG_CSE
     Trr2kNTTN( uplo, orientD, orientA, beta, C, D, alpha, A, B, E );
 }
 

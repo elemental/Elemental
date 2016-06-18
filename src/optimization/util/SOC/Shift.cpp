@@ -18,7 +18,7 @@ void Shift
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Shift"))
+    DEBUG_CSE
     const Int height = x.Height();
     DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
@@ -27,11 +27,9 @@ void Shift
           LogicError("orders and firstInds should be of the same height as x");
     )
 
-    Real* xBuf = x.Buffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] )
-            xBuf[i] += shift;
+        if( i == firstInds(i) )
+            x(i) += shift;
 }
 
 template<typename Real,typename>
@@ -41,7 +39,7 @@ void Shift
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("soc::Shift"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -81,7 +79,7 @@ void Shift
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Shift"))
+    DEBUG_CSE
 
     const Int height = x.Height();
     DEBUG_ONLY(

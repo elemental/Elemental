@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void MinIJ( Matrix<T>& M, Int n )
 {
-    DEBUG_ONLY(CSE cse("MinIJ"))
+    DEBUG_CSE
     M.Resize( n, n );
     auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
     IndexDependentFill( M, function<T(Int,Int)>(minIJFill) );
@@ -24,7 +24,7 @@ void MinIJ( Matrix<T>& M, Int n )
 template<typename T>
 void MinIJ( AbstractDistMatrix<T>& M, Int n )
 {
-    DEBUG_ONLY(CSE cse("MinIJ"))
+    DEBUG_CSE
     M.Resize( n, n );
     auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
     IndexDependentFill( M, function<T(Int,Int)>(minIJFill) );

@@ -106,7 +106,7 @@ void SetRealPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 template<typename Real,typename>
 void SetImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_ONLY(CSE cse("SetImagPart"))
+    DEBUG_CSE
     LogicError("Nonsensical assignment");
 }
 template<typename Real,typename>
@@ -127,7 +127,7 @@ EL_NO_EXCEPT
 template<typename Real,typename>
 void UpdateImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_ONLY(CSE cse("UpdateImagPart"))
+    DEBUG_CSE
     LogicError("Nonsensical update");
 }
 template<typename Real,typename>

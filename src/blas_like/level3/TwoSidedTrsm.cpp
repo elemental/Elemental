@@ -21,7 +21,7 @@ void TwoSidedTrsm
         Matrix<F>& A,
   const Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -34,7 +34,7 @@ void TwoSidedTrsm
         ElementalMatrix<F>& A,
   const ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -92,7 +92,7 @@ void TwoSidedTrsm
         DistMatrix<F,MC,MR,BLOCK>& A,
   const DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     twotrsm::ScaLAPACKHelper( uplo, diag, A, B );
 }
 

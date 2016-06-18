@@ -35,11 +35,12 @@ namespace El {
 
 template<typename Real>
 void LAV
-( const Matrix<Real>& A, const Matrix<Real>& b, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LAV"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
@@ -85,11 +86,12 @@ void LAV
 
 template<typename Real>
 void LAV
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, 
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
         ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LAV"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -136,11 +138,12 @@ void LAV
 
 template<typename Real>
 void LAV
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, 
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LAV"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
@@ -193,11 +196,12 @@ void LAV
 
 template<typename Real>
 void LAV
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, 
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LAV"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -252,19 +256,23 @@ void LAV
 
 #define PROTO(Real) \
   template void LAV \
-  ( const Matrix<Real>& A, const Matrix<Real>& b, \
+  ( const Matrix<Real>& A, \
+    const Matrix<Real>& b, \
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LAV \
-  ( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, \
+  ( const ElementalMatrix<Real>& A, \
+    const ElementalMatrix<Real>& b, \
           ElementalMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LAV \
-  ( const SparseMatrix<Real>& A, const Matrix<Real>& b, \
+  ( const SparseMatrix<Real>& A, \
+    const Matrix<Real>& b, \
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LAV \
-  ( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, \
+  ( const DistSparseMatrix<Real>& A, \
+    const DistMultiVec<Real>& b, \
           DistMultiVec<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl );
 

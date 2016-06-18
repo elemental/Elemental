@@ -24,7 +24,7 @@ void Schur
   bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Schur"))
+    DEBUG_CSE
     if( ctrl.useSDC )
     {
         if( fullTriangle )
@@ -47,7 +47,7 @@ void Schur
   bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Schur"))
+    DEBUG_CSE
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
@@ -61,7 +61,7 @@ void Schur
   bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Schur"))
+    DEBUG_CSE
 #ifdef EL_HAVE_SCALAPACK
     if( ctrl.useSDC )
     {
@@ -95,7 +95,7 @@ void Schur
   bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Schur"))
+    DEBUG_CSE
     schur::QR( A, w, fullTriangle, ctrl.qrCtrl, ctrl.time );
 }
 
@@ -107,7 +107,7 @@ void Schur
   bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Schur"))
+    DEBUG_CSE
 #ifdef EL_HAVE_SCALAPACK
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
@@ -126,7 +126,7 @@ void Schur
   bool fullTriangle,
   const SchurCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Schur"))
+    DEBUG_CSE
     schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl, ctrl.time );
 }
 

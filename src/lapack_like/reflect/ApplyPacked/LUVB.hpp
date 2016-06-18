@@ -37,7 +37,7 @@ void LUVB
   const Matrix<F>& t,
         Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("apply_packed_reflectors::LUVB"))
+    DEBUG_CSE
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
       if( t.Height() != diagLength )
@@ -81,10 +81,8 @@ void LUVB
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUVB");
-      AssertSameGrids( HPre, tPre, APre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( HPre, tPre, APre ))
 
     DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );

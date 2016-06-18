@@ -58,7 +58,7 @@ void IPM
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -118,7 +118,7 @@ void IPM
         ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -178,7 +178,7 @@ void IPM
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -247,7 +247,7 @@ void IPM
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

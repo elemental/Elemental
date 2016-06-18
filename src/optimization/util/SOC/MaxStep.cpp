@@ -120,7 +120,7 @@ Real ChooseStepLength
   const Real& upperBound, 
   const Real& delta=limits::Epsilon<Real>() )
 {
-    DEBUG_ONLY(CSE cse("ChooseStepLength"))
+    DEBUG_CSE
     Real step;
     if( y0 >= Real(0) && yDet >= Real(0) ) 
     {
@@ -165,7 +165,7 @@ Real MaxStep
   const Matrix<Int>& firstInds,
   Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int height = x.Height();
 
@@ -220,7 +220,7 @@ Real MaxStep
   const ElementalMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
 
     ElementalProxyCtrl control;
@@ -282,7 +282,7 @@ Real MaxStep
   const DistMultiVec<Int>& firstInds,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = x.Comm();
 

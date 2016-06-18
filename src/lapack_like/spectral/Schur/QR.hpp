@@ -19,7 +19,7 @@ void QR
   bool fullTriangle,
   bool time=false )
 {
-    DEBUG_ONLY(CSE cse("schur::QR"))
+    DEBUG_CSE
     const Int n = A.Height();
     w.Resize( n, 1 );
     Timer timer;
@@ -45,7 +45,7 @@ void QR
   bool fullTriangle,
   bool time=false )
 {
-    DEBUG_ONLY(CSE cse("schur::QR"))
+    DEBUG_CSE
     const Int n = A.Height();
     Q.Resize( n, n );
     w.Resize( n, 1 );
@@ -73,7 +73,7 @@ void QR
   const HessQRCtrl& ctrl,
   bool time=false )
 {
-    DEBUG_ONLY(CSE cse("schur::QR"))
+    DEBUG_CSE
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
@@ -150,7 +150,7 @@ void QR
   const HessQRCtrl& ctrl,
   bool time=false )
 {
-    DEBUG_ONLY(CSE cse("schur::QR"))
+    DEBUG_CSE
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
@@ -227,7 +227,7 @@ void QR
   const HessQRCtrl& ctrl,
   bool time=false )
 {
-    DEBUG_ONLY(CSE cse("schur::QR"))
+    DEBUG_CSE
     AssertScaLAPACKSupport();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -315,7 +315,7 @@ void QR
   const HessQRCtrl& ctrl,
   bool time=false )
 {
-    DEBUG_ONLY(CSE cse("schur::QR"))
+    DEBUG_CSE
     AssertScaLAPACKSupport();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

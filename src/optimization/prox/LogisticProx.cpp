@@ -18,7 +18,7 @@ namespace El {
 template<typename Real>
 void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
 {
-    DEBUG_ONLY(CSE cse("LogisticProx"))
+    DEBUG_CSE
     auto logisticProx = 
       [=]( Real alpha ) -> Real
       {
@@ -54,7 +54,7 @@ void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
 template<typename Real>
 void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
 {
-    DEBUG_ONLY(CSE cse("LogisticProx"))
+    DEBUG_CSE
     auto logisticProx = 
       [=]( Real alpha ) -> Real
       {

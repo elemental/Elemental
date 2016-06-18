@@ -25,7 +25,7 @@ namespace El {
 template<typename T>
 BDM& BDM::operator=( const BlockMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = ABDM"))
+    DEBUG_CSE
     copy::Gather( A, *this );
     return *this;
 }
@@ -33,7 +33,7 @@ BDM& BDM::operator=( const BlockMatrix<T>& A )
 template<typename T>
 BDM& BDM::operator=( const BDM& A )
 {
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = [CIRC,CIRC]"))
+    DEBUG_CSE
     copy::Translate( A, *this );
     return *this;
 }

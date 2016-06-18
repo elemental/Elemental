@@ -15,8 +15,8 @@ namespace bidiag {
 template<typename F>
 void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("bidiag::LUnb");
       if( A.Height() > A.Width() )
           LogicError("A must be at least as wide as it is tall");
     )
@@ -105,8 +105,8 @@ void LUnb
   ElementalMatrix<F>& tPPre,
   ElementalMatrix<F>& tQPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("bidiag::LUnb");
       AssertSameGrids( APre, tPPre, tQPre );
       if( APre.Height() > APre.Width() )
           LogicError("A must be at least as wide as it is tall");

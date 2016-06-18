@@ -27,7 +27,7 @@ NewtonStep
         Matrix<F>& XNew,
         Matrix<F>& XTmp )
 {
-    DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
+    DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     Permutation P;
@@ -48,7 +48,7 @@ NewtonStep
         DistMatrix<F>& XNew,
         DistMatrix<F>& XTmp )
 {
-    DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
+    DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     DistPermutation P(X.Grid());
@@ -65,7 +65,7 @@ template<typename F>
 int
 Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("square_root::Newton"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
@@ -105,7 +105,7 @@ template<typename F>
 int
 Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("square_root::Newton"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -151,14 +151,14 @@ Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 template<typename F>
 void SquareRoot( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("SquareRoot"))
+    DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
 template<typename F>
 void SquareRoot( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("SquareRoot"))
+    DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
@@ -171,7 +171,7 @@ void HPSDSquareRoot
   Matrix<F>& A,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HPSDSquareRoot"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -220,7 +220,7 @@ void HPSDSquareRoot
   ElementalMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HPSDSquareRoot"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();

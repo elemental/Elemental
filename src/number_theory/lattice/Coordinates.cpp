@@ -17,7 +17,7 @@ bool LatticeCoordinates
   const Matrix<F>& y,
         Matrix<F>& x ) 
 {
-    DEBUG_ONLY(CSE cse("LatticeCoordinates"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();

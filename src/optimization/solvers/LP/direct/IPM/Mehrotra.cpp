@@ -42,7 +42,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
@@ -475,7 +475,7 @@ void Mehrotra
         ElementalMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
@@ -947,7 +947,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
@@ -1501,7 +1501,7 @@ void Mehrotra
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure

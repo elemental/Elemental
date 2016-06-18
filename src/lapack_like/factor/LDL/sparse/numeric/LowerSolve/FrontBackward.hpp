@@ -81,12 +81,13 @@ void BackwardSingle
 } // namespace internal
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const Matrix<F>& L,
-        Matrix<F>& X, bool conjugate )
+        Matrix<F>& X,
+  bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
@@ -104,13 +105,13 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerBackwardSolve
+void FrontIntraPivLowerBackwardSolve
 ( const Matrix<F>& L,
   const Permutation& P,
         Matrix<F>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
     const Int n = L.Width();
     auto XT = X( IR(0,n),   ALL );
@@ -119,13 +120,14 @@ inline void FrontIntraPivLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X,
-  bool conjugate, bool singleL11AllGather=true )
+  bool conjugate,
+  bool singleL11AllGather=true )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -165,14 +167,14 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerBackwardSolve
+void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate,
   bool singleL11AllGather=true )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontVanillaLowerBackwardSolve( L, X, conjugate, singleL11AllGather );
 
@@ -182,13 +184,13 @@ inline void FrontIntraPivLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -216,13 +218,13 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& XPre,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Grid() != XPre.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != XPre.Height() )
@@ -254,13 +256,13 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerBackwardSolve
+void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
 
@@ -270,13 +272,13 @@ inline void FrontIntraPivLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastLowerBackwardSolve
+void FrontFastLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -315,13 +317,13 @@ inline void FrontFastLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerBackwardSolve
+void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
@@ -331,12 +333,13 @@ inline void FrontFastIntraPivLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastLowerBackwardSolve
+void FrontFastLowerBackwardSolve
 ( const DistMatrix<F>& L,
-        DistMatrix<F,VC,STAR>& X, bool conjugate )
+        DistMatrix<F,VC,STAR>& X,
+  bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -396,13 +399,13 @@ inline void FrontFastLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerBackwardSolve
+void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
@@ -412,13 +415,13 @@ inline void FrontFastIntraPivLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastLowerBackwardSolve
+void FrontFastLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -451,13 +454,13 @@ inline void FrontFastLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerBackwardSolve
+void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
@@ -467,13 +470,13 @@ inline void FrontFastIntraPivLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const Matrix<F>& L,
         Matrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
@@ -495,13 +498,13 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -541,13 +544,13 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -611,13 +614,13 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -650,12 +653,12 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontLowerBackwardSolve
+void FrontLowerBackwardSolve
 ( const Front<F>& front,
         Matrix<F>& W,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
+    DEBUG_CSE
     LDLFrontType type = front.type;
     DEBUG_ONLY(
       if( Unfactored(type) )
@@ -694,12 +697,12 @@ inline void FrontLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontLowerBackwardSolve
+void FrontLowerBackwardSolve
 ( const DistFront<F>& front,
         DistMatrix<F>& W,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
+    DEBUG_CSE
     LDLFrontType type = front.type;
     DEBUG_ONLY(
       if( Unfactored(type) )
@@ -724,12 +727,12 @@ inline void FrontLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontLowerBackwardSolve
+void FrontLowerBackwardSolve
 ( const DistFront<F>& front,
         DistMatrix<F,VC,STAR>& W,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
+    DEBUG_CSE
     LDLFrontType type = front.type;
     DEBUG_ONLY(
       if( Unfactored(type) )

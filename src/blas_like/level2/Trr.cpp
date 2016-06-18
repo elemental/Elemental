@@ -21,8 +21,8 @@ void Trr
         Matrix<T>& A, 
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trr");
       if( x.Width() != 1 || y.Width() != 1 )
           LogicError("x and y must be of width 1");
     )
@@ -69,8 +69,8 @@ void Trr
         ElementalMatrix<T>& APre,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trr");
       if( x.Width() != 1 || y.Width() != 1 )
           LogicError("x and y must be of width 1");
     )

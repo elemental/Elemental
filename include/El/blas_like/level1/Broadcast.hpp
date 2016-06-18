@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank )
 {
-    DEBUG_ONLY(CSE cse("Broadcast"))
+    DEBUG_CSE
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
     if( commSize == 1 )
@@ -53,7 +53,7 @@ void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank )
 template<typename T>
 void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank )
 {
-    DEBUG_ONLY(CSE cse("Broadcast"))
+    DEBUG_CSE
     const int commSize = mpi::Size( comm );
     const int commRank = mpi::Rank( comm );
     if( commSize == 1 )

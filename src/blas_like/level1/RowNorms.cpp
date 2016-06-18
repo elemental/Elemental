@@ -16,7 +16,7 @@ template<typename F>
 void RowTwoNormsHelper
 ( const Matrix<F>& ALoc, Matrix<Base<F>>& normsLoc, mpi::Comm comm )
 {
-    DEBUG_ONLY(CSE cse("RowTwoNormsHelper"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mLocal = ALoc.Height();
     const Int nLocal = ALoc.Width();
@@ -41,7 +41,7 @@ void RowTwoNormsHelper
 template<typename F>
 void RowTwoNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowTwoNorms"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     norms.Resize( m, 1 );
@@ -57,7 +57,7 @@ void RowTwoNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
 template<typename F>
 void RowMaxNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowMaxNorms"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -75,7 +75,7 @@ template<typename F,Dist U,Dist V>
 void RowTwoNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowTwoNorms"))
+    DEBUG_CSE
     norms.AlignWith( A );
     norms.Resize( A.Height(), 1 );
     if( A.Width() == 0 )
@@ -90,7 +90,7 @@ template<typename F,Dist U,Dist V>
 void RowMaxNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowMaxNorms"))
+    DEBUG_CSE
     norms.AlignWith( A );
     norms.Resize( A.Height(), 1 );
     RowMaxNorms( A.LockedMatrix(), norms.Matrix() );
@@ -100,7 +100,7 @@ void RowMaxNorms
 template<typename F>
 void RowTwoNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowTwoNorms"))
+    DEBUG_CSE
     norms.SetComm( A.Comm() );
     norms.Resize( A.Height(), 1 );
     RowTwoNorms( A.LockedMatrix(), norms.Matrix() );
@@ -109,7 +109,7 @@ void RowTwoNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
 template<typename F>
 void RowMaxNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowMaxNorms"))
+    DEBUG_CSE
     norms.SetComm( A.Comm() );
     norms.Resize( A.Height(), 1 );
     RowMaxNorms( A.LockedMatrix(), norms.Matrix() );
@@ -118,7 +118,7 @@ void RowMaxNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
 template<typename F>
 void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowTwoNorms"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const F* valBuf = A.LockedValueBuffer();
@@ -140,7 +140,7 @@ void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 template<typename F>
 void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowMaxNorms"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const F* valBuf = A.LockedValueBuffer();
@@ -161,7 +161,7 @@ void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 template<typename F>
 void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowTwoNorms"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const F* valBuf = A.LockedValueBuffer();
@@ -185,7 +185,7 @@ void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 template<typename F>
 void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_ONLY(CSE cse("RowMaxNorms"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const F* valBuf = A.LockedValueBuffer();

@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,T)> func )
 {
-    DEBUG_ONLY(CSE cse("IndexDependentMap"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -26,7 +26,7 @@ template<typename T>
 void IndexDependentMap
 ( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func )
 {
-    DEBUG_ONLY(CSE cse("IndexDependentMap"))
+    DEBUG_CSE
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     auto& ALoc = A.Matrix();
@@ -45,7 +45,7 @@ template<typename S,typename T>
 void IndexDependentMap
 ( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func )
 {
-    DEBUG_ONLY(CSE cse("IndexDependentMap"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
@@ -60,7 +60,7 @@ void IndexDependentMap
         ElementalMatrix<T>& B, 
   function<T(Int,Int,S)> func )
 {
-    DEBUG_ONLY(CSE cse("IndexDependentMap"))
+    DEBUG_CSE
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     B.AlignWith( A.DistData() );
@@ -84,7 +84,7 @@ void IndexDependentMap
         BlockMatrix<T>& B, 
   function<T(Int,Int,S)> func )
 {
-    DEBUG_ONLY(CSE cse("IndexDependentMap"))
+    DEBUG_CSE
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     B.AlignWith( A.DistData() );

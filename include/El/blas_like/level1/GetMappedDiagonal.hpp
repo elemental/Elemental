@@ -18,7 +18,7 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
+    DEBUG_CSE
     const Int diagLength = A.DiagonalLength(offset);
     d.Resize( diagLength, 1 );
 
@@ -43,10 +43,8 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 { 
-    DEBUG_ONLY(
-      CSE cse("GetMappedDiagonal");
-      AssertSameGrids( A, dPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
@@ -91,7 +89,7 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();
@@ -129,7 +127,7 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();

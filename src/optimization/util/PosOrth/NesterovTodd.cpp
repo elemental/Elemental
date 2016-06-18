@@ -23,7 +23,7 @@ void NesterovTodd
   const Matrix<Real>& z,
         Matrix<Real>& w )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
+    DEBUG_CSE
     const Int k = s.Height();
     w.Resize( k, 1 );
     const Real* sBuf = s.LockedBuffer();
@@ -40,7 +40,7 @@ void NesterovTodd
   const ElementalMatrix<Real>& zPre,
         ElementalMatrix<Real>& wPre )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
+    DEBUG_CSE
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -71,7 +71,7 @@ void NesterovTodd
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
+    DEBUG_CSE
     w.SetComm( s.Comm() );
     w.Resize( s.Height(), 1 );
     const Real* sBuf = s.LockedMatrix().LockedBuffer();

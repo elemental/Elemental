@@ -39,7 +39,7 @@ Int ADMM
         Matrix<F>& z, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::ADMM"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -167,7 +167,7 @@ Int ADMM
         ElementalMatrix<F>& zPre, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::ADMM"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),

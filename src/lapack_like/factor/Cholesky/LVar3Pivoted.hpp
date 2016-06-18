@@ -15,10 +15,9 @@ namespace cholesky {
 namespace pivot {
 
 template<typename F>
-inline LDLPivot
-Full( const Matrix<F>& A )
+LDLPivot Full( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
+    DEBUG_CSE
     const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -27,10 +26,9 @@ Full( const Matrix<F>& A )
 }
 
 template<typename F>
-inline LDLPivot
-Full( const DistMatrix<F>& A )
+LDLPivot Full( const DistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
+    DEBUG_CSE
     const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -39,14 +37,13 @@ Full( const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline LDLPivot
-PanelFull
+LDLPivot PanelFull
 ( const Matrix<F>& A,
         Matrix<F>& d,
   const Matrix<F>& X,
   const Matrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("cholesky::pivot::PanelFull"))
+    DEBUG_CSE
 
     // Form updated diagonal
     const Int height = d.Height();
@@ -66,15 +63,14 @@ PanelFull
 }
 
 template<typename F>
-inline LDLPivot
-PanelFull
+LDLPivot PanelFull
 ( const DistMatrix<F>& A, 
         DistMatrix<F,MD,STAR>& d,
   const DistMatrix<F,MC,STAR>& X,
   const DistMatrix<F,MR,STAR>& Y )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::pivot::PanelFull");
       if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
           LogicError("A, X, and Y are not properly aligned");
     )
@@ -113,11 +109,10 @@ PanelFull
 } // namespace pivot
 
 template<typename F>
-inline void
-LUnblockedPivoted( Matrix<F>& A, Permutation& P )
+void LUnblockedPivoted( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LUnblockedPivoted");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -157,13 +152,12 @@ LUnblockedPivoted( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-LUnblockedPivoted
+void LUnblockedPivoted
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LUnblockedPivoted");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
@@ -209,8 +203,7 @@ LUnblockedPivoted
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
-inline void
-LPanelPivoted
+void LPanelPivoted
 ( Matrix<F>& AFull,
   Permutation& PFull, 
   Matrix<F>& X,
@@ -218,7 +211,7 @@ LPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -278,8 +271,7 @@ LPanelPivoted
 }
 
 template<typename F>
-inline void
-LPanelPivoted
+void LPanelPivoted
 ( DistMatrix<F>& AFull,
   DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
@@ -287,7 +279,7 @@ LPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -350,11 +342,10 @@ LPanelPivoted
 }
 
 template<typename F>
-inline void
-LVar3( Matrix<F>& A, Permutation& P )
+void LVar3( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LVar3");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -382,13 +373,12 @@ LVar3( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-LVar3
+void LVar3
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LVar3");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

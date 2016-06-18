@@ -138,7 +138,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     if( ctrl.useSDC )
@@ -188,7 +188,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
@@ -240,7 +240,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -314,7 +314,7 @@ void HermitianEig
   Matrix<Base<F>>& w,
   const HermitianEigSubset<Base<F>> subset )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -366,7 +366,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     if( ctrl.useSDC )
@@ -429,7 +429,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
@@ -494,7 +494,7 @@ void HermitianEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = APre.Height();
     if( APre.Height() != APre.Width() )
@@ -693,7 +693,7 @@ void HermitianEig
   DistMatrix<F,MC,MR,BLOCK>& Z,
   const HermitianEigSubset<Base<F>> subset )
 {
-    DEBUG_ONLY(CSE cse("HermitianEig"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 

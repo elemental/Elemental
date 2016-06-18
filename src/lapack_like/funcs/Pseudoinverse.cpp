@@ -15,7 +15,7 @@ namespace El {
 template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("Pseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -42,7 +42,7 @@ template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -71,7 +71,7 @@ void HermitianPseudoinverse
 template<typename F>
 void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("Pseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -104,7 +104,7 @@ template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, ElementalMatrix<F>& APre, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

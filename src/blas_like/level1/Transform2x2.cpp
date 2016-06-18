@@ -30,7 +30,7 @@ void Transform2x2
 template<typename T>
 void Transform2x2( const Matrix<T>& G, Matrix<T>& a1, Matrix<T>& a2 )
 {
-    DEBUG_ONLY(CSE cse("Transform2x2"))
+    DEBUG_CSE
     T* a1Buf = a1.Buffer();
     T* a2Buf = a2.Buffer();
     const Int inc1 = ( a1.Height() == 1 ? a1.LDim() : 1 );
@@ -51,7 +51,7 @@ void Transform2x2
         AbstractDistMatrix<T>& a1,
         AbstractDistMatrix<T>& a2 )
 {
-    DEBUG_ONLY(CSE cse("Transform2x2"))
+    DEBUG_CSE
     typedef unique_ptr<AbstractDistMatrix<T>> ADMPtr;
 
     DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
@@ -81,7 +81,7 @@ void Transform2x2Rows
 ( const Matrix<T>& G,
         Matrix<T>& A, Int i1, Int i2 )
 {
-    DEBUG_ONLY(CSE cse("Transform2x2Rows"))
+    DEBUG_CSE
     auto a1 = A( IR(i1), ALL );
     auto a2 = A( IR(i2), ALL );
     Transform2x2( G, a1, a2 );
@@ -92,7 +92,7 @@ void Transform2x2Rows
 ( const AbstractDistMatrix<T>& GPre,
         AbstractDistMatrix<T>& A, Int i1, Int i2 )
 {
-    DEBUG_ONLY(CSE cse("Transform2x2Rows"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
     const auto& G = GProx.GetLocked();
@@ -154,7 +154,7 @@ template<typename T>
 void Transform2x2Cols
 ( const Matrix<T>& G, Matrix<T>& A, Int i1, Int i2 )
 {
-    DEBUG_ONLY(CSE cse("Transform2x2Cols"))
+    DEBUG_CSE
     auto a1 = A( ALL, IR(i1) );
     auto a2 = A( ALL, IR(i2) );
     Transform2x2( G, a1, a2 );
@@ -165,7 +165,7 @@ void Transform2x2Cols
 ( const AbstractDistMatrix<T>& GPre,
         AbstractDistMatrix<T>& A, Int j1, Int j2 )
 {
-    DEBUG_ONLY(CSE cse("Transform2x2Cols"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
     const auto& G = GProx.GetLocked();

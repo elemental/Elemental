@@ -26,8 +26,8 @@ Int Single
         Int maxIts,
         bool progress )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lgmres::Single");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -235,7 +235,7 @@ Int LGMRES
         Int maxIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("LGMRES"))
+    DEBUG_CSE
     Int mostIts = 0;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
@@ -262,8 +262,8 @@ Int Single
         Int maxIts,
         bool progress )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lgmres::Single");
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -479,7 +479,7 @@ Int LGMRES
         Int maxIts,
         bool progress )
 {
-    DEBUG_ONLY(CSE cse("LGMRES"))
+    DEBUG_CSE
     const Int height = B.Height();
     const Int width = B.Width();
 

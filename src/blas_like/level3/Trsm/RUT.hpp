@@ -23,8 +23,8 @@ void RUT
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::RUT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )

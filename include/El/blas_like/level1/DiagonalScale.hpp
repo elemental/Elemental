@@ -18,7 +18,7 @@ void DiagonalScale
   const Matrix<TDiag>& d,
         Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
@@ -57,7 +57,7 @@ void DiagonalScale
   const ElementalMatrix<TDiag>& dPre,
         DistMatrix<T,U,V>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     if( side == LEFT )
     {
         ElementalProxyCtrl ctrl;
@@ -93,7 +93,7 @@ void DiagonalScale
   const ElementalMatrix<TDiag>& d,
         ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
@@ -108,7 +108,7 @@ void DiagonalScale
   const Matrix<TDiag>& d, 
         SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const bool conjugate = ( orientation == ADJOINT );
@@ -152,7 +152,7 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), A.Comm() ) )
@@ -220,8 +220,8 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistMultiVec<T>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalScale");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( !mpi::Congruent( d.Comm(), X.Comm() ) )

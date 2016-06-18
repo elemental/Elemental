@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 {
-    DEBUG_ONLY(CSE cse("FoxLi"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const C phi = Sqrt( C(0,omega/pi) ); 
@@ -57,7 +57,7 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 template<typename Real>
 void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
 {
-    DEBUG_ONLY(CSE cse("FoxLi"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const C phi = Sqrt( C(0,omega/pi) ); 

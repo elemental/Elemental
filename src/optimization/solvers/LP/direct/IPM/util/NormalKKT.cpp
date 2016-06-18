@@ -64,7 +64,7 @@ void NormalKKT
         Matrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -99,7 +99,7 @@ void NormalKKT
         ElementalMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -146,7 +146,7 @@ void NormalKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     // TODO: Expose this value as a parameter
@@ -194,7 +194,7 @@ void NormalKKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -256,7 +256,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -292,7 +292,7 @@ void NormalKKTRHS
   const ElementalMatrix<Real>& rmu,        
         ElementalMatrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     ElementalProxyCtrl ctrl;
@@ -340,7 +340,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -376,7 +376,7 @@ void NormalKKTRHS
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     if( !mpi::Congruent( comm, rmu.Comm() ) )
@@ -427,7 +427,7 @@ void ExpandNormalSolution
   const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -471,7 +471,7 @@ void ExpandNormalSolution
   const ElementalMatrix<Real>& dy, 
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     ElementalProxyCtrl ctrl;
@@ -527,7 +527,7 @@ void ExpandNormalSolution
   const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -571,7 +571,7 @@ void ExpandNormalSolution
   const DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
     auto& xLoc = x.LockedMatrix();
     auto& zLoc = z.LockedMatrix();

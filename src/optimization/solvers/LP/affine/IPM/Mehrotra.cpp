@@ -46,7 +46,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_CSE
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -354,7 +354,7 @@ void Mehrotra
         ElementalMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_CSE
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -700,7 +700,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
@@ -1078,7 +1078,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Mehrotra"))
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure

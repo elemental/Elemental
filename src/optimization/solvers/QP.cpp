@@ -25,7 +25,7 @@ void QP
         Matrix<Real>& z, 
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
@@ -43,7 +43,7 @@ void QP
         ElementalMatrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
@@ -61,7 +61,7 @@ void QP
         Matrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
@@ -79,7 +79,7 @@ void QP
         DistMultiVec<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
     else
@@ -102,7 +102,7 @@ void QP
         Matrix<Real>& s, 
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else
@@ -123,7 +123,7 @@ void QP
         ElementalMatrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else
@@ -144,7 +144,7 @@ void QP
         Matrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else
@@ -165,7 +165,7 @@ void QP
         DistMultiVec<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("QP"))
+    DEBUG_CSE
     if( ctrl.approach == QP_MEHROTRA )
         qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
     else

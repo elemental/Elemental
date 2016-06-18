@@ -51,7 +51,7 @@ void AllReduce
   const Matrix<Int>& firstInds,
         mpi::Op op )
 {
-    DEBUG_ONLY(CSE cse("cone::AllReduce"))
+    DEBUG_CSE
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
         LogicError("x, orders, and firstInds should be column vectors");
@@ -84,7 +84,7 @@ void AllReduce
   mpi::Op op,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("cone::AllReduce"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -300,7 +300,7 @@ void AllReduce
   const DistMultiVec<Int>& firstInds, 
   mpi::Op op, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("cone::AllReduce"))
+    DEBUG_CSE
 
     // TODO: Check that the communicators are congruent
     mpi::Comm comm = x.Comm();

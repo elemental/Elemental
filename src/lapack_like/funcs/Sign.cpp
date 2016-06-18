@@ -23,7 +23,7 @@ NewtonStep
         Matrix<F>& XNew,
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Calculate mu while forming XNew := inv(X)
@@ -54,7 +54,7 @@ NewtonStep
         DistMatrix<F>& XNew, 
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Calculate mu while forming B := inv(X)
@@ -85,7 +85,7 @@ NewtonSchulzStep
         Matrix<F>& XTmp,
         Matrix<F>& XNew )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonSchulzStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Height();
  
@@ -104,7 +104,7 @@ NewtonSchulzStep
         DistMatrix<F>& XTmp,
         DistMatrix<F>& XNew )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonSchulzStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Height();
 
@@ -123,7 +123,7 @@ template<typename F>
 Int
 Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("sign::Newton"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -162,7 +162,7 @@ template<typename F>
 Int
 Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("sign::Newton"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -204,14 +204,14 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 template<typename F>
 void Sign( Matrix<F>& A, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
     sign::Newton( A, ctrl );
 }
 
 template<typename F>
 void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     sign::Newton( A, ctrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
@@ -220,7 +220,7 @@ void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 template<typename F>
 void Sign( ElementalMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -234,7 +234,7 @@ void Sign
   ElementalMatrix<F>& NPre, 
   const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> NProx( NPre );
@@ -258,7 +258,7 @@ template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -288,7 +288,7 @@ void HermitianSign
   Matrix<F>& N, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -325,7 +325,7 @@ void HermitianSign
   ElementalMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -359,7 +359,7 @@ void HermitianSign
   ElementalMatrix<F>& NPre,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> NProx( NPre );

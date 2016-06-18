@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> InfinityNorm( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("InfinityNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -36,21 +36,21 @@ Base<F> InfinityNorm( const Matrix<F>& A )
 template<typename F>
 Base<F> HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianInfinityNorm"))
+    DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
 Base<F> SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricInfinityNorm"))
+    DEBUG_CSE
     return HermitianInfinityNorm( uplo, A );
 }
 
 template<typename F> 
 Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("InfinityNorm"))
+    DEBUG_CSE
     // Compute the partial row sums defined by our local matrix, A[U,V]
     typedef Base<F> Real;
 
@@ -96,7 +96,7 @@ template<typename F>
 Base<F> HermitianInfinityNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianInfinityNorm"))
+    DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
@@ -104,14 +104,14 @@ template<typename F>
 Base<F> SymmetricInfinityNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricInfinityNorm"))
+    DEBUG_CSE
     return HermitianInfinityNorm( uplo, A );
 }
 
 template<typename F> 
 Base<F> InfinityNorm( const SparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("InfinityNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int height = A.Height();
     const F* valBuf = A.LockedValueBuffer();
@@ -138,7 +138,7 @@ Base<F> InfinityNorm( const SparseMatrix<F>& A )
 template<typename F> 
 Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("InfinityNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const F* valBuf = A.LockedValueBuffer();

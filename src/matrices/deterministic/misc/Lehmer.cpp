@@ -15,7 +15,7 @@ namespace El {
 template<typename F> 
 void Lehmer( Matrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Lehmer"))
+    DEBUG_CSE
     L.Resize( n, n );
     auto lehmerFill = 
       []( Int i, Int j ) -> F
@@ -27,7 +27,7 @@ void Lehmer( Matrix<F>& L, Int n )
 template<typename F>
 void Lehmer( AbstractDistMatrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Lehmer"))
+    DEBUG_CSE
     L.Resize( n, n );
     auto lehmerFill = 
       []( Int i, Int j ) -> F

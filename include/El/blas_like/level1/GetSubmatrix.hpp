@@ -20,7 +20,7 @@ void GetSubmatrix
         Range<Int> J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     auto ASubView = A(I,J);
     ASub = ASubView;
 }
@@ -32,7 +32,7 @@ void GetSubmatrix
         Range<Int> J, 
         ElementalMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     unique_ptr<ElementalMatrix<T>> 
       ASubView( A.Construct(A.Grid(),A.Root()) );
     LockedView( *ASubView, A, I, J );
@@ -46,7 +46,7 @@ void GetSubmatrix
         Range<Int> J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     if( I.end == END ) I.end = A.Height();
     if( J.end == END ) J.end = A.Width();
     const Int mSub = I.end-I.beg;
@@ -95,7 +95,7 @@ void GetSubmatrix
   const vector<Int>& J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -107,7 +107,7 @@ void GetSubmatrix
         Range<Int> J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -119,7 +119,7 @@ void GetSubmatrix
   const vector<Int>& J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -132,7 +132,7 @@ void GetSubmatrix
         Range<Int> J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     if( I.end == END ) I.end = A.Height();
     if( J.end == END ) J.end = A.Width();
 
@@ -175,7 +175,7 @@ void GetSubmatrix
   const vector<Int>& J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -187,7 +187,7 @@ void GetSubmatrix
         Range<Int> J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -199,7 +199,7 @@ void GetSubmatrix
   const vector<Int>& J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -211,7 +211,7 @@ void GetSubmatrix
         Range<Int> J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     if( I.end == END ) I.end = A.Height();
     if( J.end == END ) J.end = A.Width();
     const Int mSub = I.end-I.beg;
@@ -270,7 +270,7 @@ void GetSubmatrix
   const vector<Int>& J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.end-I.beg;
     const Int nSub = J.size();
     ASub.Resize( mSub, nSub );
@@ -294,7 +294,7 @@ void GetSubmatrix
   const Range<Int> J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.end-J.beg;
     ASub.Resize( mSub, nSub );
@@ -322,7 +322,7 @@ void GetSubmatrix
   const vector<Int>& J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.size();
     ASub.Resize( mSub, nSub );
@@ -350,7 +350,7 @@ void GetSubmatrix
   const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.end-I.beg;
     const Int nSub = J.size();
     const Grid& g = A.Grid();
@@ -406,7 +406,7 @@ void GetSubmatrix
         Range<Int> J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.end-J.beg;
     const Grid& g = A.Grid();
@@ -462,7 +462,7 @@ void GetSubmatrix
   const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.size();
     const Grid& g = A.Grid();
@@ -518,7 +518,7 @@ void GetSubmatrix
   const vector<Int>& J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -530,7 +530,7 @@ void GetSubmatrix
         Range<Int> J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -542,7 +542,7 @@ void GetSubmatrix
   const vector<Int>& J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }

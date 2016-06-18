@@ -23,8 +23,8 @@ void LocalAccumulateRUT
   const DistMatrix<T,MR,STAR>& XTrans,
         DistMatrix<T,MC,STAR>& ZTrans )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateRUT");
       AssertSameGrids( U, XTrans, ZTrans );
       if( U.Height() != U.Width() ||
           U.Height() != XTrans.Height() ||
@@ -73,8 +73,8 @@ void RUTA
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RUTA");
       AssertSameGrids( UPre, XPre );
       // TODO: More input checks
     )
@@ -122,8 +122,8 @@ void RUTC
   const ElementalMatrix<T>& UPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RUTC");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected Adjoint/Transpose option");
@@ -182,7 +182,7 @@ void RUT
   const ElementalMatrix<T>& U,
         ElementalMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::RUT"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
         RUTA( orientation, diag, U, X );

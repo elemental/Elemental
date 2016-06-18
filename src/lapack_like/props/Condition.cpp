@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> Condition( const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("Condition"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -41,7 +41,7 @@ Base<F> Condition( const Matrix<F>& A, NormType type )
 template<typename F> 
 Base<F> Condition( const ElementalMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("Condition"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {

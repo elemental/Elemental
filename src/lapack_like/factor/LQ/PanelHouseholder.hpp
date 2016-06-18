@@ -19,7 +19,7 @@ PanelHouseholder
   Matrix<F>& phase,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("lq::PanelHouseholder"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -74,10 +74,8 @@ PanelHouseholder
   ElementalMatrix<F>& phase,
   ElementalMatrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(
-      CSE cse("lq::PanelHouseholder");
-      AssertSameGrids( A, phase, signature );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, phase, signature ))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);

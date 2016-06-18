@@ -27,7 +27,7 @@ namespace polar {
 template<typename F>
 QDWHInfo QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("polar::QDWHInner"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> Cpx;
     const Int m = A.Height();
@@ -118,7 +118,7 @@ QDWHInfo QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 template<typename F>
 QDWHInfo QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("polar::QDWH"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real twoEst = TwoNormEstimate( A );
     A *= 1/twoEst;
@@ -153,7 +153,7 @@ QDWHInfo QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
 template<typename F>
 QDWHInfo QDWH( Matrix<F>& A, Matrix<F>& P, const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("polar::QDWH"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     auto info = QDWH( A, ctrl );
     Zeros( P, A.Height(), A.Height() );
@@ -167,7 +167,7 @@ QDWHInfo
 QDWHInner
 ( ElementalMatrix<F>& APre, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("polar::QDWHInner"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -265,7 +265,7 @@ template<typename F>
 QDWHInfo
 QDWH( ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("polar::QDWH"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -308,7 +308,7 @@ QDWH
   ElementalMatrix<F>& PPre, 
   const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("polar::QDWH"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> PProx( PPre );
@@ -335,7 +335,7 @@ QDWHInner
   Base<F> sMinUpper,
   const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
@@ -436,7 +436,7 @@ template<typename F>
 QDWHInfo
 QDWH( UpperOrLower uplo, Matrix<F>& A, const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
+    DEBUG_CSE
     typedef Base<F> Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
@@ -465,7 +465,7 @@ QDWH
   Matrix<F>& P,
   const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );
@@ -483,7 +483,7 @@ QDWHInner
   Base<F> sMinUpper, 
   const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
+    DEBUG_CSE
     if( APre.Height() != APre.Width() )
         LogicError("Height must be same as width");
 
@@ -586,7 +586,7 @@ template<typename F>
 QDWHInfo
 QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -619,7 +619,7 @@ QDWH
   ElementalMatrix<F>& PPre, 
   const QDWHCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_polar::QDWH"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> PProx( PPre );

@@ -20,7 +20,7 @@ void SVM
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVM"))
+    DEBUG_CSE
     if( ctrl.useIPM )
         svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
     else
@@ -35,7 +35,7 @@ void SVM
         ElementalMatrix<Real>& x, 
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::ADMM"))
+    DEBUG_CSE
     if( ctrl.useIPM )
         svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
     else
@@ -50,7 +50,7 @@ void SVM
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVM"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM SVM not yet supported for sparse matrices"); 
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
@@ -64,7 +64,7 @@ void SVM
         DistMultiVec<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVM"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM SVM not yet supported for sparse matrices"); 
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );

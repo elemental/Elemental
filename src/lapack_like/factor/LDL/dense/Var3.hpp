@@ -19,11 +19,10 @@ namespace ldl {
 // an exactly zero pivot, it is likely not worth the overhead of
 // exception handling to detect zero pivots
 template<typename F> 
-inline void
-Var3Unb( Matrix<F>& A, bool conjugate=false )
+void Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::Var3Unb");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -74,11 +73,10 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
 
 // Blocked serial LDL _without_ partial pivoting
 template<typename F>
-inline void
-Var3( Matrix<F>& A, bool conjugate=false )
+void Var3( Matrix<F>& A, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::Var3");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -108,11 +106,10 @@ Var3( Matrix<F>& A, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-Var3( ElementalMatrix<F>& APre, bool conjugate=false )
+void Var3( ElementalMatrix<F>& APre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::Var3");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

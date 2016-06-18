@@ -21,32 +21,27 @@ void SquareRoot
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::SquareRoot"))
-    const Real* xBuf = x.LockedBuffer();
-    const Int* orderBuf = orders.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
+    DEBUG_CSE
 
     Matrix<Real> d;
     soc::Dets( x, d, orders, firstInds );
     cone::Broadcast( d, orders, firstInds );
-    const Real* dBuf = d.LockedBuffer();
 
     const Int height = x.Height();
     Zeros( xRoot, height, 1 );
-    Real* xRootBuf = xRoot.Buffer();
     for( Int i=0; i<height; )
     {
-        const Int order = orderBuf[i];
-        const Int firstInd = firstIndBuf[i];
+        const Int order = orders(i);
+        const Int firstInd = firstInds(i);
         DEBUG_ONLY(
           if( i != firstInd )       
               LogicError("Inconsistency in orders and firstInds");
         )
 
-        const Real eta0 = Sqrt(xBuf[i]+Sqrt(dBuf[i]))/Sqrt(Real(2));
-        xRootBuf[i] = eta0; 
+        const Real eta0 = Sqrt(x(i)+Sqrt(d(i)))/Sqrt(Real(2));
+        xRoot(i) = eta0; 
         for( Int k=1; k<order; ++k )
-            xRootBuf[i+k] = xBuf[i+k]/(2*eta0);
+            xRoot(i+k) = x(i+k)/(2*eta0);
 
         i += order;
     }
@@ -60,7 +55,7 @@ void SquareRoot
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::SquareRoot"))
+    DEBUG_CSE
     AssertSameGrids( xPre, xRootPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -116,7 +111,7 @@ void SquareRoot
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::SquareRoot"))
+    DEBUG_CSE
     const Real* xBuf = x.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 

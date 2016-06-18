@@ -18,7 +18,7 @@ namespace polar {
 template<typename F>
 void SVD( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the SVD of A
@@ -35,7 +35,7 @@ void SVD( Matrix<F>& A )
 template<typename F>
 void SVD( Matrix<F>& A, Matrix<F>& P )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the SVD of A
@@ -55,7 +55,7 @@ void SVD( Matrix<F>& A, Matrix<F>& P )
 template<typename F>
 void SVD( ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -76,7 +76,7 @@ void SVD( ElementalMatrix<F>& APre )
 template<typename F>
 void SVD( ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

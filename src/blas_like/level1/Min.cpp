@@ -14,7 +14,7 @@ namespace El {
 template<typename Real,typename>
 Real Min( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("Min"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Real* ABuf = A.LockedBuffer();
@@ -30,8 +30,8 @@ Real Min( const Matrix<Real>& A )
 template<typename Real,typename>
 Real Min( const AbstractDistMatrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Min");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -56,8 +56,8 @@ Real Min( const AbstractDistMatrix<Real>& A )
 template<typename Real,typename>
 Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMin");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -84,8 +84,8 @@ Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 template<typename Real,typename>
 Real SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMin");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

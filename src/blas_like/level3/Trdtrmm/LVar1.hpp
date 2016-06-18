@@ -13,8 +13,8 @@ namespace trdtrmm {
 template<typename F>
 void LVar1( Matrix<F>& L, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
     )
@@ -46,8 +46,8 @@ void LVar1( Matrix<F>& L, bool conjugate=false )
 template<typename F>
 void LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
     )
@@ -85,8 +85,8 @@ void LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 template<typename F>
 void LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
     )
@@ -145,8 +145,8 @@ void LVar1
   const ElementalMatrix<F>& dSubPre, 
   bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
     )

@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void DynamicRegCounter( Matrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     Zeros( A, 2*n, 2*n );
     auto ATL = A( IR(0,n),   IR(0,n)   );
     auto ATR = A( IR(0,n),   IR(n,2*n) );
@@ -31,7 +31,7 @@ void DynamicRegCounter( Matrix<T>& A, Int n )
 template<typename T>
 void DynamicRegCounter( ElementalMatrix<T>& APre, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     DistMatrixWriteProxy<T,T,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
@@ -50,7 +50,7 @@ void DynamicRegCounter( ElementalMatrix<T>& APre, Int n )
 template<typename T>
 void DynamicRegCounter( SparseMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     Zeros( A, 2*n, 2*n );
     A.Reserve( 6*n );
     
@@ -79,7 +79,7 @@ void DynamicRegCounter( SparseMatrix<T>& A, Int n )
 template<typename T>
 void DynamicRegCounter( DistSparseMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     Zeros( A, 2*n, 2*n );
 
     // Use a simple upper-bound on the number of local nonzeros.

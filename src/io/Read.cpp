@@ -19,7 +19,7 @@ namespace El {
 template<typename T>
 void Read( Matrix<T>& A, const string filename, FileFormat format )
 {
-    DEBUG_ONLY(CSE cse("Read"))
+    DEBUG_CSE
     if( format == AUTO )
         format = DetectFormat( filename );
 
@@ -50,7 +50,7 @@ void Read
 ( AbstractDistMatrix<T>& A, const string filename, FileFormat format,
   bool sequential )
 {
-    DEBUG_ONLY(CSE cse("Read"))
+    DEBUG_CSE
     if( format == AUTO )
         format = DetectFormat( filename ); 
 

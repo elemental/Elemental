@@ -27,7 +27,7 @@ namespace El {
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [MC,MR]"))
+    DEBUG_CSE
     const Grid& grid = A.Grid();
     if( grid.Height() == grid.Width() )
     {
@@ -48,7 +48,7 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [MC,STAR]"))
+    DEBUG_CSE
     DistMatrix<T,VC,STAR> A_VC_STAR( A );
     DistMatrix<T,VR,STAR> A_VR_STAR( this->Grid() );
     A_VR_STAR.AlignColsWith(*this);
@@ -61,7 +61,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [STAR,MR]"))
+    DEBUG_CSE
     DistMatrix<T,STAR,VR> A_STAR_VR( A );
     DistMatrix<T,STAR,VC> A_STAR_VC( this->Grid() );
     A_STAR_VC.AlignRowsWith(*this);
@@ -74,7 +74,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CSE cse("[MR,MC] = [MD,STAR]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -83,7 +83,7 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [STAR,MD]"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -92,7 +92,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [MR,STAR]"))
+    DEBUG_CSE
     copy::RowFilter( A, *this );
     return *this;
 }
@@ -100,7 +100,7 @@ DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [STAR,MC]"))
+    DEBUG_CSE
     copy::ColFilter( A, *this );
     return *this;
 }
@@ -108,7 +108,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [VC,STAR]"))
+    DEBUG_CSE
     DistMatrix<T,VR,STAR> A_VR_STAR( A );
     *this = A_VR_STAR;
     return *this;
@@ -117,7 +117,7 @@ DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [STAR,VC]"))
+    DEBUG_CSE
     copy::RowAllToAllPromote( A, *this );
     return *this;
 }
@@ -125,7 +125,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [VR,STAR]"))
+    DEBUG_CSE
     copy::ColAllToAllPromote( A, *this );
     return *this;
 }
@@ -133,7 +133,7 @@ DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [STAR,VR]"))
+    DEBUG_CSE
     DistMatrix<T,STAR,VC> A_STAR_VC( A );
     *this = A_STAR_VC;
     return *this;
@@ -142,7 +142,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 { 
-    DEBUG_ONLY(CSE cse("[MR,MC] = [STAR,STAR]"))
+    DEBUG_CSE
     copy::Filter( A, *this );
     return *this;
 }
@@ -150,7 +150,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CSE cse("[MR,MC] = [CIRC,CIRC]"))
+    DEBUG_CSE
     copy::Scatter( A, *this );
     return *this;
 }
@@ -158,7 +158,7 @@ DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DM = EM"))
+    DEBUG_CSE
     #define GUARD(CDIST,RDIST) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \

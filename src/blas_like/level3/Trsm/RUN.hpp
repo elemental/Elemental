@@ -20,7 +20,7 @@ void RUN
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("trsm::RUN"))
+    DEBUG_CSE
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();

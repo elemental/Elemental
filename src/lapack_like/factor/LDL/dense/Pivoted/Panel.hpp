@@ -22,7 +22,7 @@ SelectFromPanel
   LDLPivotType pivotType,
   Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::SelectFromPanel"))
+    DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -42,7 +42,7 @@ SelectFromPanel
   const DistMatrix<F,MR,STAR>& Y, 
   LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::SelectFromPanel"))
+    DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -70,7 +70,7 @@ Panel
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   Base<F> gamma=0 )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::Panel"))
+    DEBUG_CSE
     const Int nFull = AFull.Height();
     auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();
@@ -201,7 +201,7 @@ Panel
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::Panel"))
+    DEBUG_CSE
     const Int nFull = AFull.Height();
     auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();

@@ -26,8 +26,8 @@ void Grid::FinalizeDefault()
 
 const Grid& Grid::Default() EL_NO_RELEASE_EXCEPT
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Grid::Default");
       if( defaultGrid == 0 )
           LogicError
           ("Attempted to return a non-existant default grid. Please ensure "
@@ -47,7 +47,7 @@ int Grid::FindFactor( int p ) EL_NO_EXCEPT
 Grid::Grid( mpi::Comm comm, GridOrder order )
 : haveViewers_(false), order_(order)
 {
-    DEBUG_ONLY(CSE cse("Grid::Grid"))
+    DEBUG_CSE
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::Dup( comm, viewingComm_ );
@@ -65,7 +65,7 @@ Grid::Grid( mpi::Comm comm, GridOrder order )
 Grid::Grid( mpi::Comm comm, int height, GridOrder order )
 : haveViewers_(false), order_(order)
 {
-    DEBUG_ONLY(CSE cse("Grid::Grid"))
+    DEBUG_CSE
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::Dup( comm, viewingComm_ );
@@ -84,7 +84,7 @@ Grid::Grid( mpi::Comm comm, int height, GridOrder order )
 
 void Grid::SetUpGrid()
 {
-    DEBUG_ONLY(CSE cse("Grid::SetUpGrid"))
+    DEBUG_CSE
     if( size_ % height_ != 0 )
         LogicError
         ("Grid height, ",height_,", does not evenly divide grid size, ",size_);
@@ -274,7 +274,7 @@ mpi::Comm Grid::Comm() const EL_NO_EXCEPT
 Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, GridOrder order )
 : haveViewers_(true), order_(order)
 {
-    DEBUG_ONLY(CSE cse("Grid::Grid"))
+    DEBUG_CSE
 
     // Extract our rank and the underlying group from the viewing comm
     mpi::Dup( viewers, viewingComm_ );

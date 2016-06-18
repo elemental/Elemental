@@ -14,7 +14,7 @@ namespace El {
 template<typename F>
 Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -34,7 +34,7 @@ Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 template<typename F>
 Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int numEntries = A.NumEntries();
     Real minAbs = upperBound;
@@ -51,7 +51,7 @@ template<typename F>
 Base<F> MinAbsNonzero
 ( const ElementalMatrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Real minAbs;
     if( A.Participating() )
@@ -66,7 +66,7 @@ Base<F> MinAbsNonzero
 template<typename F>
 Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
 {
-    DEBUG_ONLY(CSE cse("MinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int numEntries = A.NumLocalEntries();
     Real minLocAbs = upperBound;
@@ -84,7 +84,7 @@ void GeometricColumnScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,V,STAR>& geomScaling )
 {
-    DEBUG_ONLY(CSE cse("GeometricColumnScaling"))
+    DEBUG_CSE
     typedef Base<F> Real;
     DistMatrix<Real,V,STAR> maxScaling(A.Grid());
     ColumnMaxNorms( A, maxScaling );
@@ -106,7 +106,7 @@ void StackedGeometricColumnScaling
   const DistMatrix<F,      U,V   >& B,
         DistMatrix<Base<F>,V,STAR>& geomScaling )
 {
-    DEBUG_ONLY(CSE cse("StackedGeometricColumnScaling"))
+    DEBUG_CSE
     // NOTE: Assuming A.ColComm() == B.ColComm() and that the row alignments
     //       are equal
     typedef Base<F> Real;
@@ -160,7 +160,7 @@ void GeometricRowScaling
 ( const DistMatrix<F,      U,V   >& A, 
         DistMatrix<Base<F>,U,STAR>& geomScaling )
 {
-    DEBUG_ONLY(CSE cse("GeometricRowScaling"))
+    DEBUG_CSE
     typedef Base<F> Real;
     DistMatrix<Real,U,STAR> maxScaling(A.Grid());
     RowMaxNorms( A, maxScaling );

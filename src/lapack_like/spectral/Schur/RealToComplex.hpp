@@ -17,7 +17,7 @@ namespace schur {
 template<typename Real>
 void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 {
-    DEBUG_ONLY(CSE cse("schur::RealToComplex"))
+    DEBUG_CSE
     DEBUG_ONLY(CheckRealSchur(UQuasi))
     typedef Complex<Real> C;
 
@@ -59,7 +59,7 @@ void RealToComplex
         Matrix<Complex<Real>>& U,
         Matrix<Complex<Real>>& Q )
 {
-    DEBUG_ONLY(CSE cse("schur::RealToComplex"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DEBUG_ONLY(CheckRealSchur(UQuasi))
@@ -105,7 +105,7 @@ void RealToComplex
 ( const ElementalMatrix<        Real >& UQuasi, 
         ElementalMatrix<Complex<Real>>& UPre )
 {
-    DEBUG_ONLY(CSE cse("schur::RealToComplex"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> UProx( UPre );
@@ -165,7 +165,7 @@ void RealToComplex
         ElementalMatrix<Complex<Real>>& UPre,
         ElementalMatrix<Complex<Real>>& QPre )
 {
-    DEBUG_ONLY(CSE cse("schur::RealToComplex"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> UProx( UPre ), QProx( QPre );

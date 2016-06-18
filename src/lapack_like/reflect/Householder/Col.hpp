@@ -20,8 +20,8 @@ namespace reflector {
 template<typename F> 
 F Col( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("reflector::Col");
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
       if( x.RowRank() != x.RowAlign() )
@@ -88,8 +88,8 @@ F Col( F& chi, ElementalMatrix<F>& x )
 template<typename F> 
 F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("reflector::Col");
       if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
           LogicError("Reflecting from incorrect process");
     )

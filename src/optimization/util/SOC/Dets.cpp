@@ -18,7 +18,7 @@ void Dets
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Dets"))
+    DEBUG_CSE
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
     soc::Dots( x, Rx, d, orders, firstInds );
@@ -32,7 +32,7 @@ void Dets
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Dets"))
+    DEBUG_CSE
     AssertSameGrids( xPre, dPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -63,7 +63,7 @@ void Dets
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Dets"))
+    DEBUG_CSE
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
     soc::Dots( x, Rx, d, orders, firstInds, cutoff );

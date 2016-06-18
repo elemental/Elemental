@@ -182,7 +182,7 @@ void KKT
         Matrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -241,7 +241,7 @@ void KKT
         ElementalMatrix<Real>& JPre, 
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -353,7 +353,7 @@ void KKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -624,7 +624,7 @@ void StaticKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -824,7 +824,7 @@ void FinishKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::FinishKKT"))
+    DEBUG_CSE
     const Int k = w.Height();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
@@ -1070,7 +1070,7 @@ void KKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = w.Comm();
@@ -1468,7 +1468,7 @@ void StaticKKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int coneLocalHeight = orders.LocalHeight();
@@ -1722,7 +1722,7 @@ void FinishKKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::FinishKKT"))
+    DEBUG_CSE
     mpi::Comm comm = w.Comm();
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
@@ -2083,7 +2083,7 @@ void KKTRHS
   const Matrix<Int>& firstInds,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("socp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const Int k = rh.Height();
@@ -2115,7 +2115,7 @@ void KKTRHS
         ElementalMatrix<Real>& dPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -2153,7 +2153,7 @@ void KKTRHS
         Int kSparse,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     Zeros( d, n+m+kSparse, 1 );
@@ -2192,7 +2192,7 @@ void KKTRHS
         DistMultiVec<Real>& d,
   Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     d.SetComm( rc.Comm() );
@@ -2246,7 +2246,7 @@ void ExpandSolution
         Matrix<Real>& dz, 
         Matrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
@@ -2272,7 +2272,7 @@ void ExpandSolution
         ElementalMatrix<Real>& ds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
@@ -2301,7 +2301,7 @@ void ExpandSolution
         Matrix<Real>& dz, 
         Matrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
     const Int kSparse = d.Height() - (n+m);
 
@@ -2354,7 +2354,7 @@ void ExpandSolution
         DistMultiVec<Real>& ds,
   Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
 
     // Extract dx

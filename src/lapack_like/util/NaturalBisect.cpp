@@ -27,7 +27,7 @@ Int NaturalBisect
         Graph& rightChild,
         vector<Int>& perm )
 {
-    DEBUG_ONLY(CSE cse("NaturalBisect"))
+    DEBUG_CSE
     const Int numSources = graph.NumSources();
     if( numSources == 0 )
         LogicError("There is no reason to bisect an empty sequential graph");
@@ -154,7 +154,7 @@ Int NaturalBisect
         DistMap& perm,
         bool& onLeft )
 {
-    DEBUG_ONLY(CSE cse("NaturalBisect"))
+    DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     const Int numLocalSources = graph.NumLocalSources();

@@ -76,7 +76,7 @@ void Overwrite
   Matrix<F>& D, 
   Matrix<F>& X, bool computeResidual )
 {
-    DEBUG_ONLY(CSE cse("lse::Overwrite"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Height();
@@ -170,7 +170,7 @@ void Overwrite
   ElementalMatrix<F>& XPre,
   bool computeResidual )
 {
-    DEBUG_ONLY(CSE cse("lse::Overwrite"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre ),
@@ -279,7 +279,7 @@ void LSE
   const Matrix<F>& D, 
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     Matrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -292,7 +292,7 @@ void LSE
   const ElementalMatrix<F>& D, 
         ElementalMatrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -306,7 +306,7 @@ void LSE
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters
@@ -419,7 +419,7 @@ void LSE
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // TODO: Expose as control parameters

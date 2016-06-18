@@ -22,7 +22,7 @@ Int AlgebraicRelationSearch
   Matrix<F>& U,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("AlgebraicRelationSearch"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = n+1;
 

@@ -17,7 +17,7 @@ namespace El {
 template<typename F>
 void FrobeniusProx( Matrix<F>& A, Base<F> tau )
 {
-    DEBUG_ONLY(CSE cse("FrobeniusProx"))
+    DEBUG_CSE
     const Base<F> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         A *= 1-1/(tau*frobNorm);
@@ -28,7 +28,7 @@ void FrobeniusProx( Matrix<F>& A, Base<F> tau )
 template<typename F>
 void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau )
 {
-    DEBUG_ONLY(CSE cse("FrobeniusProx"))
+    DEBUG_CSE
     const Base<F> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         A *= 1-1/(tau*frobNorm);

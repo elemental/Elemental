@@ -39,7 +39,7 @@ void Trr2k
   T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
   T gamma,       ElementalMatrix<T>& E )
 {
-    DEBUG_ONLY(CSE cse("Trr2k"))
+    DEBUG_CSE
     const bool normalA = orientA == NORMAL;
     const bool normalB = orientB == NORMAL;
     const bool normalC = orientC == NORMAL;

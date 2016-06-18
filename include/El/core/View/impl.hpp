@@ -20,7 +20,7 @@ namespace El {
 template<typename T>
 void View( Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("View"))
+    DEBUG_CSE
     if( B.Locked() )
         A.LockedAttach
         ( B.Height(), B.Width(), B.LockedBuffer(), B.LDim() );
@@ -31,7 +31,7 @@ void View( Matrix<T>& A, Matrix<T>& B )
 template<typename T>
 void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("LockedView"))
+    DEBUG_CSE
     A.LockedAttach( B.Height(), B.Width(), B.LockedBuffer(), B.LDim() );
 }
 
@@ -57,10 +57,8 @@ Matrix<T> LockedView( const Matrix<T>& B )
 template<typename T>
 void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(
-      CSE cse("View");
-      AssertSameDist( A.DistData(), B.DistData() );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
     if( B.Locked() )
         A.LockedAttach
         ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
@@ -75,10 +73,8 @@ template<typename T>
 void LockedView
 ( ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(
-      CSE cse("LockedView");
-      AssertSameDist( A.DistData(), B.DistData() );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
       B.LockedBuffer(), B.LDim(), B.Root() );
@@ -109,10 +105,8 @@ void View
 ( BlockMatrix<T>& A,
   ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(
-      CSE cse("View");
-      AssertSameDist( A.DistData(), B.DistData() );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
     if( B.Locked() )
         A.LockedAttach
         ( B.Height(), B.Width(), B.Grid(), 
@@ -130,10 +124,8 @@ void LockedView
 (       BlockMatrix<T>& A,
   const ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(
-      CSE cse("LockedView");
-      AssertSameDist( A.DistData(), B.DistData() );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
       B.LockedBuffer(), B.LDim(), B.Root() );
@@ -144,10 +136,8 @@ void View
 ( ElementalMatrix<T>& A,
   BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(
-      CSE cse("View");
-      AssertSameDist( A.DistData(), B.DistData() );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
                     " instead of 1x1");
@@ -166,10 +156,8 @@ void LockedView
 (       ElementalMatrix<T>& A,
   const BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(
-      CSE cse("LockedView");
-      AssertSameDist( A.DistData(), B.DistData() );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
                     " instead of 1x1");
@@ -259,8 +247,8 @@ void View
   Int i, Int j,
   Int height, Int width )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("View");
       if( i < 0 || j < 0 )
           LogicError("Indices must be non-negative");
       if( height < 0 || width < 0 )
@@ -284,8 +272,8 @@ void LockedView
   Int i, Int j,
   Int height, Int width )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LockedView");
       if( i < 0 || j < 0 )
           LogicError("Indices must be non-negative");
       if( height < 0 || width < 0 )
@@ -376,8 +364,8 @@ void View
   ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("View");
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
@@ -415,8 +403,8 @@ void LockedView
   const ElementalMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LockedView");
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
@@ -518,8 +506,8 @@ void View
   Int height,
   Int width )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("View");
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
@@ -545,8 +533,8 @@ void LockedView
   const BlockMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LockedView");
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )

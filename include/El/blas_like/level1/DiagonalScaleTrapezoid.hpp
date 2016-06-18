@@ -20,8 +20,8 @@ void DiagonalScaleTrapezoid
         Matrix<T>& A,
   Int offset )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalScaleTrapezoid");
       if( side==LEFT && (d.Height()!=A.Height() || d.Width()!=1) )
           LogicError("d should have been a vector of the height of A");
       if( side==RIGHT && (d.Height()!=A.Width() || d.Width()!=1) )
@@ -94,7 +94,7 @@ void DiagonalScaleTrapezoid
         DistMatrix<T,U,V>& A,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -221,7 +221,7 @@ void DiagonalScaleTrapezoid
         ElementalMatrix<T>& A,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
@@ -238,7 +238,7 @@ void DiagonalScaleTrapezoid
         SparseMatrix<T>& A,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -251,7 +251,7 @@ void DiagonalScaleTrapezoid
         DistSparseMatrix<T>& A,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScaleTrapezoid"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 

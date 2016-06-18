@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void Hanowa( Matrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CSE cse("Hanowa"))
+    DEBUG_CSE
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
     A.Resize( n, n );
@@ -43,7 +43,7 @@ void Hanowa( Matrix<T>& A, Int n, T mu )
 template<typename T>
 void Hanowa( ElementalMatrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CSE cse("Hanowa"))
+    DEBUG_CSE
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
     A.Resize( n, n );

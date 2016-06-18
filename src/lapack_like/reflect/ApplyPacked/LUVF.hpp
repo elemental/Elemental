@@ -37,8 +37,8 @@ void LUVF
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUVF");
       if( H.Height() != A.Height() )
           LogicError("H and A must be the same height");
     )
@@ -83,8 +83,8 @@ void LUVF
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUVF");
       AssertSameGrids( HPre, tPre, APre );
       if( HPre.Height() != APre.Height() )
           LogicError("H and A must be the same height");

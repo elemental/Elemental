@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void MakeDiagonalReal( Matrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("MakeDiagonalReal"))
+    DEBUG_CSE
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = A.DiagonalLength(offset);
@@ -29,7 +29,7 @@ void MakeDiagonalReal( Matrix<T>& A, Int offset )
 template<typename T>
 void MakeDiagonalReal( AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("MakeDiagonalReal"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
     Matrix<T>& ALoc = A.Matrix();

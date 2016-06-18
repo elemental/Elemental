@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> FrobeniusCondition( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("FrobeniusCondition"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Matrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );
@@ -27,7 +27,7 @@ Base<F> FrobeniusCondition( const Matrix<F>& A )
 template<typename F> 
 Base<F> FrobeniusCondition( const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("FrobeniusCondition"))
+    DEBUG_CSE
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );

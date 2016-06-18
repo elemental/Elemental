@@ -19,8 +19,8 @@ void LocalAccumulateLU
         DistMatrix<T,MC,  STAR>& Z_MC_STAR,
         DistMatrix<T,MR,  STAR>& Z_MR_STAR )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("symm::LocalAccumulateLU");
       AssertSameGrids( A, B_MC_STAR, BTrans_STAR_MR, Z_MC_STAR, Z_MR_STAR );
       if( A.Height() != A.Width() ||
           A.Height() != B_MC_STAR.Height() ||
@@ -96,10 +96,8 @@ void LUA
         ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
-    DEBUG_ONLY(
-      CSE cse("symm::LUA");
-      AssertSameGrids( APre, BPre, CPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, BPre, CPre ))
     const Int m = CPre.Height();
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
@@ -159,10 +157,8 @@ void LUC
         ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
-    DEBUG_ONLY(
-      CSE cse("symm::LUC");
-      AssertSameGrids( APre, BPre, CPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, BPre, CPre ))
     const Int m = CPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -224,7 +220,7 @@ void LU
         ElementalMatrix<T>& C,
   bool conjugate=false )
 {
-    DEBUG_ONLY(CSE cse("symm::LU"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Width() )
         symm::LUA( alpha, A, B, C, conjugate );

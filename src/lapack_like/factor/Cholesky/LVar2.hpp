@@ -17,11 +17,10 @@ namespace El {
 namespace cholesky {
 
 template<typename F> 
-inline void
-LVar2( Matrix<F>& A )
+void LVar2( Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LVar2");
       if( A.Height() != A.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -48,11 +47,10 @@ LVar2( Matrix<F>& A )
 }
 
 template<typename F> 
-inline void
-LVar2( AbstractDistMatrix<F>& APre )
+void LVar2( AbstractDistMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LVar2");
       if( APre.Height() != APre.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )

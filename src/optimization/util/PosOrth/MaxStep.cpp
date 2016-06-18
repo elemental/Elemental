@@ -17,18 +17,13 @@ Real MaxStep
   const Matrix<Real>& ds,
         Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::MaxStep"))
+    DEBUG_CSE
     const Int k = s.Height();
-    const Real* sBuf = s.LockedBuffer();
-    const Real* dsBuf = ds.LockedBuffer();
-
     Real alpha = upperBound;
     for( Int i=0; i<k; ++i )
     {
-        const Real si = sBuf[i];
-        const Real dsi = dsBuf[i];
-        if( dsi < Real(0) )
-            alpha = Min(alpha,-si/dsi);
+        if( ds(i) < Real(0) )
+            alpha = Min(alpha,-s(i)/ds(i));
     }
     return alpha;
 }
@@ -39,7 +34,7 @@ Real MaxStep
   const ElementalMatrix<Real>& dsPre,
   Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::MaxStep"))
+    DEBUG_CSE
 
     // TODO: Decide if more general intermediate distributions should be
     //       supported.
@@ -79,7 +74,7 @@ Real MaxStep
   const DistMultiVec<Real>& ds,
   Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::MaxStep"))
+    DEBUG_CSE
     const Int kLocal = s.LocalHeight();
     const Real* sBuf = s.LockedMatrix().LockedBuffer();
     const Real* dsBuf = ds.LockedMatrix().LockedBuffer();

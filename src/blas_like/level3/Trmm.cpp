@@ -26,8 +26,8 @@ void Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trmm");
       if( A.Height() != A.Width() )
           LogicError("Triangular matrix must be square");
       if( side == LEFT )
@@ -56,7 +56,7 @@ void Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("Trmm"))
+    DEBUG_CSE
     X *= alpha;
     if( side == LEFT && uplo == LOWER )
     {
@@ -94,8 +94,8 @@ void LocalTrmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalTrmm");
       if( (side == LEFT && B.ColDist() != STAR) ||
           (side == RIGHT && B.RowDist() != STAR) )
           LogicError

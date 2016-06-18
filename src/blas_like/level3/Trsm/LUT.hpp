@@ -25,8 +25,8 @@ void LUTLarge
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LUTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -87,8 +87,8 @@ void LUTMedium
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LUTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -150,8 +150,8 @@ void LUTSmall
         DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LUTSmall");
       AssertSameGrids( U, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

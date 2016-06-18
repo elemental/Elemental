@@ -30,7 +30,7 @@ SparseMatrix<T>::SparseMatrix( Int height, Int width )
 template<typename T>
 SparseMatrix<T>::SparseMatrix( const SparseMatrix<T>& A )
 { 
-    DEBUG_ONLY(CSE cse("SparseMatrix::SparseMatrix"))
+    DEBUG_CSE
     if( &A != this )
         *this = A;
     else
@@ -40,7 +40,7 @@ SparseMatrix<T>::SparseMatrix( const SparseMatrix<T>& A )
 template<typename T>
 SparseMatrix<T>::SparseMatrix( const DistSparseMatrix<T>& A )
 { 
-    DEBUG_ONLY(CSE cse("SparseMatrix::SparseMatrix"))
+    DEBUG_CSE
     *this = A;
 }
 
@@ -65,7 +65,7 @@ void SparseMatrix<T>::Empty( bool clearMemory )
 template<typename T>
 void SparseMatrix<T>::Resize( Int height, Int width )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::Resize"))
+    DEBUG_CSE
     if( Height() == height && Width() == width )
         return;
     graph_.Resize( height, width );
@@ -95,7 +95,7 @@ bool SparseMatrix<T>::FrozenSparsity() const EL_NO_EXCEPT
 template<typename T>
 void SparseMatrix<T>::Update( Int row, Int col, T value )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::Update"))
+    DEBUG_CSE
     QueueUpdate( row, col, value );
     ProcessQueues();
 }
@@ -107,7 +107,7 @@ void SparseMatrix<T>::Update( const Entry<T>& entry )
 template<typename T>
 void SparseMatrix<T>::Zero( Int row, Int col )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::Zero"))
+    DEBUG_CSE
     QueueZero( row, col );
     ProcessQueues();
 }
@@ -116,7 +116,7 @@ template<typename T>
 void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
+    DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = Offset( row, col );
@@ -138,7 +138,7 @@ template<typename T>
 void SparseMatrix<T>::QueueZero( Int row, Int col )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::QueueUpdate"))
+    DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = Offset( row, col );
@@ -158,7 +158,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 const SparseMatrix<T>& SparseMatrix<T>::operator=( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
+    DEBUG_CSE
     graph_ = A.graph_;
     vals_ = A.vals_;
     return *this;
@@ -168,7 +168,7 @@ template<typename T>
 const SparseMatrix<T>&
 SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator="))
+    DEBUG_CSE
     mpi::Comm comm = A.Comm();
     const int commSize = mpi::Size( comm );
     if( commSize != 1 )
@@ -185,7 +185,7 @@ template<typename T>
 SparseMatrix<T>
 SparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    DEBUG_CSE
     SparseMatrix<T> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -195,7 +195,7 @@ template<typename T>
 SparseMatrix<T>
 SparseMatrix<T>::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    DEBUG_CSE
     SparseMatrix<T> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -205,7 +205,7 @@ template<typename T>
 SparseMatrix<T>
 SparseMatrix<T>::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    DEBUG_CSE
     SparseMatrix<T> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -215,7 +215,7 @@ template<typename T>
 SparseMatrix<T>
 SparseMatrix<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator()"))
+    DEBUG_CSE
     SparseMatrix<T> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -226,7 +226,7 @@ SparseMatrix<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
 template<typename T>
 const SparseMatrix<T>& SparseMatrix<T>::operator*=( T alpha )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator*=( T )"))
+    DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -236,7 +236,7 @@ const SparseMatrix<T>& SparseMatrix<T>::operator*=( T alpha )
 template<typename T>
 const SparseMatrix<T>& SparseMatrix<T>::operator+=( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator+=( const SM& )"))
+    DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -244,7 +244,7 @@ const SparseMatrix<T>& SparseMatrix<T>::operator+=( const SparseMatrix<T>& A )
 template<typename T>
 const SparseMatrix<T>& SparseMatrix<T>::operator-=( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::operator-=( const SM& )"))
+    DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -264,14 +264,14 @@ Int SparseMatrix<T>::Width() const EL_NO_EXCEPT
 template<typename T>
 Int SparseMatrix<T>::NumEntries() const EL_NO_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::NumEntries"))
+    DEBUG_CSE
     return graph_.NumEdges();
 }
 
 template<typename T>
 Int SparseMatrix<T>::Capacity() const EL_NO_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::Capacity"))
+    DEBUG_CSE
     return graph_.Capacity();
 }
 
@@ -291,43 +291,43 @@ const El::Graph& SparseMatrix<T>::LockedGraph() const EL_NO_EXCEPT
 template<typename T>
 Int SparseMatrix<T>::Row( Int index ) const EL_NO_RELEASE_EXCEPT
 { 
-    DEBUG_ONLY(CSE cse("SparseMatrix::Row"))
+    DEBUG_CSE
     return graph_.Source( index );
 }
 
 template<typename T>
 Int SparseMatrix<T>::Col( Int index ) const EL_NO_RELEASE_EXCEPT
 { 
-    DEBUG_ONLY(CSE cse("SparseMatrix::Col"))
+    DEBUG_CSE
     return graph_.Target( index );
 }
 
 template<typename T>
 Int SparseMatrix<T>::RowOffset( Int row ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::RowOffset"))
+    DEBUG_CSE
     return graph_.SourceOffset( row );
 }
 
 template<typename T>
 Int SparseMatrix<T>::Offset( Int row, Int col ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::Offset"))
+    DEBUG_CSE
     return graph_.Offset( row, col );
 }
 
 template<typename T>
 Int SparseMatrix<T>::NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::NumConnections"))
+    DEBUG_CSE
     return graph_.NumConnections( row );
 }
 
 template<typename T>
 T SparseMatrix<T>::Value( Int index ) const EL_NO_RELEASE_EXCEPT
 { 
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SparseMatrix::Value");
       if( index < 0 || index >= Int(vals_.size()) )
           LogicError("Entry number out of bounds");
     )
@@ -392,7 +392,7 @@ const T* SparseMatrix<T>::LockedValueBuffer() const EL_NO_EXCEPT
 template<typename T>
 void SparseMatrix<T>::ForceNumEntries( Int numEntries )
 {
-    DEBUG_ONLY(CSE cse("SparseMatrix::ForceNumEntries"))
+    DEBUG_CSE
     graph_.ForceNumEdges( numEntries );
     vals_.resize( numEntries );
 }
@@ -407,8 +407,8 @@ void SparseMatrix<T>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
 template<typename T>
 void SparseMatrix<T>::ProcessQueues()
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SparseMatrix::ProcessQueues");
       if( graph_.sources_.size() != graph_.targets_.size() || 
           graph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");

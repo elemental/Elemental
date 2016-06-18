@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void Covariance( const Matrix<F>& D, Matrix<F>& S )
 {
-    DEBUG_ONLY(CSE cse("Covariance"))
+    DEBUG_CSE
     const Int numObs = D.Height();
     const Int n = D.Width();
 
@@ -38,7 +38,7 @@ template<typename F>
 void Covariance
 ( const ElementalMatrix<F>& DPre, ElementalMatrix<F>& SPre )
 {
-    DEBUG_ONLY(CSE cse("Covariance"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       DProx( DPre );

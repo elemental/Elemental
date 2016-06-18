@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
+    DEBUG_CSE
     // TODO: Make this more numerically stable
     typedef Base<F> Real;
     Real sum = 0;
@@ -28,7 +28,7 @@ Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 template<typename F> 
 Base<F> EntrywiseNorm( const SparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
+    DEBUG_CSE
     // TODO: Make this more numerically stable
     typedef Base<F> Real;
     Real sum = 0;
@@ -42,7 +42,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -86,7 +86,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
+    DEBUG_CSE
     // TODO: Make this more numerically stable
     typedef Base<F> Real;
     Real sum = 0;
@@ -107,7 +107,7 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
+    DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
@@ -115,14 +115,14 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const SparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
+    DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 template<typename F> 
 Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
@@ -144,7 +144,7 @@ Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
 template<typename F> 
 Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     Real localSum = 0;
@@ -159,7 +159,7 @@ Base<F> EntrywiseNorm( const DistSparseMatrix<F>& A, Base<F> p )
 template<typename F> 
 Base<F> EntrywiseNorm( const DistMultiVec<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Matrix<F>& ALoc = A.LockedMatrix();
 
@@ -176,7 +176,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -232,7 +232,7 @@ template<typename F>
 Base<F> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianEntrywiseNorm"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     Real localSum = 0;
@@ -255,7 +255,7 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
+    DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
@@ -263,7 +263,7 @@ template<typename F>
 Base<F> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const DistSparseMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricEntrywiseNorm"))
+    DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 

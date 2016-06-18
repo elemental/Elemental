@@ -21,7 +21,7 @@ void LowerSolve
   const Front<F>& front,
         MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("LowerSolve"))
+    DEBUG_CSE
     if( orientation == NORMAL )
         LowerForwardSolve( info, front, X );
     else
@@ -35,7 +35,7 @@ void LowerSolve
   const DistFront<F>& front,
         DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("LowerSolve"))
+    DEBUG_CSE
     if( orientation == NORMAL )
         LowerForwardSolve( info, front, X );
     else
@@ -49,7 +49,7 @@ void LowerSolve
   const DistFront<F>& front,
         DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("LowerSolve"))
+    DEBUG_CSE
     if( orientation == NORMAL )
         LowerForwardSolve( info, front, X );
     else

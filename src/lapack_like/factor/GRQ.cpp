@@ -19,7 +19,7 @@ void GRQ
   Matrix<F>& phaseB,
   Matrix<Base<F>>& signatureB )
 {
-    DEBUG_ONLY(CSE cse("GRQ"))
+    DEBUG_CSE
     RQ( A, phaseA, signatureA );
     rq::ApplyQ( RIGHT, ADJOINT, A, phaseA, signatureA, B );
     QR( B, phaseB, signatureB );
@@ -34,7 +34,7 @@ void GRQ
   ElementalMatrix<F>& phaseB,
   ElementalMatrix<Base<F>>& signatureB )
 {
-    DEBUG_ONLY(CSE cse("GRQ"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
@@ -50,7 +50,7 @@ namespace grq {
 template<typename F> 
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("grq::ExplicitTriang"))
+    DEBUG_CSE
     Matrix<F> phaseA;
     Matrix<Base<F>> signatureA;
     RQ( A, phaseA, signatureA );
@@ -62,7 +62,7 @@ void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 template<typename F> 
 void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CSE cse("grq::ExplicitTriang"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();

@@ -29,7 +29,7 @@ void Skeleton
         Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Skeleton"))
+    DEBUG_CSE
     Matrix<F> AAdj;
     Adjoint( A, AAdj );
 
@@ -67,7 +67,7 @@ void Skeleton
         ElementalMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Skeleton"))
+    DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     const Grid& g = A.Grid();

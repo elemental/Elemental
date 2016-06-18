@@ -27,7 +27,7 @@ void RuizEquil
   Matrix<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -38,7 +38,7 @@ void RuizEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -92,7 +92,7 @@ void RuizEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -131,7 +131,7 @@ void RuizEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -175,7 +175,7 @@ void StackedRuizEquil
   Matrix<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -188,7 +188,7 @@ void StackedRuizEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -263,7 +263,7 @@ void StackedRuizEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -315,7 +315,7 @@ void StackedRuizEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();

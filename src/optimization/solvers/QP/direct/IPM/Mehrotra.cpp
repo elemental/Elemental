@@ -43,7 +43,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
+    DEBUG_CSE
 
     const bool stepLengthSigma = true;
     const bool standardShift = true;
@@ -390,7 +390,7 @@ void Mehrotra
         ElementalMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
+    DEBUG_CSE
 
     const bool stepLengthSigma = true;
     const bool standardShift = true;
@@ -776,7 +776,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     const bool stepLengthSigma = true;
@@ -1218,7 +1218,7 @@ void Mehrotra
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     const bool stepLengthSigma = true;

@@ -77,7 +77,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator=( const BlockMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("BCM::operator=(BCM&)"))
+    DEBUG_CSE
     El::Copy( A, *this );
     return *this;
 }
@@ -86,7 +86,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("BCM::operator=(ADM&)"))
+    DEBUG_CSE
     El::Copy( A, *this );
     return *this;
 }
@@ -97,7 +97,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator*=( T alpha )
 {
-    DEBUG_ONLY(CSE cse("BCM::operator*="))
+    DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -108,7 +108,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator+=( const BlockMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("BCM::operator+="))
+    DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -117,7 +117,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("BCM::operator+="))
+    DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -126,7 +126,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator-=( const BlockMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("BCM::operator-="))
+    DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -135,7 +135,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("BCM::operator-="))
+    DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -204,10 +204,8 @@ void BlockMatrix<T>::Empty( bool freeMemory )
 template<typename T>
 void BlockMatrix<T>::Resize( Int height, Int width )
 {
-    DEBUG_ONLY(
-      CSE cse("BCM::Resize");
-      this->AssertNotLocked();
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(this->AssertNotLocked())
     this->height_ = height; 
     this->width_ = width;
     if( this->Participating() )
@@ -218,10 +216,8 @@ void BlockMatrix<T>::Resize( Int height, Int width )
 template<typename T>
 void BlockMatrix<T>::Resize( Int height, Int width, Int ldim )
 {
-    DEBUG_ONLY(
-      CSE cse("BCM::Resize");
-      this->AssertNotLocked();
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(this->AssertNotLocked())
     this->height_ = height; 
     this->width_ = width;
     if( this->Participating() )
@@ -232,7 +228,7 @@ void BlockMatrix<T>::Resize( Int height, Int width, Int ldim )
 template<typename T>
 void BlockMatrix<T>::MakeConsistent( bool includingViewers )
 {
-    DEBUG_ONLY(CSE cse("BCM::MakeConsistent"))
+    DEBUG_CSE
 
     const Int msgLength = 13;
     Int message[msgLength];
@@ -304,7 +300,7 @@ void BlockMatrix<T>::Align
 ( Int blockHeight, Int blockWidth, 
   int colAlign, int rowAlign, Int colCut, Int rowCut, bool constrain )
 { 
-    DEBUG_ONLY(CSE cse("BCM::Align"))
+    DEBUG_CSE
     const bool requireChange = 
         this->blockHeight_ != blockHeight || this->blockWidth_ != blockWidth ||
         this->colAlign_    != colAlign    || this->rowAlign_   != rowAlign   ||
@@ -333,7 +329,7 @@ template<typename T>
 void BlockMatrix<T>::AlignCols
 ( Int blockHeight, int colAlign, Int colCut, bool constrain )
 { 
-    DEBUG_ONLY(CSE cse("BCM::AlignCols"))
+    DEBUG_CSE
     const bool requireChange = 
         this->blockHeight_ != blockHeight || 
         this->colAlign_    != colAlign    || 
@@ -356,7 +352,7 @@ template<typename T>
 void BlockMatrix<T>::AlignRows
 ( Int blockWidth, int rowAlign, Int rowCut, bool constrain )
 { 
-    DEBUG_ONLY(CSE cse("BCM::AlignRows"))
+    DEBUG_CSE
     const bool requireChange = 
         this->blockWidth_ != blockWidth || 
         this->rowAlign_   != rowAlign   || 
@@ -379,7 +375,7 @@ template<typename T>
 void BlockMatrix<T>::AlignWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 { 
-    DEBUG_ONLY(CSE cse("BCM::AlignWith"))
+    DEBUG_CSE
     this->AlignColsWith( data, constrain, allowMismatch );
     this->AlignRowsWith( data, constrain, allowMismatch );
 }
@@ -390,7 +386,7 @@ void BlockMatrix<T>::AlignAndResize
   int colAlign, int rowAlign, Int colCut, Int rowCut,
   Int height, Int width, bool force, bool constrain )
 {
-    DEBUG_ONLY(CSE cse("BCM::AlignAndResize"))
+    DEBUG_CSE
     if( !this->Viewing() )
     {
         if( force || !this->ColConstrained() )
@@ -429,7 +425,7 @@ void BlockMatrix<T>::AlignColsAndResize
 ( Int blockHeight, int colAlign, Int colCut, Int height, Int width, 
   bool force, bool constrain )
 {
-    DEBUG_ONLY(CSE cse("BCM::AlignColsAndResize"))
+    DEBUG_CSE
     if( !this->Viewing() && (force || !this->ColConstrained()) )
     {
         this->blockHeight_ = blockHeight;
@@ -451,7 +447,7 @@ void BlockMatrix<T>::AlignRowsAndResize
 ( Int blockWidth, int rowAlign, Int rowCut, Int height, Int width, 
   bool force, bool constrain )
 {
-    DEBUG_ONLY(CSE cse("BCM::AlignRowsAndResize"))
+    DEBUG_CSE
     if( !this->Viewing() && (force || !this->RowConstrained()) )
     {
         this->blockWidth_ = blockWidth;
@@ -478,7 +474,7 @@ void BlockMatrix<T>::Attach
   int colAlign, int rowAlign, Int colCut, Int rowCut,
   T* buffer, Int ldim, int root )
 {
-    DEBUG_ONLY(CSE cse("BCM::Attach"))
+    DEBUG_CSE
     this->Empty();
 
     this->grid_ = &g;
@@ -523,7 +519,7 @@ void BlockMatrix<T>::LockedAttach
   int colAlign, int rowAlign, Int colCut, Int rowCut,
   const T* buffer, Int ldim, int root )
 {
-    DEBUG_ONLY(CSE cse("BCM::LockedAttach"))
+    DEBUG_CSE
     this->Empty();
 
     this->grid_ = &g;
@@ -659,7 +655,7 @@ template<typename T>
 bool BlockMatrix<T>::DiagonalAlignedWith
 ( const El::DistData& d, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("BCM::DiagonalAlignedWith"))
+    DEBUG_CSE
     // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
     //       diagonal distribution are variable except for special cases.
     LogicError("This routine is not yet written");
@@ -669,7 +665,7 @@ bool BlockMatrix<T>::DiagonalAlignedWith
 template<typename T>
 int BlockMatrix<T>::DiagonalRoot( Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("BCM::DiagonalRoot"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
     return 0;
 }
@@ -677,7 +673,7 @@ int BlockMatrix<T>::DiagonalRoot( Int offset ) const
 template<typename T>
 int BlockMatrix<T>::DiagonalAlign( Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("BCM::DiagonalAlign"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
     return 0;
 }
@@ -686,7 +682,7 @@ template<typename T>
 void BlockMatrix<T>::AlignColsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
-    DEBUG_ONLY(CSE cse("BCM::AlignColsWith"))
+    DEBUG_CSE
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
     if( data.colDist == this->ColDist() || 
@@ -715,7 +711,7 @@ template<typename T>
 void BlockMatrix<T>::AlignRowsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
-    DEBUG_ONLY(CSE cse("BCM::AlignRowsWith"))
+    DEBUG_CSE
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
     if( data.colDist == this->RowDist() ||
@@ -746,7 +742,7 @@ void BlockMatrix<T>::AlignRowsWith
 template<typename T>
 Int BlockMatrix<T>::NewLocalHeight( Int height ) const
 {
-    DEBUG_ONLY(CSE cse("BlockMatrix::NewLocalHeight"))
+    DEBUG_CSE
     return BlockedLength
            (height,
             this->ColShift(),
@@ -758,7 +754,7 @@ Int BlockMatrix<T>::NewLocalHeight( Int height ) const
 template<typename T>
 Int BlockMatrix<T>::NewLocalWidth( Int width ) const
 {
-    DEBUG_ONLY(CSE cse("BlockMatrix::NewLocalWidth"))
+    DEBUG_CSE
     return BlockedLength
            (width,
             this->RowShift(),

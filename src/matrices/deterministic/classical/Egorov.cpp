@@ -16,7 +16,7 @@ template<typename Real>
 void Egorov
 ( Matrix<Complex<Real>>& A, function<Real(Int,Int)> phase, Int n )
 {
-    DEBUG_ONLY(CSE cse("Egorov"))
+    DEBUG_CSE
     A.Resize( n, n );
     auto egorovFill = 
       [&]( Int i, Int j ) -> Complex<Real>
@@ -30,7 +30,7 @@ void Egorov
 ( AbstractDistMatrix<Complex<Real>>& A, 
   function<Real(Int,Int)> phase, Int n )
 {
-    DEBUG_ONLY(CSE cse("Egorov"))
+    DEBUG_CSE
     A.Resize( n, n );
     auto egorovFill = 
       [&]( Int i, Int j ) -> Complex<Real>

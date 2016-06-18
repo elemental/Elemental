@@ -37,8 +37,8 @@ RLHB
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLHB");
       if( A.Width() != H.Width() )
           LogicError("H and A must have the same width");
     )
@@ -86,10 +86,8 @@ RLHB
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLHB");
-      AssertSameGrids( HPre, tPre, APre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( HPre, tPre, APre ))
 
     DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );

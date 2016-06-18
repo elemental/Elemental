@@ -18,7 +18,7 @@ void UpdateMappedDiagonal
         function<void(T&,S)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
+    DEBUG_CSE
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
@@ -39,7 +39,7 @@ void UpdateMappedDiagonal
         Int offset,
         bool diagExists )
 {
-    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
+    DEBUG_CSE
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
@@ -78,10 +78,8 @@ void UpdateMappedDiagonal
         function<void(T&,S)> func,
         Int offset )
 { 
-    DEBUG_ONLY(
-      CSE cse("UpdateMappedDiagonal");
-      AssertSameGrids( A, dPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
@@ -125,7 +123,7 @@ void UpdateMappedDiagonal
         Int offset,
         bool diagExists )
 {
-    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
+    DEBUG_CSE
     if( offset != 0 )
         LogicError("Offset assumed to be zero for distributed sparse matrices");
 

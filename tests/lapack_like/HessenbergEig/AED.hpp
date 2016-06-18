@@ -9,7 +9,8 @@
 
 namespace hess_qr {
 
-// The best references are
+// The best references for the following Aggressive Early Deflation
+// implementation are
 //
 //   Karen Braman, Ralph Byers, and Roy Mathias,
 //   "The multishift QR algorithm. Part II: Aggressive Early Deflation",
@@ -38,7 +39,7 @@ Int SpikeDeflation
         Int numUnconverged,
         vector<Real>& work )
 {
-    DEBUG_ONLY(CSE cse("hess_qr::SpikeDeflation"))
+    DEBUG_CSE
 
     const Int n = T.Height();
     const Real zero(0);

@@ -17,11 +17,10 @@ namespace cholesky {
 namespace mod {
 
 template<typename F>
-inline void
-LUpdate( Matrix<F>& L, Matrix<F>& V )
+void LUpdate( Matrix<F>& L, Matrix<F>& V )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LUpdate");
       if( L.Height() != L.Width() )
           LogicError("Cholesky factors must be square");
       if( V.Height() != L.Height() )
@@ -62,13 +61,12 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
 }
 
 template<typename F>
-inline void
-LUpdate
+void LUpdate
 ( AbstractDistMatrix<F>& LPre,
   AbstractDistMatrix<F>& VPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LUpdate");
       if( LPre.Height() != LPre.Width() )
           LogicError("Cholesky factors must be square");
       if( VPre.Height() != LPre.Height() )
@@ -123,11 +121,10 @@ LUpdate
 }
 
 template<typename F>
-inline void
-LDowndate( Matrix<F>& L, Matrix<F>& V )
+void LDowndate( Matrix<F>& L, Matrix<F>& V )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LDowndate");
       if( L.Height() != L.Width() )
           LogicError("Cholesky factors must be square");
       if( V.Height() != L.Height() )
@@ -171,12 +168,10 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
 }
 
 template<typename F>
-inline void
-LDowndate
-( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
+void LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LDowndate");
       if( LPre.Height() != LPre.Width() )
           LogicError("Cholesky factors must be square");
       if( VPre.Height() != LPre.Height() )
@@ -236,10 +231,9 @@ LDowndate
 } // namespace mod
 
 template<typename F>
-inline void
-LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
+void LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LMod"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;
@@ -256,13 +250,12 @@ LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
 }
 
 template<typename F>
-inline void
-LMod
+void LMod
 ( AbstractDistMatrix<F>& L,
   Base<F> alpha,
   AbstractDistMatrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LMod"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;

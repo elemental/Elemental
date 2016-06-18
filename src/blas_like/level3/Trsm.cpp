@@ -32,8 +32,8 @@ void Trsm
         Matrix<F>& B,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trsm");
       if( A.Height() != A.Width() )
           LogicError("Triangular matrix must be square");
       if( side == LEFT )
@@ -75,8 +75,8 @@ void Trsm
         AbstractDistMatrix<F>& B,
   bool checkIfSingular, TrsmAlgorithm alg )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trsm");
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -385,8 +385,8 @@ void LocalTrsm
         AbstractDistMatrix<F>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalTrsm");
       if( (side == LEFT && X.ColDist() != STAR) ||
           (side == RIGHT && X.RowDist() != STAR) )
           LogicError

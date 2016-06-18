@@ -17,7 +17,7 @@ void Helper
 ( const AbstractDistMatrix<S>& A,
         AbstractDistMatrix<T>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::Helper"))
+    DEBUG_CSE
 
     // TODO: Decide whether S or T should be used as the transmission type
     //       based upon which is smaller. Transmit S by default.
@@ -163,7 +163,7 @@ void GeneralPurpose
 ( const AbstractDistMatrix<S>& A,
         AbstractDistMatrix<T>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::GeneralPurpose"))
+    DEBUG_CSE
 
     if( A.Grid().Size() == 1 && B.Grid().Size() == 1 )
     {
@@ -180,7 +180,7 @@ void GeneralPurpose
 ( const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::GeneralPurpose"))
+    DEBUG_CSE
 
     const Int height = A.Height();
     const Int width = A.Width();

@@ -20,7 +20,7 @@ void BPDN
         Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("BPDN"))
+    DEBUG_CSE
     if( ctrl.useIPM )
         bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );
     else
@@ -35,7 +35,7 @@ void BPDN
         ElementalMatrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("BPDN"))
+    DEBUG_CSE
     if( ctrl.useIPM )
         bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );
     else
@@ -50,7 +50,7 @@ void BPDN
         Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("BPDN"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM-based BPDN not yet supported for sparse matrices");
     bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );
@@ -64,7 +64,7 @@ void BPDN
         DistMultiVec<Real>& x,
   const BPDNCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("BPDN"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM-based BPDN not yet supported for sparse matrices");
     bpdn::IPM( A, b, lambda, x, ctrl.ipmCtrl );

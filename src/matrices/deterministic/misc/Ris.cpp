@@ -15,7 +15,7 @@ namespace El {
 template<typename F> 
 void Ris( Matrix<F>& R, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ris"))
+    DEBUG_CSE
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
@@ -25,7 +25,7 @@ void Ris( Matrix<F>& R, Int n )
 template<typename F>
 void Ris( AbstractDistMatrix<F>& R, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ris"))
+    DEBUG_CSE
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };

@@ -18,7 +18,7 @@ template<typename F>
 void HatanoNelson
 ( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic )
 {
-    DEBUG_ONLY(CSE cse("HatanoNelson"))
+    DEBUG_CSE
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
     Zeros( A, n, n );
@@ -41,7 +41,7 @@ void HatanoNelson
 ( ElementalMatrix<F>& A, Int n, 
   F center, Base<F> radius, F g, bool periodic )
 {
-    DEBUG_ONLY(CSE cse("HatanoNelson"))
+    DEBUG_CSE
     if( n < 3 )
         LogicError("Hatano Nelson requires at least a 3x3 matrix");
 

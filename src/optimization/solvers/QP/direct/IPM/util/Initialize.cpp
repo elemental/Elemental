@@ -82,7 +82,7 @@ void Initialize
         Matrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( primalInit )
@@ -189,7 +189,7 @@ void Initialize
         ElementalMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -302,7 +302,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -450,7 +450,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 

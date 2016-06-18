@@ -17,7 +17,7 @@ void Gather
 ( const ElementalMatrix<T>& A,
         DistMatrix<T,CIRC,CIRC>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Gather"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.DistSize() == 1 && A.CrossSize() == 1 )
     {
@@ -92,7 +92,7 @@ void Gather
 ( const BlockMatrix<T>& A,
         DistMatrix<T,CIRC,CIRC,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Gather"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.DistSize() == 1 && A.CrossSize() == 1 )
     {

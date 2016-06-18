@@ -24,10 +24,10 @@ namespace El {
 namespace ldl {
 
 template<typename F>
-inline void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
+void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::ProcessFrontVanilla");
       if( ABR.Height() != ABR.Width() )
           LogicError("ABR must be square");
       if( AL.Height() != AL.Width() + ABR.Width() )
@@ -77,7 +77,7 @@ void ProcessFrontIntraPiv
   Matrix<F>& ABR,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
+    DEBUG_CSE
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -96,13 +96,13 @@ void ProcessFrontIntraPiv
 }
 
 template<typename F>
-inline void ProcessFrontBlock
+void ProcessFrontBlock
 ( Matrix<F>& AL,
   Matrix<F>& ABR,
   bool conjugate,
   bool intraPiv )
 {
-    DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
+    DEBUG_CSE
     const Int n = AL.Width();
 
     auto ATL = AL( IR(0,n  ), ALL );
@@ -151,9 +151,9 @@ inline void ProcessFrontBlock
 }
 
 template<typename F>
-inline void ProcessFront( Front<F>& front, LDLFrontType factorType )
+void ProcessFront( Front<F>& front, LDLFrontType factorType )
 {
-    DEBUG_ONLY(CSE cse("ldl::ProcessFront"))
+    DEBUG_CSE
     front.type = factorType;
     DEBUG_ONLY(
       if( front.sparseLeaf )
@@ -189,13 +189,13 @@ inline void ProcessFront( Front<F>& front, LDLFrontType factorType )
 }
 
 template<typename F> 
-inline void ProcessFrontVanilla
+void ProcessFrontVanilla
 ( DistMatrix<F>& AL,
   DistMatrix<F>& ABR,
   bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::ProcessFrontVanilla");
       if( ABR.Height() != ABR.Width() )
           LogicError("ABR must be square");
       if( AL.Height() != AL.Width()+ABR.Height() )
@@ -275,7 +275,7 @@ void ProcessFrontIntraPiv
   DistMatrix<F>& ABR,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::ProcessFrontIntraPiv"))
+    DEBUG_CSE
     const Grid& g = AL.Grid();
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -303,13 +303,13 @@ void ProcessFrontIntraPiv
 }
 
 template<typename F>
-inline void ProcessFrontBlock
+void ProcessFrontBlock
 ( DistMatrix<F>& AL,
   DistMatrix<F>& ABR,
   bool conjugate,
   bool intraPiv )
 {
-    DEBUG_ONLY(CSE cse("ldl::ProcessFrontBlock"))
+    DEBUG_CSE
     const Int n = AL.Width();
 
     auto ATL = AL( IR(0,n  ), ALL );
@@ -355,10 +355,10 @@ inline void ProcessFrontBlock
 }
 
 template<typename F>
-inline void ProcessFront( DistFront<F>& front, LDLFrontType factorType )
+void ProcessFront( DistFront<F>& front, LDLFrontType factorType )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::ProcessFront");
       if( FrontIs1D(front.type) )
           LogicError("Expected front to be in a 2D distribution");
     )

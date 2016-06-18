@@ -14,7 +14,7 @@ namespace El {
 template<typename F>
 void RowMinAbs( const Matrix<F>& A, Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -34,7 +34,7 @@ void RowMinAbsNonzero
   const Matrix<Base<F>>& upperBounds,
         Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -55,7 +55,7 @@ void RowMinAbsNonzero
 template<typename F,Dist U,Dist V>
 void RowMinAbs( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     mins.AlignWith( A );
     mins.Resize( A.Height(), 1 );
     RowMinAbs( A.LockedMatrix(), mins.Matrix() );
@@ -68,7 +68,7 @@ void RowMinAbsNonzero
   const DistMatrix<Base<F>,U,STAR>& upperBounds, 
         DistMatrix<Base<F>,U,STAR>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     if( upperBounds.ColAlign() != A.ColAlign() )
         LogicError("upperBounds was not aligned with A");
     mins.AlignWith( A );
@@ -81,7 +81,7 @@ void RowMinAbsNonzero
 template<typename F>
 void RowMinAbs( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );
     RowMinAbs( A.LockedMatrix(), mins.Matrix() );
@@ -93,7 +93,7 @@ void RowMinAbsNonzero
   const DistMultiVec<Base<F>>& upperBounds,
         DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );
     RowMinAbsNonzero
@@ -103,7 +103,7 @@ void RowMinAbsNonzero
 template<typename F>
 void RowMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     mins.Resize( m, 1 );
@@ -124,7 +124,7 @@ void RowMinAbsNonzero
   const Matrix<Base<F>>& upperBounds,
         Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     mins.Resize( m, 1 );
@@ -146,7 +146,7 @@ void RowMinAbsNonzero
 template<typename F>
 void RowMinAbs( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );
@@ -168,7 +168,7 @@ void RowMinAbsNonzero
   const DistMultiVec<Base<F>>& upperBounds,
         DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );

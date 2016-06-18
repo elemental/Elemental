@@ -44,7 +44,7 @@ MatrixNode<T>::MatrixNode
 ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X )
 : parent(nullptr), duplicateMat(nullptr), duplicateMV(nullptr)
 { 
-    DEBUG_ONLY(CSE cse("MatrixNode::MatrixNode"))
+    DEBUG_CSE
     Pull( invMap, info, X ); 
 }
 
@@ -58,7 +58,7 @@ MatrixNode<T>::~MatrixNode()
 template<typename T>
 const MatrixNode<T>& MatrixNode<T>::operator=( const MatrixNode<T>& X )
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::operator="))
+    DEBUG_CSE
     matrix = X.matrix; 
 
     // Clean up any pre-existing children if not the right amount
@@ -82,7 +82,7 @@ template<typename T>
 void MatrixNode<T>::Pull
 ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::Pull"))
+    DEBUG_CSE
  
     const Int width = X.Width();
     matrix.Resize( info.size, width );
@@ -112,7 +112,7 @@ template<typename T>
 void MatrixNode<T>::Push
 ( const vector<Int>& invMap, const NodeInfo& info, Matrix<T>& X ) const
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::Push"))
+    DEBUG_CSE
 
     const Int width = matrix.Width();
     X.Resize( info.off+info.size, width );
@@ -137,7 +137,7 @@ void MatrixNode<T>::Push
 template<typename T>
 Int MatrixNode<T>::Height() const
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::LocalHeight"))    
+    DEBUG_CSE
     Int height = 0;
     function<void(const MatrixNode<T>&)> count = 
       [&]( const MatrixNode<T>& node )

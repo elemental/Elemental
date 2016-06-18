@@ -29,7 +29,7 @@ template<typename F>
 inline void 
 Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
 {
-    DEBUG_ONLY(CSE cse("ldl::Process"))
+    DEBUG_CSE
     const int updateSize = info.lowerStruct.size();
     auto& FBR = front.workDense;
     FBR.Empty();
@@ -148,7 +148,7 @@ inline void
 Process
 ( const DistNodeInfo& info, DistFront<F>& front, LDLFrontType factorType )
 {
-    DEBUG_ONLY(CSE cse("ldl::Process"))
+    DEBUG_CSE
 
     // Switch to a sequential algorithm if possible
     if( front.duplicate != nullptr )

@@ -18,9 +18,9 @@ void PermuteCols
   const Matrix<Int>& perm,
   const Matrix<Int>& invPerm )
 {
+    DEBUG_CSE
     const Int b = perm.Height();
     DEBUG_ONLY(
-      CSE cse("PermuteCols");
       if( A.Width() < b || b != invPerm.Height() )
           LogicError
           ("perm and invPerm must be vectors of equal length that are not "
@@ -64,9 +64,9 @@ void PermuteRows
   const Matrix<Int>& perm,
   const Matrix<Int>& invPerm )
 {
+    DEBUG_CSE
     const Int b = perm.Height();
     DEBUG_ONLY(
-      CSE cse("PermuteRows");
       if( A.Height() < b || b != invPerm.Height() )
           LogicError
           ("perm and invPerm must be vectors of equal length that are not "
@@ -113,8 +113,8 @@ void PermuteRows
 void InvertPermutation
 ( const Matrix<Int>& p, Matrix<Int>& pInv )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("InvertPermutation");
       if( p.Width() != 1 )
           LogicError("p must be a column vector");
     )
@@ -141,7 +141,7 @@ Permutation::Permutation() { }
 
 void Permutation::Empty()
 {
-    DEBUG_ONLY(CSE cse("Permutation::Empty"))
+    DEBUG_CSE
     size_ = 0;
 
     parity_ = false;
@@ -165,7 +165,7 @@ void Permutation::Empty()
 
 void Permutation::MakeIdentity( Int size )
 {
-    DEBUG_ONLY(CSE cse("Permutation::MakeIdentity"))
+    DEBUG_CSE
 
     if( !swapSequence_ )
     {
@@ -188,7 +188,7 @@ void Permutation::MakeIdentity( Int size )
 
 void Permutation::ReserveSwaps( Int maxSwaps )
 {
-    DEBUG_ONLY(CSE cse("Permutation::ReserveSwaps"))
+    DEBUG_CSE
 
     // Arbitrary permutations can trivially support arbitrarily many swaps
     if( !swapSequence_ )
@@ -204,8 +204,8 @@ void Permutation::ReserveSwaps( Int maxSwaps )
 
 void Permutation::RowSwap( Int origin, Int dest )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Permutation::RowSwap");
       if( origin < 0 || origin >= size_ || dest < 0 || dest >= size_ )
           LogicError
           ("Attempted swap (",origin,",",dest,") for perm. of size ",size_);
@@ -251,7 +251,7 @@ void Permutation::RowSwap( Int origin, Int dest )
 
 void Permutation::RowSwapSequence( const Permutation& P, Int offset )
 {
-    DEBUG_ONLY(CSE cse("Permutation::RowSwapSequence"))
+    DEBUG_CSE
     if( P.swapSequence_ )
     {
         const Int numSwapAppends = P.numSwaps_;
@@ -283,7 +283,7 @@ void Permutation::RowSwapSequence
   const Matrix<Int>& swapDests,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("Permutation::RowSwapSequence"))
+    DEBUG_CSE
     // TODO: Assert swapOrigins and swapDests are column vectors of same size
     const Int numSwaps = swapDests.Height();
     for( Int k=0; k<numSwaps; ++k )
@@ -294,7 +294,7 @@ void Permutation::ImplicitRowSwapSequence
 ( const Matrix<Int>& swapDests,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("Permutation::ImplicitRowSwapSequence"))
+    DEBUG_CSE
     const Int numPrevSwaps = numSwaps_;
 
     // TODO: Assert swapOrigins and swapDests are column vectors of same size
@@ -305,7 +305,7 @@ void Permutation::ImplicitRowSwapSequence
 
 void Permutation::SetImage( Int origin, Int dest )
 {
-    DEBUG_ONLY(CSE cse("Permutation::SetImage"))
+    DEBUG_CSE
     MakeArbitrary();
     perm_(origin) = dest;
     staleInverse_ = true;
@@ -314,7 +314,7 @@ void Permutation::SetImage( Int origin, Int dest )
 
 void Permutation::MakeArbitrary()
 {
-    DEBUG_ONLY(CSE cse("Permutation::MakeArbitrary"))
+    DEBUG_CSE
     if( !swapSequence_ )
         return;
 
@@ -339,7 +339,7 @@ void Permutation::MakeArbitrary()
 
 const Permutation& Permutation::operator=( const Permutation& P )
 {
-    DEBUG_ONLY(CSE cse("DistPermutation::operator="))
+    DEBUG_CSE
 
     size_ = P.size_;
 
@@ -361,7 +361,7 @@ const Permutation& Permutation::operator=( const Permutation& P )
 
 bool Permutation::Parity() const
 {
-    DEBUG_ONLY(CSE cse("Permutation::Parity"))
+    DEBUG_CSE
     if( staleParity_ )
     {
         if( swapSequence_ )
@@ -417,7 +417,7 @@ bool Permutation::IsImplicitSwapSequence() const
 
 const Matrix<Int> Permutation::SwapOrigins() const
 {
-    DEBUG_ONLY(CSE cse("Permutation::SwapOrigins"))
+    DEBUG_CSE
     if( !swapSequence_ || !implicitSwapOrigins_ )
         LogicError("Swap origins are not explicitly stored");
     return swapOrigins_(IR(0,numSwaps_),ALL);
@@ -425,7 +425,7 @@ const Matrix<Int> Permutation::SwapOrigins() const
 
 const Matrix<Int> Permutation::SwapDestinations() const
 {
-    DEBUG_ONLY(CSE cse("Permutation::SwapOrigins"))
+    DEBUG_CSE
     if( !swapSequence_ )
         LogicError("Swap destinations are not explicitly stored");
     return swapDests_(IR(0,numSwaps_),ALL);
@@ -434,7 +434,7 @@ const Matrix<Int> Permutation::SwapDestinations() const
 template<typename T>
 void Permutation::PermuteCols( Matrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::PermuteCols"))
+    DEBUG_CSE
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -480,7 +480,7 @@ void Permutation::PermuteCols( Matrix<T>& A, Int offset ) const
 template<typename T>
 void Permutation::InversePermuteCols( Matrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::InversePermuteCols"))
+    DEBUG_CSE
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -526,7 +526,7 @@ void Permutation::InversePermuteCols( Matrix<T>& A, Int offset ) const
 template<typename T>
 void Permutation::PermuteRows( Matrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::PermuteRows"))
+    DEBUG_CSE
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -569,7 +569,7 @@ void Permutation::PermuteRows( Matrix<T>& A, Int offset ) const
 template<typename T>
 void Permutation::InversePermuteRows( Matrix<T>& A, Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::InversePermuteRows"))
+    DEBUG_CSE
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -619,7 +619,7 @@ void Permutation::PermuteSymmetrically
   bool conjugate,
   Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::PermuteSymmetrically"))
+    DEBUG_CSE
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -668,7 +668,7 @@ void Permutation::InversePermuteSymmetrically
   bool conjugate,
   Int offset ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::InversePermuteSymmetrically"))
+    DEBUG_CSE
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -712,7 +712,7 @@ void Permutation::InversePermuteSymmetrically
 
 void Permutation::ExplicitVector( Matrix<Int>& p ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::ExplicitVector"))
+    DEBUG_CSE
     if( swapSequence_ )
     {   
         p.Resize( size_, 1 );
@@ -728,7 +728,7 @@ void Permutation::ExplicitVector( Matrix<Int>& p ) const
 
 void Permutation::ExplicitMatrix( Matrix<Int>& P ) const
 {
-    DEBUG_ONLY(CSE cse("Permutation::ExplicitMatrix"))
+    DEBUG_CSE
     Matrix<Int> p;
     ExplicitVector( p );
 

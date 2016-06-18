@@ -20,7 +20,7 @@ void TestAssociativity
            const DistMatrix<T>& C,
   bool print )
 {
-    DEBUG_ONLY(CSE cse("TestAssociativity"))
+    DEBUG_CSE
 
     // This routine assumes that C and COrig are explicitly symmetric/Hermitian
 

@@ -16,9 +16,9 @@ template<typename F>
 void
 UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 {
+    DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      CSE cse("bidiag::UPan");
       if( tP.Height() != nX || tP.Width() != 1 )
           LogicError("tP was not the right size");
       if( tQ.Height() != nX || tQ.Width() != 1 )
@@ -164,9 +164,9 @@ UPan
   DistMatrix<F,MC,  STAR>& AL_MC_STAR,
   DistMatrix<F,MR,  STAR>& BL_MR_STAR )
 {
+    DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      CSE cse("bidiag::UPan");
       AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, BL_MR_STAR );
       if( A.ColAlign() != X.ColAlign() || 
           A.RowAlign() != X.RowAlign() )

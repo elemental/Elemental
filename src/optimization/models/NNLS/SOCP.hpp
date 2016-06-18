@@ -47,7 +47,7 @@ void SOCP
         Matrix<Real>& X, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::SOCP"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
@@ -113,7 +113,7 @@ void SOCP
         ElementalMatrix<Real>& XPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::SOCP"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),
@@ -199,7 +199,7 @@ void SOCP
         Matrix<Real>& X, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::SOCP"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
@@ -268,7 +268,7 @@ void SOCP
         DistMultiVec<Real>& X, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::SOCP"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();

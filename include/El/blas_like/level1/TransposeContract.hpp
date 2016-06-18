@@ -16,7 +16,7 @@ void TransposeContract
 ( const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("TransposeContract"))
+    DEBUG_CSE
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == V && A.RowDist() == Partial(U) )
@@ -47,7 +47,7 @@ void TransposeContract
 ( const BlockMatrix<T>& A,
         BlockMatrix<T>& B, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("TransposeContract"))
+    DEBUG_CSE
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == V && A.RowDist() == Partial(U) )
@@ -76,7 +76,7 @@ void TransposeContract
 template<typename T>
 void AdjointContract( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("AdjointContract"))
+    DEBUG_CSE
     TransposeContract( A, B, true );
 }
 
@@ -85,7 +85,7 @@ void AdjointContract
 ( const BlockMatrix<T>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("AdjointContract"))
+    DEBUG_CSE
     TransposeContract( A, B, true );
 }
 

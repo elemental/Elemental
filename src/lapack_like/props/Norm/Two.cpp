@@ -13,7 +13,7 @@ namespace El {
 template<typename F> 
 Base<F> TwoNorm( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("TwoNorm"))
+    DEBUG_CSE
     Matrix<Base<F>> s;
     SVD( A, s );
     return InfinityNorm( s );
@@ -22,7 +22,7 @@ Base<F> TwoNorm( const Matrix<F>& A )
 template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianTwoNorm"))
+    DEBUG_CSE
     Matrix<Base<F>> s;
     HermitianSVD( uplo, A, s );
     return InfinityNorm( s );
@@ -31,7 +31,7 @@ Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricTwoNorm"))
+    DEBUG_CSE
     Matrix<F> B( A );
     Matrix<Base<F>> s;
     MakeSymmetric( uplo, B );
@@ -44,7 +44,7 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F> 
 Base<F> TwoNorm( const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("TwoNorm"))
+    DEBUG_CSE
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     SVD( A, s );
     return InfinityNorm( s );
@@ -53,7 +53,7 @@ Base<F> TwoNorm( const ElementalMatrix<F>& A )
 template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("HermitianTwoNorm"))
+    DEBUG_CSE
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, A, s );
     return InfinityNorm( s );
@@ -62,7 +62,7 @@ Base<F> HermitianTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A )
 template<typename F>
 Base<F> SymmetricTwoNorm( UpperOrLower uplo, const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricTwoNorm"))
+    DEBUG_CSE
     DistMatrix<F> B( A );
     DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

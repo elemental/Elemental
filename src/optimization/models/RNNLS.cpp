@@ -43,7 +43,7 @@ void RNNLS
         Matrix<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -126,7 +126,7 @@ void RNNLS
         ElementalMatrix<Real>& xPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),
@@ -231,7 +231,7 @@ void RNNLS
         Matrix<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -312,7 +312,7 @@ void RNNLS
         DistMultiVec<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

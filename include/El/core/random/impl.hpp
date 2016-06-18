@@ -14,7 +14,7 @@ namespace El {
 template<typename Real>
 Real Choose( Int n, Int k )
 {
-    DEBUG_ONLY(CSE cse("Choose"))
+    DEBUG_CSE
     if( k < 0 || k > n )
         LogicError("Choose(",n,",",k,") is not defined");
 
@@ -36,7 +36,7 @@ Real Choose( Int n, Int k )
 template<typename Real>
 Real LogChoose( Int n, Int k )
 {
-    DEBUG_ONLY(CSE cse("LogChoose"))
+    DEBUG_CSE
     if( k < 0 || k > n )
         LogicError("Choose(",n,",",k,") is not defined");
 
@@ -68,7 +68,7 @@ Real LogChoose( Int n, Int k )
 template<typename Real>
 vector<Real> LogBinomial( Int n )
 {
-    DEBUG_ONLY(CSE cse("LogBinomial"))
+    DEBUG_CSE
     vector<Real> binom(n+1,0), binomTmp(n+1,0);
     for( Int j=1; j<=n; ++j )
     {
@@ -86,7 +86,7 @@ vector<Real> LogBinomial( Int n )
 template<typename Real>
 vector<Real> LogEulerian( Int n )
 {
-    DEBUG_ONLY(CSE cse("LogEulerian"))
+    DEBUG_CSE
     vector<Real> euler(n,0), eulerTmp(n,0);
     for( Int j=1; j<n; ++j )
     {

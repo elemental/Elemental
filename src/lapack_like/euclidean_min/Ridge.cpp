@@ -19,7 +19,7 @@ void Ridge
         Matrix<F>& X, 
   RidgeAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Ridge"))
+    DEBUG_CSE
 
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
@@ -107,7 +107,7 @@ void Ridge
         ElementalMatrix<F>& XPre, 
         RidgeAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Ridge"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),
@@ -205,8 +205,8 @@ void Ridge
         Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -228,8 +228,8 @@ void Ridge
         DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )

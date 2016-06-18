@@ -28,7 +28,7 @@ Matrix<Int> TriangularSpectralCloud
         Matrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralCloud"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -81,7 +81,7 @@ Matrix<Int> TriangularSpectralCloud
         Matrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralCloud"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -137,7 +137,7 @@ Matrix<Int> QuasiTriangularSpectralCloud
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralCloud"))
+    DEBUG_CSE
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -172,7 +172,7 @@ Matrix<Int> QuasiTriangularSpectralCloud
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralCloud"))
+    DEBUG_CSE
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -206,7 +206,7 @@ Matrix<Int> HessenbergSpectralCloud
         Matrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::HessenbergHelper"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -242,7 +242,7 @@ Matrix<Int> HessenbergSpectralCloud
         Matrix<Base<F>>& invNorms, 
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralCloud"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -281,7 +281,7 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
         ElementalMatrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralCloud"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
@@ -339,7 +339,7 @@ DistMatrix<Int,VR,STAR> TriangularSpectralCloud
         ElementalMatrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralCloud"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
@@ -402,7 +402,7 @@ DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
         ElementalMatrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralCloud"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
 
@@ -448,7 +448,7 @@ DistMatrix<Int,VR,STAR> QuasiTriangularSpectralCloud
         ElementalMatrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralCloud"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Grid& g = UPre.Grid();
 
@@ -493,7 +493,7 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
         ElementalMatrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralCloud"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -532,7 +532,7 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
         ElementalMatrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralCloud"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -577,7 +577,7 @@ Matrix<Int> Helper
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     if( psCtrl.forceComplexSchur )
@@ -625,7 +625,7 @@ DistMatrix<Int,VR,STAR> Helper
         ElementalMatrix<Real>& invNorms, 
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
@@ -674,7 +674,7 @@ Matrix<Int> Helper
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     Matrix<C> U( A );
@@ -721,7 +721,7 @@ DistMatrix<Int,VR,STAR> Helper
         ElementalMatrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     const Grid& g = A.Grid();
@@ -772,7 +772,7 @@ Matrix<Int> SpectralCloud
         Matrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("SpectralCloud"))
+    DEBUG_CSE
     return pspec::Helper( A, shifts, invNorms, psCtrl );
 }
 
@@ -783,7 +783,7 @@ DistMatrix<Int,VR,STAR> SpectralCloud
         ElementalMatrix<Base<F>>& invNorms,
         PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("SpectralCloud"))
+    DEBUG_CSE
     return pspec::Helper( A, shifts, invNorms, psCtrl );
 }
 
@@ -800,7 +800,7 @@ Matrix<Int> TriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -845,7 +845,7 @@ Matrix<Int> TriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -889,7 +889,7 @@ Matrix<Int> QuasiTriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     psCtrl.snapCtrl.realSize = realSize;
@@ -933,7 +933,7 @@ Matrix<Int> QuasiTriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     psCtrl.snapCtrl.realSize = realSize;
@@ -977,7 +977,7 @@ Matrix<Int> HessenbergSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -1022,7 +1022,7 @@ Matrix<Int> HessenbergSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -1066,7 +1066,7 @@ DistMatrix<Int> TriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = U.Grid();
@@ -1115,7 +1115,7 @@ DistMatrix<Int> TriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = U.Grid();
@@ -1163,7 +1163,7 @@ DistMatrix<Int> QuasiTriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Grid& g = U.Grid();
 
@@ -1211,7 +1211,7 @@ DistMatrix<Int> QuasiTriangularSpectralWindow
   Int imagSize,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralWindow"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Grid& g = U.Grid();
 
@@ -1259,7 +1259,7 @@ DistMatrix<Int> HessenbergSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = H.Grid();
@@ -1308,7 +1308,7 @@ DistMatrix<Int> HessenbergSpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = H.Grid();
@@ -1356,7 +1356,7 @@ Matrix<Int> SpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("SpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -1400,7 +1400,7 @@ DistMatrix<Int> SpectralWindow
   Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("SpectralWindow"))
+    DEBUG_CSE
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
@@ -1446,7 +1446,7 @@ Matrix<Int> TriangularSpectralPortrait
   SpectralBox<Base<F>>& box, 
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
@@ -1495,7 +1495,7 @@ Matrix<Int> TriangularSpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real radius = MaxNorm( GetDiagonal(U) );
     const Real oneNorm = OneNorm( U );
@@ -1544,7 +1544,7 @@ Matrix<Int> QuasiTriangularSpectralPortrait
   SpectralBox<Real>& box, 
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralPortrait"))
+    DEBUG_CSE
 
     const auto w = schur::QuasiTriangEig( U );
     const Real radius = MaxNorm( w );
@@ -1594,7 +1594,7 @@ Matrix<Int> QuasiTriangularSpectralPortrait
   SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralPortrait"))
+    DEBUG_CSE
 
     const auto w = schur::QuasiTriangEig( U );
     const Real radius = MaxNorm( w );
@@ -1647,7 +1647,7 @@ Matrix<Int> HessenbergSpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real infNorm = InfinityNorm( H );
     const Real oneNorm = OneNorm( H );
@@ -1687,7 +1687,7 @@ Matrix<Int> HessenbergSpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real infNorm = InfinityNorm( H );
     const Real oneNorm = OneNorm( H );
@@ -1727,7 +1727,7 @@ DistMatrix<Int> TriangularSpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Grid& g = UPre.Grid();
 
@@ -1783,7 +1783,7 @@ DistMatrix<Int> TriangularSpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("TriangularSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Grid& g = UPre.Grid();
 
@@ -1839,7 +1839,7 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
   SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralPortrait"))
+    DEBUG_CSE
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
@@ -1895,7 +1895,7 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
   SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("QuasiTriangularSpectralPortrait"))
+    DEBUG_CSE
     const Grid& g = UPre.Grid();
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
@@ -1951,7 +1951,7 @@ DistMatrix<Int> HessenbergSpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real oneNorm = OneNorm( H );
     const Real infNorm = InfinityNorm( H );
@@ -1991,7 +1991,7 @@ DistMatrix<Int> HessenbergSpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("HessenbergSpectralPortrait"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Real oneNorm = OneNorm( H );
     const Real infNorm = InfinityNorm( H );
@@ -2033,7 +2033,7 @@ Matrix<Int> Helper
   SpectralBox<Real>& box, 
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     Matrix<C> B( A );
@@ -2086,7 +2086,7 @@ DistMatrix<Int> Helper
   SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
     DistMatrix<C> B( A );
@@ -2140,7 +2140,7 @@ Matrix<Int> Helper
   SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     if( psCtrl.forceComplexSchur )
@@ -2194,7 +2194,7 @@ DistMatrix<Int> Helper
   SpectralBox<Real>& box,
   PseudospecCtrl<Real> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
@@ -2252,7 +2252,7 @@ Matrix<Int> SpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("SpectralPortrait"))
+    DEBUG_CSE
     return pspec::Helper( A, invNormMap, realSize, imagSize, box, psCtrl );
 }
 
@@ -2265,7 +2265,7 @@ DistMatrix<Int> SpectralPortrait
   SpectralBox<Base<F>>& box,
   PseudospecCtrl<Base<F>> psCtrl )
 {
-    DEBUG_ONLY(CSE cse("SpectralPortrait"))
+    DEBUG_CSE
     return pspec::Helper( A, invNormMap, realSize, imagSize, box, psCtrl );
 }
 

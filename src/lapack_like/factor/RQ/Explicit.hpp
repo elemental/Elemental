@@ -15,7 +15,7 @@ namespace rq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("rq::ExplicitTriang"))
+    DEBUG_CSE
     Matrix<F> t;
     Matrix<Base<F>> d;
     Householder( A, t, d );
@@ -25,7 +25,7 @@ void ExplicitTriang( Matrix<F>& A )
 template<typename F>
 void ExplicitTriang( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("rq::ExplicitTriang"))
+    DEBUG_CSE
     DistMatrix<F,MD,STAR> phase(A.Grid());
     DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
     Householder( A, phase, signature );

@@ -28,10 +28,10 @@ void UPan
   Matrix<F>& V,
   Matrix<F>& G )
 {
+    DEBUG_CSE
     const Int nU = U.Width();
     const Int n = A.Height();
     DEBUG_ONLY(
-      CSE cse("hessenberg::UPan");
       if( nU >= n )            
           LogicError("V is too wide for the panel factorization");
       if( U.Height() != A.Height() )
@@ -118,10 +118,10 @@ void UPan
   DistMatrix<F,MC,  STAR>& V_MC_STAR, 
   DistMatrix<F,STAR,STAR>& G_STAR_STAR )
 {
+    DEBUG_CSE
     const Int nU = U_MC_STAR.Width();
     const Int n = A.Height();
     DEBUG_ONLY(
-      CSE cse("hessenberg::UPan");
       AssertSameGrids( A, t, U_MC_STAR, U_MR_STAR, V_MC_STAR, G_STAR_STAR );
       if( A.ColAlign() != U_MC_STAR.ColAlign() )
           LogicError("A and U[MC,* ] must be aligned");

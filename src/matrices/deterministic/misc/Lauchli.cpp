@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void Lauchli( Matrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CSE cse("Lauchli"))
+    DEBUG_CSE
     Zeros( A, n+1, n );
 
     // Set the first row to all ones
@@ -29,7 +29,7 @@ void Lauchli( Matrix<T>& A, Int n, T mu )
 template<typename T>
 void Lauchli( ElementalMatrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CSE cse("Lauchli"))
+    DEBUG_CSE
     Zeros( A, n+1, n );
 
     // Set the first row to all ones

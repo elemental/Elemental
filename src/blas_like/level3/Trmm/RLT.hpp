@@ -23,8 +23,8 @@ void LocalAccumulateRLT
   const DistMatrix<T,MR,STAR>& XTrans,
         DistMatrix<T,MC,STAR>& ZTrans )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateRLT");
       AssertSameGrids( L, XTrans, ZTrans );
       if( L.Height() != L.Width() ||
           L.Height() != XTrans.Height() ||
@@ -74,8 +74,8 @@ void RLTA
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLTA");
       AssertSameGrids( LPre, XPre );
       // TODO: More error checks
     )
@@ -123,8 +123,8 @@ void RLTC
   const ElementalMatrix<T>& LPre,
         ElementalMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLTC");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected Adjoint/Transpose option");
@@ -184,7 +184,7 @@ void RLT
   const ElementalMatrix<T>& L,
         ElementalMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::RLT"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         RLTA( orientation, diag, L, X );

@@ -14,7 +14,7 @@ namespace El {
 template<typename T,typename S>
 void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
 
@@ -32,7 +32,7 @@ void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
 template<typename T,typename S>
 void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
 
@@ -55,7 +55,7 @@ template<typename T,typename S>
 void ShiftDiagonal
 ( SparseMatrix<T>& A, S alphaPre, Int offset, bool existingDiag )
 {
-    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T alpha = T(alphaPre);
@@ -82,7 +82,7 @@ template<typename T,typename S>
 void ShiftDiagonal
 ( DistSparseMatrix<T>& A, S alphaPre, Int offset, bool existingDiag )
 {
-    DEBUG_ONLY(CSE cse("ShiftDiagonal"))
+    DEBUG_CSE
     const Int mLocal = A.LocalHeight();
     const Int n = A.Width();
     const T alpha = T(alphaPre);

@@ -21,7 +21,7 @@ Int NumOutside
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::NumOutside"))
+    DEBUG_CSE
     Matrix<Real> d;
     soc::Dets( x, d, orders, firstInds );
 
@@ -48,7 +48,7 @@ Int NumOutside
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NumOutside"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -87,7 +87,7 @@ Int NumOutside
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NumOutside"))
+    DEBUG_CSE
 
     DistMultiVec<Real> d(x.Comm());
     soc::Dets( x, d, orders, firstInds, cutoff );
@@ -127,7 +127,6 @@ Int NumOutside
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include <El/macros/Instantiate.h>
-
+#include <El/macros/Instantiate.h> 
 } // namespace soc
 } // namespace El

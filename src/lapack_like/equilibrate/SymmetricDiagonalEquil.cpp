@@ -14,7 +14,7 @@ template<typename F>
 void SymmetricDiagonalEquil
 ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
+    DEBUG_CSE
     // TODO: Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -26,7 +26,7 @@ template<typename F>
 void SymmetricDiagonalEquil
 ( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
+    DEBUG_CSE
     // TODO: Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -38,7 +38,7 @@ template<typename F>
 void SymmetricDiagonalEquil
 ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     auto maxSqrtLambda = []( F delta ) 
                          { return Sqrt(Max(Abs(delta),Real(1))); };
@@ -57,7 +57,7 @@ void SymmetricDiagonalEquil
 ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
   bool progress, bool time )
 {
-    DEBUG_ONLY(CSE cse("SymmetricDiagonalEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);

@@ -16,7 +16,7 @@ void Hemv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
-    DEBUG_ONLY(CSE cse("Hemv"))
+    DEBUG_CSE
     Symv( uplo, alpha, A, x, beta, y, true );
 }
 
@@ -28,7 +28,7 @@ void Hemv
   T beta,        ElementalMatrix<T>& y,
   const SymvCtrl<T>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Hemv"))
+    DEBUG_CSE
     Symv( uplo, alpha, A, x, beta, y, true, ctrl );
 }
 

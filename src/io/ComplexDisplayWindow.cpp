@@ -18,7 +18,7 @@ namespace El {
 ComplexDisplayWindow::ComplexDisplayWindow( QWidget* parent )
 : QWidget(parent)
 {
-    DEBUG_ONLY(CSE cse("ComplexDisplayWindow::ComplexDisplayWindow"))
+    DEBUG_CSE
     matrix_ = 0;
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
@@ -65,7 +65,7 @@ void
 ComplexDisplayWindow::Display
 ( const Matrix<Complex<double>>* matrix, QString title )
 {
-    DEBUG_ONLY(CSE cse("ComplexDisplayWindow::Display"))
+    DEBUG_CSE
     if( matrix_ != 0 )
         delete matrix_; 
     matrix_ = matrix;
@@ -82,7 +82,7 @@ ComplexDisplayWindow::Display
   double minImagVal, double maxImagVal,
   QString title )
 {
-    DEBUG_ONLY(CSE cse("ComplexDisplayWindow::Display"))
+    DEBUG_CSE
     if( matrix_ != 0 )
         delete matrix_;
     matrix_ = matrix;
@@ -95,21 +95,21 @@ ComplexDisplayWindow::Display
 void
 ComplexDisplayWindow::SaveReal()
 {
-    DEBUG_ONLY(CSE cse("ComplexDisplayWindow::SaveReal"))
+    DEBUG_CSE
     realDisplay_->SavePng( windowTitle().toStdString()+" (real)" );
 }
 
 void
 ComplexDisplayWindow::SaveImag()
 {
-    DEBUG_ONLY(CSE cse("ComplexDisplayWindow::SaveImag"))
+    DEBUG_CSE
     imagDisplay_->SavePng( windowTitle().toStdString()+" (imag)" );
 }
 
 void 
 ComplexDisplayWindow::SetScale( bool global )
 {
-    DEBUG_ONLY(CSE cse("ComplexDisplayWindow::SetScale"))
+    DEBUG_CSE
     if( global )
     {
         const double minRealVal = MinRealWindowVal();

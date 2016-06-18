@@ -32,7 +32,7 @@ inline void LowerForwardMultiply
 ( const NodeInfo& info, 
   const Front<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerForwardMultiply"))
+    DEBUG_CSE
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -80,7 +80,7 @@ inline void LowerForwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerForwardMultiply"))
+    DEBUG_CSE
 
     const bool frontIs1D = FrontIs1D( front.type );
     const Grid& grid = ( frontIs1D ? front.L1D.Grid() : front.L2D.Grid() );
@@ -179,7 +179,7 @@ inline void LowerForwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DistLowerForwardMultiply"))
+    DEBUG_CSE
     const Grid& grid = front.L2D.Grid();
     if( front.duplicate != nullptr )
     {

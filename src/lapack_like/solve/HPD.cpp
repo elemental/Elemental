@@ -19,7 +19,7 @@ void Overwrite
   Matrix<F>& A,
   Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("hpd_solve::Overwrite"))
+    DEBUG_CSE
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }
@@ -31,7 +31,7 @@ void Overwrite
   ElementalMatrix<F>& APre,
   ElementalMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CSE cse("hpd_solve::Overwrite"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> BProx( BPre );
@@ -51,7 +51,7 @@ void HPDSolve
   const Matrix<F>& A,
         Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("HPDSolve"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
@@ -63,7 +63,7 @@ void HPDSolve
   const ElementalMatrix<F>& A,
         ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("HPDSolve"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
@@ -75,7 +75,7 @@ void HPDSolve
         Matrix<F>& B,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HPDSolve"))
+    DEBUG_CSE
     ldl::NodeInfo info;
     ldl::Separator rootSep;
     vector<Int> map, invMap;
@@ -101,7 +101,7 @@ void HPDSolve
         DistMultiVec<F>& B,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HPDSolve"))
+    DEBUG_CSE
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
     DistMap map, invMap;

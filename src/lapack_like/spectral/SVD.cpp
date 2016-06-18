@@ -24,7 +24,7 @@ void SVD
         Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [const Matrix Decomp]"))
+    DEBUG_CSE
     auto ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -39,7 +39,7 @@ void SVD
       Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [Matrix Decomp]"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
     {
@@ -155,7 +155,7 @@ void SVD
         ElementalMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [const ElementalMatrix Decomp]"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -170,7 +170,7 @@ void SVD
         ElementalMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [ElementalMatrix Decomp]"))
+    DEBUG_CSE
     if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
     {
         DistMatrix<F> ACopy( A );
@@ -217,7 +217,7 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [const Matrix values]"))
+    DEBUG_CSE
     if( ctrl.approach == PRODUCT_SVD )
     {
         svd::Product( A, s, ctrl.tol, ctrl.relative );
@@ -237,7 +237,7 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [Matrix values]"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     Matrix<F> AMod;
@@ -291,7 +291,7 @@ void SVD
         ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [const ElementalMatrix values]"))
+    DEBUG_CSE
 
     if( ctrl.approach == THIN_SVD ||
         ctrl.approach == COMPACT_SVD ||
@@ -312,7 +312,7 @@ void SVD
         ElementalMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [ElementalMatrix values]"))
+    DEBUG_CSE
     if( ctrl.approach == PRODUCT_SVD )
     {
         svd::Product( A, s, ctrl.tol, ctrl.relative );
@@ -336,7 +336,7 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [const BlockMatrix values]"))
+    DEBUG_CSE
     if( ctrl.approach == PRODUCT_SVD )
         LogicError("Block product SVD not yet supported");
 
@@ -352,7 +352,7 @@ void SVD
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [BlockMatrix values]"))
+    DEBUG_CSE
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     typedef Base<F> Real;
@@ -418,7 +418,7 @@ void SVD
         DistMatrix<F,MC,MR,BLOCK>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [const BlockMatrix Decomp]"))
+    DEBUG_CSE
     DistMatrix<F,MC,MR,BLOCK> ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -433,7 +433,7 @@ void SVD
         DistMatrix<F,MC,MR,BLOCK>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVD [BlockMatrix Decomp]"))
+    DEBUG_CSE
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     typedef Base<F> Real;
@@ -513,7 +513,7 @@ void TSQR
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CSE cse("svd::TSQR"))
+    DEBUG_CSE
     DistMatrix<F,VC,STAR> ACopy( A );
     TSQR( ACopy, s, true );
 }
@@ -524,7 +524,7 @@ void TSQR
   ElementalMatrix<Base<F>>& sPre,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("svd::TSQR"))
+    DEBUG_CSE
     if( !overwrite )  
     {
         DistMatrix<F,VC,STAR> A( APre );
@@ -566,7 +566,7 @@ void TSQR
         ElementalMatrix<Base<F>>& sPre,
         ElementalMatrix<F>& VPre )
 {
-    DEBUG_ONLY(CSE cse("svd::TSQR"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<F,F,VC,STAR> UProx( UPre );
     DistMatrixWriteProxy<Base<F>,Base<F>,CIRC,CIRC> sProx( sPre );

@@ -31,8 +31,8 @@ void MultiShiftQuasiTrsm
   const Matrix<F>& shifts,
         Matrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( side == LEFT )
@@ -94,8 +94,8 @@ void MultiShiftQuasiTrsm
         Matrix<Real>& BReal,
         Matrix<Real>& BImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( side == LEFT )
@@ -158,8 +158,8 @@ void MultiShiftQuasiTrsm
   const ElementalMatrix<F>& shifts, 
         ElementalMatrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -255,8 +255,8 @@ void MultiShiftQuasiTrsm
         ElementalMatrix<Real>& BReal,
         ElementalMatrix<Real>& BImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       AssertSameGrids( A, BReal, BImag );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -352,8 +352,8 @@ void LocalMultiShiftQuasiTrsm
   const ElementalMatrix<F>& shifts,
         ElementalMatrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalMultiShiftQuasiTrsm");
       if( shifts.RowDist() != STAR )
           LogicError("shifts must only be distributed within columns");
       if( (side == LEFT &&  
@@ -379,8 +379,8 @@ void LocalMultiShiftQuasiTrsm
         ElementalMatrix<Real>& XReal,
         ElementalMatrix<Real>& XImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalMultiShiftQuasiTrsm");
       if( shifts.RowDist() != STAR )
           LogicError("shifts must only be distributed within columns");
       if( XReal.ColDist() != XImag.ColDist() ||

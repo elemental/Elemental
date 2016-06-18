@@ -25,7 +25,7 @@ void ConfigurePrecision( ostream& os )
 template<typename T>
 void Print( const Matrix<T>& A, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print"))
+    DEBUG_CSE
     if( title != "" )
         os << title << endl;
 
@@ -46,7 +46,7 @@ template<typename T>
 void Print
 ( const AbstractDistMatrix<T>& A, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print"))
+    DEBUG_CSE
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -63,7 +63,7 @@ void Print
 template<typename T>
 void Print( const DistMultiVec<T>& X, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [DistMultiVec]"))
+    DEBUG_CSE
     const int commRank = mpi::Rank( X.Comm() );
     if( commRank == 0 )
     {
@@ -79,7 +79,7 @@ void Print( const DistMultiVec<T>& X, string title, ostream& os )
 
 void Print( const Graph& graph, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [Graph]"))
+    DEBUG_CSE
     graph.AssertConsistent();
     if( msg != "" )
         os << msg << endl;
@@ -93,7 +93,7 @@ void Print( const Graph& graph, string msg, ostream& os )
 
 void Print( const DistGraph& graph, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [DistGraph]"))
+    DEBUG_CSE
     graph.AssertLocallyConsistent();
     const mpi::Comm comm = graph.Comm();
     const int commRank = mpi::Rank( comm );
@@ -112,7 +112,7 @@ void Print( const DistGraph& graph, string msg, ostream& os )
 template<typename T>
 void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
+    DEBUG_CSE
     A.AssertConsistent();
     if( msg != "" )
         os << msg << endl;
@@ -131,7 +131,7 @@ void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 template<typename T>
 void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [DistSparseMatrix]"))
+    DEBUG_CSE
     A.AssertLocallyConsistent();
     const mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
@@ -154,7 +154,7 @@ void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 void PrintLocal
 ( const ldl::DistNodeInfo& info, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("PrintLocal [ldl::DistNodeInfo]"))
+    DEBUG_CSE
     LogicError("This routine needs to be rewritten");
 }
 
@@ -164,7 +164,7 @@ void PrintLocal
 template<typename T>
 void Print( const vector<T>& x, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print"))
+    DEBUG_CSE
     if( title != "" )
         os << title << endl;
 

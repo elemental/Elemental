@@ -15,8 +15,8 @@ namespace ldl {
 template<typename F> 
 void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -33,8 +33,8 @@ template<typename F>
 void MultiplyAfter
 ( const ElementalMatrix<F>& APre, ElementalMatrix<F>& B, bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       AssertSameGrids( APre, B );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
@@ -61,8 +61,8 @@ void MultiplyAfter
         Matrix<F>& B,
   bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -87,8 +87,8 @@ void MultiplyAfter
         ElementalMatrix<F>& BPre, 
   bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       AssertSameGrids( APre, BPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

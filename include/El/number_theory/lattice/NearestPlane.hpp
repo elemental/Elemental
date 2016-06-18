@@ -22,7 +22,7 @@ void NearestPlane
         Matrix<F>& Y,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NearestPlane"))
+    DEBUG_CSE
     const Int m = B.Height();
     const Int n = B.Width();
     const Int numRHS = T.Width();
@@ -96,7 +96,7 @@ void NearestPlane
         Matrix<F>& Y,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NearestPlane"))
+    DEBUG_CSE
     const Int m = B.Height();
     const Int n = B.Width();
     const Int numRHS = T.Width();

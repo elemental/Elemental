@@ -17,7 +17,7 @@ void TranslateBetweenGrids
 ( const DistMatrix<T,U,V>& A,
         DistMatrix<T,U,V>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids"))
+    DEBUG_CSE
     GeneralPurpose( A, B );
 }
 
@@ -27,7 +27,7 @@ void TranslateBetweenGrids
 ( const DistMatrix<T,MC,MR>& A,
         DistMatrix<T,MC,MR>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids [MC,MR]"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocA = A.LocalHeight();
@@ -223,7 +223,7 @@ void TranslateBetweenGrids
 ( const DistMatrix<T,STAR,STAR>& A,
         DistMatrix<T,STAR,STAR>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::TranslateBetweenGrids [STAR,STAR]"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     B.Resize( height, width );

@@ -21,7 +21,7 @@ void Overwrite
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
+    DEBUG_CSE
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
     Permutation p; 
@@ -45,7 +45,7 @@ void Overwrite
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("symm_solve::Overwrite"))
+    DEBUG_CSE
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
 
@@ -77,7 +77,7 @@ void SymmetricSolve
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SymmetricSolve"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
 }
@@ -91,7 +91,7 @@ void SymmetricSolve
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SymmetricSolve"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
 }
@@ -105,7 +105,7 @@ void SymmetricSolve
   bool tryLDL,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SymmetricSolve"))
+    DEBUG_CSE
 
     if( tryLDL )
     {
@@ -141,7 +141,7 @@ void SymmetricSolve
   bool tryLDL,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SymmetricSolve"))
+    DEBUG_CSE
     if( tryLDL )
     {
         ldl::DistNodeInfo info;

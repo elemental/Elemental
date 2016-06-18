@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 Base<F> Coherence( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("Coherence"))
+    DEBUG_CSE
     Matrix<F> B( A );
     Matrix<Base<F>> norms;
     ColumnTwoNorms( B, norms );
@@ -29,7 +29,7 @@ Base<F> Coherence( const Matrix<F>& A )
 template<typename F>
 Base<F> Coherence( const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("Coherence"))
+    DEBUG_CSE
     DistMatrix<F> B( A );
     DistMatrix<Base<F>,MR,STAR> norms(B.Grid());
     ColumnTwoNorms( B, norms );

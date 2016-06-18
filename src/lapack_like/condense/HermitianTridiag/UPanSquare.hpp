@@ -23,10 +23,10 @@ void UPanSquare
   DistMatrix<F,MR,STAR>& W_MR_STAR,
   const SymvCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     const Int n = A.Height();
     const Int nW = W.Width();
     DEBUG_ONLY(
-      CSE cse("herm_tridiag::UPanSquare");
       AssertSameGrids( A, W, t );
       if( n != A.Width() )
           LogicError("A must be square.");

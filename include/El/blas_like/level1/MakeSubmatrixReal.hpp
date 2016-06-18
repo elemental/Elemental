@@ -17,7 +17,7 @@ void MakeSubmatrixReal
   const vector<Int>& I,
   const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("MakeSubmatrixReal"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -39,7 +39,7 @@ void MakeSubmatrixReal
   const vector<Int>& I,
   const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("MakeSubmatrixReal"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 

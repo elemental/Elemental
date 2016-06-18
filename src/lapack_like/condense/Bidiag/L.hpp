@@ -20,7 +20,7 @@ namespace bidiag {
 template<typename F>
 void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-    DEBUG_ONLY(CSE cse("bidiag::L"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
@@ -92,13 +92,11 @@ L
   DistMatrix<F,STAR,STAR>& tP,
   DistMatrix<F,STAR,STAR>& tQ )
 {
-    DEBUG_ONLY(
-      CSE cse("bidiag::L");
-      AssertSameGrids( A, tP, tQ );
-    )
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
+      AssertSameGrids( A, tP, tQ );
       if( m > n )
           LogicError("A must be at least as wide as it is tall");
       // Are these requirements necessary?!?
@@ -182,7 +180,7 @@ L
   ElementalMatrix<F>& tPPre,
   ElementalMatrix<F>& tQPre )
 {
-    DEBUG_ONLY(CSE cse("bidiag::L"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>

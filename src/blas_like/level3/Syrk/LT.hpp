@@ -17,8 +17,8 @@ void LT
         ElementalMatrix<T>& CPre,
   bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("syrk::LT");
       AssertSameGrids( APre, CPre );
       if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width() )
           LogicError

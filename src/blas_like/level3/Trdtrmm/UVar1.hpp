@@ -13,8 +13,8 @@ namespace trdtrmm {
 template<typename F>
 void UVar1( Matrix<F>& U, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::UVar1");
       if( U.Height() != U.Width() )
           LogicError("U must be square");
     )
@@ -48,8 +48,8 @@ void UVar1( Matrix<F>& U, bool conjugate=false )
 template<typename F>
 void UVar1( ElementalMatrix<F>& UPre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::UVar1");
       if( UPre.Height() != UPre.Width() )
           LogicError("U must be square");
     )
