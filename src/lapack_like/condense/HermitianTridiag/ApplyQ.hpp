@@ -18,7 +18,7 @@ void ApplyQ
   UpperOrLower uplo,
   Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<F>& t,
+  const Matrix<F>& phase,
         Matrix<F>& B )
 {
     DEBUG_CSE
@@ -30,7 +30,7 @@ void ApplyQ
     const Int offset = ( uplo==UPPER ? 1 : -1 );
     // TODO: Check for error in RIGHT UPPER ADJOINT
     ApplyPackedReflectors
-    ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
+    ( side, uplo, VERTICAL, direction, conjugation, offset, A, phase, B );
 }
 
 template<typename F>
@@ -39,7 +39,7 @@ void ApplyQ
   UpperOrLower uplo,
   Orientation orientation, 
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& phase, 
         ElementalMatrix<F>& B )
 {
     DEBUG_CSE
@@ -50,7 +50,7 @@ void ApplyQ
     const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( uplo==UPPER ? 1 : -1 );
     ApplyPackedReflectors
-    ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
+    ( side, uplo, VERTICAL, direction, conjugation, offset, A, phase, B );
 }
 
 } // namespace herm_tridiag

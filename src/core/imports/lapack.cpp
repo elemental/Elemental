@@ -915,6 +915,199 @@ template Complex<BigFloat> Reflector
 ( BlasInt n, Complex<BigFloat>& chi, Complex<BigFloat>* x, BlasInt incx );
 #endif
 
+// Cf. LAPACK's ?LARF
+//
+// TODO(poulson):
+// Provide wrappers for LAPACK for standard datatypes since, despite the
+// differences in handling identity transformations, LAPACK's routine should
+// always correctly apply a true Householder transformation.
+//
+template<typename F>
+void ApplyReflector
+( bool onLeft,
+  BlasInt m,
+  BlasInt n,
+  const F* v, BlasInt vInc,
+  const F& tau,
+        F* C, BlasInt CLDim,
+        F* work )
+{
+    // TODO(poulson): Add shortcuts for sparse v
+    if( onLeft )
+    {
+        blas::Gemv( 'C', m, n, F(1), C, CLDim, v, vInc, F(0), work, 1 );
+        blas::Ger( m, n, -tau, v, vInc, work, 1, C, CLDim );
+    }
+    else
+    {
+        blas::Gemv( 'N', m, n, F(1), C, CLDim, v, vInc, F(0), work, 1 );
+        blas::Ger( m, n, -tau, work, 1, v, vInc, C, CLDim );
+    }
+}
+
+template<typename F>
+void ApplyReflector
+( bool onLeft,
+  BlasInt m,
+  BlasInt n,
+  const F* v, BlasInt vInc,
+  const F& tau,
+        F* C, BlasInt CLDim )
+{
+    std::vector<F> work;
+    if( onLeft )
+        work.resize( n );
+    else
+        work.resize( m );
+    ApplyReflector( onLeft, m, n, v, vInc, tau, C, CLDim, work.data() );
+}
+
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const float* v, BlasInt vInc,
+  const float& tau,
+        float* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<float>* v, BlasInt vInc,
+  const Complex<float>& tau,
+        Complex<float>* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const double* v, BlasInt vInc,
+  const double& tau,
+        double* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<double>* v, BlasInt vInc,
+  const Complex<double>& tau,
+        Complex<double>* C, BlasInt CLDim );
+#ifdef EL_HAVE_QD
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const DoubleDouble* v, BlasInt vInc,
+  const DoubleDouble& tau,
+        DoubleDouble* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<DoubleDouble>* v, BlasInt vInc,
+  const Complex<DoubleDouble>& tau,
+        Complex<DoubleDouble>* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const QuadDouble* v, BlasInt vInc,
+  const QuadDouble& tau,
+        QuadDouble* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<QuadDouble>* v, BlasInt vInc,
+  const Complex<QuadDouble>& tau,
+        Complex<QuadDouble>* C, BlasInt CLDim );
+#endif
+#ifdef EL_HAVE_QUAD
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Quad* v, BlasInt vInc,
+  const Quad& tau,
+        Quad* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<Quad>* v, BlasInt vInc,
+  const Complex<Quad>& tau,
+        Complex<Quad>* C, BlasInt CLDim );
+#endif
+#ifdef EL_HAVE_MPC
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const BigFloat* v, BlasInt vInc,
+  const BigFloat& tau,
+        BigFloat* C, BlasInt CLDim );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<BigFloat>* v, BlasInt vInc,
+  const Complex<BigFloat>& tau,
+        Complex<BigFloat>* C, BlasInt CLDim );
+#endif
+
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const float* v, BlasInt vInc,
+  const float& tau,
+        float* C, BlasInt CLDim,
+        float* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<float>* v, BlasInt vInc,
+  const Complex<float>& tau,
+        Complex<float>* C, BlasInt CLDim,
+        Complex<float>* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const double* v, BlasInt vInc,
+  const double& tau,
+        double* C, BlasInt CLDim,
+        double* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<double>* v, BlasInt vInc,
+  const Complex<double>& tau,
+        Complex<double>* C, BlasInt CLDim,
+        Complex<double>* work );
+#ifdef EL_HAVE_QD
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const DoubleDouble* v, BlasInt vInc,
+  const DoubleDouble& tau,
+        DoubleDouble* C, BlasInt CLDim,
+        DoubleDouble* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<DoubleDouble>* v, BlasInt vInc,
+  const Complex<DoubleDouble>& tau,
+        Complex<DoubleDouble>* C, BlasInt CLDim,
+        Complex<DoubleDouble>* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const QuadDouble* v, BlasInt vInc,
+  const QuadDouble& tau,
+        QuadDouble* C, BlasInt CLDim,
+        QuadDouble* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<QuadDouble>* v, BlasInt vInc,
+  const Complex<QuadDouble>& tau,
+        Complex<QuadDouble>* C, BlasInt CLDim,
+        Complex<QuadDouble>* work );
+#endif
+#ifdef EL_HAVE_QUAD
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Quad* v, BlasInt vInc,
+  const Quad& tau,
+        Quad* C, BlasInt CLDim,
+        Quad* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<Quad>* v, BlasInt vInc,
+  const Complex<Quad>& tau,
+        Complex<Quad>* C, BlasInt CLDim,
+        Complex<Quad>* work );
+#endif
+#ifdef EL_HAVE_MPC
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const BigFloat* v, BlasInt vInc,
+  const BigFloat& tau,
+        BigFloat* C, BlasInt CLDim,
+        BigFloat* work );
+template void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const Complex<BigFloat>* v, BlasInt vInc,
+  const Complex<BigFloat>& tau,
+        Complex<BigFloat>* C, BlasInt CLDim,
+        Complex<BigFloat>* work );
+#endif
+
 // Compute the EVD of a symmetric tridiagonal matrix
 // =================================================
 
@@ -2902,72 +3095,6 @@ template bool SmallSylvester
 
 namespace adjacent_schur {
 
-template<typename Real>
-void ApplyReflector
-( bool onLeft,
-  BlasInt m,
-  BlasInt n,
-  const Real& phi,
-  const Real* v, BlasInt vInc,
-        Real* D, BlasInt DLDim,
-        Real& innerProd,
-        Real& tmp )
-{
-    if( onLeft )
-    {
-        for( BlasInt j=0; j<n; ++j ) 
-        {
-            innerProd=0;
-            for( BlasInt i=0; i<m; ++i )
-            {
-                tmp = v[i*vInc];
-                tmp *= D[i+j*DLDim];
-                innerProd += tmp;
-            }
-            innerProd *= phi;
-            for( BlasInt i=0; i<m; ++i )
-            {
-                tmp = v[i*vInc];
-                tmp *= innerProd;
-                D[i+j*DLDim] -= tmp;
-            }
-        }
-    }
-    else
-    {
-        for( BlasInt i=0; i<m; ++i )
-        {
-            innerProd=0;
-            for( BlasInt j=0; j<n; ++j )
-            {
-                tmp = D[i+j*DLDim];
-                tmp *= v[j*vInc];
-                innerProd += tmp;
-            }
-            innerProd *= phi;
-            for( BlasInt j=0; j<n; ++j )
-            {
-                tmp = innerProd;
-                tmp *= v[j*vInc];
-                D[i+j*DLDim] -= tmp;
-            }
-        }
-    }
-}
-
-template<typename Real>
-void ApplyReflector
-( bool onLeft,
-  BlasInt m,
-  BlasInt n,
-  const Real& phi,
-  const Real* v,
-        Real* D, BlasInt DLDim )
-{
-    Real innerProd, tmp;
-    ApplyReflector( onLeft, m, n, phi, v, D, DLDim, innerProd, tmp );
-}
-
 // See the paper
 //
 //   Zhaojun Bai and James Demmel,
@@ -3122,7 +3249,7 @@ void Helper
           &D[0 +n1*nSum], nSum,
           scale, X, XLDim, XInfNorm );
 
-        Real innerProd, tmp;
+        Real innerProd;
         const Real zero(0);
         if( n1 == 1 && n2 == 2 )
         {
@@ -3156,12 +3283,10 @@ void Helper
                 // ------------------------------------------------ 
                 // Apply the rotation from the left,
                 //   D := (I - phi v v') D = D - v (phi v' D)
-                ApplyReflector
-                ( true, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+                ApplyReflector( true, 3, 3, v, 1, phi, D, nSum, work );
                 // Apply the rotation from the right,
                 //   D := D (I - phi v v') = D - (phi D v) v'
-                ApplyReflector
-                ( false, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+                ApplyReflector( false, 3, 3, v, 1, phi, D, nSum, work );
 
                 // Throw an exception if the rotation would be too inaccurate.
                 // As in LAPACK, rather than simply measuring the size of the 
@@ -3178,12 +3303,10 @@ void Helper
             // ------------------------- 
             // Apply the rotation from the left,
             //   T := (I - phi v v') T = T - v (phi v' T)
-            ApplyReflector
-            ( true, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            ApplyReflector( true, 3, 3, v, 1, phi, T, TLDim, work );
             // Apply the rotation from the right,
             //   T := T (I - phi v v') = T - (phi T v) v'
-            ApplyReflector
-            ( false, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            ApplyReflector( false, 3, 3, v, 1, phi, T, TLDim, work );
             // Force our a priori knowledge that T is block upper-triangular
             T[(j1+2)+ j1   *TLDim] = zero;
             T[(j1+2)+(j1+1)*TLDim] = zero; 
@@ -3194,8 +3317,7 @@ void Helper
                 // Apply the rotation from the right,
                 //   Q := Q (I - phi v v') = Q - (phi Q v) v'
                 ApplyReflector
-                ( false, n, 3, phi, v, 1, &Q[j1*QLDim], QLDim,
-                  innerProd, tmp );
+                ( false, n, 3, v, 1, phi, &Q[j1*QLDim], QLDim, work );
             }
         }
         else if( n1 == 2 && n2 == 1 )
@@ -3224,12 +3346,10 @@ void Helper
                 // ------------------------------------------------ 
                 // Apply the rotation from the left,
                 //   D := (I - phi v v') D = D - v (phi v' D)
-                ApplyReflector
-                ( true, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+                ApplyReflector( true, 3, 3, v, 1, phi, D, nSum, work );
                 // Apply the rotation from the right,
                 //   D := D (I - phi v v') = D - (phi D v) v'
-                ApplyReflector
-                ( false, 3, 3, phi, v, 1, D, nSum, innerProd, tmp );
+                ApplyReflector( false, 3, 3, v, 1, phi, D, nSum, work );
 
                 // Throw an exception if the rotation would be too inaccurate.
                 // As in LAPACK, rather than simply measuring the size of the 
@@ -3246,12 +3366,10 @@ void Helper
             // ------------------------- 
             // Apply the rotation from the left,
             //   T := (I - phi v v') T = T - v (phi v' T)
-            ApplyReflector
-            ( true, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            ApplyReflector( true, 3, 3, v, 1, phi, T, TLDim, work );
             // Apply the rotation from the right,
             //   T := T (I - phi v v') = T - (phi T v) v'
-            ApplyReflector
-            ( false, 3, 3, phi, v, 1, T, TLDim, innerProd, tmp );
+            ApplyReflector( false, 3, 3, v, 1, phi, T, TLDim, work );
             // Force our a priori knowledge that T is block upper-triangular
             T[ j1   +j1*TLDim] = tau22;
             T[(j1+1)+j1*TLDim] = zero;
@@ -3262,8 +3380,7 @@ void Helper
                 // Apply the rotation from the right,
                 //   Q := Q (I - phi v v') = Q - (phi Q v) v'
                 ApplyReflector
-                ( false, n, 3, phi, v, 1, &Q[j1*QLDim], QLDim,
-                  innerProd, tmp );
+                ( false, n, 3, v, 1, phi, &Q[j1*QLDim], QLDim, work );
             }
         }
         else
@@ -3301,22 +3418,18 @@ void Helper
                 // ------------------------------------------------ 
                 // Apply the first rotation from the left,
                 //   D := (I - phi0 v0 v0') D = D - v0 (phi0 v0' D)
-                ApplyReflector
-                ( true, 3, 4, phi0, v0, 1, D, nSum, innerProd, tmp );
+                ApplyReflector( true, 3, 4, v0, 1, phi0, D, nSum, work );
                 // Apply the first rotation from the right,
                 //   D := D (I - phi0 v0 v0') = D - (phi0 D v0) v0'
-                ApplyReflector
-                ( false, 4, 3, phi0, v0, 1, D, nSum, innerProd, tmp );
+                ApplyReflector( false, 4, 3, v0, 1, phi0, D, nSum, work );
                 // Apply the second rotation from the left,
                 //   D := (I - phi1 v1 v1') D = D - v1 (phi1 v1' D)
                 ApplyReflector
-                ( true, 3, 4, phi1, v1, 1, &D[1+0*nSum], nSum,
-                  innerProd, tmp );
+                ( true, 3, 4, v1, 1, phi1, &D[1+0*nSum], nSum, work );
                 // Apply the second rotation from the right,
                 //   D := D (I - phi1 v1 v1') = D - (phi1 D v1) v1'
                 ApplyReflector
-                ( false, 4, 3, phi1, v1, 1, &D[0+1*nSum], nSum,
-                  innerProd, tmp );
+                ( false, 4, 3, v1, 1, phi1, &D[0+1*nSum], nSum, work );
 
                 // Throw an exception if the rotation would be too inaccurate.
                 Real errMeasure = Max( Abs(D[2+0*4]), Abs(D[2+1*4]) );
@@ -3330,22 +3443,18 @@ void Helper
             // ------------------------- 
             // Apply the first rotation from the left,
             //   T := (I - phi0 v0 v0') T = T - v0 (phi0 v0' T)
-            ApplyReflector
-            ( true, 3, 4, phi0, v0, 1, T, TLDim, innerProd, tmp );
+            ApplyReflector( true, 3, 4, v0, 1, phi0, T, TLDim, work );
             // Apply the first rotation from the right,
             //   T := T (I - phi0 v0 v0') = T - (phi0 T v0) v0'
-            ApplyReflector
-            ( false, 4, 3, phi0, v0, 1, T, TLDim, innerProd, tmp );
+            ApplyReflector( false, 4, 3, v0, 1, phi0, T, TLDim, work );
             // Apply the second rotation from the left,
             //   T := (I - phi1 v1 v1') T = T - v1 (phi1 v1' T)
             ApplyReflector
-            ( true, 3, 4, phi1, v1, 1, &T[1+0*TLDim], TLDim,
-              innerProd, tmp );
+            ( true, 3, 4, v1, 1, phi1, &T[1+0*TLDim], TLDim, work );
             // Apply the second rotation from the right,
             //   T := T (I - phi1 v1 v1') = T - (phi1 T v1) v1'
             ApplyReflector
-            ( false, 4, 3, phi1, v1, 1, &T[0+1*TLDim], TLDim,
-              innerProd, tmp );
+            ( false, 4, 3, v1, 1, phi1, &T[0+1*TLDim], TLDim, work );
 
             // Force our a priori knowledge that T is block upper-triangular
             T[(j1+2)+ j1   *TLDim] = zero;
@@ -3358,11 +3467,9 @@ void Helper
                 // Apply the rotations from the right,
                 //   Q := Q (I - phi v v') = Q - (phi Q v) v'
                 ApplyReflector
-                ( false, n, 3, phi0, v0, 1, &Q[j1*QLDim], QLDim,
-                  innerProd, tmp );
+                ( false, n, 3, v0, 1, phi0, &Q[j1*QLDim], QLDim, work );
                 ApplyReflector
-                ( false, n, 3, phi1, v1, 1, &Q[(j1+1)*QLDim], QLDim,
-                  innerProd, tmp );
+                ( false, n, 3, v1, 1, phi1, &Q[(j1+1)*QLDim], QLDim, work );
             }
         }
 

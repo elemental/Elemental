@@ -170,6 +170,32 @@ dcomplex Givens
 template<typename F>
 F Reflector( BlasInt n, F& chi, F* x, BlasInt incx );
 
+// Apply a Householder reflector
+// =============================
+// Form either
+//
+//     C := (I - tau v v^H) C
+//
+// or,
+//
+//     C := C (I - tau v v^H)
+//
+// Note that 'work' must be of size n if onLeft and of size m if !onLeft.
+//
+template<typename F>
+void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const F* v, BlasInt vInc, 
+  const F& tau,
+        F* C, BlasInt CLDim );
+template<typename F>
+void ApplyReflector
+( bool onLeft, BlasInt m, BlasInt n,
+  const F* v, BlasInt vInc, 
+  const F& tau,
+        F* C, BlasInt CLDim,
+        F* work );
+
 // Compute the eigen-values/pairs of a symmetric tridiagonal matrix
 // ================================================================
 

@@ -15,7 +15,9 @@ namespace bidiag {
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+  const Matrix<F>& A,
+  const Matrix<F>& phase,
+        Matrix<F>& B )
 {
     DEBUG_CSE
     const bool normal = (orientation==NORMAL);
@@ -24,13 +26,15 @@ void ApplyQ
     const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, offset, A, t, B );
+    ( side, LOWER, VERTICAL, direction, conjugation, offset, A, phase, B );
 }
 
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+  const Matrix<F>& A,
+  const Matrix<F>& phase,
+        Matrix<F>& B )
 {
     DEBUG_CSE
     const bool normal = (orientation==NORMAL);
@@ -39,13 +43,14 @@ void ApplyP
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     ApplyPackedReflectors
-    ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, t, B );
+    ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, phase, B );
 }
 
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& phase, 
         ElementalMatrix<F>& B )
 {
     DEBUG_CSE
@@ -55,13 +60,14 @@ void ApplyQ
     const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, offset, A, t, B );
+    ( side, LOWER, VERTICAL, direction, conjugation, offset, A, phase, B );
 }
 
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation, 
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& phase, 
         ElementalMatrix<F>& B )
 {
     DEBUG_CSE
@@ -71,7 +77,7 @@ void ApplyP
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     ApplyPackedReflectors
-    ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, t, B );
+    ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, phase, B );
 }
 
 } // namespace bidiag

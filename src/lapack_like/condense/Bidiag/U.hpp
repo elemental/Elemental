@@ -16,7 +16,7 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void U( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
 {
     DEBUG_CSE
     const Int m = A.Height();
@@ -25,13 +25,13 @@ void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
       if( m < n ) 
           LogicError("A must be at least as tall as it is wide");
       // Are these requirements necessary?!?
-      if( tP.Viewing() || tQ.Viewing() )
-          LogicError("tP and tQ must not be views");
+      if( phaseP.Viewing() || phaseQ.Viewing() )
+          LogicError("phaseP and phaseQ must not be views");
     )
-    const Int tPHeight = Max(n-1,0);
-    const Int tQHeight = n;
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int phasePHeight = Max(n-1,0);
+    const Int phaseQHeight = n;
+    phaseP.Resize( phasePHeight, 1 );
+    phaseQ.Resize( phaseQHeight, 1 );
 
     Matrix<F> X, Y;
 
@@ -46,14 +46,14 @@ void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto tQ1 = tQ( ind1, ALL );
+        auto phaseQ1 = phaseQ( ind1, ALL );
 
         if( A22.Width() > 0 )
         {
-            auto tP1 = tP( ind1, ALL );
+            auto phaseP1 = phaseP( ind1, ALL );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::UPan( ABR, tP1, tQ1, X, Y );
+            bidiag::UPan( ABR, phaseP1, phaseQ1, X, Y );
 
             auto A12 = A( ind1, ind2 );
             auto A21 = A( ind2, ind1 );
@@ -74,8 +74,8 @@ void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         }
         else
         {
-            auto tP1 = tP( IR(k,k+nb-1), ALL );
-            bidiag::UUnb( ABR, tP1, tQ1 );
+            auto phaseP1 = phaseP( IR(k,k+nb-1), ALL );
+            bidiag::UUnb( ABR, phaseP1, phaseQ1 );
         }
     }
 }
@@ -84,28 +84,28 @@ template<typename F>
 void
 U
 ( DistMatrix<F>& A, 
-  DistMatrix<F,STAR,STAR>& tP,
-  DistMatrix<F,STAR,STAR>& tQ )
+  DistMatrix<F,STAR,STAR>& phaseP,
+  DistMatrix<F,STAR,STAR>& phaseQ )
 {
     DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-      AssertSameGrids( A, tP, tQ );
+      AssertSameGrids( A, phaseP, phaseQ );
       if( m < n ) 
           LogicError("A must be at least as tall as it is wide");
       // Are these requirements necessary?!?
-      if( tP.Viewing() || tQ.Viewing() )
-          LogicError("tP and tQ must not be views");
+      if( phaseP.Viewing() || phaseQ.Viewing() )
+          LogicError("phaseP and phaseQ must not be views");
     )
     const Grid& g = A.Grid();
-    const Int tPHeight = Max(n-1,0);
-    const Int tQHeight = n;
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int phasePHeight = Max(n-1,0);
+    const Int phaseQHeight = n;
+    phaseP.Resize( phasePHeight, 1 );
+    phaseQ.Resize( phaseQHeight, 1 );
     if( g.Size() == 1 )
     {
-        U( A.Matrix(), tP.Matrix(), tQ.Matrix() );
+        U( A.Matrix(), phaseP.Matrix(), phaseQ.Matrix() );
         return;
     }
 
@@ -127,7 +127,7 @@ U
         auto A22 = A( ind2, ind2 );
         auto ABR = A( indB, indR );
 
-        auto tQ1 = tQ( ind1, ALL );
+        auto phaseQ1 = phaseQ( ind1, ALL );
 
         if( A22.Width() > 0 )
         {
@@ -141,8 +141,9 @@ U
             AB1_MC_STAR.Resize( m-k, nb  );
             A1RTrans_MR_STAR.Resize( n-k, nb );
 
-            auto tP1 = tP( ind1, ALL );
-            bidiag::UPan( ABR, tP1, tQ1, X, Y, AB1_MC_STAR, A1RTrans_MR_STAR );
+            auto phaseP1 = phaseP( ind1, ALL );
+            bidiag::UPan
+            ( ABR, phaseP1, phaseQ1, X, Y, AB1_MC_STAR, A1RTrans_MR_STAR );
 
             auto X21 = X( IR(nb,END), ALL        );
             auto Y12 = Y( ALL,        IR(nb,END) );
@@ -163,8 +164,8 @@ U
         }
         else
         {
-            auto tP1 = tP( IR(k,k+nb-1), ALL );
-            bidiag::UUnb( ABR, tP1, tQ1 );
+            auto phaseP1 = phaseP( IR(k,k+nb-1), ALL );
+            bidiag::UUnb( ABR, phaseP1, phaseQ1 );
         }
     }
 }
@@ -173,19 +174,19 @@ template<typename F>
 void
 U
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre,
-  ElementalMatrix<F>& tQPre )
+  ElementalMatrix<F>& phasePPre,
+  ElementalMatrix<F>& phaseQPre )
 {
     DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      tPProx( tPPre ),
-      tQProx( tQPre );
+      phasePProx( phasePPre ),
+      phaseQProx( phaseQPre );
     auto& A = AProx.Get();
-    auto& tP = tPProx.Get();
-    auto& tQ = tQProx.Get();
-    U( A, tP, tQ );
+    auto& phaseP = phasePProx.Get();
+    auto& phaseQ = phaseQProx.Get();
+    U( A, phaseP, phaseQ );
 }
 
 } // namespace bidiag

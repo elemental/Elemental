@@ -14,15 +14,20 @@ namespace bidiag {
 
 template<typename F> 
 void
-UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
+UPan
+( Matrix<F>& A,
+  Matrix<F>& phaseP,
+  Matrix<F>& phaseQ,
+  Matrix<F>& X,
+  Matrix<F>& Y )
 {
     DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      if( tP.Height() != nX || tP.Width() != 1 )
-          LogicError("tP was not the right size");
-      if( tQ.Height() != nX || tQ.Width() != 1 )
-          LogicError("tQ was not the right size");
+      if( phaseP.Height() != nX || phaseP.Width() != 1 )
+          LogicError("phaseP was not the right size");
+      if( phaseQ.Height() != nX || phaseQ.Width() != 1 )
+          LogicError("phaseQ was not the right size");
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( A.Height() != X.Height() )
@@ -84,7 +89,7 @@ UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | delta |
         //  \          | u |            / |     a21 |   |    0  |
         const F tauQ = LeftReflector( alpha11, a21 );
-        tQ(k) = tauQ;
+        phaseQ(k) = tauQ;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -119,7 +124,7 @@ UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         //  |alpha12L a12R| /I - tauP |1  | |1 conj(v)|\ = |epsilon 0|
         //                  \         |v^T|            /
         const F tauP = RightReflector( alpha12L, a12R );
-        tP(k) = tauP;
+        phaseP(k) = tauP;
 
         // Temporarily set a12 = | 1 v |
         e(k) = RealPart(alpha12L(0));
@@ -157,8 +162,8 @@ template<typename F>
 void
 UPan
 ( DistMatrix<F>& A, 
-  DistMatrix<F,STAR,STAR>& tP,
-  DistMatrix<F,STAR,STAR>& tQ,
+  DistMatrix<F,STAR,STAR>& phaseP,
+  DistMatrix<F,STAR,STAR>& phaseQ,
   DistMatrix<F>& X, 
   DistMatrix<F>& Y,
   DistMatrix<F,MC,  STAR>& AL_MC_STAR,
@@ -167,17 +172,17 @@ UPan
     DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, BL_MR_STAR );
+      AssertSameGrids( A, phaseP, phaseQ, X, Y, AL_MC_STAR, BL_MR_STAR );
       if( A.ColAlign() != X.ColAlign() || 
           A.RowAlign() != X.RowAlign() )
           LogicError("A and X must be aligned");
       if( A.ColAlign() != Y.ColAlign() ||
           A.RowAlign() != Y.RowAlign() )
           LogicError("A and Y must be aligned");
-      if( tP.Height() != nX || tP.Width() != 1 )
-          LogicError("tP was not the right size");
-      if( tQ.Height() != nX || tQ.Width() != 1 )
-          LogicError("tQ was not the right size");
+      if( phaseP.Height() != nX || phaseP.Width() != 1 )
+          LogicError("phaseP was not the right size");
+      if( phaseQ.Height() != nX || phaseQ.Width() != 1 )
+          LogicError("phaseQ was not the right size");
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( A.Height() != X.Height() )
@@ -271,7 +276,7 @@ UPan
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | delta |
         //  \          | u |            / |     a21 |   |    0  |
         const F tauQ = LeftReflector( alpha11, a21 );
-        tQ.Set(k,0,tauQ);
+        phaseQ.Set(k,0,tauQ);
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -347,7 +352,7 @@ UPan
         //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilon 0|
         //                  \         |v^T|             /
         const F tauP = RightReflector( alpha12L, a12R );
-        tP.Set(k,0,tauP);
+        phaseP.Set(k,0,tauP);
 
         // Temporarily set a12 = | 1 v |
         if( epsilon1.IsLocal(0,0) )

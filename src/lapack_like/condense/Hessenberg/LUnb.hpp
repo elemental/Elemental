@@ -13,12 +13,12 @@ namespace El {
 namespace hessenberg {
 
 template<typename F>
-void LUnb( Matrix<F>& A, Matrix<F>& t )
+void LUnb( Matrix<F>& A, Matrix<F>& phase )
 {
     DEBUG_CSE
     const Int n = A.Height();
-    const Int tHeight = Max(n-1,0);
-    t.Resize( tHeight, 1 );
+    const Int phaseHeight = Max(n-1,0);
+    phase.Resize( phaseHeight, 1 );
 
     Matrix<F> z1, z21;
 
@@ -38,7 +38,7 @@ void LUnb( Matrix<F>& A, Matrix<F>& t )
         //  |alpha12L a12R| /I - tauP | 1   | | 1 conj(v) |\ = |beta 0|
         //                  \         | v^T |              /
         const F tau = RightReflector( alpha12L, a12R );
-        t(k) = tau;
+        phase(k) = tau;
 
         // Temporarily set a12 = | 1 v |
         const F beta = alpha12L(0);
@@ -70,20 +70,20 @@ void LUnb( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-void LUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
+void LUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& phasePre )
 {
     DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> tProx( tPre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> phaseProx( phasePre );
     auto& A = AProx.Get();
-    auto& t = tProx.Get();
+    auto& phase = phaseProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    const Int tHeight = Max(n-1,0);
-    t.SetGrid( g );
-    t.Resize( tHeight, 1 );
+    const Int phaseHeight = Max(n-1,0);
+    phase.SetGrid( g );
+    phase.Resize( phaseHeight, 1 );
 
     DistMatrix<F,MC,  STAR> z21_MC(g);
     DistMatrix<F,MR,  STAR> z1_MR(g);
@@ -106,7 +106,7 @@ void LUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
         //  |alpha12L a12R| /I - tauP | 1   | | 1 conj(v) |\ = |beta 0|
         //                  \         | v^T |              /
         const F tau = RightReflector( alpha12L, a12R );
-        t.Set(k,0,tau);
+        phase.Set(k,0,tau);
 
         // Temporarily set a12 = | 1 v |
         F beta = 0;

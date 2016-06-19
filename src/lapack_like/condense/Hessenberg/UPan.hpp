@@ -23,7 +23,7 @@ namespace hessenberg {
 template<typename F>
 void UPan
 ( Matrix<F>& A,
-  Matrix<F>& t,
+  Matrix<F>& phase,
   Matrix<F>& U,
   Matrix<F>& V,
   Matrix<F>& G )
@@ -41,8 +41,8 @@ void UPan
       if( V.Width() != nU )
           LogicError("V must be the same width as U");
     )
-    const Int tHeight = Max(nU,0);
-    t.Resize( tHeight, 1 );
+    const Int phaseHeight = Max(nU,0);
+    phase.Resize( phaseHeight, 1 );
 
     Zeros( U, n, nU );
     Zeros( V, n, nU );
@@ -90,7 +90,7 @@ void UPan
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
         //  \         | v |            / |     a21B |   |    0 |
         const F tau = LeftReflector( alpha21T, a21B );
-        t(k) = tau;
+        phase(k) = tau;
 
         // Store u21 := | 1 |
         //              | v |
@@ -112,7 +112,7 @@ void UPan
 template<typename F>
 void UPan
 ( DistMatrix<F>& A, 
-  DistMatrix<F,STAR,STAR>& t, 
+  DistMatrix<F,STAR,STAR>& phase, 
   DistMatrix<F,MC,  STAR>& U_MC_STAR, 
   DistMatrix<F,MR,  STAR>& U_MR_STAR,
   DistMatrix<F,MC,  STAR>& V_MC_STAR, 
@@ -122,7 +122,7 @@ void UPan
     const Int nU = U_MC_STAR.Width();
     const Int n = A.Height();
     DEBUG_ONLY(
-      AssertSameGrids( A, t, U_MC_STAR, U_MR_STAR, V_MC_STAR, G_STAR_STAR );
+      AssertSameGrids( A, phase, U_MC_STAR, U_MR_STAR, V_MC_STAR, G_STAR_STAR );
       if( A.ColAlign() != U_MC_STAR.ColAlign() )
           LogicError("A and U[MC,* ] must be aligned");
       if( A.RowAlign() != U_MR_STAR.ColAlign() )
@@ -201,7 +201,7 @@ void UPan
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
         //  \         | v |            / |     a21B |   |    0 |
         const F tau = LeftReflector( alpha21T, a21B );
-        t.Set(k,0,tau);
+        phase.Set(k,0,tau);
 
         // Store u21 := | 1 |
         //              | v |

@@ -13,7 +13,7 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void LUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -22,10 +22,10 @@ void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int tPHeight = m;
-    const Int tQHeight = Max(m-1,0);
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int phasePHeight = m;
+    const Int phaseQHeight = Max(m-1,0);
+    phaseP.Resize( phasePHeight, 1 );
+    phaseQ.Resize( phaseQHeight, 1 );
 
     // Views
     Matrix<F> alpha21T, a21B;
@@ -46,7 +46,7 @@ void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
         //                  \          | v^T |                /
         const F tauP = RightReflector( alpha11, a12 );
-        tP(k) = tauP;
+        phaseP(k) = tauP;
 
         // Temporarily set a1R = | 1 v |
         const F epsilonP = alpha11(0);
@@ -75,7 +75,7 @@ void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilonQ |
             //  \          | u |            / | a21B     | = |    0     |
             const F tauQ = LeftReflector( alpha21T, a21B );
-            tQ(k) = tauQ;
+            phaseQ(k) = tauQ;
 
             // Temporarily set a21 = | 1 |
             //                       | u |
@@ -102,12 +102,12 @@ void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 template<typename F> 
 void LUnb
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre,
-  ElementalMatrix<F>& tQPre )
+  ElementalMatrix<F>& phasePPre,
+  ElementalMatrix<F>& phaseQPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      AssertSameGrids( APre, tPPre, tQPre );
+      AssertSameGrids( APre, phasePPre, phaseQPre );
       if( APre.Height() > APre.Width() )
           LogicError("A must be at least as wide as it is tall");
     )
@@ -115,19 +115,19 @@ void LUnb
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      tPProx( tPPre ),
-      tQProx( tQPre );
+      phasePProx( phasePPre ),
+      phaseQProx( phaseQPre );
     auto& A = AProx.Get();
-    auto& tP = tPProx.Get();
-    auto& tQ = tQProx.Get();
+    auto& phaseP = phasePProx.Get();
+    auto& phaseQ = phaseQProx.Get();
 
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int tPHeight = m;
-    const Int tQHeight = Max(m-1,0);
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int phasePHeight = m;
+    const Int phaseQHeight = Max(m-1,0);
+    phaseP.Resize( phasePHeight, 1 );
+    phaseQ.Resize( phaseQHeight, 1 );
 
     DistMatrix<F,MC,  STAR> a21_MC_STAR(g);
     DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);
@@ -147,7 +147,7 @@ void LUnb
         //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
         //                  \          | v^T |                /
         const F tauP = RightReflector( alpha11, a12 );
-        tP.Set(k,0,tauP);
+        phaseP.Set(k,0,tauP);
 
         // Temporarily set a1R = | 1 v |
         F epsilonP=0;
@@ -185,7 +185,7 @@ void LUnb
             //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilonQ |
             //  \          | u |            / | a21B     | = |    0     |
             const F tauQ = LeftReflector( alpha21T, a21B );
-            tQ.Set(k,0,tauQ);
+            phaseQ.Set(k,0,tauQ);
 
             // Temporarily set a21 = | 1 |
             //                       | u |
