@@ -24,7 +24,8 @@ void HessenbergQR
     bool wantSchurVecs=false;
     bool demandConverged=true;
     Matrix<Real> Z;
-    hess_qr::WindowedSingle
+    //hess_qr::WindowedSingle
+    hess_qr::WindowedAED
     ( H,
       winBeg, winEnd,
       wReal, wImag,
@@ -45,7 +46,8 @@ void HessenbergQR
     Int winBeg=0, winEnd=H.Height();
     bool wantSchurVecs=true;
     bool demandConverged=true;
-    hess_qr::WindowedSingle
+    //hess_qr::WindowedSingle
+    hess_qr::WindowedAED
     ( H,
       winBeg, winEnd,
       wReal, wImag,
@@ -286,7 +288,7 @@ void TestSmallBulgeSweep
     const Int numShifts = 2*numShiftPairs;
     if( print )
         Output("Shift pairs:");
-    vector<Real> realShifts(numShifts), imagShifts(numShifts);
+    Matrix<Real> realShifts(numShifts,1), imagShifts(numShifts,1);
     for( Int i=0; i<numShiftPairs; ++i ) 
     {
         const Real sigmaReal = SampleUniform<Real>();
@@ -296,10 +298,10 @@ void TestSmallBulgeSweep
             Output(sigmaReal," + ",sigmaImag,"i");
             Output(sigmaReal," - ",sigmaImag,"i");
         }
-        realShifts[2*i+0] =  sigmaReal;
-        realShifts[2*i+1] =  sigmaReal;
-        imagShifts[2*i+0] =  sigmaImag;
-        imagShifts[2*i+1] = -sigmaImag;
+        realShifts(2*i+0) =  sigmaReal;
+        realShifts(2*i+1) =  sigmaReal;
+        imagShifts(2*i+0) =  sigmaImag;
+        imagShifts(2*i+1) = -sigmaImag;
     }
 
     Matrix<Real> Z; 
