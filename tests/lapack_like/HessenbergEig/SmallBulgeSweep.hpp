@@ -111,11 +111,7 @@ void PairShifts( Matrix<Real>& wReal, Matrix<Real>& wImag )
 {
     DEBUG_CSE
     const Int numShifts = wReal.Height();
-    const Real zero(0);
 
-    Print( wReal, "wReal" );
-    Print( wImag, "wImag" );
-      
     Real tmp;
     for( Int i=numShifts-1; i>=2; i-=2 )
     {
@@ -138,8 +134,6 @@ void PairShifts( Matrix<Real>& wReal, Matrix<Real>& wImag )
       {
           if( wImag(i) != -wImag(i-1) )
           {
-              Print( wReal, "wRealPair" );
-              Print( wImag, "wImagPair" );
               RuntimeError("Shifts were not properly paired");
           }
       }
@@ -542,7 +536,6 @@ void SmallBulgeSweep
     DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
-    const Int nZ = Z.Height();
 
     const Int numShifts = realShifts.Height();
     DEBUG_ONLY(
@@ -639,8 +632,6 @@ void SmallBulgeSweep
             const Int transformEnd = ( fullTriangle ? n : winEnd );
  
             const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
-            const Int slabWinEnd = Min(slabEnd,winEnd);
-
             const Int nU = (slabSize-1) - Max(0,slabEnd-winEnd) - slabRelBeg;
 
             auto contractInd = IR(0,nU) + slabRelBeg;

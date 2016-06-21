@@ -49,17 +49,13 @@ AEDInfo SpikeDeflation
 {
     DEBUG_CSE
 
-    Print( T, "T" );
-    Print( V, "V" );
-    Output("eta=",eta,", numUnconverged=",numUnconverged);
-
     const Int n = T.Height();
     const Real zero(0);
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();
     const Real smallNum = safeMin*(Real(n)/ulp);
-
-    work.resize( n );
+     
+    work.resize( Max(n,work.size()) );
 
     Int winBeg = numUnconverged;
     Int winEnd = n;
@@ -102,9 +98,6 @@ AEDInfo SpikeDeflation
             else
             {
                 // Move this undeflatable 2x2 block to the top of the window 
-                Output("2x2 swap: winEnd-2=",winEnd-2,", winBeg=",winBeg);
-                Print( T, "TSwap" );
-                Print( V, "VSwap" ); 
                 lapack::SchurExchange
                 ( n, &T(0,0), T.LDim(), &V(0,0), V.LDim(),
                   winEnd-2, winBeg, work.data() );
@@ -128,9 +121,6 @@ AEDInfo SpikeDeflation
             else
             {
                 // Move the undeflatable 1x1 block to the top of the window
-                Output("1x1 swap: winEnd-1=",winEnd-1,", winBeg=",winBeg);
-                Print( T, "TSwap" );
-                Print( V, "VSwap" ); 
                 lapack::SchurExchange
                 ( n, &T(0,0), T.LDim(), &V(0,0), V.LDim(),
                   winEnd-1, winBeg, work.data() );
@@ -138,7 +128,6 @@ AEDInfo SpikeDeflation
             }
         }
     }
-    Output("Exiting SpikeDeflation");
 
     AEDInfo info;
     info.numUnconverged = numUnconverged;
@@ -160,7 +149,8 @@ AEDInfo AEDNibble
   Matrix<Real>& wImag,
   bool fullTriangle,
   Matrix<Real>& Z,
-  bool wantSchurVecs )
+  bool wantSchurVecs,
+  bool progress=false )
 {
     DEBUG_CSE
     const Int n = H.Height();
@@ -207,7 +197,6 @@ AEDInfo AEDNibble
     }
 
     auto deflateInd = IR(deflateBeg,winEnd);
-    Output("  deflateBeg=",deflateBeg,", winEnd=",winEnd);
     auto H11 = H( deflateInd, deflateInd );
 
     // NOTE(poulson): We could only copy the upper-Hessenberg portion of H11
@@ -243,10 +232,13 @@ AEDInfo AEDNibble
     vector<Real> work(2*blockSize);
 
     info = SpikeDeflation( T, V, spikeValue, numUnconverged, work );
-    Output("After SpikeDeflation");
-    Output("  info.numUnconverged=",info.numUnconverged);
-    Output("  info.numShiftCandidates=",info.numShiftCandidates);
-    Output("  info.numDeflated=",info.numDeflated);
+    if( progress )
+    {
+        Output("AED info:");
+        Output("  numUnconverged=",info.numUnconverged);
+        Output("  numShiftCandidates=",info.numShiftCandidates);
+        Output("  numDeflated=",info.numDeflated);
+    }
     if( info.numUnconverged+info.numShiftCandidates == 0 )
     {
         // The entire spike has deflated
@@ -270,7 +262,6 @@ AEDInfo AEDNibble
     {
         if( i == info.numUnconverged || T(i,i-1) == zero )
         {
-            Output("  i=",i," 1x1");
             // 1x1 block
             wReal(deflateBeg+i) = T(i,i);
             wImag(deflateBeg+i) = zero;
@@ -278,7 +269,6 @@ AEDInfo AEDNibble
         }
         else
         {
-            Output("  i=",i," 2x2");
             // 2x2 block
             Real alpha00 = T(i-1,i-1);
             Real alpha10 = T(i,  i-1);
@@ -293,7 +283,6 @@ AEDInfo AEDNibble
             i -= 2;
         }
     }
-    Output("Finished reforming eigenvalues");
 
     const Int spikeSize = info.numUnconverged + info.numShiftCandidates;
     if( spikeSize < blockSize || spikeValue == zero )
@@ -301,7 +290,6 @@ AEDInfo AEDNibble
         // Either we deflated at least one eigenvalue or we can simply
         // rotate the deflation window into Schur form
         auto spikeInd = IR(0,spikeSize);
-        Output("  spikeSize=",spikeSize);
         auto TTL = T(spikeInd,spikeInd);
         auto TTR = T(spikeInd,IR(spikeSize,END));
         auto VL = V(ALL,spikeInd);
@@ -309,7 +297,6 @@ AEDInfo AEDNibble
 
         if( spikeSize > 1 && spikeValue != zero )
         {
-            Output("Within spikeSize > 1 && spikeValue !+ zero");
             // The spike needs to be reduced to length one while maintaining
             // the Hessenberg form of the deflation window
             for( Int i=0; i<spikeSize; ++i )
@@ -322,56 +309,44 @@ AEDInfo AEDNibble
 
             // Force T to be upper Hessenberg
             MakeTrapezoidal( UPPER, T, -1 );
-            Print( T, "T" );
 
             lapack::ApplyReflector
             ( true, spikeSize, blockSize,
               &work[0], 1, tau,
               T.Buffer(), T.LDim(),
               &work[blockSize] );
-            Print( T, "TAfterLeft" );
 
             lapack::ApplyReflector
             ( false, spikeSize, spikeSize,
               &work[0], 1, tau,
               TTL.Buffer(), TTL.LDim(),
               &work[blockSize] );
-            Print( T, "TAfterRight" );
 
             lapack::ApplyReflector
             ( false, blockSize, spikeSize,
               &work[0], 1, tau,
               VL.Buffer(), VL.LDim(),
               &work[blockSize] );
-            Print( V, "VAfterRight" );
 
             Hessenberg( UPPER, TTL, phaseT );
             hessenberg::ApplyQ( LEFT, UPPER, ADJOINT, TTL, phaseT, TTR );
-            Print( T, "THess" );
         }
 
-        Output("About to handle deflateBeg=",deflateBeg);
         if( deflateBeg >= 1 )
             H(deflateBeg,deflateBeg-1) = spikeValue*V(0,0);
         // NOTE(poulson): We could copy only the upper Hessenberg part of T
         H11 = T;
         MakeTrapezoidal( UPPER, H11, -1 );
-        Print( H11, "H11" );
 
         if( spikeSize > 1 && spikeValue != zero )
         {
             hessenberg::ApplyQ( RIGHT, UPPER, NORMAL, TTL, phaseT, VL );
         }
-        Print( TTL, "TTL" );
-        Print( phaseT, "phaseT" );
-        Print( VL, "VL" );
 
         Matrix<Real> WAccum; // TODO(poulson): Reuse this buffer?
 
         // TODO(poulson): Consider forming chunk-by-chunk to save memory
         Int applyBeg = ( fullTriangle ? 0 : winBeg );
-        Output
-        ("  winBeg=",winBeg,", applyBeg=",applyBeg,", deflateBeg=",deflateBeg);
         auto H01 = H( IR(applyBeg,deflateBeg), deflateInd );
         Gemm( NORMAL, NORMAL, Real(1), H01, V, WAccum );
         H01 = WAccum;
@@ -447,12 +422,11 @@ inline Int SufficientDeflation( Int deflationSize )
     return (nibble*deflationSize) / 100;
 }
 
-// Cf. LAPACK's IPARMQ for this choice; note that 12 is a hard minimum
+// Cf. LAPACK's IPARMQ for this choice;
+// note that LAPACK's hard minimum of 12 does not apply to us
 inline Int MinAEDSize()
 {
-    // TODO(poulson): Switch back immediately
-    //return 75;
-    return 11;
+    return 75;
 }
 
 template<typename Real>
@@ -465,12 +439,15 @@ Int WindowedAED
   bool fullTriangle,
   Matrix<Real>& Z,
   bool wantSchurVecs,
-  bool demandConverged )
+  bool demandConverged,
+  bool progress=false )
 {
     DEBUG_CSE 
     const Int n = H.Height();
     const Int winSize = winEnd - winBeg;
     const Real zero(0);
+    const Real exceptShift0(Real(4)/Real(3)),
+               exceptShift1(-Real(7)/Real(16));
 
     const Int minAEDSize = MinAEDSize();
     if( n < minAEDSize )
@@ -486,9 +463,12 @@ Int WindowedAED
 
     const Int numShiftsRec = NumAEDShifts( n, winSize );
     const Int deflationSizeRec = AEDDeflationSize( n, winSize, numShiftsRec );
-    Output
-    ("Recommending ",numShiftsRec," shifts and a deflation window of size ",
-     deflationSizeRec);
+    if( progress )
+    {
+        Output
+        ("Recommending ",numShiftsRec," shifts and a deflation window of size ",
+         deflationSizeRec);
+    }
     Int deflationSize = deflationSizeRec;
 
     // For SmallBulgeSweep
@@ -518,7 +498,8 @@ Int WindowedAED
         for( ; iterBeg>winBeg; --iterBeg )
             if( H(iterBeg,iterBeg-1) == zero ) 
                 break;
-        Output(iter,": window is [",iterBeg,",",winEnd,")");
+        if( progress )
+            Output(iter,": window is [",iterBeg,",",winEnd,")");
          
         // Intelligently choose a deflation window size
         // --------------------------------------------
@@ -542,7 +523,6 @@ Int WindowedAED
         else
         {
             const Int deflationBeg = winEnd - deflationSize;
-            Output("winEnd=",winEnd,", deflationSize=",deflationSize,", deflationBeg=",deflationBeg);
             if( Abs(H(deflationBeg,  deflationBeg-1)) >
                 Abs(H(deflationBeg-1,deflationBeg-2)) )
             {
@@ -564,12 +544,9 @@ Int WindowedAED
         // Run AED on the bottom-right window of size deflationSize
         auto deflateInfo = AEDNibble
         ( H, iterBeg, winEnd, deflationSize,
-          wReal, wImag, fullTriangle, Z, wantSchurVecs );
+          wReal, wImag, fullTriangle, Z, wantSchurVecs, progress );
         const Int numDeflated = deflateInfo.numDeflated;
-        Output
-        ("  AED of size ",deflationSize," deflated ",numDeflated," eig'values");
         winEnd -= numDeflated;
-        Int numUnconverged = deflateInfo.numUnconverged;
         Int shiftBeg = winEnd - deflateInfo.numShiftCandidates;
 
         const Int newIterWinSize = winEnd-iterBeg;
@@ -584,7 +561,28 @@ Int WindowedAED
                 Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
             {
                 // Use exceptional shifts
-                LogicError("Exceptional shifts not yet supported");
+                shiftBeg = winEnd - numShifts;
+                for( Int i=winEnd-1; i>=Max(shiftBeg+1,winBeg+2); i-=2 ) 
+                {
+                    const Real scale = Abs(H(i,i-1)) + Abs(H(i-1,i-2));
+                    Real eta00 = exceptShift0*scale + H(i,i);
+                    Real eta01 = scale;
+                    Real eta10 = exceptShift1*scale;
+                    Real eta11 = eta00;
+                    Real c, s;
+                    lapack::TwoByTwoSchur
+                    ( eta00, eta01,
+                      eta10, eta11, c, s, 
+                      wReal(i-1), wImag(i-1),
+                      wReal(i),   wImag(i) );
+                }
+                if( shiftBeg == winBeg )
+                {
+                    wReal(shiftBeg+1) = H(shiftBeg+1,shiftBeg+1);
+                    wImag(shiftBeg+1) = zero;
+                    wReal(shiftBeg) = wReal(shiftBeg+1);
+                    wImag(shiftBeg) = wImag(shiftBeg+1);
+                }
             }
             else
             {
@@ -683,7 +681,7 @@ Int WindowedAED
             ( H, iterBeg, winEnd, wRealSub, wImagSub,
               fullTriangle, Z, wantSchurVecs, U, W, WAccum, accumulate );
         }
-        else
+        else if( progress )
             Output("  Skipping QR sweep");
 
         ++iter;

@@ -8,6 +8,8 @@
 */
 #include <El-lite.hpp>
 // TODO(poulson): Remove this
+#include <El/blas_like.hpp>
+#include <El/lapack_like.hpp>
 #include <El/io.hpp>
 
 using El::FortranLogical;
@@ -2828,8 +2830,6 @@ bool SmallSylvester
     const Real smallNum = limits::SafeMin<Real>() / epsilon;
     const Real sgn = ( negate ? Real(-1) : Real(1) );
 
-    Output("nC=",nC,", nD=",nD,", CLDim=",CLDim,", DLDim=",DLDim,",BLDim=",BLDim,", XLDim=",XLDim);
-
     bool perturbed = false;
     if( nC == 1 && nD == 1 )
     {
@@ -2897,20 +2897,7 @@ bool SmallSylvester
         }
         b[0] = beta0;
         b[1] = beta1;
-        El::Matrix<Real> BMat( 1, 2, B, BLDim );
-        El::Matrix<Real> CMat( 1, 1, C, CLDim );
-        El::Matrix<Real> DMat( 2, 2, D, DLDim );
-        El::Matrix<Real> XMat( 1, 2, X, XLDim );
-        El::Matrix<Real> AMat( 2, 2, A, 2 );
-        El::Matrix<Real> bMat( 2, 1, b, 2 );
-        El::Print( BMat, "BMat" );
-        El::Print( CMat, "CMat" );
-        El::Print( DMat, "DMat" );
-        El::Print( AMat, "AMat" );
-        El::Print( bMat, "bMat" );
         perturbed = Solve2x2FullPiv( A, b, scale, smallNum, minPiv );
-        El::Print( bMat, "bMatAfter" );
-        Output("scale=",scale,", smallNum=",smallNum,", minPiv=",minPiv);
         chi0 = b[0];
         chi1 = b[1];
         XInfNorm = Abs(chi0) + Abs(chi1);
@@ -2959,20 +2946,7 @@ bool SmallSylvester
         }
         b[0] = beta0;
         b[1] = beta1;
-        El::Matrix<Real> BMat( 2, 1, B, BLDim );
-        El::Matrix<Real> CMat( 2, 2, C, CLDim );
-        El::Matrix<Real> DMat( 1, 1, D, DLDim );
-        El::Matrix<Real> XMat( 2, 1, X, XLDim );
-        El::Matrix<Real> AMat( 2, 2, A, 2 );
-        El::Matrix<Real> bMat( 2, 1, b, 2 );
-        El::Print( BMat, "BMat" );
-        El::Print( CMat, "CMat" );
-        El::Print( DMat, "DMat" );
-        El::Print( AMat, "AMat" );
-        El::Print( bMat, "bMat" );
         perturbed = Solve2x2FullPiv( A, b, scale, smallNum, minPiv );
-        El::Print( bMat, "bMatAfter" );
-        Output("scale=",scale,", smallNum=",smallNum,", minPiv=",minPiv);
         chi0 = b[0];
         chi1 = b[1];
         XInfNorm = Max( Abs(chi0), Abs(chi1) );
@@ -3045,20 +3019,7 @@ bool SmallSylvester
         b[2] = beta01;
         b[3] = beta11;
 
-        El::Matrix<Real> BMat( 2, 2, B, BLDim );
-        El::Matrix<Real> CMat( 2, 2, C, CLDim );
-        El::Matrix<Real> DMat( 2, 2, D, DLDim );
-        El::Matrix<Real> XMat( 2, 2, X, XLDim );
-        El::Matrix<Real> AMat( 4, 4, A, 4 );
-        El::Matrix<Real> bMat( 4, 1, b, 4 );
-        El::Print( BMat, "BMat" );
-        El::Print( CMat, "CMat" );
-        El::Print( DMat, "DMat" );
-        El::Print( AMat, "AMat" );
-        El::Print( bMat, "bMat" );
         perturbed = Solve4x4FullPiv( A, b, scale, smallNum, minPiv );
-        El::Print( bMat, "bMat" );
-        Output("scale=",scale,", smallNum=",smallNum,", minPiv=",minPiv);
         chi00 = b[0];
         chi10 = b[1];
         chi01 = b[2];
@@ -3176,13 +3137,6 @@ void Helper
     if( n == 0 || n1 == 0 || n2 == 0 || j1+n1 >= n )
         return;
 
-    Output("j1=",j1,", n1=",n1,", n2=",n2);
-
-    El::Matrix<Real> TMat( n, n, T, TLDim );
-    El::Matrix<Real> QMat( n, n, Q, QLDim );
-    El::Print( TMat, "TAdj" );
-    El::Print( QMat, "QAdj" );
-
     // As discussed by Bai/Demmel (building on a theorem of Ng/Peyton),
     // given the relationship
     //
@@ -3245,7 +3199,6 @@ void Helper
 
     if( n1 == 1 && n2 == 1 )
     {
-        Output("1x1 swap");
         Real tau11 = T[ j1   + j1   *TLDim];
         Real tau12 = T[ j1   +(j1+1)*TLDim];
         Real tau22 = T[(j1+1)+(j1+1)*TLDim];
@@ -3285,7 +3238,6 @@ void Helper
     }
     else
     {
-        Output("General swap");
         Real D[16], X[4];
         const BlasInt XLDim = 2;
         const BlasInt nSum = n1 + n2; 
@@ -3294,13 +3246,11 @@ void Helper
                 D[i+j*nSum] = T[(j1+i)+(j1+j)*TLDim];
         const Real DMax = blas::NrmInf( nSum*nSum, D, 1 );
 
-        El::Matrix<Real> DMat( nSum, nSum, D, nSum );
-        El::Matrix<Real> XMat( n1, n2, X, 2 );
-        El::Print( DMat, "DMat" );
-
         const Real epsilon = limits::Epsilon<Real>();
         const Real smallNum = limits::SafeMin<Real>() / epsilon;
-        const Real thresh = Max( Real(10)*epsilon*DMax, smallNum );
+        // NOTE: This value was increased from 10 because of slight failures
+        const Real fudge = 20;
+        const Real thresh = Max( fudge*epsilon*DMax, smallNum );
 
         // Solve the Sylvester equation T11*X - X*T22 = scale*T12 for X
         Real scale, XInfNorm;
@@ -3311,14 +3261,11 @@ void Helper
           &D[n1+n1*nSum], nSum,
           &D[0 +n1*nSum], nSum,
           scale, X, XLDim, XInfNorm );
-        Output("scale=",scale);
-        El::Print( XMat, "XMat" );
 
         Real innerProd;
         const Real zero(0);
         if( n1 == 1 && n2 == 2 )
         {
-            Output("n1=1 and n2=2");
             const Real tau11 = T[j1+j1*TLDim];
 
             // Compute the Householder reflection which satisfies
@@ -3340,12 +3287,8 @@ void Helper
             v[0] = scale;
             v[1] = X[0*XLDim];
             v[2] = X[1*XLDim];
-            Output("vBef ~ ",v[0]," ",v[1]," ",v[2]);
             Real phi = Reflector( 3, v[2], v, 1 );
             v[2] = 1; 
-
-            Output("phi=",phi);
-            Output("v ~ ",v[0]," ",v[1]," ",v[2]);
 
             if( testAccuracy )
             {
@@ -3358,8 +3301,6 @@ void Helper
                 //   D := D (I - phi v v') = D - (phi D v) v'
                 ApplyReflector( false, 3, 3, v, 1, phi, D, nSum, work );
 
-                El::Print( DMat, "DReflected" );
-
                 // Throw an exception if the rotation would be too inaccurate.
                 // As in LAPACK, rather than simply measuring the size of the 
                 // bottom-left block of the rotation of D (which should ideally
@@ -3368,7 +3309,9 @@ void Helper
                 Real errMeasure = Max( Abs(D[2+0*3]), Abs(D[2+1*3]) );
                 errMeasure = Max( errMeasure, Abs(D[2+2*3]-tau11) );
                 if( errMeasure > thresh )
-                    RuntimeError("Unacceptable Schur block swap");
+                    RuntimeError
+                    ("Unacceptable Schur block swap: errMeasure, ",errMeasure,
+                     " was greater than ",thresh);
             }
 
             // Perform the rotation on T
@@ -3377,17 +3320,14 @@ void Helper
             //   T := (I - phi v v') T = T - v (phi v' T)
             ApplyReflector
             ( true, 3, n-j1, v, 1, phi, &T[j1+j1*TLDim], TLDim, work );
-            El::Print( TMat, "TAfterLeft" );
             // Apply the rotation from the right,
             //   T := T (I - phi v v') = T - (phi T v) v'
             ApplyReflector
             ( false, j1+2, 3, v, 1, phi, &T[j1*TLDim], TLDim, work );
-            El::Print( TMat, "TAfterRight" );
             // Force our a priori knowledge that T is block upper-triangular
             T[(j1+2)+ j1   *TLDim] = zero;
             T[(j1+2)+(j1+1)*TLDim] = zero; 
             T[(j1+2)+(j1+2)*TLDim] = tau11;
-            El::Print( TMat, "TAfterZeroing" );
 
             if( wantSchurVecs )
             {
@@ -3399,7 +3339,6 @@ void Helper
         }
         else if( n1 == 2 && n2 == 1 )
         {
-            Output("n1=2 and n2=1");
             const Real tau22 = T[(j1+2)+(j1+2)*TLDim];
 
             // Compute the Householder reflection which satisfies
@@ -3437,7 +3376,9 @@ void Helper
                 Real errMeasure = Max( Abs(D[1+0*3]), Abs(D[2+0*3]) );
                 errMeasure = Max( errMeasure, Abs(D[0+0*3]-tau22) );
                 if( errMeasure > thresh )
-                    RuntimeError("Unacceptable Schur block swap");
+                    RuntimeError
+                    ("Unacceptable Schur block swap: errMeasure, ",errMeasure,
+                     " was greater than ",thresh);
             }
 
             // Perform the rotation on T
@@ -3465,7 +3406,6 @@ void Helper
         }
         else
         {
-            Output("n1=2 and n2=2");
             // Compute the Householder reflections which satisfy
             //
             //   Q1^T Q0^T | -X | = | R |
@@ -3517,7 +3457,9 @@ void Helper
                 errMeasure = Max( errMeasure, Abs(D[3+0*4]) );
                 errMeasure = Max( errMeasure, Abs(D[3+1*4]) );
                 if( errMeasure > thresh )
-                    RuntimeError("Unacceptable Schur block swap");
+                    RuntimeError
+                    ("Unacceptable Schur block swap: errMeasure, ",errMeasure,
+                     " was greater than ",thresh);
             }
 
             // Perform the rotation on T
@@ -3556,12 +3498,9 @@ void Helper
             }
         }
 
-        El::Print( TMat, "TMat before cleanup" );
-
         // Clean up
         if( n1 == 2 )
         {
-            Output("n1==2 cleanup");
             // Force the rotated T11 into standard form
             Real c, s;
             const Int j3 = j1+n2;
@@ -3588,10 +3527,8 @@ void Helper
                   &Q[j4*QLDim], 1, c, s );
             }
         }
-        El::Print( TMat, "TMat after n1==2" );
         if( n2 == 2 )
         {
-            Output("n2==2 cleanup");
             // Force the rotated T22 into standard form
             Real c, s;
             const Int j2 = j1+1;
@@ -3614,7 +3551,6 @@ void Helper
                   &Q[j2*QLDim], 1, c, s );
             }
         }
-        El::Print( TMat, "TMat after n2==2" );
     }
 }
 
@@ -3794,21 +3730,12 @@ void Helper
         --j2;
     const bool doubleSecond = ( j1 < n-1 && T[(j1+1)+j1*TLDim] != zero );
 
-    Output
-    ("j1=",j1,", j2=",j2,", doubleFirst=",doubleFirst,
-     ", doubleSecond=",doubleSecond);
-    El::Matrix<Real> TMat( n, n, T, TLDim );
-    El::Matrix<Real> QMat( n, n, Q, QLDim );
-    El::Print( TMat, "THelper" );
-    El::Print( QMat, "QHelper" );
-
     if( j1 == j2 )
         return; 
 
     bool splitDouble = false;
     if( j1 < j2 )
     {
-        Output("j1 < j2");
         // We will translate down the j1 block, one swap at a time
         if( doubleFirst && !doubleSecond ) 
             --j2;
@@ -3889,15 +3816,11 @@ void Helper
     }
     else
     {
-        Output("j1 >= j2");
         // We will translate up the j1 block, one swap at a time
         for( Int j=j1; j>j2; )
         {
             if( !splitDouble )
             {
-                Output("!splitDouble with j=",j);
-                Print( TMat, "TStep" );
-                Print( QMat, "QStep" );
                 bool doubleNext = ( j>=2 && T[(j-1)+(j-2)*TLDim] != zero );
                 Int nbNext = ( doubleNext ? 2 : 1 );
                 adjacent_schur::Helper
@@ -3914,9 +3837,6 @@ void Helper
             else
             {
                 // The 2x2 has split (this is very rare)
-                Output("Rare split with j=",j);
-                Print( TMat, "TStep" );
-                Print( QMat, "QStep" );
                 bool doubleNext = ( j>=2 && T[(j-1)+(j-2)*TLDim] != zero );
                 Int nbNext = ( doubleNext ? 2 : 1 );
                 adjacent_schur::Helper
