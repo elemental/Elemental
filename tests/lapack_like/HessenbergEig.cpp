@@ -18,20 +18,37 @@ void HessenbergQR
 ( Matrix<Real>& H,
   Matrix<Real>& wReal,
   Matrix<Real>& wImag,
-  bool fullTriangle=true )
+  bool fullTriangle=true,
+  bool useAED=true,
+  bool progress=false )
 {
     Int winBeg=0, winEnd=H.Height();
     bool wantSchurVecs=false;
     bool demandConverged=true;
     Matrix<Real> Z;
-    hess_qr::WindowedSingle
-    ( H,
-      winBeg, winEnd,
-      wReal, wImag,
-      fullTriangle, 
-      Z,
-      wantSchurVecs,
-      demandConverged );
+    if( useAED )
+    {
+        hess_qr::WindowedAED
+        ( H,
+          winBeg, winEnd,
+          wReal, wImag,
+          fullTriangle, 
+          Z,
+          wantSchurVecs,
+          demandConverged,
+          progress );
+    }
+    else
+    {
+        hess_qr::WindowedSingle
+        ( H,
+          winBeg, winEnd,
+          wReal, wImag,
+          fullTriangle, 
+          Z,
+          wantSchurVecs,
+          demandConverged );
+    }
 }
 
 template<typename Real>
@@ -40,19 +57,36 @@ void HessenbergQR
   Matrix<Real>& wReal,
   Matrix<Real>& wImag,
   Matrix<Real>& Z,
-  bool fullTriangle=true )
+  bool fullTriangle=true,
+  bool useAED=true,
+  bool progress=false )
 {
     Int winBeg=0, winEnd=H.Height();
     bool wantSchurVecs=true;
     bool demandConverged=true;
-    hess_qr::WindowedSingle
-    ( H,
-      winBeg, winEnd,
-      wReal, wImag,
-      fullTriangle, 
-      Z,
-      wantSchurVecs,
-      demandConverged );
+    if( useAED )
+    {
+        hess_qr::WindowedAED
+        ( H,
+          winBeg, winEnd,
+          wReal, wImag,
+          fullTriangle, 
+          Z,
+          wantSchurVecs,
+          demandConverged,
+          progress );
+    }
+    else
+    {
+        hess_qr::WindowedSingle
+        ( H,
+          winBeg, winEnd,
+          wReal, wImag,
+          fullTriangle, 
+          Z,
+          wantSchurVecs,
+          demandConverged );
+    }
 }
 
 template<typename Real>
@@ -142,7 +176,7 @@ void TestAhuesTisseur( bool print )
 }
 
 template<typename Real>
-void TestAhuesTisseurQuasi( bool print )
+void TestAhuesTisseurQuasi( bool useAED, bool progress, bool print )
 {
     typedef Real F;
     const Int n = 3;
@@ -169,7 +203,8 @@ void TestAhuesTisseurQuasi( bool print )
     T = H;
     Timer timer;
     timer.Start();
-    HessenbergQR( T, wReal, wImag, Z );
+    const bool fullTriangle = true;
+    HessenbergQR( T, wReal, wImag, Z, fullTriangle, useAED, progress );
     Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
@@ -226,7 +261,7 @@ void TestRandom( Int n, bool print )
 }
 
 template<typename Real>
-void TestRandomQuasi( Int n, bool print )
+void TestRandomQuasi( Int n, bool useAED, bool progress, bool print )
 {
     typedef Real F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
@@ -244,7 +279,8 @@ void TestRandomQuasi( Int n, bool print )
     T = H;
     Timer timer;
     timer.Start();
-    HessenbergQR( T, wReal, wImag, Z );
+    const bool fullTriangle = true;
+    HessenbergQR( T, wReal, wImag, Z, fullTriangle, useAED, progress );
     Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
@@ -286,7 +322,7 @@ void TestSmallBulgeSweep
     const Int numShifts = 2*numShiftPairs;
     if( print )
         Output("Shift pairs:");
-    vector<Real> realShifts(numShifts), imagShifts(numShifts);
+    Matrix<Real> realShifts(numShifts,1), imagShifts(numShifts,1);
     for( Int i=0; i<numShiftPairs; ++i ) 
     {
         const Real sigmaReal = SampleUniform<Real>();
@@ -296,10 +332,10 @@ void TestSmallBulgeSweep
             Output(sigmaReal," + ",sigmaImag,"i");
             Output(sigmaReal," - ",sigmaImag,"i");
         }
-        realShifts[2*i+0] =  sigmaReal;
-        realShifts[2*i+1] =  sigmaReal;
-        imagShifts[2*i+0] =  sigmaImag;
-        imagShifts[2*i+1] = -sigmaImag;
+        realShifts(2*i+0) =  sigmaReal;
+        realShifts(2*i+1) =  sigmaReal;
+        imagShifts(2*i+0) =  sigmaImag;
+        imagShifts(2*i+1) = -sigmaImag;
     }
 
     Matrix<Real> Z; 
@@ -340,21 +376,23 @@ int main( int argc, char* argv[] )
     try
     {
         const Int n = Input("--n","random matrix size",60);
+        const bool useAED = Input("--aed","use Aggressive Early Deflat?",true);
+        const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
-        TestAhuesTisseurQuasi<float>( print );
-        TestAhuesTisseurQuasi<double>( print );
+        TestAhuesTisseurQuasi<float>( useAED, progress, print );
+        TestAhuesTisseurQuasi<double>( useAED, progress, print );
 #ifdef EL_HAVE_QUAD
-        TestAhuesTisseurQuasi<Quad>( print );
+        TestAhuesTisseurQuasi<Quad>( useAED, progress, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestAhuesTisseurQuasi<DoubleDouble>( print );
-        TestAhuesTisseurQuasi<QuadDouble>( print );
+        TestAhuesTisseurQuasi<DoubleDouble>( useAED, progress, print );
+        TestAhuesTisseurQuasi<QuadDouble>( useAED, progress, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestAhuesTisseurQuasi<BigFloat>( print );
+        TestAhuesTisseurQuasi<BigFloat>( useAED, progress, print );
 #endif
 
         TestAhuesTisseur<float>( print );
@@ -370,17 +408,17 @@ int main( int argc, char* argv[] )
         TestAhuesTisseur<BigFloat>( print );
 #endif
 
-        TestRandomQuasi<float>( n, print );
-        TestRandomQuasi<double>( n, print );
+        TestRandomQuasi<float>( n, useAED, progress, print );
+        TestRandomQuasi<double>( n, useAED, progress, print );
 #ifdef EL_HAVE_QUAD
-        TestRandomQuasi<Quad>( n, print );
+        TestRandomQuasi<Quad>( n, useAED, progress, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestRandomQuasi<DoubleDouble>( n, print );
-        TestRandomQuasi<QuadDouble>( n, print );
+        TestRandomQuasi<DoubleDouble>( n, useAED, progress, print );
+        TestRandomQuasi<QuadDouble>( n, useAED, progress, print );
 #endif
-#ifdef EL_HAVE_QD
-        TestRandomQuasi<BigFloat>( n, print );
+#ifdef EL_HAVE_MPC
+        TestRandomQuasi<BigFloat>( n, useAED, progress, print );
 #endif
 
         TestRandom<float>( n, print );

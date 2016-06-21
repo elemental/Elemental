@@ -483,6 +483,7 @@ void DoubleShiftSweep
     }
 }
 
+// Return the number of unconverged eigenvalues
 template<typename Real>
 Int WindowedSingle
 ( Matrix<Real>& H,
@@ -509,13 +510,13 @@ Int WindowedSingle
 
     if( windowSize == 0 )
     {
-        return winBeg;
+        return 0;
     }
     if( windowSize == 1 )
     {
         wReal(winBeg) = H(winBeg,winBeg);
         wImag(winBeg) = zero;
-        return winBeg;
+        return 0;
     }
 
     // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
@@ -627,12 +628,18 @@ Int WindowedSingle
               Z,
               wantSchurVecs );
         }
-        if( iter == maxIter && demandConverged )
-            RuntimeError("QR iteration did not converge");
+        if( iter == maxIter )
+        {
+            if( demandConverged )
+                RuntimeError("QR iteration did not converge");
+            else
+                break;
+        }
     }
-    return winEnd;
+    return winEnd-winBeg;
 }
 
+// Return the number of unconverged eigenvalues
 template<typename Real>
 Int WindowedSingle
 (       Matrix<Complex<Real>>& H,
@@ -655,12 +662,12 @@ Int WindowedSingle
 
     if( windowSize == 0 )
     {
-        return winBeg;
+        return 0;
     }
     if( windowSize == 1 )
     {
         w(winBeg) = H(winBeg,winBeg);
-        return winBeg;
+        return 0;
     }
 
     // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
@@ -741,10 +748,15 @@ Int WindowedSingle
               Z,
               wantSchurVecs );
         }
-        if( iter == maxIter && demandConverged )
-            RuntimeError("QR iteration did not converge");
+        if( iter == maxIter )
+        {
+            if( demandConverged )
+                RuntimeError("QR iteration did not converge");
+            else
+                break;
+        }
     }
-    return winEnd;
+    return winEnd-winBeg;
 }
 
 } // namespace hess_qr

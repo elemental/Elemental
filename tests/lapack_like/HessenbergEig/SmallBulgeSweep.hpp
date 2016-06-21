@@ -107,61 +107,45 @@ void IntroduceBulge
 }
 
 template<typename Real>
-void PairShifts( vector<Real>& realShifts, vector<Real>& imagShifts )
+void PairShifts( Matrix<Real>& wReal, Matrix<Real>& wImag )
 {
     DEBUG_CSE
-    const Int numShifts = realShifts.size();
-    const Real zero(0);
+    const Int numShifts = wReal.Height();
 
-    // TODO: Make this routine simpler
+    Real tmp;
+    for( Int i=numShifts-1; i>=2; i-=2 )
+    {
+        if( wImag(i) != -wImag(i-1) )
+        {
+            tmp = wReal(i);
+            wReal(i) = wReal(i-1);
+            wReal(i-1) = wReal(i-2);
+            wReal(i-2) = tmp;
 
-    // Count the number of real shifts
-    Int numRealShifts = 0;
-    for( Int i=0; i<numShifts; ++i )
-    {
-        if( imagShifts[i] == zero )
-            ++numRealShifts;
-    }
-    DEBUG_ONLY(
-      if( numRealShifts % 2 != 0 )
-          LogicError("Expected an even number of real shifts");
-    )
-    // Group the real shifts together up front, followed by conjugate pairs
-    vector<Real> realShiftsSort(numShifts), imagShiftsSort(numShifts);
-    Int realOff=0, complexOff=numRealShifts;
-    for( Int i=0; i<numShifts; ++i )
-    {
-        if( imagShifts[i] == zero ) 
-        {
-            realShiftsSort[realOff] = realShifts[i];
-            imagShiftsSort[realOff] = zero;
-            ++realOff;
-        }
-        else
-        {
-            realShiftsSort[complexOff] = realShifts[i]; 
-            imagShiftsSort[complexOff] = imagShifts[i];
-            ++complexOff;
+            tmp = wImag(i);
+            wImag(i) = wImag(i-1);
+            wImag(i-1) = wImag(i-2);
+            wImag(i-2) = tmp;
         }
     }
+
     DEBUG_ONLY(
-      for( Int i=numRealShifts; i<numShifts; i+=2 )
+      for( Int i=numShifts-1; i>=2; i-=2 )
       {
-          if( imagShiftsSort[i] != -imagShiftsSort[i+1] )
-              LogicError("Complex shifts did not come in conjugate pairs");
+          if( wImag(i) != -wImag(i-1) )
+          {
+              RuntimeError("Shifts were not properly paired");
+          }
       }
     )
-
-    realShifts = realShiftsSort;
-    imagShifts = imagShiftsSort;
 }
 
 template<typename Real>
 void ComputeReflectors
 ( Matrix<Real>& H,
   Int winBeg,
-  vector<Real>& realShifts,
-  vector<Real>& imagShifts,
+  Matrix<Real>& realShifts,
+  Matrix<Real>& imagShifts,
   Matrix<Real>& W,
   Int packetBeg,
   Int fullBeg,
@@ -179,10 +163,10 @@ void ComputeReflectors
     if( have3x3 )
     {
         const Int bulge = fullEnd;
-        const Real realShift0 = realShifts[2*bulge];
-        const Real imagShift0 = imagShifts[2*bulge];
-        const Real realShift1 = realShifts[2*bulge+1];
-        const Real imagShift1 = imagShifts[2*bulge+1];
+        const Real realShift0 = realShifts(2*bulge);
+        const Real imagShift0 = imagShifts(2*bulge);
+        const Real realShift1 = realShifts(2*bulge+1);
+        const Real imagShift1 = imagShifts(2*bulge+1);
         const Int bulgeBeg = packetBeg + 3*bulge;
         Real* w = &W(0,bulge);
 
@@ -206,10 +190,10 @@ void ComputeReflectors
     }
     for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
     {
-        const Real realShift0 = realShifts[2*bulge];
-        const Real imagShift0 = imagShifts[2*bulge];
-        const Real realShift1 = realShifts[2*bulge+1];
-        const Real imagShift1 = imagShifts[2*bulge+1];
+        const Real realShift0 = realShifts(2*bulge);
+        const Real imagShift0 = imagShifts(2*bulge);
+        const Real realShift1 = realShifts(2*bulge+1);
+        const Real imagShift1 = imagShifts(2*bulge+1);
         const Int bulgeBeg = packetBeg + 3*bulge;
         Real* w = &W(0,bulge);
         auto ind1 = IR(bulgeBeg+1,bulgeBeg+4);
@@ -539,8 +523,8 @@ void SmallBulgeSweep
 ( Matrix<Real>& H,
   Int winBeg,
   Int winEnd,
-  vector<Real>& realShifts,
-  vector<Real>& imagShifts,
+  Matrix<Real>& realShifts,
+  Matrix<Real>& imagShifts,
   bool fullTriangle,
   Matrix<Real>& Z,
   bool wantSchurVecs,
@@ -552,9 +536,8 @@ void SmallBulgeSweep
     DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
-    const Int nZ = Z.Height();
 
-    const Int numShifts = realShifts.size();
+    const Int numShifts = realShifts.Height();
     DEBUG_ONLY(
       if( numShifts < 2 )
           LogicError("Expected at least one pair of shifts..."); 
@@ -649,8 +632,6 @@ void SmallBulgeSweep
             const Int transformEnd = ( fullTriangle ? n : winEnd );
  
             const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
-            const Int slabWinEnd = Min(slabEnd,winEnd);
-
             const Int nU = (slabSize-1) - Max(0,slabEnd-winEnd) - slabRelBeg;
 
             auto contractInd = IR(0,nU) + slabRelBeg;
