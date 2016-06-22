@@ -6,9 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef EL_SCHUR_HESSQR_AED_SWEEP_HPP
+#define EL_SCHUR_HESSQR_AED_SWEEP_HPP
 
+namespace El {
+namespace schur {
 namespace hess_qr {
-namespace small_bulge_sweep {
+namespace aed {
 
 template<typename Real>
 void ImplicitQQuadraticSeed
@@ -480,8 +484,7 @@ void ApplyReflectors
     const Int vigBeg =
       ( packetBeg+3*fullBeg == winBeg-1 ? fullBeg+1 : fullBeg );
     const Int vigEnd = ( have3x3 ? fullEnd+1 : fullEnd );
-    small_bulge_sweep::VigilantDeflation
-    ( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd );
+    VigilantDeflation( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd );
 
     // Form the last row of the result of applying from the right:
     //
@@ -516,26 +519,22 @@ void ApplyReflectors
     }
 }
 
-} // namespace small_bulge_sweep
-
 template<typename Real>
-void SmallBulgeSweep
+void Sweep
 ( Matrix<Real>& H,
-  Int winBeg,
-  Int winEnd,
   Matrix<Real>& realShifts,
   Matrix<Real>& imagShifts,
-  bool fullTriangle,
   Matrix<Real>& Z,
-  bool wantSchurVecs,
   Matrix<Real>& U,
   Matrix<Real>& W,
   Matrix<Real>& WAccum,
-  bool accumulate=true )
+  const HessenbergQRCtrl& ctrl )
 {
     DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
+    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
 
     const Int numShifts = realShifts.Height();
     DEBUG_ONLY(
@@ -546,7 +545,7 @@ void SmallBulgeSweep
     )
     const Int numBulges = numShifts / 2;
 
-    small_bulge_sweep::PairShifts( realShifts, imagShifts );
+    PairShifts( realShifts, imagShifts );
 
     // TODO: Decide if this is strictly necessary
     H(winBeg+2,winBeg) = zero;
@@ -586,7 +585,7 @@ void SmallBulgeSweep
     {
         // Note that this slab endpoint may be past winEnd
         const Int slabEnd = ghostCol + slabSize;
-        if( accumulate )
+        if( ctrl.accumulateReflections )
             Identity( U, slabSize-1, slabSize-1 );
 
         const Int packetEnd = Min(ghostCol+ghostStride,ghostEnd);
@@ -600,36 +599,36 @@ void SmallBulgeSweep
             const bool have3x3 =
               ( fullEnd < numBulges && packetBeg+3*fullEnd == winEnd-3 );
 
-            small_bulge_sweep::ComputeReflectors
+            ComputeReflectors
             ( H, winBeg, realShifts, imagShifts, W,
               packetBeg, fullBeg, fullEnd, have3x3 );
 
             Int transformBeg;
-            if( accumulate )
+            if( ctrl.accumulateReflections )
                 transformBeg = Max( winBeg, ghostCol );
-            else if( fullTriangle )
+            else if( ctrl.fullTriangle )
                 transformBeg = 0;
             else
                 transformBeg = winBeg;
 
             Int transformEnd;
-            if( accumulate )
+            if( ctrl.accumulateReflections )
                 transformEnd = Min( slabEnd, winEnd );
-            else if( fullTriangle )
+            else if( ctrl.fullTriangle )
                 transformEnd = n;
             else
                 transformEnd = winEnd;
 
-            small_bulge_sweep::ApplyReflectors
+            ApplyReflectors
             ( H, winBeg, winEnd,
               slabSize, ghostCol, packetBeg, transformBeg, transformEnd,
-              Z, wantSchurVecs, U, W,
-              fullBeg, fullEnd, have3x3, accumulate );
+              Z, ctrl.wantSchurVecs, U, W,
+              fullBeg, fullEnd, have3x3, ctrl.accumulateReflections );
         }
-        if( accumulate )
+        if( ctrl.accumulateReflections )
         {
-            const Int transformBeg = ( fullTriangle ? 0 : winBeg );
-            const Int transformEnd = ( fullTriangle ? n : winEnd );
+            const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg );
+            const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
  
             const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
             const Int nU = (slabSize-1) - Max(0,slabEnd-winEnd) - slabRelBeg;
@@ -652,7 +651,7 @@ void SmallBulgeSweep
             Gemm( NORMAL, NORMAL, Real(1), HVertFar, UAccum, WAccum );
             HVertFar = WAccum;
 
-            if( wantSchurVecs )
+            if( ctrl.wantSchurVecs )
             {
                 auto ZSub = Z( ALL, horzInd );
                 Gemm( NORMAL, NORMAL, Real(1), ZSub, UAccum, WAccum );
@@ -662,4 +661,9 @@ void SmallBulgeSweep
     }
 }
 
+} // namespace aed
 } // namespace hess_qr
+} // namespace schur
+} // namespace El
+
+#endif // ifndef EL_SCHUR_HESSQR_AED_SWEEP_HPP

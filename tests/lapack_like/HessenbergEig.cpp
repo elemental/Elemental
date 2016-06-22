@@ -9,125 +9,126 @@
 #include <El.hpp>
 using namespace El;
 
-#include "./HessenbergEig/WindowedSingle.hpp"
-#include "./HessenbergEig/SmallBulgeSweep.hpp"
+namespace El {
+namespace schur {
+
+struct HessenbergQRInfo
+{
+    Int numUnconverged=0;
+    Int numIterations=0;
+};
+
+struct HessenbergQRCtrl
+{
+    Int winBeg=0;
+    Int winEnd=END;
+    bool fullTriangle=true;
+    bool wantSchurVecs=false;
+    bool demandConverged=true;
+
+    bool useAED=true;
+    bool recursiveAED=true;
+    bool accumulateReflections=true;
+
+    bool progress=false;
+};
+
+} // namespace schur
+} // namespace El
+
+#include "./HessenbergEig/SingleShift.hpp"
+#include "./HessenbergEig/DoubleShift.hpp"
 #include "./HessenbergEig/AED.hpp"
 
+namespace El {
+namespace schur {
+
 template<typename Real>
-void HessenbergQR
+HessenbergQRInfo
+HessenbergQR
 ( Matrix<Real>& H,
   Matrix<Real>& wReal,
   Matrix<Real>& wImag,
-  bool fullTriangle=true,
-  bool useAED=true,
-  bool progress=false )
+  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
 {
-    Int winBeg=0, winEnd=H.Height();
-    bool wantSchurVecs=false;
-    bool demandConverged=true;
+    const Int n = H.Height();
+    auto ctrlMod( ctrl );
+    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    ctrlMod.wantSchurVecs = false;
+
     Matrix<Real> Z;
-    if( useAED )
+    if( ctrl.useAED )
     {
-        hess_qr::WindowedAED
-        ( H,
-          winBeg, winEnd,
-          wReal, wImag,
-          fullTriangle, 
-          Z,
-          wantSchurVecs,
-          demandConverged,
-          progress );
+        return hess_qr::AED( H, wReal, wImag, Z, ctrlMod );
     }
     else
     {
-        hess_qr::WindowedSingle
-        ( H,
-          winBeg, winEnd,
-          wReal, wImag,
-          fullTriangle, 
-          Z,
-          wantSchurVecs,
-          demandConverged );
+        return hess_qr::DoubleShift( H, wReal, wImag, Z, ctrlMod );
     }
 }
 
 template<typename Real>
-void HessenbergQR
+HessenbergQRInfo
+HessenbergQR
 ( Matrix<Real>& H,
   Matrix<Real>& wReal,
   Matrix<Real>& wImag,
   Matrix<Real>& Z,
-  bool fullTriangle=true,
-  bool useAED=true,
-  bool progress=false )
+  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
 {
-    Int winBeg=0, winEnd=H.Height();
-    bool wantSchurVecs=true;
-    bool demandConverged=true;
-    if( useAED )
+    const Int n = H.Height();
+    auto ctrlMod( ctrl );
+    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    ctrlMod.wantSchurVecs = true;
+
+    if( ctrl.useAED )
     {
-        hess_qr::WindowedAED
-        ( H,
-          winBeg, winEnd,
-          wReal, wImag,
-          fullTriangle, 
-          Z,
-          wantSchurVecs,
-          demandConverged,
-          progress );
+        return schur::hess_qr::AED( H, wReal, wImag, Z, ctrlMod );
     }
     else
     {
-        hess_qr::WindowedSingle
-        ( H,
-          winBeg, winEnd,
-          wReal, wImag,
-          fullTriangle, 
-          Z,
-          wantSchurVecs,
-          demandConverged );
+        return schur::hess_qr::DoubleShift( H, wReal, wImag, Z, ctrlMod );
     }
 }
 
 template<typename Real>
-void HessenbergQR
+HessenbergQRInfo
+HessenbergQR
 ( Matrix<Complex<Real>>& H,
   Matrix<Complex<Real>>& w,
-  bool fullTriangle=true )
+  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
 {
-    Int winBeg=0, winEnd=H.Height();
-    bool wantSchurVecs=false;
-    bool demandConverged=true;
+    const Int n = H.Height();
+    auto ctrlMod( ctrl );
+    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    ctrlMod.wantSchurVecs = false;
+
     Matrix<Complex<Real>> Z;
-    hess_qr::WindowedSingle
-    ( H,
-      winBeg, winEnd,
-      w,
-      fullTriangle, 
-      Z,
-      wantSchurVecs,
-      demandConverged );
+    return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
 }
 
 template<typename Real>
-void HessenbergQR
+HessenbergQRInfo
+HessenbergQR
 ( Matrix<Complex<Real>>& H,
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& Z,
-  bool fullTriangle=true )
+  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
 {
-    Int winBeg=0, winEnd=H.Height();
-    bool wantSchurVecs=true;
-    bool demandConverged=true;
-    hess_qr::WindowedSingle
-    ( H,
-      winBeg, winEnd,
-      w,
-      fullTriangle, 
-      Z,
-      wantSchurVecs,
-      demandConverged );
+    const Int n = H.Height();
+    auto ctrlMod( ctrl );
+    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    ctrlMod.wantSchurVecs = true;
+
+    return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
 }
+
+} // namespace schur
+} // namespace El
 
 template<typename Real>
 void TestAhuesTisseur( bool print )
@@ -157,7 +158,7 @@ void TestAhuesTisseur( bool print )
     T = H;
     Timer timer;
     timer.Start();
-    HessenbergQR( T, w, Z );
+    schur::HessenbergQR( T, w, Z );
     Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
@@ -176,7 +177,7 @@ void TestAhuesTisseur( bool print )
 }
 
 template<typename Real>
-void TestAhuesTisseurQuasi( bool useAED, bool progress, bool print )
+void TestAhuesTisseurQuasi( const schur::HessenbergQRCtrl& ctrl, bool print )
 {
     typedef Real F;
     const Int n = 3;
@@ -203,8 +204,7 @@ void TestAhuesTisseurQuasi( bool useAED, bool progress, bool print )
     T = H;
     Timer timer;
     timer.Start();
-    const bool fullTriangle = true;
-    HessenbergQR( T, wReal, wImag, Z, fullTriangle, useAED, progress );
+    schur::HessenbergQR( T, wReal, wImag, Z, ctrl );
     Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
@@ -242,7 +242,7 @@ void TestRandom( Int n, bool print )
     T = H;
     Timer timer;
     timer.Start();
-    HessenbergQR( T, w, Z );
+    schur::HessenbergQR( T, w, Z );
     Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
@@ -261,7 +261,7 @@ void TestRandom( Int n, bool print )
 }
 
 template<typename Real>
-void TestRandomQuasi( Int n, bool useAED, bool progress, bool print )
+void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 {
     typedef Real F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
@@ -279,8 +279,7 @@ void TestRandomQuasi( Int n, bool useAED, bool progress, bool print )
     T = H;
     Timer timer;
     timer.Start();
-    const bool fullTriangle = true;
-    HessenbergQR( T, wReal, wImag, Z, fullTriangle, useAED, progress );
+    schur::HessenbergQR( T, wReal, wImag, Z, ctrl );
     Output("  HessenbergQR: ",timer.Stop()," seconds");
     if( print )
     {
@@ -299,76 +298,6 @@ void TestRandomQuasi( Int n, bool useAED, bool progress, bool print )
         Print( R );
 }
 
-template<typename Real>
-void TestSmallBulgeSweep
-( Int n,
-  Int numShiftPairs,
-  Int winBeg,
-  Int winEnd,
-  bool fullTriangle,
-  bool wantSchurVecs, 
-  bool accumulate,
-  bool print )
-{
-    DEBUG_CSE
-    Matrix<Real> H;
-    Uniform( H, n, n );
-    MakeTrapezoidal( UPPER, H, -1 );
-
-    auto HOrig( H );
-    if( print )
-        Print( HOrig, "HOrig" );
-    
-    const Int numShifts = 2*numShiftPairs;
-    if( print )
-        Output("Shift pairs:");
-    Matrix<Real> realShifts(numShifts,1), imagShifts(numShifts,1);
-    for( Int i=0; i<numShiftPairs; ++i ) 
-    {
-        const Real sigmaReal = SampleUniform<Real>();
-        const Real sigmaImag = SampleUniform<Real>();
-        if( print )
-        {
-            Output(sigmaReal," + ",sigmaImag,"i");
-            Output(sigmaReal," - ",sigmaImag,"i");
-        }
-        realShifts(2*i+0) =  sigmaReal;
-        realShifts(2*i+1) =  sigmaReal;
-        imagShifts(2*i+0) =  sigmaImag;
-        imagShifts(2*i+1) = -sigmaImag;
-    }
-
-    Matrix<Real> Z; 
-    Identity( Z, n, n );
-    Matrix<Real> U, W, WAccum;
-    hess_qr::SmallBulgeSweep
-    ( H, winBeg, winEnd, realShifts, imagShifts,
-      fullTriangle, Z, wantSchurVecs, U, W, WAccum, accumulate );
-    if( print )
-    {
-        Print( H, "H" );
-        if( wantSchurVecs )
-            Print( Z, "Z" );
-    }
-
-    auto HNonHess( H );
-    MakeTrapezoidal( LOWER, HNonHess, -2 );
-    const Real nonHessNorm = FrobeniusNorm( HNonHess );
-    Output("Non-Hessenberg Frobenius norm: ",nonHessNorm);
-
-    MakeTrapezoidal( UPPER, H, -1 );
-
-    if( fullTriangle && wantSchurVecs )
-    {
-        auto E( H );
-        Matrix<Real> Y;
-        Gemm( ADJOINT, NORMAL, Real(1), Z, HOrig, Y );
-        Gemm( NORMAL, NORMAL, Real(-1), Y, Z, Real(1), E );
-        const Real consistencyRelErr = FrobeniusNorm(E) / FrobeniusNorm(HOrig);
-        Output("|| Z' HOrig Z - H ||_F / || HOrig ||_F = ",consistencyRelErr);
-    }
-}
-
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -382,17 +311,21 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        TestAhuesTisseurQuasi<float>( useAED, progress, print );
-        TestAhuesTisseurQuasi<double>( useAED, progress, print );
+        schur::HessenbergQRCtrl ctrl;
+        ctrl.useAED = useAED;
+        ctrl.progress = progress;
+
+        TestAhuesTisseurQuasi<float>( ctrl, print );
+        TestAhuesTisseurQuasi<double>( ctrl, print );
 #ifdef EL_HAVE_QUAD
-        TestAhuesTisseurQuasi<Quad>( useAED, progress, print );
+        TestAhuesTisseurQuasi<Quad>( ctrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestAhuesTisseurQuasi<DoubleDouble>( useAED, progress, print );
-        TestAhuesTisseurQuasi<QuadDouble>( useAED, progress, print );
+        TestAhuesTisseurQuasi<DoubleDouble>( ctrl, print );
+        TestAhuesTisseurQuasi<QuadDouble>( ctrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestAhuesTisseurQuasi<BigFloat>( useAED, progress, print );
+        TestAhuesTisseurQuasi<BigFloat>( ctrl, print );
 #endif
 
         TestAhuesTisseur<float>( print );
@@ -408,17 +341,17 @@ int main( int argc, char* argv[] )
         TestAhuesTisseur<BigFloat>( print );
 #endif
 
-        TestRandomQuasi<float>( n, useAED, progress, print );
-        TestRandomQuasi<double>( n, useAED, progress, print );
+        TestRandomQuasi<float>( n, ctrl, print );
+        TestRandomQuasi<double>( n, ctrl, print );
 #ifdef EL_HAVE_QUAD
-        TestRandomQuasi<Quad>( n, useAED, progress, print );
+        TestRandomQuasi<Quad>( n, ctrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestRandomQuasi<DoubleDouble>( n, useAED, progress, print );
-        TestRandomQuasi<QuadDouble>( n, useAED, progress, print );
+        TestRandomQuasi<DoubleDouble>( n, ctrl, print );
+        TestRandomQuasi<QuadDouble>( n, ctrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestRandomQuasi<BigFloat>( n, useAED, progress, print );
+        TestRandomQuasi<BigFloat>( n, ctrl, print );
 #endif
 
         TestRandom<float>( n, print );
@@ -433,16 +366,6 @@ int main( int argc, char* argv[] )
 #ifdef EL_HAVE_MPC
         TestRandom<BigFloat>( n, print );
 #endif
-
-        const Int numShiftPairs = n/2;
-        const Int winBeg = 0;
-        const Int winEnd = n;
-        const bool fullTriangle = true;
-        const bool wantSchurVecs = true;
-        const bool accumulate = true;
-        TestSmallBulgeSweep<double>
-        ( n, numShiftPairs, winBeg, winEnd,
-          fullTriangle, wantSchurVecs, accumulate, print );
     }
     catch( std::exception& e ) { ReportException(e); }
 
