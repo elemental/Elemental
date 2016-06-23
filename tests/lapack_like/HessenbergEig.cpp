@@ -47,8 +47,7 @@ template<typename Real>
 HessenbergQRInfo
 HessenbergQR
 ( Matrix<Real>& H,
-  Matrix<Real>& wReal,
-  Matrix<Real>& wImag,
+  Matrix<Complex<Real>>& w,
   const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
 {
     const Int n = H.Height();
@@ -60,11 +59,11 @@ HessenbergQR
     Matrix<Real> Z;
     if( ctrl.useAED )
     {
-        return hess_qr::AED( H, wReal, wImag, Z, ctrlMod );
+        return hess_qr::AED( H, w, Z, ctrlMod );
     }
     else
     {
-        return hess_qr::DoubleShift( H, wReal, wImag, Z, ctrlMod );
+        return hess_qr::DoubleShift( H, w, Z, ctrlMod );
     }
 }
 
@@ -72,8 +71,7 @@ template<typename Real>
 HessenbergQRInfo
 HessenbergQR
 ( Matrix<Real>& H,
-  Matrix<Real>& wReal,
-  Matrix<Real>& wImag,
+  Matrix<Complex<Real>>& w,
   Matrix<Real>& Z,
   const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
 {
@@ -85,11 +83,11 @@ HessenbergQR
 
     if( ctrl.useAED )
     {
-        return schur::hess_qr::AED( H, wReal, wImag, Z, ctrlMod );
+        return schur::hess_qr::AED( H, w, Z, ctrlMod );
     }
     else
     {
-        return schur::hess_qr::DoubleShift( H, wReal, wImag, Z, ctrlMod );
+        return schur::hess_qr::DoubleShift( H, w, Z, ctrlMod );
     }
 }
 
@@ -107,7 +105,14 @@ HessenbergQR
     ctrlMod.wantSchurVecs = false;
 
     Matrix<Complex<Real>> Z;
-    return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
+    if( ctrl.useAED )
+    {
+        return schur::hess_qr::AED( H, w, Z, ctrlMod );
+    }
+    else
+    {
+        return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
+    }
 }
 
 template<typename Real>
@@ -124,14 +129,21 @@ HessenbergQR
     ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     ctrlMod.wantSchurVecs = true;
 
-    return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
+    if( ctrl.useAED )
+    {
+        return schur::hess_qr::AED( H, w, Z, ctrlMod );
+    }
+    else
+    {
+        return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
+    }
 }
 
 } // namespace schur
 } // namespace El
 
 template<typename Real>
-void TestAhuesTisseur( bool print )
+void TestAhuesTisseur( const schur::HessenbergQRCtrl& ctrl, bool print )
 {
     typedef Complex<Real> F;
     const Int n = 3;
@@ -158,8 +170,9 @@ void TestAhuesTisseur( bool print )
     T = H;
     Timer timer;
     timer.Start();
-    schur::HessenbergQR( T, w, Z );
-    Output("  HessenbergQR: ",timer.Stop()," seconds");
+    auto info = schur::HessenbergQR( T, w, Z, ctrl );
+    Output("HessenbergQR: ",timer.Stop()," seconds");
+    Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
         Print( w, "w" );
@@ -199,17 +212,18 @@ void TestAhuesTisseurQuasi( const schur::HessenbergQRCtrl& ctrl, bool print )
     if( print )
         Print( H, "H" );
 
-    Matrix<F> T, wReal, wImag, Z;
+    Matrix<F> T, Z;
+    Matrix<Complex<Real>> w;
     Identity( Z, n, n );
     T = H;
     Timer timer;
     timer.Start();
-    schur::HessenbergQR( T, wReal, wImag, Z, ctrl );
-    Output("  HessenbergQR: ",timer.Stop()," seconds");
+    auto info = schur::HessenbergQR( T, w, Z, ctrl );
+    Output("HessenbergQR: ",timer.Stop()," seconds");
+    Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
-        Print( wReal, "wReal" );
-        Print( wImag, "wImag" );
+        Print( w, "w" );
         Print( Z, "Z" );
         Print( T, "T" );
     }
@@ -224,7 +238,7 @@ void TestAhuesTisseurQuasi( const schur::HessenbergQRCtrl& ctrl, bool print )
 }
 
 template<typename Real>
-void TestRandom( Int n, bool print )
+void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 {
     typedef Complex<Real> F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
@@ -242,8 +256,9 @@ void TestRandom( Int n, bool print )
     T = H;
     Timer timer;
     timer.Start();
-    schur::HessenbergQR( T, w, Z );
-    Output("  HessenbergQR: ",timer.Stop()," seconds");
+    auto info = schur::HessenbergQR( T, w, Z, ctrl );
+    Output("HessenbergQR: ",timer.Stop()," seconds");
+    Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
         Print( w, "w" );
@@ -274,17 +289,18 @@ void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
     if( print )
         Print( H, "H" );
 
-    Matrix<F> T, wReal, wImag, Z;
+    Matrix<F> T, Z;
+    Matrix<Complex<Real>> w;
     Identity( Z, H.Height(), H.Height() );
     T = H;
     Timer timer;
     timer.Start();
-    schur::HessenbergQR( T, wReal, wImag, Z, ctrl );
-    Output("  HessenbergQR: ",timer.Stop()," seconds");
+    auto info = schur::HessenbergQR( T, w, Z, ctrl );
+    Output("HessenbergQR: ",timer.Stop()," seconds");
+    Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
-        Print( wReal, "wReal" );
-        Print( wImag, "wImag" );
+        Print( w, "w" );
         Print( Z, "Z" );
         Print( T, "T" );
     }
@@ -328,17 +344,17 @@ int main( int argc, char* argv[] )
         TestAhuesTisseurQuasi<BigFloat>( ctrl, print );
 #endif
 
-        TestAhuesTisseur<float>( print );
-        TestAhuesTisseur<double>( print );
+        TestAhuesTisseur<float>( ctrl, print );
+        TestAhuesTisseur<double>( ctrl, print );
 #ifdef EL_HAVE_QUAD
-        TestAhuesTisseur<Quad>( print );
+        TestAhuesTisseur<Quad>( ctrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestAhuesTisseur<DoubleDouble>( print );
-        TestAhuesTisseur<QuadDouble>( print );
+        TestAhuesTisseur<DoubleDouble>( ctrl, print );
+        TestAhuesTisseur<QuadDouble>( ctrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestAhuesTisseur<BigFloat>( print );
+        TestAhuesTisseur<BigFloat>( ctrl, print );
 #endif
 
         TestRandomQuasi<float>( n, ctrl, print );
@@ -354,17 +370,17 @@ int main( int argc, char* argv[] )
         TestRandomQuasi<BigFloat>( n, ctrl, print );
 #endif
 
-        TestRandom<float>( n, print );
-        TestRandom<double>( n, print );
+        TestRandom<float>( n, ctrl, print );
+        TestRandom<double>( n, ctrl, print );
 #ifdef EL_HAVE_QUAD
-        TestRandom<Quad>( n, print );
+        TestRandom<Quad>( n, ctrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestRandom<DoubleDouble>( n, print );
-        TestRandom<QuadDouble>( n, print );
+        TestRandom<DoubleDouble>( n, ctrl, print );
+        TestRandom<QuadDouble>( n, ctrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestRandom<BigFloat>( n, print );
+        TestRandom<BigFloat>( n, ctrl, print );
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }

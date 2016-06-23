@@ -22,7 +22,7 @@ struct AEDInfo
 
 namespace aed {
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 AEDInfo SpikeDeflation
 (       Matrix<Real>& T,
         Matrix<Real>& V,
@@ -39,6 +39,16 @@ AEDInfo SpikeDeflation
     const Real smallNum = safeMin*(Real(n)/ulp);
      
     work.resize( Max(n,work.size()) );
+
+    // Clear the two diagonals below the upper-Hessenberg portion for
+    // SchurExchange
+    for( Int i=0; i<n-3; ++i )
+    {
+        T(i+2,i) = zero;
+        T(i+3,i) = zero;
+    }
+    if( n >= 3 )
+        T(n-1,n-3) = zero;
 
     Int winBeg = numUnconverged;
     Int winEnd = n;
@@ -94,9 +104,7 @@ AEDInfo SpikeDeflation
               ( spectralRadius > 0 ? spectralRadius : Abs(eta) );
 
             // The relevant entry of the spike V^T [eta; zeros(n-1,1)]
-            const Real sigma = eta*V(0,winEnd-1);
-
-            if( Abs(sigma) <= Max( smallNum, ulp*scale ) )
+            if( Abs(eta)*Abs(V(0,winEnd-1)) <= Max( smallNum, ulp*scale ) )
             {
                 // The one-by-one block satisfies the "nearby-diagonal" test
                 winEnd -= 1;
@@ -109,6 +117,52 @@ AEDInfo SpikeDeflation
                   winEnd-1, winBeg, work.data() );
                 winBeg += 1;
             }
+        }
+    }
+
+    AEDInfo info;
+    info.numUnconverged = numUnconverged;
+    info.numShiftCandidates = winBeg-numUnconverged;
+    info.numDeflated = n-winBeg;
+    return info;
+}
+
+template<typename Real>
+AEDInfo SpikeDeflation
+(       Matrix<Complex<Real>>& T,
+        Matrix<Complex<Real>>& V,
+  const Complex<Real>& eta,
+        Int numUnconverged,
+        vector<Complex<Real>>& work )
+{
+    DEBUG_CSE
+    const Int n = T.Height();
+    const Real ulp = limits::Precision<Real>();
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real smallNum = safeMin*(Real(n)/ulp);
+     
+    work.resize( Max(n,work.size()) );
+
+    Int winBeg = numUnconverged;
+    Int winEnd = n;
+    while( winBeg < winEnd )
+    {
+        const Real spectralRadius = OneAbs(T(winEnd-1,winEnd-1));
+        const Real scale =
+          ( spectralRadius > 0 ? spectralRadius : OneAbs(eta) );
+
+        // The relevant entry of the spike V' [eta; zeros(n-1,1)]
+        if( OneAbs(eta)*OneAbs(V(0,winEnd-1)) <= Max( smallNum, ulp*scale ) )
+        {
+            // The one-by-one block satisfies the "nearby-diagonal" test
+            winEnd -= 1;
+        }
+        else
+        {
+            // Move the undeflatable 1x1 block to the top of the window
+            lapack::SchurExchange
+            ( n, &T(0,0), T.LDim(), &V(0,0), V.LDim(), winEnd-1, winBeg );
+            winBeg += 1;
         }
     }
 

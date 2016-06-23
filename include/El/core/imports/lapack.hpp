@@ -622,6 +622,20 @@ void SchurExchange
   Real* work,
   bool testAccuracy=true );
 
+template<typename Real>
+void SchurExchange
+( BlasInt n,
+  Complex<Real>* T, BlasInt TLDim, 
+  BlasInt j1,
+  BlasInt j2 );
+template<typename Real>
+void SchurExchange
+( BlasInt n,
+  Complex<Real>* T, BlasInt TLDim, 
+  Complex<Real>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 );
+
 // Put a real 2x2 nonsymmetric matrix into standard form
 // =====================================================
 // Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
@@ -647,8 +661,8 @@ void TwoByTwoSchur
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
   Real& c, Real& s,
-  Real& lambda0Real, Real& lambda0Imag,
-  Real& lambda1Real, Real& lambda1Imag );
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1 );
 void TwoByTwoSchur
 ( float& alpha00, float& alpha01,
   float& alpha10, float& alpha11,
@@ -657,8 +671,8 @@ void TwoByTwoSchur
 ( float& alpha00, float& alpha01,
   float& alpha10, float& alpha11,
   float& c, float& s,
-  float& lambda0Real, float& lambda0Imag,
-  float& lambda1Real, float& lambda1Imag );
+  Complex<float>& lambda0,
+  Complex<float>& lambda1 );
 void TwoByTwoSchur
 ( double& alpha00, double& alpha01,
   double& alpha10, double& alpha11,
@@ -667,8 +681,8 @@ void TwoByTwoSchur
 ( double& alpha00, double& alpha01,
   double& alpha10, double& alpha11,
   double& c, double& s,
-  double& lambda0Real, double& lambda0Imag,
-  double& lambda1Real, double& lambda1Imag );
+  Complex<double>& lambda0,
+  Complex<double>& lambda1 );
 
 // Compute the Schur decomposition of an upper Hessenberg matrix
 // =============================================================

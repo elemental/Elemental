@@ -16,17 +16,16 @@ namespace El {
 namespace schur {
 namespace hess_qr {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real>
 HessenbergQRInfo
 DoubleShift
 ( Matrix<Real>& H,
-  Matrix<Real>& wReal,
-  Matrix<Real>& wImag,
+  Matrix<Complex<Real>>& w,
   Matrix<Real>& Z,
   const HessenbergQRCtrl& ctrl )
 {
     DEBUG_CSE
-    const Real zero(0);
+    const Real realZero(0);
     const Int maxIter=30;    
     // Cf. LAPACK for these somewhat arbitrary constants
     const Real exceptScale0=Real(3)/Real(4),
@@ -38,8 +37,7 @@ DoubleShift
     const Int windowSize = winEnd - winBeg;
     HessenbergQRInfo info;
 
-    wReal.Resize( n, 1 );
-    wImag.Resize( n, 1 );
+    w.Resize( n, 1 );
 
     if( windowSize == 0 )
     {
@@ -47,19 +45,18 @@ DoubleShift
     }
     if( windowSize == 1 )
     {
-        wReal(winBeg) = H(winBeg,winBeg);
-        wImag(winBeg) = zero;
+        w(winBeg) = H(winBeg,winBeg);
         return info;
     }
 
     // Follow LAPACK's suit and clear the two diagonals below the subdiagonal
     for( Int j=winBeg; j<winEnd-3; ++j ) 
     {
-        H(j+2,j) = zero;
-        H(j+3,j) = zero;
+        H(j+2,j) = realZero;
+        H(j+3,j) = realZero;
     }
     if( winBeg <= winEnd-3 )
-        H(winEnd-1,winEnd-3) = zero;
+        H(winEnd-1,winEnd-3) = realZero;
     
     // Attempt to converge the eigenvalues one or two at a time
     auto ctrlSweep( ctrl );
@@ -75,12 +72,11 @@ DoubleShift
             }
             if( iterBeg > winBeg )
             {
-                H(iterBeg,iterBeg-1) = zero;
+                H(iterBeg,iterBeg-1) = realZero;
             }
             if( iterBeg == winEnd-1 )
             {
-                wReal(iterBeg) = H(iterBeg,iterBeg);
-                wImag(iterBeg) = zero;
+                w(iterBeg) = H(iterBeg,iterBeg);
                 --winEnd;
                 break;
             }
@@ -91,8 +87,7 @@ DoubleShift
                 ( H(winEnd-2,winEnd-2), H(winEnd-2,winEnd-1),
                   H(winEnd-1,winEnd-2), H(winEnd-1,winEnd-1),
                   c, s,
-                  wReal(iterBeg),   wImag(iterBeg), 
-                  wReal(iterBeg+1), wImag(iterBeg+1) );
+                  w(iterBeg), w(iterBeg+1) );
                 if( ctrl.fullTriangle )
                 {
                     if( n > winEnd )
@@ -146,17 +141,15 @@ DoubleShift
                 eta10 = H(winEnd-1,winEnd-2);
                 eta11 = H(winEnd-1,winEnd-1);
             }
-            Real shift0Real, shift0Imag, shift1Real, shift1Imag;
+            Complex<Real> shift0, shift1;
             double_shift::PrepareShifts
             ( eta00, eta01,
               eta10, eta11,
-              shift0Real, shift0Imag,
-              shift1Real, shift1Imag );
+              shift0, shift1 );
 
             ctrlSweep.winBeg = iterBeg;
             ctrlSweep.winEnd = winEnd;
-            double_shift::Sweep
-            ( H, shift0Real, shift0Imag, shift1Real, shift1Imag, Z, ctrlSweep );
+            double_shift::Sweep( H, shift0, shift1, Z, ctrlSweep );
             ++info.numIterations;
         }
         if( iter == maxIter )

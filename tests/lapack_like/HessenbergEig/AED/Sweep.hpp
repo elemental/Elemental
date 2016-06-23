@@ -17,8 +17,8 @@ namespace aed {
 template<typename Real>
 void ImplicitQQuadraticSeed
 ( const Matrix<Real>& H,
-  const Real& shift0Real, const Real& shift0Imag, 
-  const Real& shift1Real, const Real& shift1Imag,
+  const Complex<Real>& shift0, 
+  const Complex<Real>& shift1,
         Real* v )
 {
     DEBUG_CSE
@@ -27,8 +27,8 @@ void ImplicitQQuadraticSeed
     DEBUG_ONLY(
       if( n != 2 && n != 3 )
           LogicError("Expected n to be 2 or 3"); 
-      const bool bothReal = ( shift0Imag == zero && shift1Imag == zero );
-      const bool conjugate = ( shift0Imag == -shift1Imag );
+      const bool bothReal = ( shift0.imag() == zero && shift1.imag() == zero );
+      const bool conjugate = ( shift0.imag() == -shift1.imag() );
       if( !bothReal && !conjugate )
           LogicError("Assumed shifts were either both real or conjugates");
     )
@@ -43,7 +43,7 @@ void ImplicitQQuadraticSeed
         // to shift0 or shift1, but we follow LAPACK's convention.
         // (While the choice is irrelevant for conjugate shifts, it is not for
         //  real shifts)
-        const Real scale = Abs(eta00-shift1Real) + Abs(shift1Imag) + Abs(eta10);
+        const Real scale = OneAbs(eta00-shift1) + Abs(eta10);
         if( scale == zero )
         {
             v[0] = v[1] = zero;
@@ -53,9 +53,9 @@ void ImplicitQQuadraticSeed
             // Normalize the first column by the scale
             Real eta10Scale = eta10 / scale;
             v[0] = eta10Scale*eta01 +
-                   (eta00-shift0Real)*((eta00-shift1Real)/scale) -
-                   shift0Imag*(shift1Imag/scale);
-            v[1] = eta10Scale*(eta00+eta11-shift0Real-shift1Real);
+                   (eta00-shift0.real())*((eta00-shift1.real())/scale) -
+                   shift0.imag()*(shift1.imag()/scale);
+            v[1] = eta10Scale*(eta00+eta11-shift0.real()-shift1.real());
         }
     }
     else
@@ -70,8 +70,7 @@ void ImplicitQQuadraticSeed
         const Real& eta21 = H(2,1); 
         const Real& eta22 = H(2,2);
 
-        const Real scale =
-          Abs(eta00-shift1Real) + Abs(shift1Imag) + Abs(eta10) + Abs(eta20);
+        const Real scale = OneAbs(eta00-shift1) + Abs(eta10) + Abs(eta20);
         if( scale == zero )
         {
             v[0] = v[1] = v[2] = 0;
@@ -81,62 +80,124 @@ void ImplicitQQuadraticSeed
             // Normalize the first column by the scale
             const Real eta10Scale = eta10 / scale;
             const Real eta20Scale = eta20 / scale;
-            v[0] = (eta00-shift0Real)*((eta00-shift1Real)/scale) -
-                   shift0Imag*(shift1Imag/scale) + eta01*eta10Scale +
+            v[0] = (eta00-shift0.real())*((eta00-shift1.real())/scale) -
+                   shift0.imag()*(shift1.imag()/scale) + eta01*eta10Scale +
                    eta02*eta20Scale;
-            v[1] = eta10Scale*(eta00+eta11-shift0Real-shift1Real) +
+            v[1] = eta10Scale*(eta00+eta11-shift0.real()-shift1.real()) +
                    eta12*eta20Scale;
-            v[2] = eta20Scale*(eta00+eta22-shift0Real-shift1Real) +
+            v[2] = eta20Scale*(eta00+eta22-shift0.real()-shift1.real()) +
                    eta21*eta10Scale;
         }
     }
 }
 
-template<typename Real>
+template<typename F>
+void ImplicitQQuadraticSeed
+( const Matrix<F>& H,
+  const F& shift0,
+  const F& shift1,
+        F* v )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Real zero(0);
+    const Int n = H.Height();
+    DEBUG_ONLY(
+      if( n != 2 && n != 3 )
+          LogicError("Expected n to be 2 or 3"); 
+    )
+    if( n == 2 )
+    {
+        const F& eta00 = H(0,0);
+        const F& eta01 = H(0,1);
+        const F& eta10 = H(1,0);
+        const F& eta11 = H(1,1);
+
+        // It seems arbitrary whether the scale is computed relative
+        // to shift0 or shift1, but we follow LAPACK's convention.
+        // (While the choice is irrelevant for conjugate shifts, it is not for
+        //  real shifts)
+        const Real scale = OneAbs(eta00-shift1) + OneAbs(eta10);
+        if( scale == zero )
+        {
+            v[0] = v[1] = zero;
+        }
+        else
+        {
+            // Normalize the first column by the scale
+            F eta10Scale = eta10 / scale;
+            v[0] = eta10Scale*eta01 + (eta00-shift0)*((eta00-shift1)/scale);
+            v[1] = eta10Scale*(eta00+eta11-shift0-shift1);
+        }
+    }
+    else
+    {
+        const F& eta00 = H(0,0);
+        const F& eta01 = H(0,1);
+        const F& eta02 = H(0,2);
+        const F& eta10 = H(1,0);
+        const F& eta11 = H(1,1);
+        const F& eta12 = H(1,2);
+        const F& eta20 = H(2,0);
+        const F& eta21 = H(2,1); 
+        const F& eta22 = H(2,2);
+
+        const Real scale = OneAbs(eta00-shift1) + OneAbs(eta10) + OneAbs(eta20);
+        if( scale == zero )
+        {
+            v[0] = v[1] = v[2] = 0;
+        }
+        else
+        {
+            // Normalize the first column by the scale
+            const F eta10Scale = eta10 / scale;
+            const F eta20Scale = eta20 / scale;
+            v[0] = (eta00-shift0)*((eta00-shift1)/scale) +
+                   eta01*eta10Scale + eta02*eta20Scale;
+            v[1] = eta10Scale*(eta00+eta11-shift0-shift1) + eta12*eta20Scale;
+            v[2] = eta20Scale*(eta00+eta22-shift0-shift1) + eta21*eta10Scale;
+        }
+    }
+}
+
+template<typename F>
 void IntroduceBulge
-( const Matrix<Real>& H,
-  const Real& shift0Real, const Real& shift0Imag, 
-  const Real& shift1Real, const Real& shift1Imag,
-        Real* v )
+( const Matrix<F>& H,
+  const Complex<Base<F>>& shift0,
+  const Complex<Base<F>>& shift1,
+        F* v )
 {
     DEBUG_CSE
     const Int n = H.Height();
-    ImplicitQQuadraticSeed
-    ( H,
-      shift0Real, shift0Imag,
-      shift1Real, shift1Imag,
-      v ); 
-    Real beta = v[0];
+    ImplicitQQuadraticSeed( H, shift0, shift1, v ); 
+    F beta = v[0];
     v[0] = lapack::Reflector( n, beta, &v[1], 1 );
 }
 
+// NOTE: This should only be called for real matrices, where one can assume
+// conjugate pairs of shifts
 template<typename Real>
-void PairShifts( Matrix<Real>& wReal, Matrix<Real>& wImag )
+void PairShifts( Matrix<Complex<Real>>& shifts )
 {
     DEBUG_CSE
-    const Int numShifts = wReal.Height();
+    const Int numShifts = shifts.Height();
 
-    Real tmp;
+    Complex<Real> tmp;
     for( Int i=numShifts-1; i>=2; i-=2 )
     {
-        if( wImag(i) != -wImag(i-1) )
+        if( shifts(i).imag() != -shifts(i-1).imag() )
         {
-            tmp = wReal(i);
-            wReal(i) = wReal(i-1);
-            wReal(i-1) = wReal(i-2);
-            wReal(i-2) = tmp;
-
-            tmp = wImag(i);
-            wImag(i) = wImag(i-1);
-            wImag(i-1) = wImag(i-2);
-            wImag(i-2) = tmp;
+            tmp = shifts(i);
+            shifts(i) = shifts(i-1);
+            shifts(i-1) = shifts(i-2);
+            shifts(i-2) = tmp;
         }
     }
 
     DEBUG_ONLY(
       for( Int i=numShifts-1; i>=2; i-=2 )
       {
-          if( wImag(i) != -wImag(i-1) )
+          if( shifts(i).imag() != -shifts(i-1).imag() )
           {
               RuntimeError("Shifts were not properly paired");
           }
@@ -144,81 +205,72 @@ void PairShifts( Matrix<Real>& wReal, Matrix<Real>& wImag )
     )
 }
 
-template<typename Real>
+template<typename F>
 void ComputeReflectors
-( Matrix<Real>& H,
+( Matrix<F>& H,
   Int winBeg,
-  Matrix<Real>& realShifts,
-  Matrix<Real>& imagShifts,
-  Matrix<Real>& W,
+  Matrix<Complex<Base<F>>>& shifts,
+  Matrix<F>& W,
   Int packetBeg,
   Int fullBeg,
   Int fullEnd,
   bool have3x3 )
 {
     DEBUG_CSE
-    const Real zero(0);
+    typedef Base<F> Real;
+    const Real realZero(0);
+    const F zero(0);
     const Real ulp = limits::Precision<Real>();
 
     // Set aside space for a Householder vector for a candidate reinflation of
     // a deflated bulge
-    vector<Real> wCand(3);
+    vector<F> wCand(3);
 
     if( have3x3 )
     {
         const Int bulge = fullEnd;
-        const Real realShift0 = realShifts(2*bulge);
-        const Real imagShift0 = imagShifts(2*bulge);
-        const Real realShift1 = realShifts(2*bulge+1);
-        const Real imagShift1 = imagShifts(2*bulge+1);
+        const Complex<Real> shift0 = shifts(2*bulge);
+        const Complex<Real> shift1 = shifts(2*bulge+1);
         const Int bulgeBeg = packetBeg + 3*bulge;
-        Real* w = &W(0,bulge);
+        F* w = &W(0,bulge);
 
         if( bulgeBeg == winBeg-1 )
         {
-            IntroduceBulge
-            ( H(IR(bulgeBeg+1,bulgeBeg+3),IR(bulgeBeg+1,bulgeBeg+3)),
-              realShift0, imagShift0,
-              realShift1, imagShift1,
-              w ); 
+            auto ind1 = IR(bulgeBeg+1,bulgeBeg+3);
+            auto H11BR = H(ind1,ind1);
+            IntroduceBulge( H11BR, shift0, shift1, w );
         }
         else
         {
             // Find the reflection for chasing the 3x3 bulge
-            Real beta = H( bulgeBeg+1, bulgeBeg );
+            F beta = H( bulgeBeg+1, bulgeBeg );
             w[1] = H( bulgeBeg+2, bulgeBeg );
             w[0] = lapack::Reflector( 2, beta, &w[1], 1 );
             H( bulgeBeg+1, bulgeBeg ) = beta;
-            H( bulgeBeg+2, bulgeBeg ) = zero;
+            H( bulgeBeg+2, bulgeBeg ) = realZero;
         }
     }
     for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
     {
-        const Real realShift0 = realShifts(2*bulge);
-        const Real imagShift0 = imagShifts(2*bulge);
-        const Real realShift1 = realShifts(2*bulge+1);
-        const Real imagShift1 = imagShifts(2*bulge+1);
+        const Complex<Real> shift0 = shifts(2*bulge);
+        const Complex<Real> shift1 = shifts(2*bulge+1);
         const Int bulgeBeg = packetBeg + 3*bulge;
-        Real* w = &W(0,bulge);
+        F* w = &W(0,bulge);
         auto ind1 = IR(bulgeBeg+1,bulgeBeg+4);
         auto H11BR = H(ind1,ind1);
 
         if( bulgeBeg == winBeg-1 )
         {
-            IntroduceBulge
-            ( H11BR,
-              realShift0, imagShift0,
-              realShift1, imagShift1,
-              w ); 
+            IntroduceBulge( H11BR, shift0, shift1, w );
         }
         else
         {
             // Prepare to chase the bulge down a step
-            Real& eta10 = H(bulgeBeg+1,bulgeBeg);
-            Real& eta20 = H(bulgeBeg+2,bulgeBeg);
-            Real& eta30 = H(bulgeBeg+3,bulgeBeg);
+            F& eta10 = H(bulgeBeg+1,bulgeBeg);
+            F& eta20 = H(bulgeBeg+2,bulgeBeg);
+            F& eta30 = H(bulgeBeg+3,bulgeBeg);
 
-            Real beta = eta10;
+            F beta = eta10;
             w[1] = eta20;
             w[2] = eta30;
             w[0] = lapack::Reflector( 3, beta, &w[1], 1 );
@@ -226,43 +278,40 @@ void ComputeReflectors
             // "Vigilantly" search for a deflation
             // (deflation within the interior is exceedingly rare,
             //  but this check should be essentially free)
-            const Real& eta31 = H(bulgeBeg+3,bulgeBeg+1);
-            const Real& eta32 = H(bulgeBeg+3,bulgeBeg+2);
+            const F& eta31 = H(bulgeBeg+3,bulgeBeg+1);
+            const F& eta32 = H(bulgeBeg+3,bulgeBeg+2);
             if( eta30 != zero || eta31 != zero || eta32 == zero )
             {
                 // Bulge has not collapsed
                 eta10 = beta;
-                eta20 = zero;
-                eta30 = zero;
+                eta20 = realZero;
+                eta30 = realZero;
             }
             else
             {
                 // Bulge has collapsed
-                IntroduceBulge
-                ( H11BR,
-                  realShift0, imagShift0,
-                  realShift1, imagShift1,
-                  wCand.data() ); 
-                Real innerProd = wCand[0]*(eta10+wCand[1]*eta20);
+                IntroduceBulge( H11BR, shift0, shift1, wCand.data() );
+                F innerProd = wCand[0]*(eta10+Conj(wCand[1])*eta20);
 
-                const Real& eta00 = H(bulgeBeg,  bulgeBeg  );
-                const Real& eta11 = H(bulgeBeg+1,bulgeBeg+1);
-                const Real& eta22 = H(bulgeBeg+2,bulgeBeg+2);
-                if( Abs(eta20-innerProd*wCand[1]) + Abs(innerProd*wCand[2]) >=
-                    ulp*(Abs(eta00)+Abs(eta11)+Abs(eta22)) )
+                const F& eta00 = H(bulgeBeg,  bulgeBeg  );
+                const F& eta11 = H(bulgeBeg+1,bulgeBeg+1);
+                const F& eta22 = H(bulgeBeg+2,bulgeBeg+2);
+                if( OneAbs(eta20-wCand[1]*innerProd) +
+                    OneAbs(wCand[2]*innerProd) >=
+                    ulp*(OneAbs(eta00)+OneAbs(eta11)+OneAbs(eta22)) )
                 {
                     // The proposed bulge was unacceptable;
                     // continue using the collapsed one with regret
                     eta10 = beta;
-                    eta20 = zero;
-                    eta30 = zero;
+                    eta20 = realZero;
+                    eta30 = realZero;
                 }
                 else
                 {
                     // Accept the proposed replacement bulge
                     eta10 -= innerProd;
-                    eta20 = zero; 
-                    eta30 = zero;
+                    eta20 = realZero; 
+                    eta30 = realZero;
                     w[0] = wCand[0];
                     w[1] = wCand[1];
                     w[2] = wCand[2];
@@ -272,36 +321,75 @@ void ComputeReflectors
     }
 }
 
-template<typename Real>
-void ApplyReflector( Real& eta1, Real& eta2, const Real* w )
+// TODO(poulson): Avoid temporaries for innerProd and innerProd*nu1 to void
+// memory allocations for heap scalars?
+template<typename F>
+void ApplyLeftReflector( F& eta0, F& eta1, const F* w )
 {
-    // Apply I - tau*[1;nu0]*[1;nu0]'
-    const Real& tau = w[0];
-    const Real& nu0 = w[1];
+    // Update
+    //
+    //   | eta0 | -= tau |  1  | | 1, conj(nu1) | | eta0 |
+    //   | eta1 |        | nu1 |                  | eta1 |
+    //
+    // where tau is stored in w[0] and nu1 in w[1].
+    //
+    const F& tau = w[0];
+    const F& nu1 = w[1];
 
-    const Real innerProd = tau*(eta1+eta2*nu0);
-    eta1 -= innerProd;
-    eta2 -= innerProd*nu0;
+    const F innerProd = tau*(eta0+Conj(nu1)*eta1);
+    eta0 -= innerProd;
+    eta1 -= innerProd*nu1;
 }
 
-template<typename Real>
-void ApplyReflector( Real& eta1, Real& eta2, Real& eta3, const Real* w )
+template<typename F>
+void ApplyRightReflector( F& eta0, F& eta1, const F* w )
 {
-    // Apply I - tau*[1;v]*[1;v]', where v=[nu0;nu1]
-    const Real& tau = w[0]; 
-    const Real& nu0 = w[1];
-    const Real& nu1 = w[2];
+    eta0 = Conj(eta0);
+    eta1 = Conj(eta1);
+    ApplyLeftReflector( eta0, eta1, w );
+    eta0 = Conj(eta0);
+    eta1 = Conj(eta1);
+}
 
-    const Real innerProd = tau*(eta1+eta2*nu0+eta3*nu1);
-    eta1 -= innerProd;
-    eta2 -= innerProd*nu0;
-    eta3 -= innerProd*nu1;
+// TODO(poulson): Avoid temporaries for innerProd, innerProd*nu1, and
+// innerProd*nu2 to avoid memory allocations for heap scalars?
+template<typename F>
+void ApplyLeftReflector( F& eta0, F& eta1, F& eta2, const F* w )
+{
+    // Update
+    //
+    //   | eta0 | -= tau |  1  | | 1, conj(nu1), conj(nu2) | | eta0 |
+    //   | eta1 |        | nu1 |                             | eta1 |
+    //   | eta2 |        | nu2 |                             | eta2 |
+    //
+    // where tau is stored in w[0], nu1 in w[1], and nu2 in w[2].
+    //
+    const F& tau = w[0]; 
+    const F& nu1 = w[1];
+    const F& nu2 = w[2];
+
+    const F innerProd = tau*(eta0+Conj(nu1)*eta1+Conj(nu2)*eta2);
+    eta0 -= innerProd;
+    eta1 -= innerProd*nu1;
+    eta2 -= innerProd*nu2;
+}
+
+template<typename F>
+void ApplyRightReflector( F& eta0, F& eta1, F& eta2, const F* w )
+{
+    eta0 = Conj(eta0);
+    eta1 = Conj(eta1);
+    eta2 = Conj(eta2);
+    ApplyLeftReflector( eta0, eta1, eta2, w );
+    eta0 = Conj(eta0);
+    eta1 = Conj(eta1);
+    eta2 = Conj(eta2);
 }
 
 // To be performed during the application of the reflections from the right
-template<typename Real>
+template<typename F>
 void VigilantDeflation
-( Matrix<Real>& H,
+( Matrix<F>& H,
   Int winBeg,
   Int winEnd,
   Int packetBeg,
@@ -309,7 +397,9 @@ void VigilantDeflation
   Int vigEnd )
 {
     DEBUG_CSE
+    typedef Base<F> Real;
     const Real zero(0);
+    const F complexZero(0);
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();
     const Real smallNum = safeMin*(Real(H.Height())/ulp);
@@ -319,36 +409,36 @@ void VigilantDeflation
     for( Int bulge=vigEnd-1; bulge>=vigBeg; --bulge )
     {
         const Int k = Min( winEnd-2, packetBeg+3*bulge );
-        Real& eta00 = H(k  ,k  );
-        Real& eta01 = H(k  ,k+1);
-        Real& eta10 = H(k+1,k  );
-        Real& eta11 = H(k+1,k+1);
-        const Real eta00Abs = Abs(eta00);
-        const Real eta10Abs = Abs(eta10);
-        const Real eta11Abs = Abs(eta11);
+        F& eta00 = H(k  ,k  );
+        F& eta01 = H(k  ,k+1);
+        F& eta10 = H(k+1,k  );
+        F& eta11 = H(k+1,k+1);
+        const Real eta00Abs = OneAbs(eta00);
+        const Real eta10Abs = OneAbs(eta10);
+        const Real eta11Abs = OneAbs(eta11);
 
-        if( eta10 == zero )
+        if( eta10 == complexZero )
             continue;
         Real localScale = eta00Abs + eta11Abs;
         if( localScale == zero )
         {
             if( k >= winBeg+3 )
-                localScale += Abs(H(k,k-3));
+                localScale += OneAbs(H(k,k-3));
             if( k >= winBeg+2 )
-                localScale += Abs(H(k,k-2));
+                localScale += OneAbs(H(k,k-2));
             if( k >= winBeg+1 )
-                localScale += Abs(H(k,k-1));
+                localScale += OneAbs(H(k,k-1));
             if( k < winEnd-2 )
-                localScale += Abs(H(k+2,k+1));
+                localScale += OneAbs(H(k+2,k+1));
             if( k < winEnd-3 )
-                localScale += Abs(H(k+3,k+1));
+                localScale += OneAbs(H(k+3,k+1));
             if( k < winEnd-4 )
-                localScale += Abs(H(k+4,k+1));
+                localScale += OneAbs(H(k+4,k+1));
         }
         if( eta10Abs <= Max(smallNum,ulp*localScale) )
         {
-            const Real eta01Abs = Abs(eta01);
-            const Real diagDiffAbs = Abs(eta00-eta11);
+            const Real eta01Abs = OneAbs(eta01);
+            const Real diagDiffAbs = OneAbs(eta00-eta11);
             Real offMax = Max( eta10Abs, eta01Abs );
             Real offMin = Min( eta10Abs, eta01Abs );
             Real diagMax = Max( eta11Abs, diagDiffAbs );
@@ -364,9 +454,9 @@ void VigilantDeflation
     }
 }
 
-template<typename Real>
+template<typename F>
 void ApplyReflectors
-( Matrix<Real>& H,
+( Matrix<F>& H,
   Int winBeg,
   Int winEnd,
   Int slabSize,
@@ -374,10 +464,10 @@ void ApplyReflectors
   Int packetBeg,
   Int transformBeg,
   Int transformEnd,
-  Matrix<Real>& Z,
+  Matrix<F>& Z,
   bool wantSchurVecs,
-  Matrix<Real>& U,
-  Matrix<Real>& W,
+  Matrix<F>& U,
+  Matrix<F>& W,
   Int fullBeg,
   Int fullEnd,
   bool have3x3,
@@ -395,8 +485,8 @@ void ApplyReflectors
         for( Int bulge=fullBeg; bulge<applyBulgeEnd; ++bulge )
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
-            const Real* w = &W(0,bulge);
-            ApplyReflector
+            const F* w = &W(0,bulge);
+            ApplyLeftReflector
             ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
         }
     }
@@ -404,7 +494,7 @@ void ApplyReflectors
     {
         const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const Real* w = &W(0,bulge);
+        const F* w = &W(0,bulge);
 
         DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
@@ -413,7 +503,7 @@ void ApplyReflectors
 
         for( Int j=bulgeBeg+1; j<transformEnd; ++j )
         {
-            ApplyReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
+            ApplyLeftReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
         }
     }
 
@@ -427,11 +517,11 @@ void ApplyReflectors
     {
         const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const Real* w = &W(0,bulge);
+        const F* w = &W(0,bulge);
 
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
         {
-            ApplyReflector( H(i,bulgeBeg+1), H(i,bulgeBeg+2), w );
+            ApplyRightReflector( H(i,bulgeBeg+1), H(i,bulgeBeg+2), w );
         }
 
         if( accumulate )
@@ -439,25 +529,25 @@ void ApplyReflectors
             const Int kU = bulgeBeg - ghostCol;
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
             {
-                ApplyReflector( U(i,kU), U(i,kU+1), w );
+                ApplyRightReflector( U(i,kU), U(i,kU+1), w );
             }
         }
         else if( wantSchurVecs )
         {
             for( Int i=0; i<nZ; ++i )
             {
-                ApplyReflector( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), w );
+                ApplyRightReflector( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), w );
             }
         }
     }
     for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const Real* w = &W(0,bulge);
+        const F* w = &W(0,bulge);
 
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+4); ++i )
         {
-            ApplyReflector
+            ApplyRightReflector
             ( H(i,bulgeBeg+1), H(i,bulgeBeg+2), H(i,bulgeBeg+3), w );
         }
 
@@ -466,14 +556,14 @@ void ApplyReflectors
             const Int kU = bulgeBeg - ghostCol;
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
             {
-                ApplyReflector( U(i,kU), U(i,kU+1), U(i,kU+2), w );
+                ApplyRightReflector( U(i,kU), U(i,kU+1), U(i,kU+2), w );
             }
         }
         else if( wantSchurVecs )
         {
             for( Int i=0; i<nZ; ++i )
             {
-                ApplyReflector
+                ApplyRightReflector
                 ( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), Z(i,bulgeBeg+3), w );
             }
         }
@@ -496,47 +586,49 @@ void ApplyReflectors
     //
     // The last row is introduced from the transformation
     //
-    //   H(k+4,k+1:k+3) -= tau H(k+4,k+1:k+3) [1; nu0; nu1] [1; nu0; nu1]'.
+    //  H(k+4,k+1:k+3) -= conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2] [1; nu1; nu2]'.
     //
     // For convenience, since H(k+4,k+1:k+2)=0, we start by computing 
     //
-    //   innerProd = tau H(k+4,k+1:k+3) [1; nu0; nu1]
-    //             = tau H(k+4,k+3) nu1
+    //   innerProd = conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2]
+    //             = conj(tau) H(k+4,k+3) nu2
     //
+    // TODO(poulson): Avoid memory allocations for several of the temporaries
+    // below in the case where we have heap scalars (e.g., BigFloat).
     const Int lastRowBulgeEnd = Min( fullEnd, (winEnd-packetBeg-2)/3 );
     for( Int bulge=lastRowBulgeEnd-1; bulge>=fullBeg; --bulge )
     {
         const Int k = packetBeg + 3*bulge;
-        const Real* w = &W(0,bulge);
-        const Real& tau = w[0];
-        const Real& nu0 = w[1];
-        const Real& nu1 = w[2];
+        const F* w = &W(0,bulge);
+        const F& tau = w[0];
+        const F& nu1 = w[1];
+        const F& nu2 = w[2];
 
-        const Real innerProd = tau*H(k+4,k+3)*nu1;
+        const F innerProd = Conj(tau)*H(k+4,k+3)*nu2;
         H(k+4,k+1) = -innerProd;
-        H(k+4,k+2) = -innerProd*nu0;
-        H(k+4,k+3) -= innerProd*nu1;
+        H(k+4,k+2) = -innerProd*Conj(nu1);
+        H(k+4,k+3) -= innerProd*Conj(nu2);
     }
 }
 
-template<typename Real>
+template<typename F>
 void Sweep
-( Matrix<Real>& H,
-  Matrix<Real>& realShifts,
-  Matrix<Real>& imagShifts,
-  Matrix<Real>& Z,
-  Matrix<Real>& U,
-  Matrix<Real>& W,
-  Matrix<Real>& WAccum,
+( Matrix<F>& H,
+  Matrix<Complex<Base<F>>>& shifts,
+  Matrix<F>& Z,
+  Matrix<F>& U,
+  Matrix<F>& W,
+  Matrix<F>& WAccum,
   const HessenbergQRCtrl& ctrl )
 {
     DEBUG_CSE
-    const Real zero(0);
+    typedef Base<F> Real;
+    const Real realZero(0);
     const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
 
-    const Int numShifts = realShifts.Height();
+    const Int numShifts = shifts.Height();
     DEBUG_ONLY(
       if( numShifts < 2 )
           LogicError("Expected at least one pair of shifts..."); 
@@ -545,10 +637,11 @@ void Sweep
     )
     const Int numBulges = numShifts / 2;
 
-    PairShifts( realShifts, imagShifts );
+    if( !IsComplex<F>::value )
+        PairShifts( shifts );
 
     // TODO: Decide if this is strictly necessary
-    H(winBeg+2,winBeg) = zero;
+    H(winBeg+2,winBeg) = realZero;
 
     // Set aside space for storing either the three nonzero entries of the first
     // column of a quadratic polynomial for introducing each bulge or the scalar
@@ -600,8 +693,7 @@ void Sweep
               ( fullEnd < numBulges && packetBeg+3*fullEnd == winEnd-3 );
 
             ComputeReflectors
-            ( H, winBeg, realShifts, imagShifts, W,
-              packetBeg, fullBeg, fullEnd, have3x3 );
+            ( H, winBeg, shifts, W, packetBeg, fullBeg, fullEnd, have3x3 );
 
             Int transformBeg;
             if( ctrl.accumulateReflections )
@@ -642,19 +734,19 @@ void Sweep
             const auto rightInd = IR(rightIndBeg,rightIndEnd);
             auto horzInd = IR(0,nU) + (ghostCol+slabRelBeg+1);
             auto HHorzFar = H( horzInd, rightInd );
-            Gemm( ADJOINT, NORMAL, Real(1), UAccum, HHorzFar, WAccum );
+            Gemm( ADJOINT, NORMAL, F(1), UAccum, HHorzFar, WAccum );
             HHorzFar = WAccum;
 
             // Vertical far-from-diagonal application
             auto vertInd = IR(transformBeg,Max(winBeg,ghostCol));
             auto HVertFar = H( vertInd, horzInd );
-            Gemm( NORMAL, NORMAL, Real(1), HVertFar, UAccum, WAccum );
+            Gemm( NORMAL, NORMAL, F(1), HVertFar, UAccum, WAccum );
             HVertFar = WAccum;
 
             if( ctrl.wantSchurVecs )
             {
                 auto ZSub = Z( ALL, horzInd );
-                Gemm( NORMAL, NORMAL, Real(1), ZSub, UAccum, WAccum );
+                Gemm( NORMAL, NORMAL, F(1), ZSub, UAccum, WAccum );
                 ZSub = WAccum;
             }
         }

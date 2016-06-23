@@ -108,8 +108,7 @@ template<typename Real>
 HessenbergQRInfo
 AED
 ( Matrix<Real>& H,
-  Matrix<Real>& wReal,
-  Matrix<Real>& wImag,
+  Matrix<Complex<Real>>& w,
   Matrix<Real>& Z,
   const HessenbergQRCtrl& ctrl )
 {
@@ -127,11 +126,10 @@ AED
     if( n < minAEDSize )
     {
         // Run the double-shift QR algorithm
-        return DoubleShift( H, wReal, wImag, Z, ctrl );
+        return DoubleShift( H, w, Z, ctrl );
     }
 
-    wReal.Resize( n, 1 );
-    wImag.Resize( n, 1 );
+    w.Resize( n, 1 );
 
     const Int numShiftsRec = aed::NumShifts( n, winSize );
     const Int deflationSizeRec = aed::DeflationSize( n, winSize, numShiftsRec );
@@ -170,7 +168,10 @@ AED
             if( H(iterBeg,iterBeg-1) == zero ) 
                 break;
         if( ctrl.progress )
-            Output(info.numIterations,": window is [",iterBeg,",",winEnd,")");
+        {
+            Output("Iter. ",info.numIterations,": ");
+            Output("  window is [",iterBeg,",",winEnd,")");
+        }
          
         // Intelligently choose a deflation window size
         // --------------------------------------------
@@ -215,8 +216,7 @@ AED
         // Run AED on the bottom-right window of size deflationSize
         ctrlSub.winBeg = iterBeg;
         ctrlSub.winEnd = winEnd;
-        auto deflateInfo =
-          aed::Nibble( H, deflationSize, wReal, wImag, Z, ctrlSub );
+        auto deflateInfo = aed::Nibble( H, deflationSize, w, Z, ctrlSub );
         const Int numDeflated = deflateInfo.numDeflated;
         winEnd -= numDeflated;
         Int shiftBeg = winEnd - deflateInfo.numShiftCandidates;
@@ -245,15 +245,11 @@ AED
                     lapack::TwoByTwoSchur
                     ( eta00, eta01,
                       eta10, eta11, c, s, 
-                      wReal(i-1), wImag(i-1),
-                      wReal(i),   wImag(i) );
+                      w(i-1), w(i) );
                 }
                 if( shiftBeg == winBeg )
                 {
-                    wReal(shiftBeg+1) = H(shiftBeg+1,shiftBeg+1);
-                    wImag(shiftBeg+1) = zero;
-                    wReal(shiftBeg) = wReal(shiftBeg+1);
-                    wImag(shiftBeg) = wImag(shiftBeg+1);
+                    w(shiftBeg) = w(shiftBeg+1) = H(shiftBeg+1,shiftBeg+1);
                 }
             }
             else
@@ -264,8 +260,7 @@ AED
                     shiftBeg = winEnd - numShifts;
                     auto shiftsInd = IR(shiftBeg,shiftBeg+numShifts);
                     auto HShifts = H(shiftsInd,shiftsInd);
-                    auto wRealShifts = wReal(shiftsInd,ALL);
-                    auto wImagShifts = wImag(shiftsInd,ALL);
+                    auto wShifts = w(shiftsInd,ALL);
                     auto HShiftsCopy( HShifts );
 
                     auto ctrlShifts( ctrl );
@@ -274,8 +269,7 @@ AED
                     ctrlShifts.fullTriangle = false;
                     ctrlShifts.demandConverged = false;
                     auto infoShifts =
-                      HessenbergQR
-                      ( HShiftsCopy, wRealShifts, wImagShifts, ctrlShifts );
+                      HessenbergQR( HShiftsCopy, wShifts, ctrlShifts );
 
                     shiftBeg += infoShifts.numUnconverged;
                     if( shiftBeg >= winEnd-1 )
@@ -289,8 +283,7 @@ AED
                         lapack::TwoByTwoSchur
                         ( eta00, eta01,
                           eta10, eta11, c, s, 
-                          wReal(winEnd-2), wImag(winEnd-2),
-                          wReal(winEnd-1), wImag(winEnd-1) );
+                          w(winEnd-2), w(winEnd-1) );
                         shiftBeg = winEnd-2;
                     }
                 }
@@ -304,20 +297,17 @@ AED
                         sorted = true;
                         for( Int i=shiftBeg; i<k; ++i )
                         {
-                            if( Abs(wReal(i))+Abs(wImag(i)) <
-                                Abs(wReal(i+1))+Abs(wImag(i+1)) )
+                            if( OneAbs(w(i)) < OneAbs(w(i+1)) )
                             {
                                 sorted = false;
-                                RowSwap( wReal, i, i+1 );
-                                RowSwap( wImag, i, i+1 );
+                                RowSwap( w, i, i+1 );
                             }
                         }
                     }
                 }
                 // Pair together the real shifts
-                auto wRealSub = wReal(IR(shiftBeg,winEnd),ALL); 
-                auto wImagSub = wImag(IR(shiftBeg,winEnd),ALL); 
-                aed::PairShifts( wRealSub, wImagSub );
+                auto wSub = w(IR(shiftBeg,winEnd),ALL); 
+                aed::PairShifts( wSub );
             }
 
             if( winBeg-shiftBeg == 2 )
@@ -325,16 +315,16 @@ AED
                 // Use a single real shift twice instead of using two separate
                 // real shifts; we choose the one closest to the bottom-right
                 // entry, as it is our best guess as to the smallest eigenvalue
-                if( wImag(winEnd-1) == zero ) 
+                if( w(winEnd-1).imag() == zero ) 
                 {
-                    if( Abs(wReal(winEnd-1)-H(winEnd-1,winEnd-1)) <
-                        Abs(wReal(winEnd-2)-H(winEnd-1,winEnd-1)) )
+                    if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
+                        Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
                     {
-                        wReal(winEnd-2) = wReal(winEnd-1);
+                        w(winEnd-2) = w(winEnd-1);
                     }
                     else
                     {
-                        wReal(winEnd-1) = wReal(winEnd-2);
+                        w(winEnd-1) = w(winEnd-2);
                     }
                 }
             }
@@ -345,11 +335,10 @@ AED
             shiftBeg = winEnd - numShifts;
 
             // Perform a small-bulge sweep
-            auto wRealSub = wReal(IR(shiftBeg,winEnd),ALL); 
-            auto wImagSub = wImag(IR(shiftBeg,winEnd),ALL); 
+            auto wSub = w(IR(shiftBeg,winEnd),ALL); 
             ctrlSub.winBeg = iterBeg;
             ctrlSub.winEnd = winEnd;
-            aed::Sweep( H, wRealSub, wImagSub, Z, U, W, WAccum, ctrlSub );
+            aed::Sweep( H, wSub, Z, U, W, WAccum, ctrlSub );
         }
         else if( ctrl.progress )
             Output("  Skipping QR sweep");
@@ -363,6 +352,252 @@ AED
     info.numUnconverged = winEnd-winBeg;
     return info;
 }
+
+template<typename Real>
+HessenbergQRInfo
+AED
+( Matrix<Complex<Real>>& H,
+  Matrix<Complex<Real>>& w,
+  Matrix<Complex<Real>>& Z,
+  const HessenbergQRCtrl& ctrl )
+{
+    DEBUG_CSE 
+    typedef Complex<Real> F;
+
+    const Int n = H.Height();
+    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    const Int winSize = winEnd - winBeg;
+    const Real zero(0);
+    // For some reason, LAPACK suggests only using a single exceptional shift
+    // for complex matrices.
+    const Real exceptShift0(Real(4)/Real(3));
+    HessenbergQRInfo info;
+
+    const Int minAEDSize = aed::MinSize();
+    if( n < minAEDSize )
+    {
+        // Run the single-shift QR algorithm
+        return SingleShift( H, w, Z, ctrl );
+    }
+
+    w.Resize( n, 1 );
+
+    const Int numShiftsRec = aed::NumShifts( n, winSize );
+    const Int deflationSizeRec = aed::DeflationSize( n, winSize, numShiftsRec );
+    if( ctrl.progress )
+    {
+        Output
+        ("Recommending ",numShiftsRec," shifts and a deflation window of size ",
+         deflationSizeRec);
+    }
+    Int deflationSize = deflationSizeRec;
+
+    // For aed::Sweep
+    Matrix<F> U, W, WAccum;
+    auto ctrlSub( ctrl );
+
+    Int numIterSinceDeflation = 0;
+    const Int numStaleIterBeforeExceptional = 5;
+    // Cf. LAPACK's DLAQR0 for this choice
+    const Int maxIter =
+      Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
+    Int decreaseLevel = -1;
+    while( winBeg < winEnd )
+    {
+        if( info.numIterations >= maxIter )
+        {
+            if( ctrl.demandConverged )
+                RuntimeError("AED QR iteration did not converge");
+            else
+                break;
+        }
+
+        // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
+        // ---------------------------------------------------------
+        Int iterBeg=winEnd-1;
+        for( ; iterBeg>winBeg; --iterBeg )
+            if( H(iterBeg,iterBeg-1) == zero ) 
+                break;
+        if( ctrl.progress )
+        {
+            Output("Iter. ",info.numIterations,": ");
+            Output("  window is [",iterBeg,",",winEnd,")");
+        }
+         
+        // Intelligently choose a deflation window size
+        // --------------------------------------------
+        // Cf. LAPACK's DLAQR0 for the high-level approach
+        const Int iterWinSize = winEnd-iterBeg;
+        if( numIterSinceDeflation < numStaleIterBeforeExceptional )
+        {
+            // Use the recommendation if possible
+            deflationSize = Min( iterWinSize, deflationSizeRec );
+        }
+        else
+        {
+            // Double the size if possible
+            deflationSize = Min( iterWinSize, 2*deflationSize );
+        }
+        if( deflationSize >= iterWinSize-1 )
+        {
+            // Go ahead and increase by at most one to use the full window
+            deflationSize = iterWinSize;
+        }
+        else
+        {
+            const Int deflationBeg = winEnd - deflationSize;
+            if( OneAbs(H(deflationBeg,  deflationBeg-1)) >
+                OneAbs(H(deflationBeg-1,deflationBeg-2)) )
+            {
+                ++deflationSize;
+            }
+        }
+        if( numIterSinceDeflation < numStaleIterBeforeExceptional )
+        {
+            decreaseLevel = -1; 
+        }
+        else if( decreaseLevel >= 0 || deflationSize == iterWinSize )
+        {
+            ++decreaseLevel;
+            if( deflationSize-decreaseLevel < 2 )
+                decreaseLevel = 0;
+            deflationSize -= decreaseLevel;
+        }
+
+        // Run AED on the bottom-right window of size deflationSize
+        ctrlSub.winBeg = iterBeg;
+        ctrlSub.winEnd = winEnd;
+        auto deflateInfo = aed::Nibble( H, deflationSize, w, Z, ctrlSub );
+        const Int numDeflated = deflateInfo.numDeflated;
+        winEnd -= numDeflated;
+        Int shiftBeg = winEnd - deflateInfo.numShiftCandidates;
+
+        const Int newIterWinSize = winEnd-iterBeg;
+        if( numDeflated == 0 ||
+          (numDeflated <= aed::SufficientDeflation(deflationSize) && 
+           newIterWinSize >= minAEDSize) )
+        {
+            Int numShifts = Min( numShiftsRec, Max(2,newIterWinSize-1) );
+            numShifts = numShifts - Mod(numShifts,2); 
+
+            if( numIterSinceDeflation > 0 &&
+                Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
+            {
+                // Use exceptional shifts
+                shiftBeg = winEnd - numShifts;
+                for( Int i=winEnd-1; i>=shiftBeg+1; i-=2 )
+                {
+                    w(i-1) = w(i) = H(i,i) + exceptShift0*OneAbs(H(i,i-1));
+                }
+            }
+            else
+            {
+                if( winEnd-shiftBeg <= numShifts/2 )
+                {
+                    // Grab more shifts from another trailing submatrix
+                    shiftBeg = winEnd - numShifts;
+                    auto shiftsInd = IR(shiftBeg,shiftBeg+numShifts);
+                    auto HShifts = H(shiftsInd,shiftsInd);
+                    auto wShifts = w(shiftsInd,ALL);
+                    auto HShiftsCopy( HShifts );
+
+                    auto ctrlShifts( ctrl );
+                    ctrlShifts.winBeg = 0;
+                    ctrlShifts.winEnd = numShifts;
+                    ctrlShifts.fullTriangle = false;
+                    ctrlShifts.demandConverged = false;
+                    auto infoShifts =
+                      HessenbergQR( HShiftsCopy, wShifts, ctrlShifts );
+
+                    shiftBeg += infoShifts.numUnconverged;
+                    if( shiftBeg >= winEnd-1 )
+                    {
+                        // This should be very rare; use eigenvalues of 2x2
+                        // TODO: Move into a separate routine
+                        F eta00 = H(winEnd-2,winEnd-2);
+                        F eta01 = H(winEnd-2,winEnd-1);
+                        F eta10 = H(winEnd-1,winEnd-2);
+                        F eta11 = H(winEnd-1,winEnd-1);
+                        const Real scale = OneAbs(eta00) + OneAbs(eta01) +
+                                           OneAbs(eta10) + OneAbs(eta11);
+                        eta00 /= scale;
+                        eta01 /= scale;
+                        eta10 /= scale;
+                        eta11 /= scale;
+                        const F halfTrace = (eta00+eta11) / Real(2);
+                        const F det =
+                          (eta00-halfTrace)*(eta11-halfTrace) - eta01*eta10;
+                        const F discrim = Sqrt( -det );
+                        w(winEnd-2) = (halfTrace+discrim)*scale;
+                        w(winEnd-1) = (halfTrace-discrim)*scale;
+
+                        shiftBeg = winEnd-2;
+                    }
+                }
+                if( winEnd-shiftBeg > numShifts )
+                {
+                    bool sorted = false;
+                    for( Int k=winEnd-1; k>shiftBeg; --k )
+                    {
+                        if( sorted )
+                            break;
+                        sorted = true;
+                        for( Int i=shiftBeg; i<k; ++i )
+                        {
+                            if( OneAbs(w(i)) < OneAbs(w(i+1)) )
+                            {
+                                sorted = false;
+                                RowSwap( w, i, i+1 );
+                            }
+                        }
+                    }
+                }
+            }
+
+            if( winBeg-shiftBeg == 2 )
+            {
+                // Use a single real shift twice instead of using two separate
+                // real shifts; we choose the one closest to the bottom-right
+                // entry, as it is our best guess as to the smallest eigenvalue
+                if( w(winEnd-1).imag() == zero ) 
+                {
+                    if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
+                        Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
+                    {
+                        w(winEnd-2) = w(winEnd-1);
+                    }
+                    else
+                    {
+                        w(winEnd-1) = w(winEnd-2);
+                    }
+                }
+            }
+
+            // Use the smallest magnitude shifts
+            numShifts = Min( numShifts, winEnd-shiftBeg );
+            numShifts = numShifts - Mod(numShifts,2);
+            shiftBeg = winEnd - numShifts;
+
+            // Perform a small-bulge sweep
+            auto wSub = w(IR(shiftBeg,winEnd),ALL); 
+            ctrlSub.winBeg = iterBeg;
+            ctrlSub.winEnd = winEnd;
+            aed::Sweep( H, wSub, Z, U, W, WAccum, ctrlSub );
+        }
+        else if( ctrl.progress )
+            Output("  Skipping QR sweep");
+
+        ++info.numIterations;
+        if( numDeflated > 0 )
+            numIterSinceDeflation = 0;
+        else
+            ++numIterSinceDeflation;
+    }
+    info.numUnconverged = winEnd-winBeg;
+    return info;
+}
+
 
 } // namespace hess_qr
 } // namespace schur

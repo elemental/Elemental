@@ -18,15 +18,15 @@ template<typename Real>
 void PrepareShifts
 ( Real eta00, Real eta01,
   Real eta10, Real eta11,
-  Real& shift0Real, Real& shift0Imag,
-  Real& shift1Real, Real& shift1Imag )
+  Complex<Real>& shift0,
+  Complex<Real>& shift1 )
 {
     DEBUG_CSE
     const Real zero(0);
     const Real scale = Abs(eta00) + Abs(eta01) + Abs(eta10) + Abs(eta11);
     if( scale == zero )
     {
-        shift0Real = shift0Imag = shift1Real = shift1Imag = zero;
+        shift0 = shift1 = zero;
     }
     else
     {
@@ -39,25 +39,19 @@ void PrepareShifts
         Real absDisc = Sqrt(Abs(det));
         if( det >= zero )
         {
-            shift0Real = halfTrace*scale;
-            shift0Imag = absDisc*scale;
-
-            shift1Real =  shift0Real;
-            shift1Imag = -shift0Imag;
+            shift0 = scale*Complex<Real>(halfTrace,absDisc);
+            shift1 = Conj(shift0);
         }
         else
         {
             if( Abs(halfTrace+absDisc-eta11) <= Abs(halfTrace-absDisc-eta11) )
             {
-                shift0Real = (halfTrace+absDisc)*scale;
-                shift1Real = shift0Real;
+                shift0 = shift1 = (halfTrace+absDisc)*scale;
             }
             else
             {
-                shift1Real = (halfTrace-absDisc)*scale;
-                shift0Real = shift1Real;
+                shift0 = shift1 = (halfTrace-absDisc)*scale;
             }
-            shift0Imag = shift1Imag = zero;
         }
     }
 }
@@ -65,8 +59,8 @@ void PrepareShifts
 template<typename Real>
 Int ChooseStart
 ( const Matrix<Real>& H, 
-  const Real& shift0Real, const Real& shift0Imag,
-  const Real& shift1Real, const Real& shift1Imag,
+  const Complex<Real>& shift0,
+  const Complex<Real>& shift1,
         vector<Real>& v )
 {
     DEBUG_CSE
@@ -82,14 +76,14 @@ Int ChooseStart
         const Real& eta22 = H(k+2,k+2);
         const Real& eta32 = H(k+3,k+2);
   
-        Real scale = Abs(eta11-shift1Real) + Abs(shift1Imag) + Abs(eta21);
+        Real scale = OneAbs(eta11-shift1) + Abs(eta21);
         Real eta21Scale = eta21 / scale;
 
         v[0] =
           eta21Scale*eta12 +
-          (eta11-shift0Real)*((eta11-shift1Real)/scale) -
-          shift0Imag*(shift1Imag/scale);
-        v[1] = eta21Scale*(eta11+eta22-shift0Real-shift1Real);
+          (eta11-shift0.real())*((eta11-shift1.real())/scale) -
+          shift0.imag()*(shift1.imag()/scale);
+        v[1] = eta21Scale*(eta11+eta22-shift0.real()-shift1.real());
         v[2] = eta21Scale*eta32;
 
         scale = Abs(v[0]) + Abs(v[1]) + Abs(v[2]);
@@ -116,8 +110,8 @@ Int ChooseStart
 template<typename Real>
 void Sweep
 ( Matrix<Real>& H,
-  Real shift0Real, Real shift0Imag, 
-  Real shift1Real, Real shift1Imag,
+  const Complex<Real>& shift0,
+  const Complex<Real>& shift1,
   Matrix<Real>& Z,
   const HessenbergQRCtrl& ctrl )
 {
@@ -134,11 +128,7 @@ void Sweep
     vector<Real> v(3);
     auto subInd = IR(winBeg,winEnd);
     Int shiftStart = winBeg +
-      ChooseStart
-      ( H(subInd,subInd),
-        shift0Real, shift0Imag,
-        shift1Real, shift1Imag,
-        v );
+      ChooseStart( H(subInd,subInd), shift0, shift1, v );
 
     for( Int k=shiftStart; k<winEnd-1; ++k )
     {

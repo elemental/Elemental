@@ -3705,7 +3705,7 @@ template void AdjacentSchurExchange
 namespace schur_exchange {
 
 // This following technique is an analogue of LAPACK's {s,d}trexc
-template<typename Real>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 void Helper
 ( bool wantSchurVecs,
   BlasInt n,
@@ -3888,6 +3888,50 @@ void Helper
     }
 }
 
+template<typename Real>
+void Helper
+( bool wantSchurVecs,
+  BlasInt n,
+  Complex<Real>* T, BlasInt TLDim, 
+  Complex<Real>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 )
+{
+    DEBUG_CSE
+    if( n <= 1 || j1 == j2 )
+        return;
+
+    const Int jBeg   = ( j1<j2 ? j1 : j1-1 );
+    const Int jEnd   = ( j1<j2 ? j2 : j2-1 );
+    const Int stride = ( j1<j2 ? 1  :   -1 );
+
+    for( Int j=jBeg; j!=jEnd; j+=stride )
+    {
+        // Save the j'th and (j+1)'th diagonal entries
+        Complex<Real> tau00 = T[j+j*TLDim];
+        Complex<Real> tau11 = T[(j+1)+(j+1)*TLDim];
+
+        // Find the Givens rotation for swapping said diagonal entries
+        Real c;
+        Complex<Real> s;
+        Givens( T[j+(j+1)*TLDim], tau11-tau00, c, s );
+
+        // Apply the Givens rotation from the left
+        if( j+2 < n )
+            blas::Rot
+            ( n-(j+2), &T[j    +(j+2)*TLDim], TLDim,
+                       &T[(j+1)+(j+2)*TLDim], TLDim, c, s );
+        // Apply the Givens rotation from the right
+        if( j > 0 )
+            blas::Rot( j, &T[j*TLDim], 1, &T[(j+1)*TLDim], 1, c, Conj(s) );
+        if( wantSchurVecs )
+            blas::Rot( n, &Q[j*QLDim], 1, &Q[(j+1)*QLDim], 1, c, Conj(s) );
+
+        T[ j   + j   *TLDim] = tau11;
+        T[(j+1)+(j+1)*TLDim] = tau00;
+    }
+}
+
 } // namespace schur_exchange
 
 template<typename Real>
@@ -3910,6 +3954,20 @@ void SchurExchange
 template<typename Real>
 void SchurExchange
 ( BlasInt n,
+  Complex<Real>* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2 )
+{
+    DEBUG_CSE
+    bool wantSchurVecs = false;
+    Complex<Real>* Q=nullptr;
+    BlasInt QLDim = 1;
+    schur_exchange::Helper( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, j2 );
+}
+
+template<typename Real>
+void SchurExchange
+( BlasInt n,
   Real* T, BlasInt TLDim, 
   Real* Q, BlasInt QLDim,
   BlasInt j1,
@@ -3921,6 +3979,20 @@ void SchurExchange
     bool wantSchurVecs = true;
     schur_exchange::Helper
     ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, j2, work, testAccuracy );
+}
+
+template<typename Real>
+void SchurExchange
+( BlasInt n,
+  Complex<Real>* T, BlasInt TLDim, 
+  Complex<Real>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 )
+{
+    DEBUG_CSE
+    bool wantSchurVecs = true;
+    schur_exchange::Helper
+    ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, j2 );
 }
 
 template void SchurExchange
@@ -3940,6 +4012,17 @@ template void SchurExchange
   bool testAccuracy );
 template void SchurExchange
 ( BlasInt n,
+  Complex<float>* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
+  Complex<float>* T, BlasInt TLDim,
+  Complex<float>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
   double* T, BlasInt TLDim,
   BlasInt j1,
   BlasInt j2,
@@ -3953,6 +4036,17 @@ template void SchurExchange
   BlasInt j2,
   double* work,
   bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  Complex<double>* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
+  Complex<double>* T, BlasInt TLDim,
+  Complex<double>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 );
 #ifdef EL_HAVE_QUAD
 template void SchurExchange
 ( BlasInt n,
@@ -3969,6 +4063,17 @@ template void SchurExchange
   BlasInt j2,
   Quad* work,
   bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  Complex<Quad>* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
+  Complex<Quad>* T, BlasInt TLDim,
+  Complex<Quad>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 );
 #endif
 #ifdef EL_HAVE_QD
 template void SchurExchange
@@ -3988,6 +4093,17 @@ template void SchurExchange
   bool testAccuracy );
 template void SchurExchange
 ( BlasInt n,
+  Complex<DoubleDouble>* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
+  Complex<DoubleDouble>* T, BlasInt TLDim,
+  Complex<DoubleDouble>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
   QuadDouble* T, BlasInt TLDim,
   BlasInt j1,
   BlasInt j2,
@@ -4001,6 +4117,17 @@ template void SchurExchange
   BlasInt j2,
   QuadDouble* work,
   bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  Complex<QuadDouble>* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
+  Complex<QuadDouble>* T, BlasInt TLDim,
+  Complex<QuadDouble>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 );
 #endif
 #ifdef EL_HAVE_MPC
 template void SchurExchange
@@ -4018,6 +4145,17 @@ template void SchurExchange
   BlasInt j2,
   BigFloat* work,
   bool testAccuracy );
+template void SchurExchange
+( BlasInt n,
+  Complex<BigFloat>* T, BlasInt TLDim,
+  BlasInt j1,
+  BlasInt j2 );
+template void SchurExchange
+( BlasInt n,
+  Complex<BigFloat>* T, BlasInt TLDim,
+  Complex<BigFloat>* Q, BlasInt QLDim,
+  BlasInt j1,
+  BlasInt j2 );
 #endif
 
 // Put a two-by-two nonsymmetric real matrix into standard form
@@ -4153,25 +4291,21 @@ void TwoByTwoSchur
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
   Real& c, Real& s,
-  Real& lambda0Real, Real& lambda0Imag,
-  Real& lambda1Real, Real& lambda1Imag )
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1 )
 {
     TwoByTwoSchur
     ( alpha00, alpha01,
       alpha10, alpha11, c, s );
 
     // Explicitly compute the eigenvalues
-    lambda0Real = alpha00;
-    lambda1Real = alpha11;
+    lambda0 = alpha00;
+    lambda1 = alpha11;
     const Real zero(0);
-    if( alpha10 == zero )
+    if( alpha10 != zero )
     {
-        lambda0Imag = lambda1Imag = zero;
-    }
-    else
-    {
-        lambda0Imag = Sqrt(Abs(alpha01))*Sqrt(Abs(alpha10));
-        lambda1Imag = -lambda0Imag;
+        lambda0.imag( Sqrt(Abs(alpha01))*Sqrt(Abs(alpha10)) );
+        lambda1.imag( -lambda0.imag() );
     }
 }
 
@@ -4184,8 +4318,8 @@ template void TwoByTwoSchur
 ( Quad& alpha00, Quad& alpha01,
   Quad& alpha10, Quad& alpha11,
   Quad& c, Quad& s,
-  Quad& lambda0Real, Quad& lambda0Imag,
-  Quad& lambda1Real, Quad& lambda1Imag );
+  Complex<Quad>& lambda0,
+  Complex<Quad>& lambda1 );
 #endif
 #ifdef EL_HAVE_QD
 template void TwoByTwoSchur
@@ -4196,8 +4330,8 @@ template void TwoByTwoSchur
 ( DoubleDouble& alpha00, DoubleDouble& alpha01,
   DoubleDouble& alpha10, DoubleDouble& alpha11,
   DoubleDouble& c, DoubleDouble& s,
-  DoubleDouble& lambda0Real, DoubleDouble& lambda0Imag,
-  DoubleDouble& lambda1Real, DoubleDouble& lambda1Imag );
+  Complex<DoubleDouble>& lambda0,
+  Complex<DoubleDouble>& lambda1 );
 template void TwoByTwoSchur
 ( QuadDouble& alpha00, QuadDouble& alpha01,
   QuadDouble& alpha10, QuadDouble& alpha11,
@@ -4206,8 +4340,8 @@ template void TwoByTwoSchur
 ( QuadDouble& alpha00, QuadDouble& alpha01,
   QuadDouble& alpha10, QuadDouble& alpha11,
   QuadDouble& c, QuadDouble& s,
-  QuadDouble& lambda0Real, QuadDouble& lambda0Imag,
-  QuadDouble& lambda1Real, QuadDouble& lambda1Imag );
+  Complex<QuadDouble>& lambda0,
+  Complex<QuadDouble>& lambda1 );
 #endif
 #ifdef EL_HAVE_MPC
 template void TwoByTwoSchur
@@ -4218,23 +4352,27 @@ template void TwoByTwoSchur
 ( BigFloat& alpha00, BigFloat& alpha01,
   BigFloat& alpha10, BigFloat& alpha11,
   BigFloat& c, BigFloat& s,
-  BigFloat& lambda0Real, BigFloat& lambda0Imag,
-  BigFloat& lambda1Real, BigFloat& lambda1Imag );
+  Complex<BigFloat>& lambda0,
+  Complex<BigFloat>& lambda1 );
 #endif
 
 void TwoByTwoSchur
 ( float& alpha00, float& alpha01,
   float& alpha10, float& alpha11,
   float& c, float& s,
-  float& lambda0Real, float& lambda0Imag,
-  float& lambda1Real, float& lambda1Imag )
+  Complex<float>& lambda0,
+  Complex<float>& lambda1 )
 {
+    float lambda0Real, lambda0Imag,
+          lambda1Real, lambda1Imag;
     EL_LAPACK(slanv2)
     ( &alpha00, &alpha01,
       &alpha10, &alpha11,
       &lambda0Real, &lambda0Imag,
       &lambda1Real, &lambda1Imag,
       &c, &s );
+    lambda0 = Complex<float>( lambda0Real, lambda0Imag );
+    lambda1 = Complex<float>( lambda1Real, lambda1Imag );
 }
 
 void TwoByTwoSchur
@@ -4242,29 +4380,31 @@ void TwoByTwoSchur
   float& alpha10, float& alpha11,
   float& c, float& s )
 {
-    float lambda0Real, lambda0Imag,
-          lambda1Real, lambda1Imag;
+    Complex<float> lambda0, lambda1;
     TwoByTwoSchur
     ( alpha00, alpha01,
       alpha10, alpha11,
       c, s,
-      lambda0Real, lambda0Imag,
-      lambda1Real, lambda1Imag );
+      lambda0, lambda1 );
 }
 
 void TwoByTwoSchur
 ( double& alpha00, double& alpha01,
   double& alpha10, double& alpha11,
   double& c, double& s,
-  double& lambda0Real, double& lambda0Imag,
-  double& lambda1Real, double& lambda1Imag )
+  Complex<double>& lambda0,
+  Complex<double>& lambda1 )
 {
+    double lambda0Real, lambda0Imag,
+           lambda1Real, lambda1Imag;
     EL_LAPACK(dlanv2)
     ( &alpha00, &alpha01,
       &alpha10, &alpha11,
       &lambda0Real, &lambda0Imag,
       &lambda1Real, &lambda1Imag,
       &c, &s );
+    lambda0 = Complex<double>( lambda0Real, lambda0Imag );
+    lambda1 = Complex<double>( lambda1Real, lambda1Imag );
 }
 
 void TwoByTwoSchur
@@ -4272,14 +4412,12 @@ void TwoByTwoSchur
   double& alpha10, double& alpha11,
   double& c, double& s )
 {
-    double lambda0Real, lambda0Imag,
-           lambda1Real, lambda1Imag;
+    Complex<double> lambda0, lambda1;
     TwoByTwoSchur
     ( alpha00, alpha01,
       alpha10, alpha11,
       c, s,
-      lambda0Real, lambda0Imag,
-      lambda1Real, lambda1Imag );
+      lambda0, lambda1 );
 }
 
 // Compute the Schur decomposition of an upper Hessenberg matrix
