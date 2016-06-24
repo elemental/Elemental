@@ -266,7 +266,7 @@ void EL_LAPACK(dlanv2)
   double* lambda1Real, double* lambda1Imag,
   double* c, double* s );
 
-// Hessenberg QR algorithm
+// Hessenberg QR algorithm (with AED)
 void EL_LAPACK(shseqr)
 ( const char* job, const char* compZ, const BlasInt* n, 
   const BlasInt* ilo, const BlasInt* ihi,
@@ -298,6 +298,48 @@ void EL_LAPACK(zhseqr)
   dcomplex* w,
   dcomplex* Z, const BlasInt* ldZ,
   dcomplex* work, const BlasInt* workSize,
+  BlasInt* info );
+
+// Hessenberg QR algorithm (without AED)
+void EL_LAPACK(slahqr)
+( const FortranLogical* wantT,
+  const FortranLogical* wantZ,
+  const BlasInt* n, 
+  const BlasInt* ilo, const BlasInt* ihi,
+  float* H, const BlasInt* ldH, 
+  float* wr, float* wi,
+  const BlasInt* iloZ, const BlasInt* ihiZ,
+  float* Z, const BlasInt* ldZ, 
+  BlasInt* info );
+void EL_LAPACK(dlahqr)
+( const FortranLogical* wantT,
+  const FortranLogical* wantZ,
+  const BlasInt* n, 
+  const BlasInt* ilo, const BlasInt* ihi,
+  double* H, const BlasInt* ldH, 
+  double* wr, double* wi,
+  const BlasInt* iloZ, const BlasInt* ihiZ,
+  double* Z, const BlasInt* ldZ, 
+  BlasInt* info );
+void EL_LAPACK(clahqr)
+( const FortranLogical* wantT,
+  const FortranLogical* wantZ,
+  const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi,
+  scomplex* H, const BlasInt* ldH,
+  scomplex* w,
+  const BlasInt* iloZ, const BlasInt* ihiZ,
+  scomplex* Z, const BlasInt* ldZ,
+  BlasInt* info );
+void EL_LAPACK(zlahqr)
+( const FortranLogical* wantT,
+  const FortranLogical* wantZ,
+  const BlasInt* n,
+  const BlasInt* ilo, const BlasInt* ihi,
+  dcomplex* H, const BlasInt* ldH,
+  dcomplex* w,
+  const BlasInt* iloZ, const BlasInt* ihiZ,
+  dcomplex* Z, const BlasInt* ldZ,
   BlasInt* info );
 
 // Compute the eigenvectors of a (quasi-)triangular matrix
@@ -4427,30 +4469,48 @@ void HessenbergSchur
 ( BlasInt n,
   float* H, BlasInt ldH,
   scomplex* w,
-  bool fullTriangle )
+  bool fullTriangle,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ='N';
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt fakeLDim=1, workSize=-1, info;
-    float workDummy;
+    BlasInt fakeLDim=1;
     vector<float> wr( n ), wi( n );
-    EL_LAPACK(shseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
-      &workDummy, &workSize, &info );
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'), compZ='N';
+        BlasInt workSize=-1;
+        float workDummy;
+        EL_LAPACK(shseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          0, &fakeLDim, &workDummy, &workSize, &info );
 
-    workSize = workDummy;
-    vector<float> work(workSize);
-    EL_LAPACK(shseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("shseqr's failed to compute all eigenvalues");
+        workSize = workDummy;
+        vector<float> work(workSize);
+        EL_LAPACK(shseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          0, &fakeLDim, work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("shseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_FALSE;
+        EL_LAPACK(slahqr)
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          &ilo, &ihi, 0, &fakeLDim, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("slahqr failed to compute all eigenvalues");
+    }
 
     for( BlasInt i=0; i<n; ++i )
         w[i] = Complex<float>(wr[i],wi[i]);
@@ -4460,30 +4520,48 @@ void HessenbergSchur
 ( BlasInt n,
   double* H, BlasInt ldH,
   dcomplex* w,
-  bool fullTriangle )
+  bool fullTriangle,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ='N';
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt fakeLDim=1, workSize=-1, info;
-    double workDummy;
+    BlasInt fakeLDim=1;
     vector<double> wr( n ), wi( n );
-    EL_LAPACK(dhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
-      &workDummy, &workSize, &info );
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'), compZ='N';
+        BlasInt workSize=-1;
+        double workDummy;
+        EL_LAPACK(dhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          0, &fakeLDim, &workDummy, &workSize, &info );
 
-    workSize = workDummy;
-    vector<double> work(workSize);
-    EL_LAPACK(dhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("dhseqr's failed to compute all eigenvalues");
+        workSize = workDummy;
+        vector<double> work(workSize);
+        EL_LAPACK(dhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          0, &fakeLDim, work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("dhseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_FALSE;
+        EL_LAPACK(dlahqr) 
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          &ilo, &ihi, 0, &fakeLDim, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("dlahqr failed to compute all eigenvalues");
+    }
     
     for( BlasInt i=0; i<n; ++i )
         w[i] = Complex<double>(wr[i],wi[i]);
@@ -4493,58 +4571,94 @@ void HessenbergSchur
 ( BlasInt n,
   scomplex* H, BlasInt ldH,
   scomplex* w,
-  bool fullTriangle )
+  bool fullTriangle,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ='N';
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt fakeLDim=1, workSize=-1, info;
-    scomplex workDummy;
-    EL_LAPACK(chseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
-      &workDummy, &workSize, &info );
+    BlasInt fakeLDim=1;
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'), compZ='N';
+        BlasInt workSize=-1;
+        scomplex workDummy;
+        EL_LAPACK(chseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+          &workDummy, &workSize, &info );
 
-    workSize = workDummy.real();
-    vector<scomplex> work(workSize);
-    EL_LAPACK(chseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("chseqr's failed to compute all eigenvalues");
+        workSize = workDummy.real();
+        vector<scomplex> work(workSize);
+        EL_LAPACK(chseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+          work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("chseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_FALSE;
+        EL_LAPACK(clahqr) 
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, w,
+          &ilo, &ihi, 0, &fakeLDim, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("clahqr failed to compute all eigenvalues");
+    }
 }
 
 void HessenbergSchur
 ( BlasInt n,
   dcomplex* H, BlasInt ldH,
   dcomplex* w,
-  bool fullTriangle )
+  bool fullTriangle,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ='N';
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt fakeLDim=1, workSize=-1, info;
-    dcomplex workDummy;
-    EL_LAPACK(zhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
-      &workDummy, &workSize, &info );
+    BlasInt fakeLDim=1;
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'), compZ='N';
+        BlasInt workSize=-1;
+        dcomplex workDummy;
+        EL_LAPACK(zhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+          &workDummy, &workSize, &info );
 
-    workSize = workDummy.real();
-    vector<dcomplex> work(workSize);
-    EL_LAPACK(zhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("zhseqr's failed to compute all eigenvalues");
+        workSize = workDummy.real();
+        vector<dcomplex> work(workSize);
+        EL_LAPACK(zhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+          work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("zhseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_FALSE;
+        EL_LAPACK(zlahqr) 
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, w,
+          &ilo, &ihi, 0, &fakeLDim, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("zlahqr failed to compute all eigenvalues");
+    }
 }
 
 void HessenbergSchur
@@ -4553,30 +4667,48 @@ void HessenbergSchur
   scomplex* w,
   float* Q, BlasInt ldQ, 
   bool fullTriangle,
-  bool multiplyQ )
+  bool multiplyQ,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt workSize=-1, info;
-    float workDummy;
     vector<float> wr( n ), wi( n );
-    EL_LAPACK(shseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
-      &workDummy, &workSize, &info );
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compZ=(multiplyQ ? 'V' : 'I');
+        BlasInt workSize=-1;
+        float workDummy;
+        EL_LAPACK(shseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+          &workDummy, &workSize, &info );
 
-    workSize = workDummy;
-    vector<float> work(workSize);
-    EL_LAPACK(shseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("shseqr's failed to compute all eigenvalues");
+        workSize = workDummy;
+        vector<float> work(workSize);
+        EL_LAPACK(shseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+          work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("shseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_TRUE;
+        EL_LAPACK(slahqr)
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          &ilo, &ihi, Q, &ldQ, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("slahqr failed to compute all eigenvalues");
+    }
 
     for( BlasInt i=0; i<n; ++i )
         w[i] = Complex<float>(wr[i],wi[i]);
@@ -4588,30 +4720,48 @@ void HessenbergSchur
   dcomplex* w,
   double* Q, BlasInt ldQ, 
   bool fullTriangle,
-  bool multiplyQ )
+  bool multiplyQ,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt workSize=-1, info;
-    double workDummy;
     vector<double> wr( n ), wi( n );
-    EL_LAPACK(dhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
-      &workDummy, &workSize, &info );
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compZ=(multiplyQ ? 'V' : 'I');
+        BlasInt workSize=-1;
+        double workDummy;
+        EL_LAPACK(dhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+          &workDummy, &workSize, &info );
 
-    workSize = workDummy;
-    vector<double> work(workSize);
-    EL_LAPACK(dhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("dhseqr's failed to compute all eigenvalues");
+        workSize = workDummy;
+        vector<double> work(workSize);
+        EL_LAPACK(dhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+          work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("dhseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_TRUE;
+        EL_LAPACK(dlahqr)
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(),
+          &ilo, &ihi, Q, &ldQ, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("dlahqr failed to compute all eigenvalues");
+    }
     
     for( BlasInt i=0; i<n; ++i )
         w[i] = Complex<double>(wr[i],wi[i]);
@@ -4623,29 +4773,47 @@ void HessenbergSchur
   scomplex* w,
   scomplex* Q, BlasInt ldQ,
   bool fullTriangle,
-  bool multiplyQ )
+  bool multiplyQ,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt workSize=-1, info;
-    scomplex workDummy;
-    EL_LAPACK(chseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
-      &workDummy, &workSize, &info );
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compZ=(multiplyQ ? 'V' : 'I');
+        BlasInt workSize=-1;
+        scomplex workDummy;
+        EL_LAPACK(chseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ,
+          &workDummy, &workSize, &info );
 
-    workSize = workDummy.real();
-    vector<scomplex> work(workSize);
-    EL_LAPACK(chseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("chseqr's failed to compute all eigenvalues");
+        workSize = workDummy.real();
+        vector<scomplex> work(workSize);
+        EL_LAPACK(chseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ,
+          work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("chseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_TRUE;
+        EL_LAPACK(clahqr)
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, w,
+          &ilo, &ihi, Q, &ldQ, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("clahqr failed to compute all eigenvalues");
+    }
 }
 
 void HessenbergSchur
@@ -4654,29 +4822,47 @@ void HessenbergSchur
   dcomplex* w,
   dcomplex* Q, BlasInt ldQ,
   bool fullTriangle,
-  bool multiplyQ )
+  bool multiplyQ,
+  bool useAED )
 {
     DEBUG_CSE
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
+    BlasInt info;
     BlasInt ilo=1, ihi=n;
-    BlasInt workSize=-1, info;
-    dcomplex workDummy;
-    EL_LAPACK(zhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
-      &workDummy, &workSize, &info );
+    if( useAED )
+    {
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compZ=(multiplyQ ? 'V' : 'I');
+        BlasInt workSize=-1;
+        dcomplex workDummy;
+        EL_LAPACK(zhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ,
+          &workDummy, &workSize, &info );
 
-    workSize = workDummy.real();
-    vector<dcomplex> work(workSize);
-    EL_LAPACK(zhseqr)
-    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
-      work.data(), &workSize, &info );
-    if( info < 0 )
-        RuntimeError("Argument ",-info," had an illegal value");
-    else if( info > 0 )
-        RuntimeError("zhseqr's failed to compute all eigenvalues");
+        workSize = workDummy.real();
+        vector<dcomplex> work(workSize);
+        EL_LAPACK(zhseqr)
+        ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ,
+          work.data(), &workSize, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("zhseqr failed to compute all eigenvalues");
+    }
+    else
+    {
+        FortranLogical wantT=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE),
+                       wantZ=FORTRAN_TRUE;
+        EL_LAPACK(zlahqr)
+        ( &wantT, &wantZ, &n, &ilo, &ihi, H, &ldH, w,
+          &ilo, &ihi, Q, &ldQ, &info );
+        if( info < 0 )
+            RuntimeError("Argument ",-info," had an illegal value");
+        else if( info > 0 )
+            RuntimeError("zlahqr failed to compute all eigenvalues");
+    }
 }
 
 // Compute eigenvalues/pairs of an upper Hessenberg matrix

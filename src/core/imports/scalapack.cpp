@@ -1569,7 +1569,7 @@ void HessenbergSchur
         cerr << 
           "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz='N';
+        const char job=(fullTriangle ? 'S' : 'E'), compz='N';
 
         // Query the workspace sizes
         int workSize=-1, dummyIWork, iWorkSize=-1;
@@ -1592,7 +1592,7 @@ void HessenbergSchur
     }
     else
     {
-        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                        wantz=FORTRAN_FALSE;
 
         // PSLAHQR does not support a workspace query and instead assumes
@@ -1645,7 +1645,7 @@ void HessenbergSchur
         cerr << 
           "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz='N';
+        const char job=(fullTriangle ? 'S' : 'E'), compz='N';
 
         // Query the workspace sizes
         int workSize=-1, dummyIWork, iWorkSize=-1;
@@ -1667,7 +1667,7 @@ void HessenbergSchur
     }
     else
     {
-        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                        wantz=FORTRAN_FALSE;
 
         // PDLAHQR does not support a workspace query and instead assumes
@@ -1711,7 +1711,7 @@ void HessenbergSchur
   bool aed ) 
 {
     DEBUG_CSE
-    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                    wantz=FORTRAN_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
@@ -1745,7 +1745,7 @@ void HessenbergSchur
   bool aed ) 
 {
     DEBUG_CSE
-    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                    wantz=FORTRAN_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
@@ -1787,7 +1787,8 @@ void HessenbergSchur
         cerr << 
           "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compz=(multiplyQ ? 'V' : 'I');
 
         // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
         // querying, which is located in p{s,d}laqr1, 
@@ -1814,7 +1815,7 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                        wantz=FORTRAN_TRUE;
 
         // PSLAHQR does not support a workspace query and instead assumes
@@ -1871,7 +1872,8 @@ void HessenbergSchur
         cerr << 
           "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compz=(multiplyQ ? 'V' : 'I');
 
         // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
         // querying, which is located in p{s,d}laqr1, 
@@ -1898,7 +1900,7 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                        wantz=FORTRAN_TRUE;
 
         // PDLAHQR does not support a workspace query and instead assumes
@@ -1951,7 +1953,7 @@ void HessenbergSchur
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                    wantz=FORTRAN_TRUE;
     const int ilo=1, ihi=n;
 
@@ -1990,7 +1992,7 @@ void HessenbergSchur
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    FortranLogical wantt=(fullTriangle?FORTRAN_TRUE:FORTRAN_FALSE), 
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                    wantz=FORTRAN_TRUE;
     const int ilo=1, ihi=n;
 

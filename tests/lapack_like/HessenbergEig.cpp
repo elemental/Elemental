@@ -237,7 +237,7 @@ void TestAhuesTisseurQuasi( const schur::HessenbergQRCtrl& ctrl, bool print )
         Print( R );
 }
 
-template<typename Real>
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 {
     typedef Complex<Real> F;
@@ -252,9 +252,20 @@ void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
         Print( H, "H" );
 
     Matrix<F> T, w, Z;
-    Identity( Z, H.Height(), H.Height() );
-    T = H;
     Timer timer;
+
+    T = H;
+    w.Resize( n, 1 );
+    Identity( Z, n, n ); 
+    timer.Start();
+    bool multiplyZ = true;
+    lapack::HessenbergSchur
+    ( n, T.Buffer(), T.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
+      ctrl.fullTriangle, multiplyZ, ctrl.useAED );
+    Output("LAPACK HessenbergSchur: ",timer.Stop()," seconds");
+
+    T = H;
+    Identity( Z, n, n );
     timer.Start();
     auto info = schur::HessenbergQR( T, w, Z, ctrl );
     Output("HessenbergQR: ",timer.Stop()," seconds");
@@ -275,7 +286,46 @@ void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
         Print( R );
 }
 
-template<typename Real>
+template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
+{
+    typedef Complex<Real> F;
+    Output("Testing uniform Hessenberg with ",TypeName<F>());
+
+    Matrix<F> H;
+    Uniform( H, n, n );
+    MakeTrapezoidal( UPPER, H, -1 );
+    const Real HFrob = FrobeniusNorm( H );
+    Output("|| H ||_F = ",HFrob);
+    if( print )
+        Print( H, "H" );
+
+    Matrix<F> T, w, Z;
+    Timer timer;
+
+    T = H;
+    Identity( Z, n, n );
+    timer.Start();
+    auto info = schur::HessenbergQR( T, w, Z, ctrl );
+    Output("HessenbergQR: ",timer.Stop()," seconds");
+    Output("Convergence achieved after ",info.numIterations," iterations");
+    if( print )
+    {
+        Print( w, "w" );
+        Print( Z, "Z" );
+        Print( T, "T" );
+    }
+
+    Matrix<F> R;
+    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    const Real errFrob = FrobeniusNorm( R ); 
+    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    if( print )
+        Print( R );
+}
+
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 {
     typedef Real F;
@@ -291,9 +341,60 @@ void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 
     Matrix<F> T, Z;
     Matrix<Complex<Real>> w;
-    Identity( Z, H.Height(), H.Height() );
-    T = H;
     Timer timer;
+
+    T = H;
+    w.Resize( n, 1 );
+    Identity( Z, n, n ); 
+    timer.Start();
+    bool multiplyZ = true;
+    lapack::HessenbergSchur
+    ( n, T.Buffer(), T.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
+      ctrl.fullTriangle, multiplyZ, ctrl.useAED );
+    Output("LAPACK HessenbergSchur: ",timer.Stop()," seconds");
+
+    T = H;
+    Identity( Z, n, n );
+    timer.Start();
+    auto info = schur::HessenbergQR( T, w, Z, ctrl );
+    Output("HessenbergQR: ",timer.Stop()," seconds");
+    Output("Convergence achieved after ",info.numIterations," iterations");
+    if( print )
+    {
+        Print( w, "w" );
+        Print( Z, "Z" );
+        Print( T, "T" );
+    }
+
+    Matrix<F> R;
+    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    const Real errFrob = FrobeniusNorm( R ); 
+    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    if( print )
+        Print( R );
+}
+
+template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
+{
+    typedef Real F;
+    Output("Testing uniform Hessenberg with ",TypeName<F>());
+
+    Matrix<F> H;
+    Uniform( H, n, n );
+    MakeTrapezoidal( UPPER, H, -1 );
+    const Real HFrob = FrobeniusNorm( H );
+    Output("|| H ||_F = ",HFrob);
+    if( print )
+        Print( H, "H" );
+
+    Matrix<F> T, Z;
+    Matrix<Complex<Real>> w;
+    Timer timer;
+
+    T = H;
+    Identity( Z, n, n );
     timer.Start();
     auto info = schur::HessenbergQR( T, w, Z, ctrl );
     Output("HessenbergQR: ",timer.Stop()," seconds");

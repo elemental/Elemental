@@ -691,22 +691,26 @@ void HessenbergSchur
 ( BlasInt n,
   float* H, BlasInt ldH,
   scomplex* w,
-  bool fullTriangle=false );
+  bool fullTriangle=false,
+  bool useAED=true );
 void HessenbergSchur
 ( BlasInt n,
   double* H, BlasInt ldH,
   dcomplex* w,
-  bool fullTriangle=false );
+  bool fullTriangle=false,
+  bool useAED=true );
 void HessenbergSchur
 ( BlasInt n,
   scomplex* H, BlasInt ldH,
   scomplex* w,
-  bool fullTriangle=false );
+  bool fullTriangle=false,
+  bool useAED=true );
 void HessenbergSchur
 ( BlasInt n,
   dcomplex* H, BlasInt ldH,
   dcomplex* w,
-  bool fullTriangle=false );
+  bool fullTriangle=false,
+  bool useAED=true );
 
 void HessenbergSchur
 ( BlasInt n,
@@ -714,28 +718,32 @@ void HessenbergSchur
   scomplex* w,
   float* Q, BlasInt ldQ, 
   bool fullTriangle=true,
-  bool multiplyQ=false );
+  bool multiplyQ=false,
+  bool useAED=true );
 void HessenbergSchur
 ( BlasInt n,
   double* H, BlasInt ldH,
   dcomplex* w,
   double* Q, BlasInt ldQ, 
   bool fullTriangle=true,
-  bool multiplyQ=false );
+  bool multiplyQ=false,
+  bool useAED=true );
 void HessenbergSchur
 ( BlasInt n,
   scomplex* H, BlasInt ldH,
   scomplex* w,
   scomplex* Q, BlasInt ldQ, 
   bool fullTriangle=false,
-  bool multiplyQ=false );
+  bool multiplyQ=false,
+  bool useAED=true );
 void HessenbergSchur
 ( BlasInt n,
   dcomplex* H, BlasInt ldH,
   dcomplex* w,
   dcomplex* Q, BlasInt ldQ, 
   bool fullTriangle=false,
-  bool multiplyQ=false );
+  bool multiplyQ=false,
+  bool useAED=true );
 
 // Compute the eigenvalues/pairs of an upper Hessenberg matrix
 // ===========================================================
