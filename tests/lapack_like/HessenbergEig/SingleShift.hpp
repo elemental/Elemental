@@ -119,7 +119,7 @@ SingleShift
 
             ctrlSweep.winBeg = iterBeg;
             ctrlSweep.winEnd = winEnd;
-            single_shift::Sweep( H, shift, Z, ctrlSweep );
+            single_shift::SweepOpt( H, shift, Z, ctrlSweep );
             ++info.numIterations;
         }
         if( iter == maxIter )

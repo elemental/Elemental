@@ -198,7 +198,7 @@ void Sweep
         // The formulas within lapack::Reflector trivially imply that 
         // tau0*Conj(nu1) will be real if nu1 was real on entry to
         // lapack::Reflector (an equivalent claim is made within ZLAHQR)
-        F tau1 = RealPart(tau0*Conj(nu1));
+        Real tau1 = RealPart(tau0*Conj(nu1));
 
         // Apply the Householder reflector from the left
         for( Int j=k; j<transformEnd; ++j )
@@ -225,6 +225,137 @@ void Sweep
                 F innerProd = Conj(tau0)*Z(j,k) + tau1*Z(j,k+1);
                 Z(j,k  ) -= innerProd;
                 Z(j,k+1) -= innerProd*Conj(nu1);
+            }
+        }
+
+        if( k == shiftStart && shiftStart > winBeg )
+        {
+            // Make H[shiftStart,shiftStart-1] real by scaling by phase
+            // TODO: Investigate more carefully
+            F subdiagVal = Real(1) - Conj(tau0);
+            F phase = subdiagVal / Abs(subdiagVal);
+            H( shiftStart+1, shiftStart ) *= Conj(phase);
+            if( shiftStart+2 < winEnd )
+                H( shiftStart+2, shiftStart+1 ) *= phase;
+            for( Int j=shiftStart; j<winEnd; ++j )
+            {
+                if( j != shiftStart+1 )
+                {
+                    if( j+1 < transformEnd )
+                    {
+                        blas::Scal
+                        ( transformEnd-(j+1), phase, &H(j,j+1), H.LDim() );
+                    }
+                    blas::Scal
+                    ( j-transformBeg, Conj(phase), &H(transformBeg,j), 1 );
+                    if( ctrl.wantSchurVecs )
+                    {
+                        blas::Scal( nZ, Conj(phase), &Z(0,j), 1 );
+                    }
+                }
+            }
+        }
+    }
+    // Make H(winEnd-1,winEnd-2) real by scaling by phase
+    F subdiagVal = H( winEnd-1, winEnd-2 );
+    if( ImagPart(subdiagVal) != Real(0) )
+    {
+        Real subdiagAbs = Abs(subdiagVal);
+        H( winEnd-1, winEnd-2 ) = subdiagAbs;
+        F phase = subdiagVal / subdiagAbs;
+        if( winEnd < transformEnd ) 
+        {
+            blas::Scal
+            ( transformEnd-winEnd, Conj(phase),
+              &H(winEnd-1,winEnd), H.LDim() );
+        }
+        blas::Scal
+        ( (winEnd-1)-transformBeg, phase, &H(transformBeg,winEnd-1), 1 );
+        if( ctrl.wantSchurVecs )
+        {
+            blas::Scal( nZ, phase, &Z(0,winEnd-1), 1 );
+        }
+    }
+}
+
+// Unfortunately, it seems to be the case that it is noticeably faster
+// for this routine to manually inline the data access than to use the 
+// (presumably inlined) Matrix::operator()(int,int) calls.
+template<typename Real>
+void SweepOpt
+( Matrix<Complex<Real>>& H,
+  Complex<Real> shift,
+  Matrix<Complex<Real>>& Z,
+  const HessenbergQRCtrl& ctrl )
+{
+    DEBUG_CSE
+    typedef Complex<Real> F;
+    const Int n = H.Height();
+    const Int nZ = Z.Height();
+    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    F* HBuf = H.Buffer();
+    F* ZBuf = Z.Buffer();
+    const Int HLDim = H.LDim();
+    const Int ZLDim = Z.LDim();
+
+    const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg ); 
+    const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
+
+    auto subInd = IR(winBeg,winEnd);
+    auto qrTuple = ChooseStart( H(subInd,subInd), shift );
+    const Int shiftStart = winBeg + std::get<0>(qrTuple);
+    Complex<Real> nu0 = std::get<1>(qrTuple);
+    Complex<Real> nu1 = std::get<2>(qrTuple);
+
+    for( Int k=shiftStart; k<winEnd-1; ++k )
+    {
+        if( k > shiftStart )
+        {
+            nu0 = HBuf[k+(k-1)*HLDim];
+            nu1 = RealPart( HBuf[(k+1)+(k-1)*HLDim] );
+        }
+        // TODO: Assert nu1 is real
+        F tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
+        if( k > shiftStart )
+        {
+            HBuf[ k   +(k-1)*HLDim] = nu0;
+            HBuf[(k+1)+(k-1)*HLDim] = 0;
+        }
+        // The formulas within lapack::Reflector trivially imply that 
+        // tau0*Conj(nu1) will be real if nu1 was real on entry to
+        // lapack::Reflector (an equivalent claim is made within ZLAHQR)
+        Real tau1 = RealPart(tau0*Conj(nu1));
+
+        // Apply the Householder reflector from the left
+        for( Int j=k; j<transformEnd; ++j )
+        {
+            F innerProd = tau0*HBuf[ k   +j*HLDim] +
+                          tau1*HBuf[(k+1)+j*HLDim];
+            HBuf[ k   +j*HLDim] -= innerProd;
+            HBuf[(k+1)+j*HLDim] -= innerProd*nu1;
+        }
+
+        // Apply the Householder reflector from the right
+        const Int rightApplyEnd = Min(k+3,winEnd);
+        for( Int j=transformBeg; j<rightApplyEnd; ++j )
+        {
+            F innerProd = Conj(tau0)*HBuf[j+ k   *HLDim] +
+                               tau1 *HBuf[j+(k+1)*HLDim];
+            HBuf[j+ k   *HLDim] -= innerProd;
+            HBuf[j+(k+1)*HLDim] -= innerProd*Conj(nu1);
+        }
+
+        if( ctrl.wantSchurVecs )
+        {
+            // Accumulate the Schur vectors
+            for( Int j=0; j<nZ; ++j )
+            {
+                F innerProd =
+                  Conj(tau0)*ZBuf[j+ k   *ZLDim] +
+                       tau1 *ZBuf[j+(k+1)*ZLDim];
+                ZBuf[j+ k   *ZLDim] -= innerProd;
+                ZBuf[j+(k+1)*ZLDim] -= innerProd*Conj(nu1);
             }
         }
 

@@ -220,6 +220,135 @@ void Sweep
     }
 }
 
+// Unfortunately, it seems to be the case that it is noticeably faster
+// for this routine to manually inline the data access than to use the 
+// (presumably inlined) Matrix::operator()(int,int) calls.
+template<typename Real>
+void SweepOpt
+( Matrix<Real>& H,
+  const Complex<Real>& shift0,
+  const Complex<Real>& shift1,
+  Matrix<Real>& Z,
+  const HessenbergQRCtrl& ctrl )
+{
+    DEBUG_CSE
+    const Real zero(0), one(1);
+    const Int n = H.Height();
+    const Int nZ = Z.Height();
+    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    Real* HBuf = H.Buffer();
+    Real* ZBuf = Z.Buffer();
+    const Int HLDim = H.LDim();
+    const Int ZLDim = Z.LDim();
+
+    const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg ); 
+    const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
+
+    vector<Real> v(3);
+    auto subInd = IR(winBeg,winEnd);
+    Int shiftStart = winBeg +
+      ChooseStart( H(subInd,subInd), shift0, shift1, v );
+
+    for( Int k=shiftStart; k<winEnd-1; ++k )
+    {
+        const Int numReflect = Min( 3, winEnd-k );
+        if( k > shiftStart )
+        {
+            MemCopy( v.data(), &HBuf[k+(k-1)*HLDim], numReflect );
+        }
+        Real tau0 = lapack::Reflector( numReflect, v[0], &v[1], 1 );
+        if( k > shiftStart )
+        {
+            HBuf[ k   +(k-1)*HLDim] = v[0];
+            HBuf[(k+1)+(k-1)*HLDim] = zero;
+            if( k < winEnd-2 )
+                HBuf[(k+2)+(k-1)*HLDim] = zero;
+        }
+        else if( shiftStart > winBeg )
+        {
+            // The following is supposedly more reliable than
+            // H(k,k-1) = -H(k,k-1) when v(1) and v(2) underflow
+            // (cf. LAPACK's {s,d}lahqr)
+            HBuf[k+(k-1)*HLDim] *= (one-tau0);
+        }
+        Real tau1 = tau0*v[1];
+        if( numReflect == 3 )
+        {
+            Real tau2 = tau0*v[2];
+
+            // Apply the Householder reflector from the left
+            for( Int j=k; j<transformEnd; ++j )
+            {
+                Real innerProd =
+                       HBuf[ k   +j*HLDim] +
+                  v[1]*HBuf[(k+1)+j*HLDim] +
+                  v[2]*HBuf[(k+2)+j*HLDim];
+                HBuf[ k   +j*HLDim] -= innerProd*tau0;
+                HBuf[(k+1)+j*HLDim] -= innerProd*tau1;
+                HBuf[(k+2)+j*HLDim] -= innerProd*tau2;
+            }
+           
+            // Apply the Householder reflector from the right
+            const Int rightApplyEnd = Min(k+4,winEnd);
+            for( Int j=transformBeg; j<rightApplyEnd; ++j )
+            {
+                Real innerProd =
+                       HBuf[j+ k   *HLDim] +
+                  v[1]*HBuf[j+(k+1)*HLDim] +
+                  v[2]*HBuf[j+(k+2)*HLDim];
+                HBuf[j+ k   *HLDim] -= innerProd*tau0;
+                HBuf[j+(k+1)*HLDim] -= innerProd*tau1;
+                HBuf[j+(k+2)*HLDim] -= innerProd*tau2;
+            }
+
+            if( ctrl.wantSchurVecs )
+            {
+                for( Int j=0; j<nZ; ++j )
+                {
+                    Real innerProd =
+                           ZBuf[j+ k   *ZLDim] +
+                      v[1]*ZBuf[j+(k+1)*ZLDim] +
+                      v[2]*ZBuf[j+(k+2)*ZLDim];
+                    ZBuf[j+ k   *ZLDim] -= innerProd*tau0;
+                    ZBuf[j+(k+1)*ZLDim] -= innerProd*tau1;
+                    ZBuf[j+(k+2)*ZLDim] -= innerProd*tau2;
+                }
+            }
+        }
+        else if( numReflect == 2 )
+        {
+            // Apply the Householder reflector from the left
+            for( Int j=k; j<transformEnd; ++j )
+            {
+                Real innerProd = HBuf[k+j*HLDim] + v[1]*HBuf[(k+1)+j*HLDim];
+                HBuf[ k   +j*HLDim] -= innerProd*tau0;
+                HBuf[(k+1)+j*HLDim] -= innerProd*tau1;
+            }
+
+            // Apply the Householder reflector from the right
+            const Int rightApplyEnd = Min(k+3,winEnd);
+            for( Int j=transformBeg; j<rightApplyEnd; ++j )
+            {
+                Real innerProd = HBuf[j+k*HLDim] + v[1]*HBuf[j+(k+1)*HLDim];
+                HBuf[j+ k   *HLDim] -= innerProd*tau0;
+                HBuf[j+(k+1)*HLDim] -= innerProd*tau1;
+            }
+
+            if( ctrl.wantSchurVecs )
+            {
+                // Accumulate the Schur vectors
+                for( Int j=0; j<nZ; ++j )
+                {
+                    Real innerProd = ZBuf[j+k*ZLDim] + v[1]*ZBuf[j+(k+1)*ZLDim];
+                    ZBuf[j+ k   *ZLDim] -= innerProd*tau0;
+                    ZBuf[j+(k+1)*ZLDim] -= innerProd*tau1;
+                }
+            }
+        }
+    }
+}
+
 } // namespace double_shift
 } // namespace hess_qr
 } // namespace schur

@@ -65,7 +65,6 @@ inline Int NumShifts( Int n, Int winSize )
         numShifts = Max( 256, winSize/Int(2*Log2(double(winSize))) );
 
     numShifts = Min( numShifts, winSize );
-    numShifts = Min( numShifts, (n+6)/9 );
     numShifts = Max( 2, numShifts-Mod(numShifts,2) );
 
     return numShifts;
@@ -99,6 +98,7 @@ inline Int SufficientDeflation( Int deflationSize )
 // note that LAPACK's hard minimum of 12 does not apply to us
 inline Int MinSize()
 {
+    //return 12;
     return 75;
 }
 
@@ -307,7 +307,9 @@ AED
                 }
                 // Pair together the real shifts
                 auto wSub = w(IR(shiftBeg,winEnd),ALL); 
+                //Print( wSub, "wSubBefPair" );
                 aed::PairShifts( wSub );
+                //Print( wSub, "wSubAftPair" );
             }
 
             if( winBeg-shiftBeg == 2 )
@@ -597,7 +599,6 @@ AED
     info.numUnconverged = winEnd-winBeg;
     return info;
 }
-
 
 } // namespace hess_qr
 } // namespace schur

@@ -149,7 +149,7 @@ DoubleShift
 
             ctrlSweep.winBeg = iterBeg;
             ctrlSweep.winEnd = winEnd;
-            double_shift::Sweep( H, shift0, shift1, Z, ctrlSweep );
+            double_shift::SweepOpt( H, shift0, shift1, Z, ctrlSweep );
             ++info.numIterations;
         }
         if( iter == maxIter )

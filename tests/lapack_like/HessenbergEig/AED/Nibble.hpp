@@ -84,6 +84,7 @@ AEDInfo Nibble
     ctrlSub.wantSchurVecs = true;
     ctrlSub.demandConverged = false;
     ctrlSub.useAED = ( ctrl.recursiveAED ? true : false );
+    
     auto infoSub = HessenbergQR( T, w1, V, ctrlSub );
     DEBUG_ONLY(
       if( infoSub.numUnconverged != 0 )
@@ -124,7 +125,7 @@ AEDInfo Nibble
         if( i == info.numUnconverged || T(i,i-1) == zero )
         {
             // 1x1 block
-            w(deflateBeg+i) = T(i,i);
+            w1(i) = T(i,i);
             i -= 1;
         }
         else
@@ -138,8 +139,7 @@ AEDInfo Nibble
             lapack::TwoByTwoSchur
             ( alpha00, alpha01,
               alpha10, alpha11, c, s,
-              w(deflateBeg+i-1),
-              w(deflateBeg+i) );
+              w1(i-1), w1(i) );
             i -= 2;
         }
     }
@@ -227,7 +227,6 @@ AEDInfo Nibble
             Z1 = WAccum;
         }
     }
-
     return info;
 }
 
@@ -427,7 +426,6 @@ AEDInfo Nibble
 
     return info;
 }
-
 
 } // namespace aed
 } // namespace hess_qr
