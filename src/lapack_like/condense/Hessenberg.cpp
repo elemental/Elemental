@@ -11,6 +11,7 @@
 #include "./Hessenberg/L.hpp"
 #include "./Hessenberg/U.hpp"
 #include "./Hessenberg/ApplyQ.hpp"
+#include "./Hessenberg/FormQ.hpp"
 
 namespace El {
 
@@ -81,7 +82,17 @@ void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const ElementalMatrix<F>& A, \
     const ElementalMatrix<F>& phase, \
-          ElementalMatrix<F>& B );
+          ElementalMatrix<F>& B ); \
+  template void hessenberg::FormQ \
+  ( UpperOrLower uplo, \
+    const Matrix<F>& A, \
+    const Matrix<F>& phase, \
+          Matrix<F>& Q ); \
+  template void hessenberg::FormQ \
+  ( UpperOrLower uplo, \
+    const ElementalMatrix<F>& A, \
+    const ElementalMatrix<F>& phase, \
+          ElementalMatrix<F>& Q );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

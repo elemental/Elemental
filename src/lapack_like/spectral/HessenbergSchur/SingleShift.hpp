@@ -6,22 +6,21 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_SINGLE_SHIFT_HPP
-#define EL_SCHUR_HESSQR_SINGLE_SHIFT_HPP
+#ifndef EL_SCHUR_HESS_SINGLE_SHIFT_HPP
+#define EL_SCHUR_HESS_SINGLE_SHIFT_HPP
 
 #include "./SingleShift/Sweep.hpp"
 
 namespace El {
-namespace schur {
-namespace hess_qr {
+namespace hess_schur {
 
 template<typename Real>
-HessenbergQRInfo
+HessenbergSchurInfo
 SingleShift
 (       Matrix<Complex<Real>>& H,
         Matrix<Complex<Real>>& w,
         Matrix<Complex<Real>>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
@@ -32,7 +31,7 @@ SingleShift
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int windowSize = winEnd - winBeg;
-    HessenbergQRInfo info;
+    HessenbergSchurInfo info;
 
     w.Resize( n, 1 );
 
@@ -134,8 +133,7 @@ SingleShift
     return info;
 }
 
-} // namespace hess_qr
-} // namespace schur
+} // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESSQR_SINGLE_SHIFT_HPP
+#endif // ifndef EL_SCHUR_HESS_SINGLE_SHIFT_HPP

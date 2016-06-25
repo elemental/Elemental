@@ -6,23 +6,22 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_DOUBLE_SHIFT_HPP
-#define EL_SCHUR_HESSQR_DOUBLE_SHIFT_HPP
+#ifndef EL_SCHUR_HESS_DOUBLE_SHIFT_HPP
+#define EL_SCHUR_HESS_DOUBLE_SHIFT_HPP
 
 #include "./SingleShift.hpp"
 #include "./DoubleShift/Sweep.hpp"
 
 namespace El {
-namespace schur {
-namespace hess_qr {
+namespace hess_schur {
 
 template<typename Real>
-HessenbergQRInfo
+HessenbergSchurInfo
 DoubleShift
 ( Matrix<Real>& H,
   Matrix<Complex<Real>>& w,
   Matrix<Real>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     const Real realZero(0);
@@ -35,7 +34,7 @@ DoubleShift
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int windowSize = winEnd - winBeg;
-    HessenbergQRInfo info;
+    HessenbergSchurInfo info;
 
     w.Resize( n, 1 );
 
@@ -146,7 +145,7 @@ DoubleShift
             ( eta00, eta01,
               eta10, eta11,
               shift0, shift1 );
-
+ 
             ctrlSweep.winBeg = iterBeg;
             ctrlSweep.winEnd = winEnd;
             double_shift::SweepOpt( H, shift0, shift1, Z, ctrlSweep );
@@ -160,12 +159,13 @@ DoubleShift
                 break;
         }
     }
+    if( ctrl.progress )
+        Output(info.numIterations," iterations");
     info.numUnconverged = winEnd-winBeg;
     return info;
 }
 
-} // namespace hess_qr
-} // namespace schur
+} // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESSQR_DOUBLE_SHIFT_HPP
+#endif // ifndef EL_SCHUR_HESS_DOUBLE_SHIFT_HPP

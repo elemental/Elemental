@@ -6,14 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_AED_NIBBLE_HPP
-#define EL_SCHUR_HESSQR_AED_NIBBLE_HPP
+#ifndef EL_SCHUR_HESS_AED_NIBBLE_HPP
+#define EL_SCHUR_HESS_AED_NIBBLE_HPP
 
 #include "./SpikeDeflation.hpp"
 
 namespace El {
-namespace schur {
-namespace hess_qr {
+namespace hess_schur {
 namespace aed {
 
 template<typename Real>
@@ -22,7 +21,7 @@ AEDInfo Nibble
   Int deflationSize,
   Matrix<Complex<Real>>& w,
   Matrix<Real>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     const Int n = H.Height();
@@ -85,7 +84,7 @@ AEDInfo Nibble
     ctrlSub.demandConverged = false;
     ctrlSub.useAED = ( ctrl.recursiveAED ? true : false );
     
-    auto infoSub = HessenbergQR( T, w1, V, ctrlSub );
+    auto infoSub = HessenbergSchur( T, w1, V, ctrlSub );
     DEBUG_ONLY(
       if( infoSub.numUnconverged != 0 )
           Output(infoSub.numUnconverged," eigenvalues did not converge");
@@ -236,7 +235,7 @@ AEDInfo Nibble
   Int deflationSize,
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
@@ -299,7 +298,7 @@ AEDInfo Nibble
     ctrlSub.wantSchurVecs = true;
     ctrlSub.demandConverged = false;
     ctrlSub.useAED = ( ctrl.recursiveAED ? true : false );
-    auto infoSub = HessenbergQR( T, w1, V, ctrlSub );
+    auto infoSub = HessenbergSchur( T, w1, V, ctrlSub );
     DEBUG_ONLY(
       if( infoSub.numUnconverged != 0 )
           Output(infoSub.numUnconverged," eigenvalues did not converge");
@@ -428,8 +427,7 @@ AEDInfo Nibble
 }
 
 } // namespace aed
-} // namespace hess_qr
-} // namespace schur
+} // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESSQR_AED_NIBBLE_HPP
+#endif // ifndef EL_SCHUR_HESS_AED_NIBBLE_HPP

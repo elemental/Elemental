@@ -21,13 +21,28 @@ void QR
 {
     DEBUG_CSE
     const Int n = A.Height();
-    w.Resize( n, 1 );
     Timer timer;
+
+    Matrix<F> phase;
     if( time )
         timer.Start();
-    lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), fullTriangle );
+    Hessenberg( UPPER, A, phase );
     if( time )
-        Output("  lapack::Schur: ",timer.Stop()," seconds");
+        Output("  Hessenberg reduction: ",timer.Stop()," seconds");
+    MakeTrapezoidal( UPPER, A, -1 );
+
+    HessenbergSchurCtrl hessSchurCtrl;
+    hessSchurCtrl.fullTriangle = fullTriangle;
+    hessSchurCtrl.wantSchurVecs = false;
+    hessSchurCtrl.demandConverged = true;
+    hessSchurCtrl.useAED = true;
+    hessSchurCtrl.recursiveAED = true;
+    if( time )
+        timer.Start();
+    HessenbergSchur( A, w, hessSchurCtrl ); 
+    if( time )
+        Output("  HessenbergSchur: ",timer.Stop()," seconds");
+
     if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
@@ -47,15 +62,29 @@ void QR
 {
     DEBUG_CSE
     const Int n = A.Height();
-    Q.Resize( n, n );
-    w.Resize( n, 1 );
     Timer timer;
+
+    Matrix<F> phase;
     if( time )
         timer.Start();
-    lapack::Schur
-    ( n, A.Buffer(), A.LDim(), w.Buffer(), Q.Buffer(), Q.LDim(), fullTriangle );
+    Hessenberg( UPPER, A, phase );
     if( time )
-        Output("  lapack::Schur: ",timer.Stop()," seconds");
+        Output("  Hessenberg reduction: ",timer.Stop()," seconds");
+    hessenberg::FormQ( UPPER, A, phase, Q );
+    MakeTrapezoidal( UPPER, A, -1 );
+
+    HessenbergSchurCtrl hessSchurCtrl;
+    hessSchurCtrl.fullTriangle = fullTriangle;
+    hessSchurCtrl.wantSchurVecs = true;
+    hessSchurCtrl.demandConverged = true;
+    hessSchurCtrl.useAED = true;
+    hessSchurCtrl.recursiveAED = true;
+    if( time )
+        timer.Start();
+    HessenbergSchur( A, w, Q, hessSchurCtrl ); 
+    if( time )
+        Output("  HessenbergSchur: ",timer.Stop()," seconds");
+
     if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );
     else
@@ -167,19 +196,19 @@ void QR
     // Reduce A to upper-Hessenberg form in an element-wise distribution
     // and form the explicit reflector matrix
     DistMatrix<F> AElem( A ), QElem( A.Grid() );
-    DistMatrix<F,STAR,STAR> t( A.Grid() );
+    DistMatrix<F,STAR,STAR> phase( A.Grid() );
     if( time && gridRank == 0 )
         timer.Start();
-    Hessenberg( UPPER, AElem, t );
+    Hessenberg( UPPER, AElem, phase );
     if( time && gridRank == 0 )
         Output("  Hessenberg: ",timer.Stop()," seconds");
     // There is not yet a 'form Q'
     if( time && gridRank == 0 )
         timer.Start();
     Identity( QElem, n, n ); 
-    hessenberg::ApplyQ( LEFT, UPPER, NORMAL, AElem, t, QElem );
+    hessenberg::FormQ( UPPER, AElem, phase, QElem );
     if( time && gridRank == 0 )
-        Output("  hessenberg::ApplyQ: ",timer.Stop()," seconds");
+        Output("  hessenberg::FormQ: ",timer.Stop()," seconds");
     MakeTrapezoidal( UPPER, AElem, -1 );
     if( time && gridRank == 0 )
         timer.Start();
@@ -330,19 +359,19 @@ void QR
     const Int n = A.Height();
     // Reduce A to upper-Hessenberg form in an element-wise distribution
     // and form the explicit reflector matrix
-    DistMatrix<F,STAR,STAR> t( A.Grid() );
+    DistMatrix<F,STAR,STAR> phase( A.Grid() );
     if( time && gridRank == 0 )
         timer.Start();
-    Hessenberg( UPPER, A, t );
+    Hessenberg( UPPER, A, phase );
     if( time && gridRank == 0 )
         Output("  Hessenberg: ",timer.Stop()," seconds");
     // There is not yet a 'form Q'
     Identity( Q, n, n ); 
     if( time && gridRank == 0 )
         timer.Start();
-    hessenberg::ApplyQ( LEFT, UPPER, NORMAL, A, t, Q );
+    hessenberg::FormQ( UPPER, A, phase, Q );
     if( time && gridRank == 0 )
-        Output("  hessenberg::ApplyQ: ",timer.Stop()," seconds");
+        Output("  hessenberg::FormQ: ",timer.Stop()," seconds");
     MakeTrapezoidal( UPPER, A, -1 );
 
     // Run the Hessenberg QR algorithm in block form

@@ -170,6 +170,19 @@ void ApplyQ
   const ElementalMatrix<F>& phase, 
         ElementalMatrix<F>& B );
 
+template<typename F>
+void FormQ
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+  const Matrix<F>& phase,
+        Matrix<F>& Q );
+template<typename F>
+void FormQ
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& phase, 
+        ElementalMatrix<F>& Q );
+
 } // namespace hessenberg
 
 } // namespace El

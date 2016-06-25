@@ -6,12 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_AED_SPIKE_DEFLATION_HPP
-#define EL_SCHUR_HESSQR_AED_SPIKE_DEFLATION_HPP
+#ifndef EL_SCHUR_HESS_AED_SPIKE_DEFLATION_HPP
+#define EL_SCHUR_HESS_AED_SPIKE_DEFLATION_HPP
 
 namespace El {
-namespace schur {
-namespace hess_qr {
+namespace hess_schur {
 
 struct AEDInfo
 {
@@ -175,8 +174,7 @@ AEDInfo SpikeDeflation
 
 } // namespace aed
 
-} // namespace hess_qr
-} // namespace schur
+} // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESSQR_AED_SPIKE_DEFLATION_HPP
+#endif // ifndef EL_SCHUR_HESS_AED_SPIKE_DEFLATION_HPP

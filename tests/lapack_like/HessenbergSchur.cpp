@@ -9,141 +9,8 @@
 #include <El.hpp>
 using namespace El;
 
-namespace El {
-namespace schur {
-
-struct HessenbergQRInfo
-{
-    Int numUnconverged=0;
-    Int numIterations=0;
-};
-
-struct HessenbergQRCtrl
-{
-    Int winBeg=0;
-    Int winEnd=END;
-    bool fullTriangle=true;
-    bool wantSchurVecs=false;
-    bool demandConverged=true;
-
-    bool useAED=true;
-    bool recursiveAED=true;
-    bool accumulateReflections=true;
-
-    bool progress=false;
-};
-
-} // namespace schur
-} // namespace El
-
-#include "./HessenbergEig/SingleShift.hpp"
-#include "./HessenbergEig/DoubleShift.hpp"
-#include "./HessenbergEig/AED.hpp"
-
-namespace El {
-namespace schur {
-
 template<typename Real>
-HessenbergQRInfo
-HessenbergQR
-( Matrix<Real>& H,
-  Matrix<Complex<Real>>& w,
-  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
-{
-    const Int n = H.Height();
-    auto ctrlMod( ctrl );
-    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    ctrlMod.wantSchurVecs = false;
-
-    Matrix<Real> Z;
-    if( ctrl.useAED )
-    {
-        return hess_qr::AED( H, w, Z, ctrlMod );
-    }
-    else
-    {
-        return hess_qr::DoubleShift( H, w, Z, ctrlMod );
-    }
-}
-
-template<typename Real>
-HessenbergQRInfo
-HessenbergQR
-( Matrix<Real>& H,
-  Matrix<Complex<Real>>& w,
-  Matrix<Real>& Z,
-  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
-{
-    const Int n = H.Height();
-    auto ctrlMod( ctrl );
-    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    ctrlMod.wantSchurVecs = true;
-
-    if( ctrl.useAED )
-    {
-        return schur::hess_qr::AED( H, w, Z, ctrlMod );
-    }
-    else
-    {
-        return schur::hess_qr::DoubleShift( H, w, Z, ctrlMod );
-    }
-}
-
-template<typename Real>
-HessenbergQRInfo
-HessenbergQR
-( Matrix<Complex<Real>>& H,
-  Matrix<Complex<Real>>& w,
-  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
-{
-    const Int n = H.Height();
-    auto ctrlMod( ctrl );
-    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    ctrlMod.wantSchurVecs = false;
-
-    Matrix<Complex<Real>> Z;
-    if( ctrl.useAED )
-    {
-        return schur::hess_qr::AED( H, w, Z, ctrlMod );
-    }
-    else
-    {
-        return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
-    }
-}
-
-template<typename Real>
-HessenbergQRInfo
-HessenbergQR
-( Matrix<Complex<Real>>& H,
-  Matrix<Complex<Real>>& w,
-  Matrix<Complex<Real>>& Z,
-  const HessenbergQRCtrl& ctrl=HessenbergQRCtrl() )
-{
-    const Int n = H.Height();
-    auto ctrlMod( ctrl );
-    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    ctrlMod.wantSchurVecs = true;
-
-    if( ctrl.useAED )
-    {
-        return schur::hess_qr::AED( H, w, Z, ctrlMod );
-    }
-    else
-    {
-        return schur::hess_qr::SingleShift( H, w, Z, ctrlMod );
-    }
-}
-
-} // namespace schur
-} // namespace El
-
-template<typename Real>
-void TestAhuesTisseur( const schur::HessenbergQRCtrl& ctrl, bool print )
+void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
 {
     typedef Complex<Real> F;
     const Int n = 3;
@@ -170,8 +37,8 @@ void TestAhuesTisseur( const schur::HessenbergQRCtrl& ctrl, bool print )
     T = H;
     Timer timer;
     timer.Start();
-    auto info = schur::HessenbergQR( T, w, Z, ctrl );
-    Output("HessenbergQR: ",timer.Stop()," seconds");
+    auto info = HessenbergSchur( T, w, Z, ctrl );
+    Output("HessenbergSchur: ",timer.Stop()," seconds");
     Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
@@ -190,7 +57,7 @@ void TestAhuesTisseur( const schur::HessenbergQRCtrl& ctrl, bool print )
 }
 
 template<typename Real>
-void TestAhuesTisseurQuasi( const schur::HessenbergQRCtrl& ctrl, bool print )
+void TestAhuesTisseurQuasi( const HessenbergSchurCtrl& ctrl, bool print )
 {
     typedef Real F;
     const Int n = 3;
@@ -218,8 +85,8 @@ void TestAhuesTisseurQuasi( const schur::HessenbergQRCtrl& ctrl, bool print )
     T = H;
     Timer timer;
     timer.Start();
-    auto info = schur::HessenbergQR( T, w, Z, ctrl );
-    Output("HessenbergQR: ",timer.Stop()," seconds");
+    auto info = HessenbergSchur( T, w, Z, ctrl );
+    Output("HessenbergSchur: ",timer.Stop()," seconds");
     Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
@@ -238,7 +105,7 @@ void TestAhuesTisseurQuasi( const schur::HessenbergQRCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
-void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
+void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     typedef Complex<Real> F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
@@ -267,8 +134,8 @@ void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
     T = H;
     Identity( Z, n, n );
     timer.Start();
-    auto info = schur::HessenbergQR( T, w, Z, ctrl );
-    Output("HessenbergQR: ",timer.Stop()," seconds");
+    auto info = HessenbergSchur( T, w, Z, ctrl );
+    Output("HessenbergSchur: ",timer.Stop()," seconds");
     Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
@@ -287,7 +154,7 @@ void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
-void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
+void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     typedef Complex<Real> F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
@@ -306,8 +173,8 @@ void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
     T = H;
     Identity( Z, n, n );
     timer.Start();
-    auto info = schur::HessenbergQR( T, w, Z, ctrl );
-    Output("HessenbergQR: ",timer.Stop()," seconds");
+    auto info = HessenbergSchur( T, w, Z, ctrl );
+    Output("HessenbergSchur: ",timer.Stop()," seconds");
     Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
@@ -326,7 +193,7 @@ void TestRandom( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
-void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
+void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     typedef Real F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
@@ -356,8 +223,8 @@ void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
     T = H;
     Identity( Z, n, n );
     timer.Start();
-    auto info = schur::HessenbergQR( T, w, Z, ctrl );
-    Output("HessenbergQR: ",timer.Stop()," seconds");
+    auto info = HessenbergSchur( T, w, Z, ctrl );
+    Output("HessenbergSchur: ",timer.Stop()," seconds");
     Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
@@ -376,7 +243,7 @@ void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
-void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
+void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     typedef Real F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
@@ -396,8 +263,8 @@ void TestRandomQuasi( Int n, const schur::HessenbergQRCtrl& ctrl, bool print )
     T = H;
     Identity( Z, n, n );
     timer.Start();
-    auto info = schur::HessenbergQR( T, w, Z, ctrl );
-    Output("HessenbergQR: ",timer.Stop()," seconds");
+    auto info = HessenbergSchur( T, w, Z, ctrl );
+    Output("HessenbergSchur: ",timer.Stop()," seconds");
     Output("Convergence achieved after ",info.numIterations," iterations");
     if( print )
     {
@@ -428,7 +295,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        schur::HessenbergQRCtrl ctrl;
+        HessenbergSchurCtrl ctrl;
         ctrl.useAED = useAED;
         ctrl.progress = progress;
 

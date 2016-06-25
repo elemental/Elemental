@@ -10,8 +10,7 @@
 #define EL_SCHUR_HESSQR_SINGLE_SHIFT_SWEEP_HPP
 
 namespace El {
-namespace schur {
-namespace hess_qr {
+namespace hess_schur {
 
 // Use Ahues and Tissuer's (LAPACK Working Note 122, 1997) refinement of
 // Wilkinson's criteria for determining if a subdiagonal entry of a Hessenberg
@@ -163,7 +162,7 @@ void Sweep
 ( Matrix<Complex<Real>>& H,
   Complex<Real> shift,
   Matrix<Complex<Real>>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
@@ -286,7 +285,7 @@ void SweepOpt
 ( Matrix<Complex<Real>>& H,
   Complex<Real> shift,
   Matrix<Complex<Real>>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
@@ -410,8 +409,7 @@ void SweepOpt
 }
 
 } // namespace single_shift
-} // namespace hess_qr
-} // namespace schur
+} // namespace hess_schur
 } // namespace El
 
 #endif // ifndef EL_SCHUR_HESSQR_SINGLE_SHIFT_SWEEP_HPP

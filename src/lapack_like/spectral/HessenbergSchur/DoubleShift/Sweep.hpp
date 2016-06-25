@@ -6,12 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_DOUBLE_SHIFT_SWEEP_HPP
-#define EL_SCHUR_HESSQR_DOUBLE_SHIFT_SWEEP_HPP
+#ifndef EL_SCHUR_HESS_DOUBLE_SHIFT_SWEEP_HPP
+#define EL_SCHUR_HESS_DOUBLE_SHIFT_SWEEP_HPP
 
 namespace El {
-namespace schur {
-namespace hess_qr {
+namespace hess_schur {
 namespace double_shift {
 
 template<typename Real>
@@ -113,7 +112,7 @@ void Sweep
   const Complex<Real>& shift0,
   const Complex<Real>& shift1,
   Matrix<Real>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     const Real zero(0), one(1);
@@ -229,7 +228,7 @@ void SweepOpt
   const Complex<Real>& shift0,
   const Complex<Real>& shift1,
   Matrix<Real>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     const Real zero(0), one(1);
@@ -350,8 +349,7 @@ void SweepOpt
 }
 
 } // namespace double_shift
-} // namespace hess_qr
-} // namespace schur
+} // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESSQR_DOUBLE_SHIFT_SWEEP_HPP
+#endif // ifndef EL_SCHUR_HESS_DOUBLE_SHIFT_SWEEP_HPP

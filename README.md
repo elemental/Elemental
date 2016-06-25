@@ -58,7 +58,8 @@ datatypes:
     - Tikhonov (and ridge) regression
     - Equality-constrained Least Squares
     - General (Gauss-Markov) Linear Models
-* High-performance pseudospectral computation and visualization
+* (Arbitrary-precision) High-performance pseudospectral computation and visualization
+* (Arbitrary-precision) Aggressive Early Deflation Schur decompositions (currently sequential only)
 * (Arbitrary-precision) blocked column-pivoted QR via Johnson-Lindenstrauss
 * (Arbitrary-precision) quadratic-time low-rank Cholesky and LU modifications
 * (Arbitrary-precision) Bunch-Kaufman and Bunch-Parlett for accurate symmetric
@@ -75,10 +76,10 @@ datatypes:
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
 
 **Lattice reduction**:
-* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases
-* Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) to complex bases
+* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
+* Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) to complex bases (currently sequential only)
  incorporating ["y-sparse" enumeration](https://eprint.iacr.org/2014/980)
-* Integer images/kernels and relation-finding
+* Integer images/kernels and relation-finding (currently sequential only)
 
 ### The current development roadmap
 

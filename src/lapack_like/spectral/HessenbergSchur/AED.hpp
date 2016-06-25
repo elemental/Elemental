@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_AED_HPP
-#define EL_SCHUR_HESSQR_AED_HPP
+#ifndef EL_SCHUR_HESS_AED_HPP
+#define EL_SCHUR_HESS_AED_HPP
 
 #include "./DoubleShift.hpp"
 
@@ -16,8 +16,7 @@
 #include "./AED/Sweep.hpp"
 
 namespace El {
-namespace schur {
-namespace hess_qr {
+namespace hess_schur {
 
 // The best references for the following Aggressive Early Deflation
 // implementation are
@@ -42,75 +41,13 @@ namespace hess_qr {
 // conservative than the original suggestions of Braman et al.
 //
 
-namespace aed {
-
-// Cf. LAPACK's IPARMQ for these choices. The primary difference here is that
-// we do not use a fixed value (of 256) for windows of size at least 6000.
-inline Int NumShifts( Int n, Int winSize )
-{
-    Int numShifts;
-    if( winSize < 30 )
-        numShifts = 2;
-    else if( winSize < 60 )
-        numShifts = 4;
-    else if( winSize < 150 )
-        numShifts = 10;
-    else if( winSize < 590 )
-        numShifts = Max( 10, winSize/Int(Log2(double(winSize))) );
-    else if( winSize < 3000 )
-        numShifts = 64;
-    else if( winSize < 6000 )
-        numShifts = 128;
-    else
-        numShifts = Max( 256, winSize/Int(2*Log2(double(winSize))) );
-
-    numShifts = Min( numShifts, winSize );
-    numShifts = Max( 2, numShifts-Mod(numShifts,2) );
-
-    return numShifts;
-}
-
-// Cf. LAPACK's IPARMQ for these deflation window sizes
-inline Int DeflationSize( Int n, Int winSize, Int numShifts )
-{
-    Int deflationSize;
-    if( winSize <= 500 )
-        deflationSize = numShifts;
-    else
-        deflationSize = (3*numShifts) / 2;
-
-    deflationSize = Min( deflationSize, winSize );
-    deflationSize = Min( deflationSize, (n-1)/3 );
-    deflationSize = Max( 2, deflationSize-Mod(deflationSize,2) );
-
-    return deflationSize;
-}
-
-// Cf. LAPACK's IPARMQ for the choice of skipping a QR sweep if at least
-// 14% of the eigenvalues in a window deflated
-inline Int SufficientDeflation( Int deflationSize )
-{
-    const Int nibble = 14;
-    return (nibble*deflationSize) / 100;
-}
-
-// Cf. LAPACK's IPARMQ for this choice;
-// note that LAPACK's hard minimum of 12 does not apply to us
-inline Int MinSize()
-{
-    //return 12;
-    return 75;
-}
-
-} // namespace aed
-
 template<typename Real>
-HessenbergQRInfo
+HessenbergSchurInfo
 AED
 ( Matrix<Real>& H,
   Matrix<Complex<Real>>& w,
   Matrix<Real>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE 
     const Int n = H.Height();
@@ -120,10 +57,9 @@ AED
     const Real zero(0);
     const Real exceptShift0(Real(4)/Real(3)),
                exceptShift1(-Real(7)/Real(16));
-    HessenbergQRInfo info;
+    HessenbergSchurInfo info;
 
-    const Int minAEDSize = aed::MinSize();
-    if( n < minAEDSize )
+    if( n < ctrl.minAEDSize )
     {
         // Run the double-shift QR algorithm
         return DoubleShift( H, w, Z, ctrl );
@@ -131,8 +67,8 @@ AED
 
     w.Resize( n, 1 );
 
-    const Int numShiftsRec = aed::NumShifts( n, winSize );
-    const Int deflationSizeRec = aed::DeflationSize( n, winSize, numShiftsRec );
+    const Int numShiftsRec = ctrl.numShifts( n, winSize );
+    const Int deflationSizeRec = ctrl.deflationSize( n, winSize, numShiftsRec );
     if( ctrl.progress )
     {
         Output
@@ -223,8 +159,8 @@ AED
 
         const Int newIterWinSize = winEnd-iterBeg;
         if( numDeflated == 0 ||
-          (numDeflated <= aed::SufficientDeflation(deflationSize) && 
-           newIterWinSize >= minAEDSize) )
+          (numDeflated <= ctrl.sufficientDeflation(deflationSize) && 
+           newIterWinSize >= ctrl.minAEDSize) )
         {
             Int numShifts = Min( numShiftsRec, Max(2,newIterWinSize-1) );
             numShifts = numShifts - Mod(numShifts,2); 
@@ -269,7 +205,7 @@ AED
                     ctrlShifts.fullTriangle = false;
                     ctrlShifts.demandConverged = false;
                     auto infoShifts =
-                      HessenbergQR( HShiftsCopy, wShifts, ctrlShifts );
+                      HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
 
                     shiftBeg += infoShifts.numUnconverged;
                     if( shiftBeg >= winEnd-1 )
@@ -307,9 +243,7 @@ AED
                 }
                 // Pair together the real shifts
                 auto wSub = w(IR(shiftBeg,winEnd),ALL); 
-                //Print( wSub, "wSubBefPair" );
                 aed::PairShifts( wSub );
-                //Print( wSub, "wSubAftPair" );
             }
 
             if( winBeg-shiftBeg == 2 )
@@ -356,12 +290,12 @@ AED
 }
 
 template<typename Real>
-HessenbergQRInfo
+HessenbergSchurInfo
 AED
 ( Matrix<Complex<Real>>& H,
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& Z,
-  const HessenbergQRCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE 
     typedef Complex<Real> F;
@@ -374,10 +308,9 @@ AED
     // For some reason, LAPACK suggests only using a single exceptional shift
     // for complex matrices.
     const Real exceptShift0(Real(4)/Real(3));
-    HessenbergQRInfo info;
+    HessenbergSchurInfo info;
 
-    const Int minAEDSize = aed::MinSize();
-    if( n < minAEDSize )
+    if( n < ctrl.minAEDSize )
     {
         // Run the single-shift QR algorithm
         return SingleShift( H, w, Z, ctrl );
@@ -385,8 +318,8 @@ AED
 
     w.Resize( n, 1 );
 
-    const Int numShiftsRec = aed::NumShifts( n, winSize );
-    const Int deflationSizeRec = aed::DeflationSize( n, winSize, numShiftsRec );
+    const Int numShiftsRec = ctrl.numShifts( n, winSize );
+    const Int deflationSizeRec = ctrl.deflationSize( n, winSize, numShiftsRec );
     if( ctrl.progress )
     {
         Output
@@ -477,8 +410,8 @@ AED
 
         const Int newIterWinSize = winEnd-iterBeg;
         if( numDeflated == 0 ||
-          (numDeflated <= aed::SufficientDeflation(deflationSize) && 
-           newIterWinSize >= minAEDSize) )
+          (numDeflated <= ctrl.sufficientDeflation(deflationSize) && 
+           newIterWinSize >= ctrl.minAEDSize) )
         {
             Int numShifts = Min( numShiftsRec, Max(2,newIterWinSize-1) );
             numShifts = numShifts - Mod(numShifts,2); 
@@ -510,7 +443,7 @@ AED
                     ctrlShifts.fullTriangle = false;
                     ctrlShifts.demandConverged = false;
                     auto infoShifts =
-                      HessenbergQR( HShiftsCopy, wShifts, ctrlShifts );
+                      HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
 
                     shiftBeg += infoShifts.numUnconverged;
                     if( shiftBeg >= winEnd-1 )
@@ -600,8 +533,7 @@ AED
     return info;
 }
 
-} // namespace hess_qr
-} // namespace schur
+} // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESSQR_AED_HPP
+#endif // ifndef EL_SCHUR_HESS_AED_HPP

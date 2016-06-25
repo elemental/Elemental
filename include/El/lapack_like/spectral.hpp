@@ -302,6 +302,126 @@ PolarInfo HermitianPolar
   ElementalMatrix<F>& P, 
   const PolarCtrl& ctrl=PolarCtrl() ); 
 
+// Hessenberg Schur decomposition
+// ==============================
+struct HessenbergSchurInfo
+{
+    Int numUnconverged=0;
+    Int numIterations=0;
+};
+
+namespace hess_schur {
+namespace aed {
+
+// Cf. LAPACK's IPARMQ for these choices. The primary difference here is that
+// we do not use a fixed value (of 256) for windows of size at least 6000.
+inline Int NumShifts( Int n, Int winSize )
+{
+    Int numShifts;
+    if( winSize < 30 )
+        numShifts = 2; 
+    else if( winSize < 60 )
+        numShifts = 4; 
+    else if( winSize < 150 )
+        numShifts = 10;
+    else if( winSize < 590 ) 
+        numShifts = Max( 10, winSize/Int(Log2(double(winSize))) );
+    else if( winSize < 3000 )
+        numShifts = 64;
+    else if( winSize < 6000 )
+        numShifts = 128;
+    else
+        numShifts = Max( 256, winSize/Int(2*Log2(double(winSize))) );
+
+    numShifts = Min( numShifts, winSize );
+    numShifts = Max( 2, numShifts-Mod(numShifts,2) );
+
+    return numShifts;
+}
+
+// Cf. LAPACK's IPARMQ for these deflation window sizes
+inline Int DeflationSize( Int n, Int winSize, Int numShifts )
+{
+    Int deflationSize;
+    if( winSize <= 500 )
+        deflationSize = numShifts;
+    else
+        deflationSize = (3*numShifts) / 2;
+
+    deflationSize = Min( deflationSize, winSize );
+    deflationSize = Min( deflationSize, (n-1)/3 );
+    deflationSize = Max( 2, deflationSize-Mod(deflationSize,2) );
+
+    return deflationSize;
+}
+
+// Cf. LAPACK's IPARMQ for the choice of skipping a QR sweep if at least
+// 14% of the eigenvalues in a window deflated
+inline Int SufficientDeflation( Int deflationSize )
+{
+    const Int nibble = 14;
+    return (nibble*deflationSize) / 100;
+}
+
+} // namespace aed
+} // namespace hess_schur
+
+struct HessenbergSchurCtrl
+{
+    Int winBeg=0;
+    Int winEnd=END;
+    bool fullTriangle=true;
+    bool wantSchurVecs=false;
+    bool demandConverged=true;
+
+    bool useAED=true;
+    bool recursiveAED=true;
+    bool accumulateReflections=true;
+
+    bool progress=false;
+
+    // Cf. LAPACK's IPARMQ for this choice;
+    // note that LAPACK's hard minimum of 12 does not apply to us
+    Int minAEDSize = 75;
+
+    function<Int(Int,Int)> numShifts =
+      function<Int(Int,Int)>(hess_schur::aed::NumShifts);
+
+    function<Int(Int,Int,Int)> deflationSize =
+      function<Int(Int,Int,Int)>(hess_schur::aed::DeflationSize);
+
+    function<Int(Int)> sufficientDeflation =
+      function<Int(Int)>(hess_schur::aed::SufficientDeflation);
+};
+
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Real>& H,
+  Matrix<Complex<Real>>& w,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Real>& H,
+  Matrix<Complex<Real>>& w,
+  Matrix<Real>& Z,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Complex<Real>>& H,
+  Matrix<Complex<Real>>& w,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Complex<Real>>& H,
+  Matrix<Complex<Real>>& w,
+  Matrix<Complex<Real>>& Z,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+
 // Schur decomposition
 // ===================
 // Forward declaration
