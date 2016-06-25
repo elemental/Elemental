@@ -351,8 +351,12 @@ Complex<BigFloat> Exp( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT
 #ifdef EL_HAVE_QD
 DoubleDouble Pow( const DoubleDouble& alpha, const DoubleDouble& beta )
 { return pow(alpha,beta); }
+DoubleDouble Pow( const DoubleDouble& alpha, const int& beta )
+{ return pow(alpha,beta); }
 
 QuadDouble Pow( const QuadDouble& alpha, const QuadDouble& beta )
+{ return pow(alpha,beta); }
+QuadDouble Pow( const QuadDouble& alpha, const int& beta )
 { return pow(alpha,beta); }
 #endif
 

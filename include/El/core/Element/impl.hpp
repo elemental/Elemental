@@ -217,12 +217,9 @@ template<typename F,typename T,typename,typename>
 F Pow( const F& alpha, const T& beta )
 { return std::pow(alpha,beta); }
 
-// TODO: Disable this?!?
-#ifdef EL_USE_64BIT_INTS
-template<typename F,typename>
-F Pow( const F& alpha, const int& beta )
+template<typename F,typename T,typename,typename,typename>
+F Pow( const F& alpha, const T& beta )
 { return Pow(alpha,F(beta)); }
-#endif
 
 template<typename Real,typename,typename>
 Complex<Real> Pow( const Complex<Real>& alpha, const Complex<Real>& beta )

@@ -421,12 +421,12 @@ template<typename F,typename T,
          typename=EnableIf<IsStdScalar<F>>,
          typename=EnableIf<IsStdScalar<T>>>
 F Pow( const F& alpha, const T& beta );
+template<typename F,typename T,
+         typename=DisableIf<IsStdScalar<F>>,
+         typename=EnableIf<IsIntegral<T>>,
+         typename=void>
+F Pow( const F& alpha, const T& beta );
 
-// TODO: Disable this?!?
-#ifdef EL_USE_64BIT_INTS
-template<typename F,typename=EnableIf<IsScalar<F>>>
-F Pow( const F& alpha, const int& beta );
-#endif
 template<typename Real,
          typename=EnableIf<IsReal<Real>>,
          typename=DisableIf<IsStdScalar<Real>>>
@@ -439,8 +439,12 @@ Complex<Real> Pow( const Complex<Real>& alpha, const Real& beta );
 #ifdef EL_HAVE_QD
 DoubleDouble
 Pow( const DoubleDouble& alpha, const DoubleDouble& beta );
+DoubleDouble
+Pow( const DoubleDouble& alpha, const int& beta );
 QuadDouble
 Pow( const QuadDouble& alpha, const QuadDouble& beta );
+QuadDouble
+Pow( const QuadDouble& alpha, const int& beta );
 #endif
 #ifdef EL_HAVE_QUAD
 Quad Pow( const Quad& alpha, const Quad& beta );

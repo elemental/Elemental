@@ -19,10 +19,6 @@ using El::dcomplex;
 
 extern "C" {
 
-// Machine constants
-float EL_LAPACK(slamch)( const char* cmach );
-double EL_LAPACK(dlamch)( const char* cmach );
-
 // Safe norms
 float  EL_LAPACK(slapy2)( const float * alpha, const float * beta );
 double EL_LAPACK(dlapy2)( const double* alpha, const double* beta );
@@ -436,137 +432,6 @@ void EL_LAPACK(zgeev)
 namespace El {
 namespace lapack {
 
-// Machine constants
-// =================
-
-template<>
-float MachineEpsilon<float>()
-{
-    const char cmach = 'E';
-    static float eps = EL_LAPACK(slamch)( &cmach ); 
-    return eps;
-}
-
-template<> 
-double MachineEpsilon<double>()
-{
-    const char cmach = 'E';
-    static double eps = EL_LAPACK(dlamch)( &cmach );
-    return eps;
-}
-
-template<> 
-float MachineSafeMin<float>()
-{
-    const char cmach = 'S';
-    static float safeMin = EL_LAPACK(slamch)( &cmach );
-    return safeMin;
-}
-
-template<> 
-double MachineSafeMin<double>()
-{
-    const char cmach = 'S';
-    static double safeMin = EL_LAPACK(dlamch)( &cmach );
-    return safeMin;
-}
-
-template<> 
-float MachineBase<float>()
-{
-    const char cmach = 'B';
-    static float base = EL_LAPACK(slamch)( &cmach );
-    return base;
-}
-
-template<> 
-double MachineBase<double>()
-{
-    const char cmach = 'B';
-    static double base = EL_LAPACK(dlamch)( &cmach );
-    return base;
-}
-
-template<>
-float MachinePrecision<float>()
-{
-    const char cmach = 'P';
-    static float prec = EL_LAPACK(slamch)( &cmach );
-    return prec;
-}
-
-template<> 
-double MachinePrecision<double>()
-{
-    const char cmach = 'P';
-    static double prec = EL_LAPACK(dlamch)( &cmach );
-    return prec;
-}
-
-template<> 
-float MachineUnderflowExponent<float>()
-{
-    const char cmach = 'M';
-    static float underExp = EL_LAPACK(slamch)( &cmach );
-    return underExp;
-}
-
-template<> 
-double MachineUnderflowExponent<double>()
-{
-    const char cmach = 'M';
-    static double underExp = EL_LAPACK(dlamch)( &cmach );
-    return underExp;
-}
-
-template<>
-float MachineUnderflowThreshold<float>()
-{
-    const char cmach = 'U';
-    static float underThresh = EL_LAPACK(slamch)( &cmach );
-    return underThresh;
-}
-
-template<> 
-double MachineUnderflowThreshold<double>()
-{
-    const char cmach = 'U';
-    static double underThresh = EL_LAPACK(dlamch)( &cmach );
-    return underThresh;
-}
-
-template<> 
-float MachineOverflowExponent<float>()
-{
-    const char cmach = 'L';
-    static float overExp = EL_LAPACK(slamch)( &cmach );
-    return overExp;
-}
-
-template<> 
-double MachineOverflowExponent<double>()
-{
-    const char cmach = 'L';
-    static double overExp = EL_LAPACK(dlamch)( &cmach );
-    return overExp;
-}
-
-template<> 
-float MachineOverflowThreshold<float>()
-{
-    const char cmach = 'O';
-    static float overThresh = EL_LAPACK(slamch)( &cmach );
-    return overThresh;
-}
-
-template<> 
-double MachineOverflowThreshold<double>()
-{
-    const char cmach = 'O';
-    static double overThresh = EL_LAPACK(dlamch)( &cmach );
-    return overThresh;
-}
-
 // Safely compute norms
 // ====================
 
@@ -803,14 +668,121 @@ Real Givens( const Real& phi, const Real& gamma, Real& c, Real& s )
 }
 template<typename Real>
 Complex<Real> Givens
-( const Complex<Real>& phi,
-  const Complex<Real>& gamma,
+( const Complex<Real>& chi0,
+  const Complex<Real>& chi1,
   Real& c,
   Complex<Real>& s )
 {
+    /*
+    // CITATION
+    //
+    // Please see LAPACK Working Note 148,
+    //
+    //   D. Bindel, J. Demmel, W. Kahan, and O. Marques,
+    //   "On computing Givens rotations reliably and efficiently",
+    //   http://www.netlib.org/lapack/lawnspdf/lawn148.pdf
+    //
+    // which resulted in the LAPACK routines {s,d,c,z}lartg. But note
+    // that the LAPACK implementations slightly differ from said working
+    // note in that they round z^2 to the nearest radix rather than z
+    // (which results in a different result with float, but the same with
+    // double).
+    //
+    typedef Complex<Real> F;
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real eps = limits::Epsilon<Real>();
+    const Real base = limits::Base<Real>();
+    const Real safeMinToSquare =
+      Pow( base, Int((Log(safeMin/eps)/Log(base))/Real(2)) );
+    const Real safeMaxToSquare = Real(1) / safeMinToSquare;
+
+    Real scale = Max( MaxAbs(chi0), MaxAbs(chi1) );
+    Real chi0Scaled = chi0;
+    Real chi1Scaled = chi1;
+    Int rescaleCounter = 0;
+    if( scale >= safeMaxToSquare )
+    {
+        while( scale >= safeMaxToSquare )
+        {
+            chi0Scaled *= safeMinToSquare;
+            chi1Scaled *= safeMinToSquare;
+            scale *= safeMinToSquare;
+            ++rescaleCounter; 
+        }
+    }
+    else if( scale <= safeMinToSquare )
+    {
+        if( chi1 == Complex<Real>(0) || !limits::IsFinite(Abs(chi1)) )
+        {
+            c = 1;
+            s = 0;
+            return chi0;
+        }
+        while( scale <= safeMinToSquare )
+        {
+            chi0Scaled *= safeMaxToSquare;
+            chi1Scaled *= safeMaxToSquare;
+            scale *= safeMaxToSquare;
+            --rescaleCounter;
+        }
+    }
+    const Real chi0AbsSquare =
+      chi0.real()*chi0.real() + chi0.imag()*chi0.imag();
+    const Real chi1AbsSquare =
+      chi1.real()*chi1.real() + chi1.imag()*chi1.imag();
+    if( chi0AbsSquare <= Max(chi1AbsSquare,Real(1))*safeMin )
+    {
+        // Handle the exceptional case where chi0 is very small
+        if( chi0 == Complex<Real>(0) )
+        {
+            c = 0; 
+            s = Conj(chi1Scaled) / SafeAbs(chi0Scaled);
+            return SafeAbs(chi1);
+        }
+        const Real chi0ScaledAbsSquare = SafeAbs(chi0Scaled);
+        // By the nature of our initial rescaling, chi1 must be substantially
+        // larger than chi0 and is in a safe range
+        const Real chi1ScaledAbsSquare = Sqrt(chi1AbsSquare);
+        c = chi0ScaledAbsSquare / chi1ScaledAbsSquare;
+        Real phase;
+        if( MaxAbs(chi0) > Real(1) )
+        {
+            phase = chi0 / SafeAbs(chi0);
+        }
+        else
+        {
+            Complex<Real> delta = safeMaxToSquare*chi0;
+            phase = delta / SafeAbs(delta);
+        }
+        s = phase*(Conj(chi1Scaled)/chi0ScaledAbsSquare);
+        return c*chi0 + s*chi1;
+    }
+    else
+    {
+        // Typical branch where chi0 and chi1 are in a safe range
+        const Real chi0ScaledAbsSquare =
+          Sqrt(Real(1)+(chi1AbsSquare/chi0AbsSquare)); 
+        F rho = chi0ScaledAbsSquare*chi0Scaled;
+        c = Real(1) / chi0ScaledAbsSquare;
+        const Real delta = chi0AbsSquare + chi1AbsSquare;
+        s = (rho/delta)*Conj(chi1Scaled);
+        if( rescaleCounter > 0 )
+        {
+            for( Int i=0; i<count; ++i )
+                rho *= safeMaxToSquare;
+        }            
+        else if( rescaleCounter < 0 )
+        {
+            for( Int i=0; i<-count; ++i )
+                rho *= safeMinToSquare;
+        }
+        return rho;
+    }
+    */
+
     // TODO: Switch to the approach of LAPACK's zlartg instead of the
     //       zrotg-like implementation
-    return blas::Givens( phi, gamma, c, s );
+    return blas::Givens( chi0, chi1, c, s );
 }
 #ifdef EL_HAVE_QD
 template DoubleDouble Givens

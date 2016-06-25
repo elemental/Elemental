@@ -12,16 +12,20 @@ using namespace El;
 template<typename Real>
 void QueryLimits( const std::string& title )
 {
-        const auto safeInv = limits::SafeMin<Real>()/limits::Epsilon<Real>();
-        Output( title );
-        Output("  safeMin:   ",limits::SafeMin<Real>());
-        Output("  epsilon:   ",limits::Epsilon<Real>());
-        Output("  precision: ",limits::Precision<Real>());
-        Output("  safeInv:   ",safeInv);
-        Output("  min:       ",limits::Min<Real>());
-        Output("  max:       ",limits::Max<Real>());
-        Output("  lowest:    ",limits::Lowest<Real>());
-        Output("  infinity:  ",limits::Infinity<Real>());
+    const auto safeInv = limits::SafeMin<Real>()/limits::Epsilon<Real>();
+    Output( title );
+    Output("  base:      ",limits::Base<Real>());
+    Output("  epsilon:   ",limits::Epsilon<Real>());
+    Output("  precision: ",limits::Precision<Real>());
+    Output("  safeMin:   ",limits::SafeMin<Real>());
+    Output("  safeInv:   ",safeInv);
+    Output("  min:       ",limits::Min<Real>());
+    Output("  min/2:     ",limits::Min<Real>()/Real(2));
+    Output("  max:       ",limits::Max<Real>());
+    Output("  max*2:     ",limits::Max<Real>()*Real(2));
+    Output("  lowest:    ",limits::Lowest<Real>());
+    Output("  infinity:  ",limits::Infinity<Real>());
+    Output("");
 }
 
 int 

@@ -101,7 +101,7 @@ main( int argc, char* argv[] )
             Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
             const Real maxNormE = MaxNorm( A );
             const Real frobNormE = FrobeniusNorm( A );
-            const Real epsilon = lapack::MachineEpsilon<Real>();
+            const Real epsilon = limits::Epsilon<Real>();
             const Real scaledResidual = frobNormE/(n*epsilon*twoNormA);
 
             if( mpi::Rank() == 0 )

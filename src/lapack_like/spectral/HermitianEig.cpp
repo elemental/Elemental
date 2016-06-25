@@ -108,8 +108,8 @@ bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
 
     scale = 1;
     const Real maxNormOfA = HermitianMaxNorm( uplo, A );
-    const Real underflowThreshold = lapack::MachineUnderflowThreshold<Real>();
-    const Real overflowThreshold = lapack::MachineOverflowThreshold<Real>();
+    const Real underflowThreshold = limits::Min<Real>();
+    const Real overflowThreshold = limits::Max<Real>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
         scale = underflowThreshold / maxNormOfA;
@@ -117,6 +117,9 @@ bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
     }
     else if( maxNormOfA > overflowThreshold )
     {
+        // This branch should never be activated with most datatypes since
+        // overflowing implies an infinite result
+        // (and thus rescaling would be meaningless)
         scale = overflowThreshold / maxNormOfA;
         return true;
     }
