@@ -421,7 +421,7 @@ LLLInfo<Base<F>> LeftAlg
         const Real rho_k_k = ( k >= m ? Real(0) : RealPart(QR(k,k)) ); 
         
         const Real leftTerm = Sqrt(ctrl.delta)*rho_km1_km1;
-        const Real rightTerm = lapack::SafeNorm(rho_k_k,rho_km1_k);
+        const Real rightTerm = SafeNorm(rho_k_k,rho_km1_k);
         // NOTE: It is possible that, if delta < 1/2, that rho_k_k could be
         //       zero and the usual Lovasz condition would be satisifed.
         //       For this reason, we explicitly force a pivot if R(k,k) is

@@ -440,6 +440,7 @@ struct SDCCtrl
     SignCtrl<Real> signCtrl;
 };
 
+// TODO: Combine with HessenbergSchurCtrl
 struct HessQRCtrl 
 {
     bool distAED=false;
@@ -554,6 +555,19 @@ void RealToComplex
   const ElementalMatrix<Real>& QQuasi,
         ElementalMatrix<Complex<Real>>& U,
         ElementalMatrix<Complex<Real>>& Q );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( Real& alpha00, Real& alpha01,
+  Real& alpha10, Real& alpha11,
+  Real& c, Real& s );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( Real& alpha00, Real& alpha01,
+  Real& alpha10, Real& alpha11,
+  Real& c, Real& s,
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1 );
 
 } // namespace schur
 
@@ -1448,6 +1462,7 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 
 } // namespace El
 
+#include <El/lapack_like/spectral/Schur.hpp>
 #include <El/lapack_like/spectral/Lanczos.hpp>
 #include <El/lapack_like/spectral/ProductLanczos.hpp>
 

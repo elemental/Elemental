@@ -178,7 +178,7 @@ AED
                     Real eta10 = exceptShift1*scale;
                     Real eta11 = eta00;
                     Real c, s;
-                    lapack::TwoByTwoSchur
+                    schur::TwoByTwo
                     ( eta00, eta01,
                       eta10, eta11, c, s, 
                       w(i-1), w(i) );
@@ -216,7 +216,7 @@ AED
                         Real eta10 = H(winEnd-1,winEnd-2);
                         Real eta11 = H(winEnd-1,winEnd-1);
                         Real c, s;
-                        lapack::TwoByTwoSchur
+                        schur::TwoByTwo
                         ( eta00, eta01,
                           eta10, eta11, c, s, 
                           w(winEnd-2), w(winEnd-1) );

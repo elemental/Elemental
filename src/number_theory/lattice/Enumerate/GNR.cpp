@@ -77,7 +77,7 @@ Base<F> Helper
     while( true )
     {
         const F entry = d(k)*(vBuf[k] - centers(k));
-        const Real partialNorm = lapack::SafeNorm( partialNorms(k+1), entry );
+        const Real partialNorm = SafeNorm( partialNorms(k+1), entry );
         partialNorms(k) = partialNorm;
         if( partialNorm < upperBounds((n-1)-k) )
         {
@@ -176,7 +176,7 @@ Base<F> TransposedHelper
     while( true )
     {
         const F entry = d(k)*(vBuf[k] - centers(k));
-        const Real partialNorm = lapack::SafeNorm( partialNorms(k+1), entry );
+        const Real partialNorm = SafeNorm( partialNorms(k+1), entry );
         partialNorms(k) = partialNorm;
         if( partialNorm < upperBounds((n-1)-k) )
         {

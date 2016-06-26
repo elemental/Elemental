@@ -82,7 +82,7 @@ DoubleShift
             else if( iterBeg == winEnd-2 )
             {
                 Real c, s;
-                lapack::TwoByTwoSchur
+                schur::TwoByTwo
                 ( H(winEnd-2,winEnd-2), H(winEnd-2,winEnd-1),
                   H(winEnd-1,winEnd-2), H(winEnd-1,winEnd-1),
                   c, s,

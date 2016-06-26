@@ -135,7 +135,7 @@ AEDInfo Nibble
             Real alpha01 = T(i-1,i  );
             Real alpha11 = T(i,  i  );
             Real c, s;
-            lapack::TwoByTwoSchur
+            schur::TwoByTwo
             ( alpha00, alpha01,
               alpha10, alpha11, c, s,
               w1(i-1), w1(i) );

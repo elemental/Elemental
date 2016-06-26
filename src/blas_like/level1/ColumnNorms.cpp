@@ -316,7 +316,7 @@ void ColumnTwoNorms
     {
         Real alpha = blas::Nrm2( m, &XReal(0,j), 1 );
         Real beta  = blas::Nrm2( m, &XImag(0,j), 1 );
-        norms(j) = lapack::SafeNorm(alpha,beta);
+        norms(j) = SafeNorm(alpha,beta);
     }
 }
 

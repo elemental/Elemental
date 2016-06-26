@@ -45,9 +45,9 @@ F Row( F& chi, ElementalMatrix<F>& x )
 
     Real beta;
     if( RealPart(alpha) <= 0 )
-        beta = lapack::SafeNorm( alpha, norm );
+        beta = SafeNorm( alpha, norm );
     else
-        beta = -lapack::SafeNorm( alpha, norm );
+        beta = -SafeNorm( alpha, norm );
 
     // Rescale if the vector is too small
     const Real safeMin = limits::SafeMin<Real>();
@@ -69,9 +69,9 @@ F Row( F& chi, ElementalMatrix<F>& x )
         mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
         norm = blas::Nrm2( rowStride, localNorms.data(), 1 );
         if( RealPart(alpha) <= 0 )
-            beta = lapack::SafeNorm( alpha, norm );
+            beta = SafeNorm( alpha, norm );
         else
-            beta = -lapack::SafeNorm( alpha, norm );
+            beta = -SafeNorm( alpha, norm );
     }
 
     F tau = (beta-Conj(alpha)) / beta;

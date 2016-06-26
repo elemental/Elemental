@@ -37,32 +37,6 @@ void Copy
 ( char uplo, BlasInt m, BlasInt n, 
   const T* A, BlasInt lda, T* B, BlasInt ldb );
 
-// For safely computing norms without overflow/underflow
-// =====================================================
-
-template<typename Real>
-Real SafeNorm( const Real& alpha, const Real& beta );
-double SafeNorm( const double& alpha, const double& beta );
-
-template<typename Real>
-Real SafeNorm
-( const Real& alpha,
-  const Real& beta,
-  const Real& gamma );
-double SafeNorm
-( const double& alpha,
-  const double& beta,
-  const double& gamma );
-
-template<typename Real>
-Real SafeNorm
-( const Complex<Real>& alpha,
-  const Real& beta );
-template<typename Real>
-Real SafeNorm
-( const Real& alpha,
-  const Complex<Real>& beta );
-
 // Generate a Householder reflector
 // ================================
 // NOTE: 
@@ -545,54 +519,6 @@ void SchurExchange
   Complex<Real>* Q, BlasInt QLDim,
   BlasInt j1,
   BlasInt j2 );
-
-// Put a real 2x2 nonsymmetric matrix into standard form
-// =====================================================
-// Compute the Schur factorization of a real 2x2 nonsymmetric matrix A
-// in a manner similar to xLANV2, returning the cosine and sine terms as well
-// as the real and imaginary parts of the two eigenvalues.
-//
-// Either A is overwritten with its real Schur factor (if it exists), or 
-// it is put into the form 
-//
-//   | alpha00, alpha01 | = | c -s | | beta00 beta01 | | c  s |,
-//   | alpha10, alpha11 |   | s  c | | beta10 beta11 | | -s c |
-//
-// where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
-// are beta00 +- sqrt(beta10*beta01).
-//
-template<typename Real>
-void TwoByTwoSchur
-( Real& alpha00, Real& alpha01,
-  Real& alpha10, Real& alpha11,
-  Real& c, Real& s );
-template<typename Real>
-void TwoByTwoSchur
-( Real& alpha00, Real& alpha01,
-  Real& alpha10, Real& alpha11,
-  Real& c, Real& s,
-  Complex<Real>& lambda0,
-  Complex<Real>& lambda1 );
-void TwoByTwoSchur
-( float& alpha00, float& alpha01,
-  float& alpha10, float& alpha11,
-  float& c, float& s );
-void TwoByTwoSchur
-( float& alpha00, float& alpha01,
-  float& alpha10, float& alpha11,
-  float& c, float& s,
-  Complex<float>& lambda0,
-  Complex<float>& lambda1 );
-void TwoByTwoSchur
-( double& alpha00, double& alpha01,
-  double& alpha10, double& alpha11,
-  double& c, double& s );
-void TwoByTwoSchur
-( double& alpha00, double& alpha01,
-  double& alpha10, double& alpha11,
-  double& c, double& s,
-  Complex<double>& lambda0,
-  Complex<double>& lambda1 );
 
 // Compute the Schur decomposition of an upper Hessenberg matrix
 // =============================================================

@@ -169,12 +169,92 @@ Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 template<typename T,typename>
 Base<T> Abs( const T& alpha ) EL_NO_EXCEPT { return std::abs(alpha); }
 
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SafeNorm( const Real& chi0, const Real& chi1 )
+{
+    const Real chi0Abs = Abs(chi0); 
+    const Real chi1Abs = Abs(chi1);
+    const Real maxAbs = Max( chi0Abs, chi1Abs );
+    const Real minAbs = Min( chi0Abs, chi1Abs );
+    if( minAbs == Real(0) )
+    {
+        return maxAbs;
+    }
+    else
+    {
+        const Real ratio = minAbs / maxAbs;
+        return maxAbs*Sqrt( Real(1) + ratio*ratio );
+    }
+}
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 )
+{
+    const Real chi0Abs = Abs(chi0); 
+    const Real chi1Abs = Abs(chi1);
+    const Real chi2Abs = Abs(chi2);
+    const Real maxAbs = Max( Max( chi0Abs, chi1Abs ), chi2Abs );
+    const Real minAbs = Min( Min( chi0Abs, chi1Abs ), chi2Abs );
+    if( minAbs == Real(0) )
+    {
+        // Ensure NaN propagation
+        return chi0Abs + chi1Abs + chi2Abs;
+    }
+    else
+    {
+        const Real ratio0 = chi0Abs / maxAbs;
+        const Real ratio1 = chi1Abs / maxAbs;
+        const Real ratio2 = chi2Abs / maxAbs;
+
+        return maxAbs*Sqrt( ratio0*ratio0 + ratio1*ratio1 + ratio2*ratio2 );
+    }
+}
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SafeNorm
+( const Real& chi0, const Real& chi1, const Real& chi2, const Real& chi3 )
+{
+    const Real chi0Abs = Abs(chi0); 
+    const Real chi1Abs = Abs(chi1);
+    const Real chi2Abs = Abs(chi2);
+    const Real chi3Abs = Abs(chi3);
+    const Real maxAbs = Max( Max( Max( chi0Abs, chi1Abs ), chi2Abs ), chi3Abs );
+    const Real minAbs = Min( Min( Min( chi0Abs, chi1Abs ), chi2Abs ), chi3Abs );
+    if( minAbs == Real(0) )
+    {
+        // Ensure NaN propagation
+        return chi0Abs + chi1Abs + chi2Abs + chi3Abs;
+    }
+    else
+    {
+        const Real ratio0 = chi0Abs / maxAbs;
+        const Real ratio1 = chi1Abs / maxAbs;
+        const Real ratio2 = chi2Abs / maxAbs;
+        const Real ratio3 = chi3Abs / maxAbs;
+
+        return maxAbs*
+          Sqrt( ratio0*ratio0 + ratio1*ratio1 + ratio2*ratio2 + ratio3*ratio3 );
+    }
+}
+
+template<typename Real>
+Real SafeNorm( const Real& chi0, const Complex<Real>& chi1 )
+{ return SafeNorm( chi0, chi1.real(), chi1.imag() ); }
+
+template<typename Real>
+Real SafeNorm( const Complex<Real>& chi0, const Real& chi1 )
+{ return SafeNorm( chi0.real(), chi0.imag(), chi1 ); }
+
+template<typename Real>
+Real SafeNorm( const Complex<Real>& chi0, const Complex<Real>& chi1 )
+{ return SafeNorm( chi0.real(), chi0.imag(), chi1.real(), chi1.imag() ); }
+
 template<typename Real,typename>
 Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT { return Abs(alpha); }
 
 template<typename Real,typename>
 Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
-{ return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
+{ return SafeNorm( alpha.real(), alpha.imag() ); }
 
 template<typename Real,typename>
 Real OneAbs( const Real& alpha ) EL_NO_EXCEPT
