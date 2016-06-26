@@ -113,6 +113,26 @@ void HermitianEig
         DistMatrix<F,MC,MR,BLOCK>& Z,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>() );
 
+namespace herm_eig {
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+  Real& lambda0, Real& lambda1,
+  bool fullAccuracy=true );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+  Real& lambda0, Real& lambda1,
+  Real& c, Real& s,
+  bool fullAccuracy=true );
+
+} // namespace herm_eig
+
 // Hermitian generalized definite eigenvalue solvers
 // =================================================
 namespace PencilNS {
@@ -560,14 +580,21 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TwoByTwo
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
-  Real& c, Real& s );
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1 );
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TwoByTwo
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
-  Real& c, Real& s,
   Complex<Real>& lambda0,
-  Complex<Real>& lambda1 );
+  Complex<Real>& lambda1,
+  Real& c, Real& s );
+
+template<typename Real>
+void TwoByTwo
+( Complex<Real>& alpha00, Complex<Real>& alpha01,
+  Complex<Real>& alpha10, Complex<Real>& alpha11,
+  Complex<Real>& lambda0, Complex<Real>& lambda1 );
 
 } // namespace schur
 
@@ -1463,6 +1490,7 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 } // namespace El
 
 #include <El/lapack_like/spectral/Schur.hpp>
+#include <El/lapack_like/spectral/HermitianEig.hpp>
 #include <El/lapack_like/spectral/Lanczos.hpp>
 #include <El/lapack_like/spectral/ProductLanczos.hpp>
 

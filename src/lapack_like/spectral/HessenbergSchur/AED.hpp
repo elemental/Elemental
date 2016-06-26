@@ -177,10 +177,9 @@ AED
                     Real eta01 = scale;
                     Real eta10 = exceptShift1*scale;
                     Real eta11 = eta00;
-                    Real c, s;
                     schur::TwoByTwo
                     ( eta00, eta01,
-                      eta10, eta11, c, s, 
+                      eta10, eta11,
                       w(i-1), w(i) );
                 }
                 if( shiftBeg == winBeg )
@@ -215,10 +214,9 @@ AED
                         Real eta01 = H(winEnd-2,winEnd-1);
                         Real eta10 = H(winEnd-1,winEnd-2);
                         Real eta11 = H(winEnd-1,winEnd-1);
-                        Real c, s;
                         schur::TwoByTwo
                         ( eta00, eta01,
-                          eta10, eta11, c, s, 
+                          eta10, eta11,
                           w(winEnd-2), w(winEnd-1) );
                         shiftBeg = winEnd-2;
                     }
@@ -449,24 +447,14 @@ AED
                     if( shiftBeg >= winEnd-1 )
                     {
                         // This should be very rare; use eigenvalues of 2x2
-                        // TODO: Move into a separate routine
                         F eta00 = H(winEnd-2,winEnd-2);
                         F eta01 = H(winEnd-2,winEnd-1);
                         F eta10 = H(winEnd-1,winEnd-2);
                         F eta11 = H(winEnd-1,winEnd-1);
-                        const Real scale = OneAbs(eta00) + OneAbs(eta01) +
-                                           OneAbs(eta10) + OneAbs(eta11);
-                        eta00 /= scale;
-                        eta01 /= scale;
-                        eta10 /= scale;
-                        eta11 /= scale;
-                        const F halfTrace = (eta00+eta11) / Real(2);
-                        const F det =
-                          (eta00-halfTrace)*(eta11-halfTrace) - eta01*eta10;
-                        const F discrim = Sqrt( -det );
-                        w(winEnd-2) = (halfTrace+discrim)*scale;
-                        w(winEnd-1) = (halfTrace-discrim)*scale;
-
+                        schur::TwoByTwo
+                        ( eta00, eta01,
+                          eta10, eta11,
+                          w(winEnd-2), w(winEnd-1) );
                         shiftBeg = winEnd-2;
                     }
                 }

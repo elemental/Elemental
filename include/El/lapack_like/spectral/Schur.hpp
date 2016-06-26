@@ -21,7 +21,7 @@ namespace schur {
 // Either A is overwritten with its real Schur factor (if it exists), or 
 // it is put into the form 
 //
-//   | alpha00, alpha01 | = | c -s | | beta00 beta01 | | c  s |,
+//   | alpha00, alpha01 | = | c -s | | beta00 beta01 | |  c s |,
 //   | alpha10, alpha11 |   | s  c | | beta10 beta11 | | -s c |
 //
 // where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
@@ -32,6 +32,8 @@ template<typename Real,typename>
 void TwoByTwo
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1,
   Real& c, Real& s )
 {
     const Real zero(0), one(1);
@@ -138,29 +140,53 @@ void TwoByTwo
             }
         }
     }
+
+    // Explicitly compute the eigenvalues
+    lambda0 = alpha00;
+    lambda1 = alpha11;
+    if( alpha10 != zero )
+    {
+        lambda0.imag( Sqrt(Abs(alpha01))*Sqrt(Abs(alpha10)) );
+        lambda1.imag( -lambda0.imag() );
+    }
 }
 
 template<typename Real,typename>
 void TwoByTwo
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
-  Real& c, Real& s,
   Complex<Real>& lambda0,
   Complex<Real>& lambda1 )
 {
+    Real c, s;
     TwoByTwo
     ( alpha00, alpha01,
-      alpha10, alpha11, c, s );
+      alpha10, alpha11,
+      lambda0, lambda1,
+      c, s );
+}
 
-    // Explicitly compute the eigenvalues
-    lambda0 = alpha00;
-    lambda1 = alpha11;
-    const Real zero(0);
-    if( alpha10 != zero )
-    {
-        lambda0.imag( Sqrt(Abs(alpha01))*Sqrt(Abs(alpha10)) );
-        lambda1.imag( -lambda0.imag() );
-    }
+template<typename Real>
+void TwoByTwo
+( Complex<Real>& alpha00, Complex<Real>& alpha01,
+  Complex<Real>& alpha10, Complex<Real>& alpha11,
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1 )
+{
+    typedef Complex<Real> F;
+
+    const Real scale = OneAbs(alpha00) + OneAbs(alpha01) +
+                       OneAbs(alpha10) + OneAbs(alpha11);
+    alpha00 /= scale;
+    alpha01 /= scale;
+    alpha10 /= scale;
+    alpha11 /= scale;
+    const F halfTrace = (alpha00+alpha11) / Real(2);
+    const F det =
+      (alpha00-halfTrace)*(alpha11-halfTrace) - alpha01*alpha10;
+    const F discrim = Sqrt( -det );
+    lambda0 = (halfTrace+discrim)*scale;
+    lambda1 = (halfTrace-discrim)*scale;
 }
 
 } // namespace schur

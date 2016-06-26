@@ -3082,11 +3082,12 @@ void Helper
         {
             // Force the rotated T11 into standard form
             Real c, s;
+            Complex<Real> lambda0, lambda1;
             const Int j3 = j1+n2;
             const Int j4 = j3+1;
             schur::TwoByTwo
             ( T[j3+j3*TLDim], T[j3+j4*TLDim],
-              T[j4+j3*TLDim], T[j4+j4*TLDim], c, s );
+              T[j4+j3*TLDim], T[j4+j4*TLDim], lambda0, lambda1, c, s );
             if( j3+2 < n )
             {
                 blas::Rot
@@ -3110,10 +3111,11 @@ void Helper
         {
             // Force the rotated T22 into standard form
             Real c, s;
+            Complex<Real> lambda0, lambda1;
             const Int j2 = j1+1;
             schur::TwoByTwo
             ( T[j1+j1*TLDim], T[j1+j2*TLDim],
-              T[j2+j1*TLDim], T[j2+j2*TLDim], c, s );
+              T[j2+j1*TLDim], T[j2+j2*TLDim], lambda0, lambda1, c, s );
             blas::Rot
             ( n-(j1+2), 
               &T[j1+(j1+2)*TLDim], TLDim,

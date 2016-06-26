@@ -85,8 +85,8 @@ DoubleShift
                 schur::TwoByTwo
                 ( H(winEnd-2,winEnd-2), H(winEnd-2,winEnd-1),
                   H(winEnd-1,winEnd-2), H(winEnd-1,winEnd-1),
-                  c, s,
-                  w(iterBeg), w(iterBeg+1) );
+                  w(iterBeg), w(iterBeg+1),
+                  c, s );
                 if( ctrl.fullTriangle )
                 {
                     if( n > winEnd )
