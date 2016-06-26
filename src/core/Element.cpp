@@ -364,6 +364,9 @@ QuadDouble Pow( const QuadDouble& alpha, const int& beta )
 Quad Pow( const Quad& alpha, const Quad& beta )
 { return powq(alpha,beta); }
 
+Quad Pow( const Quad& alpha, const Int& beta )
+{ return powq(alpha,Quad(beta)); }
+
 Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Complex<Quad>& betaPre )
 {
     __complex128 alpha, beta;
@@ -386,6 +389,11 @@ Complex<Quad> Pow( const Complex<Quad>& alphaPre, const Quad& betaPre )
 
     __complex128 gamma = cpowq(alpha,beta);
     return Complex<Quad>(crealq(gamma),cimagq(gamma));
+}
+
+Complex<Quad> Pow( const Complex<Quad>& alpha, const Int& beta )
+{
+    return Pow( alpha, Quad(beta) );
 }
 #endif
 

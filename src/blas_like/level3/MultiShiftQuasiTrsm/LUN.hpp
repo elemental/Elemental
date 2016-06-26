@@ -54,7 +54,7 @@ void LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
                 const F delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta21, c, s );
+                const F gamma11 = Givens( delta11, delta21, c, s );
                 const F gamma12 =        c*delta12 + s*delta22;
                 const F gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -142,7 +142,7 @@ void LUNUnb
                 const C delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; C s;
-                const C gamma11 = blas::Givens( delta11, C(delta21), c, s );
+                const C gamma11 = Givens( delta11, C(delta21), c, s );
                 const C gamma12 =        c*delta12 + s*delta22;
                 const C gamma22 = -Conj(s)*delta12 + c*delta22;
 

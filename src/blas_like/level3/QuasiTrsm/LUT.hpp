@@ -56,7 +56,7 @@ void LUTUnb
             const F delta22 = UBuf[(k+1)+(k+1)*ldu];
             // Decompose D = Q R
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta21, c, s );
+            const F gamma11 = Givens( delta11, delta21, c, s );
             const F gamma12 =        c*delta12 + s*delta22;
             const F gamma22 = -Conj(s)*delta12 + c*delta22;
             if( checkIfSingular )

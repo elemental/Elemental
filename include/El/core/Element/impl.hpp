@@ -219,7 +219,7 @@ F Pow( const F& alpha, const T& beta )
 
 template<typename F,typename T,typename,typename,typename>
 F Pow( const F& alpha, const T& beta )
-{ return Pow(alpha,F(beta)); }
+{ return Pow(alpha,Base<F>(beta)); }
 
 template<typename Real,typename,typename>
 Complex<Real> Pow( const Complex<Real>& alpha, const Complex<Real>& beta )

@@ -61,7 +61,7 @@ LN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W(k,j), etakkp1, c, s );
+            Givens( W(k,j), etakkp1, c, s );
             C(k,j) = c;
             S(k,j) = s;
 
@@ -158,7 +158,7 @@ UN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W(k,j), etakkm1, c, s );
+            Givens( W(k,j), etakkm1, c, s );
             C(k,j) = c;
             S(k,j) = s;
 
@@ -279,7 +279,7 @@ LN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W(k,jLoc), etakkp1, c, s );
+            Givens( W(k,jLoc), etakkp1, c, s );
             C(k,jLoc) = c;
             S(k,jLoc) = s;
 
@@ -401,7 +401,7 @@ UN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W(k,jLoc), etakkm1, c, s );
+            Givens( W(k,jLoc), etakkm1, c, s );
             C(k,jLoc) = c;
             S(k,jLoc) = s;
 

@@ -32,6 +32,7 @@
 #include <El/blas_like/level1/GetDiagonal.hpp>
 #include <El/blas_like/level1/GetMappedDiagonal.hpp>
 #include <El/blas_like/level1/GetSubmatrix.hpp>
+#include <El/blas_like/level1/Givens.hpp>
 #include <El/blas_like/level1/Hadamard.hpp>
 #include <El/blas_like/level1/ImagPart.hpp>
 #include <El/blas_like/level1/IndexDependentFill.hpp>

@@ -448,8 +448,10 @@ Pow( const QuadDouble& alpha, const int& beta );
 #endif
 #ifdef EL_HAVE_QUAD
 Quad Pow( const Quad& alpha, const Quad& beta );
+Quad Pow( const Quad& alpha, const Int& beta );
 Complex<Quad> Pow( const Complex<Quad>& alpha, const Complex<Quad>& beta );
 Complex<Quad> Pow( const Complex<Quad>& alpha, const Quad& beta );
+Complex<Quad> Pow( const Complex<Quad>& alpha, const Int& beta );
 #endif
 #ifdef EL_HAVE_MPC
 BigInt

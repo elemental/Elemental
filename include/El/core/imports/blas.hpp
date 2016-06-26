@@ -147,40 +147,6 @@ BlasInt MaxInd( BlasInt n, const double* x, BlasInt incx );
 BlasInt MaxInd( BlasInt n, const scomplex* x, BlasInt incx );
 BlasInt MaxInd( BlasInt n, const dcomplex* x, BlasInt incx );
 
-template<typename Real>
-Real Givens
-( const Real& phi,
-  const Real& gamma,
-  Real& c,
-  Real& s );
-template<typename Real>
-Complex<Real> Givens
-( const Complex<Real>& phi,
-  const Complex<Real>& gamma,
-  Real& c,
-  Complex<Real>& s );
-
-float Givens
-( const float& alpha,
-  const float& beta,
-  float& c,
-  float& s );
-double Givens
-( const double& alpha,
-  const double& beta,
-  double& c,
-  double& s );
-scomplex Givens
-( const scomplex& alpha,
-  const scomplex& beta,
-  float& c,
-  scomplex& s );
-dcomplex Givens
-( const dcomplex& alpha,
-  const dcomplex& beta,
-  double& c,
-  dcomplex& s );
-
 template<typename F>
 void Rot
 ( BlasInt n,

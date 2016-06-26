@@ -1898,6 +1898,31 @@ void Zero( DistSparseMatrix<T>& A, bool clearMemory=true );
 template<typename T>
 void Zero( DistMultiVec<T>& A );
 
+// Givens rotations
+// ================
+//
+// Given phi and gamma, compute a Givens rotation such that
+//
+//  |       c   s | |   phi |  = | rho |, where c^2 + |s|^2 = 1
+//  | -conj(s)  c | | gamma |    |  0  |
+//
+// This routine uses the stable approach suggested by Kahan and Demmel and
+// returns the value rho.
+//
+
+template<typename Real>
+Real Givens
+( const Real& phi,
+  const Real& gamma,
+        Real& c,
+        Real& s );
+template<typename Real>
+Complex<Real> Givens
+( const Complex<Real>& phi,
+  const Complex<Real>& gamma,
+  Real& c,
+  Complex<Real>& s );
+
 } // namespace El
 
 #endif // ifndef EL_BLAS1_DECL_HPP

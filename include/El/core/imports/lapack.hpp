@@ -63,52 +63,6 @@ Real SafeNorm
 ( const Real& alpha,
   const Complex<Real>& beta );
 
-// Givens rotations
-// ================
-//
-// Given phi and gamma, compute a Givens rotation such that
-//
-//  |       c   s | |   phi |  = | rho |, where c^2 + |s|^2 = 1
-//  | -conj(s)  c | | gamma |    |  0  |
-//
-// This routine uses the stable approach suggested by Kahan and Demmel and
-// returns the value rho.
-//
-
-template<typename Real>
-Real Givens
-( const Real& phi,
-  const Real& gamma,
-        Real& c,
-        Real& s );
-template<typename Real>
-Complex<Real> Givens
-( const Complex<Real>& phi,
-  const Complex<Real>& gamma,
-  Real& c,
-  Complex<Real>& s );
-
-float    Givens
-( const float& phi,
-  const float& gamma,
-  float& c,
-  float& s );
-double   Givens
-( const double& phi,
-  const double& gamma,
-  double& c,
-  double& s );
-scomplex Givens
-( const scomplex& phi,
-  const scomplex& gamma,
-  float& c,
-  scomplex& s );
-dcomplex Givens
-( const dcomplex& phi,
-  const dcomplex& gamma,
-  double& c,
-  dcomplex& s );
-
 // Generate a Householder reflector
 // ================================
 // NOTE: 

@@ -154,7 +154,7 @@ Int Single
                 RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
             F s;
-            F rho = lapack::Givens( eta_j_j, eta_jp1_j, c, s );
+            F rho = Givens( eta_j_j, eta_jp1_j, c, s );
             if( !limits::IsFinite(c) ||
                 !limits::IsFinite(RealPart(s)) ||
                 !limits::IsFinite(ImagPart(s)) ||
@@ -398,7 +398,7 @@ Int Single
                 RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
             F s;
-            F rho = lapack::Givens( eta_j_j, eta_jp1_j, c, s );
+            F rho = Givens( eta_j_j, eta_jp1_j, c, s );
             if( !limits::IsFinite(c) ||
                 !limits::IsFinite(RealPart(s)) ||
                 !limits::IsFinite(ImagPart(s)) ||
