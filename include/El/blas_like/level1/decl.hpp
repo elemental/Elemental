@@ -1610,6 +1610,17 @@ template<typename Real,typename S,typename=EnableIf<IsReal<Real>>>
 void Scale
 ( S alpha, AbstractDistMatrix<Real>& AReal, AbstractDistMatrix<Real>& AImag );
 
+template<typename F>
+void SafeScale( Base<F> numerator, Base<F> denominator, Matrix<F>& A );
+template<typename F>
+void SafeScale( Base<F> numerator, Base<F> denominator, AbstractDistMatrix<F>& A );
+template<typename F>
+void SafeScale( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A );
+template<typename F>
+void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A );
+template<typename F>
+void SafeScale( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A );
+
 // ScaleTrapezoid
 // ==============
 template<typename T,typename S>

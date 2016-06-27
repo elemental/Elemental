@@ -256,6 +256,28 @@ void Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x );
 
+// Apply a sequence of Givens rotations in the style of LAPACK's {s,d,c,z}lasr
+// ===========================================================================
+enum GivensSequenceType
+{
+  VARIABLE_GIVENS_SEQUENCE,
+  TOP_GIVENS_SEQUENCE,
+  BOTTOM_GIVENS_SEQUENCE
+};
+
+template<typename F,typename=DisableIf<IsReal<F>>>
+void ApplyGivensSequence
+( LeftOrRight side, GivensSequenceType seqType, ForwardOrBackward direction, 
+  const Matrix<Base<F>>& cList,
+  const Matrix<F>& sList,
+  Matrix<F>& A );
+template<typename F>
+void ApplyGivensSequence
+( LeftOrRight side, GivensSequenceType seqType, ForwardOrBackward direction, 
+  const Matrix<Base<F>>& cList,
+  const Matrix<Base<F>>& sList,
+  Matrix<F>& A );
+
 } // namespace El
 
 #endif // ifndef EL_BLAS2_HPP

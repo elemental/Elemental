@@ -42,12 +42,8 @@ Real Givens( const Real& chi0, const Real& chi1, Real& c, Real& s )
         return chi1;
     }
     
-    const Real safeMin = limits::SafeMin<Real>();
-    const Real eps = limits::Epsilon<Real>();
-    const Real base = limits::Base<Real>();
-    static const Real safeMinToSquare =
-      Pow( base,
-        Round((Log(safeMin/limits::Epsilon<Real>())/Log(base))/Real(2)) );
+    const Real safeMin = limits::SafeMin(one);
+    const Real safeMinToSquare = limits::SafeMinToSquare(one);
     const Real safeMaxToSquare = one / safeMinToSquare;
 
     Real scale = Max( Abs(chi0), Abs(chi1) );
@@ -113,12 +109,8 @@ Complex<Real> Givens
     const Real one(1);
     const F zeroF(0);
 
-    const Real safeMin = limits::SafeMin<Real>();
-    const Real eps = limits::Epsilon<Real>();
-    const Real base = limits::Base<Real>();
-    static const Real safeMinToSquare =
-      Pow( base,
-        Round((Log(safeMin/limits::Epsilon<Real>())/Log(base))/Real(2)) );
+    const Real safeMin = limits::SafeMin(one);
+    const Real safeMinToSquare = limits::SafeMinToSquare(one);
     const Real safeMaxToSquare = one / safeMinToSquare;
 
     Real scale = Max( MaxAbs(chi0), MaxAbs(chi1) );

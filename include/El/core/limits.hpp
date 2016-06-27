@@ -288,8 +288,62 @@ inline Real SafeMin( const Real& alpha=Real(1) )
     const Real eps = Epsilon<Real>();
     const Real minVal = Min<Real>();
     const Real invMax = one/Max<Real>();
+    static const Real safeMin = 
+      ( invMax>minVal ? invMax*(one+eps) : minVal );
+    return safeMin;
+}
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat SafeMin( const BigFloat& alpha )
+{
+    // TODO: Decide how to only recompute this when the precision changes
+    const BigFloat one = BigFloat(1,alpha.Precision());
+    const BigFloat eps = Epsilon(alpha);
+    const BigFloat minVal = Min(alpha);
+    const BigFloat invMax = one/Max(alpha);
     return ( invMax>minVal ? invMax*(one+eps) : minVal );
 }
+#endif
+
+// For now, this routine is only used within Givens in order to provide
+// a comfortable upper bound on positive numbers that can be safely squared
+// (and then safely added and substracted)
+//
+// CITATION
+//
+// Please see LAPACK Working Note 148,
+//
+//   D. Bindel, J. Demmel, W. Kahan, and O. Marques,
+//   "On computing Givens rotations reliably and efficiently",
+//   http://www.netlib.org/lapack/lawnspdf/lawn148.pdf
+//
+// which resulted in the LAPACK routines {s,d,c,z}lartg. But note
+// that the LAPACK implementations slightly differ from said working
+// note in that they round z^2 to the nearest radix rather than z
+// (which results in a different result with float, but the same with
+// double).
+//
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+inline Real SafeMinToSquare( const Real& alpha=Real(1) )
+{
+    const Real base = Base<Real>();
+    const Real eps = Epsilon<Real>();
+    const Real safeMin = SafeMin<Real>();
+    static const Real safeMinToSquare = 
+      Pow( base, Round((Log(safeMin/eps)/Log(base))/Real(2)) );
+    return safeMinToSquare;
+}
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat SafeMinToSquare( const BigFloat& alpha )
+{
+    // TODO: Decide how to only recompute this when the precision changes
+    const BigFloat two(2);
+    const BigFloat safeMinToSquare = 
+      Pow( two, Round((Log2(SafeMin(alpha)/Epsilon(alpha)))/two) );
+    return safeMinToSquare;
+}
+#endif
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Infinity( const Real& alpha=Real(1) )

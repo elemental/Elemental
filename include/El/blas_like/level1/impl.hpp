@@ -50,6 +50,7 @@
 #include <El/blas_like/level1/Reshape.hpp>
 #include <El/blas_like/level1/Rotate.hpp>
 #include <El/blas_like/level1/Round.hpp>
+#include <El/blas_like/level1/SafeScale.hpp>
 #include <El/blas_like/level1/Scale.hpp>
 #include <El/blas_like/level1/ScaleTrapezoid.hpp>
 #include <El/blas_like/level1/SetDiagonal.hpp>
