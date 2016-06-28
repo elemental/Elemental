@@ -21,7 +21,7 @@ namespace herm_eig {
 //
 // the eigenvalues satisfy
 //
-//   lambda in [(alpha00+alpha11) +- sqrt((alpha00-alpha11)^2+(2 alpha01)^2)] / 2,
+//   lambda in [(alpha00+alpha11)+-sqrt((alpha00-alpha11)^2+(2 alpha01)^2)]/2,
 //
 // and it is useful to perform computation in terms of the three terms:
 //
@@ -35,9 +35,9 @@ namespace herm_eig {
 //
 // The eigenvalue corresponding to the "+" term is of maximal magnitude iff
 // diagSum >= 0, so our computation branches based upon this condition. The 
-// smaller eigenvalue is *not* directly computed using the above formula, as this
-// would potentially lead to catastrophic cancellation, and so we instead carefully
-// divide the determinant by the dominant eigenvalue.
+// smaller eigenvalue is *not* directly computed using the above formula, as
+// this would potentially lead to catastrophic cancellation, and so we instead
+// carefully divide the determinant by the dominant eigenvalue.
 //
 // After carefully computing the root of the discriminant, say
 //
@@ -46,8 +46,8 @@ namespace herm_eig {
 // and supposing that diagSum >= 0, the dominant (unit) eigenvector, say [c; s],
 // satisfies
 //
-//   |alpha00-(diagSum+discrimRoot)/2, alpha01                        | |c| = |0|,
-//   |alpha01,                         alpha11-(diagSum+discrimRoot)/2| |s|   |0|
+//  |alpha00-(diagSum+discrimRoot)/2, alpha01                        | |c|=|0|,
+//  |alpha01,                         alpha11-(diagSum+discrimRoot)/2| |s| |0|
 //
 // which simplifies to
 //

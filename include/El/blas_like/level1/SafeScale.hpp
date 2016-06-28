@@ -117,6 +117,28 @@ void SafeScale( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A )
     SafeScale( numerator, denominator, A.Matrix() );
 }
 
+template<typename F>
+void SafeScaleHermitianTridiagonal
+( Base<F> numerator, Base<F> denominator, Matrix<Base<F>>& d, Matrix<F>& e )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real alpha;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, alpha, zero, smallNum, bigNum );
+        d *= alpha;
+        e *= alpha;
+    }
+}
+
 } // namespace El
 
 #endif // ifndef EL_BLAS_SAFE_SCALE_HPP

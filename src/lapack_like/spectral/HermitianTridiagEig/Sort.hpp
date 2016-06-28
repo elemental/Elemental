@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HERMITIANTRIDIAGEIG_SORT_HPP
-#define EL_HERMITIANTRIDIAGEIG_SORT_HPP
+#ifndef EL_SPECTRAL_HERM_TRIDIAG_EIG_SORT_HPP
+#define EL_SPECTRAL_HERM_TRIDIAG_EIG_SORT_HPP
 
 namespace El {
 
@@ -74,4 +74,4 @@ void Sort
 
 } // namespace El
 
-#endif // ifndef EL_HERMITIANTRIDIAGEIG_SORT_HPP
+#endif // ifndef EL_SPECTRAL_HERM_TRIDIAG_EIG_SORT_HPP

@@ -10,11 +10,11 @@
 
 namespace El {
 
-template<typename F> 
-Base<F> InfinityNorm( const Matrix<F>& A )
+template<typename T> 
+Base<T> InfinityNorm( const Matrix<T>& A )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int height = A.Height();
     const Int width = A.Width();
 
@@ -33,26 +33,26 @@ Base<F> InfinityNorm( const Matrix<F>& A )
     return maxRowSum;
 }
 
-template<typename F>
-Base<F> HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename T>
+Base<T> HermitianInfinityNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
-template<typename F>
-Base<F> SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename T>
+Base<T> SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_CSE
     return HermitianInfinityNorm( uplo, A );
 }
 
-template<typename F> 
-Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
+template<typename T> 
+Base<T> InfinityNorm( const AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
     // Compute the partial row sums defined by our local matrix, A[U,V]
-    typedef Base<F> Real;
+    typedef Base<T> Real;
 
 
     Real norm;
@@ -60,7 +60,7 @@ Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
     {
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const Matrix<F>& ALoc = A.LockedMatrix();
+        const Matrix<T>& ALoc = A.LockedMatrix();
 
         vector<Real> myPartialRowSums( localHeight );
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -92,29 +92,29 @@ Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
     return norm;
 }
 
-template<typename F>
-Base<F> HermitianInfinityNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> HermitianInfinityNorm
+( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
-template<typename F>
-Base<F> SymmetricInfinityNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> SymmetricInfinityNorm
+( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
     return HermitianInfinityNorm( uplo, A );
 }
 
-template<typename F> 
-Base<F> InfinityNorm( const SparseMatrix<F>& A )
+template<typename T> 
+Base<T> InfinityNorm( const SparseMatrix<T>& A )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int height = A.Height();
-    const F* valBuf = A.LockedValueBuffer();
+    const T* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
     Real maxRowSum = 0;
@@ -135,13 +135,13 @@ Base<F> InfinityNorm( const SparseMatrix<F>& A )
     return maxRowSum;
 }
 
-template<typename F> 
-Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
+template<typename T> 
+Base<T> InfinityNorm( const DistSparseMatrix<T>& A )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int localHeight = A.LocalHeight();
-    const F* valBuf = A.LockedValueBuffer();
+    const T* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
     Real maxLocRowSum = 0;
@@ -162,6 +162,14 @@ Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
     return mpi::AllReduce( maxLocRowSum, mpi::MAX, A.Comm() );
 }
 
+template<typename T> 
+Base<T> HermitianTridiagonalInfinityNorm
+( const Matrix<Base<T>>& d, Matrix<T>& e )
+{
+    DEBUG_CSE
+    return HermitianTridiagonalOneNorm( d, e );
+}
+
 #define PROTO(T) \
   template Base<T> InfinityNorm( const Matrix<T>& A ); \
   template Base<T> InfinityNorm ( const AbstractDistMatrix<T>& A ); \
@@ -174,7 +182,9 @@ Base<F> InfinityNorm( const DistSparseMatrix<F>& A )
   template Base<T> SymmetricInfinityNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
   template Base<T> InfinityNorm( const SparseMatrix<T>& A ); \
-  template Base<T> InfinityNorm( const DistSparseMatrix<T>& A );
+  template Base<T> InfinityNorm( const DistSparseMatrix<T>& A ); \
+  template Base<T> HermitianTridiagonalInfinityNorm \
+  ( const Matrix<Base<T>>& d, Matrix<T>& e );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

@@ -1621,6 +1621,10 @@ void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A )
 template<typename F>
 void SafeScale( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A );
 
+template<typename F>
+void SafeScaleHermitianTridiagonal
+( Base<F> numerator, Base<F> denominator, Matrix<Base<F>>& d, Matrix<F>& e );
+
 // ScaleTrapezoid
 // ==============
 template<typename T,typename S>

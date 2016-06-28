@@ -10,11 +10,11 @@
 
 namespace El {
 
-template<typename F>
-Base<F> OneNorm( const Matrix<F>& A )
+template<typename T>
+Base<T> OneNorm( const Matrix<T>& A )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int height = A.Height();
     const Int width = A.Width();
 
@@ -29,11 +29,11 @@ Base<F> OneNorm( const Matrix<F>& A )
     return maxColSum;
 }
 
-template<typename F>
-Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename T>
+Base<T> HermitianOneNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     const Int height = A.Height();
 
     if( height != A.Width() )
@@ -67,25 +67,25 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
     return maxColSum;
 }
 
-template<typename F>
-Base<F> SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename T>
+Base<T> SymmetricOneNorm( UpperOrLower uplo, const Matrix<T>& A )
 {
     DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
-template<typename F>
-Base<F> OneNorm( const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> OneNorm( const AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     Real norm;
     if( A.Participating() )
     {
         // Compute the partial column sums defined by our local matrix, A[U,V]
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const Matrix<F>& ALoc = A.LockedMatrix();
+        const Matrix<T>& ALoc = A.LockedMatrix();
 
         vector<Real> myPartialColSums( localWidth );
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -112,11 +112,11 @@ Base<F> OneNorm( const AbstractDistMatrix<F>& A )
     return norm;
 }
 
-template<typename F>
-Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<T> Real;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
     const Int height = A.Height();
@@ -130,7 +130,7 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     {
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const Matrix<F>& ALoc = A.LockedMatrix();
+        const Matrix<T>& ALoc = A.LockedMatrix();
 
         if( uplo == UPPER )
         {
@@ -223,29 +223,56 @@ Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     return maxColSum;
 }
 
-template<typename F>
-Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename T>
+Base<T> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
-template<typename F>
-Base<F> OneNorm( const SparseMatrix<F>& A )
+template<typename T>
+Base<T> OneNorm( const SparseMatrix<T>& A )
 {
     DEBUG_CSE
-    SparseMatrix<F> ATrans;
+    SparseMatrix<T> ATrans;
     Transpose( A, ATrans );
     return InfinityNorm( ATrans );
 }
 
-template<typename F>
-Base<F> OneNorm( const DistSparseMatrix<F>& A )
+template<typename T>
+Base<T> OneNorm( const DistSparseMatrix<T>& A )
 {
     DEBUG_CSE
-    DistSparseMatrix<F> ATrans(A.Comm());
+    DistSparseMatrix<T> ATrans(A.Comm());
     Transpose( A, ATrans );
     return InfinityNorm( ATrans );
+}
+
+template<typename T>
+Base<T> HermitianTridiagonalOneNorm
+( const Matrix<Base<T>>& d, Matrix<T>& e )
+{
+    DEBUG_CSE
+    typedef Base<T> Real;
+    const Int n = d.Height();
+
+    // | d(0) conj(e(0))     0       ... |
+    // | e(0)    d(1)    conj(e(1))  ... |
+    // |   0     e(1)       d(2)     ... |
+    // |   0      0         e(2)     ... |
+    // |   .      .          .        .  |
+
+    Real maxColSum = 0;
+    for( Int j=0; j<n; ++j )
+    {
+        Real colSum = Abs(d(j));
+        if( j > 0 )
+            colSum += Abs(e(j-1));
+        if( j < n-1 )
+            colSum += Abs(e(j));
+        maxColSum = Max( maxColSum, colSum );
+    }
+    return maxColSum;
 }
 
 #define PROTO(T) \
@@ -260,7 +287,9 @@ Base<F> OneNorm( const DistSparseMatrix<F>& A )
   template Base<T> SymmetricOneNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
   template Base<T> OneNorm( const SparseMatrix<T>& A ); \
-  template Base<T> OneNorm( const DistSparseMatrix<T>& A );
+  template Base<T> OneNorm( const DistSparseMatrix<T>& A ); \
+  template Base<T> HermitianTridiagonalOneNorm \
+  ( const Matrix<Base<T>>& d, Matrix<T>& e );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
