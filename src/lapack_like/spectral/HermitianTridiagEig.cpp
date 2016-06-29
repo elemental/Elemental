@@ -8,6 +8,7 @@
 */
 #include <El.hpp>
 
+#include "./HermitianTridiagEig/QR.hpp"
 #include "./HermitianTridiagEig/Sort.hpp"
 
 // NOTE: dSubReal and ZReal could be packed into their complex counterparts

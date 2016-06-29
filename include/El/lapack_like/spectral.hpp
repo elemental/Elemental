@@ -247,7 +247,37 @@ void HermitianTridiagEigPostEstimate
         Real vl,
         Real vu );
 
+struct HermitianTridiagQRInfo
+{
+    Int numUnconverged=0;
+    Int numIterations=0;
+};
+
+struct HermitianTridiagQRCtrl
+{
+    bool wantEigVecs=false;
+
+    Int maxIterPerEig=30;
+    bool demandConverged=true;
+
+    bool progress=false;
+};
+
 namespace herm_eig {
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+HermitianTridiagQRInfo TridiagQR
+( Matrix<Real>& mainDiag,
+  Matrix<Real>& subDiag, 
+  Matrix<Real>& w,
+  const HermitianTridiagQRCtrl& ctrl=HermitianTridiagQRCtrl() );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+HermitianTridiagQRInfo TridiagQR
+( Matrix<Real>& mainDiag,
+  Matrix<Real>& subDiag, 
+  Matrix<Real>& w,
+  Matrix<Real>& Q,
+  const HermitianTridiagQRCtrl& ctrl=HermitianTridiagQRCtrl() );
 
 template<typename F>
 void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING );
