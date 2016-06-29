@@ -99,6 +99,8 @@ void QLSweep
     DEBUG_CSE
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
+    cList.Resize( n-1, 1 );
+    sList.Resize( n-1, 1 );
 
     Real s(1), c(1);
     Real t, h, p;
@@ -147,6 +149,8 @@ void QRSweep
     DEBUG_CSE
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
+    cList.Resize( n-1, 1 );
+    sList.Resize( n-1, 1 );
 
     Real s(1), c(1);
     Real t, h, p;
@@ -224,7 +228,7 @@ Helper
     const Real normMax = Sqrt(safeMax) / Real(3);
 
     Matrix<Real> cList(n-1,1), sList(n-1,1);
-    Matrix<Real> dSub, eSub, cSub, sSub, QSub;
+    Matrix<Real> dSub, eSub, QSub;
 
     const Int maxIter = n*ctrl.maxIterPerEig; 
     Int winBeg = 0;
@@ -234,24 +238,21 @@ Helper
             e(winBeg-1) = zero;
         Int subWinBeg = winBeg;
         Int subWinEnd = n;
-        if( subWinBeg < n-1 )
+        // End the subwindow at the first sufficiently small off-diagonal
+        // (if one exists)
+        for( Int j=subWinBeg; j<n-1; ++j )
         {
-            // End the subwindow at the first sufficiently small off-diagonal
-            // (if one exists)
-            for( Int j=subWinBeg; j<n-1; ++j )
+            const Real etaAbs = Abs(e(j));
+            if( etaAbs == zero )
             {
-                const Real etaAbs = Abs(e(j));
-                if( etaAbs == zero )
-                {
-                    subWinEnd = j+1;
-                    break;
-                }
-                if( etaAbs <= (Sqrt(Abs(d(j)))*Sqrt(Abs(d(j+1))))*eps )
-                {
-                    e(j) = zero;
-                    subWinEnd = j+1;
-                    break;
-                }
+                subWinEnd = j+1;
+                break;
+            }
+            if( etaAbs <= (Sqrt(Abs(d(j)))*Sqrt(Abs(d(j+1))))*eps )
+            {
+                e(j) = zero;
+                subWinEnd = j+1;
+                break;
             }
         }
 
@@ -359,7 +360,7 @@ Helper
 
                 Real shift = WilkinsonShift( dSub(0), eSub(0), dSub(1) );
                 QLSweep
-                ( dSub, eSub, cSub, sSub, QSub, shift, ctrl.wantEigVecs );
+                ( dSub, eSub, cList, sList, QSub, shift, ctrl.wantEigVecs );
             }
         }
         else
@@ -442,7 +443,7 @@ Helper
                   WilkinsonShift
                   ( d(subWinEnd-1), e(subWinEnd-2), d(subWinEnd-2) );
                 QRSweep
-                ( dSub, eSub, cSub, sSub, QSub, shift, ctrl.wantEigVecs );
+                ( dSub, eSub, cList, sList, QSub, shift, ctrl.wantEigVecs );
             }
         }
 
