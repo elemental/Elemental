@@ -111,7 +111,7 @@ void QLSweep
     {
         h = c*e(j);
         p = s*e(j);
-        t = SafeNorm( g, p, c, s );
+        t = Givens( g, p, c, s );
         if( j != n-2 )
             e(j+1) = t;
         g = d(j+1) - u;
@@ -123,7 +123,7 @@ void QLSweep
         if( wantEigVecs )
         {
             cList(j) = c;
-            sList(j) = s;
+            sList(j) = -s;
         }
     }
     d(0) -= u;
@@ -131,8 +131,7 @@ void QLSweep
     if( wantEigVecs )
     {
         ApplyGivensSequence
-        ( RIGHT, VARIABLE_GIVENS_SEQUENCE, BACKWARD,
-          Q.Height(), n, cList, sList, Q );
+        ( RIGHT, VARIABLE_GIVENS_SEQUENCE, BACKWARD, cList, sList, Q );
     }
 }
 
@@ -181,8 +180,7 @@ void QRSweep
     if( wantEigVecs )
     {
         ApplyGivensSequence
-        ( RIGHT, VARIABLE_GIVENS_SEQUENCE, FORWARD,
-          Q.Height(), n, cList, sList, Q );
+        ( RIGHT, VARIABLE_GIVENS_SEQUENCE, FORWARD, cList, sList, Q );
     }
 }
 
@@ -192,30 +190,20 @@ void QRSweep
 // TODO(poulson): Support for what Parlett calls "Saad's shifts" in 
 // subsubsection 8.14.5 of "The symmetric eigenvalue problem" [CITATION].
 //
-template<typename Real,typename>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 HermitianTridiagQRInfo
 Helper
 ( Matrix<Real>& d,
   Matrix<Real>& e, 
-  Matrix<Real>& w,
   Matrix<Real>& Q,
   const HermitianTridiagQRCtrl& ctrl )
 {
     DEBUG_CSE
     const Int n = d.Height();
     HermitianTridiagQRInfo info;
-    bool fullAccuracy = true; // TODO: Make configurable
 
-    w.Resize( n, 1 );
-    if( n == 0 )
-        return;
-    if( n == 1 )
-    {
-        w(0) = d(0);
-        if( ctrl.wantEigVecs )
-            Q(0,0) = 1;
-        return;
-    }
+    if( n <= 1 )
+        return info;
 
     const Real zero(0), one(1);
     const Real eps = limits::Epsilon<Real>();
@@ -245,11 +233,15 @@ Helper
             const Real etaAbs = Abs(e(j));
             if( etaAbs == zero )
             {
+                if( ctrl.progress )
+                    Output("  Detected zero at e(",j,")");
                 subWinEnd = j+1;
                 break;
             }
             if( etaAbs <= (Sqrt(Abs(d(j)))*Sqrt(Abs(d(j+1))))*eps )
             {
+                if( ctrl.progress )
+                    Output("  Deflating e(",j,")");
                 e(j) = zero;
                 subWinEnd = j+1;
                 break;
@@ -265,26 +257,36 @@ Helper
 
         View( dSub, d, IR(subWinBeg,subWinEnd), ALL );
         View( eSub, e, IR(subWinBeg,Min(subWinEnd,n-1)), ALL );
-        const Real infNormSub = HermitianTridiagonalInfinityNorm( dSub, eSub );
+        const Real infNormSub = HermitianTridiagInfinityNorm( dSub, eSub );
         bool scaledDown=false, scaledUp=false;
         if( infNormSub == zero )
             continue;
         if( infNormSub > normMax )
         {
+            if( ctrl.progress )
+                Output("Scaling down from ",infNormSub," to ",normMax);
             scaledDown = true;
-            SafeScaleHermitianTridiagonal( infNormSub, normMax, dSub, eSub );
+            SafeScaleHermitianTridiag( infNormSub, normMax, dSub, eSub );
         }
         else if( infNormSub < normMin )
         {
+            if( ctrl.progress )
+                Output("Scaling up from ",infNormSub," to ",normMin);
             scaledUp = true;
-            SafeScaleHermitianTridiagonal( infNormSub, normMin, dSub, eSub );
+            SafeScaleHermitianTridiag( infNormSub, normMin, dSub, eSub );
         }
 
         // Follow LAPACK's suit and use the simplest possible test for grading
         bool useQR = ( Abs(d(subWinEnd-1)) < Abs(d(subWinBeg)) );
-        if( subWinEnd > subWinBeg )
+        if( !useQR )
         {
             // QL iteration
+            if( ctrl.progress )
+            {
+                Output
+                ("QL iteration at iter ",info.numIterations,
+                 " over [",subWinEnd,",",subWinEnd,")");
+            }
             while( true )     
             {
                 Int iterEnd = subWinEnd;
@@ -297,6 +299,8 @@ Helper
                         if( etaAbsSquared <=
                             (epsSquared*Abs(d(j)))*Abs(d(j+1))+safeMin )
                         {
+                            if( ctrl.progress )
+                                Output("  Deflating e(",j,")=",e(j));
                             e(j) = zero;
                             iterEnd = j+1;
                             break;
@@ -307,6 +311,8 @@ Helper
                 if( subWinBeg+1 == iterEnd )
                 {
                     // Deflate the isolated eigenvalue
+                    if( ctrl.progress )
+                        Output("  Deflating eigenvalue at ",subWinBeg);
                     subWinBeg += 1;
                     if( subWinBeg < subWinEnd )
                         continue;
@@ -316,13 +322,15 @@ Helper
                 else if( subWinBeg+2 == iterEnd )
                 {
                     // Deflate the isolated pair of eigenvalues
+                    if( ctrl.progress )
+                        Output("  Deflating eigenvalue pair at ",subWinBeg);
                     Real lambda0, lambda1;
                     if( ctrl.wantEigVecs )
                     {
                         Real c, s;
                         TwoByTwo
                         ( d(subWinBeg), e(subWinBeg), d(subWinBeg+1),
-                          lambda0, lambda1, c, s, fullAccuracy );
+                          lambda0, lambda1, c, s, ctrl.fullAccuracyTwoByTwo );
                         // Apply the Givens rotation from the right to Q
                         blas::Rot
                         ( n, &Q(0,subWinBeg), 1, &Q(0,subWinBeg+1), 1, c, s );
@@ -331,7 +339,7 @@ Helper
                     {
                         TwoByTwo
                         ( d(subWinBeg), e(subWinBeg), d(subWinBeg+1),
-                          lambda0, lambda1, fullAccuracy );
+                          lambda0, lambda1, ctrl.fullAccuracyTwoByTwo );
                     }
                     d(subWinBeg) = lambda0;
                     d(subWinBeg+1) = lambda1;
@@ -351,11 +359,11 @@ Helper
 
                 // TODO(poulson): Decide if it is worthwhile to avoid the cost
                 // of these views
-                View( dSub, d, IR(subWinBeg,subWinEnd), ALL );
-                View( eSub, e, IR(subWinBeg,Min(subWinEnd,n-1)), ALL );
+                View( dSub, d, IR(subWinBeg,iterEnd), ALL );
+                View( eSub, e, IR(subWinBeg,Min(iterEnd,n-1)), ALL );
                 if( ctrl.wantEigVecs )
                 {
-                    View( QSub, Q, ALL, IR(subWinBeg,subWinEnd) );
+                    View( QSub, Q, ALL, IR(subWinBeg,iterEnd) );
                 }
 
                 Real shift = WilkinsonShift( dSub(0), eSub(0), dSub(1) );
@@ -366,6 +374,12 @@ Helper
         else
         {
             // QR iteration
+            if( ctrl.progress )
+            {
+                Output
+                ("QR iteration at iter ",info.numIterations,
+                 " over [",subWinEnd,",",subWinEnd,")");
+            }
             while( true )     
             {
                 Int iterBeg = subWinBeg;
@@ -378,6 +392,8 @@ Helper
                         if( etaAbsSquared <=
                             (epsSquared*Abs(d(j)))*Abs(d(j-1))+safeMin )
                         {
+                            if( ctrl.progress )
+                                Output("  Deflating e(",j-1,")=",e(j-1));
                             e(j-1) = zero;
                             iterBeg = j;
                             break;
@@ -388,6 +404,8 @@ Helper
                 if( iterBeg+1 == subWinEnd )
                 {
                     // Deflate the isolated eigenvalue
+                    if( ctrl.progress )
+                        Output("  Deflating eigenvalue at ",iterBeg);
                     subWinEnd -= 1;
                     if( subWinEnd > subWinBeg )
                         continue;
@@ -397,13 +415,15 @@ Helper
                 else if( iterBeg+2 == subWinEnd )
                 {
                     // Deflate the isolated pair of eigenvalues
+                    if( ctrl.progress )
+                        Output("  Deflating eigenvalue pair at ",iterBeg);
                     Real lambda0, lambda1;
                     if( ctrl.wantEigVecs )
                     {
                         Real c, s;
                         TwoByTwo
                         ( d(subWinEnd-2), e(subWinEnd-2), d(subWinEnd-1),
-                          lambda0, lambda1, c, s, fullAccuracy ); 
+                          lambda0, lambda1, c, s, ctrl.fullAccuracyTwoByTwo ); 
                         // Apply the Givens rotation from the right to Q
                         blas::Rot
                         ( n, &Q(0,subWinEnd-2), 1, &Q(0,subWinEnd-1), 1, c, s );
@@ -412,7 +432,7 @@ Helper
                     {
                         TwoByTwo
                         ( d(subWinEnd-2), e(subWinEnd-2), d(subWinEnd-1),
-                          lambda0, lambda1, fullAccuracy );
+                          lambda0, lambda1, ctrl.fullAccuracyTwoByTwo );
                     }
                     d(subWinEnd-2) = lambda0;
                     d(subWinEnd-1) = lambda1;
@@ -432,11 +452,11 @@ Helper
 
                 // TODO(poulson): Decide if it is worthwhile to avoid the cost
                 // of these views
-                View( dSub, d, IR(subWinBeg,subWinEnd), ALL );
-                View( eSub, e, IR(subWinBeg,Min(subWinEnd,n-1)), ALL );
+                View( dSub, d, IR(iterBeg,subWinEnd), ALL );
+                View( eSub, e, IR(iterBeg,Min(subWinEnd,n-1)), ALL );
                 if( ctrl.wantEigVecs )
                 {
-                    View( QSub, Q, ALL, IR(subWinBeg,subWinEnd) );
+                    View( QSub, Q, ALL, IR(iterBeg,subWinEnd) );
                 }
 
                 Real shift =
@@ -469,11 +489,11 @@ Helper
 
     if( ctrl.wantEigVecs )
     {
-        Sort( w, Q, ASCENDING );
+        Sort( d, Q, ASCENDING );
     }
     else
     {
-        Sort( w, ASCENDING );
+        Sort( d, ASCENDING );
     }
 
     return info;
@@ -484,14 +504,13 @@ HermitianTridiagQRInfo
 TridiagQR
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag, 
-  Matrix<Real>& w,
   const HermitianTridiagQRCtrl& ctrl )
 {
     DEBUG_CSE
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = false;
     Matrix<Real> Q;
-    return Helper( mainDiag, subDiag, w, Q, ctrlMod );
+    return Helper( mainDiag, subDiag, Q, ctrlMod );
 }
 
 template<typename Real,typename>
@@ -499,7 +518,6 @@ HermitianTridiagQRInfo
 TridiagQR
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag,
-  Matrix<Real>& w,
   Matrix<Real>& Q,
   const HermitianTridiagQRCtrl& ctrl )
 {
@@ -507,9 +525,17 @@ TridiagQR
     const Int n = mainDiag.Height();
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = true;
-    // TODO: Allow for computing a subset of eigenvectors
-    Q.Resize( n, n );
-    return Helper( mainDiag, subDiag, w, Q, ctrlMod );
+    if( ctrl.accumulateEigVecs )
+    {
+        if( Q.Width() != n )
+            LogicError("Q was an invalid size"); 
+    }
+    else
+    {
+        // Allow for computing a subset of rows of Q
+        Identity( Q, n, n );
+    }
+    return Helper( mainDiag, subDiag, Q, ctrlMod );
 }
 
 } // namespace herm_eig

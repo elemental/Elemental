@@ -249,8 +249,8 @@ Base<T> SymmetricInfinityNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
 template<typename T>
-Base<T> HermitianTridiagonalInfinityNorm
-( const Matrix<Base<T>>& d, Matrix<T>& e );
+Base<T> HermitianTridiagInfinityNorm
+( const Matrix<Base<T>>& d, const Matrix<T>& e );
 
 // Ky-Fan norms
 // ------------
@@ -366,8 +366,8 @@ template<typename T>
 Base<T> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<T>& A );
 
 template<typename T>
-Base<T> HermitianTridiagonalOneNorm
-( const Matrix<Base<T>>& d, Matrix<T>& e );
+Base<T> HermitianTridiagOneNorm
+( const Matrix<Base<T>>& d, const Matrix<T>& e );
 
 // Schatten norm
 // -------------

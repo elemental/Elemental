@@ -12,6 +12,7 @@ using namespace El;
 template<typename Real>
 void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
 {
+    DEBUG_CSE
     typedef Complex<Real> F;
     const Int n = 3;
     Output("Testing Ahues/Tisseur with ",TypeName<F>());
@@ -59,6 +60,7 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
 template<typename Real>
 void TestAhuesTisseurQuasi( const HessenbergSchurCtrl& ctrl, bool print )
 {
+    DEBUG_CSE
     typedef Real F;
     const Int n = 3;
     Output("Testing Ahues/Tisseur with ",TypeName<F>());
@@ -107,6 +109,7 @@ void TestAhuesTisseurQuasi( const HessenbergSchurCtrl& ctrl, bool print )
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
+    DEBUG_CSE
     typedef Complex<Real> F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
@@ -156,6 +159,7 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
+    DEBUG_CSE
     typedef Complex<Real> F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
@@ -195,6 +199,7 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
+    DEBUG_CSE
     typedef Real F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
@@ -245,6 +250,7 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
+    DEBUG_CSE
     typedef Real F;
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 

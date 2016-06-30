@@ -118,7 +118,7 @@ void SafeScale( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A )
 }
 
 template<typename F>
-void SafeScaleHermitianTridiagonal
+void SafeScaleHermitianTridiag
 ( Base<F> numerator, Base<F> denominator, Matrix<Base<F>>& d, Matrix<F>& e )
 {
     DEBUG_CSE

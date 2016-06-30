@@ -256,9 +256,12 @@ struct HermitianTridiagQRInfo
 struct HermitianTridiagQRCtrl
 {
     bool wantEigVecs=false;
+    bool accumulateEigVecs=false;
 
     Int maxIterPerEig=30;
     bool demandConverged=true;
+
+    bool fullAccuracyTwoByTwo=true;
 
     bool progress=false;
 };
@@ -269,13 +272,11 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 HermitianTridiagQRInfo TridiagQR
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag, 
-  Matrix<Real>& w,
   const HermitianTridiagQRCtrl& ctrl=HermitianTridiagQRCtrl() );
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 HermitianTridiagQRInfo TridiagQR
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag, 
-  Matrix<Real>& w,
   Matrix<Real>& Q,
   const HermitianTridiagQRCtrl& ctrl=HermitianTridiagQRCtrl() );
 

@@ -622,8 +622,16 @@ void HermitianTridiagEigPostEstimate
           SortType sort, \
     const HermitianEigSubset<Base<F>>& subset );
 
+#define PROTO_TRIDIAG_QR(Real) \
+  template HermitianTridiagQRInfo herm_eig::TridiagQR \
+  ( Matrix<Real>& mainDiag, \
+    Matrix<Real>& subDiag, \
+    Matrix<Real>& Q, \
+    const HermitianTridiagQRCtrl& ctrl );
+
 #define PROTO_REAL(Real) \
   PROTO(Real) \
+  PROTO_TRIDIAG_QR(Real) \
   template Int HermitianTridiagEigEstimate \
   ( const ElementalMatrix<Real>& d, \
     const ElementalMatrix<Real>& dSub, \
@@ -651,7 +659,20 @@ void HermitianTridiagEigPostEstimate
     ElementalMatrix<Complex<double>>& Z, \
     SortType sort );
 
+#define PROTO_QUAD PROTO_TRIDIAG_QR(Quad)
+#define PROTO_COMPLEX_QUAD
+#define PROTO_DOUBLEDOUBLE PROTO_TRIDIAG_QR(DoubleDouble)
+#define PROTO_COMPLEX_DOUBLEDOUBLE
+#define PROTO_QUADDOUBLE PROTO_TRIDIAG_QR(QuadDouble)
+#define PROTO_COMPLEX_QUADDOUBLE
+#define PROTO_BIGFLOAT PROTO_TRIDIAG_QR(BigFloat)
+#define PROTO_COMPLEX_BIGFLOAT
+
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

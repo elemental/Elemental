@@ -150,8 +150,9 @@ void TwoByTwo
             const PReal lambda0P(lambda0);
             const PReal maxDiagP(maxDiag);
             const PReal minDiagP(minDiag);
-            lambda1 = (maxDiagP/lambda0P)*minDiagP -
-                      (alpha01P/lambda0P)*alpha01P;
+            const PReal lambda1P = (maxDiagP/lambda0P)*minDiagP -
+                                   (alpha01P/lambda0P)*alpha01P;
+            lambda1 = Real(lambda1P);
         }
         else
         {
@@ -250,8 +251,9 @@ void TwoByTwo
             const PReal lambda0P(lambda0);
             const PReal maxDiagP(maxDiag);
             const PReal minDiagP(minDiag);
-            lambda1 = (maxDiagP/lambda0P)*minDiagP -
-                      (alpha01P/lambda0P)*alpha01P;
+            const PReal lambda1P = (maxDiagP/lambda0P)*minDiagP -
+                                   (alpha01P/lambda0P)*alpha01P;
+            lambda1 = Real(lambda1P);
         }
         else
         {

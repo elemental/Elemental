@@ -249,8 +249,8 @@ Base<T> OneNorm( const DistSparseMatrix<T>& A )
 }
 
 template<typename T>
-Base<T> HermitianTridiagonalOneNorm
-( const Matrix<Base<T>>& d, Matrix<T>& e )
+Base<T> HermitianTridiagOneNorm
+( const Matrix<Base<T>>& d, const Matrix<T>& e )
 {
     DEBUG_CSE
     typedef Base<T> Real;
@@ -288,8 +288,8 @@ Base<T> HermitianTridiagonalOneNorm
   ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
   template Base<T> OneNorm( const SparseMatrix<T>& A ); \
   template Base<T> OneNorm( const DistSparseMatrix<T>& A ); \
-  template Base<T> HermitianTridiagonalOneNorm \
-  ( const Matrix<Base<T>>& d, Matrix<T>& e );
+  template Base<T> HermitianTridiagOneNorm \
+  ( const Matrix<Base<T>>& d, const Matrix<T>& e );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

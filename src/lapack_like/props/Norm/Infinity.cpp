@@ -163,11 +163,11 @@ Base<T> InfinityNorm( const DistSparseMatrix<T>& A )
 }
 
 template<typename T> 
-Base<T> HermitianTridiagonalInfinityNorm
-( const Matrix<Base<T>>& d, Matrix<T>& e )
+Base<T> HermitianTridiagInfinityNorm
+( const Matrix<Base<T>>& d, const Matrix<T>& e )
 {
     DEBUG_CSE
-    return HermitianTridiagonalOneNorm( d, e );
+    return HermitianTridiagOneNorm( d, e );
 }
 
 #define PROTO(T) \
@@ -183,8 +183,8 @@ Base<T> HermitianTridiagonalInfinityNorm
   ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
   template Base<T> InfinityNorm( const SparseMatrix<T>& A ); \
   template Base<T> InfinityNorm( const DistSparseMatrix<T>& A ); \
-  template Base<T> HermitianTridiagonalInfinityNorm \
-  ( const Matrix<Base<T>>& d, Matrix<T>& e );
+  template Base<T> HermitianTridiagInfinityNorm \
+  ( const Matrix<Base<T>>& d, const Matrix<T>& e );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
