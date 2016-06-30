@@ -378,7 +378,7 @@ Helper
             {
                 Output
                 ("QR iteration at iter ",info.numIterations,
-                 " over [",subWinEnd,",",subWinEnd,")");
+                 " over [",subWinBeg,",",subWinEnd,")");
             }
             while( true )     
             {
@@ -436,9 +436,9 @@ Helper
                     }
                     d(subWinEnd-2) = lambda0;
                     d(subWinEnd-1) = lambda1;
-                    e(subWinBeg) = zero;
+                    e(subWinEnd-2) = zero;
                     subWinEnd -= 2;
-                    if( subWinEnd < subWinBeg )
+                    if( subWinEnd > subWinBeg )
                         continue;
                     else
                         break;
