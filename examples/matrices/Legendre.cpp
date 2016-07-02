@@ -39,8 +39,7 @@ main( int argc, char* argv[] )
         // Legendre polynomials.
         DistMatrix<double,VR,  STAR> points;
         DistMatrix<double,STAR,VR  > X;
-        HermitianTridiagEig
-        ( GetDiagonal(J), GetDiagonal(J,-1), points, X, ASCENDING );
+        HermitianTridiagEig( GetDiagonal(J), GetDiagonal(J,-1), points, X );
         if( display )
             Display( points, "Quadrature points" );
         if( print )

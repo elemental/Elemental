@@ -28,7 +28,9 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
         e(j) = 1/betaInv;
     }
     Matrix<Real> x, Z;
-    HermitianTridiagEig( d, e, x, Z, UNSORTED );
+    HermitianTridiagEigCtrl<Real> ctrl;
+    ctrl.sort = UNSORTED;
+    HermitianTridiagEig( d, e, x, Z, ctrl );
     auto z = Z( IR(0), ALL );
     Matrix<Real> sqrtWeights( z ), sqrtWeightsTrans;
     for( Int j=0; j<n; ++j )
@@ -79,7 +81,9 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
     }
     DistMatrix<Real,VR,STAR> x(g);
     DistMatrix<Real,STAR,VR> Z(g);
-    HermitianTridiagEig( d, e, x, Z, UNSORTED );
+    HermitianTridiagEigCtrl<Real> ctrl;
+    ctrl.sort = UNSORTED;
+    HermitianTridiagEig( d, e, x, Z, ctrl );
     auto z = Z( IR(0), ALL );
     DistMatrix<Real,STAR,VR> sqrtWeights( z );
     auto& sqrtWeightsLoc = sqrtWeights.Matrix();
@@ -124,6 +128,10 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

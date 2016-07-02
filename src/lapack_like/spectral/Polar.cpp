@@ -127,20 +127,6 @@ PolarInfo HermitianPolar
 }
 
 #define PROTO(F) \
-  template PolarInfo Polar \
-  ( Matrix<F>& A, \
-    const PolarCtrl& ctrl ); \
-  template PolarInfo Polar \
-  ( ElementalMatrix<F>& A, \
-    const PolarCtrl& ctrl ); \
-  template PolarInfo Polar \
-  ( Matrix<F>& A, \
-    Matrix<F>& P, \
-    const PolarCtrl& ctrl ); \
-  template PolarInfo Polar \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& P, \
-    const PolarCtrl& ctrl ); \
   template PolarInfo HermitianPolar \
   ( UpperOrLower uplo, \
     Matrix<F>& A, \
@@ -160,7 +146,33 @@ PolarInfo HermitianPolar
     ElementalMatrix<F>& P, \
     const PolarCtrl& ctrl );
 
+#define PROTO_BLAS(F) \
+  PROTO(F) \
+  template PolarInfo Polar \
+  ( Matrix<F>& A, \
+    const PolarCtrl& ctrl ); \
+  template PolarInfo Polar \
+  ( ElementalMatrix<F>& A, \
+    const PolarCtrl& ctrl ); \
+  template PolarInfo Polar \
+  ( Matrix<F>& A, \
+    Matrix<F>& P, \
+    const PolarCtrl& ctrl ); \
+  template PolarInfo Polar \
+  ( ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& P, \
+    const PolarCtrl& ctrl );
+
+#define PROTO_FLOAT PROTO_BLAS(float)
+#define PROTO_DOUBLE PROTO_BLAS(double)
+#define PROTO_COMPLEX_FLOAT PROTO_BLAS(Complex<float>)
+#define PROTO_COMPLEX_DOUBLE PROTO_BLAS(Complex<double>)
+
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

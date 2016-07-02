@@ -13,18 +13,141 @@
 
 namespace El {
 
-// Hermitian eigenvalue solvers
-// ============================
 template<typename Real>
 struct HermitianEigSubset
 {
     bool indexSubset=false;
+    // The valid index range is [lowerIndex,upperIndex]
     Int lowerIndex=0, upperIndex=0;
  
     bool rangeSubset=false;
+    // The valid value range is (lowerBound,upperBound]
     Real lowerBound=Real(0), upperBound=Real(0);
 };
 
+// Hermitian tridiagonal eigenvalue solvers
+// ========================================
+
+struct HermitianTridiagQRInfo
+{
+    Int numUnconverged=0;
+    Int numIterations=0;
+};
+
+struct HermitianTridiagEigInfo
+{
+    HermitianTridiagQRInfo qrInfo;
+    // TODO(poulson): MRRR info
+};
+
+struct HermitianTridiagQRCtrl
+{
+    bool wantEigVecs=false;
+    bool accumulateEigVecs=false;
+
+    Int maxIterPerEig=30;
+    bool demandConverged=true;
+
+    bool fullAccuracyTwoByTwo=true;
+
+    bool progress=false;
+};
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+struct HermitianTridiagEigCtrl {
+    SortType sort=ASCENDING;
+    HermitianEigSubset<Real> subset;
+
+    bool useQR=false;
+    HermitianTridiagQRCtrl qrCtrl;
+    // TODO(poulson): MRRR ctrl
+};
+
+namespace herm_eig {
+
+template<typename F>
+void Sort( Matrix<Base<F>>& w, Matrix<F>& Q, SortType sort=ASCENDING );
+template<typename Real,typename F>
+void Sort
+( ElementalMatrix<Real>& w,
+  ElementalMatrix<F>& Q,
+  SortType sort=ASCENDING );
+
+template<typename Real>
+void SortAndFilter
+( Matrix<Real>& w,
+  const HermitianTridiagEigCtrl<Real>& ctrl );
+
+template<typename F>
+void SortAndFilter
+( Matrix<Base<F>>& w,
+  Matrix<F>& Q,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl );
+
+} // namespace herm_eig
+
+// Compute eigenvalues
+// --------------------
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( Matrix<Base<F>>& d,
+  Matrix<F>& dSub,
+  Matrix<Base<F>>& w, 
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& dSub,
+        ElementalMatrix<Base<F>>& w,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+// Compute eigenpairs
+// ------------------
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( Matrix<Base<F>>& d,
+  Matrix<F>& dSub,
+  Matrix<Base<F>>& w,
+  Matrix<F>& Q,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& dSub,
+        ElementalMatrix<Base<F>>& w,
+        ElementalMatrix<F>& Q, 
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+
+// TODO(poulson): Decide if this should be in herm_tridiag_eig::mrrr
+template<typename Real>
+Int HermitianTridiagEigEstimate
+( const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& dSub,
+        mpi::Comm wColComm,
+        Real vl,
+        Real vu );
+// TODO(poulson): Decide if this should be in herm_tridiag_eig::mrrr
+// Q is assumed to be sufficiently large and properly aligned
+template<typename Real>
+HermitianTridiagEigInfo
+HermitianTridiagEigPostEstimate
+( const ElementalMatrix<Real>& d,
+  const ElementalMatrix<Real>& dSub,
+        ElementalMatrix<Real>& w,
+        ElementalMatrix<Real>& Q, 
+        SortType sort,
+        Real vl,
+        Real vu );
+
+// Hermitian eigenvalue solvers
+// ============================
 template<typename Real>
 struct HermitianSDCCtrl 
 {
@@ -39,79 +162,83 @@ template<typename F>
 struct HermitianEigCtrl
 {
     HermitianTridiagCtrl<F> tridiagCtrl;
+    HermitianTridiagEigCtrl<Base<F>> tridiagEigCtrl;
     HermitianSDCCtrl<Base<F>> sdcCtrl;
     bool useSDC=false;
     bool timeStages=false;
 };
 
+struct HermitianEigInfo
+{
+    HermitianTridiagEigInfo tridiagEigInfo;
+    // TODO(poulson): SDC info
+};
+
 // Compute eigenvalues
 // -------------------
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         Matrix<F>& A,
         Matrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         DistMatrix<F,STAR,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& w,
-        SortType sort=ASCENDING,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& w,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>() );
+        DistMatrix<Base<F>,STAR,STAR>& w,
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // Compute eigenpairs
 // ------------------
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         Matrix<F>& A,
         Matrix<Base<F>>& w,
-        Matrix<F>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
+        Matrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         DistMatrix<F,STAR,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& w,
-        DistMatrix<F,STAR,STAR>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
+        DistMatrix<F,STAR,STAR>& Q,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& w, 
-        ElementalMatrix<F>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
+        ElementalMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& w,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>() );
+        DistMatrix<Base<F>,STAR,STAR>& w,
+        DistMatrix<F,MC,MR,BLOCK>& Q,
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 namespace herm_eig {
 
@@ -133,8 +260,52 @@ void TwoByTwo
 
 } // namespace herm_eig
 
+// Skew-Hermitian eigenvalue solvers
+// =================================
+// Compute the full set of eigenvalues
+// -----------------------------------
+template<typename F>
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
+template<typename F>
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& G,
+        ElementalMatrix<Base<F>>& wImag,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
+
+// Compute eigenpairs
+// ------------------
+template<typename F>
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag,
+        Matrix<Complex<Base<F>>>& Q,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
+template<typename F>
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& G,
+        ElementalMatrix<Base<F>>& wImag,
+        ElementalMatrix<Complex<Base<F>>>& Q,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
+
 // Hermitian generalized definite eigenvalue solvers
 // =================================================
+// TODO(poulson): Add support for Fix-Heiberger
+
 namespace PencilNS {
 enum Pencil
 {
@@ -148,147 +319,45 @@ using namespace PencilNS;
 // Compute eigenvalues
 // -------------------
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo, 
         Matrix<F>& A,
         Matrix<F>& B,
         Matrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
         ElementalMatrix<F>& A,
         ElementalMatrix<F>& B,
         ElementalMatrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 // Compute eigenpairs
 // ------------------
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
         Matrix<F>& A,
         Matrix<F>& B,
         Matrix<Base<F>>& w,
         Matrix<F>& X,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
         ElementalMatrix<F>& A,
         ElementalMatrix<F>& B,
         ElementalMatrix<Base<F>>& w,
         ElementalMatrix<F>& X,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-
-// Hermitian tridiagonal eigenvalue solvers
-// ========================================
-// Compute eigenvalues
-// --------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d,
-  Matrix<F>& dSub,
-  Matrix<Base<F>>& w, 
-  SortType sort=ASCENDING, 
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-template<typename F>
-void HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-// Compute eigenpairs
-// ------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d,
-  Matrix<F>& dSub,
-  Matrix<Base<F>>& w,
-  Matrix<F>& Z,
-  SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-template<typename F>
-void HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,
-        ElementalMatrix<F>& Z, 
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-
-template<typename Real>
-Int HermitianTridiagEigEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        mpi::Comm wColComm,
-        Real vl,
-        Real vu );
-// Z is assumed to be sufficiently large and properly aligned
-template<typename Real>
-void HermitianTridiagEigPostEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& w,
-        ElementalMatrix<Real>& Z, 
-        SortType sort,
-        Real vl,
-        Real vu );
-
-struct HermitianTridiagQRInfo
-{
-    Int numUnconverged=0;
-    Int numIterations=0;
-};
-
-struct HermitianTridiagQRCtrl
-{
-    bool wantEigVecs=false;
-    bool accumulateEigVecs=false;
-
-    Int maxIterPerEig=30;
-    bool demandConverged=true;
-
-    bool fullAccuracyTwoByTwo=true;
-
-    bool progress=false;
-};
-
-namespace herm_eig {
-
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-HermitianTridiagQRInfo TridiagQR
-( Matrix<Real>& mainDiag,
-  Matrix<Real>& subDiag, 
-  const HermitianTridiagQRCtrl& ctrl=HermitianTridiagQRCtrl() );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-HermitianTridiagQRInfo TridiagQR
-( Matrix<Real>& mainDiag,
-  Matrix<Real>& subDiag, 
-  Matrix<Real>& Q,
-  const HermitianTridiagQRCtrl& ctrl=HermitianTridiagQRCtrl() );
-
-template<typename F>
-void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING );
-template<typename Real,typename F>
-void Sort
-( ElementalMatrix<Real>& w,
-  ElementalMatrix<F>& Z,
-  SortType sort=ASCENDING );
-
-} // namespace herm_eig
 
 // Polar decomposition
 // ===================
@@ -652,52 +721,6 @@ void Eig
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
   ElementalMatrix<Complex<Base<F>>>& X );
-
-// Skew-Hermitian eigenvalue solvers
-// =================================
-// Compute the full set of eigenvalues
-// -----------------------------------
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const Matrix<F>& G,
-        Matrix<Base<F>>& wImag,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
-
-// Compute eigenpairs
-// ------------------
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const Matrix<F>& G,
-        Matrix<Base<F>>& wImag,
-        Matrix<Complex<Base<F>>>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
-        ElementalMatrix<Complex<Base<F>>>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
 
 // Singular Value Decomposition
 // ============================

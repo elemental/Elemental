@@ -9,7 +9,7 @@
 #ifndef EL_SPECTRAL_HERM_TRIDIAG_EIG_QR_HPP
 #define EL_SPECTRAL_HERM_TRIDIAG_EIG_QR_HPP
 namespace El {
-namespace herm_eig {
+namespace herm_tridiag_eig {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real WilkinsonShift
@@ -328,7 +328,7 @@ Helper
                     if( ctrl.wantEigVecs )
                     {
                         Real c, s;
-                        TwoByTwo
+                        herm_eig::TwoByTwo
                         ( d(subWinBeg), e(subWinBeg), d(subWinBeg+1),
                           lambda0, lambda1, c, s, ctrl.fullAccuracyTwoByTwo );
                         // Apply the Givens rotation from the right to Q
@@ -337,7 +337,7 @@ Helper
                     }
                     else
                     {
-                        TwoByTwo
+                        herm_eig::TwoByTwo
                         ( d(subWinBeg), e(subWinBeg), d(subWinBeg+1),
                           lambda0, lambda1, ctrl.fullAccuracyTwoByTwo );
                     }
@@ -421,7 +421,7 @@ Helper
                     if( ctrl.wantEigVecs )
                     {
                         Real c, s;
-                        TwoByTwo
+                        herm_eig::TwoByTwo
                         ( d(subWinEnd-2), e(subWinEnd-2), d(subWinEnd-1),
                           lambda0, lambda1, c, s, ctrl.fullAccuracyTwoByTwo ); 
                         // Apply the Givens rotation from the right to Q
@@ -430,7 +430,7 @@ Helper
                     }
                     else
                     {
-                        TwoByTwo
+                        herm_eig::TwoByTwo
                         ( d(subWinEnd-2), e(subWinEnd-2), d(subWinEnd-1),
                           lambda0, lambda1, ctrl.fullAccuracyTwoByTwo );
                     }
@@ -487,21 +487,12 @@ Helper
         }
     }
 
-    if( ctrl.wantEigVecs )
-    {
-        Sort( d, Q, ASCENDING );
-    }
-    else
-    {
-        Sort( d, ASCENDING );
-    }
-
     return info;
 }
 
-template<typename Real,typename>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 HermitianTridiagQRInfo
-TridiagQR
+QRAlg
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag, 
   const HermitianTridiagQRCtrl& ctrl )
@@ -513,9 +504,9 @@ TridiagQR
     return Helper( mainDiag, subDiag, Q, ctrlMod );
 }
 
-template<typename Real,typename>
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 HermitianTridiagQRInfo
-TridiagQR
+QRAlg
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag,
   Matrix<Real>& Q,
@@ -538,7 +529,7 @@ TridiagQR
     return Helper( mainDiag, subDiag, Q, ctrlMod );
 }
 
-} // namespace herm_eig
+} // namespace herm_tridiag_eig
 } // namespace El
 
 #endif // ifndef EL_SPECTRAL_HERM_TRIDIAG_EIG_QR_HPP

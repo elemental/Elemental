@@ -14,14 +14,13 @@ namespace El {
 // ===================
 
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 ( Pencil pencil,
   UpperOrLower uplo, 
   Matrix<F>& A,
   Matrix<F>& B,
   Matrix<Base<F>>& w,
-  SortType sort,
-  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -35,18 +34,17 @@ void HermitianGenDefEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, sort, subset, ctrl );
+    return HermitianEig( uplo, A, w, ctrl );
 }
 
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 ( Pencil pencil,
   UpperOrLower uplo, 
   ElementalMatrix<F>& APre,
   ElementalMatrix<F>& BPre,
   ElementalMatrix<Base<F>>& w,
-  SortType sort,
-  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -65,22 +63,21 @@ void HermitianGenDefEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, sort, subset, ctrl );
+    return HermitianEig( uplo, A, w, ctrl );
 }
 
 // Compute eigenpairs
 // ==================
 
 template<typename F> 
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 ( Pencil pencil,
   UpperOrLower uplo, 
   Matrix<F>& A,
   Matrix<F>& B,
   Matrix<Base<F>>& w,
   Matrix<F>& X,
-  SortType sort,
-  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -94,7 +91,7 @@ void HermitianGenDefEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, sort, subset, ctrl );
+    auto info = HermitianEig( uplo, A, w, X, ctrl );
     if( pencil == AXBX || pencil == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
@@ -105,18 +102,18 @@ void HermitianGenDefEig
         const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
         Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
+    return info;
 }
 
 template<typename F> 
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 ( Pencil pencil,
   UpperOrLower uplo, 
   ElementalMatrix<F>& APre,
   ElementalMatrix<F>& BPre,
   ElementalMatrix<Base<F>>& w,
   ElementalMatrix<F>& XPre,
-  SortType sort,
-  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -137,7 +134,7 @@ void HermitianGenDefEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, sort, subset, ctrl );
+    auto info = HermitianEig( uplo, A, w, X, ctrl );
     if( pencil == AXBX || pencil == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
@@ -148,49 +145,46 @@ void HermitianGenDefEig
         const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
         Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
+    return info;
 }
 
 #define PROTO(F) \
-  template void HermitianGenDefEig \
+  template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
     Matrix<F>& A, \
     Matrix<F>& B, \
     Matrix<Base<F>>& w, \
-    SortType sort, \
-    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
-  template void HermitianGenDefEig \
+  template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
     ElementalMatrix<F>& A, \
     ElementalMatrix<F>& B, \
     ElementalMatrix<Base<F>>& w, \
-    SortType sort, \
-    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
-  template void HermitianGenDefEig \
+  template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
     Matrix<F>& A, \
     Matrix<F>& B, \
     Matrix<Base<F>>& w, \
     Matrix<F>& X, \
-    SortType sort, \
-    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl ); \
-  template void HermitianGenDefEig \
+  template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
     ElementalMatrix<F>& A, \
     ElementalMatrix<F>& B, \
     ElementalMatrix<Base<F>>& w, \
     ElementalMatrix<F>& X, \
-    SortType sort, \
-    const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -44,19 +44,19 @@ main( int argc, char* argv[] )
 
         // Call the eigensolver.
         DistMatrix<Real,CIRC,CIRC> w;
-        DistMatrix<C,CIRC,CIRC> X;
+        DistMatrix<C,CIRC,CIRC> Q;
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
         Timer timer;
         if( mpi::Rank() == 0 )
             timer.Start();
-        HermitianEig( LOWER, H, w, X, ASCENDING );
+        HermitianEig( LOWER, H, w, Q );
         if( mpi::Rank() == 0 )
             timer.Stop();
         if( print )
         {
             Print( w, "Eigenvalues of H" );
-            Print( X, "Eigenvectors of H" );
+            Print( Q, "Eigenvectors of H" );
         }
         if( mpi::Rank() == 0 )
             Output("HermitianEig time: ",timer.Total()," secs");

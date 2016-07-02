@@ -62,7 +62,10 @@ void TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, V, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, V, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -113,7 +116,9 @@ void TallRelativeProduct
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, V, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, V, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -208,7 +213,10 @@ void TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, V, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, V, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
@@ -282,7 +290,9 @@ void TallRelativeProduct
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, V, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, V, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -402,7 +412,10 @@ void TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, V, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, V, ctrl );
     const int k = s.Height();
     
     // Sigma := sqrt(Sigma^2)
@@ -480,7 +493,9 @@ void TallRelativeProduct
     El::AllReduce( C, A.ColComm() );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, V, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, V, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
@@ -596,7 +611,10 @@ void WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, U, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, U, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -645,7 +663,9 @@ void WideRelativeProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, U, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, U, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
@@ -738,7 +758,10 @@ void WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, U, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, U, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
@@ -810,7 +833,9 @@ void WideRelativeProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, U, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, U, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -963,7 +988,10 @@ void TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -992,7 +1020,9 @@ void TallRelativeProduct
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -1064,7 +1094,10 @@ void TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    ctrl.tridiagEigCtrl.subset = subset;
+    HermitianEig( LOWER, C, s, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
@@ -1108,7 +1141,9 @@ void TallRelativeProduct
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -1199,7 +1234,10 @@ void TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     const int k = s.Height();
     
     // Sigma := sqrt(Sigma^2)
@@ -1247,7 +1285,9 @@ void TallRelativeProduct
     El::AllReduce( C, A.ColComm() );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
@@ -1332,7 +1372,10 @@ void WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -1361,7 +1404,9 @@ void WideRelativeProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
@@ -1433,7 +1478,10 @@ void WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEig( LOWER, C, s, DESCENDING, subset );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
@@ -1477,7 +1525,9 @@ void WideRelativeProduct
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, DESCENDING );
+    HermitianEigCtrl<F> ctrl;
+    ctrl.tridiagEigCtrl.sort = DESCENDING;
+    HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm

@@ -9,6 +9,10 @@
 #ifndef EL_LAPACK_C_H
 #define EL_LAPACK_C_H
 
+#ifdef __cplusplus
+#include <El/lapack_like/CReflect.hpp>
+#endif
+
 #include <El/lapack_like/perm.h>
 #include <El/lapack_like/reflect.h>
 #include <El/lapack_like/util.h>
@@ -23,9 +27,5 @@
 #include <El/lapack_like/euclidean_min.h>
 
 #include <El/lapack_like/props.h>
-
-#ifdef __cplusplus
-#include <El/lapack_like/CReflect.hpp>
-#endif
 
 #endif /* ifndef EL_LAPACK_C_H */

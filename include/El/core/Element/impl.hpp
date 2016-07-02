@@ -169,7 +169,7 @@ Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 template<typename T,typename>
 Base<T> Abs( const T& alpha ) EL_NO_EXCEPT { return std::abs(alpha); }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real SafeNorm( const Real& chi0, const Real& chi1 )
 {
     const Real chi0Abs = Abs(chi0); 
@@ -187,7 +187,7 @@ Real SafeNorm( const Real& chi0, const Real& chi1 )
     }
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 )
 {
     const Real chi0Abs = Abs(chi0); 
@@ -210,7 +210,7 @@ Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 )
     }
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 Real SafeNorm
 ( const Real& chi0, const Real& chi1, const Real& chi2, const Real& chi3 )
 {

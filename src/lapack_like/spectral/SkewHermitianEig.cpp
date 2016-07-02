@@ -14,106 +14,98 @@ namespace El {
 // ===================
 
 template<typename F>
-void SkewHermitianEig
+HermitianEigInfo
+SkewHermitianEig
 ( UpperOrLower uplo,
   const Matrix<F>& G,
         Matrix<Base<F>>& wImag,
-        SortType sort, 
-  const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_CSE
     Matrix<Complex<Base<F>>> A;
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );
-    HermitianEig( uplo, A, wImag, sort, subset, ctrl );
+    return HermitianEig( uplo, A, wImag, ctrl );
 }
 
 template<typename F>
-void SkewHermitianEig
+HermitianEigInfo
+SkewHermitianEig
 ( UpperOrLower uplo,
   const ElementalMatrix<F>& G,
         ElementalMatrix<Base<F>>& wImag,
-        SortType sort,
-  const HermitianEigSubset<Base<F>>& subset,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_CSE
     DistMatrix<Complex<Base<F>>> A(G.Grid());
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );
-    HermitianEig( uplo, A, wImag, sort, subset, ctrl );
+    return HermitianEig( uplo, A, wImag, ctrl );
 }
 
 // Compute eigenpairs
 // ==================
 template<typename F>
-void SkewHermitianEig
+HermitianEigInfo
+SkewHermitianEig
 ( UpperOrLower uplo,
   const Matrix<F>& G,
         Matrix<Base<F>>& wImag, 
-        Matrix<Complex<Base<F>>>& Z,
-        SortType sort, 
-  const HermitianEigSubset<Base<F>>& subset,
+        Matrix<Complex<Base<F>>>& Q,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_CSE
     Matrix<Complex<Base<F>>> A;
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );
-    HermitianEig( uplo, A, wImag, Z, sort, subset, ctrl );
+    return HermitianEig( uplo, A, wImag, Q, ctrl );
 }
 
 template<typename F>
-void SkewHermitianEig
+HermitianEigInfo
+SkewHermitianEig
 ( UpperOrLower uplo,
   const ElementalMatrix<F>& G,
         ElementalMatrix<Base<F>>& wImag,
-        ElementalMatrix<Complex<Base<F>>>& Z,
-        SortType sort,
-  const HermitianEigSubset<Base<F>>& subset,
+        ElementalMatrix<Complex<Base<F>>>& Q,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_CSE
     DistMatrix<Complex<Base<F>>> A(G.Grid());
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<F>>(0,-1), uplo, A );
-    HermitianEig( uplo, A, wImag, Z, sort, subset, ctrl );
+    return HermitianEig( uplo, A, wImag, Q, ctrl );
 }
 
 #define PROTO(F) \
-  template void SkewHermitianEig \
+  template HermitianEigInfo SkewHermitianEig \
   ( UpperOrLower uplo, \
     const Matrix<F>& G, \
           Matrix<Base<F>>& wImag, \
-          SortType sort, \
-    const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
-  template void SkewHermitianEig \
+  template HermitianEigInfo SkewHermitianEig \
   ( UpperOrLower uplo, \
     const ElementalMatrix<F>& G, \
           ElementalMatrix<Base<F>>& wImag, \
-          SortType sort, \
-    const HermitianEigSubset<Base<F>>& subset, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
-  template void SkewHermitianEig \
+  template HermitianEigInfo SkewHermitianEig \
   ( UpperOrLower uplo, \
     const Matrix<F>& G, \
           Matrix<Base<F>>& wImag, \
-          Matrix<Complex<Base<F>>>& Z, \
-          SortType sort, \
-    const HermitianEigSubset<Base<F>>& subset, \
+          Matrix<Complex<Base<F>>>& Q, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
-  template void SkewHermitianEig \
+  template HermitianEigInfo SkewHermitianEig \
   ( UpperOrLower uplo, \
     const ElementalMatrix<F>& G, \
           ElementalMatrix<Base<F>>& wImag, \
-          ElementalMatrix<Complex<Base<F>>>& Z, \
-          SortType sort, \
-    const HermitianEigSubset<Base<F>>& subset, \
+          ElementalMatrix<Complex<Base<F>>>& Q, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

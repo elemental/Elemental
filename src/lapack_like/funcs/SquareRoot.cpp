@@ -164,6 +164,8 @@ void SquareRoot( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 
 // Square-root the eigenvalues of A
 // --------------------------------
+// TODO(poulson): Switch to Cholesky with full pivoting (and a threshold for
+// treating small negative values as zeros)
 
 template<typename F>
 void HPSDSquareRoot
@@ -176,9 +178,10 @@ void HPSDSquareRoot
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Z;
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    Matrix<F> Q;
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );
@@ -211,7 +214,7 @@ void HPSDSquareRoot
     }
 
     // Form the pseudoinverse
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
 template<typename F>
@@ -229,9 +232,10 @@ void HPSDSquareRoot
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    DistMatrix<F> Q(g);
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );
@@ -266,31 +270,19 @@ void HPSDSquareRoot
     }
 
     // Form the pseudoinverse
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
-#define PROTO_BASE(F) \
+#define PROTO(F) \
   template void SquareRoot \
   ( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void SquareRoot \
-  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl );
-
-#define PROTO(F) \
-  PROTO_BASE(F) \
+  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl );
-
-#define PROTO_QUAD PROTO_BASE(Quad)
-#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
-#define PROTO_DOUBLEDOUBLE PROTO_BASE(DoubleDouble)
-#define PROTO_QUADDOUBLE PROTO_BASE(QuadDouble)
-#define PROTO_COMPLEX_DOUBLEDOUBLE PROTO_BASE(Complex<DoubleDouble>)
-#define PROTO_COMPLEX_QUADDOUBLE PROTO_BASE(Complex<QuadDouble>)
-#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
-#define PROTO_COMPLEX_BIGFLOAT PROTO_BASE(Complex<BigFloat>)
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

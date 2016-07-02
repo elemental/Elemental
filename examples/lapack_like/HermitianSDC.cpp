@@ -32,7 +32,6 @@ main( int argc, char* argv[] )
         Wigner( A, n );
         const Real frobA = FrobeniusNorm( A );
 
-        HermitianEigSubset<Real> subset;
         HermitianEigCtrl<C> ctrl;
         ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;
@@ -47,7 +46,7 @@ main( int argc, char* argv[] )
         Timer timer;
         if( mpi::Rank() == 0 )
             timer.Start();
-        HermitianEig( LOWER, ACopy, w, Q, ASCENDING, subset, ctrl );
+        HermitianEig( LOWER, ACopy, w, Q, ctrl );
         if( mpi::Rank() == 0 )
             timer.Stop();
         if( display )

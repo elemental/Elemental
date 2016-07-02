@@ -52,36 +52,36 @@ main( int argc, char* argv[] )
 
         Timer timer;
         // Call the eigensolver. We first create an empty complex eigenvector 
-        // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
+        // matrix, Q[MC,MR], and an eigenvalue column vector, w[VR,* ]
         //
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
         DistMatrix<Real,VR,STAR> wImag;
-        DistMatrix<C> X;
+        DistMatrix<C> Q;
         if( mpi::Rank() == 0 )
             timer.Start();
-        SkewHermitianEig( LOWER, S, wImag, X, ASCENDING );
+        SkewHermitianEig( LOWER, S, wImag, Q );
         if( mpi::Rank() == 0 )
             timer.Stop();
 
         if( print )
         {
             Print( SCopy, "S" );
-            Print( X, "X" );
+            Print( Q, "Q" );
             Print( wImag, "wImag" );
         }
 
-        // Check the residual, || S X - Omega X ||_F
+        // Check the residual, || S Q - Omega Q ||_F
         const Real frobS = HermitianFrobeniusNorm( LOWER, SCopy );
-        auto E( X );
+        auto E( Q );
         E *= C(0,1);
         DiagonalScale( RIGHT, NORMAL, wImag, E );
-        Gemm( NORMAL, NORMAL, C(-1), SCopy, X, C(1), E );
+        Gemm( NORMAL, NORMAL, C(-1), SCopy, Q, C(1), E );
         const Real frobResid = FrobeniusNorm( E );
 
-        // Check the orthogonality of X
+        // Check the orthogonality of Q
         Identity( E, n, n );
-        Herk( LOWER, NORMAL, Real(-1), X, Real(1), E );
+        Herk( LOWER, ADJOINT, Real(-1), Q, Real(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( mpi::Rank() == 0 )
@@ -89,8 +89,8 @@ main( int argc, char* argv[] )
             Output("SkewHermitionEig time: ",timer.Total()," secs");
             Output
             ("|| H ||_F = ",frobS,"\n",
-             "|| H X - X Omega ||_F / || A ||_F = ",frobResid/frobS,"\n",
-             "|| X X^H - I ||_F = ",frobOrthog/frobS,"\n");
+             "|| H Q - Q Omega ||_F / || A ||_F = ",frobResid/frobS,"\n",
+             "|| Q' Q - I ||_F = ",frobOrthog/frobS,"\n");
         }
     }
     catch( exception& e ) { ReportException(e); }

@@ -61,14 +61,12 @@ void TestHermitianEig
   bool print,
   bool onlyEigvals,
   bool clustered,
-  SortType sort,
   const Grid& g,
-  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<F>& ctrl,
   bool scalapack )
 {
     typedef Base<F> Real;
-    DistMatrix<F,U,V> A(g), AOrig(g), Z(g);
+    DistMatrix<F,U,V> A(g), AOrig(g), Q(g);
     DistMatrix<Real,S,STAR> w(g);
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
@@ -88,18 +86,18 @@ void TestHermitianEig
         if( onlyEigvals )
         {
             DistMatrix<F,MC,MR,BLOCK> ABlock( A );
-            Matrix<Base<F>> wBlock;
+            DistMatrix<Base<F>,STAR,STAR> wBlock(g);
             timer.Start();
-            HermitianEig( uplo, ABlock, wBlock, subset );
+            HermitianEig( uplo, ABlock, wBlock, ctrl );
             const double runTime = timer.Stop();
             OutputFromRoot(g.Comm(),"ScaLAPACK HermitianEig time: ",runTime);
         }
         else
         {
-            DistMatrix<F,MC,MR,BLOCK> ABlock( A ), ZBlock(g);
-            Matrix<Base<F>> wBlock;
+            DistMatrix<F,MC,MR,BLOCK> ABlock( A ), QBlock(g);
+            DistMatrix<Base<F>,STAR,STAR> wBlock(g);
             timer.Start();
-            HermitianEig( uplo, ABlock, wBlock, ZBlock, subset );
+            HermitianEig( uplo, ABlock, wBlock, QBlock, ctrl );
             const double runTime = timer.Stop();
             OutputFromRoot(g.Comm(),"ScaLAPACK HermitianEig time: ",runTime);
         }
@@ -109,9 +107,9 @@ void TestHermitianEig
     mpi::Barrier( g.Comm() );
     timer.Start();
     if( onlyEigvals )
-        HermitianEig( uplo, A, w, sort, subset, ctrl );
+        HermitianEig( uplo, A, w, ctrl );
     else
-        HermitianEig( uplo, A, w, Z, sort, subset, ctrl );
+        HermitianEig( uplo, A, w, Q, ctrl );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     OutputFromRoot(g.Comm(),"Time = ",runTime," seconds");
@@ -119,13 +117,12 @@ void TestHermitianEig
     {
         Print( w, "eigenvalues:" );
         if( !onlyEigvals )
-            Print( Z, "eigenvectors:" );
+            Print( Q, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
-        TestCorrectness( print, uplo, AOrig, A, w, Z );
+        TestCorrectness( print, uplo, AOrig, A, w, Q );
     PopIndent();
 }
-
 
 template<typename F>
 void TestSuite
@@ -167,32 +164,34 @@ void TestSuite
     ctrl.timeStages = timeStages;
     ctrl.tridiagCtrl.symvCtrl.bsize = nbLocal;
     ctrl.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+    ctrl.tridiagEigCtrl.sort = sort;
+    ctrl.tridiagEigCtrl.subset = subset;
 
     OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
     ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
     TestHermitianEig<F>
     ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
-      sort, g, subset, ctrl, scalapack );
+      g, ctrl, scalapack );
 
     OutputFromRoot(g.Comm(),"Square row-major tridiag algorithms:");
     ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.tridiagCtrl.order = ROW_MAJOR;
     TestHermitianEig<F>
     ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
-      sort, g, subset, ctrl, scalapack );
+      g, ctrl, scalapack );
 
     OutputFromRoot(g.Comm(),"Square column-major tridiag algorithms:");
     ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.tridiagCtrl.order = COLUMN_MAJOR;
     TestHermitianEig<F>
     ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
-      sort, g, subset, ctrl, scalapack );
+      g, ctrl, scalapack );
 
     // Also test with non-standard distributions
     OutputFromRoot(g.Comm(),"Nonstandard distributions:");
     TestHermitianEig<F,MR,MC,MC>
     ( m, uplo, testCorrectness, print, onlyEigvals, clustered, 
-      sort, g, subset, ctrl, scalapack );
+      g, ctrl, scalapack );
 
     PopIndent();
 }

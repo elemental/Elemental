@@ -263,9 +263,10 @@ void HermitianSign
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Z;
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    Matrix<F> Q;
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )
@@ -278,7 +279,7 @@ void HermitianSign
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
 template<typename F>
@@ -293,15 +294,16 @@ void HermitianSign
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Z;
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    Matrix<F> Q;
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int n = A.Height();
     Matrix<Real> wSgn( n, 1 ), wAbs( n, 1 );
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         if( omega >= 0 )
         {
             wSgn(i) = Real(1);
@@ -315,8 +317,8 @@ void HermitianSign
     }
 
     // Form the Hermitian matrices with modified eigenvalues
-    HermitianFromEVD( uplo, A, wSgn, Z );
-    HermitianFromEVD( uplo, N, wAbs, Z );
+    HermitianFromEVD( uplo, A, wSgn, Q );
+    HermitianFromEVD( uplo, N, wAbs, Q );
 }
 
 template<typename F>
@@ -334,9 +336,10 @@ void HermitianSign
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    DistMatrix<F> Q(g);
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int numLocalEigs = w.LocalHeight();
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
@@ -349,7 +352,7 @@ void HermitianSign
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
 template<typename F>
@@ -370,9 +373,10 @@ void HermitianSign
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    DistMatrix<F> Q(g);
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int n = A.Height();
     const Int numLocalEigs = w.LocalHeight();
@@ -397,11 +401,11 @@ void HermitianSign
     }
 
     // Form the Hermitian matrix with the modified eigenvalues
-    HermitianFromEVD( uplo, A, wSgn, Z );
-    HermitianFromEVD( uplo, N, wAbs, Z );
+    HermitianFromEVD( uplo, A, wSgn, Q );
+    HermitianFromEVD( uplo, N, wAbs, Q );
 }
 
-#define PROTO_BASE(F) \
+#define PROTO(F) \
   template void Sign \
   ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
@@ -410,10 +414,7 @@ void HermitianSign
   ( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
   ( ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
-    const SignCtrl<Base<F>> ctrl );
-
-#define PROTO(F) \
-  PROTO_BASE(F) \
+    const SignCtrl<Base<F>> ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl ); \
@@ -426,15 +427,6 @@ void HermitianSign
   template void HermitianSign \
   ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
     const HermitianEigCtrl<F>& ctrl );
-
-#define PROTO_QUAD PROTO_BASE(Quad)
-#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
-#define PROTO_DOUBLEDOUBLE PROTO_BASE(DoubleDouble)
-#define PROTO_QUADDOUBLE PROTO_BASE(QuadDouble)
-#define PROTO_COMPLEX_DOUBLEDOUBLE PROTO_BASE(Complex<DoubleDouble>)
-#define PROTO_COMPLEX_QUADDOUBLE PROTO_BASE(Complex<QuadDouble>)
-#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
-#define PROTO_COMPLEX_BIGFLOAT PROTO_BASE(Complex<BigFloat>)
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

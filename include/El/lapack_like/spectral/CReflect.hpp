@@ -11,6 +11,129 @@
 
 namespace El {
 
+/* HermitianEigSubset */
+inline ElHermitianEigSubset_s CReflect
+( const HermitianEigSubset<float>& subset )
+{
+    ElHermitianEigSubset_s subsetC;
+    subsetC.indexSubset = subset.indexSubset;
+    subsetC.lowerIndex = subset.lowerIndex;
+    subsetC.upperIndex = subset.upperIndex;
+    subsetC.rangeSubset = subset.rangeSubset;
+    subsetC.lowerBound = subset.lowerBound;
+    subsetC.upperBound = subset.upperBound;
+    return subsetC;
+}
+inline ElHermitianEigSubset_d CReflect
+( const HermitianEigSubset<double>& subset )
+{
+    ElHermitianEigSubset_d subsetC;
+    subsetC.indexSubset = subset.indexSubset;
+    subsetC.lowerIndex = subset.lowerIndex;
+    subsetC.upperIndex = subset.upperIndex;
+    subsetC.rangeSubset = subset.rangeSubset;
+    subsetC.lowerBound = subset.lowerBound;
+    subsetC.upperBound = subset.upperBound;
+    return subsetC;
+}
+
+inline HermitianEigSubset<float> CReflect
+( const ElHermitianEigSubset_s& subsetC )
+{
+    HermitianEigSubset<float> subset;
+    subset.indexSubset = subsetC.indexSubset;
+    subset.lowerIndex = subsetC.lowerIndex;
+    subset.upperIndex = subsetC.upperIndex;
+    subset.rangeSubset = subsetC.rangeSubset;
+    subset.lowerBound = subsetC.lowerBound;
+    subset.upperBound = subsetC.upperBound;
+    return subset;
+}
+inline HermitianEigSubset<double> CReflect
+( const ElHermitianEigSubset_d& subsetC )
+{
+    HermitianEigSubset<double> subset;
+    subset.indexSubset = subsetC.indexSubset;
+    subset.lowerIndex = subsetC.lowerIndex;
+    subset.upperIndex = subsetC.upperIndex;
+    subset.rangeSubset = subsetC.rangeSubset;
+    subset.lowerBound = subsetC.lowerBound;
+    subset.upperBound = subsetC.upperBound;
+    return subset;
+}
+
+/* HermitianTridiagQRCtrl */
+inline ElHermitianTridiagQRCtrl CReflect
+( const HermitianTridiagQRCtrl& ctrl )
+{
+    ElHermitianTridiagQRCtrl ctrlC;
+    ctrlC.wantEigVecs = ctrl.wantEigVecs;
+    ctrlC.accumulateEigVecs = ctrl.accumulateEigVecs;
+    ctrlC.maxIterPerEig = ctrl.maxIterPerEig;
+    ctrlC.demandConverged = ctrl.demandConverged;
+    ctrlC.fullAccuracyTwoByTwo = ctrl.fullAccuracyTwoByTwo;
+    ctrlC.progress = ctrl.progress;
+    return ctrlC;
+}
+
+inline HermitianTridiagQRCtrl CReflect
+( const ElHermitianTridiagQRCtrl& ctrlC )
+{
+    HermitianTridiagQRCtrl ctrl;
+    ctrl.wantEigVecs = ctrlC.wantEigVecs;
+    ctrl.accumulateEigVecs = ctrlC.accumulateEigVecs;
+    ctrl.maxIterPerEig = ctrlC.maxIterPerEig;
+    ctrl.demandConverged = ctrlC.demandConverged;
+    ctrl.fullAccuracyTwoByTwo = ctrlC.fullAccuracyTwoByTwo;
+    ctrl.progress = ctrlC.progress;
+    return ctrl;
+}
+
+/* HermitianTridiagEigCtrl */
+inline ElHermitianTridiagEigCtrl_s CReflect
+( const HermitianTridiagEigCtrl<float>& ctrl )
+{
+    ElHermitianTridiagEigCtrl_s ctrlC;
+    ctrlC.sort = CReflect(ctrl.sort);
+    ctrlC.subset = CReflect(ctrl.subset);
+    ctrlC.useQR = ctrl.useQR;
+    ctrlC.qrCtrl = CReflect(ctrl.qrCtrl);
+    return ctrlC;
+}
+
+inline ElHermitianTridiagEigCtrl_d CReflect
+( const HermitianTridiagEigCtrl<double>& ctrl )
+{
+    ElHermitianTridiagEigCtrl_d ctrlC;
+    ctrlC.sort = CReflect(ctrl.sort);
+    ctrlC.subset = CReflect(ctrl.subset);
+    ctrlC.useQR = ctrl.useQR;
+    ctrlC.qrCtrl = CReflect(ctrl.qrCtrl);
+    return ctrlC;
+}
+
+inline HermitianTridiagEigCtrl<float> CReflect
+( const ElHermitianTridiagEigCtrl_s& ctrlC )
+{
+    HermitianTridiagEigCtrl<float> ctrl;
+    ctrl.sort = CReflect(ctrlC.sort);
+    ctrl.subset = CReflect(ctrlC.subset);
+    ctrl.useQR = ctrlC.useQR;
+    ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
+    return ctrl;
+}
+
+inline HermitianTridiagEigCtrl<double> CReflect
+( const ElHermitianTridiagEigCtrl_d& ctrlC )
+{
+    HermitianTridiagEigCtrl<double> ctrl;
+    ctrl.sort = CReflect(ctrlC.sort);
+    ctrl.subset = CReflect(ctrlC.subset);
+    ctrl.useQR = ctrlC.useQR;
+    ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
+    return ctrl;
+}
+
 /* Pencil */
 inline ElPencil CReflect( Pencil pencil )
 { return static_cast<ElPencil>(pencil); }
@@ -65,62 +188,12 @@ inline HermitianSDCCtrl<double> CReflect( const ElHermitianSDCCtrl_d& ctrlC )
     return ctrl;
 }
 
-/* HermitianEigSubset */
-inline ElHermitianEigSubset_s CReflect
-( const HermitianEigSubset<float>& subset )
-{
-    ElHermitianEigSubset_s subsetC;
-    subsetC.indexSubset = subset.indexSubset;
-    subsetC.lowerIndex = subset.lowerIndex;
-    subsetC.upperIndex = subset.upperIndex;
-    subsetC.rangeSubset = subset.rangeSubset;
-    subsetC.lowerBound = subset.lowerBound;
-    subsetC.upperBound = subset.upperBound;
-    return subsetC;
-}
-inline ElHermitianEigSubset_d CReflect
-( const HermitianEigSubset<double>& subset )
-{
-    ElHermitianEigSubset_d subsetC;
-    subsetC.indexSubset = subset.indexSubset;
-    subsetC.lowerIndex = subset.lowerIndex;
-    subsetC.upperIndex = subset.upperIndex;
-    subsetC.rangeSubset = subset.rangeSubset;
-    subsetC.lowerBound = subset.lowerBound;
-    subsetC.upperBound = subset.upperBound;
-    return subsetC;
-}
-
-inline HermitianEigSubset<float> CReflect
-( const ElHermitianEigSubset_s& subsetC )
-{
-    HermitianEigSubset<float> subset;
-    subset.indexSubset = subsetC.indexSubset;
-    subset.lowerIndex = subsetC.lowerIndex;
-    subset.upperIndex = subsetC.upperIndex;
-    subset.rangeSubset = subsetC.rangeSubset;
-    subset.lowerBound = subsetC.lowerBound;
-    subset.upperBound = subsetC.upperBound;
-    return subset;
-}
-inline HermitianEigSubset<double> CReflect
-( const ElHermitianEigSubset_d& subsetC )
-{
-    HermitianEigSubset<double> subset;
-    subset.indexSubset = subsetC.indexSubset;
-    subset.lowerIndex = subsetC.lowerIndex;
-    subset.upperIndex = subsetC.upperIndex;
-    subset.rangeSubset = subsetC.rangeSubset;
-    subset.lowerBound = subsetC.lowerBound;
-    subset.upperBound = subsetC.upperBound;
-    return subset;
-}
-
 /* HermitianEigCtrl */
 inline ElHermitianEigCtrl_s CReflect( const HermitianEigCtrl<float>& ctrl )
 {
     ElHermitianEigCtrl_s ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
+    ctrlC.tridiagEigCtrl = CReflect( ctrl.tridiagEigCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
@@ -130,6 +203,7 @@ inline ElHermitianEigCtrl_d CReflect( const HermitianEigCtrl<double>& ctrl )
 {
     ElHermitianEigCtrl_d ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
+    ctrlC.tridiagEigCtrl = CReflect( ctrl.tridiagEigCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
@@ -139,6 +213,7 @@ CReflect( const HermitianEigCtrl<Complex<float>>& ctrl )
 {
     ElHermitianEigCtrl_c ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
+    ctrlC.tridiagEigCtrl = CReflect( ctrl.tridiagEigCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
@@ -148,6 +223,7 @@ CReflect( const HermitianEigCtrl<Complex<double>>& ctrl )
 {
     ElHermitianEigCtrl_z ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
+    ctrlC.tridiagEigCtrl = CReflect( ctrl.tridiagEigCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
@@ -157,6 +233,7 @@ inline HermitianEigCtrl<float> CReflect( const ElHermitianEigCtrl_s& ctrlC )
 {
     HermitianEigCtrl<float> ctrl;
     ctrl.tridiagCtrl = CReflect<float>( ctrlC.tridiagCtrl );
+    ctrl.tridiagEigCtrl = CReflect( ctrlC.tridiagEigCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
@@ -165,6 +242,7 @@ inline HermitianEigCtrl<double> CReflect( const ElHermitianEigCtrl_d& ctrlC )
 {
     HermitianEigCtrl<double> ctrl;
     ctrl.tridiagCtrl = CReflect<double>( ctrlC.tridiagCtrl );
+    ctrl.tridiagEigCtrl = CReflect( ctrlC.tridiagEigCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
@@ -174,6 +252,7 @@ CReflect( const ElHermitianEigCtrl_c& ctrlC )
 {
     HermitianEigCtrl<Complex<float>> ctrl;
     ctrl.tridiagCtrl = CReflect<Complex<float>>( ctrlC.tridiagCtrl );
+    ctrl.tridiagEigCtrl = CReflect( ctrlC.tridiagEigCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
@@ -183,6 +262,7 @@ CReflect( const ElHermitianEigCtrl_z& ctrlC )
 {
     HermitianEigCtrl<Complex<double>> ctrl;
     ctrl.tridiagCtrl = CReflect<Complex<double>>( ctrlC.tridiagCtrl );
+    ctrl.tridiagEigCtrl = CReflect( ctrlC.tridiagEigCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;

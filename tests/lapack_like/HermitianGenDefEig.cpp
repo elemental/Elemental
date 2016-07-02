@@ -173,9 +173,7 @@ void TestHermitianGenDefEig
   bool testCorrectness,
   bool print,
   bool onlyEigvals,
-  SortType sort,
   const Grid& g, 
-  const HermitianEigSubset<Base<F>> subset, 
   const HermitianEigCtrl<F>& ctrl )
 {
     typedef Base<F> Real;
@@ -215,9 +213,9 @@ void TestHermitianGenDefEig
     Timer timer;
     timer.Start();
     if( onlyEigvals )
-        HermitianGenDefEig( pencil, uplo, A, B, w, sort, subset, ctrl );
+        HermitianGenDefEig( pencil, uplo, A, B, w, ctrl );
     else
-        HermitianGenDefEig( pencil, uplo, A, B, w, X, sort, subset, ctrl );
+        HermitianGenDefEig( pencil, uplo, A, B, w, X, ctrl );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     OutputFromRoot(g.Comm(),"Time = ",runTime," seconds");
@@ -271,32 +269,30 @@ void TestSuite
     ctrl.timeStages = timeStages;
     ctrl.tridiagCtrl.symvCtrl.bsize = nbLocal;
     ctrl.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
+    ctrl.tridiagEigCtrl.sort = sort;
+    ctrl.tridiagEigCtrl.subset = subset;
 
     OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
     ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
     TestHermitianGenDefEig<F>
-    ( m, uplo, pencil, testCorrectness, print, 
-      onlyEigvals, sort, g, subset, ctrl );
+    ( m, uplo, pencil, testCorrectness, print, onlyEigvals, g, ctrl );
 
     OutputFromRoot(g.Comm(),"Square row-major algorithms:");
     ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.tridiagCtrl.order = ROW_MAJOR;
     TestHermitianGenDefEig<F>
-    ( m, uplo, pencil, testCorrectness, print, 
-      onlyEigvals, sort, g, subset, ctrl );
+    ( m, uplo, pencil, testCorrectness, print, onlyEigvals, g, ctrl );
 
     OutputFromRoot(g.Comm(),"Square column-major algorithms:");
     ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.tridiagCtrl.order = COLUMN_MAJOR;
     TestHermitianGenDefEig<F>
-    ( m, uplo, pencil, testCorrectness, print, 
-      onlyEigvals, sort, g, subset, ctrl );
+    ( m, uplo, pencil, testCorrectness, print, onlyEigvals, g, ctrl );
 
     // Also test with non-standard distributions
     OutputFromRoot(g.Comm(),"Nonstandard distributions:");
     TestHermitianGenDefEig<F,MR,MC,MC>
-    ( m, uplo, pencil, testCorrectness, print, 
-      onlyEigvals, sort, g, subset, ctrl );
+    ( m, uplo, pencil, testCorrectness, print, onlyEigvals, g, ctrl );
 
     PopIndent();
 }
