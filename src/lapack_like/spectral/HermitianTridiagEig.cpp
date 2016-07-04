@@ -766,7 +766,7 @@ HermitianTridiagEig
 namespace herm_tridiag_eig {
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
-Int EstimateHelper
+Int MRRREstimateHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm,
@@ -790,7 +790,7 @@ Int EstimateHelper
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
-Int EstimateHelper
+Int MRRREstimateHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm,
@@ -806,7 +806,7 @@ Int EstimateHelper
 // Q is assumed to be sufficiently large and properly aligned
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
-PostEstimateHelper
+MRRRPostEstimateHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& wPre,
@@ -856,7 +856,7 @@ PostEstimateHelper
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
-PostEstimateHelper
+MRRRPostEstimateHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& wPre,
@@ -872,10 +872,8 @@ PostEstimateHelper
     return info;
 }
 
-} // namespace herm_tridiag_eig
-
 template<typename Real>
-Int HermitianTridiagEigEstimate
+Int MRRREstimate
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm,
@@ -883,13 +881,13 @@ Int HermitianTridiagEigEstimate
         Real vu )
 {
     DEBUG_CSE
-    return herm_tridiag_eig::EstimateHelper( d, dSub, wColComm, vl, vu );
+    return MRRREstimateHelper( d, dSub, wColComm, vl, vu );
 }
 
 // Q is assumed to be sufficiently large and properly aligned
 template<typename Real>
 HermitianTridiagEigInfo
-HermitianTridiagEigPostEstimate
+MRRRPostEstimate
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& w,
@@ -899,8 +897,10 @@ HermitianTridiagEigPostEstimate
         Real vu )
 {
     DEBUG_CSE
-    return herm_tridiag_eig::PostEstimateHelper( d, dSub, w, Q, sort, vl, vu );
+    return MRRRPostEstimateHelper( d, dSub, w, Q, sort, vl, vu );
 }
+
+} // namespace herm_tridiag_eig
 
 #define PROTO(F) \
   template void herm_eig::Sort \
@@ -943,11 +943,11 @@ HermitianTridiagEigPostEstimate
   template void herm_eig::SortAndFilter \
   ( Matrix<Real>& w, \
     const HermitianTridiagEigCtrl<Real>& ctrl ); \
-  template Int HermitianTridiagEigEstimate \
+  template Int herm_tridiag_eig::MRRREstimate \
   ( const AbstractDistMatrix<Real>& d, \
     const AbstractDistMatrix<Real>& dSub, \
           mpi::Comm wColComm, Real vl, Real vu ); \
-  template HermitianTridiagEigInfo HermitianTridiagEigPostEstimate \
+  template HermitianTridiagEigInfo herm_tridiag_eig::MRRRPostEstimate \
   ( const AbstractDistMatrix<Real>& d, \
     const AbstractDistMatrix<Real>& dSub, \
           AbstractDistMatrix<Real>& w, \

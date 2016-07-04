@@ -1611,15 +1611,41 @@ void Scale
 ( S alpha, AbstractDistMatrix<Real>& AReal, AbstractDistMatrix<Real>& AImag );
 
 template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, Matrix<F>& A );
+void SafeScale
+( Base<F> numerator, Base<F> denominator, Matrix<F>& A );
 template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, AbstractDistMatrix<F>& A );
+void SafeScale
+( Base<F> numerator, Base<F> denominator, AbstractDistMatrix<F>& A );
 template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A );
+void SafeScale
+( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A );
 template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A );
+void SafeScale
+( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A );
 template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A );
+void SafeScale
+( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A );
+
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, Matrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, AbstractDistMatrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, SparseMatrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, DistSparseMatrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, DistMultiVec<F>& A, Int offset=0 );
 
 template<typename F>
 void SafeScaleHermitianTridiag

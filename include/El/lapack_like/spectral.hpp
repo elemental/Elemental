@@ -73,17 +73,6 @@ void Sort
   AbstractDistMatrix<F>& Q,
   SortType sort=ASCENDING );
 
-template<typename Real>
-void SortAndFilter
-( Matrix<Real>& w,
-  const HermitianTridiagEigCtrl<Real>& ctrl );
-
-template<typename F>
-void SortAndFilter
-( Matrix<Base<F>>& w,
-  Matrix<F>& Q,
-  const HermitianTridiagEigCtrl<Base<F>>& ctrl );
-
 } // namespace herm_eig
 
 // Compute eigenvalues
@@ -124,27 +113,6 @@ HermitianTridiagEig
         AbstractDistMatrix<F>& Q, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl=
         HermitianTridiagEigCtrl<Base<F>>() );
-
-// TODO(poulson): Decide if this should be in herm_tridiag_eig::mrrr
-template<typename Real>
-Int HermitianTridiagEigEstimate
-( const AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Real>& dSub,
-        mpi::Comm wColComm,
-        Real vl,
-        Real vu );
-// TODO(poulson): Decide if this should be in herm_tridiag_eig::mrrr
-// Q is assumed to be sufficiently large and properly aligned
-template<typename Real>
-HermitianTridiagEigInfo
-HermitianTridiagEigPostEstimate
-( const AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& w,
-        AbstractDistMatrix<Real>& Q, 
-        SortType sort,
-        Real vl,
-        Real vu );
 
 // Hermitian eigenvalue solvers
 // ============================

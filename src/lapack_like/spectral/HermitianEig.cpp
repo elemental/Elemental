@@ -16,6 +16,55 @@
 #define TARGET_CHUNKS 20
 
 namespace El {
+
+// TODO(poulson): Decide if this should be lifted
+template<typename T>
+bool IsDistributed( const AbstractDistMatrix<T>& A )
+{
+    return A.ColStride() != 1 || A.RowStride() != 1 || A.CrossSize() != 1;
+}
+
+// Forward declarations:
+
+namespace herm_eig {
+
+template<typename Real>
+void SortAndFilter
+( Matrix<Real>& w,
+  const HermitianTridiagEigCtrl<Real>& ctrl );
+
+template<typename F>
+void SortAndFilter
+( Matrix<Base<F>>& w,
+  Matrix<F>& Q,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl );
+
+} // namespace herm_eig
+
+namespace herm_tridiag_eig {
+
+template<typename Real>
+Int MRRREstimate
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        mpi::Comm wColComm,
+        Real vl,
+        Real vu );
+
+// Q is assumed to be sufficiently large and properly aligned
+template<typename Real>
+HermitianTridiagEigInfo
+MRRRPostEstimate
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& w,
+        AbstractDistMatrix<Real>& Q,
+        SortType sort,
+        Real vl,
+        Real vu );
+
+} // namespace herm_tridiag_eig
+
 namespace herm_eig {
 
 // We create specialized redistribution routines for redistributing the 
@@ -101,58 +150,27 @@ void InPlaceRedist( DistMatrix<F>& Q, Int rowAlign, const Base<F>* readBuffer )
     }
 }
 
-template<typename F>
-bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
-{
-    typedef Base<F> Real;
-
-    scale = 1;
-    const Real maxNormOfA = HermitianMaxNorm( uplo, A );
-    const Real underflowThreshold = limits::Min<Real>();
-    const Real overflowThreshold = limits::Max<Real>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        scale = underflowThreshold / maxNormOfA;
-        return true;
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        // This branch should never be activated with most datatypes since
-        // overflowing implies an infinite result
-        // (and thus rescaling would be meaningless)
-        scale = overflowThreshold / maxNormOfA;
-        return true;
-    }
-    else
-        return false;
-}
-
 } // namespace herm_eig
 
 // Compute eigenvalues
 // ===================
 
+namespace herm_eig {
+
 template<typename F>
 HermitianEigInfo
-HermitianEig
+BlackBox
 ( UpperOrLower uplo,
   Matrix<F>& A, 
   Matrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
+    typedef Base<F> Real;
     HermitianEigInfo info;
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     auto subset = ctrl.tridiagEigCtrl.subset;
-    if( ctrl.useSDC )
-    {
-        herm_eig::SDC( uplo, A, w, ctrl.sdcCtrl );
-        herm_eig::SortAndFilter( w, ctrl.tridiagEigCtrl );
-        return info;
-    }
-
-    // TODO(poulson): Refactor the following into a subroutine
 
     if( subset.indexSubset && subset.rangeSubset )
         LogicError("Cannot mix index and range subsets");
@@ -163,6 +181,43 @@ HermitianEig
         return info;
     }
 
+    // Check if we need to rescale the matrix, and do so if necessary
+    const Real maxNormA = HermitianMaxNorm( uplo, A );
+    const Real underflowThreshold = limits::Min<Real>();
+    const Real overflowThreshold = limits::Max<Real>();
+    // TODO(poulson): Better norm bounds?
+    const Real normMax = overflowThreshold;
+    const Real normMin = underflowThreshold;
+    bool scaledDown=false, scaledUp=false;
+    if( maxNormA == Real(0) )
+    {
+        const Int n = A.Height();
+        Int numValid = n;
+        if( subset.indexSubset )
+        {   
+            numValid = subset.upperIndex-subset.lowerIndex+1;
+        }
+        else if( subset.rangeSubset )
+        {
+            if( subset.lowerBound >= Real(0) || subset.upperBound < Real(0) )
+            {   
+                numValid = 0;
+            }
+        }
+        Zeros( w, numValid, 1 );
+        return info;
+    }
+    if( maxNormA > normMax )
+    {
+        scaledDown = true;
+        SafeScaleTrapezoid( maxNormA, normMax, uplo, A );
+    }
+    else if( maxNormA < normMin )
+    {
+        scaledUp = true;
+        SafeScaleTrapezoid( maxNormA, normMin, uplo, A );
+    }
+
     // TODO(poulson): Extend interface to support accepting ctrl.tridiagCtrl
     herm_tridiag::ExplicitCondensed( uplo, A );
 
@@ -171,7 +226,40 @@ HermitianEig
     info.tridiagEigInfo =
       HermitianTridiagEig( d, dSub, w, ctrl.tridiagEigCtrl );
 
+    // Rescale the eigenvalues if necessary
+    if( scaledDown )
+    {
+        SafeScale( normMax, maxNormA, w );
+    }
+    else if( scaledUp )
+    {
+        SafeScale( normMin, maxNormA, w );
+    }
+
     return info;
+}
+
+} // namespace herm_eig
+
+template<typename F>
+HermitianEigInfo
+HermitianEig
+( UpperOrLower uplo,
+  Matrix<F>& A, 
+  Matrix<Base<F>>& w,
+  const HermitianEigCtrl<F>& ctrl )
+{
+    DEBUG_CSE
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+    if( ctrl.useSDC )
+    {
+        HermitianEigInfo info;
+        herm_eig::SDC( uplo, A, w, ctrl.sdcCtrl );
+        herm_eig::SortAndFilter( w, ctrl.tridiagEigCtrl );
+        return info;
+    }
+    return herm_eig::BlackBox( uplo, A, w, ctrl );
 }
 
 namespace herm_eig {
@@ -186,9 +274,9 @@ SequentialHelper
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( A.ColStride() != 1 || A.RowStride() != 1 || A.CrossSize() != 1 )
+      if( IsDistributed(A) )
           LogicError("A should not`have been distributed");
-      if( w.ColStride() != 1 || w.RowStride() != 1 || w.CrossSize() != 1 )
+      if( IsDistributed(w) )
           LogicError("w should not`have been distributed");
     )
     const Int n = A.Height();
@@ -285,11 +373,9 @@ ScaLAPACKHelper
 }
 #endif // ifdef EL_HAVE_SCALAPACK
 
-} // namespace herm_eig
-
 template<typename F>
 HermitianEigInfo
-HermitianEig
+BlackBox
 ( UpperOrLower uplo,
   AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<Base<F>>& w,
@@ -298,32 +384,6 @@ HermitianEig
     DEBUG_CSE
     typedef Base<F> Real;
     HermitianEigInfo info;
-    if( APre.Height() != APre.Width() )
-        LogicError("Hermitian matrices must be square");
-
-    if( ctrl.useScaLAPACK && IsBlasScalar<Real>::value )
-    {
-#ifdef EL_HAVE_SCALAPACK
-        return herm_eig::ScaLAPACKHelper( uplo, APre, w, ctrl );
-#endif
-    }
-
-    if( APre.ColStride() == 1 && APre.RowStride() == 1 &&
-        APre.CrossSize() == 1 &&
-        w.ColStride() == 1 && w.RowStride() == 1 && w.CrossSize() == 1 )
-    {
-        return herm_eig::SequentialHelper( uplo, APre, w, ctrl );
-    }
-
-    if( ctrl.useSDC )
-    {
-        herm_eig::SDC( uplo, APre, w, ctrl.sdcCtrl );
-        // TODO(poulson): Add support for this function
-        //herm_eig::SortAndFilter( w, ctrl.tridiagEigCtrl );
-        return info;
-    }
-
-    // TODO(poulson): Refactor the following into one or more subroutines
 
     auto subset = ctrl.tridiagEigCtrl.subset;
     if( subset.indexSubset && subset.rangeSubset )
@@ -339,10 +399,41 @@ HermitianEig
     auto& A = AProx.Get();
 
     // Check if we need to rescale the matrix, and do so if necessary
-    Base<F> scale;
-    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
-    if( needRescaling )
-        ScaleTrapezoid( F(scale), uplo, A );
+    const Real maxNormA = HermitianMaxNorm( uplo, A );
+    const Real underflowThreshold = limits::Min<Real>();
+    const Real overflowThreshold = limits::Max<Real>();
+    // TODO(poulson): Better norm bounds?
+    const Real normMax = overflowThreshold;
+    const Real normMin = underflowThreshold;
+    bool scaledDown=false, scaledUp=false;
+    if( maxNormA == Real(0) )
+    {
+        const Int n = A.Height();
+        Int numValid = n;
+        if( subset.indexSubset )
+        {
+            numValid = subset.upperIndex-subset.lowerIndex+1;
+        }
+        else if( subset.rangeSubset )
+        {
+            if( subset.lowerBound >= Real(0) || subset.upperBound < Real(0) )
+            {   
+                numValid = 0;
+            }
+        }
+        Zeros( w, numValid, 1 );
+        return info;
+    }
+    if( maxNormA > normMax )
+    {
+        scaledDown = true;
+        SafeScaleTrapezoid( maxNormA, normMax, uplo, A );
+    }
+    else if( maxNormA < normMin )
+    {
+        scaledUp = true;
+        SafeScaleTrapezoid( maxNormA, normMin, uplo, A );
+    }
 
     Timer timer;
     if( ctrl.timeStages )
@@ -379,18 +470,65 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( needRescaling ) 
-        w *= 1/scale;
+    if( scaledDown )
+    {
+        SafeScale( normMax, maxNormA, w );
+    }
+    else if( scaledUp )
+    {
+        SafeScale( normMin, maxNormA, w );
+    }
 
     return info;
+}
+
+} // namespace herm_eig
+
+template<typename F>
+HermitianEigInfo
+HermitianEig
+( UpperOrLower uplo,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& w,
+  const HermitianEigCtrl<F>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    if( APre.Height() != APre.Width() )
+        LogicError("Hermitian matrices must be square");
+
+    if( ctrl.useScaLAPACK && IsBlasScalar<Real>::value )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        return herm_eig::ScaLAPACKHelper( uplo, APre, w, ctrl );
+#endif
+    }
+
+    if( !IsDistributed(APre) && !IsDistributed(w) )
+    {
+        return herm_eig::SequentialHelper( uplo, APre, w, ctrl );
+    }
+
+    if( ctrl.useSDC )
+    {
+        HermitianEigInfo info;
+        herm_eig::SDC( uplo, APre, w, ctrl.sdcCtrl );
+        // TODO(poulson): Add support for this function
+        //herm_eig::SortAndFilter( w, ctrl.tridiagEigCtrl );
+        return info;
+    }
+
+    return herm_eig::BlackBox( uplo, APre, w, ctrl );
 }
 
 // Compute eigenpairs
 // ==================
 
+namespace herm_eig {
+
 template<typename F>
 HermitianEigInfo
-HermitianEig
+BlackBox
 ( UpperOrLower uplo,
   Matrix<F>& A,
   Matrix<Base<F>>& w,
@@ -403,14 +541,6 @@ HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     auto subset = ctrl.tridiagEigCtrl.subset;
-    if( ctrl.useSDC )
-    {
-        herm_eig::SDC( uplo, A, w, Q, ctrl.sdcCtrl );
-        herm_eig::SortAndFilter( w, Q, ctrl.tridiagEigCtrl );
-        return info;
-    }
-
-    // TODO(poulson): Refactor the following into a subroutine
 
     if( subset.indexSubset && subset.rangeSubset )
         LogicError("Cannot mix index and range subsets");
@@ -421,6 +551,8 @@ HermitianEig
         Q.Resize(n,0);
         return info;
     }
+
+    // TODO: Scale here
 
     Matrix<F> phase;
     // TODO(poulson): Extend interface to support ctrl.tridiagCtrl
@@ -433,7 +565,33 @@ HermitianEig
 
     herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
 
+    // TODO: Rescale here
+
     return info;
+}
+
+} // namespace herm_eig
+
+template<typename F>
+HermitianEigInfo
+HermitianEig
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<Base<F>>& w,
+  Matrix<F>& Q, 
+  const HermitianEigCtrl<F>& ctrl )
+{
+    DEBUG_CSE
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+    if( ctrl.useSDC )
+    {
+        HermitianEigInfo info;
+        herm_eig::SDC( uplo, A, w, Q, ctrl.sdcCtrl );
+        herm_eig::SortAndFilter( w, Q, ctrl.tridiagEigCtrl );
+        return info;
+    }
+    return herm_eig::BlackBox( uplo, A, w, Q, ctrl );
 }
 
 namespace herm_eig {
@@ -449,11 +607,11 @@ SequentialHelper
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( A.ColStride() != 1 || A.RowStride() != 1 || A.CrossSize() != 1 )
+      if( IsDistributed(A) )
           LogicError("A should not`have been distributed");
-      if( w.ColStride() != 1 || w.RowStride() != 1 || w.CrossSize() != 1 )
+      if( IsDistributed(w) )
           LogicError("w should not`have been distributed");
-      if( Q.ColStride() != 1 || Q.RowStride() != 1 || Q.CrossSize() != 1 )
+      if( IsDistributed(Q) )
           LogicError("Q should not`have been distributed");
     )
 
@@ -574,11 +732,9 @@ ScaLAPACKHelper
 }
 #endif // ifdef EL_HAVE_SCALAPACK
 
-} // namespace herm_eig
-
 template<typename F>
 HermitianEigInfo
-HermitianEig
+MRRR
 ( UpperOrLower uplo,
   AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<Base<F>>& w,
@@ -592,32 +748,6 @@ HermitianEig
     HermitianEigInfo info;
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
-
-    if( ctrl.useScaLAPACK && IsBlasScalar<Real>::value )
-    {
-#ifdef EL_HAVE_SCALAPACK
-        return herm_eig::ScaLAPACKHelper( uplo, APre, w, QPre, ctrl );
-#endif
-    }
-
-    if( APre.ColStride() == 1 && APre.RowStride() == 1 &&
-        APre.CrossSize() == 1 &&
-        w.ColStride() == 1 && w.RowStride() == 1 && w.CrossSize() == 1 &&
-        QPre.ColStride() == 1 && QPre.RowStride() == 1 &&
-        QPre.CrossSize() == 1 )
-    {
-        return herm_eig::SequentialHelper( uplo, APre, w, QPre, ctrl );
-    }
-
-    if( ctrl.useSDC )
-    {
-        herm_eig::SDC( uplo, APre, w, QPre, ctrl.sdcCtrl );
-        // TODO(poulson): Add support for this function
-        //herm_eig::SortAndFilter( w, QPre, ctrl.tridiagEigCtrl );
-        return info;
-    }
-
-    // TODO(poulson): Refactor the following into one or more subroutines
 
     if( subset.indexSubset && subset.rangeSubset )
         LogicError("Cannot mix index and range subsets");
@@ -635,10 +765,43 @@ HermitianEig
     auto& A = AProx.Get();
 
     // Check if we need to rescale the matrix, and do so if necessary
-    Real scale;
-    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
-    if( needRescaling )
-        ScaleTrapezoid( F(scale), uplo, A );
+    const Real maxNormA = HermitianMaxNorm( uplo, A );
+    const Real underflowThreshold = limits::Min<Real>();
+    const Real overflowThreshold = limits::Max<Real>();
+    // TODO(poulson): Better norm bounds?
+    const Real normMax = overflowThreshold;
+    const Real normMin = underflowThreshold;
+    bool scaledDown=false, scaledUp=false;
+    if( maxNormA == Real(0) )
+    {
+        const Int n = A.Height();
+        Int numValid = n;
+        if( subset.indexSubset )
+        {
+            numValid = subset.upperIndex-subset.lowerIndex+1;
+        }
+        else if( subset.rangeSubset )
+        {
+            if( subset.lowerBound >= Real(0) || subset.upperBound < Real(0) )
+            {
+                numValid = 0;
+            }
+        }
+        Zeros( w, numValid, 1 );
+        Zeros( QPre, n, numValid );
+        return info;
+    }
+    if( maxNormA > normMax )
+    {
+        scaledDown = true;
+        SafeScaleTrapezoid( maxNormA, normMax, uplo, A );
+    }
+    else if( maxNormA < normMin )
+    {
+        scaledUp = true;
+        SafeScaleTrapezoid( maxNormA, normMin, uplo, A );
+    }
+
 
     Timer timer;
     if( ctrl.timeStages )
@@ -674,7 +837,7 @@ HermitianEig
     if( subset.rangeSubset )
     {
         // Get an upper-bound on the number of local eigenvalues in the range
-        kEst = HermitianTridiagEigEstimate
+        kEst = herm_tridiag_eig::MRRREstimate
           ( d, e, g.VRComm(), subset.lowerBound, subset.upperBound );
     }
     else if( subset.indexSubset )
@@ -714,7 +877,7 @@ HermitianEig
     // NOTE: We should be guaranteeing that Q_STAR_VR does not need to
     //       reallocate a buffer
     if( subset.rangeSubset )
-        info.tridiagEigInfo = HermitianTridiagEigPostEstimate
+        info.tridiagEigInfo = herm_tridiag_eig::MRRRPostEstimate
         ( d_STAR_STAR, e_STAR_STAR, w, Q_STAR_VR, UNSORTED,
           subset.lowerBound, subset.upperBound );
     else
@@ -751,7 +914,7 @@ HermitianEig
 
             // Redistribute Q1[MC,MR] <- Q1[* ,VR] in place.
             // NOTE: This assumes that Q_STAR_VR did not reallocate within
-            //       HermitianTridiagEig[PostEstimate] above
+            //       herm_tridiag_eig::MRRR[PostEstimate] above
             herm_eig::InPlaceRedist( Q1, alignment, readBuffer );
 
             // Update the Q1[* ,VR] information
@@ -786,8 +949,14 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( needRescaling )
-        w *= 1/scale;
+    if( scaledDown )
+    {
+        SafeScale( normMax, maxNormA, w );
+    }
+    else if( scaledUp )
+    {
+        SafeScale( normMin, maxNormA, w );
+    }
 
     herm_eig::Sort( w, Q, ctrl.tridiagEigCtrl.sort );
 
@@ -799,6 +968,46 @@ HermitianEig
     }
 
     return info;
+}
+
+} // namespace herm_eig
+
+template<typename F>
+HermitianEigInfo
+HermitianEig
+( UpperOrLower uplo,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& w,
+  AbstractDistMatrix<F>& QPre,
+  const HermitianEigCtrl<F>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    if( APre.Height() != APre.Width() )
+        LogicError("Hermitian matrices must be square");
+
+    if( ctrl.useScaLAPACK && IsBlasScalar<Real>::value )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        return herm_eig::ScaLAPACKHelper( uplo, APre, w, QPre, ctrl );
+#endif
+    }
+
+    if( !IsDistributed(APre) && !IsDistributed(w) && !IsDistributed(QPre) )
+    {
+        return herm_eig::SequentialHelper( uplo, APre, w, QPre, ctrl );
+    }
+
+    if( ctrl.useSDC )
+    {
+        HermitianEigInfo info;
+        herm_eig::SDC( uplo, APre, w, QPre, ctrl.sdcCtrl );
+        // TODO(poulson): Add support for this function
+        //herm_eig::SortAndFilter( w, QPre, ctrl.tridiagEigCtrl );
+        return info;
+    }
+
+    return herm_eig::MRRR( uplo, APre, w, QPre, ctrl );
 }
 
 #define EIGVAL_PROTO(F) \

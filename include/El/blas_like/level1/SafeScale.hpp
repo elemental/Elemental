@@ -63,11 +63,55 @@ void SafeScale( Base<F> numerator, Base<F> denominator, Matrix<F>& A )
 }
 
 template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, Matrix<F>& A, Int offset )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real alpha;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, alpha, zero, smallNum, bigNum );
+        ScaleTrapezoid( alpha, uplo, A, offset );
+    }
+}
+
+template<typename F>
 void SafeScale
 ( Base<F> numerator, Base<F> denominator, AbstractDistMatrix<F>& A )
 {
     DEBUG_CSE
     SafeScale( numerator, denominator, A.Matrix() );
+}
+
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, AbstractDistMatrix<F>& A, Int offset )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real alpha;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, alpha, zero, smallNum, bigNum );
+        ScaleTrapezoid( alpha, uplo, A, offset );
+    }
 }
 
 template<typename F>
@@ -91,6 +135,28 @@ void SafeScale( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A )
 }
 
 template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, SparseMatrix<F>& A, Int offset )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real alpha;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, alpha, zero, smallNum, bigNum );
+        ScaleTrapezoid( alpha, uplo, A, offset );
+    }
+}
+
+template<typename F>
 void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A )
 {
     DEBUG_CSE
@@ -107,6 +173,28 @@ void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A )
           SafeScaleStep
           ( numerator, denominator, alpha, zero, smallNum, bigNum );
         A *= alpha;
+    }
+}
+
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, DistSparseMatrix<F>& A, Int offset )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real alpha;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, alpha, zero, smallNum, bigNum );
+        ScaleTrapezoid( alpha, uplo, A, offset );
     }
 }
 
