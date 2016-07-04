@@ -80,8 +80,8 @@ void LVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 template<typename F>
 void LVar2
 ( UnitOrNonUnit diag, 
-        ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& L )
+        AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& L )
 {
     DEBUG_CSE
     DEBUG_ONLY(

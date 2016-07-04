@@ -38,7 +38,7 @@ void UVar1( Matrix<T>& U, bool conjugate=false )
 }
 
 template<typename T>
-void UVar1( ElementalMatrix<T>& UPre, bool conjugate=false )
+void UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
 {
     DEBUG_CSE
     DEBUG_ONLY(

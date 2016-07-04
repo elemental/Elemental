@@ -42,9 +42,9 @@ HermitianEigInfo
 HermitianGenDefEig
 ( Pencil pencil,
   UpperOrLower uplo, 
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& BPre,
-  ElementalMatrix<Base<F>>& w,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre,
+  AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -110,10 +110,10 @@ HermitianEigInfo
 HermitianGenDefEig
 ( Pencil pencil,
   UpperOrLower uplo, 
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& BPre,
-  ElementalMatrix<Base<F>>& w,
-  ElementalMatrix<F>& XPre,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre,
+  AbstractDistMatrix<Base<F>>& w,
+  AbstractDistMatrix<F>& XPre,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -159,9 +159,9 @@ HermitianGenDefEig
   template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& B, \
-    ElementalMatrix<Base<F>>& w, \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<Base<F>>& w, \
     const HermitianEigCtrl<F>& ctrl ); \
   template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
@@ -174,10 +174,10 @@ HermitianGenDefEig
   template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& B, \
-    ElementalMatrix<Base<F>>& w, \
-    ElementalMatrix<F>& X, \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<Base<F>>& w, \
+    AbstractDistMatrix<F>& X, \
     const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO

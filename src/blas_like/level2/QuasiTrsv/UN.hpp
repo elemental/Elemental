@@ -143,8 +143,8 @@ void UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 
 template<typename F>
 void UN
-( const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& xPre,
+( const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_CSE

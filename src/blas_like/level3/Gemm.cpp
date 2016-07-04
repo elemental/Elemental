@@ -89,9 +89,9 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& B,
-  T beta,        ElementalMatrix<T>& C, 
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, 
   GemmAlgorithm alg )
 {
     DEBUG_CSE
@@ -120,9 +120,9 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C, GemmAlgorithm alg )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C, GemmAlgorithm alg )
 {
     DEBUG_CSE
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
@@ -135,9 +135,9 @@ void Gemm
 template<typename T>
 void LocalGemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& B,
-  T beta,        ElementalMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -246,9 +246,9 @@ void LocalGemm
 template<typename T>
 void LocalGemm
 ( Orientation orientA, Orientation orientB,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C )
 {
     DEBUG_CSE
     const Int m = ( orientA==NORMAL ? A.Height() : A.Width() );
@@ -271,24 +271,24 @@ void LocalGemm
                    Matrix<T>& C ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& B, \
-    T beta,        ElementalMatrix<T>& C, GemmAlgorithm alg ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg ); \
   template void Gemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& B, \
-                   ElementalMatrix<T>& C, GemmAlgorithm alg ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
+                   AbstractDistMatrix<T>& C, GemmAlgorithm alg ); \
   template void LocalGemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& B, \
-    T beta,        ElementalMatrix<T>& C ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C ); \
   template void LocalGemm \
   ( Orientation orientA, Orientation orientB, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& B, \
-                   ElementalMatrix<T>& C );
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
+                   AbstractDistMatrix<T>& C );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

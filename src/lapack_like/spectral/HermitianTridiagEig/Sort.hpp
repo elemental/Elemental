@@ -41,7 +41,7 @@ void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
 
 template<typename Real,typename F>
 void Sort
-( ElementalMatrix<Real>& w, ElementalMatrix<F>& Z, SortType sort )
+( AbstractDistMatrix<Real>& w, AbstractDistMatrix<F>& Z, SortType sort )
 {
     DEBUG_CSE
     if( sort == UNSORTED )

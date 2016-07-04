@@ -72,8 +72,8 @@ void LocalAccumulateLUN
 template<typename T>
 void LUNA
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -120,8 +120,8 @@ void LUNA
 template<typename T>
 void LUNCOld
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -181,8 +181,8 @@ void LUNCOld
 template<typename T>
 void LUNC
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -236,8 +236,8 @@ void LUNC
 template<typename T>
 void LUN
 ( UnitOrNonUnit diag,
-  const ElementalMatrix<T>& U,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& U,
+        AbstractDistMatrix<T>& X )
 {
     DEBUG_CSE
     // TODO: Come up with a better routing mechanism

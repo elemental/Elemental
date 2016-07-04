@@ -154,9 +154,9 @@ void MultiShiftQuasiTrsm
   UpperOrLower uplo,
   Orientation orientation, 
   F alpha,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& shifts, 
-        ElementalMatrix<F>& B )
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& shifts, 
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -250,10 +250,10 @@ void MultiShiftQuasiTrsm
   UpperOrLower uplo,
   Orientation orientation, 
   Complex<Real> alpha, 
-  const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Complex<Real>>& shifts, 
-        ElementalMatrix<Real>& BReal,
-        ElementalMatrix<Real>& BImag )
+  const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Complex<Real>>& shifts, 
+        AbstractDistMatrix<Real>& BReal,
+        AbstractDistMatrix<Real>& BImag )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -349,8 +349,8 @@ void LocalMultiShiftQuasiTrsm
   Orientation orientation,
   F alpha,
   const DistMatrix<F,STAR,STAR>& A,
-  const ElementalMatrix<F>& shifts,
-        ElementalMatrix<F>& X )
+  const AbstractDistMatrix<F>& shifts,
+        AbstractDistMatrix<F>& X )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -375,9 +375,9 @@ void LocalMultiShiftQuasiTrsm
   Orientation orientation,
   Complex<Real> alpha,
   const DistMatrix<Real,STAR,STAR>& A,
-  const ElementalMatrix<Complex<Real>>& shifts,
-        ElementalMatrix<Real>& XReal,
-        ElementalMatrix<Real>& XImag )
+  const AbstractDistMatrix<Complex<Real>>& shifts,
+        AbstractDistMatrix<Real>& XReal,
+        AbstractDistMatrix<Real>& XImag )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -413,17 +413,17 @@ void LocalMultiShiftQuasiTrsm
     UpperOrLower uplo, \
     Orientation orientation, \
     F alpha, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& shifts, \
-          ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& shifts, \
+          AbstractDistMatrix<F>& B ); \
   template void LocalMultiShiftQuasiTrsm \
   ( LeftOrRight side, \
     UpperOrLower uplo, \
     Orientation orientation, \
     F alpha, \
     const DistMatrix<F,STAR,STAR>& A, \
-    const ElementalMatrix<F>& shifts, \
-          ElementalMatrix<F>& X );
+    const AbstractDistMatrix<F>& shifts, \
+          AbstractDistMatrix<F>& X );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
@@ -441,19 +441,19 @@ void LocalMultiShiftQuasiTrsm
     UpperOrLower uplo, \
     Orientation orientation, \
     Complex<Real> alpha, \
-    const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Complex<Real>>& shifts, \
-          ElementalMatrix<Real>& BReal, \
-          ElementalMatrix<Real>& BImag ); \
+    const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Complex<Real>>& shifts, \
+          AbstractDistMatrix<Real>& BReal, \
+          AbstractDistMatrix<Real>& BImag ); \
   template void LocalMultiShiftQuasiTrsm \
   ( LeftOrRight side, \
     UpperOrLower uplo, \
     Orientation orientation, \
     Complex<Real> alpha, \
     const DistMatrix<Real,STAR,STAR>& A, \
-    const ElementalMatrix<Complex<Real>>& shifts, \
-          ElementalMatrix<Real>& XReal, \
-          ElementalMatrix<Real>& XImag );
+    const AbstractDistMatrix<Complex<Real>>& shifts, \
+          AbstractDistMatrix<Real>& XReal, \
+          AbstractDistMatrix<Real>& XImag );
 
 #define PROTO_DOUBLEDOUBLE PROTO(DoubleDouble)
 #define PROTO_QUADDOUBLE PROTO(QuadDouble)

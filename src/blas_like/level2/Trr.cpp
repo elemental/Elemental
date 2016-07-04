@@ -64,9 +64,9 @@ template<typename T>
 void Trr
 ( UpperOrLower uplo,
   T alpha,
-  const ElementalMatrix<T>& x, 
-  const ElementalMatrix<T>& y,
-        ElementalMatrix<T>& APre,
+  const AbstractDistMatrix<T>& x, 
+  const AbstractDistMatrix<T>& y,
+        AbstractDistMatrix<T>& APre,
   bool conjugate )
 {
     DEBUG_CSE
@@ -137,8 +137,8 @@ void Trr
     Matrix<T>& A, bool conjugate ); \
   template void Trr \
   ( UpperOrLower uplo, \
-    T alpha, const ElementalMatrix<T>& x, const ElementalMatrix<T>& y, \
-    ElementalMatrix<T>& A, bool conjugate );
+    T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+    AbstractDistMatrix<T>& A, bool conjugate );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

@@ -133,8 +133,8 @@ void LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 
 template<typename F>
 void LUNLarge
-( const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& XPre, 
+( const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_CSE
@@ -196,7 +196,7 @@ void LUNLarge
 
 template<typename F>
 void LUNMedium
-( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
+( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_CSE

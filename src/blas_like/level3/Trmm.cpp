@@ -54,7 +54,7 @@ template<typename T>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& X )
+  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
 {
     DEBUG_CSE
     X *= alpha;
@@ -92,7 +92,7 @@ template<typename T>
 void LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B )
+  T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -113,11 +113,11 @@ void LocalTrmm
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
+    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
   template void LocalTrmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B );
+    T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

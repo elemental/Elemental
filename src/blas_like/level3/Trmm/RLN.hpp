@@ -71,8 +71,8 @@ void LocalAccumulateRLN
 template<typename T>
 void RLNA
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -121,8 +121,8 @@ void RLNA
 template<typename T>
 void RLNCOld
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -172,8 +172,8 @@ void RLNCOld
 template<typename T>
 void RLNC
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -228,8 +228,8 @@ void RLNC
 template<typename T>
 void RLN
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& L,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& L,
+        AbstractDistMatrix<T>& X )
 {
     DEBUG_CSE
     // TODO: Come up with a better routing mechanism

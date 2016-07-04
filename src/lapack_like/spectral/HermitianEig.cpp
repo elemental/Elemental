@@ -152,6 +152,8 @@ HermitianEig
         return info;
     }
 
+    // TODO(poulson): Refactor the following into a subroutine
+
     if( subset.indexSubset && subset.rangeSubset )
         LogicError("Cannot mix index and range subsets");
     if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
@@ -172,15 +174,23 @@ HermitianEig
     return info;
 }
 
+namespace herm_eig {
+
 template<typename F>
 HermitianEigInfo
-HermitianEig
+SequentialHelper
 ( UpperOrLower uplo,
-  DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w,
+  AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
+    DEBUG_ONLY(
+      if( A.ColStride() != 1 || A.RowStride() != 1 || A.CrossSize() != 1 )
+          LogicError("A should not`have been distributed");
+      if( w.ColStride() != 1 || w.RowStride() != 1 || w.CrossSize() != 1 )
+          LogicError("w should not`have been distributed");
+    )
     const Int n = A.Height();
     w.SetGrid( A.Grid() );
     HermitianEigInfo info;
@@ -196,24 +206,114 @@ HermitianEig
     }
     else
     {
+        w.Resize( n, 1 );
         info = HermitianEig( uplo, A.Matrix(), w.Matrix(), ctrl );
     }
 
     return info;
 }
 
+
+#ifdef EL_HAVE_SCALAPACK
+template<typename F,typename=EnableIf<IsBlasScalar<Base<F>>>>
+HermitianEigInfo
+ScaLAPACKHelper
+( UpperOrLower uplo,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& wPre,
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
+{
+    DEBUG_CSE
+
+    DistMatrixReadProxy<F,F,MC,MR,BLOCK> AProx( APre );
+    auto& A = AProx.Get();
+
+    DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
+    HermitianEigInfo info;
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+    w.SetGrid( A.Grid() );
+
+    auto subset = ctrl.tridiagEigCtrl.subset;
+    if( subset.indexSubset && subset.rangeSubset )
+        LogicError("Cannot mix index and range subsets");
+    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
+        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
+    {
+        w.Resize(0,1);
+        return info;
+    }
+
+    const Int n = A.Height();
+    w.Resize( n, 1 );
+
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
+    auto descA = FillDesc( A, context );
+    
+    const char uploChar = UpperOrLowerToChar( uplo );
+    if( subset.rangeSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else if( subset.indexSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else
+    {
+        scalapack::HermitianEig
+        ( uploChar, n, A.Buffer(), descA.data(), w.Buffer() );
+    }
+    return info;
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<Base<F>>>,typename=void>
+HermitianEigInfo
+ScaLAPACKHelper
+( UpperOrLower uplo,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& wPre,
+  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
+{
+    DEBUG_CSE
+    LogicError("This routine should not be called");
+    HermitianEigInfo info;
+    return info;
+}
+#endif // ifdef EL_HAVE_SCALAPACK
+
+} // namespace herm_eig
+
 template<typename F>
 HermitianEigInfo
 HermitianEig
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& w,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
+    typedef Base<F> Real;
     HermitianEigInfo info;
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
+
+    if( ctrl.useScaLAPACK && IsBlasScalar<Real>::value )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        return herm_eig::ScaLAPACKHelper( uplo, APre, w, ctrl );
+#endif
+    }
+
+    if( APre.ColStride() == 1 && APre.RowStride() == 1 &&
+        APre.CrossSize() == 1 &&
+        w.ColStride() == 1 && w.RowStride() == 1 && w.CrossSize() == 1 )
+    {
+        return herm_eig::SequentialHelper( uplo, APre, w, ctrl );
+    }
 
     if( ctrl.useSDC )
     {
@@ -222,6 +322,8 @@ HermitianEig
         //herm_eig::SortAndFilter( w, ctrl.tridiagEigCtrl );
         return info;
     }
+
+    // TODO(poulson): Refactor the following into one or more subroutines
 
     auto subset = ctrl.tridiagEigCtrl.subset;
     if( subset.indexSubset && subset.rangeSubset )
@@ -283,103 +385,6 @@ HermitianEig
     return info;
 }
 
-namespace herm_eig {
-
-template<typename F,typename=EnableIf<IsBlasScalar<Base<F>>>>
-HermitianEigInfo
-Helper
-( UpperOrLower uplo,
-  DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
-{
-    DEBUG_CSE
-    if( A.Height() != A.Width() )
-        LogicError("Hermitian matrices must be square");
-    HermitianEigInfo info;
-    w.SetGrid( A.Grid() );
-
-    auto subset = ctrl.tridiagEigCtrl.subset;
-    if( subset.indexSubset && subset.rangeSubset )
-        LogicError("Cannot mix index and range subsets");
-    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
-        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
-    {
-        w.Resize(0,1);
-        return info;
-    }
-
-#ifdef EL_HAVE_SCALAPACK
-    const Int n = A.Height();
-    w.Resize( n, 1 );
-
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    
-    const char uploChar = UpperOrLowerToChar( uplo );
-    if( subset.rangeSubset )
-    {
-        LogicError("This option is not yet supported");
-    }
-    else if( subset.indexSubset )
-    {
-        LogicError("This option is not yet supported");
-    }
-    else
-    {
-        scalapack::HermitianEig
-        ( uploChar, n, A.Buffer(), descA.data(), w.Buffer() );
-    }
-    return info;
-#else
-    DistMatrix<F,MC,MR> AElem( A );
-    return HermitianEig( uplo, AElem, w, ctrl );
-#endif
-}
-
-template<typename F,typename=DisableIf<IsBlasScalar<Base<F>>>,typename=void>
-HermitianEigInfo
-Helper
-( UpperOrLower uplo,
-  DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
-{
-    DEBUG_CSE
-    if( A.Height() != A.Width() )
-        LogicError("Hermitian matrices must be square");
-    HermitianEigInfo info;
-    w.SetGrid( A.Grid() );
-
-    auto subset = ctrl.tridiagEigCtrl.subset;
-    if( subset.indexSubset && subset.rangeSubset )
-        LogicError("Cannot mix index and range subsets");
-    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
-        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
-    {
-        w.Resize(0,1);
-        return info;
-    }
-
-    DistMatrix<F,MC,MR> AElem( A );
-    return HermitianEig( uplo, AElem, w, ctrl );
-}
-
-} // namespace herm_eig
-
-template<typename F>
-HermitianEigInfo
-HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  const HermitianEigCtrl<F>& ctrl )
-{
-    DEBUG_CSE
-    return herm_eig::Helper( uplo, A, w, ctrl );
-}
-
 // Compute eigenpairs
 // ==================
 
@@ -405,6 +410,8 @@ HermitianEig
         return info;
     }
 
+    // TODO(poulson): Refactor the following into a subroutine
+
     if( subset.indexSubset && subset.rangeSubset )
         LogicError("Cannot mix index and range subsets");
     if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
@@ -429,16 +436,27 @@ HermitianEig
     return info;
 }
 
+namespace herm_eig {
+
 template<typename F>
 HermitianEigInfo
-HermitianEig
+SequentialHelper
 ( UpperOrLower uplo,
-  DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  DistMatrix<F,STAR,STAR>& Q, 
+  AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<Base<F>>& w,
+  AbstractDistMatrix<F>& Q, 
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
+    DEBUG_ONLY(
+      if( A.ColStride() != 1 || A.RowStride() != 1 || A.CrossSize() != 1 )
+          LogicError("A should not`have been distributed");
+      if( w.ColStride() != 1 || w.RowStride() != 1 || w.CrossSize() != 1 )
+          LogicError("w should not`have been distributed");
+      if( Q.ColStride() != 1 || Q.RowStride() != 1 || Q.CrossSize() != 1 )
+          LogicError("Q should not`have been distributed");
+    )
+
     const Int n = A.Height();
     w.SetGrid( A.Grid() );
     Q.SetGrid( A.Grid() );
@@ -463,19 +481,108 @@ HermitianEig
     }
     else
     {
+        w.Resize( n, 1 );
+        Q.Resize( n, n );
         info = HermitianEig( uplo, A.Matrix(), w.Matrix(), Q.Matrix(), ctrl );
     }
 
     return info;
 }
 
+#ifdef EL_HAVE_SCALAPACK
+template<typename F,typename=EnableIf<IsBlasScalar<Base<F>>>>
+HermitianEigInfo
+ScaLAPACKHelper
+( UpperOrLower uplo,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& wPre,
+  AbstractDistMatrix<F>& QPre,
+  const HermitianEigCtrl<F>& ctrl )
+{
+    DEBUG_CSE
+
+    DistMatrixReadProxy<F,F,MC,MR,BLOCK> AProx( APre );
+    auto& A = AProx.Get();
+
+    DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
+    DistMatrixWriteProxy<F,F,MC,MR,BLOCK> QProx( QPre );
+    auto& Q = QProx.Get();
+
+    if( A.Height() != A.Width() )
+        LogicError("Hermitian matrices must be square");
+    HermitianEigInfo info;
+
+    const Int n = A.Height();
+    auto subset = ctrl.tridiagEigCtrl.subset;
+    if( subset.indexSubset && subset.rangeSubset )
+        LogicError("Cannot mix index and range subsets");
+    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
+        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
+    {
+        w.SetGrid( A.Grid() );
+        Q.SetGrid( A.Grid() );
+        w.Resize(0,1);
+        Q.Resize(n,0);
+        return info;
+    }
+
+    w.Resize( n, 1 );
+    Q.SetGrid( A.Grid() );
+    Q.AlignWith( A );
+    Q.Resize( n, n );
+
+    const int bHandle = blacs::Handle( A );
+    const int context = blacs::GridInit( bHandle, A );
+    auto descA = FillDesc( A, context );
+    auto descQ = FillDesc( Q, context );
+    
+    const char uploChar = UpperOrLowerToChar( uplo );
+    if( subset.rangeSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else if( subset.indexSubset )
+    {
+        LogicError("This option is not yet supported");
+    }
+    else
+    {
+        scalapack::HermitianEig
+        ( uploChar, n,
+          A.Buffer(), descA.data(),
+          w.Buffer(),
+          Q.Buffer(), descQ.data() );
+    }
+    return info;
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<Base<F>>>,typename=void>
+HermitianEigInfo
+ScaLAPACKHelper
+( UpperOrLower uplo,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& w,
+  AbstractDistMatrix<F>& Q,
+  const HermitianEigCtrl<F>& ctrl )
+{
+    DEBUG_CSE
+    LogicError("This routine should not be called");
+    HermitianEigInfo info;
+    return info;
+}
+#endif // ifdef EL_HAVE_SCALAPACK
+
+} // namespace herm_eig
+
 template<typename F>
 HermitianEigInfo
 HermitianEig
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& w,
-  ElementalMatrix<F>& QPre,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& w,
+  AbstractDistMatrix<F>& QPre,
   const HermitianEigCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -486,6 +593,22 @@ HermitianEig
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
 
+    if( ctrl.useScaLAPACK && IsBlasScalar<Real>::value )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        return herm_eig::ScaLAPACKHelper( uplo, APre, w, QPre, ctrl );
+#endif
+    }
+
+    if( APre.ColStride() == 1 && APre.RowStride() == 1 &&
+        APre.CrossSize() == 1 &&
+        w.ColStride() == 1 && w.RowStride() == 1 && w.CrossSize() == 1 &&
+        QPre.ColStride() == 1 && QPre.RowStride() == 1 &&
+        QPre.CrossSize() == 1 )
+    {
+        return herm_eig::SequentialHelper( uplo, APre, w, QPre, ctrl );
+    }
+
     if( ctrl.useSDC )
     {
         herm_eig::SDC( uplo, APre, w, QPre, ctrl.sdcCtrl );
@@ -493,6 +616,8 @@ HermitianEig
         //herm_eig::SortAndFilter( w, QPre, ctrl.tridiagEigCtrl );
         return info;
     }
+
+    // TODO(poulson): Refactor the following into one or more subroutines
 
     if( subset.indexSubset && subset.rangeSubset )
         LogicError("Cannot mix index and range subsets");
@@ -676,122 +801,6 @@ HermitianEig
     return info;
 }
 
-namespace herm_eig {
-
-template<typename F,typename=EnableIf<IsBlasScalar<Base<F>>>>
-HermitianEigInfo
-Helper
-( UpperOrLower uplo,
-  DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Q,
-  const HermitianEigCtrl<F>& ctrl )
-{
-    DEBUG_CSE
-    if( A.Height() != A.Width() )
-        LogicError("Hermitian matrices must be square");
-    HermitianEigInfo info;
-
-    const Int n = A.Height();
-    auto subset = ctrl.tridiagEigCtrl.subset;
-    if( subset.indexSubset && subset.rangeSubset )
-        LogicError("Cannot mix index and range subsets");
-    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
-        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
-    {
-        w.SetGrid( A.Grid() );
-        Q.SetGrid( A.Grid() );
-        w.Resize(0,1);
-        Q.Resize(n,0);
-        return info;
-    }
-
-#ifdef EL_HAVE_SCALAPACK
-    w.Resize( n, 1 );
-    Q.SetGrid( A.Grid() );
-    Q.AlignWith( A );
-    Q.Resize( n, n );
-
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    auto descQ = FillDesc( Q, context );
-    
-    const char uploChar = UpperOrLowerToChar( uplo );
-    if( subset.rangeSubset )
-    {
-        LogicError("This option is not yet supported");
-    }
-    else if( subset.indexSubset )
-    {
-        LogicError("This option is not yet supported");
-    }
-    else
-    {
-        scalapack::HermitianEig
-        ( uploChar, n,
-          A.Buffer(), descA.data(),
-          w.Buffer(),
-          Q.Buffer(), descQ.data() );
-    }
-    return info;
-#else
-    DistMatrix<F,MC,MR> AElem( A ), QElem( A.Grid() );
-    info = HermitianEig( uplo, AElem, w, QElem, ctrl );
-    Q = QElem;
-    return info;
-#endif
-}
-
-template<typename F,typename=DisableIf<IsBlasScalar<Base<F>>>,typename=void>
-HermitianEigInfo
-Helper
-( UpperOrLower uplo,
-  DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Q,
-  const HermitianEigCtrl<F>& ctrl )
-{
-    DEBUG_CSE
-    if( A.Height() != A.Width() )
-        LogicError("Hermitian matrices must be square");
-    HermitianEigInfo info;
-
-    const Int n = A.Height();
-    auto subset = ctrl.tridiagEigCtrl.subset;
-    if( subset.indexSubset && subset.rangeSubset )
-        LogicError("Cannot mix index and range subsets");
-    if( (subset.rangeSubset && (subset.lowerBound >= subset.upperBound)) ||
-        (subset.indexSubset && (subset.lowerIndex > subset.upperIndex)) )
-    {
-        w.SetGrid( A.Grid() );
-        Q.SetGrid( A.Grid() );
-        w.Resize(0,1);
-        Q.Resize(n,0);
-        return info;
-    }
-
-    DistMatrix<F,MC,MR> AElem( A ), QElem( A.Grid() );
-    info = HermitianEig( uplo, AElem, w, QElem, ctrl );
-    Q = QElem;
-    return info;
-}
-
-} // namespace herm_eig
-
-template<typename F>
-HermitianEigInfo
-HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Q,
-  const HermitianEigCtrl<F>& ctrl )
-{
-    DEBUG_CSE
-    return herm_eig::Helper( uplo, A, w, Q, ctrl );
-}
-
 #define EIGVAL_PROTO(F) \
   template HermitianEigInfo HermitianEig\
   ( UpperOrLower uplo, \
@@ -800,18 +809,8 @@ HermitianEig
     const HermitianEigCtrl<F>& ctrl ); \
   template HermitianEigInfo HermitianEig\
   ( UpperOrLower uplo, \
-    DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, \
-    const HermitianEigCtrl<F>& ctrl ); \
-  template HermitianEigInfo HermitianEig\
-  ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, \
-    const HermitianEigCtrl<F>& ctrl ); \
-  template HermitianEigInfo HermitianEig\
-  ( UpperOrLower uplo, \
-    DistMatrix<F,MC,MR,BLOCK>& A, \
-    DistMatrix<Base<F>,STAR,STAR>& w, \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Base<F>>& w, \
     const HermitianEigCtrl<F>& ctrl );
 
 #define EIGPAIR_PROTO(F) \
@@ -823,52 +822,14 @@ HermitianEig
     const HermitianEigCtrl<F>& ctrl ); \
   template HermitianEigInfo HermitianEig\
   ( UpperOrLower uplo, \
-    DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, \
-    DistMatrix<F,STAR,STAR>& Q,\
-    const HermitianEigCtrl<F>& ctrl ); \
-  template HermitianEigInfo HermitianEig\
-  ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, \
-    ElementalMatrix<F>& Q, \
-    const HermitianEigCtrl<F>& ctrl ); \
-  template HermitianEigInfo HermitianEig\
-  ( UpperOrLower uplo, \
-    DistMatrix<F,MC,MR,BLOCK>& A, \
-    DistMatrix<Base<F>,STAR,STAR>& w, \
-    DistMatrix<F,MC,MR,BLOCK>& Q, \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Base<F>>& w, \
+    AbstractDistMatrix<F>& Q, \
     const HermitianEigCtrl<F>& ctrl );
-
-// Spectral Divide and Conquer
-#define SDC_PROTO(F) \
-  template void herm_eig::SDC \
-  ( UpperOrLower uplo, \
-    Matrix<F>& A, \
-    Matrix<Base<F>>& w, \
-    const HermitianSDCCtrl<Base<F>> ctrl ); \
-  template void herm_eig::SDC \
-  ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, \
-    const HermitianSDCCtrl<Base<F>> ctrl ); \
-  template void herm_eig::SDC \
-  ( UpperOrLower uplo, \
-    Matrix<F>& A, \
-    Matrix<Base<F>>& w, \
-    Matrix<F>& Q, \
-    const HermitianSDCCtrl<Base<F>> ctrl ); \
-  template void herm_eig::SDC \
-  ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& w, \
-    ElementalMatrix<F>& Q, \
-    const HermitianSDCCtrl<Base<F>> ctrl );
 
 #define PROTO(F) \
   EIGVAL_PROTO(F) \
-  EIGPAIR_PROTO(F) \
-  SDC_PROTO(F)
+  EIGPAIR_PROTO(F)
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

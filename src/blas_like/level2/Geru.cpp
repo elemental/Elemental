@@ -40,9 +40,9 @@ void Geru
 template<typename T>
 void Geru
 ( T alpha,
-  const ElementalMatrix<T>& x, 
-  const ElementalMatrix<T>& y,
-        ElementalMatrix<T>& APre )
+  const AbstractDistMatrix<T>& x, 
+  const AbstractDistMatrix<T>& y,
+        AbstractDistMatrix<T>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -133,9 +133,9 @@ void Geru
           Matrix<T>& A ); \
   template void Geru \
   ( T alpha, \
-    const ElementalMatrix<T>& x, \
-    const ElementalMatrix<T>& y, \
-          ElementalMatrix<T>& A );
+    const AbstractDistMatrix<T>& x, \
+    const AbstractDistMatrix<T>& y, \
+          AbstractDistMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

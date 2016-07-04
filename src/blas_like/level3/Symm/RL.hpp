@@ -93,9 +93,9 @@ void LocalAccumulateRL
 template<typename T>
 void RLA
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_CSE
@@ -157,9 +157,9 @@ void RLA
 template<typename T>
 void RLC
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_CSE
@@ -219,9 +219,9 @@ void RLC
 template<typename T>
 void RL
 ( T alpha,
-  const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C,
+  const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C,
   bool conjugate=false )
 {
     DEBUG_CSE

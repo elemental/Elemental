@@ -14,10 +14,10 @@ template<typename T>
 void Transpose
 ( Orientation orientation,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& x,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& x,
   T beta,
-        ElementalMatrix<T>& yPre )
+        AbstractDistMatrix<T>& yPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -123,7 +123,7 @@ void Transpose
 ( Orientation orientation,
   T alpha,
   const DistMatrix<T>& A,
-  const ElementalMatrix<T>& x,
+  const AbstractDistMatrix<T>& x,
   T beta,
         DistMatrix<T,VC,STAR>& y )
 {

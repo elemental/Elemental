@@ -117,9 +117,9 @@ void LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
 void LLNLarge
-( const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+( const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     const Int m = XPre.Height();
@@ -175,9 +175,9 @@ void LLNLarge
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
 void LLNMedium
-( const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+( const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     const Int m = XPre.Height();

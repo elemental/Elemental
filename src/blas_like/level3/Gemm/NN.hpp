@@ -14,9 +14,9 @@ namespace gemm {
 template<typename T>
 void Cannon_NN
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -101,9 +101,9 @@ void Cannon_NN
 template<typename T>
 void SUMMA_NNA
 ( T alpha,
-  const ElementalMatrix<T>& APre, 
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre, 
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -155,9 +155,9 @@ void SUMMA_NNA
 template<typename T>
 void SUMMA_NNB
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -206,9 +206,9 @@ void SUMMA_NNB
 template<typename T>
 void SUMMA_NNC
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -257,9 +257,9 @@ void SUMMA_NNC
 template<typename T>
 void SUMMA_NNDot
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -355,9 +355,9 @@ void SUMMA_NNDot
 template<typename T>
 void SUMMA_NN
 ( T alpha,
-  const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C,
+  const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C,
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_CSE

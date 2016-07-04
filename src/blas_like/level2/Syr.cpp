@@ -49,8 +49,8 @@ template<typename T>
 void Syr
 ( UpperOrLower uplo,
   T alpha,
-  const ElementalMatrix<T>& x,
-        ElementalMatrix<T>& APre,
+  const AbstractDistMatrix<T>& x,
+        AbstractDistMatrix<T>& APre,
   bool conjugate )
 {
     DEBUG_CSE
@@ -161,7 +161,7 @@ void Syr
     const Matrix<T>& x, Matrix<T>& A, bool conjugate ); \
   template void Syr \
   ( UpperOrLower uplo, T alpha, \
-    const ElementalMatrix<T>& x, ElementalMatrix<T>& A, bool conjugate );
+    const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A, bool conjugate );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

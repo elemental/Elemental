@@ -274,9 +274,9 @@ void LUN
 
 template<typename F>
 void LUNLarge
-( const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+( const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     const Int m = XPre.Height();
@@ -339,10 +339,10 @@ void LUNLarge
 
 template<typename Real>
 void LUNLarge
-( const ElementalMatrix<Real>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& XRealPre, 
-        ElementalMatrix<Real>& XImagPre )
+( const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_CSE
     // TODO: More error checks, especially on alignments?
@@ -423,9 +423,9 @@ void LUNLarge
 
 template<typename F>
 void LUNMedium
-( const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+( const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     const Int m = XPre.Height();
@@ -493,10 +493,10 @@ void LUNMedium
 
 template<typename Real>
 void LUNMedium
-( const ElementalMatrix<Real>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& XRealPre, 
-        ElementalMatrix<Real>& XImagPre )
+( const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_CSE
     // TODO: Error checks, particularly on alignments?

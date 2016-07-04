@@ -141,9 +141,9 @@ void LLT
 template<typename F>
 void LLTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre )
+  const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -214,9 +214,9 @@ void LLTLarge
 template<typename F>
 void LLTMedium
 ( Orientation orientation,
-  const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre )
+  const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(

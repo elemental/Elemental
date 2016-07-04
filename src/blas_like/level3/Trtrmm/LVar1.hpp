@@ -38,7 +38,7 @@ void LVar1( Matrix<T>& L, bool conjugate=false )
 }
 
 template<typename T>
-void LVar1( ElementalMatrix<T>& LPre, bool conjugate=false )
+void LVar1( AbstractDistMatrix<T>& LPre, bool conjugate=false )
 {
     DEBUG_CSE
     DEBUG_ONLY(

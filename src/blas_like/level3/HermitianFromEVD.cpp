@@ -47,9 +47,9 @@ void HermitianFromEVD
 template<typename F>
 void HermitianFromEVD
 ( UpperOrLower uplo, 
-        ElementalMatrix<F>& APre,
-  const ElementalMatrix<Base<F>>& wPre,
-  const ElementalMatrix<F>& ZPre )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<Base<F>>& wPre,
+  const AbstractDistMatrix<F>& ZPre )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -101,9 +101,9 @@ void HermitianFromEVD
     const Matrix<F>& Z ); \
   template void HermitianFromEVD \
   ( UpperOrLower uplo, \
-          ElementalMatrix<F>& A, \
-    const ElementalMatrix<Base<F>>& w, \
-    const ElementalMatrix<F>& Z );
+          AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<Base<F>>& w, \
+    const AbstractDistMatrix<F>& Z );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -42,9 +42,9 @@ void Ger
 template<typename T>
 void Ger
 ( T alpha,
-  const ElementalMatrix<T>& x, 
-  const ElementalMatrix<T>& y,
-        ElementalMatrix<T>& APre )
+  const AbstractDistMatrix<T>& x, 
+  const AbstractDistMatrix<T>& y,
+        AbstractDistMatrix<T>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -130,9 +130,9 @@ void Ger
 template<typename T>
 void LocalGer
 ( T alpha,
-  const ElementalMatrix<T>& x, 
-  const ElementalMatrix<T>& y,
-        ElementalMatrix<T>& A )
+  const AbstractDistMatrix<T>& x, 
+  const AbstractDistMatrix<T>& y,
+        AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
     // TODO: Add error checking here
@@ -143,11 +143,11 @@ void LocalGer
   template void Ger \
   ( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
   template void Ger \
-  ( T alpha, const ElementalMatrix<T>& x, const ElementalMatrix<T>& y, \
-                   ElementalMatrix<T>& A ); \
+  ( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+                   AbstractDistMatrix<T>& A ); \
   template void LocalGer \
-  ( T alpha, const ElementalMatrix<T>& x, const ElementalMatrix<T>& y, \
-                   ElementalMatrix<T>& A );
+  ( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+                   AbstractDistMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

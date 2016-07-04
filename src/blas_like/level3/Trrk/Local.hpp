@@ -127,27 +127,36 @@ void TrrkNNKernel
 {
     DEBUG_CSE
     DEBUG_ONLY(CheckInputNN( A, B, C ))
-    Matrix<T> AT, AB;
-    Matrix<T> BL, BR;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    LockedPartitionDown( A, AT, AB, half );
-    LockedPartitionRight( B, BL, BR, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AT = A(indTL,ALL);
+    auto AB = A(indBR,ALL);
+    auto BL = B(ALL,indTL);
+    auto BR = B(ALL,indBR);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         Gemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DTL;
     Gemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
     AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DBR;
     Gemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
@@ -164,31 +173,39 @@ void LocalTrrkKernel
     DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g), AB(g);
-    DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
-
     const Int half = C.Height()/2;
-    LockedPartitionDown( A, AT, AB, half );
-    LockedPartitionRight( B, BL, BR, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AT = A(indTL,ALL);
+    auto AB = A(indBR,ALL);
+    auto BL = B(ALL,indTL);
+    auto BR = B(ALL,indBR);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
 }
 
 // Local C := alpha A B^{T/H} + C
@@ -201,27 +218,36 @@ void TrrkNTKernel
 {
     DEBUG_CSE
     DEBUG_ONLY(CheckInputNT( orientationOfB, A, B, C ))
-    Matrix<T> AT, AB;
-    Matrix<T> BT, BB;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    LockedPartitionDown( A, AT, AB, half );
-    LockedPartitionDown( B, BT, BB, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AT = A(indTL,ALL);
+    auto AB = A(indBR,ALL);
+    auto BT = B(indTL,ALL);
+    auto BB = B(indBR,ALL);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         Gemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DTL;
     Gemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
     AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DBR;
     Gemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
@@ -239,31 +265,39 @@ void LocalTrrkKernel
     DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g), AB(g);
-    DistMatrix<T,MR,STAR> BT(g), BB(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
-
     const Int half = C.Height()/2;
-    LockedPartitionDown( A, AT, AB, half );
-    LockedPartitionDown( B, BT, BB, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AT = A(indTL,ALL);
+    auto AB = A(indBR,ALL);
+    auto BT = B(indTL,ALL);
+    auto BB = B(indBR,ALL);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
 }
 
 // Local C := alpha A^{T/H} B + C
@@ -276,27 +310,36 @@ void TrrkTNKernel
 {
     DEBUG_CSE
     DEBUG_ONLY(CheckInputTN( orientationOfA, A, B, C ))
-    Matrix<T> AL, AR;
-    Matrix<T> BL, BR;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionRight( B, BL, BR, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AL = A(ALL,indTL);
+    auto AR = A(ALL,indBR);
+    auto BL = B(ALL,indTL);
+    auto BR = B(ALL,indBR);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         Gemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DTL;
     Gemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
     AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DBR;
     Gemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
@@ -314,31 +357,39 @@ void LocalTrrkKernel
     DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
-    DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
-
     const Int half = C.Height()/2;
-    LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionRight( B, BL, BR, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AL = A(ALL,indTL);
+    auto AR = A(ALL,indBR);
+    auto BL = B(ALL,indTL);
+    auto BR = B(ALL,indBR);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + C
@@ -352,27 +403,36 @@ void TrrkTTKernel
 {
     DEBUG_CSE
     DEBUG_ONLY(CheckInputTT( orientationOfA, orientationOfB, A, B, C ))
-    Matrix<T> AL, AR;
-    Matrix<T> BT, BB;
-    Matrix<T> CTL, CTR,
-              CBL, CBR;
-    Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
-    LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown( B, BT, BB, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AL = A(ALL,indTL);
+    auto AR = A(ALL,indBR);
+    auto BT = B(indTL,ALL);
+    auto BB = B(indBR,ALL);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         Gemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DTL;
     Gemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
     AxpyTrapezoid( uplo, T(1), DTL, CTL );
 
+    // TODO(poulson): Avoid the temporary copy
+    Matrix<T> DBR;
     Gemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
     AxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
@@ -391,31 +451,39 @@ void LocalTrrkKernel
     DEBUG_ONLY(CheckInput( A, B, C ))
     const Grid& g = C.Grid();
 
-    DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,MR,STAR> BT(g), BB(g);
-    DistMatrix<T> CTL(g), CTR(g),
-                  CBL(g), CBR(g);
-    DistMatrix<T> DTL(g), DBR(g);
-
     const Int half = C.Height()/2;
-    LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown( B, BT, BB, half );
-    PartitionDownDiagonal
-    ( C, CTL, CTR,
-         CBL, CBR, half );
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END);
+
+    auto AL = A(ALL,indTL);
+    auto AR = A(ALL,indBR);
+    auto BT = B(indTL,ALL);
+    auto BB = B(indBR,ALL);
+    auto CTL = C(indTL,indTL);
+    auto CBR = C(indBR,indBR);
 
     if( uplo == LOWER )
+    {
+        auto CBL = C(indBR,indTL);
         LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+    }
     else
+    {
+        auto CTR = C(indTL,indBR);
         LocalGemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+    }
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL, CTL );
+    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
 
+    // TODO(poulson): Avoid the temporary copy
+    DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR, CBR );
+    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
 }
 
 // Local C := alpha A B + C
@@ -436,22 +504,27 @@ void TrrkNN
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AT, AB;
-        Matrix<T> BL, BR;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionDown( A, AT, AB, half );
-        LockedPartitionRight( B, BL, BR, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AT = A(indTL,ALL);
+        auto AB = A(indBR,ALL);
+        auto BL = B(ALL,indTL);
+        auto BR = B(ALL,indBR);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             Gemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+        }
 
         // Recurse
         TrrkNN( uplo, alpha, AT, BL, CTL );
@@ -478,22 +551,27 @@ void TrrkNT
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AT, AB;
-        Matrix<T> BT, BB;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionDown( A, AT, AB, half );
-        LockedPartitionDown( B, BT, BB, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AT = A(indTL,ALL);
+        auto AB = A(indBR,ALL);
+        auto BT = B(indTL,ALL);
+        auto BB = B(indBR,ALL);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             Gemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+        }
 
         // Recurse
         TrrkNT( uplo, orientationOfB, alpha, AT, BT, CTL );
@@ -520,22 +598,27 @@ void TrrkTN
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AL, AR;
-        Matrix<T> BL, BR;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionRight( B, BL, BR, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AL = A(ALL,indTL);
+        auto AR = A(ALL,indBR);
+        auto BL = B(ALL,indTL);
+        auto BR = B(ALL,indBR);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             Gemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+        }
 
         // Recurse
         TrrkTN( uplo, orientationOfA, alpha, AL, BL, CTL );
@@ -562,22 +645,27 @@ void TrrkTT
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AL, AR;
-        Matrix<T> BT, BB;
-        Matrix<T> CTL, CTR,
-                  CBL, CBR;
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown( B, BT, BB, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AL = A(ALL,indTL);
+        auto AR = A(ALL,indBR);
+        auto BT = B(indTL,ALL);
+        auto BB = B(indBR,ALL);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             Gemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+        }
 
         // Recurse
         TrrkTT( uplo, orientationOfA, orientationOfB, alpha, AL, BT, CTL );
@@ -609,22 +697,27 @@ void LocalTrrk
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g), AB(g);
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionDown( A, AT, AB, half );
-        LockedPartitionRight( B, BL, BR, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AT = A(indTL,ALL);
+        auto AB = A(indBR,ALL);
+        auto BL = B(ALL,indTL);
+        auto BR = B(ALL,indBR);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+        }
 
         // Recurse
         LocalTrrk( uplo, alpha, AT, BL, T(1), CTL );
@@ -655,22 +748,27 @@ void LocalTrrk
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g), AB(g);
-        DistMatrix<T,MR,STAR> BT(g), BB(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionDown( A, AT, AB, half );
-        LockedPartitionDown( B, BT, BB, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AT = A(indTL,ALL);
+        auto AB = A(indBR,ALL);
+        auto BT = B(indTL,ALL);
+        auto BB = B(indBR,ALL);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+        }
 
         // Recurse
         LocalTrrk( uplo, orientationOfB, alpha, AT, BT, T(1), CTL );
@@ -701,22 +799,27 @@ void LocalTrrk
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,STAR,MC> AL(g), AR(g);
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionRight( B, BL, BR, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AL = A(ALL,indTL);
+        auto AR = A(ALL,indBR);
+        auto BL = B(ALL,indTL);
+        auto BR = B(ALL,indBR);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+        }
 
         // Recurse
         LocalTrrk( uplo, orientationOfA, alpha, AL, BL, T(1), CTL );
@@ -747,24 +850,29 @@ void LocalTrrk
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,STAR,MC> AL(g), AR(g);
-        DistMatrix<T,MR,STAR> BT(g), BB(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
+        const Int half = C.Height()/2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END);
 
-        const Int half = C.Height() / 2;
-        LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown( B, BT, BB, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
+        auto AL = A(ALL,indTL);
+        auto AR = A(ALL,indBR);
+        auto BT = B(indTL,ALL);
+        auto BB = B(indBR,ALL);
+        auto CTL = C(indTL,indTL);
+        auto CBR = C(indBR,indBR);
 
         if( uplo == LOWER )
+        {
+            auto CBL = C(indBR,indTL);
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+        }
         else
+        {
+            auto CTR = C(indTL,indBR);
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+        }
 
         // Recurse
         LocalTrrk

@@ -19,9 +19,9 @@ template<typename T>
 void Trr2kTTNN
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
-                 ElementalMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+                 AbstractDistMatrix<T>& E )
 {
     DEBUG_CSE
     Trr2kNNTT( uplo, orientA, orientB, beta, C, D, alpha, A, B, E );

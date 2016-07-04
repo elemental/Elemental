@@ -153,8 +153,8 @@ void LUT
 template<typename F>
 void LUTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& XPre,
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_CSE
@@ -216,8 +216,8 @@ void LUTLarge
 template<typename F>
 void LUTMedium
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& XPre, 
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_CSE

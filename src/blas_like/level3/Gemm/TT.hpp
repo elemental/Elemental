@@ -16,9 +16,9 @@ void SUMMA_TTA
 ( Orientation orientA,
   Orientation orientB,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -75,9 +75,9 @@ void SUMMA_TTB
 ( Orientation orientA,
   Orientation orientB,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -137,9 +137,9 @@ void SUMMA_TTC
 ( Orientation orientA,
   Orientation orientB,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -196,9 +196,9 @@ void SUMMA_TT
 ( Orientation orientA,
   Orientation orientB,
   T alpha,
-  const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C,
+  const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C,
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_CSE

@@ -50,39 +50,74 @@ void DiagonalScale
     }
 }
 
-template<typename TDiag,typename T,Dist U,Dist V>
+template<typename TDiag,typename T,Dist U,Dist V,DistWrap wrapType>
 void DiagonalScale
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<TDiag>& dPre,
-        DistMatrix<T,U,V>& A )
+  const AbstractDistMatrix<TDiag>& dPre,
+        DistMatrix<T,U,V,wrapType>& A )
 {
     DEBUG_CSE
-    if( side == LEFT )
+    if( wrapType == ELEMENT )
     {
-        ElementalProxyCtrl ctrl;
-        ctrl.rootConstrain = true;
-        ctrl.colConstrain = true;
-        ctrl.root = A.Root();
-        ctrl.colAlign = A.ColAlign();
+        if( side == LEFT )
+        {
+            ElementalProxyCtrl ctrl;
+            ctrl.rootConstrain = true;
+            ctrl.colConstrain = true;
+            ctrl.root = A.Root();
+            ctrl.colAlign = A.ColAlign();
 
-        DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>()> dProx( dPre, ctrl );
-        auto& d = dProx.GetLocked();
+            DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>()> dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
 
-        DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
+            DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
+        else
+        {
+            ElementalProxyCtrl ctrl;
+            ctrl.rootConstrain = true;
+            ctrl.colConstrain = true;
+            ctrl.root = A.Root();
+            ctrl.colAlign = A.RowAlign();
+
+            DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>()> dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
+
+            DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
     }
     else
     {
-        ElementalProxyCtrl ctrl;
+        ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
-        ctrl.colAlign = A.RowAlign();
 
-        DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>()> dProx( dPre, ctrl );
-        auto& d = dProx.GetLocked();
+        if( side == LEFT )
+        {
+            ctrl.colAlign = A.ColAlign();
+            ctrl.blockHeight = A.BlockHeight();
+            ctrl.colCut = A.ColCut();
 
-        DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
+            DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>(),BLOCK>
+              dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
+
+            DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
+        else
+        {
+            ctrl.colAlign = A.RowAlign();
+            ctrl.blockHeight = A.BlockWidth();
+            ctrl.colCut = A.RowCut();
+
+            DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>(),BLOCK>
+              dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
+
+            DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
     }
 }
 
@@ -90,15 +125,26 @@ template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<TDiag>& d,
-        ElementalMatrix<T>& A )
+  const AbstractDistMatrix<TDiag>& d,
+        AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
-        DiagonalScale( side, orientation, d, ACast );
-    #include <El/macros/GuardAndPayload.h>
+    if( A.Wrap() == ELEMENT )
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+            DiagonalScale( side, orientation, d, ACast );
+        #include <El/macros/GuardAndPayload.h>
+    }
+    else
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+            DiagonalScale( side, orientation, d, ACast );
+        #include <El/macros/GuardAndPayload.h>
+    }
 }
 
 template<typename TDiag,typename T>
@@ -259,8 +305,8 @@ void DiagonalScale
   EL_EXTERN template void DiagonalScale \
   ( LeftOrRight side, \
     Orientation orientation, \
-    const ElementalMatrix<T>& d, \
-          ElementalMatrix<T>& A ); \
+    const AbstractDistMatrix<T>& d, \
+          AbstractDistMatrix<T>& A ); \
   EL_EXTERN template void DiagonalScale \
   ( LeftOrRight side, \
     Orientation orientation, \

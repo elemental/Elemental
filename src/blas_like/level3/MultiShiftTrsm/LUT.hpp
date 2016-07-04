@@ -43,9 +43,9 @@ void LUT
 template<typename F>
 void LUT
 ( Orientation orientation,
-  const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre ) 
+  const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre ) 
 {
     DEBUG_CSE
 

@@ -215,9 +215,9 @@ namespace herm_tridiag_eig {
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -270,9 +270,9 @@ Helper
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -285,9 +285,9 @@ Helper
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real         >& d,
-  const ElementalMatrix<Complex<Real>>& dSub,
-        ElementalMatrix<Real         >& wPre, 
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& wPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -366,9 +366,9 @@ Helper
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real         >& d,
-  const ElementalMatrix<Complex<Real>>& dSub,
-        ElementalMatrix<Real         >& wPre, 
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& wPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -383,9 +383,9 @@ Helper
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F      >& dSub,
-        ElementalMatrix<Base<F>>& w, 
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F      >& dSub,
+        AbstractDistMatrix<Base<F>>& w, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -529,10 +529,10 @@ namespace herm_tridiag_eig {
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre, 
-        ElementalMatrix<Real>& QPre, 
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre, 
+        AbstractDistMatrix<Real>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     // NOTE: The computation forces double-precision due to PMRRR limitations
@@ -609,10 +609,10 @@ Helper
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre, 
-        ElementalMatrix<Real>& QPre, 
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre, 
+        AbstractDistMatrix<Real>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     HermitianTridiagEigInfo info;
@@ -624,10 +624,10 @@ Helper
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real         >& d,
-  const ElementalMatrix<Complex<Real>>& dSub,
-        ElementalMatrix<Real         >& wPre, 
-        ElementalMatrix<Complex<Real>>& QPre, 
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& wPre, 
+        AbstractDistMatrix<Complex<Real>>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     // NOTE: The computation forces double-precision due to PMRRR limitations
@@ -736,10 +736,10 @@ Helper
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 Helper
-( const ElementalMatrix<Real         >& d,
-  const ElementalMatrix<Complex<Real>>& dSub,
-        ElementalMatrix<Real         >& wPre, 
-        ElementalMatrix<Complex<Real>>& QPre, 
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& wPre, 
+        AbstractDistMatrix<Complex<Real>>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     HermitianTridiagEigInfo info;
@@ -753,10 +753,10 @@ Helper
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,
-        ElementalMatrix<F>& Q, 
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F>& dSub,
+        AbstractDistMatrix<Base<F>>& w,
+        AbstractDistMatrix<F>& Q, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -767,8 +767,8 @@ namespace herm_tridiag_eig {
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 Int EstimateHelper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm,
         Real vl,
         Real vu )
@@ -791,8 +791,8 @@ Int EstimateHelper
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 Int EstimateHelper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm,
         Real vl,
         Real vu )
@@ -807,10 +807,10 @@ Int EstimateHelper
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 PostEstimateHelper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre,
-        ElementalMatrix<Real>& QPre,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre,
+        AbstractDistMatrix<Real>& QPre,
         SortType sort,
         Real vl,
         Real vu )
@@ -857,10 +857,10 @@ PostEstimateHelper
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 PostEstimateHelper
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& wPre,
-        ElementalMatrix<Real>& QPre,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre,
+        AbstractDistMatrix<Real>& QPre,
         SortType sort,
         Real vl,
         Real vu )
@@ -876,8 +876,8 @@ PostEstimateHelper
 
 template<typename Real>
 Int HermitianTridiagEigEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm,
         Real vl,
         Real vu )
@@ -890,10 +890,10 @@ Int HermitianTridiagEigEstimate
 template<typename Real>
 HermitianTridiagEigInfo
 HermitianTridiagEigPostEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& w,
-        ElementalMatrix<Real>& Q,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& w,
+        AbstractDistMatrix<Real>& Q,
         SortType sort,
         Real vl,
         Real vu )
@@ -908,8 +908,8 @@ HermitianTridiagEigPostEstimate
     Matrix<F>& Q, \
     SortType sort ); \
   template void herm_eig::Sort \
-  ( ElementalMatrix<Base<F>>& w, \
-    ElementalMatrix<F>& Q, \
+  ( AbstractDistMatrix<Base<F>>& w, \
+    AbstractDistMatrix<F>& Q, \
     SortType sort ); \
   template void herm_eig::SortAndFilter \
   ( Matrix<Base<F>>& w, \
@@ -927,15 +927,15 @@ HermitianTridiagEigPostEstimate
           Matrix<F>& Q, \
     const HermitianTridiagEigCtrl<Base<F>>& ctrl ); \
   template HermitianTridiagEigInfo HermitianTridiagEig \
-  ( const ElementalMatrix<Base<F>>& d, \
-    const ElementalMatrix<F>& dSub, \
-          ElementalMatrix<Base<F>>& w, \
+  ( const AbstractDistMatrix<Base<F>>& d, \
+    const AbstractDistMatrix<F>& dSub, \
+          AbstractDistMatrix<Base<F>>& w, \
     const HermitianTridiagEigCtrl<Base<F>>& ctrl ); \
   template HermitianTridiagEigInfo HermitianTridiagEig \
-  ( const ElementalMatrix<Base<F>>& d, \
-    const ElementalMatrix<F>& dSub, \
-          ElementalMatrix<Base<F>>& w, \
-          ElementalMatrix<F>& Q, \
+  ( const AbstractDistMatrix<Base<F>>& d, \
+    const AbstractDistMatrix<F>& dSub, \
+          AbstractDistMatrix<Base<F>>& w, \
+          AbstractDistMatrix<F>& Q, \
     const HermitianTridiagEigCtrl<Base<F>>& ctrl );
 
 #define PROTO_REAL(Real) \
@@ -944,14 +944,14 @@ HermitianTridiagEigPostEstimate
   ( Matrix<Real>& w, \
     const HermitianTridiagEigCtrl<Real>& ctrl ); \
   template Int HermitianTridiagEigEstimate \
-  ( const ElementalMatrix<Real>& d, \
-    const ElementalMatrix<Real>& dSub, \
+  ( const AbstractDistMatrix<Real>& d, \
+    const AbstractDistMatrix<Real>& dSub, \
           mpi::Comm wColComm, Real vl, Real vu ); \
   template HermitianTridiagEigInfo HermitianTridiagEigPostEstimate \
-  ( const ElementalMatrix<Real>& d, \
-    const ElementalMatrix<Real>& dSub, \
-          ElementalMatrix<Real>& w, \
-          ElementalMatrix<Real>& Q, \
+  ( const AbstractDistMatrix<Real>& d, \
+    const AbstractDistMatrix<Real>& dSub, \
+          AbstractDistMatrix<Real>& w, \
+          AbstractDistMatrix<Real>& Q, \
           SortType sort, \
           Real vl, \
           Real vu );
@@ -959,15 +959,15 @@ HermitianTridiagEigPostEstimate
 #define PROTO_FLOAT \
   PROTO_REAL(float) \
   template void herm_eig::Sort \
-  ( ElementalMatrix<float>& w, \
-    ElementalMatrix<double>& Q, \
+  ( AbstractDistMatrix<float>& w, \
+    AbstractDistMatrix<double>& Q, \
     SortType sort );
 
 #define PROTO_COMPLEX_FLOAT \
   PROTO(Complex<float>) \
   template void herm_eig::Sort \
-  ( ElementalMatrix<float>& w, \
-    ElementalMatrix<Complex<double>>& Q, \
+  ( AbstractDistMatrix<float>& w, \
+    AbstractDistMatrix<Complex<double>>& Q, \
     SortType sort );
 
 #define EL_NO_INT_PROTO

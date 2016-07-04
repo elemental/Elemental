@@ -86,9 +86,9 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& x,
-  T beta,        ElementalMatrix<T>& y )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y )
 {
     DEBUG_CSE
     if( orientation == NORMAL )
@@ -100,9 +100,9 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& x,
-                 ElementalMatrix<T>& y )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+                 AbstractDistMatrix<T>& y )
 {
     DEBUG_CSE
     y.AlignWith( A );
@@ -117,9 +117,9 @@ void Gemv
 template<typename T>
 void LocalGemv
 ( Orientation orientation,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& x,
-  T beta,        ElementalMatrix<T>& y )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y )
 {
     DEBUG_CSE
     // TODO: Add error checking here
@@ -248,14 +248,14 @@ void Gemv
                    Matrix<T>& y ); \
   template void Gemv \
   ( Orientation orientation, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& x, \
-    T beta,        ElementalMatrix<T>& y ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& x, \
+    T beta,        AbstractDistMatrix<T>& y ); \
   template void Gemv \
   ( Orientation orientation, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& x, \
-                   ElementalMatrix<T>& y ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& x, \
+                   AbstractDistMatrix<T>& y ); \
   template void Gemv \
   ( Orientation orientation, \
     T alpha, const DistMatrix<T,MC,MR,BLOCK>& A, \
@@ -268,9 +268,9 @@ void Gemv
                    DistMatrix<T,MC,MR,BLOCK>& y ); \
   template void LocalGemv \
   ( Orientation orientation, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& x, \
-    T beta,        ElementalMatrix<T>& y );
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& x, \
+    T beta,        AbstractDistMatrix<T>& y );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

@@ -69,8 +69,8 @@ template<typename F>
 void Sort( Matrix<Base<F>>& w, Matrix<F>& Q, SortType sort=ASCENDING );
 template<typename Real,typename F>
 void Sort
-( ElementalMatrix<Real>& w,
-  ElementalMatrix<F>& Q,
+( AbstractDistMatrix<Real>& w,
+  AbstractDistMatrix<F>& Q,
   SortType sort=ASCENDING );
 
 template<typename Real>
@@ -99,9 +99,9 @@ HermitianTridiagEig
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F>& dSub,
+        AbstractDistMatrix<Base<F>>& w,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl=
         HermitianTridiagEigCtrl<Base<F>>() );
 // Compute eigenpairs
@@ -118,18 +118,18 @@ HermitianTridiagEig
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,
-        ElementalMatrix<F>& Q, 
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F>& dSub,
+        AbstractDistMatrix<Base<F>>& w,
+        AbstractDistMatrix<F>& Q, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl=
         HermitianTridiagEigCtrl<Base<F>>() );
 
 // TODO(poulson): Decide if this should be in herm_tridiag_eig::mrrr
 template<typename Real>
 Int HermitianTridiagEigEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
         mpi::Comm wColComm,
         Real vl,
         Real vu );
@@ -138,10 +138,10 @@ Int HermitianTridiagEigEstimate
 template<typename Real>
 HermitianTridiagEigInfo
 HermitianTridiagEigPostEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& w,
-        ElementalMatrix<Real>& Q, 
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& w,
+        AbstractDistMatrix<Real>& Q, 
         SortType sort,
         Real vl,
         Real vu );
@@ -164,6 +164,7 @@ struct HermitianEigCtrl
     HermitianTridiagCtrl<F> tridiagCtrl;
     HermitianTridiagEigCtrl<Base<F>> tridiagEigCtrl;
     HermitianSDCCtrl<Base<F>> sdcCtrl;
+    bool useScaLAPACK=false;
     bool useSDC=false;
     bool timeStages=false;
 };
@@ -187,22 +188,8 @@ template<typename F>
 HermitianEigInfo
 HermitianEig
 (       UpperOrLower uplo,
-        DistMatrix<F,STAR,STAR>& A,
-        DistMatrix<Base<F>,STAR,STAR>& w,
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-template<typename F>
-HermitianEigInfo
-HermitianEig
-(       UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& w,
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-template<typename F>
-HermitianEigInfo
-HermitianEig
-(       UpperOrLower uplo,
-        DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<Base<F>,STAR,STAR>& w,
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // Compute eigenpairs
@@ -219,25 +206,9 @@ template<typename F>
 HermitianEigInfo
 HermitianEig
 (       UpperOrLower uplo,
-        DistMatrix<F,STAR,STAR>& A,
-        DistMatrix<Base<F>,STAR,STAR>& w,
-        DistMatrix<F,STAR,STAR>& Q,
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-template<typename F>
-HermitianEigInfo
-HermitianEig
-(       UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& w, 
-        ElementalMatrix<F>& Q,
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-template<typename F>
-HermitianEigInfo
-HermitianEig
-(       UpperOrLower uplo,
-        DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<Base<F>,STAR,STAR>& w,
-        DistMatrix<F,MC,MR,BLOCK>& Q,
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& w, 
+        AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 namespace herm_eig {
@@ -276,8 +247,8 @@ template<typename F>
 HermitianEigInfo
 SkewHermitianEig
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<Base<F>>& wImag,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
         HermitianEigCtrl<Complex<Base<F>>>() );
 
@@ -296,9 +267,9 @@ template<typename F>
 HermitianEigInfo
 SkewHermitianEig
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
-        ElementalMatrix<Complex<Base<F>>>& Q,
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<Base<F>>& wImag,
+        AbstractDistMatrix<Complex<Base<F>>>& Q,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
         HermitianEigCtrl<Complex<Base<F>>>() );
 
@@ -332,9 +303,9 @@ HermitianEigInfo
 HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
-        ElementalMatrix<Base<F>>& w,
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 // Compute eigenpairs
 // ------------------
@@ -353,10 +324,10 @@ HermitianEigInfo
 HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
-        ElementalMatrix<Base<F>>& w,
-        ElementalMatrix<F>& X,
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<Base<F>>& w,
+        AbstractDistMatrix<F>& X,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
 // Polar decomposition

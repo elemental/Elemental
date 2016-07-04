@@ -66,8 +66,8 @@ void LocalAccumulateRUN
 template<typename T>
 void RUNA
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -114,8 +114,8 @@ void RUNA
 template<typename T>
 void RUNCOld
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -166,8 +166,8 @@ void RUNCOld
 template<typename T>
 void RUNC
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -223,8 +223,8 @@ void RUNC
 template<typename T>
 void RUN
 ( UnitOrNonUnit diag,
-  const ElementalMatrix<T>& U,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& U,
+        AbstractDistMatrix<T>& X )
 {
     DEBUG_CSE
     // TODO: Come up with a better routing mechanism

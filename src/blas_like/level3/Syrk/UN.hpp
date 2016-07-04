@@ -13,8 +13,8 @@ namespace syrk {
 template<typename T>
 void UN
 ( T alpha,
-  const ElementalMatrix<T>& APre, 
-        ElementalMatrix<T>& CPre,
+  const AbstractDistMatrix<T>& APre, 
+        AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_CSE

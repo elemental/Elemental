@@ -636,15 +636,15 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const Matrix<TDiag>& d, Matrix<T>& A );
 
-template<typename TDiag,typename T,Dist U,Dist V>
+template<typename TDiag,typename T,Dist U,Dist V,DistWrap wrapType=ELEMENT>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<TDiag>& d, DistMatrix<T,U,V>& A );
+  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V,wrapType>& A );
 
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A );
+  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A );
 
 template<typename TDiag,typename T>
 void DiagonalScale

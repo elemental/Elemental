@@ -75,8 +75,8 @@ void UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 template<typename F> 
 void UVar5
 ( UnitOrNonUnit diag, 
-        ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& UPre )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& UPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(

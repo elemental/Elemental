@@ -21,8 +21,8 @@ void Her( UpperOrLower uplo, Base<T> alpha, const Matrix<T>& x, Matrix<T>& A )
 template<typename T>
 void Her
 ( UpperOrLower uplo, 
-  Base<T> alpha, const ElementalMatrix<T>& x, 
-                       ElementalMatrix<T>& A )
+  Base<T> alpha, const AbstractDistMatrix<T>& x, 
+                       AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
     Syr( uplo, T(alpha), x, A, true );
@@ -33,8 +33,8 @@ void Her
   ( UpperOrLower uplo, Base<T> alpha, const Matrix<T>& x, Matrix<T>& A ); \
   template void Her \
   ( UpperOrLower uplo, \
-    Base<T> alpha, const ElementalMatrix<T>& x, \
-                         ElementalMatrix<T>& A );
+    Base<T> alpha, const AbstractDistMatrix<T>& x, \
+                         AbstractDistMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

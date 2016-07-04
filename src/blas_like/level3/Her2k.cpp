@@ -36,8 +36,8 @@ void Her2k
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha,      const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  Base<T> beta,       ElementalMatrix<T>& C )
+  T alpha,      const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  Base<T> beta,       AbstractDistMatrix<T>& C )
 {
     DEBUG_CSE
     Syr2k( uplo, orientation, alpha, A, B, T(beta), C, true );
@@ -46,8 +46,8 @@ void Her2k
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-                 ElementalMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C )
 {
     DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
@@ -67,14 +67,14 @@ void Her2k
                    Matrix<T>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& B, \
-                   ElementalMatrix<T>& C ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
+                   AbstractDistMatrix<T>& C ); \
   template void Her2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha,      const ElementalMatrix<T>& A, \
-                  const ElementalMatrix<T>& B, \
-    Base<T> beta,       ElementalMatrix<T>& C );
+    T alpha,      const AbstractDistMatrix<T>& A, \
+                  const AbstractDistMatrix<T>& B, \
+    Base<T> beta,       AbstractDistMatrix<T>& C );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

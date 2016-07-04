@@ -19,9 +19,9 @@ void TrrkTT
   Orientation orientationOfA,
   Orientation orientationOfB,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(

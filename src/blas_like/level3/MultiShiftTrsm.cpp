@@ -42,9 +42,9 @@ void MultiShiftTrsm
   UpperOrLower uplo,
   Orientation orientation,
   F alpha,
-  const ElementalMatrix<F>& U,
-  const ElementalMatrix<F>& shifts, 
-        ElementalMatrix<F>& X )
+  const AbstractDistMatrix<F>& U,
+  const AbstractDistMatrix<F>& shifts, 
+        AbstractDistMatrix<F>& X )
 {
     DEBUG_CSE
     X *= alpha;
@@ -73,9 +73,9 @@ void MultiShiftTrsm
     UpperOrLower uplo, \
     Orientation orientation, \
     F alpha, \
-    const ElementalMatrix<F>& U, \
-    const ElementalMatrix<F>& shifts, \
-          ElementalMatrix<F>& X );
+    const AbstractDistMatrix<F>& U, \
+    const AbstractDistMatrix<F>& shifts, \
+          AbstractDistMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

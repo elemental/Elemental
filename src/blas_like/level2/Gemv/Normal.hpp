@@ -13,10 +13,10 @@ namespace gemv {
 template<typename T>
 void Normal
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& x,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& x,
   T beta,
-        ElementalMatrix<T>& yPre )
+        AbstractDistMatrix<T>& yPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -108,7 +108,7 @@ template<typename T>
 void Normal
 ( T alpha,
   const DistMatrix<T>& A,
-  const ElementalMatrix<T>& x,
+  const AbstractDistMatrix<T>& x,
   T beta,
         DistMatrix<T,VC,STAR>& y )
 {

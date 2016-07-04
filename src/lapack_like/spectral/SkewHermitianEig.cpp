@@ -32,8 +32,8 @@ template<typename F>
 HermitianEigInfo
 SkewHermitianEig
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<Base<F>>& wImag,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_CSE
@@ -65,9 +65,9 @@ template<typename F>
 HermitianEigInfo
 SkewHermitianEig
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
-        ElementalMatrix<Complex<Base<F>>>& Q,
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<Base<F>>& wImag,
+        AbstractDistMatrix<Complex<Base<F>>>& Q,
   const HermitianEigCtrl<Complex<Base<F>>>& ctrl )
 {
     DEBUG_CSE
@@ -85,8 +85,8 @@ SkewHermitianEig
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template HermitianEigInfo SkewHermitianEig \
   ( UpperOrLower uplo, \
-    const ElementalMatrix<F>& G, \
-          ElementalMatrix<Base<F>>& wImag, \
+    const AbstractDistMatrix<F>& G, \
+          AbstractDistMatrix<Base<F>>& wImag, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template HermitianEigInfo SkewHermitianEig \
   ( UpperOrLower uplo, \
@@ -96,9 +96,9 @@ SkewHermitianEig
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl ); \
   template HermitianEigInfo SkewHermitianEig \
   ( UpperOrLower uplo, \
-    const ElementalMatrix<F>& G, \
-          ElementalMatrix<Base<F>>& wImag, \
-          ElementalMatrix<Complex<Base<F>>>& Q, \
+    const AbstractDistMatrix<F>& G, \
+          AbstractDistMatrix<Base<F>>& wImag, \
+          AbstractDistMatrix<Complex<Base<F>>>& Q, \
     const HermitianEigCtrl<Complex<Base<F>>>& ctrl );
 
 #define EL_NO_INT_PROTO

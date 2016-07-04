@@ -91,8 +91,8 @@ template<typename F>
 void LLN
 ( UnitOrNonUnit diag, 
   F alpha,
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_CSE

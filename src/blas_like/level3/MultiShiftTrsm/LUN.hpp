@@ -73,9 +73,9 @@ void LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 
 template<typename F>
 void LUN
-( const ElementalMatrix<F>& UPre, 
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre ) 
+( const AbstractDistMatrix<F>& UPre, 
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre ) 
 {
     DEBUG_CSE
 

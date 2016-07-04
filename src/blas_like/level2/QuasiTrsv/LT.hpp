@@ -161,8 +161,8 @@ void LT
 template<typename F>
 void LT
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& xPre,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_CSE

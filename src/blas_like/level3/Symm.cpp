@@ -55,9 +55,9 @@ void Symm
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& B,
-  T beta,        ElementalMatrix<T>& C,
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C,
   bool conjugate )
 {
     DEBUG_CSE
@@ -87,9 +87,9 @@ void Symm
     bool conjugate ); \
   template void Symm \
   ( LeftOrRight side, UpperOrLower uplo, \
-    T alpha, const ElementalMatrix<T>& A, \
-             const ElementalMatrix<T>& B, \
-    T beta,        ElementalMatrix<T>& C, \
+    T alpha, const AbstractDistMatrix<T>& A, \
+             const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C, \
     bool conjugate ); \
   template void symm::LocalAccumulateLL \
   ( Orientation orientation, T alpha, \

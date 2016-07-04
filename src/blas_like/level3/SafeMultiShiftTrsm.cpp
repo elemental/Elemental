@@ -39,8 +39,8 @@ void SafeMultiShiftTrsm
 template<typename F>
 void SafeMultiShiftTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const ElementalMatrix<F>& A, const ElementalMatrix<F>& shifts, 
-  ElementalMatrix<F>& B, ElementalMatrix<F>& scales )
+  F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts, 
+  AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& scales )
 {
     DEBUG_CSE
     B *= alpha;
@@ -59,8 +59,8 @@ void SafeMultiShiftTrsm
     Matrix<F>& B, Matrix<F>& scales ); \
   template void SafeMultiShiftTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const ElementalMatrix<F>& A, const ElementalMatrix<F>& shifts, \
-    ElementalMatrix<F>& B, ElementalMatrix<F>& scales );
+    F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts, \
+    AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& scales );
   
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

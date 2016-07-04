@@ -290,9 +290,9 @@ void LUT
 template<typename F>
 void LUTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre )
+  const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -354,10 +354,10 @@ void LUTLarge
 template<typename Real>
 void LUTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<Real>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& XRealPre, 
-        ElementalMatrix<Real>& XImagPre )
+  const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -437,9 +437,9 @@ void LUTLarge
 template<typename F>
 void LUTMedium
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+  const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -507,10 +507,10 @@ void LUTMedium
 template<typename Real>
 void LUTMedium
 ( Orientation orientation, 
-  const ElementalMatrix<Real>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& XRealPre, 
-        ElementalMatrix<Real>& XImagPre )
+  const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(

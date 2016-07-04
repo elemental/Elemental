@@ -132,8 +132,8 @@ void LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
 void LLNLarge
-( const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre, 
+( const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_CSE
@@ -187,8 +187,8 @@ void LLNLarge
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
 void LLNMedium
-( const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre, 
+( const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
     DEBUG_CSE

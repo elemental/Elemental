@@ -33,7 +33,7 @@ void Sort( Matrix<Real>& X, SortType sort )
 }
 
 template<typename Real,typename>
-void Sort( ElementalMatrix<Real>& X, SortType sort )
+void Sort( AbstractDistMatrix<Real>& X, SortType sort )
 {
     DEBUG_CSE
     if( sort == UNSORTED )
@@ -89,7 +89,7 @@ vector<ValueInt<Real>> TaggedSort( const Matrix<Real>& x, SortType sort )
 
 template<typename Real,typename>
 vector<ValueInt<Real>>
-TaggedSort( const ElementalMatrix<Real>& x, SortType sort )
+TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort )
 {
     DEBUG_CSE
     if( x.ColDist()==STAR && x.RowDist()==STAR )
@@ -105,11 +105,11 @@ TaggedSort( const ElementalMatrix<Real>& x, SortType sort )
 
 #define PROTO(Real) \
   template void Sort( Matrix<Real>& x, SortType sort ); \
-  template void Sort( ElementalMatrix<Real>& x, SortType sort ); \
+  template void Sort( AbstractDistMatrix<Real>& x, SortType sort ); \
   template vector<ValueInt<Real>> TaggedSort \
   ( const Matrix<Real>& x, SortType sort ); \
   template vector<ValueInt<Real>> TaggedSort \
-  ( const ElementalMatrix<Real>& x, SortType sort );
+  ( const AbstractDistMatrix<Real>& x, SortType sort );
 
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -349,10 +349,10 @@ void LUN
 
 template<typename F>
 void LUN
-( const ElementalMatrix<F>& UPre, 
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre,
-        ElementalMatrix<F>& scalesPre ) 
+( const AbstractDistMatrix<F>& UPre, 
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre,
+        AbstractDistMatrix<F>& scalesPre ) 
 {
     DEBUG_CSE
     typedef Base<F> Real;
