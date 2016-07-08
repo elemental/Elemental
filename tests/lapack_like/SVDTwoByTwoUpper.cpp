@@ -23,6 +23,11 @@ void TestTwoByTwoUpper( Int numTests, bool print )
     Zeros( Z, 2, 2 );
     Zeros( E, 2, 2 );
 
+    // Keep track of the worst instance of relative singular value changes
+    // between the 2x2 upper SVD and 2x2 upper singular value computation
+    Real worstValDiff=0;
+    Matrix<Real> AValDiffWorst;
+
     // Keep track of the worst instance of || A V - U D ||_F / || A ||_F
     Real worstFrobError=0;
     Matrix<Real> AFrobWorst, UFrobWorst, SigmaSgnFrobWorst, VFrobWorst;
@@ -41,12 +46,28 @@ void TestTwoByTwoUpper( Int numTests, bool print )
     {
         Uniform( A, 2, 2 );
         A(1,0) = 0;
+        const Real AFrob = FrobeniusNorm( A );
 
         Real sigmaMax, sgnMax, sigmaMin, sgnMin, cU, sU, cV, sV;
         svd::TwoByTwoUpper
         ( A(0,0), A(0,1), A(1,1),
           sigmaMax, sgnMax, sigmaMin, sgnMin, cU, sU, cV, sV );
-        const Real AFrob = FrobeniusNorm( A );
+        Real sigmaMaxOnly, sigmaMinOnly;
+        svd::TwoByTwoUpper
+        ( A(0,0), A(0,1), A(1,1), sigmaMaxOnly, sigmaMinOnly );
+
+        const Real maxRelDiff = Abs(sigmaMax-sigmaMaxOnly)/sigmaMax;
+        const Real minRelDiff = Abs(sigmaMin-sigmaMinOnly)/sigmaMin;
+        if( maxRelDiff > worstValDiff )
+        {
+            AValDiffWorst = A;
+            worstValDiff = maxRelDiff;
+        }
+        if( minRelDiff > worstValDiff )
+        {
+            AValDiffWorst = A;
+            worstValDiff = minRelDiff;
+        }
 
         U(0,0) = cU; U(0,1) = -sU;
         U(1,0) = sU; U(1,1) =  cU;
@@ -94,6 +115,13 @@ void TestTwoByTwoUpper( Int numTests, bool print )
         }
     }
 
+    Output("Worst singular value relative difference: ",worstValDiff);
+    if( print )
+        Print( AValDiffWorst, "Worst value difference A" );
+    if( worstValDiff > 7*eps )
+        LogicError
+        ("Worst relative value diff was ",worstValDiff," >= 7*eps=",7*eps);
+
     Output("Worst relative Frobenius error: ",worstFrobError);
     if( print )
     {
@@ -103,7 +131,8 @@ void TestTwoByTwoUpper( Int numTests, bool print )
         Print( VFrobWorst, "Worst Frobenius V" );
     }
     if( worstFrobError > 10*eps )
-        LogicError("Worst Frobenius error was greater than 10 eps = ",10*eps);
+        LogicError
+        ("Worst Frobenius error was ",worstFrobError," >= 10 eps = ",10*eps);
 
     Output("Worst relative max residual error: ",worstMaxError);
     if( print )
@@ -114,7 +143,8 @@ void TestTwoByTwoUpper( Int numTests, bool print )
         Print( VMaxWorst, "Worst max rel err V" );
     }
     if( worstMaxError > 10*eps )
-        LogicError("Worst max rel error was greater than 10 eps =",10*eps);
+        LogicError
+        ("Worst max rel error was ",worstMaxError," >= 10 eps =",10*eps);
 
     Output("Worst relative min residual error: ",worstMinError);
     if( print )
@@ -130,8 +160,7 @@ void TestTwoByTwoUpper( Int numTests, bool print )
     // TODO(poulson): Come up with a more appropriate test
     if( worstMinError > 10*condMinWorst*eps )
         LogicError
-        ("Worst min rel error was greater than 10 cond(A) eps = ",
-         10*condMinWorst*eps);
+        ("Worst min rel error was ",worstMinError," >= 10 eps =",10*eps);
 
     Output("");
 }
