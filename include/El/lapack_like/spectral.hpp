@@ -774,6 +774,39 @@ void TSQR
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s );
 
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwoUpper
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+        Real& sigmaMax,
+        Real& sgnMax,
+        Real& sigmaMin,
+        Real& sgnMin,
+        Real& cU,
+        Real& sU,
+        Real& cV,
+        Real& sV );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwoUpperStandard
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+        Real& sigmaMax,
+        Real& sigmaMin,
+        Real& cU,
+        Real& sU,
+        Real& cV,
+        Real& sV );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwoUpper
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+        Real& sigmaMax,
+        Real& sigmaMin );
+
 } // namespace svd
 
 // Compute the full SVD
@@ -1484,6 +1517,7 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 
 #include <El/lapack_like/spectral/Schur.hpp>
 #include <El/lapack_like/spectral/HermitianEig.hpp>
+#include <El/lapack_like/spectral/SVD.hpp>
 #include <El/lapack_like/spectral/Lanczos.hpp>
 #include <El/lapack_like/spectral/ProductLanczos.hpp>
 

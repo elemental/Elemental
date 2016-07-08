@@ -170,10 +170,8 @@ template<typename T,typename>
 Base<T> Abs( const T& alpha ) EL_NO_EXCEPT { return std::abs(alpha); }
 
 template<typename Real,typename>
-Real SafeNorm( const Real& chi0, const Real& chi1 )
+Real SafeNormAbs( const Real& chi0Abs, const Real& chi1Abs )
 {
-    const Real chi0Abs = Abs(chi0); 
-    const Real chi1Abs = Abs(chi1);
     const Real maxAbs = Max( chi0Abs, chi1Abs );
     const Real minAbs = Min( chi0Abs, chi1Abs );
     if( minAbs == Real(0) )
@@ -183,8 +181,14 @@ Real SafeNorm( const Real& chi0, const Real& chi1 )
     else
     {
         const Real ratio = minAbs / maxAbs;
-        return maxAbs*Sqrt( Real(1) + ratio*ratio );
+        return maxAbs*Sqrt( 1 + ratio*ratio );
     }
+}
+
+template<typename Real,typename>
+Real SafeNorm( const Real& chi0, const Real& chi1 )
+{
+    return SafeNormAbs( Abs(chi0), Abs(chi1) );
 }
 
 template<typename Real,typename>

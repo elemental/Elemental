@@ -364,6 +364,8 @@ BigFloat Abs( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT;
 // Carefully avoid unnecessary overflow in an absolute value computation
 // ---------------------------------------------------------------------
 template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SafeNormAbs( const Real& chi0Abs, const Real& chi1Abs );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real SafeNorm( const Real& chi0, const Real& chi1 );
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 );
