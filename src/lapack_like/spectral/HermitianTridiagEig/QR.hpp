@@ -86,6 +86,7 @@ Real WilkinsonShift
 // variables from Dubrulle's algorithm with the single variable 'g' and using
 // 't' for both the safe computation of 'e_i' and for 't_i'.
 //
+// TODO(poulson): Introduce [winBeg,winEnd) to avoid parent allocation
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void QLSweep
 ( Matrix<Real>& d,
@@ -99,8 +100,11 @@ void QLSweep
     DEBUG_CSE
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
-    cList.Resize( n-1, 1 );
-    sList.Resize( n-1, 1 );
+    if( wantEigVecs )
+    {
+        cList.Resize( n-1, 1 );
+        sList.Resize( n-1, 1 );
+    }
 
     Real s(1), c(1);
     Real t, h, p;

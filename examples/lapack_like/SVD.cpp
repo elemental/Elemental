@@ -87,6 +87,7 @@ main( int argc, char* argv[] )
         ctrl.relative = relative;
         ctrl.tol = tol;
         ctrl.time = time;
+        ctrl.useScaLAPACK = scalapack;
         DistMatrix<Real,VR,STAR> sOnly(g);
         if( commRank == 0 )
             timer.Start();
@@ -95,19 +96,6 @@ main( int argc, char* argv[] )
             Output("  SingularValues time: ",timer.Stop());
         if( print )
             Print( sOnly, "sOnly" );
-
-        if( scalapack && (approach == THIN_SVD || approach == COMPACT_SVD) )
-        {
-            DistMatrix<C,MC,MR,BLOCK> ABlock( A );
-            Matrix<Real> sBlock;
-            if( commRank == 0 )
-                timer.Start();
-            SVD( ABlock, sBlock, ctrl );
-            if( commRank == 0 )
-                Output("  ScaLAPACK SingularValues time: ",timer.Stop());
-            if( commRank == 0 && print )
-                Print( sBlock, "s from ScaLAPACK" ); 
-        }
 
         if( testDecomp )
         {
@@ -124,20 +112,6 @@ main( int argc, char* argv[] )
                 Print( U, "U" );
                 Print( s, "s" );
                 Print( V, "V" );
-            }
-
-            if( scalapack && (approach == THIN_SVD || approach == COMPACT_SVD) )
-            {
-                DistMatrix<C,MC,MR,BLOCK> ABlock( A );
-                DistMatrix<C,MC,MR,BLOCK> UBlock(g), VBlock(g);
-                Matrix<Real> sBlock;
-                if( commRank == 0 )
-                    timer.Start();
-                SVD( ABlock, UBlock, sBlock, VBlock, ctrl );
-                if( commRank == 0 )
-                    Output("  ScaLAPACK SVD time: ",timer.Stop());
-                if( commRank == 0 && print )
-                    Print( sBlock, "s from ScaLAPACK" ); 
             }
 
             // Check that U and V are unitary

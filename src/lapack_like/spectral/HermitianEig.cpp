@@ -958,7 +958,10 @@ MRRR
         SafeScale( normMin, maxNormA, w );
     }
 
-    herm_eig::Sort( w, Q, ctrl.tridiagEigCtrl.sort );
+    auto sortPairs = TaggedSort( w, ctrl.tridiagEigCtrl.sort );
+    for( Int j=0; j<n; ++j )
+        w.Set( j, 0, sortPairs[j].value );
+    ApplyTaggedSortToEachRow( sortPairs, Q );
 
     if( ctrl.timeStages )
     {

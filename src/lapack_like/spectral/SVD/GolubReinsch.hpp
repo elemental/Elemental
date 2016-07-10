@@ -15,10 +15,134 @@ namespace El {
 namespace svd {
 
 template<typename F>
-void GolubReinsch
+SVDInfo GolubReinsch
+( Matrix<F>& A,
+  Matrix<F>& U,
+  Matrix<Base<F>>& s, 
+  Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = Min( m, n );
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const char uplo = ( m>=n ? 'U' : 'L' );
+    const bool avoidU = ctrl.avoidComputingU;
+    const bool avoidV = ctrl.avoidComputingV;
+    if( avoidU && avoidV )
+    {
+        return SVD( A, s, ctrl );
+    }
+    SVDInfo info;
+
+    // Bidiagonalize A
+    Timer timer;
+    Matrix<F> phaseP, phaseQ;
+    if( ctrl.time )
+        timer.Start();
+    Bidiag( A, phaseP, phaseQ );
+    if( ctrl.time )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
+
+    // Grab copies of the diagonal and sub/super-diagonal of A
+    // (Force the buffer holding e to be of length at least n)
+    // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    s = GetRealPartOfDiagonal(A);
+    Matrix<Real> ePlus(k,1);
+    auto e = ePlus(IR(0,k-1),ALL);
+    e = GetRealPartOfDiagonal(A,offdiagonal);
+
+    // Initialize U and VAdj to the appropriate identity matrices
+    if( !avoidU )
+    {
+        Identity( U, m, k );
+    }
+
+    Matrix<F> VAdj;
+    if( !avoidV )
+    {
+        Identity( VAdj, k, n );
+    }
+
+    // TODO: If compact SVD, identify the rank with DQDS first?
+
+    // Compute the SVD of the bidiagonal matrix and accumulate the Givens
+    // rotations into our local portion of U and VAdj
+    if( ctrl.time )
+        timer.Start();
+    lapack::BidiagQRAlg
+    ( uplo, k, VAdj.Width(), U.Height(),
+      s.Buffer(), e.Buffer(), 
+      VAdj.Buffer(), VAdj.LDim(), 
+      U.Buffer(), U.LDim() );
+    if( ctrl.time )
+    {
+        Output("BidiagQRAlg: ",timer.Stop()," seconds");
+    }
+
+    Int rank = k;
+    const bool compact = ( ctrl.approach == COMPACT_SVD );
+    if( compact )
+    {
+        const Real twoNorm = ( k==0 ? Real(0) : s(0) );
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
+        for( Int j=0; j<k; ++j ) 
+        {
+            if( s(j) <= thresh )
+            {
+                rank = j;
+                break;
+            }
+        }
+
+        s.Resize( rank, 1 );
+        if( !avoidU ) U.Resize( m, rank );
+        if( !avoidV ) VAdj.Resize( rank, n );
+    }
+
+    if( m >= n )
+    {
+        if( !avoidV ) Adjoint( VAdj, V );
+    }
+    else
+    {
+        if( !avoidV )
+        {
+            auto VAdjL = VAdj( IR(0,rank), IR(0,m) );
+            V.Resize( n, rank );
+            auto VT = V( IR(0,m  ), ALL );
+            auto VB = V( IR(m,END), ALL );
+            Adjoint( VAdjL, VT );
+            Zero( VB );
+        }
+    }
+
+    // Backtransform U and V
+    if( ctrl.time )
+        timer.Start();
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, phaseQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, phaseP, V );
+    if( ctrl.time )
+        Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
+
+    return info;
+}
+
+template<typename F>
+SVDInfo GolubReinsch
 ( DistMatrix<F>& A,
   DistMatrix<F>& U,
-  ElementalMatrix<Base<F>>& s, 
+  AbstractDistMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
@@ -33,16 +157,16 @@ void GolubReinsch
     const Grid& g = A.Grid();
     if( avoidU && avoidV )
     {
-        SVD( A, s, ctrl );
-        return;
+        return SVD( A, s, ctrl );
     }
+    SVDInfo info;
 
     // Bidiagonalize A
     Timer timer;
-    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
+    DistMatrix<F,STAR,STAR> phaseP(g), phaseQ(g);
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    Bidiag( A, tP, tQ );
+    Bidiag( A, phaseP, phaseQ );
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
@@ -142,6 +266,7 @@ void GolubReinsch
         if( !avoidV )
         {
             auto VAdjL_STAR_VC = VAdj_STAR_VC( IR(0,rank), IR(0,m) );
+            V.Resize( n, rank );
             auto VT = V( IR(0,m  ), ALL );
             auto VB = V( IR(m,END), ALL );
             Adjoint( VAdjL_STAR_VC, VT );
@@ -152,18 +277,20 @@ void GolubReinsch
     // Backtransform U and V
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
-    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, phaseQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, phaseP, V );
     if( ctrl.time && g.Rank() == 0 )
         Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
+
+    return info;
 }
 
 template<typename F>
 void GolubReinsch
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& UPre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& UPre,
+  AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre,
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -173,15 +300,127 @@ void GolubReinsch
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    GolubReinsch( A, U, s, V, ctrl );
+    return GolubReinsch( A, U, s, V, ctrl );
 }
 
 #ifdef EL_HAVE_FLA_BSVD
 template<typename F>
-void GolubReinschFlame
+SVDInfo GolubReinschFlame
+( Matrix<F>& A,
+  Matrix<F>& U,
+  Matrix<Base<F>>& s, 
+  Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = Min( m, n );
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const bool avoidU = ctrl.avoidComputingU;
+    const bool avoidV = ctrl.avoidComputingV;
+    if( avoidU && avoidV )
+    {
+        return SVD( A, s, ctrl );
+    }
+    SVDInfo info;
+
+    // Bidiagonalize A
+    Timer timer;
+    Matrix<F> phaseP, phaseQ;
+    if( ctrl.time )
+        timer.Start();
+    Bidiag( A, phaseP, phaseQ );
+    if( ctrl.time )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
+
+    // Grab copies of the diagonal and sub/super-diagonal of A
+    s = GetRealPartOfDiagonal(A);
+    auto e = GetRealPartOfDiagonal(A,offdiagonal);
+
+    // Initialize U and V to the appropriate identity matrices
+    if( !avoidU )
+    {
+        Identity( U, m, k );
+    }
+    if( !avoidV )
+    {
+        Identity( V, n, k );
+    }
+
+    // Since libFLAME, to the best of my current knowledge, only supports the
+    // upper-bidiagonal case, we may instead work with the adjoint in the 
+    // lower-bidiagonal case.
+    //
+    // TODO(poulson): Rotate lower bidiagonal into upper bidiagonal form?
+    if( ctrl.time )
+        timer.Start();
+    if( m >= n )
+    {
+        flame::BidiagSVD
+        ( k, U.Height(), V.Height(),
+          s.Buffer(), e.Buffer(),
+          U.Buffer(), U.LDim(),
+          V.Buffer(), V.LDim() );
+    }
+    else
+    {
+        flame::BidiagSVD
+        ( k, V.Height(), U.Height(),
+          s.Buffer(), e.Buffer(),
+          V.Buffer(), V.LDim(),
+          U.Buffer(), U.LDim() );
+    }
+    if( ctrl.time )
+    {
+        Output("BidiagQRAlg: ",timer.Stop()," seconds");
+    }
+
+    Int rank = k;
+    const bool compact = ( ctrl.approach == COMPACT_SVD );
+    if( compact )
+    {
+        const Real twoNorm = ( k==0 ? Real(0) : d(0) );
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
+        for( Int j=0; j<k; ++j ) 
+        {
+            if( s(j) <= thresh )
+            {
+                rank = j;
+                break;
+            }
+        }
+
+        s.Resize( rank, 1 );
+        if( !avoidU ) U.Resize( m, rank );
+        if( !avoidV ) V.Resize( n, rank );
+    }
+
+    // Backtransform U and V
+    if( ctrl.time )
+        timer.Start();
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, phaseQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, phaseP, V );
+    if( ctrl.time )
+        Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
+
+    return info;
+}
+
+template<typename F>
+SVDInfo GolubReinschFlame
 ( DistMatrix<F>& A,
   DistMatrix<F>& U,
-  ElementalMatrix<Base<F>>& s, 
+  AbstractDistMatrix<Base<F>>& s, 
   DistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
@@ -195,16 +434,16 @@ void GolubReinschFlame
     const Grid& g = A.Grid();
     if( avoidU && avoidV )
     {
-        SVD( A, s, ctrl );
-        return;
+        return SVD( A, s, ctrl );
     }
+    SVDInfo info;
 
     // Bidiagonalize A
     Timer timer;
-    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
+    DistMatrix<F,STAR,STAR> phaseP(g), phaseQ(g);
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    Bidiag( A, tP, tQ );
+    Bidiag( A, phaseP, phaseQ );
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
@@ -309,6 +548,7 @@ void GolubReinschFlame
         if( !avoidV )
         {
             auto VT_VC_STAR = V_VC_STAR( IR(0,m), IR(0,rank) );
+            V.Resize( n, rank );
             auto VT = V( IR(0,m  ), ALL );
             auto VB = V( IR(m,END), ALL ); 
             VT = VT_VC_STAR;
@@ -319,18 +559,20 @@ void GolubReinschFlame
     // Backtransform U and V
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, tQ, U );
-    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, tP, V );
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, phaseQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, phaseP, V );
     if( ctrl.time && g.Rank() == 0 )
         Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
+
+    return info;
 }
 
 template<typename F>
-void GolubReinschFlame
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& UPre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre,
+SVDInfo GolubReinschFlame
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& UPre,
+  AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre,
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -340,44 +582,109 @@ void GolubReinschFlame
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    GolubReinschFlame( A, U, s, V, ctrl );
+    return GolubReinschFlame( A, U, s, V, ctrl );
 }
 
 template<>
-void GolubReinsch
-( ElementalMatrix<double>& A,
-  ElementalMatrix<double>& U,
-  ElementalMatrix<double>& s, 
-  ElementalMatrix<double>& V,
+SVDInfo GolubReinsch
+( AbstractDistMatrix<double>& A,
+  AbstractDistMatrix<double>& U,
+  AbstractDistMatrix<double>& s, 
+  AbstractDistMatrix<double>& V,
   const SVDCtrl<double>& ctrl )
 {
     DEBUG_CSE
     if( ctrl.avoidLibflame )
-        GolubReinsch( A, U, s, V, ctrl );
+        return GolubReinsch( A, U, s, V, ctrl );
     else
-        GolubReinschFlame( A, U, s, V, ctrl );
+        return GolubReinschFlame( A, U, s, V, ctrl );
 }
 
 template<>
-void GolubReinsch
-( ElementalMatrix<Complex<double>>& A,
-  ElementalMatrix<Complex<double>>& U,
-  ElementalMatrix<double>& s, 
-  ElementalMatrix<Complex<double>>& V,
+SVDInfo GolubReinsch
+( AbstractDistMatrix<Complex<double>>& A,
+  AbstractDistMatrix<Complex<double>>& U,
+  AbstractDistMatrix<double>& s, 
+  AbstractDistMatrix<Complex<double>>& V,
   const SVDCtrl<double>& ctrl )
 {
     DEBUG_CSE
     if( ctrl.avoidLibflame )
-        GolubReinsch( A, U, s, V, ctrl );
+        return GolubReinsch( A, U, s, V, ctrl );
     else
-        GolubReinschFlame( A, U, s, V, ctrl );
+        return GolubReinschFlame( A, U, s, V, ctrl );
 }
 #endif // EL_HAVE_FLA_BSVD
 
 template<typename F>
-void GolubReinsch
+SVDInfo GolubReinsch
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = Min( m, n );
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    SVDInfo info;
+
+    // Bidiagonalize A
+    Timer timer;
+    Matrix<F> phaseP, phaseQ;
+    if( ctrl.time )
+        timer.Start();
+    Bidiag( A, phaseP, phaseQ );
+    if( ctrl.time )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
+
+    // Grab copies of the diagonal and sub/super-diagonal of A
+    // (Force the buffer holding e to be of length at least n)
+    // NOTE: lapack::BidiagDQDS expects e to be of length k
+    s = GetRealPartOfDiagonal(A);
+    Matrix<Real> ePlus(k,1);
+    auto e = ePlus(IR(0,k-1),ALL);
+    e = GetRealPartOfDiagonal(A,offdiagonal);
+
+    // Compute the singular values of the bidiagonal matrix via DQDS
+    if( ctrl.time )
+        timer.Start();
+    lapack::BidiagDQDS( k, s.Buffer(), e.Buffer() );
+    if( ctrl.time )
+        Output("DQDS: ",timer.Stop()," seconds");
+    const bool compact = ( ctrl.approach == COMPACT_SVD );
+    if( compact )
+    {
+        const Real twoNorm = ( k==0 ? Real(0) : s(0) );
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
+        Int rank = k;
+        for( Int j=0; j<k; ++j )
+        {
+            if( s(j) <= thresh )
+            {
+                rank = j;
+                break;
+            }
+        }
+        s.Resize( rank, 1 );
+    }
+
+    return info;
+}
+
+template<typename F>
+SVDInfo GolubReinsch
 ( DistMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s,
+  AbstractDistMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -387,13 +694,14 @@ void GolubReinsch
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const Grid& g = A.Grid();
+    SVDInfo info;
 
     // Bidiagonalize A
     Timer timer;
-    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
+    DistMatrix<F,STAR,STAR> phaseP(g), phaseQ(g);
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    Bidiag( A, tP, tQ );
+    Bidiag( A, phaseP, phaseQ );
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
@@ -445,18 +753,20 @@ void GolubReinsch
 
     // Copy out the appropriate subset of the singular values
     Copy( d_STAR_STAR, s );
+
+    return info;
 }
 
 template<typename F>
-void GolubReinsch
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& s,
+SVDInfo GolubReinsch
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    GolubReinsch( A, s, ctrl );
+    return GolubReinsch( A, s, ctrl );
 }
 
 } // namespace svd

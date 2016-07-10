@@ -9,7 +9,6 @@
 #include <El.hpp>
 
 #include "./HermitianTridiagEig/QR.hpp"
-#include "./HermitianTridiagEig/Sort.hpp"
 
 // NOTE: dSubReal and QReal could be packed into their complex counterparts
 
@@ -64,7 +63,11 @@ void SortAndFilter
     const Int n = w.Height();
     if( ctrl.subset.indexSubset )
     {
-        Sort( w, Q, ctrl.sort );
+        auto sortPairs = TaggedSort( w, ctrl.sort );
+        for( Int j=0; j<n; ++j )
+            w(j) = sortPairs[j].value;
+        ApplyTaggedSortToEachRow( sortPairs, Q );
+
         auto wCopy = w;
         auto QCopy = Q;
         w = wCopy(IR(ctrl.subset.lowerIndex,ctrl.subset.upperIndex+1),ALL);
@@ -96,11 +99,18 @@ void SortAndFilter
 
         w = wFilter;
         Q = QFilter;
-        Sort( w, Q, ctrl.sort );
+
+        auto sortPairs = TaggedSort( w, ctrl.sort );
+        for( Int j=0; j<numValid; ++j )
+            w(j) = sortPairs[j].value;
+        ApplyTaggedSortToEachRow( sortPairs, Q );
     }
     else
     {
-        Sort( w, Q, ctrl.sort );
+        auto sortPairs = TaggedSort( w, ctrl.sort );
+        for( Int j=0; j<n; ++j )
+            w(j) = sortPairs[j].value;
+        ApplyTaggedSortToEachRow( sortPairs, Q );
     }
 }
 
@@ -446,7 +456,10 @@ Helper
             ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
               Q.Buffer(), BlasInt(Q.LDim()) );
         }
-        herm_eig::Sort( w, Q, ctrl.sort );
+        auto sortPairs = TaggedSort( w, ctrl.sort );
+        for( Int j=0; j<n; ++j )
+            w(j) = sortPairs[j].value;
+        ApplyTaggedSortToEachRow( sortPairs, Q );
     }
 
     return info;
@@ -601,7 +614,10 @@ Helper
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
         w.SetLocal( iLoc, 0, Real(wVector[iLoc]) );
 
-    herm_eig::Sort( w, Q, ctrl.sort );
+    auto sortPairs = TaggedSort( w, ctrl.sort );
+    for( Int j=0; j<n; ++j )
+        w.Set( j, 0, sortPairs[j].value );
+    ApplyTaggedSortToEachRow( sortPairs, Q );
 
     return info;
 }
@@ -721,7 +737,11 @@ Helper
         wLoc(iLoc) = wVector[iLoc];
 
     QReal.Resize( n, rangeInfo.numGlobalEigenvalues );
-    herm_eig::Sort( w, QReal, ctrl.sort );
+
+    auto sortPairs = TaggedSort( w, ctrl.sort );
+    for( Int j=0; j<n; ++j )
+        w.Set( j, 0, sortPairs[j].value );
+    ApplyTaggedSortToEachRow( sortPairs, QReal );
 
     Q.Resize( n, rangeInfo.numGlobalEigenvalues );
     auto& QLoc = Q.Matrix();
@@ -849,7 +869,10 @@ MRRRPostEstimateHelper
     // Shrink Q
     Q.Resize( n, k );
 
-    herm_eig::Sort( w, Q, sort );
+    auto sortPairs = TaggedSort( w, sort );
+    for( Int j=0; j<n; ++j )
+        w.Set( j, 0, sortPairs[j].value );
+    ApplyTaggedSortToEachRow( sortPairs, Q );
 
     return info;
 }
@@ -903,14 +926,6 @@ MRRRPostEstimate
 } // namespace herm_tridiag_eig
 
 #define PROTO(F) \
-  template void herm_eig::Sort \
-  ( Matrix<Base<F>>& w, \
-    Matrix<F>& Q, \
-    SortType sort ); \
-  template void herm_eig::Sort \
-  ( AbstractDistMatrix<Base<F>>& w, \
-    AbstractDistMatrix<F>& Q, \
-    SortType sort ); \
   template void herm_eig::SortAndFilter \
   ( Matrix<Base<F>>& w, \
     Matrix<F>& Q, \
@@ -955,20 +970,6 @@ MRRRPostEstimate
           SortType sort, \
           Real vl, \
           Real vu );
-
-#define PROTO_FLOAT \
-  PROTO_REAL(float) \
-  template void herm_eig::Sort \
-  ( AbstractDistMatrix<float>& w, \
-    AbstractDistMatrix<double>& Q, \
-    SortType sort );
-
-#define PROTO_COMPLEX_FLOAT \
-  PROTO(Complex<float>) \
-  template void herm_eig::Sort \
-  ( AbstractDistMatrix<float>& w, \
-    AbstractDistMatrix<Complex<double>>& Q, \
-    SortType sort );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

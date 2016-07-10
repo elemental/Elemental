@@ -18,7 +18,7 @@ namespace svd {
 // =========================
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<F>& U, 
         Matrix<Base<F>>& s,
@@ -37,6 +37,8 @@ void TallAbsoluteProduct
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -47,7 +49,7 @@ void TallAbsoluteProduct
         U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
-        return;
+        return info;
     }
 
     // C := A^H A
@@ -66,6 +68,7 @@ void TallAbsoluteProduct
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -84,10 +87,12 @@ void TallAbsoluteProduct
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
+
+    return info;
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -105,6 +110,8 @@ void TallRelativeProduct
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    SVDInfo info;
+
     if( relTol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -119,6 +126,7 @@ void TallRelativeProduct
     HermitianEigCtrl<F> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -147,10 +155,12 @@ void TallRelativeProduct
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
+
+    return info;
 }
 
 template<typename F>
-void TallProduct
+SVDInfo TallProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -161,16 +171,16 @@ void TallProduct
 {
     DEBUG_CSE
     if( relative )
-        TallRelativeProduct( A, U, s, V, tol, avoidU );
+        return TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
-        TallAbsoluteProduct( A, U, s, V, tol, avoidU );
+        return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
         DistMatrix<F>& V,
   Base<F> tol,
   bool avoidU )
@@ -187,6 +197,8 @@ void TallAbsoluteProduct
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -197,7 +209,7 @@ void TallAbsoluteProduct
         U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
-        return;
+        return info;
     }
 
     // C := A^H A
@@ -217,6 +229,7 @@ void TallAbsoluteProduct
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
@@ -236,14 +249,16 @@ void TallAbsoluteProduct
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
+
+    return info;
 }
 
 template<typename F>
-void TallAbsoluteProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<F>& UPre,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& VPre,
+SVDInfo TallAbsoluteProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& VPre,
   Base<F> tol,
   bool avoidU )
 {
@@ -254,14 +269,14 @@ void TallAbsoluteProduct
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallAbsoluteProduct( A, U, s, V, tol, avoidU );
+    return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
         DistMatrix<F>& V,
   Base<F> relTol,
   bool avoidU )
@@ -277,6 +292,9 @@ void TallRelativeProduct
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Grid& g = A.Grid();
+    SVDInfo info;
+
     if( relTol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -284,8 +302,6 @@ void TallRelativeProduct
     }
 
     // C := A^H A
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
     DistMatrix<F> C(g);
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
@@ -293,6 +309,7 @@ void TallRelativeProduct
     HermitianEigCtrl<F> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const Real twoNorm = Sqrt(MaxNorm(s));
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -324,14 +341,16 @@ void TallRelativeProduct
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
+
+    return info;
 }
 
 template<typename F>
-void TallRelativeProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<F>& UPre,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& VPre,
+SVDInfo TallRelativeProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& VPre,
   Base<F> relTol,
   bool avoidU )
 {
@@ -342,28 +361,28 @@ void TallRelativeProduct
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallRelativeProduct( A, U, s, V, relTol, avoidU );
+    return TallRelativeProduct( A, U, s, V, relTol, avoidU );
 }
 
 template<typename F>
-void TallProduct
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
+SVDInfo TallProduct
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   Base<F> tol,
   bool relative,
   bool avoidU )
 {
     DEBUG_CSE
     if( relative )
-        TallRelativeProduct( A, U, s, V, tol, avoidU );
+        return TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
-        TallAbsoluteProduct( A, U, s, V, tol, avoidU );
+        return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<F,VC,STAR>& U,
         DistMatrix<Base<F>,STAR,STAR>& s, 
@@ -379,11 +398,12 @@ void TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-
-    typedef Base<F> Real;
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -394,7 +414,7 @@ void TallAbsoluteProduct
         U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
-        return;
+        return info;
     }
 
     // C := A^H A
@@ -416,6 +436,7 @@ void TallAbsoluteProduct
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const int k = s.Height();
     
     // Sigma := sqrt(Sigma^2)
@@ -437,14 +458,16 @@ void TallAbsoluteProduct
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
+
+    return info;
 }
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
-        ElementalMatrix<F>& UPre,
-        ElementalMatrix<Base<F>>& sPre, 
-        ElementalMatrix<F>& VPre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& sPre, 
+        AbstractDistMatrix<F>& VPre,
   Base<F> tol,
   bool avoidU )
 {
@@ -455,11 +478,11 @@ void TallAbsoluteProduct
     auto& s = sProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallAbsoluteProduct( A, U, s, V, tol, avoidU );
+    return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<F,VC,STAR>& U,
         DistMatrix<Base<F>,STAR,STAR>& s, 
@@ -478,6 +501,9 @@ void TallRelativeProduct
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Grid& g = A.Grid();
+    SVDInfo info;
+
     if( relTol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -485,8 +511,6 @@ void TallRelativeProduct
     }
 
     // C := A^H A
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
@@ -496,6 +520,7 @@ void TallRelativeProduct
     HermitianEigCtrl<F> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
@@ -528,14 +553,16 @@ void TallRelativeProduct
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
+
+    return info;
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
-        ElementalMatrix<F>& UPre,
-        ElementalMatrix<Base<F>>& sPre, 
-        ElementalMatrix<F>& VPre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& sPre, 
+        AbstractDistMatrix<F>& VPre,
   Base<F> relTol,
   bool avoidU )
 {
@@ -546,28 +573,28 @@ void TallRelativeProduct
     auto& s = sProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    TallRelativeProduct( A, U, s, V, relTol, avoidU );
+    return TallRelativeProduct( A, U, s, V, relTol, avoidU );
 }
 
 template<typename F>
-void TallProduct
+SVDInfo TallProduct
 ( const DistMatrix<F,VC,STAR>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   Base<F> tol,
   bool relative,
   bool avoidU )
 {
     DEBUG_CSE
     if( relative )
-        TallRelativeProduct( A, U, s, V, tol, avoidU );
+        return TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
-        TallAbsoluteProduct( A, U, s, V, tol, avoidU );
+        return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
 template<typename F>
-void WideAbsoluteProduct
+SVDInfo WideAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -586,6 +613,8 @@ void WideAbsoluteProduct
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -596,7 +625,7 @@ void WideAbsoluteProduct
         U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
-        return;
+        return info;
     }
 
     // C := A A^H
@@ -615,6 +644,7 @@ void WideAbsoluteProduct
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, U, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -631,10 +661,12 @@ void WideAbsoluteProduct
         ColumnTwoNorms( V, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, V );
     }
+
+    return info;
 }
 
 template<typename F>
-void WideRelativeProduct
+SVDInfo WideRelativeProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -652,6 +684,8 @@ void WideRelativeProduct
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    SVDInfo info;
+
     if( relTol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -666,6 +700,7 @@ void WideRelativeProduct
     HermitianEigCtrl<F> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, U, ctrl );
+    // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
@@ -692,10 +727,12 @@ void WideRelativeProduct
         ColumnTwoNorms( V, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, V );
     }
+
+    return info;
 }
 
 template<typename F>
-void WideProduct
+SVDInfo WideProduct
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -706,16 +743,16 @@ void WideProduct
 {
     DEBUG_CSE
     if( relative )
-        WideRelativeProduct( A, U, s, V, tol, avoidV );
+        return WideRelativeProduct( A, U, s, V, tol, avoidV );
     else
-        WideAbsoluteProduct( A, U, s, V, tol, avoidV );
+        return WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
 template<typename F>
-void WideAbsoluteProduct
+SVDInfo WideAbsoluteProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
         DistMatrix<F>& V,
   Base<F> tol,
   bool avoidV )
@@ -727,10 +764,11 @@ void WideAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    SVDInfo info;
 
-    typedef Base<F> Real;
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
@@ -742,7 +780,7 @@ void WideAbsoluteProduct
         U.Resize( m, 0 );        
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
-        return;
+        return info;
     }
 
     // C := A A^H
@@ -779,14 +817,16 @@ void WideAbsoluteProduct
         ColumnTwoNorms( V, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, V );
     }
+
+    return info;
 }
 
 template<typename F>
-void WideAbsoluteProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<F>& UPre,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& VPre,
+SVDInfo WideAbsoluteProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& VPre,
   Base<F> tol,
   bool avoidV )
 {
@@ -797,14 +837,14 @@ void WideAbsoluteProduct
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    WideAbsoluteProduct( A, U, s, V, tol, avoidV );
+    return WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
 template<typename F>
-void WideRelativeProduct
+SVDInfo WideRelativeProduct
 ( const DistMatrix<F>& A,
         DistMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
         DistMatrix<F>& V,
   Base<F> relTol,
   bool avoidV )
@@ -820,6 +860,9 @@ void WideRelativeProduct
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Grid& g = A.Grid();
+    SVDInfo info;
+
     if( relTol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -827,8 +870,6 @@ void WideRelativeProduct
     }
 
     // C := A A^H
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
     DistMatrix<F> C( g );
     Herk( LOWER, NORMAL, Real(1), A, C );
 
@@ -865,14 +906,16 @@ void WideRelativeProduct
         ColumnTwoNorms( V, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, V );
     }
+
+    return info;
 }
 
 template<typename F>
-void WideRelativeProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<F>& UPre,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& VPre,
+SVDInfo WideRelativeProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& VPre,
   Base<F> relTol,
   bool avoidV )
 {
@@ -883,24 +926,24 @@ void WideRelativeProduct
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
-    WideRelativeProduct( A, U, s, V, relTol, avoidV );
+    return WideRelativeProduct( A, U, s, V, relTol, avoidV );
 }
 
 template<typename F>
-void WideProduct
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
+SVDInfo WideProduct
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   Base<F> tol,
   bool relative,
   bool avoidV )
 {
     DEBUG_CSE
     if( relative )
-        WideRelativeProduct( A, U, s, V, tol, avoidV );
+        return WideRelativeProduct( A, U, s, V, tol, avoidV );
     else
-        WideAbsoluteProduct( A, U, s, V, tol, avoidV );
+        return WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
 // NOTE: [* ,VR] WideProduct would produce U with different distribution
@@ -909,7 +952,7 @@ void WideProduct
 //       overwritten
 
 template<typename F>
-void Product
+SVDInfo Product
 ( const Matrix<F>& A,
         Matrix<F>& U, 
         Matrix<Base<F>>& s,
@@ -922,17 +965,17 @@ void Product
     DEBUG_CSE
     // TODO: If m(A) >=~ n(A) but avoidV requested, find a way to make use of it
     if( A.Height() >= A.Width() )
-        TallProduct( A, U, s, V, tol, relative, avoidU );
+        return TallProduct( A, U, s, V, tol, relative, avoidU );
     else
-        WideProduct( A, U, s, V, tol, relative, avoidV );
+        return WideProduct( A, U, s, V, tol, relative, avoidV );
 }
 
 template<typename F>
-void Product
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
+SVDInfo Product
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   Base<F> tol,
   bool relative,
   bool avoidU,
@@ -941,16 +984,16 @@ void Product
     DEBUG_CSE
     // TODO: If m(A) >=~ n(A) but avoidV requested, find a way to make use of it
     if( A.Height() >= A.Width() )
-        TallProduct( A, U, s, V, tol, relative, avoidU );
+        return TallProduct( A, U, s, V, tol, relative, avoidU );
     else
-        WideProduct( A, U, s, V, tol, relative, avoidV );
+        return WideProduct( A, U, s, V, tol, relative, avoidV );
 }
 
 // Compute singular values
 // =======================
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol )
@@ -965,6 +1008,8 @@ void TallAbsoluteProduct
     typedef Base<F> Real;
     const Int m = A.Height();
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -973,7 +1018,7 @@ void TallAbsoluteProduct
     if( tol >= frobNorm )
     {
         s.Resize( 0, 1 );
-        return;
+        return info;
     }
 
     // C := A^H A
@@ -997,10 +1042,12 @@ void TallAbsoluteProduct
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
         s(i) = Sqrt(s(i));
+
+    return info;
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> relTol )
@@ -1014,6 +1061,7 @@ void TallRelativeProduct
     )
     typedef Base<F> Real;
     const Int n = A.Width();
+    SVDInfo info;
 
     // C := A^H A
     Matrix<F> C;
@@ -1037,10 +1085,12 @@ void TallRelativeProduct
         else
             s(i) = sigma;
     }
+
+    return info;
 }
 
 template<typename F>
-void TallProduct
+SVDInfo TallProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
@@ -1048,15 +1098,15 @@ void TallProduct
 {
     DEBUG_CSE
     if( relative )
-        TallRelativeProduct( A, s, tol );
+        return TallRelativeProduct( A, s, tol );
     else
-        TallAbsoluteProduct( A, s, tol );
+        return TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const DistMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol )
 {
     DEBUG_CSE
@@ -1069,7 +1119,10 @@ void TallAbsoluteProduct
     )
     typedef Base<F> Real;
     const Int m = A.Height();
+    const Grid& g = A.Grid();
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -1078,11 +1131,10 @@ void TallAbsoluteProduct
     if( tol >= frobNorm )
     {
         s.Resize( 0, 1 );
-        return;
+        return info;
     }
 
     // C := A^H A
-    const Grid& g = A.Grid();
     DistMatrix<F> C(g);
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
@@ -1104,24 +1156,26 @@ void TallAbsoluteProduct
     auto& sLoc = s.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         sLoc(iLoc) = Sqrt(sLoc(iLoc));
+
+    return info;
 }
 
 template<typename F>
-void TallAbsoluteProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo TallAbsoluteProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol )
 {
     DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    TallAbsoluteProduct( A, s, tol );
+    return TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const DistMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
     DEBUG_CSE
@@ -1132,11 +1186,12 @@ void TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
     const Int n = A.Width();
+    const Grid& g = A.Grid();
+    SVDInfo info;
 
     // C := A^H A
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
     DistMatrix<F> C(g);
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
@@ -1161,36 +1216,38 @@ void TallRelativeProduct
             sLoc(i) = Sqrt(lambda);
     }
     Copy( s_STAR_STAR, s );
+
+    return info;
 }
 
 template<typename F>
-void TallRelativeProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo TallRelativeProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
     DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    TallRelativeProduct( A, s, relTol );
+    return TallRelativeProduct( A, s, relTol );
 }
 
 template<typename F>
-void TallProduct
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo TallProduct
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
     DEBUG_CSE
     if( relative )
-        TallRelativeProduct( A, s, tol );
+        return TallRelativeProduct( A, s, tol );
     else
-        TallAbsoluteProduct( A, s, tol );
+        return TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& s, 
   Base<F> tol )
@@ -1203,11 +1260,12 @@ void TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-
-    typedef Base<F> Real;
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -1216,7 +1274,7 @@ void TallAbsoluteProduct
     if( tol >= frobNorm )
     {
         s.Resize( 0, 1 );
-        return;
+        return info;
     }
 
     // C := A^H A
@@ -1244,23 +1302,25 @@ void TallAbsoluteProduct
     auto& sLoc = s.Matrix();
     for( Int i=0; i<k; ++i )
         sLoc(i) = Sqrt(sLoc(i));
+
+    return info;
 }
 
 template<typename F>
-void TallAbsoluteProduct
+SVDInfo TallAbsoluteProduct
 ( const DistMatrix<F,VC,STAR>& A,
-        ElementalMatrix<Base<F>>& sPre, 
+        AbstractDistMatrix<Base<F>>& sPre, 
   Base<F> tol )
 {
     DEBUG_CSE
     typedef Base<F> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
-    TallAbsoluteProduct( A, s, tol );
+    return TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
         DistMatrix<Base<F>,STAR,STAR>& s, 
   Base<F> relTol )
@@ -1273,12 +1333,13 @@ void TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Grid& g = A.Grid();
+    SVDInfo info;
 
     // C := A^H A
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
@@ -1304,37 +1365,39 @@ void TallRelativeProduct
             sLoc(i) = Sqrt(lambda);
     }
     const int k = s.Height();
+
+    return info;
 }
 
 template<typename F>
-void TallRelativeProduct
+SVDInfo TallRelativeProduct
 ( const DistMatrix<F,VC,STAR>& A,
-        ElementalMatrix<Base<F>>& sPre, 
+        AbstractDistMatrix<Base<F>>& sPre, 
   Base<F> relTol )
 {
     DEBUG_CSE
     typedef Base<F> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
-    TallRelativeProduct( A, s, relTol );
+    return TallRelativeProduct( A, s, relTol );
 }
 
 template<typename F>
-void TallProduct
+SVDInfo TallProduct
 ( const DistMatrix<F,VC,STAR>& A,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
     DEBUG_CSE
     if( relative )
-        TallRelativeProduct( A, s, tol );
+        return TallRelativeProduct( A, s, tol );
     else
-        TallAbsoluteProduct( A, s, tol );
+        return TallAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void WideAbsoluteProduct
+SVDInfo WideAbsoluteProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol )
@@ -1349,6 +1412,8 @@ void WideAbsoluteProduct
     typedef Base<F> Real;
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -1357,7 +1422,7 @@ void WideAbsoluteProduct
     if( tol >= frobNorm )
     {
         s.Resize( 0, 1 );
-        return;
+        return info;
     }
 
     // C := A A^H
@@ -1381,10 +1446,12 @@ void WideAbsoluteProduct
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
         s(i) = Sqrt(s(i));
+
+    return info;
 }
 
 template<typename F>
-void WideRelativeProduct
+SVDInfo WideRelativeProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> relTol )
@@ -1398,6 +1465,7 @@ void WideRelativeProduct
     )
     typedef Base<F> Real;
     const Int m = A.Height();
+    SVDInfo info;
 
     // C := A A^H
     Matrix<F> C;
@@ -1421,10 +1489,12 @@ void WideRelativeProduct
         else
             s(i) = Sqrt(lambda);
     }
+
+    return info;
 }
 
 template<typename F>
-void WideProduct
+SVDInfo WideProduct
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
@@ -1432,15 +1502,15 @@ void WideProduct
 {
     DEBUG_CSE
     if( relative )
-        WideRelativeProduct( A, s, tol );
+        return WideRelativeProduct( A, s, tol );
     else
-        WideAbsoluteProduct( A, s, tol );
+        return WideAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void WideAbsoluteProduct
+SVDInfo WideAbsoluteProduct
 ( const DistMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol )
 {
     DEBUG_CSE
@@ -1450,10 +1520,11 @@ void WideAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    const Int n = A.Width();
-
     typedef Base<F> Real;
+    const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
+    SVDInfo info;
+
     if( tol == Real(0) )
     {
         const Real eps = limits::Epsilon<Real>();
@@ -1462,7 +1533,7 @@ void WideAbsoluteProduct
     if( tol >= frobNorm )
     {
         s.Resize( 0, 1 );
-        return;
+        return info;
     }
 
     // C := A A^H
@@ -1488,24 +1559,26 @@ void WideAbsoluteProduct
     auto& sLoc = s.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         sLoc(iLoc) = Sqrt(sLoc(iLoc));
+
+    return info;
 }
 
 template<typename F>
-void WideAbsoluteProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo WideAbsoluteProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol )
 {
     DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    WideAbsoluteProduct( A, s, tol );
+    return WideAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void WideRelativeProduct
+SVDInfo WideRelativeProduct
 ( const DistMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
     DEBUG_CSE
@@ -1517,10 +1590,11 @@ void WideRelativeProduct
           LogicError("negative threshold does not make sense");
     )
     const Int m = A.Height();
-
-    // C := A A^H
     typedef Base<F> Real;
     const Grid& g = A.Grid();
+    SVDInfo info;
+
+    // C := A A^H
     DistMatrix<F> C( g );
     Herk( LOWER, NORMAL, Real(1), A, C );
 
@@ -1545,36 +1619,38 @@ void WideRelativeProduct
             sLoc(i) = Sqrt(lambda);
     }
     Copy( s_STAR_STAR, s );
+
+    return info;
 }
 
 template<typename F>
-void WideRelativeProduct
-( const ElementalMatrix<F>& APre,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo WideRelativeProduct
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> relTol )
 {
     DEBUG_CSE
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
-    WideRelativeProduct( A, s, relTol );
+    return WideRelativeProduct( A, s, relTol );
 }
 
 template<typename F>
-void WideProduct
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo WideProduct
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
     DEBUG_CSE
     if( relative )
-        WideRelativeProduct( A, s, tol );
+        return WideRelativeProduct( A, s, tol );
     else
-        WideAbsoluteProduct( A, s, tol );
+        return WideAbsoluteProduct( A, s, tol );
 }
 
 template<typename F>
-void Product
+SVDInfo Product
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   Base<F> tol,
@@ -1582,23 +1658,23 @@ void Product
 {
     DEBUG_CSE
     if( A.Height() >= A.Width() )
-        TallProduct( A, s, tol, relative );
+        return TallProduct( A, s, tol, relative );
     else
-        WideProduct( A, s, tol, relative );
+        return WideProduct( A, s, tol, relative );
 }
 
 template<typename F>
-void Product
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo Product
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
   Base<F> tol,
   bool relative )
 {
     DEBUG_CSE
     if( A.Height() >= A.Width() )
-        TallProduct( A, s, tol, relative );
+        return TallProduct( A, s, tol, relative );
     else
-        WideProduct( A, s, tol, relative );
+        return WideProduct( A, s, tol, relative );
 }
 
 } // namespace svd

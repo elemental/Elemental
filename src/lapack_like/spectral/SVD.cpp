@@ -8,6 +8,7 @@
 */
 #include <El.hpp>
 
+#include "./SVD/BidiagQR.hpp"
 #include "./SVD/Chan.hpp"
 #include "./SVD/Product.hpp"
 
@@ -16,453 +17,48 @@ namespace El {
 // Grab the SVD of the general matrix A, A = U diag(s) V^H
 // =======================================================
 
+namespace svd {
+
+// The following exists primarily for benchmarking purposes
 template<typename F>
-void SVD
-( const Matrix<F>& A,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    auto ACopy( A );
-    auto ctrlMod( ctrl );
-    ctrlMod.overwrite = true;
-    SVD( ACopy, U, s, V, ctrlMod );
-}
-
-template<typename F>
-void SVD
-(     Matrix<F>& A,
-      Matrix<F>& U,
-      Matrix<Base<F>>& s,
-      Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
-    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
-    {
-        auto ACopy( A );
-        auto ctrlMod( ctrl );
-        ctrlMod.overwrite = true;
-        SVD( ACopy, U, s, V, ctrlMod );
-        return;
-    }
-    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
-    {
-        SVD( A, s, ctrl );
-        return;
-    }
-
-    if( ctrl.approach == PRODUCT_SVD )
-    {
-        // TODO: switch to control structure
-        svd::Product
-        ( A, U, s, V,
-          ctrl.tol, ctrl.relative,
-          ctrl.avoidComputingU, ctrl.avoidComputingV );
-    }
-    else if( ctrl.approach == THIN_SVD ||
-             ctrl.approach == FULL_SVD ||
-             ctrl.approach == COMPACT_SVD )
-    {
-        const Int m = A.Height();
-        const Int n = A.Width();
-        const Int k = Min(m,n);
-        const bool thin = ( ctrl.approach == THIN_SVD );
-        const bool compact = ( ctrl.approach == COMPACT_SVD );
-        const bool avoidU = ctrl.avoidComputingU;
-        const bool avoidV = ctrl.avoidComputingV;
-        s.Resize( k, 1 );
-        Matrix<F> VAdj;
-
-        if( ctrl.seqQR )
-        {
-            if( thin || compact )
-            {
-                if( !avoidU ) U.Resize( m, k );
-                if( !avoidV ) VAdj.Resize( k, n );
-            }
-            else
-            {
-                if( !avoidU ) U.Resize( m, m );
-                if( !avoidV ) VAdj.Resize( n, n );
-            }
-            lapack::QRSVD
-            ( m, n,
-              A.Buffer(), A.LDim(),
-              s.Buffer(),
-              U.Buffer(), U.LDim(),
-              VAdj.Buffer(), VAdj.LDim(),
-              (thin||compact), avoidU, avoidV );
-        }
-        else
-        {
-            if( thin || compact )
-            {
-                U.Resize( m, k );
-                VAdj.Resize( k, n );
-            }
-            else
-            {
-                U.Resize( m, m );
-                VAdj.Resize( n, n );
-            }
-            lapack::DivideAndConquerSVD
-            ( m, n,
-              A.Buffer(), A.LDim(),
-              s.Buffer(),
-              U.Buffer(), U.LDim(),
-              VAdj.Buffer(), VAdj.LDim(),
-              (thin||compact) );
-        }
-
-        if( compact )
-        {
-            const Real twoNorm = ( k==0 ? Real(0) : s(0) );
-            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
-            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
-            if( ctrl.tol != Real(0) )
-            {
-                if( ctrl.relative )
-                    thresh = twoNorm*ctrl.tol;
-                else
-                    thresh = ctrl.tol;
-            }
-            Int rank = k;
-            for( Int j=0; j<k; ++j )
-            {
-                if( s(j) <= thresh )
-                {
-                    rank = j;
-                    break;
-                }
-            }
-            s.Resize( rank, 1 );
-            if( !avoidU ) U.Resize( m, rank );
-            if( !avoidV ) VAdj.Resize( rank, n );
-        }
-        if( !avoidV ) Adjoint( VAdj, V );
-    }
-}
-
-template<typename F>
-void SVD
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    DistMatrix<F> ACopy( A );
-    auto ctrlMod( ctrl );
-    ctrlMod.overwrite = true;
-    SVD( ACopy, U, s, V, ctrlMod );
-}
-
-template<typename F>
-void SVD
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
-    {
-        DistMatrix<F> ACopy( A );
-        auto ctrlMod( ctrl );
-        ctrlMod.overwrite = true;
-        SVD( ACopy, U, s, V, ctrlMod );
-        return;
-    }
-    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
-    {
-        SVD( A, s, ctrl );
-        return;
-    }
-
-    if( ctrl.approach == PRODUCT_SVD )
-    {
-        // TODO: Switch to using control structure
-        if( U.ColDist() == VC && U.RowDist() == STAR )
-        {
-            auto& UCast = static_cast<DistMatrix<F,VC,STAR>&>( U );
-            svd::Product
-            ( A, UCast, s, V,
-              ctrl.tol, ctrl.relative,
-              ctrl.avoidComputingU, ctrl.avoidComputingV );
-        }
-        else
-            svd::Product
-            ( A, U, s, V,
-              ctrl.tol, ctrl.relative,
-              ctrl.avoidComputingU, ctrl.avoidComputingV );
-    }
-    else
-    {
-        svd::Chan( A, U, s, V, ctrl );
-    }
-}
-
-// Return the singular values
-// ==========================
-
-template<typename F>
-void SVD
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    if( ctrl.approach == PRODUCT_SVD )
-    {
-        svd::Product( A, s, ctrl.tol, ctrl.relative );
-    }
-    else
-    {
-        auto ACopy( A );
-        auto ctrlMod( ctrl );
-        ctrlMod.overwrite = true;
-        SVD( ACopy, s, ctrlMod );
-    }
-}
-
-template<typename F>
-void SVD
-(       Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
-
-    Matrix<F> AMod;
-    if( ctrl.overwrite )
-        View( AMod, A );
-    else
-        AMod = A;
-
-    if( ctrl.approach == THIN_SVD ||
-        ctrl.approach == COMPACT_SVD ||
-        ctrl.approach == FULL_SVD )
-    {
-        const Int m = AMod.Height();
-        const Int n = AMod.Width();
-        s.Resize( Min(m,n), 1 );
-        lapack::SVD( m, n, AMod.Buffer(), AMod.LDim(), s.Buffer() );
-
-        if( ctrl.approach == COMPACT_SVD )
-        {
-            const Real twoNorm = ( Min(m,n)==0 ? Real(0) : s(0) );
-            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
-            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
-            if( ctrl.tol != Real(0) )
-            {
-                if( ctrl.relative )
-                    thresh = twoNorm*ctrl.tol;
-                else
-                    thresh = ctrl.tol;
-            }
-            Int rank = Min(m,n); 
-            for( Int j=0; j<Min(m,n); ++j )
-            {
-                if( s(j) <= thresh )
-                {
-                    rank = j;
-                    break;
-                }
-            }
-            s.Resize( rank, 1 );
-        }
-    }
-    else
-    {
-        svd::Product( A, s, ctrl.tol, ctrl.relative );
-    }
-}
-
-template<typename F>
-void SVD
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-
-    if( ctrl.approach == THIN_SVD ||
-        ctrl.approach == COMPACT_SVD ||
-        ctrl.approach == FULL_SVD )
-    {
-        DistMatrix<F> ACopy( A );
-        svd::Chan( ACopy, s, ctrl );
-    }
-    else
-    {
-        svd::Product( A, s, ctrl.tol, ctrl.relative );
-    }
-}
-
-template<typename F>
-void SVD
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    if( ctrl.approach == PRODUCT_SVD )
-    {
-        svd::Product( A, s, ctrl.tol, ctrl.relative );
-        return;
-    }
-
-    if( !ctrl.overwrite )
-    {
-        auto ctrlMod( ctrl );
-        ctrlMod.overwrite = true;
-        DistMatrix<F> ACopy( A ); 
-        SVD( ACopy, s, ctrlMod );
-        return;
-    }
-    svd::Chan( A, s, ctrl );
-}
-
-template<typename F>
-void SVD
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    if( ctrl.approach == PRODUCT_SVD )
-        LogicError("Block product SVD not yet supported");
-
-    DistMatrix<F,MC,MR,BLOCK> ACopy( A );
-    auto ctrlMod( ctrl );
-    ctrlMod.overwrite = true;
-    SVD( ACopy, s, ctrlMod );
-}
-
-template<typename F>
-void SVD
-(       DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& s,
+SVDInfo ScaLAPACKHelper
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& sPre,
+        AbstractDistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     AssertScaLAPACKSupport();
+    SVDInfo info;
 #ifdef EL_HAVE_SCALAPACK
     typedef Base<F> Real;
-    DistMatrix<F,MC,MR,BLOCK> AMod( A.Grid() );
-    if( ctrl.overwrite )
-        View( AMod, A );
-    else
-        AMod = A;
-    const int m = AMod.Height();
-    const int n = AMod.Width();
-    const int k = Min(m,n);
+    DistMatrix<F,MC,MR,BLOCK> A( APre );
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx(sPre);
+    DistMatrixWriteProxy<F,F,MC,MR,BLOCK> UProx(UPre);
+    auto& s = sProx.Get();
+    auto& U = UProx.Get();
 
-    if( ctrl.approach == THIN_SVD ||
-        ctrl.approach == COMPACT_SVD ||
-        ctrl.approach == FULL_SVD )
-    {
-        const int bHandle = blacs::Handle( AMod );
-        const int context = blacs::GridInit( bHandle, AMod );
-        auto descAMod = FillDesc( AMod, context );
-
-        const bool compact = ( ctrl.approach == COMPACT_SVD );
-        s.Resize( k, 1 );
-        scalapack::SingularValues
-        ( m, n, AMod.Buffer(), descAMod.data(), s.Buffer() ); 
-        if( compact )
-        {
-            const Real twoNorm = ( k==0 ? Real(0) : s(0) );
-            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
-            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
-            if( ctrl.tol != Real(0) )
-            {
-                if( ctrl.relative )
-                    thresh = twoNorm*ctrl.tol;
-                else
-                    thresh = ctrl.tol;
-            }
-            Int rank = k;
-            for( Int j=0; j<k; ++j )
-            {
-                if( s(j) <= thresh )
-                {
-                    rank = j;
-                    break;
-                }
-            }
-            s.Resize( rank, 1 );
-        }
-
-        // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-        blacs::FreeGrid( context );
-        blacs::FreeHandle( bHandle );
-    }
-    else
-        LogicError("Block product SVD not yet supported");
-#endif
-}
-
-template<typename F>
-void SVD
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& U,
-        Matrix<Base<F>>& s,
-        DistMatrix<F,MC,MR,BLOCK>& V,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    DistMatrix<F,MC,MR,BLOCK> ACopy( A );
-    auto ctrlMod( ctrl );
-    ctrlMod.overwrite = true;
-    SVD( ACopy, U, s, V, ctrlMod );
-}
-
-template<typename F>
-void SVD
-(       DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& U,
-        Matrix<Base<F>>& s,
-        DistMatrix<F,MC,MR,BLOCK>& V,
-  const SVDCtrl<Base<F>>& ctrl )
-{
-    DEBUG_CSE
-    AssertScaLAPACKSupport();
-#ifdef EL_HAVE_SCALAPACK
-    typedef Base<F> Real;
-    DistMatrix<F,MC,MR,BLOCK> AMod( A.Grid() );
-    if( ctrl.overwrite )
-        View( AMod, A );
-    else
-        AMod = A;
-
-    const int m = AMod.Height();
-    const int n = AMod.Width();
+    const int m = A.Height();
+    const int n = A.Width();
     const int k = Min(m,n);
 
     if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
     {
         Zeros( U, m, k );
-        DistMatrix<F,MC,MR,BLOCK> VH( AMod.Grid() );
+        DistMatrix<F,MC,MR,BLOCK> VH( A.Grid() );
         Zeros( VH, k, n );
 
-        const int bHandle = blacs::Handle( AMod );
-        const int context = blacs::GridInit( bHandle, AMod );
-        auto descAMod = FillDesc( AMod, context );
+        const int bHandle = blacs::Handle( A );
+        const int context = blacs::GridInit( bHandle, A );
+        auto descA = FillDesc( A, context );
         auto descU = FillDesc( U, context );
         auto descVH = FillDesc( VH, context );
 
         s.Resize( k, 1 );
         scalapack::SVD
         ( m, n,
-          AMod.Buffer(), descAMod.data(),
+          A.Buffer(), descA.data(),
           s.Buffer(),
           U.Buffer(), descU.data(),
           VH.Buffer(), descVH.data() ); 
@@ -470,7 +66,7 @@ void SVD
         const bool compact = ( ctrl.approach == COMPACT_SVD );
         if( compact )
         {
-            const Real twoNorm = ( k==0 ? Real(0) : s(0) );
+            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
             // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
             Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
             if( ctrl.tol != Real(0) )
@@ -483,7 +79,7 @@ void SVD
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
-                if( s(j) <= thresh )
+                if( s.Get(j,0) <= thresh )
                 {
                     rank = j;
                     break;
@@ -504,32 +100,484 @@ void SVD
         LogicError
         ("Only Thin and Compact singular value options currently supported");
 #endif
+    return info;
+}
+
+// The following exists primarily for benchmarking purposes
+template<typename F>
+SVDInfo LAPACKHelper
+(     Matrix<F>& A,
+      Matrix<F>& U,
+      Matrix<Base<F>>& s,
+      Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    if( !ctrl.overwrite )
+        LogicError("LAPACKHelper assumes ctrl.overwrite == true");
+    if( ctrl.approach != THIN_SVD &&
+        ctrl.approach != FULL_SVD &&
+        ctrl.approach != COMPACT_SVD )
+        LogicError("LAPACKHelper assumes THIN_SVD, FULL_SVD, or COMPACT_SVD");
+
+    SVDInfo info;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = Min(m,n);
+    const bool thin = ( ctrl.approach == THIN_SVD );
+    const bool compact = ( ctrl.approach == COMPACT_SVD );
+    const bool avoidU = ctrl.avoidComputingU;
+    const bool avoidV = ctrl.avoidComputingV;
+    s.Resize( k, 1 );
+    Matrix<F> VAdj;
+
+    if( ctrl.useLAPACKQR )
+    {
+        if( thin || compact )
+        {
+            if( !avoidU ) U.Resize( m, k );
+            if( !avoidV ) VAdj.Resize( k, n );
+        }
+        else
+        {
+            if( !avoidU ) U.Resize( m, m );
+            if( !avoidV ) VAdj.Resize( n, n );
+        }
+        lapack::QRSVD
+        ( m, n,
+          A.Buffer(), A.LDim(),
+          s.Buffer(),
+          U.Buffer(), U.LDim(),
+          VAdj.Buffer(), VAdj.LDim(),
+          (thin||compact), avoidU, avoidV );
+    }
+    else
+    {
+        if( thin || compact )
+        {
+            U.Resize( m, k );
+            VAdj.Resize( k, n );
+        }
+        else
+        {
+            U.Resize( m, m );
+            VAdj.Resize( n, n );
+        }
+        lapack::DivideAndConquerSVD
+        ( m, n,
+          A.Buffer(), A.LDim(),
+          s.Buffer(),
+          U.Buffer(), U.LDim(),
+          VAdj.Buffer(), VAdj.LDim(),
+          (thin||compact) );
+    }
+
+    if( compact )
+    {
+        const Real twoNorm = ( k==0 ? Real(0) : s(0) );
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
+        Int rank = k;
+        for( Int j=0; j<k; ++j )
+        {
+            if( s(j) <= thresh )
+            {
+                rank = j;
+                break;
+            }
+        }
+        s.Resize( rank, 1 );
+        if( !avoidU ) U.Resize( m, rank );
+        if( !avoidV ) VAdj.Resize( rank, n );
+    }
+    if( !avoidV ) Adjoint( VAdj, V );
+
+    return info;
+}
+
+} // namespace svd
+
+template<typename F>
+SVDInfo SVD
+( const Matrix<F>& A,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    auto ACopy( A );
+    auto ctrlMod( ctrl );
+    ctrlMod.overwrite = true;
+    return SVD( ACopy, U, s, V, ctrlMod );
+}
+
+template<typename F>
+SVDInfo SVD
+(     Matrix<F>& A,
+      Matrix<F>& U,
+      Matrix<Base<F>>& s,
+      Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
+    {
+        auto ACopy( A );
+        auto ctrlMod( ctrl );
+        ctrlMod.overwrite = true;
+        return SVD( ACopy, U, s, V, ctrlMod );
+    }
+    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
+    {
+        return SVD( A, s, ctrl );
+    }
+    if( ctrl.useLAPACK )
+    {
+        return svd::LAPACKHelper( A, U, s, V, ctrl );
+    }
+
+    SVDInfo info;
+    if( ctrl.approach == PRODUCT_SVD )
+    {
+        // TODO(poulson): switch to control structure
+        info = svd::Product
+        ( A, U, s, V,
+          ctrl.tol, ctrl.relative,
+          ctrl.avoidComputingU, ctrl.avoidComputingV );
+    }
+    else if( ctrl.approach == THIN_SVD ||
+             ctrl.approach == FULL_SVD ||
+             ctrl.approach == COMPACT_SVD )
+    {
+        info = svd::Chan( A, U, s, V, ctrl );
+    }
+    return info;
+}
+
+template<typename F>
+SVDInfo SVD
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    DistMatrix<F> ACopy( A );
+    auto ctrlMod( ctrl );
+    ctrlMod.overwrite = true;
+    return SVD( ACopy, U, s, V, ctrlMod );
+}
+
+template<typename F>
+SVDInfo SVD
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.useScaLAPACK )
+    {
+        return svd::ScaLAPACKHelper( A, U, s, V, ctrl );
+    }
+    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
+    {
+        DistMatrix<F> ACopy( A );
+        auto ctrlMod( ctrl );
+        ctrlMod.overwrite = true;
+        return SVD( ACopy, U, s, V, ctrlMod );
+    }
+    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
+    {
+        return SVD( A, s, ctrl );
+    }
+
+    SVDInfo info;
+    if( ctrl.approach == PRODUCT_SVD )
+    {
+        // TODO: Switch to using control structure
+        if( U.ColDist() == VC && U.RowDist() == STAR )
+        {
+            auto& UCast = static_cast<DistMatrix<F,VC,STAR>&>( U );
+            info = svd::Product
+            ( A, UCast, s, V,
+              ctrl.tol, ctrl.relative,
+              ctrl.avoidComputingU, ctrl.avoidComputingV );
+        }
+        else
+            info = svd::Product
+            ( A, U, s, V,
+              ctrl.tol, ctrl.relative,
+              ctrl.avoidComputingU, ctrl.avoidComputingV );
+    }
+    else
+    {
+        info = svd::Chan( A, U, s, V, ctrl );
+    }
+    return info;
+}
+
+// Return the singular values
+// ==========================
+
+namespace svd {
+
+// The following exists primarily for benchmarking purposes
+template<typename F>
+SVDInfo LAPACKHelper
+(       Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    if( !ctrl.overwrite )
+        LogicError("LAPACKHelper assumes ctrl.overwrite == true");
+    if( ctrl.approach != THIN_SVD &&
+        ctrl.approach != FULL_SVD &&
+        ctrl.approach != COMPACT_SVD )
+        LogicError("LAPACKHelper assumes THIN_SVD, FULL_SVD, or COMPACT_SVD");
+
+    SVDInfo info;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    s.Resize( Min(m,n), 1 );
+    // This should map down to DQDS...
+    lapack::SVD( m, n, A.Buffer(), A.LDim(), s.Buffer() );
+
+    if( ctrl.approach == COMPACT_SVD )
+    {
+        const Real twoNorm = ( Min(m,n)==0 ? Real(0) : s(0) );
+        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+        if( ctrl.tol != Real(0) )
+        {
+            if( ctrl.relative )
+                thresh = twoNorm*ctrl.tol;
+            else
+                thresh = ctrl.tol;
+        }
+        Int rank = Min(m,n); 
+        for( Int j=0; j<Min(m,n); ++j )
+        {
+            if( s(j) <= thresh )
+            {
+                rank = j;
+                break;
+            }
+        }
+        s.Resize( rank, 1 );
+    }
+
+    return info;
+}
+
+// The following exists primarily for benchmarking purposes
+template<typename F>
+SVDInfo ScaLAPACKHelper
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<Base<F>>& sPre,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    AssertScaLAPACKSupport();
+    SVDInfo info;
+#ifdef EL_HAVE_SCALAPACK
+    typedef Base<F> Real;
+    DistMatrix<F,MC,MR,BLOCK> A( APre );
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx(sPre);
+    auto& s = sProx.Get();
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = Min(m,n);
+
+    if( ctrl.approach == THIN_SVD ||
+        ctrl.approach == COMPACT_SVD ||
+        ctrl.approach == FULL_SVD )
+    {
+        const int bHandle = blacs::Handle( A );
+        const int context = blacs::GridInit( bHandle, A );
+        auto descA = FillDesc( A, context );
+
+        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        s.Resize( k, 1 );
+        scalapack::SingularValues
+        ( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
+        if( compact )
+        {
+            const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
+            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
+            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
+            if( ctrl.tol != Real(0) )
+            {
+                if( ctrl.relative )
+                    thresh = twoNorm*ctrl.tol;
+                else
+                    thresh = ctrl.tol;
+            }
+            Int rank = k;
+            for( Int j=0; j<k; ++j )
+            {
+                if( s.Get(j,0) <= thresh )
+                {
+                    rank = j;
+                    break;
+                }
+            }
+            s.Resize( rank, 1 );
+        }
+
+        // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+        blacs::FreeGrid( context );
+        blacs::FreeHandle( bHandle );
+    }
+    else
+        LogicError("Block product SVD not yet supported");
+#endif
+    return info;
+}
+
+} // namespace svd
+
+template<typename F>
+SVDInfo SVD
+( const Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.approach == PRODUCT_SVD )
+    {
+        return svd::Product( A, s, ctrl.tol, ctrl.relative );
+    }
+    else
+    {
+        auto ACopy( A );
+        auto ctrlMod( ctrl );
+        ctrlMod.overwrite = true;
+        return SVD( ACopy, s, ctrlMod );
+    }
+}
+
+template<typename F>
+SVDInfo SVD
+(       Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+
+    Matrix<F> AMod;
+    if( ctrl.overwrite )
+        View( AMod, A );
+    else
+        AMod = A;
+
+    if( ctrl.useLAPACK )
+    {
+        return svd::LAPACKHelper( A, s, ctrl );
+    }
+
+    SVDInfo info;
+    if( ctrl.approach == THIN_SVD ||
+        ctrl.approach == COMPACT_SVD ||
+        ctrl.approach == FULL_SVD )
+    {
+        return svd::Chan( A, s, ctrl );
+    }
+    else
+    {
+        info = svd::Product( A, s, ctrl.tol, ctrl.relative );
+    }
+    return info;
+}
+
+template<typename F>
+SVDInfo SVD
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.useScaLAPACK )
+    {
+        return svd::ScaLAPACKHelper( A, s, ctrl );
+    }
+    if( ctrl.approach == THIN_SVD ||
+        ctrl.approach == COMPACT_SVD ||
+        ctrl.approach == FULL_SVD )
+    {
+        DistMatrix<F> ACopy( A );
+        return svd::Chan( ACopy, s, ctrl );
+    }
+    else
+    {
+        return svd::Product( A, s, ctrl.tol, ctrl.relative );
+    }
+}
+
+template<typename F>
+SVDInfo SVD
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.useScaLAPACK )
+    {
+        return svd::ScaLAPACKHelper( A, s, ctrl );
+    }
+    if( ctrl.approach == PRODUCT_SVD )
+    {
+        return svd::Product( A, s, ctrl.tol, ctrl.relative );
+    }
+
+    if( !ctrl.overwrite )
+    {
+        auto ctrlMod( ctrl );
+        ctrlMod.overwrite = true;
+        DistMatrix<F> ACopy( A ); 
+        return SVD( ACopy, s, ctrlMod );
+    }
+    return svd::Chan( A, s, ctrl );
 }
 
 namespace svd {
 
 template<typename F>
-void TSQR
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s )
+SVDInfo TSQR
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s )
 {
     DEBUG_CSE
     DistMatrix<F,VC,STAR> ACopy( A );
-    TSQR( ACopy, s, true );
+    return TSQR( ACopy, s, true );
 }
 
 template<typename F>
-void TSQR
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& sPre,
+SVDInfo TSQR
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& sPre,
   bool overwrite )
 {
     DEBUG_CSE
     if( !overwrite )  
     {
         DistMatrix<F,VC,STAR> A( APre );
-        TSQR( A, sPre, true );
-        return;
+        return TSQR( A, sPre, true );
     }
 
     DistMatrixReadProxy<F,F,VC,STAR> AProx( APre );
@@ -546,25 +594,27 @@ void TSQR
     const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )
     {
-        SVD( A, s );
-        return; 
+        return SVD( A, s );
     }
 
+    SVDInfo info;
     qr::TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
     QR( treeData.QR0, treeData.phase0, treeData.signature0 );
     qr::ts::Reduce( A, treeData );
     if( A.ColRank() == 0 )
-        SVD( qr::ts::RootQR(A,treeData), s.Matrix() );
+        info = SVD( qr::ts::RootQR(A,treeData), s.Matrix() );
+    // TODO(poulson): Broadcast info from root?
     qr::ts::Scatter( A, treeData );
+    return info;
 }
 
 template<typename F>
-void TSQR
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& UPre,
-        ElementalMatrix<Base<F>>& sPre,
-        ElementalMatrix<F>& VPre )
+SVDInfo TSQR
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& sPre,
+        AbstractDistMatrix<F>& VPre )
 {
     DEBUG_CSE
 
@@ -586,10 +636,10 @@ void TSQR
     const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )
     {
-        SVD( A, U, s, V );
-        return;
+        return SVD( A, U, s, V );
     }
 
+    SVDInfo info;
     Copy( A, U );
     qr::TreeData<F> treeData;
     treeData.QR0 = U.LockedMatrix();
@@ -616,83 +666,79 @@ void TSQR
         Adjoint( VAdjRoot, V.Matrix() );
     }
     qr::ts::Scatter( U, treeData );
+    return info;
 }
 
 } // namespace svd
 
 #define PROTO(F) \
-  template void SVD \
+  template SVDInfo SVD \
   (       Matrix<F>& A, \
           Matrix<Base<F>>& s, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
+  template SVDInfo SVD \
   ( const Matrix<F>& A, \
           Matrix<Base<F>>& s, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  (       ElementalMatrix<F>& A, \
-          ElementalMatrix<Base<F>>& s, \
+  template SVDInfo SVD \
+  (       AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<Base<F>>& s, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<Base<F>>& s, \
+  template SVDInfo SVD \
+  ( const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<Base<F>>& s, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  (       DistMatrix<F,MC,MR,BLOCK>& A, \
-          Matrix<Base<F>>& s, \
-    const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  ( const DistMatrix<F,MC,MR,BLOCK>& A, \
-          Matrix<Base<F>>& s, \
-    const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
+  template SVDInfo SVD \
   (       Matrix<F>& A, \
           Matrix<F>& U, \
           Matrix<Base<F>>& s, \
           Matrix<F>& V, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
+  template SVDInfo SVD \
   ( const Matrix<F>& A, \
           Matrix<F>& U, \
           Matrix<Base<F>>& s, \
           Matrix<F>& V, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  (       ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& U, \
-          ElementalMatrix<Base<F>>& s, \
-          ElementalMatrix<F>& V, \
+  template SVDInfo SVD \
+  (       AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& U, \
+          AbstractDistMatrix<Base<F>>& s, \
+          AbstractDistMatrix<F>& V, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& U, \
-          ElementalMatrix<Base<F>>& s, \
-          ElementalMatrix<F>& V, \
+  template SVDInfo SVD \
+  ( const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& U, \
+          AbstractDistMatrix<Base<F>>& s, \
+          AbstractDistMatrix<F>& V, \
     const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  (       DistMatrix<F,MC,MR,BLOCK>& A, \
-          DistMatrix<F,MC,MR,BLOCK>& U, \
-          Matrix<Base<F>>& s, \
-          DistMatrix<F,MC,MR,BLOCK>& V, \
-    const SVDCtrl<Base<F>>& ctrl ); \
-  template void SVD \
-  ( const DistMatrix<F,MC,MR,BLOCK>& A, \
-          DistMatrix<F,MC,MR,BLOCK>& U, \
-          Matrix<Base<F>>& s, \
-          DistMatrix<F,MC,MR,BLOCK>& V, \
-    const SVDCtrl<Base<F>>& ctrl ); \
-  template void svd::TSQR \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& s, \
+  template SVDInfo svd::TSQR \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Base<F>>& s, \
     bool overwrite=false ); \
-  template void svd::TSQR \
-  ( const ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& s ); \
-  template void svd::TSQR \
-  ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& U, \
-          ElementalMatrix<Base<F>>& s, \
-          ElementalMatrix<F>& V );
+  template SVDInfo svd::TSQR \
+  ( const AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Base<F>>& s ); \
+  template SVDInfo svd::TSQR \
+  ( const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& U, \
+          AbstractDistMatrix<Base<F>>& s, \
+          AbstractDistMatrix<F>& V ); \
+  template BidiagQRInfo svd::BidiagQR \
+  ( Matrix<Base<F>>& mainDiag, \
+    Matrix<Base<F>>& superDiag, \
+    Matrix<Base<F>>& s, \
+    Matrix<F>& U, \
+    Matrix<F>& V, \
+    const BidiagQRCtrl<Base<F>>& ctrl );
+
+#define PROTO_REAL(Real) \
+  PROTO(Real) \
+  template BidiagQRInfo svd::BidiagQR \
+  ( Matrix<Real>& mainDiag, \
+    Matrix<Real>& superDiag, \
+    Matrix<Real>& s, \
+    const BidiagQRCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include <El/macros/Instantiate.h>

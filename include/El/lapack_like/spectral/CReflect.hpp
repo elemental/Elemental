@@ -353,7 +353,10 @@ inline SVDCtrl<float> CReflect( const ElSVDCtrl_s& ctrlC )
     ctrl.time = ctrlC.time;
     ctrl.avoidLibflame = ctrlC.avoidLibflame;
 
-    ctrl.seqQR = ctrlC.seqQR;
+    ctrl.useLAPACK = ctrlC.useLAPACK;
+    ctrl.useLAPACKQR = ctrlC.useLAPACKQR;
+    ctrl.useScaLAPACK = ctrlC.useScaLAPACK;
+
     ctrl.valChanRatio = ctrlC.valChanRatio;
     ctrl.fullChanRatio = ctrlC.fullChanRatio;
     ctrl.relative = ctrlC.relative;
@@ -372,7 +375,10 @@ inline SVDCtrl<double> CReflect( const ElSVDCtrl_d& ctrlC )
     ctrl.time = ctrlC.time;
     ctrl.avoidLibflame = ctrlC.avoidLibflame;
 
-    ctrl.seqQR = ctrlC.seqQR;
+    ctrl.useLAPACK = ctrlC.useLAPACK;
+    ctrl.useLAPACKQR = ctrlC.useLAPACKQR;
+    ctrl.useScaLAPACK = ctrlC.useScaLAPACK;
+
     ctrl.valChanRatio = ctrlC.valChanRatio;
     ctrl.fullChanRatio = ctrlC.fullChanRatio;
     ctrl.relative = ctrlC.relative;
@@ -391,7 +397,10 @@ inline ElSVDCtrl_s CReflect( const SVDCtrl<float>& ctrl )
     ctrlC.time = ctrl.time;
     ctrlC.avoidLibflame = ctrl.avoidLibflame;
 
-    ctrlC.seqQR = ctrl.seqQR;
+    ctrlC.useLAPACK = ctrl.useLAPACK;
+    ctrlC.useLAPACKQR = ctrl.useLAPACKQR;
+    ctrlC.useScaLAPACK = ctrl.useScaLAPACK;
+
     ctrlC.valChanRatio = ctrl.valChanRatio;
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
     ctrlC.relative = ctrl.relative;
@@ -410,7 +419,10 @@ inline ElSVDCtrl_d CReflect( const SVDCtrl<double>& ctrl )
     ctrlC.time = ctrl.time;
     ctrlC.avoidLibflame = ctrl.avoidLibflame;
 
-    ctrlC.seqQR = ctrl.seqQR;
+    ctrlC.useLAPACK = ctrl.useLAPACK;
+    ctrlC.useLAPACKQR = ctrl.useLAPACKQR;
+    ctrlC.useScaLAPACK = ctrl.useScaLAPACK;
+
     ctrlC.valChanRatio = ctrl.valChanRatio;
     ctrlC.fullChanRatio = ctrl.fullChanRatio;
     ctrlC.relative = ctrl.relative;

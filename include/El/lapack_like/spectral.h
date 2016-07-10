@@ -634,7 +634,10 @@ typedef struct {
   bool time;
   bool avoidLibflame;
 
-  bool seqQR;
+  bool useLAPACK;
+  bool useLAPACKQR;
+  bool useScaLAPACK;
+
   double valChanRatio;
   double fullChanRatio;
   bool relative;
@@ -650,7 +653,10 @@ typedef struct {
   bool time;
   bool avoidLibflame;
 
-  bool seqQR;
+  bool useLAPACK;
+  bool useLAPACKQR;
+  bool useScaLAPACK;
+
   double valChanRatio;
   double fullChanRatio;
   bool relative;

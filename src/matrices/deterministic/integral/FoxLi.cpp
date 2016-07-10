@@ -35,7 +35,10 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
     Matrix<Real> sqrtWeights( z ), sqrtWeightsTrans;
     for( Int j=0; j<n; ++j )
         sqrtWeights(0,j) = Sqrt(Real(2))*Abs(sqrtWeights(0,j));
-    herm_eig::Sort( x, sqrtWeights, ASCENDING );
+    auto sortPairs = TaggedSort( x, ASCENDING );
+    for( Int j=0; j<n; ++j )
+        x(j) = sortPairs[j].value;
+    ApplyTaggedSortToEachRow( sortPairs, sqrtWeights );
     Transpose( sqrtWeights, sqrtWeightsTrans );
 
     // Form the integral operator
@@ -89,7 +92,10 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
     auto& sqrtWeightsLoc = sqrtWeights.Matrix();
     for( Int jLoc=0; jLoc<sqrtWeights.LocalWidth(); ++jLoc )
         sqrtWeightsLoc(0,jLoc) = Sqrt(Real(2))*Abs(sqrtWeightsLoc(0,jLoc));
-    herm_eig::Sort( x, sqrtWeights, ASCENDING );
+    auto sortPairs = TaggedSort( x, ASCENDING );
+    for( Int j=0; j<n; ++j )
+        x.Set( j, 0, sortPairs[j].value );
+    ApplyTaggedSortToEachRow( sortPairs, sqrtWeights );
 
     // Form the integral operator
     A.Resize( n, n );

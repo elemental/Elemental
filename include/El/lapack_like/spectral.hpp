@@ -63,18 +63,6 @@ struct HermitianTridiagEigCtrl {
     // TODO(poulson): MRRR ctrl
 };
 
-namespace herm_eig {
-
-template<typename F>
-void Sort( Matrix<Base<F>>& w, Matrix<F>& Q, SortType sort=ASCENDING );
-template<typename Real,typename F>
-void Sort
-( AbstractDistMatrix<Real>& w,
-  AbstractDistMatrix<F>& Q,
-  SortType sort=ASCENDING );
-
-} // namespace herm_eig
-
 // Compute eigenvalues
 // --------------------
 template<typename F>
@@ -683,6 +671,35 @@ enum SVDApproach {
   PRODUCT_SVD
 };
 
+struct BidiagQRInfo
+{
+    Int numUnconverged=0;
+    Int numIterations=0;
+};
+
+struct SVDInfo
+{
+    BidiagQRInfo bidiagQRInfo;
+};
+
+template<typename Real>
+struct BidiagQRCtrl
+{
+    bool wantU=false, wantV=false;
+    bool accumulateU=false, accumulateV=false;
+
+    Int maxIterPerVal=6;
+    bool demandConverged=true;
+
+    bool relativeTol=true;
+    Real tol=0; // If zero, the default will be chosen
+
+    // See the note above MinSingularValueEstimateOfBidiag
+    bool looseMinSingValEst=true;
+
+    bool progress=false;
+};
+
 template<typename Real>
 struct SVDCtrl 
 {
@@ -697,11 +714,16 @@ struct SVDCtrl
     // Bidiagonal SVD options
     // ----------------------
 
+    // Use LAPACK within sequential SVD?
+    bool useLAPACK=false;
     // Whether or not sequential implementations should use the QR algorithm
     // instead of (Cuppen's) Divide and Conquer when computing singular
     // vectors. When only singular values are requested, a bidiagonal DQDS
     // algorithm is always run.
-    bool seqQR=false;
+    bool useLAPACKQR=false;
+
+    // Use ScaLAPACK within distributed SVD?
+    bool useScaLAPACK=false;
 
     // Chan's algorithm
     // ----------------
@@ -725,54 +747,62 @@ struct SVDCtrl
     // The numerical tolerance for the thresholding. If this value is kept at
     // zero, then a value is automatically chosen based upon the matrix
     Real tol=0; 
+
+    // TODO(poulson): Eliminate redundancies between this and SVDCtrl
+    BidiagQRCtrl<Real> bidiagQRCtrl;
 };
 
 // Compute the singular values
 // ---------------------------
 template<typename F>
-void SVD
+SVDInfo SVD
 (       Matrix<F>& A,
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
+SVDInfo SVD
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
-void SVD
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo SVD
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-
-template<typename F>
-void SVD
-(       DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-template<typename F>
-void SVD
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& s,
+SVDInfo SVD
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
-void TSQR
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s,
+SVDInfo TSQR
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s,
   bool overwrite=false );
 template<typename F>
-void TSQR
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s );
+SVDInfo TSQR
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+BidiagQRInfo BidiagQR
+( Matrix<Real>& mainDiag,
+  Matrix<Real>& superDiag,
+  Matrix<Real>& s,
+  const BidiagQRCtrl<Real>& ctrl=BidiagQRCtrl<Real>() );
+
+template<typename F>
+BidiagQRInfo BidiagQR
+( Matrix<Base<F>>& mainDiag,
+  Matrix<Base<F>>& superDiag,
+  Matrix<Base<F>>& s,
+  Matrix<F>& U,
+  Matrix<F>& V,
+  const BidiagQRCtrl<Base<F>>& ctrl=BidiagQRCtrl<Base<F>>() );
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TwoByTwoUpper
@@ -812,14 +842,14 @@ void TwoByTwoUpper
 // Compute the full SVD
 // --------------------
 template<typename F>
-void SVD
+SVDInfo SVD
 (       Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
         Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
+SVDInfo SVD
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -827,43 +857,28 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
-void SVD
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
+SVDInfo SVD
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-
-template<typename F>
-void SVD
-(       DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& U,
-        Matrix<Base<F>>& s,
-        DistMatrix<F,MC,MR,BLOCK>& V,
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-template<typename F>
-void SVD
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& U,
-        Matrix<Base<F>>& s,
-        DistMatrix<F,MC,MR,BLOCK>& V,
+SVDInfo SVD
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
-void TSQR
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s,
-        ElementalMatrix<F>& V );
+SVDInfo TSQR
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s,
+        AbstractDistMatrix<F>& V );
 
 } // namespace svd
 

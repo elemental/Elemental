@@ -147,7 +147,10 @@ ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl )
     ctrl->time = false;
     ctrl->avoidLibflame = false;
 
-    ctrl->seqQR = false;
+    ctrl->useLAPACK = false;
+    ctrl->useLAPACKQR = false;
+    ctrl->useScaLAPACK = false;
+
     ctrl->valChanRatio = 1.2;
     ctrl->fullChanRatio = 1.5;
     ctrl->relative = true;
@@ -163,7 +166,10 @@ ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
     ctrl->time = false;
     ctrl->avoidLibflame = false;
 
-    ctrl->seqQR = false;
+    ctrl->useLAPACK = false;
+    ctrl->useLAPACKQR = false;
+    ctrl->useScaLAPACK = false;
+
     ctrl->valChanRatio = 1.2;
     ctrl->fullChanRatio = 1.5;
     ctrl->relative = true;

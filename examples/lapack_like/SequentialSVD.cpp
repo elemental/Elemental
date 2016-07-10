@@ -24,6 +24,9 @@ main( int argc, char* argv[] )
     try 
     {
         const Int k = Input("--size","problem size",100);
+        const bool useLAPACK = Input("--useLAPACK","use LAPACK?",false);
+        const bool useLAPACKQR = Input("--useLAPACKQR","use LAPACK QR?",false);
+        const Int numTests = Input("--numTests","number of tests",5);
         ProcessInput();
         PrintInputReport();
 
@@ -31,60 +34,59 @@ main( int argc, char* argv[] )
         Matrix<Real> s;
 
         SVDCtrl<Real> ctrl;
-        for( Int test=0; test<16; ++test )
+        for( Int test=0; test<numTests; ++test )
         {
             Int n;
             const TestType testType = TestType(test/2);
-            const bool useQR = test % 2;
-            const string qrString = ( useQR ? "with QR:" : "with D&C:" );
-            ctrl.seqQR = useQR;
+            ctrl.useLAPACK = useLAPACK;
+            ctrl.useLAPACKQR = useLAPACKQR;
             switch( testType )
             {
             case FOURIER:     
                 if( mpi::Rank() == 0 ) 
-                    Output("Testing Fourier ",qrString);
+                    Output("Testing Fourier");
                 n = k;
                 Fourier( A, n ); 
                 break;
             case HILBERT:     
                 if( mpi::Rank() == 0 )
-                    Output("Testing Hilbert ",qrString);
+                    Output("Testing Hilbert");
                 n = k;
                 Hilbert( A, n ); 
                 break;
             case IDENTITY:    
                 if( mpi::Rank() == 0 )
-                    Output("Testing Identity ",qrString);
+                    Output("Testing Identity");
                 n = k;
                 Identity( A, n, n ); 
                 break;
             case ONES:        
                 if( mpi::Rank() == 0 )
-                    Output("Testing Ones ",qrString);
+                    Output("Testing Ones");
                 n = k;
                 Ones( A, n, n ); 
                 break;
             case ONE_TWO_ONE: 
                 if( mpi::Rank() == 0 )
-                    Output("Testing OneTwoOne ",qrString);
+                    Output("Testing OneTwoOne");
                 n = k;
                 OneTwoOne( A, n ); 
                 break;
             case UNIFORM:     
                 if( mpi::Rank() == 0 )
-                    Output("Testing Uniform ",qrString);
+                    Output("Testing Uniform");
                 n = k;
                 Uniform( A, n, n ); 
                 break;
             case WILKINSON:   
                 if( mpi::Rank() == 0 )
-                    Output("Testing Wilkinson ",qrString);
+                    Output("Testing Wilkinson");
                 Wilkinson( A, k ); 
                 n = 2*k+1;
                 break;
             case ZEROS:       
                 if( mpi::Rank() == 0 )
-                    Output("Testing Zeros ",qrString);
+                    Output("Testing Zeros");
                 n = k;
                 Zeros( A, n, n ); 
                 break;

@@ -47,6 +47,8 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort )
     }
     else
     {
+        // TODO(poulson): Distributed sort
+
         // Get a copy on a single process, sort, and then redistribute
         DistMatrix<Real,CIRC,CIRC> X_CIRC_CIRC( X );
         if( X_CIRC_CIRC.Participating() )
@@ -103,7 +105,100 @@ TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort )
     }
 }
 
+template<typename Real,typename F>
+void ApplyTaggedSortToEachRow
+( const vector<ValueInt<Real>>& sortPairs,
+        Matrix<F>& Z )
+{
+    DEBUG_CSE
+    const Int m = Z.Height();
+    const Int n = Z.Width();
+    Matrix<F> ZPerm( m, n );
+    for( Int j=0; j<n; ++j )
+    {
+        const Int source = sortPairs[j].index;
+        MemCopy( ZPerm.Buffer(0,j), Z.LockedBuffer(0,source), m );
+    }
+    Z = ZPerm;
+}
+
+template<typename Real,typename F>
+void ApplyTaggedSortToEachColumn
+( const vector<ValueInt<Real>>& sortPairs,
+        Matrix<F>& Z )
+{
+    DEBUG_CSE
+    const Int m = Z.Height();
+    const Int n = Z.Width();
+    Matrix<F> ZPerm( m, n );
+    for( Int i=0; i<m; ++i )
+    {
+        const Int source = sortPairs[i].index;
+        for( Int j=0; j<n; ++j )
+            ZPerm(i,j) = Z(source,j);
+    }
+    Z = ZPerm;
+}
+
+template<typename Real,typename F>
+void ApplyTaggedSortToEachRow
+( const vector<ValueInt<Real>>& sortPairs,
+        AbstractDistMatrix<F>& Z )
+{
+    DEBUG_CSE
+    const Int m = Z.Height();
+    const Int n = Z.Width();
+    DistMatrix<F,VC,STAR> Z_VC_STAR( Z );
+    DistMatrix<F,VC,STAR> ZPerm_VC_STAR(Z.Grid());
+    const Int mLocal = Z_VC_STAR.LocalHeight();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int source = sortPairs[j].index;
+        MemCopy
+        ( ZPerm_VC_STAR.Buffer(0,j),
+          Z_VC_STAR.LockedBuffer(0,source), mLocal );
+    }
+    Z_VC_STAR.Empty();
+    Copy( ZPerm_VC_STAR, Z );
+}
+
+template<typename Real,typename F>
+void ApplyTaggedSortToEachColumn
+( const vector<ValueInt<Real>>& sortPairs,
+        AbstractDistMatrix<F>& Z )
+{
+    DEBUG_CSE
+    const Int m = Z.Height();
+    const Int n = Z.Width();
+    DistMatrix<F,STAR,VR> Z_STAR_VR( Z );
+    DistMatrix<F,STAR,VR> ZPerm_STAR_VR(Z.Grid());
+    const Int nLocal = Z_STAR_VR.LocalWidth();
+    for( Int i=0; i<m; ++i )
+    {
+        const Int source = sortPairs[i].index;
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            ZPerm_STAR_VR.SetLocal( i, jLoc, Z_STAR_VR.GetLocal(source,jLoc) );
+    }
+    Z_STAR_VR.Empty();
+    Copy( ZPerm_STAR_VR, Z );
+}
+
+#define PROTO_COMPLEX(F) \
+  template void ApplyTaggedSortToEachRow \
+  ( const vector<ValueInt<Base<F>>>& sortPairs, \
+          Matrix<F>& Z ); \
+  template void ApplyTaggedSortToEachColumn \
+  ( const vector<ValueInt<Base<F>>>& sortPairs, \
+          Matrix<F>& Z ); \
+  template void ApplyTaggedSortToEachRow \
+  ( const vector<ValueInt<Base<F>>>& sortPairs, \
+          AbstractDistMatrix<F>& Z ); \
+  template void ApplyTaggedSortToEachColumn \
+  ( const vector<ValueInt<Base<F>>>& sortPairs, \
+          AbstractDistMatrix<F>& Z );
+
 #define PROTO(Real) \
+  PROTO_COMPLEX(Real) \
   template void Sort( Matrix<Real>& x, SortType sort ); \
   template void Sort( AbstractDistMatrix<Real>& x, SortType sort ); \
   template vector<ValueInt<Real>> TaggedSort \
@@ -111,7 +206,26 @@ TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort )
   template vector<ValueInt<Real>> TaggedSort \
   ( const AbstractDistMatrix<Real>& x, SortType sort );
 
-#define EL_NO_COMPLEX_PROTO
+// For support for double-precision MRRR with float eigenvectors
+
+#define PROTO_FLOAT \
+  PROTO(float) \
+  template void ApplyTaggedSortToEachRow \
+  ( const vector<ValueInt<float>>& sortPairs, \
+    AbstractDistMatrix<double>& Z ); \
+  template void ApplyTaggedSortToEachColumn \
+  ( const vector<ValueInt<float>>& sortPairs, \
+    AbstractDistMatrix<double>& Z );
+
+#define PROTO_COMPLEX_FLOAT \
+  PROTO_COMPLEX(Complex<float>) \
+  template void ApplyTaggedSortToEachRow \
+  ( const vector<ValueInt<float>>& sortPairs, \
+    AbstractDistMatrix<Complex<double>>& Z ); \
+  template void ApplyTaggedSortToEachColumn \
+  ( const vector<ValueInt<float>>& sortPairs, \
+    AbstractDistMatrix<Complex<double>>& Z );
+
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD

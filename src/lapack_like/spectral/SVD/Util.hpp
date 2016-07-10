@@ -13,7 +13,34 @@ namespace El {
 namespace svd {
 
 template<typename F>
-bool CheckScale( ElementalMatrix<F>& A, Base<F>& scale )
+bool CheckScale( Matrix<F>& A, Base<F>& scale )
+{
+    scale = 1;
+    typedef Base<F> Real;
+    const Real oneNormOfA = OneNorm( A );
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real precision = limits::Precision<Real>();
+    const Real smallNumber = safeMin/precision;
+    const Real bigNumber = 1/smallNumber;
+    const Real rhoMin = Sqrt(smallNumber);
+    const Real rhoMax = Min( Sqrt(bigNumber), 1/Sqrt(Sqrt(safeMin)) );
+
+    if( oneNormOfA > 0 && oneNormOfA < rhoMin )
+    {
+        scale = rhoMin/oneNormOfA;
+        return true;
+    }
+    else if( oneNormOfA > rhoMax )
+    {
+        scale = rhoMax/oneNormOfA;
+        return true;
+    }
+    else
+        return false;
+}
+
+template<typename F>
+bool CheckScale( AbstractDistMatrix<F>& A, Base<F>& scale )
 {
     scale = 1;
     typedef Base<F> Real;
