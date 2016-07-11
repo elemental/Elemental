@@ -13,7 +13,7 @@ template<typename F>
 void TestCorrectness
 ( UpperOrLower uplo, 
   const Matrix<F>& A, 
-  const Matrix<F>& t,
+  const Matrix<F>& phase,
         Matrix<F>& AOrig,
   bool print,
   bool display )
@@ -40,7 +40,7 @@ void TestCorrectness
     {
         Matrix<F> Q;
         Identity( Q, n, n );
-        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, t, Q );
+        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
         if( print )
             Print( Q, "Q" );
         if( display )
@@ -48,8 +48,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, t, AOrig );
-    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, t, AOrig );
+    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, phase, AOrig );
+    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, phase, AOrig );
     if( print )
         Print( AOrig, "Manual Hessenberg" );
     if( display )
@@ -81,7 +81,7 @@ template<typename F>
 void TestCorrectness
 ( UpperOrLower uplo, 
   const DistMatrix<F>& A, 
-  const DistMatrix<F,STAR,STAR>& t,
+  const DistMatrix<F,STAR,STAR>& phase,
         DistMatrix<F>& AOrig,
   bool print,
   bool display )
@@ -109,7 +109,7 @@ void TestCorrectness
     {
         DistMatrix<F> Q(g);
         Identity( Q, n, n );
-        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, t, Q );
+        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
         if( print )
             Print( Q, "Q" );
         if( display )
@@ -117,8 +117,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, t, AOrig );
-    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, t, AOrig );
+    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, phase, AOrig );
+    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, phase, AOrig );
     if( print )
         Print( AOrig, "Manual Hessenberg" );
     if( display )
@@ -156,7 +156,7 @@ void TestHessenberg
   bool display )
 {
     Matrix<F> A, AOrig;
-    Matrix<F> t;
+    Matrix<F> phase;
     Output("Testing with ",TypeName<F>());
     PushIndent();
 
@@ -171,22 +171,22 @@ void TestHessenberg
     Output("Starting reduction to Hessenberg form...");
     Timer timer;
     timer.Start();
-    Hessenberg( uplo, A, t );
+    Hessenberg( uplo, A, phase );
     const double runTime = timer.Stop();
     // TODO: Flop calculation
     Output(runTime," seconds");
     if( print )
     {
         Print( A, "A after Hessenberg" );
-        Print( t, "t after Hessenberg" );
+        Print( phase, "phase after Hessenberg" );
     }
     if( display )
     {
         Display( A, "A after Hessenberg" );
-        Display( t, "t after Hessenberg" );
+        Display( phase, "phase after Hessenberg" );
     }
     if( correctness )
-        TestCorrectness( uplo, A, t, AOrig, print, display );
+        TestCorrectness( uplo, A, phase, AOrig, print, display );
     PopIndent();
 }
 
@@ -200,7 +200,7 @@ void TestHessenberg
   bool display )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,STAR,STAR> t(g);
+    DistMatrix<F,STAR,STAR> phase(g);
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
 
@@ -216,7 +216,7 @@ void TestHessenberg
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
-    Hessenberg( uplo, A, t );
+    Hessenberg( uplo, A, phase );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     // TODO: Flop calculation
@@ -224,15 +224,15 @@ void TestHessenberg
     if( print )
     {
         Print( A, "A after Hessenberg" );
-        Print( t, "t after Hessenberg" );
+        Print( phase, "phase after Hessenberg" );
     }
     if( display )
     {
         Display( A, "A after Hessenberg" );
-        Display( t, "t after Hessenberg" );
+        Display( phase, "phase after Hessenberg" );
     }
     if( correctness )
-        TestCorrectness( uplo, A, t, AOrig, print, display );
+        TestCorrectness( uplo, A, phase, AOrig, print, display );
     PopIndent();
 }
 

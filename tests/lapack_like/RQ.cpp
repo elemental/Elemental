@@ -12,8 +12,8 @@ using namespace El;
 template<typename F>
 void TestCorrectness
 ( const Matrix<F>& A,
-  const Matrix<F>& t,
-  const Matrix<Base<F>>& d,
+  const Matrix<F>& phase,
+  const Matrix<Base<F>>& signature,
         Matrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -30,8 +30,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     Matrix<F> Z;
     Identity( Z, m, n );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
-    rq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
+    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
@@ -50,7 +50,7 @@ void TestCorrectness
     // Form RQ - A
     auto U( A );
     MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, d, U );
+    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, U );
     U -= AOrig;
     
     const Real infError = InfinityNorm( U );
@@ -69,8 +69,8 @@ void TestCorrectness
 template<typename F>
 void TestCorrectness
 ( const DistMatrix<F>& A,
-  const DistMatrix<F,MD,STAR>& t,
-  const DistMatrix<Base<F>,MD,STAR>& d,
+  const DistMatrix<F,MD,STAR>& phase,
+  const DistMatrix<Base<F>,MD,STAR>& signature,
         DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -88,8 +88,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
-    rq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
+    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
@@ -109,7 +109,7 @@ void TestCorrectness
     // Form RQ - A
     auto U( A );
     MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, d, U );
+    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, U );
     U -= AOrig;
     
     const Real infError = InfinityNorm( U );
@@ -136,8 +136,8 @@ void TestRQ
     Output("Testing with ",TypeName<F>());
     PushIndent();
     Matrix<F> A, AOrig;
-    Matrix<F> t;
-    Matrix<Base<F>> d;
+    Matrix<F> phase;
+    Matrix<Base<F>> signature;
 
     Uniform( A, m, n );
     if( correctness )
@@ -148,7 +148,7 @@ void TestRQ
     Output("Starting RQ factorization...");
     Timer timer;
     timer.Start();
-    RQ( A, t, d );
+    RQ( A, phase, signature );
     const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
@@ -158,11 +158,11 @@ void TestRQ
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( t, "phases" );
-        Print( d, "diagonal" );
+        Print( phase, "phase" );
+        Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( A, t, d, AOrig );
+        TestCorrectness( A, phase, signature, AOrig );
     PopIndent();
 }
 
@@ -177,8 +177,8 @@ void TestRQ
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
 
     Uniform( A, m, n );
     if( correctness )
@@ -190,7 +190,7 @@ void TestRQ
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
-    RQ( A, t, d );
+    RQ( A, phase, signature );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double mD = double(m);
@@ -201,11 +201,11 @@ void TestRQ
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( t, "phases" );
-        Print( d, "diagonal" );
+        Print( phase, "phase" );
+        Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( A, t, d, AOrig );
+        TestCorrectness( A, phase, signature, AOrig );
     PopIndent();
 }
 

@@ -33,9 +33,9 @@ SVDInfo ChanUpper
     const Int m = A.Height();
     const Int n = A.Width();
     const double heightRatio = ctrl.fullChanRatio;
-    const SVDApproach approach = ctrl.approach;
-    const bool avoidU = ctrl.avoidComputingU;
-    const bool avoidV = ctrl.avoidComputingV;
+    const SVDApproach approach = ctrl.bidiagSVDCtrl.approach;
+    const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
+    const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     if( avoidU && avoidV )
     {
         return SVD( A, s, ctrl );
@@ -151,9 +151,9 @@ SVDInfo ChanUpper
     const Int m = A.Height();
     const Int n = A.Width();
     const double heightRatio = ctrl.fullChanRatio;
-    const SVDApproach approach = ctrl.approach;
-    const bool avoidU = ctrl.avoidComputingU;
-    const bool avoidV = ctrl.avoidComputingV;
+    const SVDApproach approach = ctrl.bidiagSVDCtrl.approach;
+    const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
+    const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     if( avoidU && avoidV )
     {
         return SVD( A, s, ctrl );
@@ -362,8 +362,10 @@ SVDInfo Chan
         Matrix<F> AAdj;
         Adjoint( A, AAdj );
         auto ctrlMod( ctrl );
-        ctrlMod.avoidComputingU = ctrl.avoidComputingV;
-        ctrlMod.avoidComputingV = ctrl.avoidComputingU;
+        ctrlMod.bidiagSVDCtrl.wantU = ctrl.bidiagSVDCtrl.wantV;
+        ctrlMod.bidiagSVDCtrl.wantV = ctrl.bidiagSVDCtrl.wantU;
+        ctrlMod.bidiagSVDCtrl.accumulateU = ctrl.bidiagSVDCtrl.accumulateV;
+        ctrlMod.bidiagSVDCtrl.accumulateV = ctrl.bidiagSVDCtrl.accumulateU;
         info = svd::ChanUpper( AAdj, V, s, U, ctrlMod );
     }
 
@@ -409,8 +411,10 @@ SVDInfo Chan
         DistMatrix<F> AAdj(A.Grid());
         Adjoint( A, AAdj );
         auto ctrlMod( ctrl );
-        ctrlMod.avoidComputingU = ctrl.avoidComputingV;
-        ctrlMod.avoidComputingV = ctrl.avoidComputingU;
+        ctrlMod.bidiagSVDCtrl.wantU = ctrl.bidiagSVDCtrl.wantV;
+        ctrlMod.bidiagSVDCtrl.wantV = ctrl.bidiagSVDCtrl.wantU;
+        ctrlMod.bidiagSVDCtrl.accumulateU = ctrl.bidiagSVDCtrl.accumulateV;
+        ctrlMod.bidiagSVDCtrl.accumulateV = ctrl.bidiagSVDCtrl.accumulateU;
         info = svd::ChanUpper( AAdj, V, s, U, ctrlMod );
     }
 

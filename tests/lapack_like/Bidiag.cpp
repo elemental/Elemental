@@ -12,8 +12,8 @@ using namespace El;
 template<typename F> 
 void TestCorrectness
 ( const Matrix<F>& A, 
-  const Matrix<F>& tP,
-  const Matrix<F>& tQ,
+  const Matrix<F>& phaseP,
+  const Matrix<F>& phaseQ,
         Matrix<F>& AOrig,
   bool print,
   bool display )
@@ -45,8 +45,8 @@ void TestCorrectness
         Matrix<F> Q, P;
         Identity( Q, m, m );
         Identity( P, n, n );
-        bidiag::ApplyQ( LEFT,  NORMAL, A, tQ, Q );
-        bidiag::ApplyP( RIGHT, NORMAL, A, tP, P );
+        bidiag::ApplyQ( LEFT,  NORMAL, A, phaseQ, Q );
+        bidiag::ApplyP( RIGHT, NORMAL, A, phaseP, P );
         if( print )
         {
             Print( Q, "Q" );
@@ -60,8 +60,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    bidiag::ApplyQ( LEFT,  ADJOINT, A, tQ, AOrig );
-    bidiag::ApplyP( RIGHT, NORMAL,  A, tP, AOrig );
+    bidiag::ApplyQ( LEFT,  ADJOINT, A, phaseQ, AOrig );
+    bidiag::ApplyP( RIGHT, NORMAL,  A, phaseP, AOrig );
     if( print )
         Print( AOrig, "Manual bidiagonal" );
     if( display )
@@ -97,8 +97,8 @@ void TestCorrectness
 template<typename F> 
 void TestCorrectness
 ( const DistMatrix<F>& A, 
-  const DistMatrix<F,STAR,STAR>& tP,
-  const DistMatrix<F,STAR,STAR>& tQ,
+  const DistMatrix<F,STAR,STAR>& phaseP,
+  const DistMatrix<F,STAR,STAR>& phaseQ,
         DistMatrix<F>& AOrig,
   bool print,
   bool display )
@@ -132,8 +132,8 @@ void TestCorrectness
         DistMatrix<F> Q(g), P(g);
         Identity( Q, m, m );
         Identity( P, n, n );
-        bidiag::ApplyQ( LEFT,  NORMAL, A, tQ, Q );
-        bidiag::ApplyP( RIGHT, NORMAL, A, tP, P );
+        bidiag::ApplyQ( LEFT,  NORMAL, A, phaseQ, Q );
+        bidiag::ApplyP( RIGHT, NORMAL, A, phaseP, P );
         if( print )
         {
             Print( Q, "Q" );
@@ -147,8 +147,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    bidiag::ApplyQ( LEFT,  ADJOINT, A, tQ, AOrig );
-    bidiag::ApplyP( RIGHT, NORMAL,  A, tP, AOrig );
+    bidiag::ApplyQ( LEFT,  ADJOINT, A, phaseQ, AOrig );
+    bidiag::ApplyP( RIGHT, NORMAL,  A, phaseP, AOrig );
     if( print )
         Print( AOrig, "Manual bidiagonal" );
     if( display )
@@ -194,7 +194,7 @@ void TestBidiag
     Output("Testing with ",TypeName<F>());
     PushIndent();
     Matrix<F> A, AOrig;
-    Matrix<F> tP, tQ;
+    Matrix<F> phaseP, phaseQ;
 
     Uniform( A, m, n );
     if( correctness )
@@ -207,23 +207,23 @@ void TestBidiag
     Output("Starting bidiagonalization");
     Timer timer;
     timer.Start();
-    Bidiag( A, tP, tQ );
+    Bidiag( A, phaseP, phaseQ );
     // TODO: Flop calculation
     Output("Time = ",timer.Stop()," seconds.");
     if( print )
     {
         Print( A, "A after Bidiag" );
-        Print( tP, "tP after Bidiag" );
-        Print( tQ, "tQ after Bidiag" );
+        Print( phaseP, "phaseP after Bidiag" );
+        Print( phaseQ, "phaseQ after Bidiag" );
     }
     if( display )
     {
         Display( A, "A after Bidiag" );
-        Display( tP, "tP after Bidiag" );
-        Display( tQ, "tQ after Bidiag" );
+        Display( phaseP, "phaseP after Bidiag" );
+        Display( phaseQ, "phaseQ after Bidiag" );
     }
     if( correctness )
-        TestCorrectness( A, tP, tQ, AOrig, print, display );
+        TestCorrectness( A, phaseP, phaseQ, AOrig, print, display );
     PopIndent();
 }
 
@@ -239,7 +239,7 @@ void TestBidiag
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
+    DistMatrix<F,STAR,STAR> phaseP(g), phaseQ(g);
 
     Uniform( A, m, n );
     if( correctness )
@@ -253,24 +253,24 @@ void TestBidiag
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
-    Bidiag( A, tP, tQ );
+    Bidiag( A, phaseP, phaseQ );
     mpi::Barrier( g.Comm() );
     // TODO: Flop calculation
     OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds.");
     if( print )
     {
         Print( A, "A after Bidiag" );
-        Print( tP, "tP after Bidiag" );
-        Print( tQ, "tQ after Bidiag" );
+        Print( phaseP, "phaseP after Bidiag" );
+        Print( phaseQ, "phaseQ after Bidiag" );
     }
     if( display )
     {
         Display( A, "A after Bidiag" );
-        Display( tP, "tP after Bidiag" );
-        Display( tQ, "tQ after Bidiag" );
+        Display( phaseP, "phaseP after Bidiag" );
+        Display( phaseQ, "phaseQ after Bidiag" );
     }
     if( correctness )
-        TestCorrectness( A, tP, tQ, AOrig, print, display );
+        TestCorrectness( A, phaseP, phaseQ, AOrig, print, display );
     PopIndent();
 }
 

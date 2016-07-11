@@ -23,9 +23,13 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
     Matrix<Real> s;
     Matrix<F> V;
     SVDCtrl<Real> ctrl;
-    ctrl.approach = PRODUCT_SVD;
-    ctrl.tol = tau;
-    ctrl.relative = relative;
+    // It is perhaps misleading to have 'approach' stored within 'bidiagSVDCtrl'
+    // when the PRODUCT_SVD approach reduces to tridiagonal form instead; we
+    // could think of this as implicitly forming the Grammian of the bidiagonal
+    // matrix
+    ctrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol = tau;
     SVD( A, U, s, V, ctrl );
 
     SoftThreshold( s, tau, relative );
@@ -48,9 +52,10 @@ Int Cross( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     DistMatrix<F> U( A.Grid() ), V( A.Grid() );
     SVDCtrl<Real> ctrl;
-    ctrl.approach = PRODUCT_SVD;
-    ctrl.tol = tau;
-    ctrl.relative = relative;
+    // See the equivalent note above
+    ctrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol = tau;
     SVD( A, U, s, V, ctrl );
 
     SoftThreshold( s, tau, relative );
@@ -71,9 +76,10 @@ Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
     DistMatrix<F,STAR,STAR> V( A.Grid() );
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = PRODUCT_SVD;
-    ctrl.tol = tau;
-    ctrl.relative = relative;
+    // See the equivalent note above
+    ctrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol = tau;
     SVD( A, U, s, V, ctrl );
 
     SoftThreshold( s, tau, relative );

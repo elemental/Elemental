@@ -129,7 +129,7 @@ void LocalTrr2kKernel
     ( orientC, orientD,
       beta, C0->LockedMatrix(), D0->LockedMatrix(),
       T(1), FTL->Matrix() );
-    AxpyTrapezoid( uplo, T(1), FTL->LockedMatrix(), ETL->Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), *FTL, *ETL );
 
     auto FBR = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
     FBR->AlignWith( *EBR );
@@ -142,7 +142,7 @@ void LocalTrr2kKernel
     ( orientC, orientD,
       beta, C1->LockedMatrix(), D1->LockedMatrix(),
       T(1), FBR->Matrix() );
-    AxpyTrapezoid( uplo, T(1), FBR->LockedMatrix(), EBR->Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), *FBR, *EBR );
 }
 
 } // namespace trr2k

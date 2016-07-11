@@ -146,6 +146,12 @@ void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha, 
   const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, Int offset=0 );
 
+template<typename T>
+void LocalAxpyTrapezoid
+( UpperOrLower uplo, T alpha,
+  const AbstractDistMatrix<T>& X,
+        AbstractDistMatrix<T>& Y, Int offset=0 );
+
 // Broadcast
 // =========
 template<typename T>

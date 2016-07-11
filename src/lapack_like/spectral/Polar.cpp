@@ -144,10 +144,7 @@ PolarInfo HermitianPolar
   ( UpperOrLower uplo, \
     ElementalMatrix<F>& A, \
     ElementalMatrix<F>& P, \
-    const PolarCtrl& ctrl );
-
-#define PROTO_BLAS(F) \
-  PROTO(F) \
+    const PolarCtrl& ctrl ); \
   template PolarInfo Polar \
   ( Matrix<F>& A, \
     const PolarCtrl& ctrl ); \
@@ -162,11 +159,6 @@ PolarInfo HermitianPolar
   ( ElementalMatrix<F>& A, \
     ElementalMatrix<F>& P, \
     const PolarCtrl& ctrl );
-
-#define PROTO_FLOAT PROTO_BLAS(float)
-#define PROTO_DOUBLE PROTO_BLAS(double)
-#define PROTO_COMPLEX_FLOAT PROTO_BLAS(Complex<float>)
-#define PROTO_COMPLEX_DOUBLE PROTO_BLAS(Complex<double>)
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -273,13 +273,10 @@ void Ridge
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
-// NOTE: These will be enabled when there is SVD support
-/*
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-*/
 #include <El/macros/Instantiate.h>
 
 } // namespace El

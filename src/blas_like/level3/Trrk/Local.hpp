@@ -9,6 +9,8 @@
 #ifndef EL_TRRK_LOCAL_HPP
 #define EL_TRRK_LOCAL_HPP
 
+#include <El/io.hpp>
+
 namespace El {
 
 namespace trrk {
@@ -199,13 +201,13 @@ void LocalTrrkKernel
     DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     // TODO(poulson): Avoid the temporary copy
     DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A B^{T/H} + C
@@ -291,13 +293,13 @@ void LocalTrrkKernel
     DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     // TODO(poulson): Avoid the temporary copy
     DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A^{T/H} B + C
@@ -383,13 +385,13 @@ void LocalTrrkKernel
     DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     // TODO(poulson): Avoid the temporary copy
     DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + C
@@ -477,13 +479,13 @@ void LocalTrrkKernel
     DistMatrix<T> DTL(g);
     DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
-    AxpyTrapezoid( uplo, T(1), DTL.LockedMatrix(), CTL.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DTL, CTL );
 
     // TODO(poulson): Avoid the temporary copy
     DistMatrix<T> DBR(g);
     DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
-    AxpyTrapezoid( uplo, T(1), DBR.LockedMatrix(), CBR.Matrix() );
+    LocalAxpyTrapezoid( uplo, T(1), DBR, CBR );
 }
 
 // Local C := alpha A B + C

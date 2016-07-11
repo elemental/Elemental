@@ -34,34 +34,37 @@ ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset )
     return EL_SUCCESS;
 }
 
-/* HermitianTridiagQRCtrl */
-ElError ElHermitianTridiagQRCtrlDefault( ElHermitianTridiagQRCtrl* ctrl )
+/* HermitianTridiagEigQRCtrl */
+ElError ElHermitianTridiagEigQRCtrlDefault( ElHermitianTridiagEigQRCtrl* ctrl )
 {
-    ctrl->wantEigVecs = false;
-    ctrl->accumulateEigVecs = false;
     ctrl->maxIterPerEig = 30;
     ctrl->demandConverged = true;
     ctrl->fullAccuracyTwoByTwo = true;
-    ctrl->progress = false;
     return EL_SUCCESS;
 }
 
 /* HermitianTridiagEigCtrl */
 ElError ElHermitianTridiagEigCtrlDefault_s( ElHermitianTridiagEigCtrl_s* ctrl )
 {
+    ctrl->wantEigVecs = false;
+    ctrl->accumulateEigVecs = false;
     ctrl->sort = EL_ASCENDING;
     ElHermitianEigSubsetDefault_s( &ctrl->subset );
+    ctrl->progress = false;
     ctrl->useQR = false;
-    ElHermitianTridiagQRCtrlDefault( &ctrl->qrCtrl );
+    ElHermitianTridiagEigQRCtrlDefault( &ctrl->qrCtrl );
     return EL_SUCCESS;
 }
 
 ElError ElHermitianTridiagEigCtrlDefault_d( ElHermitianTridiagEigCtrl_d* ctrl )
 {
+    ctrl->wantEigVecs = false;
+    ctrl->accumulateEigVecs = false;
     ctrl->sort = EL_ASCENDING;
     ElHermitianEigSubsetDefault_d( &ctrl->subset );
+    ctrl->progress = false;
     ctrl->useQR = false;
-    ElHermitianTridiagQRCtrlDefault( &ctrl->qrCtrl );
+    ElHermitianTridiagEigQRCtrlDefault( &ctrl->qrCtrl );
     return EL_SUCCESS;
 }
 
@@ -137,43 +140,73 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
     return EL_SUCCESS;
 }
 
+/* BidiagSVDCtrl */
+ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl )
+{
+    ctrl->maxIterPerVal = 6;
+    ctrl->demandConverged = true;
+    ctrl->looseMinSingValEst = true;
+    ctrl->useFLAME = false;
+    ctrl->useLAPACK = false;
+    return EL_SUCCESS;
+}
+
+ElError ElBidiagSVDCtrlDefault_s( ElBidiagSVDCtrl_s* ctrl )
+{
+    ctrl->wantU = true;
+    ctrl->wantV = true;
+    ctrl->accumulateU = false;
+    ctrl->accumulateV = false;
+    ctrl->approach = EL_THIN_SVD;
+    ctrl->tolType = EL_RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl->tol = 0;
+    ctrl->progress = false;
+    ElBidiagSVDQRCtrlDefault( &ctrl->qrCtrl );
+    return EL_SUCCESS;
+}
+ElError ElBidiagSVDCtrlDefault_d( ElBidiagSVDCtrl_d* ctrl )
+{
+    ctrl->wantU = true;
+    ctrl->wantV = true;
+    ctrl->accumulateU = false;
+    ctrl->accumulateV = false;
+    ctrl->approach = EL_THIN_SVD;
+    ctrl->tolType = EL_RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl->tol = 0;
+    ctrl->progress = false;
+    ElBidiagSVDQRCtrlDefault( &ctrl->qrCtrl );
+    return EL_SUCCESS;
+}
+
 /* SVDCtrl */
 ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl )
 {
-    ctrl->approach = EL_THIN_SVD;
     ctrl->overwrite = false;
-    ctrl->avoidComputingU = false;
-    ctrl->avoidComputingV = false;
     ctrl->time = false;
-    ctrl->avoidLibflame = false;
 
     ctrl->useLAPACK = false;
-    ctrl->useLAPACKQR = false;
     ctrl->useScaLAPACK = false;
 
     ctrl->valChanRatio = 1.2;
     ctrl->fullChanRatio = 1.5;
-    ctrl->relative = true;
-    ctrl->tol = 0;
+
+    ElBidiagSVDCtrlDefault_s( &ctrl->bidiagSVDCtrl );
+
     return EL_SUCCESS;
 }
 ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
 {
-    ctrl->approach = EL_THIN_SVD;
     ctrl->overwrite = false;
-    ctrl->avoidComputingU = false;
-    ctrl->avoidComputingV = false;
     ctrl->time = false;
-    ctrl->avoidLibflame = false;
 
     ctrl->useLAPACK = false;
-    ctrl->useLAPACKQR = false;
     ctrl->useScaLAPACK = false;
 
     ctrl->valChanRatio = 1.2;
     ctrl->fullChanRatio = 1.5;
-    ctrl->relative = true;
-    ctrl->tol = 0;
+
+    ElBidiagSVDCtrlDefault_d( &ctrl->bidiagSVDCtrl );
+
     return EL_SUCCESS;
 }
 

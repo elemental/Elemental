@@ -132,7 +132,7 @@ Helper
     if( ctrl.useQR )
     {
         w = d;    
-        info.qrInfo = QRAlg( w, dSub, ctrl.qrCtrl );
+        info.qrInfo = QRAlg( w, dSub, ctrl );
         herm_eig::SortAndFilter( w, ctrl );
     }
     else
@@ -175,7 +175,7 @@ Helper
     HermitianTridiagEigInfo info;
 
     w = d;    
-    info.qrInfo = QRAlg( w, dSub, ctrl.qrCtrl );
+    info.qrInfo = QRAlg( w, dSub, ctrl );
     herm_eig::SortAndFilter( w, ctrl );
 
     return info;
@@ -422,7 +422,7 @@ Helper
     if( ctrl.useQR )
     {
         w = d;    
-        info.qrInfo = QRAlg( w, dSub, Q, ctrl.qrCtrl );
+        info.qrInfo = QRAlg( w, dSub, Q, ctrl );
         herm_eig::SortAndFilter( w, Q, ctrl );
     }
     else
@@ -478,7 +478,7 @@ Helper
     HermitianTridiagEigInfo info;
 
     w = d;    
-    info.qrInfo = QRAlg( w, dSub, Q, ctrl.qrCtrl );
+    info.qrInfo = QRAlg( w, dSub, Q, ctrl );
     herm_eig::SortAndFilter( w, Q, ctrl );
 
     return info;

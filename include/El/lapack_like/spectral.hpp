@@ -28,38 +28,41 @@ struct HermitianEigSubset
 // Hermitian tridiagonal eigenvalue solvers
 // ========================================
 
-struct HermitianTridiagQRInfo
+namespace herm_tridiag_eig {
+
+struct QRInfo
 {
     Int numUnconverged=0;
     Int numIterations=0;
 };
 
-struct HermitianTridiagEigInfo
+struct QRCtrl
 {
-    HermitianTridiagQRInfo qrInfo;
-    // TODO(poulson): MRRR info
-};
-
-struct HermitianTridiagQRCtrl
-{
-    bool wantEigVecs=false;
-    bool accumulateEigVecs=false;
-
     Int maxIterPerEig=30;
     bool demandConverged=true;
 
     bool fullAccuracyTwoByTwo=true;
+};
 
-    bool progress=false;
+} // namespace herm_tridiag_eig
+
+struct HermitianTridiagEigInfo
+{
+    herm_tridiag_eig::QRInfo qrInfo;
+    // TODO(poulson): MRRR info
 };
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-struct HermitianTridiagEigCtrl {
+struct HermitianTridiagEigCtrl
+{
+    bool wantEigVecs=false;
+    bool accumulateEigVecs=false;
     SortType sort=ASCENDING;
     HermitianEigSubset<Real> subset;
+    bool progress=false;
 
     bool useQR=false;
-    HermitianTridiagQRCtrl qrCtrl;
+    herm_tridiag_eig::QRCtrl qrCtrl;
     // TODO(poulson): MRRR ctrl
 };
 
@@ -649,10 +652,12 @@ void Eig
   ElementalMatrix<Complex<Base<F>>>& w,
   ElementalMatrix<Complex<Base<F>>>& X );
 
-// Singular Value Decomposition
-// ============================
+// Bidiagonal Singular Value Decomposition
+// =======================================
 
-enum SVDApproach {
+// TODO(poulson): Decide if this should be a separate enum, BidiagSVDApproach
+enum SVDApproach
+{
   // If A is m x n, return A = U S V^H, where U is m x min(m,n) and 
   // V is n x min(m,n).
   THIN_SVD,
@@ -671,56 +676,99 @@ enum SVDApproach {
   PRODUCT_SVD
 };
 
-struct BidiagQRInfo
+enum SingularValueToleranceType
+{
+  ABSOLUTE_SING_VAL_TOL,
+  RELATIVE_TO_MAX_SING_VAL_TOL,
+  RELATIVE_TO_SELF_SING_VAL_TOL
+};
+
+namespace bidiag_svd {
+
+struct QRInfo
 {
     Int numUnconverged=0;
     Int numIterations=0;
 };
 
-struct SVDInfo
+struct QRCtrl
 {
-    BidiagQRInfo bidiagQRInfo;
-};
-
-template<typename Real>
-struct BidiagQRCtrl
-{
-    bool wantU=false, wantV=false;
-    bool accumulateU=false, accumulateV=false;
-
     Int maxIterPerVal=6;
     bool demandConverged=true;
-
-    bool relativeTol=true;
-    Real tol=0; // If zero, the default will be chosen
 
     // See the note above MinSingularValueEstimateOfBidiag
     bool looseMinSingValEst=true;
 
+    bool useFLAME=false;
+    bool useLAPACK=false;
+};
+
+} // namespace bidiag_svd
+
+struct BidiagSVDInfo
+{
+    bidiag_svd::QRInfo qrInfo;
+};
+
+template<typename Real>
+struct BidiagSVDCtrl
+{
+    bool wantU=true, wantV=true;
+    bool accumulateU=false, accumulateV=false;
+    SVDApproach approach=THIN_SVD;
+
+    SingularValueToleranceType tolType=RELATIVE_TO_MAX_SING_VAL_TOL;
+    Real tol=0; // If zero, the default will be chosen
+
     bool progress=false;
+
+    bidiag_svd::QRCtrl qrCtrl;
+};
+
+namespace bidiag_svd {
+
+// For determining a consistent threshold for setting singular values to zero
+template<typename Real>
+Real APosterioriThreshold
+( Int m, Int n,
+  const Real& twoNorm,
+  const BidiagSVDCtrl<Real>& ctrl );
+
+} // namespace bidiag_svd
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+BidiagSVDInfo
+BidiagSVD
+( Matrix<Real>& mainDiag,
+  Matrix<Real>& superDiag,
+  Matrix<Real>& s,
+  const BidiagSVDCtrl<Real>& ctrl=BidiagSVDCtrl<Real>() );
+template<typename F>
+BidiagSVDInfo
+BidiagSVD
+( Matrix<Base<F>>& mainDiag,
+  Matrix<Base<F>>& superDiag,
+  Matrix<F>& U,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V,
+  const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
+
+// Singular Value Decomposition
+// ============================
+
+struct SVDInfo
+{
+    BidiagSVDInfo bidiagSVDInfo;
 };
 
 template<typename Real>
 struct SVDCtrl 
 {
-    SVDApproach approach=THIN_SVD;
     bool overwrite=false; // Allow 'A' to be overwritten computing A = U S V^H
-    bool avoidComputingU=false; // Avoid computing 'U' in A = U S V^H
-    bool avoidComputingV=false; // Avoid computing 'V' in A = U S V^H
-
     bool time=false;
-    bool avoidLibflame=false;
-
-    // Bidiagonal SVD options
-    // ----------------------
 
     // Use LAPACK within sequential SVD?
     bool useLAPACK=false;
-    // Whether or not sequential implementations should use the QR algorithm
-    // instead of (Cuppen's) Divide and Conquer when computing singular
-    // vectors. When only singular values are requested, a bidiagonal DQDS
-    // algorithm is always run.
-    bool useLAPACKQR=false;
 
     // Use ScaLAPACK within distributed SVD?
     bool useScaLAPACK=false;
@@ -736,20 +784,7 @@ struct SVDCtrl
     // decomposition when computing a full SVD
     double fullChanRatio=1.5;
 
-    // Thresholding
-    // ------------
-    // NOTE: Currently only supported when computing both singular values
-    //       and vectors
-
-    // If the tolerance should be relative to the largest singular value
-    bool relative=true;
-
-    // The numerical tolerance for the thresholding. If this value is kept at
-    // zero, then a value is automatically chosen based upon the matrix
-    Real tol=0; 
-
-    // TODO(poulson): Eliminate redundancies between this and SVDCtrl
-    BidiagQRCtrl<Real> bidiagQRCtrl;
+    BidiagSVDCtrl<Real> bidiagSVDCtrl;
 };
 
 // Compute the singular values
@@ -787,22 +822,6 @@ template<typename F>
 SVDInfo TSQR
 ( const AbstractDistMatrix<F>& A,
         AbstractDistMatrix<Base<F>>& s );
-
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-BidiagQRInfo BidiagQR
-( Matrix<Real>& mainDiag,
-  Matrix<Real>& superDiag,
-  Matrix<Real>& s,
-  const BidiagQRCtrl<Real>& ctrl=BidiagQRCtrl<Real>() );
-
-template<typename F>
-BidiagQRInfo BidiagQR
-( Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& superDiag,
-  Matrix<Base<F>>& s,
-  Matrix<F>& U,
-  Matrix<F>& V,
-  const BidiagQRCtrl<Base<F>>& ctrl=BidiagQRCtrl<Base<F>>() );
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TwoByTwoUpper

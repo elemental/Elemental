@@ -144,5 +144,77 @@ void Rot
   const dcomplex& s )
 { EL_BLAS(zrot)( &n, x, &incx, y, &incy, &c, &s ); }
 
+template<typename Real>
+void Rot
+( BlasInt n,
+  Complex<Real>* x, BlasInt incx,
+  Complex<Real>* y, BlasInt incy,
+  const Real& c,
+  const Real& s )
+{
+    // NOTE: Temporaries are avoided since constructing a BigInt/BigFloat
+    //       involves a memory allocation
+    Complex<Real> gamma, delta;
+    for( BlasInt i=0; i<n; ++i )    
+    {
+        //gamma = c*x[i*incx] + s*y[i*incy];
+        gamma = x[i*incx];
+        gamma *= c;
+        delta = y[i*incy];
+        delta *= s;
+        gamma += delta;
+
+        //y[i*incy] = -Conj(s)*x[i*incx] + c*y[i*incy];
+        y[i*incy] *= c;
+        delta = x[i*incx];
+        delta *= s;
+        y[i*incy] -= delta;
+
+        x[i*incx] = gamma;
+    }
+}
+template void Rot
+( BlasInt n,
+  Complex<float>* x, BlasInt incx,
+  Complex<float>* y, BlasInt incy,
+  const float& c,
+  const float& s );
+template void Rot
+( BlasInt n,
+  Complex<double>* x, BlasInt incx,
+  Complex<double>* y, BlasInt incy,
+  const double& c,
+  const double& s );
+#ifdef EL_HAVE_QD
+template void Rot
+( BlasInt n,
+  Complex<DoubleDouble>* x, BlasInt incx,
+  Complex<DoubleDouble>* y, BlasInt incy,
+  const DoubleDouble& c,
+  const DoubleDouble& s );
+template void Rot
+( BlasInt n,
+  Complex<QuadDouble>* x, BlasInt incx,
+  Complex<QuadDouble>* y, BlasInt incy,
+  const QuadDouble& c,
+  const QuadDouble& s );
+#endif
+#ifdef EL_HAVE_QUAD
+template void Rot
+( BlasInt n,
+  Complex<Quad>* x, BlasInt incx,
+  Complex<Quad>* y, BlasInt incy,
+  const Quad& c,
+  const Quad& s );
+#endif
+#ifdef EL_HAVE_MPC
+template void Rot
+( BlasInt n,
+  Complex<BigFloat>* x, BlasInt incx,
+  Complex<BigFloat>* y, BlasInt incy,
+  const BigFloat& c,
+  const BigFloat& s );
+#endif
+
 } // namespace blas
 } // namespace El

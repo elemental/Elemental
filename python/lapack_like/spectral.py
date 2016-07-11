@@ -658,41 +658,72 @@ def Eig(A):
     return w, X
   else: TypeExcept()
 
-# Singular value decomposition
-# ============================
+# Bidiagonal SVD
+# ==============
 
 (THIN_SVD,COMPACT_SVD,FULL_SVD,PRODUCT_SVD)=(0,1,2,3)
 
+(ABSOLUTE_SING_VAL_TOL,
+ RELATIVE_TO_MAX_SING_VAL_TOL,
+ RELATIVE_TO_SELF_SING_VAL_TOL)=(0,1,2)
+
+class BidiagSVDQRCtrl(ctypes.Structure):
+  _fields_ = [("maxIterPerVal",iType),
+              ("demandConverged",bType),
+              ("looseMinSingValEst",bType),
+              ("useFLAME",bType),
+              ("useLAPACK",bType)]
+  def __init__(self):
+    lib.ElBidiagSVDQRCtrlDefault(pointer(self))
+
+class BidiagSVDCtrl_s(ctypes.Structure):
+  _fields_ = [("wantU",bType),
+              ("wantV",bType),
+              ("accumulateU",bType),
+              ("accumulateV",bType),
+              ("approach",c_uint),
+              ("tolType",c_uint),
+              ("tol",sType),
+              ("progress",bType),
+              ("qrCtrl",BidiagSVDQRCtrl)]
+  def __init__(self):
+    lib.ElBidiagSVDCtrlDefault_s(pointer(self))
+
+class BidiagSVDCtrl_d(ctypes.Structure):
+  _fields_ = [("wantU",bType),
+              ("wantV",bType),
+              ("accumulateU",bType),
+              ("accumulateV",bType),
+              ("approach",c_uint),
+              ("tolType",c_uint),
+              ("tol",dType),
+              ("progress",bType),
+              ("qrCtrl",BidiagSVDQRCtrl)]
+  def __init__(self):
+    lib.ElBidiagSVDCtrlDefault_d(pointer(self))
+
+# Singular value decomposition
+# ============================
+
 class SVDCtrl_s(ctypes.Structure):
-  _fields_ = [("approach",c_uint),
-              ("overwrite",bType),
-              ("avoidComputingU",bType),
-              ("avoidComputingV",bType),
+  _fields_ = [("overwrite",bType),
               ("time",bType),
-              ("avoidLibflame",bType),
               ("useLAPACK",bType),
-              ("useLAPACKQR",bType),
               ("useScaLAPACK",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
-              ("relative",bType),
-              ("tol",sType)]
+              ("bidiagSVDCtrl",BidiagSVDCtrl_s)]
   def __init__(self):
     lib.ElSVDCtrlDefault_s(pointer(self))
+
 class SVDCtrl_d(ctypes.Structure):
-  _fields_ = [("approach",c_uint),
-              ("overwrite",bType),
-              ("avoidComputingU",bType),
-              ("avoidComputingV",bType),
+  _fields_ = [("overwrite",bType),
               ("time",bType),
-              ("avoidLibflame",bType),
               ("useLAPACK",bType),
-              ("useLAPACKQR",bType),
               ("useScaLAPACK",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
-              ("relative",bType),
-              ("tol",dType)]
+              ("bidiagSVDCtrl",BidiagSVDCtrl_d)]
   def __init__(self):
     lib.ElSVDCtrlDefault_d(pointer(self))
 

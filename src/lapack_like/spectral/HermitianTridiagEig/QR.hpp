@@ -10,6 +10,7 @@
 #define EL_SPECTRAL_HERM_TRIDIAG_EIG_QR_HPP
 namespace El {
 namespace herm_tridiag_eig {
+namespace qr {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real WilkinsonShift
@@ -195,16 +196,16 @@ void QRSweep
 // subsubsection 8.14.5 of "The symmetric eigenvalue problem" [CITATION].
 //
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-HermitianTridiagQRInfo
+herm_tridiag_eig::QRInfo
 Helper
 ( Matrix<Real>& d,
   Matrix<Real>& e, 
   Matrix<Real>& Q,
-  const HermitianTridiagQRCtrl& ctrl )
+  const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int n = d.Height();
-    HermitianTridiagQRInfo info;
+    herm_tridiag_eig::QRInfo info;
 
     if( n <= 1 )
         return info;
@@ -222,7 +223,7 @@ Helper
     Matrix<Real> cList(n-1,1), sList(n-1,1);
     Matrix<Real> dSub, eSub, QSub;
 
-    const Int maxIter = n*ctrl.maxIterPerEig; 
+    const Int maxIter = n*ctrl.qrCtrl.maxIterPerEig; 
     Int winBeg = 0;
     while( winBeg < n )
     {
@@ -334,7 +335,8 @@ Helper
                         Real c, s;
                         herm_eig::TwoByTwo
                         ( d(subWinBeg), e(subWinBeg), d(subWinBeg+1),
-                          lambda0, lambda1, c, s, ctrl.fullAccuracyTwoByTwo );
+                          lambda0, lambda1, c, s,
+                          ctrl.qrCtrl.fullAccuracyTwoByTwo );
                         // Apply the Givens rotation from the right to Q
                         blas::Rot
                         ( n, &Q(0,subWinBeg), 1, &Q(0,subWinBeg+1), 1, c, s );
@@ -343,7 +345,7 @@ Helper
                     {
                         herm_eig::TwoByTwo
                         ( d(subWinBeg), e(subWinBeg), d(subWinBeg+1),
-                          lambda0, lambda1, ctrl.fullAccuracyTwoByTwo );
+                          lambda0, lambda1, ctrl.qrCtrl.fullAccuracyTwoByTwo );
                     }
                     d(subWinBeg) = lambda0;
                     d(subWinBeg+1) = lambda1;
@@ -427,7 +429,8 @@ Helper
                         Real c, s;
                         herm_eig::TwoByTwo
                         ( d(subWinEnd-2), e(subWinEnd-2), d(subWinEnd-1),
-                          lambda0, lambda1, c, s, ctrl.fullAccuracyTwoByTwo ); 
+                          lambda0, lambda1, c, s,
+                          ctrl.qrCtrl.fullAccuracyTwoByTwo ); 
                         // Apply the Givens rotation from the right to Q
                         blas::Rot
                         ( n, &Q(0,subWinEnd-2), 1, &Q(0,subWinEnd-1), 1, c, s );
@@ -436,7 +439,7 @@ Helper
                     {
                         herm_eig::TwoByTwo
                         ( d(subWinEnd-2), e(subWinEnd-2), d(subWinEnd-1),
-                          lambda0, lambda1, ctrl.fullAccuracyTwoByTwo );
+                          lambda0, lambda1, ctrl.qrCtrl.fullAccuracyTwoByTwo );
                     }
                     d(subWinEnd-2) = lambda0;
                     d(subWinEnd-1) = lambda1;
@@ -484,7 +487,7 @@ Helper
             for( Int i=0; i<n-1; ++i )
                 if( e(i) != zero )
                     ++info.numUnconverged; 
-            if( ctrl.demandConverged )
+            if( ctrl.qrCtrl.demandConverged )
                 RuntimeError
                 (info.numUnconverged," eigenvalues did not converge");
             return info;
@@ -494,27 +497,29 @@ Helper
     return info;
 }
 
+} // namespace qr
+
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-HermitianTridiagQRInfo
+herm_tridiag_eig::QRInfo
 QRAlg
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag, 
-  const HermitianTridiagQRCtrl& ctrl )
+  const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = false;
     Matrix<Real> Q;
-    return Helper( mainDiag, subDiag, Q, ctrlMod );
+    return qr::Helper( mainDiag, subDiag, Q, ctrlMod );
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-HermitianTridiagQRInfo
+herm_tridiag_eig::QRInfo
 QRAlg
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag,
   Matrix<Real>& Q,
-  const HermitianTridiagQRCtrl& ctrl )
+  const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int n = mainDiag.Height();
@@ -530,7 +535,7 @@ QRAlg
         // Allow for computing a subset of rows of Q
         Identity( Q, n, n );
     }
-    return Helper( mainDiag, subDiag, Q, ctrlMod );
+    return qr::Helper( mainDiag, subDiag, Q, ctrlMod );
 }
 
 } // namespace herm_tridiag_eig

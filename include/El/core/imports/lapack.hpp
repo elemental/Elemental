@@ -361,16 +361,16 @@ void BidiagDQDS( BlasInt n, double* d, double* e );
 // Compute the SVD of a bidiagonal matrix using the QR algorithm
 // =============================================================
 
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU,
   float* d, float* e, float* VT, BlasInt ldVT, float* U, BlasInt ldU );
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU, 
   double* d, double* e, double* VT, BlasInt ldVT, double* U, BlasInt ldU );
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU,
   float* d, float* e, scomplex* VH, BlasInt ldVH, scomplex* U, BlasInt ldU );
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
   double* d, double* e, dcomplex* VH, BlasInt ldVH, dcomplex* U, BlasInt ldU );
 

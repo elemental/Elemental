@@ -40,35 +40,33 @@ EL_EXPORT ElError ElHermitianEigSubsetDefault_d
 ( ElHermitianEigSubset_d* subset );
 
 typedef struct {
-  bool wantEigVecs;
-  bool accumulateEigVecs;
-  
   ElInt maxIterPerEig;
   bool demandConverged;
-  
   bool fullAccuracyTwoByTwo;
-
-  bool progress;
-} ElHermitianTridiagQRCtrl;
-EL_EXPORT ElError ElHermitianTridiagQRCtrlDefault
-( ElHermitianTridiagQRCtrl* ctrl );
+} ElHermitianTridiagEigQRCtrl;
+EL_EXPORT ElError ElHermitianTridiagEigQRCtrlDefault
+( ElHermitianTridiagEigQRCtrl* ctrl );
 
 typedef struct {
+  bool wantEigVecs;
+  bool accumulateEigVecs;
   ElSortType sort;
   ElHermitianEigSubset_s subset;
-
+  bool progress;
   bool useQR;
-  ElHermitianTridiagQRCtrl qrCtrl;
+  ElHermitianTridiagEigQRCtrl qrCtrl;
 } ElHermitianTridiagEigCtrl_s;
 EL_EXPORT ElError ElHermitianTridiagEigCtrlDefault_s
 ( ElHermitianTridiagEigCtrl_s* ctrl );
 
 typedef struct {
+  bool wantEigVecs;
+  bool accumulateEigVecs;
   ElSortType sort;
   ElHermitianEigSubset_d subset;
-
+  bool progress;
   bool useQR;
-  ElHermitianTridiagQRCtrl qrCtrl;
+  ElHermitianTridiagEigQRCtrl qrCtrl;
 } ElHermitianTridiagEigCtrl_d;
 EL_EXPORT ElError ElHermitianTridiagEigCtrlDefault_s
 ( ElHermitianTridiagEigCtrl_s* ctrl );
@@ -616,8 +614,8 @@ EL_EXPORT ElError ElEigDist_c
 EL_EXPORT ElError ElEigDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z w, ElDistMatrix_z X );
 
-/* Singular Value Decomposition (SVD)
-   ================================== */
+/* Bidiagonal SVD
+   ============== */
 typedef enum {
   EL_THIN_SVD,
   EL_COMPACT_SVD,
@@ -625,42 +623,72 @@ typedef enum {
   EL_PRODUCT_SVD
 } ElSVDApproach;
 
+typedef enum {
+  EL_ABSOLUTE_SING_VAL_TOL,
+  EL_RELATIVE_TO_MAX_SING_VAL_TOL,
+  EL_RELATIVE_TO_SELF_SING_VAL_TOL
+} ElSingularValueToleranceType;
+
+typedef struct {
+  ElInt maxIterPerVal;
+  bool demandConverged;
+  bool looseMinSingValEst;
+  bool useFLAME;
+  bool useLAPACK;
+} ElBidiagSVDQRCtrl;
+EL_EXPORT ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl );
+
+typedef struct {
+  bool wantU, wantV;
+  bool accumulateU, accumulateV;
+  ElSVDApproach approach;
+  ElSingularValueToleranceType tolType;
+  float tol;
+  bool progress;
+  ElBidiagSVDQRCtrl qrCtrl;
+} ElBidiagSVDCtrl_s;
+EL_EXPORT ElError ElBidiagSVDCtrlDefault_s( ElBidiagSVDCtrl_s* ctrl );
+
+typedef struct {
+  bool wantU, wantV;
+  bool accumulateU, accumulateV;
+  ElSVDApproach approach;
+  ElSingularValueToleranceType tolType;
+  double tol;
+  bool progress;
+  ElBidiagSVDQRCtrl qrCtrl;
+} ElBidiagSVDCtrl_d;
+EL_EXPORT ElError ElBidiagSVDCtrlDefault_d( ElBidiagSVDCtrl_d* ctrl );
+
+/* Singular Value Decomposition (SVD)
+   ================================== */
+
 /* SVDCtrl */
 typedef struct {
-  ElSVDApproach approach;
   bool overwrite;
-  bool avoidComputingU;
-  bool avoidComputingV;
   bool time;
-  bool avoidLibflame;
 
   bool useLAPACK;
-  bool useLAPACKQR;
   bool useScaLAPACK;
 
   double valChanRatio;
   double fullChanRatio;
-  bool relative;
-  float tol;
+
+  ElBidiagSVDCtrl_s bidiagSVDCtrl;
 } ElSVDCtrl_s;
 EL_EXPORT ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
 
 typedef struct {
-  ElSVDApproach approach;
   bool overwrite;
-  bool avoidComputingU;
-  bool avoidComputingV;
   bool time;
-  bool avoidLibflame;
 
   bool useLAPACK;
-  bool useLAPACKQR;
   bool useScaLAPACK;
 
   double valChanRatio;
   double fullChanRatio;
-  bool relative;
-  double tol;
+
+  ElBidiagSVDCtrl_d bidiagSVDCtrl;
 } ElSVDCtrl_d;
 EL_EXPORT ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl );
 

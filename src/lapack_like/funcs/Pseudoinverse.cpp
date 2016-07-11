@@ -26,9 +26,11 @@ void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
     Matrix<F> U, V;
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
-    ctrl.approach = COMPACT_SVD;
-    ctrl.relative = true;
-    ctrl.tol = ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
+    ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
+    // TODO(poulson): Let the user change these defaults
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol =
+      ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
     SVD( A, U, s, V, ctrl );
 
     // Scale U with the inverted (nonzero) singular values, U := U / Sigma
@@ -88,9 +90,11 @@ void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
     DistMatrix<F> U(g), V(g);
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
-    ctrl.approach = COMPACT_SVD;
-    ctrl.relative = true;
-    ctrl.tol = ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
+    ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
+    // TODO(poulson): Let the user change these defaults
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol =
+      ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
     SVD( A, U, s, V, ctrl );
 
     // Scale U with the inverted (nonzero) singular values, U := U / Sigma
@@ -143,6 +147,10 @@ void HermitianPseudoinverse
   ( UpperOrLower uplo, ElementalMatrix<F>& A, Base<F> tolerance );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -8,7 +8,6 @@
 */
 #include <El.hpp>
 
-#include "./SVD/BidiagQR.hpp"
 #include "./SVD/Chan.hpp"
 #include "./SVD/Product.hpp"
 
@@ -20,7 +19,7 @@ namespace El {
 namespace svd {
 
 // The following exists primarily for benchmarking purposes
-template<typename F>
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 SVDInfo ScaLAPACKHelper
 ( const AbstractDistMatrix<F>& APre,
         AbstractDistMatrix<F>& UPre,
@@ -43,7 +42,8 @@ SVDInfo ScaLAPACKHelper
     const int n = A.Width();
     const int k = Min(m,n);
 
-    if( ctrl.approach == THIN_SVD || ctrl.approach == COMPACT_SVD )
+    auto approach = ctrl.bidiagSVDCtrl.approach;
+    if( approach == THIN_SVD || approach == COMPACT_SVD )
     {
         Zeros( U, m, k );
         DistMatrix<F,MC,MR,BLOCK> VH( A.Grid() );
@@ -63,19 +63,14 @@ SVDInfo ScaLAPACKHelper
           U.Buffer(), descU.data(),
           VH.Buffer(), descVH.data() ); 
 
-        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        const bool compact = ( approach == COMPACT_SVD );
         if( compact )
         {
             const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
-            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
-            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
-            if( ctrl.tol != Real(0) )
-            {
-                if( ctrl.relative )
-                    thresh = twoNorm*ctrl.tol;
-                else
-                    thresh = ctrl.tol;
-            }
+            const Real thresh =
+              bidiag_svd::APosterioriThreshold
+              ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
+
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
@@ -103,8 +98,22 @@ SVDInfo ScaLAPACKHelper
     return info;
 }
 
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+SVDInfo ScaLAPACKHelper
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Base<F>>& sPre,
+        AbstractDistMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    SVDInfo info;
+    LogicError("ScaLAPACK does not support this datatype");
+    return info;
+}
+
 // The following exists primarily for benchmarking purposes
-template<typename F>
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 SVDInfo LAPACKHelper
 (     Matrix<F>& A,
       Matrix<F>& U,
@@ -116,75 +125,48 @@ SVDInfo LAPACKHelper
     typedef Base<F> Real;
     if( !ctrl.overwrite )
         LogicError("LAPACKHelper assumes ctrl.overwrite == true");
-    if( ctrl.approach != THIN_SVD &&
-        ctrl.approach != FULL_SVD &&
-        ctrl.approach != COMPACT_SVD )
+    auto approach = ctrl.bidiagSVDCtrl.approach;
+    if( approach != THIN_SVD &&
+        approach != FULL_SVD &&
+        approach != COMPACT_SVD )
         LogicError("LAPACKHelper assumes THIN_SVD, FULL_SVD, or COMPACT_SVD");
 
     SVDInfo info;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min(m,n);
-    const bool thin = ( ctrl.approach == THIN_SVD );
-    const bool compact = ( ctrl.approach == COMPACT_SVD );
-    const bool avoidU = ctrl.avoidComputingU;
-    const bool avoidV = ctrl.avoidComputingV;
+    const bool thin = ( approach == THIN_SVD );
+    const bool compact = ( approach == COMPACT_SVD );
+    const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
+    const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     s.Resize( k, 1 );
     Matrix<F> VAdj;
 
-    if( ctrl.useLAPACKQR )
+    if( thin || compact )
     {
-        if( thin || compact )
-        {
-            if( !avoidU ) U.Resize( m, k );
-            if( !avoidV ) VAdj.Resize( k, n );
-        }
-        else
-        {
-            if( !avoidU ) U.Resize( m, m );
-            if( !avoidV ) VAdj.Resize( n, n );
-        }
-        lapack::QRSVD
-        ( m, n,
-          A.Buffer(), A.LDim(),
-          s.Buffer(),
-          U.Buffer(), U.LDim(),
-          VAdj.Buffer(), VAdj.LDim(),
-          (thin||compact), avoidU, avoidV );
+        U.Resize( m, k );
+        VAdj.Resize( k, n );
     }
     else
     {
-        if( thin || compact )
-        {
-            U.Resize( m, k );
-            VAdj.Resize( k, n );
-        }
-        else
-        {
-            U.Resize( m, m );
-            VAdj.Resize( n, n );
-        }
-        lapack::DivideAndConquerSVD
-        ( m, n,
-          A.Buffer(), A.LDim(),
-          s.Buffer(),
-          U.Buffer(), U.LDim(),
-          VAdj.Buffer(), VAdj.LDim(),
-          (thin||compact) );
+        U.Resize( m, m );
+        VAdj.Resize( n, n );
     }
+    lapack::DivideAndConquerSVD
+    ( m, n,
+      A.Buffer(), A.LDim(),
+      s.Buffer(),
+      U.Buffer(), U.LDim(),
+      VAdj.Buffer(), VAdj.LDim(),
+      (thin||compact) );
 
     if( compact )
     {
         const Real twoNorm = ( k==0 ? Real(0) : s(0) );
-        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
-        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
-        if( ctrl.tol != Real(0) )
-        {
-            if( ctrl.relative )
-                thresh = twoNorm*ctrl.tol;
-            else
-                thresh = ctrl.tol;
-        }
+        const Real thresh =
+          bidiag_svd::APosterioriThreshold
+          ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
+
         Int rank = k;
         for( Int j=0; j<k; ++j )
         {
@@ -200,6 +182,20 @@ SVDInfo LAPACKHelper
     }
     if( !avoidV ) Adjoint( VAdj, V );
 
+    return info;
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+SVDInfo LAPACKHelper
+(     Matrix<F>& A,
+      Matrix<F>& U,
+      Matrix<Base<F>>& s,
+      Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    SVDInfo info;
+    LogicError("LAPACK does not support this datatype");
     return info;
 }
 
@@ -230,14 +226,16 @@ SVDInfo SVD
 {
     DEBUG_CSE
     typedef Base<F> Real;
-    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
+    if( !ctrl.overwrite && ctrl.bidiagSVDCtrl.approach != PRODUCT_SVD )
     {
         auto ACopy( A );
         auto ctrlMod( ctrl );
         ctrlMod.overwrite = true;
         return SVD( ACopy, U, s, V, ctrlMod );
     }
-    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
+    const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
+    const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
+    if( avoidU && avoidV )
     {
         return SVD( A, s, ctrl );
     }
@@ -247,17 +245,22 @@ SVDInfo SVD
     }
 
     SVDInfo info;
-    if( ctrl.approach == PRODUCT_SVD )
+    auto approach = ctrl.bidiagSVDCtrl.approach;
+    if( approach == PRODUCT_SVD )
     {
+        auto tolType = ctrl.bidiagSVDCtrl.tolType;
+        if( tolType == RELATIVE_TO_SELF_SING_VAL_TOL )
+            LogicError("Product SVD's inherently require absolute SVD tol's");
+        const bool relative = (tolType == RELATIVE_TO_MAX_SING_VAL_TOL);
+
         // TODO(poulson): switch to control structure
         info = svd::Product
         ( A, U, s, V,
-          ctrl.tol, ctrl.relative,
-          ctrl.avoidComputingU, ctrl.avoidComputingV );
+          ctrl.bidiagSVDCtrl.tol, relative, avoidU, avoidV );
     }
-    else if( ctrl.approach == THIN_SVD ||
-             ctrl.approach == FULL_SVD ||
-             ctrl.approach == COMPACT_SVD )
+    else if( approach == THIN_SVD ||
+             approach == FULL_SVD ||
+             approach == COMPACT_SVD )
     {
         info = svd::Chan( A, U, s, V, ctrl );
     }
@@ -288,39 +291,45 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useScaLAPACK )
+    if( IsBlasScalar<F>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, U, s, V, ctrl );
     }
-    if( !ctrl.overwrite && ctrl.approach != PRODUCT_SVD )
+    auto approach = ctrl.bidiagSVDCtrl.approach;
+    const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
+    const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
+    if( !ctrl.overwrite && approach != PRODUCT_SVD )
     {
         DistMatrix<F> ACopy( A );
         auto ctrlMod( ctrl );
         ctrlMod.overwrite = true;
         return SVD( ACopy, U, s, V, ctrlMod );
     }
-    if( ctrl.avoidComputingU && ctrl.avoidComputingV )
+    if( avoidU && avoidV )
     {
         return SVD( A, s, ctrl );
     }
 
     SVDInfo info;
-    if( ctrl.approach == PRODUCT_SVD )
+    if( approach == PRODUCT_SVD )
     {
+        auto tolType = ctrl.bidiagSVDCtrl.tolType;
+        if( tolType == RELATIVE_TO_SELF_SING_VAL_TOL )
+            LogicError("Product SVD's inherently require absolute SVD tol's");
+        const bool relative = (tolType == RELATIVE_TO_MAX_SING_VAL_TOL);
+
         // TODO: Switch to using control structure
         if( U.ColDist() == VC && U.RowDist() == STAR )
         {
             auto& UCast = static_cast<DistMatrix<F,VC,STAR>&>( U );
             info = svd::Product
             ( A, UCast, s, V,
-              ctrl.tol, ctrl.relative,
-              ctrl.avoidComputingU, ctrl.avoidComputingV );
+              ctrl.bidiagSVDCtrl.tol, relative, avoidU, avoidV );
         }
         else
             info = svd::Product
             ( A, U, s, V,
-              ctrl.tol, ctrl.relative,
-              ctrl.avoidComputingU, ctrl.avoidComputingV );
+              ctrl.bidiagSVDCtrl.tol, relative, avoidU, avoidV );
     }
     else
     {
@@ -335,7 +344,7 @@ SVDInfo SVD
 namespace svd {
 
 // The following exists primarily for benchmarking purposes
-template<typename F>
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 SVDInfo LAPACKHelper
 (       Matrix<F>& A,
         Matrix<Base<F>>& s,
@@ -345,9 +354,9 @@ SVDInfo LAPACKHelper
     typedef Base<F> Real;
     if( !ctrl.overwrite )
         LogicError("LAPACKHelper assumes ctrl.overwrite == true");
-    if( ctrl.approach != THIN_SVD &&
-        ctrl.approach != FULL_SVD &&
-        ctrl.approach != COMPACT_SVD )
+    if( ctrl.bidiagSVDCtrl.approach != THIN_SVD &&
+        ctrl.bidiagSVDCtrl.approach != FULL_SVD &&
+        ctrl.bidiagSVDCtrl.approach != COMPACT_SVD )
         LogicError("LAPACKHelper assumes THIN_SVD, FULL_SVD, or COMPACT_SVD");
 
     SVDInfo info;
@@ -357,18 +366,13 @@ SVDInfo LAPACKHelper
     // This should map down to DQDS...
     lapack::SVD( m, n, A.Buffer(), A.LDim(), s.Buffer() );
 
-    if( ctrl.approach == COMPACT_SVD )
+    if( ctrl.bidiagSVDCtrl.approach == COMPACT_SVD )
     {
         const Real twoNorm = ( Min(m,n)==0 ? Real(0) : s(0) );
-        // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
-        Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
-        if( ctrl.tol != Real(0) )
-        {
-            if( ctrl.relative )
-                thresh = twoNorm*ctrl.tol;
-            else
-                thresh = ctrl.tol;
-        }
+        const Real thresh =
+          bidiag_svd::APosterioriThreshold
+          ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
+
         Int rank = Min(m,n); 
         for( Int j=0; j<Min(m,n); ++j )
         {
@@ -384,8 +388,20 @@ SVDInfo LAPACKHelper
     return info;
 }
 
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+SVDInfo LAPACKHelper
+(       Matrix<F>& A,
+        Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    SVDInfo info;
+    LogicError("LAPACK does not support this datatype");
+    return info;
+}
+
 // The following exists primarily for benchmarking purposes
-template<typename F>
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 SVDInfo ScaLAPACKHelper
 ( const AbstractDistMatrix<F>& APre,
         AbstractDistMatrix<Base<F>>& sPre,
@@ -403,30 +419,25 @@ SVDInfo ScaLAPACKHelper
     const int n = A.Width();
     const int k = Min(m,n);
 
-    if( ctrl.approach == THIN_SVD ||
-        ctrl.approach == COMPACT_SVD ||
-        ctrl.approach == FULL_SVD )
+    if( ctrl.bidiagSVDCtrl.approach == THIN_SVD ||
+        ctrl.bidiagSVDCtrl.approach == COMPACT_SVD ||
+        ctrl.bidiagSVDCtrl.approach == FULL_SVD )
     {
         const int bHandle = blacs::Handle( A );
         const int context = blacs::GridInit( bHandle, A );
         auto descA = FillDesc( A, context );
 
-        const bool compact = ( ctrl.approach == COMPACT_SVD );
+        const bool compact = ( ctrl.bidiagSVDCtrl.approach == COMPACT_SVD );
         s.Resize( k, 1 );
         scalapack::SingularValues
         ( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
         if( compact )
         {
             const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
-            // Use Max(m,n)*twoNorm*eps unless a manual tolerance is specified
-            Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
-            if( ctrl.tol != Real(0) )
-            {
-                if( ctrl.relative )
-                    thresh = twoNorm*ctrl.tol;
-                else
-                    thresh = ctrl.tol;
-            }
+            const Real thresh =
+              bidiag_svd::APosterioriThreshold
+              ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
+
             Int rank = k;
             for( Int j=0; j<k; ++j )
             {
@@ -449,6 +460,18 @@ SVDInfo ScaLAPACKHelper
     return info;
 }
 
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+SVDInfo ScaLAPACKHelper
+( const AbstractDistMatrix<F>& APre,
+        AbstractDistMatrix<Base<F>>& sPre,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    SVDInfo info;
+    LogicError("ScaLAPACK does not support this datatype");
+    return info;
+}
+
 } // namespace svd
 
 template<typename F>
@@ -458,9 +481,13 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.approach == PRODUCT_SVD )
+    if( ctrl.bidiagSVDCtrl.approach == PRODUCT_SVD )
     {
-        return svd::Product( A, s, ctrl.tol, ctrl.relative );
+        auto tolType = ctrl.bidiagSVDCtrl.tolType;
+        if( tolType == RELATIVE_TO_SELF_SING_VAL_TOL )
+            LogicError("Product SVD's inherently require absolute SVD tol's");
+        const bool relative = (tolType == RELATIVE_TO_MAX_SING_VAL_TOL);
+        return svd::Product( A, s, ctrl.bidiagSVDCtrl.tol, relative );
     }
     else
     {
@@ -486,21 +513,26 @@ SVDInfo SVD
     else
         AMod = A;
 
-    if( ctrl.useLAPACK )
+    if( IsBlasScalar<F>::value && ctrl.useLAPACK )
     {
         return svd::LAPACKHelper( A, s, ctrl );
     }
 
     SVDInfo info;
-    if( ctrl.approach == THIN_SVD ||
-        ctrl.approach == COMPACT_SVD ||
-        ctrl.approach == FULL_SVD )
+    if( ctrl.bidiagSVDCtrl.approach == THIN_SVD ||
+        ctrl.bidiagSVDCtrl.approach == COMPACT_SVD ||
+        ctrl.bidiagSVDCtrl.approach == FULL_SVD )
     {
         return svd::Chan( A, s, ctrl );
     }
     else
     {
-        info = svd::Product( A, s, ctrl.tol, ctrl.relative );
+        auto tolType = ctrl.bidiagSVDCtrl.tolType;
+        if( tolType == RELATIVE_TO_SELF_SING_VAL_TOL )
+            LogicError("Product SVD's inherently require absolute SVD tol's");
+        const bool relative = (tolType == RELATIVE_TO_MAX_SING_VAL_TOL);
+
+        info = svd::Product( A, s, ctrl.bidiagSVDCtrl.tol, relative );
     }
     return info;
 }
@@ -512,20 +544,25 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useScaLAPACK )
+    if( IsBlasScalar<F>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, s, ctrl );
     }
-    if( ctrl.approach == THIN_SVD ||
-        ctrl.approach == COMPACT_SVD ||
-        ctrl.approach == FULL_SVD )
+    if( ctrl.bidiagSVDCtrl.approach == THIN_SVD ||
+        ctrl.bidiagSVDCtrl.approach == COMPACT_SVD ||
+        ctrl.bidiagSVDCtrl.approach == FULL_SVD )
     {
         DistMatrix<F> ACopy( A );
         return svd::Chan( ACopy, s, ctrl );
     }
     else
     {
-        return svd::Product( A, s, ctrl.tol, ctrl.relative );
+        auto tolType = ctrl.bidiagSVDCtrl.tolType;
+        if( tolType == RELATIVE_TO_SELF_SING_VAL_TOL )
+            LogicError("Product SVD's inherently require absolute SVD tol's");
+        const bool relative = (tolType == RELATIVE_TO_MAX_SING_VAL_TOL);
+
+        return svd::Product( A, s, ctrl.bidiagSVDCtrl.tol, relative );
     }
 }
 
@@ -536,13 +573,17 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useScaLAPACK )
+    if( IsBlasScalar<F>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, s, ctrl );
     }
-    if( ctrl.approach == PRODUCT_SVD )
+    if( ctrl.bidiagSVDCtrl.approach == PRODUCT_SVD )
     {
-        return svd::Product( A, s, ctrl.tol, ctrl.relative );
+        auto tolType = ctrl.bidiagSVDCtrl.tolType;
+        if( tolType == RELATIVE_TO_SELF_SING_VAL_TOL )
+            LogicError("Product SVD's inherently require absolute SVD tol's");
+        const bool relative = (tolType == RELATIVE_TO_MAX_SING_VAL_TOL);
+        return svd::Product( A, s, ctrl.bidiagSVDCtrl.tol, relative );
     }
 
     if( !ctrl.overwrite )
@@ -652,18 +693,13 @@ SVDInfo TSQR
         const Int nRoot = rootQR.Width();
         const Int kRoot = Min(m,n);
 
-        Matrix<F> URoot, VAdjRoot;
+        Matrix<F> URoot, VRoot;
         URoot.Resize( mRoot, kRoot );
-        VAdjRoot.Resize( kRoot, nRoot );
-        lapack::QRSVD
-        ( mRoot, nRoot,
-          rootQR.Buffer(), rootQR.LDim(),
-          s.Buffer(),
-          URoot.Buffer(), URoot.LDim(),
-          VAdjRoot.Buffer(), VAdjRoot.LDim() );
+        VRoot.Resize( nRoot, kRoot );
+        SVD( rootQR, URoot, s.Matrix(), VRoot );
 
         rootQR = URoot; 
-        Adjoint( VAdjRoot, V.Matrix() );
+        V.Matrix() = VRoot;
     }
     qr::ts::Scatter( U, treeData );
     return info;
@@ -723,24 +759,13 @@ SVDInfo TSQR
   ( const AbstractDistMatrix<F>& A, \
           AbstractDistMatrix<F>& U, \
           AbstractDistMatrix<Base<F>>& s, \
-          AbstractDistMatrix<F>& V ); \
-  template BidiagQRInfo svd::BidiagQR \
-  ( Matrix<Base<F>>& mainDiag, \
-    Matrix<Base<F>>& superDiag, \
-    Matrix<Base<F>>& s, \
-    Matrix<F>& U, \
-    Matrix<F>& V, \
-    const BidiagQRCtrl<Base<F>>& ctrl );
-
-#define PROTO_REAL(Real) \
-  PROTO(Real) \
-  template BidiagQRInfo svd::BidiagQR \
-  ( Matrix<Real>& mainDiag, \
-    Matrix<Real>& superDiag, \
-    Matrix<Real>& s, \
-    const BidiagQRCtrl<Real>& ctrl );
+          AbstractDistMatrix<F>& V );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

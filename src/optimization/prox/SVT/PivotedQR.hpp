@@ -41,9 +41,10 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     Matrix<F> U, V;
     Matrix<Real> s;
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.approach = PRODUCT_SVD;
-    svdCtrl.tol = tau;
-    svdCtrl.relative = relative;
+    svdCtrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
+    svdCtrl.bidiagSVDCtrl.tolType =
+      ( relative ? RELATIVE_TO_MAX_SING_VAL_TOL : ABSOLUTE_SING_VAL_TOL );
+    svdCtrl.bidiagSVDCtrl.tol = tau;
     SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );
@@ -93,9 +94,10 @@ Int PivotedQR
     DistMatrix<F> U(g), V(g);
     DistMatrix<Real,VR,STAR> s(g);
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.approach = PRODUCT_SVD;
-    svdCtrl.tol = tau;
-    svdCtrl.relative = relative;
+    svdCtrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
+    svdCtrl.bidiagSVDCtrl.tolType =
+      ( relative ? RELATIVE_TO_MAX_SING_VAL_TOL : ABSOLUTE_SING_VAL_TOL );
+    svdCtrl.bidiagSVDCtrl.tol = tau;
     SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );

@@ -150,6 +150,8 @@ void ApplyTaggedSortToEachRow
     const Int n = Z.Width();
     DistMatrix<F,VC,STAR> Z_VC_STAR( Z );
     DistMatrix<F,VC,STAR> ZPerm_VC_STAR(Z.Grid());
+    ZPerm_VC_STAR.AlignWith( Z_VC_STAR );
+    ZPerm_VC_STAR.Resize( m, n );
     const Int mLocal = Z_VC_STAR.LocalHeight();
     for( Int j=0; j<n; ++j )
     {
@@ -172,6 +174,8 @@ void ApplyTaggedSortToEachColumn
     const Int n = Z.Width();
     DistMatrix<F,STAR,VR> Z_STAR_VR( Z );
     DistMatrix<F,STAR,VR> ZPerm_STAR_VR(Z.Grid());
+    ZPerm_STAR_VR.AlignWith( Z_STAR_VR );
+    ZPerm_STAR_VR.Resize( m, n );
     const Int nLocal = Z_STAR_VR.LocalWidth();
     for( Int i=0; i<m; ++i )
     {

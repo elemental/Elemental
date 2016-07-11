@@ -10,13 +10,18 @@
 using namespace El;
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-void TestGraded( bool useQR, const HermitianTridiagQRCtrl& qrCtrl, bool print )
+void TestGraded
+( bool progress,
+  bool useQR,
+  const herm_tridiag_eig::QRCtrl& qrCtrl,
+  bool print )
 {
     DEBUG_CSE
     const Int n = 5;
     Output("Testing small graded matrix with ",TypeName<Real>());
 
     HermitianTridiagEigCtrl<Real> ctrl;
+    ctrl.progress = progress;
     ctrl.useQR = useQR;
     ctrl.qrCtrl = qrCtrl;
 
@@ -41,7 +46,6 @@ void TestGraded( bool useQR, const HermitianTridiagQRCtrl& qrCtrl, bool print )
     }
 
     Matrix<Real> w, Q;
-    Identity( Q, n, n );
     Timer timer;
     timer.Start();
     auto info = HermitianTridiagEig( d, e, w, Q, ctrl );
@@ -80,12 +84,17 @@ void TestGraded( bool useQR, const HermitianTridiagQRCtrl& qrCtrl, bool print )
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TestRandom
-( Int n, bool useQR, const HermitianTridiagQRCtrl& qrCtrl, bool print )
+( Int n,
+  bool progress,
+  bool useQR,
+  const herm_tridiag_eig::QRCtrl& qrCtrl,
+  bool print )
 {
     DEBUG_CSE
     Output("Testing random tridiagonal matrix with ",TypeName<Real>());
 
     HermitianTridiagEigCtrl<Real> ctrl;
+    ctrl.progress = progress;
     ctrl.useQR = useQR;
     ctrl.qrCtrl = qrCtrl;
 
@@ -103,7 +112,6 @@ void TestRandom
     }
 
     Matrix<Real> w, Q;
-    Identity( Q, n, n );
     Timer timer;
     timer.Start();
     auto info = HermitianTridiagEig( d, e, w, Q, ctrl );
@@ -156,34 +164,33 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        HermitianTridiagQRCtrl qrCtrl;
+        herm_tridiag_eig::QRCtrl qrCtrl;
         qrCtrl.fullAccuracyTwoByTwo = fullAccuracyTwoByTwo;
-        qrCtrl.progress = progress;
 
-        TestGraded<float>( useQR, qrCtrl, print );
-        TestGraded<double>( useQR, qrCtrl, print );
+        TestGraded<float>( progress, useQR, qrCtrl, print );
+        TestGraded<double>( progress, useQR, qrCtrl, print );
 #ifdef EL_HAVE_QUAD
-        TestGraded<Quad>( useQR, qrCtrl, print );
+        TestGraded<Quad>( progress, useQR, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestGraded<DoubleDouble>( useQR, qrCtrl, print );
-        TestGraded<QuadDouble>( useQR, qrCtrl, print );
+        TestGraded<DoubleDouble>( progress, useQR, qrCtrl, print );
+        TestGraded<QuadDouble>( progress, useQR, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestGraded<BigFloat>( useQR, qrCtrl, print );
+        TestGraded<BigFloat>( progress, useQR, qrCtrl, print );
 #endif
 
-        TestRandom<float>( n, useQR, qrCtrl, print );
-        TestRandom<double>( n, useQR, qrCtrl, print );
+        TestRandom<float>( n, progress, useQR, qrCtrl, print );
+        TestRandom<double>( n, progress, useQR, qrCtrl, print );
 #ifdef EL_HAVE_QUAD
-        TestRandom<Quad>( n, useQR, qrCtrl, print );
+        TestRandom<Quad>( n, progress, useQR, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestRandom<DoubleDouble>( n, useQR, qrCtrl, print );
-        TestRandom<QuadDouble>( n, useQR, qrCtrl, print );
+        TestRandom<DoubleDouble>( n, progress, useQR, qrCtrl, print );
+        TestRandom<QuadDouble>( n, progress, useQR, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestRandom<BigFloat>( n, useQR, qrCtrl, print );
+        TestRandom<BigFloat>( n, progress, useQR, qrCtrl, print );
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }

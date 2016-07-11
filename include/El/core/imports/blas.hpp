@@ -154,6 +154,14 @@ void Rot
   F* y, BlasInt incy,
   const Base<F>& c,
   const F& s );
+// Useful for QR algorithms with real condensed matrices
+template<typename Real>
+void Rot
+( BlasInt n,
+  Complex<Real>* x, BlasInt incx,
+  Complex<Real>* y, BlasInt incy,
+  const Real& c,
+  const Real& s );
 
 void Rot
 ( BlasInt n,

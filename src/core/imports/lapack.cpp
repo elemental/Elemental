@@ -1307,7 +1307,7 @@ void BidiagDQDS( BlasInt n, double* d, double* e )
 // Bidiagonal QR algorithm for SVD
 // ===============================
 
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU,
   float* d, float* e, float* VTrans, BlasInt ldVT, float* U, BlasInt ldU )
 {
@@ -1332,7 +1332,7 @@ void BidiagQRAlg
         RuntimeError("sbdsqr had ",info," elements of e not converge");
 }
 
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU, 
   double* d, double* e, double* VTrans, BlasInt ldVT, double* U, BlasInt ldU )
 {
@@ -1357,7 +1357,7 @@ void BidiagQRAlg
         RuntimeError("dbdsqr had ",info," elements of e not converge");
 }
 
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
   float* d, float* e,
   scomplex* VH, BlasInt ldVH,
@@ -1388,7 +1388,7 @@ void BidiagQRAlg
         RuntimeError("cbdsqr had ",info," elements of e not converge");
 }
 
-void BidiagQRAlg
+void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVH, BlasInt numRowsU, 
   double* d, double* e,
   dcomplex* VH, BlasInt ldVH,

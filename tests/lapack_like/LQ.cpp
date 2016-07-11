@@ -13,8 +13,8 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   const Matrix<F>& A,
-  const Matrix<F>& t,
-  const Matrix<Base<F>>& d,
+  const Matrix<F>& phase,
+  const Matrix<Base<F>>& signature,
         Matrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -30,8 +30,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     Matrix<F> Z;
     Identity( Z, m, n );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
-    lq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
+    lq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
@@ -50,7 +50,7 @@ void TestCorrectness
     // Form L Q - A
     auto L( A );
     MakeTrapezoidal( LOWER, L );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, L );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, L );
     L -= AOrig;
 
     const Real infError = InfinityNorm( L );
@@ -69,8 +69,8 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   const DistMatrix<F>& A,
-  const DistMatrix<F,MD,STAR>& t,
-  const DistMatrix<Base<F>,MD,STAR>& d,
+  const DistMatrix<F,MD,STAR>& phase,
+  const DistMatrix<Base<F>,MD,STAR>& signature,
         DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -87,8 +87,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
-    lq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
+    lq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
@@ -108,7 +108,7 @@ void TestCorrectness
     // Form L Q - A
     auto L( A );
     MakeTrapezoidal( LOWER, L );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, L );
+    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, L );
     L -= AOrig;
 
     const Real infError = InfinityNorm( L );
@@ -136,13 +136,13 @@ void TestLQ( Int m, Int n, bool correctness, bool print )
         AOrig = A;
     if( print )
         Print( A, "A" );
-    Matrix<F> t;
-    Matrix<Base<F>> d;
+    Matrix<F> phase;
+    Matrix<Base<F>> signature;
 
     Output("Starting LQ factorization...");
     Timer timer;
     timer.Start();
-    LQ( A, t, d );
+    LQ( A, phase, signature );
     const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
@@ -152,11 +152,11 @@ void TestLQ( Int m, Int n, bool correctness, bool print )
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( t, "phases" );
-        Print( d, "diagonal" );
+        Print( phase, "phase" );
+        Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( print, A, t, d, AOrig );
+        TestCorrectness( print, A, phase, signature, AOrig );
     PopIndent();
 }
 
@@ -172,14 +172,14 @@ void TestLQ( const Grid& g, Int m, Int n, bool correctness, bool print )
         AOrig = A;
     if( print )
         Print( A, "A" );
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
 
     OutputFromRoot(g.Comm(),"Starting LQ factorization...");
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
-    LQ( A, t, d );
+    LQ( A, phase, signature );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double mD = double(m);
@@ -190,11 +190,11 @@ void TestLQ( const Grid& g, Int m, Int n, bool correctness, bool print )
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( t, "phases" );
-        Print( d, "diagonal" );
+        Print( phase, "phase" );
+        Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( print, A, t, d, AOrig );
+        TestCorrectness( print, A, phase, signature, AOrig );
     PopIndent();
 }
 

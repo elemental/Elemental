@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
             Int n;
             const TestType testType = TestType(test/2);
             ctrl.useLAPACK = useLAPACK;
-            ctrl.useLAPACKQR = useLAPACKQR;
+            ctrl.bidiagSVDCtrl.qrCtrl.useLAPACK = useLAPACKQR;
             switch( testType )
             {
             case FOURIER:     

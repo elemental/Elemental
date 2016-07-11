@@ -74,6 +74,53 @@ void AxpyTrapezoid
     Y.ProcessQueues();
 }
 
+// This version assumes that the alignments are equal
+template<typename T>
+void LocalAxpyTrapezoid
+( UpperOrLower uplo, T alpha, 
+  const AbstractDistMatrix<T>& X,
+        AbstractDistMatrix<T>& Y, Int offset )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      AssertSameGrids( X, Y );
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+          X.Height() != Y.Height() )
+          LogicError("Nonconformal AxpyTrapezoid");
+    )
+
+    const Int localHeight = X.LocalHeight();
+    const Int localWidth = X.LocalWidth();
+    const T* XBuffer = X.LockedBuffer();
+    T* YBuffer = Y.Buffer();
+    const Int XLDim = X.LDim();
+    const Int YLDim = Y.LDim();
+    if( uplo == UPPER )
+    {
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            const Int j = X.GlobalCol(jLoc);
+            const Int localHeightAbove = X.LocalRowOffset(j+1-offset);
+            blas::Axpy
+            ( localHeightAbove, alpha, 
+              &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
+        }
+    }
+    else
+    {
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            const Int j = X.GlobalCol(jLoc);
+            const Int localHeightAbove = X.LocalRowOffset(j-offset);
+            const Int localHeightBelow = localHeight - localHeightAbove;
+            blas::Axpy
+            ( localHeightBelow, alpha, 
+              &XBuffer[localHeightAbove+jLoc*XLDim], 1,
+              &YBuffer[localHeightAbove+jLoc*YLDim], 1 );
+        }
+    }
+}
+
 template<typename T,typename S>
 void AxpyTrapezoid
 ( UpperOrLower uplo, S alphaS, 
@@ -89,45 +136,48 @@ void AxpyTrapezoid
     )
     const T alpha = T(alphaS);
 
-    const ElementalData XDistData = X.DistData();
-    const ElementalData YDistData = Y.DistData();
+    const auto XDistData = X.DistData();
+    const auto YDistData = Y.DistData();
 
     if( XDistData == YDistData )
     {
-        const Int localHeight = X.LocalHeight();
-        const Int localWidth = X.LocalWidth();
-        const T* XBuffer = X.LockedBuffer();
-        T* YBuffer = Y.Buffer();
-        const Int XLDim = X.LDim();
-        const Int YLDim = Y.LDim();
-        if( uplo == UPPER )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const Int j = X.GlobalCol(jLoc);
-                const Int localHeightAbove = X.LocalRowOffset(j+1-offset);
-                blas::Axpy
-                ( localHeightAbove, alpha, 
-                  &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
-            }
-        }
-        else
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const Int j = X.GlobalCol(jLoc);
-                const Int localHeightAbove = X.LocalRowOffset(j-offset);
-                const Int localHeightBelow = localHeight - localHeightAbove;
-                blas::Axpy
-                ( localHeightBelow, alpha, 
-                  &XBuffer[localHeightAbove+jLoc*XLDim], 1,
-                  &YBuffer[localHeightAbove+jLoc*YLDim], 1 );
-            }
-        }
+        LocalAxpyTrapezoid( uplo, alpha, X, Y, offset );
     }
     else
     {
-        unique_ptr<ElementalMatrix<T>> XCopy( Y.Construct(Y.Grid(),Y.Root()) );
+        unique_ptr<ElementalMatrix<T>>
+          XCopy( Y.Construct(Y.Grid(),Y.Root()) );
+        XCopy->AlignWith( YDistData );
+        Copy( X, *XCopy );
+        AxpyTrapezoid( uplo, alpha, *XCopy, Y, offset );
+    }
+}
+template<typename T,typename S>
+void AxpyTrapezoid
+( UpperOrLower uplo, S alphaS, 
+  const BlockMatrix<T>& X,
+        BlockMatrix<T>& Y, Int offset )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      AssertSameGrids( X, Y );
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+          X.Height() != Y.Height() )
+          LogicError("Nonconformal AxpyTrapezoid");
+    )
+    const T alpha = T(alphaS);
+
+    const auto XDistData = X.DistData();
+    const auto YDistData = Y.DistData();
+
+    if( XDistData == YDistData )
+    {
+        LocalAxpyTrapezoid( uplo, alpha, X, Y, offset );
+    }
+    else
+    {
+        unique_ptr<BlockMatrix<T>>
+          XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
         AxpyTrapezoid( uplo, alpha, *XCopy, Y, offset );
@@ -178,10 +228,18 @@ void AxpyTrapezoid
   ( UpperOrLower uplo, T alpha, \
     const SparseMatrix<T>& X, \
           SparseMatrix<T>& Y, Int offset ); \
+  EL_EXTERN template void LocalAxpyTrapezoid \
+  ( UpperOrLower uplo, T alpha, \
+    const AbstractDistMatrix<T>& X, \
+          AbstractDistMatrix<T>& Y, Int offset ); \
   EL_EXTERN template void AxpyTrapezoid \
   ( UpperOrLower uplo, T alpha, \
     const ElementalMatrix<T>& X, \
           ElementalMatrix<T>& Y, Int offset ); \
+  EL_EXTERN template void AxpyTrapezoid \
+  ( UpperOrLower uplo, T alpha, \
+    const BlockMatrix<T>& X, \
+          BlockMatrix<T>& Y, Int offset ); \
   EL_EXTERN template void AxpyTrapezoid \
   ( UpperOrLower uplo, T alpha, \
     const DistSparseMatrix<T>& X, \
