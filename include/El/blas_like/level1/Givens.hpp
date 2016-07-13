@@ -42,7 +42,6 @@ Real Givens( const Real& chi0, const Real& chi1, Real& c, Real& s )
         return chi1;
     }
     
-    const Real safeMin = limits::SafeMin(one);
     const Real safeMinToSquare = limits::SafeMinToSquare(one);
     const Real safeMaxToSquare = one / safeMinToSquare;
 

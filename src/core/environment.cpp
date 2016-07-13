@@ -235,6 +235,10 @@ void Finalize()
     }
 
     DEBUG_ONLY( CloseLog() )
+#ifdef EL_HAVE_MPC
+    if( EL_RUNNING_ON_VALGRIND )
+        mpfr_free_cache();
+#endif
 }
 
 Args& GetArgs()

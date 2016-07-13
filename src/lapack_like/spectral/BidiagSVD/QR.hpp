@@ -639,6 +639,8 @@ Helper
                       Abs(mainDiag(j))*(lambda/(lambda+Abs(superDiag(j))));
                     winMinSingValEst = Min( winMinSingValEst, lambda );
                 }
+                if( deflated )
+                    continue;
             }
         }
 

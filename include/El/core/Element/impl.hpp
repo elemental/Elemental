@@ -198,7 +198,6 @@ Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 )
     const Real chi1Abs = Abs(chi1);
     const Real chi2Abs = Abs(chi2);
     const Real maxAbs = Max( Max( chi0Abs, chi1Abs ), chi2Abs );
-    const Real minAbs = Min( Min( chi0Abs, chi1Abs ), chi2Abs );
     if( maxAbs == Real(0) )
     {
         // Ensure NaN propagation
@@ -223,7 +222,6 @@ Real SafeNorm
     const Real chi2Abs = Abs(chi2);
     const Real chi3Abs = Abs(chi3);
     const Real maxAbs = Max( Max( Max( chi0Abs, chi1Abs ), chi2Abs ), chi3Abs );
-    const Real minAbs = Min( Min( Min( chi0Abs, chi1Abs ), chi2Abs ), chi3Abs );
     if( maxAbs == Real(0) )
     {
         // Ensure NaN propagation

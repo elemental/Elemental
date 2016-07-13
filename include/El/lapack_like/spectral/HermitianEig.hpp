@@ -80,7 +80,6 @@ void TwoByTwo
     const Real diagSum = alpha00 + alpha11;
     const Real diagDiff = alpha00 - alpha11;
     const Real diagDiffAbs = Abs(diagDiff);
-    const Real twiceAlpha01 = 2*alpha01;
     const Real twiceAlpha01Abs = Abs(2*alpha01);
 
     Real discrimRoot;

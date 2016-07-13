@@ -225,7 +225,6 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     if( !ctrl.overwrite && ctrl.bidiagSVDCtrl.approach != PRODUCT_SVD )
     {
         auto ACopy( A );
@@ -505,7 +504,6 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
 
     Matrix<F> AMod;
     if( ctrl.overwrite )

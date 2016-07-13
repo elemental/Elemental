@@ -20,7 +20,6 @@ void QR
   bool time=false )
 {
     DEBUG_CSE
-    const Int n = A.Height();
     Timer timer;
 
     Matrix<F> phase;
@@ -61,7 +60,6 @@ void QR
   bool time=false )
 {
     DEBUG_CSE
-    const Int n = A.Height();
     Timer timer;
 
     Matrix<F> phase;

@@ -54,6 +54,49 @@ void SortAndFilter
     }
 }
 
+template<typename Real>
+void SortAndFilter
+( AbstractDistMatrix<Real>& wPre, const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+
+    DistMatrixReadWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
+    const Int n = w.Height();
+    const Grid& g = w.Grid();
+
+    if( ctrl.subset.indexSubset )
+    {
+        Sort( w, ctrl.sort );
+        DistMatrix<Real,STAR,STAR> wCopy( w );
+        w = wCopy(IR(ctrl.subset.lowerIndex,ctrl.subset.upperIndex+1),ALL);
+    }
+    else if( ctrl.subset.rangeSubset )
+    {
+        Int numValid = 0;
+
+        for( Int j=0; j<n; ++j )
+            if( w.GetLocal(j,0) > ctrl.subset.lowerBound &&
+                w.GetLocal(j,0) <= ctrl.subset.upperBound )
+                ++numValid;
+
+        DistMatrix<Real,STAR,STAR> wFilter(numValid,1,g);
+        numValid = 0;
+        for( Int j=0; j<n; ++j )
+           if( w.GetLocal(j,0) > ctrl.subset.lowerBound &&
+               w.GetLocal(j,0) <= ctrl.subset.upperBound )
+               wFilter.SetLocal( numValid++, 0, w.GetLocal(j,0) );
+
+        w = wFilter;
+        Sort( w, ctrl.sort );
+    }
+    else
+    {
+        Sort( w, ctrl.sort );
+    }
+}
+
 template<typename F>
 void SortAndFilter
 ( Matrix<Base<F>>& w,
@@ -114,9 +157,168 @@ void SortAndFilter
     }
 }
 
+template<typename F>
+void SortAndFilter
+( AbstractDistMatrix<Base<F>>& wPre,
+  AbstractDistMatrix<F>& QPre,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+
+    DistMatrixReadWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
+    DistMatrixReadWriteProxy<F,F,VC,STAR> QProx( QPre );
+    auto& w = wProx.Get();
+    auto& Q = QProx.Get();
+
+    const Int n = w.Height();
+    const Grid& g = w.Grid();
+
+    if( ctrl.subset.indexSubset )
+    {
+        auto sortPairs = TaggedSort( w, ctrl.sort );
+        for( Int j=0; j<n; ++j )
+            w.SetLocal( j, 0, sortPairs[j].value );
+        ApplyTaggedSortToEachRow( sortPairs, Q );
+
+        DistMatrix<Real,STAR,STAR> wCopy( w );
+        DistMatrix<F,VC,STAR> QCopy( Q );
+        w = wCopy(IR(ctrl.subset.lowerIndex,ctrl.subset.upperIndex+1),ALL);
+        Q = QCopy(ALL,IR(ctrl.subset.lowerIndex,ctrl.subset.upperIndex+1));
+    }
+    else if( ctrl.subset.rangeSubset )
+    {
+        Int numValid = 0;
+
+        for( Int j=0; j<n; ++j )
+            if( w.GetLocal(j,0) > ctrl.subset.lowerBound &&
+                w.GetLocal(j,0) <= ctrl.subset.upperBound )
+                ++numValid;
+
+        DistMatrix<Real,STAR,STAR> wFilter(numValid,1,g);
+        DistMatrix<F,VC,STAR> QFilter(n,numValid,g);
+        numValid = 0;
+        for( Int j=0; j<n; ++j )
+        {
+           if( w.GetLocal(j,0) > ctrl.subset.lowerBound &&
+               w.GetLocal(j,0) <= ctrl.subset.upperBound )
+           {
+               wFilter.SetLocal( numValid, 0, w.GetLocal(j,0) );
+               auto qFilterCol = QFilter(ALL,IR(numValid));
+               qFilterCol = Q(ALL,IR(j));
+               ++numValid;
+           }
+        }
+
+        w = wFilter;
+        Q = QFilter;
+
+        auto sortPairs = TaggedSort( w, ctrl.sort );
+        for( Int j=0; j<numValid; ++j )
+            w.SetLocal( j, 0, sortPairs[j].value );
+        ApplyTaggedSortToEachRow( sortPairs, Q );
+    }
+    else
+    {
+        auto sortPairs = TaggedSort( w, ctrl.sort );
+        for( Int j=0; j<n; ++j )
+            w.SetLocal( j, 0, sortPairs[j].value );
+        ApplyTaggedSortToEachRow( sortPairs, Q );
+    }
+}
+
 } // namespace herm_eig
 
 namespace herm_tridiag_eig {
+
+template<typename Real>
+void RemovePhase
+( const Matrix<Complex<Real>>& dSub,
+        Matrix<Real>& dSubReal )
+{
+    DEBUG_CSE
+    const Int n = dSub.Height() + 1;
+    dSubReal.Resize( n-1, 1 );
+    Complex<Real> phaseLast(1);
+    for( Int j=0; j<n-1; ++j )
+    {
+        const auto psi = dSub(j);
+        const auto psiAbs = Abs(psi);
+        if( psiAbs == Real(0) )
+            phaseLast = 1;
+        else
+            phaseLast = ComplexFromPolar(Real(1),Arg(psi*phaseLast));
+        dSubReal(j) = psiAbs;
+    }
+}
+
+template<typename Real>
+void RemovePhase
+( const DistMatrix<Complex<Real>,STAR,STAR>& dSub,
+        DistMatrix<Real,STAR,STAR>& dSubReal )
+{
+    DEBUG_CSE
+    const Int n = dSub.Height() + 1;
+    const Grid& g = dSub.Grid();
+    dSubReal.SetGrid( g );
+    dSubReal.Resize( n-1, 1 );
+    RemovePhase( dSub.LockedMatrix(), dSubReal.Matrix() );
+}
+
+template<typename Real>
+void RemovePhase
+( const Matrix<Complex<Real>>& dSub,
+        Matrix<Real>& dSubReal,
+        Matrix<Complex<Real>>& phase )
+{
+    DEBUG_CSE
+    const Int n = dSub.Height() + 1;
+    dSubReal.Resize( n-1, 1 );
+    phase.Resize( n, 1 );
+    phase(0) = 1;
+    for( Int j=0; j<n-1; ++j )
+    {
+        const auto psi = dSub(j);
+        const auto psiAbs = Abs(psi);
+        if( psiAbs == Real(0) )
+            phase(j+1) = 1;
+        else
+            phase(j+1) = ComplexFromPolar(Real(1),Arg(psi*phase(j)));
+        dSubReal(j) = psiAbs;
+    }
+}
+
+template<typename Real>
+void RemovePhase
+( const DistMatrix<Complex<Real>,STAR,STAR>& dSub,
+        DistMatrix<Real,STAR,STAR>& dSubReal,
+        DistMatrix<Complex<Real>,STAR,STAR>& phase )
+{
+    DEBUG_CSE
+    const Int n = dSub.Height() + 1;
+    const Grid& g = dSub.Grid();
+    dSubReal.SetGrid( g );
+    dSubReal.Resize( n-1, 1 );
+    phase.SetGrid( g );
+    phase.Resize( n, 1 );
+    RemovePhase( dSub.LockedMatrix(), dSubReal.Matrix(), phase.Matrix() );
+}
+
+template<typename Real>
+HermitianTridiagEigInfo
+QRHelper
+(       Matrix<Real>& d,
+        Matrix<Real>& dSub,
+        Matrix<Real>& w,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    w = d;    
+    info.qrInfo = QRAlg( w, dSub, ctrl );
+    herm_eig::SortAndFilter( w, ctrl );
+    return info;
+}
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
@@ -126,39 +328,36 @@ Helper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
+    DEBUG_CSE
+    if( ctrl.useQR )
+    {
+        return QRHelper( d, dSub, w, ctrl );
+    }
+
     const Int n = d.Height();
     HermitianTridiagEigInfo info;
 
-    if( ctrl.useQR )
+    w.Resize( n, 1 );
+    if( ctrl.subset.rangeSubset )
     {
-        w = d;    
-        info.qrInfo = QRAlg( w, dSub, ctrl );
-        herm_eig::SortAndFilter( w, ctrl );
+         const Int k = lapack::SymmetricTridiagEig
+          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+            ctrl.subset.lowerBound, ctrl.subset.upperBound );
+         w.Resize( k, 1 );
+    }
+    else if( ctrl.subset.indexSubset )
+    {
+        const Int numEig = ctrl.subset.upperIndex-ctrl.subset.lowerIndex+1;
+        lapack::SymmetricTridiagEig
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          BlasInt(ctrl.subset.lowerIndex),
+          BlasInt(ctrl.subset.upperIndex) );
+        w.Resize( numEig, 1 );
     }
     else
-    {
-        w.Resize( n, 1 );
-        if( ctrl.subset.rangeSubset )
-        {
-             const Int k = lapack::SymmetricTridiagEig
-              ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-                ctrl.subset.lowerBound, ctrl.subset.upperBound );
-             w.Resize( k, 1 );
-        }
-        else if( ctrl.subset.indexSubset )
-        {
-            const Int numEig = ctrl.subset.upperIndex-ctrl.subset.lowerIndex+1;
-            lapack::SymmetricTridiagEig
-            ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-              BlasInt(ctrl.subset.lowerIndex),
-              BlasInt(ctrl.subset.upperIndex) );
-            w.Resize( numEig, 1 );
-        }
-        else
-            lapack::SymmetricTridiagEig
-            ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer() );
-        Sort( w, ctrl.sort );
-    }
+        lapack::SymmetricTridiagEig
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer() );
+    Sort( w, ctrl.sort );
 
     return info;
 }
@@ -171,14 +370,8 @@ Helper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    const Int n = d.Height();
-    HermitianTridiagEigInfo info;
-
-    w = d;    
-    info.qrInfo = QRAlg( w, dSub, ctrl );
-    herm_eig::SortAndFilter( w, ctrl );
-
-    return info;
+    DEBUG_CSE
+    return QRHelper( d, dSub, w, ctrl );
 }
 
 template<typename Real>
@@ -189,20 +382,9 @@ Helper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    typedef Complex<Real> C;
-    const Int n = d.Height();
-    Matrix<Real> dSubReal( n-1, 1 );
-    C yLast = 1;
-    for( Int j=0; j<n-1; ++j )
-    {
-        const C psi = dSub(j);
-        const Real psiAbs = Abs(psi);
-        if( psiAbs == Real(0) )
-            yLast = 1;
-        else
-            yLast = ComplexFromPolar(Real(1),Arg(psi*yLast));
-        dSubReal(j) = psiAbs;
-    }
+    DEBUG_CSE
+    Matrix<Real> dSubReal;
+    RemovePhase( dSub, dSubReal );
     return HermitianTridiagEig( d, dSubReal, w, ctrl );
 }
 
@@ -222,6 +404,49 @@ HermitianTridiagEig
 
 namespace herm_tridiag_eig {
 
+template<typename Real>
+HermitianTridiagEigInfo
+QRHelper
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& w, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
+    info.qrInfo = QRAlg( d_STAR_STAR, dSub_STAR_STAR, ctrl );
+    herm_eig::SortAndFilter( d_STAR_STAR, ctrl );
+    Copy( d_STAR_STAR, w );
+    return info;
+}
+
+template<typename Real>
+HermitianTridiagEigInfo
+QRHelper
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& w, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    const Grid& g = d.Grid();
+
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
+    DistMatrix<Complex<Real>,STAR,STAR> dSub_STAR_STAR( dSub );
+
+    DistMatrix<Real,STAR,STAR> dSubReal(g);
+    RemovePhase( dSub_STAR_STAR, dSubReal );
+
+    info.qrInfo = QRAlg( d_STAR_STAR, dSubReal, ctrl );
+    herm_eig::SortAndFilter( d_STAR_STAR, ctrl );
+    Copy( d_STAR_STAR, w );
+
+    return info;
+}
+
+// TODO(poulson): Move into MRRRHelper
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
@@ -233,7 +458,7 @@ Helper
     DEBUG_CSE
     if( ctrl.useQR )
     {
-        LogicError("Distributed QR not yet supported");
+        return QRHelper( d, dSub, wPre, ctrl );
     }
     HermitianTridiagEigInfo info;
 
@@ -282,14 +507,11 @@ HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& wPre,
+        AbstractDistMatrix<Real>& w, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    LogicError
-    ("Distributed non-standard HermitianTridiagEig not yet supported");
-    HermitianTridiagEigInfo info;
-    return info;
+    return QRHelper( d, dSub, w, ctrl );
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -303,7 +525,7 @@ Helper
     DEBUG_CSE
     if( ctrl.useQR )
     {
-        LogicError("Distributed QR not yet supported");
+        return QRHelper( d, dSub, wPre, ctrl );
     }
     HermitianTridiagEigInfo info;
 
@@ -323,23 +545,9 @@ Helper
     Copy( d, d_STAR_STAR );
     dSub_STAR_STAR.Resize( n-1, 1, n );
     Copy( dSub, dSub_STAR_STAR );
-    auto& dSubLoc = dSub_STAR_STAR.Matrix();
 
     DistMatrix<double,STAR,STAR> dSubReal(g);
-    dSubReal.Resize( n-1, 1, n );
-    auto& dSubRealLoc = dSubReal.Matrix();
-
-    Complex<double> yLast = 1;
-    for( Int j=0; j<n-1; ++j )
-    {
-        const Complex<double> psi = dSubLoc(j);
-        const double psiAbs = Abs(psi);
-        if( psiAbs == double(0) )
-            yLast = 1;
-        else
-            yLast = ComplexFromPolar(double(1),Arg(psi*yLast));
-        dSubRealLoc(j) = psiAbs;
-    }
+    RemovePhase( dSub_STAR_STAR, dSubReal );
 
     herm_tridiag_eig::Info rangeInfo;
     vector<double> wVector(n);
@@ -378,14 +586,11 @@ HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& wPre, 
+        AbstractDistMatrix<Real         >& w, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    LogicError
-    ("Distributed non-standard HermitianTridiagEig not yet supported");
-    HermitianTridiagEigInfo info;
-    return info;
+    return QRHelper( d, dSub, w, ctrl );
 }
 
 } // namespace herm_tridiag_eig
@@ -407,6 +612,72 @@ HermitianTridiagEig
 
 namespace herm_tridiag_eig {
 
+template<typename Real>
+HermitianTridiagEigInfo
+QRHelper
+(       Matrix<Real>& d,
+        Matrix<Real>& dSub,
+        Matrix<Real>& w,
+        Matrix<Real>& Q,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    w = d;    
+    info.qrInfo = QRAlg( w, dSub, Q, ctrl );
+    herm_eig::SortAndFilter( w, Q, ctrl );
+    return info;
+}
+
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+HermitianTridiagEigInfo
+MRRRHelper
+(       Matrix<Real>& d,
+        Matrix<Real>& dSub,
+        Matrix<Real>& w,
+        Matrix<Real>& Q,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    const Int n = d.Height();
+    HermitianTridiagEigInfo info;
+    w.Resize( n, 1 );
+    if( ctrl.subset.rangeSubset )
+    {
+         Q.Resize( n, n );
+         const Int k = lapack::SymmetricTridiagEig
+          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+            Q.Buffer(), BlasInt(Q.LDim()),
+            ctrl.subset.lowerBound, ctrl.subset.upperBound );
+         w.Resize( k, 1 );
+         Q.Resize( n, k );
+    }
+    else if( ctrl.subset.indexSubset )
+    {
+        const Int numEig = ctrl.subset.upperIndex-ctrl.subset.lowerIndex+1;
+        Q.Resize( n, numEig );
+        lapack::SymmetricTridiagEig
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          Q.Buffer(), BlasInt(Q.LDim()),
+          BlasInt(ctrl.subset.lowerIndex),
+          BlasInt(ctrl.subset.upperIndex) );
+        w.Resize( numEig, 1 );
+    }
+    else
+    {
+        Q.Resize( n, n );
+        lapack::SymmetricTridiagEig
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          Q.Buffer(), BlasInt(Q.LDim()) );
+    }
+    auto sortPairs = TaggedSort( w, ctrl.sort );
+    for( Int j=0; j<n; ++j )
+        w(j) = sortPairs[j].value;
+    ApplyTaggedSortToEachRow( sortPairs, Q );
+
+    return info;
+}
+
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
@@ -416,53 +687,15 @@ Helper
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    const Int n = d.Height();
-    HermitianTridiagEigInfo info;
-
+    DEBUG_CSE
     if( ctrl.useQR )
     {
-        w = d;    
-        info.qrInfo = QRAlg( w, dSub, Q, ctrl );
-        herm_eig::SortAndFilter( w, Q, ctrl );
+        return QRHelper( d, dSub, w, Q, ctrl );
     }
     else
     {
-        w.Resize( n, 1 );
-        if( ctrl.subset.rangeSubset )
-        {
-             Q.Resize( n, n );
-             const Int k = lapack::SymmetricTridiagEig
-              ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-                Q.Buffer(), BlasInt(Q.LDim()),
-                ctrl.subset.lowerBound, ctrl.subset.upperBound );
-             w.Resize( k, 1 );
-             Q.Resize( n, k );
-        }
-        else if( ctrl.subset.indexSubset )
-        {
-            const Int numEig = ctrl.subset.upperIndex-ctrl.subset.lowerIndex+1;
-            Q.Resize( n, numEig );
-            lapack::SymmetricTridiagEig
-            ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-              Q.Buffer(), BlasInt(Q.LDim()),
-              BlasInt(ctrl.subset.lowerIndex),
-              BlasInt(ctrl.subset.upperIndex) );
-            w.Resize( numEig, 1 );
-        }
-        else
-        {
-            Q.Resize( n, n );
-            lapack::SymmetricTridiagEig
-            ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
-              Q.Buffer(), BlasInt(Q.LDim()) );
-        }
-        auto sortPairs = TaggedSort( w, ctrl.sort );
-        for( Int j=0; j<n; ++j )
-            w(j) = sortPairs[j].value;
-        ApplyTaggedSortToEachRow( sortPairs, Q );
+        return MRRRHelper( d, dSub, w, Q, ctrl );
     }
-
-    return info;
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -474,14 +707,8 @@ Helper
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    const Int n = d.Height();
-    HermitianTridiagEigInfo info;
-
-    w = d;    
-    info.qrInfo = QRAlg( w, dSub, Q, ctrl );
-    herm_eig::SortAndFilter( w, Q, ctrl );
-
-    return info;
+    DEBUG_CSE
+    return QRHelper( d, dSub, w, Q, ctrl );
 }
 
 // (Y^H T Y) QHat = QHat Lambda
@@ -495,29 +722,17 @@ Helper
         Matrix<Complex<Real>>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    typedef Complex<Real> C;
-    const Int n = d.Height();
     HermitianTridiagEigInfo info;
 
-    Matrix<Real> dSubReal( n-1, 1 );
-    Matrix<C> y( n, 1 );
-    y(0) = 1;
-    for( Int j=0; j<n-1; ++j )
-    {
-        const C psi = dSub(j);
-        const Real psiAbs = Abs(psi);
-        if( psiAbs == Real(0) )
-            y(j+1) = 1;
-        else
-            y(j+1) = ComplexFromPolar(Real(1),Arg(psi*y(j)));
-        dSubReal(j) = psiAbs;
-    }
+    Matrix<Real> dSubReal;
+    Matrix<Complex<Real>> phase;
+    RemovePhase( dSub, dSubReal, phase );
+
     Matrix<Real> QReal;
     HermitianTridiagEig( d, dSubReal, w, QReal, ctrl );
-    Q.Resize( n, QReal.Width() );
-    for( Int j=0; j<QReal.Width(); ++j )
-        for( Int i=0; i<n; ++i )
-            Q(i,j) = y(i)*QReal(i,j);
+
+    Copy( QReal, Q );
+    DiagonalScale( LEFT, NORMAL, phase, Q );
 
     return info;
 }
@@ -539,23 +754,104 @@ HermitianTridiagEig
 
 namespace herm_tridiag_eig {
 
+template<typename Real>
+HermitianTridiagEigInfo
+QRHelper
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& w, 
+        AbstractDistMatrix<Real>& Q, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
+
+    if( ctrl.accumulateEigVecs )
+    {
+        DistMatrix<Real,VC,STAR> Q_VC_STAR( Q );
+        info.qrInfo = QRAlg( d_STAR_STAR, dSub_STAR_STAR, Q, ctrl );
+        herm_eig::SortAndFilter( d_STAR_STAR, Q, ctrl );
+    }
+    else
+    {
+        DistMatrix<Real,VC,STAR> Q_VC_STAR( Q.Grid() );
+        info.qrInfo = QRAlg( d_STAR_STAR, dSub_STAR_STAR, Q_VC_STAR, ctrl );
+        herm_eig::SortAndFilter( d_STAR_STAR, Q_VC_STAR, ctrl );
+        Copy( Q_VC_STAR, Q );
+    }
+    Copy( d_STAR_STAR, w );
+
+    return info;
+}
+
+template<typename Real>
+HermitianTridiagEigInfo
+QRHelper
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& w, 
+        AbstractDistMatrix<Complex<Real>>& QPre, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    typedef Complex<Real> F;
+    const Grid& g = d.Grid();
+    HermitianTridiagEigInfo info;
+
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
+    DistMatrix<F,STAR,STAR> dSub_STAR_STAR( dSub );
+
+    DistMatrix<Real,STAR,STAR> dSubReal(g);
+    DistMatrix<F,STAR,STAR> phase(g);
+    RemovePhase( dSub_STAR_STAR, dSubReal, phase );
+
+    if( ctrl.accumulateEigVecs )
+    {
+        DistMatrixReadWriteProxy<F,F,VC,STAR> QProx(QPre);
+        auto& Q = QProx.Get();
+
+        info.qrInfo = QRAlg( d_STAR_STAR, dSubReal, Q, ctrl );
+        herm_eig::SortAndFilter( d_STAR_STAR, Q, ctrl );
+
+        DiagonalScale( LEFT, NORMAL, phase, Q );
+    }
+    else
+    {
+        const Int n = d.Height();
+        DistMatrix<Real,VC,STAR> QReal(g);
+        Identity( QReal, n, n );
+
+        info.qrInfo = QRAlg( d_STAR_STAR, dSubReal, QReal, ctrl );
+        herm_eig::SortAndFilter( d_STAR_STAR, QReal, ctrl );
+
+        ElementalProxyCtrl proxCtrl;
+        proxCtrl.colConstrain = true;
+        proxCtrl.colAlign = QReal.ColAlign();
+        DistMatrixWriteProxy<F,F,VC,STAR> QProx(QPre,proxCtrl);
+        auto& Q = QProx.Get();
+        Copy( QReal, Q );
+        DiagonalScale( LEFT, NORMAL, phase, Q );
+    }
+    Copy( d_STAR_STAR, w );
+
+    return info;
+}
+
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
-Helper
+MRRRHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& wPre, 
         AbstractDistMatrix<Real>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
+    DEBUG_CSE
     // NOTE: The computation forces double-precision due to PMRRR limitations
     const Int n = d.Height();
     const Grid& g = d.Grid();
     HermitianTridiagEigInfo info;
-    if( ctrl.useQR )
-    {
-        LogicError("Distributed QR not yet supported");
-    }
 
     ElementalProxyCtrl wCtrl, QCtrl;
     wCtrl.colConstrain = true;
@@ -622,65 +918,31 @@ Helper
     return info;
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
-HermitianTridiagEigInfo
-Helper
-( const AbstractDistMatrix<Real>& d,
-  const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& wPre, 
-        AbstractDistMatrix<Real>& QPre, 
-  const HermitianTridiagEigCtrl<Real>& ctrl )
-{
-    HermitianTridiagEigInfo info;
-    LogicError
-    ("Distributed non-standard HermitianTridiagEig not yet supported");
-    return info;
-}
-
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
-Helper
+MRRRHelper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
         AbstractDistMatrix<Real         >& wPre, 
         AbstractDistMatrix<Complex<Real>>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
+    DEBUG_CSE
     // NOTE: The computation forces double-precision due to PMRRR limitations
     const Int n = d.Height();
     const Grid& g = d.Grid();
     typedef Complex<Real> C;
     HermitianTridiagEigInfo info;
-    if( ctrl.useQR )
-    {
-        LogicError("Distributed QR not yet supported");
-    }
 
     DistMatrix<double,STAR,STAR> d_STAR_STAR(g);
     DistMatrix<Complex<double>,STAR,STAR> dSub_STAR_STAR(g);
     Copy( d, d_STAR_STAR );
     dSub_STAR_STAR.Resize( n-1, 1, n );
     Copy( dSub, dSub_STAR_STAR );
-    auto& dSubLoc = dSub_STAR_STAR.Matrix();
-
-    DistMatrix<Complex<double>,STAR,STAR> y(n,1,g);
-    auto& yLoc = y.Matrix();
 
     DistMatrix<double,STAR,STAR> dSubReal(g);
-    dSubReal.Resize( n-1, 1, n );
-    auto dSubRealLoc = dSubReal.Matrix();
-
-    yLoc(0) = 1;
-    for( Int j=0; j<n-1; ++j )
-    {
-        const auto psi = dSubLoc(j);
-        const double psiAbs = Abs(psi);
-        if( psiAbs == double(0) )
-            yLoc(j+1) = 1;
-        else
-            yLoc(j+1) = ComplexFromPolar(double(1),Arg(psi*yLoc(j)));
-        dSubRealLoc(j) = psiAbs;
-    }
+    DistMatrix<Complex<double>,STAR,STAR> phase(g);
+    RemovePhase( dSub_STAR_STAR, dSubReal, phase );
 
     ElementalProxyCtrl wCtrl, QCtrl;
     wCtrl.colConstrain = true;
@@ -743,14 +1005,63 @@ Helper
         w.Set( j, 0, sortPairs[j].value );
     ApplyTaggedSortToEachRow( sortPairs, QReal );
 
-    Q.Resize( n, rangeInfo.numGlobalEigenvalues );
-    auto& QLoc = Q.Matrix();
-    auto& QRealLoc = QReal.Matrix();
-    for( Int jLoc=0; jLoc<Q.LocalWidth(); ++jLoc )
-        for( Int i=0; i<n; ++i )
-            QLoc(i,jLoc) = C(yLoc(i)*QRealLoc(i,jLoc));
+    Copy( QReal, Q );
+    DiagonalScale( LEFT, NORMAL, phase, Q ); 
 
     return info;
+}
+
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+HermitianTridiagEigInfo
+Helper
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& w, 
+        AbstractDistMatrix<Real>& Q, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.useQR )
+    {
+        return QRHelper( d, dSub, w, Q, ctrl );
+    }
+    else
+    {
+        return MRRRHelper( d, dSub, w, Q, ctrl );
+    }
+}
+
+template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+HermitianTridiagEigInfo
+Helper
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& w, 
+        AbstractDistMatrix<Real>& Q, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    return QRHelper( d, dSub, w, Q, ctrl );
+}
+
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+HermitianTridiagEigInfo
+Helper
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& w, 
+        AbstractDistMatrix<Complex<Real>>& Q, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.useQR )
+    {
+        return QRHelper( d, dSub, w, Q, ctrl );
+    }
+    else
+    {
+        return MRRRHelper( d, dSub, w, Q, ctrl );
+    }
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -758,14 +1069,12 @@ HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& wPre, 
+        AbstractDistMatrix<Real         >& w, 
         AbstractDistMatrix<Complex<Real>>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    HermitianTridiagEigInfo info;
-    LogicError
-    ("Distributed non-standard HermitianTridiagEig not yet supported");
-    return info;
+    DEBUG_CSE
+    return QRHelper( d, dSub, w, QPre, ctrl );
 }
 
 } // namespace herm_tridiag_eig
@@ -818,8 +1127,7 @@ Int MRRREstimateHelper
         Real vu )
 {
     DEBUG_CSE
-    LogicError
-    ("HermitianTridiagEigEstimate not yet supported for nonstandard datatypes");
+    LogicError("MRRREstimate not yet supported for nonstandard datatypes");
     return 0;
 }
 
@@ -930,6 +1238,10 @@ MRRRPostEstimate
   ( Matrix<Base<F>>& w, \
     Matrix<F>& Q, \
     const HermitianTridiagEigCtrl<Base<F>>& ctrl ); \
+  template void herm_eig::SortAndFilter \
+  ( AbstractDistMatrix<Base<F>>& w, \
+    AbstractDistMatrix<F>& Q, \
+    const HermitianTridiagEigCtrl<Base<F>>& ctrl ); \
   template HermitianTridiagEigInfo HermitianTridiagEig \
   (       Matrix<Base<F>>& d, \
           Matrix<F>& dSub, \
@@ -957,6 +1269,9 @@ MRRRPostEstimate
   PROTO(Real) \
   template void herm_eig::SortAndFilter \
   ( Matrix<Real>& w, \
+    const HermitianTridiagEigCtrl<Real>& ctrl ); \
+  template void herm_eig::SortAndFilter \
+  ( AbstractDistMatrix<Real>& w, \
     const HermitianTridiagEigCtrl<Real>& ctrl ); \
   template Int herm_tridiag_eig::MRRREstimate \
   ( const AbstractDistMatrix<Real>& d, \

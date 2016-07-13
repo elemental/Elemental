@@ -223,15 +223,14 @@ void TestSuite
     ctrl.tridiagEigCtrl.sort = ctrlDbl.tridiagEigCtrl.sort;
     ctrl.tridiagEigCtrl.useQR = ctrlDbl.tridiagEigCtrl.useQR;
     ctrl.tridiagEigCtrl.subset = subset;
+    ctrl.tridiagEigCtrl.progress = ctrlDbl.tridiagEigCtrl.progress;
 
-    if( sequential )
+    if( sequential && g.Rank() == 0 )
     {
         TestHermitianEigSequential<F>
         ( m, uplo, onlyEigvals, clustered, correctness, print, ctrl );
     }
-    // Distributed eigensolvers are currently only supported for {float,double}
-    const bool canSolve = IsBlasScalar<Real>::value || (g.Size()==1);
-    if( distributed && canSolve )
+    if( distributed )
     {
         OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
         ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
@@ -297,6 +296,7 @@ main( int argc, char* argv[] )
           Input("--distributed","test distributed?",true);
         const bool correctness =
           Input("--correctness","test correctness?",true);
+        const bool progress = Input("--progress","print progress?",false); 
         const bool print = Input("--print","print matrices?",false);
         const bool testReal = Input("--testReal","test real matrices?",true);
         const bool testCpx = Input("--testCpx","test complex matrices?",true);
@@ -342,6 +342,7 @@ main( int argc, char* argv[] )
         ctrl.tridiagEigCtrl.sort = sort;
         ctrl.tridiagEigCtrl.useQR = useQR;
         ctrl.tridiagEigCtrl.subset = subset;
+        ctrl.tridiagEigCtrl.progress = progress;
 
         if( testReal )
         {
@@ -368,7 +369,6 @@ main( int argc, char* argv[] )
             ( m, uplo, onlyEigvals, clustered,
               sequential, distributed, correctness, print, g, ctrl );
 #endif
-
 #ifdef EL_HAVE_MPC
             TestSuite<BigFloat>
             ( m, uplo, onlyEigvals, clustered,

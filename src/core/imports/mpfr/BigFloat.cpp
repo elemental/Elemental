@@ -238,6 +238,13 @@ BigFloat::~BigFloat()
 void BigFloat::Zero()
 {
     DEBUG_CSE
+    if( EL_RUNNING_ON_VALGRIND )
+    {
+        // MPFR seems to be sloppy about manipulating uninitialized data
+        // and simply sets the exponent size to zero rather than actually
+        // zeroing the limbs
+        MemZero( mpfrFloat_->_mpfr_d, numLimbs_ );
+    }
     mpfr_set_zero( Pointer(), 0 );
 }
 

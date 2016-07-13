@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
         SVDCtrl<Real> ctrl;
         for( Int test=0; test<numTests; ++test )
         {
-            Int n;
+            Int n=1;
             const TestType testType = TestType(test/2);
             ctrl.useLAPACK = useLAPACK;
             ctrl.bidiagSVDCtrl.qrCtrl.useLAPACK = useLAPACKQR;

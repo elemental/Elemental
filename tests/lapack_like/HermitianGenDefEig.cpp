@@ -465,9 +465,7 @@ void TestSuite
         TestHermitianGenDefEigSequential<F>
         ( m, uplo, pencil, onlyEigvals, correctness, print, ctrl );
     }
-    // Distributed eigensolvers are currently only supported for {float,double}
-    const bool canSolve = IsBlasScalar<Real>::value || (g.Size()==1);
-    if( distributed && canSolve )
+    if( distributed )
     {
         OutputFromRoot(g.Comm(),"Normal tridiag algorithms:");
         ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;

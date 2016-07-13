@@ -55,7 +55,7 @@ struct HermitianTridiagEigInfo
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 struct HermitianTridiagEigCtrl
 {
-    bool wantEigVecs=false;
+    bool wantEigVecs=true;
     bool accumulateEigVecs=false;
     SortType sort=ASCENDING;
     HermitianEigSubset<Real> subset;

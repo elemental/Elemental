@@ -62,7 +62,6 @@ Real WilkinsonShift
     const Real gamma = (alpha11-alpha00)/(2*alpha01);
     const Real rho = SafeNorm( gamma, Real(1) );
     // Following Parlett, demand that sgn(0) = 1.
-    bool symmetric = false;
     const Real sgnGamma = Sgn(gamma,false);
     const Real omega = alpha00 - alpha01 / (gamma + sgnGamma*rho);
     return omega;
@@ -88,17 +87,18 @@ Real WilkinsonShift
 // 't' for both the safe computation of 'e_i' and for 't_i'.
 //
 // TODO(poulson): Introduce [winBeg,winEnd) to avoid parent allocation
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename F>
 void QLSweep
-( Matrix<Real>& d,
-  Matrix<Real>& e,
-  Matrix<Real>& cList,
-  Matrix<Real>& sList,
-  Matrix<Real>& Q,
-  const Real& shift,
+( Matrix<Base<F>>& d,
+  Matrix<Base<F>>& e,
+  Matrix<Base<F>>& cList,
+  Matrix<Base<F>>& sList,
+  Matrix<F>& Q,
+  const Base<F>& shift,
   bool wantEigVecs )
 {
     DEBUG_CSE
+    typedef Base<F> Real;
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
     if( wantEigVecs )
@@ -140,17 +140,18 @@ void QLSweep
     }
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename F>
 void QRSweep
-( Matrix<Real>& d,
-  Matrix<Real>& e,
-  Matrix<Real>& cList,
-  Matrix<Real>& sList,
-  Matrix<Real>& Q,
-  const Real& shift,
+( Matrix<Base<F>>& d,
+  Matrix<Base<F>>& e,
+  Matrix<Base<F>>& cList,
+  Matrix<Base<F>>& sList,
+  Matrix<F>& Q,
+  const Base<F>& shift,
   bool wantEigVecs )
 {
     DEBUG_CSE
+    typedef Base<F> Real;
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
     cList.Resize( n-1, 1 );
@@ -195,16 +196,18 @@ void QRSweep
 // TODO(poulson): Support for what Parlett calls "Saad's shifts" in 
 // subsubsection 8.14.5 of "The symmetric eigenvalue problem" [CITATION].
 //
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename F>
 herm_tridiag_eig::QRInfo
 Helper
-( Matrix<Real>& d,
-  Matrix<Real>& e, 
-  Matrix<Real>& Q,
-  const HermitianTridiagEigCtrl<Real>& ctrl )
+( Matrix<Base<F>>& d,
+  Matrix<Base<F>>& e, 
+  Matrix<F>& Q,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
+    typedef Base<F> Real;
     const Int n = d.Height();
+    const Int mQ = Q.Height();
     herm_tridiag_eig::QRInfo info;
 
     if( n <= 1 )
@@ -221,7 +224,8 @@ Helper
     const Real normMax = Sqrt(safeMax) / Real(3);
 
     Matrix<Real> cList(n-1,1), sList(n-1,1);
-    Matrix<Real> dSub, eSub, QSub;
+    Matrix<Real> dSub, eSub;
+    Matrix<F> QSub;
 
     const Int maxIter = n*ctrl.qrCtrl.maxIterPerEig; 
     Int winBeg = 0;
@@ -339,7 +343,7 @@ Helper
                           ctrl.qrCtrl.fullAccuracyTwoByTwo );
                         // Apply the Givens rotation from the right to Q
                         blas::Rot
-                        ( n, &Q(0,subWinBeg), 1, &Q(0,subWinBeg+1), 1, c, s );
+                        ( mQ, &Q(0,subWinBeg), 1, &Q(0,subWinBeg+1), 1, c, s );
                     }
                     else
                     {
@@ -433,7 +437,8 @@ Helper
                           ctrl.qrCtrl.fullAccuracyTwoByTwo ); 
                         // Apply the Givens rotation from the right to Q
                         blas::Rot
-                        ( n, &Q(0,subWinEnd-2), 1, &Q(0,subWinEnd-1), 1, c, s );
+                        ( mQ, &Q(0,subWinEnd-2), 1, &Q(0,subWinEnd-1), 1,
+                          c, s );
                     }
                     else
                     {
@@ -516,6 +521,26 @@ QRAlg
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 herm_tridiag_eig::QRInfo
 QRAlg
+( AbstractDistMatrix<Real>& mainDiagPre,
+  AbstractDistMatrix<Real>& subDiagPre, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+
+    DistMatrixReadWriteProxy<Real,Real,STAR,STAR> mainDiagProx( mainDiagPre );
+    DistMatrixReadProxy<Real,Real,STAR,STAR> subDiagProx( subDiagPre );
+    auto& mainDiag = mainDiagProx.Get();
+    auto& subDiag = subDiagProx.Get();
+
+    auto ctrlMod( ctrl );
+    ctrlMod.wantEigVecs = false;
+    Matrix<Real> QLoc;
+    return qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), QLoc, ctrlMod );
+}
+
+template<typename Real>
+herm_tridiag_eig::QRInfo
+QRAlg
 ( Matrix<Real>& mainDiag,
   Matrix<Real>& subDiag,
   Matrix<Real>& Q,
@@ -536,6 +561,113 @@ QRAlg
         Identity( Q, n, n );
     }
     return qr::Helper( mainDiag, subDiag, Q, ctrlMod );
+}
+
+template<typename Real>
+herm_tridiag_eig::QRInfo
+QRAlg
+( Matrix<Real>& mainDiag,
+  Matrix<Real>& subDiag,
+  Matrix<Complex<Real>>& Q,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    const Int n = mainDiag.Height();
+    auto ctrlMod( ctrl );
+    ctrlMod.wantEigVecs = true;
+    if( ctrl.accumulateEigVecs )
+    {
+        if( Q.Width() != n )
+            LogicError("Q was an invalid size"); 
+        return qr::Helper( mainDiag, subDiag, Q, ctrlMod );
+    }
+    else
+    {
+        // Allow for computing a subset of rows of Q
+        Matrix<Real> QReal;
+        Identity( QReal, n, n );
+        auto info = qr::Helper( mainDiag, subDiag, QReal, ctrlMod );
+        Q = QReal;
+        return info;
+    }
+}
+
+template<typename Real>
+herm_tridiag_eig::QRInfo
+QRAlg
+( AbstractDistMatrix<Real>& mainDiagPre,
+  AbstractDistMatrix<Real>& subDiagPre, 
+  AbstractDistMatrix<Real>& QPre,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    const Int n = mainDiagPre.Height();
+
+    DistMatrixReadWriteProxy<Real,Real,STAR,STAR> mainDiagProx( mainDiagPre );
+    DistMatrixReadProxy<Real,Real,STAR,STAR> subDiagProx( subDiagPre );
+    auto& mainDiag = mainDiagProx.Get();
+    auto& subDiag = subDiagProx.Get();
+
+    if( ctrl.accumulateEigVecs )
+    {
+        DistMatrixReadWriteProxy<Real,Real,VC,STAR> QProx( QPre );
+        auto& Q = QProx.Get();
+        if( Q.Width() != n )
+            LogicError("Q was an invalid size"); 
+
+        return
+          qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), Q.Matrix(), ctrl );
+    }
+    else
+    {
+        DistMatrixWriteProxy<Real,Real,VC,STAR> QProx(QPre);
+        auto& Q = QProx.Get();
+        Identity( Q, n, n );
+
+        return
+          qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), Q.Matrix(), ctrl );
+    }
+}
+
+template<typename Real>
+herm_tridiag_eig::QRInfo
+QRAlg
+( AbstractDistMatrix<Real>& mainDiagPre,
+  AbstractDistMatrix<Real>& subDiagPre, 
+  AbstractDistMatrix<Complex<Real>>& QPre,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    const Int n = mainDiagPre.Height();
+    typedef Complex<Real> F;
+
+    DistMatrixReadWriteProxy<Real,Real,STAR,STAR> mainDiagProx( mainDiagPre );
+    DistMatrixReadProxy<Real,Real,STAR,STAR> subDiagProx( subDiagPre );
+    auto& mainDiag = mainDiagProx.Get();
+    auto& subDiag = subDiagProx.Get();
+
+    if( ctrl.accumulateEigVecs )
+    {
+        DistMatrixReadWriteProxy<F,F,VC,STAR> QProx( QPre );
+        auto& Q = QProx.Get();
+        if( Q.Width() != n )
+            LogicError("Q was an invalid size"); 
+
+        return
+          qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), Q.Matrix(), ctrl );
+    }
+    else
+    {
+        DistMatrix<Real,VC,STAR> QReal(QPre.Grid());
+        Identity( QReal, n, n );
+
+        auto info =
+          qr::Helper
+          ( mainDiag.Matrix(), subDiag.Matrix(), QReal.Matrix(), ctrl );
+
+        Copy( QReal, QPre );
+        return info;
+    }
 }
 
 } // namespace herm_tridiag_eig
