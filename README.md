@@ -35,7 +35,7 @@ datatypes:
 - `El::BigFloat`, `El::Complex<El::BigFloat>` (on top of MPFR's *mpfr_t* and MPC's *mpc_t*)
 
 **Convex optimization**:
-* (Arbitrary-precision) dense and sparse Interior Point Methods for
+* Dense and sparse Interior Point Methods for
   Linear, Quadratic, and Second-Order Cone Programs (**Note: Scalability for sparse IPMs will be lacking until more general sparse matrix distributions are introduced into Elemental**)
     - Basis Pursuit
     - Chebyshev Points
@@ -45,35 +45,34 @@ datatypes:
     - Non-negative Least Squares
     - Support Vector Machines
     - (1D) Total Variation
-* (Arbitrary-precision) Jordan algebras over products of Second-Order Cones
+* Jordan algebras over products of Second-Order Cones
 * Various prototype dense Alternating Direction Method of Multipliers routines
     - Sparse inverse covariance selection
     - Robust Principal Component Analysis
 * Prototype alternating direction Non-negative Matrix Factorization
 
 **Linear algebra**:
-* (Arbitrary-precision) dense and sparse-direct (generalized) Least Squares
+* Dense and sparse-direct (generalized) Least Squares
   problems
     - Least Squares / Minimum Length
     - Tikhonov (and ridge) regression
     - Equality-constrained Least Squares
     - General (Gauss-Markov) Linear Models
-* (Arbitrary-precision) High-performance pseudospectral computation and visualization
-* (Arbitrary-precision) Aggressive Early Deflation Schur decompositions (currently sequential only)
-* (Arbitrary-precision) blocked column-pivoted QR via Johnson-Lindenstrauss
-* (Arbitrary-precision) quadratic-time low-rank Cholesky and LU modifications
-* (Arbitrary-precision) Bunch-Kaufman and Bunch-Parlett for accurate symmetric
+* High-performance pseudospectral computation and visualization
+* Aggressive Early Deflation Schur decompositions (currently sequential only)
+* Blocked column-pivoted QR via Johnson-Lindenstrauss
+* Quadratic-time low-rank Cholesky and LU modifications
+* Bunch-Kaufman and Bunch-Parlett for accurate symmetric
   factorization
-* (Arbitrary-precision) LU and Cholesky with full pivoting
-* (Arbitrary-precision) Column-pivoted QR and
-  interpolative/skeleton decompositions
-* (Arbitrary-precision) Quadratically Weighted Dynamic Halley iteration for
-  the polar decomposition
+* LU and Cholesky with full pivoting
+* Column-pivoted QR and interpolative/skeleton decompositions
+* Quadratically Weighted Dynamic Halley iteration for the polar decomposition
 * Many algorithms for Singular-Value soft-Thresholding (SVT)
-* (Arbitrary-precision) Tall-skinny QR decompositions
+* Tall-skinny QR decompositions
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
+* Arbitrary-precision distributed SVD and (generalized) Hermitian EVPs
 
 **Lattice reduction**:
 * An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
@@ -86,8 +85,6 @@ datatypes:
 **Core data structures**:
 * (1a) Eliminate `DistMultiVec` in favor of the newly extended `DistMatrix`
 * (1b) Extend `DistSparseMatrix` to support elementwise and blockwise 2D distributions
-* (1c) Extend the library to support (distributed) arbitrary-precision complex
-  arithmetic on top of [MPC](http://www.multiprecision.org/index.php?prog=mpc)
 
 **Linear algebra**:
 * (2a) Distributed iterative refinement tailored to two right-hand sides \[weakly depends on (1a)\]
@@ -100,9 +97,6 @@ datatypes:
 * (3b) Enhance sparse scalability via low edge-degree plus low-rank 
   decompositions \[depends on (1b); weakly depends on (1a)\]
 * (3c) Distributed sparse semidefinite programs via chordal decompositions \[weakly depends on (3b)\]
-
-Alternatively, see the `TODO` list for a detailed, albeit somewhat outdated,
-list of planned additions.
 
 ### License
 
