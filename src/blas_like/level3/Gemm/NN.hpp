@@ -19,15 +19,6 @@ void Cannon_NN
         AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-          APre.Width() != BPre.Height() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Grid& g = APre.Grid();
     if( g.Height() != g.Width() )
         LogicError("Process grid must be square for Cannon's");
@@ -106,15 +97,6 @@ void SUMMA_NNA
         AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-          APre.Width() != BPre.Height() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -160,15 +142,6 @@ void SUMMA_NNB
         AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-          APre.Width() != BPre.Height() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int m = CPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -211,15 +184,6 @@ void SUMMA_NNC
         AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-          APre.Width() != BPre.Height() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int sumDim = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -254,100 +218,53 @@ void SUMMA_NNC
 }
 
 // Normal Normal Gemm for panel-panel dot products
+//
+// Use summations of local multiplications from a 1D distribution of A and B
+// to update blockSize x blockSize submatrices of C
+//
 template<typename T>
 void SUMMA_NNDot
 ( T alpha,
   const AbstractDistMatrix<T>& APre,
   const AbstractDistMatrix<T>& BPre,
-        AbstractDistMatrix<T>& CPre )
+        AbstractDistMatrix<T>& CPre,
+  Int blockSize=2000 )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
-          APre.Width() != BPre.Height() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int m = CPre.Height();
     const Int n = CPre.Width();
-    const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    DistMatrixReadProxy<T,T,MC,MR> AProx( APre );
-    DistMatrixReadProxy<T,T,MC,MR> BProx( BPre );
-    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    DistMatrixReadProxy<T,T,STAR,VC> AProx( APre );
     auto& A = AProx.GetLocked();
+
+    ElementalProxyCtrl BCtrl;
+    BCtrl.colConstrain = true;
+    BCtrl.colAlign = A.RowAlign();
+    DistMatrixReadProxy<T,T,VC,STAR> BProx( BPre, BCtrl );
     auto& B = BProx.GetLocked();
+
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
     auto& C = CProx.Get();
 
-    if( A.Height() > B.Width() )
+    DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
+    for( Int kOuter=0; kOuter<m; kOuter+=blockSize )
     {
-        // Temporary distributions
-        DistMatrix<T,STAR,VC> A1_STAR_VC(g);
-        DistMatrix<T,VC,STAR> B1_VC_STAR(g);
-        DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
+        const Int nbOuter = Min(blockSize,m-kOuter);
+        const Range<Int> indOuter( kOuter, kOuter+nbOuter );
 
-        for( Int kOuter=0; kOuter<m; kOuter+=bsize )
+        auto A1 = A( indOuter, ALL );
+
+        for( Int kInner=0; kInner<n; kInner+=blockSize )
         {
-            const Int nbOuter = Min(bsize,m-kOuter);
-            const Range<Int> indOuter( kOuter, kOuter+nbOuter );
+            const Int nbInner = Min(blockSize,n-kInner);
+            const Range<Int> indInner( kInner, kInner+nbInner );
 
-            auto A1 = A( indOuter, ALL );
+            auto B1  = B( ALL,      indInner );
+            auto C11 = C( indOuter, indInner );
 
-            A1_STAR_VC = A1; 
-            B1_VC_STAR.AlignWith( A1_STAR_VC );
-
-            for( Int kInner=0; kInner<n; kInner+=bsize )
-            {
-                const Int nbInner = Min(bsize,n-kInner);
-                const Range<Int> indInner( kInner, kInner+nbInner );
-
-                auto B1  = B( ALL,      indInner );
-                auto C11 = C( indOuter, indInner );
-
-                B1_VC_STAR = B1;
-                LocalGemm
-                ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VC, B1_VC_STAR, C11_STAR_STAR );
-
-                AxpyContract( T(1), C11_STAR_STAR, C11 );
-            }
-        }
-    }
-    else
-    {
-        // Temporary distributions
-        DistMatrix<T,STAR,VR> A1_STAR_VR(g);
-        DistMatrix<T,VR,STAR> B1_VR_STAR(g);
-        DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
-
-        for( Int kOuter=0; kOuter<n; kOuter+=bsize )
-        {
-            const Int nbOuter = Min(bsize,n-kOuter);
-            const Range<Int> indOuter( kOuter, kOuter+nbOuter );
-
-            auto B1 = B( ALL, indOuter );
-
-            B1_VR_STAR = B1;
-            A1_STAR_VR.AlignWith( B1_VR_STAR );
-
-            for( Int kInner=0; kInner<m; kInner+=bsize )
-            {
-                const Int nbInner = Min(bsize,m-kInner);
-                const Range<Int> indInner( kInner, kInner+nbInner );
-
-                auto A1  = A( indInner, ALL      );
-                auto C11 = C( indInner, indOuter );
-
-                A1_STAR_VR = A1;
-                LocalGemm
-                ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VR, B1_VR_STAR, C11_STAR_STAR );
-                AxpyContract( T(1), C11_STAR_STAR, C11 );
-            }
+            LocalGemm( NORMAL, NORMAL, alpha, A1, B1, C11_STAR_STAR );
+            AxpyContract( T(1), C11_STAR_STAR, C11 );
         }
     }
 }
@@ -361,17 +278,32 @@ void SUMMA_NN
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_CSE
+    DEBUG_ONLY(
+      AssertSameGrids( A, B, C );
+      if( A.Height() != C.Height() || 
+          B.Width() != C.Width() ||
+          A.Width() != B.Height() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(A,"A"),"\n",
+           DimsString(B,"B"),"\n",
+           DimsString(C,"C"));
+    )
+
     const Int m = C.Height();
     const Int n = C.Width();
     const Int sumDim = A.Width();
     const double weightTowardsC = 2.;
     const double weightAwayFromDot = 10.;
 
+    // TODO(poulson): Make this tunable
+    const Int blockSizeDot = 2000;
+
     switch( alg )
     {
     case GEMM_DEFAULT:
         if( weightAwayFromDot*m <= sumDim && weightAwayFromDot*n <= sumDim )
-            SUMMA_NNDot( alpha, A, B, C );
+            SUMMA_NNDot( alpha, A, B, C, blockSizeDot );
         else if( m <= n && weightTowardsC*m <= sumDim )
             SUMMA_NNB( alpha, A, B, C );    
         else if( n <= m && weightTowardsC*n <= sumDim )
@@ -382,7 +314,7 @@ void SUMMA_NN
     case GEMM_SUMMA_A:   SUMMA_NNA( alpha, A, B, C ); break;
     case GEMM_SUMMA_B:   SUMMA_NNB( alpha, A, B, C ); break;
     case GEMM_SUMMA_C:   SUMMA_NNC( alpha, A, B, C ); break;
-    case GEMM_SUMMA_DOT: SUMMA_NNDot( alpha, A, B, C ); break;
+    case GEMM_SUMMA_DOT: SUMMA_NNDot( alpha, A, B, C, blockSizeDot ); break;
     default: LogicError("Unsupported Gemm option");
     }
 }

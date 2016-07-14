@@ -21,17 +21,6 @@ void SUMMA_TTA
         AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( orientA == NORMAL || orientB == NORMAL )
-          LogicError("A and B must be (Conjugate)Transposed");
-      if( APre.Width() != CPre.Height() || BPre.Height() != CPre.Width() ||
-          APre.Height() != BPre.Width() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -80,17 +69,6 @@ void SUMMA_TTB
         AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( orientA == NORMAL || orientB == NORMAL )
-          LogicError("A and B must be (Conjugate)Transposed");
-      if( APre.Width() != CPre.Height() || BPre.Height() != CPre.Width() ||
-          APre.Height() != BPre.Width() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int m = CPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -142,17 +120,6 @@ void SUMMA_TTC
         AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( orientA == NORMAL || orientB == NORMAL )
-          LogicError("A and B must be (Conjugate)Transposed");
-      if( APre.Width() != CPre.Height() || BPre.Height() != CPre.Width() ||
-          APre.Height() != BPre.Width() )
-          LogicError
-          ("Nonconformal matrices:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int sumDim = APre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -191,6 +158,60 @@ void SUMMA_TTC
     }
 }
 
+// Transpose Transpose Gemm for panel-panel dot products
+//
+// Use summations of local multiplications from a 1D distribution of A and B
+// to update blockSize x blockSize submatrices of C
+//
+template<typename T>
+void SUMMA_TTDot
+( Orientation orientA,
+  Orientation orientB,
+  T alpha,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre,
+  Int blockSize=2000 )
+{
+    DEBUG_CSE 
+    const Int m = CPre.Height();
+    const Int n = CPre.Width();
+    const Grid& g = APre.Grid();
+
+    DistMatrixReadProxy<T,T,VC,STAR> AProx( APre );
+    auto& A = AProx.GetLocked();
+
+    ElementalProxyCtrl BCtrl;
+    BCtrl.rowConstrain = true;
+    BCtrl.rowAlign = A.ColAlign();
+    DistMatrixReadProxy<T,T,STAR,VC> BProx( BPre, BCtrl );
+    auto& B = BProx.GetLocked();
+
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& C = CProx.Get();
+
+    DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
+    for( Int kOuter=0; kOuter<m; kOuter+=blockSize )
+    {
+        const Int nbOuter = Min(blockSize,m-kOuter);
+        const Range<Int> indOuter( kOuter, kOuter+nbOuter );
+
+        auto A1 = A( ALL, indOuter );
+
+        for( Int kInner=0; kInner<n; kInner+=blockSize )
+        {
+            const Int nbInner = Min(blockSize,n-kInner);
+            const Range<Int> indInner( kInner, kInner+nbInner );
+
+            auto B1  = B( indInner, ALL );
+            auto C11 = C( indOuter, indInner );
+
+            LocalGemm( orientA, orientB, alpha, A1, B1, C11_STAR_STAR );
+            AxpyContract( T(1), C11_STAR_STAR, C11 );
+        }
+    }
+}
+
 template<typename T>
 void SUMMA_TT
 ( Orientation orientA,
@@ -202,15 +223,34 @@ void SUMMA_TT
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_CSE
+    DEBUG_ONLY(
+      AssertSameGrids( A, B, C );
+      if( orientA == NORMAL || orientB == NORMAL )
+          LogicError("A and B must be (Conjugate)Transposed");
+      if( A.Width() != C.Height() ||
+          B.Height() != C.Width() ||
+          A.Height() != B.Width() )
+          LogicError
+          ("Nonconformal matrices:\n",
+           DimsString(A,"A"),"\n",
+           DimsString(B,"B"),"\n",
+           DimsString(C,"C"));
+    )
     const Int m = C.Height();
     const Int n = C.Width();
     const Int sumDim = A.Height();
     const double weightTowardsC = 2.;
+    const double weightAwayFromDot = 10.;
+
+    // TODO(poulson): Make this tunable
+    const Int blockSizeDot = 2000;
 
     switch( alg )
     {
     case GEMM_DEFAULT:
-        if( m <= n && weightTowardsC*m <= sumDim )
+        if( weightAwayFromDot*m <= sumDim && weightAwayFromDot*n <= sumDim )
+            SUMMA_TTDot( orientA, orientB, alpha, A, B, C, blockSizeDot );
+        else if( m <= n && weightTowardsC*m <= sumDim )
             SUMMA_TTB( orientA, orientB, alpha, A, B, C );
         else if( n <= m && weightTowardsC*n <= sumDim )
             SUMMA_TTA( orientA, orientB, alpha, A, B, C );
@@ -225,6 +265,9 @@ void SUMMA_TT
         break;
     case GEMM_SUMMA_C:
         SUMMA_TTC( orientA, orientB, alpha, A, B, C );
+        break;
+    case GEMM_SUMMA_DOT:
+        SUMMA_TTDot( orientA, orientB, alpha, A, B, C );
         break;
     default: LogicError("Unsupported Gemm option");
     }

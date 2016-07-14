@@ -11,7 +11,7 @@ namespace El {
 namespace syr2k {
 
 template<typename T>
-void LT
+void LT_C
 ( T alpha,
   const AbstractDistMatrix<T>& APre,
   const AbstractDistMatrix<T>& BPre,
@@ -19,16 +19,6 @@ void LT
   bool conjugate=false )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, BPre, CPre );
-      if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width()  ||
-          BPre.Width() != CPre.Height() || BPre.Width() != CPre.Width()  ||
-          APre.Height() != BPre.Height() )
-          LogicError
-          ("Nonconformal:\n",
-           DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
-           DimsString(CPre,"C"));
-    )
     const Int r = APre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -74,6 +64,99 @@ void LT
           alpha,    A1_STAR_MC, B1Trans_MR_STAR,
           alphaSec, B1_STAR_MC, A1Trans_MR_STAR, T(1), C );
     }
+}
+
+template<typename T>
+void LT_Dot
+( T alpha,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre,
+  const bool conjugate,
+  Int blockSize=2000 )
+{
+    DEBUG_CSE 
+    const Int n = CPre.Height();
+    const Grid& g = APre.Grid();
+
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+
+    DistMatrixReadProxy<T,T,VC,STAR> AProx( APre );
+    auto& A = AProx.GetLocked();
+
+    ElementalProxyCtrl BCtrl;
+    BCtrl.colConstrain = true;
+    BCtrl.colAlign = A.ColAlign();
+    DistMatrixReadProxy<T,T,VC,STAR> BProx( BPre, BCtrl );
+    auto& B = BProx.GetLocked();
+
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& C = CProx.Get();
+
+    DistMatrix<T,STAR,STAR> Z( blockSize, blockSize, g );
+    Zero( Z );
+    for( Int kOuter=0; kOuter<n; kOuter+=blockSize )
+    {
+        const Int nbOuter = Min(blockSize,n-kOuter);
+        const Range<Int> indOuter( kOuter, kOuter+nbOuter );
+
+        auto A1 = A( ALL, indOuter );
+        auto B1 = B( ALL, indOuter );
+        auto C11 = C( indOuter, indOuter );
+
+        Z.Resize( nbOuter, nbOuter );
+        Syr2k
+        ( LOWER, TRANSPOSE, alpha, A1.Matrix(), B1.Matrix(), Z.Matrix(),
+          conjugate );
+        AxpyContract( T(1), Z, C11 );
+
+        for( Int kInner=kOuter+nbOuter; kInner<n; kInner+=blockSize )
+        {
+            const Int nbInner = Min(blockSize,n-kInner);
+            const Range<Int> indInner( kInner, kInner+nbInner );
+
+            auto A2 = A( ALL, indInner );
+            auto B2 = B( ALL, indInner );
+            auto C21 = C( indInner, indOuter );
+
+            LocalGemm( orient, NORMAL, alpha, A1, B2, Z );
+            LocalGemm( orient, NORMAL, Conj(alpha), B1, A2, Z );
+            AxpyContract( T(1), Z, C21 );
+        }
+    }
+}
+
+template<typename T>
+void LT
+( T alpha,
+  const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C,
+  bool conjugate=false )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      AssertSameGrids( A, B, C );
+      if( A.Width() != C.Height() || A.Width() != C.Width()  ||
+          B.Width() != C.Height() || B.Width() != C.Width()  ||
+          A.Height() != B.Height() )
+          LogicError
+          ("Nonconformal:\n",
+           DimsString(A,"A"),"\n",
+           DimsString(B,"B"),"\n",
+           DimsString(C,"C"));
+    )
+    const Int r = A.Height();
+    const Int n = A.Width();
+
+    const double weightAwayFromDot = 10.;
+
+    const Int blockSizeDot = 2000;
+
+    if( r > weightAwayFromDot*n )
+        LT_Dot( alpha, A, B, C, conjugate, blockSizeDot );
+    else
+        LT_C( alpha, A, B, C, conjugate );
 }
 
 } // namespace syr2k

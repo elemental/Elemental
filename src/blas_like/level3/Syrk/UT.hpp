@@ -11,19 +11,13 @@ namespace El {
 namespace syrk {
 
 template<typename T>
-void UT
+void UT_C
 ( T alpha,
   const AbstractDistMatrix<T>& APre, 
         AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
     DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( APre, CPre );
-      if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width() )
-          LogicError
-          ("Nonconformal:\n",DimsString(APre,"A"),"\n",DimsString(CPre,"C"))
-    )
     const Int r = APre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -55,6 +49,81 @@ void UT
         ( UPPER, orientation, TRANSPOSE, 
           alpha, A1_STAR_MC, A1Trans_MR_STAR, T(1), C );
     }
+}
+
+template<typename T>
+void UT_Dot
+( T alpha,
+  const AbstractDistMatrix<T>& APre,
+        AbstractDistMatrix<T>& CPre,
+  const bool conjugate,
+  Int blockSize=2000 )
+{
+    DEBUG_CSE
+    const Int n = CPre.Height();
+    const Grid& g = APre.Grid();
+
+    const Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
+
+    DistMatrixReadProxy<T,T,VC,STAR> AProx( APre );
+    auto& A = AProx.GetLocked();
+
+    DistMatrixReadWriteProxy<T,T,MC,MR> CProx( CPre );
+    auto& C = CProx.Get();
+
+    DistMatrix<T,STAR,STAR> Z( blockSize, blockSize, g );
+    Zero( Z );
+    for( Int kOuter=0; kOuter<n; kOuter+=blockSize )
+    {
+        const Int nbOuter = Min(blockSize,n-kOuter);
+        const Range<Int> indOuter( kOuter, kOuter+nbOuter );
+
+        auto A1 = A( ALL, indOuter );
+        auto C11 = C( indOuter, indOuter );
+
+        Z.Resize( nbOuter, nbOuter );
+        Syrk( UPPER, TRANSPOSE, alpha, A1.Matrix(), Z.Matrix(), conjugate );
+        AxpyContract( T(1), Z, C11 );
+
+        for( Int kInner=0; kInner<kOuter; kInner+=blockSize )
+        {
+            const Int nbInner = Min(blockSize,kOuter-kInner);
+            const Range<Int> indInner( kInner, kInner+nbInner );
+
+            auto A2 = A( ALL, indInner );
+            auto C21 = C( indInner, indOuter );
+
+            LocalGemm( orient, NORMAL, alpha, A1, A2, Z );
+            AxpyContract( T(1), Z, C21 );
+        }
+    }
+}
+
+template<typename T>
+void UT
+( T alpha,
+  const AbstractDistMatrix<T>& A, 
+        AbstractDistMatrix<T>& C,
+  bool conjugate=false )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      AssertSameGrids( A, C );
+      if( A.Width() != C.Height() || A.Width() != C.Width() )
+          LogicError
+          ("Nonconformal:\n",DimsString(A,"A"),"\n",DimsString(C,"C"))
+    )
+    const Int r = A.Height();
+    const Int n = A.Width();
+
+    const double weightAwayFromDot = 10.;
+
+    const Int blockSizeDot = 2000;
+
+    if( r > weightAwayFromDot*n )
+        UT_Dot( alpha, A, C, conjugate, blockSizeDot );
+    else
+        UT_C( alpha, A, C, conjugate );
 }
 
 } // namespace syrk
