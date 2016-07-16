@@ -450,10 +450,6 @@ Helper
     // 'winEnd' will always point just past the last unconverged singular value
     // and each iteration will select the largest possible unreduced bidiagonal
     //  window of the form [winBeg,winEnd).
-    Int innerLoops=0, numZeroForwardInnerLoops=0,
-                      numZeroBackwardInnerLoops=0,
-                      numNonzeroForwardInnerLoops=0,
-                      numNonzeroBackwardInnerLoops=0;
     Int winEnd = n;
     Int oldWinBeg=-1, oldWinEnd=-1;
     ForwardOrBackward direction = FORWARD;
@@ -462,7 +458,7 @@ Helper
     Matrix<F> USub, VSub;
     while( winEnd > 0 )
     {
-        if( innerLoops > maxInnerLoops )
+        if( info.numInnerLoops > maxInnerLoops )
         {
             if( ctrl.qrCtrl.demandConverged )
                 LogicError("Did not converge all singular values");
@@ -502,7 +498,7 @@ Helper
         if( ctrl.progress )
         {
             Output
-            ("  After ",innerLoops," inner loops: window is [",
+            ("  After ",info.numInnerLoops," inner loops: window is [",
              winBeg,",",winEnd,")");
         }
 
@@ -647,7 +643,8 @@ Helper
         // No deflation checks succeeded, so save the window before shifting
         oldWinBeg = winBeg;
         oldWinEnd = winEnd;
-        innerLoops += winEnd-winBeg;
+        info.numInnerLoops += winEnd-winBeg;
+        ++info.numIterations;
 
         Real shift = zero;
         if( relativeToSelfTol &&
@@ -685,16 +682,28 @@ Helper
         if( shift == zero )
         {
             if( direction == FORWARD )
-                numZeroForwardInnerLoops += winEnd-winBeg;
+            {
+                info.numZeroShiftForwardInnerLoops += winEnd-winBeg;
+                ++info.numZeroShiftForwardIterations;
+            }
             else
-                numZeroBackwardInnerLoops += winEnd-winBeg;
+            {
+                info.numZeroShiftBackwardInnerLoops += winEnd-winBeg;
+                ++info.numZeroShiftBackwardIterations;
+            }
         }
         else
         {
             if( direction == FORWARD )
-                numNonzeroForwardInnerLoops += winEnd-winBeg;
+            {
+                info.numNonzeroShiftForwardInnerLoops += winEnd-winBeg;
+                ++info.numNonzeroShiftForwardIterations;
+            }
             else
-                numNonzeroBackwardInnerLoops += winEnd-winBeg;
+            {
+                info.numNonzeroShiftBackwardInnerLoops += winEnd-winBeg;
+                ++info.numNonzeroShiftBackwardIterations;
+            }
         }
         if( ctrl.progress )
             Output("  Set shift to ",shift);
@@ -741,7 +750,6 @@ Helper
         }
     }
 
-    // TODO: Extend info to include innerLoops
     return info;
 }
 

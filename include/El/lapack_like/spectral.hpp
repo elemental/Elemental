@@ -688,7 +688,21 @@ namespace bidiag_svd {
 struct QRInfo
 {
     Int numUnconverged=0;
+
     Int numIterations=0;
+    Int numInnerLoops=0;
+ 
+    Int numZeroShiftForwardIterations=0;
+    Int numZeroShiftForwardInnerLoops=0;
+
+    Int numZeroShiftBackwardIterations=0;
+    Int numZeroShiftBackwardInnerLoops=0;
+
+    Int numNonzeroShiftForwardIterations=0;
+    Int numNonzeroShiftForwardInnerLoops=0;
+
+    Int numNonzeroShiftBackwardIterations=0;
+    Int numNonzeroShiftBackwardInnerLoops=0;
 };
 
 struct QRCtrl

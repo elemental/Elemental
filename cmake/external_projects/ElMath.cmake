@@ -409,7 +409,7 @@ if(NOT EL_DISABLE_QD)
     set(CMAKE_REQUIRED_INCLUDES ${QD_INCLUDES})
     set(QD_CODE
       "#include <iostream>
-       #include \"qd/qd_real.h\"
+       #include <qd/qd_real.h>
        int main( int argc, char* argv[] )
        {
            double a1=1., a2=2., b1=3., b2=4.;
@@ -446,7 +446,7 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
     set(CMAKE_REQUIRED_LIBRARIES ${GMP_LIBRARIES})
     set(CMAKE_REQUIRED_INCLUDES ${GMP_INCLUDES})
     set(GMP_CODE
-      "#include \"gmp.h\"
+      "#include <gmp.h>
        int main( int argc, char* argv[] )
        {
            gmp_randstate_t randState;
@@ -470,7 +470,7 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
       set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
       set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES} ${GMP_INCLUDES})
       set(MPFR_CODE
-        "#include \"mpfr.h\"
+        "#include <mpfr.h>
          int main( int argc, char* argv[] )
          {
              mpfr_t a;
@@ -502,21 +502,21 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
       set(CMAKE_REQUIRED_INCLUDES
         ${MPC_INCLUDES} ${MPFR_INCLUDES} ${GMP_INCLUDES})
       set(MPC_CODE
-        "#include \"mpc.h\" 
-        int main( int argc, char* argv[] )
-        {
-            mpc_t a;
-            mpfr_prec_t prec = 256;
-            mpc_init2( a, prec );
-            
-            /* Also test that GMP links */
-            gmp_randstate_t randState;
-            gmp_randinit_default( randState );
-            const long seed = 1024;
-            gmp_randseed_ui( randState, seed );
-            
-            return 0;
-        }")
+        "#include <mpc.h>
+         int main( int argc, char* argv[] )
+         {
+             mpc_t a;
+             mpfr_prec_t prec = 256;
+             mpc_init2( a, prec );
+              
+             /* Also test that GMP links */
+             gmp_randstate_t randState;
+             gmp_randinit_default( randState );
+             const long seed = 1024;
+             gmp_randseed_ui( randState, seed );
+              
+             return 0;
+         }")
       check_cxx_source_compiles("${MPC_CODE}" EL_HAVE_MPC)
       if(EL_HAVE_MPC)
         set(EL_HAVE_MPC TRUE) # Switch from '1' to 'TRUE' for Make
@@ -524,7 +524,7 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
           ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
         list(APPEND MATH_LIBS_AT_CONFIG
           ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
-        message(STATUS "Including ${MPFR_INCLUDES}, ${MPC_INCLUDES}, and ${GMP_INCLUDES} to add support for GMP, MPFR, and MPC")
+        message(STATUS "Including ${GMP_INCLUDES}, ${MPFR_INCLUDES}, and ${MPC_INCLUDES} to add support for GMP, MPFR, and MPC")
         include_directories(${GMP_INCLUDES} ${MPFR_INCLUDES} ${MPC_INCLUDES})
       else()
         message(WARNING "Found MPC but could not successfully compile with it")

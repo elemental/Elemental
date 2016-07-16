@@ -83,7 +83,8 @@ SVDInfo GolubReinsch
     // rotations into our local portion of U and V
     if( ctrl.time )
         timer.Start();
-    bidiag_svd::QRAlg( s, e, U, V, ctrl.bidiagSVDCtrl );
+    info.bidiagSVDInfo.qrInfo =
+      bidiag_svd::QRAlg( s, e, U, V, ctrl.bidiagSVDCtrl );
     if( ctrl.time )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
 
@@ -190,7 +191,7 @@ SVDInfo GolubReinsch
     // rotations into our local portion of U and V
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    bidiag_svd::QRAlg
+    info.bidiagSVDInfo.qrInfo = bidiag_svd::QRAlg
     ( d_STAR_STAR.Matrix(), e_STAR_STAR.Matrix(), 
       U_VC_STAR.Matrix(), V_VC_STAR.Matrix(), bidiagSVDCtrlMod );
     if( ctrl.time )
@@ -314,7 +315,7 @@ SVDInfo GolubReinsch
 
     if( ctrl.time )
         timer.Start();
-    bidiag_svd::QRAlg( s, e, ctrl.bidiagSVDCtrl );
+    info.bidiagSVDInfo.qrInfo = bidiag_svd::QRAlg( s, e, ctrl.bidiagSVDCtrl );
     if( ctrl.time )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
 
@@ -383,7 +384,7 @@ SVDInfo GolubReinsch
     // Compute the singular values of the bidiagonal matrix
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    bidiag_svd::QRAlg
+    info.bidiagSVDInfo.qrInfo = bidiag_svd::QRAlg
     ( d_STAR_STAR.Matrix(), e_STAR_STAR.Matrix(), ctrl.bidiagSVDCtrl );
     if( ctrl.time && g.Rank() == 0 )
         Output("Bidiag SVD: ",timer.Stop()," seconds");

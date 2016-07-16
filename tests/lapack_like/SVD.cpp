@@ -42,8 +42,30 @@ void TestSVD
         seqCtrl.bidiagSVDCtrl.tol = tol;
         seqCtrl.bidiagSVDCtrl.progress = progress;
         seqCtrl.time = time;
-        SVD( ASeq, sSeq, seqCtrl );
+        auto info = SVD( ASeq, sSeq, seqCtrl );
         Output("Sequential SingularValues: ",timer.Stop());
+        const auto& qrInfo = info.bidiagSVDInfo.qrInfo;
+        if( qrInfo.numIterations > 0 ) 
+        {
+            Output("  numIterations: ",qrInfo.numIterations);
+            Output("    numZeroShiftForward: ",
+              qrInfo.numZeroShiftForwardIterations);
+            Output("    numZeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardIterations);
+            Output("    numNonzeroShiftForward: ",
+              qrInfo.numNonzeroShiftForwardIterations);
+            Output("    numNonzeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardIterations);
+            Output("  numInnerLoops: ",qrInfo.numInnerLoops); 
+            Output("    numZeroShiftForward: ",
+              qrInfo.numZeroShiftForwardInnerLoops);
+            Output("    numZeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardInnerLoops);
+            Output("    numNonzeroShiftForward: ",
+              qrInfo.numNonzeroShiftForwardInnerLoops);
+            Output("    numNonzeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardInnerLoops);
+        }
     }
 
     Grid g( mpi::COMM_WORLD );
@@ -67,9 +89,33 @@ void TestSVD
     DistMatrix<Real,VR,STAR> sOnly(g);
     if( commRank == 0 )
         timer.Start();
-    SVD( A, sOnly, ctrl );
+    auto valInfo = SVD( A, sOnly, ctrl );
     if( commRank == 0 )
+    {
         Output("  SingularValues time: ",timer.Stop());
+        const auto& qrInfo = valInfo.bidiagSVDInfo.qrInfo;
+        if( qrInfo.numIterations > 0 ) 
+        {
+            Output("  numIterations: ",qrInfo.numIterations);
+            Output("    numZeroShiftForward: ",
+              qrInfo.numZeroShiftForwardIterations);
+            Output("    numZeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardIterations);
+            Output("    numNonzeroShiftForward: ",
+              qrInfo.numNonzeroShiftForwardIterations);
+            Output("    numNonzeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardIterations);
+            Output("  numInnerLoops: ",qrInfo.numInnerLoops); 
+            Output("    numZeroShiftForward: ",
+              qrInfo.numZeroShiftForwardInnerLoops);
+            Output("    numZeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardInnerLoops);
+            Output("    numNonzeroShiftForward: ",
+              qrInfo.numNonzeroShiftForwardInnerLoops);
+            Output("    numNonzeroShiftBackward: ",
+              qrInfo.numZeroShiftForwardInnerLoops);
+        }
+    }
     if( print )
         Print( sOnly, "sOnly" );
 
@@ -80,9 +126,34 @@ void TestSVD
         DistMatrix<Real,VR,STAR> s(g);
         if( commRank == 0 )
             timer.Start();
-        SVD( A, U, s, V, ctrl );
+        auto info = SVD( A, U, s, V, ctrl );
         if( commRank == 0 )
+        {
             Output("  SVD time: ",timer.Stop());
+            const auto& qrInfo = info.bidiagSVDInfo.qrInfo;
+            if( qrInfo.numIterations > 0 ) 
+            {
+                Output("  numIterations: ",qrInfo.numIterations);
+                Output("    numZeroShiftForward: ",
+                  qrInfo.numZeroShiftForwardIterations);
+                Output("    numZeroShiftBackward: ",
+                  qrInfo.numZeroShiftForwardIterations);
+                Output("    numNonzeroShiftForward: ",
+                  qrInfo.numNonzeroShiftForwardIterations);
+                Output("    numNonzeroShiftBackward: ",
+                  qrInfo.numZeroShiftForwardIterations);
+                Output("  numInnerLoops: ",qrInfo.numInnerLoops); 
+                Output("    numZeroShiftForward: ",
+                  qrInfo.numZeroShiftForwardInnerLoops);
+                Output("    numZeroShiftBackward: ",
+                  qrInfo.numZeroShiftForwardInnerLoops);
+                Output("    numNonzeroShiftForward: ",
+                  qrInfo.numNonzeroShiftForwardInnerLoops);
+                Output("    numNonzeroShiftBackward: ",
+                  qrInfo.numZeroShiftForwardInnerLoops);
+            }
+        }
+
         if( print )
         {
             Print( U, "U" );
@@ -184,6 +255,15 @@ main( int argc, char* argv[] )
         const SVDApproach approach = static_cast<SVDApproach>(approachInt);
         const SingularValueToleranceType tolType =
           static_cast<SingularValueToleranceType>(tolTypeInt);
+        if( mpi::Rank() == 0 )
+        {
+            if( tolType == RELATIVE_TO_SELF_SING_VAL_TOL )
+              Output("Testing with RELATIVE_TO_SELF_SING_VAL_TOL");
+            else if( tolType == RELATIVE_TO_MAX_SING_VAL_TOL )
+              Output("Testing with RELATIVE_TO_MAX_SING_VAL_TOL");
+            else
+              Output("Testing with ABSOLUTE_SING_VAL_TOL");
+        }
 
         SetBlocksize( blocksize );
         SetDefaultBlockHeight( mb );
