@@ -482,7 +482,7 @@ struct SDCCtrl
 {
     Int cutoff=256;
     Int maxInnerIts=2, maxOuterIts=10;
-    Real tol=0;
+    Real tol=Real(0);
     Real spreadFactor=Real(1e-6);
     bool random=true;
     bool progress=false;
@@ -732,7 +732,7 @@ struct BidiagSVDCtrl
     SVDApproach approach=THIN_SVD;
 
     SingularValueToleranceType tolType=RELATIVE_TO_MAX_SING_VAL_TOL;
-    Real tol=0; // If zero, the default will be chosen
+    Real tol=Real(0); // If zero, the default will be chosen
 
     bool progress=false;
 
