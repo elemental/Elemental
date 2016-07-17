@@ -9,6 +9,7 @@
 #include <El.hpp>
 
 #include "./BidiagSVD/QR.hpp"
+#include "./BidiagSVD/DivideAndConquer.hpp"
 
 namespace El {
 

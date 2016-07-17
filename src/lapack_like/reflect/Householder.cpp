@@ -19,7 +19,7 @@
 namespace El {
 
 //
-// The LAPACK convention defines tau such that
+// The LAPACK convention (see {s,d,c,z}larfg [CITATION]) defines tau such that
 //
 //   H = I - tau [1; v] [1; v]',
 //
