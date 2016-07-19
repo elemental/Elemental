@@ -34,7 +34,11 @@ Real TwoByTwoSecular
   const Real& delta1,
   const Real& ups0,
   const Real& ups1,
-  const Real& rho )
+  const Real& rho,
+        Real& delta0MinusShift,
+        Real& delta1MinusShift,
+        Real& delta0PlusShift,
+        Real& delta1PlusShift )
 {
     DEBUG_CSE
     const Real zero(0), one(1), two(2), three(3), four(4);
@@ -128,6 +132,10 @@ Real TwoByTwoSecular
             //   sigma - delta_0.
             //
             const Real sigmaRel = eta / (delta0 + Sqrt(delta0*delta0 + eta));
+            delta0MinusShift = -sigmaRel;
+            delta1MinusShift = diagDiff - sigmaRel;
+            delta0PlusShift = two*delta0 + sigmaRel;
+            delta1PlusShift = (delta0 + sigmaRel) + delta1;
             return sigmaRel + delta0;
         }
         else
@@ -164,6 +172,10 @@ Real TwoByTwoSecular
 
             // Solve for sigmaRel = sigma - delta_1 in the same manner as above.
             const Real sigmaRel = eta / (delta1 + Sqrt(delta1*delta1 + eta));
+            delta0MinusShift = -(diagDiff + sigmaRel);
+            delta1MinusShift = -sigmaRel;
+            delta0PlusShift = delta0 + sigmaRel + delta1;
+            delta1PlusShift = two*delta1 + sigmaRel;
             return sigmaRel + delta1;
         }
     }
@@ -189,6 +201,10 @@ Real TwoByTwoSecular
 
         // Solve for sigmaRel = sigma - delta_1 in the same manner as above.
         const Real sigmaRel = eta / (delta1 + Sqrt(delta1*delta1 + eta));
+        delta0MinusShift = -(diagDiff + sigmaRel);
+        delta1MinusShift = -sigmaRel;
+        delta0PlusShift = delta0 + sigmaRel + delta1;
+        delta1PlusShift = two*delta1 + sigmaRel;
         return sigmaRel + delta1;
     }
 }

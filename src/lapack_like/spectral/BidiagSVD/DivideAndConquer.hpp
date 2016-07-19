@@ -9,7 +9,7 @@
 #ifndef EL_BIDIAG_SVD_DC_HPP
 #define EL_BIDIAG_SVD_DC_HPP
 
-#include "./DivideAndConquer/TwoByTwoSecular.hpp"
+#include "./DivideAndConquer/Secular.hpp"
 
 // TODO(poulson): Finish the implementation
 
