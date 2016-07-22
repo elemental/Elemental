@@ -686,6 +686,67 @@ void DowndateScaledSquare
     }
 }
 
+// Solve a quadratic equation
+// ==========================
+
+// Carefully solve a x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadratic( const Real& a, const Real& bNeg, const Real& c )
+{
+    const Real zero(0);
+    // TODO(poulson): Avoid temporaries?
+
+    // We differ from LAPACK (e.g., {s,d}lasd4 [CITATION]) by clipping the
+    // discriminant at zero rather than taking its absolute value.
+    const Real discrim = Max( bNeg*bNeg-(4*a)*c, zero );
+
+    Real x;
+    if( a == zero )
+    {
+        // a x^2 - bNeg x + c = 0 collapsed to bNeg x = c
+        x = c / bNeg;
+    }
+    else
+    {
+        if( bNeg <= zero )
+        {
+            // Use the standard quadratic equation formula
+            x = (bNeg - Sqrt(discrim)) / (2*a);
+        }
+        else
+        {
+            // Use the inverted quadratic equation formula
+            x = (2*c) / (bNeg + Sqrt(discrim));
+        }
+    }
+    return x;
+}
+
+// Carefully solve x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadratic( const Real& bNeg, const Real& c )
+{
+    const Real zero(0);
+
+    // We differ from LAPACK (e.g., {s,d}lasd4 [CITATION]) by clipping the
+    // discriminant at zero rather than taking its absolute value.
+    const Real discrim = Max( bNeg*bNeg-4*c, zero );
+
+    Real x;
+    if( bNeg <= zero )
+    {
+        // Use the standard quadratic equation formula
+        x = (bNeg - Sqrt(discrim)) / 2;
+    }
+    else
+    {
+        // Use the inverted quadratic equation formula
+        x = (2*c) / (bNeg + Sqrt(discrim));
+    }
+
+    return x;
+}
+
 // Pi
 // ==
 template<typename Real>

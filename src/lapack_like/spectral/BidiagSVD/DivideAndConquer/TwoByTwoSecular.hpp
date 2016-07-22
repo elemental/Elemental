@@ -13,6 +13,21 @@ namespace El {
 namespace bidiag_svd {
 namespace dc {
 
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real RelativeEigenvalueToRelativeSingularValue
+( const Real& relEigval, const Real& shiftSqrt )
+{
+    // Since relEigval = singVal^2 - shiftSqrt^2,
+    //
+    //   relEigval / (shiftSqrt + Sqrt(shiftSqrt^2 + relEigval)) =
+    //
+    //   (singVal^2 - shiftSqrt^2) / (shiftSqrt + singVal) =
+    //
+    //   singVal - shiftSqrt.
+    //
+    return relEigval / (shiftSqrt + Sqrt(shiftSqrt*shiftSqrt + relEigval));
+}
+
 // Compute a single singular value corresponding to the square-root of the 
 // eigenvalue of the (two-by-two) diagonal plus rank one matrix
 //
@@ -106,32 +121,29 @@ Real TwoByTwoSecular
             // when computing the analogue of our 'bNeg'.
             const Real bNeg = diagSqDiff + rho;
             const Real c = rho*ups0*ups0*diagSqDiff;
-            // Note that LAPACK's {s,d}lasq5 [CITATION] compute the absolute
-            // value of the discriminant, but we choose to instead clip to zero.
-            const Real discrim = Max(bNeg*bNeg - 4*c,zero);
 
-            // Clearly b is always negative, and so avoiding cancellation in
-            // the formula
-            //
-            //   eta = (-b - sqrt(b^2 - 4c)) / 2,
-            //
-            // where the negative sign in the quadratic formula was chosen since
-            // the smallest singular value was requested, requires multiplying
-            // the numerator and denominator by the (b - sqrt(b^2 - 4c)) to
-            // yield
-            // 
-            //   eta = 2c / (-b + sqrt(b^2 - 4c)).
-            //
-            const Real eta = 2*c / (bNeg + Sqrt(discrim));
+            // We inline SolveQuadratic to avoid a branch; we do so to respect
+            // LAPACK's strategy, but the gain for the complexity is
+            // questionable.
+            Real eta;
+            {
+                const Real discrim = Max(bNeg*bNeg - 4*c,zero);
 
-            // Given that eta = sigma^2 - delta_0^2, 
-            //
-            //   eta / (delta_0 + sqrt(delta_0^2 + eta)) =
-            //   eta / (delta_0 + sigma) =
-            //   (sigma^2 - delta_0^2) / (sigma + delta_0) =
-            //   sigma - delta_0.
-            //
-            const Real sigmaRel = eta / (delta0 + Sqrt(delta0*delta0 + eta));
+                // Clearly b is always negative, and so we avoid cancellation in
+                // the formula
+                //
+                //   eta = (-b - sqrt(b^2 - 4c)) / 2,
+                //
+                // by using the "inverted" quadratic formula,
+                // 
+                //   eta = 2c / (-b + sqrt(b^2 - 4c)).
+                //
+                eta = 2*c / (bNeg + Sqrt(discrim));
+            }
+
+            const Real sigmaRel =
+              RelativeEigenvalueToRelativeSingularValue( eta, delta0 );
+
             delta0MinusShift = -sigmaRel;
             delta1MinusShift = diagDiff - sigmaRel;
             delta0PlusShift = two*delta0 + sigmaRel;
@@ -151,27 +163,13 @@ Real TwoByTwoSecular
             //   c = -rho ups_1^2 (delta_1^2 - delta_0^2).
             //
             const Real bNeg = -diagSqDiff + rho;
-            const Real cNeg = rho*ups1*ups1*diagSqDiff;
-            // Since cNeg >= 0, the following discriminant cannot be negative.
-            const Real discrim = bNeg*bNeg + four*cNeg;
+            const Real c = -rho*ups1*ups1*diagSqDiff;
 
-            // Since b can be either positive or negative, we check its sign to
-            // determine whether to use the original or inverted formula for 
-            // solving the quadratic.
-            Real eta;
-            if( bNeg <= zero )
-            {
-                // Use the standard quadratic formula
-                eta = (bNeg - Sqrt(discrim)) / two; 
-            }
-            else
-            {
-                // Use the inverted quadratic formula to avoid cancellation 
-                eta = -two*cNeg / (bNeg + Sqrt(discrim));
-            }
+            Real eta = SolveQuadratic( bNeg, c );
 
-            // Solve for sigmaRel = sigma - delta_1 in the same manner as above.
-            const Real sigmaRel = eta / (delta1 + Sqrt(delta1*delta1 + eta));
+            const Real sigmaRel =
+              RelativeEigenvalueToRelativeSingularValue( eta, delta1 );
+
             delta0MinusShift = -(diagDiff + sigmaRel);
             delta1MinusShift = -sigmaRel;
             delta0PlusShift = delta0 + sigmaRel + delta1;
@@ -184,23 +182,13 @@ Real TwoByTwoSecular
         // Find the singular value above delta_1 by shifting the origin to 
         // delta_1 (similar to above, but with the '+' branch).
         const Real bNeg = -diagSqDiff + rho;
-        const Real cNeg = rho*ups1*ups1*diagSqDiff;
-        const Real discrim = bNeg*bNeg + four*cNeg;
-        
-        Real eta; 
-        if( bNeg <= zero )
-        {
-            // Use the inverted quadratic formula to avoid cancellation
-            eta = -two*cNeg / (bNeg - Sqrt(discrim));
-        }
-        else
-        {
-            // Use the standard quadratic formula
-            eta = (bNeg + Sqrt(discrim)) / two;
-        }
+        const Real c = -rho*ups1*ups1*diagSqDiff;
 
-        // Solve for sigmaRel = sigma - delta_1 in the same manner as above.
-        const Real sigmaRel = eta / (delta1 + Sqrt(delta1*delta1 + eta));
+        Real eta = SolveQuadratic( bNeg, c );
+
+        const Real sigmaRel =
+          RelativeEigenvalueToRelativeSingularValue( eta, delta1 );
+
         delta0MinusShift = -(diagDiff + sigmaRel);
         delta1MinusShift = -sigmaRel;
         delta0PlusShift = delta0 + sigmaRel + delta1;

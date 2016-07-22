@@ -139,7 +139,15 @@ BidiagSVD
   template Real bidiag_svd::APosterioriThreshold \
   ( Int m, Int n, \
     const Real& twoNorm, \
-    const BidiagSVDCtrl<Real>& ctrl );
+    const BidiagSVDCtrl<Real>& ctrl ); \
+  template bidiag_svd::dc::SecularInfo<Real> \
+  bidiag_svd::dc::Secular \
+  ( Int whichSingularValue, \
+    const Matrix<Real>& d, \
+    const Real& rho, \
+    const Matrix<Real>& u, \
+          Matrix<Real>& dMinusShift, \
+          Matrix<Real>& dPlusShift );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -1031,6 +1031,17 @@ template<typename F,typename=EnableIf<IsScalar<F>>>
 void DowndateScaledSquare
 ( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_RELEASE_EXCEPT;
 
+// Solve a quadratic equation
+// ==========================
+
+// Carefully solve a x^2 - bNeg x + c x = 0
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SolveQuadratic( const Real& a, const Real& bNeg, const Real& c );
+
+// Carefully solve x^2 - bNeg x + c x = 0
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SolveQuadratic( const Real& bNeg, const Real& c );
+
 // Pi
 // ==
 template<typename Real>
