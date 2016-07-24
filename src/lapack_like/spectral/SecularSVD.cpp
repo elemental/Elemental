@@ -6,26 +6,24 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_BIDIAG_SVD_DC_SECULAR_HPP
-#define EL_BIDIAG_SVD_DC_SECULAR_HPP
+#include <El.hpp>
 
-#include "./TwoByTwoSecular.hpp"
+#include "./SecularSVD/TwoByTwo.hpp"
 
 namespace El {
-namespace bidiag_svd {
-namespace dc {
 
-template<typename Real>
-struct SecularCtrl
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+struct CubicSecularSingularValueInfo
 {
-    const Int maxIterations = 400; // This is LAPACK's limit
-    const Real sufficientDecay = Real(1)/Real(10);
-    FlipOrClip negativeFix;
-    const bool progress = true;
+    Real root;
+    Int numIterations = 0;
+    bool converged = true;
 };
 
+namespace secular_svd {
+
 template<typename Real>
-struct SecularState
+struct State
 {
     Int origin;
     bool originOnLeft;
@@ -65,7 +63,7 @@ struct SecularState
 };
 
 template<typename Real>
-struct LastSecularState
+struct LastState
 {
     Matrix<Real> dPlusShift;
     Matrix<Real> dMinusShift;
@@ -95,14 +93,6 @@ struct LastSecularState
     Real relErrorBound;
 };
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-struct CubicSecularInfo
-{
-    Real root;
-    Int numIterations = 0;
-    bool converged = true;
-};
-
 // Solve for an inner root of the secular equation
 //
 //   f(x) = rho + z(0) / (d(0)-x) + z(1) / (d(1)-x) + z(2) / (d(2)-x),
@@ -113,14 +103,15 @@ struct CubicSecularInfo
 // an accurate evaluation of f(0).
 //
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-CubicSecularInfo<Real> CubicSecular
+CubicSecularSingularValueInfo<Real>
+CubicSecular
 ( bool rightRoot,
   const Real& rho,
   const Matrix<Real>& z,
   const Matrix<Real>& d,
   const Real& originEval,
   bool initialize,
-  FlipOrClip negativeFix )
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -135,10 +126,7 @@ CubicSecularInfo<Real> CubicSecular
     const Real safeMinToCubeInv = one / safeMinToCube;
     const Real safeMinToRootCube = safeMinToCube*safeMinToCube;
     const Real safeMinToRootCubeInv = safeMinToCubeInv*safeMinToCubeInv;
-    CubicSecularInfo<Real> info;
-
-    // Cf. LAPACK's {s,d}laed6 for this choice [CITATION]
-    const Int maxIterations = 40;
+    CubicSecularSingularValueInfo<Real> info;
 
     Real rootLowerBound = ( rightRoot ? d(1) : d(0) );
     Real rootUpperBound = ( rightRoot ? d(2) : d(1) );
@@ -179,7 +167,7 @@ CubicSecularInfo<Real> CubicSecular
         bNeg /= maxAbs;
         c /= maxAbs;
 
-        rootEst = SolveQuadraticMinus( a, bNeg, c, negativeFix );
+        rootEst = SolveQuadraticMinus( a, bNeg, c, ctrl.negativeFix );
 
         if( rootEst < rootLowerBound || rootEst > rootUpperBound )
         {
@@ -309,7 +297,7 @@ CubicSecularInfo<Real> CubicSecular
     // Begin Borges/Gragg/Thornton/Warner scheme
     while( true )
     {
-        if( info.numIterations >= maxIterations )
+        if( info.numIterations >= ctrl.maxCubicIterations )
         {
             info.converged = false;
             break;
@@ -334,7 +322,7 @@ CubicSecularInfo<Real> CubicSecular
         bNeg /= maxAbs;
         c /= maxAbs;
 
-        Real eta = SolveQuadraticMinus( a, bNeg, c, negativeFix );
+        Real eta = SolveQuadraticMinus( a, bNeg, c, ctrl.negativeFix );
         if( secular*eta >= zero )
         {
             // The current update does not move in the right direction, so fall
@@ -403,7 +391,7 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 void EvaluateSecular
 ( const Real& rho,
   const Matrix<Real>& u,
-        SecularState<Real>& state )
+        State<Real>& state )
 {
     DEBUG_CSE
     const Real one(1);
@@ -463,7 +451,7 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 void EvaluateSecularLast
 ( const Real& rho,
   const Matrix<Real>& u,
-        LastSecularState<Real>& state )
+        LastState<Real>& state )
 {
     DEBUG_CSE
     const Real one(1);
@@ -505,8 +493,8 @@ void SecularInitialGuess
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& u,
-        SecularState<Real>& state,
-  const SecularCtrl<Real>& ctrl )
+        State<Real>& state,
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real zero(0), one(1);
@@ -675,8 +663,8 @@ void SecularInitialGuessLast
 ( const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& u,
-        LastSecularState<Real>& state,
-  const SecularCtrl<Real>& ctrl )
+        LastState<Real>& state,
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int n = d.Height();
@@ -783,24 +771,15 @@ void SecularInitialGuessLast
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-struct SecularInfo
-{
-    Real singularValue;
-    Int numIterations = 0;
-    Int numAlternations = 0;
-    Int numCubicFailures = 0;
-};
-
-template<typename Real,typename=EnableIf<IsReal<Real>>>
 void SecularUpdate
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& u,
-        SecularState<Real>& state,
+        State<Real>& state,
   bool initialize,
-  const SecularCtrl<Real>& ctrl,
-  SecularInfo<Real>& info )
+  const SecularSingularValueCtrl<Real>& ctrl,
+  SecularSingularValueInfo<Real>& info )
 {
     DEBUG_CSE
     const Real zero(0);
@@ -944,7 +923,8 @@ void SecularUpdate
         auto cubicInfo =
           CubicSecular
           ( state.originOnLeft, a, zCubic, dCubic, state.secular,
-            initialize, ctrl.negativeFix );
+            initialize, ctrl );
+        info.numCubicIterations += cubicInfo.numIterations;
         if( cubicInfo.converged )
         {
             eta = cubicInfo.root;
@@ -1176,9 +1156,9 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 void SecularUpdateLast
 ( const Real& rho,
   const Matrix<Real>& u,
-        LastSecularState<Real>& state,
+        LastState<Real>& state,
   bool initialize,
-  const SecularCtrl<Real>& ctrl )
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real zero(0);
@@ -1273,14 +1253,14 @@ void SecularUpdateLast
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularInfo<Real>
+SecularSingularValueInfo<Real>
 SecularInner
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& u,
-        SecularState<Real>& state,
-  const SecularCtrl<Real>& ctrl )
+        State<Real>& state,
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     Real temp; // for frequent usage as a temporary product
@@ -1295,7 +1275,7 @@ SecularInner
           LogicError("SecularInner meant for n > 2");
     )
 
-    SecularInfo<Real> info;
+    SecularSingularValueInfo<Real> info;
     state.dMinusShift.Resize(n,1);
     state.dPlusShift.Resize(n,1);
 
@@ -1401,14 +1381,14 @@ SecularInner
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularInfo<Real>
+SecularSingularValueInfo<Real>
 SecularLast
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& u,
-        LastSecularState<Real>& state,
-  const SecularCtrl<Real>& ctrl )
+        LastState<Real>& state,
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
@@ -1421,7 +1401,7 @@ SecularLast
           LogicError("SecularLast meant for n > 2");
     )
 
-    SecularInfo<Real> info;
+    SecularSingularValueInfo<Real> info;
     state.dMinusShift.Resize(n,1);
     state.dPlusShift.Resize(n,1);
 
@@ -1462,6 +1442,8 @@ SecularLast
     return info;
 }
 
+} // namespace secular_svd
+
 // Compute a single singular value corresponding to the square-root of the 
 // eigenvalue of the diagonal plus rank one matrix
 //
@@ -1475,16 +1457,15 @@ SecularLast
 //
 // This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
 //
+
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularInfo<Real>
-Secular
+SecularSingularValueInfo<Real>
+SecularSingularValue
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& u,
-        Matrix<Real>& dMinusShift,
-        Matrix<Real>& dPlusShift,
-  const SecularCtrl<Real>& ctrl )
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int k = whichSingularValue;
@@ -1505,7 +1486,64 @@ Secular
       // TODO(poulson): Check the assumption that || u ||_2 = 1
     )
 
-    SecularInfo<Real> info;
+    SecularSingularValueInfo<Real> info;
+    if( n == 1 )
+    {
+        info.singularValue = Sqrt(d(0)*d(0) + rho*u(0)*u(0));
+        return info;
+    }
+    else if( n == 2 )
+    {
+        info.singularValue =
+          secular_svd::TwoByTwo( k, d(0), d(1), rho, u(0), u(1) );
+        return info;
+    }
+
+    if( k < n-1 )
+    {
+        secular_svd::State<Real> state;
+        info = secular_svd::SecularInner( k, d, rho, u, state, ctrl );
+    }
+    else
+    {
+        secular_svd::LastState<Real> state;
+        info = secular_svd::SecularLast( k, d, rho, u, state, ctrl );
+    }
+
+    return info;
+}
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularSingularValueInfo<Real>
+SecularSingularValue
+( Int whichSingularValue,
+  const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& u,
+        Matrix<Real>& dMinusShift,
+        Matrix<Real>& dPlusShift,
+  const SecularSingularValueCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    const Int k = whichSingularValue;
+    const Int n = d.Height();
+    DEBUG_ONLY(
+      const Real zero(0);
+      if( k < 0 || k >= n )
+          LogicError("Invalid singular value request");
+      if( d(0) < zero )
+          LogicError("Assumption that d(0) >= 0 was broken");
+      for( Int j=0; j<n-1; ++j )
+          if( d(j) >= d(j+1) )
+              LogicError("Assumption that d(j) < d(j+1) broken");
+      if( rho <= zero )
+          LogicError("Assumption that rho > 0 was broken");
+      if( u.Height() != n )
+          LogicError("u was not the correct height");
+      // TODO(poulson): Check the assumption that || u ||_2 = 1
+    )
+
+    SecularSingularValueInfo<Real> info;
     dMinusShift.Resize(n,1);
     dPlusShift.Resize(n,1);
     if( n == 1 )
@@ -1519,7 +1557,7 @@ Secular
     else if( n == 2 )
     {
         info.singularValue =
-          TwoByTwoSecular
+          secular_svd::TwoByTwo
           ( k, d(0), d(1), rho, u(0), u(1),
             dMinusShift(0), dMinusShift(1),
             dPlusShift(0), dPlusShift(1) );
@@ -1528,15 +1566,15 @@ Secular
 
     if( k < n-1 )
     {
-        SecularState<Real> state;
-        info = SecularInner( k, d, rho, u, state, ctrl );
+        secular_svd::State<Real> state;
+        info = secular_svd::SecularInner( k, d, rho, u, state, ctrl );
         dPlusShift = state.dPlusShift;
         dMinusShift = state.dMinusShift;
     }
     else
     {
-        LastSecularState<Real> state;
-        info = SecularLast( k, d, rho, u, state, ctrl );
+        secular_svd::LastState<Real> state;
+        info = secular_svd::SecularLast( k, d, rho, u, state, ctrl );
         dPlusShift = state.dPlusShift;
         dMinusShift = state.dMinusShift;
     }
@@ -1544,8 +1582,31 @@ Secular
     return info;
 }
 
-} // namespace dc
-} // namespace bidiag_svd
-} // namespace El
+#define PROTO(Real) \
+  template SecularSingularValueInfo<Real> \
+  SecularSingularValue \
+  ( Int whichSingularValue, \
+    const Matrix<Real>& d, \
+    const Real& rho, \
+    const Matrix<Real>& u, \
+    const SecularSingularValueCtrl<Real>& ctrl ); \
+  template SecularSingularValueInfo<Real> \
+  SecularSingularValue \
+  ( Int whichSingularValue, \
+    const Matrix<Real>& d, \
+    const Real& rho, \
+    const Matrix<Real>& u, \
+          Matrix<Real>& dMinusShift, \
+          Matrix<Real>& dPlusShift, \
+    const SecularSingularValueCtrl<Real>& ctrl );
 
-#endif // ifndef EL_BIDIAG_SVD_DC_SECULAR_HPP
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+
+#include <El/macros/Instantiate.h>
+
+} // namespace El
