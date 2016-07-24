@@ -122,9 +122,9 @@ Real TwoByTwoSecular
             const Real bNeg = diagSqDiff + rho;
             const Real c = rho*ups0*ups0*diagSqDiff;
 
-            // We inline SolveQuadratic to avoid a branch; we do so to respect
-            // LAPACK's strategy, but the gain for the complexity is
-            // questionable.
+            // We inline SolveQuadraticMinus to avoid a branch;
+            // we do so to respect LAPACK's strategy, but the gain for the
+            // complexity is questionable.
             Real eta;
             {
                 const Real discrim = Max(bNeg*bNeg - 4*c,zero);
@@ -165,7 +165,7 @@ Real TwoByTwoSecular
             const Real bNeg = -diagSqDiff + rho;
             const Real c = -rho*ups1*ups1*diagSqDiff;
 
-            Real eta = SolveQuadratic( bNeg, c );
+            Real eta = SolveQuadraticMinus( bNeg, c );
 
             const Real sigmaRel =
               RelativeEigenvalueToRelativeSingularValue( eta, delta1 );
@@ -184,7 +184,7 @@ Real TwoByTwoSecular
         const Real bNeg = -diagSqDiff + rho;
         const Real c = -rho*ups1*ups1*diagSqDiff;
 
-        Real eta = SolveQuadratic( bNeg, c );
+        Real eta = SolveQuadraticPlus( bNeg, c );
 
         const Real sigmaRel =
           RelativeEigenvalueToRelativeSingularValue( eta, delta1 );

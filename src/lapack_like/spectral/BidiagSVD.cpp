@@ -147,7 +147,8 @@ BidiagSVD
     const Real& rho, \
     const Matrix<Real>& u, \
           Matrix<Real>& dMinusShift, \
-          Matrix<Real>& dPlusShift );
+          Matrix<Real>& dPlusShift, \
+    const bidiag_svd::dc::SecularCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
