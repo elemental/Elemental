@@ -1031,6 +1031,45 @@ template<typename F,typename=EnableIf<IsScalar<F>>>
 void DowndateScaledSquare
 ( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_RELEASE_EXCEPT;
 
+// Solve a quadratic equation
+// ==========================
+
+// If a mathematically non-negative quantity is encountered that is numerically
+// negative, LAPACK's secular equation solvers (e.g., {s,d}lasd4) prefer to flip
+// the sign, whereas the projection onto the feasible domain is to clip to zero.
+// This will be left as a choice since it might effect convergence speeds.
+enum FlipOrClip
+{
+  FLIP_NEGATIVES,
+  CLIP_NEGATIVES
+};
+
+// Carefully solve a x^2 - bNeg x + c x = 0 using the '+' branch of the 
+// quadratic formula (-b +- sqrt(b^2 - 4ac)) / (2a).
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SolveQuadraticPlus
+( const Real& a, const Real& bNeg, const Real& c,
+  FlipOrClip negativeFix=CLIP_NEGATIVES );
+
+// Carefully solve a x^2 - bNeg x + c x = 0 using the '-' branch of the 
+// quadratic formula (-b +- sqrt(b^2 - 4ac)) / (2a).
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SolveQuadraticMinus
+( const Real& a, const Real& bNeg, const Real& c,
+  FlipOrClip negativeFix=CLIP_NEGATIVES );
+
+// Carefully solve x^2 - bNeg x + c x = 0 using the '+' branch of the
+// quadratic formula (-b +- sqrt(b^2 - 4c)) / 2.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SolveQuadraticPlus
+( const Real& bNeg, const Real& c, FlipOrClip negativeFix=CLIP_NEGATIVES );
+
+// Carefully solve x^2 - bNeg x + c x = 0 using the '-' branch of the
+// quadratic formula (-b +- sqrt(b^2 - 4c)) / 2.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real SolveQuadraticMinus
+( const Real& bNeg, const Real& c, FlipOrClip negativeFix=CLIP_NEGATIVES );
+
 // Pi
 // ==
 template<typename Real>

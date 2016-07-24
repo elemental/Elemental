@@ -686,6 +686,137 @@ void DowndateScaledSquare
     }
 }
 
+// Solve a quadratic equation
+// ==========================
+
+// Carefully solve the '+' branch of a x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticPlus
+( const Real& a, const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+    // TODO(poulson): Avoid temporaries?
+
+    Real discrim = bNeg*bNeg - (4*a)*c; 
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( a == zero )
+    {
+        // a x^2 - bNeg x + c = 0 collapsed to bNeg x = c
+        x = c / bNeg;
+    }
+    else
+    {
+        if( bNeg >= zero )
+        {
+            // Use the standard quadratic equation formula
+            x = (bNeg + Sqrt(discrim)) / (2*a);
+        }
+        else
+        {
+            // Use the inverted quadratic equation formula
+            x = (2*c) / (bNeg - Sqrt(discrim));
+        }
+    }
+    return x;
+}
+
+// Carefully solve the '-' branch of a x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticMinus
+( const Real& a, const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+    // TODO(poulson): Avoid temporaries?
+
+    Real discrim = bNeg*bNeg - (4*a)*c; 
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( a == zero )
+    {
+        // a x^2 - bNeg x + c = 0 collapsed to bNeg x = c
+        x = c / bNeg;
+    }
+    else
+    {
+        if( bNeg <= zero )
+        {
+            // Use the standard quadratic equation formula
+            x = (bNeg - Sqrt(discrim)) / (2*a);
+        }
+        else
+        {
+            // Use the inverted quadratic equation formula
+            x = (2*c) / (bNeg + Sqrt(discrim));
+        }
+    }
+    return x;
+}
+
+// Carefully solve the '+' branch of x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticPlus
+( const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+
+    Real discrim = bNeg*bNeg - 4*c;
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( bNeg >= zero )
+    {
+        // Use the standard quadratic equation formula
+        x = (bNeg + Sqrt(discrim)) / 2;
+    }
+    else
+    {
+        // Use the inverted quadratic equation formula
+        x = (2*c) / (bNeg - Sqrt(discrim));
+    }
+
+    return x;
+}
+
+// Carefully solve the '-' branch of x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticMinus
+( const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+
+    Real discrim = bNeg*bNeg - 4*c;
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( bNeg <= zero )
+    {
+        // Use the standard quadratic equation formula
+        x = (bNeg - Sqrt(discrim)) / 2;
+    }
+    else
+    {
+        // Use the inverted quadratic equation formula
+        x = (2*c) / (bNeg + Sqrt(discrim));
+    }
+
+    return x;
+}
+
 // Pi
 // ==
 template<typename Real>

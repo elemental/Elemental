@@ -345,6 +345,31 @@ inline BigFloat SafeMinToSquare( const BigFloat& alpha )
 }
 #endif
 
+// At the moment, this is only used within the subroutine CubicSecular within
+// the secular equation solver for the bidiagonal SVD. See LAPACK's
+// {s,d}laed6 [CITATION] for the motivation for these constants.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+inline Real SafeMinToCube( const Real& alpha=Real(1) )
+{
+    const Real base = Base<Real>();
+    const Real eps = Epsilon<Real>();
+    const Real safeMin = SafeMin<Real>();
+    static const Real safeMinToCube = 
+      Pow( base, Round((Log(safeMin/eps)/Log(base))/Real(3)) );
+    return safeMinToCube;
+}
+#ifdef EL_HAVE_MPC
+template<>
+inline BigFloat SafeMinToCube( const BigFloat& alpha )
+{
+    // TODO: Decide how to only recompute this when the precision changes
+    const BigFloat base(2);
+    const BigFloat safeMinToSquare = 
+      Pow( base, Round((Log2(SafeMin(alpha)/Epsilon(alpha)))/3) );
+    return safeMinToSquare;
+}
+#endif
+
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 inline Real Infinity( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::infinity(); }

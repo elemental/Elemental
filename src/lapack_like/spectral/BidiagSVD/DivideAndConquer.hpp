@@ -9,8 +9,6 @@
 #ifndef EL_BIDIAG_SVD_DC_HPP
 #define EL_BIDIAG_SVD_DC_HPP
 
-#include "./DivideAndConquer/TwoByTwoSecular.hpp"
-
-// TODO(poulson): Finish the implementation
+// TODO(poulson): Finish the implementation on top of SecularSingularValue
 
 #endif // ifndef EL_BIDIAG_SVD_DC_HPP
