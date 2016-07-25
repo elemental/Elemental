@@ -701,7 +701,6 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -711,12 +710,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta  = Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     // Equilibrate the LP by diagonally scaling [A;G]
     auto A = APre;
@@ -773,16 +766,17 @@ void Mehrotra
     regTmp.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regTmp.Set( i, 0,  gammaTmp*gammaTmp );
-        else if( i < n+m ) regTmp.Set( i, 0, -deltaTmp*deltaTmp );
-        else               regTmp.Set( i, 0, -betaTmp*betaTmp   );
+        if( i < n )        regTmp(i) =  ctrl.reg0Tmp*ctrl.reg0Tmp;
+        else if( i < n+m ) regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+        else               regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
     }
     regTmp *= origTwoNormEst;
 
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
-    StaticKKT( A, G, gamma, delta, beta, JStatic, false );
+    StaticKKT
+    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
     JStatic.FreezeSparsity();
     vector<Int> map, invMap;
     ldl::NodeInfo info;
@@ -837,7 +831,8 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -delta*delta, y, rb );
+        // TODO(poulson): Document this living *after* the norm computations
+        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -845,7 +840,8 @@ void Mehrotra
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( gamma*gamma, x, rc );
+        // TODO(poulson): Document this living *after* the norm computations
+        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
@@ -854,6 +850,9 @@ void Mehrotra
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+        // TODO(poulson): Document this living *after* the norm computations
+        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, z, rh );
+
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
@@ -1079,7 +1078,6 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
     const bool stepLengthSigma = true;
@@ -1089,12 +1087,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta  = Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
@@ -1167,16 +1159,20 @@ void Mehrotra
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
-        if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
-        else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
-        else               regTmp.SetLocal( iLoc, 0, -betaTmp*betaTmp );
+        if( i < n )
+          regTmp.SetLocal( iLoc, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
+        else if( i < n+m )
+          regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+        else
+          regTmp.SetLocal( iLoc, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
     }
     regTmp *= origTwoNormEst;
 
     // Construct the static part of the KKT system
     // ===========================================
     DistSparseMatrix<Real> JStatic(comm);
-    StaticKKT( A, G, gamma, delta, beta, JStatic, false );
+    StaticKKT
+    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
     JStatic.FreezeSparsity();
     JStatic.InitializeMultMeta();
     if( ctrl.print )
@@ -1253,7 +1249,8 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -delta*delta, y, rb );
+        // TODO(poulson): Document this living *after* the norm computations
+        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -1261,7 +1258,8 @@ void Mehrotra
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( gamma*gamma, x, rc );
+        // TODO(poulson): Document this living *after* the norm computations
+        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
@@ -1270,6 +1268,9 @@ void Mehrotra
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+        // TODO(poulson): Document this living *after* the norm computations
+        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, z, rh );
+
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);

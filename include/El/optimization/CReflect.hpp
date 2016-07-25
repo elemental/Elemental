@@ -49,6 +49,14 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.ruizMaxIter   = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol  = ctrl.diagEquilTol;
     ctrlC.checkResiduals = ctrl.checkResiduals;
+
+    ctrlC.reg0Tmp = ctrl.reg0Tmp;
+    ctrlC.reg1Tmp = ctrl.reg1Tmp;
+    ctrlC.reg2Tmp = ctrl.reg2Tmp;
+    ctrlC.reg0Perm = ctrl.reg0Perm;
+    ctrlC.reg1Perm = ctrl.reg1Perm;
+    ctrlC.reg2Perm = ctrl.reg2Perm;
+
     return ctrlC;
 }
 inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
@@ -75,6 +83,14 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.ruizMaxIter   = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol  = ctrl.diagEquilTol;
     ctrlC.checkResiduals = ctrl.checkResiduals;
+
+    ctrlC.reg0Tmp = ctrl.reg0Tmp;
+    ctrlC.reg1Tmp = ctrl.reg1Tmp;
+    ctrlC.reg2Tmp = ctrl.reg2Tmp;
+    ctrlC.reg0Perm = ctrl.reg0Perm;
+    ctrlC.reg1Perm = ctrl.reg1Perm;
+    ctrlC.reg2Perm = ctrl.reg2Perm;
+
     return ctrlC;
 }
 inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
@@ -101,6 +117,14 @@ inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
     ctrl.ruizMaxIter   = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol  = ctrlC.diagEquilTol;
     ctrl.checkResiduals = ctrlC.checkResiduals;
+
+    ctrl.reg0Tmp = ctrlC.reg0Tmp;
+    ctrl.reg1Tmp = ctrlC.reg1Tmp;
+    ctrl.reg2Tmp = ctrlC.reg2Tmp;
+    ctrl.reg0Perm = ctrlC.reg0Perm;
+    ctrl.reg1Perm = ctrlC.reg1Perm;
+    ctrl.reg2Perm = ctrlC.reg2Perm;
+
     return ctrl;
 }
 inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
@@ -127,6 +151,14 @@ inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
     ctrl.ruizMaxIter   = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol  = ctrlC.diagEquilTol;
     ctrl.checkResiduals = ctrlC.checkResiduals;
+
+    ctrl.reg0Tmp = ctrlC.reg0Tmp;
+    ctrl.reg1Tmp = ctrlC.reg1Tmp;
+    ctrl.reg2Tmp = ctrlC.reg2Tmp;
+    ctrl.reg0Perm = ctrlC.reg0Perm;
+    ctrl.reg1Perm = ctrlC.reg1Perm;
+    ctrl.reg2Perm = ctrlC.reg2Perm;
+
     return ctrl;
 }
 

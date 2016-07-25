@@ -149,6 +149,7 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg1Perm*ctrl.reg1Perm y?
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -156,6 +157,7 @@ void Mehrotra
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
+        // TODO(poulson): Axpy with ctrl.reg0Perm*ctrl.reg0Perm x?
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
@@ -164,6 +166,7 @@ void Mehrotra
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg2Perm*ctrl.reg2Perm z?
 
         // Now check the pieces
         // --------------------
@@ -789,12 +792,6 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool cutoffSparse = 64;
     const bool standardShift = true;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta =  Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -881,11 +878,11 @@ void Mehrotra
     {
         if( i < n )
         {
-            regTmp(i) = gammaTmp*gammaTmp;
+            regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
         }
         else if( i < n+m )
         {
-            regTmp(i) = -deltaTmp*deltaTmp;
+            regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
         }
         else
         {
@@ -898,9 +895,9 @@ void Mehrotra
             // TODO: Use different diagonal modification for the auxiliary
             //       variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp(i) = betaTmp*betaTmp;
+                regTmp(i) = ctrl.reg2Tmp*ctrl.reg2Tmp;
             else 
-                regTmp(i) = -betaTmp*betaTmp;
+                regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
         }
     }
     regTmp *= origTwoNormEst;
@@ -909,7 +906,7 @@ void Mehrotra
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, gamma, delta, beta, 
+    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, 
       orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
       kSparse, JStatic, onlyLower );
 
@@ -1251,12 +1248,6 @@ void Mehrotra
     const Int cutoffSparse = 64;
     const Int cutoffPar = 1000;
     const bool standardShift = false;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta =  Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -1372,8 +1363,10 @@ void Mehrotra
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
-        if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
-        else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+        if( i < n )
+          regTmp.SetLocal( iLoc, 0,  ctrl.reg0Tmp*ctrl.reg0Tmp );
+        else if( i < n+m )
+          regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
         else break;
     }
     // Perform the portion that requires remote updates
@@ -1389,9 +1382,9 @@ void Mehrotra
             const bool embedded = ( order != sparseOrder ); 
             const Int firstInd = sparseFirstIndsLoc(iLoc);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp.QueueUpdate( n+m+iCone, 0, betaTmp*betaTmp );
+                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.reg2Tmp*ctrl.reg2Tmp );
             else
-                regTmp.QueueUpdate( n+m+iCone, 0, -betaTmp*betaTmp );
+                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
         }
         regTmp.ProcessQueues();
     }
@@ -1401,7 +1394,7 @@ void Mehrotra
     // =========================================
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT
-    ( A, G, gamma, delta, beta, 
+    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, 
       orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
       kSparse, JStatic, onlyLower );
     if( ctrl.print )
@@ -1458,6 +1451,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg1Perm*ctrl.reg1Perm y?
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -1465,6 +1459,7 @@ void Mehrotra
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
+        // TODO(poulson): Axpy with ctrl.reg0Perm*ctrl.reg0Perm x?
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
@@ -1473,6 +1468,7 @@ void Mehrotra
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg2Perm*ctrl.reg2Perm z?
 
         // Now check the pieces
         // --------------------

@@ -43,6 +43,13 @@ typedef struct {
   ElInt ruizMaxIter;
   float diagEquilTol;
   bool checkResiduals;
+
+  float reg0Tmp;
+  float reg1Tmp;
+  float reg2Tmp;
+  float reg0Perm;
+  float reg1Perm;
+  float reg2Perm;
 } ElMehrotraCtrl_s;
 
 typedef struct {
@@ -66,6 +73,13 @@ typedef struct {
   ElInt ruizMaxIter;
   double diagEquilTol;
   bool checkResiduals;
+
+  double reg0Tmp;
+  double reg1Tmp;
+  double reg2Tmp;
+  double reg0Perm;
+  double reg1Perm;
+  double reg2Perm;
 } ElMehrotraCtrl_d;
 
 EL_EXPORT ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl );

@@ -44,6 +44,9 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->checkResiduals = true;
 #endif
 
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->reg2Tmp = Pow(eps,float(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = ctrl->reg2Perm = Pow(eps,float(0.35));
+
     return EL_SUCCESS;
 }
 
@@ -76,6 +79,9 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
 #else
     ctrl->checkResiduals = true;
 #endif
+
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->reg2Tmp = Pow(eps,double(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = ctrl->reg2Perm = Pow(eps,double(0.35));
 
     return EL_SUCCESS;
 }

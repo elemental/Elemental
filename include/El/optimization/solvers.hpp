@@ -134,6 +134,16 @@ struct MehrotraCtrl
     bool checkResiduals=true;
 #endif
 
+    // Temporary regularization for the primal, dual, and dual slack variables
+    Real reg0Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg1Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg2Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+
+    // Permanent regularization for the primal, dual, and dual slack variables
+    Real reg0Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
+    Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
+    Real reg2Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
+
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
 };

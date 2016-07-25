@@ -54,9 +54,10 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
     const Real balanceTol = Pow(eps,Real(-0.19));
+
     // TODO: Implement nonzero regularization
-    const Real gamma = 0;
-    const Real delta = 0;
+    const Real gammaPerm = 0;
+    const Real deltaPerm = 0;
 
     // Equilibrate the LP by diagonally scaling A
     auto A = APre;
@@ -163,7 +164,7 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -delta*delta, y, rb ); 
+        Axpy( -deltaPerm*deltaPerm, y, rb ); 
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -171,7 +172,7 @@ void Mehrotra
         rc -= z;
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( gamma*gamma, x, rc );
+        Axpy( gammaPerm*gammaPerm, x, rc );
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -260,8 +261,8 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            NormalKKT( A, gamma, delta, x, z, J );
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dyAff );
+            NormalKKT( A, gammaPerm, deltaPerm, x, z, J );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dyAff );
 
             // Solve for the step
             // ------------------
@@ -279,19 +280,19 @@ void Mehrotra
                     ("Unable to achieve minimum tolerance ",ctrl.minTol);
             }
             ExpandNormalSolution
-            ( A, gamma, x, z, rc, rmu, dxAff, dyAff, dzAff );
+            ( A, gammaPerm, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            Axpy( -delta*delta, dyAff, dxError );
+            Axpy( -deltaPerm*deltaPerm, dyAff, dxError );
             Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
             Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Axpy( gamma*gamma, dxAff, dyError );
+            Axpy( gammaPerm*gammaPerm, dxAff, dyError );
             dyError -= dzAff;
             Real dyErrorNrm2 = Nrm2( dyError );
 
@@ -392,7 +393,7 @@ void Mehrotra
         {
             // Construct the new KKT RHS
             // -------------------------
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dy );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dy );
 
             // Solve for the direction
             // -----------------------
@@ -405,7 +406,7 @@ void Mehrotra
                     RuntimeError
                     ("Could not achieve minimum tolerance ",ctrl.minTol);
             }
-            ExpandNormalSolution( A, gamma, x, z, rc, rmu, dx, dy, dz );
+            ExpandNormalSolution( A, gammaPerm, x, z, rc, rmu, dx, dy, dz );
         }
         // TODO: Residual checks
 
@@ -488,8 +489,8 @@ void Mehrotra
     const bool standardShift = true;
     const Real balanceTol = Pow(eps,Real(-0.19));
     // TODO: Implement nonzero regularization
-    const Real gamma = 0;
-    const Real delta = 0;
+    const Real gammaPerm = 0;
+    const Real deltaPerm = 0;
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -632,7 +633,7 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -delta*delta, y, rb ); 
+        Axpy( -deltaPerm*deltaPerm, y, rb ); 
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -640,7 +641,7 @@ void Mehrotra
         rc -= z;
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( gamma*gamma, x, rc );
+        Axpy( gammaPerm*gammaPerm, x, rc );
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -730,8 +731,8 @@ void Mehrotra
         {
             // Construct the KKT system
             // ------------------------
-            NormalKKT( A, gamma, delta, x, z, J );
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dyAff );
+            NormalKKT( A, gammaPerm, deltaPerm, x, z, J );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dyAff );
 
             // Solve for the direction
             // -----------------------
@@ -749,19 +750,19 @@ void Mehrotra
                     ("Could not achieve minimum tolerance ",ctrl.minTol);
             }
             ExpandNormalSolution
-            ( A, gamma, x, z, rc, rmu, dxAff, dyAff, dzAff );
+            ( A, gammaPerm, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            Axpy( -delta*delta, dyAff, dxError );
+            Axpy( -deltaPerm*deltaPerm, dyAff, dxError );
             Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
             Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Axpy( gamma*gamma, dxAff, dyError );
+            Axpy( gammaPerm*gammaPerm, dxAff, dyError );
             dyError -= dzAff;
             Real dyErrorNrm2 = Nrm2( dyError );
 
@@ -863,7 +864,7 @@ void Mehrotra
         {
             // Construct the new KKT RHS
             // -------------------------
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dy );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dy );
 
             // Solve for the direction
             // -----------------------
@@ -876,7 +877,7 @@ void Mehrotra
                     RuntimeError 
                     ("Could not achieve minimum tolerance ",ctrl.minTol);
             }
-            ExpandNormalSolution( A, gamma, x, z, rc, rmu, dx, dy, dz );
+            ExpandNormalSolution( A, gammaPerm, x, z, rc, rmu, dx, dy, dz );
         }
         // TODO: Residual checks
 
@@ -958,19 +959,19 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
-    Real gamma, delta, beta, gammaTmp, deltaTmp, betaTmp;
+    Real gammaPerm, deltaPerm, betaPerm, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
-        gamma = delta = beta = gammaTmp = deltaTmp = betaTmp = 0;
+        gammaPerm = deltaPerm = betaPerm = gammaTmp = deltaTmp = betaTmp = 0;
     }
     else
     {
-        gamma = Pow(eps,Real(0.35));
-        delta = Pow(eps,Real(0.35));
-        beta  = Pow(eps,Real(0.35));
-        gammaTmp = Pow(eps,Real(0.25));
-        deltaTmp = Pow(eps,Real(0.25));
-        betaTmp  = Pow(eps,Real(0.25));
+        gammaPerm = ctrl.reg0Perm;
+        deltaPerm = ctrl.reg1Perm;
+        betaPerm = ctrl.reg2Perm; 
+        gammaTmp = ctrl.reg0Tmp;
+        deltaTmp = ctrl.reg1Tmp;
+        betaTmp = ctrl.reg2Tmp; 
     }
     const Real balanceTol = Pow(eps,Real(-0.19));
 
@@ -1122,7 +1123,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -delta*delta, y, rb ); 
+        Axpy( -deltaPerm*deltaPerm, y, rb ); 
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -1130,7 +1131,7 @@ void Mehrotra
         rc -= z;
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( gamma*gamma, x, rc );
+        Axpy( gammaPerm*gammaPerm, x, rc );
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -1188,12 +1189,12 @@ void Mehrotra
             // ------------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( A, gamma, delta, beta, x, z, JOrig, false );
+                KKT( A, gammaPerm, deltaPerm, betaPerm, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( A, gamma, delta, x, z, JOrig, false );
+                AugmentedKKT( A, gammaPerm, deltaPerm, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
@@ -1257,8 +1258,8 @@ void Mehrotra
             // ------------------------
             // TODO: Apply updates to a matrix of explicit zeros
             //       (with the correct sparsity pattern)
-            NormalKKT( A, gamma, delta, x, z, J, false );
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dyAff );
+            NormalKKT( A, gammaPerm, deltaPerm, x, z, J, false );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dyAff );
 
             // Solve for the direction
             // -----------------------
@@ -1287,19 +1288,19 @@ void Mehrotra
                     ("Could not achieve minimum tolerance of ",ctrl.minTol);
             }
             ExpandNormalSolution
-            ( A, gamma, x, z, rc, rmu, dxAff, dyAff, dzAff );
+            ( A, gammaPerm, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            Axpy( -delta*delta, dyAff, dxError );
+            Axpy( -deltaPerm*deltaPerm, dyAff, dxError );
             Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
             Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Axpy( gamma*gamma, dxAff, dyError );
+            Axpy( gammaPerm*gammaPerm, dxAff, dyError );
             dyError -= dzAff;
             Real dyErrorNrm2 = Nrm2( dyError );
 
@@ -1411,7 +1412,7 @@ void Mehrotra
         }
         else
         {
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dy );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dy );
             try
             {
                 // NOTE: regTmp should be all zeros; replace with unregularized
@@ -1428,7 +1429,7 @@ void Mehrotra
                     RuntimeError
                     ("Could not achieve minimum tolerance of ",ctrl.minTol);
             }
-            ExpandNormalSolution( A, gamma, x, z, rc, rmu, dx, dy, dz );
+            ExpandNormalSolution( A, gammaPerm, x, z, rc, rmu, dx, dy, dz );
         }
         // TODO: Residual checks 
 
@@ -1512,19 +1513,19 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
-    Real gamma, delta, beta, gammaTmp, deltaTmp, betaTmp;
+    Real gammaPerm, deltaPerm, betaPerm, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
-        gamma = delta = beta = gammaTmp = deltaTmp = betaTmp = 0;
+        gammaPerm = deltaPerm = betaPerm = gammaTmp = deltaTmp = betaTmp = 0;
     }
     else
     {
-        gamma = Pow(eps,Real(0.35));
-        delta = Pow(eps,Real(0.35));
-        beta  = Pow(eps,Real(0.35));
-        gammaTmp = Pow(eps,Real(0.25));
-        deltaTmp = Pow(eps,Real(0.25));
-        betaTmp  = Pow(eps,Real(0.25));
+        gammaPerm = ctrl.reg0Perm;
+        deltaPerm = ctrl.reg1Perm;
+        betaPerm = ctrl.reg2Perm; 
+        gammaTmp = ctrl.reg0Tmp;
+        deltaTmp = ctrl.reg1Tmp;
+        betaTmp = ctrl.reg2Tmp; 
     }
     const Real balanceTol = Pow(eps,Real(-0.19));
 
@@ -1711,7 +1712,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(-1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -delta*delta, y, rb ); 
+        Axpy( -deltaPerm*deltaPerm, y, rb ); 
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -1719,7 +1720,7 @@ void Mehrotra
         rc -= z;
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( gamma*gamma, x, rc );
+        Axpy( gammaPerm*gammaPerm, x, rc );
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -1764,12 +1765,12 @@ void Mehrotra
             // -----------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( A, gamma, delta, beta, x, z, JOrig, false );
+                KKT( A, gammaPerm, deltaPerm, betaPerm, x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( A, gamma, delta, x, z, JOrig, false );
+                AugmentedKKT( A, gammaPerm, deltaPerm, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
@@ -1869,8 +1870,8 @@ void Mehrotra
             // Assemble the KKT system
             // -----------------------
             // TODO: Apply updates on top of explicit zeros
-            NormalKKT( A, gamma, delta, x, z, J, false );
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dyAff );
+            NormalKKT( A, gammaPerm, deltaPerm, x, z, J, false );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dyAff );
 
             // Solve for the direction
             // -----------------------
@@ -1924,19 +1925,19 @@ void Mehrotra
                     ("Could not achieve minimum tolerance of ",ctrl.minTol);
             }
             ExpandNormalSolution
-            ( A, gamma, x, z, rc, rmu, dxAff, dyAff, dzAff );
+            ( A, gammaPerm, x, z, rc, rmu, dxAff, dyAff, dzAff );
         }
 
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            Axpy( -delta*delta, dyAff, dxError );
+            Axpy( -deltaPerm*deltaPerm, dyAff, dxError );
             Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
             Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Axpy( gamma*gamma, dxAff, dyError );
+            Axpy( gammaPerm*gammaPerm, dxAff, dyError );
             dyError -= dzAff;
             Real dyErrorNrm2 = Nrm2( dyError );
 
@@ -2056,7 +2057,7 @@ void Mehrotra
         }
         else
         {
-            NormalKKTRHS( A, gamma, x, z, rc, rb, rmu, dy );
+            NormalKKTRHS( A, gammaPerm, x, z, rc, rb, rmu, dy );
             try
             {
                 if( commRank == 0 && ctrl.time )
@@ -2076,7 +2077,7 @@ void Mehrotra
                     RuntimeError
                     ("Could not achieve minimum tolerance of ",ctrl.minTol);
             }
-            ExpandNormalSolution( A, gamma, x, z, rc, rmu, dx, dy, dz );
+            ExpandNormalSolution( A, gammaPerm, x, z, rc, rmu, dx, dy, dz );
         }
         // TODO: Residual checks 
 
