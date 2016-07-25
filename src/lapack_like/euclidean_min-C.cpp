@@ -21,8 +21,8 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
     const float eps = limits::Epsilon<float>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
-    ctrl->reg0Tmp = ctrl->reg0Perm = ctrl->reg1Tmp = ctrl->reg1Perm =
-      ctrl->alpha = Pow(eps,float(0.25));
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->alpha = Pow(eps,float(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,float(0.4));
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
@@ -35,8 +35,8 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
     const double eps = limits::Epsilon<double>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
-    ctrl->reg0Tmp = ctrl->reg0Perm = ctrl->reg1Tmp = ctrl->reg1Perm =
-      ctrl->alpha = Pow(eps,double(0.25));
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->alpha = Pow(eps,double(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,double(0.4));
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;

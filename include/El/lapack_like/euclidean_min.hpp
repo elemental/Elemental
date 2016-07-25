@@ -53,12 +53,12 @@ struct LeastSquaresCtrl
     // Temporary and permanent regularization for the first, positive block of
     // the augmented system
     Real reg0Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
-    Real reg0Perm = Pow(limits::Epsilon<Real>(),Real(0.5));
+    Real reg0Perm = Pow(limits::Epsilon<Real>(),Real(0.4));
 
     // Temporary and permanent regularization for the second, negative block of
     // the augmented system
     Real reg1Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
-    Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.5));
+    Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.4));
 
     RegSolveCtrl<Real> solveCtrl;
     bool equilibrate=true;
