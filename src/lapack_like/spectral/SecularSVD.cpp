@@ -1458,7 +1458,7 @@ SecularLast
 // This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
 //
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 SecularSingularValueInfo<Real>
 SecularSingularValue
 ( Int whichSingularValue,
@@ -1513,7 +1513,7 @@ SecularSingularValue
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename>
 SecularSingularValueInfo<Real>
 SecularSingularValue
 ( Int whichSingularValue,
