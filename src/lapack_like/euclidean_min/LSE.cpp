@@ -309,11 +309,6 @@ void LSE
     DEBUG_CSE
     typedef Base<F> Real;
 
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Height();
@@ -380,15 +375,23 @@ void LSE
     
     // Add the a priori regularization
     // ===============================
-    Matrix<Real> reg;
-    Zeros( reg, n+m+k, 1 );
+    Matrix<Real> regTmp, regPerm;
+    Zeros( regTmp, n+m+k, 1 );
+    Zeros( regPerm, n+m+k, 1 );
     for( Int i=0; i<n; ++i )
-        reg.Set( i, 0, gammaTmp*gammaTmp );
+    {
+        regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
+        regPerm(i) = ctrl.reg0Perm*ctrl.reg0Perm;
+    }
     for( Int i=n; i<n+m+k; ++i )
-        reg.Set( i, 0, -deltaTmp*deltaTmp );
+    {
+        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+        regPerm(i) = -ctrl.reg1Perm*ctrl.reg1Perm;
+    }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     SparseMatrix<F> JOrig;
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // Factor the regularized system
     // =============================
@@ -402,7 +405,8 @@ void LSE
 
     // Solve the linear systems
     // ========================
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
@@ -421,11 +425,6 @@ void LSE
 {
     DEBUG_CSE
     typedef Base<F> Real;
-
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -533,20 +532,28 @@ void LSE
 
     // Add the a priori regularization
     // ===============================
-    DistMultiVec<Real> reg(comm);
-    Zeros( reg, n+m+k, 1 );
-    const Int regLocalHeight = reg.LocalHeight();
+    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    Zeros( regTmp, n+m+k, 1 );
+    Zeros( regPerm, n+m+k, 1 );
+    const Int regLocalHeight = regTmp.LocalHeight();
     for( Int iLoc=0; iLoc<regLocalHeight; ++iLoc )
     {
-        const Int i = reg.GlobalRow(iLoc);
+        const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-            reg.Set( i, 0, gammaTmp*gammaTmp );
+        {
+            regTmp.Set( i, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
+            regPerm.Set( i, 0, ctrl.reg0Perm*ctrl.reg0Perm );
+        }
         else
-            reg.Set( i, 0, -deltaTmp*deltaTmp );
+        {
+            regTmp.Set( i, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+            regPerm.Set( i, 0, -ctrl.reg1Perm*ctrl.reg1Perm );
+        }
     }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // Factor the regularized system
     // =============================
@@ -560,7 +567,8 @@ void LSE
 
     // Solve the linear systems
     // ========================
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================

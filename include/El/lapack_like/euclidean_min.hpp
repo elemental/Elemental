@@ -50,6 +50,16 @@ struct LeastSquaresCtrl
     //       failed (the literature agrees), I fell back to this default value.
     Real alpha=Pow(limits::Epsilon<Real>(),Real(0.25));
 
+    // Temporary and permanent regularization for the first, positive block of
+    // the augmented system
+    Real reg0Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg0Perm = Pow(limits::Epsilon<Real>(),Real(0.5));
+
+    // Temporary and permanent regularization for the second, negative block of
+    // the augmented system
+    Real reg1Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.5));
+
     RegSolveCtrl<Real> solveCtrl;
     bool equilibrate=true;
     bool progress=false;

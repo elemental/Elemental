@@ -156,8 +156,7 @@ void Equilibrated
 ( const SparseMatrix<F>& A,
   const Matrix<F>& B, 
         Matrix<F>& X,
-        Base<F> alpha,
-  const RegSolveCtrl<Base<F>>& ctrl )
+  const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -165,11 +164,6 @@ void Equilibrated
           LogicError("Heights of A and B must match");
     )
     typedef Base<F> Real;
-
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -189,19 +183,19 @@ void Equilibrated
             J.QueueUpdate( A.Col(e)+m, A.Row(e),   Conj(A.Value(e)) );
         }
         for( Int e=0; e<m; ++e )
-            J.QueueUpdate( e, e, alpha );
+            J.QueueUpdate( e, e, ctrl.alpha );
     }
     else
     {
-        // Form J = [alpha, A^H; A, 0]
-        // ===========================
+        // Form J = [alpha*I, A^H; A, 0]
+        // =============================
         for( Int e=0; e<numEntriesA; ++e )
         {
             J.QueueUpdate( A.Col(e),   A.Row(e)+n, Conj(A.Value(e)) );
             J.QueueUpdate( A.Row(e)+n, A.Col(e),        A.Value(e)  );
         }
         for( Int e=0; e<n; ++e )
-            J.QueueUpdate( e, e, alpha );
+            J.QueueUpdate( e, e, ctrl.alpha );
     }
     J.ProcessQueues();
 
@@ -224,15 +218,23 @@ void Equilibrated
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    Matrix<Real> reg;
-    reg.Resize( m+n, 1 );
+    Matrix<Real> regTmp, regPerm;
+    regTmp.Resize( m+n, 1 );
+    regPerm.Resize( m+n, 1 );
     for( Int i=0; i<Max(m,n); ++i )
-        reg(i) = gammaTmp*gammaTmp;
+    {
+        regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
+        regPerm(i) = ctrl.reg0Perm*ctrl.reg0Perm;
+    }
     for( Int i=Max(m,n); i<m+n; ++i )
-        reg(i) = -deltaTmp*deltaTmp;
+    {
+        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+        regPerm(i) = -ctrl.reg1Perm*ctrl.reg1Perm;
+    }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     SparseMatrix<F> JOrig;
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     vector<Int> map, invMap;
     ldl::NodeInfo info;
@@ -244,7 +246,8 @@ void Equilibrated
 
     // Successively solve each of the linear systems
     // =============================================
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, D, ctrl );
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, D, ctrl.solveCtrl );
 
     Zeros( X, n, numRHS );
     if( m >= n )
@@ -320,7 +323,7 @@ void LeastSquares
         // Scale ABar down to roughly unit two-norm
         normScale = TwoNormEstimate( ABar, ctrl.basisSize ); 
         if( ctrl.progress )
-            cout << "Estimated || A ||_2 ~= " << normScale << endl;
+            Output("Estimated || A ||_2 ~= ",normScale);
         ABar *= F(1)/normScale;
         dR *= normScale;
     }
@@ -331,7 +334,7 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.solveCtrl );
+    ls::Equilibrated( ABar, BBar, X, ctrl );
 
     // Unequilibrate the solution
     // ==========================
@@ -345,9 +348,7 @@ void Equilibrated
 ( const DistSparseMatrix<F>& A,
   const DistMultiVec<F>& B, 
         DistMultiVec<F>& X,
-        Base<F> alpha,
-  const RegSolveCtrl<Base<F>>& ctrl,
-  bool time )
+  const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -355,11 +356,6 @@ void Equilibrated
           LogicError("Heights of A and B must match");
     )
     typedef Base<F> Real;
-
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
 
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);
@@ -407,7 +403,7 @@ void Equilibrated
         {
             const Int i = J.GlobalRow(iLoc);
             if( i < Max(m,n) )
-                J.QueueLocalUpdate( iLoc, i, alpha );
+                J.QueueLocalUpdate( iLoc, i, ctrl.alpha );
             else
                 break;
         }
@@ -441,44 +437,53 @@ void Equilibrated
 
     // Compute the regularized quasi-semidefinite fact of J
     // ====================================================
-    DistMultiVec<Real> reg(comm);
-    reg.Resize( m+n, 1 );
-    for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    regTmp.Resize( m+n, 1 );
+    regPerm.Resize( m+n, 1 );
+    for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
-        const Int i = reg.GlobalRow(iLoc);
+        const Int i = regTmp.GlobalRow(iLoc);
         if( i < Max(m,n) )
-            reg.Set( i, 0, gammaTmp*gammaTmp );
+        {
+            regTmp.Set( i, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
+            regPerm.Set( i, 0, ctrl.reg0Perm*ctrl.reg0Perm );
+        }
         else
-            reg.Set( i, 0, -deltaTmp*deltaTmp );
+        {
+            regTmp.Set( i, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+            regPerm.Set( i, 0, -ctrl.reg1Perm*ctrl.reg1Perm );
+        }
     }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     DistMap map, invMap;
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
-    if( commRank == 0 && time )
+    if( commRank == 0 && ctrl.time )
         timer.Start();
     ldl::NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    if( commRank == 0 && time )
-        cout << "  ND: " << timer.Stop() << " secs" << endl;
+    if( commRank == 0 && ctrl.time )
+        Output("  ND: ",timer.Stop()," secs");
     InvertMap( map, invMap );
     ldl::DistFront<F> JFront( J, map, rootSep, info );
 
-    if( commRank == 0 && time )
+    if( commRank == 0 && ctrl.time )
         timer.Start();
     LDL( info, JFront, LDL_2D );
-    if( commRank == 0 && time )
-        cout << "  LDL: " << timer.Stop() << " secs" << endl;
+    if( commRank == 0 && ctrl.time )
+        Output("  LDL: ",timer.Stop()," secs");
 
     // Solve the k linear systems
     // ==========================
-    if( commRank == 0 && time )
+    if( commRank == 0 && ctrl.time )
         timer.Start();
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, D, ctrl );
-    if( commRank == 0 && time )
-        cout << "  Solve: " << timer.Stop() << " secs" << endl;
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, D, ctrl.solveCtrl );
+    if( commRank == 0 && ctrl.time )
+        Output("  Solve: ",timer.Stop()," secs");
 
     // Extract X from [R/alpha; X] or [X; alpha*Y] and then rescale
     // ============================================================
@@ -547,7 +552,7 @@ void LeastSquares
         // Scale ABar down to roughly unit two-norm
         normScale = TwoNormEstimate( ABar, ctrl.basisSize );
         if( ctrl.progress && commRank == 0 )
-            cout << "Estimated || A ||_2 ~= " << normScale << endl;
+            Output("Estimated || A ||_2 ~= ",normScale);
         ABar *= F(1)/normScale;
         dR *= normScale;
     }
@@ -558,7 +563,7 @@ void LeastSquares
 
     // Solve the equilibrated least squares problem
     // ============================================
-    ls::Equilibrated( ABar, BBar, X, ctrl.alpha, ctrl.solveCtrl, ctrl.time );
+    ls::Equilibrated( ABar, BBar, X, ctrl );
 
     // Unequilibrate the solution
     // ==========================
