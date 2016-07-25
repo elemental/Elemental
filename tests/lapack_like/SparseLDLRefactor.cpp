@@ -3,6 +3,9 @@
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
+
+   Copyright (c) 2016, Jack Poulson.
+   All rights reserved.
  
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
@@ -10,8 +13,6 @@
 */
 #include <El.hpp>
 using namespace El;
-
-// TODO: Extend this driver to test with several different datatypes
 
 template<typename F>
 void MakeFrontsUniform( ldl::Front<F>& front )
@@ -31,6 +32,89 @@ void MakeFrontsUniform( ldl::DistFront<F>& front )
         MakeFrontsUniform( *front.child );
     else
         MakeFrontsUniform( *front.duplicate );
+}
+
+template<typename F>
+void TestSparseDirect
+( Int n1,
+  Int n2,
+  Int n3,
+  Int numRepeats,
+  bool intraPiv,
+  bool print,
+  bool display,
+  const BisectCtrl& ctrl,
+  mpi::Comm& comm )
+{
+    OutputFromRoot(comm,"Testing with ",TypeName<F>());
+
+    const int N = n1*n2*n3;
+    DistSparseMatrix<F> A(comm);
+    Laplacian( A, n1, n2, n3 );
+    A *= -1;
+    if( display )
+    {
+        Display( A );
+        Display( A.DistGraph() );
+    }
+    if( print )
+    {
+        Print( A );
+        Print( A.DistGraph() );
+    }
+
+    Timer timer;
+
+    OutputFromRoot(comm,"Running nested dissection...");
+    timer.Start();
+    const DistGraph& graph = A.DistGraph();
+    ldl::DistNodeInfo info;
+    ldl::DistSeparator sep;
+    DistMap map, invMap;
+    ldl::NestedDissection( graph, map, sep, info, ctrl );
+    InvertMap( map, invMap );
+    mpi::Barrier( comm );
+    timer.Stop();
+    OutputFromRoot(comm,timer.Partial()," seconds");
+
+    const Int rootSepSize = info.size;
+    OutputFromRoot(comm,rootSepSize," vertices in root separator\n");
+
+    OutputFromRoot(comm,"Building ldl::DistFront tree...");
+    mpi::Barrier( comm );
+    timer.Start();
+    ldl::DistFront<F> front( A, map, sep, info, false );
+    mpi::Barrier( comm );
+    timer.Stop();
+    OutputFromRoot(comm,timer.Partial()," seconds");
+
+    for( Int repeat=0; repeat<numRepeats; ++repeat )
+    {
+        if( repeat != 0 )
+            MakeFrontsUniform( front );
+
+        OutputFromRoot(comm,"Running LDL^T and redistribution...");
+        mpi::Barrier( comm );
+        timer.Start();
+        if( intraPiv )
+            LDL( info, front, LDL_INTRAPIV_1D );
+        else
+            LDL( info, front, LDL_1D );
+        mpi::Barrier( comm );
+        timer.Stop();
+        OutputFromRoot(comm,timer.Partial()," seconds");
+
+        OutputFromRoot(comm,"Solving against random right-hand side...");
+        timer.Start();
+        DistMultiVec<F> y( N, 1, comm );
+        MakeUniform( y );
+        ldl::SolveAfter( invMap, info, front, y );
+        mpi::Barrier( comm );
+        timer.Stop();
+        OutputFromRoot(comm,"Time = ",timer.Partial()," seconds");
+
+        // TODO: Check residual error
+    }
 }
 
 int main( int argc, char* argv[] )
@@ -65,73 +149,12 @@ int main( int argc, char* argv[] )
         ctrl.numDistSeps = numDistSeps;
         ctrl.cutoff = cutoff;
 
-        const int N = n1*n2*n3;
-        DistSparseMatrix<double> A(comm);
-        Laplacian( A, n1, n2, n3 );
-        A *= -1;
-        if( display )
-        {
-            Display( A );
-            Display( A.DistGraph() );
-        }
-        if( print )
-        {
-            Print( A );
-            Print( A.DistGraph() );
-        }
+        TestSparseDirect<float>
+        ( n1, n2, n3, numRepeats, intraPiv, print, display, ctrl, comm );
+        TestSparseDirect<double>
+        ( n1, n2, n3, numRepeats, intraPiv, print, display, ctrl, comm );
 
-        Timer timer;
-
-        OutputFromRoot(comm,"Running nested dissection...");
-        timer.Start();
-        const DistGraph& graph = A.DistGraph();
-        ldl::DistNodeInfo info;
-        ldl::DistSeparator sep;
-        DistMap map, invMap;
-        ldl::NestedDissection( graph, map, sep, info, ctrl );
-        InvertMap( map, invMap );
-        mpi::Barrier( comm );
-        timer.Stop();
-        OutputFromRoot(comm,timer.Partial()," seconds");
-
-        const Int rootSepSize = info.size;
-        OutputFromRoot(comm,rootSepSize," vertices in root separator\n");
-
-        OutputFromRoot(comm,"Building ldl::DistFront tree...");
-        mpi::Barrier( comm );
-        timer.Start();
-        ldl::DistFront<double> front( A, map, sep, info, false );
-        mpi::Barrier( comm );
-        timer.Stop();
-        OutputFromRoot(comm,timer.Partial()," seconds");
-
-        for( Int repeat=0; repeat<numRepeats; ++repeat )
-        {
-            if( repeat != 0 )
-                MakeFrontsUniform( front );
-
-            OutputFromRoot(comm,"Running LDL^T and redistribution...");
-            mpi::Barrier( comm );
-            timer.Start();
-            if( intraPiv )
-                LDL( info, front, LDL_INTRAPIV_1D );
-            else
-                LDL( info, front, LDL_1D );
-            mpi::Barrier( comm );
-            timer.Stop();
-            OutputFromRoot(comm,timer.Partial()," seconds");
-
-            OutputFromRoot(comm,"Solving against random right-hand side...");
-            timer.Start();
-            DistMultiVec<double> y( N, 1, comm );
-            MakeUniform( y );
-            ldl::SolveAfter( invMap, info, front, y );
-            mpi::Barrier( comm );
-            timer.Stop();
-            OutputFromRoot(comm,"Time = ",timer.Partial()," seconds");
-
-            // TODO: Check residual error
-        }
+        // TODO(poulson): Test more datatypes? It makes the runtime much longer
     }
     catch( exception& e ) { ReportException(e); }
 

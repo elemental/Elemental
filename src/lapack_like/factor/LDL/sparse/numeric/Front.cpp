@@ -669,8 +669,7 @@ double Front<F>::FactorGFlops() const
         double realFrontFlops=0;
         if( front.sparseLeaf )
         {
-            if( front.LSparse.NumEntries() == 0 &&
-                front.workSparse.NumEntries() != 0 )
+            if( Unfactored(front.type) )
                 LogicError("Matrix has not yet been factored");
 
             // Count the flops from the sparse factorization
@@ -711,8 +710,7 @@ double Front<F>::SolveGFlops( Int numRHS ) const
         double realFrontFlops = 0;
         if( front.sparseLeaf ) 
         {
-            if( front.LSparse.NumEntries() == 0 &&
-                front.workSparse.NumEntries() != 0 )
+            if( Unfactored(front.type) )
                 LogicError("Matrix has not yet been factored");
 
             const double numEntries = front.LSparse.NumEntries();
