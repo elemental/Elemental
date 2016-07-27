@@ -681,13 +681,21 @@ struct SecularSingularValueInfo
 // Compute a single singular value corresponding to the square-root of an
 // eigenvalue of the diagonal plus rank one matrix
 //
-//     diag(d)^2 + rho u u^T,
+//     diag(d)^2 + rho z z^T,
 //
-// where || u ||_2 = 1, with
+// where || z ||_2 = 1, with
 //
 //     0 <= d(0) < d(1) < ... < d(n-1)
 //
-// and rho > 0.
+// and rho > 0. In the important case where d(0) = 0, we have can build a
+// matrix
+//
+//   M = | sqrt(rho)*z(0), sqrt(rho)*z(1), ..., sqrt(rho)*z(n-1) |
+//       |                      d(1),                  .         |
+//       |                                  .          .         |
+//       |                                           d(n-1)      |
+//
+// which has said singular values.
 //
 // This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
 //
@@ -697,7 +705,7 @@ SecularSingularValue
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
-  const Matrix<Real>& u,
+  const Matrix<Real>& z,
   const SecularSingularValueCtrl<Real>& ctrl );
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 SecularSingularValueInfo<Real>
@@ -705,7 +713,7 @@ SecularSingularValue
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
-  const Matrix<Real>& u,
+  const Matrix<Real>& z,
         Matrix<Real>& dMinusShift,
         Matrix<Real>& dPlusShift,
   const SecularSingularValueCtrl<Real>& ctrl );
