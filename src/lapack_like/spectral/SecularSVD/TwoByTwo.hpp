@@ -30,9 +30,9 @@ Real RelativeEigenvalueToRelativeSingularValue
 // Compute a single singular value corresponding to the square-root of the 
 // eigenvalue of the (two-by-two) diagonal plus rank one matrix
 //
-//     D^2 + rho u u^T,
+//     D^2 + rho z z^T,
 //
-// where || u ||_2 = 1, with D = diag( delta_0, delta_1 ) such that 
+// where || z ||_2 = 1, with D = diag( delta_0, delta_1 ) such that 
 //
 //     0 <= delta_0 < delta_1
 //
@@ -47,8 +47,8 @@ Real TwoByTwo
   const Real& delta0,
   const Real& delta1,
   const Real& rho,
-  const Real& ups0,
-  const Real& ups1,
+  const Real& zeta0,
+  const Real& zeta1,
   FlipOrClip negativeFix=CLIP_NEGATIVES )
 {
     DEBUG_CSE
@@ -81,16 +81,18 @@ Real TwoByTwo
         //
         // Since  
         //
-        //   omega(x) = 1 + rho (ups_0^2/(delta_0^2-x) + ups_1^2/(delta_1^2-x)),
+        //   omega(x) = 1 + rho (zeta_0^2/(delta_0^2-x) +
+        //                       zeta_1^2/(delta_1^2-x)),
         //
         // substituting x = ((delta_0+delta_1)/2)^2 yields
         //
         //   omega(x) = 1 + (4 rho /(delta_1-delta_0)) *
-        //     (ups_1^2/(3 delta_1 + delta_0) - ups_0^2/(3 delta_0 + delta_1)).
+        //     (zeta_1^2/(3 delta_1 + delta_0) -
+        //      zeta_0^2/(3 delta_0 + delta_1)).
         //
         const Real omega = one + four*rho*(
-          ups1*ups1 / (delta0+three*delta1) -
-          ups0*ups0 / (three*delta0+delta1)) / diagDiff; 
+          zeta1*zeta1 / (delta0+three*delta1) -
+          zeta0*zeta0 / (three*delta0+delta1)) / diagDiff; 
 
         if( omega > zero )
         {
@@ -101,23 +103,23 @@ Real TwoByTwo
             //
             // the secular equation becomes
             //
-            //   omega(eta) = 1 + rho (-ups_0^2/eta +
-            //                          ups_1^2/(delta_1^2-delta_0^2-eta)) = 0.
+            //   omega(eta) = 1 + rho (-zeta_0^2/eta +
+            //                          zeta_1^2/(delta_1^2-delta_0^2-eta)) = 0.
             //
             // Multiplying by eta*(delta_1^2-delta_0^2-eta) yield a quadratic
             // equation x^2 + b x + c = 0, with
             //
-            //   b = -(delta_1^2 - delta_0^2) - rho (ups_0^2 + ups_1^2)
+            //   b = -(delta_1^2 - delta_0^2) - rho (zeta_0^2 + zeta_1^2)
             //     = -(delta_1^2 - delta_0^2) - rho, and
             //
-            //   c = rho ups_0^2 (delta_1^2 - delta_0^2).
+            //   c = rho zeta_0^2 (delta_1^2 - delta_0^2).
             //
 
             // Note that LAPACK's {s,d}lasq5 [CITATION] claims to assume
             // that || u ||_2 = 1, but it does not actively exploit this fact
             // when computing the analogue of our 'bNeg'.
             const Real bNeg = diagSqDiff + rho;
-            const Real c = rho*ups0*ups0*diagSqDiff;
+            const Real c = rho*zeta0*zeta0*diagSqDiff;
 
             // We inline SolveQuadraticMinus to avoid a branch;
             // we do so to respect LAPACK's strategy, but the gain for the
@@ -157,10 +159,10 @@ Real TwoByTwo
             // the secular equation becomes a quadratic x^2 + b x + c = 0, with
             //
             //   b = (delta_1^2 - delta_0^2) - rho, and
-            //   c = -rho ups_1^2 (delta_1^2 - delta_0^2).
+            //   c = -rho zeta_1^2 (delta_1^2 - delta_0^2).
             //
             const Real bNeg = -diagSqDiff + rho;
-            const Real c = -rho*ups1*ups1*diagSqDiff;
+            const Real c = -rho*zeta1*zeta1*diagSqDiff;
 
             Real eta = SolveQuadraticMinus( bNeg, c, negativeFix );
 
@@ -175,7 +177,7 @@ Real TwoByTwo
         // Find the singular value above delta_1 by shifting the origin to 
         // delta_1 (similar to above, but with the '+' branch).
         const Real bNeg = -diagSqDiff + rho;
-        const Real c = -rho*ups1*ups1*diagSqDiff;
+        const Real c = -rho*zeta1*zeta1*diagSqDiff;
 
         Real eta = SolveQuadraticPlus( bNeg, c, negativeFix );
 
@@ -192,8 +194,8 @@ Real TwoByTwo
   const Real& delta0,
   const Real& delta1,
   const Real& rho,
-  const Real& ups0,
-  const Real& ups1,
+  const Real& zeta0,
+  const Real& zeta1,
         Real& delta0MinusShift,
         Real& delta1MinusShift,
         Real& delta0PlusShift,
@@ -230,16 +232,18 @@ Real TwoByTwo
         //
         // Since  
         //
-        //   omega(x) = 1 + rho (ups_0^2/(delta_0^2-x) + ups_1^2/(delta_1^2-x)),
+        //   omega(x) = 1 + rho (zeta_0^2/(delta_0^2-x) +
+        //                       zeta_1^2/(delta_1^2-x)),
         //
         // substituting x = ((delta_0+delta_1)/2)^2 yields
         //
         //   omega(x) = 1 + (4 rho /(delta_1-delta_0)) *
-        //     (ups_1^2/(3 delta_1 + delta_0) - ups_0^2/(3 delta_0 + delta_1)).
+        //     (zeta_1^2/(3 delta_1 + delta_0) -
+        //      zeta_0^2/(3 delta_0 + delta_1)).
         //
         const Real omega = one + four*rho*(
-          ups1*ups1 / (delta0+three*delta1) -
-          ups0*ups0 / (three*delta0+delta1)) / diagDiff; 
+          zeta1*zeta1 / (delta0+three*delta1) -
+          zeta0*zeta0 / (three*delta0+delta1)) / diagDiff; 
 
         if( omega > zero )
         {
@@ -250,23 +254,23 @@ Real TwoByTwo
             //
             // the secular equation becomes
             //
-            //   omega(eta) = 1 + rho (-ups_0^2/eta +
-            //                          ups_1^2/(delta_1^2-delta_0^2-eta)) = 0.
+            //   omega(eta) = 1 + rho (-zeta_0^2/eta +
+            //                          zeta_1^2/(delta_1^2-delta_0^2-eta)) = 0.
             //
             // Multiplying by eta*(delta_1^2-delta_0^2-eta) yield a quadratic
             // equation x^2 + b x + c = 0, with
             //
-            //   b = -(delta_1^2 - delta_0^2) - rho (ups_0^2 + ups_1^2)
+            //   b = -(delta_1^2 - delta_0^2) - rho (zeta_0^2 + zeta_1^2)
             //     = -(delta_1^2 - delta_0^2) - rho, and
             //
-            //   c = rho ups_0^2 (delta_1^2 - delta_0^2).
+            //   c = rho zeta_0^2 (delta_1^2 - delta_0^2).
             //
 
             // Note that LAPACK's {s,d}lasq5 [CITATION] claims to assume
             // that || u ||_2 = 1, but it does not actively exploit this fact
             // when computing the analogue of our 'bNeg'.
             const Real bNeg = diagSqDiff + rho;
-            const Real c = rho*ups0*ups0*diagSqDiff;
+            const Real c = rho*zeta0*zeta0*diagSqDiff;
 
             // We inline SolveQuadraticMinus to avoid a branch;
             // we do so to respect LAPACK's strategy, but the gain for the
@@ -310,10 +314,10 @@ Real TwoByTwo
             // the secular equation becomes a quadratic x^2 + b x + c = 0, with
             //
             //   b = (delta_1^2 - delta_0^2) - rho, and
-            //   c = -rho ups_1^2 (delta_1^2 - delta_0^2).
+            //   c = -rho zeta_1^2 (delta_1^2 - delta_0^2).
             //
             const Real bNeg = -diagSqDiff + rho;
-            const Real c = -rho*ups1*ups1*diagSqDiff;
+            const Real c = -rho*zeta1*zeta1*diagSqDiff;
 
             Real eta = SolveQuadraticMinus( bNeg, c, negativeFix );
 
@@ -332,7 +336,7 @@ Real TwoByTwo
         // Find the singular value above delta_1 by shifting the origin to 
         // delta_1 (similar to above, but with the '+' branch).
         const Real bNeg = -diagSqDiff + rho;
-        const Real c = -rho*ups1*ups1*diagSqDiff;
+        const Real c = -rho*zeta1*zeta1*diagSqDiff;
 
         Real eta = SolveQuadraticPlus( bNeg, c, negativeFix );
 

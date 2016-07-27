@@ -177,78 +177,15 @@ void TestSecularHelper
 
     // Now compute the singular values and vectors. We recompute the singular
     // values to avoid interfering with the timing experiment above.
-    Matrix<Real> DMinusShift(n,n), DPlusShift(n,n);
+    Matrix<Real> U, V;
     timer.Start();
-    for( Int j=0; j<n; ++j )
-    {
-        auto dMinusShift = DMinusShift(ALL,IR(j));
-        auto dPlusShift = DPlusShift(ALL,IR(j));
-        auto info =
-          SecularSingularValue( j, d, rho, z, dMinusShift, dPlusShift, ctrl );
-        s(j) = info.singularValue;
-    }
-    const double secularStore = timer.Stop();
-    Output("Secular solver with shift storing: ",secularStore," seconds");
-
-    // Compute a vector z which would produce the given singular values to
-    // high relative accuracy. Keep in mind that the following absorbs the
-    // sqrt(rho) factor into zCorrect.
-    Matrix<Real> zCorrect(n,1);
-    timer.Start();
-    for( Int i=0; i<n; ++i )
-    {
-        // See Eq. (3.6) from Gu and Eisenstat's Technical Report
-        // "A Divide-and-Conquer Algorithm for the Bidiagonal SVD"
-        // [CITATION].
-        Real prod = DPlusShift(i,n-1)*DMinusShift(i,n-1);
-        for( Int k=0; k<i; ++k )
-        {
-            const Real dSqDiff = (d(k)+d(i))*(d(k)-d(i));
-            prod *= (DPlusShift(i,k)*DMinusShift(i,k)) / dSqDiff;
-        }
-        for( Int k=i; k<n-1; ++k )
-        {
-            const Real dSqDiff = (d(k+1)+d(i))*(d(k+1)-d(i));
-            prod *= (DPlusShift(i,k)*DMinusShift(i,k)) / dSqDiff;
-        }
-        zCorrect(i) = Sgn(z(i),false)*Sqrt(Abs(prod));
-    }
-    const double correctedVecTime = timer.Stop();
-    Output("Corrected vector formation time: ",correctedVecTime," seconds");
-    if( print )
-    {
-        Print( zCorrect, "zCorrect" );
-        auto zScaled( z );
-        zScaled *= Sqrt(rho);
-        Print( zScaled, "sqrt(rho) z" );
-    }
-
-    Matrix<Real> U(n,n), V(n,n);
-    timer.Start();
-    for( Int j=0; j<n; ++j )
-    {
-        // Compute the j'th left singular vectors via Eq. (3.4).
-        auto u = U(ALL,IR(j));
-        u(0) = -1;
-        for( Int i=1; i<n; ++i )
-        {
-            u(i) = (d(i)*zCorrect(i)) / (DPlusShift(i,j)*DMinusShift(i,j));
-        }
-        u *= Real(1) / FrobeniusNorm( u );
-
-        // Compute the j'th right singular vector via Eq. (3.3)
-        auto v = V(ALL,IR(j));
-        for( Int i=0; i<n; ++i )
-        {
-            v(i) = zCorrect(i) / (DPlusShift(i,j)*DMinusShift(i,j));
-        }
-        v *= Real(1) / FrobeniusNorm( v );
-    }
-    const double secularVecTime = timer.Stop();
-    Output("Singular vector formation: ",secularVecTime," seconds");
+    SecularSVD( d, rho, z, U, s, V, ctrl );
+    const double secularSVDTime = timer.Stop();
+    Output("Singular SVD: ",secularSVDTime," seconds");
     if( print )
     {
         Print( U, "U" );
+        Print( s, "s" );
         Print( V, "V" );
     }
 

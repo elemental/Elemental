@@ -706,7 +706,7 @@ SecularSingularValue
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
-  const SecularSingularValueCtrl<Real>& ctrl );
+  const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 SecularSingularValueInfo<Real>
 SecularSingularValue
@@ -716,7 +716,19 @@ SecularSingularValue
   const Matrix<Real>& z,
         Matrix<Real>& dMinusShift,
         Matrix<Real>& dPlusShift,
-  const SecularSingularValueCtrl<Real>& ctrl );
+  const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
+
+// Note that this routine requires that 0 = d(0) <= d(1) <= ... <= d(n-1) and
+// that || z ||_2 = 1.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void SecularSVD
+( const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Matrix<Real>& U,
+        Matrix<Real>& s,
+        Matrix<Real>& V,
+  const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
 
 // Bidiagonal Singular Value Decomposition
 // =======================================

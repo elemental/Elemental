@@ -1582,6 +1582,85 @@ SecularSingularValue
     return info;
 }
 
+template<typename Real,typename>
+void SecularSVD
+( const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Matrix<Real>& U,
+        Matrix<Real>& s,
+        Matrix<Real>& V,
+  const SecularSingularValueCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    const Int n = d.Height();
+    U.Resize( n, n );
+    s.Resize( n, 1 );
+    V.Resize( n, n );
+    if( n == 0 )
+        return;
+
+    // TODO(poulson): Batch secular equation solvers?
+    // TODO(poulson): Only have dSqMinusShiftSq returned?
+    //
+    // NOTE: We will store DMinusShift in U and DPlusShift in V to avoid 
+    // 2*n^2 unnecessary extra working space.
+    for( Int j=0; j<n; ++j )
+    {
+        auto dMinusShift = U(ALL,IR(j));
+        auto dPlusShift = V(ALL,IR(j));
+        auto info =
+          SecularSingularValue( j, d, rho, z, dMinusShift, dPlusShift, ctrl );
+        s(j) = info.singularValue;
+    }
+
+    // Compute a vector r which would produce the given singular values to
+    // high relative accuracy. Keep in mind that the following absorbs the
+    // sqrt(rho) factor into r.
+    Matrix<Real> r(n,1);
+    for( Int i=0; i<n; ++i )
+    {
+        // See Eq. (3.6) from Gu and Eisenstat's Technical Report
+        // "A Divide-and-Conquer Algorithm for the Bidiagonal SVD"
+        // [CITATION].
+        Real prod = U(i,n-1)*V(i,n-1);
+        for( Int k=0; k<i; ++k )
+        {
+            const Real deltaSqDiff = (d(k)+d(i))*(d(k)-d(i));
+            const Real deltaSqMinusShiftSq = U(i,k)*V(i,k);
+            prod *= deltaSqMinusShiftSq / deltaSqDiff;
+        }
+        for( Int k=i; k<n-1; ++k )
+        {
+            const Real deltaSqDiff = (d(k+1)+d(i))*(d(k+1)-d(i));
+            const Real deltaSqMinusShiftSq = U(i,k)*V(i,k);
+            prod *= deltaSqMinusShiftSq / deltaSqDiff;
+        }
+        r(i) = Sgn(z(i),false)*Sqrt(Abs(prod));
+    }
+
+    for( Int j=0; j<n; ++j )
+    {
+        // Compute the j'th left and right singular vectors via
+        // Eqs. (3.4) and (3.3), respectively.
+        auto u = U(ALL,IR(j));
+        auto v = V(ALL,IR(j));
+        {
+            const Real deltaSqMinusShiftSq = u(0)*v(0);
+            u(0) = -1;
+            v(0) = r(0) / deltaSqMinusShiftSq;
+        }
+        for( Int i=1; i<n; ++i )
+        {
+            const Real deltaSqMinusShiftSq =u(i)*v(i);
+            u(i) = (d(i)*r(i)) / deltaSqMinusShiftSq;
+            v(i) = r(i) / deltaSqMinusShiftSq;
+        }
+        u *= Real(1) / FrobeniusNorm( u );
+        v *= Real(1) / FrobeniusNorm( v );
+    }
+}
+
 #define PROTO(Real) \
   template SecularSingularValueInfo<Real> \
   SecularSingularValue \
@@ -1598,6 +1677,15 @@ SecularSingularValue
     const Matrix<Real>& z, \
           Matrix<Real>& dMinusShift, \
           Matrix<Real>& dPlusShift, \
+    const SecularSingularValueCtrl<Real>& ctrl ); \
+  template void \
+  SecularSVD \
+  ( const Matrix<Real>& d, \
+    const Real& rho, \
+    const Matrix<Real>& z, \
+          Matrix<Real>& U, \
+          Matrix<Real>& s, \
+          Matrix<Real>& V, \
     const SecularSingularValueCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
