@@ -120,6 +120,13 @@ void Read
 ( AbstractDistMatrix<T>& A, 
   const string filename, FileFormat format=AUTO, bool sequential=false );
 
+template<typename T>
+void Read
+( SparseMatrix<T>& A, const string filename, FileFormat format=AUTO );
+template<typename T>
+void Read
+( DistSparseMatrix<T>& A, const string filename, FileFormat format=AUTO );
+
 // Spy
 // ===
 template<typename T>

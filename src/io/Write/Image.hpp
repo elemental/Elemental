@@ -34,8 +34,7 @@ SaveQImage
 #endif // ifdef EL_HAVE_QT5
 
 template<typename T>
-inline void
-RealPartImage
+void RealPartImage
 ( const Matrix<T>& A, string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_CSE
@@ -84,8 +83,7 @@ RealPartImage
 }
 
 template<typename T>
-inline void
-ImagPartImage
+void ImagPartImage
 ( const Matrix<T>& A, string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_CSE
@@ -134,8 +132,7 @@ ImagPartImage
 }
 
 template<typename Real>
-inline void
-Image
+void Image
 ( const Matrix<Real>& A, string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_CSE
@@ -143,8 +140,7 @@ Image
 }
 
 template<typename Real>
-inline void
-Image
+void Image
 ( const Matrix<Complex<Real>>& A, string basename="matrix", 
   FileFormat format=PNG )
 {
