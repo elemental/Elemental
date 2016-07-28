@@ -275,36 +275,22 @@ void Tikhonov
         VCat( W, G, WEmb ); 
     else
         HCat( W, G, WEmb );
+
     DistMultiVec<F> BEmb(comm);
     Zeros( BEmb, WEmb.Height(), numRHS );
     if( m >= n )
     {
         // BEmb := [B; 0]
         // --------------
-        // TODO: Automate this process
-        // Compute the metadata
-        // ^^^^^^^^^^^^^^^^^^^^
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
-            sendCounts[ BEmb.RowOwner(B.GlobalRow(iLoc)) ] += numRHS;
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        // Pack
-        // ^^^^
-        auto offs = sendOffs;
-        vector<Entry<F>> sendBuf(totalSend);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        const Int mLocB = B.LocalHeight();
+        BEmb.Reserve( mLocB*numRHS );
+        for( Int iLoc=0; iLoc<mLocB; ++iLoc )
         {
             const Int i = B.GlobalRow(iLoc);
-            const int owner = BEmb.RowOwner(i);
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{ i, j, B.GetLocal(iLoc,j) };
+                BEmb.QueueUpdate( i, j, B.GetLocal(iLoc,j) );
         }
-        // Exchange and unpack
-        // ^^^^^^^^^^^^^^^^^^^
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            BEmb.Update( entry );
+        BEmb.ProcessQueues();
     }
     else
         BEmb = B;
