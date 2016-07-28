@@ -51,11 +51,11 @@ def Gemm(orientA,orientB,alphaPre,A,B,betaPre,C,alg=GEMM_DEFAULT):
     elif B.tag == zTag: lib.ElGemm_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
-    if   B.tag == iTag: lib.ElGemmXDist_i(*args)
-    elif B.tag == sTag: lib.ElGemmXDist_s(*args)
-    elif B.tag == dTag: lib.ElGemmXDist_d(*args)
-    elif B.tag == cTag: lib.ElGemmXDist_c(*args)
-    elif B.tag == zTag: lib.ElGemmXDist_z(*args)
+    if   B.tag == iTag: lib.ElGemmXDist_i(*argsAlg)
+    elif B.tag == sTag: lib.ElGemmXDist_s(*argsAlg)
+    elif B.tag == dTag: lib.ElGemmXDist_d(*argsAlg)
+    elif B.tag == cTag: lib.ElGemmXDist_c(*argsAlg)
+    elif B.tag == zTag: lib.ElGemmXDist_z(*argsAlg)
     else: DataExcept()
   else: TypeExcept()
 
