@@ -13,8 +13,7 @@ namespace El {
 namespace write {
 
 template<typename T>
-inline void
-MatrixMarket( const Matrix<T>& A, string basename="matrix" )
+void MatrixMarket( const Matrix<T>& A, string basename="matrix" )
 {
     DEBUG_CSE
     
@@ -54,6 +53,55 @@ MatrixMarket( const Matrix<T>& A, string basename="matrix" )
                 os << " " << A.GetImagPart(i,j);
             os << "\n";
             file << os.str();
+        }
+    }
+}
+
+template<typename T>
+void MatrixMarket( const SparseMatrix<T>& A, string basename="matrix" )
+{
+    DEBUG_CSE
+    
+    string filename = basename + "." + FileExtension(MATRIX_MARKET);
+    ofstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    // Write the header
+    // ================
+    {
+        ostringstream os;
+        os << "%%MatrixMarket matrix coordinate ";
+        if( IsComplex<T>::value )
+            os << "complex "; 
+        else
+            os << "real ";
+        os << "general\n";
+        file << os.str();
+    }
+    
+    // Write the size line
+    // ===================
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int numNonzeros = A.NumEntries();
+    file << BuildString(m," ",n," ",numNonzeros,"\n");
+    
+    // Write the entries
+    // =================
+    for( Int e=0; e<numNonzeros; ++e )
+    {
+        const Int i = A.Row(e);
+        const Int j = A.Col(e);
+        const T value = A.Value(e);
+        if( IsComplex<T>::value )
+        {
+            file << 
+              BuildString(i," ",j," ",RealPart(value)," ",ImagPart(value),"\n");
+        }
+        else
+        {
+            file << BuildString(i," ",j," ",RealPart(value),"\n");
         }
     }
 }
