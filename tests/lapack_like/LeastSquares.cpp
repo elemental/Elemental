@@ -69,6 +69,9 @@ void TestSequentialLeastSquares
     }
     if( print )
         Print( X, "X" );
+    Matrix<Real> XNorms;
+    ColumnTwoNorms( X, XNorms );
+    Print( XNorms, "X norms" );
 
     // Compute the residual
     Matrix<F> E( BTwice );
@@ -78,6 +81,9 @@ void TestSequentialLeastSquares
     Print( residNorms, "residual norms" );
     DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
     Print( residNorms, "relative residual norms" );
+    Output("Objectives:");
+    for( Int j=0; j<numRHS; ++j )
+      Output("  ",SafeNorm(residNorms(0,j),gamma*XNorms(0,j)));
 }
 
 template<typename F>
@@ -142,8 +148,16 @@ void TestLeastSquares
     }
     if( print )
         Print( X, "X" );
+    Matrix<Real> XNorms;
+    ColumnTwoNorms( X, XNorms );
+    if( commRank == 0 )
+        Print( XNorms, "X norms" );
 
-    // Compute the residual
+    // Compute the objectives,
+    //
+    //   || [A; gamma*I] x - [b; 0] ||_2 =
+    //     sqrt( || A x - b ||_2^2 + gamma^2 || x ||_2^2 ).
+    //
     DistMultiVec<F> E( BTwice );
     Multiply( NORMAL, F(-1), ATwice, X, F(1), E ); 
     Matrix<Real> residNorms;
@@ -153,6 +167,10 @@ void TestLeastSquares
         Print( residNorms, "residual norms" );
         DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
         Print( residNorms, "relative residual norms" );
+
+        Output("Objectives:");
+        for( Int j=0; j<numRHS; ++j )
+          Output("  ",SafeNorm(residNorms(0,j),gamma*XNorms(0,j)));
     }
 }
 

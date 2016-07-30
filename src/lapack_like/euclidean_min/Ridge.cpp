@@ -53,7 +53,7 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma*gamma) );
+            FillDiagonal( ZB, F(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
@@ -150,7 +150,7 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma*gamma) );
+            FillDiagonal( ZB, F(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
