@@ -180,7 +180,7 @@ void Tikhonov
 //   "Chapter 8, Cholesky-based Methods for Sparse Least Squares:
 //    The Benefits of Regularization",
 //    in L. Adams and J.L. Nazareth (eds.), Linear and Nonlinear Conjugate
-//    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996).
+//    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996) [CITATION].
 //
 // But note that SymmLQ and LSQR were used rather than flexible GMRES, and 
 // iteratively refining *within* the preconditioner was not discussed.

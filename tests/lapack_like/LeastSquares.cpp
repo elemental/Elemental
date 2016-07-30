@@ -14,7 +14,8 @@ using namespace El;
 
 template<typename F>
 void TestSequentialLeastSquares
-( Int numRHS, double gamma, const string& filename, bool feasible, bool print )
+( Int numRHS, double gamma, const string& filename,
+  bool feasible, bool ones, bool print )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -38,14 +39,20 @@ void TestSequentialLeastSquares
     {
         Output("Generating a duplicated feasible linear system");
         Matrix<F> X;
-        Uniform( X, n, numRHS );
+        if( ones )
+            Ones( X, n, numRHS );
+        else
+            Uniform( X, n, numRHS );
         Zeros( B, m, numRHS );
         Multiply( NORMAL, F(1), A, X, F(0), B );
     }
     else
     {
-        Output("Generating a random set of right-hand sides");
-        Uniform( B, m, numRHS );
+        Output("Generating a set of right-hand sides");
+        if( ones )
+            Ones( B, m, numRHS );
+        else
+            Uniform( B, m, numRHS );
     }
     if( print )
         Print( B, "B" );
@@ -84,12 +91,13 @@ void TestSequentialLeastSquares
     Output("Objectives:");
     for( Int j=0; j<numRHS; ++j )
       Output("  ",SafeNorm(residNorms(0,j),gamma*XNorms(0,j)));
+    Output("");
 }
 
 template<typename F>
 void TestLeastSquares
-( Int numRHS, double gamma, const string& filename, bool feasible, bool print,
-  mpi::Comm comm )
+( Int numRHS, double gamma, const string& filename, bool feasible, bool ones,
+  bool print, mpi::Comm comm )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -116,14 +124,20 @@ void TestLeastSquares
     {
         OutputFromRoot(comm,"Generating a duplicated feasible linear system");
         DistMultiVec<F> X(comm);
-        Uniform( X, n, numRHS );
+        if( ones )
+            Ones( X, n, numRHS );
+        else
+            Uniform( X, n, numRHS );
         Zeros( B, m, numRHS );
         Multiply( NORMAL, F(1), A, X, F(0), B );
     }
     else
     {
-        OutputFromRoot(comm,"Generating a random set of right-hand sides");
-        Uniform( B, m, numRHS );
+        OutputFromRoot(comm,"Generating a set of right-hand sides");
+        if( ones )
+            Ones( B, m, numRHS );
+        else
+            Uniform( B, m, numRHS );
     }
     if( print )
         Print( B, "B" );
@@ -171,6 +185,7 @@ void TestLeastSquares
         Output("Objectives:");
         for( Int j=0; j<numRHS; ++j )
           Output("  ",SafeNorm(residNorms(0,j),gamma*XNorms(0,j)));
+        Output("");
     }
 }
 
@@ -190,6 +205,8 @@ int main( int argc, char* argv[] )
            string("../data/lapack_like/c-41.mtx"));
         const bool feasible =
           Input("--feasible","generate a feasible RHS?",true);
+        const bool ones =
+          Input("--ones","use all ones for generating RHS?",false);
         const bool print = Input("--print","print matrices?",false);
         const bool sequential = Input("--sequential","test sequential?",true);
         const bool distributed =
@@ -199,39 +216,39 @@ int main( int argc, char* argv[] )
         if( sequential && commRank == 0 )
         {
             TestSequentialLeastSquares<double>
-            ( numRHS, gamma, filename, feasible, print );
+            ( numRHS, gamma, filename, feasible, ones, print );
 #ifdef EL_HAVE_QD
             TestSequentialLeastSquares<DoubleDouble>
-            ( numRHS, gamma, filename, feasible, print );
+            ( numRHS, gamma, filename, feasible, ones, print );
             TestSequentialLeastSquares<QuadDouble>
-            ( numRHS, gamma, filename, feasible, print );
+            ( numRHS, gamma, filename, feasible, ones, print );
 #endif
 #ifdef EL_HAVE_QUAD
             TestSequentialLeastSquares<Quad>
-            ( numRHS, gamma, filename, feasible, print );
+            ( numRHS, gamma, filename, feasible, ones, print );
 #endif
 #ifdef EL_HAVE_MPC
             TestSequentialLeastSquares<BigFloat>
-            ( numRHS, gamma, filename, feasible, print );
+            ( numRHS, gamma, filename, feasible, ones, print );
 #endif
         }
         if( distributed )
         {
             TestLeastSquares<double>
-            ( numRHS, gamma, filename, feasible, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, comm );
 #ifdef EL_HAVE_QD
             TestLeastSquares<DoubleDouble>
-            ( numRHS, gamma, filename, feasible, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, comm );
             TestLeastSquares<QuadDouble>
-            ( numRHS, gamma, filename, feasible, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, comm );
 #endif
 #ifdef EL_HAVE_QUAD
             TestLeastSquares<Quad>
-            ( numRHS, gamma, filename, feasible, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, comm );
 #endif
 #ifdef EL_HAVE_MPC
             TestLeastSquares<BigFloat>
-            ( numRHS, gamma, filename, feasible, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, comm );
 #endif
         }
     }
