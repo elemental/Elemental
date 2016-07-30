@@ -563,9 +563,14 @@ void MatrixMarket( DistSparseMatrix<T>& A, const string filename )
     A.ProcessLocalQueues();
 
     if( isSymmetric )
+    {
         MakeSymmetric( LOWER, A );
+    }
     if( isHermitian )
+    {
         MakeHermitian( LOWER, A );
+    }
+
     // I'm not certain of what the MM standard is for complex skew-symmetry,
     // so I'll default to assuming no conjugation
     const bool conjugateSkew = false;

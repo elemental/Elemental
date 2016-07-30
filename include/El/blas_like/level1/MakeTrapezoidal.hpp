@@ -116,7 +116,7 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
             (uplo == UPPER && j-i < offset) )
             A.QueueLocalZero( i-firstLocalRow, j );
     }
-    A.ProcessQueues();
+    A.ProcessLocalQueues();
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1

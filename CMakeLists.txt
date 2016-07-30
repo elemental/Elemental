@@ -499,6 +499,7 @@ endif()
 
 # Experimental
 # ============
+# NOTE: This is insanely outdated
 if(EL_EXPERIMENTAL)
   set(EXPERIMENTAL_DIR "${PROJECT_SOURCE_DIR}/experimental")
   # Build the G3D example(s)
@@ -519,6 +520,13 @@ if(EL_EXPERIMENTAL)
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
   endforeach()
 endif()
+
+# Install data
+# ============
+# TODO(poulson): Also install into the build directory? How to have drivers
+# automatically find the right path?
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/data/"
+  DESTINATION data/ FILES_MATCHING PATTERN "*.*")
 
 # Tests and examples
 # ==================

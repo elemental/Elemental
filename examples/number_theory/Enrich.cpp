@@ -18,7 +18,7 @@ int main( int argc, char* argv[] )
     {
         const string inputBasisFile = 
           Input
-          ("--inputBasisFile","input basis file",string("SVPChallenge40.txt"));
+          ("--inputBasisFile","input basis file",string("../data/number_theory/SVPChallenge40.txt"));
         const bool transposeBasis =
           Input("--transposeBasis","transpose basis?",false);
         const string vectorFile =

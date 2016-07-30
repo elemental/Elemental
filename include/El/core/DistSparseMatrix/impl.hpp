@@ -257,6 +257,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         vector<int> sendCounts(commSize,0);
         for( auto s : distGraph_.remoteSources_ )
             ++sendCounts[RowOwner(s)];
+
         // Pack the send data
         // ------------------
         vector<int> sendOffs;
