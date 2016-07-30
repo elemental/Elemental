@@ -18,7 +18,8 @@ int main( int argc, char* argv[] )
     {
         const string inputBasisFile = 
           Input
-          ("--inputBasisFile","input basis file",string("../data/number_theory/SVPChallenge40.txt"));
+          ("--inputBasisFile","input basis file",
+           string("../data/number_theory/SVPChallenge40.txt"));
         const bool transposeBasis =
           Input("--transposeBasis","transpose basis?",false);
         const string vectorFile =
@@ -26,8 +27,10 @@ int main( int argc, char* argv[] )
         const bool transposeVector =
           Input("--transposeVector","transpose vector?",false);
         const Int subsetStart = Input("--subsetStart","subset start col",0);
-        const bool coordinates = Input("--coordinates","vector is coordinates?",false);
-        const bool insertViaLLL = Input("--insertViaLLL","insert vector via LLL?",true);
+        const bool coordinates =
+          Input("--coordinates","vector is coordinates?",false);
+        const bool insertViaLLL =
+          Input("--insertViaLLL","insert vector via LLL?",true);
         const mpfr_prec_t prec =
           Input("--prec","MPFR precision",mpfr_prec_t(1024));
         ProcessInput();

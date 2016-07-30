@@ -164,7 +164,8 @@ int main( int argc, char* argv[] )
         const double gamma = Input("--gamma","regularization",0.001); 
         const string filename =
           Input
-          ("--filename","path to Matrix Market","../data/lapack_like/c-41.mtx");
+          ("--filename","path to Matrix Market",
+           string("../data/lapack_like/c-41.mtx"));
         const bool feasible =
           Input("--feasible","generate a feasible RHS?",true);
         const bool print = Input("--print","print matrices?",false);
