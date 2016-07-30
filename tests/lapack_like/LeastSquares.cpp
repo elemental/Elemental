@@ -128,7 +128,8 @@ void TestLeastSquares
         Print( BTwice, "BTwice" );
     Matrix<Real> BTwiceNorms;
     ColumnTwoNorms( BTwice, BTwiceNorms );
-    Print( BTwiceNorms, "BTwice column norms" );
+    if( commRank == 0 )
+        Print( BTwiceNorms, "BTwice column norms" );
 
     DistMultiVec<F> X;
     if( gamma == double(0) )
@@ -147,9 +148,12 @@ void TestLeastSquares
     Multiply( NORMAL, F(-1), ATwice, X, F(1), E ); 
     Matrix<Real> residNorms;
     ColumnTwoNorms( E, residNorms );
-    Print( residNorms, "residual norms" );
-    DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
-    Print( residNorms, "relative residual norms" );
+    if( commRank == 0 )
+    {
+        Print( residNorms, "residual norms" );
+        DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
+        Print( residNorms, "relative residual norms" );
+    }
 }
 
 int main( int argc, char* argv[] )
