@@ -512,7 +512,9 @@ if(EL_EXPERIMENTAL)
       OBJECT_DEPENDS "${PREPARED_HEADERS}")
     target_link_libraries(experimental-g3d-${EXPER} El)
     set_target_properties(experimental-g3d-${EXPER} PROPERTIES
-      OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+      OUTPUT_NAME ${EXPER}
+      SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(EL_LINK_FLAGS)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
         LINK_FLAGS ${EL_LINK_FLAGS})
@@ -526,7 +528,16 @@ endif()
 # TODO(poulson): Also install into the build directory? How to have drivers
 # automatically find the right path?
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/data/"
-  DESTINATION data/ FILES_MATCHING PATTERN "*.*")
+  DESTINATION share/elemental/ FILES_MATCHING PATTERN "*.*")
+
+# Install license and author information
+# ======================================
+install(FILES "${PROJECT_SOURCE_DIR}/AUTHORS"
+              "${PROJECT_SOURCE_DIR}/LICENSE"
+              "${PROJECT_SOURCE_DIR}/PUBLICATIONS.bib"
+              "${PROJECT_SOURCE_DIR}/README.md"
+              "${PROJECT_SOURCE_DIR}/REFERENCES.bib"
+ DESTINATION share/doc/elemental)
 
 # Tests and examples
 # ==================
@@ -540,7 +551,9 @@ add_executable(sandbox-test "${PROJECT_SOURCE_DIR}/sandbox/test.cpp")
 set_source_files_properties("${PROJECT_SOURCE_DIR}/sandbox/test.cpp"
   PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
 target_link_libraries(sandbox-test El)
-set_target_properties(sandbox-test PROPERTIES OUTPUT_NAME sandbox-test 
+set_target_properties(sandbox-test PROPERTIES
+  OUTPUT_NAME sandbox-test
+  SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
   RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 if(EL_LINK_FLAGS)
   set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
@@ -566,7 +579,9 @@ if(EL_TESTS)
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(tests-${TYPE}-${TESTNAME} El)
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
-        OUTPUT_NAME ${TESTNAME} RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
+        OUTPUT_NAME ${TESTNAME}
+        SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
+        RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
         set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
@@ -607,7 +622,9 @@ if(EL_EXAMPLES)
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(examples-${TYPE}-${EXNAME} El)
       set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
-        OUTPUT_NAME ${EXNAME} RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
+        OUTPUT_NAME ${EXNAME}
+        SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
+        RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
         set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
