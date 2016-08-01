@@ -1,9 +1,16 @@
+sudo: required
+dist: trusty
+
+notifications:
+  email: false
+
 language: generic
 
 env:
   global:
-    - MPI=mpich2
+    - MPI=mpich
     - F77=gfortran-5
+    - PATH=/usr/lib/ccache/:$PATH
 #  - MPI=openmpi
 # Open MPI is disabled until there is a way to install a reasonably recent
 # version, as 1.6.5 is known to have bugs that lead to incorrect behavior in
@@ -14,16 +21,19 @@ env:
     - CC=gcc-5 CXX=g++-5
     - CC=clang-3.8 CXX=clang++-3.8
 
-notifications:
-  email: false
+cache:
+  directories:
+    - $HOME/.ccache
 
 addons:
   apt:
     sources:
       - sourceline: 'ppa:ubuntu-toolchain-r/test'
-      - sourceline: 'deb http://apt.llvm.org/precise/ llvm-toolchain-precise-3.8 main'
+      - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.8 main'
         key_url: http://apt.llvm.org/llvm-snapshot.gpg.key
+      - sourceline: 'ppa:dzombie/ccache'
     packages:
+      - ccache
       - gcc-5
       - g++-5
       - gfortran-5
@@ -31,15 +41,19 @@ addons:
       - clang-3.8
 
 install:
+  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang-3.8
+  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang++-3.8
+  - echo `which $CC`
+  - echo `which $CXX`
   - sh travis/install-mpi.sh $MPI
-  - curl https://cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
-
-before_script:
-  - sudo hostname localhost
+  - curl https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
 
 script:
+  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang-3.8
+  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang++-3.8
+  - echo `which $CC`
+  - echo `which $CXX`
   - mkdir build && cd build;
     cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -DCMAKE_Fortran_COMPILER=$F77 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install .. ;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
   - make -j2 && sudo make install && sudo ctest --output-on-failure
-
