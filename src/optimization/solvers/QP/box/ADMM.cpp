@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // TODO: Add a conic-form ADMM (i.e., x >= 0)
 
@@ -26,7 +26,7 @@ namespace qp {
 namespace box {
 
 template<typename Real,typename>
-inline Int
+Int
 ADMM
 ( const Matrix<Real>& Q,
   const Matrix<Real>& C, 
@@ -35,7 +35,7 @@ ADMM
         Matrix<Real>& Z, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::box::ADMM"))
+    DEBUG_CSE
     const Int n = Q.Height();
     const Int k = C.Width();
 
@@ -131,12 +131,12 @@ ADMM
         ++numIter;
     }
     if( ctrl.maxIter == numIter )
-        cout << "ADMM failed to converge" << endl;
+        Output("ADMM failed to converge");
     return numIter;
 }
 
 template<typename Real,typename>
-inline Int
+Int
 ADMM
 ( const ElementalMatrix<Real>& QPre,
   const ElementalMatrix<Real>& CPre, 
@@ -145,7 +145,7 @@ ADMM
         ElementalMatrix<Real>& ZPre, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::box::ADMM"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       QProx( QPre ),
@@ -253,7 +253,7 @@ ADMM
         ++numIter;
     }
     if( ctrl.maxIter == numIter && grid.Rank() == 0 )
-        cout << "ADMM failed to converge" << endl;
+        Output("ADMM failed to converge");
     return numIter;
 }
 
@@ -279,7 +279,7 @@ ADMM
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace box
 } // namespace qp

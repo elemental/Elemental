@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "../../affine/IPM.hpp"
 
 namespace El {
@@ -42,7 +42,7 @@ void Mehrotra
         Matrix<Real>& z, 
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Int n = c.Height();
 
     Matrix<Real> G;
@@ -72,7 +72,7 @@ void Mehrotra
         ElementalMatrix<Real>& z, 
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Int n = c.Height();
     const Grid& grid = c.Grid();
 
@@ -103,7 +103,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Int n = c.Height();
 
     SparseMatrix<Real> G;
@@ -133,7 +133,7 @@ void Mehrotra
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::direct::Mehrotra"))    
+    DEBUG_CSE
     const Int n = c.Height();
     mpi::Comm comm = c.Comm();
 
@@ -200,7 +200,7 @@ void Mehrotra
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace direct
 } // namespace socp

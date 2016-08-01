@@ -16,7 +16,7 @@ namespace El {
 template<typename T>
 void Round( Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Round"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     T* ABuf = A.Buffer();
@@ -51,16 +51,16 @@ void Round( DistMultiVec<T>& A )
 #endif
 
 #define PROTO(T) \
-  template void Round( Matrix<T>& A ); \
-  template void Round( AbstractDistMatrix<T>& A ); \
-  template void Round( DistMultiVec<T>& A );
+  EL_EXTERN template void Round( Matrix<T>& A ); \
+  EL_EXTERN template void Round( AbstractDistMatrix<T>& A ); \
+  EL_EXTERN template void Round( DistMultiVec<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

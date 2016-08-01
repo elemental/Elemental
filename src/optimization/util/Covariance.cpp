@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename F>
 void Covariance( const Matrix<F>& D, Matrix<F>& S )
 {
-    DEBUG_ONLY(CSE cse("Covariance"))
+    DEBUG_CSE
     const Int numObs = D.Height();
     const Int n = D.Width();
 
@@ -38,7 +38,7 @@ template<typename F>
 void Covariance
 ( const ElementalMatrix<F>& DPre, ElementalMatrix<F>& SPre )
 {
-    DEBUG_ONLY(CSE cse("Covariance"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       DProx( DPre );
@@ -54,17 +54,17 @@ void Covariance
     DistMatrix<F> ones(g), xMean(g);
     Ones( ones, numObs, 1 );
     Gemv( TRANSPOSE, F(1)/F(numObs), D, ones, xMean );
-    DistMatrix<F,MR,STAR> xMean_MR_STAR(g);
-    xMean_MR_STAR.AlignWith( D );
-    xMean_MR_STAR = xMean;
+    DistMatrix<F,MR,STAR> xMean_MR(g);
+    xMean_MR.AlignWith( D );
+    xMean_MR = xMean;
 
     // Subtract the mean from each column of D
     DistMatrix<F> DDev( D );
     for( Int iLoc=0; iLoc<DDev.LocalHeight(); ++iLoc )
         blas::Axpy
         ( DDev.LocalWidth(), F(-1), 
-          xMean_MR_STAR.LockedBuffer(), 1, 
-          DDev.Buffer(iLoc,0),          DDev.LDim() );
+          xMean_MR.LockedBuffer(), 1, 
+          DDev.Buffer(iLoc,0),     DDev.LDim() );
 
     // Form S := 1/(numObs-1) DDev DDev'
     Herk( LOWER, ADJOINT, Base<F>(1)/Base<F>(numObs-1), DDev, S );
@@ -82,6 +82,6 @@ void Covariance
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

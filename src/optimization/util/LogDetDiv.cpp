@@ -6,14 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename F>
-Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
+Base<F> LogDetDiv
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+  const Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("LogDetDiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
         LogicError("A and B must be square matrices of the same size");
@@ -50,9 +53,10 @@ Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, 
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& B )
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("LogDetDiv"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
@@ -107,6 +111,6 @@ Base<F> LogDetDiv
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

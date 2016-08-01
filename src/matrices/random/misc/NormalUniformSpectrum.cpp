@@ -6,7 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/lapack_like/factor.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -17,7 +20,7 @@ template<typename Real>
 void NormalUniformSpectrum
 ( Matrix<Complex<Real>>& A, Int n, Complex<Real> center, Real radius )
 {
-    DEBUG_ONLY(CSE cse("NormalUniformSpectrum"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     A.Resize( n, n );
 
@@ -40,7 +43,7 @@ void NormalUniformSpectrum
 ( ElementalMatrix<Complex<Real>>& APre, Int n, 
   Complex<Real> center, Real radius )
 {
-    DEBUG_ONLY(CSE cse("NormalUniformSpectrum"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );
@@ -78,8 +81,7 @@ void NormalUniformSpectrum
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
-// Enable this when there is Complex<BigFloat> support
-//#define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

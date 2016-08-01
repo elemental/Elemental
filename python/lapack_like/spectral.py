@@ -32,7 +32,7 @@ lib.ElHermitianTridiagEigDist_s.argtypes = \
 lib.ElHermitianTridiagEigDist_d.argtypes = \
 lib.ElHermitianTridiagEigDist_c.argtypes = \
 lib.ElHermitianTridiagEigDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint]
+  [c_void_p,c_void_p,c_void_p]
 
 lib.ElHermitianTridiagEigPair_s.argtypes = \
 lib.ElHermitianTridiagEigPair_d.argtypes = \
@@ -42,102 +42,46 @@ lib.ElHermitianTridiagEigPairDist_s.argtypes = \
 lib.ElHermitianTridiagEigPairDist_d.argtypes = \
 lib.ElHermitianTridiagEigPairDist_c.argtypes = \
 lib.ElHermitianTridiagEigPairDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
+  [c_void_p,c_void_p,c_void_p,c_void_p]
 
-lib.ElHermitianTridiagEigPartial_s.argtypes = \
-lib.ElHermitianTridiagEigPartial_c.argtypes = \
-lib.ElHermitianTridiagEigPartialDist_s.argtypes = \
-lib.ElHermitianTridiagEigPartialDist_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-
-lib.ElHermitianTridiagEigPartial_d.argtypes = \
-lib.ElHermitianTridiagEigPartial_z.argtypes = \
-lib.ElHermitianTridiagEigPartialDist_d.argtypes = \
-lib.ElHermitianTridiagEigPartialDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-
-lib.ElHermitianTridiagEigPairPartial_s.argtypes = \
-lib.ElHermitianTridiagEigPairPartial_c.argtypes = \
-lib.ElHermitianTridiagEigPairPartialDist_s.argtypes = \
-lib.ElHermitianTridiagEigPairPartialDist_c.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-
-lib.ElHermitianTridiagEigPairPartial_d.argtypes = \
-lib.ElHermitianTridiagEigPairPartial_z.argtypes = \
-lib.ElHermitianTridiagEigPairPartialDist_d.argtypes = \
-lib.ElHermitianTridiagEigPairPartialDist_z.argtypes = \
-  [c_void_p,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-
-def HermitianTridiagEig(d,dSub,vectors=False,sort=ASCENDING,subset=None):
+def HermitianTridiagEig(d,dSub,vectors=False):
   if type(d) is Matrix:
     w = Matrix(d.tag)
     if vectors:
-      X = Matrix(dSub.tag)
-      if subset == None:
-        args = [d.obj,dSub.obj,w.obj,X.obj,sort]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPair_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPair_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPair_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [d.obj,dSub.obj,w.obj,X.obj,sort,subset]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartial_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartial_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartial_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartial_z(*args)
-        else: DataExcept()
-      return w, X
+      Q = Matrix(dSub.tag)
+      args = [d.obj,dSub.obj,w.obj,Q.obj]
+      if   dSub.tag == sTag: lib.ElHermitianTridiagEigPair_s(*args)
+      elif dSub.tag == dTag: lib.ElHermitianTridiagEigPair_d(*args)
+      elif dSub.tag == cTag: lib.ElHermitianTridiagEigPair_c(*args)
+      elif dSub.tag == zTag: lib.ElHermitianTridiagEigPair_z(*args)
+      else: DataExcept()
+      return w, Q
     else:
-      if subset == None:
-        args = [d.obj,dSub.obj,w.obj,sort]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPair_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPair_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPair_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [d.obj,dSub.obj,w.obj,sort,subset]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartial_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartial_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartial_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartial_z(*args)
-        else: DataExcept()
+      args = [d.obj,dSub.obj,w.obj]
+      if   dSub.tag == sTag: lib.ElHermitianTridiagEigPair_s(*args)
+      elif dSub.tag == dTag: lib.ElHermitianTridiagEigPair_d(*args)
+      elif dSub.tag == cTag: lib.ElHermitianTridiagEigPair_c(*args)
+      elif dSub.tag == zTag: lib.ElHermitianTridiagEigPair_z(*args)
+      else: DataExcept()
       return w
   elif type(d) is DistMatrix:
     w = DistMatrix(d.tag,STAR,STAR,d.Grid())
     if vectors:
-      X = DistMatrix(dSub.tag,STAR,VR,dSub.Grid())
-      if subset == None:
-        args = [d.obj,dSub.obj,w.obj,X.obj,sort]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairDist_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairDist_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairDist_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [d.obj,dSub.obj,w.obj,X.obj,sort,subset]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartialDist_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartialDist_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartialDist_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartialDist_z(*args)
-        else: DataExcept()
-      return w, X
+      Q = DistMatrix(dSub.tag,STAR,VR,dSub.Grid())
+      args = [d.obj,dSub.obj,w.obj,Q.obj,sort]
+      if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairDist_s(*args)
+      elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairDist_d(*args)
+      elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairDist_c(*args)
+      elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairDist_z(*args)
+      else: DataExcept()
+      return w, Q
     else:
-      if subset == None:
-        args = [d.obj,dSub.obj,w.obj,sort]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairDist_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairDist_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairDist_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [d.obj,dSub.obj,w.obj,sort,subset]
-        if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairPartialDist_s(*args)
-        elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairPartialDist_d(*args)
-        elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairPartialDist_c(*args)
-        elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairPartialDist_z(*args)
-        else: DataExcept()
+      args = [d.obj,dSub.obj,w.obj]
+      if   dSub.tag == sTag: lib.ElHermitianTridiagEigPairDist_s(*args)
+      elif dSub.tag == dTag: lib.ElHermitianTridiagEigPairDist_d(*args)
+      elif dSub.tag == cTag: lib.ElHermitianTridiagEigPairDist_c(*args)
+      elif dSub.tag == zTag: lib.ElHermitianTridiagEigPairDist_z(*args)
+      else: DataExcept()
       return w
   else: TypeExcept()
 
@@ -151,7 +95,7 @@ lib.ElHermitianEigDist_s.argtypes = \
 lib.ElHermitianEigDist_d.argtypes = \
 lib.ElHermitianEigDist_c.argtypes = \
 lib.ElHermitianEigDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint]
+  [c_uint,c_void_p,c_void_p]
 
 lib.ElHermitianEigPair_s.argtypes = \
 lib.ElHermitianEigPair_d.argtypes = \
@@ -161,102 +105,46 @@ lib.ElHermitianEigPairDist_s.argtypes = \
 lib.ElHermitianEigPairDist_d.argtypes = \
 lib.ElHermitianEigPairDist_c.argtypes = \
 lib.ElHermitianEigPairDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
+  [c_uint,c_void_p,c_void_p,c_void_p]
 
-lib.ElHermitianEigPartial_s.argtypes = \
-lib.ElHermitianEigPartial_c.argtypes = \
-lib.ElHermitianEigPartialDist_s.argtypes = \
-lib.ElHermitianEigPartialDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-
-lib.ElHermitianEigPartial_d.argtypes = \
-lib.ElHermitianEigPartial_z.argtypes = \
-lib.ElHermitianEigPartialDist_d.argtypes = \
-lib.ElHermitianEigPartialDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-
-lib.ElHermitianEigPairPartial_s.argtypes = \
-lib.ElHermitianEigPairPartial_c.argtypes = \
-lib.ElHermitianEigPairPartialDist_s.argtypes = \
-lib.ElHermitianEigPairPartialDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-
-lib.ElHermitianEigPairPartial_d.argtypes = \
-lib.ElHermitianEigPairPartial_z.argtypes = \
-lib.ElHermitianEigPairPartialDist_d.argtypes = \
-lib.ElHermitianEigPairPartialDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-
-def HermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
+def HermitianEig(uplo,A,vectors=False):
   if type(A) is Matrix:
     w = Matrix(A.tag)
     if vectors:
-      X = Matrix(Base(A.tag))
-      if subset == None:
-        args = [uplo,A.obj,w.obj,X.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianEigPair_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPair_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPair_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianEigPairPartial_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPairPartial_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPairPartial_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPairPartial_z(*args)
-        else: DataExcept()
-      return w, X
+      Q = Matrix(Base(A.tag))
+      args = [uplo,A.obj,w.obj,Q.obj]
+      if   A.tag == sTag: lib.ElHermitianEigPair_s(*args)
+      elif A.tag == dTag: lib.ElHermitianEigPair_d(*args)
+      elif A.tag == cTag: lib.ElHermitianEigPair_c(*args)
+      elif A.tag == zTag: lib.ElHermitianEigPair_z(*args)
+      else: DataExcept()
+      return w, Q
     else:
-      if subset == None:
-        args = [uplo,A.obj,w.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianEigPair_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPair_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPair_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianEigPairPartial_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPairPartial_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPairPartial_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPairPartial_z(*args)
-        else: DataExcept()
+      args = [uplo,A.obj,w.obj]
+      if   A.tag == sTag: lib.ElHermitianEigPair_s(*args)
+      elif A.tag == dTag: lib.ElHermitianEigPair_d(*args)
+      elif A.tag == cTag: lib.ElHermitianEigPair_c(*args)
+      elif A.tag == zTag: lib.ElHermitianEigPair_z(*args)
+      else: DataExcept()
       return w
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
-      X = DistMatrix(A.tag,MC,MR,A.Grid())
-      if subset == None:
-        args = [uplo,A.obj,w.obj,X.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianEigPairDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPairDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPairDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianEigPairPartialDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPairPartialDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPairPartialDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPairPartialDist_z(*args)
-        else: DataExcept()
-      return w, X
+      Q = DistMatrix(A.tag,MC,MR,A.Grid())
+      args = [uplo,A.obj,w.obj,Q.obj]
+      if   A.tag == sTag: lib.ElHermitianEigPairDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianEigPairDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianEigPairDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianEigPairDist_z(*args)
+      else: DataExcept()
+      return w, Q
     else:
-      if subset == None:
-        args = [uplo,A.obj,w.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianEigPairDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPairDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPairDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianEigPairPartialDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianEigPairPartialDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianEigPairPartialDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianEigPairPartialDist_z(*args)
-        else: DataExcept()
+      args = [uplo,A.obj,w.obj]
+      if   A.tag == sTag: lib.ElHermitianEigPairDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianEigPairDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianEigPairDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianEigPairDist_z(*args)
+      else: DataExcept()
       return w
   else: TypeExcept()
 
@@ -271,7 +159,7 @@ lib.ElSkewHermitianEigDist_s.argtypes = \
 lib.ElSkewHermitianEigDist_d.argtypes = \
 lib.ElSkewHermitianEigDist_c.argtypes = \
 lib.ElSkewHermitianEigDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint]
+  [c_uint,c_void_p,c_void_p]
 
 lib.ElSkewHermitianEigPair_s.argtypes = \
 lib.ElSkewHermitianEigPair_d.argtypes = \
@@ -281,102 +169,46 @@ lib.ElSkewHermitianEigPairDist_s.argtypes = \
 lib.ElSkewHermitianEigPairDist_d.argtypes = \
 lib.ElSkewHermitianEigPairDist_c.argtypes = \
 lib.ElSkewHermitianEigPairDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint]
+  [c_uint,c_void_p,c_void_p,c_void_p]
 
-lib.ElSkewHermitianEigPartial_s.argtypes = \
-lib.ElSkewHermitianEigPartial_c.argtypes = \
-lib.ElSkewHermitianEigPartialDist_s.argtypes = \
-lib.ElSkewHermitianEigPartialDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-
-lib.ElSkewHermitianEigPartial_d.argtypes = \
-lib.ElSkewHermitianEigPartial_z.argtypes = \
-lib.ElSkewHermitianEigPartialDist_d.argtypes = \
-lib.ElSkewHermitianEigPartialDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-
-lib.ElSkewHermitianEigPairPartial_s.argtypes = \
-lib.ElSkewHermitianEigPairPartial_c.argtypes = \
-lib.ElSkewHermitianEigPairPartialDist_s.argtypes = \
-lib.ElSkewHermitianEigPairPartialDist_c.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-
-lib.ElSkewHermitianEigPairPartial_d.argtypes = \
-lib.ElSkewHermitianEigPairPartial_z.argtypes = \
-lib.ElSkewHermitianEigPairPartialDist_d.argtypes = \
-lib.ElSkewHermitianEigPairPartialDist_z.argtypes = \
-  [c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-
-def SkewHermitianEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
+def SkewHermitianEig(uplo,A,vectors=False):
   if type(A) is Matrix:
     w = Matrix(A.tag)
     if vectors:
-      X = Matrix(Base(A.tag))
-      if subset == None:
-        args = [uplo,A.obj,w.obj,X.obj,sort]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPair_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPair_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPair_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartial_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartial_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartial_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartial_z(*args)
-        else: DataExcept()
-      return w, X
+      Q = Matrix(Base(A.tag))
+      args = [uplo,A.obj,w.obj,Q.obj]
+      if   A.tag == sTag: lib.ElSkewHermitianEigPair_s(*args)
+      elif A.tag == dTag: lib.ElSkewHermitianEigPair_d(*args)
+      elif A.tag == cTag: lib.ElSkewHermitianEigPair_c(*args)
+      elif A.tag == zTag: lib.ElSkewHermitianEigPair_z(*args)
+      else: DataExcept()
+      return w, Q
     else:
-      if subset == None:
-        args = [uplo,A.obj,w.obj,sort]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPair_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPair_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPair_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,sort,subset]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartial_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartial_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartial_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartial_z(*args)
-        else: DataExcept()
+      args = [uplo,A.obj,w.obj]
+      if   A.tag == sTag: lib.ElSkewHermitianEigPair_s(*args)
+      elif A.tag == dTag: lib.ElSkewHermitianEigPair_d(*args)
+      elif A.tag == cTag: lib.ElSkewHermitianEigPair_c(*args)
+      elif A.tag == zTag: lib.ElSkewHermitianEigPair_z(*args)
+      else: DataExcept()
       return w
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
-      X = DistMatrix(A.tag,MC,MR,A.Grid())
-      if subset == None:
-        args = [uplo,A.obj,w.obj,X.obj,sort]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPairDist_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPairDist_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPairDist_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,X.obj,sort,subset]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartialDist_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartialDist_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartialDist_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartialDist_z(*args)
-        else: DataExcept()
-      return w, X
+      Q = DistMatrix(A.tag,MC,MR,A.Grid())
+      args = [uplo,A.obj,w.obj,Q.obj]
+      if   A.tag == sTag: lib.ElSkewHermitianEigPairDist_s(*args)
+      elif A.tag == dTag: lib.ElSkewHermitianEigPairDist_d(*args)
+      elif A.tag == cTag: lib.ElSkewHermitianEigPairDist_c(*args)
+      elif A.tag == zTag: lib.ElSkewHermitianEigPairDist_z(*args)
+      else: DataExcept()
+      return w, Q
     else:
-      if subset == None:
-        args = [uplo,A.obj,w.obj,sort]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPairDist_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPairDist_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPairDist_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [uplo,A.obj,w.obj,sort,subset]
-        if   A.tag == sTag: lib.ElSkewHermitianEigPairPartialDist_s(*args)
-        elif A.tag == dTag: lib.ElSkewHermitianEigPairPartialDist_d(*args)
-        elif A.tag == cTag: lib.ElSkewHermitianEigPairPartialDist_c(*args)
-        elif A.tag == zTag: lib.ElSkewHermitianEigPairPartialDist_z(*args)
-        else: DataExcept()
+      args = [uplo,A.obj,w.obj]
+      if   A.tag == sTag: lib.ElSkewHermitianEigPairDist_s(*args)
+      elif A.tag == dTag: lib.ElSkewHermitianEigPairDist_d(*args)
+      elif A.tag == cTag: lib.ElSkewHermitianEigPairDist_c(*args)
+      elif A.tag == zTag: lib.ElSkewHermitianEigPairDist_z(*args)
+      else: DataExcept()
       return w
   else: TypeExcept()
 
@@ -390,7 +222,7 @@ lib.ElHermitianGenDefEigDist_s.argtypes = \
 lib.ElHermitianGenDefEigDist_d.argtypes = \
 lib.ElHermitianGenDefEigDist_c.argtypes = \
 lib.ElHermitianGenDefEigDist_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint]
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p]
 
 lib.ElHermitianGenDefEigPair_s.argtypes = \
 lib.ElHermitianGenDefEigPair_d.argtypes = \
@@ -400,104 +232,46 @@ lib.ElHermitianGenDefEigPairDist_s.argtypes = \
 lib.ElHermitianGenDefEigPairDist_d.argtypes = \
 lib.ElHermitianGenDefEigPairDist_c.argtypes = \
 lib.ElHermitianGenDefEigPairDist_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint]
+  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
 
-lib.ElHermitianGenDefEigPartial_s.argtypes = \
-lib.ElHermitianGenDefEigPartial_c.argtypes = \
-lib.ElHermitianGenDefEigPartialDist_s.argtypes = \
-lib.ElHermitianGenDefEigPartialDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_s]
-
-lib.ElHermitianGenDefEigPartial_d.argtypes = \
-lib.ElHermitianGenDefEigPartial_z.argtypes = \
-lib.ElHermitianGenDefEigPartialDist_d.argtypes = \
-lib.ElHermitianGenDefEigPartialDist_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_uint,HermitianEigSubset_d]
-
-lib.ElHermitianGenDefEigPairPartial_s.argtypes = \
-lib.ElHermitianGenDefEigPairPartial_c.argtypes = \
-lib.ElHermitianGenDefEigPairPartialDist_s.argtypes = \
-lib.ElHermitianGenDefEigPairPartialDist_c.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_s]
-
-lib.ElHermitianGenDefEigPairPartial_d.argtypes = \
-lib.ElHermitianGenDefEigPairPartial_z.argtypes = \
-lib.ElHermitianGenDefEigPairPartialDist_d.argtypes = \
-lib.ElHermitianGenDefEigPairPartialDist_z.argtypes = \
-  [c_uint,c_uint,c_void_p,c_void_p,c_void_p,c_void_p,c_uint,
-   HermitianEigSubset_d]
-
-def HermitianGenDefEig(uplo,A,vectors=False,sort=ASCENDING,subset=None):
+def HermitianGenDefEig(uplo,A,vectors=False):
   if type(A) is Matrix:
     w = Matrix(A.tag)
     if vectors:
       X = Matrix(Base(A.tag))
-      if subset == None:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPair_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPair_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPair_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartial_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartial_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartial_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartial_z(*args)
-        else: DataExcept()
+      args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj]
+      if   A.tag == sTag: lib.ElHermitianGenDefEigPair_s(*args)
+      elif A.tag == dTag: lib.ElHermitianGenDefEigPair_d(*args)
+      elif A.tag == cTag: lib.ElHermitianGenDefEigPair_c(*args)
+      elif A.tag == zTag: lib.ElHermitianGenDefEigPair_z(*args)
+      else: DataExcept()
       return w, X
     else:
-      if subset == None:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPair_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPair_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPair_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPair_z(*args)
-        else: DataExcept()
-      else:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartial_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartial_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartial_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartial_z(*args)
-        else: DataExcept()
+      args = [pencil,uplo,A.obj,B.obj,w.obj]
+      if   A.tag == sTag: lib.ElHermitianGenDefEigPair_s(*args)
+      elif A.tag == dTag: lib.ElHermitianGenDefEigPair_d(*args)
+      elif A.tag == cTag: lib.ElHermitianGenDefEigPair_c(*args)
+      elif A.tag == zTag: lib.ElHermitianGenDefEigPair_z(*args)
+      else: DataExcept()
       return w
   elif type(A) is DistMatrix:
     w = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     if vectors:
       X = DistMatrix(A.tag,MC,MR,A.Grid())
-      if subset == None:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPairDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPairDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPairDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartialDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartialDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartialDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartialDist_z(*args)
-        else: DataExcept()
+      args = [pencil,uplo,A.obj,B.obj,w.obj,X.obj]
+      if   A.tag == sTag: lib.ElHermitianGenDefEigPairDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianGenDefEigPairDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianGenDefEigPairDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianGenDefEigPairDist_z(*args)
+      else: DataExcept()
       return w, X
     else:
-      if subset == None:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,sort]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPairDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPairDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPairDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPairDist_z(*args)
-        else: DataExcept()
-      else:
-        args = [pencil,uplo,A.obj,B.obj,w.obj,sort,subset]
-        if   A.tag == sTag: lib.ElHermitianGenDefEigPairPartialDist_s(*args)
-        elif A.tag == dTag: lib.ElHermitianGenDefEigPairPartialDist_d(*args)
-        elif A.tag == cTag: lib.ElHermitianGenDefEigPairPartialDist_c(*args)
-        elif A.tag == zTag: lib.ElHermitianGenDefEigPairPartialDist_z(*args)
-        else: DataExcept()
+      args = [pencil,uplo,A.obj,B.obj,w.obj]
+      if   A.tag == sTag: lib.ElHermitianGenDefEigPairDist_s(*args)
+      elif A.tag == dTag: lib.ElHermitianGenDefEigPairDist_d(*args)
+      elif A.tag == cTag: lib.ElHermitianGenDefEigPairDist_c(*args)
+      elif A.tag == zTag: lib.ElHermitianGenDefEigPairDist_z(*args)
+      else: DataExcept()
       return w
   else: TypeExcept()
 
@@ -741,7 +515,8 @@ lib.ElSchurCtrlDefault_s.argtypes = [c_void_p]
 class SchurCtrl_s(ctypes.Structure):
   _fields_ = [("useSDC",bType),
               ("qrCtrl",HessQRCtrl),
-              ("sdcCtrl",SDCCtrl_s)]
+              ("sdcCtrl",SDCCtrl_s),
+              ("time",bType)]
   def __init__(self):
     lib.ElSchurCtrlDefault_s(pointer(self))
 
@@ -749,7 +524,8 @@ lib.ElSchurCtrlDefault_d.argtypes = [c_void_p]
 class SchurCtrl_d(ctypes.Structure):
   _fields_ = [("useSDC",bType),
               ("qrCtrl",HessQRCtrl),
-              ("sdcCtrl",SDCCtrl_d)]
+              ("sdcCtrl",SDCCtrl_d),
+              ("time",bType)]
   def __init__(self):
     lib.ElSchurCtrlDefault_d(pointer(self))
 
@@ -882,37 +658,72 @@ def Eig(A):
     return w, X
   else: TypeExcept()
 
-# Singular value decomposition
-# ============================
+# Bidiagonal SVD
+# ==============
 
 (THIN_SVD,COMPACT_SVD,FULL_SVD,PRODUCT_SVD)=(0,1,2,3)
 
+(ABSOLUTE_SING_VAL_TOL,
+ RELATIVE_TO_MAX_SING_VAL_TOL,
+ RELATIVE_TO_SELF_SING_VAL_TOL)=(0,1,2)
+
+class BidiagSVDQRCtrl(ctypes.Structure):
+  _fields_ = [("maxIterPerVal",iType),
+              ("demandConverged",bType),
+              ("looseMinSingValEst",bType),
+              ("useFLAME",bType),
+              ("useLAPACK",bType)]
+  def __init__(self):
+    lib.ElBidiagSVDQRCtrlDefault(pointer(self))
+
+class BidiagSVDCtrl_s(ctypes.Structure):
+  _fields_ = [("wantU",bType),
+              ("wantV",bType),
+              ("accumulateU",bType),
+              ("accumulateV",bType),
+              ("approach",c_uint),
+              ("tolType",c_uint),
+              ("tol",sType),
+              ("progress",bType),
+              ("qrCtrl",BidiagSVDQRCtrl)]
+  def __init__(self):
+    lib.ElBidiagSVDCtrlDefault_s(pointer(self))
+
+class BidiagSVDCtrl_d(ctypes.Structure):
+  _fields_ = [("wantU",bType),
+              ("wantV",bType),
+              ("accumulateU",bType),
+              ("accumulateV",bType),
+              ("approach",c_uint),
+              ("tolType",c_uint),
+              ("tol",dType),
+              ("progress",bType),
+              ("qrCtrl",BidiagSVDQRCtrl)]
+  def __init__(self):
+    lib.ElBidiagSVDCtrlDefault_d(pointer(self))
+
+# Singular value decomposition
+# ============================
+
 class SVDCtrl_s(ctypes.Structure):
-  _fields_ = [("approach",c_uint),
-              ("overwrite",bType),
-              ("avoidComputingU",bType),
-              ("avoidComputingV",bType),
+  _fields_ = [("overwrite",bType),
               ("time",bType),
-              ("avoidLibflame",bType),
-              ("seqQR",bType),
+              ("useLAPACK",bType),
+              ("useScaLAPACK",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
-              ("relative",bType),
-              ("tol",sType)]
+              ("bidiagSVDCtrl",BidiagSVDCtrl_s)]
   def __init__(self):
     lib.ElSVDCtrlDefault_s(pointer(self))
+
 class SVDCtrl_d(ctypes.Structure):
-  _fields_ = [("approach",c_uint),
-              ("overwrite",bType),
-              ("avoidComputingU",bType),
-              ("avoidComputingV",bType),
+  _fields_ = [("overwrite",bType),
               ("time",bType),
-              ("avoidLibflame",bType),
-              ("seqQR",bType),
+              ("useLAPACK",bType),
+              ("useScaLAPACK",bType),
               ("valChanRatio",dType),
               ("fullChanRatio",dType),
-              ("relative",bType),
-              ("tol",dType)]
+              ("bidiagSVDCtrl",BidiagSVDCtrl_d)]
   def __init__(self):
     lib.ElSVDCtrlDefault_d(pointer(self))
 

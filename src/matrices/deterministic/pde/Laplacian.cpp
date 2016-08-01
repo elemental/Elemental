@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -16,7 +17,7 @@ namespace El {
 template<typename F> 
 void Laplacian( Matrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, n, F(0) );
     L *= -1;
 }
@@ -24,7 +25,7 @@ void Laplacian( Matrix<F>& L, Int n )
 template<typename F>
 void Laplacian( AbstractDistMatrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, n, F(0) );
     L *= -1;
 }
@@ -32,7 +33,7 @@ void Laplacian( AbstractDistMatrix<F>& L, Int n )
 template<typename F> 
 void Laplacian( SparseMatrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, n, F(0) );
     L *= -1;
 }
@@ -40,7 +41,7 @@ void Laplacian( SparseMatrix<F>& L, Int n )
 template<typename F> 
 void Laplacian( DistSparseMatrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, n, F(0) );
     L *= -1;
 }
@@ -51,7 +52,7 @@ void Laplacian( DistSparseMatrix<F>& L, Int n )
 template<typename F> 
 void Laplacian( Matrix<F>& L, Int nx, Int ny )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, F(0) );
     L *= -1;
 }
@@ -59,7 +60,7 @@ void Laplacian( Matrix<F>& L, Int nx, Int ny )
 template<typename F>
 void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, F(0) );
     L *= -1;
 }
@@ -67,7 +68,7 @@ void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
 template<typename F> 
 void Laplacian( SparseMatrix<F>& L, Int nx, Int ny )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, F(0) );
     L *= -1;
 }
@@ -75,7 +76,7 @@ void Laplacian( SparseMatrix<F>& L, Int nx, Int ny )
 template<typename F> 
 void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, F(0) );
     L *= -1;
 }
@@ -86,7 +87,7 @@ void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny )
 template<typename F> 
 void Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, nz, F(0) );
     L *= -1;
 }
@@ -94,7 +95,7 @@ void Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
 template<typename F>
 void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, nz, F(0) );
     L *= -1;
 }
@@ -102,7 +103,7 @@ void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
 template<typename F> 
 void Laplacian( SparseMatrix<F>& L, Int nx, Int ny, Int nz )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, nz, F(0) );
     L *= -1;
 }
@@ -110,7 +111,7 @@ void Laplacian( SparseMatrix<F>& L, Int nx, Int ny, Int nz )
 template<typename F> 
 void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny, Int nz )
 {
-    DEBUG_ONLY(CSE cse("Laplacian"))
+    DEBUG_CSE
     Helmholtz( L, nx, ny, nz, F(0) );
     L *= -1;
 }
@@ -138,6 +139,6 @@ void Laplacian( DistSparseMatrix<F>& L, Int nx, Int ny, Int nz )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

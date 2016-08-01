@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -32,7 +32,7 @@ void SymmetricRuizEquil
   Matrix<Base<F>>& d, 
   Int maxIter, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -42,7 +42,7 @@ void SymmetricRuizEquil
   ElementalMatrix<Base<F>>& dPre,
   Int maxIter, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -82,7 +82,7 @@ void SymmetricRuizEquil
   Matrix<Base<F>>& d,
   Int maxIter, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -108,7 +108,7 @@ void SymmetricRuizEquil
   DistMultiVec<Base<F>>& d, 
   Int maxIter, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -153,6 +153,6 @@ void SymmetricRuizEquil
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -15,9 +15,11 @@ namespace hessenberg {
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+  const Matrix<F>& A,
+  const Matrix<F>& phase,
+        Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("hessenberg::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -25,23 +27,24 @@ void ApplyQ
     {
         const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
         ApplyPackedReflectors
-        ( side, UPPER, HORIZONTAL, direction, conjugation, 1, A, t, B );
+        ( side, UPPER, HORIZONTAL, direction, conjugation, 1, A, phase, B );
     }
     else
     {
         const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
         ApplyPackedReflectors
-        ( side, LOWER, VERTICAL, direction, conjugation, -1, A, t, B );
+        ( side, LOWER, VERTICAL, direction, conjugation, -1, A, phase, B );
     }
 }
 
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& phase, 
         ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("hessenberg::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -49,13 +52,13 @@ void ApplyQ
     {
         const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
         ApplyPackedReflectors
-        ( side, UPPER, HORIZONTAL, direction, conjugation, 1, A, t, B );
+        ( side, UPPER, HORIZONTAL, direction, conjugation, 1, A, phase, B );
     }
     else
     {
         const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
         ApplyPackedReflectors
-        ( side, LOWER, VERTICAL, direction, conjugation, -1, A, t, B );
+        ( side, LOWER, VERTICAL, direction, conjugation, -1, A, phase, B );
     }
 }
 

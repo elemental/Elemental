@@ -9,6 +9,8 @@
 #ifndef EL_ELEMENT_IMPL_HPP
 #define EL_ELEMENT_IMPL_HPP
 
+#include <El/core/Element/Complex/impl.hpp>
+
 namespace El {
 
 // Basic element manipulation and I/O
@@ -72,11 +74,25 @@ Real RealPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.real(); }
 
 template<typename Real,typename>
+void RealPart( const Real& alpha, Real& alphaReal ) EL_NO_EXCEPT
+{ alphaReal = alpha; }
+template<typename Real,typename>
+void RealPart( const Complex<Real>& alpha, Real& alphaReal ) EL_NO_EXCEPT
+{ alphaReal = alpha.real(); }
+
+template<typename Real,typename>
 Real ImagPart( const Real& alpha ) EL_NO_EXCEPT
 { return 0; }
 template<typename Real,typename>
 Real ImagPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.imag(); }
+
+template<typename Real,typename>
+void ImagPart( const Real& alpha, Real& alphaImag ) EL_NO_EXCEPT
+{ alphaImag = 0; }
+template<typename Real,typename>
+void ImagPart( const Complex<Real>& alpha, Real& alphaImag ) EL_NO_EXCEPT
+{ alphaImag = alpha.imag(); }
 
 // Set the real/imaginary part of an element
 // -----------------------------------------
@@ -90,7 +106,7 @@ void SetRealPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 template<typename Real,typename>
 void SetImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_ONLY(CSE cse("SetImagPart"))
+    DEBUG_CSE
     LogicError("Nonsensical assignment");
 }
 template<typename Real,typename>
@@ -111,7 +127,7 @@ EL_NO_EXCEPT
 template<typename Real,typename>
 void UpdateImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_ONLY(CSE cse("UpdateImagPart"))
+    DEBUG_CSE
     LogicError("Nonsensical update");
 }
 template<typename Real,typename>
@@ -128,6 +144,14 @@ template<typename Real,typename>
 Complex<Real> Conj( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Complex<Real>(alpha.real(),-alpha.imag()); }
 
+template<typename Real,typename>
+void Conj( const Real& alpha, Real& alphaConj ) EL_NO_EXCEPT
+{ alphaConj = alpha; }
+
+template<typename Real,typename>
+void Conj( const Complex<Real>& alpha, Complex<Real>& alphaConj ) EL_NO_EXCEPT
+{  alphaConj = std::conj(alpha); }
+
 // Return the complex argument
 // ---------------------------
 template<typename F,typename>
@@ -136,7 +160,7 @@ Base<F> Arg( const F& alpha )
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
-template<typename Real,typename>
+template<typename Real,typename,typename>
 Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
@@ -146,19 +170,109 @@ template<typename T,typename>
 Base<T> Abs( const T& alpha ) EL_NO_EXCEPT { return std::abs(alpha); }
 
 template<typename Real,typename>
+Real SafeNormAbs( const Real& chi0Abs, const Real& chi1Abs )
+{
+    const Real maxAbs = Max( chi0Abs, chi1Abs );
+    const Real minAbs = Min( chi0Abs, chi1Abs );
+    if( minAbs == Real(0) )
+    {
+        return maxAbs;
+    }
+    else
+    {
+        const Real ratio = minAbs / maxAbs;
+        return maxAbs*Sqrt( 1 + ratio*ratio );
+    }
+}
+
+template<typename Real,typename>
+Real SafeNorm( const Real& chi0, const Real& chi1 )
+{
+    return SafeNormAbs( Abs(chi0), Abs(chi1) );
+}
+
+template<typename Real,typename>
+Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 )
+{
+    const Real chi0Abs = Abs(chi0); 
+    const Real chi1Abs = Abs(chi1);
+    const Real chi2Abs = Abs(chi2);
+    const Real maxAbs = Max( Max( chi0Abs, chi1Abs ), chi2Abs );
+    if( maxAbs == Real(0) )
+    {
+        // Ensure NaN propagation
+        return chi0Abs + chi1Abs + chi2Abs;
+    }
+    else
+    {
+        const Real ratio0 = chi0Abs / maxAbs;
+        const Real ratio1 = chi1Abs / maxAbs;
+        const Real ratio2 = chi2Abs / maxAbs;
+
+        return maxAbs*Sqrt( ratio0*ratio0 + ratio1*ratio1 + ratio2*ratio2 );
+    }
+}
+
+template<typename Real,typename>
+Real SafeNorm
+( const Real& chi0, const Real& chi1, const Real& chi2, const Real& chi3 )
+{
+    const Real chi0Abs = Abs(chi0); 
+    const Real chi1Abs = Abs(chi1);
+    const Real chi2Abs = Abs(chi2);
+    const Real chi3Abs = Abs(chi3);
+    const Real maxAbs = Max( Max( Max( chi0Abs, chi1Abs ), chi2Abs ), chi3Abs );
+    if( maxAbs == Real(0) )
+    {
+        // Ensure NaN propagation
+        return chi0Abs + chi1Abs + chi2Abs + chi3Abs;
+    }
+    else
+    {
+        const Real ratio0 = chi0Abs / maxAbs;
+        const Real ratio1 = chi1Abs / maxAbs;
+        const Real ratio2 = chi2Abs / maxAbs;
+        const Real ratio3 = chi3Abs / maxAbs;
+
+        return maxAbs*
+          Sqrt( ratio0*ratio0 + ratio1*ratio1 + ratio2*ratio2 + ratio3*ratio3 );
+    }
+}
+
+template<typename Real>
+Real SafeNorm( const Real& chi0, const Complex<Real>& chi1 )
+{ return SafeNorm( chi0, chi1.real(), chi1.imag() ); }
+
+template<typename Real>
+Real SafeNorm( const Complex<Real>& chi0, const Real& chi1 )
+{ return SafeNorm( chi0.real(), chi0.imag(), chi1 ); }
+
+template<typename Real>
+Real SafeNorm( const Complex<Real>& chi0, const Complex<Real>& chi1 )
+{ return SafeNorm( chi0.real(), chi0.imag(), chi1.real(), chi1.imag() ); }
+
+template<typename Real,typename>
 Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT { return Abs(alpha); }
 
 template<typename Real,typename>
 Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
-{ return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
+{ return SafeNorm( alpha.real(), alpha.imag() ); }
 
 template<typename Real,typename>
-Real FastAbs( const Real& alpha ) EL_NO_EXCEPT
+Real OneAbs( const Real& alpha ) EL_NO_EXCEPT
 { return Abs(alpha); }
 
 template<typename Real,typename>
-Real FastAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
+Real OneAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
+
+template<typename Real,typename>
+Real MaxAbs( const Real& alpha ) EL_NO_EXCEPT
+{ return Abs(alpha); }
+
+template<typename Real,typename>
+Real MaxAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
+{ return Max(Abs(RealPart(alpha)),Abs(ImagPart(alpha))); }
 
 template<typename Real,typename>
 Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
@@ -173,75 +287,326 @@ Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
 
 // Exponentiation
 // ==============
-template<typename F,typename>
-F Exp( const F& alpha ) EL_NO_EXCEPT { return std::exp(alpha); }
+template<typename F,typename,typename>
+F Exp( const F& alpha ) EL_NO_EXCEPT
+{ return std::exp(alpha); }
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Exp( const Complex<Real>& alpha ) EL_NO_EXCEPT
+{ return ComplexFromPolar( Exp(RealPart(alpha)), ImagPart(alpha) ); }
 
 template<typename F,typename T,typename,typename>
 F Pow( const F& alpha, const T& beta )
 { return std::pow(alpha,beta); }
 
-#ifdef EL_USE_64BIT_INTS
-template<typename F,typename>
-F Pow( const F& alpha, const int& beta )
-{ return Pow(alpha,F(beta)); }
-#endif
+template<typename F,typename T,typename,typename,typename>
+F Pow( const F& alpha, const T& beta )
+{ return Pow(alpha,Base<F>(beta)); }
+
+template<typename Real,typename,typename>
+Complex<Real> Pow( const Complex<Real>& alpha, const Complex<Real>& beta )
+{
+    return alpha == Complex<Real>(0) ? Complex<Real>(0) : Exp(beta*Log(alpha));
+}
+template<typename Real,typename,typename>
+Complex<Real> Pow( const Complex<Real>& alpha, const Real& beta )
+{
+    if( alpha.imag() == Real(0) && alpha.real() > Real(0) )
+        return Pow( alpha.real(), beta );
+    Complex<Real> tau = Log( alpha );
+    return ComplexFromPolar( Exp(beta*tau.real()), beta*tau.imag() );
+}
 
 // NOTE: What about an integer to a floating-point power? Switch to auto 
 //       return type inherited from std::pow?
 
 // Inverse exponentiation
 // ----------------------
-template<typename F,typename>
-F Log( const F& alpha ) { return std::log(alpha); }
+template<typename F,typename,typename>
+F Log( const F& alpha )
+{ return std::log(alpha); }
 
-template<typename Real,typename>
-Real Log2( const Real& alpha )
+template<typename Real,typename,typename>
+Complex<Real> Log( const Complex<Real>& alpha )
+{ return Complex<Real>( Log(Abs(alpha)), Arg(alpha) ); }
+
+template<typename Integer,typename,typename>
+double Log( const Integer& alpha )
+{ return std::log(alpha); }
+
+template<typename F,typename,typename>
+F Log2( const F& alpha )
 { return std::log2(alpha); }
+
+template<typename F,typename,typename,typename>
+F Log2( const F& alpha )
+{ return Log(alpha) / Log(Base<F>(2)); }
 
 template<typename Integer,typename,typename>
 double Log2( const Integer& alpha )
 { return std::log2(alpha); }
 
+template<typename F,typename,typename>
+F Log10( const F& alpha )
+{ return std::log10(alpha); }
+
+template<typename F,typename,typename,typename>
+F Log10( const F& alpha )
+{ return Log(alpha) / Log(Base<F>(10)); }
+
+template<typename Integer,typename,typename>
+double Log10( const Integer& alpha )
+{ return std::log10(alpha); }
+
 template<typename F,typename>
-F Sqrt( const F& alpha ) { return std::sqrt(alpha); }
+F Sqrt( const F& alpha )
+{ return std::sqrt(alpha); }
+
+// Use a branch cut on the negative real axis
+template<typename Real,typename,typename>
+Complex<Real> Sqrt( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    if( realPart == Real(0) )
+    {
+        const Real tau = Sqrt( Abs(imagPart)/2 );
+        if( imagPart >= Real(0) )
+            return Complex<Real>( tau, tau );
+        else
+            return Complex<Real>( tau, -tau );
+    }
+    else
+    {
+        const Real tau = Sqrt( 2*(Abs(alpha)+Abs(realPart)) ); 
+        const Real ups = tau / 2;
+        if( realPart > Real(0) )
+        {
+            return Complex<Real>( ups, imagPart/tau );
+        }
+        else
+        {
+            if( imagPart >= Real(0) )
+            {
+                return Complex<Real>( Abs(imagPart)/tau, ups );
+            }
+            else
+            {
+                return Complex<Real>( Abs(imagPart)/tau, -ups );
+            }
+        }
+    }
+}
+
+template<typename F,typename>
+void Sqrt( const F& alpha, F& alphaSqrt )
+{ alphaSqrt = Sqrt(alpha); }
+
+template<typename Integer,typename>
+Integer ISqrt( const Integer& alpha )
+{
+    if( alpha == 0 )
+        return 0;
+
+    // Update an initial guess
+    Integer alphaSqrt = std::sqrt( double(alpha) );
+
+    // Correct the initial guess under the assumption that it was close;
+    // this could likely be substantially improved
+    while( (alphaSqrt+1)*(alphaSqrt+1) <= alpha )
+        ++alphaSqrt;
+    while( (alphaSqrt-1)*(alphaSqrt-1) >= alpha )
+        --alphaSqrt;
+
+    return alphaSqrt;
+}
 
 // Trigonometric
 // =============
-template<typename F,typename>
-F Cos( const F& alpha ) { return std::cos(alpha); }
-template<typename F,typename>
-F Sin( const F& alpha ) { return std::sin(alpha); }
-template<typename F,typename>
+template<typename F,typename,typename>
+F Cos( const F& alpha )
+{ return std::cos(alpha); }
+
+template<typename Real,typename,typename>
+Complex<Real> Cos( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    return
+      Complex<Real>
+      (  Cos(realPart)*Cosh(imagPart),
+        -Sin(realPart)*Sinh(imagPart) );
+}
+
+template<typename F,typename,typename>
+F Sin( const F& alpha )
+{ return std::sin(alpha); }
+
+template<typename Real,typename,typename>
+Complex<Real> Sin( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    return
+      Complex<Real>
+      ( Sin(realPart)*Cosh(imagPart),
+        Cos(realPart)*Sinh(imagPart) );
+}
+
+template<typename F,typename,typename>
 F Tan( const F& alpha ) { return std::tan(alpha); }
+
+template<typename Real,typename,typename>
+Complex<Real> Tan( const Complex<Real>& alpha )
+{ return Sin(alpha) / Cos(alpha); }
 
 // Inverse trigonometric
 // ---------------------
-template<typename F,typename>
+template<typename F,typename,typename>
 F Acos( const F& alpha ) { return std::acos(alpha); }
-template<typename F,typename>
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Acos( const Complex<Real>& alpha )
+{
+    Complex<Real> tau = Asin(alpha);
+    const Real piOver2 = Pi<Real>() / 2;
+    return Complex<Real>( piOver2-tau.real(), -tau.imag() );
+}
+
+template<typename F,typename,typename>
 F Asin( const F& alpha ) { return std::asin(alpha); }
-template<typename F,typename>
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Asin( const Complex<Real>& alpha )
+{
+    Complex<Real> tau = Asinh( Complex<Real>(-alpha.imag(),alpha.real()) );
+    return Complex<Real>( tau.imag(), -tau.real() );
+}
+
+template<typename F,typename,typename>
 F Atan( const F& alpha ) { return std::atan(alpha); }
-template<typename Real,typename>
-Real Atan2( const Real& y, const Real& x ) { return std::atan2( y, x ); }
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Atan( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    const Real realSquare = realPart*realPart;
+    const Real imagSquare = imagPart*imagPart;
+    const Real x = Real(1) - realSquare - imagSquare;
+
+    Real numerator = imagPart + Real(1);
+    Real denominator = imagPart - Real(1);
+
+    numerator = realSquare + numerator*numerator;
+    denominator = realSquare + denominator*denominator;
+
+    return
+      Complex<Real>
+      ( Atan2(Real(2)*realPart,x)/Real(2),
+        Log(numerator/denominator)/Real(4) );
+}
+
+template<typename Real,typename,typename>
+Real Atan2( const Real& y, const Real& x )
+{ return std::atan2( y, x ); }
+
+template<typename Real,typename,typename,typename>
+Real Atan2( const Real& y, const Real& x )
+{
+    LogicError("General Atan2 not yet implemented");
+}
 
 // Hyperbolic
 // ==========
-template<typename F,typename>
-F Cosh( const F& alpha ) { return std::cosh(alpha); }
-template<typename F,typename>
-F Sinh( const F& alpha ) { return std::sinh(alpha); }
-template<typename F,typename>
-F Tanh( const F& alpha ) { return std::tanh(alpha); }
+template<typename F,typename,typename>
+F Cosh( const F& alpha )
+{ return std::cosh(alpha); }
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Cosh( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    return
+      Complex<Real>
+      ( Cosh(realPart)*Cos(imagPart),
+        Sinh(realPart)*Sin(imagPart) );
+}
+
+template<typename F,typename,typename>
+F Sinh( const F& alpha )
+{ return std::sinh(alpha); }
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Sinh( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    return
+      Complex<Real>
+      ( Sinh(realPart)*Cos(imagPart),
+        Cosh(realPart)*Sin(imagPart) );
+}
+
+template<typename F,typename,typename>
+F Tanh( const F& alpha )
+{ return std::tanh(alpha); }
+
+template<typename F,typename,typename,typename>
+F Tanh( const F& alpha )
+{ return Sinh(alpha) / Cosh(alpha); }
 
 // Inverse hyperbolic
 // ------------------
-template<typename F,typename>
-F Acosh( const F& alpha ) { return std::acosh(alpha); }
-template<typename F,typename>
-F Asinh( const F& alpha ) { return std::asinh(alpha); }
-template<typename F,typename>
-F Atanh( const F& alpha ) { return std::atanh(alpha); }
+template<typename F,typename,typename>
+F Acosh( const F& alpha )
+{ return std::acosh(alpha); }
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Acosh( const Complex<Real>& alpha )
+{
+    return Real(2)*Log( Sqrt((alpha+Real(1))/2) + Sqrt((alpha-Real(1))/2) );
+}
+
+template<typename F,typename,typename>
+F Asinh( const F& alpha )
+{ return std::asinh(alpha); }
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Asinh( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    Complex<Real>
+      tau( (realPart-imagPart)*(realPart+imagPart) + Real(1),
+           Real(2)*realPart*imagPart );
+    tau = Sqrt( tau );
+    return Log( tau + alpha );
+}
+
+template<typename F,typename,typename>
+F Atanh( const F& alpha )
+{ return std::atanh(alpha); }
+
+template<typename Real,typename,typename,typename>
+Complex<Real> Atanh( const Complex<Real>& alpha )
+{
+    const Real realPart = alpha.real();
+    const Real imagPart = alpha.imag();
+    const Real realSquare = realPart*realPart;
+    const Real imagSquare = imagPart*imagPart;
+    const Real x = Real(1) - realSquare - imagSquare;
+
+    Real numerator = Real(1) + realPart;
+    Real denominator = Real(1) - realPart;
+    numerator = imagSquare + numerator*numerator; 
+    denominator = imagSquare + denominator*denominator;
+
+    return Complex<Real>
+      ( (Log(numerator)-Log(denominator))/Real(4), 
+        Atan2(Real(2)*imagPart,x)/Real(2) );
+}
 
 // Rounding
 // ========
@@ -249,7 +614,9 @@ F Atanh( const F& alpha ) { return std::atanh(alpha); }
 // Round to the nearest integer
 // ----------------------------
 template<typename Real,typename>
-Real Round( const Real& alpha ) { return std::round(alpha); }
+Real Round( const Real& alpha )
+{ return std::round(alpha); }
+
 template<typename Real,typename>
 Complex<Real> Round( const Complex<Real>& alpha )
 { return Complex<Real>(Round(alpha.real()),Round(alpha.imag())); }
@@ -257,7 +624,9 @@ Complex<Real> Round( const Complex<Real>& alpha )
 // Ceiling
 // -------
 template<typename Real,typename>
-Real Ceil( const Real& alpha ) { return std::ceil(alpha); }
+Real Ceil( const Real& alpha )
+{ return std::ceil(alpha); }
+
 template<typename Real,typename>
 Complex<Real> Ceil( const Complex<Real>& alpha )
 { return Complex<Real>(Ceil(alpha.real()),Ceil(alpha.imag())); }
@@ -265,7 +634,9 @@ Complex<Real> Ceil( const Complex<Real>& alpha )
 // Floor
 // -----
 template<typename Real,typename>
-Real Floor( const Real& alpha ) { return std::floor(alpha); }
+Real Floor( const Real& alpha )
+{ return std::floor(alpha); }
+
 template<typename Real,typename>
 Complex<Real> Floor( const Complex<Real>& alpha )
 { return Complex<Real>(Floor(alpha.real()),Floor(alpha.imag())); }
@@ -278,7 +649,7 @@ void UpdateScaledSquare
 {
     typedef Base<F> Real;
     Real alphaAbs = Abs(alpha);
-    if( alphaAbs != 0 )
+    if( alphaAbs != Real(0) )
     {
         if( alphaAbs <= scale )
         {
@@ -300,7 +671,7 @@ void DowndateScaledSquare
 {
     typedef Base<F> Real;
     Real alphaAbs = Abs(alpha);
-    if( alphaAbs != 0 )
+    if( alphaAbs != Real(0) )
     {
         DEBUG_ONLY(
           if( alphaAbs > scale )
@@ -313,6 +684,137 @@ void DowndateScaledSquare
               LogicError("Downdate produced a negative value");
         )
     }
+}
+
+// Solve a quadratic equation
+// ==========================
+
+// Carefully solve the '+' branch of a x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticPlus
+( const Real& a, const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+    // TODO(poulson): Avoid temporaries?
+
+    Real discrim = bNeg*bNeg - (4*a)*c; 
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( a == zero )
+    {
+        // a x^2 - bNeg x + c = 0 collapsed to bNeg x = c
+        x = c / bNeg;
+    }
+    else
+    {
+        if( bNeg >= zero )
+        {
+            // Use the standard quadratic equation formula
+            x = (bNeg + Sqrt(discrim)) / (2*a);
+        }
+        else
+        {
+            // Use the inverted quadratic equation formula
+            x = (2*c) / (bNeg - Sqrt(discrim));
+        }
+    }
+    return x;
+}
+
+// Carefully solve the '-' branch of a x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticMinus
+( const Real& a, const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+    // TODO(poulson): Avoid temporaries?
+
+    Real discrim = bNeg*bNeg - (4*a)*c; 
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( a == zero )
+    {
+        // a x^2 - bNeg x + c = 0 collapsed to bNeg x = c
+        x = c / bNeg;
+    }
+    else
+    {
+        if( bNeg <= zero )
+        {
+            // Use the standard quadratic equation formula
+            x = (bNeg - Sqrt(discrim)) / (2*a);
+        }
+        else
+        {
+            // Use the inverted quadratic equation formula
+            x = (2*c) / (bNeg + Sqrt(discrim));
+        }
+    }
+    return x;
+}
+
+// Carefully solve the '+' branch of x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticPlus
+( const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+
+    Real discrim = bNeg*bNeg - 4*c;
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( bNeg >= zero )
+    {
+        // Use the standard quadratic equation formula
+        x = (bNeg + Sqrt(discrim)) / 2;
+    }
+    else
+    {
+        // Use the inverted quadratic equation formula
+        x = (2*c) / (bNeg - Sqrt(discrim));
+    }
+
+    return x;
+}
+
+// Carefully solve the '-' branch of x^2 - bNeg x + c x = 0
+template<typename Real,typename>
+Real SolveQuadraticMinus
+( const Real& bNeg, const Real& c, FlipOrClip negativeFix )
+{
+    const Real zero(0);
+
+    Real discrim = bNeg*bNeg - 4*c;
+    if( negativeFix == CLIP_NEGATIVES )
+        discrim = Max( discrim, zero );
+    else
+        discrim = Abs( discrim );
+
+    Real x;
+    if( bNeg <= zero )
+    {
+        // Use the standard quadratic equation formula
+        x = (bNeg - Sqrt(discrim)) / 2;
+    }
+    else
+    {
+        // Use the inverted quadratic equation formula
+        x = (2*c) / (bNeg + Sqrt(discrim));
+    }
+
+    return x;
 }
 
 // Pi

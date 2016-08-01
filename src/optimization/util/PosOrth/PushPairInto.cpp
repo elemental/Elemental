@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace pos_orth {
@@ -18,15 +18,15 @@ void PushPairInto
   const Matrix<Real>& w,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
+    DEBUG_CSE
     const Int height = s.Height();
     const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
     for( Int i=0; i<height; ++i )
     {
-        if( w.Get(i,0) > wMaxNormLimit )
+        if( w(i) > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            z.Update( i, 0, Min(Real(1)/wMaxNormLimit,maxMod) );
+            z(i) += Min(Real(1)/wMaxNormLimit,maxMod);
         }
     }
 }
@@ -38,7 +38,7 @@ void PushPairInto
   const ElementalMatrix<Real>& wPre,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
+    DEBUG_CSE
     AssertSameGrids( sPre, zPre, wPre );
     const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
 
@@ -75,7 +75,7 @@ void PushPairInto
   const DistMultiVec<Real>& w,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::PushPairInto"))
+    DEBUG_CSE
     const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
     const int localHeight = s.LocalHeight();
     const Real* wBuf = w.LockedMatrix().LockedBuffer();
@@ -113,7 +113,7 @@ void PushPairInto
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace pos_orth
 } // namespace El

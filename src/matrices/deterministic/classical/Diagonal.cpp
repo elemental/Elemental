@@ -6,38 +6,40 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename S,typename T> 
 void Diagonal( Matrix<S>& D, const vector<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     const Int n = d.size();
     Zeros( D, n, n );
 
     for( Int j=0; j<n; ++j )
-        D.Set( j, j, d[j] );
+        D(j,j) = d[j];
 }
 
 template<typename S,typename T> 
 void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
     Zeros( D, n, n );
 
     for( Int j=0; j<n; ++j )
-        D.Set( j, j, d.Get(j,0) );
+        D(j,j) = d(j);
 }
 
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -52,7 +54,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -62,14 +64,14 @@ void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = D.GlobalCol(jLoc);
-        D.Set( j, j, d.Get(j,0) );
+        D.Set( j, j, d(j) );
     }
 }
 
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -90,21 +92,21 @@ void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 template<typename S,typename T>
 void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
     Zeros( D, n, n );
     D.Reserve( n );
     for( Int j=0; j<n; ++j )
-        D.QueueUpdate( j, j, d.Get(j,0) );
+        D.QueueUpdate( j, j, d(j) );
     D.ProcessQueues();
 }
 
 template<typename S,typename T>
 void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d )
 {
-    DEBUG_ONLY(CSE cse("Diagonal"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -146,6 +148,6 @@ void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

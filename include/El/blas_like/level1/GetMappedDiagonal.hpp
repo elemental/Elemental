@@ -18,7 +18,7 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
+    DEBUG_CSE
     const Int diagLength = A.DiagonalLength(offset);
     d.Resize( diagLength, 1 );
 
@@ -43,10 +43,8 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 { 
-    DEBUG_ONLY(
-      CSE cse("GetMappedDiagonal");
-      AssertSameGrids( A, dPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
@@ -91,7 +89,7 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();
@@ -101,7 +99,8 @@ void GetMappedDiagonal
     const Int jStart = Max( offset,0);
 
     const Int diagLength = El::DiagonalLength(m,n,offset);
-    Zeros( d, diagLength, 1 );
+    d.Resize( diagLength, 1 );
+    Zero( d );
     S* dBuf = d.Buffer();
 
     for( Int k=0; k<diagLength; ++k )
@@ -128,7 +127,7 @@ void GetMappedDiagonal
         function<S(T)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("GetMappedDiagonal"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();
@@ -140,7 +139,9 @@ void GetMappedDiagonal
         LogicError("DistSparseMatrix GetMappedDiagonal assumes offset=0");
 
     d.SetComm( A.Comm() );
-    Ones( d, El::DiagonalLength(m,n,offset), 1 );
+    d.Resize( El::DiagonalLength(m,n,offset), 1 );
+    Fill( d, S(1) );
+
     S* dBuf = d.Matrix().Buffer();
     const Int dLocalHeight = d.LocalHeight();
     for( Int iLoc=0; iLoc<dLocalHeight; ++iLoc )
@@ -158,6 +159,38 @@ void GetMappedDiagonal
             dBuf[iLoc] = func(0);
     }
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void GetMappedDiagonal \
+  ( const Matrix<T>& A, \
+          Matrix<T>& d, \
+          function<T(T)> func, \
+          Int offset ); \
+  EL_EXTERN template void GetMappedDiagonal \
+  ( const SparseMatrix<T>& A, \
+          Matrix<T>& d, \
+          function<T(T)> func, \
+          Int offset ); \
+  EL_EXTERN template void GetMappedDiagonal \
+  ( const DistSparseMatrix<T>& A, \
+          DistMultiVec<T>& d, \
+          function<T(T)> func, \
+          Int offset );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
 

@@ -29,16 +29,15 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F> 
-inline void
-LLHF
+void LLHF
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLHF");
       if( H.Width() != A.Height() )
           LogicError("H's width must match A's height");
     )
@@ -76,16 +75,15 @@ LLHF
 }
 
 template<typename F> 
-inline void
-LLHF
+void LLHF
 ( Conjugation conjugation,
   Int offset, 
   const ElementalMatrix<F>& HPre,
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLHF");
       if( HPre.Width() != APre.Height() )
           LogicError("H's width must match A's height");
       AssertSameGrids( HPre, tPre, APre );

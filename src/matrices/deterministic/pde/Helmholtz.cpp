@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -16,7 +18,7 @@ namespace El {
 template<typename F> 
 void Helmholtz( Matrix<F>& H, Int n, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> R;
     Zeros( H, n, n );
 
@@ -25,18 +27,18 @@ void Helmholtz( Matrix<F>& H, Int n, F shift )
     const F mainTerm = 2*hInvSquared - shift;
     for( Int i=0; i<n; ++i )
     {
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( i != 0 )
-            H.Set( i, i-1, -hInvSquared );
+            H(i,i-1) = -hInvSquared;
         if( i != n-1 )
-            H.Set( i, i+1, -hInvSquared );
+            H(i,i+1) = -hInvSquared;
     }
 }
 
 template<typename F>
 void Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Zeros( H, n, n );
 
@@ -60,7 +62,7 @@ void Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
 template<typename F>
 void Helmholtz( SparseMatrix<F>& H, Int n, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Zeros( H, n, n );
 
@@ -83,7 +85,7 @@ void Helmholtz( SparseMatrix<F>& H, Int n, F shift )
 template<typename F>
 void Helmholtz( DistSparseMatrix<F>& H, Int n, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Zeros( H, n, n );
 
@@ -111,7 +113,7 @@ void Helmholtz( DistSparseMatrix<F>& H, Int n, F shift )
 template<typename F> 
 void Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
@@ -126,22 +128,22 @@ void Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
         const Int x = i % nx;
         const Int y = i/nx;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -hxInvSquared );
+            H(i,i-1) = -hxInvSquared;
         if( x != nx-1 )
-            H.Set( i, i+1, -hxInvSquared );
+            H(i,i+1) = -hxInvSquared;
         if( y != 0 )
-            H.Set( i, i-nx, -hyInvSquared );
+            H(i,i-nx) = -hyInvSquared;
         if( y != ny-1 )
-            H.Set( i, i+nx, -hyInvSquared );
+            H(i,i+nx) = -hyInvSquared;
     }
 }
 
 template<typename F>
 void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
@@ -174,7 +176,7 @@ void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
 template<typename F>
 void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
@@ -207,7 +209,7 @@ void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, F shift )
 template<typename F>
 void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny;
     Zeros( H, n, n );
@@ -245,7 +247,7 @@ void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, F shift )
 template<typename F> 
 void Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
@@ -263,26 +265,26 @@ void Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
         const Int y = (i/nx) % ny;
         const Int z = i/(nx*ny);
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -hxInvSquared );
+            H(i,i-1) = -hxInvSquared;
         if( x != nx-1 )
-            H.Set( i, i+1, -hxInvSquared );
+            H(i,i+1) = -hxInvSquared;
         if( y != 0 )
-            H.Set( i, i-nx, -hyInvSquared );
+            H(i,i-nx) = -hyInvSquared;
         if( y != ny-1 )
-            H.Set( i, i+nx, -hyInvSquared );
+            H(i,i+nx) = -hyInvSquared;
         if( z != 0 )
-            H.Set( i, i-nx*ny, -hzInvSquared );
+            H(i,i-nx*ny) = -hzInvSquared;
         if( z != nz-1 )
-            H.Set( i, i+nx*ny, -hzInvSquared );
+            H(i,i+nx*ny) = -hzInvSquared;
     }
 }
 
 template<typename F>
 void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
@@ -322,7 +324,7 @@ void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 template<typename F> 
 void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
@@ -362,7 +364,7 @@ void Helmholtz( SparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 template<typename F> 
 void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
-    DEBUG_ONLY(CSE cse("Helmholtz"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
@@ -432,6 +434,6 @@ void Helmholtz( DistSparseMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

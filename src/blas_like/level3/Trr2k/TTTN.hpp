@@ -20,11 +20,11 @@ void Trr2kTTTN
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
-                 ElementalMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+                 AbstractDistMatrix<T>& E )
 {
-    DEBUG_ONLY(CSE cse("trr2k::Trr2kTTTN"))
+    DEBUG_CSE
     Trr2kTNTT( uplo, orientC, orientA, orientB, beta, C, D, alpha, A, B, E );
 }
 

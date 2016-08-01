@@ -32,18 +32,19 @@ set(CMAKE_Fortran_COMPILER "${GCC_ROOT}/bin/${GCC_NAME}-gfortran")
 set(MPI_C_COMPILER   "${CLANG_MPI_ROOT}/bin/mpiclang")
 set(MPI_CXX_COMPILER "${CLANG_MPI_ROOT}/bin/mpiclang++11")
 
-set(MPI_C_COMPILE_FLAGS    "")
-set(MPI_CXX_COMPILE_FLAGS  "")
-set(MPI_C_INCLUDE_PATH     "${MPI_ROOT}/include")
-set(MPI_CXX_INCLUDE_PATH   "${MPI_ROOT}/include")
-set(MPI_LINK_FLAGS       "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
+set(MPI_C_COMPILE_FLAGS "")
+set(MPI_CXX_COMPILE_FLAGS "")
+set(MPI_C_INCLUDE_PATH "${MPI_ROOT}/include")
+set(MPI_CXX_INCLUDE_PATH "${MPI_ROOT}/include")
+set(MPI_C_LINK_FLAGS "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
+set(MPI_CXX_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
 
 # V1R2M0
-#set(MPI_C_LIBRARIES       "-lmpich -lopa -lmpl -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
-#set(MPI_CXX_LIBRARIES     "-lcxxmpich ${MPI_C_LIBRARIES}")
+#set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
+#set(MPI_CXX_LIBRARIES "-lcxxmpich ${MPI_C_LIBRARIES}")
 # V1R2M1
-set(MPI_C_LIBRARIES       "${MPI_LINK_FLAGS}   -lmpich-xl -lopa-xl -lmpl-xl -lpami-gcc -lSPI -lSPI_cnk -lrt -lpthread -lstdc++ -lpthread")
-set(MPI_CXX_LIBRARIES     "${MPI_LINK_FLAGS} -lmpichcxx-xl ${MPI_C_LIBRARIES}")
+set(MPI_C_LIBRARIES "${MPI_C_LINK_FLAGS}   -lmpich-xl -lopa-xl -lmpl-xl -lpami-gcc -lSPI -lSPI_cnk -lrt -lpthread -lstdc++ -lpthread")
+set(MPI_CXX_LIBRARIES "${MPI_CXX_LINK_FLAGS} -lmpichcxx-xl ${MPI_C_LIBRARIES}")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
   set(CXX_FLAGS "-g")

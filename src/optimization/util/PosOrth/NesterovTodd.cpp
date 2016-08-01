@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace pos_orth {
@@ -23,7 +23,7 @@ void NesterovTodd
   const Matrix<Real>& z,
         Matrix<Real>& w )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
+    DEBUG_CSE
     const Int k = s.Height();
     w.Resize( k, 1 );
     const Real* sBuf = s.LockedBuffer();
@@ -40,7 +40,7 @@ void NesterovTodd
   const ElementalMatrix<Real>& zPre,
         ElementalMatrix<Real>& wPre )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
+    DEBUG_CSE
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -71,7 +71,7 @@ void NesterovTodd
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::NesterovTodd"))
+    DEBUG_CSE
     w.SetComm( s.Comm() );
     w.Resize( s.Height(), 1 );
     const Real* sBuf = s.LockedMatrix().LockedBuffer();
@@ -103,7 +103,7 @@ void NesterovTodd
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace pos_orth
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "./NNLS/SOCP.hpp"
 #include "./NNLS/QP.hpp"
 #include "./NNLS/ADMM.hpp"
@@ -50,7 +50,7 @@ void NNLS
         Matrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NNLS"))
+    DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -66,7 +66,7 @@ void NNLS
         ElementalMatrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NNLS"))
+    DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -82,7 +82,7 @@ void NNLS
         Matrix<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NNLS"))
+    DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -98,7 +98,7 @@ void NNLS
         DistMultiVec<Real>& X, 
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("NNLS"))
+    DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -135,6 +135,6 @@ void NNLS
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

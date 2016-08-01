@@ -146,6 +146,12 @@ void AxpyTrapezoid
 ( UpperOrLower uplo, S alpha, 
   const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, Int offset=0 );
 
+template<typename T>
+void LocalAxpyTrapezoid
+( UpperOrLower uplo, T alpha,
+  const AbstractDistMatrix<T>& X,
+        AbstractDistMatrix<T>& Y, Int offset=0 );
+
 // Broadcast
 // =========
 template<typename T>
@@ -636,15 +642,15 @@ void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const Matrix<TDiag>& d, Matrix<T>& A );
 
-template<typename TDiag,typename T,Dist U,Dist V>
+template<typename TDiag,typename T,Dist U,Dist V,DistWrap wrapType=ELEMENT>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<TDiag>& d, DistMatrix<T,U,V>& A );
+  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V,wrapType>& A );
 
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<TDiag>& d, ElementalMatrix<T>& A );
+  const AbstractDistMatrix<TDiag>& d, AbstractDistMatrix<T>& A );
 
 template<typename TDiag,typename T>
 void DiagonalScale
@@ -1610,6 +1616,47 @@ template<typename Real,typename S,typename=EnableIf<IsReal<Real>>>
 void Scale
 ( S alpha, AbstractDistMatrix<Real>& AReal, AbstractDistMatrix<Real>& AImag );
 
+template<typename F>
+void SafeScale
+( Base<F> numerator, Base<F> denominator, Matrix<F>& A );
+template<typename F>
+void SafeScale
+( Base<F> numerator, Base<F> denominator, AbstractDistMatrix<F>& A );
+template<typename F>
+void SafeScale
+( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A );
+template<typename F>
+void SafeScale
+( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A );
+template<typename F>
+void SafeScale
+( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A );
+
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, Matrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, AbstractDistMatrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, SparseMatrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, DistSparseMatrix<F>& A, Int offset=0 );
+template<typename F>
+void SafeScaleTrapezoid
+( Base<F> numerator, Base<F> denominator,
+  UpperOrLower uplo, DistMultiVec<F>& A, Int offset=0 );
+
+template<typename F>
+void SafeScaleHermitianTridiag
+( Base<F> numerator, Base<F> denominator, Matrix<Base<F>>& d, Matrix<F>& e );
+
 // ScaleTrapezoid
 // ==============
 template<typename T,typename S>
@@ -1897,6 +1944,31 @@ template<typename T>
 void Zero( DistSparseMatrix<T>& A, bool clearMemory=true );
 template<typename T>
 void Zero( DistMultiVec<T>& A );
+
+// Givens rotations
+// ================
+//
+// Given phi and gamma, compute a Givens rotation such that
+//
+//  |       c   s | |   phi |  = | rho |, where c^2 + |s|^2 = 1
+//  | -conj(s)  c | | gamma |    |  0  |
+//
+// This routine uses the stable approach suggested by Kahan and Demmel and
+// returns the value rho.
+//
+
+template<typename Real>
+Real Givens
+( const Real& phi,
+  const Real& gamma,
+        Real& c,
+        Real& s );
+template<typename Real>
+Complex<Real> Givens
+( const Complex<Real>& phi,
+  const Complex<Real>& gamma,
+  Real& c,
+  Complex<Real>& s );
 
 } // namespace El
 

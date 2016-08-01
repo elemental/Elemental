@@ -14,14 +14,13 @@ namespace trsm {
 //   X := X triu(U)^-1, and
 //   X := X triuu(U)^-1
 template<typename F>
-inline void
-RUN
+void RUN
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("trsm::RUN"))
+    DEBUG_CSE
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();

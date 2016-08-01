@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename F> 
 void Lehmer( Matrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Lehmer"))
+    DEBUG_CSE
     L.Resize( n, n );
     auto lehmerFill = 
       []( Int i, Int j ) -> F
@@ -25,7 +27,7 @@ void Lehmer( Matrix<F>& L, Int n )
 template<typename F>
 void Lehmer( AbstractDistMatrix<F>& L, Int n )
 {
-    DEBUG_ONLY(CSE cse("Lehmer"))
+    DEBUG_CSE
     L.Resize( n, n );
     auto lehmerFill = 
       []( Int i, Int j ) -> F
@@ -43,6 +45,6 @@ void Lehmer( AbstractDistMatrix<F>& L, Int n )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

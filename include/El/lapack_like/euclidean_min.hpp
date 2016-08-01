@@ -9,7 +9,7 @@
 #ifndef EL_EUCLIDEANMIN_HPP
 #define EL_EUCLIDEANMIN_HPP
 
-#include "El/lapack_like/factor.hpp"
+#include <El/lapack_like/factor.hpp>
 
 namespace El {
 
@@ -49,6 +49,16 @@ struct LeastSquaresCtrl
     //       estimation of the minimum singular value via Lanczos on A^H A
     //       failed (the literature agrees), I fell back to this default value.
     Real alpha=Pow(limits::Epsilon<Real>(),Real(0.25));
+
+    // Temporary and permanent regularization for the first, positive block of
+    // the augmented system
+    Real reg0Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg0Perm = Pow(limits::Epsilon<Real>(),Real(0.4));
+
+    // Temporary and permanent regularization for the second, negative block of
+    // the augmented system
+    Real reg1Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.4));
 
     RegSolveCtrl<Real> solveCtrl;
     bool equilibrate=true;

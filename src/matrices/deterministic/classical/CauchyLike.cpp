@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -16,7 +18,7 @@ void CauchyLike
   const vector<F2>& r, const vector<F2>& s,
   const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_ONLY(CSE cse("CauchyLike"))
+    DEBUG_CSE
     const Int m = r.size();
     const Int n = s.size();
     if( x.size() != (Unsigned)m )
@@ -46,7 +48,7 @@ void CauchyLike
   const vector<F2>& r, const vector<F2>& s, 
   const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_ONLY(CSE cse("CauchyLike"))
+    DEBUG_CSE
     const Int m = r.size();
     const Int n = s.size();
     if( x.size() != (Unsigned)m )
@@ -94,6 +96,6 @@ void CauchyLike
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

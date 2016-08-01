@@ -15,7 +15,7 @@ template<typename T>
 void ConjugateSubmatrix
 ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("ConjugateSubmatrix"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -35,7 +35,7 @@ template<typename T>
 void ConjugateSubmatrix
 ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("ConjugateSubmatrix"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -69,9 +69,9 @@ void ConjugateSubmatrix
 #endif
 
 #define PROTO(T) \
-  template void ConjugateSubmatrix \
+  EL_EXTERN template void ConjugateSubmatrix \
   ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J ); \
-  template void ConjugateSubmatrix \
+  EL_EXTERN template void ConjugateSubmatrix \
   ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 
 #define EL_ENABLE_DOUBLEDOUBLE
@@ -79,7 +79,7 @@ void ConjugateSubmatrix
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

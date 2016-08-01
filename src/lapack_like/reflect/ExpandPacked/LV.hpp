@@ -32,15 +32,15 @@ namespace expand_packed_reflectors {
 //
 
 template<typename F>
-inline void
+void
 LV
 ( Conjugation conjugation,
   Int offset,
         Matrix<F>& H,
   const Matrix<F>& t )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("expand_packed_reflectors::LV");
       if( offset > 0 || offset < -H.Height() )
           LogicError("Transforms out of bounds");
       if( t.Height() != H.DiagonalLength( offset ) )
@@ -117,15 +117,15 @@ LV
 }
 
 template<typename F>
-inline void
+void
 LV
 ( Conjugation conjugation,
   Int offset, 
         ElementalMatrix<F>& HPre,
   const ElementalMatrix<F>& tPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("expand_packed_reflectors::LV");
       AssertSameGrids( HPre, tPre );
       if( offset > 0 || offset < -HPre.Height() )
           LogicError("Transforms out of bounds");

@@ -29,7 +29,7 @@ template<typename F>
 inline void 
 Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
 {
-    DEBUG_ONLY(CSE cse("ldl::Process"))
+    DEBUG_CSE
     const int updateSize = info.lowerStruct.size();
     auto& FBR = front.workDense;
     FBR.Empty();
@@ -130,11 +130,11 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
                 for( int iChild=jChild; iChild<childUSize; ++iChild )
                 {
                     const int i = info.childRelInds[c][iChild];
-                    const F value = childU.Get(iChild,jChild);
+                    const F value = childU(iChild,jChild);
                     if( j < info.size )
-                        FL.Update( i, j, value );
+                        FL(i,j) += value;
                     else
-                        FBR.Update( i-info.size, j-info.size, value );
+                        FBR(i-info.size,j-info.size) += value;
                 }
             }
             childU.Empty();
@@ -148,7 +148,7 @@ inline void
 Process
 ( const DistNodeInfo& info, DistFront<F>& front, LDLFrontType factorType )
 {
-    DEBUG_ONLY(CSE cse("ldl::Process"))
+    DEBUG_CSE
 
     // Switch to a sequential algorithm if possible
     if( front.duplicate != nullptr )

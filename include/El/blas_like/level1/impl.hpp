@@ -11,8 +11,10 @@
 
 #include <El/blas_like/level1/AllReduce.hpp>
 #include <El/blas_like/level1/Axpy.hpp>
+#include <El/blas_like/level1/AxpyContract.hpp>
 #include <El/blas_like/level1/AxpyTrapezoid.hpp>
 #include <El/blas_like/level1/Broadcast.hpp>
+#include <El/blas_like/level1/Concatenate.hpp>
 #include <El/blas_like/level1/Conjugate.hpp>
 #include <El/blas_like/level1/ConjugateDiagonal.hpp>
 #include <El/blas_like/level1/ConjugateSubmatrix.hpp>
@@ -30,10 +32,12 @@
 #include <El/blas_like/level1/GetDiagonal.hpp>
 #include <El/blas_like/level1/GetMappedDiagonal.hpp>
 #include <El/blas_like/level1/GetSubmatrix.hpp>
+#include <El/blas_like/level1/Givens.hpp>
 #include <El/blas_like/level1/Hadamard.hpp>
 #include <El/blas_like/level1/ImagPart.hpp>
 #include <El/blas_like/level1/IndexDependentFill.hpp>
 #include <El/blas_like/level1/IndexDependentMap.hpp>
+#include <El/blas_like/level1/Kronecker.hpp>
 #include <El/blas_like/level1/MakeReal.hpp>
 #include <El/blas_like/level1/MakeDiagonalReal.hpp>
 #include <El/blas_like/level1/MakeSubmatrixReal.hpp>
@@ -43,10 +47,14 @@
 #include <El/blas_like/level1/QuasiDiagonalScale.hpp>
 #include <El/blas_like/level1/QuasiDiagonalSolve.hpp>
 #include <El/blas_like/level1/RealPart.hpp>
+#include <El/blas_like/level1/Reshape.hpp>
+#include <El/blas_like/level1/Rotate.hpp>
 #include <El/blas_like/level1/Round.hpp>
+#include <El/blas_like/level1/SafeScale.hpp>
 #include <El/blas_like/level1/Scale.hpp>
 #include <El/blas_like/level1/ScaleTrapezoid.hpp>
 #include <El/blas_like/level1/SetDiagonal.hpp>
+#include <El/blas_like/level1/SetSubmatrix.hpp>
 #include <El/blas_like/level1/Shift.hpp>
 #include <El/blas_like/level1/ShiftDiagonal.hpp>
 #include <El/blas_like/level1/Transpose.hpp>

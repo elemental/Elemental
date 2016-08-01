@@ -64,9 +64,72 @@ Int DiagonalLength( Int height, Int width, Int offset=0 ) EL_NO_EXCEPT;
 
 Int GCD( Int a, Int b ); 
 Int GCD_( Int a, Int b ) EL_NO_EXCEPT; 
+// TODO: ExtendedGCD
+// TODO: LCM
+// TODO: InvertMod
+
+#ifdef EL_HAVE_MPC
+BigInt GCD( const BigInt& a, const BigInt& b );
+// A version which acts in-place to avoid an unnecessary allocation
+void GCD( const BigInt& a, const BigInt& b, BigInt& gcd );
+
+// Set gcd to be GCD(a,b) and (s,t) such that a*s + b*t = gcd.
+void ExtendedGCD
+( const BigInt& a, const BigInt& b, BigInt& gcd, BigInt& s, BigInt& t );
+
+BigInt LCM( const BigInt& a, const BigInt& b );
+void LCM( const BigInt& a, const BigInt& b, BigInt& lcm );
+
+BigInt InvertMod( const BigInt& a, const BigInt& n );
+void InvertMod( const BigInt& a, const BigInt& n, BigInt& aInv );
+#endif
+
+template<typename T,typename=EnableIf<IsIntegral<T>>>
+void SqrtRem( const T& alpha, T& alphaSqrt, T& remainder );
+#ifdef EL_HAVE_MPC
+template<> void SqrtRem
+( const BigInt& alpha, BigInt& alphaSqrt, BigInt& remainder );
+#endif
+
+template<typename T,typename=EnableIf<IsIntegral<T>>>
+bool IsPerfectSquare( const T& alpha );
+#ifdef EL_HAVE_MPC
+template<> bool IsPerfectSquare( const BigInt& alpha );
+#endif
 
 Unsigned FlooredLog2( Unsigned n );
 bool PowerOfTwo( Unsigned n );
+
+#ifdef EL_HAVE_MPC
+BigInt PowMod
+( const BigInt& base,
+  const BigInt& exp,
+  const BigInt& mod );
+void PowMod
+( const BigInt& base,
+  const BigInt& exp,
+  const BigInt& mod,
+        BigInt& result );
+
+BigInt PowMod
+( const BigInt& base,
+        unsigned long exp,
+  const BigInt& mod );
+void PowMod
+( const BigInt& base,
+        unsigned long exp,
+  const BigInt& mod,
+        BigInt& result );
+BigInt PowMod
+( const BigInt& base,
+        unsigned long long exp,
+  const BigInt& mod );
+void PowMod
+( const BigInt& base,
+        unsigned long long exp,
+  const BigInt& mod,
+        BigInt& result );
+#endif
 
 } // namespace El
 

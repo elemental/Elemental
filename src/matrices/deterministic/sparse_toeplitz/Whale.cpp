@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -19,7 +19,7 @@ namespace El {
 template<typename Real> 
 void Whale( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Whale"))
+    DEBUG_CSE
     if( n < 5 )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
@@ -37,7 +37,7 @@ void Whale( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Whale"))
+    DEBUG_CSE
     if( n < 5 )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
@@ -59,6 +59,6 @@ void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -15,11 +15,10 @@ namespace twotrmm {
 // The only reason that a field is required is for the existence of 1/2, which
 // is an artifact of this algorithm...
 template<typename F> 
-inline void
-UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::UVar4");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( U.Height() != U.Width() )
@@ -51,7 +50,8 @@ UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         auto U11 = U( ind1, ind1 );
 
         // Y01 := U01 A11
-        Zeros( Y01, k, nb );
+        Y01.Resize( k, nb );
+        Zero( Y01 );
         Hemm( RIGHT, UPPER, F(1), A11, U01, F(0), Y01 );
 
         // A01 := A01 + 1/2 Y01
@@ -78,14 +78,13 @@ UVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 }
 
 template<typename F> 
-inline void
-UVar4
+void UVar4
 ( UnitOrNonUnit diag, 
-        ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& UPre )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& UPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::UVar4");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( UPre.Height() != UPre.Width() )
@@ -133,7 +132,8 @@ UVar4
         U01_VC_STAR.AlignWith( A00 );
         U01_VC_STAR = U01;
         Y01_VC_STAR.AlignWith( A01 );
-        Zeros( Y01_VC_STAR, k, nb );
+        Y01_VC_STAR.Resize( k, nb );
+        Zero( Y01_VC_STAR );
         Hemm
         ( RIGHT, UPPER, 
           F(1), A11_STAR_STAR.LockedMatrix(), U01_VC_STAR.LockedMatrix(), 

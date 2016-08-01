@@ -67,6 +67,12 @@ if(MATH_LIBS)
   if(EL_HAVE_MKL_DCSRMV)
     set(EL_HAVE_MKL TRUE)
     message(STATUS "Using Intel MKL via ${MATH_LIBS}")
+    El_check_function_exists(dgemmt EL_HAVE_DGEMMT)
+    El_check_function_exists(dgemmt_ EL_HAVE_DGEMMT_POST)
+    if(EL_HAVE_DGEMMT OR EL_HAVE_DGEMMT_POST)
+      # The potential underscore suffix will be taken care of elsewhere
+      set(EL_HAVE_MKL_GEMMT TRUE)
+    endif()
   endif()
   unset(CMAKE_REQUIRED_LIBRARIES)
 # NOTE:
@@ -101,13 +107,20 @@ elseif(NOT EL_DISABLE_MKL AND
     El_check_function_exists(mkl_dcsrmv EL_HAVE_MKL_DCSRMV)
     if((EL_HAVE_DPOTRF_MKL OR EL_HAVE_DPOTRF_POST_MKL) AND EL_HAVE_MKL_DCSRMV)
       set(EL_FOUND_MKL TRUE)
+      El_check_function_exists(dgemmt EL_HAVE_DGEMMT)
+      El_check_function_exists(dgemmt_ EL_HAVE_DGEMMT_POST)
+      if(EL_HAVE_DGEMMT OR EL_HAVE_DGEMMT_POST)
+        # The potential underscore suffix will be taken care of elsewhere
+        set(EL_HAVE_MKL_GEMMT TRUE)
+      endif()
     endif()
     unset(CMAKE_REQUIRED_FLAGS)
   else()
     set(MKL_LIBS "-mkl=cluster")
     message(STATUS "Attempting to link MKL using ${MKL_LIBS}")
     set(CMAKE_REQUIRED_FLAGS "${MKL_LIBS} ${MPI_C_COMPILE_FLAGS}")
-    set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+    set(CMAKE_REQUIRED_LINKER_FLAGS
+      "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
     set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
     set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
     El_check_function_exists(dpotrf  EL_HAVE_DPOTRF_MKL_CLUSTER)
@@ -116,6 +129,12 @@ elseif(NOT EL_DISABLE_MKL AND
     if((EL_HAVE_DPOTRF_MKL_CLUSTER OR EL_HAVE_DPOTRF_POST_MKL_CLUSTER) 
        AND EL_HAVE_MKL_DCSRMV_CLUSTER)
       set(EL_FOUND_MKL TRUE)
+      El_check_function_exists(dgemmt EL_HAVE_DGEMMT)
+      El_check_function_exists(dgemmt_ EL_HAVE_DGEMMT_POST)
+      if(EL_HAVE_DGEMMT OR EL_HAVE_DGEMMT_POST)
+        # The potential underscore suffix will be taken care of elsewhere
+        set(EL_HAVE_MKL_GEMMT TRUE)
+      endif()
     endif()
     unset(CMAKE_REQUIRED_FLAGS)
     unset(CMAKE_REQUIRED_LINKER_FLAGS)
@@ -132,6 +151,12 @@ elseif(NOT EL_DISABLE_MKL AND
       if((EL_HAVE_DPOTRF_MKL_SEQ OR EL_HAVE_DPOTRF_POST_MKL_SEQ) 
          AND EL_HAVE_MKL_DCSRMV_SEQ)
         set(EL_FOUND_MKL TRUE)
+        El_check_function_exists(dgemmt EL_HAVE_DGEMMT)
+        El_check_function_exists(dgemmt_ EL_HAVE_DGEMMT_POST)
+        if(EL_HAVE_DGEMMT OR EL_HAVE_DGEMMT_POST)
+          # The potential underscore suffix will be taken care of elsewhere
+          set(EL_HAVE_MKL_GEMMT TRUE)
+        endif()
       endif()
       unset(CMAKE_REQUIRED_FLAGS)
     endif()
@@ -279,7 +304,8 @@ endif()
 # ========================================================
 if(NOT EL_BUILT_BLIS_LAPACK AND NOT EL_BUILT_OPENBLAS)
   set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
-  set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+  set(CMAKE_REQUIRED_LINKER_FLAGS
+    "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
   set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
   set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS_AT_CONFIG} ${MPI_C_LIBRARIES})
   # Check BLAS
@@ -385,7 +411,7 @@ if(NOT EL_DISABLE_QD)
     set(CMAKE_REQUIRED_INCLUDES ${QD_INCLUDES})
     set(QD_CODE
       "#include <iostream>
-       #include \"qd/qd_real.h\"
+       #include <qd/qd_real.h>
        int main( int argc, char* argv[] )
        {
            double a1=1., a2=2., b1=3., b2=4.;
@@ -403,6 +429,7 @@ if(NOT EL_DISABLE_QD)
     unset(CMAKE_REQUIRED_INCLUDES)
   endif()
   if(EL_HAVE_QD)
+    set(EL_HAVE_QD TRUE) # Switch from '1' to 'TRUE' for Make
     list(APPEND MATH_LIBS ${QD_LIBRARIES})
     list(APPEND MATH_LIBS_AT_CONFIG ${QD_LIBRARIES})
     message(STATUS "Including ${QD_INCLUDES} to add support for QD")
@@ -421,7 +448,7 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
     set(CMAKE_REQUIRED_LIBRARIES ${GMP_LIBRARIES})
     set(CMAKE_REQUIRED_INCLUDES ${GMP_INCLUDES})
     set(GMP_CODE
-      "#include \"gmp.h\"
+      "#include <gmp.h>
        int main( int argc, char* argv[] )
        {
            gmp_randstate_t randState;
@@ -445,7 +472,7 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
       set(CMAKE_REQUIRED_LIBRARIES ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
       set(CMAKE_REQUIRED_INCLUDES ${MPFR_INCLUDES} ${GMP_INCLUDES})
       set(MPFR_CODE
-        "#include \"mpfr.h\"
+        "#include <mpfr.h>
          int main( int argc, char* argv[] )
          {
              mpfr_t a;
@@ -477,28 +504,29 @@ if(EL_HAVE_MPI_LONG_LONG AND NOT EL_DISABLE_MPFR)
       set(CMAKE_REQUIRED_INCLUDES
         ${MPC_INCLUDES} ${MPFR_INCLUDES} ${GMP_INCLUDES})
       set(MPC_CODE
-        "#include \"mpc.h\" 
-        int main( int argc, char* argv[] )
-        {
-            mpc_t a;
-            mpfr_prec_t prec = 256;
-            mpc_init2( a, prec );
-            
-            /* Also test that GMP links */
-            gmp_randstate_t randState;
-            gmp_randinit_default( randState );
-            const long seed = 1024;
-            gmp_randseed_ui( randState, seed );
-            
-            return 0;
-        }")
+        "#include <mpc.h>
+         int main( int argc, char* argv[] )
+         {
+             mpc_t a;
+             mpfr_prec_t prec = 256;
+             mpc_init2( a, prec );
+              
+             /* Also test that GMP links */
+             gmp_randstate_t randState;
+             gmp_randinit_default( randState );
+             const long seed = 1024;
+             gmp_randseed_ui( randState, seed );
+              
+             return 0;
+         }")
       check_cxx_source_compiles("${MPC_CODE}" EL_HAVE_MPC)
       if(EL_HAVE_MPC)
+        set(EL_HAVE_MPC TRUE) # Switch from '1' to 'TRUE' for Make
         list(APPEND MATH_LIBS
           ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
         list(APPEND MATH_LIBS_AT_CONFIG
           ${MPC_LIBRARIES} ${MPFR_LIBRARIES} ${GMP_LIBRARIES})
-        message(STATUS "Including ${MPFR_INCLUDES}, ${MPC_INCLUDES}, and ${GMP_INCLUDES} to add support for GMP, MPFR, and MPC")
+        message(STATUS "Including ${GMP_INCLUDES}, ${MPFR_INCLUDES}, and ${MPC_INCLUDES} to add support for GMP, MPFR, and MPC")
         include_directories(${GMP_INCLUDES} ${MPFR_INCLUDES} ${MPC_INCLUDES})
       else()
         message(WARNING "Found MPC but could not successfully compile with it")

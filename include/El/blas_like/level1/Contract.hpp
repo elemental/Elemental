@@ -16,7 +16,7 @@ void Contract
 ( const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Contract"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
@@ -68,7 +68,7 @@ void Contract
 ( const BlockMatrix<T>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Contract"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
@@ -140,7 +140,7 @@ void Contract
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

@@ -16,7 +16,7 @@ template<typename T>
 inline void
 Binary( const Matrix<T>& A, string basename="matrix" )
 {
-    DEBUG_ONLY(CSE cse("write::Binary"))
+    DEBUG_CSE
     
     string filename = basename + "." + FileExtension(BINARY);
     ofstream file( filename.c_str(), std::ios::binary );

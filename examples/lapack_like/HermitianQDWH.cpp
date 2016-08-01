@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -22,6 +22,7 @@ main( int argc, char* argv[] )
     {
         const Int n = Input("--size","size of Hermitian matrix",100);
         const bool colPiv = Input("--colPiv","QR with col pivoting?",false);
+        const Int maxIts = Input("--maxIts","maximum QDWH iterations",20);
         ProcessInput();
         PrintInputReport();
 
@@ -34,15 +35,22 @@ main( int argc, char* argv[] )
         Q = A;
         PolarCtrl ctrl;
         ctrl.qdwh = true;
-        ctrl.colPiv = colPiv;
+        ctrl.qdwhCtrl.colPiv = colPiv;
+        ctrl.qdwhCtrl.maxIts = maxIts;
         Timer timer;
         if( mpi::Rank() == 0 )
             timer.Start();
-        HermitianPolar( LOWER, Q, ctrl );
+        auto info = HermitianPolar( LOWER, Q, ctrl );
         if( mpi::Rank() == 0 )
             timer.Stop();
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
+        if( mpi::Rank() == 0 )
+        {
+            Output("Total QDWH iterations: ",info.qdwhInfo.numIts);
+            Output("  QR iterations:       ",info.qdwhInfo.numQRIts);
+            Output("  Cholesky iterations: ",info.qdwhInfo.numCholIts);
+        }
 
         // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
@@ -55,8 +63,7 @@ main( int argc, char* argv[] )
         {
             Output("HermitianQDWH time: ",timer.Total()," secs");
             Output
-            (ctrl.numIts," iterations of QDWH\n",
-             "||A - QP||_F / ||A||_F = ",frobQDWH/frobA,"\n",
+            ("||A - QP||_F / ||A||_F = ",frobQDWH/frobA,"\n",
              "||I - QQ^H||_F / ||A||_F = ",frobQDWHOrthog/frobA,"\n");
         }
     }

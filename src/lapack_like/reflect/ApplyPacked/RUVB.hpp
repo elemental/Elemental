@@ -30,7 +30,7 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F> 
-inline void
+void
 RUVB
 ( Conjugation conjugation,
   Int offset, 
@@ -38,8 +38,8 @@ RUVB
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RUVB");
       if( A.Width() != H.Height() )
           LogicError("A's width must match H's height");
     )
@@ -79,7 +79,7 @@ RUVB
 }
 
 template<typename F> 
-inline void
+void
 RUVB
 ( Conjugation conjugation,
   Int offset, 
@@ -87,8 +87,8 @@ RUVB
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RUVB");
       if( APre.Width() != HPre.Height() )
           LogicError("A's width must match H's height");
       AssertSameGrids( HPre, tPre, APre );

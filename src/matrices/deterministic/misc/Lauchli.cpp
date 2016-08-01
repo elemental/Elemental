@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T>
 void Lauchli( Matrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CSE cse("Lauchli"))
+    DEBUG_CSE
     Zeros( A, n+1, n );
 
     // Set the first row to all ones
@@ -27,7 +29,7 @@ void Lauchli( Matrix<T>& A, Int n, T mu )
 template<typename T>
 void Lauchli( ElementalMatrix<T>& A, Int n, T mu )
 {
-    DEBUG_ONLY(CSE cse("Lauchli"))
+    DEBUG_CSE
     Zeros( A, n+1, n );
 
     // Set the first row to all ones
@@ -48,6 +50,6 @@ void Lauchli( ElementalMatrix<T>& A, Int n, T mu )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

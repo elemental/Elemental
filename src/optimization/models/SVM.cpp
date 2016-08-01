@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "./SVM/ADMM.hpp"
 #include "./SVM/IPM.hpp"
 
@@ -20,7 +20,7 @@ void SVM
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVM"))
+    DEBUG_CSE
     if( ctrl.useIPM )
         svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
     else
@@ -35,7 +35,7 @@ void SVM
         ElementalMatrix<Real>& x, 
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::ADMM"))
+    DEBUG_CSE
     if( ctrl.useIPM )
         svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
     else
@@ -50,7 +50,7 @@ void SVM
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVM"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM SVM not yet supported for sparse matrices"); 
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
@@ -64,7 +64,7 @@ void SVM
         DistMultiVec<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SVM"))
+    DEBUG_CSE
     if( !ctrl.useIPM )
         LogicError("ADMM SVM not yet supported for sparse matrices"); 
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
@@ -102,6 +102,6 @@ void SVM
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

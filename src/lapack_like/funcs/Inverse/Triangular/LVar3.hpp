@@ -13,11 +13,11 @@ namespace El {
 namespace triang_inv {
 
 template<typename F>
-inline void
+void
 LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::LVar3Unb");
       if( L.Height() != L.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -43,11 +43,11 @@ LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
 }
 
 template<typename F>
-inline void
+void
 LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::LVar3");
       if( L.Height() != L.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -74,11 +74,11 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 }
 
 template<typename F>
-inline void
+void
 LVar3( UnitOrNonUnit diag, ElementalMatrix<F>& LPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::LVar3");
       if( LPre.Height() != LPre.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )

@@ -27,10 +27,10 @@ using El::schur::PullSubproblems;
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::QDWHDivide"))
+    DEBUG_CSE
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -70,14 +70,14 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 QDWHDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
   DistMatrix<F>& G,
   bool returnQ=false )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::QDWHDivide"))
+    DEBUG_CSE
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -118,7 +118,7 @@ QDWHDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
@@ -126,7 +126,7 @@ RandomizedSignDivide
   bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::RandomizedSignDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -187,7 +187,7 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
@@ -195,7 +195,7 @@ RandomizedSignDivide
   bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::RandomizedSignDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -258,13 +258,13 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -306,14 +306,14 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
   Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -355,13 +355,13 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -404,14 +404,14 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
   DistMatrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -460,7 +460,7 @@ void SDC
   Matrix<Base<F>>& w, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -501,7 +501,7 @@ void SDC
   Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -548,11 +548,11 @@ void SDC
 template<typename F>
 void SDC
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre, 
-  ElementalMatrix<Base<F>>& wPre, 
+  AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<Base<F>>& wPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = APre.Height();
@@ -606,12 +606,12 @@ void SDC
 template<typename F>
 void SDC
 ( UpperOrLower uplo, 
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& wPre, 
-  ElementalMatrix<F>& QPre, 
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& wPre, 
+  AbstractDistMatrix<F>& QPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Grid& g = APre.Grid();

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -21,7 +21,7 @@ Int NumOutside
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::NumOutside"))
+    DEBUG_CSE
     Matrix<Real> d;
     soc::Dets( x, d, orders, firstInds );
 
@@ -29,11 +29,11 @@ Int NumOutside
     const Int height = x.Height();
     for( Int i=0; i<height; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
+        const Int order = orders(i);
+        const Int firstInd = firstInds(i);
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
-        const Real det = d.Get(i,0);
+        const Real det = d(i);
         if( det < Real(0) )
             ++numNonSO;
         i += order;
@@ -48,7 +48,7 @@ Int NumOutside
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NumOutside"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -69,10 +69,12 @@ Int NumOutside
 
     Int numLocalNonSOC = 0;
     const Int localHeight = x.LocalHeight();
+    auto& dLoc = d.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) && d.GetLocal(iLoc,0) < Real(0) )
+        if( i == firstIndsLoc(iLoc) && dLoc(iLoc) < Real(0) )
             ++numLocalNonSOC;
     }
     return mpi::AllReduce( numLocalNonSOC, x.DistComm() );
@@ -85,17 +87,19 @@ Int NumOutside
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NumOutside"))
+    DEBUG_CSE
 
     DistMultiVec<Real> d(x.Comm());
     soc::Dets( x, d, orders, firstInds, cutoff );
 
     Int numLocalNonSOC = 0;
     const int localHeight = x.LocalHeight();
+    auto& dLoc = d.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        if( i == firstInds.GetLocal(iLoc,0) && d.GetLocal(iLoc,0) < Real(0) )
+        if( i == firstIndsLoc(iLoc) && dLoc(iLoc) < Real(0) )
             ++numLocalNonSOC;
     }
     return mpi::AllReduce( numLocalNonSOC, x.Comm() );
@@ -123,7 +127,6 @@ Int NumOutside
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
-
+#include <El/macros/Instantiate.h> 
 } // namespace soc
 } // namespace El

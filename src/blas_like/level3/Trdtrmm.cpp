@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Trdtrmm/Unblocked.hpp"
 #include "./Trdtrmm/LVar1.hpp"
@@ -17,8 +19,8 @@ namespace El {
 template<typename F>
 void Trdtrmm( UpperOrLower uplo, Matrix<F>& A, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trdtrdmm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -32,8 +34,8 @@ template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trdtrdmm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -44,10 +46,10 @@ void Trdtrmm
 }
 
 template<typename F>
-void Trdtrmm( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate )
+void Trdtrmm( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trdtrmm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -60,11 +62,11 @@ void Trdtrmm( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate )
 template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo, 
-  ElementalMatrix<F>& A, const ElementalMatrix<F>& dOff, 
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, 
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trdtrmm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -90,10 +92,10 @@ void Trdtrmm
   template void Trdtrmm \
   ( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate ); \
   template void Trdtrmm \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool conjugate ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate ); \
   template void Trdtrmm \
   ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, const ElementalMatrix<F>& dOff, \
+    AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, \
     bool conjugate ); \
   template void Trdtrmm \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate ); \
@@ -106,6 +108,6 @@ void Trdtrmm
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

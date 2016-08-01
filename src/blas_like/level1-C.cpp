@@ -6,8 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El-lite.h>
+#include <El/blas_like/level1.h>
 using namespace El;
 
 extern "C" {
@@ -932,6 +934,6 @@ ElError ElGetSubgraphDist
   ElError ElMakeRealDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A ) { EL_TRY( MakeReal( *CReflect(A) ) ) }
 
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

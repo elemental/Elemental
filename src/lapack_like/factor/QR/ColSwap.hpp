@@ -30,7 +30,7 @@ void NeighborColSwap
         Matrix<F>& R,
   Int j )
 {
-    DEBUG_ONLY(CSE cse("qr::NeighborColSwap"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = Q.Height();
 
@@ -38,7 +38,7 @@ void NeighborColSwap
     if( j < m-1 )
     {
         Real c; F s;
-        lapack::Givens( R.Get(j,j), R.Get(j+1,j), &c, &s );
+        Givens( R.Get(j,j), R.Get(j+1,j), c, s );
 
         auto RBR = R( IR(j,END), IR(j,END) );
         RotateRows( c, s, RBR, 0, 1 );
@@ -69,7 +69,7 @@ void DisjointNeighborColSwaps
         Matrix<F>& R,
   const Matrix<Int>& swapInds )
 {
-    DEBUG_ONLY(CSE cse("qr::DisjointNeighborColSwaps"))
+    DEBUG_CSE
     const Int numSwaps = swapInds.Width();
     for( Int swap=0; swap<numSwaps; ++swap )
         NeighborColSwap( Q, R, swapInds.Get(swap,0) );

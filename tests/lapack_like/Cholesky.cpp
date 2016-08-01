@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 template<typename F>
@@ -15,37 +15,35 @@ void TestCorrectness
   UpperOrLower uplo,
   const DistMatrix<F>& A,
   const DistPermutation& p,
-  const DistMatrix<F>& AOrig )
+  const DistMatrix<F>& AOrig,
+        Int numRHS=100 )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
-    const Int m = AOrig.Height();
+    const Int n = AOrig.Height();
+    const Real eps = limits::Epsilon<Real>();
 
     // Test correctness by multiplying a random set of vectors by A, then
     // using the Cholesky factorization to solve.
     DistMatrix<F> X(g), Y(g);
-    Uniform( X, m, 100 );
-    Zeros( Y, m, 100 );
+    Uniform( X, n, numRHS );
+    Zeros( Y, n, numRHS );
     Hemm( LEFT, uplo, F(1), AOrig, X, F(0), Y );
-    const Real maxNormL = HermitianMaxNorm( uplo, A );
-    const Real maxNormA = HermitianMaxNorm( uplo, AOrig );
-    const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
-    const Real frobNormY = FrobeniusNorm( Y );
+    const Real oneNormY = OneNorm( Y );
 
     if( pivot )
         cholesky::SolveAfter( uplo, NORMAL, A, p, Y );
     else
         cholesky::SolveAfter( uplo, NORMAL, A, Y );
     X -= Y;
-    const Real frobNormE = FrobeniusNorm( X );
+    const Real infNormE = InfinityNorm( X );
+    const Real relErr = infNormE / (eps*n*oneNormY);
 
-    if( g.Rank() == 0 )
-        Output
-        ("||L||_max              = ",maxNormL,"\n",
-         "||A||_max              = ",maxNormA,"\n",
-         "||A||_F                = ",frobNormA,"\n",
-         "||Y||_F                = ",frobNormY,"\n",
-         "||X - A \\ (A X) ||_F  = ",frobNormE);
+    OutputFromRoot
+    (g.Comm(), "||X - A \\ Y ||_oo / (eps n || Y ||_1) = ",relErr);
+    // TODO: Use more refined failure criteria 
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F> 
@@ -60,8 +58,8 @@ void TestCholesky
   bool correctness,
   bool scalapack )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F> A(g), AOrig(g);
     DistPermutation p(g);
 
@@ -73,25 +71,23 @@ void TestCholesky
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-    {
-        if( scalapack && !pivot )
-            Output("  ScaLAPACK Cholesky (including round-trip conversion)...");
-        else
-            Output("  Elemental Cholesky...");
-    }
+    if( scalapack && !pivot )
+        OutputFromRoot
+        (g.Comm(),"ScaLAPACK Cholesky (including round-trip conversion)...");
+    else
+        OutputFromRoot(g.Comm(),"Elemental Cholesky...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     if( pivot )
         Cholesky( uplo, A, p );
     else
         Cholesky( uplo, A, scalapack );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     { 
         Print( A, "A after factorization" );
@@ -106,6 +102,7 @@ void TestCholesky
         Print( GetRealPartOfDiagonal(A), "diag(A)" );
     if( correctness )
         TestCorrectness( pivot, uplo, A, p, AOrig );
+    PopIndent();
 }
 
 int 
@@ -113,11 +110,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","process grid height",0);
+        Int gridHeight = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--m","height of matrix",100);
@@ -140,13 +136,13 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
 #ifdef EL_HAVE_MPC
-        mpc::SetPrecision( prec );
+        mpfr::SetPrecision( prec );
 #endif
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
 
@@ -191,6 +187,13 @@ main( int argc, char* argv[] )
         TestCholesky<QuadDouble>
         ( g, uplo, pivot, m, nbLocal,
           print, printDiag, correctness, false );
+
+        TestCholesky<Complex<DoubleDouble>>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+        TestCholesky<Complex<QuadDouble>>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
 #endif
 
 #ifdef EL_HAVE_QUAD
@@ -204,6 +207,9 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestCholesky<BigFloat>
+        ( g, uplo, pivot, m, nbLocal,
+          print, printDiag, correctness, false );
+        TestCholesky<Complex<BigFloat>>
         ( g, uplo, pivot, m, nbLocal,
           print, printDiag, correctness, false );
 #endif

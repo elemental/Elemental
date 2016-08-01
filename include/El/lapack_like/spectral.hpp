@@ -9,20 +9,104 @@
 #ifndef EL_SPECTRAL_HPP
 #define EL_SPECTRAL_HPP
 
+#include <El/lapack_like/condense.hpp>
+
 namespace El {
 
-// Hermitian eigenvalue solvers
-// ============================
 template<typename Real>
 struct HermitianEigSubset
 {
     bool indexSubset=false;
+    // The valid index range is [lowerIndex,upperIndex]
     Int lowerIndex=0, upperIndex=0;
  
     bool rangeSubset=false;
+    // The valid value range is (lowerBound,upperBound]
     Real lowerBound=Real(0), upperBound=Real(0);
 };
 
+// Hermitian tridiagonal eigenvalue solvers
+// ========================================
+
+namespace herm_tridiag_eig {
+
+struct QRInfo
+{
+    Int numUnconverged=0;
+    Int numIterations=0;
+};
+
+struct QRCtrl
+{
+    Int maxIterPerEig=30;
+    bool demandConverged=true;
+
+    bool fullAccuracyTwoByTwo=true;
+};
+
+} // namespace herm_tridiag_eig
+
+struct HermitianTridiagEigInfo
+{
+    herm_tridiag_eig::QRInfo qrInfo;
+    // TODO(poulson): MRRR info
+};
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+struct HermitianTridiagEigCtrl
+{
+    bool wantEigVecs=true;
+    bool accumulateEigVecs=false;
+    SortType sort=ASCENDING;
+    HermitianEigSubset<Real> subset;
+    bool progress=false;
+
+    bool useQR=false;
+    herm_tridiag_eig::QRCtrl qrCtrl;
+    // TODO(poulson): MRRR ctrl
+};
+
+// Compute eigenvalues
+// --------------------
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( Matrix<Base<F>>& d,
+  Matrix<F>& dSub,
+  Matrix<Base<F>>& w, 
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F>& dSub,
+        AbstractDistMatrix<Base<F>>& w,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+// Compute eigenpairs
+// ------------------
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( Matrix<Base<F>>& d,
+  Matrix<F>& dSub,
+  Matrix<Base<F>>& w,
+  Matrix<F>& Q,
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+template<typename F>
+HermitianTridiagEigInfo
+HermitianTridiagEig
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F>& dSub,
+        AbstractDistMatrix<Base<F>>& w,
+        AbstractDistMatrix<F>& Q, 
+  const HermitianTridiagEigCtrl<Base<F>>& ctrl=
+        HermitianTridiagEigCtrl<Base<F>>() );
+
+// Hermitian eigenvalue solvers
+// ============================
 template<typename Real>
 struct HermitianSDCCtrl 
 {
@@ -37,82 +121,121 @@ template<typename F>
 struct HermitianEigCtrl
 {
     HermitianTridiagCtrl<F> tridiagCtrl;
+    HermitianTridiagEigCtrl<Base<F>> tridiagEigCtrl;
     HermitianSDCCtrl<Base<F>> sdcCtrl;
+    bool useScaLAPACK=false;
     bool useSDC=false;
     bool timeStages=false;
+};
+
+struct HermitianEigInfo
+{
+    HermitianTridiagEigInfo tridiagEigInfo;
+    // TODO(poulson): SDC info
 };
 
 // Compute eigenvalues
 // -------------------
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         Matrix<F>& A,
         Matrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
-        DistMatrix<F,STAR,STAR>& A,
-        DistMatrix<Base<F>,STAR,STAR>& w,
-        SortType sort=ASCENDING,
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-template<typename F>
-void HermitianEig
-(       UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-template<typename F>
-void HermitianEig
-(       UpperOrLower uplo,
-        DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& w,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>() );
 
 // Compute eigenpairs
 // ------------------
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
         Matrix<F>& A,
         Matrix<Base<F>>& w,
-        Matrix<F>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
+        Matrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianEig
+HermitianEigInfo
+HermitianEig
 (       UpperOrLower uplo,
-        DistMatrix<F,STAR,STAR>& A,
-        DistMatrix<Base<F>,STAR,STAR>& w,
-        DistMatrix<F,STAR,STAR>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& w, 
+        AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
+
+namespace herm_eig {
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+  Real& lambda0, Real& lambda1,
+  bool fullAccuracy=true );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+  Real& lambda0, Real& lambda1,
+  Real& c, Real& s,
+  bool fullAccuracy=true );
+
+} // namespace herm_eig
+
+// Skew-Hermitian eigenvalue solvers
+// =================================
+// Compute the full set of eigenvalues
+// -----------------------------------
 template<typename F>
-void HermitianEig
-(       UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& w, 
-        ElementalMatrix<F>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
 template<typename F>
-void HermitianEig
-(       UpperOrLower uplo,
-        DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& w,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>() );
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<Base<F>>& wImag,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
+
+// Compute eigenpairs
+// ------------------
+template<typename F>
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const Matrix<F>& G,
+        Matrix<Base<F>>& wImag,
+        Matrix<Complex<Base<F>>>& Q,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
+template<typename F>
+HermitianEigInfo
+SkewHermitianEig
+( UpperOrLower uplo,
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<Base<F>>& wImag,
+        AbstractDistMatrix<Complex<Base<F>>>& Q,
+  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
+        HermitianEigCtrl<Complex<Base<F>>>() );
 
 // Hermitian generalized definite eigenvalue solvers
 // =================================================
+// TODO(poulson): Add support for Fix-Heiberger
+
 namespace PencilNS {
 enum Pencil
 {
@@ -126,153 +249,228 @@ using namespace PencilNS;
 // Compute eigenvalues
 // -------------------
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo, 
         Matrix<F>& A,
         Matrix<F>& B,
         Matrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
-        ElementalMatrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 // Compute eigenpairs
 // ------------------
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
         Matrix<F>& A,
         Matrix<F>& B,
         Matrix<Base<F>>& w,
         Matrix<F>& X,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 template<typename F>
-void HermitianGenDefEig
+HermitianEigInfo
+HermitianGenDefEig
 (       Pencil pencil,
         UpperOrLower uplo,
-        ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
-        ElementalMatrix<Base<F>>& w,
-        ElementalMatrix<F>& X,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
+        AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<Base<F>>& w,
+        AbstractDistMatrix<F>& X,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
-
-// Hermitian tridiagonal eigenvalue solvers
-// ========================================
-// Compute eigenvalues
-// --------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d,
-  Matrix<F>& dSub,
-  Matrix<Base<F>>& w, 
-  SortType sort=ASCENDING, 
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-template<typename F>
-void HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-// Compute eigenpairs
-// ------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d,
-  Matrix<F>& dSub,
-  Matrix<Base<F>>& w,
-  Matrix<F>& Z,
-  SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-template<typename F>
-void HermitianTridiagEig
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub,
-        ElementalMatrix<Base<F>>& w,
-        ElementalMatrix<F>& Z, 
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-
-template<typename Real>
-Int HermitianTridiagEigEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        mpi::Comm wColComm,
-        Real vl,
-        Real vu );
-// Z is assumed to be sufficiently large and properly aligned
-template<typename Real>
-void HermitianTridiagEigPostEstimate
-( const ElementalMatrix<Real>& d,
-  const ElementalMatrix<Real>& dSub,
-        ElementalMatrix<Real>& w,
-        ElementalMatrix<Real>& Z, 
-        SortType sort,
-        Real vl,
-        Real vu );
-
-namespace herm_eig {
-
-template<typename F>
-void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING );
-template<typename Real,typename F>
-void Sort
-( ElementalMatrix<Real>& w,
-  ElementalMatrix<F>& Z,
-  SortType sort=ASCENDING );
-
-} // namespace herm_eig
 
 // Polar decomposition
 // ===================
+struct QDWHCtrl
+{
+    bool colPiv=false;
+    Int maxIts=20;
+};
+
 struct PolarCtrl 
 {
     bool qdwh=false;
-    bool colPiv=false;
-    Int maxIts=20;
-    mutable Int numIts=0;
+    QDWHCtrl qdwhCtrl;
+};
+
+struct QDWHInfo
+{
+    Int numIts=0;
+    Int numQRIts=0;
+    Int numCholIts=0;
+};
+
+struct PolarInfo
+{
+    QDWHInfo qdwhInfo;
 };
 
 template<typename F>
-void Polar( Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
+PolarInfo Polar( Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
-void Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
+PolarInfo Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
 template<typename F>
-void Polar
-( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl=PolarCtrl() );
-template<typename F>
-void Polar
-( ElementalMatrix<F>& A, ElementalMatrix<F>& P, 
-  const PolarCtrl& ctrl=PolarCtrl() ); 
-template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
-template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, ElementalMatrix<F>& A, 
-  const PolarCtrl& ctrl=PolarCtrl() ); 
-template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, 
+PolarInfo Polar
+( Matrix<F>& A,
+  Matrix<F>& P,
   const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
-void HermitianPolar
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& P, 
+PolarInfo Polar
+( ElementalMatrix<F>& A,
+  ElementalMatrix<F>& P, 
   const PolarCtrl& ctrl=PolarCtrl() ); 
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  const PolarCtrl& ctrl=PolarCtrl() );
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A, 
+  const PolarCtrl& ctrl=PolarCtrl() ); 
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<F>& P, 
+  const PolarCtrl& ctrl=PolarCtrl() );
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A,
+  ElementalMatrix<F>& P, 
+  const PolarCtrl& ctrl=PolarCtrl() ); 
+
+// Hessenberg Schur decomposition
+// ==============================
+struct HessenbergSchurInfo
+{
+    Int numUnconverged=0;
+    Int numIterations=0;
+};
+
+namespace hess_schur {
+namespace aed {
+
+// Cf. LAPACK's IPARMQ for these choices. The primary difference here is that
+// we do not use a fixed value (of 256) for windows of size at least 6000.
+inline Int NumShifts( Int n, Int winSize )
+{
+    Int numShifts;
+    if( winSize < 30 )
+        numShifts = 2; 
+    else if( winSize < 60 )
+        numShifts = 4; 
+    else if( winSize < 150 )
+        numShifts = 10;
+    else if( winSize < 590 ) 
+        numShifts = Max( 10, winSize/Int(Log2(double(winSize))) );
+    else if( winSize < 3000 )
+        numShifts = 64;
+    else if( winSize < 6000 )
+        numShifts = 128;
+    else
+        numShifts = Max( 256, winSize/Int(2*Log2(double(winSize))) );
+
+    numShifts = Min( numShifts, winSize );
+    numShifts = Max( 2, numShifts-Mod(numShifts,2) );
+
+    return numShifts;
+}
+
+// Cf. LAPACK's IPARMQ for these deflation window sizes
+inline Int DeflationSize( Int n, Int winSize, Int numShifts )
+{
+    Int deflationSize;
+    if( winSize <= 500 )
+        deflationSize = numShifts;
+    else
+        deflationSize = (3*numShifts) / 2;
+
+    deflationSize = Min( deflationSize, winSize );
+    deflationSize = Min( deflationSize, (n-1)/3 );
+    deflationSize = Max( 2, deflationSize-Mod(deflationSize,2) );
+
+    return deflationSize;
+}
+
+// Cf. LAPACK's IPARMQ for the choice of skipping a QR sweep if at least
+// 14% of the eigenvalues in a window deflated
+inline Int SufficientDeflation( Int deflationSize )
+{
+    const Int nibble = 14;
+    return (nibble*deflationSize) / 100;
+}
+
+} // namespace aed
+} // namespace hess_schur
+
+struct HessenbergSchurCtrl
+{
+    Int winBeg=0;
+    Int winEnd=END;
+    bool fullTriangle=true;
+    bool wantSchurVecs=false;
+    bool demandConverged=true;
+
+    bool useAED=true;
+    bool recursiveAED=true;
+    bool accumulateReflections=true;
+
+    bool progress=false;
+
+    // Cf. LAPACK's IPARMQ for this choice;
+    // note that LAPACK's hard minimum of 12 does not apply to us
+    Int minAEDSize = 75;
+
+    function<Int(Int,Int)> numShifts =
+      function<Int(Int,Int)>(hess_schur::aed::NumShifts);
+
+    function<Int(Int,Int,Int)> deflationSize =
+      function<Int(Int,Int,Int)>(hess_schur::aed::DeflationSize);
+
+    function<Int(Int)> sufficientDeflation =
+      function<Int(Int)>(hess_schur::aed::SufficientDeflation);
+};
+
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Real>& H,
+  Matrix<Complex<Real>>& w,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Real>& H,
+  Matrix<Complex<Real>>& w,
+  Matrix<Real>& Z,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Complex<Real>>& H,
+  Matrix<Complex<Real>>& w,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+template<typename Real>
+HessenbergSchurInfo
+HessenbergSchur
+( Matrix<Complex<Real>>& H,
+  Matrix<Complex<Real>>& w,
+  Matrix<Complex<Real>>& Z,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
 
 // Schur decomposition
 // ===================
@@ -284,7 +482,7 @@ struct SDCCtrl
 {
     Int cutoff=256;
     Int maxInnerIts=2, maxOuterIts=10;
-    Real tol=0;
+    Real tol=Real(0);
     Real spreadFactor=Real(1e-6);
     bool random=true;
     bool progress=false;
@@ -292,6 +490,7 @@ struct SDCCtrl
     SignCtrl<Real> signCtrl;
 };
 
+// TODO: Combine with HessenbergSchurCtrl
 struct HessQRCtrl 
 {
     bool distAED=false;
@@ -304,6 +503,7 @@ struct SchurCtrl
     bool useSDC=false;
     HessQRCtrl qrCtrl;
     SDCCtrl<Real> sdcCtrl;    
+    bool time=false;
 };
 
 template<typename F>
@@ -406,12 +606,30 @@ void RealToComplex
         ElementalMatrix<Complex<Real>>& U,
         ElementalMatrix<Complex<Real>>& Q );
 
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( Real& alpha00, Real& alpha01,
+  Real& alpha10, Real& alpha11,
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1 );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwo
+( Real& alpha00, Real& alpha01,
+  Real& alpha10, Real& alpha11,
+  Complex<Real>& lambda0,
+  Complex<Real>& lambda1,
+  Real& c, Real& s );
+
+template<typename Real>
+void TwoByTwo
+( Complex<Real>& alpha00, Complex<Real>& alpha01,
+  Complex<Real>& alpha10, Complex<Real>& alpha11,
+  Complex<Real>& lambda0, Complex<Real>& lambda1 );
+
 } // namespace schur
 
 // Compute eigenvectors of a triangular matrix
 // ===========================================
-// NOTE: This functionality is still experimental and should not yet be
-//       trusted
 template<typename F>
 void TriangEig
 (       Matrix<F>& U,
@@ -423,8 +641,6 @@ void TriangEig
 
 // Compute the eigendecomposition of a square matrix
 // =================================================
-// NOTE: This functionality is still experimental and should not yet be
-//       trusted
 template<typename F>
 void Eig
 ( Matrix<F>& A,
@@ -436,56 +652,90 @@ void Eig
   ElementalMatrix<Complex<Base<F>>>& w,
   ElementalMatrix<Complex<Base<F>>>& X );
 
-// Skew-Hermitian eigenvalue solvers
-// =================================
-// Compute the full set of eigenvalues
-// -----------------------------------
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const Matrix<F>& G,
-        Matrix<Base<F>>& wImag,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
+// Secular Singular Value Decomposition
+// ====================================
 
-// Compute eigenpairs
-// ------------------
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const Matrix<F>& G,
-        Matrix<Base<F>>& wImag,
-        Matrix<Complex<Base<F>>>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
-template<typename F>
-void SkewHermitianEig
-( UpperOrLower uplo,
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<Base<F>>& wImag,
-        ElementalMatrix<Complex<Base<F>>>& Z,
-        SortType sort=ASCENDING,
-  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
-  const HermitianEigCtrl<Complex<Base<F>>>& ctrl=
-        HermitianEigCtrl<Complex<Base<F>>>() );
+template<typename Real>
+struct SecularSingularValueCtrl
+{
+    Int maxIterations = 400; // Cf. LAPACK's {s,d}lasd4 for this choice
+    Int maxCubicIterations = 40; // Cf. LAPACK's {s,d}laed6 for this choice
+    // TODO(poulson): Specialize iteration bounds to grows with precision
 
-// Singular Value Decomposition
-// ============================
+    Real sufficientDecay = Real(1)/Real(10);
+    FlipOrClip negativeFix;
+    bool progress = false;
+};
 
-enum SVDApproach {
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+struct SecularSingularValueInfo
+{
+    Real singularValue;
+    Int numIterations = 0;
+    Int numAlternations = 0;
+
+    Int numCubicIterations = 0;
+    Int numCubicFailures = 0;
+};
+
+// Compute a single singular value corresponding to the square-root of an
+// eigenvalue of the diagonal plus rank one matrix
+//
+//     diag(d)^2 + rho z z^T,
+//
+// where || z ||_2 = 1, with
+//
+//     0 <= d(0) < d(1) < ... < d(n-1)
+//
+// and rho > 0. In the important case where d(0) = 0, we have can build a
+// matrix
+//
+//   M = | sqrt(rho)*z(0), sqrt(rho)*z(1), ..., sqrt(rho)*z(n-1) |
+//       |                      d(1),                  .         |
+//       |                                  .          .         |
+//       |                                           d(n-1)      |
+//
+// which has said singular values.
+//
+// This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
+//
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularSingularValueInfo<Real>
+SecularSingularValue
+( Int whichSingularValue,
+  const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+  const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularSingularValueInfo<Real>
+SecularSingularValue
+( Int whichSingularValue,
+  const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Matrix<Real>& dMinusShift,
+        Matrix<Real>& dPlusShift,
+  const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
+
+// Note that this routine requires that 0 = d(0) <= d(1) <= ... <= d(n-1) and
+// that || z ||_2 = 1.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void SecularSVD
+( const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Matrix<Real>& U,
+        Matrix<Real>& s,
+        Matrix<Real>& V,
+  const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
+
+// Bidiagonal Singular Value Decomposition
+// =======================================
+
+// TODO(poulson): Decide if this should be a separate enum, BidiagSVDApproach
+enum SVDApproach
+{
   // If A is m x n, return A = U S V^H, where U is m x min(m,n) and 
   // V is n x min(m,n).
   THIN_SVD,
@@ -504,25 +754,116 @@ enum SVDApproach {
   PRODUCT_SVD
 };
 
+enum SingularValueToleranceType
+{
+  ABSOLUTE_SING_VAL_TOL,
+  RELATIVE_TO_MAX_SING_VAL_TOL,
+  RELATIVE_TO_SELF_SING_VAL_TOL
+};
+
+namespace bidiag_svd {
+
+struct QRInfo
+{
+    Int numUnconverged=0;
+
+    Int numIterations=0;
+    Int numInnerLoops=0;
+ 
+    Int numZeroShiftForwardIterations=0;
+    Int numZeroShiftForwardInnerLoops=0;
+
+    Int numZeroShiftBackwardIterations=0;
+    Int numZeroShiftBackwardInnerLoops=0;
+
+    Int numNonzeroShiftForwardIterations=0;
+    Int numNonzeroShiftForwardInnerLoops=0;
+
+    Int numNonzeroShiftBackwardIterations=0;
+    Int numNonzeroShiftBackwardInnerLoops=0;
+};
+
+struct QRCtrl
+{
+    Int maxIterPerVal=6;
+    bool demandConverged=true;
+
+    // See the note above MinSingularValueEstimateOfBidiag
+    bool looseMinSingValEst=true;
+
+    bool useFLAME=false;
+    bool useLAPACK=false;
+};
+
+} // namespace bidiag_svd
+
+struct BidiagSVDInfo
+{
+    bidiag_svd::QRInfo qrInfo;
+};
+
+template<typename Real>
+struct BidiagSVDCtrl
+{
+    bool wantU=true, wantV=true;
+    bool accumulateU=false, accumulateV=false;
+    SVDApproach approach=THIN_SVD;
+
+    SingularValueToleranceType tolType=RELATIVE_TO_MAX_SING_VAL_TOL;
+    Real tol=Real(0); // If zero, the default will be chosen
+
+    bool progress=false;
+
+    bidiag_svd::QRCtrl qrCtrl;
+};
+
+namespace bidiag_svd {
+
+// For determining a consistent threshold for setting singular values to zero
+template<typename Real>
+Real APosterioriThreshold
+( Int m, Int n,
+  const Real& twoNorm,
+  const BidiagSVDCtrl<Real>& ctrl );
+
+} // namespace bidiag_svd
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+BidiagSVDInfo
+BidiagSVD
+( Matrix<Real>& mainDiag,
+  Matrix<Real>& superDiag,
+  Matrix<Real>& s,
+  const BidiagSVDCtrl<Real>& ctrl=BidiagSVDCtrl<Real>() );
+template<typename F>
+BidiagSVDInfo
+BidiagSVD
+( Matrix<Base<F>>& mainDiag,
+  Matrix<Base<F>>& superDiag,
+  Matrix<F>& U,
+  Matrix<Base<F>>& s,
+  Matrix<F>& V,
+  const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
+
+// Singular Value Decomposition
+// ============================
+
+struct SVDInfo
+{
+    BidiagSVDInfo bidiagSVDInfo;
+};
+
 template<typename Real>
 struct SVDCtrl 
 {
-    SVDApproach approach=THIN_SVD;
     bool overwrite=false; // Allow 'A' to be overwritten computing A = U S V^H
-    bool avoidComputingU=false; // Avoid computing 'U' in A = U S V^H
-    bool avoidComputingV=false; // Avoid computing 'V' in A = U S V^H
-
     bool time=false;
-    bool avoidLibflame=false;
 
-    // Bidiagonal SVD options
-    // ----------------------
+    // Use LAPACK within sequential SVD?
+    bool useLAPACK=false;
 
-    // Whether or not sequential implementations should use the QR algorithm
-    // instead of (Cuppen's) Divide and Conquer when computing singular
-    // vectors. When only singular values are requested, a bidiagonal DQDS
-    // algorithm is always run.
-    bool seqQR=false;
+    // Use ScaLAPACK within distributed SVD?
+    bool useScaLAPACK=false;
 
     // Chan's algorithm
     // ----------------
@@ -535,79 +876,91 @@ struct SVDCtrl
     // decomposition when computing a full SVD
     double fullChanRatio=1.5;
 
-    // Thresholding
-    // ------------
-    // NOTE: Currently only supported when computing both singular values
-    //       and vectors
-
-    // If the tolerance should be relative to the largest singular value
-    bool relative=true;
-
-    // The numerical tolerance for the thresholding. If this value is kept at
-    // zero, then a value is automatically chosen based upon the matrix
-    Real tol=0; 
+    BidiagSVDCtrl<Real> bidiagSVDCtrl;
 };
 
 // Compute the singular values
 // ---------------------------
 template<typename F>
-void SVD
+SVDInfo SVD
 (       Matrix<F>& A,
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
+SVDInfo SVD
 ( const Matrix<F>& A,
         Matrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
-void SVD
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
+SVDInfo SVD
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-
-template<typename F>
-void SVD
-(       DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-template<typename F>
-void SVD
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        Matrix<Base<F>>& s,
+SVDInfo SVD
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s, 
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
-void TSQR
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s,
+SVDInfo TSQR
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s,
   bool overwrite=false );
 template<typename F>
-void TSQR
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<Base<F>>& s );
+SVDInfo TSQR
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<Base<F>>& s );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwoUpper
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+        Real& sigmaMax,
+        Real& sgnMax,
+        Real& sigmaMin,
+        Real& sgnMin,
+        Real& cU,
+        Real& sU,
+        Real& cV,
+        Real& sV );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwoUpperStandard
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+        Real& sigmaMax,
+        Real& sigmaMin,
+        Real& cU,
+        Real& sU,
+        Real& cV,
+        Real& sV );
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+void TwoByTwoUpper
+( const Real& alpha00,
+  const Real& alpha01,
+  const Real& alpha11,
+        Real& sigmaMax,
+        Real& sigmaMin );
 
 } // namespace svd
 
 // Compute the full SVD
 // --------------------
 template<typename F>
-void SVD
+SVDInfo SVD
 (       Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
         Matrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
+SVDInfo SVD
 ( const Matrix<F>& A,
         Matrix<F>& U,
         Matrix<Base<F>>& s,
@@ -615,43 +968,28 @@ void SVD
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
-void SVD
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
+SVDInfo SVD
+(       AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
-void SVD
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s, 
-        ElementalMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-
-template<typename F>
-void SVD
-(       DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& U,
-        Matrix<Base<F>>& s,
-        DistMatrix<F,MC,MR,BLOCK>& V,
-  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
-template<typename F>
-void SVD
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& U,
-        Matrix<Base<F>>& s,
-        DistMatrix<F,MC,MR,BLOCK>& V,
+SVDInfo SVD
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
 
 template<typename F>
-void TSQR
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U,
-        ElementalMatrix<Base<F>>& s,
-        ElementalMatrix<F>& V );
+SVDInfo TSQR
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s,
+        AbstractDistMatrix<F>& V );
 
 } // namespace svd
 
@@ -1303,7 +1641,10 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 
 } // namespace El
 
-#include "./spectral/Lanczos.hpp"
-#include "./spectral/ProductLanczos.hpp"
+#include <El/lapack_like/spectral/Schur.hpp>
+#include <El/lapack_like/spectral/HermitianEig.hpp>
+#include <El/lapack_like/spectral/SVD.hpp>
+#include <El/lapack_like/spectral/Lanczos.hpp>
+#include <El/lapack_like/spectral/ProductLanczos.hpp>
 
 #endif // ifndef EL_SPECTRAL_HPP

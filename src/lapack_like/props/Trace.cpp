@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename T>
 T Trace( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Trace"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
 
@@ -22,14 +22,14 @@ T Trace( const Matrix<T>& A )
     T trace = 0;
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )
-        trace += d.Get(i,0);
+        trace += d(i);
     return trace;
 }
 
 template<typename T> 
 T Trace( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Trace"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
 
@@ -56,8 +56,10 @@ T Trace( const AbstractDistMatrix<T>& A )
   template T Trace( const Matrix<T>& A ); \
   template T Trace( const AbstractDistMatrix<T>& A );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

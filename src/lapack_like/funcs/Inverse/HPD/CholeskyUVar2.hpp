@@ -18,11 +18,11 @@ namespace hpd_inv {
 
 // TODO: Rewrite this routine without partition tracking
 template<typename F> 
-inline void
+void
 CholeskyUVar2( Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("hpd_inv::CholeskyUVar2");
       if( A.Height() != A.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -56,11 +56,11 @@ CholeskyUVar2( Matrix<F>& A )
 
 // TODO: Rewrite this routine without partition tracking
 template<typename F> 
-inline void
+void
 CholeskyUVar2( ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("hpd_inv::CholeskyUVar2");
       if( APre.Height() != APre.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )

@@ -17,8 +17,8 @@ template<typename T>
 void RowFilter
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("copy::RowFilter");
       if( A.ColDist() != B.ColDist() ||
           A.RowDist() != Collect(B.RowDist()) )
           LogicError("Incompatible distributions");
@@ -85,7 +85,7 @@ template<typename T>
 void RowFilter
 ( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::RowFilter"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

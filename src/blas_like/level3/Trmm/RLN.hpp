@@ -16,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateRLN
+void LocalAccumulateRLN
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -25,8 +24,8 @@ LocalAccumulateRLN
   const DistMatrix<T,STAR,MC  >& X,
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateRLN");
       AssertSameGrids( L, X, ZTrans );
       if( L.Height() != L.Width() ||
           L.Height() != X.Width() ||
@@ -70,14 +69,13 @@ LocalAccumulateRLN
 }
 
 template<typename T>
-inline void
-RLNA
+void RLNA
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLNA");
       AssertSameGrids( LPre, XPre );
       // TODO: More checks
     )
@@ -109,7 +107,8 @@ RLNA
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
 
-        Zeros( Z1Trans_MR_STAR, n, nb );
+        Z1Trans_MR_STAR.Resize( n, nb );
+        Zero( Z1Trans_MR_STAR );
         LocalAccumulateRLN
         ( TRANSPOSE, diag, T(1), L, X1_STAR_MC, Z1Trans_MR_STAR );
 
@@ -120,14 +119,13 @@ RLNA
 }
 
 template<typename T>
-inline void
-RLNCOld
+void RLNCOld
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLNCOld");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -172,14 +170,13 @@ RLNCOld
 }
 
 template<typename T>
-inline void
-RLNC
+void RLNC
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLNC");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -229,13 +226,12 @@ RLNC
 //   X := X tril(L), and
 //   X := X trilu(L)
 template<typename T>
-inline void
-RLN
+void RLN
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& L,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& L,
+        AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::RLN"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         RLNA( diag, L, X );

@@ -18,8 +18,8 @@ void SolveAfter
   const Matrix<F>& A,
         Matrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lu::SolveAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -43,8 +43,8 @@ void SolveAfter
   const ElementalMatrix<F>& A,
         ElementalMatrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lu::SolveAfter");
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -70,8 +70,8 @@ void SolveAfter
   const Permutation& P,
         Matrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lu::SolveAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -98,8 +98,8 @@ void SolveAfter
   const DistPermutation& P,
         ElementalMatrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lu::SolveAfter");
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -128,8 +128,8 @@ void SolveAfter
   const Permutation& Q,
         Matrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lu::SolveAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -159,8 +159,8 @@ void SolveAfter
   const DistPermutation& Q,
         ElementalMatrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("lu::SolveAfter");
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");

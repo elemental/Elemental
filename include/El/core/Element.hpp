@@ -9,7 +9,7 @@
 #ifndef EL_ELEMENT_HPP
 #define EL_ELEMENT_HPP
 
-#include "./Element/decl.hpp"
-#include "./Element/impl.hpp"
+#include <El/core/Element/decl.hpp>
+#include <El/core/Element/impl.hpp>
 
 #endif // ifndef EL_ELEMENT_HPP

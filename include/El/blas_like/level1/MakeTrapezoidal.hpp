@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -46,7 +46,7 @@ template<typename T>
 void
 MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -89,7 +89,7 @@ MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
+    DEBUG_CSE
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
     {
@@ -105,7 +105,7 @@ void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 {
-    DEBUG_ONLY(CSE cse("MakeTrapezoidal"))
+    DEBUG_CSE
     const Int firstLocalRow = A.FirstLocalRow();
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )
@@ -116,7 +116,7 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
             (uplo == UPPER && j-i < offset) )
             A.QueueLocalZero( i-firstLocalRow, j );
     }
-    A.ProcessQueues();
+    A.ProcessLocalQueues();
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1
@@ -126,13 +126,13 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 #endif
 
 #define PROTO(T) \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, Matrix<T>& A, Int offset ); \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset ); \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, SparseMatrix<T>& A, Int offset ); \
-  template void MakeTrapezoidal \
+  EL_EXTERN template void MakeTrapezoidal \
   ( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset );
 
 #define EL_ENABLE_DOUBLEDOUBLE
@@ -140,7 +140,7 @@ void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

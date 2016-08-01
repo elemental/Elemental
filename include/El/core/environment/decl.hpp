@@ -44,7 +44,8 @@ void PrintCxxCompilerInfo( ostream& os=cout );
 bool Using64BitInt();
 bool Using64BitBlasInt();
 
-// For manually initializing and finalizing Elemental
+// For manually initializing and finalizing Elemental; their direct usage
+// in C++ programs now deprecated.
 void Initialize();
 void Initialize( int& argc, char**& argv );
 void Finalize();
@@ -90,13 +91,7 @@ void SetBlocksize( Int blocksize );
 // For manipulating the algorithmic blocksize as a stack
 void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
-
-Int DefaultBlockHeight();
-Int DefaultBlockWidth();
-void SetDefaultBlockHeight( Int blockHeight );
-void SetDefaultBlockWidth( Int blockWidth );
-
-std::mt19937& Generator();
+void EmptyBlocksizeStack();
 
 template<typename T,typename=EnableIf<IsScalar<T>>>
 inline const T& Max( const T& m, const T& n ) EL_NO_EXCEPT
@@ -114,33 +109,39 @@ inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
 
 // Replacement for std::memcpy, which is known to often be suboptimal.
 // Notice the sizeof(T) is no longer required.
-template<typename T>
-void MemCopy( T* dest, const T* source, size_t numEntries );
-#ifdef EL_HAVE_MPC
-void MemCopy( BigInt* dest, const BigInt* source, size_t numEntries );
-void MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries );
-#endif
+template<typename T,typename=EnableIf<IsPacked<T>>>
+void MemCopy
+(       T* dest,
+  const T* source,
+        size_t numEntries );
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void MemCopy
+(       T* dest,
+  const T* source,
+        size_t numEntries );
 
-template<typename T>
-void MemSwap( T* a, T* b, T* temp, size_t numEntries );
-#ifdef EL_HAVE_MPC
-void MemSwap( BigInt* a, BigInt* b, BigInt* temp, size_t numEntries );
-void MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries );
-#endif
+template<typename T,typename=EnableIf<IsPacked<T>>>
+void MemSwap
+( T* a,
+  T* b,
+  T* temp,
+  size_t numEntries );
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void MemSwap
+( T* a,
+  T* b,
+  T* temp,
+  size_t numEntries );
 
 // Generalization of std::memcpy so that unit strides are not required
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 void StridedMemCopy
 (       T* dest,   Int destStride,
   const T* source, Int sourceStride, Int numEntries );
-#ifdef EL_HAVE_MPC
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void StridedMemCopy
-(       BigInt* dest,   Int destStride,
-  const BigInt* source, Int sourceStride, Int numEntries );
-void StridedMemCopy
-(       BigFloat* dest,   Int destStride,
-  const BigFloat* source, Int sourceStride, Int numEntries );
-#endif
+(       T* dest,   Int destStride,
+  const T* source, Int sourceStride, Int numEntries );
 
 template<typename S,typename T>
 inline void CopySTL( const S& a, T& b )
@@ -151,12 +152,10 @@ inline void CopySTL( const S& a, T& b )
 
 // Replacement for std::memset, which is likely suboptimal and hard to extend
 // to non-POD datatypes. Notice that sizeof(T) is no longer required.
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 void MemZero( T* buffer, size_t numEntries );
-#ifdef EL_HAVE_MPC
-void MemZero( BigInt* buffer, size_t numEntries );
-void MemZero( BigFloat* buffer, size_t numEntries );
-#endif
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+void MemZero( T* buffer, size_t numEntries );
 
 // Clear the contents of x by swapping with an empty object of the same type
 template<typename T>
@@ -164,10 +163,7 @@ void SwapClear( T& x );
 
 // Reserve memory in a vector without zero-initializing the variables unless
 // valgrind is currently running or the datatype *requires* construction.
-//
-// TODO: Introduce a POD attribute for Elemental's types and specialize for
-//       non-POD.
-template<typename T>
+template<typename T,typename=EnableIf<IsPacked<T>>>
 inline void FastResize( vector<T>& v, Int numEntries )
 {
 #ifdef EL_ZERO_INIT
@@ -181,34 +177,22 @@ inline void FastResize( vector<T>& v, Int numEntries )
     v.reserve( numEntries );
 #endif
 }
-#ifdef EL_HAVE_MPC
-inline void FastResize( vector<BigInt>& v, Int numEntries )
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+inline void FastResize( vector<T>& v, Int numEntries )
 { v.resize( numEntries ); }
-inline void FastResize( vector<ValueInt<BigInt>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<Entry<BigInt>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-
-inline void FastResize( vector<BigFloat>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<ValueInt<BigFloat>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-inline void FastResize( vector<Entry<BigFloat>>& v, Int numEntries )
-{ v.resize( numEntries ); }
-#endif
 
 inline void BuildStream( ostringstream& os ) { }
 
-template<typename T,typename... Args>
+template<typename T,typename... ArgPack>
 inline void BuildStream
-( ostringstream& os, const T& item, const Args& ... args )
+( ostringstream& os, const T& item, const ArgPack& ... args )
 {
     os << item;
     BuildStream( os, args... );
 }
 
-template<typename... Args>
-inline string BuildString( const Args& ... args )
+template<typename... ArgPack>
+inline string BuildString( const ArgPack& ... args )
 { 
     ostringstream os;
     BuildStream( os, args... );
@@ -222,8 +206,8 @@ public:
     : std::runtime_error( msg ) { }
 };
 
-template<typename... Args>
-inline void UnrecoverableError( const Args& ... args )
+template<typename... ArgPack>
+inline void UnrecoverableError( const ArgPack& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -231,8 +215,8 @@ inline void UnrecoverableError( const Args& ... args )
     UnrecoverableException( os.str().c_str() );
 }
 
-template<typename... Args>
-inline void LogicError( const Args& ... args )
+template<typename... ArgPack>
+inline void LogicError( const ArgPack& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -240,8 +224,8 @@ inline void LogicError( const Args& ... args )
     throw std::logic_error( os.str().c_str() );
 }
 
-template<typename... Args>
-inline void RuntimeError( const Args& ... args )
+template<typename... ArgPack>
+inline void RuntimeError( const ArgPack& ... args )
 {
     ostringstream os;
     BuildStream( os, args... );
@@ -325,8 +309,8 @@ void OpenLog( const char* filename );
 
 std::ostream & LogOS();
 
-template<typename... Args>
-inline void Log( const Args& ... args )
+template<typename... ArgPack>
+inline void Log( const ArgPack& ... args )
 {
     std::ostringstream str;
     BuildStream( str, args... );
@@ -346,8 +330,8 @@ void ClearIndent();
 Int IndentLevel();
 std::string Indent();
 
-template<typename... Args>
-inline void Output( const Args& ... args )
+template<typename... ArgPack>
+inline void Output( const ArgPack& ... args )
 {
     ostringstream os;
     os << Indent();
@@ -356,15 +340,22 @@ inline void Output( const Args& ... args )
     cout << os.str();
 }
 
-// TODO: OutputRoot?
+template<typename... ArgPack>
+inline void OutputFromRoot( mpi::Comm comm, const ArgPack& ... args )
+{
+    if( mpi::Rank(comm) == 0 )
+    {
+        Output( args... );
+    }
+}
 
 template<typename T>
 void EnsureConsistent( T alpha, mpi::Comm comm, string name="" );
 
 // This will be guaranteed by C++14 via std::make_unique
-template<typename T, typename ...Args>
-inline unique_ptr<T> MakeUnique( Args&& ...args )
-{ return unique_ptr<T>( new T( std::forward<Args>(args)... ) ); }
+template<typename T, typename ...ArgPack>
+inline unique_ptr<T> MakeUnique( ArgPack&& ...args )
+{ return unique_ptr<T>( new T( std::forward<ArgPack>(args)... ) ); }
 
 template<typename T>
 T Scan( const vector<T>& counts, vector<T>& offsets );
@@ -387,6 +378,18 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full );
 
 // Insists that the index can be found
 Int Find( const vector<Int>& sortedInds, Int index );
+
+#ifdef EL_HAVE_PRETTY_FUNCTION
+# define EL_FUNCTION __PRETTY_FUNCTION__
+#else
+# define EL_FUNCTION __func__
+#endif
+
+#define LOGIC_ERROR(...) \
+ LogicError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
+#define RUNTIME_ERROR(...) \
+ RuntimeError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
+#define DEBUG_CSE DEBUG_ONLY(CSE cse(EL_FUNCTION))
 
 } // namespace El
 

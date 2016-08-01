@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace pos_orth {
@@ -18,7 +18,7 @@ Real ComplementRatio
 ( const Matrix<Real>& s,
   const Matrix<Real>& z )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
+    DEBUG_CSE
     const Int k = s.Height();
     const Real* sBuf = s.LockedBuffer();
     const Real* zBuf = z.LockedBuffer();
@@ -39,7 +39,7 @@ Real ComplementRatio
 ( const ElementalMatrix<Real>& sPre,
   const ElementalMatrix<Real>& zPre )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
+    DEBUG_CSE
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -73,7 +73,7 @@ Real ComplementRatio
 ( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z )
 {
-    DEBUG_ONLY(CSE cse("pos_orth::ComplementRatio"))
+    DEBUG_CSE
     const Int localHeight = s.LocalHeight();
     const Real* sBuf = s.LockedMatrix().LockedBuffer();
     const Real* zBuf = z.LockedMatrix().LockedBuffer();
@@ -108,7 +108,7 @@ Real ComplementRatio
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace pos_orth
 } // namespace El

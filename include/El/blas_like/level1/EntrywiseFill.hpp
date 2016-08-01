@@ -14,14 +14,12 @@ namespace El {
 template<typename T>
 void EntrywiseFill( Matrix<T>& A, function<T(void)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseFill"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            ABuf[i+j*ALDim] = func();
+            A(i,j) = func();
 }
 
 template<typename T>
@@ -51,7 +49,7 @@ void EntrywiseFill( DistMultiVec<T>& A, function<T(void)> func )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

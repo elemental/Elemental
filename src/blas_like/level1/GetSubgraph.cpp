@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
@@ -18,7 +19,7 @@ void GetSubgraph
         Range<Int> J,
         Graph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     const Int* offsetBuf = graph.LockedOffsetBuffer();
     const Int* targetBuf = graph.LockedTargetBuffer();
 
@@ -67,7 +68,7 @@ void GetSubgraph
   const vector<Int>& J,
         Graph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -78,7 +79,7 @@ void GetSubgraph
         Range<Int> J,
         Graph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -89,7 +90,7 @@ void GetSubgraph
   const vector<Int>& J,
         Graph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -100,7 +101,7 @@ void GetSubgraph
         Range<Int> J,
         DistGraph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     const Int* targetBuf = graph.LockedTargetBuffer();
     const Int* sourceBuf = graph.LockedSourceBuffer();
     if( I.end == END )
@@ -170,7 +171,7 @@ void GetSubgraph
   const vector<Int>& J,
         DistGraph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -181,7 +182,7 @@ void GetSubgraph
         Range<Int> J,
         DistGraph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -192,7 +193,7 @@ void GetSubgraph
   const vector<Int>& J,
         DistGraph& subgraph )
 {
-    DEBUG_ONLY(CSE cse("GetSubgraph"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }

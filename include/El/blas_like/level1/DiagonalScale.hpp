@@ -18,13 +18,10 @@ void DiagonalScale
   const Matrix<TDiag>& d,
         Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
-    const TDiag* dBuf = d.LockedBuffer();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
     if( side == LEFT )
     {
         DEBUG_ONLY(
@@ -33,9 +30,9 @@ void DiagonalScale
         )
         for( Int i=0; i<m; ++i )
         {
-            const T delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
+            const T delta = ( conj ? Conj(d(i)) : d(i) );
             for( Int j=0; j<n; ++j )
-                ABuf[i+j*ALDim] *= delta;
+                A(i,j) *= delta;
         }
     }
     else
@@ -46,46 +43,81 @@ void DiagonalScale
         )
         for( Int j=0; j<n; ++j )
         {
-            const T delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
+            const T delta = ( conj ? Conj(d(j)) : d(j) );
             for( Int i=0; i<m; ++i )
-                ABuf[i+j*ALDim] *= delta;
+                A(i,j) *= delta;
         }
     }
 }
 
-template<typename TDiag,typename T,Dist U,Dist V>
+template<typename TDiag,typename T,Dist U,Dist V,DistWrap wrapType>
 void DiagonalScale
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<TDiag>& dPre,
-        DistMatrix<T,U,V>& A )
+  const AbstractDistMatrix<TDiag>& dPre,
+        DistMatrix<T,U,V,wrapType>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
-    if( side == LEFT )
+    DEBUG_CSE
+    if( wrapType == ELEMENT )
     {
-        ElementalProxyCtrl ctrl;
-        ctrl.rootConstrain = true;
-        ctrl.colConstrain = true;
-        ctrl.root = A.Root();
-        ctrl.colAlign = A.ColAlign();
+        if( side == LEFT )
+        {
+            ElementalProxyCtrl ctrl;
+            ctrl.rootConstrain = true;
+            ctrl.colConstrain = true;
+            ctrl.root = A.Root();
+            ctrl.colAlign = A.ColAlign();
 
-        DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>()> dProx( dPre, ctrl );
-        auto& d = dProx.GetLocked();
+            DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>()> dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
 
-        DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
+            DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
+        else
+        {
+            ElementalProxyCtrl ctrl;
+            ctrl.rootConstrain = true;
+            ctrl.colConstrain = true;
+            ctrl.root = A.Root();
+            ctrl.colAlign = A.RowAlign();
+
+            DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>()> dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
+
+            DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
     }
     else
     {
-        ElementalProxyCtrl ctrl;
+        ProxyCtrl ctrl;
         ctrl.rootConstrain = true;
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
-        ctrl.colAlign = A.RowAlign();
 
-        DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>()> dProx( dPre, ctrl );
-        auto& d = dProx.GetLocked();
+        if( side == LEFT )
+        {
+            ctrl.colAlign = A.ColAlign();
+            ctrl.blockHeight = A.BlockHeight();
+            ctrl.colCut = A.ColCut();
 
-        DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
+            DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>(),BLOCK>
+              dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
+
+            DiagonalScale( LEFT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
+        else
+        {
+            ctrl.colAlign = A.RowAlign();
+            ctrl.blockHeight = A.BlockWidth();
+            ctrl.colCut = A.RowCut();
+
+            DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>(),BLOCK>
+              dProx( dPre, ctrl );
+            auto& d = dProx.GetLocked();
+
+            DiagonalScale( RIGHT, orientation, d.LockedMatrix(), A.Matrix() );
+        }
     }
 }
 
@@ -93,15 +125,26 @@ template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<TDiag>& d,
-        ElementalMatrix<T>& A )
+  const AbstractDistMatrix<TDiag>& d,
+        AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
-        DiagonalScale( side, orientation, d, ACast );
-    #include "El/macros/GuardAndPayload.h"
+    DEBUG_CSE
+    if( A.Wrap() == ELEMENT )
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+            DiagonalScale( side, orientation, d, ACast );
+        #include <El/macros/GuardAndPayload.h>
+    }
+    else
+    {
+        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
+            DiagonalScale( side, orientation, d, ACast );
+        #include <El/macros/GuardAndPayload.h>
+    }
 }
 
 template<typename TDiag,typename T>
@@ -111,7 +154,7 @@ void DiagonalScale
   const Matrix<TDiag>& d, 
         SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const bool conjugate = ( orientation == ADJOINT );
@@ -155,7 +198,7 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("DiagonalScale"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), A.Comm() ) )
@@ -222,8 +265,8 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistMultiVec<T>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalScale");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( !mpi::Congruent( d.Comm(), X.Comm() ) )
@@ -235,15 +278,14 @@ void DiagonalScale
     )
     const bool conjugate = ( orientation == ADJOINT );
     const Int width = X.Width();
-    T* XBuf = X.Matrix().Buffer();
-    const Int XLDim = X.Matrix().LDim();
+    auto& XLoc = X.Matrix();
+    auto& dLoc = d.LockedMatrix();
     const Int localHeight = d.LocalHeight();
-    const TDiag* dBuf = d.LockedMatrix().LockedBuffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
     {
-        const T delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
+        const T delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
         for( Int j=0; j<width; ++j )
-            XBuf[iLoc+j*XLDim] *= delta;
+            XLoc(iLoc,j) *= delta;
     }
 }
 
@@ -262,8 +304,8 @@ void DiagonalScale
   EL_EXTERN template void DiagonalScale \
   ( LeftOrRight side, \
     Orientation orientation, \
-    const ElementalMatrix<T>& d, \
-          ElementalMatrix<T>& A ); \
+    const AbstractDistMatrix<T>& d, \
+          AbstractDistMatrix<T>& A ); \
   EL_EXTERN template void DiagonalScale \
   ( LeftOrRight side, \
     Orientation orientation, \
@@ -285,7 +327,7 @@ void DiagonalScale
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -16,10 +16,8 @@ PermutationMeta::PermutationMeta
         Int permAlign,
         mpi::Comm permComm )
 {
-    DEBUG_ONLY(
-      CSE cse("PermutationMeta::PermutationMeta");
-      AssertSameGrids( perm, invPerm );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( perm, invPerm ))
     comm = permComm;
     align = permAlign;
     const Int permStride = mpi::Size( permComm );

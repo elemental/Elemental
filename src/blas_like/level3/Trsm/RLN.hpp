@@ -17,14 +17,13 @@ namespace trsm {
 //   X := X tril(L)^-1, and
 //   X := X trilu(L)^-1
 template<typename F>
-inline void
-RLN
+void RLN
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("trsm::RLN"))
+    DEBUG_CSE
     const Int n = XPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();

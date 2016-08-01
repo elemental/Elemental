@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 // TODO: Consider making MinAbsNonzero global
 #include "../../../lapack_like/equilibrate/Util.hpp"
 
@@ -16,7 +16,7 @@
 namespace El {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real DampScaling( Real alpha )
+Real DampScaling( Real alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -38,7 +38,7 @@ void GeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -55,7 +55,7 @@ void GeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -179,7 +179,7 @@ void GeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -358,7 +358,7 @@ void GeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("cone::GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -575,7 +575,7 @@ void GeomEquil
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace cone
 } // namespace El

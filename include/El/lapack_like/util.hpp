@@ -71,24 +71,42 @@ void BuildChildFromPerm
 
 // Median
 // ======
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 ValueInt<Real> Median( const Matrix<Real>& x );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-ValueInt<Real> Median( const ElementalMatrix<Real>& x );
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+ValueInt<Real> Median( const AbstractDistMatrix<Real>& x );
 
 // Sort
 // ====
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 void Sort( Matrix<Real>& X, SortType sort=ASCENDING );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-void Sort( ElementalMatrix<Real>& X, SortType sort=ASCENDING );
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+void Sort( AbstractDistMatrix<Real>& X, SortType sort=ASCENDING );
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 vector<ValueInt<Real>>
 TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
 vector<ValueInt<Real>>
-TaggedSort( const ElementalMatrix<Real>& x, SortType sort=ASCENDING );
+TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort=ASCENDING );
+
+template<typename Real,typename F>
+void ApplyTaggedSortToEachRow
+( const vector<ValueInt<Real>>& sortPairs,
+        Matrix<F>& Z );
+template<typename Real,typename F>
+void ApplyTaggedSortToEachColumn
+( const vector<ValueInt<Real>>& sortPairs,
+        Matrix<F>& Z );
+
+template<typename Real,typename F>
+void ApplyTaggedSortToEachRow
+( const vector<ValueInt<Real>>& sortPairs,
+        AbstractDistMatrix<F>& Z );
+template<typename Real,typename F>
+void ApplyTaggedSortToEachColumn
+( const vector<ValueInt<Real>>& sortPairs,
+        AbstractDistMatrix<F>& Z );
 
 } // namespace El
 

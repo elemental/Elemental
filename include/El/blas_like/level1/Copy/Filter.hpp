@@ -17,7 +17,7 @@ void Filter
 ( const DistMatrix<T,Collect<U>(),Collect<V>()>& A,
         DistMatrix<T,        U,           V   >& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Filter"))
+    DEBUG_CSE
     AssertSameGrids( A, B );
 
     B.Resize( A.Height(), A.Width() );
@@ -37,7 +37,7 @@ void Filter
 ( const DistMatrix<T,Collect<U>(),Collect<V>(),BLOCK>& A,
         DistMatrix<T,        U,           V   ,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("copy::Filter"))
+    DEBUG_CSE
     // TODO: More efficient implementation
     GeneralPurpose( A, B );
 }

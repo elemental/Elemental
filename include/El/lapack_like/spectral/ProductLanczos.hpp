@@ -20,7 +20,7 @@ inline void ProductLanczos
         Matrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczos"))
+    DEBUG_CSE
     Matrix<F> s;
     if( m >= n )
     {
@@ -55,7 +55,7 @@ inline Base<F> ProductLanczosDecomp
         Matrix<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
+    DEBUG_CSE
     Matrix<F> s;
     if( m >= n )
     {
@@ -88,7 +88,7 @@ inline void ProductLanczos
         ElementalMatrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczos"))
+    DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
     DistMultiVec<F> s(comm);
     if( m >= n )
@@ -124,7 +124,7 @@ inline Base<F> ProductLanczosDecomp
         DistMultiVec<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
+    DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
     DistMultiVec<F> s(comm);
     if( m >= n )

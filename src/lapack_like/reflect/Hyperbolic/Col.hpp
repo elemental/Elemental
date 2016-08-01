@@ -17,14 +17,14 @@ namespace hyp_reflector {
 template<typename F> 
 F Col( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("hyp_reflector::Col");
-        if( x.Width() != 1 )
-            LogicError("x must be a column vector");
-        if( x.RowRank() != x.RowAlign() )
-            LogicError("Reflecting from incorrect process");
-        if( ImagPart(chi) !=Base<F>(0) )
-            LogicError("chi is assumed to be real");
+      if( x.Width() != 1 )
+          LogicError("x must be a column vector");
+      if( x.RowRank() != x.RowAlign() )
+          LogicError("Reflecting from incorrect process");
+      if( ImagPart(chi) !=Base<F>(0) )
+          LogicError("chi is assumed to be real");
     )
     typedef Base<F> Real;
     mpi::Comm colComm = x.ColComm();
@@ -58,10 +58,10 @@ F Col( F& chi, ElementalMatrix<F>& x )
 template<typename F> 
 F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("hyp_reflector::Col");
-        if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
-            LogicError("Reflecting from incorrect process");
+      if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
+          LogicError("Reflecting from incorrect process");
     )
     F alpha;
     if( chi.IsLocal(0,0) )

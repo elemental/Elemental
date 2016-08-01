@@ -124,9 +124,9 @@ public:
 
     // Single-entry manipulation
     // =========================
-    scalarType Get( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    Base<scalarType> GetRealPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    Base<scalarType> GetImagPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    scalarType Get( Int i, Int j=0 ) const EL_NO_RELEASE_EXCEPT;
+    Base<scalarType> GetRealPart( Int i, Int j=0 ) const EL_NO_RELEASE_EXCEPT;
+    Base<scalarType> GetImagPart( Int i, Int j=0 ) const EL_NO_RELEASE_EXCEPT;
 
     void Set( Int i, Int j, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
     void Set( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
@@ -157,6 +157,14 @@ public:
     void MakeReal( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
     void Conjugate( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
 
+    // Return a reference to a single entry without error-checking
+    // -----------------------------------------------------------
+    inline const scalarType& CRef( Int i, Int j=0 ) const EL_NO_RELEASE_EXCEPT;
+    inline const scalarType& operator()( Int i, Int j=0 ) const EL_NO_RELEASE_EXCEPT;
+
+    inline scalarType& Ref( Int i, Int j=0 ) EL_NO_RELEASE_EXCEPT;
+    inline scalarType& operator()( Int i, Int j=0 ) EL_NO_RELEASE_EXCEPT;
+
 private:
     // Member variables
     // ================
@@ -184,11 +192,6 @@ private:
     ( Int height, Int width, scalarType* buffer, Int ldim );
     void LockedAttach_
     ( Int height, Int width, const scalarType* buffer, Int ldim );
-
-    // Return a reference to a single entry without error-checking
-    // ===========================================================
-    const scalarType& Get_( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    scalarType& Set_( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
 
     // Assertions
     // ==========

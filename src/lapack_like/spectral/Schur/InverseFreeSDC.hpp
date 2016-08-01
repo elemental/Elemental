@@ -22,10 +22,9 @@ namespace schur {
 //
 
 template<typename F>
-inline int
-InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
+int InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -92,10 +91,9 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 }
 
 template<typename F>
-inline int
-InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
+int InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();
@@ -167,10 +165,9 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 }
 
 template<typename F>
-inline Base<F>
-InverseFreeSignDivide( Matrix<F>& X )
+Base<F> InverseFreeSignDivide( Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -209,10 +206,9 @@ InverseFreeSignDivide( Matrix<F>& X )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-InverseFreeSignDivide( ElementalMatrix<F>& XPre )
+ValueInt<Base<F>> InverseFreeSignDivide( ElementalMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();

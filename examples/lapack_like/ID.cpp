@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -29,7 +29,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
+        const Grid& g = Grid::Default();
         DistMatrix<F> U(g), V(g), A(g);
         Uniform( U, m, r );
         Uniform( V, n, r );

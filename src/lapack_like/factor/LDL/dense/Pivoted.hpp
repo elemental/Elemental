@@ -30,7 +30,7 @@ Pivoted
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ldl::Pivoted"))
+    DEBUG_CSE
     switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:
@@ -52,7 +52,7 @@ Pivoted
   bool conjugate, 
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ldl::Pivoted"))
+    DEBUG_CSE
     switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:

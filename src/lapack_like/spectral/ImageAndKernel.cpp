@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -16,20 +16,20 @@ void ImageAndKernel
         Matrix<F>& M,
         Matrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("ImageAndKernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
     const Real eps = limits::Epsilon<Real>();
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = FULL_SVD;
+    ctrl.bidiagSVDCtrl.approach = FULL_SVD;
     Matrix<F> U, V;
     Matrix<Real> s;
     SVD( B, U, s, V, ctrl );
 
     const Int numSingVals = s.Height();
-    const Real twoNorm = ( numSingVals==0 ? Real(0) : s.Get(0,0) );
+    const Real twoNorm = ( numSingVals==0 ? Real(0) : s(0) );
 
     // TODO: Incorporate a user-defined (relative) threshold
     const Real relTol = Max(m,n)*eps;
@@ -38,7 +38,7 @@ void ImageAndKernel
     Int rank = numSingVals;
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.Get(j,0) <= tol )
+        if( s(j) <= tol )
         {
             rank = j;
             break;
@@ -57,7 +57,7 @@ void ImageAndKernel
         ElementalMatrix<F>& M,
         ElementalMatrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("ImageAndKernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -65,7 +65,7 @@ void ImageAndKernel
     const Grid& g = B.Grid();
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = FULL_SVD;
+    ctrl.bidiagSVDCtrl.approach = FULL_SVD;
     DistMatrix<F> U(g), V(g);
     DistMatrix<Real,STAR,STAR> s(g);
     SVD( B, U, s, V, ctrl );
@@ -78,9 +78,10 @@ void ImageAndKernel
     const Real tol = twoNorm*relTol;
 
     Int rank = numSingVals;
+    auto& sLoc = s.Matrix();
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.GetLocal(j,0) <= tol )
+        if( sLoc(j) <= tol )
         {
             rank = j;
             break;
@@ -98,18 +99,18 @@ void Image
 ( const Matrix<F>& B,
         Matrix<F>& M )
 {
-    DEBUG_ONLY(CSE cse("Image"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
     const Real eps = limits::Epsilon<Real>();
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = COMPACT_SVD;
-    ctrl.avoidComputingV = true;
-    // TODO: Incorporate a user-defined (relative) threshold
-    ctrl.relative = true;
-    ctrl.tol = Max(m,n)*eps;
+    ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
+    ctrl.bidiagSVDCtrl.wantV = false;
+    // TODO(poulson): Let the user change these defaults
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol = Max(m,n)*eps;
     Matrix<F> V;
     Matrix<Real> s;
     SVD( B, M, s, V, ctrl );
@@ -120,7 +121,7 @@ void Image
 ( const ElementalMatrix<F>& B,
         ElementalMatrix<F>& M )
 {
-    DEBUG_ONLY(CSE cse("Image"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -128,11 +129,11 @@ void Image
     const Grid& g = B.Grid();
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = COMPACT_SVD;
-    ctrl.avoidComputingV = true;
-    // TODO: Incorporate a user-defined (relative) threshold
-    ctrl.relative = true;
-    ctrl.tol = Max(m,n)*eps;
+    ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
+    ctrl.bidiagSVDCtrl.wantV = false;
+    // TODO(poulson): Let the user change these defaults
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol = Max(m,n)*eps;
     DistMatrix<F> V(g);
     DistMatrix<Real,STAR,STAR> s(g);
     SVD( B, M, s, V, ctrl );
@@ -143,21 +144,21 @@ void Kernel
 ( const Matrix<F>& B,
         Matrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("Kernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
     const Real eps = limits::Epsilon<Real>();
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = FULL_SVD;
-    ctrl.avoidComputingU = true;
+    ctrl.bidiagSVDCtrl.approach = FULL_SVD;
+    ctrl.bidiagSVDCtrl.wantU = false;
     Matrix<F> U, V;
     Matrix<Real> s;
     SVD( B, U, s, V, ctrl );
 
     const Int numSingVals = s.Height();
-    const Real twoNorm = ( numSingVals==0 ? Real(0) : s.Get(0,0) );
+    const Real twoNorm = ( numSingVals==0 ? Real(0) : s(0) );
 
     // TODO: Incorporate a user-defined (relative) threshold
     const Real relTol = Max(m,n)*eps;
@@ -166,7 +167,7 @@ void Kernel
     Int rank = numSingVals;
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.Get(j,0) <= tol )
+        if( s(j) <= tol )
         {
             rank = j;
             break;
@@ -182,7 +183,7 @@ void Kernel
 ( const ElementalMatrix<F>& B,
         ElementalMatrix<F>& K )
 {
-    DEBUG_ONLY(CSE cse("Kernel"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -190,8 +191,8 @@ void Kernel
     const Grid& g = B.Grid();
 
     SVDCtrl<Real> ctrl;
-    ctrl.approach = FULL_SVD;
-    ctrl.avoidComputingU = true;
+    ctrl.bidiagSVDCtrl.approach = FULL_SVD;
+    ctrl.bidiagSVDCtrl.wantU = false;
     DistMatrix<F> U(g), V(g);
     DistMatrix<Real,STAR,STAR> s(g);
     SVD( B, U, s, V, ctrl );
@@ -204,9 +205,10 @@ void Kernel
     const Real tol = twoNorm*relTol;
 
     Int rank = numSingVals;
+    auto& sLoc = s.Matrix();
     for( Int j=0; j<numSingVals; ++j )
     {
-        if( s.GetLocal(j,0) <= tol )
+        if( sLoc(j) <= tol )
         {
             rank = j;
             break;
@@ -240,12 +242,10 @@ void Kernel
           ElementalMatrix<F>& K );
 
 #define EL_NO_INT_PROTO
-/*
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-*/
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

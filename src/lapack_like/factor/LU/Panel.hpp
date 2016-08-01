@@ -15,12 +15,12 @@ namespace lu {
 template<typename F>
 void Panel( Matrix<F>& A, Permutation& P, Permutation& PB, Int offset )
 {
+    DEBUG_CSE
     const Int m = A.Height(); 
     const Int n = A.Width();
     F* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
     DEBUG_ONLY(
-      CSE cse("lu::Panel");
       if( A.Height() < n )
           LogicError("Must be a column panel");
     )
@@ -73,6 +73,7 @@ void Panel
   Int offset,
   vector<F>& pivotBuffer )
 {
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Width();
     const Int BLocHeight = B.LocalHeight();
@@ -83,7 +84,6 @@ void Panel
     mpi::Comm colComm = B.ColComm();
     mpi::Op maxLocOp = mpi::MaxLocOp<Real>();
     DEBUG_ONLY(
-      CSE cse("lu::Panel");
       AssertSameGrids( A, B );
       if( n != B.Width() )
           LogicError("A and B must be the same width");

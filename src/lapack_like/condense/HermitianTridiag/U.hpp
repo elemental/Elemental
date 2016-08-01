@@ -14,21 +14,22 @@
 namespace El {
 namespace herm_tridiag {
 
+// TODO(poulson): Blocked sequential implementation
 template<typename F>
-void U( Matrix<F>& A, Matrix<F>& t )
+void U( Matrix<F>& A, Matrix<F>& phase )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("herm_tridiag::U");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
     const Int n = A.Height();
     if( n == 0 )
     {
-        t.Resize( 0, 1 );
+        phase.Resize( 0, 1 );
         return;
     }
-    t.Resize( n-1, 1 );
+    phase.Resize( n-1, 1 );
 
     Matrix<F> w01;
     for( Int k=n-1; k>0; --k )
@@ -43,53 +44,54 @@ void U( Matrix<F>& A, Matrix<F>& t )
         auto alpha01B = A( IR(k-1),   ind1 );
 
         const F tau = LeftReflector( alpha01B, a01T );
-        const Base<F> epsilon1 = alpha01B.GetRealPart(0,0);
-        t.Set( k-1, 0, tau );
-        alpha01B.Set(0,0,F(1));
+        const Base<F> epsilon1 = RealPart(alpha01B(0));
+        phase(k-1) = tau;
+        alpha01B(0) = F(1);
 
         Zeros( w01, k, 1 );
         Hemv( UPPER, Conj(tau), A00, a01, F(0), w01 );
         const F alpha = -Conj(tau)*Dot( w01, a01 )/F(2);
         Axpy( alpha, a01, w01 );
         Her2( UPPER, F(-1), a01, w01, A00 );
-        alpha01B.Set(0,0,epsilon1);
+        alpha01B(0) = epsilon1;
     }
 }
 
-// TODO: If there is only a single MPI process, fall down to the sequential
-//       implementation.
+// TODO(poulson):
+// If there is only a single MPI process, fall down to the sequential
+// implementation.
 template<typename F>
 void U
 ( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& tPre,
+  ElementalMatrix<F>& phasePre,
   const SymvCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("herm_tridiag::U");
-      AssertSameGrids( APre, tPre );
+      AssertSameGrids( APre, phasePre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> tProx( tPre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> phaseProx( phasePre );
     auto& A = AProx.Get();
-    auto& t = tProx.Get();
+    auto& phase = phaseProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
     if( n == 0 )
     {
-        t.Resize( 0, 1 );
+        phase.Resize( 0, 1 );
         return;
     }
-    DistMatrix<F,MD,STAR> tDiag(g);
-    tDiag.SetRoot( A.DiagonalRoot(1) );
-    tDiag.AlignCols( A.DiagonalAlign(1) );
-    tDiag.Resize( n-1, 1 );
+    DistMatrix<F,MD,STAR> phaseDiag(g);
+    phaseDiag.SetRoot( A.DiagonalRoot(1) );
+    phaseDiag.AlignCols( A.DiagonalAlign(1) );
+    phaseDiag.Resize( n-1, 1 );
 
     DistMatrix<F> WPan(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), t1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), phase1_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> APan_MC_STAR(g), WPan_MC_STAR(g);
     DistMatrix<F,MR,  STAR> APan_MR_STAR(g), WPan_MR_STAR(g);
     
@@ -110,7 +112,7 @@ void U
         
         if( k > 0 )
         {
-            auto t1 = tDiag( IR(k-1,k+nb-1), ALL );
+            auto phase1 = phaseDiag( IR(k-1,k+nb-1), ALL );
             WPan.AlignWith( A01 );
             WPan.Resize( k+nb, nb );
             APan_MC_STAR.AlignWith( A00 );
@@ -123,7 +125,7 @@ void U
             WPan_MR_STAR.Resize( k+nb, nb );
 
             UPan
-            ( ATL, WPan, t1,
+            ( ATL, WPan, phase1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR, ctrl );
 
@@ -140,17 +142,17 @@ void U
         }
         else
         {
-            auto t1 = tDiag( IR(0,nb-1), ALL );
+            auto phase1 = phaseDiag( IR(0,nb-1), ALL );
             A11_STAR_STAR = A11;
-            t1_STAR_STAR.Resize( nb-1, 1 );
+            phase1_STAR_STAR.Resize( nb-1, 1 );
             HermitianTridiag
-            ( UPPER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
+            ( UPPER, A11_STAR_STAR.Matrix(), phase1_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;
-            t1 = t1_STAR_STAR;
+            phase1 = phase1_STAR_STAR;
         }
     }
     // Redistribute from matrix-diagonal form to fully replicated
-    t = tDiag;
+    phase = phaseDiag;
 }
 
 } // namespace herm_tridiag

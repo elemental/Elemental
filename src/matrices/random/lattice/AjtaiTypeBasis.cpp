@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -15,7 +17,7 @@ namespace El {
 template<typename T>
 void AjtaiTypeBasis( Matrix<T>& A, Int n, Base<T> alpha )
 {
-    DEBUG_ONLY(CSE cse("AjtaiTypeBasis"))
+    DEBUG_CSE
     typedef Base<T> Real;
 
     Zeros( A, n, n );
@@ -26,18 +28,18 @@ void AjtaiTypeBasis( Matrix<T>& A, Int n, Base<T> alpha )
     {
         const Real exponent = Pow(Real(2)*n-j+1,alpha);
         const Real beta = Round(Pow(Real(2),exponent));
-        d.Set( j, 0, beta );
-        A.Set( j, j, beta );
+        d(j) = beta;
+        A(j,j) = beta;
 
         for( Int i=0; i<j; ++i )
-            A.Set( i, j, SampleUniform<T>(T(0),d.Get(j,0)/Real(2)) );
+            A(i,j) = SampleUniform(T(0),T(d(j)/Real(2)));
     }
 }
 
 template<typename T>
 void AjtaiTypeBasis( AbstractDistMatrix<T>& APre, Int n, Base<T> alpha )
 {
-    DEBUG_ONLY(CSE cse("AjtaiTypeBasis"))
+    DEBUG_CSE
     typedef Base<T> Real;
     DistMatrixWriteProxy<T,T,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -61,13 +63,13 @@ void AjtaiTypeBasis( AbstractDistMatrix<T>& APre, Int n, Base<T> alpha )
 
     if( A.RedundantRank() == 0 )
     {
+        auto& ALoc = A.Matrix();
+        auto& dLoc = d.Matrix();
         for( Int jLoc=0; jLoc<ALocWidth; ++jLoc )
         {
-            const Int j = A.GlobalCol( jLoc );
             for( Int iLoc=0; iLoc<ALocHeight; ++iLoc )
             {
-                A.SetLocal
-                ( iLoc, jLoc, SampleUniform<T>(T(0),d.Get(j,0)/Real(2)) );
+                ALoc(iLoc,jLoc) = SampleUniform(T(0),T(dLoc(jLoc,0)/Real(2)));
             }
         }
     }
@@ -85,6 +87,6 @@ void AjtaiTypeBasis( AbstractDistMatrix<T>& APre, Int n, Base<T> alpha )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

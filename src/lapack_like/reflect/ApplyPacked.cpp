@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "./ApplyPacked/Util.hpp"
 #include "./ApplyPacked/LLHB.hpp"
@@ -35,7 +35,7 @@ void ApplyPackedReflectors
   Conjugation conjugation,
   Int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("ApplyPackedReflectors"))
+    DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )
@@ -97,7 +97,7 @@ void ApplyPackedReflectors
   const ElementalMatrix<F>& H, const ElementalMatrix<F>& t, 
         ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("ApplyPackedReflectors"))
+    DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )
@@ -169,6 +169,6 @@ void ApplyPackedReflectors
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

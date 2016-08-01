@@ -16,16 +16,15 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateRUT
+void LocalAccumulateRUT
 ( UnitOrNonUnit diag,
   T alpha,
   const DistMatrix<T>& U,
   const DistMatrix<T,MR,STAR>& XTrans,
         DistMatrix<T,MC,STAR>& ZTrans )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateRUT");
       AssertSameGrids( U, XTrans, ZTrans );
       if( U.Height() != U.Width() ||
           U.Height() != XTrans.Height() ||
@@ -68,15 +67,14 @@ LocalAccumulateRUT
 }
 
 template<typename T>
-inline void
-RUTA
+void RUTA
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RUTA");
       AssertSameGrids( UPre, XPre );
       // TODO: More input checks
     )
@@ -105,7 +103,8 @@ RUTA
         auto X1 = X( IR(k,k+nb), ALL );
 
         Transpose( X1, X1Trans_MR_STAR, conjugate );
-        Zeros( Z1Trans_MC_STAR, X.Width(), nb );
+        Z1Trans_MC_STAR.Resize( X.Width(), nb );
+        Zero( Z1Trans_MC_STAR );
         LocalAccumulateRUT
         ( diag, T(1), U, X1Trans_MR_STAR, Z1Trans_MC_STAR );
 
@@ -117,15 +116,14 @@ RUTA
 }
 
 template<typename T>
-inline void
-RUTC
+void RUTC
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RUTC");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected Adjoint/Transpose option");
@@ -178,14 +176,13 @@ RUTC
 //   X := X triuu(U)^T, or
 //   X := X triuu(U)^H
 template<typename T>
-inline void
-RUT
+void RUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& U,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& U,
+        AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::RUT"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
         RUTA( orientation, diag, U, X );

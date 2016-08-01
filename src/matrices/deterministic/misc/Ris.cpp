@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename F> 
 void Ris( Matrix<F>& R, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ris"))
+    DEBUG_CSE
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
@@ -23,7 +25,7 @@ void Ris( Matrix<F>& R, Int n )
 template<typename F>
 void Ris( AbstractDistMatrix<F>& R, Int n )
 {
-    DEBUG_ONLY(CSE cse("Ris"))
+    DEBUG_CSE
     R.Resize( n, n );
     const F oneHalf = F(1)/F(2);
     auto risFill = [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); };
@@ -39,6 +41,6 @@ void Ris( AbstractDistMatrix<F>& R, Int n )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

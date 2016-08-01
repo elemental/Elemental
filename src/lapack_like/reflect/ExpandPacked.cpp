@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "El/core/FlamePart.hpp"
 
@@ -20,7 +20,7 @@ void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
-    DEBUG_ONLY(CSE cse("ExpandPackedReflectors"))
+    DEBUG_CSE
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
@@ -32,7 +32,7 @@ void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, ElementalMatrix<F>& H, const ElementalMatrix<F>& t )
 {
-    DEBUG_ONLY(CSE cse("ExpandPackedReflectors"))
+    DEBUG_CSE
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
@@ -52,6 +52,6 @@ void ExpandPackedReflectors
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

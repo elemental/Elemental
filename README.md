@@ -3,6 +3,7 @@
 </p>
 
 [![Build Status](https://api.travis-ci.org/elemental/Elemental.svg?branch=master)](https://travis-ci.org/elemental/Elemental)
+[![Join the chat at https://gitter.im/elemental/chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/elemental/chat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **Elemental** is a modern C++ library for distributed-memory dense and
 sparse-direct linear algebra and optimization.
@@ -12,20 +13,29 @@ and absorbed, then greatly expanded upon, the functionality from the
 sparse-direct solver [Clique](http://www.github.com/poulson/Clique.git), which 
 was originally released during a project on [Parallel Sweeping Preconditioners](http://epubs.siam.org/doi/abs/10.1137/120871985).
 
-Please visit [the download page](http://libelemental.org/download/) for
-details about recent and upcoming releases.
+The development branch is currently at least six months ahead of the last 
+major release; you may find these (now outdated) releases at
+[the download page](http://libelemental.org/download/).
 
 ### Documentation
 
-The [documentation for Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org) and the [Read the Docs Theme](http://docs.readthedocs.org/en/latest/theme.html)
+The (now outdated) [documentation for Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org) and the [Read the Docs Theme](http://docs.readthedocs.org/en/latest/theme.html)
 
 ### Unique features
 
 Elemental supports a wide collection of sequential and distributed-memory
-functionality, including:
+functionality, including sequential and distributed-memory support for the
+datatypes:
+
+- `float`, `El::Complex<float>`
+- `double`, `El::Complex<double>`
+- `El::DoubleDouble`, `El::Complex<El::DoubleDouble>` (on top of QD's *dd_real*)
+- `El::QuadDouble`, `El::Complex<El::QuadDouble>` (on top of QD's *qd_real*)
+- `El::Quad`, `El::Complex<El::Quad>` (on top of GCC's *__float128*)
+- `El::BigFloat`, `El::Complex<El::BigFloat>` (on top of MPFR's *mpfr_t* and MPC's *mpc_t*)
 
 **Convex optimization**:
-* (Arbitrary-precision) dense and sparse Interior Point Methods for
+* Dense and sparse Interior Point Methods for
   Linear, Quadratic, and Second-Order Cone Programs (**Note: Scalability for sparse IPMs will be lacking until more general sparse matrix distributions are introduced into Elemental**)
     - Basis Pursuit
     - Chebyshev Points
@@ -35,48 +45,46 @@ functionality, including:
     - Non-negative Least Squares
     - Support Vector Machines
     - (1D) Total Variation
-* (Arbitrary-precision) Jordan algebras over products of Second-Order Cones
+* Jordan algebras over products of Second-Order Cones
 * Various prototype dense Alternating Direction Method of Multipliers routines
     - Sparse inverse covariance selection
     - Robust Principal Component Analysis
 * Prototype alternating direction Non-negative Matrix Factorization
 
 **Linear algebra**:
-* (Arbitrary-precision) dense and sparse-direct (generalized) Least Squares
+* Dense and sparse-direct (generalized) Least Squares
   problems
     - Least Squares / Minimum Length
     - Tikhonov (and ridge) regression
     - Equality-constrained Least Squares
     - General (Gauss-Markov) Linear Models
 * High-performance pseudospectral computation and visualization
-* (Arbitrary-precision) blocked column-pivoted QR via Johnson-Lindenstrauss
-* (Arbitrary-precision) quadratic-time low-rank Cholesky and LU modifications
-* (Arbitrary-precision) Bunch-Kaufman and Bunch-Parlett for accurate symmetric
+* Aggressive Early Deflation Schur decompositions (currently sequential only)
+* Blocked column-pivoted QR via Johnson-Lindenstrauss
+* Quadratic-time low-rank Cholesky and LU modifications
+* Bunch-Kaufman and Bunch-Parlett for accurate symmetric
   factorization
-* (Arbitrary-precision) LU and Cholesky with full pivoting
-* (Arbitrary-precision) Column-pivoted QR and
-  interpolative/skeleton decompositions
-* (Arbitrary-precision) Quadratically Weighted Dynamic Halley iteration for
-  the polar decomposition
+* LU and Cholesky with full pivoting
+* Column-pivoted QR and interpolative/skeleton decompositions
+* Quadratically Weighted Dynamic Halley iteration for the polar decomposition
 * Many algorithms for Singular-Value soft-Thresholding (SVT)
-* (Arbitrary-precision) Tall-skinny QR decompositions
+* Tall-skinny QR decompositions
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
+* Arbitrary-precision distributed SVD and (generalized) Hermitian EVPs
 
 **Lattice reduction**:
-* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to linearly-dependent bases
-* Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1)
+* An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
+* Generalizations of [BKZ 2.0](http://link.springer.com/chapter/10.1007%2F978-3-642-25385-0_1) to complex bases (currently sequential only)
  incorporating ["y-sparse" enumeration](https://eprint.iacr.org/2014/980)
-* Integer images/kernels and relation-finding
+* Integer images/kernels and relation-finding (currently sequential only)
 
 ### The current development roadmap
 
 **Core data structures**:
 * (1a) Eliminate `DistMultiVec` in favor of the newly extended `DistMatrix`
 * (1b) Extend `DistSparseMatrix` to support elementwise and blockwise 2D distributions
-* (1c) Extend the library to support (distributed) arbitrary-precision complex
-  arithmetic on top of [MPC](http://www.multiprecision.org/index.php?prog=mpc)
 
 **Linear algebra**:
 * (2a) Distributed iterative refinement tailored to two right-hand sides \[weakly depends on (1a)\]
@@ -90,9 +98,6 @@ functionality, including:
   decompositions \[depends on (1b); weakly depends on (1a)\]
 * (3c) Distributed sparse semidefinite programs via chordal decompositions \[weakly depends on (3b)\]
 
-Alternatively, see the `TODO` list for a detailed, albeit somewhat outdated,
-list of planned additions.
-
 ### License
 
 The vast majority of Elemental is distributed under the terms of the
@@ -105,6 +110,7 @@ which is distributed under the (equally permissive)
 can only be used for research purposes (and can be easily disabled), and 
 [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/), which is 
 distributed under the terms of the [GNU Lesser General Public License, version 2.1 or later](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).
+Lastly, [QD](http://crd-legacy.lbl.gov/~dhbailey/mpdist/) is distributed under the terms of the [LBNL-BSD-License](http://crd.lbl.gov/~dhbailey/mpdist/LBNL-BSD-License.doc).
 
 ### Dependencies
 
@@ -142,6 +148,8 @@ attempts to automatically download and install the library.
 * MPI2 (typically [MPICH](http://www.mpich.org/), [MVAPICH](http://mvapich.cse.ohio-state.edu/), or [OpenMPI](http://www.open-mpi.org/))
 
 **Auxiliary libraries**
+
+* [QD](http://crd-legacy.lbl.gov/~dhbailey/mpdist/) for efficient software analogues of 128-bit and 256-bit floating-point arithmetic (**Note:** QD is licensed under the [LBNL-BSD-License](http://crd.lbl.gov/~dhbailey/mpdist/LBNL-BSD-License.doc), which is a slight modification of the BSD License)
 
 * [libquadmath](https://gcc.gnu.org/onlinedocs/libquadmath/) for quad-precision support (especially for iterative refinement). (**Note:** libquadmath is licensed under the [GNU Lesser General Public License, version 2.1 or later](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html))
 

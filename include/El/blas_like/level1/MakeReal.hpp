@@ -18,7 +18,7 @@ void MakeReal( Matrix<Real>& A )
 template<typename Real>
 void MakeReal( Matrix<Complex<Real>>& A )
 {
-    DEBUG_ONLY(CSE cse("MakeReal"))
+    DEBUG_CSE
     Complex<Real>* ABuffer = A.Buffer();
     const Int height = A.Height();
     const Int width = A.Width();
@@ -31,7 +31,7 @@ void MakeReal( Matrix<Complex<Real>>& A )
 template<typename T>
 void MakeReal( AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MakeReal"))
+    DEBUG_CSE
     MakeReal( A.Matrix() );
 }
 
@@ -42,15 +42,15 @@ void MakeReal( AbstractDistMatrix<T>& A )
 #endif
 
 #define PROTO(T) \
-  template void MakeReal( Matrix<T>& A ); \
-  template void MakeReal( AbstractDistMatrix<T>& A ); 
+  EL_EXTERN template void MakeReal( Matrix<T>& A ); \
+  EL_EXTERN template void MakeReal( AbstractDistMatrix<T>& A ); 
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

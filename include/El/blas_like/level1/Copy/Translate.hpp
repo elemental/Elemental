@@ -17,7 +17,7 @@ void Translate
 ( const DistMatrix<T,U,V>& A,
         DistMatrix<T,U,V>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::Translate"))
+    DEBUG_CSE
     if( A.Grid() != B.Grid() )
     {
         copy::TranslateBetweenGrids( A, B );
@@ -119,7 +119,7 @@ void Translate
 ( const DistMatrix<T,U,V,BLOCK>& A,
         DistMatrix<T,U,V,BLOCK>& B ) 
 {
-    DEBUG_ONLY(CSE cse("copy::Translate"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     const Int blockHeight = A.BlockHeight();

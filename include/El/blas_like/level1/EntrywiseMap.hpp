@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     T* ABuf = A.Buffer();
@@ -27,7 +27,7 @@ void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
 template<typename T>
 void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
@@ -41,7 +41,7 @@ void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(T)> func )
 template<typename T>
 void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )
@@ -55,7 +55,7 @@ void EntrywiseMap( DistMultiVec<T>& A, function<T(T)> func )
 template<typename S,typename T>
 void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const S* ABuf = A.LockedBuffer();
@@ -75,7 +75,7 @@ void EntrywiseMap
         SparseMatrix<T>& B,
         function<T(S)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     const Int numEntries = A.NumEntries();
 
     B.graph_ = A.graph_;
@@ -108,7 +108,7 @@ void EntrywiseMap
           AProx.AlignWith( B.DistData() ); \
           Copy( A, AProx ); \
           EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
-        #include "El/macros/GuardAndPayload.h"
+        #include <El/macros/GuardAndPayload.h>
         #undef GUARD
         #undef PAYLOAD
     }
@@ -137,7 +137,7 @@ void EntrywiseMap
           AProx.AlignWith( B.DistData() ); \
           Copy( A, AProx ); \
           EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
-        #include "El/macros/GuardAndPayload.h"
+        #include <El/macros/GuardAndPayload.h>
         #undef GUARD
         #undef PAYLOAD
     }
@@ -149,7 +149,7 @@ void EntrywiseMap
         DistSparseMatrix<T>& B, 
         function<T(S)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     const Int numEntries = A.vals_.size();
     const Int numRemoteEntries = A.remoteVals_.size();
 
@@ -169,7 +169,7 @@ void EntrywiseMap
         DistMultiVec<T>& B,
         function<T(S)> func )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     B.SetComm( A.Comm() );
     B.Resize( A.Height(), A.Width() );
     EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );
@@ -213,7 +213,7 @@ void EntrywiseMap
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

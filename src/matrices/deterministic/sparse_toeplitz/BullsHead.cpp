@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -19,7 +21,7 @@ namespace El {
 template<typename Real> 
 void BullsHead( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("BullsHead"))
+    DEBUG_CSE
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -32,7 +34,7 @@ void BullsHead( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("BullsHead"))
+    DEBUG_CSE
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
@@ -49,6 +51,6 @@ void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

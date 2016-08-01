@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -15,7 +17,7 @@ namespace El {
 template<typename T>
 void MakeUniform( Matrix<T>& A, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CSE cse("MakeUniform"))
+    DEBUG_CSE
     auto sampleBall = [=]() { return SampleBall(center,radius); };
     EntrywiseFill( A, function<T()>(sampleBall) );
 }
@@ -23,7 +25,7 @@ void MakeUniform( Matrix<T>& A, T center, Base<T> radius )
 template<typename T>
 void Uniform( Matrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CSE cse("Uniform"))
+    DEBUG_CSE
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
@@ -31,7 +33,7 @@ void Uniform( Matrix<T>& A, Int m, Int n, T center, Base<T> radius )
 template<typename T>
 void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CSE cse("MakeUniform"))
+    DEBUG_CSE
     if( A.RedundantRank() == 0 )
         MakeUniform( A.Matrix(), center, radius );
     Broadcast( A, A.RedundantComm(), 0 );
@@ -40,7 +42,7 @@ void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
 template<typename T>
 void Uniform( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CSE cse("Uniform"))
+    DEBUG_CSE
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
@@ -48,7 +50,7 @@ void Uniform( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
 template<typename T>
 void MakeUniform( DistMultiVec<T>& X, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CSE cse("MakeUniform"))
+    DEBUG_CSE
     const int localHeight = X.LocalHeight();
     const int width = X.Width();
     for( int j=0; j<width; ++j )
@@ -59,7 +61,7 @@ void MakeUniform( DistMultiVec<T>& X, T center, Base<T> radius )
 template<typename T>
 void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
 {
-    DEBUG_ONLY(CSE cse("Uniform"))
+    DEBUG_CSE
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
@@ -82,6 +84,6 @@ void Uniform( DistMultiVec<T>& A, Int m, Int n, T center, Base<T> radius )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

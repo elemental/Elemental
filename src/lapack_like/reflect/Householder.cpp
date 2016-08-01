@@ -11,7 +11,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "./Householder/Col.hpp"
 #include "./Householder/Row.hpp"
@@ -19,9 +19,9 @@
 namespace El {
 
 //
-// The LAPACK convention defines tau such that
+// The LAPACK convention (see {s,d,c,z}larfg [CITATION]) defines tau such that
 //
-//   H = I - tau [1; v] [1, v'],
+//   H = I - tau [1; v] [1; v]',
 //
 // but adjoint(H) [chi; x] = [beta; 0]. 
 //
@@ -36,75 +36,28 @@ namespace El {
 // which is accomplished by setting tau=2, and v=0.
 //
 
-// TODO: Switch to 1/tau to be simplify discussions of UT transforms
-
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LeftReflector");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
-    typedef Base<F> Real;
-
-    Real norm = Nrm2( x );
-    F alpha = chi;
-
-    if( norm == Real(0) && ImagPart(alpha) == Real(0) )
-    {
-        chi = -chi;
-        return F(2);
-    }
-
-    Real beta;
-    if( RealPart(alpha) <= 0 )
-        beta = lapack::SafeNorm( alpha, norm );
+    if( x.Width() == 1 )
+        return lapack::Reflector( x.Height()+1, chi, x.Buffer(), 1 );
     else
-        beta = -lapack::SafeNorm( alpha, norm );
-
-    // Rescale if the vector is too small
-    const Real safeMin = limits::SafeMin<Real>();
-    const Real epsilon = limits::Epsilon<Real>();
-    const Real safeInv = safeMin/epsilon;
-    Int count = 0;
-    if( Abs(beta) < safeInv )
-    {
-        Real invOfSafeInv = Real(1)/safeInv;
-        do
-        {
-            ++count;
-            x *= invOfSafeInv;
-            alpha *= invOfSafeInv;
-            beta *= invOfSafeInv;
-        } while( Abs(beta) < safeInv );
-
-        norm = Nrm2( x );
-        if( RealPart(alpha) <= 0 )
-            beta = lapack::SafeNorm( alpha, norm );
-        else
-            beta = -lapack::SafeNorm( alpha, norm );
-    }
-
-    F tau = (beta-Conj(alpha)) / beta;
-    x *= Real(1)/(alpha-beta);
-
-    // Undo the scaling
-    for( Int j=0; j<count; ++j )
-        beta *= safeInv;
-
-    chi = beta;
-    return tau;
+        return lapack::Reflector( x.Width()+1, chi, x.Buffer(), x.LDim() );
 }
 
 template<typename F>
 F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CSE cse("LeftReflector"))
+    DEBUG_CSE
 
-    F alpha = chi.Get( 0, 0 );
+    F alpha = chi(0);
     const F tau = LeftReflector( alpha, x );
-    chi.Set( 0, 0, alpha );
+    chi(0) = alpha;
 
     return tau;
 }
@@ -112,8 +65,8 @@ F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LeftReflector");
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -136,8 +89,8 @@ F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 template<typename F>
 F LeftReflector( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LeftReflector");
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
     )
@@ -163,8 +116,8 @@ F LeftReflector( F& chi, ElementalMatrix<F>& x )
 template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
       if( x.Height() != 1 && x.Width() != 1 )
@@ -179,8 +132,8 @@ F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F RightReflector( F& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -193,8 +146,8 @@ F RightReflector( F& chi, Matrix<F>& x )
 template<typename F>
 F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -217,8 +170,8 @@ F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 template<typename F>
 F RightReflector( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RightReflector");
       if( x.Height() != 1 )
           LogicError("x must be a row vector");
     )
@@ -256,6 +209,6 @@ F RightReflector( F& chi, ElementalMatrix<F>& x )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

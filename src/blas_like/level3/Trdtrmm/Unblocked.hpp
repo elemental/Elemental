@@ -7,15 +7,16 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
+#include <El/blas_like/level2.hpp>
+
 namespace El {
 namespace trdtrmm {
 
 template<typename F>
-inline void
-LUnblocked( Matrix<F>& L, bool conjugate=false )
+void LUnblocked( Matrix<F>& L, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LUnblocked");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
     )
@@ -65,11 +66,10 @@ LUnblocked( Matrix<F>& L, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
+void LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LUnblocked");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
     )
@@ -157,11 +157,10 @@ LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-UUnblocked( Matrix<F>& U, bool conjugate=false )
+void UUnblocked( Matrix<F>& U, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::UUnblocked");
       if( U.Height() != U.Width() )
           LogicError("U must be square");
     )

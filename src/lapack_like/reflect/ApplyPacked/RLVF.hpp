@@ -38,8 +38,8 @@ RLVF
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLVF");
       if( A.Width() != H.Height() )
           LogicError("A's width must match H's height");
     )
@@ -87,8 +87,8 @@ RLVF
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLVF");
       if( APre.Width() != HPre.Height() )
           LogicError("A's width must match H's height");
       AssertSameGrids( HPre, tPre, APre );

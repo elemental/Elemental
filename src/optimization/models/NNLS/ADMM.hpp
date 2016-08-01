@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace nnls {
@@ -25,14 +25,14 @@ namespace nnls {
 //
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Int
+Int
 ADMM
 ( const Matrix<Real>& A,
   const Matrix<Real>& B,
         Matrix<Real>& X, 
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::ADMM"))
+    DEBUG_CSE
     const Real maxReal = limits::Max<Real>();
 
     Matrix<Real> Q, C;
@@ -43,14 +43,14 @@ ADMM
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Int
+Int
 ADMM
 ( const ElementalMatrix<Real>& APre,
   const ElementalMatrix<Real>& B, 
         ElementalMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("nnls::ADMM"))
+    DEBUG_CSE
     const Real maxReal = limits::Max<Real>();
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );

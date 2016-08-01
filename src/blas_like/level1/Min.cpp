@@ -6,14 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
 template<typename Real,typename>
 Real Min( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("Min"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Real* ABuf = A.LockedBuffer();
@@ -29,8 +30,8 @@ Real Min( const Matrix<Real>& A )
 template<typename Real,typename>
 Real Min( const AbstractDistMatrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Min");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -55,8 +56,8 @@ Real Min( const AbstractDistMatrix<Real>& A )
 template<typename Real,typename>
 Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMin");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -83,8 +84,8 @@ Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 template<typename Real,typename>
 Real SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMin");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
@@ -137,6 +138,6 @@ Real SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

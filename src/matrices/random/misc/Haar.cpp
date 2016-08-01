@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/lapack_like/factor.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename F>
 void Haar( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Haar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -23,7 +25,7 @@ void Haar( Matrix<F>& A, Int n )
 template<typename F>
 void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 {
-    DEBUG_ONLY(CSE cse("ImplicitHaar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -33,7 +35,7 @@ void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 template<typename F>
 void Haar( ElementalMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Haar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -46,7 +48,7 @@ void ImplicitHaar
   ElementalMatrix<F>& t, 
   ElementalMatrix<Base<F>>& d, Int n )
 {
-    DEBUG_ONLY(CSE cse("Haar"))
+    DEBUG_CSE
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -70,6 +72,6 @@ void ImplicitHaar
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -18,8 +18,8 @@ void PartialRowFilter
 ( const ElementalMatrix<T>& A, 
         ElementalMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::PartialRowFilter");
       if( A.ColDist() != Partial(B.RowDist()) ||
           A.RowDist() != B.ColDist() )
           LogicError("Incompatible distributions");
@@ -44,8 +44,8 @@ void PartialRowFilter
 ( const BlockMatrix<T>& A, 
         BlockMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::PartialRowFilter");
       if( A.ColDist() != Partial(B.RowDist()) ||
           A.RowDist() != B.ColDist() )
           LogicError("Incompatible distributions");

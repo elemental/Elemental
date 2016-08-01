@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "../util.hpp"
 
 namespace El {
@@ -182,7 +182,7 @@ void KKT
         Matrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -212,17 +212,17 @@ void KKT
     // ===========
     for( Int i=0; i<k; )
     {
-        const Int order = orders.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
+        const Int order = orders(i);
+        const Int firstInd = firstInds(i);
         if( i != firstInd )
             LogicError("Inconsistency between firstInds and orders");
         
         auto Jzzi = Jzz(IR(i,i+order),IR(i,i+order));
         auto wi = w(IR(i,i+order),ALL);
-        const Real wiDet = wDets.Get(i,0);
+        const Real wiDet = wDets(i);
         // Jzzi := det(w_i) R - 2 w w^T
         ShiftDiagonal( Jzzi, -wiDet );
-        Jzzi.Update( 0, 0, 2*wiDet );
+        Jzzi(0,0) += 2*wiDet;
         Syr( LOWER, Real(-2), wi, Jzzi );
         if( !onlyLower )
             MakeSymmetric( LOWER, Jzzi );
@@ -241,7 +241,7 @@ void KKT
         ElementalMatrix<Real>& JPre, 
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -285,20 +285,20 @@ void KKT
     // Jzz := -W^2
     // ===========
     // TODO: Create soc::ExplicitQuadratic?
-    DistMatrix<Int,MC,STAR> orders_MC_STAR(g), firstInds_MC_STAR(g);
-    DistMatrix<Real,MC,STAR> w_MC_STAR(g);
-    DistMatrix<Real,MR,STAR> w_MR_STAR(g);
-    DistMatrix<Real,MC,STAR> wDets_MC_STAR(g);
-    orders_MC_STAR.AlignWith( Jzz );
-    firstInds_MC_STAR.AlignWith( Jzz );
-    w_MC_STAR.AlignWith( Jzz );
-    w_MR_STAR.AlignWith( Jzz );
-    wDets_MC_STAR.AlignWith( Jzz );
-    orders_MC_STAR = orders;
-    firstInds_MC_STAR = firstInds;
-    w_MC_STAR = w;
-    w_MR_STAR = w;
-    wDets_MC_STAR = wDets;
+    DistMatrix<Int,MC,STAR> orders_MC(g), firstInds_MC(g);
+    DistMatrix<Real,MC,STAR> w_MC(g);
+    DistMatrix<Real,MR,STAR> w_MR(g);
+    DistMatrix<Real,MC,STAR> wDets_MC(g);
+    orders_MC.AlignWith( Jzz );
+    firstInds_MC.AlignWith( Jzz );
+    w_MC.AlignWith( Jzz );
+    w_MR.AlignWith( Jzz );
+    wDets_MC.AlignWith( Jzz );
+    orders_MC = orders;
+    firstInds_MC = firstInds;
+    w_MC = w;
+    w_MR = w;
+    wDets_MC = wDets;
     const Int localWidthJzz = Jzz.LocalWidth();
     const Int localHeightJzz = Jzz.LocalHeight();
     // For now, perform this in quadratic time, which does not effect the
@@ -306,29 +306,35 @@ void KKT
     // matrix has the same asymptotic cost. A more efficient parallel 
     // implementation will require more thought (and likely substantially more
     // code).
+    auto& orders_MCLoc = orders_MC.Matrix();
+    auto& firstInds_MCLoc = firstInds_MC.Matrix();
+    auto& JzzLoc = Jzz.Matrix();
+    auto& w_MCLoc = w_MC.Matrix();
+    auto& w_MRLoc = w_MR.Matrix();
+    auto& wDets_MCLoc = wDets_MC.Matrix();
     for( Int iLoc=0; iLoc<localHeightJzz; ++iLoc )
     {
         const Int i = Jzz.GlobalRow(iLoc);
-        const Int order = orders_MC_STAR.GetLocal(iLoc,0);
-        const Int firstInd = firstInds_MC_STAR.GetLocal(iLoc,0);
-        const Real omega_i = w_MC_STAR.GetLocal(iLoc,0);
-        const Real wDet = wDets_MC_STAR.GetLocal(iLoc,0);
+        const Int order = orders_MCLoc(iLoc);
+        const Int firstInd = firstInds_MCLoc(iLoc);
+        const Real omega_i = w_MCLoc(iLoc);
+        const Real wDet = wDets_MCLoc(iLoc);
         // TODO: Restrict the range of this loop (perhaps via Length)
         for( Int jLoc=0; jLoc<localWidthJzz; ++jLoc ) 
         {
             const Int j = Jzz.GlobalCol(jLoc);
-            const Real omega_j = w_MR_STAR.GetLocal(jLoc,0);
+            const Real omega_j = w_MRLoc(jLoc);
 
             // Handle the diagonal update, det(w) R
             if( i == firstInd && j == firstInd ) 
-                Jzz.UpdateLocal( iLoc, jLoc, wDet );
+                JzzLoc(iLoc,jLoc) += wDet;
             else if( i == j )
-                Jzz.UpdateLocal( iLoc, jLoc, -wDet );
+                JzzLoc(iLoc,jLoc) -= wDet;
 
             // Handle the rank-one update, -2 w w^T
             if( (!onlyLower || i >= j) && 
                 j >= firstInd && j < firstInd+order )
-                Jzz.UpdateLocal( iLoc, jLoc, -2*omega_i*omega_j ); 
+                JzzLoc(iLoc,jLoc) -= 2*omega_i*omega_j;
         }
     }
 }
@@ -347,7 +353,7 @@ void KKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -368,9 +374,9 @@ void KKT
         Int numEntries = A.NumEntries() + G.NumEntries();
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -401,23 +407,23 @@ void KKT
         for( Int e=0; e<G.NumEntries(); ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -431,12 +437,12 @@ void KKT
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w.Get(j,0) );
+                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w(j) );
             }
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.Get(i,0);
+                const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -479,9 +485,9 @@ void KKT
         Int numEntries = 2*A.NumEntries() + 2*G.NumEntries();
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -516,24 +522,24 @@ void KKT
         for( Int e=0; e<G.NumEntries(); ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -549,12 +555,12 @@ void KKT
                     if( j != i )
                         J.QueueUpdate
                         ( n+m+iSparse, n+m+(j+sparseOff), 
-                          -2*omega_i*w.Get(j,0) );
+                          -2*omega_i*w(j) );
             }
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.Get(i,0);
+                const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -618,7 +624,7 @@ void StaticKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -633,9 +639,9 @@ void StaticKKT
         // of the barrier will eventually exist
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -666,17 +672,17 @@ void StaticKKT
         for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
 
             if( order == sparseOrder )
@@ -714,9 +720,9 @@ void StaticKKT
         Int numEntries = 2*numEntriesA + 2*numEntriesG + m + n + kSparse;
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -750,18 +756,18 @@ void StaticKKT
         for( Int e=0; e<numEntriesG; ++e )
         {
             const Int i = G.Row(e);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int firstInd = firstInds(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
         }
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
             const Int iSparse = i + (sparseFirstInd-firstInd);
 
             if( order == sparseOrder )
@@ -818,7 +824,7 @@ void FinishKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::FinishKKT"))
+    DEBUG_CSE
     const Int k = w.Height();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
@@ -837,9 +843,9 @@ void FinishKKT
         Int numEntries = 0;
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -868,16 +874,16 @@ void FinishKKT
             J.Reserve( J.NumEntries()+numEntries );
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -891,12 +897,12 @@ void FinishKKT
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w.Get(j,0) );
+                    ( n+m+iSparse, n+m+(j+sparseOff), -2*omega_i*w(j) );
             }
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.Get(i,0);
+                const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -939,9 +945,9 @@ void FinishKKT
         Int numEntries = 0;
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
 
             if( order == sparseOrder )
             {
@@ -971,16 +977,16 @@ void FinishKKT
             J.Reserve( J.NumEntries()+numEntries );
         for( Int i=0; i<k; ++i )
         {
-            const Int order = orders.Get(i,0);
-            const Int firstInd = firstInds.Get(i,0);
-            const Int sparseOrder = origToSparseOrders.Get(i,0);
-            const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+            const Int order = orders(i);
+            const Int firstInd = firstInds(i);
+            const Int sparseOrder = origToSparseOrders(i);
+            const Int sparseFirstInd = origToSparseFirstInds(i);
 
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.Get(i,0);
-            const Real wDet = wDets.Get(i,0);
+            const Real omega_i = w(i);
+            const Real wDet = wDets(i);
             if( order == sparseOrder )
             {
                 // diag(det(w) R - 2 w w^T)
@@ -996,12 +1002,12 @@ void FinishKKT
                     if( j != i )
                         J.QueueUpdate
                         ( n+m+iSparse, n+m+(j+sparseOff), 
-                          -2*omega_i*w.Get(j,0) );
+                          -2*omega_i*w(j) );
             }
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.Get(i,0);
+                const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -1064,7 +1070,7 @@ void KKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = w.Comm();
@@ -1078,6 +1084,15 @@ void KKT
     soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
     cone::Broadcast( wDets, orders, firstInds, cutoffPar );
     cone::Broadcast( wLowers, orders, firstInds, cutoffPar );
+
+    auto& wLoc = w.LockedMatrix();
+    auto& wDetsLoc = wDets.LockedMatrix();
+    auto& wLowersLoc = wLowers.LockedMatrix();
+
+    auto& ordersLoc = orders.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
+    auto& origToSparseOrdersLoc = origToSparseOrders.LockedMatrix();
+    auto& origToSparseFirstIndsLoc = origToSparseFirstInds.LockedMatrix();
 
     // Gather all of each non-sparsified member cone that we own a piece of
     // --------------------------------------------------------------------
@@ -1095,9 +1110,9 @@ void KKT
         vector<int> sendCounts(commSize,0);
         for( Int iLoc=0; iLoc<wLocalHeight; )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
@@ -1124,9 +1139,9 @@ void KKT
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ) 
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
@@ -1140,7 +1155,7 @@ void KKT
                 for( Int owner=firstOwner; owner<=lastOwner; ++owner )
                     if( owner != commRank )
                         for( Int e=0; e<numLocalIndsCone; ++e )
-                            sendBuf[offs[owner]++] = w.GetLocal(iLoc+e,0);
+                            sendBuf[offs[owner]++] = wLoc(iLoc+e);
             }
             
             iLoc += numLocalIndsCone; 
@@ -1166,9 +1181,9 @@ void KKT
         Int numRemoteEntries = A.NumLocalEntries() + G.NumLocalEntries();
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             if( order == sparseOrder )
@@ -1201,8 +1216,8 @@ void KKT
         {
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
@@ -1211,17 +1226,17 @@ void KKT
         auto offs = recvOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.GetLocal(iLoc,0);
-            const Real wDet = wDets.GetLocal(iLoc,0);
+            const Real omega_i = wLoc(iLoc);
+            const Real wDet = wDetsLoc(iLoc);
             if( order == sparseOrder )
             {
                 if( firstInd != lastFirstInd )
@@ -1232,7 +1247,7 @@ void KKT
                     {
                         const int owner = w.RowOwner(j);
                         if( owner == commRank )
-                            wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
+                            wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
                             wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
                     }
@@ -1255,7 +1270,7 @@ void KKT
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.GetLocal(iLoc,0);
+                const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -1294,9 +1309,9 @@ void KKT
         Int numRemoteEntries = 2*A.NumLocalEntries() + 2*G.NumLocalEntries();
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             if( order == sparseOrder )
@@ -1333,8 +1348,8 @@ void KKT
         {
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
@@ -1344,17 +1359,17 @@ void KKT
         auto offs = recvOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.GetLocal(iLoc,0);
-            const Real wDet = wDets.GetLocal(iLoc,0);
+            const Real omega_i = wLoc(iLoc);
+            const Real wDet = wDetsLoc(iLoc);
             if( order == sparseOrder )
             {
                 if( firstInd != lastFirstInd )
@@ -1365,7 +1380,7 @@ void KKT
                     {
                         const int owner = w.RowOwner(j);
                         if( owner == commRank )
-                            wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
+                            wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
                             wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
                     }
@@ -1389,7 +1404,7 @@ void KKT
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.GetLocal(iLoc,0);
+                const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -1453,7 +1468,7 @@ void StaticKKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int coneLocalHeight = orders.LocalHeight();
@@ -1475,14 +1490,19 @@ void StaticKKT
             break;
     }
 
+    auto& ordersLoc = orders.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
+    auto& origToSparseOrdersLoc = origToSparseOrders.LockedMatrix();
+    auto& origToSparseFirstIndsLoc = origToSparseFirstInds.LockedMatrix();
+
     if( onlyLower )
     {
         Int numRemoteEntries = numEntriesA + numEntriesG;
         for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = orders.GlobalRow(iLoc);
             if( order == sparseOrder )
@@ -1523,18 +1543,18 @@ void StaticKKT
         {
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e), G.Value(e) );
         }
 
         for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
 
             const Int i = orders.GlobalRow(iLoc);
             const Int sparseOff = sparseFirstInd-firstInd;
@@ -1580,9 +1600,9 @@ void StaticKKT
         Int numRemoteEntries = 2*numEntriesA + 2*numEntriesG;
         for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = orders.GlobalRow(iLoc);
             if( order == sparseOrder )
@@ -1625,8 +1645,8 @@ void StaticKKT
         {
             const Int i = G.Row(e);
             const Int iLoc = G.LocalRow(i);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
             const Int iSparse = i + (sparseFirstInd-firstInd);
             J.QueueUpdate( n+m+iSparse, G.Col(e),    G.Value(e) );
             J.QueueUpdate( G.Col(e),    n+m+iSparse, G.Value(e) );
@@ -1634,10 +1654,10 @@ void StaticKKT
 
         for( Int iLoc=0; iLoc<coneLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
 
             const Int i = orders.GlobalRow(iLoc);
             const Int sparseOff = sparseFirstInd-firstInd;
@@ -1702,7 +1722,7 @@ void FinishKKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::FinishKKT"))
+    DEBUG_CSE
     mpi::Comm comm = w.Comm();
     const int commSize = mpi::Size(comm);
     const int commRank = mpi::Rank(comm);
@@ -1714,6 +1734,15 @@ void FinishKKT
     soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
     cone::Broadcast( wDets, orders, firstInds, cutoffPar );
     cone::Broadcast( wLowers, orders, firstInds, cutoffPar );
+
+    auto& wLoc = w.LockedMatrix();
+    auto& wDetsLoc = wDets.LockedMatrix();
+    auto& wLowersLoc = wLowers.LockedMatrix();
+
+    auto& ordersLoc = orders.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
+    auto& origToSparseOrdersLoc = origToSparseOrders.LockedMatrix();
+    auto& origToSparseFirstIndsLoc = origToSparseFirstInds.LockedMatrix();
 
     // Gather all of each non-sparsified member cone that we own a piece of
     // --------------------------------------------------------------------
@@ -1731,9 +1760,9 @@ void FinishKKT
         vector<int> sendCounts(commSize,0);
         for( Int iLoc=0; iLoc<wLocalHeight; )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
@@ -1760,9 +1789,9 @@ void FinishKKT
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ) 
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
@@ -1776,7 +1805,7 @@ void FinishKKT
                 for( Int owner=firstOwner; owner<=lastOwner; ++owner )
                     if( owner != commRank )
                         for( Int e=0; e<numLocalIndsCone; ++e )
-                            sendBuf[offs[owner]++] = w.GetLocal(iLoc+e,0);
+                            sendBuf[offs[owner]++] = wLoc(iLoc+e);
             }
             
             iLoc += numLocalIndsCone; 
@@ -1800,9 +1829,9 @@ void FinishKKT
         Int numRemoteEntries = 0;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             if( order == sparseOrder )
@@ -1835,17 +1864,17 @@ void FinishKKT
         auto offs = recvOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.GetLocal(iLoc,0);
-            const Real wDet = wDets.GetLocal(iLoc,0);
+            const Real omega_i = wLoc(iLoc);
+            const Real wDet = wDetsLoc(iLoc);
             if( order == sparseOrder )
             {
                 if( firstInd != lastFirstInd )
@@ -1856,7 +1885,7 @@ void FinishKKT
                     {
                         const int owner = w.RowOwner(j);
                         if( owner == commRank )
-                            wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
+                            wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
                             wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
                     }
@@ -1879,7 +1908,7 @@ void FinishKKT
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.GetLocal(iLoc,0);
+                const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -1918,9 +1947,9 @@ void FinishKKT
         Int numRemoteEntries = 0;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             if( order == sparseOrder )
@@ -1954,17 +1983,17 @@ void FinishKKT
         auto offs = recvOffs;
         for( Int iLoc=0; iLoc<wLocalHeight; ++iLoc )
         {
-            const Int order = orders.GetLocal(iLoc,0);
-            const Int firstInd = firstInds.GetLocal(iLoc,0);
-            const Int sparseOrder = origToSparseOrders.GetLocal(iLoc,0);
-            const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+            const Int order = ordersLoc(iLoc);
+            const Int firstInd = firstIndsLoc(iLoc);
+            const Int sparseOrder = origToSparseOrdersLoc(iLoc);
+            const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
 
             const Int i = w.GlobalRow(iLoc);
             const Int sparseOff = sparseFirstInd-firstInd;
             const Int iSparse = i+sparseOff;
 
-            const Real omega_i = w.GetLocal(iLoc,0);
-            const Real wDet = wDets.GetLocal(iLoc,0);
+            const Real omega_i = wLoc(iLoc);
+            const Real wDet = wDetsLoc(iLoc);
             if( order == sparseOrder )
             {
                 if( firstInd != lastFirstInd )
@@ -1975,7 +2004,7 @@ void FinishKKT
                     {
                         const int owner = w.RowOwner(j);
                         if( owner == commRank )
-                            wBuf[j-firstInd] = w.GetLocal(w.LocalRow(j),0);
+                            wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
                             wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
                     }
@@ -1999,7 +2028,7 @@ void FinishKKT
             else
             {
                 const Int coneOff = n+m+sparseFirstInd;
-                const Real wLower = wLowers.GetLocal(iLoc,0);
+                const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
                 const Real uPsi = 
@@ -2054,7 +2083,7 @@ void KKTRHS
   const Matrix<Int>& firstInds,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CallStackEntry cse("socp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const Int k = rh.Height();
@@ -2086,7 +2115,7 @@ void KKTRHS
         ElementalMatrix<Real>& dPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -2124,7 +2153,7 @@ void KKTRHS
         Int kSparse,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     Zeros( d, n+m+kSparse, 1 );
@@ -2141,11 +2170,11 @@ void KKTRHS
     dy *= -1;
     for( Int i=0; i<kSparse; ++i )
     {
-        const Int firstInd = firstInds.Get(i,0);
-        const Int sparseFirstInd = origToSparseFirstInds.Get(i,0);
+        const Int firstInd = firstInds(i);
+        const Int sparseFirstInd = origToSparseFirstInds(i);
         const Int iSparse = i + (sparseFirstInd-firstInd);
-        Real value = W_rmu.Get(i,0) - rh.Get(i,0);
-        d.Set( n+m+iSparse, 0, value );
+        Real value = W_rmu(i) - rh(i);
+        d(n+m+iSparse) = value;
     }
 }
 
@@ -2163,7 +2192,7 @@ void KKTRHS
         DistMultiVec<Real>& d,
   Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     d.SetComm( rc.Comm() );
@@ -2174,25 +2203,31 @@ void KKTRHS
 
     Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
     d.Reserve( numEntries );
-    for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
+    auto& rbLoc = rb.LockedMatrix();
+    auto& rcLoc = rc.LockedMatrix();
+    auto& rhLoc = rh.LockedMatrix();
+    auto& W_rmuLoc = W_rmu.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
+    auto& origToSparseFirstIndsLoc = origToSparseFirstInds.LockedMatrix();
+    for( Int iLoc=0; iLoc<rcLoc.Height(); ++iLoc )
     {
         Int i = rc.GlobalRow(iLoc);
-        Real value = -rc.GetLocal(iLoc,0);
+        Real value = -rcLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
-    for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<rbLoc.Height(); ++iLoc )
     {
         Int i = n + rb.GlobalRow(iLoc);
-        Real value = -rb.GetLocal(iLoc,0);
+        Real value = -rbLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
-    for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<W_rmuLoc.Height(); ++iLoc )
     {
-        const Int firstInd = firstInds.GetLocal(iLoc,0);
-        const Int sparseFirstInd = origToSparseFirstInds.GetLocal(iLoc,0);
+        const Int firstInd = firstIndsLoc(iLoc);
+        const Int sparseFirstInd = origToSparseFirstIndsLoc(iLoc);
         const Int i = rmu.GlobalRow(iLoc);
         const Int iSparse = i + (sparseFirstInd-firstInd);
-        Real value = W_rmu.GetLocal(iLoc,0) - rh.GetLocal(iLoc,0);
+        Real value = W_rmuLoc(iLoc) - rhLoc(iLoc);
         d.QueueUpdate( n+m+iSparse, 0, value );
     }
     d.ProcessQueues();
@@ -2211,7 +2246,7 @@ void ExpandSolution
         Matrix<Real>& dz, 
         Matrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
@@ -2237,7 +2272,7 @@ void ExpandSolution
         ElementalMatrix<Real>& ds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
@@ -2266,7 +2301,7 @@ void ExpandSolution
         Matrix<Real>& dz, 
         Matrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
     const Int kSparse = d.Height() - (n+m);
 
@@ -2284,12 +2319,12 @@ void ExpandSolution
     Zeros( dz, k, 1 );
     for( Int iSparse=0; iSparse<kSparse; ++iSparse )
     {
-        const Int order = sparseToOrigOrders.Get(iSparse,0);
-        const Int firstInd = sparseToOrigFirstInds.Get(iSparse,0);
-        const Int sparseFirstInd = sparseFirstInds.Get(iSparse,0);
+        const Int order = sparseToOrigOrders(iSparse);
+        const Int firstInd = sparseToOrigFirstInds(iSparse);
+        const Int sparseFirstInd = sparseFirstInds(iSparse);
         const Int i = iSparse - (sparseFirstInd-firstInd);
         if( i < firstInd+order )
-            dz.Set( i, 0, dzSparse.Get(iSparse,0) );
+            dz(i) = dzSparse(iSparse);
     }
 
     // ds := - W^T ( rmu + W dz )
@@ -2319,7 +2354,7 @@ void ExpandSolution
         DistMultiVec<Real>& ds,
   Int cutoffPar )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = wRoot.Height();
 
     // Extract dx
@@ -2333,15 +2368,21 @@ void ExpandSolution
     // Extract dz
     // ==========
     auto dzSparse = d( IR(n+m,END), ALL );
+
+    auto& dzSparseLoc = dzSparse.LockedMatrix();
+    auto& sparseToOrigOrdersLoc = sparseToOrigOrders.LockedMatrix();
+    auto& sparseToOrigFirstIndsLoc = sparseToOrigFirstInds.LockedMatrix();
+    auto& sparseFirstIndsLoc = sparseFirstInds.LockedMatrix();
+
     Zeros( dz, k, 1 );
     Int numQueues = 0;
     const Int localHeight = dzSparse.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int iSparse = dzSparse.GlobalRow(iLoc);
-        const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
-        const Int firstInd = sparseToOrigFirstInds.GetLocal(iLoc,0);
-        const Int sparseFirstInd = sparseFirstInds.GetLocal(iLoc,0);
+        const Int order = sparseToOrigOrdersLoc(iLoc);
+        const Int firstInd = sparseToOrigFirstIndsLoc(iLoc);
+        const Int sparseFirstInd = sparseFirstIndsLoc(iLoc);
         const Int i = iSparse - (sparseFirstInd-firstInd);
         if( i < firstInd+order )
             ++numQueues;
@@ -2350,12 +2391,12 @@ void ExpandSolution
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int iSparse = dzSparse.GlobalRow(iLoc);
-        const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
-        const Int firstInd = sparseToOrigFirstInds.GetLocal(iLoc,0);
-        const Int sparseFirstInd = sparseFirstInds.GetLocal(iLoc,0);
+        const Int order = sparseToOrigOrdersLoc(iLoc);
+        const Int firstInd = sparseToOrigFirstIndsLoc(iLoc);
+        const Int sparseFirstInd = sparseFirstIndsLoc(iLoc);
         const Int i = iSparse - (sparseFirstInd-firstInd);
         if( i < firstInd+order )
-            dz.QueueUpdate( i, 0, dzSparse.GetLocal(iLoc,0) );
+            dz.QueueUpdate( i, 0, dzSparseLoc(iLoc) );
     }
     dz.ProcessQueues();
 
@@ -2556,7 +2597,7 @@ void ExpandSolution
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace affine
 } // namespace socp

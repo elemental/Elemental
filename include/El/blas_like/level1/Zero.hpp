@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void Zero( Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Zero"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     EL_PARALLEL_FOR
@@ -25,14 +25,14 @@ void Zero( Matrix<T>& A )
 template<typename T>
 void Zero( AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Zero"))
+    DEBUG_CSE
     Zero( A.Matrix() );
 }
 
 template<typename T>
 void Zero( SparseMatrix<T>& A, bool clearMemory )
 {
-    DEBUG_ONLY(CSE cse("Zero"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Empty( clearMemory );
@@ -42,7 +42,7 @@ void Zero( SparseMatrix<T>& A, bool clearMemory )
 template<typename T>
 void Zero( DistSparseMatrix<T>& A, bool clearMemory )
 {
-    DEBUG_ONLY(CSE cse("Zero"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Empty( clearMemory );
@@ -52,7 +52,7 @@ void Zero( DistSparseMatrix<T>& A, bool clearMemory )
 template<typename T>
 void Zero( DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CSE cse("Zero"))
+    DEBUG_CSE
     Zero( X.Matrix() );
 }
 
@@ -74,7 +74,7 @@ void Zero( DistMultiVec<T>& X )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

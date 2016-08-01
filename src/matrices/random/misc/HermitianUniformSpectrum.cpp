@@ -6,7 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/lapack_like/factor.hpp>
+#include <El/matrices.hpp>
+
+#include <El/io.hpp>
 
 namespace El {
 
@@ -17,7 +22,7 @@ template<typename F>
 void HermitianUniformSpectrum
 ( Matrix<F>& A, Int n, Base<F> lower, Base<F> upper )
 {
-    DEBUG_ONLY(CSE cse("HermitianUniformSpectrum"))
+    DEBUG_CSE
     A.Resize( n, n );
     typedef Base<F> Real;
 
@@ -41,7 +46,7 @@ template<typename F>
 void HermitianUniformSpectrum
 ( ElementalMatrix<F>& APre, Int n, Base<F> lower, Base<F> upper )
 {
-    DEBUG_ONLY(CSE cse("HermitianUniformSpectrum"))
+    DEBUG_CSE
     APre.Resize( n, n );
     const Grid& grid = APre.Grid();
     typedef Base<F> Real;
@@ -83,6 +88,6 @@ void HermitianUniformSpectrum
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

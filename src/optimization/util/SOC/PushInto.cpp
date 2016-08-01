@@ -6,12 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
-
-// TODO: Lower-level access
 
 template<typename Real,typename>
 void PushInto
@@ -20,7 +18,7 @@ void PushInto
   const Matrix<Int>& firstInds,
   Real minDist )
 {
-    DEBUG_ONLY(CSE cse("soc::PushInto"))
+    DEBUG_CSE
 
     Matrix<Real> d;
     soc::LowerNorms( x, d, orders, firstInds );
@@ -28,11 +26,11 @@ void PushInto
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
     {
-        const Real x0 = x.Get(i,0);
-        const Real lowerNorm = d.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
+        Real& x0 = x(i);
+        const Real lowerNorm = d(i);
+        const Int firstInd = firstInds(i);
         if( i == firstInd && x0-lowerNorm < minDist )
-            x.Update( i, 0, minDist - (x0-lowerNorm) );
+            x0 = minDist + lowerNorm;
     }
 }
 
@@ -43,7 +41,7 @@ void PushInto
   const ElementalMatrix<Int>& firstIndsPre,
   Real minDist, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::PushInto"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -63,13 +61,16 @@ void PushInto
     soc::LowerNorms( x, d, orders, firstInds, cutoff );
 
     const Int localHeight = x.LocalHeight();
+    auto& xLoc = x.Matrix();
+    auto& dLoc = d.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Real x0 = x.GetLocal(iLoc,0);
-        const Real lowerNorm = d.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && x0-lowerNorm < minDist )
-            x.UpdateLocal( iLoc, 0, minDist - (x0-lowerNorm) );
+        Real& x0 = xLoc(iLoc);
+        const Real lowerNorm = dLoc(iLoc);
+        if( i == firstIndsLoc(iLoc) && x0-lowerNorm < minDist )
+            x0 = minDist + lowerNorm;
     }
 }
 
@@ -80,19 +81,22 @@ void PushInto
   const DistMultiVec<Int>& firstInds, 
   Real minDist, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::PushInto"))
+    DEBUG_CSE
 
     DistMultiVec<Real> d(x.Comm());
     soc::LowerNorms( x, d, orders, firstInds, cutoff );
 
     const int localHeight = x.LocalHeight();
+    auto& xLoc = x.Matrix();
+    auto& dLoc = d.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
-        const Real x0 = x.GetLocal(iLoc,0);
-        const Real lowerNorm = d.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && x0-lowerNorm < minDist )
-            x.UpdateLocal( iLoc, 0, minDist - (x0-lowerNorm) );
+        Real& x0 = xLoc(iLoc);
+        const Real lowerNorm = dLoc(iLoc);
+        if( i == firstIndsLoc(iLoc) && x0-lowerNorm < minDist )
+            x0 = minDist + lowerNorm;
     }
 }
 
@@ -119,7 +123,7 @@ void PushInto
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

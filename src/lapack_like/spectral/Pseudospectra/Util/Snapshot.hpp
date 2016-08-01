@@ -14,8 +14,7 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline void
-Snapshot
+void Snapshot
 ( const Matrix<Int>& preimage,
   const Matrix<Real>& estimates, 
   const Matrix<Int>& itCounts,
@@ -23,7 +22,7 @@ Snapshot
         bool deflate,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Snapshot"));
+    DEBUG_CSE
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
@@ -93,13 +92,12 @@ Snapshot
 }
 
 template<typename Real>
-inline void
-FinalSnapshot
+void FinalSnapshot
 ( const Matrix<Real>& estimates,
   const Matrix<Int>& itCounts, 
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::FinalSnapshot"));
+    DEBUG_CSE
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
@@ -151,8 +149,7 @@ FinalSnapshot
 }
 
 template<typename Real>
-inline void
-Snapshot
+void Snapshot
 ( const DistMatrix<Int,    VR,STAR>& preimage, 
   const DistMatrix<Real,MR,STAR>& estimates, 
   const DistMatrix<Int, VR,STAR>& itCounts,
@@ -160,7 +157,7 @@ Snapshot
         bool deflate,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::Snapshot"));
+    DEBUG_CSE
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
@@ -232,13 +229,12 @@ Snapshot
 }
 
 template<typename Real>
-inline void
-FinalSnapshot
+void FinalSnapshot
 ( const DistMatrix<Real,VR,STAR>& estimates, 
   const DistMatrix<Int, VR,STAR>& itCounts,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_ONLY(CSE cse("pspec::FinalSnapshot"));
+    DEBUG_CSE
     auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {

@@ -16,23 +16,16 @@ namespace El {
 template<typename T> 
 void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Hadamard"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     C.Resize( A.Height(), A.Width() );
 
     const Int height = A.Height();
     const Int width = A.Width();
-    const T* ABuf = A.LockedBuffer();
-    const T* BBuf = B.LockedBuffer();
-          T* CBuf = C.Buffer();
-    const Int ALDim = A.LDim();
-    const Int BLDim = B.LDim();
-    const Int CLDim = C.LDim();
-
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            CBuf[i+j*CLDim] = ABuf[i+j*ALDim]*BBuf[i+j*BLDim];
+            C(i,j) = A(i,j)*B(i,j);
 }
 
 template<typename T> 
@@ -41,7 +34,7 @@ void Hadamard
   const ElementalMatrix<T>& B, 
         ElementalMatrix<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Hadamard"))
+    DEBUG_CSE
     const ElementalData ADistData = A.DistData();
     const ElementalData BDistData = B.DistData();
     ElementalData CDistData = C.DistData();
@@ -64,7 +57,7 @@ template<typename T>
 void Hadamard
 ( const DistMultiVec<T>& A, const DistMultiVec<T>& B, DistMultiVec<T>& C )
 {
-    DEBUG_ONLY(CSE cse("Hadamard"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     C.SetComm( A.Comm() );
@@ -79,13 +72,13 @@ void Hadamard
 #endif
 
 #define PROTO(T) \
-  template void Hadamard \
+  EL_EXTERN template void Hadamard \
   ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
-  template void Hadamard \
+  EL_EXTERN template void Hadamard \
   ( const ElementalMatrix<T>& A, \
     const ElementalMatrix<T>& B, \
           ElementalMatrix<T>& C ); \
-  template void Hadamard \
+  EL_EXTERN template void Hadamard \
   ( const DistMultiVec<T>& A, \
     const DistMultiVec<T>& B, \
           DistMultiVec<T>& C );
@@ -95,7 +88,7 @@ void Hadamard
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

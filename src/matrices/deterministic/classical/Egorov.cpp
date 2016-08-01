@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -14,7 +16,7 @@ template<typename Real>
 void Egorov
 ( Matrix<Complex<Real>>& A, function<Real(Int,Int)> phase, Int n )
 {
-    DEBUG_ONLY(CSE cse("Egorov"))
+    DEBUG_CSE
     A.Resize( n, n );
     auto egorovFill = 
       [&]( Int i, Int j ) -> Complex<Real>
@@ -28,7 +30,7 @@ void Egorov
 ( AbstractDistMatrix<Complex<Real>>& A, 
   function<Real(Int,Int)> phase, Int n )
 {
-    DEBUG_ONLY(CSE cse("Egorov"))
+    DEBUG_CSE
     A.Resize( n, n );
     auto egorovFill = 
       [&]( Int i, Int j ) -> Complex<Real>
@@ -52,6 +54,6 @@ void Egorov
 */
 #define EL_ENABLE_QUAD
 //#define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T> 
 void KMS( Matrix<T>& K, Int n, T rho )
 {
-    DEBUG_ONLY(CSE cse("KMS"))
+    DEBUG_CSE
     K.Resize( n, n );
     auto kmsFill = 
       [=]( Int i, Int j ) -> T
@@ -25,7 +27,7 @@ void KMS( Matrix<T>& K, Int n, T rho )
 template<typename T>
 void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 {
-    DEBUG_ONLY(CSE cse("KMS"))
+    DEBUG_CSE
     K.Resize( n, n );
     auto kmsFill = 
       [=]( Int i, Int j ) -> T
@@ -43,6 +45,6 @@ void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

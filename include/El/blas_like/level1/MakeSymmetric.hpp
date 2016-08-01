@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("MakeSymmetric"))
+    DEBUG_CSE
     const Int n = A.Width();
     if( A.Height() != n )
         LogicError("Cannot make non-square matrix symmetric");
@@ -56,7 +56,7 @@ template<typename T>
 void MakeSymmetric
 ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("MakeSymmetric"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -75,7 +75,7 @@ void MakeSymmetric
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("MakeSymmetric"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -83,54 +83,41 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 
     const Int m = A.Height();
     const Int numEntries = A.NumEntries();
+
+    {
+        const Int* sBuf = A.LockedSourceBuffer();
+        const Int* tBuf = A.LockedTargetBuffer();
+        T* vBuf = A.ValueBuffer();
+
+        // Iterate over the diagonal entries
+        Int numDiagonal = 0;
+        for( Int i=0; i<m; ++i )
+        {
+            const Int e = A.Offset( i, i );
+            if( e < numEntries && sBuf[e] == i && tBuf[e] == i )
+            {
+                ++numDiagonal;
+                if( conjugate && IsComplex<T>::value )
+                    vBuf[e] = RealPart(vBuf[e]);
+            }
+        }
+
+        A.Reserve( numEntries-numDiagonal );
+        // sBuf, tBuf, and vBuf are now invalidated due to reallocation
+    }
+
     const Int* sBuf = A.LockedSourceBuffer();
     const Int* tBuf = A.LockedTargetBuffer();
     T* vBuf = A.ValueBuffer();
 
-    // Iterate over the diagonal entries
-    Int numDiagonal = 0;
-    for( Int i=0; i<m; ++i )
+    for( Int k=0; k<numEntries; ++k ) 
     {
-        const Int e = A.Offset( i, i );
-        if( e < numEntries && sBuf[e] == i && tBuf[e] == i )
+        if( sBuf[k] != tBuf[k] )
         {
-            ++numDiagonal;
-            if( conjugate && IsComplex<T>::value )
-                vBuf[e] = RealPart(vBuf[e]);
-        }
-    }
-
-    A.Reserve( numEntries-numDiagonal );
-    sBuf = A.LockedSourceBuffer();
-    tBuf = A.LockedTargetBuffer();
-    vBuf = A.ValueBuffer();
-
-    if( uplo == LOWER )
-    {
-        // Transpose the strictly lower triangle onto the upper triangle
-        for( Int k=0; k<numEntries; ++k ) 
-        {
-            if( sBuf[k] > tBuf[k] )
-            {
-                if( conjugate )
-                    A.QueueUpdate( tBuf[k], sBuf[k], Conj(vBuf[k]) );
-                else
-                    A.QueueUpdate( tBuf[k], sBuf[k], vBuf[k] );
-            }
-        }
-    }
-    else
-    {
-        // Transpose the strictly upper triangle onto the lower triangle
-        for( Int k=0; k<numEntries; ++k ) 
-        {
-            if( sBuf[k] < tBuf[k] )
-            {
-                if( conjugate )
-                    A.QueueUpdate( tBuf[k], sBuf[k], Conj(vBuf[k]) );
-                else
-                    A.QueueUpdate( tBuf[k], sBuf[k], vBuf[k] );
-            }
+            if( conjugate )
+                A.QueueUpdate( tBuf[k], sBuf[k], Conj(vBuf[k]) );
+            else
+                A.QueueUpdate( tBuf[k], sBuf[k], vBuf[k] );
         }
     }
     A.ProcessQueues();
@@ -139,41 +126,51 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("MakeSymmetric"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
     MakeTrapezoidal( uplo, A );
     const Int numLocalEntries = A.NumLocalEntries();
-    T* vBuf = A.ValueBuffer();
-    const Int* sBuf = A.LockedSourceBuffer();
-    const Int* tBuf = A.LockedTargetBuffer();
-    if( conjugate && IsComplex<T>::value )
     {
-        for( Int k=0; k<numLocalEntries; ++k )
-            if( sBuf[k] == tBuf[k] )
-                vBuf[k] = RealPart(vBuf[k]);
-    }
+        T* vBuf = A.ValueBuffer();
+        const Int* sBuf = A.LockedSourceBuffer();
+        const Int* tBuf = A.LockedTargetBuffer();
 
-    // Compute the number of entries to send
-    // =====================================
-    Int numSend = 0;
-    for( Int k=0; k<numLocalEntries; ++k )
-    {
-        const Int i = sBuf[k];
-        const Int j = tBuf[k];
-        if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
-            ++numSend;
+        // Force the diagonal to be real
+        // =============================
+        if( conjugate && IsComplex<T>::value )
+        {
+            for( Int k=0; k<numLocalEntries; ++k )
+                if( sBuf[k] == tBuf[k] )
+                    vBuf[k] = RealPart(vBuf[k]);
+        }
+
+        // Compute the number of entries to send
+        // =====================================
+        Int numSend = 0;
+        for( Int k=0; k<numLocalEntries; ++k )
+        {
+            const Int i = sBuf[k];
+            const Int j = tBuf[k];
+            if( i != j )
+                ++numSend;
+        }
+
+        A.Reserve( numSend, numSend );
+        // vBuf, sBuf, and tBuf are now invalidated due to reallocation
     }
 
     // Apply the updates
     // =================
-    A.Reserve( numSend, numSend );
+    T* vBuf = A.ValueBuffer();
+    const Int* sBuf = A.LockedSourceBuffer();
+    const Int* tBuf = A.LockedTargetBuffer();
     for( Int k=0; k<numLocalEntries; ++k )
     {
         const Int i = sBuf[k];
         const Int j = tBuf[k];
-        if( (uplo == LOWER && i > j) || (uplo == UPPER && i < j) )
+        if( i != j )
             A.QueueUpdate( j, i, ( conjugate ? Conj(vBuf[k]) : vBuf[k] ) );
     }
     A.ProcessQueues();
@@ -182,28 +179,28 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MakeHermitian"))
+    DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MakeHermitian"))
+    DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MakeHermitian"))
+    DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("MakeHermitian"))
+    DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
@@ -214,25 +211,29 @@ void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
 #endif
 
 #define PROTO(T) \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, Matrix<T>& A, bool conjugate ); \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate ); \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate ); \
-  template void MakeSymmetric \
+  EL_EXTERN template void MakeSymmetric \
   ( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate ); \
-  template void MakeHermitian( UpperOrLower uplo, Matrix<T>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A ); \
-  template void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A );
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, Matrix<T>& A ); \
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, ElementalMatrix<T>& A ); \
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, SparseMatrix<T>& A ); \
+  EL_EXTERN template void MakeHermitian \
+  ( UpperOrLower uplo, DistSparseMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

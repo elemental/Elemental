@@ -16,7 +16,7 @@ template<typename F>
 SafeProduct<F> AfterLUPartialPiv
 ( const Matrix<F>& A, const Permutation& P )
 {
-    DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 
@@ -29,7 +29,7 @@ SafeProduct<F> AfterLUPartialPiv
     SafeProduct<F> det( n );
     for( Int i=0; i<n; ++i )
     {
-        const F delta = d.Get(i,0);
+        const F delta = d(i);
         Real alpha = Abs(delta);
         det.rho *= delta/alpha;
         det.kappa += Log(alpha)/scale;
@@ -42,9 +42,9 @@ SafeProduct<F> AfterLUPartialPiv
 }
 
 template<typename F>
-inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
+SafeProduct<F> LUPartialPiv( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("det::LUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
     SafeProduct<F> det( A.Height() );
@@ -67,7 +67,7 @@ SafeProduct<F> AfterLUPartialPiv
 ( const ElementalMatrix<F>& APre,
   const DistPermutation& P )
 {
-    DEBUG_ONLY(CSE cse("det::AfterLUPartialPiv"))
+    DEBUG_CSE
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 
@@ -105,10 +105,10 @@ SafeProduct<F> AfterLUPartialPiv
 }
 
 template<typename F> 
-inline SafeProduct<F> 
+SafeProduct<F> 
 LUPartialPiv( ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("det::LUPartialPiv"))
+    DEBUG_CSE
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 

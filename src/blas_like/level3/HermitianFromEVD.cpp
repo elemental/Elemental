@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 namespace El {
 
@@ -19,7 +21,7 @@ void HermitianFromEVD
   const Matrix<Base<F>>& w,
   const Matrix<F>& Z )
 {
-    DEBUG_ONLY(CSE cse("HermitianFromEVD"))
+    DEBUG_CSE
     Matrix<F> Z1Copy, Y1;
 
     const Int m = Z.Height();
@@ -45,11 +47,11 @@ void HermitianFromEVD
 template<typename F>
 void HermitianFromEVD
 ( UpperOrLower uplo, 
-        ElementalMatrix<F>& APre,
-  const ElementalMatrix<Base<F>>& wPre,
-  const ElementalMatrix<F>& ZPre )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<Base<F>>& wPre,
+  const AbstractDistMatrix<F>& ZPre )
 {
-    DEBUG_ONLY(CSE cse("HermitianFromEVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixWriteProxy<F,F,MC,MR> AProx( APre );
@@ -99,15 +101,15 @@ void HermitianFromEVD
     const Matrix<F>& Z ); \
   template void HermitianFromEVD \
   ( UpperOrLower uplo, \
-          ElementalMatrix<F>& A, \
-    const ElementalMatrix<Base<F>>& w, \
-    const ElementalMatrix<F>& Z );
+          AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<Base<F>>& w, \
+    const AbstractDistMatrix<F>& Z );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

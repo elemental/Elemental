@@ -17,11 +17,11 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<F>& t, 
-  const Matrix<Base<F>>& d,
+  const Matrix<F>& phase, 
+  const Matrix<Base<F>>& signature,
         Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("rq::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;
@@ -39,29 +39,29 @@ void ApplyQ
         if( onLeft )
         {
             auto BBot = B( IR(m-minDim,m), IR(0,n) );
-            DiagonalScale( side, orientation, d, BBot );
+            DiagonalScale( side, orientation, signature, BBot );
         }
         else
         {
             auto BRight = B( IR(0,m), IR(n-minDim,n) );
-            DiagonalScale( side, orientation, d, BRight );
+            DiagonalScale( side, orientation, signature, BRight );
         }
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, t, B );
+    ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, phase, B );
 
     if( !applyDFirst )
     {
         if( onLeft )
         {
             auto BBot = B( IR(m-minDim,m), IR(0,n) );
-            DiagonalScale( side, orientation, d, BBot );
+            DiagonalScale( side, orientation, signature, BBot );
         }
         else
         {
             auto BRight = B( IR(0,m), IR(n-minDim,n) );
-            DiagonalScale( side, orientation, d, BRight );
+            DiagonalScale( side, orientation, signature, BRight );
         }
     }
 }
@@ -71,11 +71,11 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation, 
   const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& tPre, 
-  const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& phasePre, 
+  const ElementalMatrix<Base<F>>& signature,
         ElementalMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CSE cse("rq::ApplyQ"))
+    DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;
@@ -90,14 +90,14 @@ void ApplyQ
     auto& A = AProx.GetLocked();
     auto& B = BProx.Get();
 
-    ElementalProxyCtrl tCtrl;
-    tCtrl.rootConstrain = true;
-    tCtrl.colConstrain = true;
-    tCtrl.root = A.DiagonalRoot(offset);
-    tCtrl.colAlign = A.DiagonalAlign(offset);
+    ElementalProxyCtrl phaseCtrl;
+    phaseCtrl.rootConstrain = true;
+    phaseCtrl.colConstrain = true;
+    phaseCtrl.root = A.DiagonalRoot(offset);
+    phaseCtrl.colAlign = A.DiagonalAlign(offset);
 
-    DistMatrixReadProxy<F,F,MD,STAR> tProx( tPre, tCtrl );
-    auto& t = tProx.GetLocked();
+    DistMatrixReadProxy<F,F,MD,STAR> phaseProx( phasePre, phaseCtrl );
+    auto& phase = phaseProx.GetLocked();
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -107,29 +107,29 @@ void ApplyQ
         if( onLeft )
         {
             auto BBot = B( IR(m-minDim,m), IR(0,n) );
-            DiagonalScale( side, orientation, d, BBot );
+            DiagonalScale( side, orientation, signature, BBot );
         }
         else
         {
             auto BRight = B( IR(0,m), IR(n-minDim,n) );
-            DiagonalScale( side, orientation, d, BRight );
+            DiagonalScale( side, orientation, signature, BRight );
         }
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, t, B );
+    ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, phase, B );
 
     if( !applyDFirst ) 
     {
         if( onLeft )
         {
             auto BBot = B( IR(m-minDim,m), IR(0,n) );
-            DiagonalScale( side, orientation, d, BBot );
+            DiagonalScale( side, orientation, signature, BBot );
         }
         else
         {
             auto BRight = B( IR(0,m), IR(n-minDim,n) );
-            DiagonalScale( side, orientation, d, BRight );
+            DiagonalScale( side, orientation, signature, BRight );
         }
     }
 }

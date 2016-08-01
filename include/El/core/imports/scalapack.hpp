@@ -34,8 +34,8 @@ inline void AssertScaLAPACKSupport()
 
 // TODO: Decide which routines should be modified to use 64-bit integers if
 //       BLAS/LAPACK were modified to do so...
-#include "./scalapack/blacs.hpp"
-#include "./scalapack/pblas.hpp"
+#include <El/core/imports/scalapack/blacs.hpp>
+#include <El/core/imports/scalapack/pblas.hpp>
 
 namespace El {
 namespace scalapack {

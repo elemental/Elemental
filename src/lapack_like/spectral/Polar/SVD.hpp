@@ -16,10 +16,9 @@ namespace polar {
 // Hermitian positive semi-definite. On exit, A is overwritten with Q.
 
 template<typename F>
-inline void
-SVD( Matrix<F>& A )
+void SVD( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the SVD of A
@@ -34,10 +33,9 @@ SVD( Matrix<F>& A )
 }
 
 template<typename F>
-inline void
-SVD( Matrix<F>& A, Matrix<F>& P )
+void SVD( Matrix<F>& A, Matrix<F>& P )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the SVD of A
@@ -55,10 +53,9 @@ SVD( Matrix<F>& A, Matrix<F>& P )
 }
 
 template<typename F>
-inline void
-SVD( ElementalMatrix<F>& APre )
+void SVD( ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -77,10 +74,9 @@ SVD( ElementalMatrix<F>& APre )
 }
 
 template<typename F>
-inline void
-SVD( ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre )
+void SVD( ElementalMatrix<F>& APre, ElementalMatrix<F>& PPre )
 {
-    DEBUG_ONLY(CSE cse("polar::SVD"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

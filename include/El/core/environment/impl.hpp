@@ -29,30 +29,28 @@ inline void
 PrintInputReport()
 { GetArgs().PrintReport(); }
 
-template<typename T>
+template<typename T,typename>
 inline void 
-MemCopy( T* dest, const T* source, size_t numEntries )
+MemCopy
+(       T* dest,
+  const T* source,
+        size_t numEntries )
 {
     // This can be optimized/generalized later
     std::memcpy( dest, source, numEntries*sizeof(T) );
 }
-#ifdef EL_HAVE_MPC
+template<typename T,typename,typename>
 inline void
-MemCopy( BigInt* dest, const BigInt* source, size_t numEntries )
+MemCopy
+(       T* dest,
+  const T* source,
+        size_t numEntries )
 {
     for( size_t k=0; k<numEntries; ++k )
         dest[k] = source[k];
 }
 
-inline void
-MemCopy( BigFloat* dest, const BigFloat* source, size_t numEntries )
-{
-    for( size_t k=0; k<numEntries; ++k )
-        dest[k] = source[k];
-}
-#endif
-
-template<typename T>
+template<typename T,typename>
 inline void
 MemSwap( T* a, T* b, T* temp, size_t numEntries )
 {
@@ -63,12 +61,15 @@ MemSwap( T* a, T* b, T* temp, size_t numEntries )
     // b := temp
     MemCopy( b, temp, numEntries );
 }
-#ifdef EL_HAVE_MPC
+template<typename T,typename,typename>
 inline void
-MemSwap( BigInt* a, BigInt* b, BigInt* temp, size_t numEntries )
+MemSwap
+( T* a,
+  T* b,
+  T* temp,
+  size_t numEntries )
 {
-    // NOTE: This is the same as above for now
-
+    // TODO: Optimize
     // temp := a
     MemCopy( temp, a, numEntries );
     // a := b
@@ -77,21 +78,7 @@ MemSwap( BigInt* a, BigInt* b, BigInt* temp, size_t numEntries )
     MemCopy( b, temp, numEntries );
 }
 
-inline void
-MemSwap( BigFloat* a, BigFloat* b, BigFloat* temp, size_t numEntries )
-{
-    // NOTE: This is the same as above for now
-
-    // temp := a
-    MemCopy( temp, a, numEntries );
-    // a := b
-    MemCopy( a, b, numEntries );
-    // b := temp
-    MemCopy( b, temp, numEntries );
-}
-#endif
-
-template<typename T>
+template<typename T,typename>
 inline void
 StridedMemCopy
 (       T* dest,   Int destStride, 
@@ -100,46 +87,29 @@ StridedMemCopy
     // For now, use the BLAS wrappers/generalization
     blas::Copy( numEntries, source, sourceStride, dest, destStride );
 }
-#ifdef EL_HAVE_MPC
+template<typename T,typename,typename>
 inline void
 StridedMemCopy
-(       BigInt* dest,   Int destStride,
-  const BigInt* source, Int sourceStride, Int numEntries )
+(       T* dest,   Int destStride,
+  const T* source, Int sourceStride, Int numEntries )
 {
     for( Int k=0; k<numEntries; ++k )
         dest[destStride*k] = source[sourceStride*k];
 }
 
-inline void
-StridedMemCopy
-(       BigFloat* dest,   Int destStride,
-  const BigFloat* source, Int sourceStride, Int numEntries )
-{
-    for( Int k=0; k<numEntries; ++k )
-        dest[destStride*k] = source[sourceStride*k];
-}
-#endif
-
-template<typename T>
+template<typename T,typename>
 inline void 
 MemZero( T* buffer, size_t numEntries )
 {
     // This can be optimized/generalized later
     std::memset( buffer, 0, numEntries*sizeof(T) );
 }
-#ifdef EL_HAVE_MPC
-inline void MemZero( BigInt* buffer, size_t numEntries )
+template<typename T,typename,typename>
+inline void MemZero( T* buffer, size_t numEntries )
 {
     for( size_t k=0; k<numEntries; ++k )
         buffer[k].Zero();
 }
-
-inline void MemZero( BigFloat* buffer, size_t numEntries )
-{
-    for( size_t k=0; k<numEntries; ++k )
-        buffer[k].Zero();
-}
-#endif
 
 template<typename T>
 inline void SwapClear( T& x ) { T().swap( x ); }

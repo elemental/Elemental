@@ -14,13 +14,13 @@ namespace El {
 template<typename T>
 void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     AImag.Resize( m, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            AImag.Set( i, j, A.GetImagPart(i,j) );
+            AImag(i,j) = ImagPart(A(i,j));
 }
 
 template<typename T>
@@ -48,10 +48,11 @@ void ImagPart
 #endif
 
 #define PROTO(T) \
-  template void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag ); \
-  template void ImagPart \
+  EL_EXTERN template void ImagPart \
+  ( const Matrix<T>& A, Matrix<Base<T>>& AImag ); \
+  EL_EXTERN template void ImagPart \
   ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag ); \
-  template void ImagPart \
+  EL_EXTERN template void ImagPart \
   ( const BlockMatrix<T>& A, \
           BlockMatrix<Base<T>>& AImag );
 
@@ -60,7 +61,7 @@ void ImagPart
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

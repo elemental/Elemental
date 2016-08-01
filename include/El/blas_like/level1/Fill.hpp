@@ -14,34 +14,32 @@ namespace El {
 template<typename T>
 void Fill( Matrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CSE cse("Fill"))
+    DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            ABuf[i+j*ALDim] = alpha;
+            A(i,j) = alpha;
 }
 
 template<typename T>
 void Fill( AbstractDistMatrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CSE cse("Fill"))
+    DEBUG_CSE
     Fill( A.Matrix(), alpha );
 }
 
 template<typename T>
 void Fill( DistMultiVec<T>& A, T alpha )
 {
-    DEBUG_ONLY(CSE cse("Fill"))
+    DEBUG_CSE
     Fill( A.Matrix(), alpha );
 }
 
 template<typename T>
 void Fill( SparseMatrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CSE cse("Fill"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Resize( m, n );
@@ -59,7 +57,7 @@ void Fill( SparseMatrix<T>& A, T alpha )
 template<typename T>
 void Fill( DistSparseMatrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CSE cse("Fill"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Resize( m, n );
@@ -82,18 +80,18 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
 #endif
 
 #define PROTO(T) \
-  template void Fill( Matrix<T>& A, T alpha ); \
-  template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
-  template void Fill( DistMultiVec<T>& A, T alpha ); \
-  template void Fill( SparseMatrix<T>& A, T alpha ); \
-  template void Fill( DistSparseMatrix<T>& A, T alpha );
+  EL_EXTERN template void Fill( Matrix<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( DistMultiVec<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( SparseMatrix<T>& A, T alpha ); \
+  EL_EXTERN template void Fill( DistSparseMatrix<T>& A, T alpha );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

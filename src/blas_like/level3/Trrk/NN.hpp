@@ -17,12 +17,12 @@ template<typename T>
 void TrrkNN
 ( UpperOrLower uplo,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trrk::TrrkNN");
       if( CPre.Height() != CPre.Width() || APre.Height() != CPre.Height() || 
           BPre.Width() != CPre.Width() || APre.Width() != BPre.Height() )
           LogicError("Nonconformal TrrkNN");

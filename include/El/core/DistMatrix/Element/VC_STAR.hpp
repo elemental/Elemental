@@ -32,11 +32,11 @@ public:
     // ============================
 
     // Create a 0 x 0 distributed matrix
-    DistMatrix( const El::Grid& g=DefaultGrid(), int root=0 );
+    DistMatrix( const El::Grid& g=Grid::Default(), int root=0 );
 
     // Create a height x width distributed matrix
     DistMatrix
-    ( Int height, Int width, const El::Grid& g=DefaultGrid(), int root=0 );
+    ( Int height, Int width, const El::Grid& g=Grid::Default(), int root=0 );
 
     // Create a copy of distributed matrix A
     DistMatrix( const type& A );

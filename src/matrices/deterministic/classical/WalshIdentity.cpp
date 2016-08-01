@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T>
 void WalshIdentity( Matrix<T>& A, Int k, bool binary )
 {
-    DEBUG_ONLY(CSE cse("WalshIdentity"))
+    DEBUG_CSE
     if( k < 1 )
       LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
@@ -27,7 +29,7 @@ void WalshIdentity( Matrix<T>& A, Int k, bool binary )
 template<typename T>
 void WalshIdentity( ElementalMatrix<T>& A, Int k, bool binary )
 {
-    DEBUG_ONLY(CSE cse("WalshIdentity"))
+    DEBUG_CSE
     if( k < 1 )
       LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
@@ -50,6 +52,6 @@ void WalshIdentity( ElementalMatrix<T>& A, Int k, bool binary )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

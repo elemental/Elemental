@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T>
 void Zeros( Matrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Zeros"))
+    DEBUG_CSE
     A.Resize( m, n );
     Zero( A );
 }
@@ -21,7 +23,7 @@ void Zeros( Matrix<T>& A, Int m, Int n )
 template<typename T>
 void Zeros( AbstractDistMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Zeros"))
+    DEBUG_CSE
     A.Resize( m, n );
     Zero( A );
 }
@@ -29,7 +31,7 @@ void Zeros( AbstractDistMatrix<T>& A, Int m, Int n )
 template<typename T>
 void Zeros( SparseMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Zeros"))
+    DEBUG_CSE
     A.Resize( m, n );
     Zero( A );
 }
@@ -37,7 +39,7 @@ void Zeros( SparseMatrix<T>& A, Int m, Int n )
 template<typename T>
 void Zeros( DistSparseMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Zeros"))
+    DEBUG_CSE
     A.Resize( m, n );
     Zero( A );
 }
@@ -45,7 +47,7 @@ void Zeros( DistSparseMatrix<T>& A, Int m, Int n )
 template<typename T>
 void Zeros( DistMultiVec<T>& A, Int m, Int n )
 {
-    DEBUG_ONLY(CSE cse("Zeros"))
+    DEBUG_CSE
     A.Resize( m, n );
     Zero( A );
 }
@@ -62,6 +64,6 @@ void Zeros( DistMultiVec<T>& A, Int m, Int n )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

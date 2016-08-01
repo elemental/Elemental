@@ -16,7 +16,7 @@ namespace svt {
 template<typename F>
 Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CSE cse("svt::Normal"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     Matrix<F> U, V;
@@ -34,7 +34,7 @@ Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 template<typename F>
 Int Normal( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CSE cse("svt::Normal"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

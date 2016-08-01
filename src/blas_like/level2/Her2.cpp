@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
 
 namespace El {
 
@@ -15,17 +16,17 @@ void Her2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Her2"))
+    DEBUG_CSE
     Syr2( uplo, T(alpha), x, y, A, true );
 }
 
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& x, const ElementalMatrix<T>& y,
-                 ElementalMatrix<T>& A )
+  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Her2"))
+    DEBUG_CSE
     Syr2( uplo, T(alpha), x, y, A, true );
 }
 
@@ -35,14 +36,14 @@ void Her2
     const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
   template void Her2 \
   ( UpperOrLower uplo, T alpha, \
-    const ElementalMatrix<T>& x, const ElementalMatrix<T>& y, \
-          ElementalMatrix<T>& A );
+    const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+          AbstractDistMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -16,16 +16,15 @@ namespace trsm {
 //   X := X trilu(L)^-T, or
 //   X := X trilu(L)^-H
 template<typename F>
-inline void
-RLT
+void RLT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::RLT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )

@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 namespace El {
 
@@ -18,14 +20,15 @@ void NormalFromEVD
   const Matrix<Complex<Real>>& w,
   const Matrix<Complex<Real>>& Z )
 {
-    DEBUG_ONLY(CSE cse("NormalFromEVD"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     Matrix<C> Y1, Z1Copy;
 
     const Int m = Z.Height();
     const Int n = Z.Width();
-    Zeros( A, m, m );
+    A.Resize( m, m );
+    Zero( A );
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
@@ -41,11 +44,11 @@ void NormalFromEVD
 
 template<typename Real>
 void NormalFromEVD
-(       ElementalMatrix<Complex<Real>>& APre,
-  const ElementalMatrix<Complex<Real>>& wPre, 
-  const ElementalMatrix<Complex<Real>>& ZPre )
+(       AbstractDistMatrix<Complex<Real>>& APre,
+  const AbstractDistMatrix<Complex<Real>>& wPre, 
+  const AbstractDistMatrix<Complex<Real>>& ZPre )
 {
-    DEBUG_ONLY(CSE cse("NormalFromEVD"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );
@@ -62,7 +65,8 @@ void NormalFromEVD
 
     const Int m = Z.Height();
     const Int n = Z.Width();
-    Zeros( A, m, m );
+    A.Resize( m, m );
+    Zero( A );
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
@@ -89,12 +93,16 @@ void NormalFromEVD
     const Matrix<Complex<Real>>& w, \
     const Matrix<Complex<Real>>& Z ); \
   template void NormalFromEVD \
-  (       ElementalMatrix<Complex<Real>>& A, \
-    const ElementalMatrix<Complex<Real>>& w, \
-    const ElementalMatrix<Complex<Real>>& Z );
+  (       AbstractDistMatrix<Complex<Real>>& A, \
+    const AbstractDistMatrix<Complex<Real>>& w, \
+    const AbstractDistMatrix<Complex<Real>>& Z );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

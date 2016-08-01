@@ -31,7 +31,7 @@ template<typename T>
 void UpdateWithLocalData
 ( T alpha, const ElementalMatrix<T>& A, DistMatrix<T,STAR,STAR>& B )
 {
-    DEBUG_ONLY(CSE cse("axpy::util::UpdateWithLocalData"))
+    DEBUG_CSE
     axpy::util::InterleaveMatrixUpdate
     ( alpha, A.LocalHeight(), A.LocalWidth(),
       A.LockedBuffer(),                    

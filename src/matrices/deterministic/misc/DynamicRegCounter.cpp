@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T> 
 void DynamicRegCounter( Matrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     Zeros( A, 2*n, 2*n );
     auto ATL = A( IR(0,n),   IR(0,n)   );
     auto ATR = A( IR(0,n),   IR(n,2*n) );
@@ -29,7 +31,7 @@ void DynamicRegCounter( Matrix<T>& A, Int n )
 template<typename T>
 void DynamicRegCounter( ElementalMatrix<T>& APre, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     DistMatrixWriteProxy<T,T,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
@@ -48,7 +50,7 @@ void DynamicRegCounter( ElementalMatrix<T>& APre, Int n )
 template<typename T>
 void DynamicRegCounter( SparseMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     Zeros( A, 2*n, 2*n );
     A.Reserve( 6*n );
     
@@ -77,7 +79,7 @@ void DynamicRegCounter( SparseMatrix<T>& A, Int n )
 template<typename T>
 void DynamicRegCounter( DistSparseMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("DynamicRegCounter"))
+    DEBUG_CSE
     Zeros( A, 2*n, 2*n );
 
     // Use a simple upper-bound on the number of local nonzeros.
@@ -125,6 +127,6 @@ void DynamicRegCounter( DistSparseMatrix<T>& A, Int n )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

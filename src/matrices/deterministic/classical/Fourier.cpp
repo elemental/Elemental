@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename Real>
 void Fourier( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Fourier"))
+    DEBUG_CSE
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );
@@ -27,7 +29,7 @@ void Fourier( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Fourier"))
+    DEBUG_CSE
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );
@@ -45,6 +47,6 @@ void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

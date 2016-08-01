@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 Matrix<T> Full( const SparseMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Full"))
+    DEBUG_CSE
     Matrix<T> B;
     Copy( A, B );
     return B;
@@ -31,14 +31,14 @@ Matrix<T> Full( const SparseMatrix<T>& A )
 #endif
 
 #define PROTO(T) \
-  template Matrix<T> Full( const SparseMatrix<T>& A );
+  EL_EXTERN template Matrix<T> Full( const SparseMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

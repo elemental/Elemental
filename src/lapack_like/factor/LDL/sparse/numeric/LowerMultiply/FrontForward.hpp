@@ -24,10 +24,10 @@ namespace El {
 namespace ldl {
 
 template<typename F>
-inline void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
+void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerForwardMultiply");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal multiply:\n",
@@ -42,10 +42,9 @@ inline void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
 }
 
 template<typename F>
-inline void 
-FrontLowerForwardMultiply( const Front<F>& front, Matrix<F>& W )
+void FrontLowerForwardMultiply( const Front<F>& front, Matrix<F>& W )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardMultiply"))
+    DEBUG_CSE
     if( Unfactored(front.type) )
         LogicError("Cannot multiply against an unfactored front");
     if( BlockFactorization(front.type) || PivotedFactorization(front.type) )
@@ -61,11 +60,11 @@ FrontLowerForwardMultiply( const Front<F>& front, Matrix<F>& W )
 }
 
 template<typename F>
-inline void FrontVanillaLowerForwardMultiply
+void FrontVanillaLowerForwardMultiply
 ( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerForwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -96,11 +95,11 @@ inline void FrontVanillaLowerForwardMultiply
 }
 
 template<typename F>
-inline void FrontVanillaLowerForwardMultiply
+void FrontVanillaLowerForwardMultiply
 ( const DistMatrix<F>& L, DistMatrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerForwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -129,10 +128,10 @@ inline void FrontVanillaLowerForwardMultiply
 }
 
 template<typename F>
-inline void 
+void 
 FrontLowerForwardMultiply( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardMultiply"))
+    DEBUG_CSE
     if( front.type == LDL_1D )
         FrontVanillaLowerForwardMultiply( front.L1D, W );
     else
@@ -140,10 +139,10 @@ FrontLowerForwardMultiply( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W )
 }
 
 template<typename F>
-inline void 
+void 
 FrontLowerForwardMultiply( const DistFront<F>& front, DistMatrix<F>& W )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardMultiply"))
+    DEBUG_CSE
     if( front.type == LDL_2D )
         FrontVanillaLowerForwardMultiply( front.L2D, W );
     else

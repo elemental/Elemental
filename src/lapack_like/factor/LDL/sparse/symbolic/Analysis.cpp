@@ -19,7 +19,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace ldl {
@@ -203,7 +203,7 @@ inline void ComputeStructAndRelInds
 
 Int Analysis( NodeInfo& node, Int myOff )
 {
-    DEBUG_ONLY(CSE cse("ldl::Analysis"))
+    DEBUG_CSE
 
     // Recurse on the children
     // NOTE: Cleanup of existing info children should be added
@@ -290,7 +290,7 @@ Int Analysis( NodeInfo& node, Int myOff )
 
 void Analysis( DistNodeInfo& node, bool computeFactRecvInds )
 {
-    DEBUG_ONLY(CSE cse("ldl::Analysis"))
+    DEBUG_CSE
 
     node.grid = new Grid( node.comm );
 

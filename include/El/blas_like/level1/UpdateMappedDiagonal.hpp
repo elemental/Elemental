@@ -18,19 +18,16 @@ void UpdateMappedDiagonal
         function<void(T&,S)> func,
         Int offset )
 {
-    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
+    DEBUG_CSE
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
-    const S* dBuf = d.LockedBuffer();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
     EL_PARALLEL_FOR
     for( Int k=0; k<diagLength; ++k )
     {
         const Int i = iStart + k;
         const Int j = jStart + k;
-        func( ABuf[i+j*ALDim], dBuf[k] );
+        func( A(i,j), d(k) );
     }
 }
 
@@ -42,7 +39,7 @@ void UpdateMappedDiagonal
         Int offset,
         bool diagExists )
 {
-    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
+    DEBUG_CSE
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
@@ -81,10 +78,8 @@ void UpdateMappedDiagonal
         function<void(T&,S)> func,
         Int offset )
 { 
-    DEBUG_ONLY(
-      CSE cse("UpdateMappedDiagonal");
-      AssertSameGrids( A, dPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
@@ -108,15 +103,14 @@ void UpdateMappedDiagonal
         const Int jLocStride = d.ColStride() / rowStride;
 
         const Int localDiagLength = d.LocalHeight();
-        const S* dBuf = d.LockedBuffer();
-        T* buffer = A.Buffer();
-        const Int ldim = A.LDim();
+        auto& ALoc = A.Matrix();
+        auto& dLoc = d.LockedMatrix();
         EL_PARALLEL_FOR
         for( Int k=0; k<localDiagLength; ++k )
         {
             const Int iLoc = iLocStart + k*iLocStride;
             const Int jLoc = jLocStart + k*jLocStride;
-            func( buffer[iLoc+jLoc*ldim], dBuf[k] );
+            func( ALoc(iLoc,jLoc), dLoc(k) );
         }
     }
 }
@@ -129,7 +123,7 @@ void UpdateMappedDiagonal
         Int offset,
         bool diagExists )
 {
-    DEBUG_ONLY(CSE cse("UpdateMappedDiagonal"))
+    DEBUG_CSE
     if( offset != 0 )
         LogicError("Offset assumed to be zero for distributed sparse matrices");
 
@@ -158,6 +152,34 @@ void UpdateMappedDiagonal
         A.ProcessLocalQueues(); 
     }
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void UpdateMappedDiagonal \
+  (       Matrix<T>& A, \
+    const Matrix<T>& d, \
+          function<void(T&,T)> func, \
+          Int offset ); \
+  EL_EXTERN template void UpdateMappedDiagonal \
+  (       SparseMatrix<T>& A, \
+    const Matrix<T>& d, \
+          function<void(T&,T)> func, \
+          Int offset, \
+          bool diagExists );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
 

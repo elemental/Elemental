@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./TwoSidedTrsm/Unblocked.hpp"
 #include "./TwoSidedTrsm/LVar4.hpp"
@@ -20,7 +21,7 @@ void TwoSidedTrsm
         Matrix<F>& A,
   const Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -30,10 +31,10 @@ void TwoSidedTrsm
 template<typename F> 
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-        ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& B )
+        AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -91,7 +92,7 @@ void TwoSidedTrsm
         DistMatrix<F,MC,MR,BLOCK>& A,
   const DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     twotrsm::ScaLAPACKHelper( uplo, diag, A, B );
 }
 
@@ -102,8 +103,8 @@ void TwoSidedTrsm
     const Matrix<F>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-          ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& B ); \
+          AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
           DistMatrix<F,STAR,STAR>& A, \
@@ -118,6 +119,6 @@ void TwoSidedTrsm
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

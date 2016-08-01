@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -14,7 +16,7 @@ namespace El {
 template<typename F>
 void MakeGaussian( Matrix<F>& A, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("MakeGaussian"))
+    DEBUG_CSE
     auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
     EntrywiseFill( A, function<F()>(sampleNormal) );
 }
@@ -22,7 +24,7 @@ void MakeGaussian( Matrix<F>& A, F mean, Base<F> stddev )
 template<typename F>
 void MakeGaussian( AbstractDistMatrix<F>& A, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("MakeGaussian"))
+    DEBUG_CSE
     if( A.RedundantRank() == 0 )
         MakeGaussian( A.Matrix(), mean, stddev );
     Broadcast( A, A.RedundantComm(), 0 );
@@ -31,7 +33,7 @@ void MakeGaussian( AbstractDistMatrix<F>& A, F mean, Base<F> stddev )
 template<typename F>
 void MakeGaussian( DistMultiVec<F>& A, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("MakeGaussian"))
+    DEBUG_CSE
     auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
     EntrywiseFill( A, function<F()>(sampleNormal) );
 }
@@ -39,7 +41,7 @@ void MakeGaussian( DistMultiVec<F>& A, F mean, Base<F> stddev )
 template<typename F>
 void Gaussian( Matrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("Gaussian"))
+    DEBUG_CSE
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
@@ -48,7 +50,7 @@ template<typename F>
 void Gaussian
 ( AbstractDistMatrix<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("Gaussian"))
+    DEBUG_CSE
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
@@ -57,7 +59,7 @@ template<typename F>
 void Gaussian
 ( DistMultiVec<F>& A, Int m, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("Gaussian"))
+    DEBUG_CSE
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
@@ -81,6 +83,6 @@ void Gaussian
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

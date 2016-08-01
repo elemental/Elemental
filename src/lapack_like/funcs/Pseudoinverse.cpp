@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -15,7 +15,7 @@ namespace El {
 template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("Pseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -26,9 +26,11 @@ void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
     Matrix<F> U, V;
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
-    ctrl.approach = COMPACT_SVD;
-    ctrl.relative = true;
-    ctrl.tol = ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
+    ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
+    // TODO(poulson): Let the user change these defaults
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol =
+      ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
     SVD( A, U, s, V, ctrl );
 
     // Scale U with the inverted (nonzero) singular values, U := U / Sigma
@@ -42,7 +44,7 @@ template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -71,7 +73,7 @@ void HermitianPseudoinverse
 template<typename F>
 void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("Pseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -88,9 +90,11 @@ void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
     DistMatrix<F> U(g), V(g);
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
-    ctrl.approach = COMPACT_SVD;
-    ctrl.relative = true;
-    ctrl.tol = ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
+    ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
+    // TODO(poulson): Let the user change these defaults
+    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
+    ctrl.bidiagSVDCtrl.tol =
+      ( tolerance == Real(0) ? Max(m,n)*eps : tolerance );
     SVD( A, U, s, V, ctrl );
 
     // Scale U with the inverted (nonzero) singular values, U := U / Sigma
@@ -104,7 +108,7 @@ template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, ElementalMatrix<F>& APre, Base<F> tolerance )
 {
-    DEBUG_ONLY(CSE cse("HermitianPseudoinverse"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -143,6 +147,10 @@ void HermitianPseudoinverse
   ( UpperOrLower uplo, ElementalMatrix<F>& A, Base<F> tolerance );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace std;
 using namespace El;
 
@@ -18,44 +18,39 @@ void TestCorrectness
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
+    const Int m = A.Height();
     const Int n = A.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( A );
 
     // Form I - Q^H Q
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of Q");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of Q");
+    PushIndent();
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
     Herk( UPPER, ADJOINT, Base<F>(-1), Q_MC_MR, Base<F>(1), Z );
-    Real oneNormOfError = HermitianOneNorm( UPPER, Z );
-    Real infNormOfError = HermitianInfinityNorm( UPPER, Z );
-    Real frobNormOfError = HermitianFrobeniusNorm( UPPER, Z );
-    if( g.Rank() == 0 )
-    {
-        Output("    ||Q^H Q - I||_1  = ",oneNormOfError);
-        Output("    ||Q^H Q - I||_oo = ",infNormOfError);
-        Output("    ||Q^H Q - I||_F  = ",frobNormOfError);
-    }
+    const Real infOrthogError = HermitianInfinityNorm( UPPER, Z );
+    const Real relOrthogError = infOrthogError / (eps*Max(m,n)*oneNormA);
+    OutputFromRoot
+    (g.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n) || A ||_1) = ",relOrthogError);
+    PopIndent();
 
     // Form A - Q R
-    if( g.Rank() == 0 )
-        Output("  Testing if A = QR");
-    const Real oneNormOfA = OneNorm( A );
-    const Real infNormOfA = InfinityNorm( A );
-    const Real frobNormOfA = FrobeniusNorm( A );
+    OutputFromRoot(g.Comm(),"Testing if A = QR");
+    PushIndent();
     LocalGemm( NORMAL, NORMAL, F(-1), Q, R, F(1), A );
-    oneNormOfError = OneNorm( A );
-    infNormOfError = InfinityNorm( A );
-    frobNormOfError = FrobeniusNorm( A );
-    if( g.Rank() == 0 )
-    {
-        Output("    ||A||_1       = ",oneNormOfA);
-        Output("    ||A||_oo      = ",infNormOfA);
-        Output("    ||A||_F       = ",frobNormOfA);
-        Output("    ||A - QR||_1  = ",oneNormOfError);
-        Output("    ||A - QR||_oo = ",infNormOfError);
-        Output("    ||A - QR||_F  = ",frobNormOfError);
-    }
+    const Real infNormError = InfinityNorm( A );
+    const Real relError = infNormError / (eps*Max(m,n)*oneNormA);
+    OutputFromRoot
+    (g.Comm(),"||A - QR||_oo / (eps Max(m,n) || A ||_1) = ",relError);
+    PopIndent();
+
+    // TODO: More refined failure conditions (especially in this case...)
+    if( relOrthogError > Real(10) )
+        LogicError("Relative orthog error was unacceptably large");
+    if( relError > Real(1) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F>
@@ -66,8 +61,8 @@ void TestQR
   bool testCorrectness,
   bool print )
 {
-    if( g.Rank() == 0 )
-        Output("Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F,VC,STAR> A(g), Q(g);
     DistMatrix<F,STAR,STAR> R(g);
 
@@ -76,18 +71,17 @@ void TestQR
         Print( A, "A" );
     Q = A;
 
-    if( g.Rank() == 0 )
-        Output("  Starting Cholesky QR factorization");
+    OutputFromRoot(g.Comm(),"Starting Cholesky QR factorization");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     qr::Cholesky( Q, R );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double gFlops = (2.*mD*nD*nD + 1./3.*nD*nD*nD)/(1.e9*runTime);
-    if( g.Rank() == 0 )
-        Output("  Time: ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot(g.Comm(),"Time: ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( Q, "Q" );
@@ -95,6 +89,7 @@ void TestQR
     }
     if( testCorrectness )
         TestCorrectness( Q, R, A );
+    PopIndent();
 }
 
 int 
@@ -119,7 +114,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
 #ifdef EL_HAVE_MPC
-        mpc::SetPrecision( prec );
+        mpfr::SetPrecision( prec );
 #endif
 
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
@@ -145,6 +140,7 @@ main( int argc, char* argv[] )
 
 #ifdef EL_HAVE_MPC
         TestQR<BigFloat>( g, m, n, testCorrectness, print );
+        TestQR<Complex<BigFloat>>( g, m, n, testCorrectness, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

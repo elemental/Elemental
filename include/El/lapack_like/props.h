@@ -9,7 +9,7 @@
 #ifndef EL_LAPACK_PROPS_C_H
 #define EL_LAPACK_PROPS_C_H
 
-#include "El/core/DistMatrix.h"
+#include <El/core/DistMatrix.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -975,6 +975,10 @@ EL_EXPORT ElError ElTraceDist_z( ElConstDistMatrix_z A, complex_double* trace );
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/lapack_like/props/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_LAPACK_PROPS_C_H */

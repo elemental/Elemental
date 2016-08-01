@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename F> 
 Base<F> FrobeniusCondition( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("FrobeniusCondition"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Matrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );
@@ -27,7 +27,7 @@ Base<F> FrobeniusCondition( const Matrix<F>& A )
 template<typename F> 
 Base<F> FrobeniusCondition( const ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("FrobeniusCondition"))
+    DEBUG_CSE
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );
@@ -47,6 +47,6 @@ Base<F> FrobeniusCondition( const ElementalMatrix<F>& A )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

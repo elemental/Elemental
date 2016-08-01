@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T>
 void ThreeValued( Matrix<T>& A, Int m, Int n, double p )
 {
-    DEBUG_ONLY(CSE cse("ThreeValued"))
+    DEBUG_CSE
     A.Resize( m, n );
     auto tripleCoin = [=]() -> T
     { 
@@ -28,7 +30,7 @@ void ThreeValued( Matrix<T>& A, Int m, Int n, double p )
 template<typename T>
 void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p )
 {
-    DEBUG_ONLY(CSE cse("ThreeValued"))
+    DEBUG_CSE
     A.Resize( m, n );
     if( A.RedundantRank() == 0 )
         ThreeValued( A.Matrix(), A.LocalHeight(), A.LocalWidth(), p );
@@ -46,6 +48,6 @@ void ThreeValued( AbstractDistMatrix<T>& A, Int m, Int n, double p )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

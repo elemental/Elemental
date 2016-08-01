@@ -13,19 +13,19 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void UUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
 {
-    DEBUG_ONLY(CSE cse("bidiag::UUnb"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int tPHeight = Max(n-1,0);
-    const Int tQHeight = n;
+    const Int phasePHeight = Max(n-1,0);
+    const Int phaseQHeight = n;
     DEBUG_ONLY(
       if( m < n )
           LogicError("A must be at least as tall as it is wide");
     )
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    phaseP.Resize( phasePHeight, 1 );
+    phaseQ.Resize( phaseQHeight, 1 );
 
     Matrix<F> x12Adj, w21;
 
@@ -42,12 +42,12 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | epsilonQ |
         //  \          | u |            / |     a21 | = |    0     |
         const F tauQ = LeftReflector( alpha11, a21 );
-        tQ.Set(k,0,tauQ );
+        phaseQ(k) = tauQ;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
-        const F epsilonQ = alpha11.Get(0,0);
-        alpha11.Set(0,0,F(1));
+        const F epsilonQ = alpha11(0);
+        alpha11(0) = F(1);
 
         // AB2 := Hous(aB1,tauQ) AB2
         //      = (I - tauQ aB1 aB1^H) AB2
@@ -61,7 +61,7 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         Ger( -tauQ, aB1, x12Adj, AB2 );
 
         // Put epsilonQ back 
-        alpha11.Set(0,0,epsilonQ);
+        alpha11(0) = epsilonQ;
 
         if( k+1 < n )
         {
@@ -73,12 +73,12 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilonP 0|
             //                  \         |v^T|             /
             const F tauP = RightReflector( alpha12L, a12R );
-            tP.Set(k,0,tauP);
+            phaseP(k) = tauP;
 
             // Temporarily set a12^T = | 1 | 
             //                         | v |
-            const F epsilonP = alpha12L.Get(0,0);
-            alpha12L.Set(0,0,F(1));
+            const F epsilonP = alpha12L(0);
+            alpha12L(0) = F(1);
 
             // A22 := A22 Hous(a12^T,tauP)
             //      = A22 (I - tauP a12^T conj(a12))
@@ -92,42 +92,40 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             Ger( -tauP, w21, a12, A22 );
 
             // Put epsilonP back 
-            alpha12L.Set(0,0,epsilonP);
+            alpha12L(0) = epsilonP;
         }
     }
 }
 
 template<typename F> 
-inline void UUnb
+void UUnb
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre,
-  ElementalMatrix<F>& tQPre )
+  ElementalMatrix<F>& phasePPre,
+  ElementalMatrix<F>& phaseQPre )
 {
-    DEBUG_ONLY(
-      CSE cse("bidiag::UUnb");
-      AssertSameGrids( APre, tPPre, tQPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, phasePPre, phaseQPre ))
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      tPProx( tPPre ),
-      tQProx( tQPre );
+      phasePProx( phasePPre ),
+      phaseQProx( phaseQPre );
     auto& A = AProx.Get();
-    auto& tP = tPProx.Get();
-    auto& tQ = tQProx.Get();
+    auto& phaseP = phasePProx.Get();
+    auto& phaseQ = phaseQProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-        if( m < n )
-            LogicError("A must be at least as tall as it is wide");
+      if( m < n )
+          LogicError("A must be at least as tall as it is wide");
     )
     const Grid& g = A.Grid();
-    const Int tPHeight = Max(n-1,0);
-    const Int tQHeight = n;
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int phasePHeight = Max(n-1,0);
+    const Int phaseQHeight = n;
+    phaseP.Resize( phasePHeight, 1 );
+    phaseQ.Resize( phaseQHeight, 1 );
 
     DistMatrix<F,STAR,MR  > a12_STAR_MR(g);
     DistMatrix<F,MC,  STAR> aB1_MC_STAR(g);
@@ -147,7 +145,7 @@ inline void UUnb
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | epsilonQ |
         //  \          | u |            / |     a21 | = |    0     |
         const F tauQ = LeftReflector( alpha11, a21 );
-        tQ.Set(k,0,tauQ );
+        phaseQ.Set(k,0,tauQ );
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -184,7 +182,7 @@ inline void UUnb
             //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilonP 0|
             //                  \         |v^T|             /
             const F tauP = RightReflector( alpha12L, a12R );
-            tP.Set(k,0,tauP);
+            phaseP.Set(k,0,tauP);
 
             // Temporarily set a12^T = | 1   |
             //                         | v^T |

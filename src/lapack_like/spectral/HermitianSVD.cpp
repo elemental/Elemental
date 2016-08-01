@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -23,7 +23,7 @@ void HermitianSVD
   Matrix<F>& V,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     if( !overwrite )
     {
         auto ACopy( A );
@@ -39,15 +39,15 @@ void HermitianSVD
     Matrix<Base<F>> sSgn(n,1);
     for( Int j=0; j<n; ++j )
     {
-        const Base<F> sigma = s.Get( j, 0 );
+        const Base<F> sigma = s(j);
         if( sigma >= 0 )
         {
-            sSgn.Set( j, 0, Base<F>(1) );
+            sSgn(j) = Base<F>(1);
         }
         else
         {
-            sSgn.Set( j, 0, Base<F>(-1) );
-            s.Set( j, 0, -sigma );
+            sSgn(j) = Base<F>(-1);
+            s(j) = -sigma;
         }
     }
 
@@ -57,8 +57,8 @@ void HermitianSVD
     for( Int j=0; j<n; ++j )
     {
         MemCopy( VPerm.Buffer(0,j), V.Buffer(0,pairs[j].index), n ); 
-        s.Set( j, 0, pairs[j].value );
-        sSgnPerm.Set( j, 0, sSgn.Get(pairs[j].index,0) );
+        s(j) = pairs[j].value;
+        sSgnPerm(j) = sSgn(pairs[j].index);
     }
     V = VPerm;
     U = V;
@@ -73,7 +73,7 @@ void HermitianSVD
         Matrix<Base<F>>& s,
         Matrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     auto ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -88,7 +88,7 @@ void HermitianSVD
   ElementalMatrix<F>& V,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( !overwrite )
     {
@@ -137,7 +137,7 @@ void HermitianSVD
         ElementalMatrix<Base<F>>& s, 
         ElementalMatrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -153,7 +153,7 @@ void HermitianSVD
   Matrix<Base<F>>& s,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     if( !overwrite )
     {
         Matrix<F> ACopy( A );
@@ -177,7 +177,7 @@ template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo, const Matrix<F>& A, Matrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }
@@ -189,7 +189,7 @@ void HermitianSVD
   ElementalMatrix<Base<F>>& s,
   bool overwrite )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     if( !overwrite )
     {
         DistMatrix<F> ACopy( A );
@@ -214,7 +214,7 @@ void HermitianSVD
   const ElementalMatrix<F>& A,
         ElementalMatrix<Base<F>>& s )
 {
-    DEBUG_ONLY(CSE cse("HermitianSVD"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }
@@ -266,6 +266,10 @@ void HermitianSVD
           ElementalMatrix<F>& V );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

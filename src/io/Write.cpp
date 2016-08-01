@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "./Write/Ascii.hpp"
 #include "./Write/AsciiMatlab.hpp"
@@ -22,7 +22,7 @@ void Write
 ( const Matrix<T>& A, 
   string basename, FileFormat format, string title )
 {
-    DEBUG_ONLY(CSE cse("Write"))
+    DEBUG_CSE
     switch( format )
     {
     case ASCII:         write::Ascii( A, basename, title );       break;
@@ -48,7 +48,7 @@ void Write
 ( const AbstractDistMatrix<T>& A, 
   string basename, FileFormat format, string title )
 {
-    DEBUG_ONLY(CSE cse("Write"))
+    DEBUG_CSE
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -75,6 +75,6 @@ void Write
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -19,13 +19,10 @@ void DiagonalSolve
         Matrix<F>& A, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("DiagonalSolve"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
-    F* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
-    const FDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
         DEBUG_ONLY(
@@ -34,12 +31,12 @@ void DiagonalSolve
         )
         for( Int i=0; i<m; ++i )
         {
-            const F delta = ( conj ? Conj(dBuf[i]) : dBuf[i] );
+            const F delta = ( conj ? Conj(d(i)) : d(i) );
             if( checkIfSingular && delta == F(0) )
                 throw SingularMatrixException();
             const F deltaInv = F(1)/delta;
             for( Int j=0; j<n; ++j )
-                ABuf[i+j*ALDim] *= deltaInv;
+                A(i,j) *= deltaInv;
         }
     }
     else
@@ -50,12 +47,12 @@ void DiagonalSolve
         )
         for( Int j=0; j<n; ++j )
         {
-            const F delta = ( conj ? Conj(dBuf[j]) : dBuf[j] );
+            const F delta = ( conj ? Conj(d(j)) : d(j) );
             if( checkIfSingular && delta == F(0) )
                 throw SingularMatrixException();
             const F deltaInv = F(1)/delta;
             for( Int i=0; i<m; ++i )
-                ABuf[i+j*ALDim] *= deltaInv;
+                A(i,j) *= deltaInv;
         }
     }
 }
@@ -65,21 +62,15 @@ void SymmetricDiagonalSolve
 ( const Matrix<Base<F>>& d, 
         Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("SymmetricDiagonalSolve"))
-    typedef Base<F> Real;
+    DEBUG_CSE
     const Int n = A.Width();
-    F* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
-    const Real* dBuf = d.LockedBuffer();
-
     DEBUG_ONLY(
       if( d.Height() != n )
           LogicError("Invalid symmetric diagonal solve dimension");
     )
-
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i ) 
-            ABuf[i+j*ALDim] /= dBuf[i]*dBuf[j];
+            A(i,j) /= d(i)*d(j);
 }
 
 template<typename FDiag,typename F,Dist U,Dist V>
@@ -89,8 +80,8 @@ void DiagonalSolve
         DistMatrix<F,U,V>& A,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalSolve");
       AssertSameGrids( dPre, A );
     )
     if( side == LEFT )
@@ -130,12 +121,12 @@ void DiagonalSolve
         ElementalMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("DiagonalSolve"))
+    DEBUG_CSE
     #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
         DiagonalSolve( side, orientation, d, ACast, checkIfSingular );
-    #include "El/macros/GuardAndPayload.h"
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename FDiag,typename F>
@@ -145,8 +136,8 @@ void DiagonalSolve
         SparseMatrix<F>& A,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
     )
@@ -191,8 +182,8 @@ void DiagonalSolve
 template<typename F>
 void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricDiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
@@ -228,8 +219,8 @@ void DiagonalSolve
         DistSparseMatrix<F>& A,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( !mpi::Congruent( d.Comm(), A.Comm() ) )
@@ -297,8 +288,8 @@ void SymmetricDiagonalSolve
 ( const DistMultiVec<Base<F>>& d,
         DistSparseMatrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricDiagonalSolve");
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
@@ -350,7 +341,7 @@ void DiagonalSolve
         DistMultiVec<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("DiagonalSolve"))
+    DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), X.Comm() ) )
@@ -362,18 +353,17 @@ void DiagonalSolve
     const bool conjugate = ( orientation == ADJOINT );
     const Int width = X.Width();
     const Int localHeight = d.LocalHeight();
-    const FDiag* dBuf = d.LockedMatrix().LockedBuffer();
-    F* XBuf = X.Matrix().Buffer();
-    const Int XLDim = X.Matrix().LDim();
+    auto& XLoc = X.Matrix();
+    auto& dLoc = d.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const F delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
+        const F delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
         DEBUG_ONLY(
           if( checkIfSingular && delta == F(0) )
               throw SingularMatrixException(); 
         )
         for( Int j=0; j<width; ++j )
-            XBuf[iLoc+j*XLDim] /= delta;
+            XLoc(iLoc,j) /= delta;
     }
 }
 
@@ -428,7 +418,7 @@ void DiagonalSolve
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

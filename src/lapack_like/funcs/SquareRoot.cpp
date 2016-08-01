@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // See Eq. 6.3 of Nicholas J. Higham and Awad H. Al-Mohy's "Computing Matrix
 // Functions", which is currently available at:
@@ -20,14 +20,14 @@ namespace El {
 namespace square_root {
 
 template<typename F>
-inline void
+void
 NewtonStep
 ( const Matrix<F>& A,
   const Matrix<F>& X,
         Matrix<F>& XNew,
         Matrix<F>& XTmp )
 {
-    DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
+    DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     Permutation P;
@@ -41,14 +41,14 @@ NewtonStep
 }
 
 template<typename F>
-inline void
+void
 NewtonStep
 ( const DistMatrix<F>& A,
   const DistMatrix<F>& X, 
         DistMatrix<F>& XNew,
         DistMatrix<F>& XTmp )
 {
-    DEBUG_ONLY(CSE cse("square_root::NewtonStep"))
+    DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     DistPermutation P(X.Grid());
@@ -62,10 +62,10 @@ NewtonStep
 }
 
 template<typename F>
-inline int
+int
 Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("square_root::Newton"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
@@ -102,10 +102,10 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 }
 
 template<typename F>
-inline int
+int
 Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("square_root::Newton"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -151,19 +151,21 @@ Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 template<typename F>
 void SquareRoot( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("SquareRoot"))
+    DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
 template<typename F>
 void SquareRoot( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("SquareRoot"))
+    DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
 // Square-root the eigenvalues of A
 // --------------------------------
+// TODO(poulson): Switch to Cholesky with full pivoting (and a threshold for
+// treating small negative values as zeros)
 
 template<typename F>
 void HPSDSquareRoot
@@ -171,14 +173,15 @@ void HPSDSquareRoot
   Matrix<F>& A,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HPSDSquareRoot"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Z;
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    Matrix<F> Q;
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );
@@ -188,7 +191,7 @@ void HPSDSquareRoot
     const Int n = w.Height();
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         minEig = Min(minEig,omega);
     }
 
@@ -203,15 +206,15 @@ void HPSDSquareRoot
     // Overwrite the eigenvalues with f(w)
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         if( omega > Real(0) )
-            w.Set(i,0,Sqrt(omega));
+            w(i) = Sqrt(omega);
         else
-            w.Set(i,0,0);
+            w(i) = 0;
     }
 
     // Form the pseudoinverse
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
 template<typename F>
@@ -220,7 +223,7 @@ void HPSDSquareRoot
   ElementalMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HPSDSquareRoot"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -229,9 +232,10 @@ void HPSDSquareRoot
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    DistMatrix<F> Q(g);
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );
@@ -266,34 +270,25 @@ void HPSDSquareRoot
     }
 
     // Form the pseudoinverse
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
-#define PROTO_BASE(F) \
+#define PROTO(F) \
   template void SquareRoot \
   ( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void SquareRoot \
-  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl );
-
-#define PROTO(F) \
-  PROTO_BASE(F) \
+  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, ElementalMatrix<F>& A, \
     const HermitianEigCtrl<F>& ctrl );
 
-#define PROTO_QUAD PROTO_BASE(Quad)
-#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
-#define PROTO_DOUBLEDOUBLE PROTO_BASE(DoubleDouble)
-#define PROTO_QUADDOUBLE PROTO_BASE(QuadDouble)
-#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
-
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

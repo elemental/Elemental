@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // A Chebyshev point (CP) minimizes the supremum norm of A x - b, i.e.,
 //
@@ -35,7 +35,7 @@ void CP
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("CP"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<Real> c, AHat, bHat, G, h;
@@ -90,7 +90,7 @@ void CP
         ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("CP"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -146,7 +146,7 @@ void CP
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("CP"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     SparseMatrix<Real> AHat, G;
@@ -209,7 +209,7 @@ void CP
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("CP"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -294,6 +294,6 @@ void CP
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like.hpp>
 
 #define COLDIST CIRC
 #define ROWDIST CIRC
@@ -24,7 +25,7 @@ namespace El {
 template<typename T>
 BDM& BDM::operator=( const BlockMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = ABDM"))
+    DEBUG_CSE
     copy::Gather( A, *this );
     return *this;
 }
@@ -32,7 +33,7 @@ BDM& BDM::operator=( const BlockMatrix<T>& A )
 template<typename T>
 BDM& BDM::operator=( const BDM& A )
 {
-    DEBUG_ONLY(CSE cse("[CIRC,CIRC] = [CIRC,CIRC]"))
+    DEBUG_CSE
     copy::Translate( A, *this );
     return *this;
 }
@@ -151,6 +152,6 @@ int BDM::PartialUnionRowRank() const EL_NO_EXCEPT
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

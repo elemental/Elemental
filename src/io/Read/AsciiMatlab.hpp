@@ -16,7 +16,7 @@ template<typename T>
 inline void
 AsciiMatlab( Matrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CSE cse("read::AsciiMatlab"))
+    DEBUG_CSE
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
@@ -27,7 +27,7 @@ template<typename T>
 inline void
 AsciiMatlab( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_ONLY(CSE cse("read::AsciiMatlab"))
+    DEBUG_CSE
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);

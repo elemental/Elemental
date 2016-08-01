@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El-lite.hpp>
+#include <El-lite.h>
 
 extern "C" {
 
@@ -125,10 +125,10 @@ ElError ElPrintCCompilerInfo( FILE* stream )
       "  EL_MPI_C_COMPILER:      %s\n"
       "  EL_MPI_C_INCLUDE_PATHS: %s\n"
       "  EL_MPI_C_COMPILE_FLAGS: %s\n"
-      "  EL_MPI_LINK_FLAGS:      %s\n"
+      "  EL_MPI_C_LINK_FLAGS:    %s\n"
       "  EL_MPI_C_LIBRARIES:     %s\n",
       EL_CMAKE_C_COMPILER, EL_MPI_C_COMPILER, EL_MPI_C_INCLUDE_PATH,
-      EL_MPI_C_COMPILE_FLAGS, EL_MPI_LINK_FLAGS, EL_MPI_C_LIBRARIES );
+      EL_MPI_C_COMPILE_FLAGS, EL_MPI_C_LINK_FLAGS, EL_MPI_C_LIBRARIES );
     return EL_SUCCESS;
 }
 
@@ -144,10 +144,10 @@ ElError ElPrintCxxCompilerInfo( FILE* stream )
       "  EL_MPI_CXX_COMPILER:      %s\n"
       "  EL_MPI_CXX_INCLUDE_PATHS: %s\n"
       "  EL_MPI_CXX_COMPILE_FLAGS: %s\n"
-      "  EL_MPI_LINK_FLAGS:        %s\n"
+      "  EL_MPI_CXX_LINK_FLAGS:    %s\n"
       "  EL_MPI_CXX_LIBRARIES:     %s\n",
       EL_CMAKE_CXX_COMPILER, EL_MPI_CXX_COMPILER, EL_MPI_CXX_INCLUDE_PATH,
-      EL_MPI_CXX_COMPILE_FLAGS, EL_MPI_LINK_FLAGS, EL_MPI_CXX_LIBRARIES );
+      EL_MPI_CXX_COMPILE_FLAGS, EL_MPI_CXX_LINK_FLAGS, EL_MPI_CXX_LIBRARIES );
     return EL_SUCCESS;
 }
 

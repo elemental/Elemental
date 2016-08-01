@@ -9,7 +9,7 @@
 #ifndef EL_BLAS_LEVEL2_C_H
 #define EL_BLAS_LEVEL2_C_H
 
-#include "El/core/DistMatrix.h"
+#include <El/core/DistMatrix.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -406,6 +406,10 @@ EL_EXPORT ElError ElTrsvDist_z
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/blas_like/level2/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_BLAS_LEVEL2_C_H */

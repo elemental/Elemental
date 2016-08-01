@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#ifndef EL_BLAS_TRANSPOSE_PARTIALCOLFILTER_HPP
+#define EL_BLAS_TRANSPOSE_PARTIALCOLFILTER_HPP
 
 namespace El {
 namespace transpose {
@@ -17,8 +18,8 @@ void PartialColFilter
 ( const ElementalMatrix<T>& A, 
         ElementalMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::PartialColFilter");
       if( A.ColDist() != B.RowDist() ||
           A.RowDist() != Partial(B.ColDist()) )
           LogicError("Incompatible distributions");
@@ -43,8 +44,8 @@ void PartialColFilter
 ( const BlockMatrix<T>& A, 
         BlockMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::PartialColFilter");
       if( A.ColDist() != B.RowDist() ||
           A.RowDist() != Partial(B.ColDist()) )
           LogicError("Incompatible distributions");
@@ -66,3 +67,5 @@ void PartialColFilter
 
 } // namespace transpose
 } // namespace El
+
+#endif // ifndef EL_BLAS_TRANSPOSE_PARTIALCOLFILTER_HPP

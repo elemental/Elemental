@@ -6,8 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El-lite.hpp>
+#include <El/lapack_like/euclidean_min.hpp>
+#include <El-lite.h>
+#include <El/lapack_like/perm.h>
+#include <El/lapack_like/factor.h>
+#include <El/lapack_like/euclidean_min.h>
 using namespace El;
 
 extern "C" {
@@ -17,7 +21,8 @@ ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
     const float eps = limits::Epsilon<float>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
-    ctrl->alpha = Pow(eps,float(0.25));
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->alpha = Pow(eps,float(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,float(0.4));
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
@@ -30,7 +35,8 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
     const double eps = limits::Epsilon<double>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
-    ctrl->alpha = Pow(eps,double(0.25));
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->alpha = Pow(eps,double(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,double(0.4));
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
@@ -67,8 +73,9 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
   ( ElOrientation orientation, ElConstSparseMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG B,   ElMatrix_ ## SIG X, \
     ElLeastSquaresCtrl_ ## SIGBASE ctrl ) \
-  { EL_TRY( LeastSquares( CReflect(orientation), *CReflect(A), \
-                          *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
+  { EL_TRY( LeastSquares \
+      ( CReflect(orientation), *CReflect(A), \
+        *CReflect(B), *CReflect(X), CReflect(ctrl) ) ) } \
   ElError ElLeastSquaresXDistSparse_ ## SIG \
   ( ElOrientation orientation, ElConstDistSparseMatrix_ ## SIG A, \
     ElConstDistMultiVec_ ## SIG B, ElDistMultiVec_ ## SIG X, \
@@ -235,6 +242,6 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
                  *CReflect(X), *CReflect(Y), CReflect(ctrl) ) ) }
 
 #define EL_NO_INT_PROTO
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

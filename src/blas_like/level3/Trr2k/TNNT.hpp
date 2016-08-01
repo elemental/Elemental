@@ -18,11 +18,11 @@ namespace trr2k {
 template<typename T>
 void Trr2kTNNT
 ( UpperOrLower uplo, Orientation orientA, Orientation orientD,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
-                 ElementalMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+                 AbstractDistMatrix<T>& E )
 {
-    DEBUG_ONLY(CSE cse("trr2k::Trr2kTNNT"))
+    DEBUG_CSE
     Trr2kNTTN( uplo, orientD, orientA, beta, C, D, alpha, A, B, E );
 }
 

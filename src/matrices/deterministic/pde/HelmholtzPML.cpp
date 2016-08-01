@@ -6,20 +6,22 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 namespace pml {
 
 template<typename Real>
-inline Complex<Real> 
+Complex<Real> 
 Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("pml::Profile");
-        if( x < 0 || x > w )
-            LogicError("Evaluation point not in PML interval");
+      if( x < 0 || x > w )
+          LogicError("Evaluation point not in PML interval");
     )
     const Real realPart(1);
     const Real arg = x/w;
@@ -28,7 +30,7 @@ Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 }
 
 template<typename Real>
-inline Complex<Real>
+Complex<Real>
 sInv( Int j, Int n, Int numPmlPoints, Real h, Real pmlExp, Real sigma, Real k )
 {
     if( j < numPmlPoints-1 )
@@ -50,7 +52,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -76,11 +78,11 @@ void HelmholtzPML
 
         const C mainTerm = (xTermL+xTermR) - omega*omega*sInvM;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -xTermL );
+            H(i,i-1) = -xTermL;
         if( x != n-1 )
-            H.Set( i, i+1, -xTermR );
+            H(i,i+1) = -xTermR;
     }
 }
 
@@ -89,7 +91,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -131,7 +133,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -173,7 +175,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -219,7 +221,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -260,15 +262,15 @@ void HelmholtzPML
         const C mainTerm = (xTermL+xTermR+yTermL+yTermR) - 
                            omega*omega*sxInvM*syInvM;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -xTermL );
+            H(i,i-1) = -xTermL;
         if( x != nx-1 )
-            H.Set( i, i+1, -xTermR );
+            H(i,i+1) = -xTermR;
         if( y != 0 )
-            H.Set( i, i-nx, -yTermL );
+            H(i,i-nx) = -yTermL;
         if( y != ny-1 )
-            H.Set( i, i+nx, -yTermR );
+            H(i,i+nx) = -yTermR;
     }
 }
 
@@ -277,7 +279,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -338,7 +340,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -399,7 +401,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -464,7 +466,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -519,19 +521,19 @@ void HelmholtzPML
         const C mainTerm = (xTermL+xTermR+yTermL+yTermR+zTermL+zTermR) - 
                            omega*omega*sxInvM*syInvM*szInvM;
 
-        H.Set( i, i, mainTerm );
+        H(i,i) = mainTerm;
         if( x != 0 )
-            H.Set( i, i-1, -xTermL );
+            H(i,i-1) = -xTermL;
         if( x != nx-1 )
-            H.Set( i, i+1, -xTermR );
+            H(i,i+1) = -xTermR;
         if( y != 0 )
-            H.Set( i, i-nx, -yTermL );
+            H(i,i-nx) = -yTermL;
         if( y != ny-1 )
-            H.Set( i, i+nx, -yTermR );
+            H(i,i+nx) = -yTermR;
         if( z != 0 )
-            H.Set( i, i-nx*ny, -zTermL );
+            H(i,i-nx*ny) = -zTermL;
         if( z != nz-1 )
-            H.Set( i, i+nx*ny, -zTermR );
+            H(i,i+nx*ny) = -zTermR;
     }
 }
 
@@ -540,7 +542,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -619,7 +621,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -698,7 +700,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_ONLY(CSE cse("HelmholtzPML"))
+    DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -815,6 +817,6 @@ void HelmholtzPML
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

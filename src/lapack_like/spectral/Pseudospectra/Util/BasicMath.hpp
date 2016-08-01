@@ -13,8 +13,7 @@ namespace El {
 namespace pspec {
 
 template<typename F>
-inline bool
-TriangIsNormal( const Matrix<F>& U, Base<F> tol )
+bool TriangIsNormal( const Matrix<F>& U, Base<F> tol )
 {
     const Base<F> diagFrob = FrobeniusNorm(GetDiagonal(U));
     const Base<F> upperFrob = FrobeniusNorm( U );
@@ -23,8 +22,7 @@ TriangIsNormal( const Matrix<F>& U, Base<F> tol )
 }
 
 template<typename F>
-inline bool
-TriangIsNormal( const ElementalMatrix<F>& UPre, Base<F> tol )
+bool TriangIsNormal( const ElementalMatrix<F>& UPre, Base<F> tol )
 {
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     auto& U = UProx.GetLocked();
@@ -36,8 +34,7 @@ TriangIsNormal( const ElementalMatrix<F>& UPre, Base<F> tol )
 }
 
 template<typename F>
-inline bool
-QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
+bool QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );
@@ -47,8 +44,7 @@ QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
 }
 
 template<typename F>
-inline bool
-QuasiTriangIsNormal( const ElementalMatrix<F>& U, Base<F> tol )
+bool QuasiTriangIsNormal( const ElementalMatrix<F>& U, Base<F> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );
@@ -58,32 +54,30 @@ QuasiTriangIsNormal( const ElementalMatrix<F>& U, Base<F> tol )
 }
 
 template<typename F>
-inline Base<F> NormCap()
-{ return Base<F>(1)/limits::Epsilon<Base<F>>(); }
+Base<F> NormCap() { return Base<F>(1)/limits::Epsilon<Base<F>>(); }
 
 template<typename F>
-inline bool HasNan( const Matrix<F>& H )
+bool HasNan( const Matrix<F>& H )
 {
-    DEBUG_ONLY(CSE cse("pspec::HasNan"))
+    DEBUG_CSE
     bool hasNan = false;
     const Int m = H.Height();
     const Int n = H.Width();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            if( std::isnan(H.GetRealPart(i,j)) ||
-                std::isnan(H.GetImagPart(i,j)) )
+            if( !limits::IsFinite(RealPart(H(i,j))) ||
+                !limits::IsFinite(ImagPart(H(i,j))) )
                 hasNan = true;
     return hasNan;
 }
 
 template<typename F,typename FComp>
-inline void
-ColumnSubtractions
+void ColumnSubtractions
 ( const Matrix<FComp>& components,
   const Matrix<F>& X, Matrix<F>& Y )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::ColumnSubtractions");
       if( components.Width() != 1 )
           LogicError("components assumed to be a column vector");
     )
@@ -91,20 +85,19 @@ ColumnSubtractions
     const Int m = Y.Height();
     for( Int j=0; j<numShifts; ++j )
     {
-        const F gamma = components.Get(j,0);
+        const F gamma = components(j);
         blas::Axpy( m, -gamma, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
     }
 }
 
 template<typename Real>
-inline void
-ColumnSubtractions
+void ColumnSubtractions
 ( const Matrix<Complex<Real>>& components,
   const Matrix<Real>& XReal, const Matrix<Real>& XImag,
         Matrix<Real>& YReal,       Matrix<Real>& YImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::ColumnSubtractions");
       if( components.Width() != 1 )
           LogicError("components assumed to be a column vector");
     )
@@ -112,7 +105,7 @@ ColumnSubtractions
     const Int m = YReal.Height();
     for( Int j=0; j<numShifts; ++j )
     {
-        const Complex<Real> gamma = components.Get(j,0);
+        const Complex<Real> gamma = components(j);
         blas::Axpy
         ( m, -gamma.real(), XReal.LockedBuffer(0,j), 1, YReal.Buffer(0,j), 1 );
         blas::Axpy
@@ -125,13 +118,12 @@ ColumnSubtractions
 }
 
 template<typename F,typename FComp>
-inline void
-ColumnSubtractions
+void ColumnSubtractions
 ( const Matrix<FComp>& components,
   const DistMatrix<F>& X, DistMatrix<F>& Y )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::ColumnSubtractions");
       if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
@@ -139,14 +131,13 @@ ColumnSubtractions
 }
 
 template<typename Real>
-inline void
-ColumnSubtractions
+void ColumnSubtractions
 ( const Matrix<Complex<Real>>& components,
   const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
         DistMatrix<Real>& YReal,       DistMatrix<Real>& YImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::ColumnSubtractions");
       if( XReal.ColAlign() != YReal.ColAlign() || 
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
@@ -157,11 +148,10 @@ ColumnSubtractions
 }
 
 template<typename F>
-inline void
-InnerProducts
+void InnerProducts
 ( const Matrix<F>& X, const Matrix<F>& Y, Matrix<Base<F>>& innerProds )
 {
-    DEBUG_ONLY(CSE cse("pspec::InnerProducts"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int numShifts = X.Width();
     const Int m = X.Height();
@@ -171,18 +161,17 @@ InnerProducts
         const Real alpha =
             RealPart(blas::Dot( m, X.LockedBuffer(0,j), 1,
                                    Y.LockedBuffer(0,j), 1 ));
-        innerProds.Set( j, 0, alpha );
+        innerProds(j) = alpha;
     }
 }
 
 template<typename Real>
-inline void
-InnerProducts
+void InnerProducts
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag,
   const Matrix<Real>& YReal, const Matrix<Real>& YImag, 
         Matrix<Real>& innerProds )
 {
-    DEBUG_ONLY(CSE cse("pspec::InnerProducts"))
+    DEBUG_CSE
     const Int numShifts = XReal.Width();
     const Int m = XReal.Height();
     innerProds.Resize( numShifts, 1 );
@@ -194,16 +183,15 @@ InnerProducts
         const Real beta = 
             blas::Dot( m, XImag.LockedBuffer(0,j), 1,
                           YImag.LockedBuffer(0,j), 1 );
-        innerProds.Set( j, 0, alpha+beta );
+        innerProds(j) = alpha+beta;
     }
 }
 
 template<typename F>
-inline void
-InnerProducts
+void InnerProducts
 ( const Matrix<F>& X, const Matrix<F>& Y, Matrix<F>& innerProds )
 {
-    DEBUG_ONLY(CSE cse("pspec::InnerProducts"))
+    DEBUG_CSE
     const Int numShifts = X.Width();
     const Int m = X.Height();
     innerProds.Resize( numShifts, 1 );
@@ -212,18 +200,17 @@ InnerProducts
         const F alpha =
             blas::Dot( m, X.LockedBuffer(0,j), 1,
                           Y.LockedBuffer(0,j), 1 );
-        innerProds.Set( j, 0, alpha );
+        innerProds(j) = alpha;
     }
 }
 
 template<typename Real>
-inline void
-InnerProducts
+void InnerProducts
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag,
   const Matrix<Real>& YReal, const Matrix<Real>& YImag, 
         Matrix<Complex<Real>>& innerProds )
 {
-    DEBUG_ONLY(CSE cse("pspec::InnerProducts"))
+    DEBUG_CSE
     const Int numShifts = XReal.Width();
     const Int m = XReal.Height();
     innerProds.Resize( numShifts, 1 );
@@ -242,18 +229,17 @@ InnerProducts
             blas::Dot( m, XImag.LockedBuffer(0,j), 1,
                           YReal.LockedBuffer(0,j), 1 );
         // Keep in mind that XImag should be conjugated
-        innerProds.Set( j, 0, Complex<Real>(alpha+beta,delta-gamma) );
+        innerProds(j) = Complex<Real>(alpha+beta,delta-gamma);
     }
 }
 
 // TODO: Use the appropriate distribution for 'innerProds'
 template<typename F>
-inline void
-InnerProducts
+void InnerProducts
 ( const DistMatrix<F>& X, const DistMatrix<F>& Y, Matrix<Base<F>>& innerProds )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::InnerProducts");
       if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
@@ -263,14 +249,13 @@ InnerProducts
 }
 
 template<typename Real>
-inline void
-InnerProducts
+void InnerProducts
 ( const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
   const DistMatrix<Real>& YReal, const DistMatrix<Real>& YImag,
   Matrix<Real>& innerProds )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::InnerProducts");
       if( XReal.ColAlign() != YReal.ColAlign() || 
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
@@ -284,12 +269,11 @@ InnerProducts
 }
 
 template<typename F>
-inline void
-InnerProducts
+void InnerProducts
 ( const DistMatrix<F>& X, const DistMatrix<F>& Y, Matrix<F>& innerProds )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::InnerProducts");
       if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
@@ -299,14 +283,13 @@ InnerProducts
 }
 
 template<typename Real>
-inline void
-InnerProducts
+void InnerProducts
 ( const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
   const DistMatrix<Real>& YReal, const DistMatrix<Real>& YImag,
         Matrix<Complex<Real>>& innerProds )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::InnerProducts");
       if( XReal.ColAlign() != YReal.ColAlign() || 
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
@@ -320,10 +303,9 @@ InnerProducts
 }
 
 template<typename F>
-inline void
-FixColumns( Matrix<F>& X )
+void FixColumns( Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("pspec::FixColumns"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Matrix<Real> norms;
     ColumnTwoNorms( X, norms );
@@ -331,7 +313,7 @@ FixColumns( Matrix<F>& X )
     for( Int j=0; j<n; ++j )
     {
         auto x = X( ALL, IR(j) );
-        Real norm = norms.Get(j,0);
+        Real norm = norms(j);
         if( norm == Real(0) )
         {
             MakeGaussian( x );
@@ -342,19 +324,19 @@ FixColumns( Matrix<F>& X )
 }
 
 template<typename F,Dist U,Dist V>
-inline void
-FixColumns( DistMatrix<F,U,V>& X )
+void FixColumns( DistMatrix<F,U,V>& X )
 {
-    DEBUG_ONLY(CSE cse("pspec::FixColumns"))
+    DEBUG_CSE
     typedef Base<F> Real;
     DistMatrix<Real,V,STAR> norms( X.Grid() );
     ColumnTwoNorms( X, norms );
     const Int nLocal = X.LocalWidth();
+    auto& normsLoc = norms.Matrix();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Int j = X.GlobalCol(jLoc);
         auto x = X( ALL, IR(j) );
-        Real norm = norms.GetLocal(jLoc,0);
+        Real norm = normsLoc(jLoc);
         if( norm == Real(0) )
         {
             MakeGaussian( x );
@@ -365,36 +347,36 @@ FixColumns( DistMatrix<F,U,V>& X )
 }
 
 template<typename Real>
-inline void CapEstimates( Matrix<Real>& activeEsts )
+void CapEstimates( Matrix<Real>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::CapEstimates"))
+    DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int n = activeEsts.Height();
     for( Int j=0; j<n; ++j )
     {
-        Real alpha = activeEsts.Get(j,0);
-        if( std::isnan(alpha) || alpha >= normCap )
+        Real alpha = activeEsts(j);
+        if( !limits::IsFinite(alpha) || alpha >= normCap )
             alpha = normCap;
-        activeEsts.Set( j, 0, alpha );
+        activeEsts(j) = alpha;
     }
 }
 
 template<typename Real>
-inline void CapEstimates( DistMatrix<Real,MR,STAR>& activeEsts )
+void CapEstimates( DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::CapEstimates"))
+    DEBUG_CSE
     CapEstimates( activeEsts.Matrix() );
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 FindConverged
 ( const Matrix<Real>& lastActiveEsts,
   const Matrix<Real>& activeEsts,
         Matrix<Int >& activeItCounts,
         Real maxDiff )
 {
-    DEBUG_ONLY(CSE cse("pspec::FindConverged"))
+    DEBUG_CSE
     const Real normCap = NormCap<Real>();
 
     const Int numActiveShifts=activeEsts.Height();
@@ -403,8 +385,8 @@ FindConverged
 
     for( Int j=0; j<numActiveShifts; ++j )
     {
-        const Real lastEst = lastActiveEsts.Get(j,0);
-        const Real currEst = activeEsts.Get(j,0);
+        const Real lastEst = lastActiveEsts(j);
+        const Real currEst = activeEsts(j);
         bool converged = false;
         if( currEst >= normCap )
             converged = true;
@@ -412,23 +394,23 @@ FindConverged
             converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
 
         if( converged )
-            activeConverged.Set( j, 0, 1 );
+            activeConverged(j) = 1;
         else
-            activeItCounts.Update( j, 0, 1 );
+            ++activeItCounts(j);
     }
     return activeConverged;
 }
 
 template<typename Real>
-inline DistMatrix<Int,MR,STAR>
+DistMatrix<Int,MR,STAR>
 FindConverged
 ( const DistMatrix<Real,MR,STAR>& lastActiveEsts,
   const DistMatrix<Real,MR,STAR>& activeEsts,
         DistMatrix<Int, VR,STAR>& activeItCounts,
         Real maxDiff )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("pspec::FindConverged");
       if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
           activeEsts.ColAlign() )
           LogicError("Invalid column alignment");
@@ -439,11 +421,15 @@ FindConverged
     activeConverged.AlignWith( activeEsts );
     Zeros( activeConverged, activeEsts.Height(), 1 );
 
+    auto& activeEstsLoc = activeEsts.LockedMatrix();
+    auto& lastActiveEstsLoc = lastActiveEsts.LockedMatrix();
+    auto& activeConvergedLoc = activeConverged.Matrix();
+
     const Int numLocShifts=activeEsts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
-        const Real lastEst = lastActiveEsts.GetLocal(iLoc,0);
-        const Real currEst = activeEsts.GetLocal(iLoc,0);
+        const Real lastEst = lastActiveEstsLoc(iLoc);
+        const Real currEst = activeEstsLoc(iLoc);
         bool converged = false;
         if( currEst >= normCap )
             converged = true;
@@ -451,7 +437,7 @@ FindConverged
             converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
 
         if( converged )
-            activeConverged.SetLocal( iLoc, 0, 1 );
+            activeConvergedLoc(iLoc) = 1;
         else
         {
             const Int i = activeEsts.GlobalRow(iLoc);

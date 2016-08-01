@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 // I haven't decided on the appropriate generalization to complex cosine/sine
 // pairs. For now, given phi, we will compute the corresponding partner as the
@@ -17,7 +19,7 @@ namespace El {
 template<typename F>
 void Kahan( Matrix<F>& A, Int n, F phi )
 {
-    DEBUG_ONLY(CSE cse("Kahan"))
+    DEBUG_CSE
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
@@ -32,7 +34,7 @@ void Kahan( Matrix<F>& A, Int n, F phi )
 template<typename F>
 void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
 {
-    DEBUG_ONLY(CSE cse("Kahan"))
+    DEBUG_CSE
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
@@ -53,6 +55,6 @@ void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

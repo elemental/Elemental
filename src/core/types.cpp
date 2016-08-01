@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
 
 namespace El {
 
@@ -191,6 +191,8 @@ template struct SafeProduct<Complex<double>>;
 #ifdef EL_HAVE_QD
 template struct SafeProduct<DoubleDouble>;
 template struct SafeProduct<QuadDouble>;
+template struct SafeProduct<Complex<DoubleDouble>>;
+template struct SafeProduct<Complex<QuadDouble>>;
 #endif
 #ifdef EL_HAVE_QUAD
 template struct SafeProduct<Quad>;
@@ -198,6 +200,7 @@ template struct SafeProduct<Complex<Quad>>;
 #endif
 #ifdef EL_HAVE_MPC
 template struct SafeProduct<BigFloat>;
+template struct SafeProduct<Complex<BigFloat>>;
 #endif
 
 } // namespace El

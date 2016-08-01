@@ -98,24 +98,35 @@ endif()
 # ==================
 set(RESTRICT_CODE "int main() { int* RESTRICT a; return 0; }")
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
-check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
+check_cxx_source_compiles("${RESTRICT_CODE}" EL_HAVE___restrict__)
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
-check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict)
+check_cxx_source_compiles("${RESTRICT_CODE}" EL_HAVE___restrict)
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=restrict")
-check_cxx_source_compiles("${RESTRICT_CODE}" HAVE_restrict)
-if(HAVE___restrict__)
-  set(RESTRICT "__restrict__")
+check_cxx_source_compiles("${RESTRICT_CODE}" EL_HAVE_restrict)
+if(EL_HAVE___restrict__)
+  set(EL_RESTRICT "__restrict__")
   message(STATUS "Using __restrict__ keyword.")
-elseif(HAVE___restrict)
-  set(RESTRICT "__restrict")
+elseif(EL_HAVE___restrict)
+  set(EL_RESTRICT "__restrict")
   message(STATUS "Using __restrict keyword.")
-elseif(HAVE_restrict)
-  set(RESTRICT "restrict")
+elseif(EL_HAVE_restrict)
+  set(EL_RESTRICT "restrict")
   message(STATUS "Using restrict keyword.")
 else()
-  set(RESTRICT "")
+  set(EL_RESTRICT "")
   message(STATUS "Could not find a restrict keyword.")
 endif()
 
-set(CMAKE_REQUIRED_FLAGS)
-set(CMAKE_REQUIRED_DEFINITIONS)
+# __PRETTY_FUNCTION__ support
+# ===========================
+set(PRETTY_FUNCTION_CODE
+    "#include <iostream>
+     int main()
+     { 
+         std::cout << __PRETTY_FUNCTION__ << std::endl;
+         return 0;
+     }")
+check_cxx_source_compiles("${PRETTY_FUNCTION_CODE}" EL_HAVE_PRETTY_FUNCTION)
+
+unset(CMAKE_REQUIRED_FLAGS)
+unset(CMAKE_REQUIRED_DEFINITIONS)

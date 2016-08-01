@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename S,typename T> 
 void Toeplitz( Matrix<S>& A, Int m, Int n, const vector<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Toeplitz"))
+    DEBUG_CSE
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
@@ -25,7 +27,7 @@ void Toeplitz( Matrix<S>& A, Int m, Int n, const vector<T>& a )
 template<typename S,typename T>
 void Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const vector<T>& a )
 {
-    DEBUG_ONLY(CSE cse("Toeplitz"))
+    DEBUG_CSE
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
@@ -58,6 +60,6 @@ void Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const vector<T>& a )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

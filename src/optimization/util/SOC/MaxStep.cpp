@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -111,11 +111,16 @@ namespace soc {
 namespace {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real ChooseStepLength
-( Real x0, Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
-  Real delta=limits::Epsilon<Real>() )
+Real ChooseStepLength
+( const Real& x0,
+  const Real& y0,
+  const Real& xDet,
+  const Real& yDet,
+  const Real& xTRy,
+  const Real& upperBound, 
+  const Real& delta=limits::Epsilon<Real>() )
 {
-    DEBUG_ONLY(CSE cse("ChooseStepLength"))
+    DEBUG_CSE
     Real step;
     if( y0 >= Real(0) && yDet >= Real(0) ) 
     {
@@ -160,7 +165,7 @@ Real MaxStep
   const Matrix<Int>& firstInds,
   Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int height = x.Height();
 
@@ -215,7 +220,7 @@ Real MaxStep
   const ElementalMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
 
     ElementalProxyCtrl control;
@@ -277,7 +282,7 @@ Real MaxStep
   const DistMultiVec<Int>& firstInds,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = x.Comm();
 
@@ -346,7 +351,7 @@ Real MaxStep
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

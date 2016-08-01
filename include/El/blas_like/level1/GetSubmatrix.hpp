@@ -20,7 +20,7 @@ void GetSubmatrix
         Range<Int> J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     auto ASubView = A(I,J);
     ASub = ASubView;
 }
@@ -32,7 +32,7 @@ void GetSubmatrix
         Range<Int> J, 
         ElementalMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     unique_ptr<ElementalMatrix<T>> 
       ASubView( A.Construct(A.Grid(),A.Root()) );
     LockedView( *ASubView, A, I, J );
@@ -46,12 +46,13 @@ void GetSubmatrix
         Range<Int> J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     if( I.end == END ) I.end = A.Height();
     if( J.end == END ) J.end = A.Width();
     const Int mSub = I.end-I.beg;
     const Int nSub = J.end-J.beg;
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     const Int* offsetBuf = A.LockedOffsetBuffer();
     const Int* colBuf = A.LockedTargetBuffer();
@@ -94,7 +95,7 @@ void GetSubmatrix
   const vector<Int>& J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -106,7 +107,7 @@ void GetSubmatrix
         Range<Int> J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -118,7 +119,7 @@ void GetSubmatrix
   const vector<Int>& J,
         SparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -131,12 +132,13 @@ void GetSubmatrix
         Range<Int> J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     if( I.end == END ) I.end = A.Height();
     if( J.end == END ) J.end = A.Width();
 
     ASub.SetComm( A.Comm() );
-    Zeros( ASub, I.end-I.beg, J.end-J.beg );
+    ASub.Resize( I.end-I.beg, J.end-J.beg );
+    Zero( ASub );
 
     // Count the number of updates
     // ===========================
@@ -173,7 +175,7 @@ void GetSubmatrix
   const vector<Int>& J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -185,7 +187,7 @@ void GetSubmatrix
         Range<Int> J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -197,7 +199,7 @@ void GetSubmatrix
   const vector<Int>& J,
         DistSparseMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -209,7 +211,7 @@ void GetSubmatrix
         Range<Int> J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     if( I.end == END ) I.end = A.Height();
     if( J.end == END ) J.end = A.Width();
     const Int mSub = I.end-I.beg;
@@ -217,7 +219,8 @@ void GetSubmatrix
     const Int localHeight = A.LocalHeight();
 
     ASub.SetComm( A.Comm() );
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
     
     const T* ABuf = A.LockedMatrix().LockedBuffer();
     const Int ALDim = A.LockedMatrix().LDim();
@@ -267,7 +270,7 @@ void GetSubmatrix
   const vector<Int>& J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.end-I.beg;
     const Int nSub = J.size();
     ASub.Resize( mSub, nSub );
@@ -291,7 +294,7 @@ void GetSubmatrix
   const Range<Int> J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.end-J.beg;
     ASub.Resize( mSub, nSub );
@@ -319,7 +322,7 @@ void GetSubmatrix
   const vector<Int>& J, 
         Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.size();
     ASub.Resize( mSub, nSub );
@@ -347,12 +350,13 @@ void GetSubmatrix
   const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.end-I.beg;
     const Int nSub = J.size();
     const Grid& g = A.Grid();
     ASub.SetGrid( g ); 
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     // TODO: Intelligently pick the redundant rank to pack from?
 
@@ -402,12 +406,13 @@ void GetSubmatrix
         Range<Int> J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.end-J.beg;
     const Grid& g = A.Grid();
     ASub.SetGrid( g ); 
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     // TODO: Intelligently pick the redundant rank to pack from?
 
@@ -457,12 +462,13 @@ void GetSubmatrix
   const vector<Int>& J, 
         AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.size();
     const Grid& g = A.Grid();
     ASub.SetGrid( g ); 
-    Zeros( ASub, mSub, nSub );
+    ASub.Resize( mSub, nSub );
+    Zero( ASub );
 
     // TODO: Intelligently pick the redundant rank to pack from?
 
@@ -512,7 +518,7 @@ void GetSubmatrix
   const vector<Int>& J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -524,7 +530,7 @@ void GetSubmatrix
         Range<Int> J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
@@ -536,10 +542,127 @@ void GetSubmatrix
   const vector<Int>& J,
         DistMultiVec<T>& ASub )
 {
-    DEBUG_ONLY(CSE cse("GetSubmatrix"))
+    DEBUG_CSE
     // TODO: Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
+
+#ifdef EL_INSTANTIATE_BLAS_LEVEL1
+# define EL_EXTERN
+#else
+# define EL_EXTERN extern
+#endif
+
+#define PROTO(T) \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J,  \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const ElementalMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          ElementalMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const SparseMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          SparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistSparseMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          DistSparseMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+          Range<Int> I, \
+          Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+    const Range<Int> I, \
+    const vector<Int>& J,  \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+    const vector<Int>& I, \
+    const Range<Int> J, \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const Matrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          Matrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          AbstractDistMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          AbstractDistMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const AbstractDistMatrix<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          AbstractDistMatrix<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+          Range<Int> I, \
+    const vector<Int>& J, \
+          DistMultiVec<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+    const vector<Int>& I, \
+          Range<Int> J, \
+          DistMultiVec<T>& ASub ); \
+  EL_EXTERN template void GetSubmatrix \
+  ( const DistMultiVec<T>& A, \
+    const vector<Int>& I, \
+    const vector<Int>& J, \
+          DistMultiVec<T>& ASub );
+
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+#undef EL_EXTERN
 
 } // namespace El
 

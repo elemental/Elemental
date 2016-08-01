@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T> 
 void JordanCholesky( Matrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("JordanCholesky"))
+    DEBUG_CSE
     Zeros( A, n, n );
 
     // Set the main diagonal equal to five everywhere but the top-left entry
@@ -29,7 +31,7 @@ void JordanCholesky( Matrix<T>& A, Int n )
 template<typename T>
 void JordanCholesky( AbstractDistMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("JordanCholesky"))
+    DEBUG_CSE
     Zeros( A, n, n );
 
     // Set the main diagonal equal to five everywhere but the top-left entry
@@ -45,7 +47,7 @@ void JordanCholesky( AbstractDistMatrix<T>& A, Int n )
 template<typename T>
 void JordanCholesky( SparseMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("JordanCholesky"))
+    DEBUG_CSE
     Zeros( A, n, n );
     A.Reserve( 3*n );
     
@@ -66,7 +68,7 @@ void JordanCholesky( SparseMatrix<T>& A, Int n )
 template<typename T>
 void JordanCholesky( DistSparseMatrix<T>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("JordanCholesky"))
+    DEBUG_CSE
     Zeros( A, n, n );
 
     const Int localHeight = A.LocalHeight();
@@ -99,6 +101,6 @@ void JordanCholesky( DistSparseMatrix<T>& A, Int n )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

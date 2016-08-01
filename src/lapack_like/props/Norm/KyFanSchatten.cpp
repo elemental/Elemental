@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename F> 
 Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("KyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -23,7 +23,7 @@ Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p )
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
-        sum += Pow( s.Get(j,0), p );
+        sum += Pow( s(j), p );
     return Pow( sum, 1/p );
 }
 
@@ -31,7 +31,7 @@ template<typename F>
 Base<F> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -41,7 +41,7 @@ Base<F> HermitianKyFanSchattenNorm
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
-        sum += Pow( s.Get(j,0), p );
+        sum += Pow( s(j), p );
     return Pow( sum, 1/p );
 }
 
@@ -49,7 +49,7 @@ template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -63,14 +63,14 @@ Base<F> SymmetricKyFanSchattenNorm
 
     Real sum = 0;
     for( Int j=k-1; j>=0; --j )
-        sum += Pow( s.Get(j,0), p );
+        sum += Pow( s(j), p );
     return Pow( sum, 1/p );
 }
 
 template<typename F> 
 Base<F> KyFanSchattenNorm( const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("KyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -83,9 +83,10 @@ Base<F> KyFanSchattenNorm( const ElementalMatrix<F>& A, Int k, Base<F> p )
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
+    Matrix<Real>& sTopLoc = sTop.Matrix();
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
-        localSum += Pow( sTop.GetLocal(j,0), p );
+        localSum += Pow( sTopLoc(j), p );
     const Real sum = mpi::AllReduce( localSum, sTop.ColComm() );
     return Pow( sum, 1/p );
 }
@@ -94,7 +95,7 @@ template<typename F>
 Base<F> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("HermitianKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -104,9 +105,10 @@ Base<F> HermitianKyFanSchattenNorm
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
+    Matrix<Real>& sTopLoc = sTop.Matrix();
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
-        localSum += Pow( sTop.GetLocal(j,0), p );
+        localSum += Pow( sTopLoc(j), p );
     const Real sum = mpi::AllReduce( localSum, sTop.ColComm() );
     return Pow( sum, 1/p );
 }
@@ -115,7 +117,7 @@ template<typename F>
 Base<F> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p )
 {
-    DEBUG_ONLY(CSE cse("SymmetricKyFanSchattenNorm"))
+    DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -129,9 +131,10 @@ Base<F> SymmetricKyFanSchattenNorm
 
     Real localSum = 0;
     auto sTop = s( IR(0,k), ALL );
+    Matrix<Real>& sTopLoc = sTop.Matrix();
     const Int localHeight = sTop.LocalHeight();
     for( Int j=localHeight-1; j>=0; --j )
-        localSum += Pow( sTop.GetLocal(j,0), p );
+        localSum += Pow( sTopLoc(j), p );
     const Real sum = mpi::AllReduce( localSum, sTop.ColComm() );
     return Pow( sum, 1/p );
 }
@@ -151,6 +154,10 @@ Base<F> SymmetricKyFanSchattenNorm
   ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k, Base<F> p );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

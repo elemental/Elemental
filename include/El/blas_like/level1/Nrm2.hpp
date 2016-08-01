@@ -20,8 +20,8 @@ Base<F> FrobeniusNorm( const DistMultiVec<F>& A );
 template<typename F>
 Base<F> Nrm2( const Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Nrm2");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("Expected vector input");
     )
@@ -36,8 +36,8 @@ Base<F> Nrm2( const Matrix<F>& x )
 template<typename F>
 Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Nrm2");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -47,8 +47,8 @@ Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 template<typename F>
 Base<F> Nrm2( const DistMultiVec<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Nrm2");
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -62,16 +62,16 @@ Base<F> Nrm2( const DistMultiVec<F>& x )
 #endif
 
 #define PROTO(F) \
-  template Base<F> Nrm2( const Matrix<F>& x ); \
-  template Base<F> Nrm2( const AbstractDistMatrix<F>& x ); \
-  template Base<F> Nrm2( const DistMultiVec<F>& x );
+  EL_EXTERN template Base<F> Nrm2( const Matrix<F>& x ); \
+  EL_EXTERN template Base<F> Nrm2( const AbstractDistMatrix<F>& x ); \
+  EL_EXTERN template Base<F> Nrm2( const DistMultiVec<F>& x );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

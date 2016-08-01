@@ -32,7 +32,7 @@ inline void LowerBackwardMultiply
 ( const NodeInfo& info, 
   const Front<F>& front, MatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerBackwardMultiply"))
+    DEBUG_CSE
 
     auto* dupMV = X.duplicateMV;
     auto* dupMat = X.duplicateMat;
@@ -63,7 +63,7 @@ inline void LowerBackwardMultiply
         {
             const Int i = info.childRelInds[c][iChild];
             for( Int j=0; j<numRHS; ++j )
-                childWB.Set( iChild, j, W.Get(i,j) );
+                childWB(iChild,j) = W(i,j);
         }
     }
 
@@ -94,7 +94,7 @@ inline void LowerBackwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMultiVecNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerBackwardMultiply"))
+    DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardMultiply
@@ -192,7 +192,7 @@ inline void LowerBackwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerBackwardMultiply"))
+    DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardMultiply

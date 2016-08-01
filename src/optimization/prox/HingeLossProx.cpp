@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename Real>
 void HingeLossProx( Matrix<Real>& A, Real tau )
 {
-    DEBUG_ONLY(CSE cse("HingeLossProx"))
+    DEBUG_CSE
     auto hingeProx = 
       [=]( Real alpha ) -> Real
       { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
@@ -24,7 +24,7 @@ void HingeLossProx( Matrix<Real>& A, Real tau )
 template<typename Real>
 void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau )
 {
-    DEBUG_ONLY(CSE cse("HingeLossProx"))
+    DEBUG_CSE
     auto hingeProx = 
       [=]( Real alpha ) -> Real
       { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
@@ -42,6 +42,6 @@ void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

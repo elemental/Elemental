@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 // Generate a 3(2^k) x 3(2^k) Extended Kahan matrix, which has the form
 // A = S R, where S = diag(1,zeta,...,zeta^(3 2^k - 1)), 
@@ -22,10 +24,10 @@
 namespace El {
 
 template<typename F> 
-inline void MakeExtendedKahan
+void MakeExtendedKahan
 ( Matrix<F>& A, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
@@ -63,15 +65,15 @@ inline void MakeExtendedKahan
     {
         const Real gamma = Pow(zeta,Real(i));
         for( Int j=0; j<n; ++j )
-            A.Set( i, j, gamma*A.Get(i,j) );
+            A(i,j) *= gamma;
     }
 }
 
 template<typename F>
-inline void MakeExtendedKahan
+void MakeExtendedKahan
 ( ElementalMatrix<F>& A, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("MakeExtendedKahan"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
@@ -106,19 +108,20 @@ inline void MakeExtendedKahan
 
     // Now scale A by S
     const Real zeta = Sqrt(Real(1)-phi*phi);
+    auto& ALoc = A.Matrix();
     for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
         const Real gamma = Pow(zeta,Real(i));
         for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
-            A.SetLocal( iLoc, jLoc, gamma*A.GetLocal(iLoc,jLoc) );
+            ALoc(iLoc,jLoc) *= gamma;
     }
 }
 
 template<typename F>
 void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("ExtendedKahan"))
+    DEBUG_CSE
     const Int n = 3*(1u<<k);
     A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );
@@ -127,7 +130,7 @@ void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 template<typename F>
 void ExtendedKahan( ElementalMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
-    DEBUG_ONLY(CSE cse("ExtendedKahan"))
+    DEBUG_CSE
     const Int n = 3*(1u<<k);
     A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );
@@ -144,6 +147,6 @@ void ExtendedKahan( ElementalMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

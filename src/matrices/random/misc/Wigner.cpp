@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename F>
 void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("Wigner"))
+    DEBUG_CSE
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }
@@ -21,7 +23,7 @@ void Wigner( Matrix<F>& A, Int n, F mean, Base<F> stddev )
 template<typename F>
 void Wigner( ElementalMatrix<F>& A, Int n, F mean, Base<F> stddev )
 {
-    DEBUG_ONLY(CSE cse("Wigner"))
+    DEBUG_CSE
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }
@@ -36,6 +38,6 @@ void Wigner( ElementalMatrix<F>& A, Int n, F mean, Base<F> stddev )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

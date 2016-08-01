@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -19,7 +19,7 @@ void Ridge
         Matrix<F>& X, 
   RidgeAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Ridge"))
+    DEBUG_CSE
 
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
@@ -53,7 +53,7 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma*gamma) );
+            FillDiagonal( ZB, F(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
@@ -107,7 +107,7 @@ void Ridge
         ElementalMatrix<F>& XPre, 
         RidgeAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Ridge"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),
@@ -150,7 +150,7 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma*gamma) );
+            FillDiagonal( ZB, F(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
@@ -205,8 +205,8 @@ void Ridge
         Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -228,8 +228,8 @@ void Ridge
         DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -273,13 +273,10 @@ void Ridge
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
-// NOTE: These will be enabled when there is SVD support
-/*
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-*/
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // 1D total variation denoising (TV):
 //
@@ -30,7 +30,7 @@ void TV
         ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("TV"))
+    DEBUG_CSE
     mpi::Comm comm = b.Grid().Comm();
     DistMultiVec<Real> bDMV(comm), xDMV(comm);
     bDMV = b;
@@ -46,7 +46,7 @@ void TV
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("TV"))
+    DEBUG_CSE
     const Int n = b.Height();
     const Range<Int> xInd(0,n), tInd(n,2*n-1);
 
@@ -118,12 +118,15 @@ void TV
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("TV"))
+    DEBUG_CSE
     const Int n = b.Height();
     mpi::Comm comm = b.Comm();
 
     DistSparseMatrix<Real> Q(comm), A(comm), G(comm);
     DistMultiVec<Real> c(comm), bHat(comm), h(comm);
+
+    auto& bLoc = b.LockedMatrix();
+    auto& cLoc = c.Matrix();
 
     // Q := | I 0 |
     //      | 0 0 |
@@ -151,10 +154,10 @@ void TV
     Zeros( c, 2*n-1, 1 );
     c.Reserve( b.LocalHeight() );
     for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
-        c.QueueUpdate( b.GlobalRow(iLoc), 0, -b.GetLocal(iLoc,0) );
+        c.QueueUpdate( b.GlobalRow(iLoc), 0, -bLoc(iLoc) );
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
         if( c.GlobalRow(iLoc) > n )
-            c.SetLocal( iLoc, 0, lambda );
+            cLoc(iLoc) = lambda;
     c.ProcessQueues();
 
     // A := []
@@ -225,6 +228,6 @@ void TV
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

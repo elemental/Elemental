@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -21,7 +21,7 @@ void ApplyQuadratic
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
+    DEBUG_CSE
 
     // detRy := det(x) R y
     Matrix<Real> d;
@@ -52,7 +52,7 @@ void ApplyQuadratic
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
+    DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -102,7 +102,7 @@ void ApplyQuadratic
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
+    DEBUG_CSE
 
     // detRy := det(x) R y
     DistMultiVec<Real> d(x.Comm()); 
@@ -131,7 +131,7 @@ void ApplyQuadratic
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
+    DEBUG_CSE
     // TODO?: Optimize
     Matrix<Real> z; 
     soc::ApplyQuadratic( x, y, z, orders, firstInds );
@@ -146,7 +146,7 @@ void ApplyQuadratic
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
+    DEBUG_CSE
     // TODO?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid()); 
     soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
@@ -161,7 +161,7 @@ void ApplyQuadratic
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::ApplyQuadratic"))
+    DEBUG_CSE
     // TODO?: Optimize 
     DistMultiVec<Real> z(x.Comm());
     soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
@@ -213,7 +213,7 @@ void ApplyQuadratic
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -19,7 +21,7 @@ namespace El {
 template<typename F> 
 void Triangle( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Triangle"))
+    DEBUG_CSE
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
     Zeros( A, n, n );
@@ -30,7 +32,7 @@ void Triangle( Matrix<F>& A, Int n )
 template<typename F>
 void Triangle( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("Triangle"))
+    DEBUG_CSE
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
     Zeros( A, n, n );
@@ -47,6 +49,6 @@ void Triangle( AbstractDistMatrix<F>& A, Int n )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

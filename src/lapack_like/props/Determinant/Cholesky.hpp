@@ -16,7 +16,7 @@ template<typename F>
 SafeProduct<Base<F>> AfterCholesky
 ( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
 
@@ -28,7 +28,7 @@ SafeProduct<Base<F>> AfterCholesky
     const Real scale = Real(n)/Real(2);
     for( Int i=0; i<n; ++i )
     {
-        const Real delta = RealPart(d.Get(i,0));
+        const Real delta = RealPart(d(i));
         det.kappa += Log(delta)/scale;
     }
 
@@ -36,10 +36,10 @@ SafeProduct<Base<F>> AfterCholesky
 }
 
 template<typename F>
-inline SafeProduct<Base<F>> 
+SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
+    DEBUG_CSE
     SafeProduct<Base<F>> det( A.Height() );
     try
     {
@@ -58,7 +58,7 @@ template<typename F>
 SafeProduct<Base<F>> AfterCholesky
 ( UpperOrLower uplo, const ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::AfterCholesky"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
@@ -88,10 +88,10 @@ SafeProduct<Base<F>> AfterCholesky
 }
 
 template<typename F> 
-inline SafeProduct<Base<F>> 
+SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("hpd_det::Cholesky"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();

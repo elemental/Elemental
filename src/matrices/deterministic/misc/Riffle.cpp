@@ -6,7 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 // This is an implementation of the riffle-shuffle matrix made famous by 
 // Diaconis et al. and analyzed by Trefethen et al. The binomial and Eulerian
@@ -19,7 +21,7 @@ namespace El {
 template<typename F>
 void Riffle( Matrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n+1 );
@@ -42,7 +44,7 @@ void Riffle( Matrix<F>& P, Int n )
 template<typename F>
 void Riffle( AbstractDistMatrix<F>& P, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     auto logBinom = LogBinomial<Real>( n+1 );
@@ -65,7 +67,7 @@ void Riffle( AbstractDistMatrix<F>& P, Int n )
 template<typename F>
 void RiffleStationary( Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleStationary"))    
+    DEBUG_CSE
     typedef Base<F> Real;
     // NOTE: This currently requires quadratic time
     vector<Real> sigma(n,0), sigmaTmp(n,0);
@@ -88,7 +90,7 @@ void RiffleStationary( Matrix<F>& PInf, Int n )
 template<typename F>
 void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleStationary"))    
+    DEBUG_CSE
     typedef Base<F> Real;
     // NOTE: This currently requires quadratic time
     vector<Real> sigma(n,0), sigmaTmp(n,0);
@@ -111,7 +113,7 @@ void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
 template<typename F>
 void Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     Riffle( P, n );
     RiffleStationary( PInf, n );
 }
@@ -119,7 +121,7 @@ void Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
 template<typename F>
 void Riffle( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 {
-    DEBUG_ONLY(CSE cse("Riffle"))
+    DEBUG_CSE
     Riffle( P, n );
     PInf.SetGrid( P.Grid() );
     PInf.AlignWith( P.DistData() );
@@ -129,7 +131,7 @@ void Riffle( ElementalMatrix<F>& P, ElementalMatrix<F>& PInf, Int n )
 template<typename F>
 void RiffleDecay( Matrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleDecay"))
+    DEBUG_CSE
     Riffle( A, n );
     Matrix<F> PInf;
     RiffleStationary( PInf, n );
@@ -139,7 +141,7 @@ void RiffleDecay( Matrix<F>& A, Int n )
 template<typename F>
 void RiffleDecay( ElementalMatrix<F>& A, Int n )
 {
-    DEBUG_ONLY(CSE cse("RiffleDecay"))
+    DEBUG_CSE
     Riffle( A, n );
     unique_ptr<ElementalMatrix<F>> PInf( A.Construct(A.Grid(),A.Root()) );
     PInf->AlignWith( A.DistData() );
@@ -164,6 +166,6 @@ void RiffleDecay( ElementalMatrix<F>& A, Int n )
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

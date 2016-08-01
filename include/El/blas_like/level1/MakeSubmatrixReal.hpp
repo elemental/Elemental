@@ -17,7 +17,7 @@ void MakeSubmatrixReal
   const vector<Int>& I,
   const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("MakeSubmatrixReal"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -39,7 +39,7 @@ void MakeSubmatrixReal
   const vector<Int>& I,
   const vector<Int>& J )
 {
-    DEBUG_ONLY(CSE cse("MakeSubmatrixReal"))
+    DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -73,9 +73,9 @@ void MakeSubmatrixReal
 #endif
 
 #define PROTO(T) \
-  template void MakeSubmatrixReal \
+  EL_EXTERN template void MakeSubmatrixReal \
   ( Matrix<T>& A, const vector<Int>& I, const vector<Int>& J ); \
-  template void MakeSubmatrixReal \
+  EL_EXTERN template void MakeSubmatrixReal \
   ( AbstractDistMatrix<T>& A, const vector<Int>& I, const vector<Int>& J );
 
 #define EL_ENABLE_DOUBLEDOUBLE
@@ -83,7 +83,7 @@ void MakeSubmatrixReal
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

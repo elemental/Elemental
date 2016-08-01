@@ -18,8 +18,8 @@ void ColFilter
 ( const ElementalMatrix<T>& A, 
         ElementalMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::ColFilter");
       if( A.ColDist() != B.RowDist() ||
           A.RowDist() != Collect(B.ColDist()) )
           LogicError("Incompatible distributions");
@@ -45,8 +45,8 @@ void ColFilter
 ( const BlockMatrix<T>& A, 
         BlockMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::ColFilter");
       if( A.ColDist() != B.RowDist() ||
           A.RowDist() != Collect(B.ColDist()) )
           LogicError("Incompatible distributions");

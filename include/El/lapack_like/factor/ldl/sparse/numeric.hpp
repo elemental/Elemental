@@ -23,7 +23,7 @@
 #define EL_FACTOR_LDL_SPARSE_NUMERIC_HPP
 
 #define EL_SUITESPARSE_NO_SCALAR_FUNCS
-#include "ElSuiteSparse/ldl.hpp"
+#include <ElSuiteSparse/ldl.hpp>
 
 namespace El {
 

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "El/core/FlamePart.hpp"
 
@@ -58,7 +58,7 @@ namespace glm {
 template<typename F> 
 void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("glm::Overwrite"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Width();
@@ -115,7 +115,7 @@ void Overwrite
   ElementalMatrix<F>& DPre,
   ElementalMatrix<F>& YPre )
 {
-    DEBUG_ONLY(CSE cse("glm::Overwrite"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre ),
@@ -191,7 +191,7 @@ void GLM
         Matrix<F>& X,
         Matrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("GLM"))
+    DEBUG_CSE
     Matrix<F> ACopy( A ), BCopy( B );
     X = D;
     glm::Overwrite( ACopy, BCopy, X, Y );
@@ -205,7 +205,7 @@ void GLM
         ElementalMatrix<F>& X,
         ElementalMatrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("GLM"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A ), BCopy( B );
     Copy( D, X );
     glm::Overwrite( ACopy, BCopy, X, Y );
@@ -220,13 +220,8 @@ void GLM
         Matrix<F>& Y, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("GLM"))
+    DEBUG_CSE
     typedef Base<F> Real;
-
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -255,7 +250,7 @@ void GLM
     {
         normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress )
-            cout << "Estimated || [ A, B ] ||_2 ~= " << normScale << endl;
+            Output("Estimated || [ A, B ] ||_2 ~= ",normScale);
         W *= F(1)/normScale;
         dR *= normScale;
     }
@@ -297,15 +292,23 @@ void GLM
 
     // Add the temporary, a priori regularization
     // ==========================================
-    Matrix<Real> reg;
-    Zeros( reg, m+n+k, 1 );
+    Matrix<Real> regTmp, regPerm;
+    Zeros( regTmp, m+n+k, 1 );
+    Zeros( regPerm, m+n+k, 1 );
     for( Int i=0; i<m; ++i )
-        reg.Set( i, 0, gammaTmp*gammaTmp );
+    {
+        regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
+        regPerm(i) = ctrl.reg0Perm*ctrl.reg0Perm;
+    }
     for( Int i=m; i<m+n+k; ++i )
-        reg.Set( i, 0, -deltaTmp*deltaTmp );
+    {
+        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+        regPerm(i) = -ctrl.reg1Perm*ctrl.reg1Perm;
+    }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     SparseMatrix<F> JOrig;
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // Factor the regularized system
     // =============================
@@ -319,7 +322,8 @@ void GLM
 
     // Solve the linear systems
     // ========================
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
@@ -340,13 +344,8 @@ void GLM
         DistMultiVec<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("GLM"))
+    DEBUG_CSE
     typedef Base<F> Real;
-
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -377,7 +376,7 @@ void GLM
     {
         normScale = TwoNormEstimate( W, ctrl.basisSize );
         if( ctrl.progress && commRank == 0 )
-            cout << "Estimated || [ A, B ] ||_2 ~= " << normScale << endl;
+            Output("Estimated || [ A, B ] ||_2 ~= ",normScale);
         W *= F(1)/normScale;
         dR *= normScale;
     }
@@ -446,20 +445,28 @@ void GLM
 
     // Add the a priori regularization
     // ===============================
-    DistMultiVec<Real> reg(comm);
-    Zeros( reg, m+n+k, 1 );
-    const Int regLocalHeight = reg.LocalHeight();
+    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    Zeros( regTmp, m+n+k, 1 );
+    Zeros( regPerm, m+n+k, 1 );
+    const Int regLocalHeight = regTmp.LocalHeight();
     for( Int iLoc=0; iLoc<regLocalHeight; ++iLoc )
     {
-        const Int i = reg.GlobalRow(iLoc);
+        const Int i = regTmp.GlobalRow(iLoc);
         if( i < m )
-            reg.Set( i, 0, gammaTmp*gammaTmp );
+        {
+            regTmp.Set( i, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
+            regPerm.Set( i, 0, ctrl.reg0Perm*ctrl.reg0Perm );
+        }
         else
-            reg.Set( i, 0, -deltaTmp*deltaTmp );
+        {
+            regTmp.Set( i, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+            regPerm.Set( i, 0, -ctrl.reg1Perm*ctrl.reg1Perm );
+        }
     }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // Factor the regularized system
     // =============================
@@ -473,7 +480,8 @@ void GLM
 
     // Solve the linear systems
     // ========================
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
@@ -525,6 +533,6 @@ void GLM
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

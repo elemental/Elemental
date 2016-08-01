@@ -6,14 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
 template<typename T> 
 void MinIJ( Matrix<T>& M, Int n )
 {
-    DEBUG_ONLY(CSE cse("MinIJ"))
+    DEBUG_CSE
     M.Resize( n, n );
     auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
     IndexDependentFill( M, function<T(Int,Int)>(minIJFill) );
@@ -22,7 +24,7 @@ void MinIJ( Matrix<T>& M, Int n )
 template<typename T>
 void MinIJ( AbstractDistMatrix<T>& M, Int n )
 {
-    DEBUG_ONLY(CSE cse("MinIJ"))
+    DEBUG_CSE
     M.Resize( n, n );
     auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
     IndexDependentFill( M, function<T(Int,Int)>(minIJFill) );
@@ -37,6 +39,6 @@ void MinIJ( AbstractDistMatrix<T>& M, Int n )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

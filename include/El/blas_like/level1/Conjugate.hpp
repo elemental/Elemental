@@ -18,37 +18,37 @@ void Conjugate( Matrix<Real>& A )
 template<typename Real>
 void Conjugate( Matrix<Complex<Real>>& A )
 {
-    DEBUG_ONLY(CSE cse("Conjugate (in-place)"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set(i,j,Conj(A.Get(i,j)));
+            A(i,j) = Conj(A(i,j));
 }
 
 template<typename T>
 void Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Conjugate"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            B.Set(i,j,Conj(A.Get(i,j)));
+            B(i,j) = Conj(A(i,j));
 }
 
 template<typename T>
 void Conjugate( AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CSE cse("Conjugate (in-place)"))
+    DEBUG_CSE
     Conjugate( A.Matrix() );
 }
 
 template<typename T>
 void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Conjugate"))
+    DEBUG_CSE
     Copy( A, B );
     Conjugate( B );
 }
@@ -60,17 +60,21 @@ void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 #endif
 
 #define PROTO(T) \
-  template void Conjugate( Matrix<T>& A ); \
-  template void Conjugate( const Matrix<T>& A, Matrix<T>& B ); \
-  template void Conjugate( AbstractDistMatrix<T>& A ); \
-  template void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
+  EL_EXTERN template void Conjugate \
+  ( Matrix<T>& A ); \
+  EL_EXTERN template void Conjugate \
+  ( const Matrix<T>& A, Matrix<T>& B ); \
+  EL_EXTERN template void Conjugate \
+  ( AbstractDistMatrix<T>& A ); \
+  EL_EXTERN template void Conjugate \
+  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

@@ -16,18 +16,18 @@ namespace El {
 namespace qr {
 
 template<typename F> 
-inline void
+void
 Householder
 ( Matrix<F>& A,
-  Matrix<F>& t,
-  Matrix<Base<F>>& d )
+  Matrix<F>& phase,
+  Matrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("qr::Householder"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.Resize( minDim, 1 );
-    d.Resize( minDim, 1 );
+    phase.Resize( minDim, 1 );
+    signature.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -40,38 +40,36 @@ Householder
 
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
-        auto t1 = t( ind1, ALL );
-        auto d1 = d( ind1, ALL );
+        auto phase1 = phase( ind1, ALL );
+        auto sig1 = signature( ind1, ALL );
 
-        PanelHouseholder( AB1, t1, d1 );
-        ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
+        PanelHouseholder( AB1, phase1, sig1 );
+        ApplyQ( LEFT, ADJOINT, AB1, phase1, sig1, AB2 );
     }
 }
 
 template<typename F> 
-inline void
+void
 Householder
 ( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& tPre, 
-  ElementalMatrix<Base<F>>& dPre )
+  ElementalMatrix<F>& phasePre, 
+  ElementalMatrix<Base<F>>& signaturePre )
 {
-    DEBUG_ONLY(
-      CSE cse("qr::Householder");
-      AssertSameGrids( APre, tPre, dPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, phasePre, signaturePre ))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MD,STAR> tProx( tPre );
-    DistMatrixWriteProxy<Base<F>,Base<F>,MD,STAR> dProx( dPre );
+    DistMatrixWriteProxy<F,F,MD,STAR> phaseProx( phasePre );
+    DistMatrixWriteProxy<Base<F>,Base<F>,MD,STAR> signatureProx( signaturePre );
     auto& A = AProx.Get();
-    auto& t = tProx.Get();
-    auto& d = dProx.Get();
+    auto& phase = phaseProx.Get();
+    auto& signature = signatureProx.Get();
 
-    t.Resize( minDim, 1 );
-    d.Resize( minDim, 1 );
+    phase.Resize( minDim, 1 );
+    signature.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -84,11 +82,11 @@ Householder
 
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
-        auto t1 = t( ind1, ALL );
-        auto d1 = d( ind1, ALL );
+        auto phase1 = phase( ind1, ALL );
+        auto sig1 = signature( ind1, ALL );
 
-        PanelHouseholder( AB1, t1, d1 );
-        ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
+        PanelHouseholder( AB1, phase1, sig1 );
+        ApplyQ( LEFT, ADJOINT, AB1, phase1, sig1, AB2 );
     }
 }
 

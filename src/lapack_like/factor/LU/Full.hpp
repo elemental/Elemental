@@ -13,13 +13,13 @@ namespace El {
 namespace lu {
 
 template<typename F>
-inline void
+void
 Full
 ( Matrix<F>& A,
   Permutation& P,
   Permutation& Q )
 {
-    DEBUG_ONLY(CSE cse("lu::Full"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -45,7 +45,7 @@ Full
         ColSwap( A, k, jPiv );
 
         // Now we can perform the update of the current panel
-        const F alpha11 = A.Get(k,k);
+        const F alpha11 = A(k,k);
         auto a21 = A( ind2, ind1 );
         auto a12 = A( ind1, ind2 );
         auto A22 = A( ind2, ind2 );
@@ -58,13 +58,13 @@ Full
 }
 
 template<typename F>
-inline void
+void
 Full
 ( ElementalMatrix<F>& APre, 
   DistPermutation& P,
   DistPermutation& Q )
 {
-    DEBUG_ONLY(CSE cse("lu::Full"))
+    DEBUG_CSE
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);

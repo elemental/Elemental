@@ -15,7 +15,7 @@ namespace rq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("rq::ExplicitTriang"))
+    DEBUG_CSE
     Matrix<F> t;
     Matrix<Base<F>> d;
     Householder( A, t, d );
@@ -25,10 +25,10 @@ void ExplicitTriang( Matrix<F>& A )
 template<typename F>
 void ExplicitTriang( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("rq::ExplicitTriang"))
-    DistMatrix<F,MD,STAR> t(A.Grid());
-    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
-    Householder( A, t, d );
+    DEBUG_CSE
+    DistMatrix<F,MD,STAR> phase(A.Grid());
+    DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
+    Householder( A, phase, signature );
     MakeTrapezoidal( UPPER, A, A.Width()-A.Height() );
 }
 
@@ -39,4 +39,4 @@ void ExplicitTriang( ElementalMatrix<F>& A )
 } // namespace rq
 } // namespace El
 
-#endif // ifndef EL_RQ_CHOLESKY_HPP
+#endif // ifndef EL_RQ_EXPLICIT_HPP

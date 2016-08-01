@@ -14,13 +14,13 @@ namespace El {
 template<typename T>
 void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
 {
-    DEBUG_ONLY(CSE cse("EntrywiseMap"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     AReal.Resize( m, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            AReal.Set( i, j, A.GetRealPart(i,j) );
+            AReal(i,j) = RealPart(A(i,j));
 }
 
 template<typename T>
@@ -48,10 +48,11 @@ void RealPart
 #endif
 
 #define PROTO(T) \
-  template void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal ); \
-  template void RealPart \
+  EL_EXTERN template void RealPart \
+  ( const Matrix<T>& A, Matrix<Base<T>>& AReal ); \
+  EL_EXTERN template void RealPart \
   ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal ); \
-  template void RealPart \
+  EL_EXTERN template void RealPart \
   ( const BlockMatrix<T>& A, \
           BlockMatrix<Base<T>>& AReal );
 
@@ -60,7 +61,7 @@ void RealPart
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

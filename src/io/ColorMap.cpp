@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 #ifdef EL_HAVE_QT5
 QRgb SampleColorMap( double value, double minVal, double maxVal )
 {
-    DEBUG_ONLY(CSE cse("SampleColorMap"))
+    DEBUG_CSE
     const ColorMap colorMap = GetColorMap();
     const int numChunks = NumDiscreteColors();
 

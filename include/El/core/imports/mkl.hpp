@@ -51,11 +51,33 @@ void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );
 
-// NOTE: These are filler routines not provided by MKL
+// Filler routine not provided by MKL
 template<typename T>
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha, const T* A, BlasInt lda, T* B, BlasInt ldb );
+  T alpha,
+  const T* A, BlasInt ALDim,
+        T* B, BlasInt BLDim )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i+j*BLDim] = A[i+j*ALDim];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*BLDim] = A[i+j*ALDim];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*BLDim] = Conj(A[i+j*ALDim]);
+    }
+}
 
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -74,12 +96,33 @@ void omatcopy
   dcomplex alpha, const dcomplex* A, BlasInt lda, BlasInt stridea,
                         dcomplex* B, BlasInt ldb, BlasInt strideb );
 
-// NOTE: These are filler routines not provided by MKL
+// Filler routine not provided by MKL
 template<typename T>
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha, const T* A, BlasInt lda, BlasInt stridea,
-                 T* B, BlasInt ldb, BlasInt strideb );
+  T alpha,
+  const T* A, BlasInt ALDim, BlasInt stridea,
+        T* B, BlasInt BLDim, BlasInt strideb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i*strideb+j*BLDim] = A[i*stridea+j*ALDim];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*BLDim] = A[i*stridea+j*ALDim];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*BLDim] = Conj(A[i*stridea+j*ALDim]);
+    }
+}
 
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -94,11 +137,48 @@ void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb );
 
-// NOTE: These are filler routines not provided by MKL
+// Filler routine not provided by MKL
 template<typename T>
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  T alpha, T* A, BlasInt lda, BlasInt ldb );
+  T alpha, T* A, BlasInt ALDim, BlasInt BLDim )
+{
+    // TODO
+    LogicError("This routine not yet written");
+}
+
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        float alpha,
+  const float* A, BlasInt ALDim,
+  const float* B, BlasInt BLDim,
+        float beta,
+        float* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        double alpha,
+  const double* A, BlasInt ALDim,
+  const double* B, BlasInt BLDim,
+        double beta,
+        double* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        scomplex alpha,
+  const scomplex* A, BlasInt ALDim,
+  const scomplex* B, BlasInt BLDim,
+        scomplex beta,
+        scomplex* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        dcomplex alpha,
+  const dcomplex* A, BlasInt ALDim,
+  const dcomplex* B, BlasInt BLDim,
+        dcomplex beta,
+        dcomplex* C, BlasInt CLDim );
 
 } // namespace mkl
 } // namespace El

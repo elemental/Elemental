@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // Basis pursuit denoising seeks the solution to the optimization problem
 //
@@ -58,7 +58,7 @@ void IPM
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -118,7 +118,7 @@ void IPM
         ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -178,7 +178,7 @@ void IPM
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -247,7 +247,7 @@ void IPM
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -274,9 +274,10 @@ void IPM
     // c := lambda*[1;1;0]
     // ===================
     Zeros( c, 2*n+m, 1 );
+    auto& cLoc = c.Matrix();
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
         if( c.GlobalRow(iLoc) < 2*n )
-            c.SetLocal( iLoc, 0, lambda );
+            cLoc(iLoc) = lambda;
 
     // \hat A := [A, -A, I]
     // ====================
@@ -328,13 +329,14 @@ void IPM
         else
             break;
     x.Reserve( numRemoteUpdates );
+    auto& xHatLoc = xHat.LockedMatrix();
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
-            x.QueueUpdate( i, 0, xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i, 0, xHatLoc(iLoc) );
         else if( i < 2*n )
-            x.QueueUpdate( i-n, 0, -xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i-n, 0, -xHatLoc(iLoc) );
         else
             break;
     }

@@ -14,10 +14,10 @@ namespace ldl {
 namespace pivot {
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 Select( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::Select"))
+    DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -31,10 +31,10 @@ Select( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 }
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 Select( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::Select"))
+    DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -49,7 +49,7 @@ Select( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 
 // Unblocked sequential pivoted LDL
 template<typename F>
-inline void
+void
 Unblocked
 ( Matrix<F>& A,
   Matrix<F>& dSub,
@@ -58,8 +58,8 @@ Unblocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::pivot::Unblocked");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -105,7 +105,7 @@ Unblocked
         if( pivot.nb == 1 )
         {
             // Rank-one update: A22 -= a21 inv(delta11) a21'
-            const F delta11Inv = F(1)/ABR.Get(0,0);
+            const F delta11Inv = F(1)/ABR(0,0);
             auto a21 = A( ind2, ind1 );
             auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
@@ -127,15 +127,15 @@ Unblocked
 
             // Only leave the main diagonal of D in A, so that routines like
             // Trsm can still be used. Thus, return the subdiagonal.
-            dSub.Set( k, 0, D11.Get(1,0) );
-            D11.Set( 1, 0, 0 );
+            dSub(k) = D11(1,0);
+            D11(1,0) = 0;
         }
         k += pivot.nb;
     }
 }
 
 template<typename F>
-inline void
+void
 Unblocked
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& dSub, 
@@ -144,8 +144,8 @@ Unblocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::pivot::Unblocked");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       AssertSameGrids( APre, dSub );

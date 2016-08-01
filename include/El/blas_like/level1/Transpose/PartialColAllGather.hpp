@@ -18,8 +18,8 @@ void PartialColAllGather
 ( const ElementalMatrix<T>& A, 
         ElementalMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::PartialColAllGather");
       if( B.ColDist() != A.RowDist() || 
           B.RowDist() != Partial(A.ColDist()) )
           LogicError("Incompatible distributions");
@@ -37,8 +37,8 @@ void PartialColAllGather
 ( const BlockMatrix<T>& A, 
         BlockMatrix<T>& B, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("transpose::PartialColAllGather");
       if( B.ColDist() != A.RowDist() || 
           B.RowDist() != Partial(A.ColDist()) )
           LogicError("Incompatible distributions");

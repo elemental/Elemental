@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
 
 namespace El {
 
@@ -15,19 +16,19 @@ void Hemv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
-    DEBUG_ONLY(CSE cse("Hemv"))
+    DEBUG_CSE
     Symv( uplo, alpha, A, x, beta, y, true );
 }
 
 template<typename T>
 void Hemv
 ( UpperOrLower uplo,
-  T alpha, const ElementalMatrix<T>& A,
-           const ElementalMatrix<T>& x,
-  T beta,        ElementalMatrix<T>& y,
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y,
   const SymvCtrl<T>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Hemv"))
+    DEBUG_CSE
     Symv( uplo, alpha, A, x, beta, y, true, ctrl );
 }
 
@@ -37,8 +38,8 @@ void Hemv
     const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y ); \
   template void Hemv \
   ( UpperOrLower uplo, T alpha, \
-    const ElementalMatrix<T>& A, const ElementalMatrix<T>& x, \
-    T beta, ElementalMatrix<T>& y, \
+    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
+    T beta, AbstractDistMatrix<T>& y, \
     const SymvCtrl<T>& ctrl );
 
 #define EL_ENABLE_DOUBLEDOUBLE
@@ -46,6 +47,6 @@ void Hemv
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

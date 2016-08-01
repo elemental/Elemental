@@ -14,21 +14,21 @@ namespace El {
 template<typename T>
 T Dot( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dot"))
+    DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dot"))
+    DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dot"))
+    DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
@@ -37,7 +37,7 @@ T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 template<typename T> 
 T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dotu"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     T sum(0);
@@ -45,14 +45,14 @@ T Dotu( const Matrix<T>& A, const Matrix<T>& B )
     const Int height = A.Height();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            sum += A.Get(i,j)*B.Get(i,j);
+            sum += A(i,j)*B(i,j);
     return sum;
 }
 
 template<typename T> 
 T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dotu"))
+    DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     AssertSameGrids( A, B );
@@ -67,11 +67,13 @@ T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
     if( A.Participating() )
     {
         T localInnerProd(0);
+        auto& ALoc = A.LockedMatrix();
+        auto& BLoc = B.LockedMatrix();
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                localInnerProd += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
+                localInnerProd += ALoc(iLoc,jLoc)*BLoc(iLoc,jLoc);
         innerProd = mpi::AllReduce( localInnerProd, A.DistComm() );
     }
     mpi::Broadcast( innerProd, A.Root(), A.CrossComm() );
@@ -81,7 +83,7 @@ T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 template<typename T>
 T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_ONLY(CSE cse("Dotu"))
+    DEBUG_CSE
     if( !mpi::Congruent( A.Comm(), B.Comm() ) )
         LogicError("A and B must be congruent");
     if( A.Height() != B.Height() || A.Width() != B.Width() )
@@ -94,9 +96,11 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
     T localInnerProd = 0;
     const Int localHeight = A.LocalHeight(); 
     const Int width = A.Width();
+    auto& ALoc = A.LockedMatrix();
+    auto& BLoc = B.LockedMatrix();
     for( Int j=0; j<width; ++j )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )    
-            localInnerProd += A.GetLocal(iLoc,j)*B.GetLocal(iLoc,j);
+            localInnerProd += ALoc(iLoc,j)*BLoc(iLoc,j);
     return mpi::AllReduce( localInnerProd, A.Comm() );
 }
 
@@ -125,7 +129,7 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 #undef EL_EXTERN
 

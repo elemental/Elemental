@@ -17,8 +17,8 @@ namespace svt {
 template<typename F>
 Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("svt::PivotedQR");
       if( numSteps > Min(A.Height(),A.Width()) )
           LogicError("number of steps is too large");
     )
@@ -41,9 +41,10 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     Matrix<F> U, V;
     Matrix<Real> s;
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.approach = PRODUCT_SVD;
-    svdCtrl.tol = tau;
-    svdCtrl.relative = relative;
+    svdCtrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
+    svdCtrl.bidiagSVDCtrl.tolType =
+      ( relative ? RELATIVE_TO_MAX_SING_VAL_TOL : ABSOLUTE_SING_VAL_TOL );
+    svdCtrl.bidiagSVDCtrl.tol = tau;
     SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );
@@ -64,8 +65,8 @@ template<typename F>
 Int PivotedQR
 ( ElementalMatrix<F>& APre, Base<F> tau, Int numSteps, bool relative )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("svt::PivotedQR");
       if( numSteps > Min(APre.Height(),APre.Width()) )
           LogicError("number of steps is too large");
     )
@@ -93,9 +94,10 @@ Int PivotedQR
     DistMatrix<F> U(g), V(g);
     DistMatrix<Real,VR,STAR> s(g);
     SVDCtrl<Real> svdCtrl;
-    svdCtrl.approach = PRODUCT_SVD;
-    svdCtrl.tol = tau;
-    svdCtrl.relative = relative;
+    svdCtrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
+    svdCtrl.bidiagSVDCtrl.tolType =
+      ( relative ? RELATIVE_TO_MAX_SING_VAL_TOL : ABSOLUTE_SING_VAL_TOL );
+    svdCtrl.bidiagSVDCtrl.tol = tau;
     SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );

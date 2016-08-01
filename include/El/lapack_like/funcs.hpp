@@ -9,8 +9,8 @@
 #ifndef EL_FUNCS_HPP
 #define EL_FUNCS_HPP
 
-#include "El/lapack_like/factor.hpp"
-#include "El/lapack_like/spectral.hpp"
+#include <El/lapack_like/factor.hpp>
+#include <El/lapack_like/spectral.hpp>
 
 namespace El {
 

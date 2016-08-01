@@ -6,7 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/matrices.hpp>
 
 namespace El {
 
@@ -21,7 +22,7 @@ namespace El {
 template<typename Real>
 void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 {
-    DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const Real k0 = 2*pi/lambda;
@@ -41,32 +42,32 @@ void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
             if( radiusSq > 0 && radiusSq <= 1 )
                 break;
         }
-        X.Set( 0, j, x0 );
-        X.Set( 1, j, x1 );
-        X.Set( 2, j, x2 );
+        X(0,j) = x0;
+        X(1,j) = x1;
+        X(2,j) = x2;
     }
     
     A.Resize( n, n );
     for( Int j=0; j<n; ++j )
     {
-        const Real xj0 = X.Get(0,j);
-        const Real xj1 = X.Get(1,j);
-        const Real xj2 = X.Get(2,j);
+        const Real xj0 = X(0,j);
+        const Real xj1 = X(1,j);
+        const Real xj2 = X(2,j);
         for( Int i=0; i<n; ++i )
         {
             if( i == j ) 
             {
-                A.Set( i, j, 0 );
+                A(i,j) = 0;
             }
             else
             {
-                const Real d0 = X.Get(0,i)-xj0;
-                const Real d1 = X.Get(1,i)-xj1;
-                const Real d2 = X.Get(2,i)-xj2;
+                const Real d0 = X(0,i)-xj0;
+                const Real d1 = X(1,i)-xj1;
+                const Real d2 = X(2,i)-xj2;
                 const Real gamma = k0*Sqrt(d0*d0+d1*d1+d2*d2);
                 const Real realPart = Cos(gamma)/gamma;
                 const Real imagPart = Sin(gamma)/gamma;
-                A.Set( i, j, C(realPart,imagPart) );
+                A(i,j) = C(realPart,imagPart);
             }
         }
     }
@@ -76,7 +77,7 @@ template<typename Real>
 void UniformHelmholtzGreens
 ( ElementalMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
-    DEBUG_ONLY(CSE cse("UniformHelmholtzGreens"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const Real k0 = 2*pi/lambda;
@@ -139,6 +140,6 @@ void UniformHelmholtzGreens
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

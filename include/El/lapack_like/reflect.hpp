@@ -75,6 +75,17 @@ F Row( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 // Reflector
 // =========
+// Since LAPACK chooses to use the identity matrix, rather than a single
+// coordinate negation, in cases where the mass is already entirely in the
+// first entry, and the identity matrix cannot be represented as a Householder
+// reflector, Elemental does not ever directly call LAPACK's Householder
+// routines. Otherwise, the logic of routines such as ApplyPackedReflectors
+// would need to be (unnecessarily) complicated.
+//
+// Furthermore, LAPACK defines H = I - tau [1; v] [1; v]' such that
+// adjoint(H) [chi; x] = [beta; 0], but Elemental instead defines
+// H = I - tau [1; v] [1; v]' such that H [chi; x] = [beta; 0].
+//
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x );
 template<typename F>

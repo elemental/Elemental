@@ -30,7 +30,7 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F>
-inline void
+void
 RUVF
 ( Conjugation conjugation,
   Int offset, 
@@ -38,8 +38,8 @@ RUVF
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RUVF");
       if( A.Width() != H.Height() )
           LogicError("A's width must match H's height");
     )
@@ -60,9 +60,9 @@ RUVF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan  = H( IR(0,ki+nb), IR(0,kj+nb) );
-        auto ALeft = A( ALL,         IR(0,ki+nb) );
-        auto t1    = t( IR(k,k+nb),  ALL         );
+        auto HPan  = H( IR(0,ki+nb), IR(kj,kj+nb) );
+        auto ALeft = A( ALL,         IR(0, ki+nb) );
+        auto t1    = t( IR(k,k+nb),  ALL          );
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
@@ -78,7 +78,7 @@ RUVF
 }
 
 template<typename F>
-inline void
+void
 RUVF
 ( Conjugation conjugation,
   Int offset, 
@@ -86,8 +86,8 @@ RUVF
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RUVF");
       if( APre.Width() != HPre.Height() )
         LogicError("A's width must match H's height");
       AssertSameGrids( HPre, tPre, APre );
