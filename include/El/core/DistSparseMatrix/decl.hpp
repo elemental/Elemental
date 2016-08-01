@@ -195,7 +195,7 @@ public:
     double Imbalance() const EL_NO_RELEASE_EXCEPT;
 
     mutable DistSparseMultMeta multMeta;
-    DistSparseMultMeta InitializeMultMeta() const;
+    DistGraphMultMeta InitializeMultMeta() const;
 
     void MappedSources
     ( const DistMap& reordering, vector<Int>& mappedSources ) const;

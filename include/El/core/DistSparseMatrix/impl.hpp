@@ -717,7 +717,7 @@ void DistSparseMatrix<T>::AssertLocallyConsistent() const
     if( !LocallyConsistent() )
         LogicError("Distributed sparse matrix must be consistent");
 }
-
+template<typename T>
 DistGraphMultMeta DistSparseMatrix<T>::InitializeMultMeta() const {  return distGraph_.InitializeMultMeta();  }
 
 template<typename T>
