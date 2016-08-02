@@ -424,11 +424,11 @@ endif()
 configure_file("${PROJECT_SOURCE_DIR}/cmake/configure_files/config.h.in"
                "${PROJECT_BINARY_DIR}/include/El/config.h")
 install(FILES "${PROJECT_BINARY_DIR}/include/El/config.h"
-        DESTINATION include/El)
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/El)
 add_custom_target(El_config DEPENDS "${PROJECT_BINARY_DIR}/include/El/config.h")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-  DESTINATION include/
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} 
+  	FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
 # Define the main library for Elemental
 # -------------------------------------
@@ -459,7 +459,7 @@ target_link_libraries(El ${LINK_LIBS})
 if(EL_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS El EXPORT ElementalTargets DESTINATION lib)
+install(TARGETS El EXPORT ElementalTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Decide if/how to install the Python interface
 # ---------------------------------------------
@@ -519,7 +519,7 @@ if(EL_EXPERIMENTAL)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
         LINK_FLAGS ${EL_LINK_FLAGS})
     endif()
-    install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
+    install(TARGETS experimental-g3d-${EXPER} DESTINATION ${CMAKE_INSTALL_BINDIR}/experimental/g3d)
   endforeach()
 endif()
 
@@ -528,7 +528,7 @@ endif()
 # TODO(poulson): Also install into the build directory? How to have drivers
 # automatically find the right path?
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/data/"
-  DESTINATION share/elemental/ FILES_MATCHING PATTERN "*.*")
+	DESTINATION ${CMAKE_INSTALL_DATADIR}/elemental/ FILES_MATCHING PATTERN "*.*")
 
 # Install license and author information
 # ======================================
@@ -537,7 +537,7 @@ install(FILES "${PROJECT_SOURCE_DIR}/AUTHORS"
               "${PROJECT_SOURCE_DIR}/PUBLICATIONS.bib"
               "${PROJECT_SOURCE_DIR}/README.md"
               "${PROJECT_SOURCE_DIR}/REFERENCES.bib"
- DESTINATION share/doc/elemental)
+	      DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Tests and examples
 # ==================
@@ -545,8 +545,8 @@ include(CTest)
 
 # Sandbox test
 # ------------
-install(FILES "${PROJECT_SOURCE_DIR}/sandbox/Makefile" DESTINATION sandbox)
-install(FILES "${PROJECT_SOURCE_DIR}/sandbox/test.cpp" DESTINATION sandbox)
+install(FILES "${PROJECT_SOURCE_DIR}/sandbox/Makefile" DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
+install(FILES "${PROJECT_SOURCE_DIR}/sandbox/test.cpp" DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
 add_executable(sandbox-test "${PROJECT_SOURCE_DIR}/sandbox/test.cpp")
 set_source_files_properties("${PROJECT_SOURCE_DIR}/sandbox/test.cpp"
   PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
@@ -586,7 +586,7 @@ if(EL_TESTS)
         set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
-      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
+      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/tests/${TYPE})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME} 
           WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME})
@@ -630,7 +630,7 @@ if(EL_EXAMPLES)
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
-        DESTINATION bin/examples/${TYPE})
+	      DESTINATION ${CMAKE_INSTALL_BINDIR}/examples/${TYPE})
       add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
         COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
@@ -684,7 +684,7 @@ set(INSTALL_CMAKE_DIR CMake)
 install(FILES
   "${PROJECT_BINARY_DIR}/ElementalConfig.cmake"
   "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/elemental/${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 install(EXPORT ElementalTargets
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+	DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/elemental/${INSTALL_CMAKE_DIR}" COMPONENT dev)
