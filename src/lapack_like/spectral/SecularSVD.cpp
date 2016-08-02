@@ -1594,50 +1594,68 @@ void SecularSVD
 {
     DEBUG_CSE
     const Int n = d.Height();
-    U.Resize( n, n );
     s.Resize( n, 1 );
-    V.Resize( n, n );
     if( n == 0 )
+    {
+        U.Resize( n, n );
+        V.Resize( n, n );
         return;
+    }
 
     // TODO(poulson): Batch secular equation solvers?
-    // TODO(poulson): Only have dSqMinusShiftSq returned?
     //
-    // NOTE: We will store DMinusShift in U and DPlusShift in V to avoid 
-    // 2*n^2 unnecessary extra working space.
+    // Compute all of the singular values and the vector r ~= sqrt(rho) z which
+    // would produce the given singular values to high relative accuracy.
+    //
+    // We accumulate the products involved in computing r in an online manner
+    // and take the square-root of the absolute value (and the correct sign)
+    // at the end. The key is to recognize that the only term left out of entry
+    // i of the corrected vector in Eq. (3.6) of Gu/Eisenstat in the product
+    //
+    //    prod_{k=0}^{n-1} (lambda_k^2 - d(i)^2) / (d(k)^2 - d(i)^2)
+    //
+    // is 1 / (d(i)^2 - d(i)^2) (and we emphasize that the numerator is kept).
+    // It is thus easy to see how the first term and second product in
+    //
+    //    r(i)^2 = (lambda_{n-1}^2 - d(i)^2) *
+    //      prod_{k=0}^{i-1} (lambda_k^2 - d(i)^2) / (d(k  )^2 - d(i)^2) *
+    //      prod_{k=i}^{n-2} (lambda_k^2 - d(i)^2) / (d(k+1)^2 - d(i)^2)
+    //
+    // can be reorganized to yield
+    //
+    //    r(i)^2 = (lambda_{i}^2 - d(i)^2) *
+    //      prod_{k=0  }^{i-1} (lambda_k^2 - d(i)^2) / (d(k)^2 - d(i)^2) *
+    //      prod_{k=i+1}^{n-1} (lambda_k^2 - d(i)^2) / (d(k)^2 - d(i)^2).
+    //
+    // Given that we have available only one lambda_j at a time, we greedily
+    // update all r(i) products given each lambda_j
+    // (Cf. LAPACK's {s,d}lasd8 [CITATION] for this approach).
+    //
+    U.Resize( n, n );
+    V.Resize( n, n );
+    Matrix<Real> r;
+    Ones( r, n, 1 );
     for( Int j=0; j<n; ++j )
     {
+        // While we will temporarily store dMinusShift and dPlusShift in the
+        // j'th columns of U and V, respectively, it is worth noting that we 
+        // only require access to their Hadamard product after this loop ends.
         auto dMinusShift = U(ALL,IR(j));
         auto dPlusShift = V(ALL,IR(j));
         auto info =
           SecularSingularValue( j, d, rho, z, dMinusShift, dPlusShift, ctrl );
         s(j) = info.singularValue;
-    }
 
-    // Compute a vector r which would produce the given singular values to
-    // high relative accuracy. Keep in mind that the following absorbs the
-    // sqrt(rho) factor into r.
-    Matrix<Real> r(n,1);
-    for( Int i=0; i<n; ++i )
-    {
-        // See Eq. (3.6) from Gu and Eisenstat's Technical Report
-        // "A Divide-and-Conquer Algorithm for the Bidiagonal SVD"
-        // [CITATION].
-        Real prod = U(i,n-1)*V(i,n-1);
-        for( Int k=0; k<i; ++k )
+        r(j) *= dMinusShift(j)*dPlusShift(j);
+        for( Int k=0; k<n; ++k )
         {
-            const Real deltaSqDiff = (d(k)+d(i))*(d(k)-d(i));
-            const Real deltaSqMinusShiftSq = U(i,k)*V(i,k);
-            prod *= deltaSqMinusShiftSq / deltaSqDiff;
+            if( k == j )
+                continue;
+            r(k) *= (dMinusShift(k)*dPlusShift(k)) / ((d(j)+d(k))*(d(j)-d(k)));
         }
-        for( Int k=i; k<n-1; ++k )
-        {
-            const Real deltaSqDiff = (d(k+1)+d(i))*(d(k+1)-d(i));
-            const Real deltaSqMinusShiftSq = U(i,k)*V(i,k);
-            prod *= deltaSqMinusShiftSq / deltaSqDiff;
-        }
-        r(i) = Sgn(z(i),false)*Sqrt(Abs(prod));
     }
+    for( Int j=0; j<n; ++j )
+        r(j) = Sgn(z(j),false) * Sqrt(Abs(r(j)));
 
     for( Int j=0; j<n; ++j )
     {
@@ -1646,15 +1664,15 @@ void SecularSVD
         auto u = U(ALL,IR(j));
         auto v = V(ALL,IR(j));
         {
-            const Real deltaSqMinusShiftSq = u(0)*v(0);
+            const Real deltaSqMinusShiftSq = u(0) * v(0);
             u(0) = -1;
             v(0) = r(0) / deltaSqMinusShiftSq;
         }
         for( Int i=1; i<n; ++i )
         {
-            const Real deltaSqMinusShiftSq =u(i)*v(i);
-            u(i) = (d(i)*r(i)) / deltaSqMinusShiftSq;
+            const Real deltaSqMinusShiftSq = u(i) * v(i);
             v(i) = r(i) / deltaSqMinusShiftSq;
+            u(i) = d(i) * v(i);
         }
         u *= Real(1) / FrobeniusNorm( u );
         v *= Real(1) / FrobeniusNorm( v );
