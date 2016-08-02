@@ -47,7 +47,7 @@ before_script:
 
 script:
   - mkdir build && cd build;
-    cmake .. -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -DCMAKE_Fortran_COMPILER=$F77 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install;
+    cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -DCMAKE_Fortran_COMPILER=$F77 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_BINDIR=bin -DCMAKE_INSTALL_DATADIR=share -DCMAKE_INSTALL_DOCDIR=share/doc/elemental -DCMAKE_INSTALL_SYSCONFDIR=etc .. ;
     if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
   - make -j2 && sudo make install && sudo ctest --output-on-failure
 
