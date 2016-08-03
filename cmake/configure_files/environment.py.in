@@ -10,7 +10,7 @@ import sys, ctypes
 import numpy as np
 from ctypes import pythonapi
 
-lib = ctypes.cdll.LoadLibrary("@CMAKE_INSTALL_PREFIX@/lib/@CMAKE_SHARED_LIBRARY_PREFIX@El@CMAKE_SHARED_LIBRARY_SUFFIX@")
+lib = ctypes.cdll.LoadLibrary("@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/@CMAKE_SHARED_LIBRARY_PREFIX@El@CMAKE_SHARED_LIBRARY_SUFFIX@")
 
 # Environment
 # ===========
