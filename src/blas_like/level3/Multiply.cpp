@@ -780,9 +780,9 @@ void Multiply
     ( Orientation orientation, \
             T alpha, \
       const DistSparseMatrix<T>& A, \
-      const DistMultiVec<T>& X, \
+      const DistMatrix<T>& X, \
             T beta, \
-            DistMultiVec<T>& Y );
+            DistMatrix<T>& Y );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
