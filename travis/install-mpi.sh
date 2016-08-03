@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 case $1 in
-  mpich2) set -x;
-    sudo apt-get install -q mpich2 libmpich2-3 libmpich2-dev;;
+  mpich) set -x;
+    sudo apt-get install -q mpich libmpich-dev;;
   openmpi) set -x;
     sudo apt-get install openmpi-bin openmpi-dev;;
   *)
