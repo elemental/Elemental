@@ -206,7 +206,7 @@ CubicSecular
     }
 
     bool rescale = false;
-    Real scaleInv;
+    Real scaleInv(1);
     Matrix<Real> zScaled(3,1), dScaled(3,1);
     Real maxDenomAbs;
     if( rightRoot )
@@ -220,7 +220,7 @@ CubicSecular
     if( maxDenomAbs <= safeMinToCube ) 
     {
         rescale = true; 
-        Real scale, scaleInv;
+        Real scale;
         if( maxDenomAbs <= safeMinToRootCube )
         {
             scale = safeMinToRootCubeInv;
@@ -852,7 +852,7 @@ void SecularUpdate
                 //
                 const Real leftRatio = z(origin-1) / leftGap;
                 const Real leftDerivTerm = leftRatio*leftRatio;
-                const Real a =
+                a =
                   (state.secularMinus-rightGap*state.secularMinusDeriv) +
                   leftDerivTerm*doubleGap;
 
@@ -900,7 +900,7 @@ void SecularUpdate
                 //
                 const Real rightRatio = z(origin+1) / rightGap;
                 const Real mPlusDerivTerm = rightRatio*rightRatio;
-                const Real a =
+                a =
                   (state.secularMinus-leftGap*state.secularMinusDeriv) -
                   mPlusDerivTerm*doubleGap;
 
@@ -1263,7 +1263,6 @@ SecularInner
   const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    Real temp; // for frequent usage as a temporary product
     const Real zero(0);
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichSingularValue;

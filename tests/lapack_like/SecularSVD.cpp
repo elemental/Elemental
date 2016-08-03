@@ -227,7 +227,7 @@ void TestSecularHelper
         Diagonal( A, dSquared );
         Syrk( LOWER, NORMAL, rho, z, Real(1), A );
         timer.Start();
-        auto hermEigInfo = HermitianEig( LOWER, A, w );
+        HermitianEig( LOWER, A, w );
         const Real fullTime = timer.Stop();
         Output("Full Hermitian: ",fullTime," seconds");
         if( print )

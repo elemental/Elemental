@@ -52,7 +52,7 @@ Real TwoByTwo
   FlipOrClip negativeFix=CLIP_NEGATIVES )
 {
     DEBUG_CSE
-    const Real zero(0), one(1), two(2), three(3), four(4);
+    const Real zero(0), one(1), three(3), four(4);
     DEBUG_ONLY(
       if( whichSingularValue < 0 || whichSingularValue > 1 )
           LogicError("Invalid singular value request");

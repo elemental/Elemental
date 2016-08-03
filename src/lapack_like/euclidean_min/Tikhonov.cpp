@@ -252,7 +252,6 @@ void Tikhonov
 {
     DEBUG_CSE
     mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size(comm);
     
     // Explicitly form W := op(A)
     // ==========================
