@@ -14,6 +14,60 @@
 namespace El {
 
 namespace {
+/**
+ * MultiplyCSR specialization where the CSR matrix happens to have all nonzeros = 1.
+ */
+template<typename T>
+void MultiplyCSR
+( Orientation orientation,
+  Int m, Int n,
+  T alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const T*   x,
+  T beta,
+        T*   y )
+{
+    DEBUG_CSE
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            T sum = 0;
+            const Int eStart = rowOffsets[i];
+            const Int eStop = rowOffsets[i+1];
+            for( Int e=eStart; e<eStop; ++e )
+                sum += x[colIndices[e]];         
+            y[i] = alpha*sum + beta*y[i];
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int j=0; j<n; ++j )
+            y[j] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    y[colIndices[e]] += alpha*x[i];         
+            }
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    y[colIndices[e]] += alpha*x[i];         
+            }
+        }
+    }
+}
 
 template<typename T>
 void MultiplyCSR
@@ -546,20 +600,41 @@ void Multiply
     MultiplyCSR
     ( orientation, A.Height(), A.Width(), X.Width(),
       alpha, A.LockedOffsetBuffer(), 
-             A.LockedTargetBuffer(), 
-             A.LockedValueBuffer(),
+             A.LockedSourceBuffer(), 
+             A.LockedTargetBuffer(),
              X.LockedBuffer(), X.LDim(),
       beta,  Y.Buffer(),       Y.LDim() );
 }
+
+
+template<typename T>
+void Multiply
+( Orientation orientation, 
+  T alpha, const Graph& A, const Matrix<T>& X,
+  T beta,                        Matrix<T>& Y )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( X.Width() != Y.Width() )
+          LogicError("X and Y must have the same width");
+    )
+    MultiplyCSR
+    ( orientation, A.NumSources(), A.NumTargets(), X.Width(),
+      alpha, A.LockedOffsetBuffer(), 
+             A.LockedTargetBuffer(), 
+             X.LockedBuffer(), X.LDim(),
+      beta,  Y.Buffer(),       Y.LDim() );
+}
+
 
 template<typename T>
 void Multiply
 ( Orientation orientation, 
         T alpha, 
   const DistSparseMatrix<T>& A,
-  const DistMultiVec<T>& X,
+  const DistMatrix<T>& X,
         T beta,
-        DistMultiVec<T>& Y )
+        DistMatrix<T>& Y )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -688,6 +763,13 @@ void Multiply
 
 #define PROTO(T) \
     template void Multiply \
+    ( Orientation orientation, \
+            T alpha, \
+      const Graph& A, \
+      const Matrix<T>& X, \
+            T beta, \
+            Matrix<T>& Y ); \
+     template void Multiply \
     ( Orientation orientation, \
             T alpha, \
       const SparseMatrix<T>& A, \
