@@ -87,6 +87,8 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPPROG="cp -p"
 %{_mpich_unload}
 
+rm -rf %{buildroot}/%{_prefix}/conf
+
 %files devel
 %{_includedir}/*
 
@@ -96,6 +98,7 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 # All files shared between the serial and different MPI versions
 %files common 
 %{_datadir}/*
+%{_sysconfdir}/elemental/*
 
 # All openmpi linked files
 %files openmpi 
