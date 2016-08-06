@@ -517,7 +517,7 @@ if(BUILD_SHARED_LIBS)
   endif()
 endif()
 if(NOT NO_BINARY_SUBDIRECTORIES)
-   set(EXPERIMENTAL_DIR experimental/g3d)
+   set(EXPERIMENTAL_INSTALL_DIR experimental/g3d)
 endif()
 # Experimental
 # ============
@@ -541,7 +541,7 @@ if(EL_EXPERIMENTAL)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
         LINK_FLAGS ${EL_LINK_FLAGS})
     endif()
-    install(TARGETS experimental-g3d-${EXPER} DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXPERIMENTAL_DIR})
+    install(TARGETS experimental-g3d-${EXPER} DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXPERIMENTAL_INSTALL_DIR})
   endforeach()
 endif()
 
@@ -609,9 +609,9 @@ if(EL_TESTS)
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
       if(NOT NO_BINARY_SUBDIRECTORIES)
-      	set(TEST_DIR test/${TYPE})
+      	set(TEST_INSTALL_DIR test/${TYPE})
       endif()
-      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_DIR})
+      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL)DIR})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME} 
           WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME})
@@ -655,10 +655,10 @@ if(EL_EXAMPLES)
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
       if(NOT NO_BINARY_SUBDIRECTORIES)
-      	set(EXAMPLE_DIR examples/${TYPE})
+      	set(EXAMPLE_INSTALL_DIR examples/${TYPE})
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
-	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_DIR})
+	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR})
       add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
         COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
