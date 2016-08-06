@@ -516,7 +516,9 @@ if(BUILD_SHARED_LIBS)
       DESTINATION python/El/core)
   endif()
 endif()
-
+if(not NO_BINARY_SUBDIRECTORIES)
+   set(EXPERIMENTAL_DIR experimental/g3d)
+endif()
 # Experimental
 # ============
 # NOTE: This is insanely outdated
@@ -539,7 +541,7 @@ if(EL_EXPERIMENTAL)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
         LINK_FLAGS ${EL_LINK_FLAGS})
     endif()
-    install(TARGETS experimental-g3d-${EXPER} DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS experimental-g3d-${EXPER} DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXPERIMENTAL_DIR})
   endforeach()
 endif()
 
@@ -606,7 +608,10 @@ if(EL_TESTS)
         set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
-      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+      if( NOT NO_BINARY_SUBDIRECTORIES)
+      	set(TEST_DIR test/${TYPE})
+      endif()
+      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_DIR})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME} 
           WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME})
@@ -649,8 +654,11 @@ if(EL_EXAMPLES)
         set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
+      if( NOT NO_BINARY_SUBDIRECTORIES)
+      	set(EXAMPLE_DIR examples/${TYPE})
+      endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
-	      DESTINATION ${CMAKE_INSTALL_BINDIR})
+	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_DIR})
       add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
         COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
