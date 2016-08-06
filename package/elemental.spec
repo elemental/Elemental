@@ -48,7 +48,7 @@ Requires: %{name}-common = %{version}-%{release}
 Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra and optimization which builds on top of BLAS, LAPACK, and MPI using modern C++ and additionally exposes interfaces to C and Python (with a Julia interface beginning development). The development of Elemental has led to a number of research articles and a number of related projects, such as the parallel sweeping preconditioner, PSP, and a parallel algorithm for Low-rank Plus Sparse MRI, RT-LPS-MRI.
 
 %prep
-%autosetup -n Elemental-%{version}-rc4 
+%autosetup 
 
 %build
 
