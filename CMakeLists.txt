@@ -57,6 +57,7 @@ if(BUILD_SHARED_LIBS AND NOT SUPPORTS_SHARED)
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries?")
 endif()
 
+include(GNUInstallDirs)
 if(NOT CMAKE_INSTALL_INCLUDEDIR)
   set(CMAKE_INSTALL_INCLUDEDIR "include")
 endif()
