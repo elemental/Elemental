@@ -1,12 +1,12 @@
-Name:           elemental
+Name:	elemental
 Version:	0.86
-Release:        1%{?dist}
-Summary: Library for distributed-memory dense/sparse-direct linear algebra 
-Group: Development/Libraries
-License: BSD
-URL: http://libelemental.org           
-Source0: https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
-%description
+Release:	1%{?dist}
+Summary:	Library for distributed-memory dense/sparse-direct linear algebra 
+Group:	Development/Libraries
+License:	BSD
+URL:	http://libelemental.org
+Source0:	https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
+%description 
 Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra and optimization which builds on top of BLAS, LAPACK, and MPI using modern C++ and additionally exposes interfaces to C and Python (with a Julia interface beginning development). The development of Elemental has led to a number of research articles and a number of related projects, such as the parallel sweeping preconditioner, PSP, and a parallel algorithm for Low-rank Plus Sparse MRI, RT-LPS-MRI.
 
 BuildRequires: cmake
@@ -21,7 +21,8 @@ BuildRequires: qd-devel
 %package common
 Summary: Files in common between mpich and openmpi
 Group: Development/Libraries
-%description Distributed-memory, arbitrary-precision, dense and sparse-direct linear algebra, conic optimization, and lattice reduction
+%description common 
+Files not specific to mpich or openmpi
 
 %package devel 
 Summary: Elemental C/C++ Header Files
