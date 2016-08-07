@@ -19,8 +19,10 @@ BuildRequires: qd-devel
 %{?el6:BuildRequires:  devtoolset-4}
 %{?el5:BuildRequires: centos-release-scl}
 %{?el5:BuildRequires:  devtoolset-2}
+
 %package common
 Summary: common stuff between both elemental versions
+Group: Development/Libraries
 %description common
 
 %package devel 
