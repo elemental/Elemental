@@ -101,14 +101,15 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 %files devel
 %{_includedir}/*
+%{_prefix}/%{_sysconfdir}/elemental/CMake/*
 
 %files python2
 %{python2_sitelib}/*
 
 # All files shared between the serial and different MPI versions
 %files common 
-%{_datadir}/*
-%{_prefix}/%{_sysconfdir}/elemental/CMake/*
+%{_datadir}/elemental/*
+%{_datadir}/doc/Elemental/*
 
 # All openmpi linked files
 %files openmpi 
