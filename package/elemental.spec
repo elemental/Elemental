@@ -111,7 +111,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 # All files shared between the serial and different MPI versions
 %files common 
 %{_datadir}/*
-%{_sysconfdir}/elemental/*
+%{_prefix}/%{_sysconfdir}/elemental/CMake/*
 
 # All openmpi linked files
 %files openmpi 
