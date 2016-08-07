@@ -6,8 +6,6 @@ Group:	Development/Libraries
 License:	BSD
 URL:	http://libelemental.org
 Source0:	https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
-%description 
-Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra and optimization which builds on top of BLAS, LAPACK, and MPI using modern C++ and additionally exposes interfaces to C and Python (with a Julia interface beginning development). The development of Elemental has led to a number of research articles and a number of related projects, such as the parallel sweeping preconditioner, PSP, and a parallel algorithm for Low-rank Plus Sparse MRI, RT-LPS-MRI.
 
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
@@ -17,6 +15,9 @@ BuildRequires: qd-devel
 
 %{?el6:BuildRequires:  devtoolset-4-toolchain}
 %{?el7:BuildRequires:  devtoolset-4-toolchain}
+
+%description 
+A modern C++ library for distributed-memory linear algebra.
 
 %package common
 Summary: Files in common between mpich and openmpi
@@ -122,5 +123,5 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_bindir}/*_mpich*
 
 %changelog
-* Thu Jul 28 2016 Ryan H. Lewis <me@ryanlewis.net>
+* Thu Jul 28 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.86-1
 - Initial RPM
