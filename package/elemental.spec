@@ -35,10 +35,10 @@ Summary: devel headers
 Group: Development/Libraries
 %description devel
 
-%package python2-elemental 
+%package python2 
 Summary: python bindings 
 Group: Development/Libraries
-%description python2-elemental
+%description python2
 
 %package openmpi
 Summary: openmpi elemental 
@@ -116,7 +116,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %files devel
 %{_includedir}/*
 
-%files python2-elemental 
+%files python2
 %{python2_sitelib}/*
 
 # All files shared between the serial and different MPI versions
