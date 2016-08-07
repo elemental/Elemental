@@ -2,7 +2,7 @@ Name:           elemental
 Version:	0.86
 Release:        1%{?dist}
 Summary: Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra 
-
+Group: Development/Libraries
 License: BSD        
 URL: http://libelemental.org           
 Source0: https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
