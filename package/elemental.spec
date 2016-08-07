@@ -7,18 +7,23 @@ License: BSD
 URL: http://libelemental.org           
 Source0: https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
 
+%if 0%{?rhel} ==5 
+%global package_cmake %cmake28
+BuildRequires:  cmake28
+%endif
+%if 0%{?rhel} !=5 
+%global package_cmake %cmake
 BuildRequires: cmake
+%endif
+
 BuildRequires: metis-devel >= 5.1.0
 BuildRequires: openblas-devel
 BuildRequires: python2-devel 
 BuildRequires: qd-devel
 
-%{?el7:BuildRequires: centos-release-scl}
-%{?el7:BuildRequires:  devtoolset-4}
-%{?el6:BuildRequires: centos-release-scl}
-%{?el6:BuildRequires:  devtoolset-4}
-%{?el5:BuildRequires: centos-release-scl}
 %{?el5:BuildRequires:  devtoolset-2}
+%{?el6:BuildRequires:  devtoolset-4}
+%{?el7:BuildRequires:  devtoolset-4}
 
 %package common
 Summary: common stuff between both elemental versions
@@ -74,7 +79,7 @@ scl enable devtoolset-2 bash
 %define dobuild() \
 mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
-%cmake -DCMAKE_BUILD_TYPE=Release -DNO_BINARY_SUBDIRECTORIES=True -DCMAKE_RELEASE_POSTFIX="$MPI_SUFFIX" -DCMAKE_EXECUTABLE_SUFFIX_CXX="$MPI_SUFFIX" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_SCALAPACK=ON -DEL_DISABLE_PARMETIS=ON .. ; \
+%package_cmake -DCMAKE_BUILD_TYPE=Release -DNO_BINARY_SUBDIRECTORIES=True -DCMAKE_RELEASE_POSTFIX="$MPI_SUFFIX" -DCMAKE_EXECUTABLE_SUFFIX_CXX="$MPI_SUFFIX" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_SCALAPACK=ON -DEL_DISABLE_PARMETIS=ON .. ; \
 make %{?_smp_mflags}; \
 cd .. ; \
 
