@@ -12,7 +12,14 @@
 #  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-cmake_minimum_required(VERSION 2.8.12)
+if(APPLE)
+  # RPATH support for OS X was introduced in this version
+  cmake_minimum_required(VERSION 2.8.12)
+else()
+  # It is likely/possible that this version could be decreased, but this version
+  # was chosen to support the default version of CMake in CentOS 7
+  cmake_minimum_required(VERSION 2.8.11)
+endif()
 
 project(Elemental C CXX)
 set(EL_VERSION_MAJOR 0)
