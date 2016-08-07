@@ -17,7 +17,8 @@ BuildRequires: qd-devel
 %{?el7:BuildRequires:  devtoolset-4}
 %{?el6:BuildRequires: centos-release-scl}
 %{?el6:BuildRequires:  devtoolset-4}
-
+%{?el5:BuildRequires: centos-release-scl}
+%{?el5:BuildRequires:  devtoolset-2}
 %package common
 Summary: common stuff between both elemental versions
 %description common
@@ -57,8 +58,11 @@ Elemental is an open-source library for distributed-memory dense and sparse-dire
 
 %build
 
-%if 0%{?rhel}
+%if 0%{?rhel} > 5
 scl enable devtoolset-4 bash
+%endif
+%if 0%{?rhel} == 5
+scl enable devtoolset-2 bash
 %endif
 
 %define dobuild() \
