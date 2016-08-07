@@ -25,14 +25,17 @@ Summary: common stuff between both elemental versions
 
 %package devel 
 Summary: devel headers
+Group: Development/Libraries
 %description devel
 
 %package python2-elemental 
 Summary: python bindings 
+Group: Development/Libraries
 %description python2-elemental
 
 %package openmpi
 Summary: openmpi elemental 
+Group: Development/Libraries
 BuildRequires: openmpi-devel
 BuildRequires: scalapack-openmpi-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
@@ -42,6 +45,7 @@ Requires: %{name}-common = %{version}-%{release}
 
 %package mpich
 Summary: mpich elemental 
+Group: Development/Libraries
 BuildRequires: mpich-devel
 BuildRequires: scalapack-mpich-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
