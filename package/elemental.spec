@@ -60,9 +60,6 @@ Elemental is an open-source library for distributed-memory dense and sparse-dire
 
 %build
 
-%{?el6: scl enable devtoolset-4 bash}
-%{?el7: scl enable devtoolset-4 bash}
-
 %define dobuild() \
 mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
@@ -70,11 +67,10 @@ cd $MPI_COMPILER;  \
 make %{?_smp_mflags}; \
 cd .. ; \
 
-# Build parallel versions: set compiler variables to MPI wrappers
-export CC=mpicc
-export CXX=mpicxx
-export FC=mpif90
-export F77=mpif77
+gcc --version
+%{?el6: scl enable devtoolset-4 bash}
+%{?el7: scl enable devtoolset-4 bash}
+gcc --version
 
 ## Build OpenMPI version
 %{_openmpi_load}
