@@ -69,8 +69,8 @@ cd .. ; \
 
 gcc --version
 which gcc
-%{?el6: source scl_source enable devtoolset-4}
-%{?el7: source scl_source enable devtoolset-4}
+%{?el6: scl enable devtoolset-4 bash}
+%{?el7: scl enable devtoolset-4 bash}
 gcc --version
 which gcc
 
