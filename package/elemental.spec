@@ -13,8 +13,8 @@ BuildRequires: openblas-devel
 BuildRequires: python2-devel 
 BuildRequires: qd-devel
 
-%{?el6:BuildRequires:  devtoolset-3}
-%{?el7:BuildRequires:  devtoolset-3}
+%{?el6:BuildRequires:  devtoolset-4-toolchain}
+%{?el7:BuildRequires:  devtoolset-4-toolchain}
 
 %package common
 Summary: common stuff between both elemental versions
@@ -60,8 +60,8 @@ Elemental is an open-source library for distributed-memory dense and sparse-dire
 
 %build
 
-%{?el6: scl enable devtoolset-3 bash}
-%{?el7: scl enable devtoolset-3 bash}
+%{?el6: scl enable devtoolset-4 bash}
+%{?el7: scl enable devtoolset-4 bash}
 
 %define dobuild() \
 mkdir $MPI_COMPILER; \
