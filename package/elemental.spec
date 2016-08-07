@@ -26,12 +26,14 @@ Group: Development/Libraries
 %package devel 
 Summary: Elemental C/C++ Header Files
 Group: Development/Libraries
-%description Use this package for building off of Elemental
+%description devel
+Use this package for building off of Elemental
 
 %package python2 
 Summary: Python 2 Bindings 
 Group: Development/Libraries
-%description This package contains the python bindings for using Elemental through a python shell
+%description python2
+This package contains the python bindings for using Elemental through a python shell
 
 %package openmpi
 Summary: OpenMPI variant of Elemental
@@ -41,7 +43,8 @@ BuildRequires: scalapack-openmpi-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: openmpi
 Requires: %{name}-common = %{version}-%{release}
-%description Contains the library, unit tests, and example drivers built against OpenMPI
+%description openmpi
+Contains the library, unit tests, and example drivers built against OpenMPI
 
 %package mpich
 Summary: MPICH variant of Elemental
@@ -51,7 +54,8 @@ BuildRequires: scalapack-mpich-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: mpich
 Requires: %{name}-common = %{version}-%{release}
-%description  Contains the library, unit tests, and example drivers built against MPICH
+%description mpich
+Contains the library, unit tests, and example drivers built against MPICH
 
 %prep
 %autosetup 
