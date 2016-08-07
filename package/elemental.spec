@@ -1,11 +1,13 @@
 Name:           elemental
 Version:	0.86
 Release:        1%{?dist}
-Summary: Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra 
+Summary: Library for distributed-memory dense/sparse-direct linear algebra 
 Group: Development/Libraries
-License: BSD        
+License: BSD
 URL: http://libelemental.org           
 Source0: https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
+%description
+Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra and optimization which builds on top of BLAS, LAPACK, and MPI using modern C++ and additionally exposes interfaces to C and Python (with a Julia interface beginning development). The development of Elemental has led to a number of research articles and a number of related projects, such as the parallel sweeping preconditioner, PSP, and a parallel algorithm for Low-rank Plus Sparse MRI, RT-LPS-MRI.
 
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
@@ -17,43 +19,39 @@ BuildRequires: qd-devel
 %{?el7:BuildRequires:  devtoolset-4-toolchain}
 
 %package common
-Summary: common stuff between both elemental versions
+Summary: Files in common between mpich and openmpi
 Group: Development/Libraries
-%description common
+%description Distributed-memory, arbitrary-precision, dense and sparse-direct linear algebra, conic optimization, and lattice reduction
 
 %package devel 
-Summary: devel headers
+Summary: Elemental C/C++ Header Files
 Group: Development/Libraries
-%description devel
+%description Use this package for building off of Elemental
 
 %package python2 
-Summary: python bindings 
+Summary: Python 2 Bindings 
 Group: Development/Libraries
-%description python2
+%description This package contains the python bindings for using Elemental through a python shell
 
 %package openmpi
-Summary: openmpi elemental 
+Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
 BuildRequires: openmpi-devel
 BuildRequires: scalapack-openmpi-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: openmpi
 Requires: %{name}-common = %{version}-%{release}
-%description openmpi
+%description Contains the library, unit tests, and example drivers built against OpenMPI
 
 %package mpich
-Summary: mpich elemental 
+Summary: MPICH variant of Elemental
 Group: Development/Libraries
 BuildRequires: mpich-devel
 BuildRequires: scalapack-mpich-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: mpich
 Requires: %{name}-common = %{version}-%{release}
-%description mpich
-
-
-%description
-Elemental is an open-source library for distributed-memory dense and sparse-direct linear algebra and optimization which builds on top of BLAS, LAPACK, and MPI using modern C++ and additionally exposes interfaces to C and Python (with a Julia interface beginning development). The development of Elemental has led to a number of research articles and a number of related projects, such as the parallel sweeping preconditioner, PSP, and a parallel algorithm for Low-rank Plus Sparse MRI, RT-LPS-MRI.
+%description  Contains the library, unit tests, and example drivers built against MPICH
 
 %prep
 %autosetup 
