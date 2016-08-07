@@ -7,7 +7,6 @@ License: BSD
 URL: http://libelemental.org           
 Source0: https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
 
-
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
 BuildRequires: openblas-devel
@@ -61,7 +60,8 @@ Elemental is an open-source library for distributed-memory dense and sparse-dire
 
 %build
 
-scl enable devtoolset-3 bash
+%{?el6: scl enable devtoolset-3 bash}
+%{?el7: scl enable devtoolset-3 bash}
 
 %define dobuild() \
 mkdir $MPI_COMPILER; \
