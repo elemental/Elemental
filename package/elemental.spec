@@ -122,5 +122,5 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_bindir}/*_mpich*
 
 %changelog
-* Thu Jul 28 2016 Initial RPM
-- 
+* Thu Jul 28 2016 Ryan H. Lewis <me@ryanlewis.net>
+- Initial RPM
