@@ -6,16 +6,12 @@
 [![Join the chat at https://gitter.im/elemental/chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/elemental/chat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **Elemental** is a modern C++ library for distributed-memory dense and
-sparse-direct linear algebra and optimization.
+sparse-direct linear algebra, conic optimization, and lattice reduction.
 The library was initially released in
 [Elemental: A new framework for distributed memory dense linear algebra](https://dl.acm.org/citation.cfm?doid=2427023.2427030)
 and absorbed, then greatly expanded upon, the functionality from the 
 sparse-direct solver [Clique](http://www.github.com/poulson/Clique.git), which 
 was originally released during a project on [Parallel Sweeping Preconditioners](http://epubs.siam.org/doi/abs/10.1137/120871985).
-
-The development branch is currently at least six months ahead of the last 
-major release; you may find these (now outdated) releases at
-[the download page](http://libelemental.org/download/).
 
 ### Documentation
 
