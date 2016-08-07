@@ -13,26 +13,27 @@ BuildRequires: openblas-devel
 BuildRequires: python2-devel 
 BuildRequires: qd-devel
 
-%{?el7:BuildRequires: centos-release-scl}
-%{?el7:BuildRequires:  devtoolset-4}
-%{?el6:BuildRequires: centos-release-scl}
-%{?el6:BuildRequires:  devtoolset-4}
-%{?el5:BuildRequires: centos-release-scl}
-%{?el5:BuildRequires:  devtoolset-2}
+%{?el6:BuildRequires:  devtoolset-4-toolchain}
+%{?el7:BuildRequires:  devtoolset-4-toolchain}
+
 %package common
 Summary: common stuff between both elemental versions
+Group: Development/Libraries
 %description common
 
 %package devel 
 Summary: devel headers
+Group: Development/Libraries
 %description devel
 
-%package python2-elemental 
+%package python2 
 Summary: python bindings 
-%description python2-elemental
+Group: Development/Libraries
+%description python2
 
 %package openmpi
 Summary: openmpi elemental 
+Group: Development/Libraries
 BuildRequires: openmpi-devel
 BuildRequires: scalapack-openmpi-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
@@ -42,6 +43,7 @@ Requires: %{name}-common = %{version}-%{release}
 
 %package mpich
 Summary: mpich elemental 
+Group: Development/Libraries
 BuildRequires: mpich-devel
 BuildRequires: scalapack-mpich-devel
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
@@ -58,11 +60,8 @@ Elemental is an open-source library for distributed-memory dense and sparse-dire
 
 %build
 
-%if 0%{?rhel} > 5
-scl enable devtoolset-4 bash
-%endif
-%if 0%{?rhel} == 5
-scl enable devtoolset-2 bash
+%if 0%{?rhel}
+source /opt/rh/devtoolset-4/enable
 %endif
 
 %define dobuild() \
@@ -72,11 +71,6 @@ cd $MPI_COMPILER;  \
 make %{?_smp_mflags}; \
 cd .. ; \
 
-# Build parallel versions: set compiler variables to MPI wrappers
-export CC=mpicc
-export CXX=mpicxx
-export FC=mpif90
-export F77=mpif77
 
 ## Build OpenMPI version
 %{_openmpi_load}
@@ -105,7 +99,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %files devel
 %{_includedir}/*
 
-%files python2-elemental 
+%files python2
 %{python2_sitelib}/*
 
 # All files shared between the serial and different MPI versions
