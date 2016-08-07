@@ -68,9 +68,11 @@ make %{?_smp_mflags}; \
 cd .. ; \
 
 gcc --version
-%{?el6: scl enable devtoolset-4 bash}
-%{?el7: scl enable devtoolset-4 bash}
+which gcc
+%{?el6: source scl_source enable devtoolset-4}
+%{?el7: source scl_source enable devtoolset-4}
 gcc --version
+which gcc
 
 ## Build OpenMPI version
 %{_openmpi_load}
