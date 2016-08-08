@@ -117,19 +117,19 @@ ElError ElPermutationMakeArbitrary( ElPermutation P )
 ElError ElDistPermutationMakeArbitrary( ElDistPermutation P )
 { EL_TRY( CReflect(P)->MakeArbitrary() ) }
 
-ElError ElPermutationRowSwap
+ElError ElPermutationSwap
 ( ElPermutation P, ElInt origin, ElInt dest )
-{ EL_TRY( CReflect(P)->RowSwap(origin,dest) ) }
-ElError ElDistPermutationRowSwap
+{ EL_TRY( CReflect(P)->Swap(origin,dest) ) }
+ElError ElDistPermutationSwap
 ( ElDistPermutation P, ElInt origin, ElInt dest )
-{ EL_TRY( CReflect(P)->RowSwap(origin,dest) ) }
+{ EL_TRY( CReflect(P)->Swap(origin,dest) ) }
 
-ElError ElPermutationRowSwapSequence
+ElError ElPermutationSwapSequence
 ( ElPermutation P, ElConstPermutation PAppend, ElInt offset )
-{ EL_TRY( CReflect(P)->RowSwapSequence(*CReflect(PAppend),offset) ) }
-ElError ElDistPermutationRowSwapSequence
+{ EL_TRY( CReflect(P)->SwapSequence(*CReflect(PAppend),offset) ) }
+ElError ElDistPermutationSwapSequence
 ( ElDistPermutation P, ElConstDistPermutation PAppend, ElInt offset )
-{ EL_TRY( CReflect(P)->RowSwapSequence(*CReflect(PAppend),offset) ) }
+{ EL_TRY( CReflect(P)->SwapSequence(*CReflect(PAppend),offset) ) }
 
 ElError ElPermutationSetImage
 ( ElPermutation P, ElInt origin, ElInt dest )

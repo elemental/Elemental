@@ -121,6 +121,7 @@ Real MaxSingularValueEstimateOfBidiag
 
 namespace qr {
 
+// Cf. LAPACK's {s,d}bdsqr for these sweep strategies.
 template<typename F>
 void Sweep
 (       Matrix<Base<F>>& mainDiag,
@@ -277,13 +278,13 @@ void Sweep
 
                 if( ctrl.wantU )
                 {
-                    cUList(i) = cU;
-                    sUList(i) = -sU;
+                    cUList(i-1) = cU;
+                    sUList(i-1) = -sU;
                 }
                 if( ctrl.wantV )
                 {
-                    cVList(i) = cV;
-                    sVList(i) = -sV;
+                    cVList(i-1) = cV;
+                    sVList(i-1) = -sV;
                 }
             }
             eta = mainDiag(0)*cU;
@@ -329,7 +330,7 @@ void Sweep
 
                 f = cU*mainDiag(i) + sU*superDiag(i-1);
                 superDiag(i-1) = cU*superDiag(i-1) - sU*mainDiag(i);
-                g = sU*superDiag(i-1);
+                g = sU*mainDiag(i-1);
                 mainDiag(i-1) *= cU;
                 mainDiag(i) = Givens( f, g, cV, sV );
 
@@ -343,13 +344,13 @@ void Sweep
 
                 if( ctrl.wantU )
                 {
-                    cUList(i) = cU;
-                    sUList(i) = -sU;
+                    cUList(i-1) = cU;
+                    sUList(i-1) = -sU;
                 }
                 if( ctrl.wantV )
                 {
-                    cVList(i) = cV;
-                    sVList(i) = -sV;
+                    cVList(i-1) = cV;
+                    sVList(i-1) = -sV;
                 }
             }
             superDiag(0) = f;
@@ -806,6 +807,8 @@ QRAlg
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
+    if( superDiag.Height() != mainDiag.Height()-1 )
+        LogicError("Invalid superDiag length");
     if( IsBlasScalar<Real>::value && ctrl.qrCtrl.useLAPACK )
     {
         return qr::LAPACKHelper( mainDiag, superDiag, ctrl );
@@ -931,6 +934,9 @@ QRAlg
 {
     DEBUG_CSE
     const Int n = mainDiag.Height();
+    if( superDiag.Height() != n-1 )
+        LogicError("Invalid superDiag length");
+
     if( !ctrl.wantU && !ctrl.wantV )
     {
         return QRAlg( mainDiag, superDiag, ctrl );

@@ -379,7 +379,7 @@ void DistPermutation::ReserveSwaps( Int maxSwaps )
     }
 }
 
-void DistPermutation::RowSwap( Int origin, Int dest )
+void DistPermutation::Swap( Int origin, Int dest )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -433,8 +433,7 @@ void DistPermutation::RowSwap( Int origin, Int dest )
     }
 }
 
-void DistPermutation::RowSwapSequence
-( const DistPermutation& P, Int offset )
+void DistPermutation::SwapSequence( const DistPermutation& P, Int offset )
 {
     DEBUG_CSE
     if( P.swapSequence_ )
@@ -449,7 +448,7 @@ void DistPermutation::RowSwapSequence
         if( P.implicitSwapOrigins_ )
         {
             for( Int j=0; j<numSwapAppends; ++j )
-                RowSwap( j+offset, swapDestsLoc(j)+offset );
+                Swap( j+offset, swapDestsLoc(j)+offset );
         }
         else
         {
@@ -457,7 +456,7 @@ void DistPermutation::RowSwapSequence
               P.swapOrigins_(activeInd,ALL);
             auto& swapOriginsLoc = swapOrigins_STAR_STAR.Matrix();
             for( Int j=0; j<numSwapAppends; ++j )
-                RowSwap( swapOriginsLoc(j)+offset, swapDestsLoc(j)+offset );
+                Swap( swapOriginsLoc(j)+offset, swapDestsLoc(j)+offset );
         }
     }
     else
@@ -472,7 +471,7 @@ void DistPermutation::RowSwapSequence
     }
 }
 
-void DistPermutation::RowSwapSequence
+void DistPermutation::SwapSequence
 ( const ElementalMatrix<Int>& swapOriginsPre,
   const ElementalMatrix<Int>& swapDestsPre,
   Int offset )
@@ -489,10 +488,10 @@ void DistPermutation::RowSwapSequence
     // TODO: Assert swapOrigins and swapDests are column vectors of same size
     const Int numSwaps = swapDests.Height();
     for( Int k=0; k<numSwaps; ++k )
-        RowSwap( swapOriginsLoc(k)+offset, swapDestsLoc(k)+offset );
+        Swap( swapOriginsLoc(k)+offset, swapDestsLoc(k)+offset );
 }
 
-void DistPermutation::ImplicitRowSwapSequence
+void DistPermutation::ImplicitSwapSequence
 ( const ElementalMatrix<Int>& swapDestsPre,
   Int offset )
 {
@@ -506,20 +505,57 @@ void DistPermutation::ImplicitRowSwapSequence
     // TODO: Assert swapOrigins and swapDests are column vectors of same size
     const Int numSwaps = swapDests.Height();
     for( Int k=0; k<numSwaps; ++k )
-        RowSwap( numPrevSwaps+k, swapDestsLoc(k)+offset );
+        Swap( numPrevSwaps+k, swapDestsLoc(k)+offset );
+}
+
+Int DistPermutation::LocalImage( Int localOrigin ) const
+{
+    DEBUG_CSE
+    if( swapSequence_ )
+        LogicError("Cannot query the local image of a swap sequence");
+    if( staleInverse_ )
+        LogicError("Cannot query the local image when the inverse is stale");
+    return invPerm_.GetLocal( localOrigin, 0 );
+}
+
+Int DistPermutation::LocalPreimage( Int localDest ) const
+{
+    DEBUG_CSE
+    if( swapSequence_ )
+        LogicError("Cannot query the local preimage of a swap sequence");
+    return perm_.GetLocal( localDest, 0 );
+}
+
+Int DistPermutation::Image( Int origin ) const
+{
+    DEBUG_CSE
+    MakeArbitrary();
+    if( staleInverse_ )
+    {
+        El::InvertPermutation( perm_, invPerm_ );
+        staleInverse_ = false;
+    }
+    return invPerm_.Get( origin, 0 );
+}
+
+Int DistPermutation::Preimage( Int dest ) const
+{
+    DEBUG_CSE
+    MakeArbitrary();
+    return perm_.Get( dest, 0 );
 }
 
 void DistPermutation::SetImage( Int origin, Int dest )
 {
     DEBUG_CSE
     MakeArbitrary();
-    perm_.Set( origin, 0, dest );
+    perm_.Set( dest, 0, origin );
+    invPerm_.Set( origin, 0, dest );
     staleParity_ = true;
-    staleInverse_ = true;
     staleMeta_ = true;
 }
 
-void DistPermutation::MakeArbitrary()
+void DistPermutation::MakeArbitrary() const
 {
     DEBUG_CSE
     if( !swapSequence_ )
@@ -534,7 +570,7 @@ void DistPermutation::MakeArbitrary()
         permLoc(iLoc) = perm_.GlobalRow(iLoc);
     PermuteRows( perm_ );
 
-    invPerm_.Empty();
+    invPerm_.Resize( size_, 1 );
     staleInverse_ = true;
     staleMeta_ = true;
 

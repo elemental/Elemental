@@ -138,7 +138,7 @@ void LUnblockedPivoted( Matrix<F>& A, Permutation& P )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        P.RowSwap( k, from );
+        P.Swap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -187,7 +187,7 @@ void LUnblockedPivoted
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        P.RowSwap( k, from );
+        P.Swap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -249,7 +249,7 @@ void LPanelPivoted
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        PFull.RowSwap( k+off, from+off );
+        PFull.Swap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -319,7 +319,7 @@ void LPanelPivoted
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        PFull.RowSwap( k+off, from+off );
+        PFull.Swap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );

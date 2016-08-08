@@ -96,7 +96,7 @@ Unblocked
         {
             const Int from = k + pivot.from[l];
             SymmetricSwap( LOWER, A, k+l, from, conjugate );
-            P.RowSwap( k+l, from );
+            P.Swap( k+l, from );
         }
 
         // Update trailing submatrix and store pivots
@@ -183,7 +183,7 @@ Unblocked
         {
             const Int from = k + pivot.from[l];
             SymmetricSwap( LOWER, A, k+l, from, conjugate );
-            P.RowSwap( k+l, from );
+            P.Swap( k+l, from );
         }
 
 

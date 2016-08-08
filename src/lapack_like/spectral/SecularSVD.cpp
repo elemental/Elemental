@@ -1581,6 +1581,8 @@ SecularSingularValue
     return info;
 }
 
+// TODO(poulson): Return the sum of the 'info' structures returned for each
+// singular value.
 template<typename Real,typename>
 void SecularSVD
 ( const Matrix<Real>& d,
@@ -1634,23 +1636,27 @@ void SecularSVD
     V.Resize( n, n );
     Matrix<Real> r;
     Ones( r, n, 1 );
+    auto vScratch = V(ALL,IR(0));
     for( Int j=0; j<n; ++j )
     {
         // While we will temporarily store dMinusShift and dPlusShift in the
         // j'th columns of U and V, respectively, it is worth noting that we 
         // only require access to their Hadamard product after this loop ends.
-        auto dMinusShift = U(ALL,IR(j));
-        auto dPlusShift = V(ALL,IR(j));
-        auto info =
-          SecularSingularValue( j, d, rho, z, dMinusShift, dPlusShift, ctrl );
+        auto u = U(ALL,IR(j));
+        auto info = SecularSingularValue( j, d, rho, z, u, vScratch, ctrl );
         s(j) = info.singularValue;
-
-        r(j) *= dMinusShift(j)*dPlusShift(j);
+        // u currently hold d-s(j) and vScratch currently holds d+s(j).
+        // Overwrite u with their element-wise product since that is all we 
+        // require from here on out.
+        for( Int k=0; k<n; ++k )
+            u(k) *= vScratch(k);
+      
+        r(j) *= u(j);
         for( Int k=0; k<n; ++k )
         {
             if( k == j )
                 continue;
-            r(k) *= (dMinusShift(k)*dPlusShift(k)) / ((d(j)+d(k))*(d(j)-d(k)));
+            r(k) *= u(k) / ((d(j)+d(k))*(d(j)-d(k)));
         }
     }
     for( Int j=0; j<n; ++j )
@@ -1663,13 +1669,13 @@ void SecularSVD
         auto u = U(ALL,IR(j));
         auto v = V(ALL,IR(j));
         {
-            const Real deltaSqMinusShiftSq = u(0) * v(0);
+            const Real deltaSqMinusShiftSq = u(0);
             u(0) = -1;
             v(0) = r(0) / deltaSqMinusShiftSq;
         }
         for( Int i=1; i<n; ++i )
         {
-            const Real deltaSqMinusShiftSq = u(i) * v(i);
+            const Real deltaSqMinusShiftSq = u(i);
             v(i) = r(i) / deltaSqMinusShiftSq;
             u(i) = d(i) * v(i);
         }

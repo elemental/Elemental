@@ -90,7 +90,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -208,7 +208,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -348,7 +348,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -467,7 +467,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and

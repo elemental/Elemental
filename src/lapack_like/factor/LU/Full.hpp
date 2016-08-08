@@ -38,8 +38,8 @@ Full
         auto pivot = MaxAbsLoc( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
-        P.RowSwap( k, iPiv );
-        Q.RowSwap( k, jPiv );
+        P.Swap( k, iPiv );
+        Q.Swap( k, jPiv );
 
         RowSwap( A, k, iPiv );
         ColSwap( A, k, jPiv );
@@ -86,8 +86,8 @@ Full
         auto pivot = MaxAbsLoc( ABR );
         const Int iPiv = pivot.i + k;
         const Int jPiv = pivot.j + k;
-        P.RowSwap( k, iPiv );
-        Q.RowSwap( k, jPiv );
+        P.Swap( k, iPiv );
+        Q.Swap( k, jPiv );
 
         RowSwap( A, iPiv, k );
         ColSwap( A, jPiv, k );

@@ -40,8 +40,8 @@ void Panel( Matrix<F>& A, Permutation& P, Permutation& PB, Int offset )
         // Find the index and value of the pivot candidate
         const Int maxInd = blas::MaxInd( ind2VertSize+1, aB1Buf, 1 );
         const Int iPiv = maxInd + k;
-        P.RowSwap( k+offset, iPiv+offset );
-        PB.RowSwap( k, iPiv );
+        P.Swap( k+offset, iPiv+offset );
+        PB.Swap( k, iPiv );
 
         // Swap the pivot row and current row
         if( iPiv != k )
@@ -115,8 +115,8 @@ void Panel
         // Compute and store the location of the new pivot
         const auto pivot = mpi::AllReduce( localPivot, maxLocOp, colComm );
         const Int iPiv = pivot.index;
-        P.RowSwap( k+offset, iPiv+offset );
-        PB.RowSwap( k, iPiv );
+        P.Swap( k+offset, iPiv+offset );
+        PB.Swap( k, iPiv );
 
         // Perform the pivot within this panel
         if( iPiv < n )

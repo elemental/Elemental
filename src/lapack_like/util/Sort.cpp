@@ -187,6 +187,56 @@ void ApplyTaggedSortToEachColumn
     Copy( ZPerm_STAR_VR, Z );
 }
 
+template<typename Real,typename>
+void SortingPermutation
+( const Matrix<Real>& x, Permutation& sortPerm, SortType sort )
+{
+    DEBUG_CSE
+    auto sortPairs = TaggedSort( x, sort );
+    const Int n = ( x.Width()==1 ? x.Height() : x.Width() );
+    sortPerm.MakeIdentity( n );
+    for( Int i=0; i<n; ++i )
+        sortPerm.SetImage( sortPairs[i].index, i );
+}
+
+template<typename Real,typename>
+void MergeSortingPermutation
+( Int n0, Int n1, const Matrix<Real>& x, Permutation& sortPerm, SortType sort )
+{
+    DEBUG_CSE
+    const Int m = x.Height();
+    const Int n = x.Width();
+    if( m != 1 && n != 1 )
+        LogicError("MergeSortingPermutation meant for a vector");
+
+    const Int k = ( n==1 ? m : n );
+    if( k != n0+n1 )
+        LogicError("Dimensions did not match");
+
+    const Int stride = ( n==1 ? 1 : x.LDim() );
+    const Real* xBuffer = x.LockedBuffer();
+
+    vector<ValueInt<Real>> pairs( k );
+    for( Int i=0; i<k; ++i )
+    {
+        pairs[i].value = xBuffer[i*stride];
+        pairs[i].index = i;
+    }
+
+    if( sort == ASCENDING )
+        std::inplace_merge
+        ( pairs.begin(), pairs.begin()+n0, pairs.end(),
+          ValueInt<Real>::Lesser );
+    else if( sort == DESCENDING )
+        std::inplace_merge
+        ( pairs.begin(), pairs.begin()+n0, pairs.end(),
+          ValueInt<Real>::Greater );
+
+    sortPerm.MakeIdentity( k );
+    for( Int i=0; i<k; ++i )
+        sortPerm.SetImage( pairs[i].index, i );
+}
+
 #define PROTO_COMPLEX(F) \
   template void ApplyTaggedSortToEachRow \
   ( const vector<ValueInt<Base<F>>>& sortPairs, \
@@ -208,7 +258,9 @@ void ApplyTaggedSortToEachColumn
   template vector<ValueInt<Real>> TaggedSort \
   ( const Matrix<Real>& x, SortType sort ); \
   template vector<ValueInt<Real>> TaggedSort \
-  ( const AbstractDistMatrix<Real>& x, SortType sort );
+  ( const AbstractDistMatrix<Real>& x, SortType sort ); \
+  template void SortingPermutation \
+  ( const Matrix<Real>& x, Permutation& sortPerm, SortType sort );
 
 // For support for double-precision MRRR with float eigenvectors
 
