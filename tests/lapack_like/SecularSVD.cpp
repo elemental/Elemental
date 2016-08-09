@@ -148,18 +148,20 @@ struct SecularDeflationInfo
 //   1: nonzero in second block
 //   2: nonzero in both blocks
 //   3: deflated
-//   4: first column
 //
-// Cf. LAPACK's {s,d}lasd2 [CITATION] for this mechanism.
+// Cf. LAPACK's {s,d}lasd2 [CITATION] for this mechanism. Note that LAPACK 
+// currently ignores deflations of the form |d(0)-d(j)| <= deflationTol, 
+// which results in the first column of U potentially becoming dense. We
+// do not ignore such deflations and always mark the first column of U
+// as dense for the sake of simplicity.
 //
 enum SecularCombinedColumnType {
-  EXCEPTIONAL_COLUMN = 0, // Only relevant for the first column of U
-  COLUMN_NONZERO_IN_FIRST_BLOCK = 1,
-  COLUMN_NONZERO_IN_SECOND_BLOCK = 2,
-  DENSE_COLUMN = 3,
-  DEFLATED_COLUMN = 4
+  COLUMN_NONZERO_IN_FIRST_BLOCK = 0,
+  COLUMN_NONZERO_IN_SECOND_BLOCK = 1,
+  DENSE_COLUMN = 2,
+  DEFLATED_COLUMN = 3
 };
-const Int NUM_SECULAR_COMBINED_COLUMN_TYPES = 5;
+const Int NUM_SECULAR_COMBINED_COLUMN_TYPES = 4;
 
 // The following is analogous to LAPACK's {s,d}lasd{1,2,3} [CITATION] but does
 // not accept initial sorting permutations for s0 and s1, nor does it enforce 
@@ -213,7 +215,11 @@ SecularDeflationInfo SecularCombine
       if( !square && n1 != m1+1 )
           LogicError("B1 has to be square or one column wider than tall");
     )
-    Output("m=",m,", n=",n,", m0=",m0,", n0=",n0,", m1=",m1,", n1=",n1);
+    if( ctrl.progress )
+        Output("m=",m,", n=",n,", m0=",m0,", n0=",n0,", m1=",m1,", n1=",n1);
+
+    // TODO(poulson): Turn this back on
+    const bool exploitStructure = false;
 
     // TODO(poulson): Add scaling
 
@@ -254,19 +260,16 @@ SecularDeflationInfo SecularCombine
     Matrix<Int> columnTypes(m,1);
     // Form the reordered left portion
     r(0) = alpha*V0(m0,m0);
-    Output("Setting r(",0,") = ",alpha,"*",V0(m0,m0));
-    columnTypes(0) = EXCEPTIONAL_COLUMN;
+    columnTypes(0) = DENSE_COLUMN;
     for( Int j=0; j<m0; ++j )
     {
         r(j+1) = alpha*V0(m0,j);
-        Output("Setting r(",j+1,") = ",alpha,"*",V0(m0,j));
         columnTypes(j+1) = COLUMN_NONZERO_IN_FIRST_BLOCK;
     }
     for( Int j=0; j<m1; ++j )
     {
-        r(j+(m0+1)) = beta*V1(0,j);
-        Output("Setting r(",j+m0+1,") = ",beta,"*",V1(0,j));
-        columnTypes(j+(m0+1)) = COLUMN_NONZERO_IN_SECOND_BLOCK;
+        r(j+n0) = beta*V1(0,j);
+        columnTypes(j+n0) = COLUMN_NONZERO_IN_SECOND_BLOCK;
     }
     // We form r(m) and rotate it into r(0) after the deflation tolerance is
     // available.
@@ -281,17 +284,18 @@ SecularDeflationInfo SecularCombine
     }
     for( Int j=0; j<m1; ++j )
     {
-        d(j+(m0+1)) = s1(j);
+        d(j+n0) = s1(j);
     }
 
-    // We could avoid sorting d(0)=0, but it should not effect performance.
+    // We could avoid sorting d(0)=0, but it should not significantly effect
+    // performance. We force the sort to be stable to force the first entry of
+    // d to remain in place.
     Permutation combineSortPerm;
-    SortingPermutation( d, combineSortPerm, ASCENDING );
-    Output("Finished SortingPermutation");
+    bool stableSort = true;
+    SortingPermutation( d, combineSortPerm, ASCENDING, stableSort );
     combineSortPerm.PermuteRows( d );
     combineSortPerm.PermuteRows( r );
     combineSortPerm.PermuteRows( columnTypes );
-    Print( d, "d" );
 
     auto combinedToOrig = [&]( const Int& combinedIndex )
       {
@@ -323,7 +327,6 @@ SecularDeflationInfo SecularCombine
     Real rhoExtra=0, cExtra=1, sExtra=0;
     if( n == m+1 )
     {
-        // We will later apply a Givens rotation to push this entry into r(0)
         rhoExtra = beta*V1(0,m1);
         const Real gamma = SafeNorm( r(0), rhoExtra );
         if( gamma <= deflationTol )
@@ -334,6 +337,31 @@ SecularDeflationInfo SecularCombine
         {
             cExtra = r(0) / gamma;
             sExtra = rhoExtra / gamma;
+            r(0) = gamma;
+        }
+        if( cExtra != Real(1) || sExtra != Real(0) ) 
+        {
+            // Since V was originally block-diagonal and the two relevant
+            // columns have not changed, the m0'th column is zero in the first
+            // (m0+1) entries and the m'th column is nonzero in the last
+            // (m1+1) entries. Thus, the rotation takes the form
+            //
+            //    | V(0:m0,m0),      0      | | cExtra, -sExtra |.
+            //    |      0,     V(m0+1:m,m) | | sExtra,  cExtra |
+            //
+            for( Int i=0; i<m0+1; ++i ) 
+            {
+                const Real nu = V(i,m0);
+                V(i,m0) =  cExtra*nu;
+                V(i,m)  = -sExtra*nu;
+            }
+            for( Int i=m0+1; i<n; ++i )
+            {
+                const Real nu = V(i,m);
+                V(i,m0) = sExtra*nu;
+                V(i,m)  = cExtra*nu;
+            }
+            // V(:,m) should now lie in the null space of the inner matrix.
         }
     }
     else
@@ -347,7 +375,7 @@ SecularDeflationInfo SecularCombine
     deflationPerm.MakeArbitrary();
     // Since we do not yet know how many undeflated entries there will be, we
     // must use the no-deflation case as our storage upper bound.
-    Matrix<Real> dUndeflated(m,1), rUndeflated(n,1);
+    Matrix<Real> dUndeflated(m,1), rUndeflated(m,1);
     dUndeflated(0) = 0;
     rUndeflated(0) = r(0);
 
@@ -364,16 +392,70 @@ SecularDeflationInfo SecularCombine
         {
             // We can deflate due to the r component being sufficiently small
             deflationPerm.SetImage( j, (m-1)-info.numDeflations );
-            Output
-            ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
-             " because |",r(j),"| <= ",deflationTol);
+            if( ctrl.progress )
+                Output
+                ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
+                 " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
             ++info.numDeflations;
             ++info.numSmallUpdateDeflations; 
         }
+        else if( d(j) <= deflationTol )
+        {
+            // We can deflate due to d(0)=0 being close to d(j). We rotate r(j)
+            // into r(0) (Cf. the discussion surrounding Eq. (4.3) of 
+            // Gu/Eisenstat's TR [CITATION]).
+            //
+            // In particular, we want
+            //
+            //   | r(0), r(j) | | c -s | = | gamma, 0 |,
+            //                  | s  c |
+            //
+            // where gamma = || r(0); r(j) ||_2. Putting 
+            //
+            //   c = r(0) / gamma,
+            //   s = r(j) / gamma,
+            //
+            // implies
+            //
+            //   |  c, s | | r(0) | = | gamma |.
+            //   | -s, c | | r(j) |   |   0   |
+            //
+            const Real f = r(0); 
+            const Real g = r(j);
+            const Real gamma = SafeNorm( f, g );
+            const Real c = f / gamma;
+            const Real s = g / gamma;
+            r(0) = rUndeflated(0) = gamma;
+            r(j) = 0;
+
+            // Apply | c -s | from the right to U and V
+            //       | s  c |
+            //
+            // We are mixing nonzero structures in the first column of U,
+            // so we might as well always treat the first column as dense.
+            //
+            // TODO(poulson): Exploit the nonzero structure of U and V?
+            const Int jOrig = combinedToOrig( j );
+            blas::Rot( m, &U(0,m0), 1, &U(0,jOrig), 1, c, s );
+            blas::Rot( n, &V(0,m0), 1, &V(0,jOrig), 1, c, s );
+
+            deflationPerm.SetImage( j, (m-1)-info.numDeflations ); 
+            if( ctrl.progress )
+                Output
+                ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
+                 " because d(",j,")=",d(j)," <= ",deflationTol);
+
+            columnTypes(j) = DEFLATED_COLUMN;
+
+            ++info.numDeflations;
+            ++info.numCloseDiagonalDeflations;
+        }
         else
         {
             revivalCandidate = j;
+            if( ctrl.progress )
+                Output("Breaking initial deflation loop at j=",j);
             break;
         }
     }
@@ -382,9 +464,10 @@ SecularDeflationInfo SecularCombine
         if( Abs(r(j)) <= deflationTol )
         {
             deflationPerm.SetImage( j, (m-1)-info.numDeflations );
-            Output
-            ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
-             " because |",r(j),"| <= ",deflationTol);
+            if( ctrl.progress )
+                Output
+                ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
+                 " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
             ++info.numDeflations;
             ++info.numSmallUpdateDeflations;
@@ -398,41 +481,43 @@ SecularDeflationInfo SecularCombine
             //
             // In particular, we want
             //
-            //   | r(revivalCandidate), r(j) | | c -s | = | 0, gamma |,
+            //   | r(j), r(revivalCandidate) | | c -s | = | gamma, 0 |,
             //                                 | s  c |
             //
             // where gamma = || r(revivalCandidate); r(j) ||_2. Putting 
             //
-            //   c =  r(j)                / gamma,
-            //   s = -r(revivalCandidate) / gamma,
+            //   c = r(j)                / gamma,
+            //   s = r(revivalCandidate) / gamma,
             //
             // implies
             //
-            //   r(revivalCandidate)   c  + r(j) s = 0,
-            //   r(revivalCandidate) (-s) + r(j) c = gamma.
+            //   |  c,  s | |        r(j)         | = | gamma |,
+            //   | -s,  c | | r(revivalCandidate) |   |   0   |
             //
             const Real f = r(j); 
             const Real g = r(revivalCandidate);
             const Real gamma = SafeNorm( f, g );
             const Real c = f / gamma;
-            const Real s = -g / gamma;
-            r(revivalCandidate) = 0;
+            const Real s = g / gamma;
             r(j) = gamma;
+            r(revivalCandidate) = 0;
 
             // Apply | c -s | from the right to U and V
             //       | s  c |
             //
             // TODO(poulson): Exploit the nonzero structure of U and V?
-            const Int revivalCandidateOrig = combinedToOrig( revivalCandidate );
+            const Int revivalOrig = combinedToOrig( revivalCandidate );
             const Int jOrig = combinedToOrig( j );
-            blas::Rot( m, &U(0,revivalCandidateOrig), 1, &U(0,jOrig), 1, c, s );
-            blas::Rot( n, &V(0,revivalCandidateOrig), 1, &V(0,jOrig), 1, c, s );
+            blas::Rot( m, &U(0,jOrig), 1, &U(0,revivalOrig), 1, c, s );
+            blas::Rot( n, &V(0,jOrig), 1, &V(0,revivalOrig), 1, c, s );
 
             deflationPerm.SetImage
             ( revivalCandidate, (m-1)-info.numDeflations ); 
-            Output
-            ("Deflating via p(",revivalCandidate,")=",(m-1)-info.numDeflations,
-             " because ",d(j),"-",d(revivalCandidate)," <= ",deflationTol);
+            if( ctrl.progress )
+                Output
+                ("Deflating via p(",revivalCandidate,")=",
+                 (m-1)-info.numDeflations," because d(",j,")=",d(j)," - d(",
+                 revivalCandidate,")=",d(revivalCandidate)," <= ",deflationTol);
 
             if( columnTypes(revivalCandidate) != columnTypes(j) )
             {
@@ -452,8 +537,11 @@ SecularDeflationInfo SecularCombine
             dUndeflated(numUndeflated) = d(revivalCandidate);
             rUndeflated(numUndeflated) = r(revivalCandidate);
             deflationPerm.SetImage( revivalCandidate, numUndeflated );
-            Output
-            ("Could not deflate, so p(",revivalCandidate,")=",numUndeflated);
+            if( ctrl.progress )
+                Output
+                ("Could not deflate with j=",j," and revivalCandidate=",
+                 revivalCandidate,", so p(",revivalCandidate,")=",
+                 numUndeflated);
             ++numUndeflated;
 
             revivalCandidate = j;
@@ -465,19 +553,15 @@ SecularDeflationInfo SecularCombine
             dUndeflated(numUndeflated) = d(revivalCandidate);
             rUndeflated(numUndeflated) = r(revivalCandidate);
             deflationPerm.SetImage( revivalCandidate, numUndeflated );
-            Output
-            ("Could not deflate, so p(",revivalCandidate,")=",numUndeflated);
+            if( ctrl.progress )
+                Output
+                ("Final iteration, so p(",revivalCandidate,")=",numUndeflated);
             ++numUndeflated;
         }
     }
     // Now shrink dUndeflated and rUndeflated down to their proper size
     dUndeflated.Resize( numUndeflated, 1 );
     rUndeflated.Resize( numUndeflated, 1 );
-
-    // Permute d using the deflation permutation so that the (unsorted!)
-    // deflated entries are in its tail (the other entries are irrelevant)
-    Output("About to apply deflationPerm");
-    deflationPerm.PermuteRows( d );
 
     // While I am not aware of any documentation, LAPACK's {s,d}lasd2 [CITATION]
     // ensures that the first nonzero entry of d and dUndeflated are at least
@@ -503,15 +587,14 @@ SecularDeflationInfo SecularCombine
     // Count the number of columns of U with each nonzero pattern
     std::vector<Int> packingCounts( NUM_SECULAR_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<m; ++j )
-    {
-        Output("columnTypes(",j,")=",columnTypes(j));
         ++packingCounts[columnTypes(j)];
-    }
-    if( packingCounts[DEFLATED_COLUMN] != info.numDeflations )
-        LogicError
-        ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
-         packingCounts[DEFLATED_COLUMN],
-         " and info.numDeflations=",info.numDeflations);
+    DEBUG_ONLY(
+      if( packingCounts[DEFLATED_COLUMN] != info.numDeflations )
+          LogicError
+          ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
+           packingCounts[DEFLATED_COLUMN],
+           " and info.numDeflations=",info.numDeflations);
+    )
 
     // Compute offsets for packing them
     std::vector<Int> packingOffsets( NUM_SECULAR_COMBINED_COLUMN_TYPES, 0 );
@@ -521,111 +604,51 @@ SecularDeflationInfo SecularCombine
     {
         packingOffsets[columnType] = totalPacked;
         totalPacked += packingCounts[columnType];
-        Output("packingCounts[",columnType,"]=",packingCounts[columnType]);
-        Output("packingOffsets[",columnType,"]=",packingOffsets[columnType]);
+        if( ctrl.progress )
+            Output("packingCounts[",columnType,"]=",packingCounts[columnType]);
     }
 
-    // Set up the index ranges of the four packed column subsets
-    const Range<Int> packingInd0(0,packingOffsets[1]),
+    // Set up the index ranges of the three packed column subsets
+    const Range<Int> packingInd0(packingOffsets[0],packingOffsets[1]),
                      packingInd1(packingOffsets[1],packingOffsets[2]),
-                     packingInd2(packingOffsets[2],packingOffsets[3]),
-                     packingInd3(packingOffsets[3],totalPacked);
+                     packingInd2(packingOffsets[2],packingOffsets[3]);
 
+    Matrix<Real> dPacked;
+    Matrix<Real> UPacked, VPacked;
+    dPacked.Resize( m, 1 );
+    UPacked.Resize( m, m );
+    VPacked.Resize( n, m );
     Permutation packingPerm;
     packingPerm.MakeIdentity( m );
     for( Int j=0; j<m; ++j )
     {
         // Recall that columnTypes maps the indices in the *undeflated* ordering
         // to their column type, whereas packingPerm maps the *deflated*
-        // ordering into the packed ordering. It is important to notice that
-        // packingPerm will map entries from [0,numUndeflated) back into
-        // [0,numUndeflated).
-        packingPerm.SetImage
-        ( deflationPerm.Image(j), packingOffsets[columnTypes(j)]++ );
-        Output
-        ("Setting packingPerm(",deflationPerm.Image(j),")=",
-         packingOffsets[columnTypes(j)]-1);
-    }
-
-    // Explicitly form the packed singular vectors with a single permutation by
-    // composing the inverses of the packing permutation, deflation permutation,
-    // and combine-sorting permutation.
-    //
-    // These matrices will eventually be shrunk down to numUndeflated columns
-    // (without freeing the underlying extra space...) after their last columns'
-    // usage as a workspace for sorting the deflated columns is finished.
-    //
-    Matrix<Real> UPacked, VPacked;
-    Zeros( UPacked, m, m );
-    Zeros( VPacked, n, m );
-    // The first column of UPacked is only nonzero in a single entry
-    UPacked(m0,0) = 1;
-    // The first column of VPacked involves a Givens rotation with rhoExtra
-    // of the form
-    //
-    //   | r(0), rhoExtra | | cExtra, -sExtra | = | gamma, 0 |.
-    //                      | sExtra,  cExtra |
-    //
-    // Thus, | cExtra, -sExtra | needs to be applied to V from the right.
-    //       | sExtra,  cExtra |
-    //
-    Output("cExtra=",cExtra,", sExtra=",sExtra);
-    if( cExtra == Real(1) && sExtra == Real(0) ) 
-    {
-        // We are applying the identity rotation, so ignore the m'th column and
-        // only make use of column m0, which gets cyclically shifted into the
-        // first position.
-        blas::Copy( n, &V(0,m0), 1, &VPacked(0,0), 1 );
-    }
-    else
-    {
-        // Since V was originally block-diagonal and the two relevant columns
-        // have not changed, the m0'th column is zero in the first (m0+1)
-        // entries and the m'th column is nonzero in the last (m1+1) entries.
-        // Thus, the rotation takes the form
+        // ordering into the packed ordering.
         //
-        //    | V(0:m0,m0),      0      | | cExtra, -sExtra |.
-        //    |      0,     V(m0+1:m,m) | | sExtra,  cExtra |
-        //
-        for( Int i=0; i<m0+1; ++i ) 
-        {
-            const Real& nu = V(i,m0);
-            VPacked(i,0) =  cExtra*nu;
-            V(i,m)       = -sExtra*nu;
-        }
-        for( Int i=m0+1; i<n; ++i )
-        {
-            const Real& nu = V(i,m);
-            VPacked(i,0) = sExtra*nu;
-            V(i,m)       = cExtra*nu;
-        }
-        // V(:,m) should now lie in the null space of the inner matrix.
-    }
-    Output("Finished applying (cExtra,sExtra) Givens");
+        // It is important to notice that packingPerm will map entries from
+        // [0,numUndeflated) back into [0,numUndeflated).
+        const Int packingSource = deflationPerm.Image(j);
+        const Int packingDest = packingOffsets[columnTypes(j)]++;
+        packingPerm.SetImage( packingSource, packingDest );
 
-    // Columns [0,numUndeflated) are packed into UPacked and VPacked, while
-    // columns [numUndeflated,m) are temporarily packed there since their final
-    // destination is in the back of U or V and directly packing there would
-    // interfere with the fact that they are currently stored in U or V in a
-    // different ordering.
-    for( Int j=1; j<m; ++j )
-    {
-        const Int jBeforePacking = packingPerm.Preimage(j);
-        const Int jBeforeDeflation = deflationPerm.Preimage(jBeforePacking);
-        const Int jOrig = combinedToOrig( jBeforeDeflation );
-        Output("  j=",j,", jBeforePacking=",jBeforePacking,", jOrig=",jOrig);
+        const Int jOrig = combinedToOrig( j );
+
+        dPacked(packingDest) = d(j);
         // TODO(poulson): Exploit the nonzero structure of U and V?
-        blas::Copy( m, &U(0,jOrig), 1, &UPacked(0,j), 1 );
-        blas::Copy( n, &V(0,jOrig), 1, &VPacked(0,j), 1 );
+        blas::Copy( m, &U(0,jOrig), 1, &UPacked(0,packingDest), 1 );
+        blas::Copy( n, &V(0,jOrig), 1, &VPacked(0,packingDest), 1 );
     }
+
     // Put the deflated columns in their final destination and shrink UPacked
     // and VPacked back down to their final sizes
     //
     // TODO(poulson): Exploit the nonzero structure of U and V?
-    Output("numDeflations=",info.numDeflations);
-    Output("numUndeflated=",numUndeflated);
     if( info.numDeflations > 0 )
     {
+        blas::Copy
+        ( info.numDeflations, &dPacked(numUndeflated), 1,
+          &d(numUndeflated), 1 );
         lapack::Copy
         ( 'A', m, info.numDeflations, &UPacked(0,numUndeflated), UPacked.LDim(),
           &U(0,numUndeflated), U.LDim() );
@@ -633,12 +656,8 @@ SecularDeflationInfo SecularCombine
         ( 'A', n, info.numDeflations, &VPacked(0,numUndeflated), VPacked.LDim(),
           &V(0,numUndeflated), V.LDim() );
     }
-    Print( UPacked, "UPackedBefore" );
-    Print( VPacked, "VPackedBefore" );
     UPacked.Resize( m, numUndeflated );
     VPacked.Resize( n, numUndeflated );
-    Print( UPacked, "UPacked" );
-    Print( VPacked, "VPacked" );
 
     // Now compute the updated singular vectors using UPacked/VPacked
     // ==============================================================
@@ -647,7 +666,8 @@ SecularDeflationInfo SecularCombine
     rUndeflated *= Real(1) / rUndeflatedNorm;
     const Real rho = rUndeflatedNorm*rUndeflatedNorm;
 
-    Output("Computing corrected update vector");
+    if( ctrl.progress )
+        Output("Computing corrected update vector");
     Matrix<Real> rCorrected;
     Ones( rCorrected, numUndeflated, 1 );
     auto vScratch = V(undeflatedInd,IR(0));
@@ -678,7 +698,6 @@ SecularDeflationInfo SecularCombine
 
     // Compute the unnormalized left and right singular vectors via Eqs. (3.4)
     // and (3.3), respectively, from Gu/Eisenstat [CITATION].
-    Output("Computing unnormalized singular vectors");
     for( Int j=0; j<numUndeflated; ++j )
     {
         auto u = U(undeflatedInd,IR(j));
@@ -700,7 +719,6 @@ SecularDeflationInfo SecularCombine
     // the inverse of the packing permutation in Q. This allows the product
     // of UPacked with Q to be equal to the unpacked U times the left singular
     // vectors from the secular equation.
-    Output("Forming normalized left singular vectors");
     Matrix<Real> Q;
     Zeros( Q, numUndeflated, numUndeflated );
     for( Int j=0; j<numUndeflated; ++j )
@@ -709,129 +727,110 @@ SecularDeflationInfo SecularCombine
         auto q = Q(undeflatedInd,IR(j));
         const Real uFrob = FrobeniusNorm( u );
         for( Int i=0; i<numUndeflated; ++i )
-            q(i,0) = u(packingPerm.Preimage(i),0) / uFrob;
+            q(i) = u(packingPerm.Preimage(i)) / uFrob;
     }
-    Print( Q, "QLeft" );
     // Overwrite the first 'numUndeflated' columns of U with the updated left
-    // singular vectors by exploiting the partitioning of Z = UPacked as
+    // singular vectors by exploiting the partitioning of Z = UPacked as,
     //
-    //   Z = | 0 | Z_{0,1} |    0    | Z_{0,3} |, 
-    //       |---|---------|---------|---------|
-    //       | 1 |    0    |    0    |    0    |
-    //       |---|---------|---------|---------|
-    //       | 0 |    0    | Z_{2,2} | Z_{2,3} |
+    //   Z = | Z_{0,0} |    0    | Z_{0,2} |, 
+    //       |---------|---------|---------|
+    //       |    0    |    0    | z_{1,2} |
+    //       |---------|---------|---------|
+    //       |    0    | Z_{2,1} | Z_{2,2} |
     //
     // where the first, second, and third block rows are respectively of heights
-    // m0, 1, and m1, and the first, second, third, and fourth block columns
-    // respectively have widths packingCounts[0]=1, packingCounts[1],
-    // packingCounts[2], and packingCounts[3].
+    // m0, 1, and m1, and the first, second, and third block columns 
+    // respectively have widths packingCounts[0], packingCounts[1], and
+    // packingCounts[2].
     //
     // Conformally partitioning Q, we have
     //
-    //  Z Q = | Z_{0,1} Q_1 + Z_{0,3} Q_3 |.
-    //        |---------------------------|
-    //        |           q_0             |
-    //        |---------------------------|
-    //        | Z_{2,2} Q_2 + Z_{2,3} Q_3 |
+    //  Z Q = Z_{:,2} Q2 + | Z_{0,0} Q_0 |.
+    //                     |-------------|
+    //                     |      0      |
+    //                     |-------------|
+    //                     | Z_{2,1} Q_1 |
     //
-    // It is useful to form the third block row of Z Q with the single GEMM
-    //
-    //   [Z_{2,2}, Z_{2,3}] [Q_2; Q_3].
-    //
-    // TODO(poulson): Support for a dense version for performance comparisons
-    Output("Overwriting left singular vectors");
+    if( ctrl.progress )
+        Output("Overwriting left singular vectors");
+    auto UUndeflated = U( ALL, undeflatedInd );
+    if( exploitStructure )
     {
-        // Form the first block row
-        auto Z01 = UPacked( IR(0,m0), packingInd1 );
-        auto Q1 = Q( packingInd1, ALL );
-        auto U0 = U( IR(0,m0), undeflatedInd );
-        Gemm( NORMAL, NORMAL, Real(1), Z01, Q1, Real(0), U0 );
-        auto Z03 = UPacked( IR(0,m0), packingInd3 );
-        auto Q3 = Q( packingInd3, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z03, Q3, Real(1), U0 );
-        
-        // Form the second block row
-        auto q0 = Q( packingInd0, ALL );
-        auto u1 = U( IR(m0,m0+1), undeflatedInd );
-        u1 = q0;
+        auto Z2 = UPacked( ALL, packingInd2 );
+        auto Q2 = Q( packingInd2, ALL );
+        Gemm( NORMAL, NORMAL, Real(1), Z2, Q2, UUndeflated );
 
-        // Form the third block row
-        const auto packingInd2And3 = IR(packingInd2.beg,packingInd3.end);
-        auto Z22And3 = UPacked( IR(m0+1,m), packingInd2And3 );
-        auto Q2And3 = Q( packingInd2And3, ALL );
-        auto U2 = U( IR(m0+1,m), undeflatedInd );
-        Gemm( NORMAL, NORMAL, Real(1), Z22And3, Q2And3, Real(0), U2 );
+        // Finish updating the first block row
+        auto U0 = UUndeflated( IR(0,m0), ALL );
+        auto Z00 = UPacked( IR(0,m0), packingInd0 );
+        auto Q0 = Q( packingInd0, ALL );
+        Gemm( NORMAL, NORMAL, Real(1), Z00, Q0, Real(1), U0 );
+
+        // Finish updating the last block row
+        auto U2 = UUndeflated( IR(n0,m), ALL );
+        auto Z21 = UPacked( IR(n0,m), packingInd1 );
+        auto Q1 = Q( packingInd1, ALL );
+        Gemm( NORMAL, NORMAL, Real(1), Z21, Q1, Real(1), U2 );
     }
-    Print( U( ALL, undeflatedInd ), "UUndeflated" );
+    else
+    {
+        Gemm( NORMAL, NORMAL, Real(1), UPacked, Q, UUndeflated );
+    }
 
     // Form the normalized right singular vectors with the rows permuted by
     // the inverse of the packing permutation in Q. This allows the product
     // of VPacked with Q to be equal to the unpacked V times the right singular
     // vectors from the secular equation.
-    Output("Forming normalized right singular vectors");
     for( Int j=0; j<numUndeflated; ++j )
     {
         auto v = V(undeflatedInd,IR(j));
         auto q = Q(undeflatedInd,IR(j));
         const Real vFrob = FrobeniusNorm( v );
         for( Int i=0; i<numUndeflated; ++i )
-            q(i,0) = v(packingPerm.Preimage(i),0) / vFrob;
+            q(i) = v(packingPerm.Preimage(i)) / vFrob;
     }
-    Print( Q, "QRight" );
     // Overwrite the first 'numUndeflated' columns of V with the updated right
     // singular vectors by exploiting the partitioning of Z = VPacked as
     //
-    //   Z = | z_{0,0} | Z_{0,1} |    0    | Z_{0,3} |,
-    //       |---------|---------|---------|---------|
-    //       | z_{1,0} |    0    | Z_{1,2} | Z_{1,3} |
+    //   Z = | Z_{0,0} |    0    | Z_{0,2} |,
+    //       |---------|---------|---------|
+    //       |    0    | Z_{1,1} | Z_{1,2} |
     //
     // where the first and second block rows have heights n0 and n1. The block
-    // columns respectively have widths packingCounts[0]=1, packingCounts[1],
-    // packingCounts[2], and packingCounts[3].
+    // columns respectively have widths packingCounts[0], packingCounts[1], and
+    // packingCounts[2].
     //
     // Conformally partitioning Q, we have
     //
-    //   Z Q = | z_{0,0} q_0 + Z_{0,1} Q_1 + Z_{0,3} Q_3 |,
-    //         |-----------------------------------------|
-    //         | z_{1,0} q_0 + Z_{1,2} Q_2 + Z_{1,3} Q_3 |
+    //   Z Q = Z_{:,2} Q2 + | Z_{0,0} Q_0 |,
+    //                      |-------------|
+    //                      | Z_{1,1} Q_1 |
     //
-    // and it is useful to combine z_{0,0} with Z_{0,1} and to explicitly
-    // temporarily move z_{1,0} before the first column of Z_{1,2} (and likewise
-    // temporarily force q_0 to live just above Q_2) so that the second block
-    // row of Z Q can be formed with a single GEMM.
-    //
-    // TODO(poulson): Support for a dense version for performance comparisons
-    Output("Overwriting right singular vectors");
+    if( ctrl.progress )
+        Output("Overwriting right singular vectors");
+    auto VUndeflated = V( ALL, undeflatedInd ); 
+    if( exploitStructure )
     {
-        // Form the first block row
-        const auto packedInd0And1 = IR(packingInd0.beg,packingInd1.end);
-        auto Z00And1 = VPacked( IR(0,n0), packedInd0And1 );
-        auto Q0And1 = Q( packedInd0And1, ALL );
-        auto V0 = V( IR(0,n0), undeflatedInd );
-        Gemm( NORMAL, NORMAL, Real(1), Z00And1, Q0And1, Real(0), V0 );
-        auto Z03 = VPacked( IR(0,n0), packingInd3 );
-        auto Q3 = Q( packingInd3, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z03, Q3, Real(1), V0 );
-        
-        // Form the second block row
-        if( packingCounts[1] > 0 )
-        {
-            // Force z_{1,0} right packingCounts[1] columns and q_0 down
-            // packingCounts[1] rows.
-            auto z10 = VPacked( IR(n0,n), packingInd0 );
-            auto z10New = VPacked( IR(n0,n), packingInd0+packingCounts[1] );  
-            z10New = z10;
-            auto q0 = Q( packingInd0, ALL );
-            auto q0New = Q( packingInd0+packingCounts[1], ALL );
-            q0New = q0;
-        }
-        const auto nonzeroInd1 = IR(packingInd2.beg-1,packingInd3.end);
-        auto ZNonzero1 = VPacked( IR(n0,n), nonzeroInd1 );
-        auto QNonzero1 = Q( nonzeroInd1, ALL );
-        auto V1 = V( IR(n0,n), undeflatedInd );
-        Gemm( NORMAL, NORMAL, Real(1), ZNonzero1, QNonzero1, Real(0), V1 );
+        auto Z2 = VPacked( ALL, packingInd2 );
+        auto Q2 = Q( packingInd2, ALL );
+        Gemm( NORMAL, NORMAL, Real(1), Z2, Q2, VUndeflated );
+
+        // Finish updating the first block row
+        auto V0 = VUndeflated( IR(0,n0), ALL );
+        auto Z00 = VPacked( IR(0,n0), packingInd0 );
+        auto Q0 = Q( packingInd0, ALL );
+        Gemm( NORMAL, NORMAL, Real(1), Z00, Q0, Real(1), V0 );
+
+        // Finish updating the second block row
+        auto V1 = VUndeflated( IR(n0,n), ALL );
+        auto Z11 = VPacked( IR(n0,n), packingInd1 );
+        auto Q1 = Q( packingInd1, ALL );
+        Gemm( NORMAL, NORMAL, Real(1), Z11, Q1, Real(1), V1 );
     }
-    Print( V( ALL, undeflatedInd ), "VUndeflated" );
+    else
+    {
+        Gemm( NORMAL, NORMAL, Real(1), VPacked, Q, VUndeflated );
+    }
 
     // TODO(poulson): Add scaling
 

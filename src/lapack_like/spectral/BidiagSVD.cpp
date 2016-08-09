@@ -96,6 +96,9 @@ BidiagSVD
             //
             // followed by another single Givens rotation from the right to 
             // rotate the bottom-right entry into the entry to its left.
+            if( ctrl.progress )
+                Output
+                ("Rotating non-square upper bidiagonal to lower bidiagonal");
 
             // Compute the Givens rotations for reducing to lower bidiagonal
             // with an extra entry in the bottom right.
@@ -131,6 +134,8 @@ BidiagSVD
     {
         // We are currently square and lower bidiagonal, so apply Givens
         // rotations from the left to become square and upper bidiagonal
+        if( ctrl.progress )
+            Output("Rotating square lower bidiagonal to upper bidiagonal");
         Real c, s, rho;
         for( Int i=0; i<m-1; ++i )
         {
@@ -240,8 +245,6 @@ BidiagSVD
     {
         if( uplo == UPPER )
         {
-            if( ctrl.progress )
-                Output("Rotating non-square upper bidiagonal to lower bidiagonal");
             // Rotate into lower bidiagonal form via Givens from the right to
             // expose [0,0,...,1] as a member of the null space. The reduction
             // occurs in two phases: 
@@ -260,6 +263,9 @@ BidiagSVD
             }
             cList.Resize( n-1, 1 );
             sList.Resize( n-1, 1 );
+            if( ctrl.progress )
+                Output
+                ("Rotating non-square upper bidiagonal to lower bidiagonal");
 
             // Compute the Givens rotations for reducing to lower bidiagonal
             // with an extra entry in the bottom right.
@@ -310,8 +316,6 @@ BidiagSVD
 
     if( newUplo == LOWER )
     {
-        if( ctrl.progress )
-            Output("Rotating square lower bidiagonal to upper bidiagonal");
         // We are currently square and lower bidiagonal, so apply Givens
         // rotations from the left to become square and upper bidiagonal
         if( ctrlMod.wantU && !ctrlMod.accumulateU )
@@ -321,6 +325,8 @@ BidiagSVD
         }
         cList.Resize( m-1, 1 );
         sList.Resize( m-1, 1 );
+        if( ctrl.progress )
+            Output("Rotating square lower bidiagonal to upper bidiagonal");
         Real c, s, rho;
         for( Int i=0; i<m-1; ++i )
         {
@@ -353,6 +359,7 @@ BidiagSVD
         s = mainDiag;
         info.qrInfo = bidiag_svd::QRAlg( s, offDiag, U, V, ctrlMod );
         auto sortPairs = TaggedSort( s, DESCENDING );
+        ApplyTaggedSortToEachColumn( sortPairs, s );
         if( ctrl.wantU )
             ApplyTaggedSortToEachRow( sortPairs, U );
         if( ctrl.wantV )
@@ -368,6 +375,7 @@ BidiagSVD
         s = mainDiag;
         info.qrInfo = bidiag_svd::QRAlg( s, offDiag0, U0, V, ctrlMod );
         auto sortPairs = TaggedSort( s, DESCENDING );
+        ApplyTaggedSortToEachColumn( sortPairs, s );
         if( ctrl.wantU )
             ApplyTaggedSortToEachRow( sortPairs, U0 );
         if( ctrl.wantV )
@@ -383,6 +391,7 @@ BidiagSVD
         s = mainDiag;
         info.qrInfo = bidiag_svd::QRAlg( s, offDiag0, U, V0, ctrlMod );
         auto sortPairs = TaggedSort( s, DESCENDING );
+        ApplyTaggedSortToEachColumn( sortPairs, s );
         if( ctrl.wantU )
             ApplyTaggedSortToEachRow( sortPairs, U );
         if( ctrl.wantV )

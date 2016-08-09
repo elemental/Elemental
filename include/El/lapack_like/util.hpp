@@ -83,16 +83,21 @@ ValueInt<Real> Median( const AbstractDistMatrix<Real>& x );
 // Sort
 // ====
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
-void Sort( Matrix<Real>& X, SortType sort=ASCENDING );
+void Sort
+( Matrix<Real>& X, SortType sort=ASCENDING, bool stable=false );
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
-void Sort( AbstractDistMatrix<Real>& X, SortType sort=ASCENDING );
+void Sort
+( AbstractDistMatrix<Real>& X, SortType sort=ASCENDING, bool stable=false );
 
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
 vector<ValueInt<Real>>
-TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING );
+TaggedSort
+( const Matrix<Real>& x, SortType sort=ASCENDING, bool stable=false );
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
 vector<ValueInt<Real>>
-TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort=ASCENDING );
+TaggedSort
+( const AbstractDistMatrix<Real>& x, SortType sort=ASCENDING,
+  bool stable=false );
 
 template<typename Real,typename F>
 void ApplyTaggedSortToEachRow
@@ -114,7 +119,8 @@ void ApplyTaggedSortToEachColumn
 
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
 void SortingPermutation
-( const Matrix<Real>& x, Permutation& sortPerm, SortType sort=ASCENDING );
+( const Matrix<Real>& x, Permutation& sortPerm, SortType sort=ASCENDING,
+  bool stable=false );
 
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
 void MergeSortingPermutation
