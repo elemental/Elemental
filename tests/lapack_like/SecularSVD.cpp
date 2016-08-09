@@ -218,8 +218,8 @@ SecularDeflationInfo SecularCombine
     if( ctrl.progress )
         Output("m=",m,", n=",n,", m0=",m0,", n0=",n0,", m1=",m1,", n1=",n1);
 
-    // TODO(poulson): Turn this back on
-    const bool exploitStructure = false;
+    // TODO(poulson): Make this configurable
+    const bool exploitStructure = true;
 
     // TODO(poulson): Add scaling
 
