@@ -64,12 +64,17 @@ template<typename Real,typename>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  Matrix<Real>& mainDiag,
-  Matrix<Real>& offDiag,
-  Matrix<Real>& s,
+  const Matrix<Real>& mainDiagOrig,
+  const Matrix<Real>& offDiagOrig,
+        Matrix<Real>& s,
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
+
+    // TODO(poulson): Provide a means of making these a view rather than a copy?
+    auto mainDiag( mainDiagOrig );
+    auto offDiag( offDiagOrig );
+
     if( mainDiag.Height() != offDiag.Height() &&
         mainDiag.Height() != offDiag.Height()+1 )
         LogicError("Invalid main and superdiagonal lengths");
@@ -210,15 +215,20 @@ template<typename F>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& offDiag,
-  Matrix<F>& U,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V,
+  const Matrix<Base<F>>& mainDiagOrig,
+  const Matrix<Base<F>>& offDiagOrig,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
   const BidiagSVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     typedef Base<F> Real;
+
+    // TODO(poulson): Provide a means of making these a view rather than a copy?
+    auto mainDiag( mainDiagOrig );
+    auto offDiag( offDiagOrig );
+
     if( mainDiag.Height() != offDiag.Height() &&
         mainDiag.Height() != offDiag.Height()+1 )
         LogicError("Invalid main and superdiagonal lengths");
@@ -438,11 +448,11 @@ BidiagSVD
 #define PROTO(F) \
   template BidiagSVDInfo BidiagSVD \
   ( UpperOrLower uplo, \
-    Matrix<Base<F>>& mainDiag, \
-    Matrix<Base<F>>& offDiag, \
-    Matrix<F>& U, \
-    Matrix<Base<F>>& s, \
-    Matrix<F>& V, \
+    const Matrix<Base<F>>& mainDiag, \
+    const Matrix<Base<F>>& offDiag, \
+          Matrix<F>& U, \
+          Matrix<Base<F>>& s, \
+          Matrix<F>& V, \
     const BidiagSVDCtrl<Base<F>>& ctrl ); \
   template bidiag_svd::QRInfo bidiag_svd::QRAlg \
   ( Matrix<Base<F>>& mainDiag, \
@@ -455,9 +465,9 @@ BidiagSVD
   PROTO(Real) \
   template BidiagSVDInfo BidiagSVD \
   ( UpperOrLower uplo, \
-    Matrix<Real>& mainDiag, \
-    Matrix<Real>& offDiag, \
-    Matrix<Real>& s, \
+    const Matrix<Real>& mainDiag, \
+    const Matrix<Real>& offDiag, \
+          Matrix<Real>& s, \
     const BidiagSVDCtrl<Real>& ctrl ); \
   template bidiag_svd::QRInfo bidiag_svd::QRAlg \
   ( Matrix<Real>& mainDiag, \

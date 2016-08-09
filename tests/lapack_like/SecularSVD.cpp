@@ -580,7 +580,7 @@ SecularDeflationInfo SecularCombine
           Output
           ("Exceptional d(1)=",d(1)," < deflationTol/2=",deflationTol/2,
            " case encountered");
-          d(1) = deflationTol/2;
+          //d(1) = deflationTol/2;
       }
     )
 
@@ -838,6 +838,71 @@ SecularDeflationInfo SecularCombine
 }
 
 template<typename Real>
+void PrintSVDResiduals
+( UpperOrLower uplo,
+  const Matrix<Real>& mainDiag,
+  const Matrix<Real>& offDiag,
+  const Matrix<Real>& U,
+  const Matrix<Real>& s,
+  const Matrix<Real>& V,
+  bool print )
+{
+    DEBUG_CSE
+    const Int m = U.Height();
+    const Int n = V.Height();
+    const Int minDim = Min( m, n );
+    Output("m=",m,", n=",n,", minDim=",minDim);
+    if( print )
+    {
+        Print( U, "U" ); 
+        Print( s, "s" );
+        Print( V, "V" );
+    }
+
+    // Explicitly form A
+    Matrix<Real> A;
+    Zeros( A, m, n );
+    SetDiagonal( A, mainDiag, 0 );
+    if( uplo == UPPER )
+        SetDiagonal( A, offDiag, 1 );
+    else
+        SetDiagonal( A, offDiag, -1 );
+    if( print )
+        Print( A, "A" );
+    const Real AFrob = FrobeniusNorm( A );
+    Output("|| A ||_F = ",AFrob);
+
+    // Check || A - U Sigma V^T ||_F
+    // TODO(poulson): Introduce diagonally-scaled general outer product
+    auto UMod( U );
+    auto VMod( V );
+    auto UModMin = UMod( ALL, IR(0,minDim) );
+    auto VModMin = VMod( ALL, IR(0,minDim) );
+    DiagonalScale( RIGHT, NORMAL, s(IR(0,minDim),ALL), UModMin );
+    Gemm( NORMAL, ADJOINT, Real(-1), UModMin, VModMin, Real(1), A );
+    if( print )
+        Print( A, "E" );
+    const Real residFrob = FrobeniusNorm( A );
+    Output("|| A - U Sigma V' ||_F / || A ||_F = ",residFrob/AFrob);
+    // TODO(poulson): Failure condition
+
+    // Check the unitarity of U
+    Matrix<Real> E; 
+    Identity( E, U.Width(), U.Width() );
+    Herk( LOWER, ADJOINT, Real(-1), U, Real(1), E );
+    const Real UOrthogFrob = HermitianFrobeniusNorm( LOWER, E );
+    Output("|| I - U' U ||_F = ",UOrthogFrob);
+    // TODO(poulson): Failure condition
+    
+    // Check the unitarity of V
+    Identity( E, V.Width(), V.Width() );
+    Herk( LOWER, ADJOINT, Real(-1), V, Real(1), E );
+    const Real VOrthogFrob = HermitianFrobeniusNorm( LOWER, E );
+    Output("|| I - V' V ||_F = ",UOrthogFrob);
+    // TODO(poulson): Failure condition
+}
+
+template<typename Real>
 void TestBidiagonalCombine
 ( Int m,
   bool square,
@@ -922,6 +987,21 @@ void TestBidiagonalCombine
         Print( d, "d" );
         Print( V, "V" );
     }
+
+    // Compute the residuals
+    Output("Residuals after a single divide:");
+    PushIndent();
+    PrintSVDResiduals( UPPER, mainDiag, superDiag, U, d, V, print );
+    PopIndent();
+
+    // Compute the residual with a one-shot method
+    Matrix<Real> UOneShot, sOneShot, VOneShot;
+    BidiagSVD( UPPER, mainDiag, superDiag, UOneShot, sOneShot, VOneShot );
+    Output("Residuals with a one-shot method:"); 
+    PushIndent();
+    PrintSVDResiduals
+    ( UPPER, mainDiag, superDiag, UOneShot, sOneShot, VOneShot, print );
+    PopIndent();
 }
 
 template<typename Real>

@@ -71,9 +71,9 @@ struct HermitianTridiagEigCtrl
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-( Matrix<Base<F>>& d,
-  Matrix<F>& dSub,
-  Matrix<Base<F>>& w, 
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& dSub,
+        Matrix<Base<F>>& w, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl=
         HermitianTridiagEigCtrl<Base<F>>() );
 template<typename F>
@@ -89,10 +89,10 @@ HermitianTridiagEig
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-( Matrix<Base<F>>& d,
-  Matrix<F>& dSub,
-  Matrix<Base<F>>& w,
-  Matrix<F>& Q,
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& dSub,
+        Matrix<Base<F>>& w,
+        Matrix<F>& Q,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl=
         HermitianTridiagEigCtrl<Base<F>>() );
 template<typename F>
@@ -832,19 +832,19 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  Matrix<Real>& mainDiag,
-  Matrix<Real>& offDiag,
-  Matrix<Real>& s,
+  const Matrix<Real>& mainDiag,
+  const Matrix<Real>& offDiag,
+        Matrix<Real>& s,
   const BidiagSVDCtrl<Real>& ctrl=BidiagSVDCtrl<Real>() );
 template<typename F>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& offDiag,
-  Matrix<F>& U,
-  Matrix<Base<F>>& s,
-  Matrix<F>& V,
+  const Matrix<Base<F>>& mainDiag,
+  const Matrix<Base<F>>& offDiag,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
   const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
 
 // Singular Value Decomposition
