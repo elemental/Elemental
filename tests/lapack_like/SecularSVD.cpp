@@ -429,15 +429,14 @@ SecularDeflationInfo SecularCombine
             r(0) = rUndeflated(0) = gamma;
             r(j) = 0;
 
-            // Apply | c -s | from the right to U and V
+            // Apply | c -s | from the right to V.
             //       | s  c |
             //
             // We are mixing nonzero structures in the first column of U,
             // so we might as well always treat the first column as dense.
             //
-            // TODO(poulson): Exploit the nonzero structure of U and V?
+            // TODO(poulson): Exploit the nonzero structure of V?
             const Int jOrig = combinedToOrig( j );
-            blas::Rot( m, &U(0,m0), 1, &U(0,jOrig), 1, c, s );
             blas::Rot( n, &V(0,m0), 1, &V(0,jOrig), 1, c, s );
 
             deflationPerm.SetImage( j, (m-1)-info.numDeflations ); 
@@ -562,27 +561,6 @@ SecularDeflationInfo SecularCombine
     // Now shrink dUndeflated and rUndeflated down to their proper size
     dUndeflated.Resize( numUndeflated, 1 );
     rUndeflated.Resize( numUndeflated, 1 );
-
-    // While I am not aware of any documentation, LAPACK's {s,d}lasd2 [CITATION]
-    // ensures that the first nonzero entry of d and dUndeflated are at least
-    // deflationTol / 2. This would appear to be essentially impossible to 
-    // activate given that the deflation condition would imply that d(1) would
-    // have been deflated, and the fact that deflated values are stored in 
-    // (roughly) descending order would imply that || d ||_2 ~= d(1), which
-    // contradicts d(1) < deflationTol <= 8 eps || d ||_2 unless d(1) is vastly
-    // different from || d ||_2. One possibility would perhaps be for a 3x3
-    // matrix with an out-of-order deflation. Why it would be useful to enforce
-    // a deflated singular value being at least roughly 4 eps || d ||_2 is 
-    // beyond me.
-    DEBUG_ONLY(
-      if( d(1) < deflationTol/2 )
-      {
-          Output
-          ("Exceptional d(1)=",d(1)," < deflationTol/2=",deflationTol/2,
-           " case encountered");
-          //d(1) = deflationTol/2;
-      }
-    )
 
     // Count the number of columns of U with each nonzero pattern
     std::vector<Int> packingCounts( NUM_SECULAR_COMBINED_COLUMN_TYPES, 0 );
