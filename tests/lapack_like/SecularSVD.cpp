@@ -124,7 +124,28 @@ struct SecularDeflationInfo
     Int numCloseDiagonalDeflations=0;
     Int numSmallUpdateDeflations=0;
 };
-// TODO(poulson): Combine with SecularSingularValueInfo structure
+
+template<typename Real>
+struct BidiagDCSVDInfo
+{
+    SecularDeflationInfo deflationInfo;
+    SecularSingularValueInfo<Real> secularInfo;
+};
+
+template<typename Real>
+struct BidiagDCSVDCtrl
+{
+    SecularSingularValueCtrl<Real> secularCtrl;
+
+    Int cutoff = 25; // Stop recursing when the height is at most 'cutoff'
+
+    // Exploit the nonzero structure of U and V when composing the secular
+    // singular vectors with the outer singular vectors? This should only be
+    // disabled for academic reasons.
+    bool exploitStructure = true;
+
+    bool progress = false;
+};
 
 // Cf. Section 4 of Gu and Eisenstat's "A Divide-and-Conquer Algorithm for the
 // Bidiagonal SVD" [CITATION] and LAPACK's {s,d}lasd2 [CITATION].
@@ -169,7 +190,8 @@ const Int NUM_SECULAR_COMBINED_COLUMN_TYPES = 4;
 // routines were found and reported to
 // https://github.com/Reference-LAPACK/lapack/issues/34.
 template<typename Real>
-SecularDeflationInfo SecularCombine
+BidiagDCSVDInfo<Real>
+CombineBidiagSVD
 ( const Real& alpha,
   // The right entry in the removed middle row of the bidiagonal matrix
   const Real& beta,
@@ -200,10 +222,9 @@ SecularDeflationInfo SecularCombine
   //
   // On exit, the right singular vectors of the merged bidiagonal matrix.
   Matrix<Real>& V,
-  const SecularSingularValueCtrl<Real>& ctrl )
+  const BidiagDCSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    SecularDeflationInfo info;
     const Int m = U.Height();
     const Int n = V.Height();
     const Int m0 = s0.Height();
@@ -215,11 +236,11 @@ SecularDeflationInfo SecularCombine
       if( !square && n1 != m1+1 )
           LogicError("B1 has to be square or one column wider than tall");
     )
+    BidiagDCSVDInfo<Real> info;
+    auto& secularInfo = info.secularInfo;
+    auto& deflationInfo = info.deflationInfo;
     if( ctrl.progress )
         Output("m=",m,", n=",n,", m0=",m0,", n0=",n0,", m1=",m1,", n1=",n1);
-
-    // TODO(poulson): Make this configurable
-    const bool exploitStructure = true;
 
     // TODO(poulson): Add scaling
 
@@ -391,14 +412,14 @@ SecularDeflationInfo SecularCombine
         if( Abs(r(j)) <= deflationTol )
         {
             // We can deflate due to the r component being sufficiently small
-            deflationPerm.SetImage( j, (m-1)-info.numDeflations );
+            deflationPerm.SetImage( j, (m-1)-deflationInfo.numDeflations );
             if( ctrl.progress )
                 Output
-                ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
+                ("Deflating via p(",j,")=",(m-1)-deflationInfo.numDeflations,
                  " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
-            ++info.numDeflations;
-            ++info.numSmallUpdateDeflations; 
+            ++deflationInfo.numDeflations;
+            ++deflationInfo.numSmallUpdateDeflations; 
         }
         else if( d(j) <= deflationTol )
         {
@@ -439,16 +460,16 @@ SecularDeflationInfo SecularCombine
             const Int jOrig = combinedToOrig( j );
             blas::Rot( n, &V(0,m0), 1, &V(0,jOrig), 1, c, s );
 
-            deflationPerm.SetImage( j, (m-1)-info.numDeflations ); 
+            deflationPerm.SetImage( j, (m-1)-deflationInfo.numDeflations ); 
             if( ctrl.progress )
                 Output
-                ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
+                ("Deflating via p(",j,")=",(m-1)-deflationInfo.numDeflations,
                  " because d(",j,")=",d(j)," <= ",deflationTol);
 
             columnTypes(j) = DEFLATED_COLUMN;
 
-            ++info.numDeflations;
-            ++info.numCloseDiagonalDeflations;
+            ++deflationInfo.numDeflations;
+            ++deflationInfo.numCloseDiagonalDeflations;
         }
         else
         {
@@ -462,14 +483,14 @@ SecularDeflationInfo SecularCombine
     {
         if( Abs(r(j)) <= deflationTol )
         {
-            deflationPerm.SetImage( j, (m-1)-info.numDeflations );
+            deflationPerm.SetImage( j, (m-1)-deflationInfo.numDeflations );
             if( ctrl.progress )
                 Output
-                ("Deflating via p(",j,")=",(m-1)-info.numDeflations,
+                ("Deflating via p(",j,")=",(m-1)-deflationInfo.numDeflations,
                  " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
-            ++info.numDeflations;
-            ++info.numSmallUpdateDeflations;
+            ++deflationInfo.numDeflations;
+            ++deflationInfo.numSmallUpdateDeflations;
         }
         else if( d(j)-d(revivalCandidate) <= deflationTol )
         {
@@ -511,12 +532,13 @@ SecularDeflationInfo SecularCombine
             blas::Rot( n, &V(0,jOrig), 1, &V(0,revivalOrig), 1, c, s );
 
             deflationPerm.SetImage
-            ( revivalCandidate, (m-1)-info.numDeflations ); 
+            ( revivalCandidate, (m-1)-deflationInfo.numDeflations ); 
             if( ctrl.progress )
                 Output
                 ("Deflating via p(",revivalCandidate,")=",
-                 (m-1)-info.numDeflations," because d(",j,")=",d(j)," - d(",
-                 revivalCandidate,")=",d(revivalCandidate)," <= ",deflationTol);
+                 (m-1)-deflationInfo.numDeflations," because d(",j,")=",d(j),
+                 " - d(",revivalCandidate,")=",d(revivalCandidate)," <= ",
+                 deflationTol);
 
             if( columnTypes(revivalCandidate) != columnTypes(j) )
             {
@@ -526,8 +548,8 @@ SecularDeflationInfo SecularCombine
             columnTypes(revivalCandidate) = DEFLATED_COLUMN;
 
             revivalCandidate = j;
-            ++info.numDeflations;
-            ++info.numCloseDiagonalDeflations;
+            ++deflationInfo.numDeflations;
+            ++deflationInfo.numCloseDiagonalDeflations;
         }
         else
         {
@@ -567,11 +589,11 @@ SecularDeflationInfo SecularCombine
     for( Int j=0; j<m; ++j )
         ++packingCounts[columnTypes(j)];
     DEBUG_ONLY(
-      if( packingCounts[DEFLATED_COLUMN] != info.numDeflations )
+      if( packingCounts[DEFLATED_COLUMN] != deflationInfo.numDeflations )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
            packingCounts[DEFLATED_COLUMN],
-           " and info.numDeflations=",info.numDeflations);
+           " and deflationInfo.numDeflations=",deflationInfo.numDeflations);
     )
 
     // Compute offsets for packing them
@@ -622,16 +644,18 @@ SecularDeflationInfo SecularCombine
     // and VPacked back down to their final sizes
     //
     // TODO(poulson): Exploit the nonzero structure of U and V?
-    if( info.numDeflations > 0 )
+    if( deflationInfo.numDeflations > 0 )
     {
         blas::Copy
-        ( info.numDeflations, &dPacked(numUndeflated), 1,
+        ( deflationInfo.numDeflations, &dPacked(numUndeflated), 1,
           &d(numUndeflated), 1 );
         lapack::Copy
-        ( 'A', m, info.numDeflations, &UPacked(0,numUndeflated), UPacked.LDim(),
+        ( 'A', m, deflationInfo.numDeflations,
+          &UPacked(0,numUndeflated), UPacked.LDim(),
           &U(0,numUndeflated), U.LDim() );
         lapack::Copy
-        ( 'A', n, info.numDeflations, &VPacked(0,numUndeflated), VPacked.LDim(),
+        ( 'A', n, deflationInfo.numDeflations,
+          &VPacked(0,numUndeflated), VPacked.LDim(),
           &V(0,numUndeflated), V.LDim() );
     }
     UPacked.Resize( m, numUndeflated );
@@ -652,10 +676,18 @@ SecularDeflationInfo SecularCombine
     for( Int j=0; j<numUndeflated; ++j )
     {
         auto u = U(undeflatedInd,IR(j));
-        auto info =
+        auto valueInfo =
           SecularSingularValue
-          ( j, dUndeflated, rho, rUndeflated, u, vScratch, ctrl );
-        d(j) = info.singularValue;
+          ( j, dUndeflated, rho, rUndeflated, u, vScratch, ctrl.secularCtrl );
+        d(j) = valueInfo.singularValue;
+
+        // Update everything except the 'singularValue' field, which will be
+        // undefined
+        secularInfo.numIterations += valueInfo.numIterations;
+        secularInfo.numAlternations += valueInfo.numAlternations;
+        secularInfo.numCubicIterations += valueInfo.numCubicIterations;
+        secularInfo.numCubicFailures += valueInfo.numCubicFailures;
+
         // u currently holds dUndeflated-d(j) and vScratch currently holds
         // dUndeflated+d(j). Overwrite u with their element-wise product since
         // that is all we require from here on out.
@@ -732,7 +764,7 @@ SecularDeflationInfo SecularCombine
     if( ctrl.progress )
         Output("Overwriting left singular vectors");
     auto UUndeflated = U( ALL, undeflatedInd );
-    if( exploitStructure )
+    if( ctrl.exploitStructure )
     {
         auto Z2 = UPacked( ALL, packingInd2 );
         auto Q2 = Q( packingInd2, ALL );
@@ -787,7 +819,7 @@ SecularDeflationInfo SecularCombine
     if( ctrl.progress )
         Output("Overwriting right singular vectors");
     auto VUndeflated = V( ALL, undeflatedInd ); 
-    if( exploitStructure )
+    if( ctrl.exploitStructure )
     {
         auto Z2 = VPacked( ALL, packingInd2 );
         auto Q2 = Q( packingInd2, ALL );
@@ -815,27 +847,30 @@ SecularDeflationInfo SecularCombine
     return info;
 }
 
-// TODO(poulson): A better control structure and return info
 template<typename Real>
-void BidiagDivideAndConquerSVD
+BidiagDCSVDInfo<Real>
+BidiagDCSVD
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag,
         Matrix<Real>& U,
         Matrix<Real>& s,
         Matrix<Real>& V,
-  Int cutoff,
-  const SecularSingularValueCtrl<Real>& ctrl )
+  const BidiagDCSVDCtrl<Real>& ctrl=BidiagDCSVDCtrl<Real>() )
 {
     DEBUG_CSE
     const Int m = mainDiag.Height();
     const Int n = superDiag.Height() + 1;
-    if( m <= cutoff )
+    BidiagDCSVDInfo<Real> info;
+    auto& secularInfo = info.secularInfo;
+    auto& deflationInfo = info.deflationInfo;
+
+    if( m <= ctrl.cutoff )
     {
         BidiagSVDCtrl<Real> bidiagSVDCtrl;
         bidiagSVDCtrl.approach = FULL_SVD; // We need any null space as well
         bidiagSVDCtrl.progress = ctrl.progress;
         BidiagSVD( UPPER, mainDiag, superDiag, U, s, V, bidiagSVDCtrl );
-        return;
+        return info;
     }
 
     const Int split = m/2;
@@ -850,18 +885,40 @@ void BidiagDivideAndConquerSVD
     auto U0 = U( IR(0,split), IR(0,split) );
     auto V0 = V( IR(0,split+1), IR(0,split+1) );
     Matrix<Real> s0;
-    BidiagDivideAndConquerSVD
-    ( mainDiag0, superDiag0, U0, s0, V0, cutoff, ctrl );
+    auto info0 = BidiagDCSVD( mainDiag0, superDiag0, U0, s0, V0, ctrl );
 
     auto mainDiag1 = mainDiag( IR(split+1,END), ALL );
     auto superDiag1 = superDiag( IR(split+1,END), ALL );
     auto U1 = U( IR(split+1,END), IR(split+1,END) );
     auto V1 = V( IR(split+1,END), IR(split+1,END) );
     Matrix<Real> s1;
-    BidiagDivideAndConquerSVD
-    ( mainDiag1, superDiag1, U1, s1, V1, cutoff, ctrl );
+    auto info1 = BidiagDCSVD( mainDiag1, superDiag1, U1, s1, V1, ctrl );
 
-    SecularCombine( alpha, beta, s0, s1, U, s, V, ctrl );
+    info = CombineBidiagSVD( alpha, beta, s0, s1, U, s, V, ctrl );
+    secularInfo.numIterations += info0.secularInfo.numIterations;
+    secularInfo.numIterations += info1.secularInfo.numIterations;
+    secularInfo.numAlternations += info0.secularInfo.numAlternations;
+    secularInfo.numAlternations += info1.secularInfo.numAlternations;
+    secularInfo.numCubicIterations += info0.secularInfo.numCubicIterations;
+    secularInfo.numCubicIterations += info1.secularInfo.numCubicIterations;
+    secularInfo.numCubicFailures += info0.secularInfo.numCubicFailures;
+    secularInfo.numCubicFailures += info1.secularInfo.numCubicFailures;
+    deflationInfo.numDeflations += info0.deflationInfo.numDeflations;
+    deflationInfo.numDeflations += info1.deflationInfo.numDeflations;
+    deflationInfo.numSmallDiagonalDeflations +=
+      info0.deflationInfo.numSmallDiagonalDeflations;
+    deflationInfo.numSmallDiagonalDeflations +=
+      info1.deflationInfo.numSmallDiagonalDeflations;
+    deflationInfo.numCloseDiagonalDeflations +=
+      info0.deflationInfo.numCloseDiagonalDeflations;
+    deflationInfo.numCloseDiagonalDeflations +=
+      info1.deflationInfo.numCloseDiagonalDeflations;
+    deflationInfo.numSmallUpdateDeflations +=
+      info0.deflationInfo.numSmallUpdateDeflations;
+    deflationInfo.numSmallUpdateDeflations +=
+      info1.deflationInfo.numSmallUpdateDeflations;
+
+    return info;
 }
 
 template<typename Real>
@@ -941,11 +998,14 @@ void TestDivideAndConquer
 {
     Output("Testing DivideAndConquer(",cutoff,") with ",TypeName<Real>());
 
-    SecularSingularValueCtrl<Real> ctrl;
-    ctrl.maxIterations = maxIter;
-    ctrl.maxCubicIterations = maxCubicIter;
-    ctrl.negativeFix = negativeFix;
+    BidiagDCSVDCtrl<Real> ctrl;
+    ctrl.exploitStructure = true;
+    ctrl.cutoff = cutoff;
     ctrl.progress = progress;
+    ctrl.secularCtrl.maxIterations = maxIter;
+    ctrl.secularCtrl.maxCubicIterations = maxCubicIter;
+    ctrl.secularCtrl.negativeFix = negativeFix;
+    ctrl.secularCtrl.progress = progress;
 
     const bool square = true;
     const Int n = ( square ? m : m+1 );
@@ -959,12 +1019,22 @@ void TestDivideAndConquer
     }
 
     Timer timer;
-   
+
     Matrix<Real> s;
     Matrix<Real> U, V;
     timer.Start();
-    BidiagDivideAndConquerSVD( mainDiag, superDiag, U, s, V, cutoff, ctrl );
+    auto dcInfo = BidiagDCSVD( mainDiag, superDiag, U, s, V, ctrl );
+    const auto& secularInfo = dcInfo.secularInfo;
+    const auto& deflationInfo = dcInfo.deflationInfo;
     Output("Bidiag D&C: ",timer.Stop()," seconds");
+    Output("  num deflations: ",deflationInfo.numDeflations);
+    Output("    small diagonal: ",deflationInfo.numSmallDiagonalDeflations);
+    Output("    close diagonal: ",deflationInfo.numCloseDiagonalDeflations); 
+    Output("    small update:   ",deflationInfo.numSmallUpdateDeflations);
+    Output("  num secular iterations: ",secularInfo.numIterations);
+    Output("  num secular alternations: ",secularInfo.numAlternations);
+    Output("  num secular cubic iter's: ",secularInfo.numCubicIterations);
+    Output("  num secular cubic failures: ",secularInfo.numCubicFailures);
     if( print )
     {
         Print( U, "U" );
