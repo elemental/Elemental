@@ -146,7 +146,7 @@ struct SecularDeflationInfo
 //
 //   0: nonzero in first block
 //   1: nonzero in second block
-//   2: nonzero in both blocks
+//   2: dense
 //   3: deflated
 //
 // Cf. LAPACK's {s,d}lasd2 [CITATION] for this mechanism. Note that LAPACK 
@@ -815,6 +815,55 @@ SecularDeflationInfo SecularCombine
     return info;
 }
 
+// TODO(poulson): A better control structure and return info
+template<typename Real>
+void BidiagDivideAndConquerSVD
+( const Matrix<Real>& mainDiag,
+  const Matrix<Real>& superDiag,
+        Matrix<Real>& U,
+        Matrix<Real>& s,
+        Matrix<Real>& V,
+  Int cutoff,
+  const SecularSingularValueCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    const Int m = mainDiag.Height();
+    const Int n = superDiag.Height() + 1;
+    if( m <= cutoff )
+    {
+        BidiagSVDCtrl<Real> bidiagSVDCtrl;
+        bidiagSVDCtrl.approach = FULL_SVD; // We need any null space as well
+        bidiagSVDCtrl.progress = ctrl.progress;
+        BidiagSVD( UPPER, mainDiag, superDiag, U, s, V, bidiagSVDCtrl );
+        return;
+    }
+
+    const Int split = m/2;
+    const Real& alpha = mainDiag(split);
+    const Real& beta = superDiag(split);
+
+    Identity( U, m, m );
+    Zeros( V, n, n );
+
+    auto mainDiag0 = mainDiag( IR(0,split), ALL );
+    auto superDiag0 = superDiag( IR(0,split), ALL );
+    auto U0 = U( IR(0,split), IR(0,split) );
+    auto V0 = V( IR(0,split+1), IR(0,split+1) );
+    Matrix<Real> s0;
+    BidiagDivideAndConquerSVD
+    ( mainDiag0, superDiag0, U0, s0, V0, cutoff, ctrl );
+
+    auto mainDiag1 = mainDiag( IR(split+1,END), ALL );
+    auto superDiag1 = superDiag( IR(split+1,END), ALL );
+    auto U1 = U( IR(split+1,END), IR(split+1,END) );
+    auto V1 = V( IR(split+1,END), IR(split+1,END) );
+    Matrix<Real> s1;
+    BidiagDivideAndConquerSVD
+    ( mainDiag1, superDiag1, U1, s1, V1, cutoff, ctrl );
+
+    SecularCombine( alpha, beta, s0, s1, U, s, V, ctrl );
+}
+
 template<typename Real>
 void PrintSVDResiduals
 ( UpperOrLower uplo,
@@ -881,16 +930,16 @@ void PrintSVDResiduals
 }
 
 template<typename Real>
-void TestBidiagonalCombine
+void TestDivideAndConquer
 ( Int m,
-  bool square,
+  Int cutoff,
   Int maxIter,  
   Int maxCubicIter,
   FlipOrClip negativeFix,
   bool progress,
   bool print )
 {
-    Output("Testing BidiagonalCombine(",square,") with ",TypeName<Real>());
+    Output("Testing DivideAndConquer(",cutoff,") with ",TypeName<Real>());
 
     SecularSingularValueCtrl<Real> ctrl;
     ctrl.maxIterations = maxIter;
@@ -898,6 +947,7 @@ void TestBidiagonalCombine
     ctrl.negativeFix = negativeFix;
     ctrl.progress = progress;
 
+    const bool square = true;
     const Int n = ( square ? m : m+1 );
     Matrix<Real> mainDiag, superDiag;
     Uniform( mainDiag, m, 1 );
@@ -907,78 +957,34 @@ void TestBidiagonalCombine
         Print( mainDiag, "mainDiag" );
         Print( superDiag, "superDiag" );
     }
-    const Int split = m/2;
 
-    const Real alpha = mainDiag(split);
-    const Real beta = superDiag(split);
-    if( print )
-    {
-        Output("alpha=",alpha,", beta=",beta);
-    }
-
-    auto mainDiag0 = mainDiag( IR(0,split), ALL );
-    auto superDiag0 = superDiag( IR(0,split), ALL );
-    if( print )
-    {
-        Print( mainDiag0, "mainDiag0" );
-        Print( superDiag0, "superDiag0" );
-    }
-
-    auto mainDiag1 = mainDiag( IR(split+1,END), ALL );
-    auto superDiag1 = superDiag( IR(split+1,END), ALL );
-    if( print )
-    {
-        Print( mainDiag1, "mainDiag1" );
-        Print( superDiag1, "superDiag1" );
-    }
-
-    BidiagSVDCtrl<Real> bidiagSVDCtrl;
-    bidiagSVDCtrl.approach = FULL_SVD; // We need any null space as well
-    bidiagSVDCtrl.progress = ctrl.progress;
+    Timer timer;
    
+    Matrix<Real> s;
     Matrix<Real> U, V;
-    Identity( U, m, m );
-    Identity( V, n, n );
-    auto U0 = U( IR(0,split), IR(0,split) );
-    auto U1 = U( IR(split+1,END), IR(split+1,END) );
-    auto V0 = V( IR(0,split+1), IR(0,split+1) );
-    auto V1 = V( IR(split+1,END), IR(split+1,END) );
-
-    Matrix<Real> s0, s1;
-    BidiagSVD( UPPER, mainDiag0, superDiag0, U0, s0, V0, bidiagSVDCtrl );
-    BidiagSVD( UPPER, mainDiag1, superDiag1, U1, s1, V1, bidiagSVDCtrl );
-    if( print )
-    {
-        Print( U0, "U0" );
-        Print( s0, "s0" );
-        Print( V0, "V0" );
-        Print( U1, "U1" );
-        Print( s1, "s1" );
-        Print( V1, "V1" );
-    }
-   
-    Matrix<Real> d;
-    SecularCombine( alpha, beta, s0, s1, U, d, V, ctrl );
+    timer.Start();
+    BidiagDivideAndConquerSVD( mainDiag, superDiag, U, s, V, cutoff, ctrl );
+    Output("Bidiag D&C: ",timer.Stop()," seconds");
     if( print )
     {
         Print( U, "U" );
-        Print( d, "d" );
+        Print( s, "s" );
         Print( V, "V" );
     }
 
     // Compute the residuals
-    Output("Residuals after a single divide:");
+    Output("Residuals after D&C:");
     PushIndent();
-    PrintSVDResiduals( UPPER, mainDiag, superDiag, U, d, V, print );
+    PrintSVDResiduals( UPPER, mainDiag, superDiag, U, s, V, print );
     PopIndent();
 
-    // Compute the residual with a one-shot method
-    Matrix<Real> UOneShot, sOneShot, VOneShot;
-    BidiagSVD( UPPER, mainDiag, superDiag, UOneShot, sOneShot, VOneShot );
-    Output("Residuals with a one-shot method:"); 
+    // Compute the residual with default method
+    timer.Start();
+    BidiagSVD( UPPER, mainDiag, superDiag, U, s, V );
+    Output("BidiagSVD: ",timer.Stop()," seconds");
+    Output("Residuals with standard method:"); 
     PushIndent();
-    PrintSVDResiduals
-    ( UPPER, mainDiag, superDiag, UOneShot, sOneShot, VOneShot, print );
+    PrintSVDResiduals( UPPER, mainDiag, superDiag, U, s, V, print );
     PopIndent();
 }
 
@@ -992,7 +998,8 @@ void TestSecularHelper
   FlipOrClip negativeFix,
   bool progress,
   bool print,
-  bool testFull )
+  bool testFull,
+  Int divideCutoff )
 {
     Output("Testing with ",TypeName<Real>());
     const Int n = d.Height();
@@ -1047,7 +1054,7 @@ void TestSecularHelper
     timer.Start();
     SecularSVD( d, rho, z, U, s, V, ctrl );
     const double secularSVDTime = timer.Stop();
-    Output("Singular SVD: ",secularSVDTime," seconds");
+    Output("Secular SVD: ",secularSVDTime," seconds");
     if( print )
     {
         Print( U, "U" );
@@ -1106,10 +1113,8 @@ void TestSecularHelper
         Output("");
     }
 
-    TestBidiagonalCombine<Real>
-    ( n, true, maxIter, maxCubicIter, negativeFix, progress, print );
-    TestBidiagonalCombine<Real>
-    ( n, false, maxIter, maxCubicIter, negativeFix, progress, print );
+    TestDivideAndConquer<Real>
+    ( n, divideCutoff, maxIter, maxCubicIter, negativeFix, progress, print );
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -1121,6 +1126,7 @@ void TestSecular
   bool progress,
   bool print,
   bool testFull,
+  Int divideCutoff,
   bool lapack )
 {
     Matrix<Real> d, z;
@@ -1129,7 +1135,7 @@ void TestSecular
 
     TestSecularHelper<Real>
     ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
-      testFull );
+      testFull, divideCutoff );
     if( lapack )
     {
         TestLAPACK( d, rho, z );
@@ -1144,7 +1150,8 @@ void TestSecular
   FlipOrClip negativeFix,
   bool progress,
   bool print,
-  bool testFull )
+  bool testFull,
+  Int divideCutoff )
 {
     Matrix<Real> d, z;
     Real rho;
@@ -1152,7 +1159,7 @@ void TestSecular
 
     TestSecularHelper<Real>
     ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
-      testFull );
+      testFull, divideCutoff );
 }
 
 int main( int argc, char* argv[] )
@@ -1165,6 +1172,7 @@ int main( int argc, char* argv[] )
         const Int maxIter = Input("--maxIter","max iterations",400);
         const Int maxCubicIter = Input("--maxCubicIter","max cubic iter's",40);
         const Int flipOrClipInt = Input("--flipOrClip","0: flip, 1: clip",1);
+        const Int divideCutoff = Input("--divideCutoff","D&C cutoff",20);
         const bool progress = Input("--progress","print progress?",false);
         const bool testFull = Input("--testFull","test full eigensolver?",true);
         const bool lapack =
@@ -1179,25 +1187,29 @@ int main( int argc, char* argv[] )
 
         TestSecular<float>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          lapack );
+          divideCutoff, lapack );
         TestSecular<double>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          lapack );
+          divideCutoff, lapack );
 
 #ifdef EL_HAVE_QD
         TestSecular<DoubleDouble>
-        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull );
+        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
+          divideCutoff );
         TestSecular<QuadDouble>
-        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull );
+        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
+          divideCutoff );
 #endif
 #ifdef EL_HAVE_QUAD
         TestSecular<Quad>
-        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull );
+        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
+          divideCutoff );
 #endif
 #ifdef EL_HAVE_MPC
         mpfr::SetPrecision( prec );
         TestSecular<BigFloat>
-        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull );
+        ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
+          divideCutoff );
 #endif
 
     }
