@@ -137,7 +137,12 @@ struct BidiagDCSVDCtrl
 {
     SecularSingularValueCtrl<Real> secularCtrl;
 
-    Int cutoff = 25; // Stop recursing when the height is at most 'cutoff'
+    // Cf. LAPACK's {s,d}lasd2 [CITATION] for the choice of Gu/Eisenstat's
+    // [CITATION] "tau" as 8.
+    const Real deflationFudge = Real(8);
+
+    // Stop recursing when the height is at most 'cutoff'
+    Int cutoff = 25;
 
     // Exploit the nonzero structure of U and V when composing the secular
     // singular vectors with the outer singular vectors? This should only be
@@ -192,9 +197,9 @@ const Int NUM_SECULAR_COMBINED_COLUMN_TYPES = 4;
 template<typename Real>
 BidiagDCSVDInfo<Real>
 CombineBidiagSVD
-( const Real& alpha,
+( Real alpha,
   // The right entry in the removed middle row of the bidiagonal matrix
-  const Real& beta,
+  Real beta,
   // The non-deflated m0 (unsorted) singular values from B0.
   const Matrix<Real>& s0,
   // The non-deflated m1 (unsorted) singular values from B1.
@@ -242,8 +247,6 @@ CombineBidiagSVD
     if( ctrl.progress )
         Output("m=",m,", n=",n,", m0=",m0,", n0=",n0,", m1=",m1,", n1=",n1);
 
-    // TODO(poulson): Add scaling
-
     // U = | U0 0 0  |
     //     | 0  1 0  |
     //     | 0  0 U1 |
@@ -275,8 +278,40 @@ CombineBidiagSVD
     //    |                  d(m-1),     0    |
     //
     // depending upon whether B is m x m or m x (m+1). In the latter case, we
-    // will rotate rhoExtra into r(0) towards the end of the routine.
+    // will rotate rhoExtra into r(0).
     //
+
+    // Form d = [0; s0; s1].
+    // This effectively cyclically shifts [0,m0] |-> [1,m0+1] mod (m0+1).
+    d.Resize( m, 1 );
+    d(0) = 0;
+    for( Int j=0; j<m0; ++j )
+    {
+        d(j+1) = s0(j);
+    }
+    for( Int j=0; j<m1; ++j )
+    {
+        d(j+n0) = s1(j);
+    }
+
+    // Compute the scale of the problem and rescale {d,alpha,beta}. We will
+    // rescale the singular values at the end of this routine.
+    Real scale = Max( Abs(alpha), Abs(beta) );
+    scale = Max( scale, MaxNorm(s0) );
+    scale = Max( scale, MaxNorm(s1) );
+    SafeScale( Real(1), scale, d );
+    SafeScale( Real(1), scale, alpha );
+    SafeScale( Real(1), scale, beta );
+
+    // Now that the problem is rescaled, our deflation tolerance simplifies to
+    //
+    //   tol = deflationFudge eps max( || d ||_max, |alpha|, |beta| )
+    //       = deflationFudge eps.
+    //
+    // Cf. LAPACK's {s,d}lasd2 [CITATION] for this tolerance.
+    const Real eps = limits::Epsilon<Real>();
+    const Real deflationTol = ctrl.deflationFudge*eps;
+
     Matrix<Real> r(m,1);
     Matrix<Int> columnTypes(m,1);
     // Form the reordered left portion
@@ -292,53 +327,6 @@ CombineBidiagSVD
         r(j+n0) = beta*V1(0,j);
         columnTypes(j+n0) = COLUMN_NONZERO_IN_SECOND_BLOCK;
     }
-    // We form r(m) and rotate it into r(0) after the deflation tolerance is
-    // available.
-
-    // Form d = [0; s0; s1].
-    // This effectively cyclically shifts [0,m0] |-> [1,m0+1] mod (m0+1).
-    d.Resize( m, 1 );
-    d(0) = 0;
-    for( Int j=0; j<m0; ++j )
-    {
-        d(j+1) = s0(j);
-    }
-    for( Int j=0; j<m1; ++j )
-    {
-        d(j+n0) = s1(j);
-    }
-
-    // We could avoid sorting d(0)=0, but it should not significantly effect
-    // performance. We force the sort to be stable to force the first entry of
-    // d to remain in place.
-    Permutation combineSortPerm;
-    bool stableSort = true;
-    SortingPermutation( d, combineSortPerm, ASCENDING, stableSort );
-    combineSortPerm.PermuteRows( d );
-    combineSortPerm.PermuteRows( r );
-    combineSortPerm.PermuteRows( columnTypes );
-
-    auto combinedToOrig = [&]( const Int& combinedIndex )
-      {
-          const Int preCombined = combineSortPerm.Preimage( combinedIndex );
-          if( preCombined <= m0 )
-              // Undo the cyclic shift [0,m0] |-> [1,m0+1] mod (m0+1) which
-              // pushed the removed row into the first position.
-              return Mod( preCombined-1, m0+1 );
-          else
-              return preCombined;
-      };
-
-    // Now that we can read off || diag(d) ||_2 = || d ||_max = d(m-1), we 
-    // calculate the deflation tolerance,
-    //
-    //   tol = 8 eps max( || d ||_max, |alpha|, |beta| ).
-    //
-    // Cf. LAPACK's {s,d}lasd2 [CITATION] for this tolerance.
-    const Real eps = limits::Epsilon<Real>();
-    const Real deflationTolScale = Max( d(m-1), Max( Abs(alpha), Abs(beta) ) );
-    const Real deflationTol = 8*eps*deflationTolScale;
-
     // Form r(m) if B has one more column than row and then compute the cosine
     // and sine defining the Givens rotation for rotating it into r(0). Then
     // ensure that |r(0)| >= deflationTol. The Givens rotation is such that
@@ -390,6 +378,27 @@ CombineBidiagSVD
         if( Abs(r(0)) < deflationTol )
             r(0) = Sgn(r(0),false)*deflationTol;
     }
+
+    // We could avoid sorting d(0)=0, but it should not significantly effect
+    // performance. We force the sort to be stable to force the first entry of
+    // d to remain in place.
+    Permutation combineSortPerm;
+    bool stableSort = true;
+    SortingPermutation( d, combineSortPerm, ASCENDING, stableSort );
+    combineSortPerm.PermuteRows( d );
+    combineSortPerm.PermuteRows( r );
+    combineSortPerm.PermuteRows( columnTypes );
+
+    auto combinedToOrig = [&]( const Int& combinedIndex )
+      {
+          const Int preCombined = combineSortPerm.Preimage( combinedIndex );
+          if( preCombined <= m0 )
+              // Undo the cyclic shift [0,m0] |-> [1,m0+1] mod (m0+1) which
+              // pushed the removed row into the first position.
+              return Mod( preCombined-1, m0+1 );
+          else
+              return preCombined;
+      };
 
     Permutation deflationPerm;
     deflationPerm.MakeIdentity( m );
@@ -842,7 +851,8 @@ CombineBidiagSVD
         Gemm( NORMAL, NORMAL, Real(1), VPacked, Q, VUndeflated );
     }
 
-    // TODO(poulson): Add scaling
+    // Rescale the singular values
+    SafeScale( scale, Real(1), d );
 
     return info;
 }

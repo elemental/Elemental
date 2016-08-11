@@ -15,7 +15,7 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 bool SafeScaleStep
 (       Real& numerator,
         Real& denominator,
-        Real& alpha,
+        Real& scaleStep,
   const Real& zero,
   const Real& smallNum,
   const Real& bigNum )
@@ -25,7 +25,7 @@ bool SafeScaleStep
     Real shrunkDenominator = denominator * smallNum;
     if( Abs(shrunkDenominator) > Abs(numerator) && numerator != zero )
     {
-        alpha = smallNum;
+        scaleStep = smallNum;
         denominator = shrunkDenominator;
         return false;
     }
@@ -33,13 +33,33 @@ bool SafeScaleStep
     Real shrunkNumerator = numerator / bigNum; 
     if( Abs(shrunkNumerator) > Abs(denominator) )
     {
-        alpha = bigNum;
+        scaleStep = bigNum;
         numerator = shrunkNumerator;
         return false;
     }
 
-    alpha = numerator / denominator;
+    scaleStep = numerator / denominator;
     return true;
+}
+
+template<typename F>
+void SafeScale( Base<F> numerator, Base<F> denominator, F& alpha )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real scaleStep;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        alpha *= scaleStep;
+    }
 }
 
 template<typename F>
@@ -52,13 +72,13 @@ void SafeScale( Base<F> numerator, Base<F> denominator, Matrix<F>& A )
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        A *= alpha;
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        A *= scaleStep;
     }
 }
 
@@ -74,13 +94,13 @@ void SafeScaleTrapezoid
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        ScaleTrapezoid( alpha, uplo, A, offset );
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        ScaleTrapezoid( scaleStep, uplo, A, offset );
     }
 }
 
@@ -104,13 +124,13 @@ void SafeScaleTrapezoid
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        ScaleTrapezoid( alpha, uplo, A, offset );
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        ScaleTrapezoid( scaleStep, uplo, A, offset );
     }
 }
 
@@ -124,13 +144,13 @@ void SafeScale( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A )
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        A *= alpha;
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        A *= scaleStep;
     }
 }
 
@@ -146,13 +166,13 @@ void SafeScaleTrapezoid
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        ScaleTrapezoid( alpha, uplo, A, offset );
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        ScaleTrapezoid( scaleStep, uplo, A, offset );
     }
 }
 
@@ -166,13 +186,13 @@ void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A )
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        A *= alpha;
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        A *= scaleStep;
     }
 }
 
@@ -188,13 +208,13 @@ void SafeScaleTrapezoid
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        ScaleTrapezoid( alpha, uplo, A, offset );
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        ScaleTrapezoid( scaleStep, uplo, A, offset );
     }
 }
 
@@ -216,14 +236,14 @@ void SafeScaleHermitianTridiag
     const Real bigNum = Real(1) / smallNum;
 
     bool done = false;
-    Real alpha;
+    Real scaleStep;
     while( !done )
     {
         done =
           SafeScaleStep
-          ( numerator, denominator, alpha, zero, smallNum, bigNum );
-        d *= alpha;
-        e *= alpha;
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        d *= scaleStep;
+        e *= scaleStep;
     }
 }
 
