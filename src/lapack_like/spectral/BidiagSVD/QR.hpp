@@ -214,6 +214,9 @@ void Sweep
             //
             //    (|alpha_0|-shift) (sgn(alpha_0)+shift/alpha_0).
             //
+            // If alpha_0 was zero, we should have forced a zero-shift iteration
+            // to push it down the diagonal.
+            //
             Real f = (Abs(mainDiag(0))-shift)*
                      (Sgn(mainDiag(0),false)+shift/mainDiag(0));
             Real g = superDiag(0); 
@@ -318,6 +321,8 @@ void Sweep
             //
             //    (|alpha_{n-1}|-shift) (sgn(alpha_{n-1})+shift/alpha_{n-1}).
             //
+            // If alpha_{n-1} was zero, we should have forced a zero-shift
+            // iteration to push it down the diagonal.
             Real f = (Abs(mainDiag(n-1))-shift)*
                      (Sgn(mainDiag(n-1),false)+shift/mainDiag(n-1));
             Real g = superDiag(n-2);
@@ -648,9 +653,19 @@ Helper
         ++info.numIterations;
 
         Real shift = zero;
-        if( relativeToSelfTol &&
-            zeroShiftFudge*tol*(winMinSingValEst/winMaxSingValEst) <=
-            Max(eps,tol/100) )
+        // We cannot simply use winMinSingValEst to additionally guard the 
+        // non high-relative-accuracy case since it was not actually computed
+        // in said instance. Instead, we simply check if the relevant starting
+        // diagonal entry is zero to avoid a divide-by-zero when applying the
+        // implicit Q theorem within the upcoming sweep.
+        const bool zeroStartingValue =
+          ( direction == FORWARD ?
+            mainDiag(winBeg) == zero :
+            mainDiag(winEnd-1) == zero );
+        const bool poorlyConditioned =
+          ( zeroShiftFudge*tol*(winMinSingValEst/winMaxSingValEst) <=
+            Max(eps,tol/100) );
+        if( zeroStartingValue || (relativeToSelfTol && poorlyConditioned) )
         {
             shift = zero; 
         }

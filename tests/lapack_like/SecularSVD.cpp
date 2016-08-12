@@ -60,8 +60,7 @@ void TestLAPACK
         wLAPACK(i) = sigmaLAPACK;
     }
     const Real lapackTime = timer.Stop(); 
-    Output("LAPACK: ",lapackTime," seconds");
-    Output("");
+    Output("LAPACK secular singular value time: ",lapackTime," seconds");
 }
 
 void TestLAPACK
@@ -85,8 +84,7 @@ void TestLAPACK
         wLAPACK(i) = sigmaLAPACK;
     }
     const Real lapackTime = timer.Stop(); 
-    Output("LAPACK: ",lapackTime," seconds");
-    Output("");
+    Output("LAPACK secular singular value time: ",lapackTime," seconds");
 }
 
 template<typename Real>
@@ -142,7 +140,7 @@ struct BidiagDCSVDCtrl
     const Real deflationFudge = Real(8);
 
     // Stop recursing when the height is at most 'cutoff'
-    Int cutoff = 25;
+    Int cutoff = 60;
 
     // Exploit the nonzero structure of U and V when composing the secular
     // singular vectors with the outer singular vectors? This should only be
@@ -1060,7 +1058,9 @@ void TestDivideAndConquer
 
     // Compute the residual with default method
     timer.Start();
-    BidiagSVD( UPPER, mainDiag, superDiag, U, s, V );
+    BidiagSVDCtrl<Real> bidiagSVDCtrl;
+    bidiagSVDCtrl.progress = progress;
+    BidiagSVD( UPPER, mainDiag, superDiag, U, s, V, bidiagSVDCtrl );
     Output("BidiagSVD: ",timer.Stop()," seconds");
     Output("Residuals with standard method:"); 
     PushIndent();
@@ -1081,7 +1081,6 @@ void TestSecularHelper
   bool testFull,
   Int divideCutoff )
 {
-    Output("Testing with ",TypeName<Real>());
     const Int n = d.Height();
 
     Timer timer;
@@ -1209,17 +1208,19 @@ void TestSecular
   Int divideCutoff,
   bool lapack )
 {
+    Output("Testing with ",TypeName<Real>());
     Matrix<Real> d, z;
     Real rho;
     GenerateData( n, d, rho, z, print );
 
-    TestSecularHelper<Real>
-    ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
-      testFull, divideCutoff );
     if( lapack )
     {
         TestLAPACK( d, rho, z );
     }
+    TestSecularHelper<Real>
+    ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
+      testFull, divideCutoff );
+    Output("");
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -1233,6 +1234,7 @@ void TestSecular
   bool testFull,
   Int divideCutoff )
 {
+    Output("Testing with ",TypeName<Real>());
     Matrix<Real> d, z;
     Real rho;
     GenerateData( n, d, rho, z, print );
@@ -1240,6 +1242,7 @@ void TestSecular
     TestSecularHelper<Real>
     ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
       testFull, divideCutoff );
+    Output("");
 }
 
 int main( int argc, char* argv[] )
@@ -1252,7 +1255,7 @@ int main( int argc, char* argv[] )
         const Int maxIter = Input("--maxIter","max iterations",400);
         const Int maxCubicIter = Input("--maxCubicIter","max cubic iter's",40);
         const Int flipOrClipInt = Input("--flipOrClip","0: flip, 1: clip",1);
-        const Int divideCutoff = Input("--divideCutoff","D&C cutoff",20);
+        const Int divideCutoff = Input("--divideCutoff","D&C cutoff",60);
         const bool progress = Input("--progress","print progress?",false);
         const bool testFull = Input("--testFull","test full eigensolver?",true);
         const bool lapack =
