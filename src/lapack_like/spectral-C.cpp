@@ -140,6 +140,29 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
     return EL_SUCCESS;
 }
 
+/* Secular SVD */
+ElError ElSecularSingularValueCtrlDefault_s
+( ElSecularSingularValueCtrl_s* ctrl )
+{
+    ctrl->maxIterations = 400;
+    ctrl->maxCubicIterations = 40;
+    ctrl->sufficientDecay = float(1)/float(10);
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->progress = false;
+    return EL_SUCCESS;
+}
+
+ElError ElSecularSingularValueCtrlDefault_d
+( ElSecularSingularValueCtrl_d* ctrl )
+{
+    ctrl->maxIterations = 400;
+    ctrl->maxCubicIterations = 40;
+    ctrl->sufficientDecay = double(1)/double(10);
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->progress = false;
+    return EL_SUCCESS;
+}
+
 /* BidiagSVDCtrl */
 ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl )
 {
@@ -148,6 +171,25 @@ ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl )
     ctrl->looseMinSingValEst = true;
     ctrl->useFLAME = false;
     ctrl->useLAPACK = false;
+    return EL_SUCCESS;
+}
+
+ElError ElBidiagSVDDCCtrlDefault_s( ElBidiagSVDDCCtrl_s* ctrl )
+{
+    ElSecularSingularValueCtrlDefault_s( &ctrl->secularCtrl );
+    ctrl->deflationFudge = float(8);
+    ctrl->cutoff = 60;
+    ctrl->exploitStructure = true;
+    ctrl->progress = false;
+    return EL_SUCCESS;
+}
+ElError ElBidiagSVDDCCtrlDefault_d( ElBidiagSVDDCCtrl_d* ctrl )
+{
+    ElSecularSingularValueCtrlDefault_d( &ctrl->secularCtrl );
+    ctrl->deflationFudge = double(8);
+    ctrl->cutoff = 60;
+    ctrl->exploitStructure = true;
+    ctrl->progress = false;
     return EL_SUCCESS;
 }
 
@@ -161,7 +203,9 @@ ElError ElBidiagSVDCtrlDefault_s( ElBidiagSVDCtrl_s* ctrl )
     ctrl->tolType = EL_RELATIVE_TO_MAX_SING_VAL_TOL;
     ctrl->tol = 0;
     ctrl->progress = false;
+    ctrl->useQR = false;
     ElBidiagSVDQRCtrlDefault( &ctrl->qrCtrl );
+    ElBidiagSVDDCCtrlDefault_s( &ctrl->dcCtrl );
     return EL_SUCCESS;
 }
 ElError ElBidiagSVDCtrlDefault_d( ElBidiagSVDCtrl_d* ctrl )
@@ -174,7 +218,9 @@ ElError ElBidiagSVDCtrlDefault_d( ElBidiagSVDCtrl_d* ctrl )
     ctrl->tolType = EL_RELATIVE_TO_MAX_SING_VAL_TOL;
     ctrl->tol = 0;
     ctrl->progress = false;
+    ctrl->useQR = false;
     ElBidiagSVDQRCtrlDefault( &ctrl->qrCtrl );
+    ElBidiagSVDDCCtrlDefault_d( &ctrl->dcCtrl );
     return EL_SUCCESS;
 }
 

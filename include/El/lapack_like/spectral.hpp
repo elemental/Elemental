@@ -655,6 +655,14 @@ void Eig
 // Secular Singular Value Decomposition
 // ====================================
 
+struct SecularDeflationInfo
+{
+    Int numDeflations=0;
+    Int numSmallDiagonalDeflations=0;
+    Int numCloseDiagonalDeflations=0;
+    Int numSmallUpdateDeflations=0;
+};
+
 template<typename Real>
 struct SecularSingularValueCtrl
 {
@@ -663,14 +671,12 @@ struct SecularSingularValueCtrl
     // TODO(poulson): Specialize iteration bounds to grows with precision
 
     Real sufficientDecay = Real(1)/Real(10);
-    FlipOrClip negativeFix;
+    FlipOrClip negativeFix = CLIP_NEGATIVES;
     bool progress = false;
 };
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
 struct SecularSingularValueInfo
 {
-    Real singularValue;
     Int numIterations = 0;
     Int numAlternations = 0;
 
@@ -700,20 +706,22 @@ struct SecularSingularValueInfo
 // This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
 //
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSingularValueInfo<Real>
+SecularSingularValueInfo
 SecularSingularValue
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
+        Real& singularValue,
   const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSingularValueInfo<Real>
+SecularSingularValueInfo
 SecularSingularValue
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
+        Real& singularValue,
         Matrix<Real>& dMinusShift,
         Matrix<Real>& dPlusShift,
   const SecularSingularValueCtrl<Real>& ctrl=SecularSingularValueCtrl<Real>() );
@@ -721,7 +729,8 @@ SecularSingularValue
 // Note that this routine requires that 0 = d(0) <= d(1) <= ... <= d(n-1) and
 // that || z ||_2 = 1.
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-void SecularSVD
+SecularSingularValueInfo
+SecularSVD
 ( const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
@@ -795,11 +804,75 @@ struct QRCtrl
     bool useLAPACK=false;
 };
 
+struct DCInfo
+{
+    SecularDeflationInfo deflationInfo;
+    SecularSingularValueInfo secularInfo;
+};
+
+template<typename Real>
+struct DCCtrl
+{
+    SecularSingularValueCtrl<Real> secularCtrl;
+
+    // Cf. LAPACK's {s,d}lasd2 [CITATION] for the choice of Gu/Eisenstat's
+    // [CITATION] "tau" as 8.
+    Real deflationFudge = Real(8);
+
+    // Stop recursing when the height is at most 'cutoff'
+    Int cutoff = 60;
+
+    // Exploit the nonzero structure of U and V when composing the secular
+    // singular vectors with the outer singular vectors? This should only be
+    // disabled for academic reasons.
+    bool exploitStructure = true;
+
+    bool progress = false;
+};
+
+// Cf. Section 4 of Gu and Eisenstat's "A Divide-and-Conquer Algorithm for the
+// Bidiagonal SVD" [CITATION] and LAPACK's {s,d}lasd2 [CITATION].
+//
+// We begin with the decomposition
+//
+// B = | U_0, 0,  0  | |     diag(s_0),              0       | | V_0, 0   |^T,
+//     |  0,  1,  0  | | alpha e_{m_0}^T V_0, beta*e_0^T*V_1 | |   0, V_1 |
+//     |  0,  0, U_1 | |         0,              diag(s_1)   |
+//
+// where U_0 is m_0 x m_0, U_1 is m_1 x m_1, V_0 is (m0+1) x (m0+1), and V_1 is
+// either m1 x m1 or (m1+1) x (m1+1). Thus, putting m = m_0 + 1 + m_1, B is
+// either m x m or m x (m+1). On entry, U and V should be filled with their
+// above depictions.
+//
+// We operationalize Gu and Eisenstat's [CITATION] deflation-tracking
+// mechanism by initializing the tags for the nonzero structure of the
+// columns of the singular vectors:
+//
+//   0: nonzero in first block
+//   1: nonzero in second block
+//   2: dense
+//   3: deflated
+//
+// Cf. LAPACK's {s,d}lasd2 [CITATION] for this mechanism. Note that LAPACK 
+// currently ignores deflations of the form |d(0)-d(j)| <= deflationTol, 
+// which results in the first column of U potentially becoming dense. We
+// do not ignore such deflations and always mark the first column of U
+// as dense for the sake of simplicity.
+//
+enum DCCombinedColumnType {
+  COLUMN_NONZERO_IN_FIRST_BLOCK = 0,
+  COLUMN_NONZERO_IN_SECOND_BLOCK = 1,
+  DENSE_COLUMN = 2,
+  DEFLATED_COLUMN = 3
+};
+const Int NUM_DC_COMBINED_COLUMN_TYPES = 4;
+
 } // namespace bidiag_svd
 
 struct BidiagSVDInfo
 {
     bidiag_svd::QRInfo qrInfo;
+    bidiag_svd::DCInfo dcInfo;
 };
 
 template<typename Real>
@@ -814,7 +887,9 @@ struct BidiagSVDCtrl
 
     bool progress=false;
 
+    bool useQR = false;
     bidiag_svd::QRCtrl qrCtrl;
+    bidiag_svd::DCCtrl<Real> dcCtrl;
 };
 
 namespace bidiag_svd {
