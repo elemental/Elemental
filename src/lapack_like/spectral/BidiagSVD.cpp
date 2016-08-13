@@ -404,9 +404,13 @@ Helper
         // We were non-square and lower bidiagonal. The last column of U has
         // been (at least implicitly) deflated.
         auto offDiag0 = offDiag( IR(0,n-1), ALL );
-        if( ctrl.wantU && !ctrl.accumulateU )
-            Identity( U, m, m ); 
-        auto U0 = U( ALL, IR(0,n) );
+        Matrix<Real> U0;
+        if( ctrl.wantU )
+        {
+            if( !ctrl.accumulateU )
+                Identity( U, m, m ); 
+            View( U0, U, ALL, IR(0,n) );
+        }
 
         if( ctrl.useQR )
         {
@@ -432,9 +436,13 @@ Helper
         // We were non-square and upper bidiagonal. The last column of V has
         // been (at least implicitly) deflated.
         auto offDiag0 = offDiag( IR(0,m-1), ALL );
-        if( ctrl.wantV && !ctrl.accumulateV )
-            Identity( V, n, n );
-        auto V0 = V( ALL, IR(0,m) );
+        Matrix<Real> V0;
+        if( ctrl.wantV )
+        {
+            if( !ctrl.accumulateV )
+                Identity( V, n, n );
+            View( V0, V, ALL, IR(0,m) );
+        }
 
         if( ctrl.useQR )
         {
