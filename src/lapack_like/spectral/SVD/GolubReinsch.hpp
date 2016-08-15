@@ -48,16 +48,12 @@ SVDInfo GolubReinsch
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
-    const Int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
     const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     if( avoidU && avoidV )
     {
         return SVD( A, s, ctrl );
     }
-    if( uplo == LOWER )
-        LogicError("Lower bidiagonal not yet supported");
     SVDInfo info;
 
     // Bidiagonalize A
@@ -69,47 +65,23 @@ SVDInfo GolubReinsch
     if( ctrl.time )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
-    // Grab copies of the diagonal and sub/super-diagonal of A
-    // (Force the buffer holding e to be of length at least n)
-    // NOTE: lapack::BidiagSVDQRAlg expects e to be of length k
-    s = GetRealPartOfDiagonal(A);
-    Matrix<Real> ePlus(k,1);
-    auto e = ePlus(IR(0,k-1),ALL);
-    e = GetRealPartOfDiagonal(A,offdiagonal);
-
-    // TODO: If compact SVD, identify the rank with DQDS first?
-
-    // Compute the SVD of the bidiagonal matrix and accumulate the Givens
-    // rotations into our local portion of U and V
+    // Compute the SVD of the bidiagonal matrix and accumulate the singular
+    // vectors with the current U and V
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    auto mainDiag = GetRealPartOfDiagonal( A );
+    auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
     if( ctrl.time )
         timer.Start();
-    info.bidiagSVDInfo.qrInfo =
-      bidiag_svd::QRAlg( s, e, U, V, ctrl.bidiagSVDCtrl );
+    auto bidiagSVDCtrlMod( ctrl.bidiagSVDCtrl );
+    // TODO(poulson): Switch to D&C when accumulation is supported
+    bidiagSVDCtrlMod.useQR = true;
+    bidiagSVDCtrlMod.accumulateU = true;
+    bidiagSVDCtrlMod.accumulateV = true;
+    info.bidiagSVDInfo =
+      BidiagSVD( uplo, mainDiag, offDiag, U, s, V, bidiagSVDCtrlMod );
     if( ctrl.time )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
-
-    Int rank = k;
-    const bool compact = ( ctrl.bidiagSVDCtrl.approach == COMPACT_SVD );
-    if( compact )
-    {
-        const Real twoNorm = ( k==0 ? Real(0) : s(0) );
-        const Real thresh =
-          bidiag_svd::APosterioriThreshold
-          ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
-
-        for( Int j=0; j<k; ++j ) 
-        {
-            if( s(j) <= thresh )
-            {
-                rank = j;
-                break;
-            }
-        }
-
-        s.Resize( rank, 1 );
-        if( !avoidU ) U.Resize( m, rank );
-        if( !avoidV ) V.Resize( n, rank );
-    }
 
     // Backtransform U and V
     if( ctrl.time )
@@ -293,7 +265,6 @@ SVDInfo GolubReinsch
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
-    const Int offdiagonal = ( m>=n ? 1 : -1 );
     SVDInfo info;
 
     // Bidiagonalize A
@@ -305,39 +276,18 @@ SVDInfo GolubReinsch
     if( ctrl.time )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
-    // Grab copies of the diagonal and sub/super-diagonal of A
-    // (Force the buffer holding e to be of length at least n)
-    // NOTE: lapack::BidiagDQDS expects e to be of length k
-    s = GetRealPartOfDiagonal(A);
-    Matrix<Real> ePlus(k,1);
-    auto e = ePlus(IR(0,k-1),ALL);
-    e = GetRealPartOfDiagonal(A,offdiagonal);
-
+    // Compute the singular values of the bidiagonal matrix
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    auto mainDiag = GetRealPartOfDiagonal( A );
+    auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
     if( ctrl.time )
         timer.Start();
-    info.bidiagSVDInfo.qrInfo = bidiag_svd::QRAlg( s, e, ctrl.bidiagSVDCtrl );
+    auto bidiagSVDCtrlMod( ctrl.bidiagSVDCtrl );
+    info.bidiagSVDInfo =
+      BidiagSVD( uplo, mainDiag, offDiag, s, bidiagSVDCtrlMod );
     if( ctrl.time )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
-
-    const bool compact = ( ctrl.bidiagSVDCtrl.approach == COMPACT_SVD );
-    if( compact )
-    {
-        const Real twoNorm = ( k==0 ? Real(0) : s(0) );
-        const Real thresh =
-          bidiag_svd::APosterioriThreshold
-          ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
-
-        Int rank = k;
-        for( Int j=0; j<k; ++j )
-        {
-            if( s(j) <= thresh )
-            {
-                rank = j;
-                break;
-            }
-        }
-        s.Resize( rank, 1 );
-    }
 
     return info;
 }

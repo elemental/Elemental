@@ -668,7 +668,6 @@ typedef struct {
   float deflationFudge;
   ElInt cutoff;
   bool exploitStructure;
-  bool progress;
 } ElBidiagSVDDCCtrl_s;
 EL_EXPORT ElError ElBidiagSVDDCCtrlDefault_s( ElBidiagSVDDCCtrl_s* ctrl );
 
@@ -677,7 +676,6 @@ typedef struct {
   double deflationFudge;
   ElInt cutoff;
   bool exploitStructure;
-  bool progress;
 } ElBidiagSVDDCCtrl_d;
 EL_EXPORT ElError ElBidiagSVDDCCtrlDefault_d( ElBidiagSVDDCCtrl_d* ctrl );
 

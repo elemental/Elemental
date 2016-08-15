@@ -180,7 +180,6 @@ ElError ElBidiagSVDDCCtrlDefault_s( ElBidiagSVDDCCtrl_s* ctrl )
     ctrl->deflationFudge = float(8);
     ctrl->cutoff = 60;
     ctrl->exploitStructure = true;
-    ctrl->progress = false;
     return EL_SUCCESS;
 }
 ElError ElBidiagSVDDCCtrlDefault_d( ElBidiagSVDDCCtrl_d* ctrl )
@@ -189,7 +188,6 @@ ElError ElBidiagSVDDCCtrlDefault_d( ElBidiagSVDDCCtrl_d* ctrl )
     ctrl->deflationFudge = double(8);
     ctrl->cutoff = 60;
     ctrl->exploitStructure = true;
-    ctrl->progress = false;
     return EL_SUCCESS;
 }
 

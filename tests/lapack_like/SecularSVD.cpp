@@ -182,6 +182,8 @@ void PrintSVDResiduals
 template<typename Real>
 void TestDivideAndConquer
 ( Int m,
+  bool wantU,
+  bool wantV,
   Int cutoff,
   Int maxIter,  
   Int maxCubicIter,
@@ -192,10 +194,11 @@ void TestDivideAndConquer
     Output("Testing DivideAndConquer(",cutoff,") with ",TypeName<Real>());
 
     BidiagSVDCtrl<Real> ctrl;
+    ctrl.wantU = wantU;
+    ctrl.wantV = wantV;
     ctrl.progress = progress;
     ctrl.dcCtrl.exploitStructure = true;
     ctrl.dcCtrl.cutoff = cutoff;
-    ctrl.dcCtrl.progress = progress;
     ctrl.dcCtrl.secularCtrl.maxIterations = maxIter;
     ctrl.dcCtrl.secularCtrl.maxCubicIterations = maxCubicIter;
     ctrl.dcCtrl.secularCtrl.negativeFix = negativeFix;
@@ -237,21 +240,27 @@ void TestDivideAndConquer
         Print( V, "V" );
     }
 
-    // Compute the residuals
-    Output("Residuals after D&C:");
-    PushIndent();
-    PrintSVDResiduals( UPPER, mainDiag, superDiag, U, s, V, print );
-    PopIndent();
+    if( wantU && wantV )
+    {
+        // Compute the residuals
+        Output("Residuals after D&C:");
+        PushIndent();
+        PrintSVDResiduals( UPPER, mainDiag, superDiag, U, s, V, print );
+        PopIndent();
+    }
 
     // Compute the residual with the QR algorithm (with relative-to-max tol)
     timer.Start();
     ctrl.useQR = true;
     BidiagSVD( UPPER, mainDiag, superDiag, U, s, V, ctrl );
-    Output("BidiagSVD: ",timer.Stop()," seconds");
-    Output("Residuals with QR:"); 
-    PushIndent();
-    PrintSVDResiduals( UPPER, mainDiag, superDiag, U, s, V, print );
-    PopIndent();
+    Output("QR algorithm: ",timer.Stop()," seconds");
+    if( wantU && wantV )
+    {
+        Output("Residuals with QR:"); 
+        PushIndent();
+        PrintSVDResiduals( UPPER, mainDiag, superDiag, U, s, V, print );
+        PopIndent();
+    }
 }
 
 template<typename Real>
@@ -265,6 +274,8 @@ void TestSecularHelper
   bool progress,
   bool print,
   bool testFull,
+  bool wantU,
+  bool wantV,
   Int divideCutoff )
 {
     const Int n = d.Height();
@@ -378,7 +389,8 @@ void TestSecularHelper
     }
 
     TestDivideAndConquer<Real>
-    ( n, divideCutoff, maxIter, maxCubicIter, negativeFix, progress, print );
+    ( n, wantU, wantV, divideCutoff, maxIter, maxCubicIter, negativeFix,
+      progress, print );
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -390,6 +402,8 @@ void TestSecular
   bool progress,
   bool print,
   bool testFull,
+  bool wantU,
+  bool wantV,
   Int divideCutoff,
   bool lapack )
 {
@@ -404,7 +418,7 @@ void TestSecular
     }
     TestSecularHelper<Real>
     ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
-      testFull, divideCutoff );
+      testFull, wantU, wantV, divideCutoff );
     Output("");
 }
 
@@ -417,6 +431,8 @@ void TestSecular
   bool progress,
   bool print,
   bool testFull,
+  bool wantU,
+  bool wantV,
   Int divideCutoff )
 {
     Output("Testing with ",TypeName<Real>());
@@ -426,7 +442,7 @@ void TestSecular
 
     TestSecularHelper<Real>
     ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
-      testFull, divideCutoff );
+      testFull, wantU, wantV, divideCutoff );
     Output("");
 }
 
@@ -441,6 +457,8 @@ int main( int argc, char* argv[] )
         const Int maxCubicIter = Input("--maxCubicIter","max cubic iter's",40);
         const Int flipOrClipInt = Input("--flipOrClip","0: flip, 1: clip",1);
         const Int divideCutoff = Input("--divideCutoff","D&C cutoff",60);
+        const bool wantU = Input("--wantU","compute U?",true);
+        const bool wantV = Input("--wantV","compute V?",true);
         const bool progress = Input("--progress","print progress?",false);
         const bool testFull = Input("--testFull","test full eigensolver?",true);
         const bool lapack =
@@ -455,31 +473,30 @@ int main( int argc, char* argv[] )
 
         TestSecular<float>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          divideCutoff, lapack );
+          wantU, wantV, divideCutoff, lapack );
         TestSecular<double>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          divideCutoff, lapack );
+          wantU, wantV, divideCutoff, lapack );
 
 #ifdef EL_HAVE_QD
         TestSecular<DoubleDouble>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          divideCutoff );
+          wantU, wantV, divideCutoff );
         TestSecular<QuadDouble>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          divideCutoff );
+          wantU, wantV, divideCutoff );
 #endif
 #ifdef EL_HAVE_QUAD
         TestSecular<Quad>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          divideCutoff );
+          wantU, wantV, divideCutoff );
 #endif
 #ifdef EL_HAVE_MPC
         mpfr::SetPrecision( prec );
         TestSecular<BigFloat>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
-          divideCutoff );
+          wantU, wantV, divideCutoff );
 #endif
-
     }
     catch( std::exception& e ) { ReportException(e); }
 

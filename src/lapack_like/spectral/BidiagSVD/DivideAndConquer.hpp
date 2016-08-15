@@ -20,14 +20,17 @@ namespace bidiag_svd {
 template<typename Real>
 DCInfo
 Merge
-( Real alpha,
+( Int m,
+  Int n,
+  Real alpha,
   // The right entry in the removed middle row of the bidiagonal matrix
   Real beta,
   // The non-deflated m0 (unsorted) singular values from B0.
   const Matrix<Real>& s0,
   // The non-deflated m1 (unsorted) singular values from B1.
   const Matrix<Real>& s1,
-  // On entry, a packing of the left singular vectors from the two subproblems,
+  // If ctrl.wantU is true, then, on entry, U contains a packing of the left
+  // singular vectors from the two subproblems,
   //
   //   U = | U0, 0, 0  |,
   //       | 0,  1, 0  |
@@ -35,11 +38,13 @@ Merge
   //
   // where U0 is m0 x (m0+1) and U1 is either m1 x m1 or m1 x (m1+1).
   //
-  // On exit, the left singular vectors of the merged bidiagonal matrix.
+  // If ctrl.wantU is true, then, on exit, the left singular vectors of the
+  // merged bidiagonal matrix.
   Matrix<Real>& U,
   // On exit, the (unsorted) singular values of the merged bidiagonal matrix
   Matrix<Real>& d,
-  // On entry, a packing of the right singular vectors from the two subproblems,
+  // If ctrl.wantV is true, then, on entry, a packing of the right singular
+  // vectors from the two subproblems,
   //
   //   V = | V0, 0  |,
   //       | 0,  V1 |
@@ -48,13 +53,17 @@ Merge
   // of B0, and V1 is either m1 x m1 or (m1+1) x (m1+1), where, in the latter
   // case, its last column must lie in the null space of B1.
   //
-  // On exit, the right singular vectors of the merged bidiagonal matrix.
+  // If ctrl.wantV is false, then, on entry, V is the same as above, but with
+  // only the row that goes through the last row of V0 and the row that goes
+  // through the first row of V1 kept.
+  //
+  // If ctrl.wantV is true, on exit, V will contain the right singular vectors
+  // of the merged bidiagonal matrix. If ctrl.wantV is false, then only the two
+  // rows of the result mentioned above will be output.
   Matrix<Real>& V,
-  const DCCtrl<Real>& ctrl )
+  const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    const Int m = U.Height();
-    const Int n = V.Height();
     const Int m0 = s0.Height();
     const Int m1 = s1.Height();
     const Int n0 = m0 + 1;
@@ -64,22 +73,37 @@ Merge
       if( !square && n1 != m1+1 )
           LogicError("B1 has to be square or one column wider than tall");
     )
+    const auto& dcCtrl = ctrl.dcCtrl;
+
     DCInfo info;
     auto& secularInfo = info.secularInfo;
     auto& deflationInfo = info.deflationInfo;
     if( ctrl.progress )
         Output("m=",m,", n=",n,", m0=",m0,", n0=",n0,", m1=",m1,", n1=",n1);
 
-    // U = | U0 0 0  |
-    //     | 0  1 0  |
-    //     | 0  0 U1 |
-    auto U0 = U( IR(0,m0), IR(0,m0) );
-    auto U1 = U( IR(n0,END), IR(n0,END) );
+    Matrix<Real> U0, U1;
+    if( ctrl.wantU )
+    {
+        // U = | U0 0 0  |
+        //     | 0  1 0  |
+        //     | 0  0 U1 |
+        View( U0, U, IR(0,m0), IR(0,m0) );
+        View( U1, U, IR(n0,END), IR(n0,END) );
+    }
 
-    // V = | V0 0  | 
-    //     |  0 V1 |
-    auto V0 = V( IR(0,n0), IR(0,n0) );
-    auto V1 = V( IR(n0,END), IR(n0,END) );
+    Matrix<Real> V0, V1;
+    if( ctrl.wantV )
+    {
+        // V = | V0 0  |
+        //     |  0 V1 |
+        View( V0, V, IR(0,n0), IR(0,n0) );
+        View( V1, V, IR(n0,END), IR(n0,END) );
+    }
+    else
+    {
+        View( V0, V, IR(0), IR(0,n0) );
+        View( V1, V, IR(1), IR(n0,END) );
+    }
 
     // Before permutation, 
     //
@@ -133,16 +157,17 @@ Merge
     //
     // Cf. LAPACK's {s,d}lasd2 [CITATION] for this tolerance.
     const Real eps = limits::Epsilon<Real>();
-    const Real deflationTol = ctrl.deflationFudge*eps;
+    const Real deflationTol = dcCtrl.deflationFudge*eps;
 
     Matrix<Real> r(m,1);
     Matrix<Int> columnTypes(m,1);
     // Form the reordered left portion
-    r(0) = alpha*V0(m0,m0);
+    const Int lastRowOfV0 = ( ctrl.wantV ? m0 : 0 );
+    r(0) = alpha*V0(lastRowOfV0,m0);
     columnTypes(0) = DENSE_COLUMN;
     for( Int j=0; j<m0; ++j )
     {
-        r(j+1) = alpha*V0(m0,j);
+        r(j+1) = alpha*V0(lastRowOfV0,j);
         columnTypes(j+1) = COLUMN_NONZERO_IN_FIRST_BLOCK;
     }
     for( Int j=0; j<m1; ++j )
@@ -181,17 +206,29 @@ Merge
             //    | V(0:m0,m0),      0      | | cExtra, -sExtra |.
             //    |      0,     V(m0+1:m,m) | | sExtra,  cExtra |
             //
-            for( Int i=0; i<m0+1; ++i )
+            if( ctrl.wantV )
             {
-                const Real nu = V(i,m0);
-                V(i,m0) =  cExtra*nu;
-                V(i,m)  = -sExtra*nu;
+                for( Int i=0; i<m0+1; ++i )
+                {
+                    const Real nu = V(i,m0);
+                    V(i,m0) =  cExtra*nu;
+                    V(i,m)  = -sExtra*nu;
+                }
+                for( Int i=m0+1; i<n; ++i )
+                {
+                    const Real nu = V(i,m);
+                    V(i,m0) = sExtra*nu;
+                    V(i,m)  = cExtra*nu;
+                }
             }
-            for( Int i=m0+1; i<n; ++i )
+            else
             {
-                const Real nu = V(i,m);
-                V(i,m0) = sExtra*nu;
-                V(i,m)  = cExtra*nu;
+                const Real nu0 = V(0,m0);
+                V(0,m0) = cExtra*nu0;
+                V(0,m) = -sExtra*nu0;
+                const Real nu1 = V(1,m);
+                V(1,m0) = sExtra*nu1;
+                V(1,m) = cExtra*nu1;
             }
             // V(:,m) should now lie in the null space of the inner matrix.
         }
@@ -290,9 +327,16 @@ Merge
             // We are mixing nonzero structures in the first column of U,
             // so we might as well always treat the first column as dense.
             //
-            // TODO(poulson): Exploit the nonzero structure of V?
             const Int jOrig = combinedToOrig( j );
-            blas::Rot( n, &V(0,m0), 1, &V(0,jOrig), 1, c, s );
+            if( ctrl.wantV )
+            {
+                // TODO(poulson): Exploit the nonzero structure of V?
+                blas::Rot( n, &V(0,m0), 1, &V(0,jOrig), 1, c, s );
+            }
+            else
+            {
+                blas::Rot( 2, &V(0,m0), 1, &V(0,jOrig), 1, c, s );
+            }
 
             deflationPerm.SetImage( j, (m-1)-numDeflated );
             if( ctrl.progress )
@@ -361,11 +405,22 @@ Merge
             // Apply | c -s | from the right to U and V
             //       | s  c |
             //
-            // TODO(poulson): Exploit the nonzero structure of U and V?
             const Int revivalOrig = combinedToOrig( revivalCandidate );
             const Int jOrig = combinedToOrig( j );
-            blas::Rot( m, &U(0,jOrig), 1, &U(0,revivalOrig), 1, c, s );
-            blas::Rot( n, &V(0,jOrig), 1, &V(0,revivalOrig), 1, c, s );
+            if( ctrl.wantU )
+            {
+                // TODO(poulson): Exploit the nonzero structure of U?
+                blas::Rot( m, &U(0,jOrig), 1, &U(0,revivalOrig), 1, c, s );
+            }
+            if( ctrl.wantV )
+            {
+                // TODO(poulson): Exploit the nonzero structure of V?
+                blas::Rot( n, &V(0,jOrig), 1, &V(0,revivalOrig), 1, c, s );
+            }
+            else
+            {
+                blas::Rot( 2, &V(0,jOrig), 1, &V(0,revivalOrig), 1, c, s );
+            }
 
             deflationPerm.SetImage( revivalCandidate, (m-1)-numDeflated );
             if( ctrl.progress )
@@ -452,8 +507,12 @@ Merge
     Matrix<Real> dPacked;
     Matrix<Real> UPacked, VPacked;
     dPacked.Resize( m, 1 );
-    UPacked.Resize( m, m );
-    VPacked.Resize( n, m );
+    if( ctrl.wantU )
+        UPacked.Resize( m, m );
+    if( ctrl.wantV )
+        VPacked.Resize( n, m );
+    else
+        VPacked.Resize( 2, m );
     Permutation packingPerm;
     packingPerm.MakeIdentity( m );
     for( Int j=0; j<m; ++j )
@@ -471,9 +530,20 @@ Merge
         const Int jOrig = combinedToOrig( j );
 
         dPacked(packingDest) = d(j);
-        // TODO(poulson): Exploit the nonzero structure of U and V?
-        blas::Copy( m, &U(0,jOrig), 1, &UPacked(0,packingDest), 1 );
-        blas::Copy( n, &V(0,jOrig), 1, &VPacked(0,packingDest), 1 );
+        if( ctrl.wantU )
+        {
+            // TODO(poulson): Exploit the nonzero structure of U?
+            blas::Copy( m, &U(0,jOrig), 1, &UPacked(0,packingDest), 1 );
+        }
+        if( ctrl.wantV )
+        {
+            // TODO(poulson): Exploit the nonzero structure of V?
+            blas::Copy( n, &V(0,jOrig), 1, &VPacked(0,packingDest), 1 );
+        }
+        else
+        {
+            blas::Copy( 2, &V(0,jOrig), 1, &VPacked(0,packingDest), 1 );
+        }
     }
 
     // Put the deflated columns in their final destination and shrink UPacked
@@ -484,17 +554,34 @@ Merge
     {
         blas::Copy
         ( numDeflated, &dPacked(numUndeflated), 1, &d(numUndeflated), 1 );
-        lapack::Copy
-        ( 'A', m, numDeflated,
-          &UPacked(0,numUndeflated), UPacked.LDim(),
-          &U(0,numUndeflated), U.LDim() );
-        lapack::Copy
-        ( 'A', n, numDeflated,
-          &VPacked(0,numUndeflated), VPacked.LDim(),
-          &V(0,numUndeflated), V.LDim() );
+        if( ctrl.wantU )
+        {
+            lapack::Copy
+            ( 'A', m, numDeflated,
+              &UPacked(0,numUndeflated), UPacked.LDim(),
+              &U(0,numUndeflated), U.LDim() );
+        }
+        if( ctrl.wantV )
+        {
+            lapack::Copy
+            ( 'A', n, numDeflated,
+              &VPacked(0,numUndeflated), VPacked.LDim(),
+              &V(0,numUndeflated), V.LDim() );
+        }
+        else
+        {
+            lapack::Copy
+            ( 'A', 2, numDeflated,
+              &VPacked(0,numUndeflated), VPacked.LDim(),
+              &V(0,numUndeflated), V.LDim() );
+        }
     }
-    UPacked.Resize( m, numUndeflated );
-    VPacked.Resize( n, numUndeflated );
+    if( ctrl.wantU )
+        UPacked.Resize( m, numUndeflated );
+    if( ctrl.wantV )
+        VPacked.Resize( n, numUndeflated );
+    else
+        VPacked.Resize( 2, numUndeflated );
 
     // Now compute the updated singular vectors using UPacked/VPacked
     // ==============================================================
@@ -507,33 +594,55 @@ Merge
         Output("Computing corrected update vector");
     Matrix<Real> rCorrected;
     Ones( rCorrected, numUndeflated, 1 );
-    auto vScratch = V(undeflatedInd,IR(0));
+
+    // Ensure that there is sufficient space for storing the needed singular
+    // vectors from the undeflated secular equation. Notice that we *always*
+    // need to compute the right singular vectors of the undeflated secular
+    // equation.
+    Matrix<Real> USecular, VSecular;
+    if( ctrl.wantU )
+        View( USecular, U, undeflatedInd, undeflatedInd );
+    if( ctrl.wantV )
+        View( VSecular, V, undeflatedInd, undeflatedInd );
+    else
+        VSecular.Resize( numUndeflated, numUndeflated );
+
+    // For temporarily storing dUndeflated + d(j)
+    Matrix<Real> plusShift;
+    if( ctrl.wantU )
+        View( plusShift, USecular, ALL, IR(0) );
+    else
+        plusShift.Resize( numUndeflated, 1 );
+
     for( Int j=0; j<numUndeflated; ++j )
     {
-        auto u = U(undeflatedInd,IR(j));
+        auto minusShift = VSecular( ALL, IR(j) );
+
         auto valueInfo =
           SecularSingularValue
-          ( j, dUndeflated, rho, rUndeflated, d(j), u, vScratch,
-            ctrl.secularCtrl );
+          ( j, dUndeflated, rho, rUndeflated, d(j), minusShift, plusShift,
+            dcCtrl.secularCtrl );
 
         secularInfo.numIterations += valueInfo.numIterations;
         secularInfo.numAlternations += valueInfo.numAlternations;
         secularInfo.numCubicIterations += valueInfo.numCubicIterations;
         secularInfo.numCubicFailures += valueInfo.numCubicFailures;
 
-        // u currently holds dUndeflated-d(j) and vScratch currently holds
-        // dUndeflated+d(j). Overwrite u with their element-wise product since
-        // that is all we require from here on out.
+        // minusShift currently holds dUndeflated-d(j) and plusShift
+        // holds dUndeflated+d(j). Overwrite minusShift with their
+        // element-wise product since that is all we require from here on
+        // out.
         for( Int k=0; k<numUndeflated; ++k )
-            u(k) *= vScratch(k);
+            minusShift(k) *= plusShift(k);
 
-        rCorrected(j) *= u(j);
+        rCorrected(j) *= minusShift(j);
         for( Int k=0; k<numUndeflated; ++k )
         {
             if( k == j )
                 continue;
-            rCorrected(k) *= u(k) /
-              ((dUndeflated(j)+dUndeflated(k))*(dUndeflated(j)-dUndeflated(k)));
+            rCorrected(k) *= minusShift(k) /
+              ((dUndeflated(j)+dUndeflated(k))*
+               (dUndeflated(j)-dUndeflated(k)));
         }
     }
     for( Int j=0; j<numUndeflated; ++j )
@@ -541,20 +650,39 @@ Merge
 
     // Compute the unnormalized left and right singular vectors via Eqs. (3.4)
     // and (3.3), respectively, from Gu/Eisenstat [CITATION].
-    for( Int j=0; j<numUndeflated; ++j )
+    if( ctrl.wantU )
     {
-        auto u = U(undeflatedInd,IR(j));
-        auto v = V(undeflatedInd,IR(j));
+        for( Int j=0; j<numUndeflated; ++j )
         {
-            const Real deltaSqMinusShiftSq = u(0);
-            u(0) = -1;
-            v(0) = rCorrected(0) / deltaSqMinusShiftSq;
+            auto u = USecular(ALL,IR(j));
+            auto v = VSecular(ALL,IR(j));
+            {
+                const Real deltaSqMinusShiftSq = v(0);
+                v(0) = rCorrected(0) / deltaSqMinusShiftSq;
+                u(0) = -1;
+            }
+            for( Int i=1; i<numUndeflated; ++i )
+            {
+                const Real deltaSqMinusShiftSq = v(i);
+                v(i) = rCorrected(i) / deltaSqMinusShiftSq;
+                u(i) = dUndeflated(i) * v(i);
+            }
         }
-        for( Int i=1; i<numUndeflated; ++i )
+    }
+    else
+    {
+        for( Int j=0; j<numUndeflated; ++j )
         {
-            const Real deltaSqMinusShiftSq = u(i);
-            v(i) = rCorrected(i) / deltaSqMinusShiftSq;
-            u(i) = dUndeflated(i) * v(i);
+            auto v = VSecular(ALL,IR(j));
+            {
+                const Real deltaSqMinusShiftSq = v(0);
+                v(0) = rCorrected(0) / deltaSqMinusShiftSq;
+            }
+            for( Int i=1; i<numUndeflated; ++i )
+            {
+                const Real deltaSqMinusShiftSq = v(i);
+                v(i) = rCorrected(i) / deltaSqMinusShiftSq;
+            }
         }
     }
 
@@ -563,14 +691,17 @@ Merge
     // of UPacked with Q to be equal to the unpacked U times the left singular
     // vectors from the secular equation.
     Matrix<Real> Q;
-    Zeros( Q, numUndeflated, numUndeflated );
-    for( Int j=0; j<numUndeflated; ++j )
+    if( ctrl.wantU )
     {
-        auto u = U(undeflatedInd,IR(j));
-        auto q = Q(undeflatedInd,IR(j));
-        const Real uFrob = FrobeniusNorm( u );
-        for( Int i=0; i<numUndeflated; ++i )
-            q(i) = u(packingPerm.Preimage(i)) / uFrob;
+        Zeros( Q, numUndeflated, numUndeflated );
+        for( Int j=0; j<numUndeflated; ++j )
+        {
+            auto u = USecular(ALL,IR(j));
+            auto q = Q(ALL,IR(j));
+            const Real uFrob = FrobeniusNorm( u );
+            for( Int i=0; i<numUndeflated; ++i )
+                q(i) = u(packingPerm.Preimage(i)) / uFrob;
+        }
     }
     // Overwrite the first 'numUndeflated' columns of U with the updated left
     // singular vectors by exploiting the partitioning of Z = UPacked as,
@@ -594,40 +725,44 @@ Merge
     //                     |-------------|
     //                     | Z_{2,1} Q_1 |
     //
-    if( ctrl.progress )
-        Output("Overwriting left singular vectors");
-    auto UUndeflated = U( ALL, undeflatedInd );
-    if( ctrl.exploitStructure )
+    if( ctrl.wantU )
     {
-        auto Z2 = UPacked( ALL, packingInd2 );
-        auto Q2 = Q( packingInd2, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z2, Q2, UUndeflated );
+        if( ctrl.progress )
+            Output("Overwriting left singular vectors");
+        auto UUndeflated = U( ALL, undeflatedInd );
+        if( dcCtrl.exploitStructure )
+        {
+            auto Z2 = UPacked( ALL, packingInd2 );
+            auto Q2 = Q( packingInd2, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z2, Q2, UUndeflated );
 
-        // Finish updating the first block row
-        auto U0 = UUndeflated( IR(0,m0), ALL );
-        auto Z00 = UPacked( IR(0,m0), packingInd0 );
-        auto Q0 = Q( packingInd0, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z00, Q0, Real(1), U0 );
+            // Finish updating the first block row
+            auto U0 = UUndeflated( IR(0,m0), ALL );
+            auto Z00 = UPacked( IR(0,m0), packingInd0 );
+            auto Q0 = Q( packingInd0, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z00, Q0, Real(1), U0 );
 
-        // Finish updating the last block row
-        auto U2 = UUndeflated( IR(n0,m), ALL );
-        auto Z21 = UPacked( IR(n0,m), packingInd1 );
-        auto Q1 = Q( packingInd1, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z21, Q1, Real(1), U2 );
-    }
-    else
-    {
-        Gemm( NORMAL, NORMAL, Real(1), UPacked, Q, UUndeflated );
+            // Finish updating the last block row
+            auto U2 = UUndeflated( IR(n0,m), ALL );
+            auto Z21 = UPacked( IR(n0,m), packingInd1 );
+            auto Q1 = Q( packingInd1, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z21, Q1, Real(1), U2 );
+        }
+        else
+        {
+            Gemm( NORMAL, NORMAL, Real(1), UPacked, Q, UUndeflated );
+        }
     }
 
     // Form the normalized right singular vectors with the rows permuted by
     // the inverse of the packing permutation in Q. This allows the product
     // of VPacked with Q to be equal to the unpacked V times the right singular
     // vectors from the secular equation.
+    Q.Resize( numUndeflated, numUndeflated );
     for( Int j=0; j<numUndeflated; ++j )
     {
-        auto v = V(undeflatedInd,IR(j));
-        auto q = Q(undeflatedInd,IR(j));
+        auto v = VSecular(ALL,IR(j));
+        auto q = Q(ALL,IR(j));
         const Real vFrob = FrobeniusNorm( v );
         for( Int i=0; i<numUndeflated; ++i )
             q(i) = v(packingPerm.Preimage(i)) / vFrob;
@@ -652,27 +787,55 @@ Merge
     if( ctrl.progress )
         Output("Overwriting right singular vectors");
     auto VUndeflated = V( ALL, undeflatedInd );
-    if( ctrl.exploitStructure )
+    if( ctrl.wantV )
     {
-        auto Z2 = VPacked( ALL, packingInd2 );
-        auto Q2 = Q( packingInd2, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z2, Q2, VUndeflated );
+        if( dcCtrl.exploitStructure )
+        {
+            auto Z2 = VPacked( ALL, packingInd2 );
+            auto Q2 = Q( packingInd2, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z2, Q2, VUndeflated );
 
-        // Finish updating the first block row
-        auto V0 = VUndeflated( IR(0,n0), ALL );
-        auto Z00 = VPacked( IR(0,n0), packingInd0 );
-        auto Q0 = Q( packingInd0, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z00, Q0, Real(1), V0 );
+            // Finish updating the first block row
+            auto V0 = VUndeflated( IR(0,n0), ALL );
+            auto Z00 = VPacked( IR(0,n0), packingInd0 );
+            auto Q0 = Q( packingInd0, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z00, Q0, Real(1), V0 );
 
-        // Finish updating the second block row
-        auto V1 = VUndeflated( IR(n0,n), ALL );
-        auto Z11 = VPacked( IR(n0,n), packingInd1 );
-        auto Q1 = Q( packingInd1, ALL );
-        Gemm( NORMAL, NORMAL, Real(1), Z11, Q1, Real(1), V1 );
+            // Finish updating the second block row
+            auto V1 = VUndeflated( IR(n0,n), ALL );
+            auto Z11 = VPacked( IR(n0,n), packingInd1 );
+            auto Q1 = Q( packingInd1, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z11, Q1, Real(1), V1 );
+        }
+        else
+        {
+            Gemm( NORMAL, NORMAL, Real(1), VPacked, Q, VUndeflated );
+        }
     }
     else
     {
-        Gemm( NORMAL, NORMAL, Real(1), VPacked, Q, VUndeflated );
+        if( dcCtrl.exploitStructure )
+        {
+            auto Z2 = VPacked( ALL, packingInd2 );
+            auto Q2 = Q( packingInd2, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z2, Q2, VUndeflated );
+
+            // Finish updating the first block row
+            auto V0 = VUndeflated( IR(0), ALL );
+            auto Z00 = VPacked( IR(0), packingInd0 );
+            auto Q0 = Q( packingInd0, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z00, Q0, Real(1), V0 );
+
+            // Finish updating the second block row
+            auto V1 = VUndeflated( IR(1), ALL );
+            auto Z11 = VPacked( IR(1), packingInd1 );
+            auto Q1 = Q( packingInd1, ALL );
+            Gemm( NORMAL, NORMAL, Real(1), Z11, Q1, Real(1), V1 );
+        }
+        else
+        {
+            Gemm( NORMAL, NORMAL, Real(1), VPacked, Q, VUndeflated );
+        }
     }
 
     // Rescale the singular values
@@ -689,22 +852,38 @@ DivideAndConquer
         Matrix<Real>& U,
         Matrix<Real>& s,
         Matrix<Real>& V,
-  const DCCtrl<Real>& ctrl=DCCtrl<Real>() )
+  const BidiagSVDCtrl<Real>& ctrl=BidiagSVDCtrl<Real>() )
 {
     DEBUG_CSE
     const Int m = mainDiag.Height();
     const Int n = superDiag.Height() + 1;
+    const auto& dcCtrl = ctrl.dcCtrl;
+
     DCInfo info;
     auto& secularInfo = info.secularInfo;
     auto& deflationInfo = info.deflationInfo;
 
-    if( m <= ctrl.cutoff )
+    if( m <= dcCtrl.cutoff )
     {
-        BidiagSVDCtrl<Real> bidiagSVDCtrl;
-        bidiagSVDCtrl.approach = FULL_SVD; // We need any null space as well
-        bidiagSVDCtrl.progress = ctrl.progress;
-        bidiagSVDCtrl.useQR = true;
-        BidiagSVD( UPPER, mainDiag, superDiag, U, s, V, bidiagSVDCtrl );
+        auto ctrlMod( ctrl );
+        ctrlMod.useQR = true;
+        ctrlMod.approach = FULL_SVD; // We need any null space of V as well
+        if( ctrl.wantV )
+        {
+            ctrlMod.accumulateU = false;
+            ctrlMod.accumulateV = false;
+            BidiagSVD( UPPER, mainDiag, superDiag, U, s, V, ctrlMod );
+        }
+        else
+        {
+            ctrlMod.accumulateU = false;
+            ctrlMod.wantV = true;
+            ctrlMod.accumulateV = true;
+            Zeros( V, 2, n );
+            V(0,0) = 1;
+            V(1,n-1) = 1;
+            BidiagSVD( UPPER, mainDiag, superDiag, U, s, V, ctrlMod );
+        }
         return info;
     }
 
@@ -716,24 +895,49 @@ DivideAndConquer
     const Real& alpha = mainDiag(split);
     const Real& beta = superDiag(split);
 
-    Identity( U, m, m );
-    Zeros( V, n, n );
-
     auto mainDiag0 = mainDiag( IR(0,split), ALL );
     auto superDiag0 = superDiag( IR(0,split), ALL );
-    auto U0 = U( IR(0,split), IR(0,split) );
-    auto V0 = V( IR(0,split+1), IR(0,split+1) );
-    Matrix<Real> s0;
-    auto info0 = DivideAndConquer( mainDiag0, superDiag0, U0, s0, V0, ctrl );
 
     auto mainDiag1 = mainDiag( IR(split+1,END), ALL );
     auto superDiag1 = superDiag( IR(split+1,END), ALL );
-    auto U1 = U( IR(split+1,END), IR(split+1,END) );
-    auto V1 = V( IR(split+1,END), IR(split+1,END) );
+
+    Matrix<Real> U0, U1;
+    if( ctrl.wantU )
+    {
+        Identity( U, m, m );
+        View( U0, U, IR(0,split), IR(0,split) );
+        View( U1, U, IR(split+1,END), IR(split+1,END) );
+    }
+
+    Matrix<Real> V0, V1;
+    if( ctrl.wantV )
+    {
+        Zeros( V, n, n );
+        View( V0, V, IR(0,split+1), IR(0,split+1) );
+        View( V1, V, IR(split+1,END), IR(split+1,END) );
+    }
+    else
+    {
+        Zeros( V0, 2, split+1 );
+        Zeros( V1, 2, n-(split+1) );
+    }
+
+    Matrix<Real> s0;
+    auto info0 = DivideAndConquer( mainDiag0, superDiag0, U0, s0, V0, ctrl );
+
     Matrix<Real> s1;
     auto info1 = DivideAndConquer( mainDiag1, superDiag1, U1, s1, V1, ctrl );
 
-    info = Merge( alpha, beta, s0, s1, U, s, V, ctrl );
+    if( !ctrl.wantV )
+    {
+        // We must manually pack the last row of V0 and the first row of V1
+        Zeros( V, 2, n );
+        auto V0Last = V( IR(0), IR(0,split+1) );
+        auto V1First = V( IR(1), IR(split+1,n) );
+        V0Last = V0( IR(1), ALL );
+        V1First = V1( IR(0), ALL );
+    }
+    info = Merge( m, n, alpha, beta, s0, s1, U, s, V, ctrl );
 
     secularInfo.numIterations += info0.secularInfo.numIterations;
     secularInfo.numIterations += info1.secularInfo.numIterations;

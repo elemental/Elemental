@@ -316,7 +316,7 @@ Helper
             if( ctrl.wantV && ctrl.accumulateV )
             {
                 ApplyGivensSequence
-                ( RIGHT, VARIABLE_GIVENS_SEQUENCE, BACKWARD,
+                ( RIGHT, VARIABLE_GIVENS_SEQUENCE, FORWARD,
                   cDeflateList, sDeflateList, V );
             }
             
@@ -372,7 +372,7 @@ Helper
         if( ctrl.wantU && ctrl.accumulateU )
         {
             ApplyGivensSequence
-            ( RIGHT, VARIABLE_GIVENS_SEQUENCE, BACKWARD, 
+            ( RIGHT, VARIABLE_GIVENS_SEQUENCE, FORWARD, 
               cFlipList, sFlipList, U );
         }
     }
@@ -388,8 +388,7 @@ Helper
         else
         {
             info.dcInfo =
-              bidiag_svd::DivideAndConquer
-              ( mainDiag, offDiag, U, s, V, ctrl.dcCtrl );
+              bidiag_svd::DivideAndConquer( mainDiag, offDiag, U, s, V, ctrl );
         }
 
         auto sortPairs = TaggedSort( s, DESCENDING );
@@ -421,7 +420,7 @@ Helper
         {
             info.dcInfo =
               bidiag_svd::DivideAndConquer
-              ( mainDiag, offDiag0, U0, s, V, ctrl.dcCtrl );
+              ( mainDiag, offDiag0, U0, s, V, ctrl );
         }
 
         auto sortPairs = TaggedSort( s, DESCENDING );
@@ -453,7 +452,7 @@ Helper
         {
             info.dcInfo =
               bidiag_svd::DivideAndConquer
-              ( mainDiag, offDiag0, U, s, V0, ctrl.dcCtrl );
+              ( mainDiag, offDiag0, U, s, V0, ctrl );
         }
 
         auto sortPairs = TaggedSort( s, DESCENDING );

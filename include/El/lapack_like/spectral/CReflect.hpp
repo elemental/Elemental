@@ -442,7 +442,6 @@ inline bidiag_svd::DCCtrl<float> CReflect( const ElBidiagSVDDCCtrl_s& ctrlC )
     ctrl.deflationFudge = ctrlC.deflationFudge;
     ctrl.cutoff = ctrlC.cutoff;
     ctrl.exploitStructure = ctrlC.exploitStructure;
-    ctrl.progress = ctrlC.progress;
     return ctrl;
 }
 
@@ -453,7 +452,6 @@ inline bidiag_svd::DCCtrl<double> CReflect( const ElBidiagSVDDCCtrl_d& ctrlC )
     ctrl.deflationFudge = ctrlC.deflationFudge;
     ctrl.cutoff = ctrlC.cutoff;
     ctrl.exploitStructure = ctrlC.exploitStructure;
-    ctrl.progress = ctrlC.progress;
     return ctrl;
 }
 
@@ -464,7 +462,6 @@ inline ElBidiagSVDDCCtrl_s CReflect( const bidiag_svd::DCCtrl<float>& ctrl )
     ctrlC.deflationFudge = ctrl.deflationFudge;
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.exploitStructure = ctrl.exploitStructure;
-    ctrlC.progress = ctrl.progress;
     return ctrlC;
 }
 inline ElBidiagSVDDCCtrl_d CReflect( const bidiag_svd::DCCtrl<double>& ctrl )
@@ -474,7 +471,6 @@ inline ElBidiagSVDDCCtrl_d CReflect( const bidiag_svd::DCCtrl<double>& ctrl )
     ctrlC.deflationFudge = ctrl.deflationFudge;
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.exploitStructure = ctrl.exploitStructure;
-    ctrlC.progress = ctrl.progress;
     return ctrlC;
 }
 

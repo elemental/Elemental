@@ -826,8 +826,6 @@ struct DCCtrl
     // singular vectors with the outer singular vectors? This should only be
     // disabled for academic reasons.
     bool exploitStructure = true;
-
-    bool progress = false;
 };
 
 // Cf. Section 4 of Gu and Eisenstat's "A Divide-and-Conquer Algorithm for the
@@ -887,7 +885,7 @@ struct BidiagSVDCtrl
 
     bool progress=false;
 
-    bool useQR = false;
+    bool useQR=false;
     bidiag_svd::QRCtrl qrCtrl;
     bidiag_svd::DCCtrl<Real> dcCtrl;
 };
