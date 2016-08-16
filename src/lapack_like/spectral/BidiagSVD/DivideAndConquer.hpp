@@ -282,10 +282,11 @@ Merge
         if( Abs(r(j)) <= deflationTol )
         {
             // We can deflate due to the r component being sufficiently small
-            deflationPerm.SetImage( j, (m-1)-numDeflated );
+            const Int deflationDest = (m-1) - numDeflated;
+            deflationPerm.SetImage( j, deflationDest );
             if( ctrl.progress )
                 Output
-                ("Deflating via p(",j,")=",(m-1)-numDeflated,
+                ("Deflating via p(",j,")=",deflationDest,
                  " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
             ++numDeflated;
@@ -338,10 +339,11 @@ Merge
                 blas::Rot( 2, &V(0,m0), 1, &V(0,jOrig), 1, c, s );
             }
 
-            deflationPerm.SetImage( j, (m-1)-numDeflated );
+            const Int deflationDest = (m-1) - numDeflated;
+            deflationPerm.SetImage( j, deflationDest );
             if( ctrl.progress )
                 Output
-                ("Deflating via p(",j,")=",(m-1)-numDeflated,
+                ("Deflating via p(",j,")=",deflationDest,
                  " because d(",j,")=",d(j)," <= ",deflationTol);
 
             columnTypes(j) = DEFLATED_COLUMN;
@@ -358,14 +360,18 @@ Merge
             break;
         }
     }
-    for( Int j=revivalCandidate+1; j<m; ++j )
+    // If we already fully deflated, then the following loop should be trivial
+    const Int deflationRestart =
+      ( revivalCandidate==0 ? m : revivalCandidate+1 );
+    for( Int j=deflationRestart; j<m; ++j )
     {
         if( Abs(r(j)) <= deflationTol )
         {
-            deflationPerm.SetImage( j, (m-1)-numDeflated );
+            const Int deflationDest = (m-1) - numDeflated;
+            deflationPerm.SetImage( j, deflationDest );
             if( ctrl.progress )
                 Output
-                ("Deflating via p(",j,")=",(m-1)-numDeflated,
+                ("Deflating via p(",j,")=",deflationDest,
                  " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
             ++numDeflated;
@@ -422,11 +428,12 @@ Merge
                 blas::Rot( 2, &V(0,jOrig), 1, &V(0,revivalOrig), 1, c, s );
             }
 
-            deflationPerm.SetImage( revivalCandidate, (m-1)-numDeflated );
+            const Int deflationDest = (m-1) - numDeflated;
+            deflationPerm.SetImage( revivalCandidate, deflationDest );
             if( ctrl.progress )
                 Output
                 ("Deflating via p(",revivalCandidate,")=",
-                 (m-1)-numDeflated," because d(",j,")=",d(j),
+                 deflationDest," because d(",j,")=",d(j),
                  " - d(",revivalCandidate,")=",d(revivalCandidate)," <= ",
                  deflationTol);
 
@@ -591,7 +598,7 @@ Merge
     const Real rho = rUndeflatedNorm*rUndeflatedNorm;
 
     if( ctrl.progress )
-        Output("Computing corrected update vector");
+        Output("Solving secular equation and correcting update vector");
     Matrix<Real> rCorrected;
     Ones( rCorrected, numUndeflated, 1 );
 
@@ -622,6 +629,8 @@ Merge
           SecularSingularValue
           ( j, dUndeflated, rho, rUndeflated, d(j), minusShift, plusShift,
             dcCtrl.secularCtrl );
+        if( ctrl.progress )
+            Output("Secular singular value ",j," is ",d(j));
 
         secularInfo.numIterations += valueInfo.numIterations;
         secularInfo.numAlternations += valueInfo.numAlternations;
@@ -650,6 +659,8 @@ Merge
 
     // Compute the unnormalized left and right singular vectors via Eqs. (3.4)
     // and (3.3), respectively, from Gu/Eisenstat [CITATION].
+    if( ctrl.progress )
+        Output("Computing unnormalized singular vectors");
     if( ctrl.wantU )
     {
         for( Int j=0; j<numUndeflated; ++j )
@@ -690,6 +701,8 @@ Merge
     // the inverse of the packing permutation in Q. This allows the product
     // of UPacked with Q to be equal to the unpacked U times the left singular
     // vectors from the secular equation.
+    if( ctrl.progress )
+        Output("Forming undeflated left singular vectors");
     Matrix<Real> Q;
     if( ctrl.wantU )
     {
@@ -758,6 +771,8 @@ Merge
     // the inverse of the packing permutation in Q. This allows the product
     // of VPacked with Q to be equal to the unpacked V times the right singular
     // vectors from the secular equation.
+    if( ctrl.progress )
+        Output("Forming undeflated right singular vectors");
     Q.Resize( numUndeflated, numUndeflated );
     for( Int j=0; j<numUndeflated; ++j )
     {

@@ -225,29 +225,40 @@ Helper
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( !ctrl.useQR && (ctrl.accumulateU || ctrl.accumulateV) )
-        LogicError
-        ("Only the QR algorithm currently supports U or V accumulation");
 
-    // TODO(poulson): Provide a means of making these a view rather than a copy?
-    auto mainDiag( mainDiagOrig );
-    auto offDiag( offDiagOrig );
-
-    if( mainDiag.Height() != offDiag.Height() &&
-        mainDiag.Height() != offDiag.Height()+1 )
-        LogicError("Invalid main and superdiagonal lengths");
-
-    const Int m = ( uplo==UPPER ? mainDiag.Height() : offDiag.Height()+1 );
-    const Int n = ( uplo==UPPER ? offDiag.Height()+1 : mainDiag.Height() );
+    const Int m =
+      ( uplo==UPPER ? mainDiagOrig.Height() : offDiagOrig.Height()+1 );
+    const Int n =
+      ( uplo==UPPER ? offDiagOrig.Height()+1 : mainDiagOrig.Height() );
     const Int minDim = Min(m,n);
     const bool square = ( m == n );
+    if( mainDiagOrig.Height() != offDiagOrig.Height() &&
+        mainDiagOrig.Height() != offDiagOrig.Height()+1 )
+        LogicError("Invalid main and superdiagonal lengths");
+
     BidiagSVDInfo info;
     if( !ctrl.wantU && !ctrl.wantV )
     {
         U.Resize( m, 0 );
         V.Resize( n, 0 );
-        return BidiagSVD( uplo, mainDiag, offDiag, s, ctrl );
+        return BidiagSVD( uplo, mainDiagOrig, offDiagOrig, s, ctrl );
     }
+
+    // We currently only support QR and D&C
+    const bool useDC = !ctrl.useQR;
+    if( useDC && m <= ctrl.dcCtrl.cutoff )
+    {
+        // The D&C algorithm will actually just be the QR algorithm, so take
+        // advantage of the fact that the QR algorithm supports direct
+        // accumulation.
+        auto ctrlMod( ctrl );
+        ctrlMod.useQR = true;
+        return BidiagSVD( uplo, mainDiagOrig, offDiagOrig, U, s, V, ctrlMod );
+    }
+
+    // TODO(poulson): Provide a means of making these a view rather than a copy?
+    auto mainDiag( mainDiagOrig );
+    auto offDiag( offDiagOrig );
 
     // TODO(poulson): Decide if accumulating into U/V is ever worthwhile for 
     // performance reasons given that there should be O(n^2 k) to subsequently
@@ -377,6 +388,16 @@ Helper
         }
     }
     // In all cases, we should now be deflated to square and upper bidiagonal
+
+    // Since D&C does not support direct accumulation, we must make a copy.
+    Matrix<Real> UCopy, VCopy;
+    if( useDC )
+    {
+        if( ctrl.wantU && ctrl.accumulateU )
+            UCopy = U;
+        if( ctrl.wantV && ctrl.accumulateV )
+            VCopy = V;
+    }
 
     if( square )
     {
@@ -537,6 +558,27 @@ Helper
             ApplyGivensSequence
             ( LEFT, VARIABLE_GIVENS_SEQUENCE, BACKWARD,
               cDeflateList, sDeflateList, V );
+        }
+    }
+
+    // As noted above, D&C does not support direct accumulation, so directly
+    // form the necessary product between the input matrices and the computed
+    // singular vectors.
+    if( useDC )
+    {
+        if( ctrl.wantU && ctrl.accumulateU )
+        {
+            // U := UCopy U
+            Matrix<Real> temp;
+            Gemm( NORMAL, NORMAL, Real(1), UCopy, U, temp ); 
+            U = temp;
+        }
+        if( ctrl.wantV && ctrl.accumulateV )
+        {
+            // V := VCopy V
+            Matrix<Real> temp;
+            Gemm( NORMAL, NORMAL, Real(1), VCopy, V, temp );
+            V = temp;
         }
     }
 

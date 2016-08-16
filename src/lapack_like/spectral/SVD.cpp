@@ -225,6 +225,11 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
+    const auto& bidiagSVDCtrl = ctrl.bidiagSVDCtrl;
+    if( (bidiagSVDCtrl.wantU && bidiagSVDCtrl.accumulateU) ||
+        (bidiagSVDCtrl.wantV && bidiagSVDCtrl.accumulateV) )
+        LogicError("SVD does not support singular vector accumulation");
+
     if( !ctrl.overwrite && ctrl.bidiagSVDCtrl.approach != PRODUCT_SVD )
     {
         auto ACopy( A );
@@ -290,6 +295,11 @@ SVDInfo SVD
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
+    const auto& bidiagSVDCtrl = ctrl.bidiagSVDCtrl;
+    if( (bidiagSVDCtrl.wantU && bidiagSVDCtrl.accumulateU) ||
+        (bidiagSVDCtrl.wantV && bidiagSVDCtrl.accumulateV) )
+        LogicError("SVD does not support singular vector accumulation");
+
     if( IsBlasScalar<F>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, U, s, V, ctrl );

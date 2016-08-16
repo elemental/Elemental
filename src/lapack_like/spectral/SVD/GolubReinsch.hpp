@@ -65,21 +65,16 @@ SVDInfo GolubReinsch
     if( ctrl.time )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
-    // Compute the SVD of the bidiagonal matrix and accumulate the singular
-    // vectors with the current U and V
+    // Compute the SVD of the bidiagonal matrix.
+    // (We can guarantee that accumulation was not requested.)
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
     auto mainDiag = GetRealPartOfDiagonal( A );
     auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
     if( ctrl.time )
         timer.Start();
-    auto bidiagSVDCtrlMod( ctrl.bidiagSVDCtrl );
-    // TODO(poulson): Switch to D&C when accumulation is supported
-    bidiagSVDCtrlMod.useQR = true;
-    bidiagSVDCtrlMod.accumulateU = true;
-    bidiagSVDCtrlMod.accumulateV = true;
     info.bidiagSVDInfo =
-      BidiagSVD( uplo, mainDiag, offDiag, U, s, V, bidiagSVDCtrlMod );
+      BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
     if( ctrl.time )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
 
@@ -127,6 +122,9 @@ SVDInfo GolubReinsch
     Bidiag( A, phaseP, phaseQ );
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
+
+    // TODO(poulson): Move this logic into a distributed BidiagSVD so that it
+    // will become transparent to switch to a distributed D&C.
 
     // Grab copies of the diagonal and sub/super-diagonal of A
     auto d_MD_STAR = GetRealPartOfDiagonal(A);
@@ -283,9 +281,8 @@ SVDInfo GolubReinsch
     auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
     if( ctrl.time )
         timer.Start();
-    auto bidiagSVDCtrlMod( ctrl.bidiagSVDCtrl );
     info.bidiagSVDInfo =
-      BidiagSVD( uplo, mainDiag, offDiag, s, bidiagSVDCtrlMod );
+      BidiagSVD( uplo, mainDiag, offDiag, s, ctrl.bidiagSVDCtrl );
     if( ctrl.time )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
 
@@ -315,6 +312,9 @@ SVDInfo GolubReinsch
     Bidiag( A, phaseP, phaseQ );
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
+
+    // TODO(poulson): Move this logic into a distributed BidiagSVD so that the
+    // move to a distributed D&C will be transparent.
 
     // Grab copies of the diagonal and sub/super-diagonal of A
     auto d_MD_STAR = GetRealPartOfDiagonal(A);
