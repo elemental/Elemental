@@ -901,14 +901,24 @@ Real APosterioriThreshold
 
 } // namespace bidiag_svd
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename F>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  const Matrix<Real>& mainDiag,
-  const Matrix<Real>& offDiag,
-        Matrix<Real>& s,
-  const BidiagSVDCtrl<Real>& ctrl=BidiagSVDCtrl<Real>() );
+  const Matrix<F>& mainDiag,
+  const Matrix<F>& offDiag,
+        Matrix<Base<F>>& s,
+  const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
+template<typename F>
+BidiagSVDInfo
+BidiagSVD
+( UpperOrLower uplo,
+  const Matrix<F>& mainDiag,
+  const Matrix<F>& offDiag,
+        Matrix<F>& U,
+        Matrix<Base<F>>& s,
+        Matrix<F>& V,
+  const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
 template<typename F>
 BidiagSVDInfo
 BidiagSVD
@@ -918,6 +928,35 @@ BidiagSVD
         Matrix<F>& U,
         Matrix<Base<F>>& s,
         Matrix<F>& V,
+  const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
+
+template<typename F>
+BidiagSVDInfo
+BidiagSVD
+( UpperOrLower uplo,
+  const AbstractDistMatrix<F>& mainDiag,
+  const AbstractDistMatrix<F>& offDiag,
+        AbstractDistMatrix<Base<F>>& s,
+  const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
+template<typename F>
+BidiagSVDInfo
+BidiagSVD
+( UpperOrLower uplo,
+  const AbstractDistMatrix<F>& mainDiag,
+  const AbstractDistMatrix<F>& offDiag,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s,
+        AbstractDistMatrix<F>& V,
+  const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
+template<typename F>
+BidiagSVDInfo
+BidiagSVD
+( UpperOrLower uplo,
+  const AbstractDistMatrix<Base<F>>& mainDiag,
+  const AbstractDistMatrix<Base<F>>& offDiag,
+        AbstractDistMatrix<F>& U,
+        AbstractDistMatrix<Base<F>>& s,
+        AbstractDistMatrix<F>& V,
   const BidiagSVDCtrl<Base<F>>& ctrl=BidiagSVDCtrl<Base<F>>() );
 
 // Singular Value Decomposition

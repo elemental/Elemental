@@ -410,6 +410,15 @@ BigInt Sgn( const BigInt& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 BigFloat Sgn( const BigFloat& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 #endif
 
+// Return the phase of a real or complex element
+// ---------------------------------------------
+// Note that this is a strict generalization of Sgn
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+Real Phase( const Real& alpha, bool symmetric=true ) EL_NO_EXCEPT;
+template<typename Real>
+Complex<Real> Phase( const Complex<Real>& alpha, bool symmetric=true )
+EL_NO_EXCEPT;
+
 // Exponentiation
 // ==============
 template<typename F,

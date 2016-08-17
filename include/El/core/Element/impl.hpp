@@ -285,6 +285,19 @@ Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
         return Real(0);
 }
 
+template<typename Real,typename>
+Real Phase( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
+{ return Sgn( alpha, symmetric ); }
+template<typename Real>
+Complex<Real> Phase( const Complex<Real>& alpha, bool symmetric ) EL_NO_EXCEPT
+{
+    const Real alphaAbs = Abs(alpha);
+    if( alphaAbs == Real(0) )
+        return ( symmetric ? Complex<Real>(0) : Complex<Real>(1) );
+    else
+        return alpha / alphaAbs;
+}
+
 // Exponentiation
 // ==============
 template<typename F,typename,typename>
