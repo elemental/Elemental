@@ -115,24 +115,27 @@ void TestSequentialSVD
     // Compute the residual error
     const Real twoNormA = MaxNorm( s );
     const Real maxNormA = MaxNorm( A );
-    const Int numSingVals = s.Height();
-    auto UL = U( ALL, IR(0,numSingVals) );
-    auto VL = V( ALL, IR(0,numSingVals) );
-    DiagonalScale( RIGHT, NORMAL, s, UL );
-    E = A;
-    Gemm( NORMAL, ADJOINT, F(-1), UL, VL, F(1), E );
-    if( print )
-        Print( E, "A - U S V'" );
-    const Real maxNormE = MaxNorm( E );
-    const Real frobNormE = FrobeniusNorm( E );
-    const Real eps = limits::Epsilon<Real>();
-    const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
     Output("|| A ||_max   = ",maxNormA);
     Output("|| A ||_2     = ",twoNormA);
-    Output("||A - U Sigma V^H||_max = ",maxNormE);
-    Output("||A - U Sigma V^H||_F   = ",frobNormE);
-    Output
-    ("||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = ",scaledResidual);
+    const Int numSingVals = s.Height();
+    if( wantU && wantV )
+    {
+        auto UL = U( ALL, IR(0,numSingVals) );
+        auto VL = V( ALL, IR(0,numSingVals) );
+        DiagonalScale( RIGHT, NORMAL, s, UL );
+        E = A;
+        Gemm( NORMAL, ADJOINT, F(-1), UL, VL, F(1), E );
+        if( print )
+            Print( E, "A - U S V'" );
+        const Real maxNormE = MaxNorm( E );
+        const Real frobNormE = FrobeniusNorm( E );
+        const Real eps = limits::Epsilon<Real>();
+        const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
+        Output("||A - U Sigma V^H||_max = ",maxNormE);
+        Output("||A - U Sigma V^H||_F   = ",frobNormE);
+        Output
+        ("||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = ",scaledResidual);
+    }
     Output("");
 }
 
@@ -250,27 +253,37 @@ void TestDistributedSVD
     const Real twoNormA = MaxNorm( s );
     const Real maxNormA = MaxNorm( A );
     const Int numSingVals = s.Height();
-    auto UL = U( ALL, IR(0,numSingVals) );
-    auto VL = V( ALL, IR(0,numSingVals) );
-    DiagonalScale( RIGHT, NORMAL, s, UL );
-    E = A;
-    Gemm( NORMAL, ADJOINT, F(-1), UL, VL, F(1), E );
-    if( print )
-        Print( E, "A - U S V'" );
-    const Real maxNormE = MaxNorm( E );
-    const Real frobNormE = FrobeniusNorm( E );
-    const Real eps = limits::Epsilon<Real>();
-    const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
     if( commRank == 0 )
     {
         Output("|| A ||_max   = ",maxNormA);
         Output("|| A ||_2     = ",twoNormA);
-        Output("||A - U Sigma V^H||_max = ",maxNormE);
-        Output("||A - U Sigma V^H||_F   = ",frobNormE);
-        Output
-        ("||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = ",scaledResidual);
-        Output("");
     }
+    if( wantU && wantV )
+    {
+        auto UL = U( ALL, IR(0,numSingVals) );
+        auto VL = V( ALL, IR(0,numSingVals) );
+        DiagonalScale( RIGHT, NORMAL, s, UL );
+        E = A;
+        Gemm( NORMAL, ADJOINT, F(-1), UL, VL, F(1), E );
+        if( print )
+            Print( E, "A - U S V'" );
+        const Real maxNormE = MaxNorm( E );
+        const Real frobNormE = FrobeniusNorm( E );
+        const Real eps = limits::Epsilon<Real>();
+        const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
+        if( commRank == 0 )
+        {
+            Output("|| A ||_max   = ",maxNormA);
+            Output("|| A ||_2     = ",twoNormA);
+            Output("||A - U Sigma V^H||_max = ",maxNormE);
+            Output("||A - U Sigma V^H||_F   = ",frobNormE);
+            Output
+            ("||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = ",
+             scaledResidual);
+        }
+    }
+    if( commRank == 0 )
+        Output("");
 }
 
 template<typename F>

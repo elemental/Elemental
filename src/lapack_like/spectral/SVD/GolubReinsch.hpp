@@ -15,13 +15,6 @@ namespace El {
 
 namespace bidiag_svd {
 
-template<typename Real>
-bidiag_svd::QRInfo
-QRAlg
-( Matrix<Real>& mainDiag,
-  Matrix<Real>& superDiag,
-  const BidiagSVDCtrl<Real>& ctrl );
-
 template<typename F>
 bidiag_svd::QRInfo
 QRAlg
@@ -262,7 +255,6 @@ SVDInfo GolubReinsch
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
     SVDInfo info;
 
     // Bidiagonalize A
@@ -275,8 +267,8 @@ SVDInfo GolubReinsch
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
     // Compute the singular values of the bidiagonal matrix
-    const Int offdiagonal = ( m>=n ? 1 : -1 );
     const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    const Int offdiagonal = ( uplo==UPPER ? 1 : -1 );
     auto mainDiag = GetRealPartOfDiagonal( A );
     auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
     if( ctrl.time )
@@ -292,15 +284,13 @@ SVDInfo GolubReinsch
 template<typename F>
 SVDInfo GolubReinsch
 ( DistMatrix<F>& A,
-  AbstractDistMatrix<Base<F>>& s,
+  AbstractDistMatrix<Base<F>>& sPre,
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
-    const Int offdiagonal = ( m>=n ? 1 : -1 );
     const Grid& g = A.Grid();
     SVDInfo info;
 
@@ -313,54 +303,19 @@ SVDInfo GolubReinsch
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
-    // TODO(poulson): Move this logic into a distributed BidiagSVD so that the
-    // move to a distributed D&C will be transparent.
-
     // Grab copies of the diagonal and sub/super-diagonal of A
-    auto d_MD_STAR = GetRealPartOfDiagonal(A);
-    auto e_MD_STAR = GetRealPartOfDiagonal(A,offdiagonal);
-
-    // In order to use serial DQDS kernels, we need the full bidiagonal matrix
-    // on each process
-    //
-    // NOTE: lapack::BidiagDQDS expects e to be of length k
-    typedef Base<F> Real;
-    DistMatrix<Real,STAR,STAR>
-      d_STAR_STAR( d_MD_STAR ),
-      eHat_STAR_STAR( k, 1, g );
-    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), ALL );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Compute the singular values of the bidiagonal matrix
+    const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    const Int offdiagonal = ( uplo==UPPER ? 1 : -1 );
+    auto mainDiag = GetRealPartOfDiagonal(A);
+    auto offDiag = GetRealPartOfDiagonal(A,offdiagonal);
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
+    auto& s = sProx.Get(); 
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    info.bidiagSVDInfo.qrInfo = bidiag_svd::QRAlg
-    ( d_STAR_STAR.Matrix(), e_STAR_STAR.Matrix(), ctrl.bidiagSVDCtrl );
+    info.bidiagSVDInfo =
+      BidiagSVD( uplo, mainDiag, offDiag, s, ctrl.bidiagSVDCtrl );
     if( ctrl.time && g.Rank() == 0 )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
-
-    const bool compact = ( ctrl.bidiagSVDCtrl.approach == COMPACT_SVD );
-    if( compact )
-    {
-        const Real twoNorm = ( k==0 ? Real(0) : d_STAR_STAR.Get(0,0) );
-        const Real thresh =
-          bidiag_svd::APosterioriThreshold
-          ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
-
-        Int rank = k;
-        for( Int j=0; j<k; ++j )
-        {
-            if( d_STAR_STAR.Get(j,0) <= thresh )
-            {
-                rank = j;
-                break;
-            }
-        }
-        d_STAR_STAR.Resize( rank, 1 );
-    }
-
-    // Copy out the appropriate subset of the singular values
-    Copy( d_STAR_STAR, s );
 
     return info;
 }

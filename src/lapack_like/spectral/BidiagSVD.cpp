@@ -57,24 +57,16 @@ Real APosterioriThreshold
 }
 
 template<typename Real>
-BidiagSVDInfo
-Helper
+void PrepareBidiagonal
 ( UpperOrLower uplo,
+  Int m,
+  Int n,
   Matrix<Real>& mainDiag,
   Matrix<Real>& offDiag,
-  Matrix<Real>& s,
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( mainDiag.Height() != offDiag.Height() &&
-        mainDiag.Height() != offDiag.Height()+1 )
-        LogicError("Invalid main and superdiagonal lengths");
-    const Int m = ( uplo==UPPER ? mainDiag.Height() : offDiag.Height()+1 );
-    const Int n = ( uplo==UPPER ? offDiag.Height()+1 : mainDiag.Height() );
-    const Int minDim = Min(m,n);
     const bool square = ( m == n );
-    BidiagSVDInfo info;
-
     UpperOrLower newUplo = uplo;
     if( !square )
     {
@@ -147,6 +139,28 @@ Helper
         }
     }
     // In all cases, we should now be deflated to square and upper bidiagonal
+}
+
+template<typename Real>
+BidiagSVDInfo
+Helper
+( UpperOrLower uplo,
+  Matrix<Real>& mainDiag,
+  Matrix<Real>& offDiag,
+  Matrix<Real>& s,
+  const BidiagSVDCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    if( mainDiag.Height() != offDiag.Height() &&
+        mainDiag.Height() != offDiag.Height()+1 )
+        LogicError("Invalid main and superdiagonal lengths");
+    const Int m = ( uplo==UPPER ? mainDiag.Height() : offDiag.Height()+1 );
+    const Int n = ( uplo==UPPER ? offDiag.Height()+1 : mainDiag.Height() );
+    const Int minDim = Min(m,n);
+    const bool square = ( m == n );
+    BidiagSVDInfo info;
+
+    PrepareBidiagonal( uplo, m, n, mainDiag, offDiag, ctrl );
 
     if( square )
     {
@@ -205,6 +219,82 @@ template<typename Real>
 BidiagSVDInfo
 Helper
 ( UpperOrLower uplo,
+  DistMatrix<Real,STAR,STAR>& mainDiag,
+  DistMatrix<Real,STAR,STAR>& offDiag,
+  DistMatrix<Real,STAR,STAR>& s,
+  const BidiagSVDCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    if( mainDiag.Height() != offDiag.Height() &&
+        mainDiag.Height() != offDiag.Height()+1 )
+        LogicError("Invalid main and superdiagonal lengths");
+    const Int m = ( uplo==UPPER ? mainDiag.Height() : offDiag.Height()+1 );
+    const Int n = ( uplo==UPPER ? offDiag.Height()+1 : mainDiag.Height() );
+    const Int minDim = Min(m,n);
+    const bool square = ( m == n );
+    BidiagSVDInfo info;
+
+    PrepareBidiagonal
+    ( uplo, m, n, mainDiag.Matrix(), offDiag.Matrix(), ctrl );
+
+    if( square )
+    {
+        s = mainDiag;
+        info.qrInfo = bidiag_svd::QRAlg( s.Matrix(), offDiag.Matrix(), ctrl );
+        Sort( s, DESCENDING );
+    }
+    else if( uplo == LOWER )
+    {
+        // We were non-square and lower bidiagonal. 
+        auto offDiag0 = offDiag( IR(0,n-1), ALL );
+        s = mainDiag;
+        info.qrInfo = bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
+        Sort( s, DESCENDING );
+    }
+    else
+    {
+        // We were non-square and upper bidiagonal. 
+        auto offDiag0 = offDiag( IR(0,m-1), ALL );
+        s = mainDiag;
+        info.qrInfo = bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
+        Sort( s, DESCENDING );
+    }
+
+    if( ctrl.approach == THIN_SVD )
+    {
+        // This should be a no-op
+    }
+    else if( ctrl.approach == COMPACT_SVD )
+    {
+        // Determine the rank
+        Int rank = minDim;
+        auto& sLoc = s.Matrix();
+        for( Int i=0; i<minDim; ++i )
+        {
+            if( sLoc(i) <= Real(0) )
+            {
+                rank = i; 
+                break;
+            } 
+        }
+        s.Resize( rank, 0 );
+    }
+    else if( ctrl.approach == FULL_SVD )
+    {
+        // This should be a no-op
+    }
+    else if( ctrl.approach == PRODUCT_SVD )
+    {
+        LogicError("Product SVD not yet supported for bidiagonal matrices");
+    }
+
+    return info;
+}
+
+template<typename Real>
+BidiagSVDInfo
+Helper
+( UpperOrLower uplo,
   const Matrix<Real>& mainDiagOrig,
   const Matrix<Real>& offDiagOrig,
         Matrix<Real>& s,
@@ -213,6 +303,22 @@ Helper
     DEBUG_CSE
     auto mainDiag( mainDiagOrig );
     auto offDiag( offDiagOrig );
+    return Helper( uplo, mainDiag, offDiag, s, ctrl );
+}
+
+template<typename Real>
+BidiagSVDInfo
+Helper
+( UpperOrLower uplo,
+  const AbstractDistMatrix<Real>& mainDiagPre,
+  const AbstractDistMatrix<Real>& offDiagPre,
+        AbstractDistMatrix<Real>& sPre,
+  const BidiagSVDCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    DistMatrix<Real,STAR,STAR> mainDiag(mainDiagPre), offDiag(offDiagPre);
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
+    auto& s = sProx.Get();
     return Helper( uplo, mainDiag, offDiag, s, ctrl );
 }
 
@@ -236,7 +342,35 @@ Helper
     for( Int i=0; i<offDiagHeight; ++i )
         offDiagReal(i) = Abs(offDiag(i));
     return Helper( uplo, mainDiagReal, offDiagReal, s, ctrl );
-} 
+}
+
+template<typename Real>
+BidiagSVDInfo
+Helper
+( UpperOrLower uplo,
+  const AbstractDistMatrix<Complex<Real>>& mainDiagPre,
+  const AbstractDistMatrix<Complex<Real>>& offDiagPre,
+        AbstractDistMatrix<Real>& s,
+  const BidiagSVDCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    DistMatrix<Complex<Real>,VC,STAR>
+      mainDiag(mainDiagPre), offDiag(offDiagPre);
+    const Grid& g = mainDiag.Grid();
+
+    // We can implicitly rotate by the complex conjugates
+    auto& mainDiagLoc = mainDiag.Matrix();
+    auto& offDiagLoc = offDiag.Matrix();
+    const Int mainDiagLocHeight = mainDiagLoc.Height();
+    for( Int iLoc=0; iLoc<mainDiagLocHeight; ++iLoc )
+        mainDiagLoc(iLoc) = Abs(mainDiagLoc(iLoc));
+    const Int offDiagLocHeight = offDiagLoc.Height();
+    for( Int iLoc=0; iLoc<offDiagLocHeight; ++iLoc ) 
+        offDiagLoc(iLoc) = Abs(offDiagLoc(iLoc));
+
+    DistMatrix<Real,STAR,STAR> mainDiagReal(g), offDiagReal(g);
+    return Helper( uplo, mainDiagReal, offDiagReal, s, ctrl );
+}
 
 } // namespace bidiag_svd
 
@@ -247,6 +381,19 @@ BidiagSVD
   const Matrix<F>& mainDiagOrig,
   const Matrix<F>& offDiagOrig,
         Matrix<Base<F>>& s,
+  const BidiagSVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    return bidiag_svd::Helper( uplo, mainDiagOrig, offDiagOrig, s, ctrl );
+}
+
+template<typename F>
+BidiagSVDInfo
+BidiagSVD
+( UpperOrLower uplo,
+  const AbstractDistMatrix<F>& mainDiagOrig,
+  const AbstractDistMatrix<F>& offDiagOrig,
+        AbstractDistMatrix<Base<F>>& s,
   const BidiagSVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -827,6 +974,12 @@ BidiagSVD
     const BidiagSVDCtrl<Base<F>>& ctrl ); \
   template BidiagSVDInfo BidiagSVD \
   ( UpperOrLower uplo, \
+    const AbstractDistMatrix<F>& mainDiag, \
+    const AbstractDistMatrix<F>& offDiag, \
+          AbstractDistMatrix<Base<F>>& s, \
+    const BidiagSVDCtrl<Base<F>>& ctrl ); \
+  template BidiagSVDInfo BidiagSVD \
+  ( UpperOrLower uplo, \
     const Matrix<F>& mainDiag, \
     const Matrix<F>& offDiag, \
           Matrix<F>& U, \
@@ -849,10 +1002,6 @@ BidiagSVD
           Matrix<Complex<Real>>& U, \
           Matrix<Real>& s, \
           Matrix<Complex<Real>>& V, \
-    const BidiagSVDCtrl<Real>& ctrl ); \
-  template bidiag_svd::QRInfo bidiag_svd::QRAlg \
-  ( Matrix<Real>& mainDiag, \
-    Matrix<Real>& superDiag, \
     const BidiagSVDCtrl<Real>& ctrl ); \
   template Real bidiag_svd::APosterioriThreshold \
   ( Int m, Int n, \
