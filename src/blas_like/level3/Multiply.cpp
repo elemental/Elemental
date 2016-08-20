@@ -586,25 +586,25 @@ void MultiplyCSRInter
 
 } // anonymous namespace
 
-template<typename T>
-void Multiply
-( Orientation orientation, 
-  T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
-  T beta,                                  Matrix<T>& Y )
-{
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( X.Width() != Y.Width() )
-          LogicError("X and Y must have the same width");
-    )
-    MultiplyCSR
-    ( orientation, A.Height(), A.Width(), X.Width(),
-      alpha, A.LockedOffsetBuffer(), 
-             A.LockedSourceBuffer(), 
-             A.LockedTargetBuffer(),
-             X.LockedBuffer(), X.LDim(),
-      beta,  Y.Buffer(),       Y.LDim() );
-}
+//template<typename T>
+//void Multiply
+//( Orientation orientation, 
+//  T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
+//  T beta,                                  Matrix<T>& Y )
+//{
+//    DEBUG_CSE
+//    DEBUG_ONLY(
+//      if( X.Width() != Y.Width() )
+//          LogicError("X and Y must have the same width");
+//    )
+//    MultiplyCSR
+//    ( orientation, A.Height(), A.Width(), 
+//      alpha, A.LockedOffsetBuffer(), 
+//             A.LockedSourceBuffer(), 
+//             A.LockedTargetBuffer(),
+//             X.LockedBuffer(), 
+//      beta,  Y.Buffer() );
+//}
 
 
 template<typename T>
@@ -619,11 +619,11 @@ void Multiply
           LogicError("X and Y must have the same width");
     )
     MultiplyCSR
-    ( orientation, A.NumSources(), A.NumTargets(), X.Width(),
+    ( orientation, A.NumSources(), A.NumTargets(), 
       alpha, A.LockedOffsetBuffer(), 
              A.LockedTargetBuffer(), 
-             X.LockedBuffer(), X.LDim(),
-      beta,  Y.Buffer(),       Y.LDim() );
+             X.LockedBuffer(), 
+      beta,  Y.Buffer() );
 }
 
 
@@ -684,7 +684,7 @@ void Multiply
 
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
-        const Int firstLocalRow = X.FirstLocalRow();
+        const Int firstLocalRow = X.RowShift();
         vector<T> sendVals;
         FastResize( sendVals, numSendInds*b );
         const T* XBuffer = X.LockedMatrix().LockedBuffer();
@@ -746,7 +746,7 @@ void Multiply
           recvVals.data(), sendSizes.data(), sendOffs.data(), comm );
      
         // Accumulate the received indices onto Y
-        const Int firstLocalRow = Y.FirstLocalRow();
+        const Int firstLocalRow = Y.RowShift();
         T* YBuffer = Y.Matrix().Buffer(); 
         const Int ldY = Y.Matrix().LDim();
         for( Int s=0; s<numRecvInds; ++s )
@@ -760,19 +760,19 @@ void Multiply
     if( time && commRank == 0 )
         Output("Multiply total time: ",totalTimer.Stop());
 }
+// template void Multiply \
+//    ( Orientation orientation, \
+//            T alpha, \
+//      const SparseMatrix<T>& A, \
+//      const Matrix<T>& X, \
+//            T beta, \
+//            Matrix<T>& Y ); \
 
 #define PROTO(T) \
     template void Multiply \
     ( Orientation orientation, \
             T alpha, \
       const Graph& A, \
-      const Matrix<T>& X, \
-            T beta, \
-            Matrix<T>& Y ); \
-     template void Multiply \
-    ( Orientation orientation, \
-            T alpha, \
-      const SparseMatrix<T>& A, \
       const Matrix<T>& X, \
             T beta, \
             Matrix<T>& Y ); \
