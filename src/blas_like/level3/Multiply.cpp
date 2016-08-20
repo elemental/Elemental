@@ -552,7 +552,7 @@ void MultiplyCSRInter
 
 template<typename T>
 void Multiply
-( Orientation orientation, 
+( Orientation orientation,
   T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
   T beta,                                  Matrix<T>& Y )
 {
@@ -562,14 +562,13 @@ void Multiply
           LogicError("X and Y must have the same width");
     )
     MultiplyCSR
-    ( orientation, A.Height(), A.Width(), X.Width(), 
-      alpha, A.LockedOffsetBuffer(), 
-             A.LockedSourceBuffer(), 
+    ( orientation, A.Height(), A.Width(), X.Width(),
+      alpha, A.LockedOffsetBuffer(),
              A.LockedTargetBuffer(),
-             X.LockedBuffer(), X.LDim(), 
-      beta,  Y.Buffer(), Y.LDim());
+             A.LockedValueBuffer(),
+             X.LockedBuffer(), X.LDim(),
+      beta,  Y.Buffer(),       Y.LDim() );
 }
-
 
 template<typename T>
 void Multiply
@@ -596,9 +595,9 @@ void Multiply
 ( Orientation orientation, 
         T alpha, 
   const DistSparseMatrix<T>& A,
-  const DistMatrix<T>& X,
+  const DistMultiVec<T>& X,
         T beta,
-        DistMatrix<T>& Y )
+        DistMultiVec<T>& Y )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -648,7 +647,7 @@ void Multiply
 
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
-        const Int firstLocalRow = X.RowShift();
+        const Int firstLocalRow = X.FirstLocalRow();
         vector<T> sendVals;
         FastResize( sendVals, numSendInds*b );
         const T* XBuffer = X.LockedMatrix().LockedBuffer();
@@ -710,7 +709,7 @@ void Multiply
           recvVals.data(), sendSizes.data(), sendOffs.data(), comm );
      
         // Accumulate the received indices onto Y
-        const Int firstLocalRow = Y.RowShift();
+        const Int firstLocalRow = X.FirstLocalRow();
         T* YBuffer = Y.Matrix().Buffer(); 
         const Int ldY = Y.Matrix().LDim();
         for( Int s=0; s<numRecvInds; ++s )
@@ -744,9 +743,9 @@ void Multiply
     ( Orientation orientation, \
             T alpha, \
       const DistSparseMatrix<T>& A, \
-      const DistMatrix<T>& X, \
+      const DistMultiVec<T>& X, \
             T beta, \
-            DistMatrix<T>& Y );
+            DistMultiVec<T>& Y );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
