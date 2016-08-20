@@ -709,7 +709,7 @@ void Multiply
           recvVals.data(), sendSizes.data(), sendOffs.data(), comm );
      
         // Accumulate the received indices onto Y
-        const Int firstLocalRow = X.FirstLocalRow();
+        const Int firstLocalRow = Y.FirstLocalRow();
         T* YBuffer = Y.Matrix().Buffer(); 
         const Int ldY = Y.Matrix().LDim();
         for( Int s=0; s<numRecvInds; ++s )
@@ -725,7 +725,7 @@ void Multiply
 }
 
 #define PROTO(T) \
- template void Multiply \
+    template void Multiply \
     ( Orientation orientation, \
             T alpha, \
       const SparseMatrix<T>& A, \
