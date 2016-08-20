@@ -20,6 +20,7 @@ void TestSequentialSVD
   bool wantU,
   bool wantV,
   bool useQR,
+  Int divideCutoff,
   bool print )
 {
     typedef Base<F> Real;
@@ -45,6 +46,7 @@ void TestSequentialSVD
     ctrl.bidiagSVDCtrl.tolType = tolType;
     ctrl.bidiagSVDCtrl.tol = tol;
     ctrl.bidiagSVDCtrl.progress = progress;
+    ctrl.bidiagSVDCtrl.dcCtrl.cutoff = divideCutoff;
     ctrl.time = time;
 
     Matrix<Real> s;
@@ -135,6 +137,9 @@ void TestSequentialSVD
         Output("||A - U Sigma V^H||_F   = ",frobNormE);
         Output
         ("||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = ",scaledResidual);
+        // TODO(poulson): Provide a rigorous motivation for this bound
+        if( scaledResidual > Real(50) )
+            LogicError("SVD residual was unacceptably large");
     }
     Output("");
 }
@@ -151,6 +156,7 @@ void TestDistributedSVD
   bool wantU,
   bool wantV,
   bool useQR,
+  Int divideCutoff,
   bool print )
 {
     typedef Base<F> Real;
@@ -176,6 +182,7 @@ void TestDistributedSVD
     ctrl.bidiagSVDCtrl.tolType = tolType;
     ctrl.bidiagSVDCtrl.tol = tol;
     ctrl.bidiagSVDCtrl.progress = progress;
+    ctrl.bidiagSVDCtrl.dcCtrl.cutoff = divideCutoff;
     ctrl.time = time;
     ctrl.useScaLAPACK = scalapack;
     if( commRank == 0 )
@@ -273,14 +280,15 @@ void TestDistributedSVD
         const Real scaledResidual = frobNormE / (Max(m,n)*eps*twoNormA);
         if( commRank == 0 )
         {
-            Output("|| A ||_max   = ",maxNormA);
-            Output("|| A ||_2     = ",twoNormA);
             Output("||A - U Sigma V^H||_max = ",maxNormE);
             Output("||A - U Sigma V^H||_F   = ",frobNormE);
             Output
             ("||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = ",
              scaledResidual);
         }
+        // TODO(poulson): Provide a rigorous motivation for this bound
+        if( scaledResidual > Real(50) )
+            LogicError("SVD residual was unacceptably large");
     }
     if( commRank == 0 )
         Output("");
@@ -300,6 +308,7 @@ void TestSVD
   bool wantU,
   bool wantV,
   bool useQR,
+  Int divideCutoff,
   bool print )
 {
     const int commRank = mpi::Rank();
@@ -307,13 +316,13 @@ void TestSVD
     {
         TestSequentialSVD<F>
         ( m, n, rank, approach, tolType, tol, time, progress, wantU, wantV,
-          useQR, print );
+          useQR, divideCutoff, print );
     }
     if( testDist )
     {
         TestDistributedSVD<F> 
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          wantU, wantV, useQR, print );
+          wantU, wantV, useQR, divideCutoff, print );
     }
 }
 
@@ -348,6 +357,7 @@ main( int argc, char* argv[] )
         const bool wantU = Input("--wantU","compute U?",true);
         const bool wantV = Input("--wantV","compute V?",true);
         const bool useQR = Input("--useQR","force use of QR algorithm?",false);
+        const Int divideCutoff = Input("--divideCutoff","D&C cutoff?",60);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -371,50 +381,50 @@ main( int argc, char* argv[] )
 
         TestSVD<float>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
         TestSVD<Complex<float>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
 
         TestSVD<double>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
         TestSVD<Complex<double>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
 
 #ifdef EL_HAVE_QD
         TestSVD<DoubleDouble>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
         TestSVD<Complex<DoubleDouble>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
 
         TestSVD<QuadDouble>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
         TestSVD<Complex<QuadDouble>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestSVD<Quad>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
         TestSVD<Complex<Quad>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestSVD<BigFloat>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
         TestSVD<Complex<BigFloat>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, print );
+          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

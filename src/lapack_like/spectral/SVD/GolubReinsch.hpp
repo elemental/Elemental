@@ -106,7 +106,6 @@ SVDInfo GolubReinsch
 
     // Run the bidiagonal SVD
     auto bidiagSVDCtrlMod = ctrl.bidiagSVDCtrl;
-    bidiagSVDCtrlMod.useQR = true;
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
     info.bidiagSVDInfo =

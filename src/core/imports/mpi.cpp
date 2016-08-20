@@ -30,6 +30,23 @@ SafeMpi( int mpiError ) EL_NO_RELEASE_EXCEPT
     )
 }
 
+template<typename T>
+MPI_Op NativeOp( const El::mpi::Op& op )
+{
+    MPI_Op opC;
+    if( op == El::mpi::SUM )
+        opC = El::mpi::SumOp<T>().op; 
+    else if( op == El::mpi::PROD )
+        opC = El::mpi::ProdOp<T>().op;
+    else if( op == El::mpi::MAX )
+        opC = El::mpi::MaxOp<T>().op;
+    else if( op == El::mpi::MIN )
+        opC = El::mpi::MinOp<T>().op;
+    else
+        opC = op.op;
+    return opC;
+}
+
 } // anonymous namespace
 
 namespace El {
@@ -1825,16 +1842,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Real>().op; 
-    else if( op == MAX )
-        opC = MaxOp<Real>().op;
-    else if( op == MIN )
-        opC = MinOp<Real>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Reduce
       ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(),
@@ -1854,7 +1862,7 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
-        MPI_Op opC = SumOp<Real>().op;
+        MPI_Op opC = NativeOp<Real>( op );
         SafeMpi
         ( MPI_Reduce
           ( const_cast<Complex<Real>*>(sbuf),
@@ -1863,14 +1871,14 @@ EL_NO_RELEASE_EXCEPT
     }
     else
     {
-        MPI_Op opC = op.op;
+        MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Reduce
           ( const_cast<Complex<Real>*>(sbuf),
             rbuf, count, TypeMap<Complex<Real>>(), opC, root, comm.comm ) );
     }
 #else
-    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+    MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Reduce
       ( const_cast<Complex<Real>*>(sbuf), 
@@ -1887,15 +1895,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
+    MPI_Op opC = NativeOp<T>( op );
 
     const int commRank = mpi::Rank(comm);
     std::vector<byte> packedSend, packedRecv;
@@ -1942,15 +1942,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 || Size(comm) == 1 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Real>().op; 
-    else if( op == MAX )
-        opC = MaxOp<Real>().op;
-    else if( op == MIN )
-        opC = MinOp<Real>().op;
-    else
-        opC = op.op;
+    MPI_Op opC = NativeOp<Real>( op );
 
     const int commRank = Rank( comm );
     if( commRank == root )
@@ -1979,7 +1971,7 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MPI_Op opC = SumOp<Real>().op;
+            MPI_Op opC = NativeOp<Real>( op );
             if( commRank == root )
             {
                 SafeMpi
@@ -1994,7 +1986,7 @@ EL_NO_RELEASE_EXCEPT
         }
         else
         {
-            MPI_Op opC = op.op;
+            MPI_Op opC = NativeOp<Complex<Real>>( op );
             if( commRank == root )
             {
                 SafeMpi
@@ -2009,7 +2001,7 @@ EL_NO_RELEASE_EXCEPT
                     root, comm.comm ) );
         }
 #else
-        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+        MPI_Op opC = NativeOp<Complex<Real>>( op );
         if( commRank == root )
         {
             SafeMpi
@@ -2034,15 +2026,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
+    MPI_Op opC = NativeOp<T>( op );
 
     // TODO: Use in-place option?
 
@@ -2072,16 +2056,7 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_CSE
     if( count != 0 )
     {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Real>().op; 
-        else if( op == MAX )
-            opC = MaxOp<Real>().op;
-        else if( op == MIN )
-            opC = MinOp<Real>().op;
-        else
-            opC = op.op;
-
+        MPI_Op opC = NativeOp<Real>( op );
         SafeMpi
         ( MPI_Allreduce
           ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(), opC, 
@@ -2100,7 +2075,7 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MPI_Op opC = SumOp<Real>().op; 
+            MPI_Op opC = NativeOp<Real>( op );
             SafeMpi
             ( MPI_Allreduce
                 ( const_cast<Complex<Real>*>(sbuf),
@@ -2108,14 +2083,14 @@ EL_NO_RELEASE_EXCEPT
         }
         else
         {
-            MPI_Op opC = op.op;
+            MPI_Op opC = NativeOp<Complex<Real>>( op );
             SafeMpi
             ( MPI_Allreduce
               ( const_cast<Complex<Real>*>(sbuf),
                 rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
         }
 #else
-        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+        MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Allreduce
           ( const_cast<Complex<Real>*>(sbuf), 
@@ -2133,16 +2108,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
     Serialize( count, sbuf, packedSend );
 
@@ -2177,16 +2143,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 || Size(comm) == 1 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Real>().op; 
-    else if( op == MAX )
-        opC = MaxOp<Real>().op;
-    else if( op == MIN )
-        opC = MinOp<Real>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Allreduce
       ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
@@ -2203,21 +2160,21 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
-        MPI_Op opC = SumOp<Real>().op;
+        MPI_Op opC = NativeOp<Real>( op );
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
     }
     else
     {
-        MPI_Op opC = op.op;
+        MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), 
             opC, comm.comm ) );
     }
 #else
-    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+    MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Allreduce
       ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
@@ -2233,16 +2190,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
     Serialize( count, buf, packedSend );
 
@@ -2272,15 +2220,7 @@ EL_NO_RELEASE_EXCEPT
     AllReduce( sbuf, rc*commSize, op, comm );
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
 #elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Real>().op; 
-    else if( op == MAX )
-        opC = MaxOp<Real>().op;
-    else if( op == MIN )
-        opC = MinOp<Real>().op;
-    else
-        opC = op.op;
+    MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( sbuf, rbuf, rc, TypeMap<Real>(), opC, comm.comm ) );
@@ -2307,12 +2247,12 @@ EL_NO_RELEASE_EXCEPT
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
 #elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
 # ifdef EL_AVOID_COMPLEX_MPI
-    MPI_Op opC = ( op==SUM ? SumOp<Real>().op : op.op );
+    MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( sbuf, rbuf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
 # else
-    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+    MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( sbuf, rbuf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
@@ -2337,16 +2277,7 @@ EL_NO_RELEASE_EXCEPT
 
     // TODO: Add AllReduce approach via EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
 #if defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
     Serialize( totalSend, sbuf, packedSend );
 
@@ -2393,15 +2324,7 @@ EL_NO_RELEASE_EXCEPT
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
 #elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Real>().op; 
-    else if( op == MAX )
-        opC = MaxOp<Real>().op;
-    else if( op == MIN )
-        opC = MinOp<Real>().op;
-    else
-        opC = op.op;
+    MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, rc, TypeMap<Real>(), opC, comm.comm ) );
@@ -2429,12 +2352,12 @@ EL_NO_RELEASE_EXCEPT
         MemCopy( buf, &buf[commRank*rc], rc );
 #elif defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
 # ifdef EL_AVOID_COMPLEX_MPI
-    MPI_Op opC = ( op==SUM ? SumOp<Real>().op : op.op );
+    MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, 2*rc, TypeMap<Real>(), opC, comm.comm ) );
 # else
-    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+    MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, rc, TypeMap<Complex<Real>>(), opC, comm.comm ) );
@@ -2459,16 +2382,7 @@ EL_NO_RELEASE_EXCEPT
 
     // TODO: Add AllReduce approach via EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
 #if defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
     Serialize( totalSend, buf, packedSend );
 
@@ -2496,16 +2410,7 @@ void ReduceScatter
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<Real>().op; 
-    else if( op == MAX )
-        opC = MaxOp<Real>().op;
-    else if( op == MIN )
-        opC = MinOp<Real>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Reduce_scatter
       ( const_cast<Real*>(sbuf), 
@@ -2522,7 +2427,7 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
-        MPI_Op opC = SumOp<Real>().op;
+        MPI_Op opC = NativeOp<Real>( op );
         int p;
         MPI_Comm_size( comm.comm, &p );
         vector<int> rcsDoubled(p);
@@ -2535,7 +2440,7 @@ EL_NO_RELEASE_EXCEPT
     }
     else
     {
-        MPI_Op opC = op.op;
+        MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Reduce_scatter
           ( const_cast<Complex<Real>*>(sbuf),
@@ -2543,7 +2448,7 @@ EL_NO_RELEASE_EXCEPT
             opC, comm.comm ) );
     }
 #else
-    MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+    MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Reduce_scatter
       ( const_cast<Complex<Real>*>(sbuf), 
@@ -2565,16 +2470,7 @@ EL_NO_RELEASE_EXCEPT
         totalSend += rcs[q];
     const int totalRecv = rcs[commRank];
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
     Serialize( totalSend, sbuf, packedSend );
     ReserveSerialized( totalRecv, rbuf, packedRecv );
@@ -2614,16 +2510,7 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_CSE
     if( count != 0 )
     {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Real>().op; 
-        else if( op == MAX )
-            opC = MaxOp<Real>().op;
-        else if( op == MIN )
-            opC = MinOp<Real>().op;
-        else
-            opC = op.op;
-
+        MPI_Op opC = NativeOp<Real>( op );
         SafeMpi
         ( MPI_Scan
           ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(),
@@ -2643,7 +2530,7 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MPI_Op opC = SumOp<Real>().op;
+            MPI_Op opC = NativeOp<Real>( op );
             SafeMpi
             ( MPI_Scan
               ( const_cast<Complex<Real>*>(sbuf),
@@ -2651,14 +2538,14 @@ EL_NO_RELEASE_EXCEPT
         }
         else
         {
-            MPI_Op opC = op.op;
+            MPI_Op opC = NativeOp<Complex<Real>>( op );
             SafeMpi
             ( MPI_Scan
               ( const_cast<Complex<Real>*>(sbuf),
                 rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
         }
 #else
-        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+        MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Scan
           ( const_cast<Complex<Real>*>(sbuf), 
@@ -2675,16 +2562,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
     Serialize( count, sbuf, packedSend );
     ReserveSerialized( count, rbuf, packedRecv );
@@ -2725,16 +2603,7 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_CSE
     if( count != 0 )
     {
-        MPI_Op opC;
-        if( op == SUM )
-            opC = SumOp<Real>().op; 
-        else if( op == MAX )
-            opC = MaxOp<Real>().op;
-        else if( op == MIN )
-            opC = MinOp<Real>().op;
-        else
-            opC = op.op;
-
+        MPI_Op opC = NativeOp<Real>( op );
         SafeMpi
         ( MPI_Scan
           ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
@@ -2751,21 +2620,21 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MPI_Op opC = SumOp<Real>().op;
+            MPI_Op opC = NativeOp<Real>( op );
             SafeMpi
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, comm.comm ) );
         }
         else
         {
-            MPI_Op opC = op.op;
+            MPI_Op opC = NativeOp<Complex<Real>>( op );
             SafeMpi
             ( MPI_Scan
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
                 comm.comm ) );
         }
 #else
-        MPI_Op opC = ( op==SUM ? SumOp<Complex<Real>>().op : op.op );
+        MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Scan
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
@@ -2782,16 +2651,7 @@ EL_NO_RELEASE_EXCEPT
     if( count == 0 )
         return;
 
-    MPI_Op opC;
-    if( op == SUM )
-        opC = SumOp<T>().op; 
-    else if( op == MAX )
-        opC = MaxOp<T>().op;
-    else if( op == MIN )
-        opC = MinOp<T>().op;
-    else
-        opC = op.op;
-
+    MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
     Serialize( count, buf, packedSend );
     ReserveSerialized( count, buf, packedRecv );

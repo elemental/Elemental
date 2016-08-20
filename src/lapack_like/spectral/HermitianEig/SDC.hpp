@@ -11,7 +11,7 @@
 
 #include "../Schur/SDC.hpp"
 
-// TODO: Reference to Yuji's work
+// TODO(poulson): Reference to Yuji's work
 
 namespace El {
 
@@ -22,7 +22,7 @@ using El::schur::SplitGrid;
 using El::schur::PushSubproblems;
 using El::schur::PullSubproblems;
 
-// TODO: Exploit symmetry in A := Q^H A Q. Routine for A := X^H A X?
+// TODO(poulson): Exploit symmetry in A := Q^H A Q. Routine for A := X^H A X?
 
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.

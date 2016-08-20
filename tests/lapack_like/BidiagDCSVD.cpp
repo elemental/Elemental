@@ -57,7 +57,9 @@ void PrintSVDResiduals
         Print( A, "E" );
     const Real residFrob = FrobeniusNorm( A );
     Output("|| A - U Sigma V' ||_F / || A ||_F = ",residFrob/AFrob);
-    // TODO(poulson): Failure condition
+    // TODO(poulson): Provide a rigorous motivation for this bound
+    if( (residFrob/AFrob) > Real(50) )
+        LogicError("SVD residual was unacceptably large");
 
     // Check the unitarity of U
     Matrix<F> E; 

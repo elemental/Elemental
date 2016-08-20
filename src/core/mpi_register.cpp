@@ -22,6 +22,7 @@ template<typename T>
 Datatype Types<T>::type = MPI_UNSIGNED_CHAR;
 
 template<typename T> Op Types<T>::sumOp = MPI_SUM;
+template<typename T> Op Types<T>::prodOp = MPI_PROD;
 template<typename T> Op Types<T>::maxOp = MPI_MAX;
 template<typename T> Op Types<T>::minOp = MPI_MIN;
 template<typename T> Op Types<T>::userOp = MPI_SUM;
@@ -370,6 +371,36 @@ EL_NO_EXCEPT
 
 template<typename T,typename=EnableIf<IsPacked<T>>>
 static void
+ProdFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    auto inData  = static_cast<const T*>(inVoid);
+    auto outData = static_cast<      T*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+        outData[j] *= inData[j];
+}
+template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+static void
+ProdFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
+EL_NO_EXCEPT
+{
+    T a, b;
+    auto inData  = static_cast<const byte*>(inVoid);
+    auto outData = static_cast<      byte*>(outVoid);
+    const int length = *lengthPtr;
+    for( int j=0; j<length; ++j )
+    {
+        inData = a.Deserialize(inData);
+        b.Deserialize(outData);
+
+        b *= a;
+        outData = b.Serialize(outData); 
+    }
+}
+
+template<typename T,typename=EnableIf<IsPacked<T>>>
+static void
 MaxLocFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
 {           
@@ -703,6 +734,11 @@ void CreateSumOp()
     Create( (UserFunction*)SumFunc<T>, true, SumOp<T>() );
 }
 template<typename T>
+void CreateProdOp()
+{
+    Create( (UserFunction*)ProdFunc<T>, true, ProdOp<T>() );
+}
+template<typename T>
 void CreateMaxOp()
 {
     Create( (UserFunction*)MaxFunc<T>, true, MaxOp<T>() );
@@ -826,31 +862,40 @@ void CreateCustom() EL_NO_RELEASE_EXCEPT
     CreateMaxOp<DoubleDouble>();
     CreateMinOp<DoubleDouble>();
     CreateSumOp<DoubleDouble>();
+    CreateProdOp<DoubleDouble>();
 
     CreateMaxOp<QuadDouble>();
     CreateMinOp<QuadDouble>();
     CreateSumOp<QuadDouble>();
+    CreateProdOp<QuadDouble>();
 
     CreateSumOp<Complex<DoubleDouble>>();
     CreateSumOp<Complex<QuadDouble>>();
+    CreateProdOp<Complex<DoubleDouble>>();
+    CreateProdOp<Complex<QuadDouble>>();
 #endif
 #ifdef EL_HAVE_QUAD
     CreateMaxOp<Quad>();
     CreateMinOp<Quad>();
     CreateSumOp<Quad>();
+    CreateProdOp<Quad>();
 
     CreateSumOp<Complex<Quad>>();
+    CreateProdOp<Complex<Quad>>();
 #endif
 #ifdef EL_HAVE_MPC
     CreateMaxOp<BigInt>();
     CreateMinOp<BigInt>();
     CreateSumOp<BigInt>();
+    CreateProdOp<BigInt>();
 
     CreateMaxOp<BigFloat>();
     CreateMinOp<BigFloat>();
     CreateSumOp<BigFloat>();
+    CreateProdOp<BigFloat>();
 
     CreateSumOp<Complex<BigFloat>>();
+    CreateProdOp<Complex<BigFloat>>();
 #endif
     // Functions for the value and integer
     // -----------------------------------
@@ -942,6 +987,7 @@ void FreeScalarOps()
         FreeMaxMinOps<Entry<T>>();
     }
     Free( Types<T>::sumOp );
+    Free( Types<T>::prodOp );
 }
 
 void DestroyCustom() EL_NO_RELEASE_EXCEPT

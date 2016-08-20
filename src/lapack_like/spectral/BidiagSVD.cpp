@@ -272,7 +272,7 @@ Helper
                 break;
             } 
         }
-        s.Resize( rank, 0 );
+        s.Resize( rank, 1 );
     }
     else if( ctrl.approach == FULL_SVD )
     {
@@ -348,7 +348,7 @@ Helper
                 break;
             } 
         }
-        s.Resize( rank, 0 );
+        s.Resize( rank, 1 );
     }
     else if( ctrl.approach == FULL_SVD )
     {
@@ -637,10 +637,11 @@ Helper
             if( s(i) <= Real(0) )
             {
                 rank = i; 
+                Output("rank=",rank);
                 break;
             } 
         }
-        s.Resize( rank, 0 );
+        s.Resize( rank, 1 );
         if( ctrlMod.wantU )
             U.Resize( m, rank );
         if( ctrlMod.wantV )
@@ -808,13 +809,20 @@ Helper
         }
         else
         {
-            // TODO(poulson): Enable such a routine
-            /*
+            DistMatrix<Real> U_MC_MR(g), V_MC_MR(g);
+            if( ctrl.wantU )
+                U_MC_MR = U;
+            if( ctrl.wantV )
+                V_MC_MR = V;
+            const bool topLevel = true;
             info.dcInfo =
               bidiag_svd::DivideAndConquer
-              ( mainDiag, offDiag, U, s, V, ctrlMod );
-            */
-            LogicError("Distributed D&C not yet supported");
+              ( mainDiag.Matrix(), offDiag.Matrix(),
+                U_MC_MR, s, V_MC_MR, ctrlMod, topLevel );
+            if( ctrl.wantU )
+                U = U_MC_MR;
+            if( ctrl.wantV )
+                V = V_MC_MR;
         }
 
         auto sortPairs = TaggedSort( s, DESCENDING );
@@ -853,13 +861,20 @@ Helper
         }
         else
         {
-            // TODO(poulson): Enable such a routine
-            /*
+            DistMatrix<Real> U0_MC_MR(g), V_MC_MR(g);
+            if( ctrl.wantU )
+                U0_MC_MR = U0;
+            if( ctrl.wantV )
+                V_MC_MR = V;
+            const bool topLevel = true;
             info.dcInfo =
               bidiag_svd::DivideAndConquer
-              ( mainDiag, offDiag0, U0, s, V, ctrlMod );
-            */
-            LogicError("Distributed D&C not yet supported");
+              ( mainDiag.Matrix(), offDiag0.Matrix(),
+                U0_MC_MR, s, V_MC_MR, ctrlMod, topLevel );
+            if( ctrl.wantU )
+                U0 = U0_MC_MR;
+            if( ctrl.wantV )
+                V = V_MC_MR;
         }
 
         auto sortPairs = TaggedSort( s, DESCENDING );
@@ -898,13 +913,20 @@ Helper
         }
         else
         {
-            // TODO(poulson): Enable such a routine
-            /*
+            DistMatrix<Real> U_MC_MR(g), V0_MC_MR(g);
+            if( ctrl.wantU )
+                U_MC_MR = U;
+            if( ctrl.wantV )
+                V0_MC_MR = V0;
+            const bool topLevel = true;
             info.dcInfo =
               bidiag_svd::DivideAndConquer
-              ( mainDiag, offDiag0, U, s, V0, ctrl );
-            */
-            LogicError("Distributed D&C not yet supported");
+              ( mainDiag.Matrix(), offDiag0.Matrix(),
+                U_MC_MR, s, V0_MC_MR, ctrlMod, topLevel );
+            if( ctrl.wantU )
+                U = U_MC_MR;
+            if( ctrl.wantV )
+                V0 = V0_MC_MR;
         }
 
         auto sortPairs = TaggedSort( s, DESCENDING );
@@ -935,7 +957,7 @@ Helper
                 break;
             } 
         }
-        s.Resize( rank, 0 );
+        s.Resize( rank, 1 );
         if( ctrlMod.wantU )
             U.Resize( m, rank );
         if( ctrlMod.wantV )
