@@ -258,6 +258,78 @@ void MultiplyCSR
 }
 
 template<typename T>
+void MultiplyCSR
+( Orientation orientation,
+  Int m, Int n, Int numRHS,
+  T alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const T*   X, Int ldX,
+  T beta,
+        T*   Y, Int ldY )
+{
+    DEBUG_CSE
+    if( numRHS == 1 )
+    {
+        MultiplyCSR
+        ( orientation, m, n, alpha, 
+          rowOffsets, colIndices, X, beta, Y );
+        return;
+    }
+
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            for( Int k=0; k<numRHS; ++k )
+            {
+                T sum = 0;
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    sum += X[colIndices[e]+k*ldX];
+                Y[i+k*ldY] = alpha*sum + beta*Y[i+k*ldY];
+            }
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int k=0; k<numRHS; ++k )
+            for( Int j=0; j<n; ++j )
+                Y[j+k*ldY] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                {
+                    T prod = alpha;
+                    for( Int k=0; k<numRHS; ++k )
+                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
+                }
+            }
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                {
+                    T prod = alpha;
+                    for( Int k=0; k<numRHS; ++k )
+                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
 void MultiplyCSRInterX
 ( Orientation orientation,
   Int m, Int n, Int numRHS,
@@ -478,25 +550,25 @@ void MultiplyCSRInter
 
 } // anonymous namespace
 
-//template<typename T>
-//void Multiply
-//( Orientation orientation, 
-//  T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
-//  T beta,                                  Matrix<T>& Y )
-//{
-//    DEBUG_CSE
-//    DEBUG_ONLY(
-//      if( X.Width() != Y.Width() )
-//          LogicError("X and Y must have the same width");
-//    )
-//    MultiplyCSR
-//    ( orientation, A.Height(), A.Width(), 
-//      alpha, A.LockedOffsetBuffer(), 
-//             A.LockedSourceBuffer(), 
-//             A.LockedTargetBuffer(),
-//             X.LockedBuffer(), 
-//      beta,  Y.Buffer() );
-//}
+template<typename T>
+void Multiply
+( Orientation orientation, 
+  T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
+  T beta,                                  Matrix<T>& Y )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( X.Width() != Y.Width() )
+          LogicError("X and Y must have the same width");
+    )
+    MultiplyCSR
+    ( orientation, A.Height(), A.Width(), X.Width(), 
+      alpha, A.LockedOffsetBuffer(), 
+             A.LockedSourceBuffer(), 
+             A.LockedTargetBuffer(),
+             X.LockedBuffer(), 
+      beta,  Y.Buffer() );
+}
 
 
 template<typename T>
@@ -511,7 +583,7 @@ void Multiply
           LogicError("X and Y must have the same width");
     )
     MultiplyCSR
-    ( orientation, A.NumSources(), A.NumTargets(), 
+    ( orientation, A.NumSources(), A.NumTargets(), X.Width(), 
       alpha, A.LockedOffsetBuffer(), 
              A.LockedTargetBuffer(), 
              X.LockedBuffer(), 
@@ -652,15 +724,15 @@ void Multiply
     if( time && commRank == 0 )
         Output("Multiply total time: ",totalTimer.Stop());
 }
-// template void Multiply \
-//    ( Orientation orientation, \
-//            T alpha, \
-//      const SparseMatrix<T>& A, \
-//      const Matrix<T>& X, \
-//            T beta, \
-//            Matrix<T>& Y ); \
 
 #define PROTO(T) \
+ template void Multiply \
+    ( Orientation orientation, \
+            T alpha, \
+      const SparseMatrix<T>& A, \
+      const Matrix<T>& X, \
+            T beta, \
+            Matrix<T>& Y ); \
     template void Multiply \
     ( Orientation orientation, \
             T alpha, \
