@@ -566,8 +566,8 @@ void Multiply
       alpha, A.LockedOffsetBuffer(), 
              A.LockedSourceBuffer(), 
              A.LockedTargetBuffer(),
-             X.LockedBuffer(), 
-      beta,  Y.Buffer() );
+             X.LockedBuffer(), X.LDim(), 
+      beta,  Y.Buffer(), Y.LDim());
 }
 
 
@@ -586,8 +586,8 @@ void Multiply
     ( orientation, A.NumSources(), A.NumTargets(), X.Width(), 
       alpha, A.LockedOffsetBuffer(), 
              A.LockedTargetBuffer(), 
-             X.LockedBuffer(), 
-      beta,  Y.Buffer() );
+             X.LockedBuffer(), X.LDim(),
+      beta,  Y.Buffer(), Y.LDim());
 }
 
 
