@@ -15,7 +15,7 @@ namespace El {
 // Sort each column of the real matrix X
 
 template<typename Real,typename>
-void Sort( Matrix<Real>& X, SortType sort )
+void Sort( Matrix<Real>& X, SortType sort, bool stable )
 {
     DEBUG_CSE
     if( sort == UNSORTED )
@@ -26,14 +26,24 @@ void Sort( Matrix<Real>& X, SortType sort )
     {
         Real* XCol = X.Buffer(0,j);
         if( sort == ASCENDING )
-            std::sort( XCol, XCol+m );
+        {
+            if( stable )
+                std::stable_sort( XCol, XCol+m );
+            else
+                std::sort( XCol, XCol+m );
+        }
         else
-            std::sort( XCol, XCol+m, std::greater<Real>() );
+        {
+            if( stable )
+                std::stable_sort( XCol, XCol+m, std::greater<Real>() );
+            else
+                std::sort( XCol, XCol+m, std::greater<Real>() );
+        }
     }
 }
 
 template<typename Real,typename>
-void Sort( AbstractDistMatrix<Real>& X, SortType sort )
+void Sort( AbstractDistMatrix<Real>& X, SortType sort, bool stable )
 {
     DEBUG_CSE
     if( sort == UNSORTED )
@@ -43,7 +53,7 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort )
         (X.ColDist()==CIRC && X.RowDist()==CIRC) )
     {
         if( X.Participating() )
-            Sort( X.Matrix(), sort );
+            Sort( X.Matrix(), sort, stable );
     }
     else
     {
@@ -52,7 +62,7 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort )
         // Get a copy on a single process, sort, and then redistribute
         DistMatrix<Real,CIRC,CIRC> X_CIRC_CIRC( X );
         if( X_CIRC_CIRC.Participating() )
-            Sort( X_CIRC_CIRC.Matrix(), sort );
+            Sort( X_CIRC_CIRC.Matrix(), sort, stable );
 
         // Refill the distributed X with the sorted values
         Copy( X_CIRC_CIRC, X );
@@ -62,7 +72,8 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort )
 // Tagged sort
 
 template<typename Real,typename>
-vector<ValueInt<Real>> TaggedSort( const Matrix<Real>& x, SortType sort )
+vector<ValueInt<Real>>
+TaggedSort( const Matrix<Real>& x, SortType sort, bool stable )
 {
     DEBUG_CSE
     const Int m = x.Height();
@@ -82,26 +93,38 @@ vector<ValueInt<Real>> TaggedSort( const Matrix<Real>& x, SortType sort )
     }
 
     if( sort == ASCENDING )
-        std::sort( pairs.begin(), pairs.end(), ValueInt<Real>::Lesser );
+    {
+        if( stable )
+            std::stable_sort
+            ( pairs.begin(), pairs.end(), ValueInt<Real>::Lesser );
+        else
+            std::sort( pairs.begin(), pairs.end(), ValueInt<Real>::Lesser );
+    }
     else if( sort == DESCENDING )
-        std::sort( pairs.begin(), pairs.end(), ValueInt<Real>::Greater );
+    {
+        if( stable )
+            std::stable_sort
+            ( pairs.begin(), pairs.end(), ValueInt<Real>::Greater );
+        else
+            std::sort( pairs.begin(), pairs.end(), ValueInt<Real>::Greater );
+    }
 
     return pairs;
 }
 
 template<typename Real,typename>
 vector<ValueInt<Real>>
-TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort )
+TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort, bool stable )
 {
     DEBUG_CSE
     if( x.ColDist()==STAR && x.RowDist()==STAR )
     {
-        return TaggedSort( x.LockedMatrix(), sort );
+        return TaggedSort( x.LockedMatrix(), sort, stable );
     }
     else
     {
         DistMatrix<Real,STAR,STAR> x_STAR_STAR( x );
-        return TaggedSort( x_STAR_STAR.LockedMatrix(), sort );
+        return TaggedSort( x_STAR_STAR.LockedMatrix(), sort, stable );
     }
 }
 
@@ -187,6 +210,56 @@ void ApplyTaggedSortToEachColumn
     Copy( ZPerm_STAR_VR, Z );
 }
 
+template<typename Real,typename>
+void SortingPermutation
+( const Matrix<Real>& x, Permutation& sortPerm, SortType sort, bool stable )
+{
+    DEBUG_CSE
+    auto sortPairs = TaggedSort( x, sort, stable );
+    const Int n = ( x.Width()==1 ? x.Height() : x.Width() );
+    sortPerm.MakeIdentity( n );
+    for( Int i=0; i<n; ++i )
+        sortPerm.SetImage( sortPairs[i].index, i );
+}
+
+template<typename Real,typename>
+void MergeSortingPermutation
+( Int n0, Int n1, const Matrix<Real>& x, Permutation& sortPerm, SortType sort )
+{
+    DEBUG_CSE
+    const Int m = x.Height();
+    const Int n = x.Width();
+    if( m != 1 && n != 1 )
+        LogicError("MergeSortingPermutation meant for a vector");
+
+    const Int k = ( n==1 ? m : n );
+    if( k != n0+n1 )
+        LogicError("Dimensions did not match");
+
+    const Int stride = ( n==1 ? 1 : x.LDim() );
+    const Real* xBuffer = x.LockedBuffer();
+
+    vector<ValueInt<Real>> pairs( k );
+    for( Int i=0; i<k; ++i )
+    {
+        pairs[i].value = xBuffer[i*stride];
+        pairs[i].index = i;
+    }
+
+    if( sort == ASCENDING )
+        std::inplace_merge
+        ( pairs.begin(), pairs.begin()+n0, pairs.end(),
+          ValueInt<Real>::Lesser );
+    else if( sort == DESCENDING )
+        std::inplace_merge
+        ( pairs.begin(), pairs.begin()+n0, pairs.end(),
+          ValueInt<Real>::Greater );
+
+    sortPerm.MakeIdentity( k );
+    for( Int i=0; i<k; ++i )
+        sortPerm.SetImage( pairs[i].index, i );
+}
+
 #define PROTO_COMPLEX(F) \
   template void ApplyTaggedSortToEachRow \
   ( const vector<ValueInt<Base<F>>>& sortPairs, \
@@ -203,12 +276,15 @@ void ApplyTaggedSortToEachColumn
 
 #define PROTO(Real) \
   PROTO_COMPLEX(Real) \
-  template void Sort( Matrix<Real>& x, SortType sort ); \
-  template void Sort( AbstractDistMatrix<Real>& x, SortType sort ); \
+  template void Sort( Matrix<Real>& x, SortType sort, bool stable ); \
+  template void Sort \
+  ( AbstractDistMatrix<Real>& x, SortType sort, bool stable ); \
   template vector<ValueInt<Real>> TaggedSort \
-  ( const Matrix<Real>& x, SortType sort ); \
+  ( const Matrix<Real>& x, SortType sort, bool stable ); \
   template vector<ValueInt<Real>> TaggedSort \
-  ( const AbstractDistMatrix<Real>& x, SortType sort );
+  ( const AbstractDistMatrix<Real>& x, SortType sort, bool stable ); \
+  template void SortingPermutation \
+  ( const Matrix<Real>& x, Permutation& sortPerm, SortType sort, bool stable );
 
 // For support for double-precision MRRR with float eigenvectors
 

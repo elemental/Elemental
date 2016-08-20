@@ -93,6 +93,7 @@ void TestQR
     if( correctness )
         TestCorrectness( AFact, R, A );
     PopIndent();
+    OutputFromRoot(g.Comm(),"");
 }
 
 int 

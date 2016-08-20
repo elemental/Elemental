@@ -6,16 +6,12 @@
 [![Join the chat at https://gitter.im/elemental/chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/elemental/chat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **Elemental** is a modern C++ library for distributed-memory dense and
-sparse-direct linear algebra and optimization.
+sparse-direct linear algebra, conic optimization, and lattice reduction.
 The library was initially released in
 [Elemental: A new framework for distributed memory dense linear algebra](https://dl.acm.org/citation.cfm?doid=2427023.2427030)
 and absorbed, then greatly expanded upon, the functionality from the 
 sparse-direct solver [Clique](http://www.github.com/poulson/Clique.git), which 
 was originally released during a project on [Parallel Sweeping Preconditioners](http://epubs.siam.org/doi/abs/10.1137/120871985).
-
-The development branch is currently at least six months ahead of the last 
-major release; you may find these (now outdated) releases at
-[the download page](http://libelemental.org/download/).
 
 ### Documentation
 
@@ -72,7 +68,7 @@ datatypes:
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
-* Arbitrary-precision distributed SVD and (generalized) Hermitian EVPs
+* Arbitrary-precision distributed SVD (QR and D&C support) and (generalized) Hermitian EVPs
 
 **Lattice reduction**:
 * An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
@@ -91,6 +87,7 @@ datatypes:
 * (2b) Extend black-box iterative refinement to `DistMatrix`
 * (2c) Incorporate iterative refinement into linear solvers via optional control
   structure \[weakly depends upon (2b)\]
+* (2d) Support for the Fix-Heiberger method for accurate generalized Hermitian-definite EVPs
 
 **Convex optimization**:
 * (3a) Add support for homogeneous self-dual embeddings \[weakly depends on (2a)\]

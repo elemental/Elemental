@@ -135,7 +135,7 @@ struct Types
 {
     static El::mpi::Datatype type;
     // CAUTION: These are not defined for all types
-    static El::mpi::Op sumOp,
+    static El::mpi::Op sumOp, prodOp,
                        minOp, maxOp,
                        userOp, userCommOp;
     static function<T(const T&,const T&)> userFunc, userCommFunc;
@@ -160,6 +160,8 @@ template<typename T>
 Op& UserCommOp() { return Types<T>::userCommOp; }
 template<typename T>
 Op& SumOp() { return Types<T>::sumOp; }
+template<typename T>
+Op& ProdOp() { return Types<T>::prodOp; }
 // The following are currently only defined for real datatypes but could 
 // potentially use lexicographic ordering for complex numbers
 template<typename T>

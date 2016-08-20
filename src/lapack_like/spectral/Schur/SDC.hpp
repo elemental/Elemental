@@ -1134,10 +1134,11 @@ void PullSubproblems
     }
     else
     {
+        bool includeViewers = true; 
         DistMatrix<EigType> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
-        wTSub_MC_MR.MakeConsistent();
+        wTSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
@@ -1145,7 +1146,7 @@ void PullSubproblems
         DistMatrix<EigType> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
-        wBSub_MC_MR.MakeConsistent();
+        wBSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
@@ -1299,6 +1300,7 @@ void PullSubproblems
 
     // This section is a hack since no inter-grid redistributions exist for 
     // [VR,* ] distributions yet
+    bool includeViewers = true; 
     if( progress && grid.Rank() == 0 )
         Output("Pulling wT and wB");
     if( sameGrid )
@@ -1311,7 +1313,7 @@ void PullSubproblems
         DistMatrix<EigType> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
-        wTSub_MC_MR.MakeConsistent();
+        wTSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
@@ -1319,7 +1321,7 @@ void PullSubproblems
         DistMatrix<EigType> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
-        wBSub_MC_MR.MakeConsistent();
+        wBSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
@@ -1329,8 +1331,8 @@ void PullSubproblems
         Output("Pulling ZT and ZB");
     if( !sameGrid )
     {
-        ZTSub.MakeConsistent();
-        ZBSub.MakeConsistent();
+        ZTSub.MakeConsistent( includeViewers );
+        ZBSub.MakeConsistent( includeViewers );
     }
     ZT = ZTSub;
     ZB = ZBSub;

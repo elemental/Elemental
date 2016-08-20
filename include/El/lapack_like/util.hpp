@@ -9,6 +9,10 @@
 #ifndef EL_UTIL_HPP
 #define EL_UTIL_HPP
 
+// For SortingPermutation
+#include <El/lapack_like/perm/Permutation.hpp>
+#include <El/lapack_like/perm/DistPermutation.hpp>
+
 namespace El {
 
 // Graph reordering
@@ -79,16 +83,21 @@ ValueInt<Real> Median( const AbstractDistMatrix<Real>& x );
 // Sort
 // ====
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
-void Sort( Matrix<Real>& X, SortType sort=ASCENDING );
+void Sort
+( Matrix<Real>& X, SortType sort=ASCENDING, bool stable=false );
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
-void Sort( AbstractDistMatrix<Real>& X, SortType sort=ASCENDING );
+void Sort
+( AbstractDistMatrix<Real>& X, SortType sort=ASCENDING, bool stable=false );
 
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
 vector<ValueInt<Real>>
-TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING );
+TaggedSort
+( const Matrix<Real>& x, SortType sort=ASCENDING, bool stable=false );
 template<typename Real,typename=DisableIf<IsComplex<Real>>>
 vector<ValueInt<Real>>
-TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort=ASCENDING );
+TaggedSort
+( const AbstractDistMatrix<Real>& x, SortType sort=ASCENDING,
+  bool stable=false );
 
 template<typename Real,typename F>
 void ApplyTaggedSortToEachRow
@@ -107,6 +116,16 @@ template<typename Real,typename F>
 void ApplyTaggedSortToEachColumn
 ( const vector<ValueInt<Real>>& sortPairs,
         AbstractDistMatrix<F>& Z );
+
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+void SortingPermutation
+( const Matrix<Real>& x, Permutation& sortPerm, SortType sort=ASCENDING,
+  bool stable=false );
+
+template<typename Real,typename=DisableIf<IsComplex<Real>>>
+void MergeSortingPermutation
+( Int n0, Int n1, const Matrix<Real>& x, Permutation& sortPerm,
+  SortType sort=ASCENDING );
 
 } // namespace El
 

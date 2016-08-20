@@ -121,6 +121,7 @@ Real MaxSingularValueEstimateOfBidiag
 
 namespace qr {
 
+// Cf. LAPACK's {s,d}bdsqr for these sweep strategies.
 template<typename F>
 void Sweep
 (       Matrix<Base<F>>& mainDiag,
@@ -213,6 +214,9 @@ void Sweep
             //
             //    (|alpha_0|-shift) (sgn(alpha_0)+shift/alpha_0).
             //
+            // If alpha_0 was zero, we should have forced a zero-shift iteration
+            // to push it down the diagonal.
+            //
             Real f = (Abs(mainDiag(0))-shift)*
                      (Sgn(mainDiag(0),false)+shift/mainDiag(0));
             Real g = superDiag(0); 
@@ -277,13 +281,13 @@ void Sweep
 
                 if( ctrl.wantU )
                 {
-                    cUList(i) = cU;
-                    sUList(i) = -sU;
+                    cUList(i-1) = cU;
+                    sUList(i-1) = -sU;
                 }
                 if( ctrl.wantV )
                 {
-                    cVList(i) = cV;
-                    sVList(i) = -sV;
+                    cVList(i-1) = cV;
+                    sVList(i-1) = -sV;
                 }
             }
             eta = mainDiag(0)*cU;
@@ -317,6 +321,8 @@ void Sweep
             //
             //    (|alpha_{n-1}|-shift) (sgn(alpha_{n-1})+shift/alpha_{n-1}).
             //
+            // If alpha_{n-1} was zero, we should have forced a zero-shift
+            // iteration to push it down the diagonal.
             Real f = (Abs(mainDiag(n-1))-shift)*
                      (Sgn(mainDiag(n-1),false)+shift/mainDiag(n-1));
             Real g = superDiag(n-2);
@@ -329,7 +335,7 @@ void Sweep
 
                 f = cU*mainDiag(i) + sU*superDiag(i-1);
                 superDiag(i-1) = cU*superDiag(i-1) - sU*mainDiag(i);
-                g = sU*superDiag(i-1);
+                g = sU*mainDiag(i-1);
                 mainDiag(i-1) *= cU;
                 mainDiag(i) = Givens( f, g, cV, sV );
 
@@ -343,13 +349,13 @@ void Sweep
 
                 if( ctrl.wantU )
                 {
-                    cUList(i) = cU;
-                    sUList(i) = -sU;
+                    cUList(i-1) = cU;
+                    sUList(i-1) = -sU;
                 }
                 if( ctrl.wantV )
                 {
-                    cVList(i) = cV;
-                    sVList(i) = -sV;
+                    cVList(i-1) = cV;
+                    sVList(i-1) = -sV;
                 }
             }
             superDiag(0) = f;
@@ -647,9 +653,19 @@ Helper
         ++info.numIterations;
 
         Real shift = zero;
-        if( relativeToSelfTol &&
-            zeroShiftFudge*tol*(winMinSingValEst/winMaxSingValEst) <=
-            Max(eps,tol/100) )
+        // We cannot simply use winMinSingValEst to additionally guard the 
+        // non high-relative-accuracy case since it was not actually computed
+        // in said instance. Instead, we simply check if the relevant starting
+        // diagonal entry is zero to avoid a divide-by-zero when applying the
+        // implicit Q theorem within the upcoming sweep.
+        const bool zeroStartingValue =
+          ( direction == FORWARD ?
+            mainDiag(winBeg) == zero :
+            mainDiag(winEnd-1) == zero );
+        const bool poorlyConditioned =
+          ( zeroShiftFudge*tol*(winMinSingValEst/winMaxSingValEst) <=
+            Max(eps,tol/100) );
+        if( zeroStartingValue || (relativeToSelfTol && poorlyConditioned) )
         {
             shift = zero; 
         }
@@ -806,6 +822,8 @@ QRAlg
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
+    if( superDiag.Height() != mainDiag.Height()-1 )
+        LogicError("Invalid superDiag length");
     if( IsBlasScalar<Real>::value && ctrl.qrCtrl.useLAPACK )
     {
         return qr::LAPACKHelper( mainDiag, superDiag, ctrl );
@@ -931,6 +949,9 @@ QRAlg
 {
     DEBUG_CSE
     const Int n = mainDiag.Height();
+    if( superDiag.Height() != n-1 )
+        LogicError("Invalid superDiag length");
+
     if( !ctrl.wantU && !ctrl.wantV )
     {
         return QRAlg( mainDiag, superDiag, ctrl );

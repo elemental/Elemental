@@ -60,8 +60,7 @@ void TestLAPACK
         wLAPACK(i) = sigmaLAPACK;
     }
     const Real lapackTime = timer.Stop(); 
-    Output("LAPACK: ",lapackTime," seconds");
-    Output("");
+    Output("LAPACK secular singular value time: ",lapackTime," seconds");
 }
 
 void TestLAPACK
@@ -85,8 +84,7 @@ void TestLAPACK
         wLAPACK(i) = sigmaLAPACK;
     }
     const Real lapackTime = timer.Stop(); 
-    Output("LAPACK: ",lapackTime," seconds");
-    Output("");
+    Output("LAPACK secular singular value time: ",lapackTime," seconds");
 }
 
 template<typename Real>
@@ -128,16 +126,16 @@ void TestSecularHelper
   bool print,
   bool testFull )
 {
-    Output("Testing with ",TypeName<Real>());
     const Int n = d.Height();
 
     Timer timer;
 
     SecularSingularValueCtrl<Real> ctrl;
     ctrl.maxIterations = maxIter;
-    ctrl.maxCubicIterations = maxCubicIter;
     ctrl.negativeFix = negativeFix;
     ctrl.progress = progress;
+    ctrl.cubicCtrl.maxIterations = maxCubicIter;
+    ctrl.cubicCtrl.negativeFix = negativeFix;
 
     Matrix<Real> s(n,1), wSecular(n,1);
     Int measMinIter=1e9, measMaxIter=0, measTotalIter=0,
@@ -146,9 +144,8 @@ void TestSecularHelper
     timer.Start();
     for( Int i=0; i<n; ++i )
     {
-        auto info = SecularSingularValue( i, d, rho, z, ctrl );
-        s(i) = info.singularValue;
-        wSecular(i) = info.singularValue*info.singularValue;
+        auto info = SecularSingularValue( i, d, rho, z, s(i), ctrl );
+        wSecular(i) = s(i) * s(i);
 
         measMinIter = Min( measMinIter, info.numIterations );
         measMaxIter = Max( measMaxIter, info.numIterations );
@@ -181,7 +178,7 @@ void TestSecularHelper
     timer.Start();
     SecularSVD( d, rho, z, U, s, V, ctrl );
     const double secularSVDTime = timer.Stop();
-    Output("Singular SVD: ",secularSVDTime," seconds");
+    Output("Secular SVD: ",secularSVDTime," seconds");
     if( print )
     {
         Print( U, "U" );
@@ -227,7 +224,7 @@ void TestSecularHelper
         Diagonal( A, dSquared );
         Syrk( LOWER, NORMAL, rho, z, Real(1), A );
         timer.Start();
-        auto hermEigInfo = HermitianEig( LOWER, A, w );
+        HermitianEig( LOWER, A, w );
         const Real fullTime = timer.Stop();
         Output("Full Hermitian: ",fullTime," seconds");
         if( print )
@@ -252,17 +249,19 @@ void TestSecular
   bool testFull,
   bool lapack )
 {
+    Output("Testing with ",TypeName<Real>());
     Matrix<Real> d, z;
     Real rho;
     GenerateData( n, d, rho, z, print );
 
-    TestSecularHelper<Real>
-    ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
-      testFull );
     if( lapack )
     {
         TestLAPACK( d, rho, z );
     }
+    TestSecularHelper<Real>
+    ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
+      testFull );
+    Output("");
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -275,6 +274,7 @@ void TestSecular
   bool print,
   bool testFull )
 {
+    Output("Testing with ",TypeName<Real>());
     Matrix<Real> d, z;
     Real rho;
     GenerateData( n, d, rho, z, print );
@@ -282,6 +282,7 @@ void TestSecular
     TestSecularHelper<Real>
     ( d, rho, z, maxIter, maxCubicIter, negativeFix, progress, print,
       testFull );
+    Output("");
 }
 
 int main( int argc, char* argv[] )
@@ -293,7 +294,7 @@ int main( int argc, char* argv[] )
         const Int n = Input("--n","matrix size",100);
         const Int maxIter = Input("--maxIter","max iterations",400);
         const Int maxCubicIter = Input("--maxCubicIter","max cubic iter's",40);
-        const Int flipOrClipInt = Input("--flipOrClip","0: flip, 1: clip",1);
+        const bool clip = Input("--clip","clip negative?",true);
         const bool progress = Input("--progress","print progress?",false);
         const bool testFull = Input("--testFull","test full eigensolver?",true);
         const bool lapack =
@@ -304,7 +305,8 @@ int main( int argc, char* argv[] )
 #endif
         ProcessInput();
 
-        FlipOrClip negativeFix = static_cast<FlipOrClip>(flipOrClipInt);
+        const FlipOrClip negativeFix = 
+          ( clip ? CLIP_NEGATIVES : FLIP_NEGATIVES );
 
         TestSecular<float>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull,
@@ -328,7 +330,6 @@ int main( int argc, char* argv[] )
         TestSecular<BigFloat>
         ( n, maxIter, maxCubicIter, negativeFix, progress, print, testFull );
 #endif
-
     }
     catch( std::exception& e ) { ReportException(e); }
 

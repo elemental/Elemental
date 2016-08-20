@@ -107,7 +107,7 @@ void BusingerGolub
             if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
                 break;
         }
-        Omega.RowSwap( k, pivot.index );
+        Omega.Swap( k, pivot.index );
  
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -377,7 +377,7 @@ void BusingerGolub
             if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
                 break;
         }
-        Omega.RowSwap( k, pivot.index );
+        Omega.Swap( k, pivot.index );
 
         // Perform the swap
         const Int jPiv = pivot.index;

@@ -218,18 +218,26 @@ int main( int argc, char* argv[] )
             TestSequentialLeastSquares<double>
             ( numRHS, gamma, filename, feasible, ones, print );
 #ifdef EL_HAVE_QD
+            // We will be humane and only run up to DoubleDouble in Debug builds due to
+            // excessive runtimes
             TestSequentialLeastSquares<DoubleDouble>
             ( numRHS, gamma, filename, feasible, ones, print );
+#ifdef EL_RELEASE 
             TestSequentialLeastSquares<QuadDouble>
             ( numRHS, gamma, filename, feasible, ones, print );
 #endif
+#endif
 #ifdef EL_HAVE_QUAD
+#ifdef EL_RELEASE
             TestSequentialLeastSquares<Quad>
             ( numRHS, gamma, filename, feasible, ones, print );
 #endif
+#endif
 #ifdef EL_HAVE_MPC
+#ifdef EL_RELEASE
             TestSequentialLeastSquares<BigFloat>
             ( numRHS, gamma, filename, feasible, ones, print );
+#endif
 #endif
         }
         if( distributed )
@@ -239,16 +247,22 @@ int main( int argc, char* argv[] )
 #ifdef EL_HAVE_QD
             TestLeastSquares<DoubleDouble>
             ( numRHS, gamma, filename, feasible, ones, print, comm );
+#ifdef EL_RELEASE
             TestLeastSquares<QuadDouble>
             ( numRHS, gamma, filename, feasible, ones, print, comm );
 #endif
+#endif
 #ifdef EL_HAVE_QUAD
+#ifdef EL_RELEASE
             TestLeastSquares<Quad>
             ( numRHS, gamma, filename, feasible, ones, print, comm );
 #endif
+#endif
 #ifdef EL_HAVE_MPC
+#ifdef EL_RELEASE
             TestLeastSquares<BigFloat>
             ( numRHS, gamma, filename, feasible, ones, print, comm );
+#endif
 #endif
         }
     }

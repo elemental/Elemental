@@ -76,14 +76,14 @@ EL_EXPORT ElError ElDistPermutationReserveSwaps
 EL_EXPORT ElError ElPermutationMakeArbitrary( ElPermutation P );
 EL_EXPORT ElError ElDistPermutationMakeArbitrary( ElDistPermutation P );
 
-EL_EXPORT ElError ElPermutationRowSwap
+EL_EXPORT ElError ElPermutationSwap
 ( ElPermutation P, ElInt origin, ElInt dest );
-EL_EXPORT ElError ElDistPermutationRowSwap
+EL_EXPORT ElError ElDistPermutationSwap
 ( ElDistPermutation P, ElInt origin, ElInt dest );
 
-EL_EXPORT ElError ElPermutationRowSwapSequence
+EL_EXPORT ElError ElPermutationSwapSequence
 ( ElPermutation P, ElConstPermutation PAppend, ElInt offset );
-EL_EXPORT ElError ElDistPermutationRowSwapSequence
+EL_EXPORT ElError ElDistPermutationSwapSequence
 ( ElDistPermutation P, ElConstDistPermutation PAppend, ElInt offset );
 
 /* TODO: Support for ElMatrix_i and ElDistMatrix_i swap vectors */

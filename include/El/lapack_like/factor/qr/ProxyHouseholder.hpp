@@ -176,7 +176,7 @@ ProxyHouseholder
 
         auto AR = A(ALL,indR);
         proxyPerm.PermuteCols( AR );
-        Omega.RowSwapSequence( proxyPerm, k );
+        Omega.SwapSequence( proxyPerm, k );
 
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
@@ -188,7 +188,7 @@ ProxyHouseholder
             QR( AB1, phase1, sig1, panelPerm, ctrl );
             auto AT1 = A( IR(0,k), ind1 );
             panelPerm.PermuteCols( AT1 );
-            Omega.RowSwapSequence( panelPerm, k );
+            Omega.SwapSequence( panelPerm, k );
         }
         else
         {
@@ -253,7 +253,7 @@ ProxyHouseholder
 
         auto AR = A(ALL,indR);
         proxyPerm.PermuteCols( AR );
-        Omega.RowSwapSequence( proxyPerm, k );
+        Omega.SwapSequence( proxyPerm, k );
 
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
@@ -265,7 +265,7 @@ ProxyHouseholder
             QR( AB1, phase1, sig1, panelPerm, ctrl );
             auto AT1 = A( IR(0,k), ind1 );
             panelPerm.PermuteCols( AT1 );
-            Omega.RowSwapSequence( panelPerm, k );
+            Omega.SwapSequence( panelPerm, k );
         }
         else
         {

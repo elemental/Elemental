@@ -122,7 +122,8 @@ void HermitianTridiag
             else
                 herm_tridiag::USquare( ASquare, phaseSquare, ctrl.symvCtrl );
         }
-        phaseSquare.MakeConsistent( true );
+        const bool includeViewers = true;
+        phaseSquare.MakeConsistent( includeViewers );
         A = ASquare;
         phase = phaseSquare;
 

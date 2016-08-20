@@ -101,7 +101,7 @@ Panel
             const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
-            PFull.RowSwap( off+k, off+k+diagMax.index );
+            PFull.Swap( off+k, off+k+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
@@ -117,7 +117,7 @@ Panel
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
-        PFull.RowSwap( off+to, off+from );
+        PFull.Swap( off+to, off+from );
         RowSwap( X0, to, from );
         RowSwap( Y0, to, from );
 
@@ -238,7 +238,7 @@ Panel
             const auto diagMax = VectorMaxAbsLoc( GetDiagonal(ABR) );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
-            PFull.RowSwap( off+k, off+k+diagMax.index );
+            PFull.Swap( off+k, off+k+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
@@ -254,7 +254,7 @@ Panel
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
-        PFull.RowSwap( off+to, off+from );
+        PFull.Swap( off+to, off+from );
         RowSwap( X0, to, from );
         RowSwap( Y0, to, from );
 

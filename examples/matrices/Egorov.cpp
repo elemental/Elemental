@@ -9,27 +9,6 @@
 #include <El.hpp>
 using namespace El;
 
-template<typename Real>
-class FourierPhase {
-public:
-    FourierPhase( Int n ) : n_(n), pi_(4*Atan(Real(1))) { }
-    Real operator()( Int i, Int j ) const { return (-2*pi_*i*j)/n_; }
-private:
-    Int n_;
-    Real pi_;
-};
-
-template<typename Real>
-class Phase {
-public:
-    Phase( Int n ) : n_(n), pi_(4*Atan(Real(1))) { }
-    Real operator()( Int i, Int j ) const 
-    { return (-2*pi_*i*j)/n_ + Sqrt(Real(i)*Real(i) + Real(j)*Real(j)); }
-private:
-    Int n_;
-    Real pi_;
-};
-
 int 
 main( int argc, char* argv[] )
 {
@@ -43,9 +22,13 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-
-        FourierPhase<double> fourier( n );
-        Phase<double> phase( n );
+        const double& pi = Pi<double>();
+        auto fourier = [&]( Int i, Int j ) { return (-2*pi*i*j)/n; };
+        auto phase = [&]( Int i, Int j )
+          {
+            return fourier(i,j) +
+              Sqrt(double(i)*double(i) + double(j)*double(j));
+          };
 
         DistMatrix<Complex<double>> F, G;
         Egorov( F, function<double(Int,Int)>(fourier), n );

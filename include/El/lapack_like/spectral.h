@@ -638,6 +638,53 @@ typedef struct {
 } ElBidiagSVDQRCtrl;
 EL_EXPORT ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl );
 
+typedef enum {
+  EL_FLIP_NEGATIVES,
+  EL_CLIP_NEGATIVES
+} ElFlipOrClip;
+
+typedef struct {
+  ElInt maxIterations;
+  ElFlipOrClip negativeFix;
+} ElCubicSecularCtrl;
+EL_EXPORT ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl );
+
+typedef struct {
+  ElInt maxIterations;
+  float sufficientDecay;
+  ElFlipOrClip negativeFix;
+  bool progress;
+  ElCubicSecularCtrl cubicCtrl;
+} ElSecularSingularValueCtrl_s;
+EL_EXPORT ElError ElSecularSingularValueCtrlDefault_s
+( ElSecularSingularValueCtrl_s* ctrl );
+
+typedef struct {
+  ElInt maxIterations;
+  double sufficientDecay;
+  ElFlipOrClip negativeFix;
+  bool progress;
+  ElCubicSecularCtrl cubicCtrl;
+} ElSecularSingularValueCtrl_d;
+EL_EXPORT ElError ElSecularSingularValueCtrlDefault_d
+( ElSecularSingularValueCtrl_d* ctrl );
+
+typedef struct {
+  ElSecularSingularValueCtrl_s secularCtrl;
+  float deflationFudge;
+  ElInt cutoff;
+  bool exploitStructure;
+} ElBidiagSVDDCCtrl_s;
+EL_EXPORT ElError ElBidiagSVDDCCtrlDefault_s( ElBidiagSVDDCCtrl_s* ctrl );
+
+typedef struct {
+  ElSecularSingularValueCtrl_d secularCtrl;
+  double deflationFudge;
+  ElInt cutoff;
+  bool exploitStructure;
+} ElBidiagSVDDCCtrl_d;
+EL_EXPORT ElError ElBidiagSVDDCCtrlDefault_d( ElBidiagSVDDCCtrl_d* ctrl );
+
 typedef struct {
   bool wantU, wantV;
   bool accumulateU, accumulateV;
@@ -645,7 +692,9 @@ typedef struct {
   ElSingularValueToleranceType tolType;
   float tol;
   bool progress;
+  bool useQR;
   ElBidiagSVDQRCtrl qrCtrl;
+  ElBidiagSVDDCCtrl_s dcCtrl;
 } ElBidiagSVDCtrl_s;
 EL_EXPORT ElError ElBidiagSVDCtrlDefault_s( ElBidiagSVDCtrl_s* ctrl );
 
@@ -656,7 +705,9 @@ typedef struct {
   ElSingularValueToleranceType tolType;
   double tol;
   bool progress;
+  bool useQR;
   ElBidiagSVDQRCtrl qrCtrl;
+  ElBidiagSVDDCCtrl_d dcCtrl;
 } ElBidiagSVDCtrl_d;
 EL_EXPORT ElError ElBidiagSVDCtrlDefault_d( ElBidiagSVDCtrl_d* ctrl );
 

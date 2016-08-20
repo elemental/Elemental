@@ -12,14 +12,6 @@
 
 namespace El {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-struct CubicSecularSingularValueInfo
-{
-    Real root;
-    Int numIterations = 0;
-    bool converged = true;
-};
-
 namespace secular_svd {
 
 template<typename Real>
@@ -92,300 +84,6 @@ struct LastState
 
     Real relErrorBound;
 };
-
-// Solve for an inner root of the secular equation
-//
-//   f(x) = rho + z(0) / (d(0)-x) + z(1) / (d(1)-x) + z(2) / (d(2)-x),
-//
-// where each numerator is positive and d(0) < d(1) < d(2).
-//
-// Just as in LAPACK's {s,d}laed6 [CITATION], we require that the user pass in
-// an accurate evaluation of f(0).
-//
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-CubicSecularSingularValueInfo<Real>
-CubicSecular
-( bool rightRoot,
-  const Real& rho,
-  const Matrix<Real>& z,
-  const Matrix<Real>& d,
-  const Real& originEval,
-  bool initialize,
-  const SecularSingularValueCtrl<Real>& ctrl )
-{
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( z.Height() != 3 || z.Width() != 1 )
-          LogicError("z should be a column vector of length 3");
-      if( d.Height() != 3 || d.Width() != 1 )
-          LogicError("d should be a column vector of length 3");
-    )
-    const Real zero(0), one(1);
-    const Real eps = limits::Epsilon<Real>();
-    const Real safeMinToCube = limits::SafeMinToCube<Real>();
-    const Real safeMinToCubeInv = one / safeMinToCube;
-    const Real safeMinToRootCube = safeMinToCube*safeMinToCube;
-    const Real safeMinToRootCubeInv = safeMinToCubeInv*safeMinToCubeInv;
-    CubicSecularSingularValueInfo<Real> info;
-
-    Real rootLowerBound = ( rightRoot ? d(1) : d(0) );
-    Real rootUpperBound = ( rightRoot ? d(2) : d(1) );
-
-    if( originEval < zero )
-    {
-        // The root is to the right of zero
-        rootLowerBound = zero;
-    }
-    else
-    {
-        // The root is to the left of zero
-        rootUpperBound = zero;
-    }
-
-    Real rootEst = zero;
-    if( initialize )
-    {
-        // Form the relevant quadratic equation
-        // TODO(poulson): Document with the derivation
-        Real a, bNeg, c;
-        if( rightRoot )
-        {
-            a = rho + z(0) / ((d(0)-d(1))-(d(2)-d(1))/2);
-            bNeg = a*(d(1)+d(2)) + z(1) + z(2);
-            c = a*d(1)*d(2) + z(1)*d(2) + z(2)*d(1);
-        }
-        else
-        {
-            a = rho + z(2) / ((d(2)-d(1))-(d(0)-d(1))/2);
-            bNeg = a*(d(0)+d(1)) + z(0) + z(1);
-            c = a*d(0)*d(1) + z(0)*d(1) + z(1)*d(0);
-        }
-
-        // Normalize the coefficients of the quadratic equation
-        const Real maxAbs = Max( Abs(a), Max( Abs(bNeg), Abs(c) ) );
-        a /= maxAbs;
-        bNeg /= maxAbs;
-        c /= maxAbs;
-
-        rootEst = SolveQuadraticMinus( a, bNeg, c, ctrl.negativeFix );
-
-        if( rootEst < rootLowerBound || rootEst > rootUpperBound )
-        {
-            // We have a nonsensical result, so default to the average
-            rootEst = (rootLowerBound+rootUpperBound) / 2;
-        }
-        if( d(0) == rootEst || d(1) == rootEst || d(2) == rootEst )
-        {
-            rootEst = zero;
-        }
-        else
-        {
-            // Carefully evaluate f(rootEst) by perturbing originEval=f(0)
-            const Real secular = originEval +
-              rootEst*z(0)/(d(0)*(d(0)-rootEst)) +
-              rootEst*z(1)/(d(1)*(d(1)-rootEst)) +
-              rootEst*z(2)/(d(2)*(d(2)-rootEst));
-
-            if( secular <= zero )
-            {
-                // The root is right of rootEst
-                rootLowerBound = rootEst; 
-            }
-            else
-            {
-                // The root is left of rootEst
-                rootUpperBound = rootEst;
-            }
-
-            if( Abs(originEval) <= Abs(secular) )
-            {
-                // The origin is better than the current estimate
-                rootEst = zero;
-            }
-        }
-    }
-
-    bool rescale = false;
-    Real scaleInv;
-    Matrix<Real> zScaled(3,1), dScaled(3,1);
-    Real maxDenomAbs;
-    if( rightRoot )
-    {
-        maxDenomAbs = Min( Abs(d(1)-rootEst), Abs(d(2)-rootEst) );
-    }
-    else
-    {
-        maxDenomAbs = Min( Abs(d(0)-rootEst), Abs(d(1)-rootEst) );
-    }
-    if( maxDenomAbs <= safeMinToCube ) 
-    {
-        rescale = true; 
-        Real scale, scaleInv;
-        if( maxDenomAbs <= safeMinToRootCube )
-        {
-            scale = safeMinToRootCubeInv;
-            scaleInv = safeMinToRootCube;
-        }
-        else
-        {
-            scale = safeMinToCubeInv;
-            scaleInv = safeMinToCube;
-        }
-
-        for( Int i=0; i<3; ++i )
-        {
-            zScaled(i) = z(i)*scale;
-            dScaled(i) = d(i)*scale;
-        }
-        rootEst *= scale;
-        rootLowerBound *= scale;
-        rootUpperBound *= scale;
-    }
-    else
-    {
-        zScaled = z;
-        dScaled = d;
-    }
-
-    // Compute a relative correction to the f(0) to perturb to f(rootEst).
-    // Also compute f'(rootEst) and f''(rootEst)/2.
-    Real secularRelCorrection = zero;
-    Real secularDeriv = zero;
-    Real secularSecondDerivHalf = zero;
-    for( Int i=0; i<3; ++i )
-    {
-        // The i'th term is
-        //
-        //   f_i(x) = z(i) / (d(i)-x),
-        //
-        // so its first derivative is
-        //
-        //   f'_i(x) = z(i) / (d(i)-x)^2,
-        //
-        // and its second derivative is
-        //
-        //   f''_i(x) = 2 z(i) / (d(i)-x)^3.
-        //
-        const Real temp = one / (dScaled(i)-rootEst);
-        const Real temp1 = zScaled(i)*temp;
-        const Real temp2 = temp1*temp;
-        const Real temp3 = temp2*temp;
-        secularRelCorrection += temp1 / dScaled(i);
-        secularDeriv += temp2;
-        secularSecondDerivHalf += temp3;
-    }
-    Real secular = originEval + rootEst*secularRelCorrection;
-    ++info.numIterations;
-    if( Abs(secular) == zero )
-    {
-        if( rescale )
-            rootEst *= scaleInv;
-        info.root = rootEst;
-        return info;
-    }
-    if( secular <= zero )
-    {
-        // The root is right of our current estimate
-        rootLowerBound = rootEst;
-    }
-    else
-    {
-        // The root is left of our current estimate
-        rootUpperBound = rootEst;
-    }
-
-    // Begin Borges/Gragg/Thornton/Warner scheme
-    while( true )
-    {
-        if( info.numIterations >= ctrl.maxCubicIterations )
-        {
-            info.converged = false;
-            break;
-        }
-
-        const Real leftDenom =
-          ( rightRoot ? dScaled(1) : dScaled(0) ) - rootEst;
-        const Real rightDenom =
-          ( rightRoot ? dScaled(2) : dScaled(1) ) - rootEst;
-
-        Real a = secular - (leftDenom+rightDenom)*secularDeriv +
-          leftDenom*rightDenom*secularSecondDerivHalf;
-
-        Real bNeg = (leftDenom+rightDenom)*secular -
-          leftDenom*rightDenom*secularDeriv;
-
-        Real c = leftDenom*rightDenom*secular;
-
-        // Normalize the coefficients of the quadratic equation
-        const Real maxAbs = Max( Abs(a), Max( Abs(bNeg), Abs(c) ) );
-        a /= maxAbs; 
-        bNeg /= maxAbs;
-        c /= maxAbs;
-
-        Real eta = SolveQuadraticMinus( a, bNeg, c, ctrl.negativeFix );
-        if( secular*eta >= zero )
-        {
-            // The current update does not move in the right direction, so fall
-            // back to a small Newton step (as the derivative is likely large).
-            eta = -secular / secularDeriv;
-        }
-
-        rootEst += eta;
-        if( rootEst < rootLowerBound || rootEst > rootUpperBound )
-        {
-            // We have a nonsensical answer, so restart in the center
-            rootEst = (rootLowerBound+rootUpperBound) / 2;
-        }
-        ++info.numIterations;
-
-        bool converged = false;
-        for( Int i=0; i<3; ++i )
-        {
-            if( dScaled(i)-rootEst == zero )
-            {
-                converged = true;
-                break;
-            }
-        }
-        if( converged )
-            break;
-
-        secularRelCorrection = zero;
-        secularDeriv = zero;
-        secularSecondDerivHalf = zero;
-        Real relErrorBound = zero;
-        for( Int i=0; i<3; ++i )
-        {
-            const Real temp = one / (dScaled(i)-rootEst);
-            const Real temp1 = zScaled(i)*temp;
-            const Real temp2 = temp1*temp;
-            const Real temp3 = temp2*temp;
-            const Real temp4 = temp1 / dScaled(i);
-            secularRelCorrection += temp4;
-            relErrorBound += Abs(temp4);
-            secularDeriv += temp2;
-            secularSecondDerivHalf += temp3;
-        }
-        secular = originEval + rootEst*secularRelCorrection;
-        relErrorBound = 8*(Abs(originEval)+Abs(rootEst)*relErrorBound) +
-          Abs(rootEst)*secularDeriv;
-
-        if( Abs(secular) <= eps*relErrorBound )
-        {
-            // We have converged
-            break;
-        }
-        if( secular <= zero ) 
-            rootLowerBound = rootEst;
-        else
-            rootUpperBound = rootEst;
-    }
-
-    if( rescale )
-        rootEst *= scaleInv;
-    info.root = rootEst;
-    return info;
-}
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void EvaluateSecular
@@ -772,14 +470,14 @@ void SecularInitialGuessLast
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void SecularUpdate
-( Int whichSingularValue,
+( bool  initialize,
+  Int   whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
         State<Real>& state,
-  bool initialize,
-  const SecularSingularValueCtrl<Real>& ctrl,
-  SecularSingularValueInfo<Real>& info )
+        SecularSingularValueInfo& info,
+  const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real zero(0);
@@ -852,7 +550,7 @@ void SecularUpdate
                 //
                 const Real leftRatio = z(origin-1) / leftGap;
                 const Real leftDerivTerm = leftRatio*leftRatio;
-                const Real a =
+                a =
                   (state.secularMinus-rightGap*state.secularMinusDeriv) +
                   leftDerivTerm*doubleGap;
 
@@ -900,7 +598,7 @@ void SecularUpdate
                 //
                 const Real rightRatio = z(origin+1) / rightGap;
                 const Real mPlusDerivTerm = rightRatio*rightRatio;
-                const Real a =
+                a =
                   (state.secularMinus-leftGap*state.secularMinusDeriv) -
                   mPlusDerivTerm*doubleGap;
 
@@ -922,12 +620,11 @@ void SecularUpdate
 
         auto cubicInfo =
           CubicSecular
-          ( state.originOnLeft, a, zCubic, dCubic, state.secular,
-            initialize, ctrl );
+          ( initialize, state.originOnLeft, a, zCubic, dCubic, state.secular,
+            eta, ctrl.cubicCtrl );
         info.numCubicIterations += cubicInfo.numIterations;
         if( cubicInfo.converged )
         {
-            eta = cubicInfo.root;
             if( ctrl.progress )
                 Output
                 ("Cubic converged in ",cubicInfo.numIterations,
@@ -1154,10 +851,10 @@ void SecularUpdate
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void SecularUpdateLast
-( const Real& rho,
+( bool  initialize,
+  const Real& rho,
   const Matrix<Real>& z,
         LastState<Real>& state,
-  bool initialize,
   const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -1253,7 +950,7 @@ void SecularUpdateLast
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSingularValueInfo<Real>
+SecularSingularValueInfo
 SecularInner
 ( Int whichSingularValue,
   const Matrix<Real>& d,
@@ -1263,7 +960,6 @@ SecularInner
   const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    Real temp; // for frequent usage as a temporary product
     const Real zero(0);
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichSingularValue;
@@ -1275,7 +971,7 @@ SecularInner
           LogicError("SecularInner meant for n > 2");
     )
 
-    SecularSingularValueInfo<Real> info;
+    SecularSingularValueInfo info;
     state.dMinusShift.Resize(n,1);
     state.dPlusShift.Resize(n,1);
 
@@ -1294,10 +990,7 @@ SecularInner
 
     // Check if we have already converged
     if( Abs(state.secular) <= eps*state.relErrorBound )
-    {
-        info.singularValue = state.sigmaEst;
         return info;
-    }
 
     if( state.secular <= zero )
     {
@@ -1313,9 +1006,9 @@ SecularInner
     }
 
     // Compute the first update to our estimate
-    bool initialize = true;
+    bool initialize = false;
     state.alternateStrategy = false;
-    SecularUpdate( k, d, rho, z, state, initialize, ctrl, info );
+    SecularUpdate( initialize, k, d, rho, z, state, info, ctrl );
     ++info.numIterations;
    
     // This strategy was described in Ren-Cang Li's LAWN 89
@@ -1365,7 +1058,7 @@ SecularInner
               Min( state.sigmaRelUpperBound, state.sigmaRelEst );
 
         // Decide the next step
-        SecularUpdate( k, d, rho, z, state, initialize, ctrl, info );
+        SecularUpdate( initialize, k, d, rho, z, state, info, ctrl );
         ++info.numIterations;
    
         // This strategy was described in Ren-Cang Li's LAWN 89
@@ -1376,12 +1069,11 @@ SecularInner
             ++info.numAlternations;
         }
     }
-    info.singularValue = state.sigmaEst;
     return info;
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSingularValueInfo<Real>
+SecularSingularValueInfo
 SecularLast
 ( Int whichSingularValue,
   const Matrix<Real>& d,
@@ -1401,7 +1093,7 @@ SecularLast
           LogicError("SecularLast meant for n > 2");
     )
 
-    SecularSingularValueInfo<Real> info;
+    SecularSingularValueInfo info;
     state.dMinusShift.Resize(n,1);
     state.dPlusShift.Resize(n,1);
 
@@ -1409,14 +1101,11 @@ SecularLast
     ++info.numIterations;
 
     if( Abs(state.secular) <= eps*state.relErrorBound )
-    {
-        info.singularValue = state.sigmaEst;
         return info;
-    }
 
     // Calculate the first update
     bool initialize = true;
-    SecularUpdateLast( rho, z, state, initialize, ctrl );
+    SecularUpdateLast( initialize, rho, z, state, ctrl );
     ++info.numIterations;
 
     initialize = false;
@@ -1435,10 +1124,9 @@ SecularLast
         }
 
         // Decide the next step
-        SecularUpdateLast( rho, z, state, initialize, ctrl );
+        SecularUpdateLast( initialize, rho, z, state, ctrl );
         ++info.numIterations;
     }
-    info.singularValue = state.sigmaEst;
     return info;
 }
 
@@ -1459,12 +1147,13 @@ SecularLast
 //
 
 template<typename Real,typename>
-SecularSingularValueInfo<Real>
+SecularSingularValueInfo
 SecularSingularValue
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
+        Real& singularValue,
   const SecularSingularValueCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -1486,16 +1175,15 @@ SecularSingularValue
       // TODO(poulson): Check the assumption that || z ||_2 = 1
     )
 
-    SecularSingularValueInfo<Real> info;
+    SecularSingularValueInfo info;
     if( n == 1 )
     {
-        info.singularValue = Sqrt(d(0)*d(0) + rho*z(0)*z(0));
+        singularValue = Sqrt(d(0)*d(0) + rho*z(0)*z(0));
         return info;
     }
     else if( n == 2 )
     {
-        info.singularValue =
-          secular_svd::TwoByTwo( k, d(0), d(1), rho, z(0), z(1) );
+        singularValue = secular_svd::TwoByTwo( k, d(0), d(1), rho, z(0), z(1) );
         return info;
     }
 
@@ -1503,23 +1191,26 @@ SecularSingularValue
     {
         secular_svd::State<Real> state;
         info = secular_svd::SecularInner( k, d, rho, z, state, ctrl );
+        singularValue = state.sigmaEst;
     }
     else
     {
         secular_svd::LastState<Real> state;
         info = secular_svd::SecularLast( k, d, rho, z, state, ctrl );
+        singularValue = state.sigmaEst;
     }
 
     return info;
 }
 
 template<typename Real,typename>
-SecularSingularValueInfo<Real>
+SecularSingularValueInfo
 SecularSingularValue
 ( Int whichSingularValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
+        Real& singularValue,
         Matrix<Real>& dMinusShift,
         Matrix<Real>& dPlusShift,
   const SecularSingularValueCtrl<Real>& ctrl )
@@ -1543,20 +1234,20 @@ SecularSingularValue
       // TODO(poulson): Check the assumption that || z ||_2 = 1
     )
 
-    SecularSingularValueInfo<Real> info;
+    SecularSingularValueInfo info;
     dMinusShift.Resize(n,1);
     dPlusShift.Resize(n,1);
     if( n == 1 )
     {
-        info.singularValue = Sqrt(d(0)*d(0) + rho*z(0)*z(0));
+        singularValue = Sqrt(d(0)*d(0) + rho*z(0)*z(0));
         // TODO(poulson): Make this computation more accurate for completeness
-        dMinusShift(0) = d(0) - info.singularValue;
-        dPlusShift(0) = d(0) + info.singularValue;
+        dMinusShift(0) = d(0) - singularValue;
+        dPlusShift(0) = d(0) + singularValue;
         return info;
     }
     else if( n == 2 )
     {
-        info.singularValue =
+        singularValue =
           secular_svd::TwoByTwo
           ( k, d(0), d(1), rho, z(0), z(1),
             dMinusShift(0), dMinusShift(1),
@@ -1568,6 +1259,7 @@ SecularSingularValue
     {
         secular_svd::State<Real> state;
         info = secular_svd::SecularInner( k, d, rho, z, state, ctrl );
+        singularValue = state.sigmaEst;
         dPlusShift = state.dPlusShift;
         dMinusShift = state.dMinusShift;
     }
@@ -1575,6 +1267,7 @@ SecularSingularValue
     {
         secular_svd::LastState<Real> state;
         info = secular_svd::SecularLast( k, d, rho, z, state, ctrl );
+        singularValue = state.sigmaEst;
         dPlusShift = state.dPlusShift;
         dMinusShift = state.dMinusShift;
     }
@@ -1583,7 +1276,8 @@ SecularSingularValue
 }
 
 template<typename Real,typename>
-void SecularSVD
+SecularSingularValueInfo
+SecularSVD
 ( const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
@@ -1594,50 +1288,80 @@ void SecularSVD
 {
     DEBUG_CSE
     const Int n = d.Height();
-    U.Resize( n, n );
+    SecularSingularValueInfo info;
+
     s.Resize( n, 1 );
-    V.Resize( n, n );
     if( n == 0 )
-        return;
+    {
+        U.Resize( n, n );
+        V.Resize( n, n );
+        return info;
+    }
 
     // TODO(poulson): Batch secular equation solvers?
-    // TODO(poulson): Only have dSqMinusShiftSq returned?
     //
-    // NOTE: We will store DMinusShift in U and DPlusShift in V to avoid 
-    // 2*n^2 unnecessary extra working space.
+    // Compute all of the singular values and the vector r ~= sqrt(rho) z which
+    // would produce the given singular values to high relative accuracy.
+    //
+    // We accumulate the products involved in computing r in an online manner
+    // and take the square-root of the absolute value (and the correct sign)
+    // at the end. The key is to recognize that the only term left out of entry
+    // i of the corrected vector in Eq. (3.6) of Gu/Eisenstat in the product
+    //
+    //    prod_{k=0}^{n-1} (lambda_k^2 - d(i)^2) / (d(k)^2 - d(i)^2)
+    //
+    // is 1 / (d(i)^2 - d(i)^2) (and we emphasize that the numerator is kept).
+    // It is thus easy to see how the first term and second product in
+    //
+    //    r(i)^2 = (lambda_{n-1}^2 - d(i)^2) *
+    //      prod_{k=0}^{i-1} (lambda_k^2 - d(i)^2) / (d(k  )^2 - d(i)^2) *
+    //      prod_{k=i}^{n-2} (lambda_k^2 - d(i)^2) / (d(k+1)^2 - d(i)^2)
+    //
+    // can be reorganized to yield
+    //
+    //    r(i)^2 = (lambda_{i}^2 - d(i)^2) *
+    //      prod_{k=0  }^{i-1} (lambda_k^2 - d(i)^2) / (d(k)^2 - d(i)^2) *
+    //      prod_{k=i+1}^{n-1} (lambda_k^2 - d(i)^2) / (d(k)^2 - d(i)^2).
+    //
+    // Given that we have available only one lambda_j at a time, we greedily
+    // update all r(i) products given each lambda_j
+    // (Cf. LAPACK's {s,d}lasd8 [CITATION] for this approach).
+    //
+    U.Resize( n, n );
+    V.Resize( n, n );
+    Matrix<Real> r;
+    Ones( r, n, 1 );
+    auto vScratch = V(ALL,IR(0));
     for( Int j=0; j<n; ++j )
     {
-        auto dMinusShift = U(ALL,IR(j));
-        auto dPlusShift = V(ALL,IR(j));
-        auto info =
-          SecularSingularValue( j, d, rho, z, dMinusShift, dPlusShift, ctrl );
-        s(j) = info.singularValue;
-    }
+        // While we will temporarily store dMinusShift and dPlusShift in the
+        // j'th columns of U and V, respectively, it is worth noting that we 
+        // only require access to their Hadamard product after this loop ends.
+        auto u = U(ALL,IR(j));
+        auto valueInfo =
+          SecularSingularValue( j, d, rho, z, s(j), u, vScratch, ctrl );
+        
+        info.numIterations += valueInfo.numIterations;
+        info.numAlternations += valueInfo.numAlternations;
+        info.numCubicIterations += valueInfo.numCubicIterations;
+        info.numCubicFailures += valueInfo.numCubicFailures;
 
-    // Compute a vector r which would produce the given singular values to
-    // high relative accuracy. Keep in mind that the following absorbs the
-    // sqrt(rho) factor into r.
-    Matrix<Real> r(n,1);
-    for( Int i=0; i<n; ++i )
-    {
-        // See Eq. (3.6) from Gu and Eisenstat's Technical Report
-        // "A Divide-and-Conquer Algorithm for the Bidiagonal SVD"
-        // [CITATION].
-        Real prod = U(i,n-1)*V(i,n-1);
-        for( Int k=0; k<i; ++k )
+        // u currently hold d-s(j) and vScratch currently holds d+s(j).
+        // Overwrite u with their element-wise product since that is all we 
+        // require from here on out.
+        for( Int k=0; k<n; ++k )
+            u(k) *= vScratch(k);
+      
+        r(j) *= u(j);
+        for( Int k=0; k<n; ++k )
         {
-            const Real deltaSqDiff = (d(k)+d(i))*(d(k)-d(i));
-            const Real deltaSqMinusShiftSq = U(i,k)*V(i,k);
-            prod *= deltaSqMinusShiftSq / deltaSqDiff;
+            if( k == j )
+                continue;
+            r(k) *= u(k) / ((d(j)+d(k))*(d(j)-d(k)));
         }
-        for( Int k=i; k<n-1; ++k )
-        {
-            const Real deltaSqDiff = (d(k+1)+d(i))*(d(k+1)-d(i));
-            const Real deltaSqMinusShiftSq = U(i,k)*V(i,k);
-            prod *= deltaSqMinusShiftSq / deltaSqDiff;
-        }
-        r(i) = Sgn(z(i),false)*Sqrt(Abs(prod));
     }
+    for( Int j=0; j<n; ++j )
+        r(j) = Sgn(z(j),false) * Sqrt(Abs(r(j)));
 
     for( Int j=0; j<n; ++j )
     {
@@ -1646,39 +1370,43 @@ void SecularSVD
         auto u = U(ALL,IR(j));
         auto v = V(ALL,IR(j));
         {
-            const Real deltaSqMinusShiftSq = u(0)*v(0);
+            const Real deltaSqMinusShiftSq = u(0);
             u(0) = -1;
             v(0) = r(0) / deltaSqMinusShiftSq;
         }
         for( Int i=1; i<n; ++i )
         {
-            const Real deltaSqMinusShiftSq =u(i)*v(i);
-            u(i) = (d(i)*r(i)) / deltaSqMinusShiftSq;
+            const Real deltaSqMinusShiftSq = u(i);
             v(i) = r(i) / deltaSqMinusShiftSq;
+            u(i) = d(i) * v(i);
         }
         u *= Real(1) / FrobeniusNorm( u );
         v *= Real(1) / FrobeniusNorm( v );
     }
+
+    return info;
 }
 
 #define PROTO(Real) \
-  template SecularSingularValueInfo<Real> \
+  template SecularSingularValueInfo \
   SecularSingularValue \
   ( Int whichSingularValue, \
     const Matrix<Real>& d, \
     const Real& rho, \
     const Matrix<Real>& z, \
+          Real& singularValue, \
     const SecularSingularValueCtrl<Real>& ctrl ); \
-  template SecularSingularValueInfo<Real> \
+  template SecularSingularValueInfo \
   SecularSingularValue \
   ( Int whichSingularValue, \
     const Matrix<Real>& d, \
     const Real& rho, \
     const Matrix<Real>& z, \
+          Real& singularValue, \
           Matrix<Real>& dMinusShift, \
           Matrix<Real>& dPlusShift, \
     const SecularSingularValueCtrl<Real>& ctrl ); \
-  template void \
+  template SecularSingularValueInfo \
   SecularSVD \
   ( const Matrix<Real>& d, \
     const Real& rho, \

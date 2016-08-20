@@ -264,6 +264,7 @@ int main( int argc, char* argv[] )
 #endif
 
 #ifdef EL_HAVE_MPC
+        mpfr::SetPrecision( prec );
         TestSparseDirect<BigFloat>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
           selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,

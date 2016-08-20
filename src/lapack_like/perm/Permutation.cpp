@@ -202,7 +202,7 @@ void Permutation::ReserveSwaps( Int maxSwaps )
     }
 }
 
-void Permutation::RowSwap( Int origin, Int dest )
+void Permutation::Swap( Int origin, Int dest )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -249,7 +249,7 @@ void Permutation::RowSwap( Int origin, Int dest )
     }
 }
 
-void Permutation::RowSwapSequence( const Permutation& P, Int offset )
+void Permutation::SwapSequence( const Permutation& P, Int offset )
 {
     DEBUG_CSE
     if( P.swapSequence_ )
@@ -258,13 +258,12 @@ void Permutation::RowSwapSequence( const Permutation& P, Int offset )
         if( P.implicitSwapOrigins_ )
         {
             for( Int j=0; j<numSwapAppends; ++j )
-                RowSwap( j+offset, P.swapDests_(j)+offset );
+                Swap( j+offset, P.swapDests_(j)+offset );
         }
         else
         {
             for( Int j=0; j<numSwapAppends; ++j )
-                RowSwap
-                ( P.swapOrigins_(j)+offset, P.swapDests_(j)+offset );
+                Swap( P.swapOrigins_(j)+offset, P.swapDests_(j)+offset );
         }
     }
     else
@@ -278,7 +277,7 @@ void Permutation::RowSwapSequence( const Permutation& P, Int offset )
     }
 }
 
-void Permutation::RowSwapSequence
+void Permutation::SwapSequence
 ( const Matrix<Int>& swapOrigins,
   const Matrix<Int>& swapDests,
   Int offset )
@@ -287,10 +286,10 @@ void Permutation::RowSwapSequence
     // TODO: Assert swapOrigins and swapDests are column vectors of same size
     const Int numSwaps = swapDests.Height();
     for( Int k=0; k<numSwaps; ++k )
-        RowSwap( swapOrigins(k)+offset, swapDests(k)+offset );
+        Swap( swapOrigins(k)+offset, swapDests(k)+offset );
 }
 
-void Permutation::ImplicitRowSwapSequence
+void Permutation::ImplicitSwapSequence
 ( const Matrix<Int>& swapDests,
   Int offset )
 {
@@ -300,19 +299,38 @@ void Permutation::ImplicitRowSwapSequence
     // TODO: Assert swapOrigins and swapDests are column vectors of same size
     const Int numSwaps = swapDests.Height();
     for( Int k=0; k<numSwaps; ++k )
-        RowSwap( numPrevSwaps+k, swapDests(k)+offset );
+        Swap( numPrevSwaps+k, swapDests(k)+offset );
+}
+
+Int Permutation::Image( Int origin ) const
+{
+    DEBUG_CSE
+    MakeArbitrary();
+    if( staleInverse_ )
+    {
+        El::InvertPermutation( perm_, invPerm_ );
+        staleInverse_ = false;
+    }
+    return invPerm_(origin);
+}
+
+Int Permutation::Preimage( Int dest ) const
+{
+    DEBUG_CSE
+    MakeArbitrary();
+    return perm_(dest);
 }
 
 void Permutation::SetImage( Int origin, Int dest )
 {
     DEBUG_CSE
     MakeArbitrary();
-    perm_(origin) = dest;
-    staleInverse_ = true;
+    perm_(dest) = origin;
+    invPerm_(origin) = dest;
     staleParity_ = true;
 }
 
-void Permutation::MakeArbitrary()
+void Permutation::MakeArbitrary() const
 {
     DEBUG_CSE
     if( !swapSequence_ )
@@ -325,7 +343,7 @@ void Permutation::MakeArbitrary()
         perm_(j) = j;
     PermuteRows( perm_ );
 
-    invPerm_.Empty();
+    invPerm_.Resize( size_, 1 );
     staleInverse_ = true;
 
     // Clear the swap information

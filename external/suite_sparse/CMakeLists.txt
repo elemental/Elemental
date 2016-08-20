@@ -16,7 +16,7 @@ include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 # Define the header files installation rules
 # ------------------------------------------
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  DESTINATION include/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
     
 set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${C_FLAGS}")
@@ -29,4 +29,4 @@ add_library(ElSuiteSparse ${LIBRARY_TYPE} ${EL_SUITESPARSE_SRC})
 if(EL_LINK_FLAGS)
   set_target_properties(ElSuiteSparse PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS ElSuiteSparse EXPORT ElementalTargets DESTINATION lib)
+install(TARGETS ElSuiteSparse EXPORT ElementalTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})

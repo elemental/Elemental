@@ -307,7 +307,7 @@ void RemovePhase
 template<typename Real>
 HermitianTridiagEigInfo
 QRHelper
-(       Matrix<Real>& d,
+( const Matrix<Real>& d,
         Matrix<Real>& dSub,
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
@@ -322,18 +322,13 @@ QRHelper
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
-Helper
+LAPACKHelper
 (       Matrix<Real>& d,
         Matrix<Real>& dSub,
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useQR )
-    {
-        return QRHelper( d, dSub, w, ctrl );
-    }
-
     const Int n = d.Height();
     HermitianTridiagEigInfo info;
 
@@ -362,23 +357,46 @@ Helper
     return info;
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
-(       Matrix<Real>& d,
-        Matrix<Real>& dSub,
+( const Matrix<Real>& d,
+  const Matrix<Real>& dSub,
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    return QRHelper( d, dSub, w, ctrl );
+    if( ctrl.useQR )
+    {
+        // Only dSub needs to be modifiable
+        auto dSubMod( dSub );
+        return QRHelper( d, dSubMod, w, ctrl );
+    }
+    // Both d and dSub need to be modifiable
+    auto dMod( d );
+    auto dSubMod( dSub );
+    return LAPACKHelper( dMod, dSubMod, w, ctrl );
+}
+
+template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+HermitianTridiagEigInfo
+Helper
+( const Matrix<Real>& d,
+  const Matrix<Real>& dSub,
+        Matrix<Real>& w,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    // Only dSub needs to be modifiable
+    auto dSubMod( dSub );
+    return QRHelper( d, dSubMod, w, ctrl );
 }
 
 template<typename Real>
 HermitianTridiagEigInfo
 Helper
-(       Matrix<Real>& d,
-        Matrix<Complex<Real>>& dSub,
+( const Matrix<Real>& d,
+  const Matrix<Complex<Real>>& dSub,
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
@@ -393,8 +411,8 @@ Helper
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-(       Matrix<Base<F>>& d,
-        Matrix<F>& dSub,
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& dSub,
         Matrix<Base<F>>& w,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
@@ -615,7 +633,7 @@ namespace herm_tridiag_eig {
 template<typename Real>
 HermitianTridiagEigInfo
 QRHelper
-(       Matrix<Real>& d,
+( const Matrix<Real>& d,
         Matrix<Real>& dSub,
         Matrix<Real>& w,
         Matrix<Real>& Q,
@@ -631,7 +649,7 @@ QRHelper
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
-MRRRHelper
+LAPACKHelper
 (       Matrix<Real>& d,
         Matrix<Real>& dSub,
         Matrix<Real>& w,
@@ -681,8 +699,8 @@ MRRRHelper
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
-(       Matrix<Real>& d,
-        Matrix<Real>& dSub,
+( const Matrix<Real>& d,
+  const Matrix<Real>& dSub,
         Matrix<Real>& w,
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
@@ -690,25 +708,32 @@ Helper
     DEBUG_CSE
     if( ctrl.useQR )
     {
-        return QRHelper( d, dSub, w, Q, ctrl );
+        // Only dSub needs to be modified
+        auto dSubMod( dSub );
+        return QRHelper( d, dSubMod, w, Q, ctrl );
     }
     else
     {
-        return MRRRHelper( d, dSub, w, Q, ctrl );
+        // Both d and dSub need to be modified
+        auto dMod( d );
+        auto dSubMod( dSub );
+        return LAPACKHelper( dMod, dSubMod, w, Q, ctrl );
     }
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 Helper
-(       Matrix<Real>& d,
-        Matrix<Real>& dSub,
+( const Matrix<Real>& d,
+  const Matrix<Real>& dSub,
         Matrix<Real>& w,
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    return QRHelper( d, dSub, w, Q, ctrl );
+    // Only dSub needs to be modified
+    auto dSubMod( dSub );
+    return QRHelper( d, dSubMod, w, Q, ctrl );
 }
 
 // (Y^H T Y) QHat = QHat Lambda
@@ -716,8 +741,8 @@ Helper
 template<typename Real>
 HermitianTridiagEigInfo
 Helper
-(       Matrix<Real>& d,
-        Matrix<Complex<Real>>& dSub,
+( const Matrix<Real>& d,
+  const Matrix<Complex<Real>>& dSub,
         Matrix<Real>& w, 
         Matrix<Complex<Real>>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
@@ -742,8 +767,8 @@ Helper
 template<typename F>
 HermitianTridiagEigInfo
 HermitianTridiagEig
-(       Matrix<Base<F>>& d,
-        Matrix<F>& dSub,
+( const Matrix<Base<F>>& d,
+  const Matrix<F>& dSub,
         Matrix<Base<F>>& w,
         Matrix<F>& Q, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
@@ -1243,13 +1268,13 @@ MRRRPostEstimate
     AbstractDistMatrix<F>& Q, \
     const HermitianTridiagEigCtrl<Base<F>>& ctrl ); \
   template HermitianTridiagEigInfo HermitianTridiagEig \
-  (       Matrix<Base<F>>& d, \
-          Matrix<F>& dSub, \
+  ( const Matrix<Base<F>>& d, \
+    const Matrix<F>& dSub, \
           Matrix<Base<F>>& w, \
     const HermitianTridiagEigCtrl<Base<F>>& ctrl ); \
   template HermitianTridiagEigInfo HermitianTridiagEig \
-  (       Matrix<Base<F>>& d, \
-          Matrix<F>& dSub, \
+  ( const Matrix<Base<F>>& d, \
+    const Matrix<F>& dSub, \
           Matrix<Base<F>>& w, \
           Matrix<F>& Q, \
     const HermitianTridiagEigCtrl<Base<F>>& ctrl ); \

@@ -81,21 +81,33 @@ public:
     void MakeIdentity( Int size );
 
     void ReserveSwaps( Int maxSwaps );
-    void MakeArbitrary();
+    void MakeArbitrary() const;
     
     const DistPermutation& operator=( const Permutation& p );
     const DistPermutation& operator=( const DistPermutation& p );
 
-    void RowSwap( Int origin, Int dest );
-    void RowSwapSequence( const DistPermutation& perm, Int offset=0 );
-    void RowSwapSequence
+    void Swap( Int origin, Int dest );
+    void SwapSequence( const DistPermutation& perm, Int offset=0 );
+    void SwapSequence
     ( const ElementalMatrix<Int>& swapOrigins,
       const ElementalMatrix<Int>& swapDests, Int offset=0 );
 
-    void ImplicitRowSwapSequence
+    void ImplicitSwapSequence
     ( const ElementalMatrix<Int>& swapDests, Int offset=0 );
 
+    // Explicit (pre)image queries or modifications force the permutation to
+    // switch from an explicit sequence of swaps to storing an explicit
+    // permutation
+    Int Image( Int origin ) const;
+    Int Preimage( Int dest ) const;
     void SetImage( Int origin, Int dest );
+
+    // Since local image queries require the permutation to already be explicit,
+    // calling this routine when the permutation is a swap sequence will throw
+    // an error. These routines are [ADVANCED] since they require knowledge of
+    // the distribution of the perm_ and invPerm_ distributed matrices.
+    Int LocalImage( Int localOrigin ) const;
+    Int LocalPreimage( Int localDest ) const;
 
     // The following return the same result but follow the usual convention
     Int Height() const;
@@ -154,7 +166,7 @@ private:
     mutable bool parity_=false;
     mutable bool staleParity_=false;
 
-    bool swapSequence_=true;
+    mutable bool swapSequence_=true;
 
     // Only used if swapSequence_=true
     // -------------------------------
@@ -162,13 +174,13 @@ private:
     //       of 0, 1, 2, ..., then an explicit swap origin vector is not
     //       maintained. However, if an unexpected origin is ever encountered,
     //       then an explicit list is then maintained.
-    Int numSwaps_=0;
-    bool implicitSwapOrigins_=true;
-    DistMatrix<Int,VC,STAR> swapDests_, swapOrigins_;
+    mutable Int numSwaps_=0;
+    mutable bool implicitSwapOrigins_=true;
+    mutable DistMatrix<Int,VC,STAR> swapDests_, swapOrigins_;
 
     // Only used if swapSequence_=false
     // --------------------------------
-            DistMatrix<Int,VC,STAR> perm_;
+    mutable DistMatrix<Int,VC,STAR> perm_;
     mutable DistMatrix<Int,VC,STAR> invPerm_;
     mutable bool staleInverse_=true;
 
