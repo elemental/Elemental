@@ -140,15 +140,23 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
     return EL_SUCCESS;
 }
 
+/* Cubic secular */
+ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl )
+{
+    ctrl->maxIterations = 40;
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    return EL_SUCCESS;
+}
+
 /* Secular SVD */
 ElError ElSecularSingularValueCtrlDefault_s
 ( ElSecularSingularValueCtrl_s* ctrl )
 {
     ctrl->maxIterations = 400;
-    ctrl->maxCubicIterations = 40;
     ctrl->sufficientDecay = float(1)/float(10);
     ctrl->negativeFix = EL_CLIP_NEGATIVES;
     ctrl->progress = false;
+    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
     return EL_SUCCESS;
 }
 
@@ -156,10 +164,10 @@ ElError ElSecularSingularValueCtrlDefault_d
 ( ElSecularSingularValueCtrl_d* ctrl )
 {
     ctrl->maxIterations = 400;
-    ctrl->maxCubicIterations = 40;
     ctrl->sufficientDecay = double(1)/double(10);
     ctrl->negativeFix = EL_CLIP_NEGATIVES;
     ctrl->progress = false;
+    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
     return EL_SUCCESS;
 }
 

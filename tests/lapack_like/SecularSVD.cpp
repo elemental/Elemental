@@ -132,9 +132,10 @@ void TestSecularHelper
 
     SecularSingularValueCtrl<Real> ctrl;
     ctrl.maxIterations = maxIter;
-    ctrl.maxCubicIterations = maxCubicIter;
     ctrl.negativeFix = negativeFix;
     ctrl.progress = progress;
+    ctrl.cubicCtrl.maxIterations = maxCubicIter;
+    ctrl.cubicCtrl.negativeFix = negativeFix;
 
     Matrix<Real> s(n,1), wSecular(n,1);
     Int measMinIter=1e9, measMaxIter=0, measTotalIter=0,

@@ -645,20 +645,26 @@ typedef enum {
 
 typedef struct {
   ElInt maxIterations;
-  ElInt maxCubicIterations;
+  ElFlipOrClip negativeFix;
+} ElCubicSecularCtrl;
+EL_EXPORT ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl );
+
+typedef struct {
+  ElInt maxIterations;
   float sufficientDecay;
   ElFlipOrClip negativeFix;
   bool progress;
+  ElCubicSecularCtrl cubicCtrl;
 } ElSecularSingularValueCtrl_s;
 EL_EXPORT ElError ElSecularSingularValueCtrlDefault_s
 ( ElSecularSingularValueCtrl_s* ctrl );
 
 typedef struct {
   ElInt maxIterations;
-  ElInt maxCubicIterations;
   double sufficientDecay;
   ElFlipOrClip negativeFix;
   bool progress;
+  ElCubicSecularCtrl cubicCtrl;
 } ElSecularSingularValueCtrl_d;
 EL_EXPORT ElError ElSecularSingularValueCtrlDefault_d
 ( ElSecularSingularValueCtrl_d* ctrl );

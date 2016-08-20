@@ -652,6 +652,43 @@ void Eig
   ElementalMatrix<Complex<Base<F>>>& w,
   ElementalMatrix<Complex<Base<F>>>& X );
 
+// Cubic Secular
+// =============
+
+// Solve for an inner root of the secular equation
+//
+//   f(x) = rho + z(0) / (d(0)-x) + z(1) / (d(1)-x) + z(2) / (d(2)-x),
+//
+// where each numerator is positive and d(0) < d(1) < d(2).
+//
+// Just as in LAPACK's {s,d}laed6 [CITATION], we require that the user pass in
+// an accurate evaluation of f(0).
+//
+
+struct CubicSecularInfo
+{
+    Int numIterations = 0;
+    bool converged = true;
+};
+
+struct CubicSecularCtrl
+{
+    Int maxIterations = 40; // Cf. LAPACK's {s,d}laed6 for this choice
+    FlipOrClip negativeFix = CLIP_NEGATIVES;
+};
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+CubicSecularInfo
+CubicSecular
+( bool initialize, 
+  bool rightRoot,
+  const Real& rho,
+  const Matrix<Real>& z,
+  const Matrix<Real>& d,
+  const Real& originEval,
+        Real& root,
+  const CubicSecularCtrl& ctrl=CubicSecularCtrl() );
+
 // Secular Singular Value Decomposition
 // ====================================
 
@@ -667,12 +704,13 @@ template<typename Real>
 struct SecularSingularValueCtrl
 {
     Int maxIterations = 400; // Cf. LAPACK's {s,d}lasd4 for this choice
-    Int maxCubicIterations = 40; // Cf. LAPACK's {s,d}laed6 for this choice
     // TODO(poulson): Specialize iteration bounds to grows with precision
 
     Real sufficientDecay = Real(1)/Real(10);
     FlipOrClip negativeFix = CLIP_NEGATIVES;
     bool progress = false;
+
+    CubicSecularCtrl cubicCtrl;
 };
 
 struct SecularSingularValueInfo

@@ -1979,27 +1979,25 @@ DivideAndConquer
         Zeros( V1Sub, 2, n-(split+1) );
     }
 
-    DistMatrix<Real,STAR,STAR> s0Sub(*leftGrid);
-    DCInfo info0;
+    DistMatrix<Real,STAR,STAR> s0Sub(*leftGrid), s1Sub(*rightGrid);
+    DCInfo info0, info1;
     if( s0Sub.Participating() )
     {
         info0 =
           DivideAndConquer
           ( mainDiag0, superDiag0, U0Sub, s0Sub, V0Sub, ctrl, false );
     }
-    const bool includeViewers = true;
-    U0Sub.MakeConsistent( includeViewers );
-    s0Sub.MakeConsistent( includeViewers );
-    V0Sub.MakeConsistent( includeViewers );
-
-    DistMatrix<Real,STAR,STAR> s1Sub(*rightGrid);
-    DCInfo info1;
     if( s1Sub.Participating() )
     {
         info1 =
           DivideAndConquer
           ( mainDiag1, superDiag1, U1Sub, s1Sub, V1Sub, ctrl, false );
     }
+
+    const bool includeViewers = true;
+    U0Sub.MakeConsistent( includeViewers );
+    s0Sub.MakeConsistent( includeViewers );
+    V0Sub.MakeConsistent( includeViewers );
     U1Sub.MakeConsistent( includeViewers );
     s1Sub.MakeConsistent( includeViewers );
     V1Sub.MakeConsistent( includeViewers );

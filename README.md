@@ -68,7 +68,7 @@ datatypes:
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
-* Arbitrary-precision distributed SVD and (generalized) Hermitian EVPs
+* Arbitrary-precision distributed SVD (QR and D&C support) and (generalized) Hermitian EVPs
 
 **Lattice reduction**:
 * An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
@@ -87,6 +87,7 @@ datatypes:
 * (2b) Extend black-box iterative refinement to `DistMatrix`
 * (2c) Incorporate iterative refinement into linear solvers via optional control
   structure \[weakly depends upon (2b)\]
+* (2d) Support for the Fix-Heiberger method for accurate generalized Hermitian-definite EVPs
 
 **Convex optimization**:
 * (3a) Add support for homogeneous self-dual embeddings \[weakly depends on (2a)\]

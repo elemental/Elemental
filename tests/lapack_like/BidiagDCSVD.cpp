@@ -100,9 +100,10 @@ void TestDivideAndConquer
     ctrl.dcCtrl.exploitStructure = true;
     ctrl.dcCtrl.cutoff = cutoff;
     ctrl.dcCtrl.secularCtrl.maxIterations = maxIter;
-    ctrl.dcCtrl.secularCtrl.maxCubicIterations = maxCubicIter;
     ctrl.dcCtrl.secularCtrl.negativeFix = negativeFix;
     ctrl.dcCtrl.secularCtrl.progress = progress;
+    ctrl.dcCtrl.secularCtrl.cubicCtrl.maxIterations = maxCubicIter;
+    ctrl.dcCtrl.secularCtrl.cubicCtrl.negativeFix = negativeFix;
 
     const bool square = true;
     const Int n = ( square ? m : m+1 );

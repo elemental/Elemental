@@ -350,15 +350,31 @@ inline ElFlipOrClip CReflect( FlipOrClip negativeFix )
 inline FlipOrClip CReflect( ElFlipOrClip negativeFix )
 { return static_cast<FlipOrClip>(negativeFix); }
 
+inline ElCubicSecularCtrl CReflect( const CubicSecularCtrl& ctrl )
+{
+    ElCubicSecularCtrl ctrlC;
+    ctrlC.maxIterations = ctrl.maxIterations;
+    ctrlC.negativeFix = CReflect( ctrl.negativeFix );
+    return ctrlC;
+}
+
+inline CubicSecularCtrl CReflect( const ElCubicSecularCtrl& ctrlC )
+{
+    CubicSecularCtrl ctrl;
+    ctrl.maxIterations = ctrlC.maxIterations;
+    ctrl.negativeFix = CReflect( ctrlC.negativeFix );
+    return ctrl;
+}
+
 inline ElSecularSingularValueCtrl_s
 CReflect( const SecularSingularValueCtrl<float>& ctrl )
 {
     ElSecularSingularValueCtrl_s ctrlC;
     ctrlC.maxIterations = ctrl.maxIterations;
-    ctrlC.maxCubicIterations = ctrl.maxCubicIterations;
     ctrlC.sufficientDecay = ctrl.sufficientDecay;
     ctrlC.negativeFix = CReflect( ctrl.negativeFix );
     ctrlC.progress = ctrl.progress;
+    ctrlC.cubicCtrl = CReflect( ctrl.cubicCtrl );
     return ctrlC;
 }
 
@@ -367,10 +383,10 @@ CReflect( const SecularSingularValueCtrl<double>& ctrl )
 {
     ElSecularSingularValueCtrl_d ctrlC;
     ctrlC.maxIterations = ctrl.maxIterations;
-    ctrlC.maxCubicIterations = ctrl.maxCubicIterations;
     ctrlC.sufficientDecay = ctrl.sufficientDecay;
     ctrlC.negativeFix = CReflect( ctrl.negativeFix );
     ctrlC.progress = ctrl.progress;
+    ctrlC.cubicCtrl = CReflect( ctrl.cubicCtrl );
     return ctrlC;
 }
 
@@ -379,10 +395,10 @@ CReflect( const ElSecularSingularValueCtrl_s& ctrlC )
 {
     SecularSingularValueCtrl<float> ctrl;
     ctrl.maxIterations = ctrlC.maxIterations;
-    ctrl.maxCubicIterations = ctrlC.maxCubicIterations;
     ctrl.sufficientDecay = ctrlC.sufficientDecay;
     ctrl.negativeFix = CReflect( ctrlC.negativeFix );
     ctrl.progress = ctrlC.progress;
+    ctrl.cubicCtrl = CReflect( ctrlC.cubicCtrl );
     return ctrl;
 }
 
@@ -391,10 +407,10 @@ CReflect( const ElSecularSingularValueCtrl_d& ctrlC )
 {
     SecularSingularValueCtrl<double> ctrl;
     ctrl.maxIterations = ctrlC.maxIterations;
-    ctrl.maxCubicIterations = ctrlC.maxCubicIterations;
     ctrl.sufficientDecay = ctrlC.sufficientDecay;
     ctrl.negativeFix = CReflect( ctrlC.negativeFix );
     ctrl.progress = ctrlC.progress;
+    ctrl.cubicCtrl = CReflect( ctrlC.cubicCtrl );
     return ctrl;
 }
 

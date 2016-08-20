@@ -678,21 +678,27 @@ class BidiagSVDQRCtrl(ctypes.Structure):
   def __init__(self):
     lib.ElBidiagSVDQRCtrlDefault(pointer(self))
 
+class CubicSecularCtrl(ctypes.Structure):
+  _fields_ = [("maxIterations",iType),
+              ("negativeFix",c_uint)]
+  def __init__(self):
+    lib.ElCubicSecularCtrlDefault(pointer(self))
+
 class SecularSingularValueCtrl_s(ctypes.Structure):
   _fields_ = [("maxIterations",iType),
-              ("maxCubicIterations",iType),
               ("sufficientDecay",sType),
               ("negativeFix",c_uint),
-              ("progress",bType)]
+              ("progress",bType),
+              ("cubicCtrl",CubicSecularCtrl)]
   def __init__(self):
     lib.ElSecularSingularValueCtrlDefault_s(pointer(self))
 
 class SecularSingularValueCtrl_d(ctypes.Structure):
   _fields_ = [("maxIterations",iType),
-              ("maxCubicIterations",iType),
               ("sufficientDecay",dType),
               ("negativeFix",c_uint),
-              ("progress",bType)]
+              ("progress",bType),
+              ("cubicCtrl",CubicSecularCtrl)]
   def __init__(self):
     lib.ElSecularSingularValueCtrlDefault_d(pointer(self))
 
@@ -723,7 +729,7 @@ class BidiagSVDCtrl_s(ctypes.Structure):
               ("progress",bType),
               ("useQR",bType),
               ("qrCtrl",BidiagSVDQRCtrl),
-              ("dcCtrl",BidiagSVDDCCtrl)]
+              ("dcCtrl",BidiagSVDDCCtrl_s)]
   def __init__(self):
     lib.ElBidiagSVDCtrlDefault_s(pointer(self))
 
@@ -738,7 +744,7 @@ class BidiagSVDCtrl_d(ctypes.Structure):
               ("progress",bType),
               ("useQR",bType),
               ("qrCtrl",BidiagSVDQRCtrl),
-              ("dcCtrl",BidiagSVDDCCtrl)]
+              ("dcCtrl",BidiagSVDDCCtrl_d)]
   def __init__(self):
     lib.ElBidiagSVDCtrlDefault_d(pointer(self))
 
