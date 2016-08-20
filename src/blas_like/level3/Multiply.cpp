@@ -69,7 +69,60 @@ void MultiplyCSR
     }
 }
 
-template<typename T>
+template<typename T,typename=DisableIf<IsBlasScalar<T>>>
+void MultiplyCSR
+( Orientation orientation,
+  Int m, Int n,
+  T alpha,
+  const Int* rowOffsets,
+  const Int* colIndices,
+  const T*   values,
+  const T*   x,
+  T beta,
+        T*   y )
+{
+    DEBUG_CSE
+    if( orientation == NORMAL )
+    {
+        for( Int i=0; i<m; ++i )
+        {
+            T sum = 0;
+            const Int eStart = rowOffsets[i];
+            const Int eStop = rowOffsets[i+1];
+            for( Int e=eStart; e<eStop; ++e )
+                sum += values[e]*x[colIndices[e]];         
+            y[i] = alpha*sum + beta*y[i];
+        }
+    }
+    else
+    {
+        const bool conj = ( orientation == ADJOINT );
+        for( Int j=0; j<n; ++j )
+            y[j] *= beta;
+        if( conj )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+            }
+        }
+        else
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                const Int eStart = rowOffsets[i];
+                const Int eStop = rowOffsets[i+1];
+                for( Int e=eStart; e<eStop; ++e )
+                    y[colIndices[e]] += alpha*values[e]*x[i];         
+            }
+        }
+    }
+}
+
+template<typename T,typename=EnableIf<IsBlasScalar<T>>,typename=void>
 void MultiplyCSR
 ( Orientation orientation,
   Int m, Int n,
@@ -130,167 +183,6 @@ void MultiplyCSR
     }
 #endif
 }
-
-template<>
-void MultiplyCSR<Int>
-( Orientation orientation,
-  Int m, Int n,
-  Int alpha,
-  const Int* rowOffsets,
-  const Int* colIndices,
-  const Int*   values,
-  const Int*   x,
-  Int beta,
-        Int*   y )
-{
-    DEBUG_CSE
-    if( orientation == NORMAL )
-    {
-        for( Int i=0; i<m; ++i )
-        {
-            Int sum = 0;
-            const Int eStart = rowOffsets[i];
-            const Int eStop = rowOffsets[i+1];
-            for( Int e=eStart; e<eStop; ++e )
-                sum += values[e]*x[colIndices[e]];         
-            y[i] = alpha*sum + beta*y[i];
-        }
-    }
-    else
-    {
-        const bool conj = ( orientation == ADJOINT );
-        for( Int j=0; j<n; ++j )
-            y[j] *= beta;
-        if( conj )
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
-            }
-        }
-        else
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*values[e]*x[i];         
-            }
-        }
-    }
-}
-
-#ifdef EL_HAVE_QUAD
-template<>
-void MultiplyCSR<Quad>
-( Orientation orientation,
-  Int m, Int n,
-  Quad alpha,
-  const Int* rowOffsets,
-  const Int* colIndices,
-  const Quad*   values,
-  const Quad*   x,
-  Quad beta,
-        Quad*   y )
-{
-    DEBUG_CSE
-    if( orientation == NORMAL )
-    {
-        for( Int i=0; i<m; ++i )
-        {
-            Quad sum = 0;
-            const Int eStart = rowOffsets[i];
-            const Int eStop = rowOffsets[i+1];
-            for( Int e=eStart; e<eStop; ++e )
-                sum += values[e]*x[colIndices[e]];         
-            y[i] = alpha*sum + beta*y[i];
-        }
-    }
-    else
-    {
-        const bool conj = ( orientation == ADJOINT );
-        for( Int j=0; j<n; ++j )
-            y[j] *= beta;
-        if( conj )
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
-            }
-        }
-        else
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*values[e]*x[i];         
-            }
-        }
-    }
-}
-
-template<>
-void MultiplyCSR<Complex<Quad>>
-( Orientation orientation,
-  Int m, Int n,
-  Complex<Quad> alpha,
-  const Int* rowOffsets,
-  const Int* colIndices,
-  const Complex<Quad>*   values,
-  const Complex<Quad>*   x,
-  Complex<Quad> beta,
-        Complex<Quad>*   y )
-{
-    DEBUG_CSE
-    if( orientation == NORMAL )
-    {
-        for( Int i=0; i<m; ++i )
-        {
-            Complex<Quad> sum = 0;
-            const Int eStart = rowOffsets[i];
-            const Int eStop = rowOffsets[i+1];
-            for( Int e=eStart; e<eStop; ++e )
-                sum += values[e]*x[colIndices[e]];         
-            y[i] = alpha*sum + beta*y[i];
-        }
-    }
-    else
-    {
-        const bool conj = ( orientation == ADJOINT );
-        for( Int j=0; j<n; ++j )
-            y[j] *= beta;
-        if( conj )
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
-            }
-        }
-        else
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*values[e]*x[i];         
-            }
-        }
-    }
-}
-#endif // ifdef EL_HAVE_QUAD
 
 template<typename T>
 void MultiplyCSR
