@@ -72,6 +72,9 @@ void PrepareBidiagonal
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
+    if( m == 0 || n == 0 )
+        return;
+
     const bool square = ( m == n );
     UpperOrLower newUplo = uplo;
     if( !square )
@@ -230,6 +233,11 @@ Helper
     const Int minDim = Min(m,n);
     const bool square = ( m == n );
     BidiagSVDInfo info;
+    if( minDim == 0 )
+    {
+        s.Resize( 0, 1 );
+        return info;
+    }
 
     PrepareBidiagonal( uplo, m, n, mainDiag, offDiag, ctrl );
 
@@ -304,6 +312,11 @@ Helper
     const Int minDim = Min(m,n);
     const bool square = ( m == n );
     BidiagSVDInfo info;
+    if( minDim == 0 )
+    {
+        s.Resize( 0, 1 );
+        return info;
+    }
 
     PrepareBidiagonal
     ( uplo, m, n, mainDiag.Matrix(), offDiag.Matrix(), ctrl );
@@ -495,10 +508,20 @@ Helper
         LogicError("Invalid main and superdiagonal lengths");
 
     BidiagSVDInfo info;
+    if( minDim == 0 )
+    {
+        // It would appear to be silly to form a "full" SVD of a 0 x n matrix
+        // with an identity V matrix (or vice-versa for an m x 0 matrix with an
+        // m x m identity U).
+        U.Resize( 0, 0 );
+        s.Resize( 0, 1 );
+        V.Resize( 0, 0 );
+        return info;
+    }
     if( !ctrl.wantU && !ctrl.wantV )
     {
-        U.Resize( m, 0 );
-        V.Resize( n, 0 );
+        U.Resize( 0, 0 );
+        V.Resize( 0, 0 );
         return Helper( uplo, mainDiag, offDiag, s, ctrl );
     }
 
@@ -746,10 +769,20 @@ Helper
         LogicError("Invalid main and superdiagonal lengths");
 
     BidiagSVDInfo info;
+    if( minDim == 0 )
+    {
+        // It would appear to be silly to form a "full" SVD of a 0 x n matrix
+        // with an identity V matrix (or vice-versa for an m x 0 matrix with an
+        // m x m identity U).
+        U.Resize( 0, 0 );
+        s.Resize( 0, 1 );
+        V.Resize( 0, 0 );
+        return info;
+    }
     if( !ctrl.wantU && !ctrl.wantV )
     {
-        U.Resize( m, 0 );
-        V.Resize( n, 0 );
+        U.Resize( 0, 0 );
+        V.Resize( 0, 0 );
         return Helper( uplo, mainDiag, offDiag, s, ctrl );
     }
 

@@ -1736,7 +1736,7 @@ DivideAndConquer
     auto& secularInfo = info.secularInfo;
     auto& deflationInfo = info.deflationInfo;
 
-    if( m <= dcCtrl.cutoff )
+    if( m <= Max(dcCtrl.cutoff,3) )
     {
         auto ctrlMod( ctrl );
         ctrlMod.useQR = true;
@@ -1862,7 +1862,7 @@ DivideAndConquer
     auto& secularInfo = info.secularInfo;
     auto& deflationInfo = info.deflationInfo;
 
-    if( m <= dcCtrl.cutoff )
+    if( m <= Max(dcCtrl.cutoff,3) )
     {
         // Run the problem redundantly locally
         auto ctrlMod( ctrl );

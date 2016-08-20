@@ -164,6 +164,7 @@ void TestDivideAndConquer
         PrintSVDResiduals( uplo, mainDiag, offDiag, U, s, V, print );
         PopIndent();
     }
+    Output("");
 }
 
 int main( int argc, char* argv[] )
