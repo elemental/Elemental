@@ -621,7 +621,7 @@ EL_NO_RELEASE_EXCEPT
 }
 
 template<typename T>
-T DistSparseMatrix<T>::GetLocal( Int localRow, Int col )
+T DistSparseMatrix<T>::Get( Int localRow, Int col )
 const EL_NO_RELEASE_EXCEPT
 {
     if( localRow == END ) localRow = LocalHeight() - 1;

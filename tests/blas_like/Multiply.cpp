@@ -27,7 +27,7 @@ void TestMultiply(Int m, Int n=1)
     Axpy(T(-1), C, D);
     auto nrm = FrobeniusNorm(D);
     std::cout << "error = " << nrm << std::endl;
-    if( nrm > limits::Epsilon<T>()){ throw std::runtime_error("Sparse(I)*x != Graph(I)*x"); }
+    if( nrm > limits::Epsilon<T>()){ RuntimeError("Sparse(I)*x != Graph(I)*x"); }
 }
 
 void RunTests( Int m){

@@ -11,44 +11,8 @@
 #ifndef EL_CORE_DISTSPARSEMATRIX_DECL_HPP
 #define EL_CORE_DISTSPARSEMATRIX_DECL_HPP
 
-namespace El {
+namespace El  {
 
-struct DistSparseMultMeta
-{
-    bool ready;
-    // NOTE: The 'send' and 'recv' roles reverse for adjoint multiplication
-    Int numRecvInds;
-    vector<int> sendSizes, sendOffs,
-                recvSizes, recvOffs;
-    vector<Int> sendInds, colOffs;
-
-    DistSparseMultMeta() : ready(false), numRecvInds(0) { }
-
-    void Clear()
-    {
-        ready = false;
-        numRecvInds = 0; 
-        SwapClear( sendSizes );
-        SwapClear( recvSizes );
-        SwapClear( sendOffs );
-        SwapClear( recvOffs );
-        SwapClear( sendInds );
-        SwapClear( colOffs );
-    }
-
-    const DistSparseMultMeta& operator=( const DistSparseMultMeta& meta )
-    {
-        ready = meta.ready;
-        numRecvInds = meta.numRecvInds;
-        sendSizes = meta.sendSizes;
-        sendOffs = meta.sendOffs;
-        recvSizes = meta.recvSizes;
-        recvOffs = meta.recvOffs;
-        sendInds = meta.sendInds;
-        colOffs = meta.colOffs;
-        return *this;
-    }
-};
 
 // Use a simple 1d distribution where each process owns a fixed number of rows,
 //     if last process,  height - (commSize-1)*floor(height/commSize)
@@ -184,8 +148,8 @@ public:
     Int Row( Int localInd ) const EL_NO_RELEASE_EXCEPT;
     Int Col( Int localInd ) const EL_NO_RELEASE_EXCEPT;
     T Value( Int localInd ) const EL_NO_RELEASE_EXCEPT;
-    T GetLocal( Int row, Int col ) const EL_NO_RELEASE_EXCEPT;
-    void Set( Int row, Int col, T val ) EL_NO_RELEASE_EXCEPT;
+    T Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT;
+    void Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT;
     Int RowOffset( Int localRow ) const EL_NO_RELEASE_EXCEPT;
     Int Offset( Int localRow, Int col ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int localRow ) const EL_NO_RELEASE_EXCEPT;
@@ -194,7 +158,6 @@ public:
     // total number of nonzeros divided by the number of processes
     double Imbalance() const EL_NO_RELEASE_EXCEPT;
 
-    mutable DistSparseMultMeta multMeta;
     DistGraphMultMeta InitializeMultMeta() const;
 
     void MappedSources
