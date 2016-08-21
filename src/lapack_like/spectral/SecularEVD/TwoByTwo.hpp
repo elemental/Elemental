@@ -6,13 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SECULAR_EIG_TWOBYTWO_HPP
-#define EL_SECULAR_EIG_TWOBYTWO_HPP
+#ifndef EL_SECULAR_EVD_TWOBYTWO_HPP
+#define EL_SECULAR_EVD_TWOBYTWO_HPP
 
 namespace El {
-namespace secular_eig {
+namespace secular_evd {
 
-// Compute an eigenvalueof the diagonal plus rank-one matrix
+// Compute an eigenvalue of the diagonal plus rank-one matrix
 //
 //     D + rho z z^T,
 //
@@ -38,7 +38,7 @@ Real TwoByTwo
   FlipOrClip negativeFix=CLIP_NEGATIVES )
 {
     DEBUG_CSE
-    const Real zero(0), one(1), three(3), four(4);
+    const Real zero(0), one(1), two(2);
     DEBUG_ONLY(
       if( whichValue < 0 || whichValue > 1 )
           LogicError("Invalid singular value request");
@@ -179,7 +179,7 @@ Real TwoByTwo
         delta0MinusShift, delta1MinusShift, negativeFix );
 }
 
-} // namespace secular_eig
+} // namespace secular_evd
 } // namespace El
 
-#endif // ifndef EL_SECULAR_EIG_TWOBYTWO_HPP
+#endif // ifndef EL_SECULAR_EVD_TWOBYTWO_HPP

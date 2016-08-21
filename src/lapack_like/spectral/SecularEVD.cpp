@@ -8,11 +8,11 @@
 */
 #include <El.hpp>
 
-#include "./SecularSVD/TwoByTwo.hpp"
+#include "./SecularEVD/TwoByTwo.hpp"
 
 namespace El {
 
-namespace secular_svd {
+namespace secular_evd {
 
 template<typename Real>
 struct State
@@ -20,17 +20,14 @@ struct State
     Int origin;
     bool originOnLeft;
 
-    Matrix<Real> dPlusShift;
     Matrix<Real> dMinusShift;
 
-    Real diagSqDiff;
+    Real diagDiff;
 
+    Real rootEst; 
     Real rootRelEst;
-
-    Real sigmaEst; 
-    Real sigmaRelEst;
-    Real sigmaRelLowerBound;
-    Real sigmaRelUpperBound;
+    Real rootRelLowerBound;
+    Real rootRelUpperBound;
 
     // The secular equation and its derivative evaluated at the current
     // eigenvalue estimate
@@ -52,24 +49,20 @@ struct State
     Real relErrorBound;
 
     bool useThreePoles;
-    bool geometricAverage;
     bool alternateStrategy;
 };
 
 template<typename Real>
 struct LastState
 {
-    Matrix<Real> dPlusShift;
     Matrix<Real> dMinusShift;
 
-    Real diagSqDiff;
+    Real diagDiff;
 
+    Real rootEst; 
     Real rootRelEst;
-
-    Real sigmaEst; 
-    Real sigmaRelEst;
-    Real sigmaRelLowerBound;
-    Real sigmaRelUpperBound;
+    Real rootRelLowerBound;
+    Real rootRelUpperBound;
 
     // The secular equation and its derivative evaluated at the current
     // eigenvalue estimate
@@ -96,7 +89,7 @@ void EvaluateSecular
 ( const Real& rho,
   const Matrix<Real>& z,
         State<Real>& state,
-  bool penalizeDerivative=false )
+  bool penalizeDerivative=true )
 {
     DEBUG_CSE
     const Real one(1);
@@ -109,7 +102,7 @@ void EvaluateSecular
     // approximation of the error
     // (see Ren-Cang Li, "Solving Secular Equations Stably and Efficiently",
     // LAPACK Working Note 89, 1993 [CITATION], as well as LAPACK's 
-    // {s,d}lasd4 [CITATION]). The loop direction is chosen to heuristically
+    // {s,d}laed4 [CITATION]). The loop direction is chosen to heuristically
     // sum from small to large components.
     state.psiMinus = 0;
     state.psiMinusDeriv = 0;
@@ -117,7 +110,7 @@ void EvaluateSecular
     for( Int j=0; j<origin; ++j )
     {
         // Compute the j'th term divided by z(j)
-        temp = z(j) / (state.dPlusShift(j)*state.dMinusShift(j));
+        temp = z(j) / state.dMinusShift(j);
         state.psiMinus += z(j)*temp; // This should be a negative contribution
         state.psiMinusDeriv += temp*temp;
         state.relErrorBound += state.psiMinus;
@@ -132,7 +125,7 @@ void EvaluateSecular
     for( Int j=n-1; j>origin; --j )
     {
         // Compute the j'th term divided by z(j)
-        temp = z(j) / (state.dPlusShift(j)*state.dMinusShift(j));
+        temp = z(j) / state.dMinusShift(j);
         state.phi += z(j)*temp;
         state.phiDeriv += temp*temp;
         state.relErrorBound += state.phi;
@@ -143,8 +136,8 @@ void EvaluateSecular
     state.secularMinus = rhoInv + state.psiMinus + state.phi;
     state.secularMinusDeriv = state.psiMinusDeriv + state.phiDeriv;
 
-    // Cf. LAPACK's {s,d}lasd4 [CITATION] for this computational strategy
-    temp = z(origin) / (state.dPlusShift(origin)*state.dMinusShift(origin));
+    // Cf. LAPACK's {s,d}laed4 [CITATION] for this computational strategy
+    temp = z(origin) / state.dMinusShift(origin);
     state.secularDeriv = (state.psiMinusDeriv + temp*temp) + state.phiDeriv;
     temp *= z(origin);
     state.secular = state.secularMinus + temp;
@@ -159,7 +152,7 @@ void EvaluateSecularLast
 ( const Real& rho,
   const Matrix<Real>& z,
         LastState<Real>& state,
-  bool penalizeDerivative=false )
+  bool penalizeDerivative=true )
 {
     DEBUG_CSE
     const Real one(1);
@@ -174,7 +167,7 @@ void EvaluateSecularLast
     for( Int j=0; j<origin; ++j )
     {
         // Compute the j'th term divided by z(j)
-        temp = z(j) / (state.dPlusShift(j)*state.dMinusShift(j));
+        temp = z(j) / state.dMinusShift(j);
         state.psiMinus += z(j)*temp;
         state.psiMinusDeriv += temp*temp;
         state.relErrorBound += state.psiMinus; // This should be negative
@@ -182,7 +175,7 @@ void EvaluateSecularLast
     state.relErrorBound = Abs(state.relErrorBound); // This should be negation
 
     // Compute the origin term divided by z(origin)
-    temp = z(origin) / (state.dPlusShift(origin)*state.dMinusShift(origin));
+    temp = z(origin) / state.dMinusShift(origin);
     state.psiOrigin = z(origin)*temp;
     state.psiOriginDeriv = temp*temp;
     state.secularDeriv = state.psiMinusDeriv + state.psiOriginDeriv;
@@ -205,49 +198,46 @@ void SecularInitialGuess
   const Real& rho,
   const Matrix<Real>& z,
         State<Real>& state,
-  const SecularSVDCtrl<Real>& ctrl )
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real zero(0), one(1);
     const Int k = whichValue;
     const Int n = d.Height();
-    const Real diagSqDiffHalf = state.diagSqDiff / 2;
     if( k >= n-1 )
-        LogicError("Assumption of inner singular value broken");
+        LogicError("Assumption of inner eigenvalue broken");
 
     // We can test whether the k'th eigenvalue is in the first or second
-    // half of (d(k)^2, d(k+1)^2) by testing the sign of the secular
-    // equation evaluated at the square-root of the center point,
+    // half of (d(k) d(k+1)) by testing the sign of the secular
+    // equation evaluated at the center point,
     //
-    //   center = (d(k)^2 + d(k+1)^2)/2.
+    //   center = (d(k) + d(k+1))/2.
     //
-    const Real center = (d(k)*d(k) + d(k+1)*d(k+1)) / 2; 
-    const Real centerRoot = Sqrt(center);
+    const Real center = (d(k) + d(k+1)) / 2; 
 
-    // Follow LAPACK's {s,d}lasd4's [CITATION] lead in carefully computing
+    // Follow LAPACK's {s,d}laed4's [CITATION] lead in carefully computing
     //
-    //   shiftedCenterRoot = centerRoot - d(k).
+    //   shiftedCenter = center - d(k).
     //
-    const Real shiftedCenterRoot = diagSqDiffHalf / (d(k) + centerRoot);
+    const Real shiftedCenter = state.diagDiff / 2;
 
-    // Again use LAPACK's {s,d}lasd4's [CITATION] suggestion that the
-    // diagonal entries plus-or-minus the center roots be computed in a
-    // safe (but somewhat obscured) manner.
+    // Again use LAPACK's {s,d}laed4's [CITATION] suggestion that the
+    // diagonal entries minus the center roots be computed in a safe
+    // (but somewhat obscured) manner.
     for( Int j=0; j<n; ++j ) 
     {
-        state.dPlusShift(j) = (d(j) + d(k)) + shiftedCenterRoot;
-        state.dMinusShift(j) = (d(j) - d(k)) - shiftedCenterRoot;
+        state.dMinusShift(j) = (d(j) - d(k)) - shiftedCenter;
     }
 
     // Given the partition of the secular equation as
     //
-    //   f(x) = (1/rho) + sum_{j=0}^{n-1} z(j)^2 / (d(j)^2 - x)
+    //   f(x) = (1/rho) + sum_{j=0}^{n-1} z(j)^2 / (d(j) - x)
     //        = (1/rho) + psi_k(x) + phi_k(x),
     //
     // where
     //
-    //   psi_k(x) = sum_{j=0}^k       z(j)^2 / (d(j)^2 - x),
-    //   phi_k(x) = sum_{j=k+1}^{n-1} z(j)^2 / (d(j)^2 - x),
+    //   psi_k(x) = sum_{j=0}^k       z(j)^2 / (d(j) - x),
+    //   phi_k(x) = sum_{j=k+1}^{n-1} z(j)^2 / (d(j) - x),
     //
     // we follow the suggestion surrounding Eq's (40) and (41) of
     //
@@ -260,106 +250,77 @@ void SecularInitialGuess
     // terms removed as 'psiMinus' and 'phiMinus', respectively.
     state.psiMinus = zero;
     for( Int j=0; j<k; ++j )
-        state.psiMinus +=
-          z(j)*z(j) / (state.dPlusShift(j)*state.dMinusShift(j));
+        state.psiMinus += z(j)*z(j) / state.dMinusShift(j);
     Real phiMinus = zero; 
     for( Int j=k+2; j<n; ++j )
-        phiMinus +=
-          z(j)*z(j) / (state.dPlusShift(j)*state.dMinusShift(j));
+        phiMinus += z(j)*z(j) / state.dMinusShift(j);
 
     // The secular equation can now be expressed as
     //
     //   f(center) = (1/rho) + psiMinus + phiMinus +
-    //       z(k)^2 / (d(k)^2 - center) + z(k+1)^2 / (d(k+1)^2 - center),
+    //       z(k)^2 / (d(k) - center) + z(k+1)^2 / (d(k+1) - center),
     //
     // where the top row will turn out to be the 'a' coefficient of a 
     // quadratic equation a x^2 + b x + c = 0 that we will solve to compute
     // the initial guess for the sought-after eigenvalue. But recall that
-    // we should carefully compute (d(j)^2 - center).
+    // we should carefully compute (d(j) - center).
     const Real a = one/rho + state.psiMinus + phiMinus;
     const Real secularCenter = a +
-      z(k)*z(k) / (state.dPlusShift(k)*state.dMinusShift(k)) +
-      z(k+1)*z(k+1) / (state.dPlusShift(k+1)*state.dMinusShift(k+1));
+      z(k)*z(k) / state.dMinusShift(k) + z(k+1)*z(k+1) / state.dMinusShift(k+1);
 
-    state.geometricAverage = false; // TODO(poulson): Documentation?
     if( secularCenter >= zero )
     {
-        // The eigenvalue lives in (d(k)^2, center), so we solve the 
+        // The eigenvalue lives in (d(k), center), so we solve the 
         // quadratic equation
         //
-        //   a + z(k)^2 / (d(k)^2 - x) + z(k+1)^2 / (d(k+1)^2 - x) = 0,
+        //   a + z(k)^2 / (d(k) - x) + z(k+1)^2 / (d(k+1) - x) = 0,
         //
-        // directly for rootRelEst = x - d(k)^2, which yields the quadratic
+        // directly for rootRelEst = x - d(k), which yields the quadratic
         // equation a rootRelEst^2 + b rootRelEst + c = 0, with
         //
         //   b = -a gap - (z(k)^2 + z(k+1)^2),
         //   c = z(k)^2 gap,
         //
-        // with gap = d(k+1)^2 - d(k)^2.
+        // with gap = d(k+1) - d(k).
         state.originOnLeft = true;
         state.origin = k;
-        state.sigmaRelLowerBound = zero; 
-        state.sigmaRelUpperBound = shiftedCenterRoot;
-        const Real bNeg = a*state.diagSqDiff + z(k)*z(k) + z(k+1)*z(k+1);
-        const Real c = z(k)*z(k)*state.diagSqDiff;
-
-        // Compute rootRelEst = sigmaEst^2 - d(k)^2
+        state.rootRelLowerBound = zero; 
+        state.rootRelUpperBound = shiftedCenter;
+        const Real bNeg = a*state.diagDiff + z(k)*z(k) + z(k+1)*z(k+1);
+        const Real c = z(k)*z(k)*state.diagDiff;
         state.rootRelEst = SolveQuadraticMinus( a, bNeg, c, ctrl.negativeFix ); 
-        state.sigmaRelEst =
-          RelativeEigenvalueToRelativeSingularValue
-          ( state.rootRelEst, d(state.origin) );
-
-        // TODO(poulson): Document this LAPACK heuristic
-        const Real eps = limits::Epsilon<Real>();
-        const Real sqrtEps = Sqrt(eps);
-        if( (d(k) <= sqrtEps*d(k+1)) &&
-            (Abs(z(k)) <= sqrtEps) &&
-            (d(k) > Real(0)) )
-        {
-            state.geometricAverage = true;
-            state.sigmaRelEst = Min( 10*d(k), state.sigmaRelUpperBound );
-        }
     }
     else
     {
-        // The eigenvalue lives in [center, d(k+1)^2), so we solve the
+        // The eigenvalue lives in [center, d(k+1)), so we solve the
         // quadratic equation
         //
-        //   a + z(k)^2 / (d(k)^2 - x) + z(k+1)^2 / (d(k+1)^2 - x) = 0,
+        //   a + z(k)^2 / (d(k) - x) + z(k+1)^2 / (d(k+1) - x) = 0,
         //
-        // directly for rootRelEst = x - d(k+1)^2, which yields the quadratic
+        // directly for rootRelEst = x - d(k+1), which yields the quadratic
         // equation a rootRelEst^2 + b rootRelEst + c = 0, with
         //
         //   b = a gap - (z(k)^2 + z(k+1)^2),
         //   c = -z(k)^2 gap,
         //
-        // with gap = d(k+1)^2 - d(k)^2.
+        // with gap = d(k+1) - d(k).
         state.originOnLeft = false;
         state.origin = k+1;
-
-        // Again follow LAPACK's {s,d}lasd4's [CITATION] lead in carefully
-        // computing centerRoot - d(k+1).
-        state.sigmaRelLowerBound =
-          -diagSqDiffHalf / (d(state.origin) + centerRoot);
-        state.sigmaRelUpperBound = zero; 
-        const Real bNeg = -a*state.diagSqDiff + z(k)*z(k) + z(k+1)*z(k+1);
-        const Real c = -z(k+1)*z(k+1)*state.diagSqDiff;
-
+        state.rootRelLowerBound = -shiftedCenter;
+        state.rootRelUpperBound = 0; 
+        const Real bNeg = -a*state.diagDiff + z(k)*z(k) + z(k+1)*z(k+1);
+        const Real c = -z(k+1)*z(k+1)*state.diagDiff;
         state.rootRelEst = SolveQuadraticMinus( a, bNeg, c, ctrl.negativeFix );
-        state.sigmaRelEst =
-          RelativeEigenvalueToRelativeSingularValue
-          ( state.rootRelEst, d(state.origin) );
     }
     if( ctrl.progress )
         Output
-        ("Initial relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+        ("Initial relative interval is [",state.rootRelLowerBound,",",
+         state.rootRelUpperBound,"]");
 
-    state.sigmaEst = state.sigmaRelEst + d(state.origin);
+    state.rootEst = state.rootRelEst + d(state.origin);
     for( Int j=0; j<n; ++j ) 
     {
-        state.dPlusShift(j) = (d(j) + d(state.origin)) + state.sigmaRelEst;
-        state.dMinusShift(j) = (d(j) - d(state.origin)) - state.sigmaRelEst;
+        state.dMinusShift(j) = (d(j) - d(state.origin)) - state.rootRelEst;
     }
 
     EvaluateSecular( rho, z, state, ctrl.penalizeDerivative );
@@ -367,7 +328,7 @@ void SecularInitialGuess
 
 // For seeking the last root of the secular equation in
 //
-//   (d(n-1)^2, d(n-1)^2+rho).
+//   (d(n-1), d(n-1)+rho).
 //
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void SecularInitialGuessLast
@@ -375,7 +336,7 @@ void SecularInitialGuessLast
   const Real& rho,
   const Matrix<Real>& z,
         LastState<Real>& state,
-  const SecularSVDCtrl<Real>& ctrl )
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int n = d.Height();
@@ -386,38 +347,30 @@ void SecularInitialGuessLast
 
     // Since the largest eigenvalue must live within
     //
-    //   d(n-1)^2 + (0, rho ||z||_2^2) = d(n-1)^2 + (0, rho),
+    //   d(n-1) + (0, rho ||z||_2^2) = d(n-1) + (0, rho),
     //
     // we use the center as our initial guess. Therefore, put
     // 
-    //   rootRelEst = (rho ||z||_2^2) / 2 = rho / 2 = sigmaEst^2 - d(n-1)^2.
+    //   rootRelEst = (rho ||z||_2^2) / 2 = rho / 2 = rootEst - d(n-1).
     //
     const Real shiftedCenter = rho / 2;
-    const Real shiftedCenterRoot =
-      RelativeEigenvalueToRelativeSingularValue( shiftedCenter, d(origin) );
-
     state.rootRelEst = shiftedCenter;
-    state.sigmaRelEst = shiftedCenterRoot;
-    state.sigmaEst = state.sigmaRelEst + d(origin);
+    state.rootEst = state.rootRelEst + d(origin);
     for( Int j=0; j<n; ++j ) 
     {
-        state.dPlusShift(j) = (d(j) + d(origin)) + state.sigmaRelEst;
-        state.dMinusShift(j) = (d(j) - d(origin)) - state.sigmaRelEst;
+        state.dMinusShift(j) = (d(j) - d(origin)) - state.rootRelEst;
     }
 
     // Form psi_{origin-2}
     Real psiDoubleMinus = zero;
     psiDoubleMinus = zero;
     for( Int j=0; j<origin-1; ++j )
-        psiDoubleMinus +=
-          z(j)*z(j) / (state.dPlusShift(j)*state.dMinusShift(j));
+        psiDoubleMinus += z(j)*z(j) / state.dMinusShift(j);
 
     state.psiMinus = psiDoubleMinus +
-      z(origin-1)*z(origin-1) /
-      (state.dPlusShift(origin-1)*state.dMinusShift(origin-1));
+      z(origin-1)*z(origin-1) / state.dMinusShift(origin-1);
 
-    state.psiOrigin = z(origin)*z(origin) /
-      (state.dPlusShift(origin)*state.dMinusShift(origin));
+    state.psiOrigin = z(origin)*z(origin) / state.dMinusShift(origin);
 
     const Real a = rhoInv + psiDoubleMinus;
     state.secularMinus = rhoInv + state.psiMinus;
@@ -426,17 +379,14 @@ void SecularInitialGuessLast
     if( state.secular <= zero )
     {
         // Evaluate the negative of the two terms of the secular equation
-        // near the origin at d(origin)^2 + rho to see if they would overpower
-        // the remaining terms. If so, we accept d(origin)^2 + rho as the
-        // initial guess, otherwise we solve the implied quadratic equation.
+        // near the origin at d(origin) + rho to see if they would overpower
+        // the remaining terms. If so, we accept d(origin) + rho as the initial
+        // guess, otherwise we solve the implied quadratic equation.
         //
-        // This strategy originated in LAPACK's {s,d}lasd4 [CITATION].
+        // This strategy originated in LAPACK's {s,d}laed4 [CITATION].
         //
-        const Real singValUpperBound = Sqrt(d(origin)*d(origin) + rho);
         const Real temp =
-          z(origin-1)*z(origin-1) /
-           ((d(origin-1) + singValUpperBound)*
-            (d(origin) - d(origin-1) + rho/(d(origin) + singValUpperBound))) +
+          z(origin-1)*z(origin-1) / (d(origin) - d(origin-1) + rho) +
           z(origin)*z(origin) / rho;
 
         if( a <= temp )
@@ -445,51 +395,43 @@ void SecularInitialGuessLast
         }
         else
         {
-            const Real bNeg = -a*state.diagSqDiff + z(origin-1)*z(origin-1) +
+            const Real bNeg = -a*state.diagDiff + z(origin-1)*z(origin-1) +
               z(origin)*z(origin);
-            const Real c = -z(origin)*z(origin)*state.diagSqDiff;
+            const Real c = -z(origin)*z(origin)*state.diagDiff;
             state.rootRelEst =
               SolveQuadraticPlus( a, bNeg, c, ctrl.negativeFix );
-            state.sigmaRelEst =
-              RelativeEigenvalueToRelativeSingularValue
-              ( state.rootRelEst, d(origin) );
         }
-        state.sigmaRelLowerBound = shiftedCenterRoot;
-        state.sigmaRelUpperBound =
-          RelativeEigenvalueToRelativeSingularValue( rho, d(origin) );
+        state.rootRelLowerBound = shiftedCenter;
+        state.rootRelUpperBound = rho;
     }
     else
     {
         // We will approximate the secular equation with
         //
-        //  f_{n-1,n-2}(y) + z(n-2)^2 / (d(n-2)^2 - x) +
-        //                   z(n-1)^2 / (d(n-1)^2 - x),
+        //  f_{n-1,n-2}(y) + z(n-2)^2 / (d(n-2) - x) +
+        //                   z(n-1)^2 / (d(n-1) - x),
         //
         // where f_{n-1,n-2}(y) is the secular equation, with the (n-1)'th and 
         // (n-2)'th terms removed, evaluated at the current estimate. We solve
-        // for a root of this equation in terms of rotRelEst = x - d(n-1)^2.
+        // for a root of this equation in terms of tau = x - d(n-1).
         // In particular, we pick the '-' branch of the quadratic equation.
 
-        const Real bNeg = -a*state.diagSqDiff + z(origin-1)*z(origin-1) +
+        const Real bNeg = -a*state.diagDiff + z(origin-1)*z(origin-1) +
           z(origin)*z(origin);
-        const Real c = -z(origin)*z(origin)*state.diagSqDiff;
+        const Real c = -z(origin)*z(origin)*state.diagDiff;
         state.rootRelEst = SolveQuadraticPlus( a, bNeg, c, ctrl.negativeFix );
-        state.sigmaRelEst =
-          RelativeEigenvalueToRelativeSingularValue
-          ( state.rootRelEst, d(origin) );
-        state.sigmaRelLowerBound = 0;
-        state.sigmaRelUpperBound = shiftedCenterRoot;
+        state.rootRelLowerBound = zero;
+        state.rootRelUpperBound = shiftedCenter;
     }
     if( ctrl.progress )
         Output
-        ("Initial relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+        ("Initial relative interval is [",state.rootRelLowerBound,",",
+         state.rootRelUpperBound,"]");
 
-    state.sigmaEst = state.sigmaRelEst + d(origin);
+    state.rootEst = state.rootRelEst + d(origin);
     for( Int j=0; j<n; ++j ) 
     {
-        state.dPlusShift(j) = (d(j) + d(origin)) + state.sigmaRelEst;
-        state.dMinusShift(j) = (d(j) - d(origin)) - state.sigmaRelEst;
+        state.dMinusShift(j) = (d(j) - d(origin)) - state.rootRelEst;
     }
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
@@ -502,8 +444,8 @@ void SecularUpdate
   const Real& rho,
   const Matrix<Real>& z,
         State<Real>& state,
-        SecularSVDInfo& info,
-  const SecularSVDCtrl<Real>& ctrl )
+        SecularEVDInfo& info,
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real zero(0);
@@ -513,30 +455,28 @@ void SecularUpdate
     Real eta;
 
     if( state.secular <= zero )
-        state.sigmaRelLowerBound =
-          Max( state.sigmaRelLowerBound, state.sigmaRelEst );
+        state.rootRelLowerBound =
+          Max( state.rootRelLowerBound, state.rootRelEst );
     else
-        state.sigmaRelUpperBound =
-          Min( state.sigmaRelUpperBound, state.sigmaRelEst );
+        state.rootRelUpperBound =
+          Min( state.rootRelUpperBound, state.rootRelEst );
     if( ctrl.progress )
         Output
-        ("Relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+        ("Relative interval is [",state.rootRelLowerBound,",",
+         state.rootRelUpperBound,"]");
 
     if( state.useThreePoles )
     {
         // Use the "Hybrid Scheme" described in subsection 3.4 of LAWN 89
-        // [CITATION] and implemented within {s,d}lasd4 [CITATION].
+        // [CITATION] and implemented within {s,d}laed4 [CITATION].
  
         // Carefully compute
         //
-        //   leftGap = d(origin-1)^2 - sigmaEst^2, and
-        //   rightGap = d(origin+1)^2 - sigmaEst^2.
+        //   leftGap = d(origin-1) - rootEst, and
+        //   rightGap = d(origin+1) - rootEst.
         //
-        const Real leftGap =
-          state.dPlusShift(origin-1)*state.dMinusShift(origin-1);
-        const Real rightGap =
-          state.dPlusShift(origin+1)*state.dMinusShift(origin+1);
+        const Real leftGap = state.dMinusShift(origin-1);
+        const Real rightGap = state.dMinusShift(origin+1);
 
         Real a;
         Matrix<Real> zCubic(3,1);
@@ -550,31 +490,29 @@ void SecularUpdate
         }
         else
         {
-            // Carefully compute doubleGap = d(origin+1)^2 - d(origin-1)^2
-            const Real doubleGap =
-              (d(origin+1)-d(origin-1))*(d(origin+1)+d(origin-1));
+            const Real doubleGap = d(origin+1) - d(origin-1);
 
             if( state.originOnLeft )
             {
                 // Since the shift origin, m, is k, We will interpolate the
                 // secular equation as
                 //
-                //  Q(x; a, s, S) = a + z(m-1)^2 / (d(m-1)^2 - x) + 
-                //                      z(m  )^2 / (d(m  )^2 - x) + 
-                //                      S        / (d(m+1)^2 - x),
+                //  Q(x; a, s, S) = a + z(m-1)^2 / (d(m-1) - x) + 
+                //                      z(m  )^2 / (d(m  ) - x) + 
+                //                      S        / (d(m+1) - x),
                 //
                 // which can be effected by applying the Middle Way, the Fixed
                 // Weight Method, or Borges/Gragg/Thornton/Warner's cubic scheme
                 //  to
                 //
-                //   f_m(y) = f(y) - z(m)^2 / (d(m)^2 - x).
+                //   f_m(y) = f(y) - z(m)^2 / (d(m) - x).
                 //
                 // We balance between the Fixed Weight Method and the Middle
                 // Way; their formulae for computing a are identical. In both
                 // cases,
                 // 
                 //  a = f_m - rightGap*f'_m +
-                //      (z(m-1)/leftGap)^2*(d(m+1)^2-d(m-1)^2).
+                //      (z(m-1)/leftGap)^2*(d(m+1)-d(m-1)).
                 //
                 // The computation of S primarily follows the Fixed Weight
                 // Method but enforces the non-negativity of psi_{k-2}' when
@@ -607,22 +545,22 @@ void SecularUpdate
                 // Since the shift origin, m, is k+1, we will interpolate the
                 // secular equation as
                 //
-                //  Q(x; a, s, S) = a + s        / (d(m-1)^2 - x) +
-                //                      z(m)^2   / (d(m  )^2 - x) +
-                //                      z(m+1)^2 / (d(m+1)^2 - x),
+                //  Q(x; a, s, S) = a + s        / (d(m-1) - x) +
+                //                      z(m)^2   / (d(m  ) - x) +
+                //                      z(m+1)^2 / (d(m+1) - x),
                 //
                 // which can be effected by applying the Middle Way, the Fixed
                 // Weight Method, or Borges/Gragg/Thornton/Warner's cubic scheme
                 //  to
                 //
-                //   f_m(y) = f(y) - z(m)^2 / (d(m)^2 - x).
+                //   f_m(y) = f(y) - z(m)^2 / (d(m) - x).
                 //
                 // We balance between the Fixed Weight Method and the Middle
                 // Way; their formulae for computing a are identical. In both
                 // cases,
                 // 
                 //  a = f_m - leftGap*f'_m -
-                //      (z(m+1)/rightGap)^2*(d(m+1)^2-d(m-1)^2),
+                //      (z(m+1)/rightGap)^2*(d(m+1)-d(m-1)),
                 //
                 // The computation of s primarily follows the Fixed Weight
                 // Method but enforces the non-negativity of phi_{m+1}' when
@@ -652,7 +590,7 @@ void SecularUpdate
         }
         Matrix<Real> dCubic(3,1);
         dCubic(0) = leftGap;
-        dCubic(1) = state.dPlusShift(origin)*state.dMinusShift(origin);
+        dCubic(1) = state.dMinusShift(origin);
         dCubic(2) = rightGap;
 
         auto cubicInfo =
@@ -669,24 +607,29 @@ void SecularUpdate
         }
         else
         {
+            // For some reason, LAPACK's {s,d}laed4 [CITATION] choose to fail
+            // if the cubic iteration did not succeed, but {s,d}lasd4 [CITATION]
+            // uses a recovery process analogous to what follows. We will part 
+            // ways with LAPACK here and run the recovery process rather than
+            // simply failing.
             if( ctrl.progress )
                 Output("Cubic did *not* converge");
             ++info.numCubicFailures;
             state.useThreePoles = false;
-            const Real kGap = state.dPlusShift(k)*state.dMinusShift(k);
-            const Real kp1Gap = state.dPlusShift(k+1)*state.dMinusShift(k+1);
+            const Real kGap = state.dMinusShift(k);
+            const Real kp1Gap = state.dMinusShift(k+1);
             Real a;
             if( state.originOnLeft )
             {
                 const Real temp = z(k) / kGap;
                 a = state.secular - kp1Gap*state.secularDeriv +
-                  state.diagSqDiff*(temp*temp);
+                  state.diagDiff*(temp*temp);
             }
             else
             {
                 const Real temp = z(k+1) / kp1Gap;
                 a = state.secular - kGap*state.secularDeriv +
-                  state.diagSqDiff*(temp*temp);
+                  state.diagDiff*(temp*temp);
             }
             Real bNeg = (kGap+kp1Gap)*state.secular -
               kGap*kp1Gap*state.secularDeriv;
@@ -694,7 +637,7 @@ void SecularUpdate
             if( a == zero && bNeg == zero )
             {
                 // a x^2 + b x + c = 0 has collapsed to c = 0, which is
-                // nonsense. Follow LAPACK's {s,d}lasd4 [CITATION] in handling
+                // nonsense. Follow LAPACK's {s,d}laed4 [CITATION] in handling
                 // this breakdown.
                 if( state.originOnLeft )
                 {
@@ -715,15 +658,15 @@ void SecularUpdate
         // equation implied by the osculatory interpolation of the secular
         // equation as
         //
-        //   Q(x; a, s, S) = a + s / (d(k)^2 - x) + S / (d(k+1)^2 - x).
+        //   Q(x; a, s, S) = a + s / (d(k) - x) + S / (d(k+1) - x).
         //
         // As noted after Proposition 3 of LAWN 89, the iteration formula does
         // not depend upon either s or S!
 
         // Safely compute the distance from our current eigenvalue estimate to
         // the surrounding grid points, d(k)^2 and d(k+1)^2.
-        const Real kGap = state.dPlusShift(k)*state.dMinusShift(k);
-        const Real kp1Gap = state.dPlusShift(k+1)*state.dMinusShift(k+1);
+        const Real kGap = state.dMinusShift(k);
+        const Real kp1Gap = state.dMinusShift(k+1);
 
         Real a;
         if( state.alternateStrategy )
@@ -748,7 +691,7 @@ void SecularUpdate
             {
                 // Apply Eq'ns (32) through (34) from LAWN 89 [CITATION] to set
                 //
-                //  a = f - kp1Gap f' + (z(k)^2/kGap^2) (d(k+1)^2 - d(k)^2),
+                //  a = f - kp1Gap f' + (z(k)^2/kGap^2) (d(k+1) - d(k)),
                 //
                 // and implicitly set
                 //
@@ -760,7 +703,7 @@ void SecularUpdate
                 // evaluated at y.
                 const Real temp = z(k) / kGap;
                 a = state.secular - kp1Gap*state.secularDeriv +
-                  (temp*temp)*state.diagSqDiff;
+                  (temp*temp)*state.diagDiff;
             }
             else
             {
@@ -775,7 +718,7 @@ void SecularUpdate
                 //
                 const Real temp = z(k+1) / kp1Gap;
                 a = state.secular - kGap*state.secularDeriv -
-                  (temp*temp)*state.diagSqDiff;
+                  (temp*temp)*state.diagDiff;
             }
         }
 
@@ -789,7 +732,7 @@ void SecularUpdate
         {
             // a eta^2 + b eta + c = 0 has collapsed to c = 0, which is
             // nonsensical to solve for eta. We therefore follow the lead of
-            // LAPACK's {s,d}lasd4 [CITATION] and use a mysterious patch-up.
+            // LAPACK's {s,d}laed4 [CITATION] and use a mysterious patch-up.
             //
             // TODO(poulson): Provide motivation for these formulae.
             if( state.alternateStrategy )
@@ -825,62 +768,41 @@ void SecularUpdate
         eta = -state.secular / state.secularDeriv;
     }
 
-    // Convert eta from an eigenvalue update to singular value update
-    eta = RelativeEigenvalueToRelativeSingularValue( eta, state.sigmaEst );
-
-    // Since sigmaRelEst = sigmaEst - d(origin), the following sets
-    // sigmaRelEstProp = sigmaEstProp - d(origin).
-    const Real sigmaRelEstProp = state.sigmaRelEst + eta;
-    if( sigmaRelEstProp > state.sigmaRelUpperBound ||
-        sigmaRelEstProp < state.sigmaRelLowerBound )
+    // Since rootRelEst = rootEst - d(origin), the following sets
+    // rootRelEstProp = rootEstProp - d(origin).
+    const Real rootRelEstProp = state.rootRelEst + eta;
+    if( rootRelEstProp > state.rootRelUpperBound ||
+        rootRelEstProp < state.rootRelLowerBound )
     {
         if( ctrl.progress )
             Output("Stepped out of bounds");
-        // We again follow LAPACK's {s,d}lasd4 for how to handle this breakdown
+        // We again follow LAPACK's {s,d}laed4 for how to handle this breakdown
 
         if( state.secular < zero )
         {
             // Since the secular equation implies that the root is to the right
             // of the un-updated estimate, but our update pushed us out of
             // bounds, we default to the update pushing us to the center of the
-            // feasible domain, [sigmaRelEst, sigmaRelUpperBound).
-            eta = (state.sigmaRelUpperBound - state.sigmaRelEst) / 2;
+            // feasible domain, [rootRelEst, rootRelUpperBound).
+            eta = (state.rootRelUpperBound - state.rootRelEst) / 2;
         }
         else
         {
             // Since the secular equation implies that the root is to the left
             // of the un-updated estimate, but our update pushed us out of
             // bounds, we default to the update being in the center of the
-            // feasible domain, (sigmaRelLowerBound,sigmaRelEst].
-            eta = (state.sigmaRelLowerBound - state.sigmaRelEst) / 2;
-        }
-
-        if( state.geometricAverage )
-        {
-            if( state.secular < zero )
-            {
-                if( state.sigmaRelEst > zero )
-                    eta = Sqrt(state.sigmaRelUpperBound*state.sigmaRelEst) -
-                      state.sigmaRelEst;
-            }
-            else
-            {
-                if( state.sigmaRelLowerBound > zero )
-                    eta = Sqrt(state.sigmaRelLowerBound*state.sigmaRelEst) -
-                      state.sigmaRelEst;
-            }
+            // feasible domain, (rootRelLowerBound,rootRelEst].
+            eta = (state.rootRelLowerBound - state.rootRelEst) / 2;
         }
     }
 
-    state.sigmaEst += eta;
-    state.sigmaRelEst += eta;
+    state.rootEst += eta;
+    state.rootRelEst += eta;
     state.secularOld = state.secular;
     for( Int j=0; j<n; ++j )
     {
-        state.dPlusShift(j) += eta;
         state.dMinusShift(j) -= eta;
     }
-    state.rootRelEst = -state.dPlusShift(origin)*state.dMinusShift(origin);
     EvaluateSecular( rho, z, state, ctrl.penalizeDerivative );
 }
 
@@ -890,26 +812,26 @@ void SecularUpdateLast
   const Real& rho,
   const Matrix<Real>& z,
         LastState<Real>& state,
-  const SecularSVDCtrl<Real>& ctrl )
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real zero(0);
-    const Int n = state.dPlusShift.Height();
+    const Int n = state.dMinusShift.Height();
     const Int origin = n-1;
 
     if( state.secular <= zero )
-        state.sigmaRelLowerBound =
-          Max( state.sigmaRelLowerBound, state.sigmaRelEst );
+        state.rootRelLowerBound =
+          Max( state.rootRelLowerBound, state.rootRelEst );
     else
-        state.sigmaRelUpperBound =
-          Min( state.sigmaRelUpperBound, state.sigmaRelEst );
+        state.rootRelUpperBound =
+          Min( state.rootRelUpperBound, state.rootRelEst );
     if( ctrl.progress )
         Output
-        ("Relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+        ("Relative interval is [",state.rootRelLowerBound,",",
+         state.rootRelUpperBound,"]");
 
-    const Real kGap = state.dPlusShift(origin)*state.dMinusShift(origin);
-    const Real km1Gap = state.dPlusShift(origin-1)*state.dMinusShift(origin-1);
+    const Real kGap = state.dMinusShift(origin);
+    const Real km1Gap = state.dMinusShift(origin-1);
 
     Real a = state.secular - km1Gap*state.psiMinusDeriv -
       kGap*state.psiOriginDeriv;
@@ -925,12 +847,16 @@ void SecularUpdateLast
 
         if( a == zero )
         {
-            // TODO(poulson): Explain this special case
+            // TODO(poulson): Explain this special case.
             //
-            // Note that LAPACK's {s,d}lasd4 [CITATION] uses the equivalent of
-            // the following, but LAPACK's {s,d}laed4 [CITATION] uses the 
-            // best known upper bound so far rather than rho.
-            eta = rho - state.sigmaEst*state.sigmaEst;
+            // Note that LAPACK's {s,d}lasd4 [CITATION] uses the equivalent of 
+            //
+            //     eta = rho - rootEst,
+            //
+            // while LAPACK's {s,d}laed4 [CITATION] has such an updated
+            // commented out and
+            // instead performs the following.
+            eta = state.rootRelUpperBound - state.rootRelEst;
         }
         else
         {
@@ -965,60 +891,41 @@ void SecularUpdateLast
         eta = -state.secular / (state.psiMinusDeriv+state.psiOriginDeriv);
     }
 
-    // Convert eta from an eigenvalue update to singular value update
-    eta = RelativeEigenvalueToRelativeSingularValue( eta, state.sigmaEst );
-
-    // Since sigmaRelEst = sigmaEst - d(origin), the following sets
-    // sigmaRelEstProp = sigmaEstProp - d(origin).
-    const Real sigmaRelEstProp = state.sigmaRelEst + eta;
-    if( sigmaRelEstProp > state.sigmaRelUpperBound ||
-        sigmaRelEstProp < state.sigmaRelLowerBound )
+    const Real rootRelEstProp = state.rootRelEst + eta;
+    if( rootRelEstProp > state.rootRelUpperBound ||
+        rootRelEstProp < state.rootRelLowerBound )
     {
         if( ctrl.progress )
             Output("Stepped out of bounds");
-        // While LAPACK's {s,d}lasd4 uses this approach for the inner singular
-        // values, it does not for outer singular values and instead uses
-        // trivial lower and upper bounds. We part ways with LAPACK here.
-
+        // Move halfway towards the bound instead of exceeding it. Note that 
+        // LAPACK's {s,d}laed4 [CITATION] follows this strategy, but LAPACK's
+        // {s,d}lasd4 uses trivial upper and lower bounds rather than
+        // continually updating them.
         if( state.secular < zero )
-        {
-            // Since the secular equation implies that the root is to the right
-            // of the un-updated estimate, but our update pushed us out of
-            // bounds, we default to the update pushing us to the center of the
-            // feasible domain, [sigmaRelEst, sigmaRelUpperBound).
-            eta = (state.sigmaRelUpperBound - state.sigmaRelEst) / 2;
-        }
-        else
-        {
-            // Since the secular equation implies that the root is to the left
-            // of the un-updated estimate, but our update pushed us out of
-            // bounds, we default to the update being in the center of the
-            // feasible domain, (sigmaRelLowerBound,sigmaRelEst].
-            eta = (state.sigmaRelLowerBound - state.sigmaRelEst) / 2;
-        }
+            eta = (state.rootRelUpperBound - state.rootRelEst) / 2;
+        else 
+            eta = (state.rootRelLowerBound - state.rootRelEst) / 2;
     }
 
-    state.sigmaEst += eta;
-    state.sigmaRelEst += eta;
+    state.rootEst += eta;
+    state.rootRelEst += eta;
     state.secularOld = state.secular;
     for( Int j=0; j<n; ++j )
     {
-        state.dPlusShift(j) += eta;
         state.dMinusShift(j) -= eta;
     }
-    state.rootRelEst = -state.dPlusShift(origin)*state.dMinusShift(origin);
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSVDInfo
+SecularEVDInfo
 SecularInner
 ( Int whichValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
         State<Real>& state,
-  const SecularSVDCtrl<Real>& ctrl )
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real zero(0);
@@ -1027,18 +934,14 @@ SecularInner
     const Int n = d.Height();
     DEBUG_ONLY(
       if( k == n-1 )
-          LogicError("SecularInner meant for inner singular values");
+          LogicError("SecularInner meant for inner eigenvalues");
       if( n <= 2 )
           LogicError("SecularInner meant for n > 2");
     )
 
-    SecularSVDInfo info;
+    SecularEVDInfo info;
     state.dMinusShift.Resize(n,1);
-    state.dPlusShift.Resize(n,1);
-
-    const Real diagSum = d(k+1) + d(k);
-    const Real diagDiff = d(k+1) - d(k);
-    state.diagSqDiff = diagSum*diagDiff; // d(k+1)^2 - d(k)^2
+    state.diagDiff = d(k+1) - d(k);
 
     SecularInitialGuess( k, d, rho, z, state, ctrl );
     ++info.numIterations;
@@ -1081,9 +984,9 @@ SecularInner
     while( true )
     {
         DEBUG_ONLY(
-          if( !limits::IsFinite(state.sigmaEst) )
+          if( !limits::IsFinite(state.rootEst) )
           {
-              RuntimeError("Produced non-finite sigmaEst=",state.sigmaEst);
+              RuntimeError("Produced non-finite rootEst=",state.rootEst);
           }
         )
         if( Abs(state.secular) <= eps*state.relErrorBound ) 
@@ -1114,14 +1017,14 @@ SecularInner
 }
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSVDInfo
+SecularEVDInfo
 SecularLast
 ( Int whichValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
         LastState<Real>& state,
-  const SecularSVDCtrl<Real>& ctrl )
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
@@ -1129,17 +1032,14 @@ SecularLast
     const Int n = d.Height();
     DEBUG_ONLY(
       if( k != n-1 )
-          LogicError("SecularLast meant for largest singular value");
+          LogicError("SecularLast meant for largest eigenvalue");
       if( n <= 2 )
           LogicError("SecularLast meant for n > 2");
     )
 
-    SecularSVDInfo info;
+    SecularEVDInfo info;
     state.dMinusShift.Resize(n,1);
-    state.dPlusShift.Resize(n,1);
-    const Real diagSum = d(n-1) + d(n-2);
-    const Real diagDiff = d(n-1) - d(n-2);
-    state.diagSqDiff = diagSum*diagDiff; // d(n-1)^2 - d(n-2)^2
+    state.diagDiff = d(n-1) - d(n-2);
 
     SecularInitialGuessLast( d, rho, z, state, ctrl );
     ++info.numIterations;
@@ -1174,31 +1074,30 @@ SecularLast
     return info;
 }
 
-} // namespace secular_svd
+} // namespace secular_evd
 
-// Compute a single singular value corresponding to the square-root of the 
-// eigenvalue of the diagonal plus rank one matrix
+// Compute an eigenvalue corresponding to the diagonal plus rank-one matrix
 //
-//     diag(d)^2 + rho z z^T,
+//     diag(d) + rho z z^T,
 //
 // where || z ||_2 = 1, with
 //
-//     0 <= d(0) < d(1) < ... < d(n-1)
+//     d(0) < d(1) < ... < d(n-1)
 //
 // and rho > 0.
 //
-// This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
+// This routine loosely corresponds to LAPACK's {s,d}laed4 [CITATION].
 //
 
 template<typename Real,typename>
-SecularSVDInfo
-SecularSingularValue
+SecularEVDInfo
+SecularEigenvalue
 ( Int whichValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
-        Real& singularValue,
-  const SecularSVDCtrl<Real>& ctrl )
+        Real& eigenvalue,
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int k = whichValue;
@@ -1206,9 +1105,7 @@ SecularSingularValue
     DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
-          LogicError("Invalid singular value request");
-      if( d(0) < zero )
-          LogicError("Assumption that d(0) >= 0 was broken");
+          LogicError("Invalid eigenvalue request");
       for( Int j=0; j<n-1; ++j )
           if( d(j) >= d(j+1) )
               LogicError("Assumption that d(j) < d(j+1) broken");
@@ -1219,45 +1116,44 @@ SecularSingularValue
       // TODO(poulson): Check the assumption that || z ||_2 = 1
     )
 
-    SecularSVDInfo info;
+    SecularEVDInfo info;
     if( n == 1 )
     {
-        singularValue = Sqrt(d(0)*d(0) + rho);
+        eigenvalue = d(0) + rho;
         return info;
     }
     else if( n == 2 )
     {
-        singularValue = secular_svd::TwoByTwo( k, d(0), d(1), rho, z(0), z(1) );
+        eigenvalue = secular_evd::TwoByTwo( k, d(0), d(1), rho, z(0), z(1) );
         return info;
     }
 
     if( k < n-1 )
     {
-        secular_svd::State<Real> state;
-        info = secular_svd::SecularInner( k, d, rho, z, state, ctrl );
-        singularValue = state.sigmaEst;
+        secular_evd::State<Real> state;
+        info = secular_evd::SecularInner( k, d, rho, z, state, ctrl );
+        eigenvalue = state.rootEst;
     }
     else
     {
-        secular_svd::LastState<Real> state;
-        info = secular_svd::SecularLast( k, d, rho, z, state, ctrl );
-        singularValue = state.sigmaEst;
+        secular_evd::LastState<Real> state;
+        info = secular_evd::SecularLast( k, d, rho, z, state, ctrl );
+        eigenvalue = state.rootEst;
     }
 
     return info;
 }
 
 template<typename Real,typename>
-SecularSVDInfo
-SecularSingularValue
+SecularEVDInfo
+SecularEigenvalue
 ( Int whichValue,
   const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
-        Real& singularValue,
+        Real& eigenvalue,
         Matrix<Real>& dMinusShift,
-        Matrix<Real>& dPlusShift,
-  const SecularSVDCtrl<Real>& ctrl )
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int k = whichValue;
@@ -1265,9 +1161,7 @@ SecularSingularValue
     DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
-          LogicError("Invalid singular value request");
-      if( d(0) < zero )
-          LogicError("Assumption that d(0) >= 0 was broken");
+          LogicError("Invalid eigenvalue request");
       for( Int j=0; j<n-1; ++j )
           if( d(j) >= d(j+1) )
               LogicError("Assumption that d(j) < d(j+1) broken");
@@ -1278,41 +1172,35 @@ SecularSingularValue
       // TODO(poulson): Check the assumption that || z ||_2 = 1
     )
 
-    SecularSVDInfo info;
+    SecularEVDInfo info;
     dMinusShift.Resize(n,1);
-    dPlusShift.Resize(n,1);
     if( n == 1 )
     {
-        singularValue = Sqrt(d(0)*d(0) + rho);
+        eigenvalue = d(0) + rho;
         // TODO(poulson): Make this computation more accurate for completeness?
-        dMinusShift(0) = d(0) - singularValue;
-        dPlusShift(0) = d(0) + singularValue;
+        dMinusShift(0) = d(0) - eigenvalue;
         return info;
     }
     else if( n == 2 )
     {
-        singularValue =
-          secular_svd::TwoByTwo
-          ( k, d(0), d(1), rho, z(0), z(1),
-            dMinusShift(0), dMinusShift(1),
-            dPlusShift(0), dPlusShift(1) );
+        eigenvalue =
+          secular_evd::TwoByTwo
+          ( k, d(0), d(1), rho, z(0), z(1), dMinusShift(0), dMinusShift(1) );
         return info;
     }
 
     if( k < n-1 )
     {
-        secular_svd::State<Real> state;
-        info = secular_svd::SecularInner( k, d, rho, z, state, ctrl );
-        singularValue = state.sigmaEst;
-        dPlusShift = state.dPlusShift;
+        secular_evd::State<Real> state;
+        info = secular_evd::SecularInner( k, d, rho, z, state, ctrl );
+        eigenvalue = state.rootEst;
         dMinusShift = state.dMinusShift;
     }
     else
     {
-        secular_svd::LastState<Real> state;
-        info = secular_svd::SecularLast( k, d, rho, z, state, ctrl );
-        singularValue = state.sigmaEst;
-        dPlusShift = state.dPlusShift;
+        secular_evd::LastState<Real> state;
+        info = secular_evd::SecularLast( k, d, rho, z, state, ctrl );
+        eigenvalue = state.rootEst;
         dMinusShift = state.dMinusShift;
     }
 
@@ -1320,88 +1208,75 @@ SecularSingularValue
 }
 
 template<typename Real,typename>
-SecularSVDInfo
-SecularSVD
+SecularEVDInfo
+SecularEVD
 ( const Matrix<Real>& d,
   const Real& rho,
   const Matrix<Real>& z,
-        Matrix<Real>& U,
-        Matrix<Real>& s,
-        Matrix<Real>& V,
-  const SecularSVDCtrl<Real>& ctrl )
+        Matrix<Real>& w,
+        Matrix<Real>& Q,
+  const SecularEVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
     const Int n = d.Height();
-    SecularSVDInfo info;
+    SecularEVDInfo info;
 
-    s.Resize( n, 1 );
+    w.Resize( n, 1 );
     if( n == 0 )
     {
-        U.Resize( n, n );
-        V.Resize( n, n );
+        Q.Resize( n, n );
         return info;
     }
 
     // TODO(poulson): Batch secular equation solvers?
     //
-    // Compute all of the singular values and the vector r ~= sqrt(rho) z which
-    // would produce the given singular values to high relative accuracy.
+    // Compute all of the eigenvalues and the vector r ~= sqrt(rho) z which
+    // would produce the given eigenvalues to high relative accuracy.
     //
     // We accumulate the products involved in computing r in an online manner
     // and take the square-root of the absolute value (and the correct sign)
     // at the end. The key is to recognize that the only term left out of entry
     // i of the corrected vector in Eq. (3.6) of Gu/Eisenstat in the product
     //
-    //    prod_{k=0}^{n-1} (sigma_k^2 - d(i)^2) / (d(k)^2 - d(i)^2)
+    //    prod_{k=0}^{n-1} (lambda_k - d(i)) / (d(k) - d(i))
     //
-    // is 1 / (d(i)^2 - d(i)^2) (and we emphasize that the numerator is kept).
+    // is 1 / (d(i) - d(i)) (and we emphasize that the numerator is kept).
     // It is thus easy to see how the first term and second product in
     //
-    //    r(i)^2 = (sigma_{n-1}^2 - d(i)^2) *
-    //      prod_{k=0}^{i-1} (sigma_k^2 - d(i)^2) / (d(k  )^2 - d(i)^2) *
-    //      prod_{k=i}^{n-2} (sigma_k^2 - d(i)^2) / (d(k+1)^2 - d(i)^2)
+    //    r(i)^2 = (lambda_{n-1} - d(i)) *
+    //      prod_{k=0}^{i-1} (lambda_k - d(i)) / (d(k  ) - d(i)) *
+    //      prod_{k=i}^{n-2} (lambda_k - d(i)) / (d(k+1) - d(i))
     //
     // can be reorganized to yield
     //
-    //    r(i)^2 = (sigma_{i}^2 - d(i)^2) *
-    //      prod_{k=0  }^{i-1} (sigma_k^2 - d(i)^2) / (d(k)^2 - d(i)^2) *
-    //      prod_{k=i+1}^{n-1} (sigma_k^2 - d(i)^2) / (d(k)^2 - d(i)^2).
+    //    r(i)^2 = (lambda_{i} - d(i)) *
+    //      prod_{k=0  }^{i-1} (lambda_k - d(i)) / (d(k) - d(i)) *
+    //      prod_{k=i+1}^{n-1} (lambda_k - d(i)) / (d(k) - d(i)).
     //
-    // Given that we have available only one sigma_j at a time, we greedily
-    // update all r(i) products given each sigma_j
+    // Given that we have available only one lambda_j at a time, we greedily
+    // update all r(i) products given each lambda_j
     // (Cf. LAPACK's {s,d}lasd8 [CITATION] for this approach).
     //
-    U.Resize( n, n );
-    V.Resize( n, n );
+    Q.Resize( n, n );
     Matrix<Real> r;
     Ones( r, n, 1 );
-    auto vScratch = V(ALL,IR(0));
     for( Int j=0; j<n; ++j )
     {
-        // While we will temporarily store dMinusShift and dPlusShift in the
-        // j'th columns of U and V, respectively, it is worth noting that we 
-        // only require access to their Hadamard product after this loop ends.
-        auto u = U(ALL,IR(j));
-        auto valueInfo =
-          SecularSingularValue( j, d, rho, z, s(j), u, vScratch, ctrl );
+        // While we will temporarily store dMinusShift in the j'th column of Q.
+        auto q = Q(ALL,IR(j));
+        auto valueInfo = SecularEigenvalue( j, d, rho, z, w(j), q, ctrl );
         
         info.numIterations += valueInfo.numIterations;
         info.numAlternations += valueInfo.numAlternations;
         info.numCubicIterations += valueInfo.numCubicIterations;
         info.numCubicFailures += valueInfo.numCubicFailures;
 
-        // u currently hold d-s(j) and vScratch currently holds d+s(j).
-        // Overwrite u with their element-wise product since that is all we 
-        // require from here on out.
-        for( Int k=0; k<n; ++k )
-            u(k) *= vScratch(k);
-      
-        r(j) *= u(j);
+        r(j) *= q(j);
         for( Int k=0; k<n; ++k )
         {
             if( k == j )
                 continue;
-            r(k) *= u(k) / ((d(j)+d(k))*(d(j)-d(k)));
+            r(k) *= q(k) / (d(j)-d(k));
         }
     }
     for( Int j=0; j<n; ++j )
@@ -1409,56 +1284,44 @@ SecularSVD
 
     for( Int j=0; j<n; ++j )
     {
-        // Compute the j'th left and right singular vectors via
-        // Eqs. (3.4) and (3.3), respectively.
-        auto u = U(ALL,IR(j));
-        auto v = V(ALL,IR(j));
+        // Compute the j'th eigenvectors via Eqs. (3.4) and (3.3), respectively.
+        auto q = Q(ALL,IR(j));
+        for( Int i=0; i<n; ++i )
         {
-            const Real deltaSqMinusShiftSq = u(0);
-            u(0) = -1;
-            v(0) = r(0) / deltaSqMinusShiftSq;
+            q(i) = r(i) / q(i);
         }
-        for( Int i=1; i<n; ++i )
-        {
-            const Real deltaSqMinusShiftSq = u(i);
-            v(i) = r(i) / deltaSqMinusShiftSq;
-            u(i) = d(i) * v(i);
-        }
-        u *= Real(1) / FrobeniusNorm( u );
-        v *= Real(1) / FrobeniusNorm( v );
+        q *= Real(1) / FrobeniusNorm( q );
     }
 
     return info;
 }
 
 #define PROTO(Real) \
-  template SecularSVDInfo \
-  SecularSingularValue \
+  template SecularEVDInfo \
+  SecularEigenvalue \
   ( Int whichValue, \
     const Matrix<Real>& d, \
     const Real& rho, \
     const Matrix<Real>& z, \
-          Real& singularValue, \
-    const SecularSVDCtrl<Real>& ctrl ); \
-  template SecularSVDInfo \
-  SecularSingularValue \
+          Real& eigenvalue, \
+    const SecularEVDCtrl<Real>& ctrl ); \
+  template SecularEVDInfo \
+  SecularEigenvalue \
   ( Int whichValue, \
     const Matrix<Real>& d, \
     const Real& rho, \
     const Matrix<Real>& z, \
-          Real& singularValue, \
+          Real& eigenvalue, \
           Matrix<Real>& dMinusShift, \
-          Matrix<Real>& dPlusShift, \
-    const SecularSVDCtrl<Real>& ctrl ); \
-  template SecularSVDInfo \
-  SecularSVD \
+    const SecularEVDCtrl<Real>& ctrl ); \
+  template SecularEVDInfo \
+  SecularEVD \
   ( const Matrix<Real>& d, \
     const Real& rho, \
     const Matrix<Real>& z, \
-          Matrix<Real>& U, \
-          Matrix<Real>& s, \
-          Matrix<Real>& V, \
-    const SecularSVDCtrl<Real>& ctrl );
+          Matrix<Real>& w, \
+          Matrix<Real>& Q, \
+    const SecularEVDCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

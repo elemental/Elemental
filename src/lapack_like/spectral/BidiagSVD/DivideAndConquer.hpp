@@ -81,7 +81,6 @@ Merge
 
     DCInfo info;
     auto& secularInfo = info.secularInfo;
-    auto& deflationInfo = info.deflationInfo;
     if( ctrl.progress )
         Output("m=",m,", n=",n,", m0=",m0,", n0=",n0,", m1=",m1,", n1=",n1);
 
@@ -284,8 +283,8 @@ Merge
                  " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
             ++numDeflated;
-            ++deflationInfo.numDeflations;
-            ++deflationInfo.numSmallUpdateDeflations;
+            ++secularInfo.numDeflations;
+            ++secularInfo.numSmallUpdateDeflations;
         }
         else if( d(j) <= deflationTol )
         {
@@ -343,8 +342,8 @@ Merge
             columnTypes(j) = DEFLATED_COLUMN;
 
             ++numDeflated;
-            ++deflationInfo.numDeflations;
-            ++deflationInfo.numCloseDiagonalDeflations;
+            ++secularInfo.numDeflations;
+            ++secularInfo.numCloseDiagonalDeflations;
         }
         else
         {
@@ -369,8 +368,8 @@ Merge
                  " because |r(",j,")|=|",r(j),"| <= ",deflationTol);
             columnTypes(j) = DEFLATED_COLUMN;
             ++numDeflated;
-            ++deflationInfo.numDeflations;
-            ++deflationInfo.numSmallUpdateDeflations;
+            ++secularInfo.numDeflations;
+            ++secularInfo.numSmallUpdateDeflations;
         }
         else if( d(j)-d(revivalCandidate) <= deflationTol )
         {
@@ -440,8 +439,8 @@ Merge
 
             revivalCandidate = j;
             ++numDeflated;
-            ++deflationInfo.numDeflations;
-            ++deflationInfo.numCloseDiagonalDeflations;
+            ++secularInfo.numDeflations;
+            ++secularInfo.numCloseDiagonalDeflations;
         }
         else
         {
@@ -915,7 +914,6 @@ Merge
 
     DCInfo info;
     auto& secularInfo = info.secularInfo;
-    auto& deflationInfo = info.deflationInfo;
     // TODO(poulson): Switch to log files rather than Output due to the fact
     // that using a recursive process subdivision guarantees that the output
     // in a single stream would be garbled.
@@ -1152,8 +1150,8 @@ Merge
             ++numDeflated;
             if( amRoot )
             {
-                ++deflationInfo.numDeflations;
-                ++deflationInfo.numSmallUpdateDeflations;
+                ++secularInfo.numDeflations;
+                ++secularInfo.numSmallUpdateDeflations;
             }
         }
         else if( dLoc(j) <= deflationTol )
@@ -1209,8 +1207,8 @@ Merge
             ++numDeflated;
             if( amRoot )
             {
-                ++deflationInfo.numDeflations;
-                ++deflationInfo.numCloseDiagonalDeflations;
+                ++secularInfo.numDeflations;
+                ++secularInfo.numCloseDiagonalDeflations;
             }
         }
         else
@@ -1238,8 +1236,8 @@ Merge
             ++numDeflated;
             if( amRoot )
             {
-                ++deflationInfo.numDeflations;
-                ++deflationInfo.numSmallUpdateDeflations;
+                ++secularInfo.numDeflations;
+                ++secularInfo.numSmallUpdateDeflations;
             }
         }
         else if( dLoc(j)-dLoc(revivalCandidate) <= deflationTol )
@@ -1309,8 +1307,8 @@ Merge
             ++numDeflated;
             if( amRoot )
             {
-                ++deflationInfo.numDeflations;
-                ++deflationInfo.numCloseDiagonalDeflations;
+                ++secularInfo.numDeflations;
+                ++secularInfo.numCloseDiagonalDeflations;
             }
         }
         else
@@ -1734,7 +1732,6 @@ DivideAndConquer
 
     DCInfo info;
     auto& secularInfo = info.secularInfo;
-    auto& deflationInfo = info.deflationInfo;
 
     if( m <= Max(dcCtrl.cutoff,3) )
     {
@@ -1813,27 +1810,28 @@ DivideAndConquer
     info = Merge( m, n, alpha, beta, s0, s1, U, s, V, ctrl );
 
     secularInfo.numIterations += info0.secularInfo.numIterations;
-    secularInfo.numIterations += info1.secularInfo.numIterations;
     secularInfo.numAlternations += info0.secularInfo.numAlternations;
-    secularInfo.numAlternations += info1.secularInfo.numAlternations;
     secularInfo.numCubicIterations += info0.secularInfo.numCubicIterations;
-    secularInfo.numCubicIterations += info1.secularInfo.numCubicIterations;
     secularInfo.numCubicFailures += info0.secularInfo.numCubicFailures;
+    secularInfo.numDeflations += info0.secularInfo.numDeflations;
+    secularInfo.numSmallDiagonalDeflations +=
+      info0.secularInfo.numSmallDiagonalDeflations;
+    secularInfo.numCloseDiagonalDeflations +=
+      info0.secularInfo.numCloseDiagonalDeflations;
+    secularInfo.numSmallUpdateDeflations +=
+      info0.secularInfo.numSmallUpdateDeflations;
+
+    secularInfo.numIterations += info1.secularInfo.numIterations;
+    secularInfo.numAlternations += info1.secularInfo.numAlternations;
+    secularInfo.numCubicIterations += info1.secularInfo.numCubicIterations;
     secularInfo.numCubicFailures += info1.secularInfo.numCubicFailures;
-    deflationInfo.numDeflations += info0.deflationInfo.numDeflations;
-    deflationInfo.numDeflations += info1.deflationInfo.numDeflations;
-    deflationInfo.numSmallDiagonalDeflations +=
-      info0.deflationInfo.numSmallDiagonalDeflations;
-    deflationInfo.numSmallDiagonalDeflations +=
-      info1.deflationInfo.numSmallDiagonalDeflations;
-    deflationInfo.numCloseDiagonalDeflations +=
-      info0.deflationInfo.numCloseDiagonalDeflations;
-    deflationInfo.numCloseDiagonalDeflations +=
-      info1.deflationInfo.numCloseDiagonalDeflations;
-    deflationInfo.numSmallUpdateDeflations +=
-      info0.deflationInfo.numSmallUpdateDeflations;
-    deflationInfo.numSmallUpdateDeflations +=
-      info1.deflationInfo.numSmallUpdateDeflations;
+    secularInfo.numDeflations += info1.secularInfo.numDeflations;
+    secularInfo.numSmallDiagonalDeflations +=
+      info1.secularInfo.numSmallDiagonalDeflations;
+    secularInfo.numCloseDiagonalDeflations +=
+      info1.secularInfo.numCloseDiagonalDeflations;
+    secularInfo.numSmallUpdateDeflations +=
+      info1.secularInfo.numSmallUpdateDeflations;
 
     return info;
 }
@@ -1859,8 +1857,6 @@ DivideAndConquer
     const auto& dcCtrl = ctrl.dcCtrl;
 
     DCInfo info;
-    auto& secularInfo = info.secularInfo;
-    auto& deflationInfo = info.deflationInfo;
 
     if( m <= Max(dcCtrl.cutoff,3) )
     {
@@ -2032,6 +2028,7 @@ DivideAndConquer
     }
     info = Merge( m, n, alpha, beta, s0, s1, U, s, V, ctrl );
 
+    auto& secularInfo = info.secularInfo;
     if( s0Sub.Participating() )
     {
         secularInfo.numIterations += info0.secularInfo.numIterations;
@@ -2049,23 +2046,23 @@ DivideAndConquer
 
     if( leftGrid->Rank() == 0 )
     {
-        deflationInfo.numDeflations += info0.deflationInfo.numDeflations;
-        deflationInfo.numSmallDiagonalDeflations +=
-          info0.deflationInfo.numSmallDiagonalDeflations;
-        deflationInfo.numCloseDiagonalDeflations +=
-          info0.deflationInfo.numCloseDiagonalDeflations;
-        deflationInfo.numSmallUpdateDeflations +=
-          info0.deflationInfo.numSmallUpdateDeflations;
+        secularInfo.numDeflations += info0.secularInfo.numDeflations;
+        secularInfo.numSmallDiagonalDeflations +=
+          info0.secularInfo.numSmallDiagonalDeflations;
+        secularInfo.numCloseDiagonalDeflations +=
+          info0.secularInfo.numCloseDiagonalDeflations;
+        secularInfo.numSmallUpdateDeflations +=
+          info0.secularInfo.numSmallUpdateDeflations;
     }
     if( rightGrid->Rank() == 0 )
     {
-        deflationInfo.numDeflations += info1.deflationInfo.numDeflations;
-        deflationInfo.numSmallDiagonalDeflations +=
-          info1.deflationInfo.numSmallDiagonalDeflations;
-        deflationInfo.numCloseDiagonalDeflations +=
-          info1.deflationInfo.numCloseDiagonalDeflations;
-        deflationInfo.numSmallUpdateDeflations +=
-          info1.deflationInfo.numSmallUpdateDeflations;
+        secularInfo.numDeflations += info1.secularInfo.numDeflations;
+        secularInfo.numSmallDiagonalDeflations +=
+          info1.secularInfo.numSmallDiagonalDeflations;
+        secularInfo.numCloseDiagonalDeflations +=
+          info1.secularInfo.numCloseDiagonalDeflations;
+        secularInfo.numSmallUpdateDeflations +=
+          info1.secularInfo.numSmallUpdateDeflations;
     }
 
     if( topLevel )
@@ -2076,9 +2073,9 @@ DivideAndConquer
         counts(1) = secularInfo.numAlternations;
         counts(2) = secularInfo.numCubicIterations;
         counts(3) = secularInfo.numCubicFailures;
-        counts(4) = deflationInfo.numSmallDiagonalDeflations;
-        counts(5) = deflationInfo.numCloseDiagonalDeflations;
-        counts(6) = deflationInfo.numSmallUpdateDeflations;
+        counts(4) = secularInfo.numSmallDiagonalDeflations;
+        counts(5) = secularInfo.numCloseDiagonalDeflations;
+        counts(6) = secularInfo.numSmallUpdateDeflations;
 
         AllReduce( counts, grid.Comm() );
 
@@ -2086,10 +2083,10 @@ DivideAndConquer
         secularInfo.numAlternations = counts(1);
         secularInfo.numCubicIterations = counts(2);
         secularInfo.numCubicFailures = counts(3);
-        deflationInfo.numSmallDiagonalDeflations = counts(4);
-        deflationInfo.numCloseDiagonalDeflations = counts(5);
-        deflationInfo.numSmallUpdateDeflations = counts(6);
-        deflationInfo.numDeflations = counts(4) + counts(5) + counts(6);
+        secularInfo.numSmallDiagonalDeflations = counts(4);
+        secularInfo.numCloseDiagonalDeflations = counts(5);
+        secularInfo.numSmallUpdateDeflations = counts(6);
+        secularInfo.numDeflations = counts(4) + counts(5) + counts(6);
     }
 
     return info;

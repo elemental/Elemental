@@ -11,7 +11,7 @@ using namespace El;
 
 extern "C" {
 
-void EL_LAPACK(slasd4)
+void EL_LAPACK(slaed4)
 ( const BlasInt* n,
   const BlasInt* i,
   const float* d,
@@ -19,10 +19,9 @@ void EL_LAPACK(slasd4)
   float* dMinusShift,
   const float* rho,
   float* sigma,
-  float* dPlusShift,
   BlasInt* info );
 
-void EL_LAPACK(dlasd4)
+void EL_LAPACK(dlaed4)
 ( const BlasInt* n,
   const BlasInt* i,
   const double* d,
@@ -30,7 +29,6 @@ void EL_LAPACK(dlasd4)
   double* dMinusShift,
   const double* rho,
   double* sigma,
-  double* dPlusShift,
   BlasInt* info );
 
 } // extern "C"
@@ -45,24 +43,23 @@ void TestLAPACK
     typedef float Real;
     const Int n = d.Height();
     Timer timer;
-    Matrix<Real> w(n,1), dPlusShift(n,1), dMinusShift(n,1);
+    Matrix<Real> w(n,1), dMinusShift(n,1);
     BlasInt nBLAS = n;
     BlasInt info;
     timer.Start();
     for( Int i=0; i<n; ++i )
     {
-        Real sigma;
+        Real lambda;
         const BlasInt ip1 = i+1;
-        EL_LAPACK(slasd4)
+        EL_LAPACK(slaed4)
         ( &nBLAS, &ip1, d.LockedBuffer(), z.LockedBuffer(),
-          dMinusShift.Buffer(), &rho, &sigma,
-          dPlusShift.Buffer(), &info );
+          dMinusShift.Buffer(), &rho, &lambda, &info );
         if( info != 0 )
-            RuntimeError("LAPACK's slasd4 did not converge");
-        w(i) = sigma;
+            RuntimeError("LAPACK's slaed4 did not converge");
+        w(i) = lambda;
     }
     const Real lapackTime = timer.Stop(); 
-    Output("LAPACK secular singular value time: ",lapackTime," seconds");
+    Output("LAPACK secular eigenvalue time: ",lapackTime," seconds");
 }
 
 void TestLAPACK
@@ -71,42 +68,34 @@ void TestLAPACK
     typedef double Real;
     const Int n = d.Height();
     Timer timer;
-    Matrix<Real> w(n,1), dPlusShift(n,1), dMinusShift(n,1);
+    Matrix<Real> w(n,1), dMinusShift(n,1);
     BlasInt nBLAS = n;
     BlasInt info;
     timer.Start();
     for( Int i=0; i<n; ++i )
     {
-        Real sigma;
+        Real lambda;
         const BlasInt ip1 = i+1;
-        EL_LAPACK(dlasd4)
+        EL_LAPACK(dlaed4)
         ( &nBLAS, &ip1, d.LockedBuffer(), z.LockedBuffer(),
-          dMinusShift.Buffer(), &rho, &sigma,
-          dPlusShift.Buffer(), &info );
+          dMinusShift.Buffer(), &rho, &lambda, &info );
         if( info != 0 )
-            RuntimeError("LAPACK's dlasd4 did not converge");
-        w(i) = sigma;
+            RuntimeError("LAPACK's dlaed4 did not converge");
+        w(i) = lambda;
     }
     const Real lapackTime = timer.Stop(); 
-    Output("LAPACK secular singular value time: ",lapackTime," seconds");
+    Output("LAPACK secular eigenvalue time: ",lapackTime," seconds");
 }
 
 template<typename Real>
 void GenerateData
 ( Int n, Matrix<Real>& d, Real& rho, Matrix<Real>& z, bool print )
 {
-    // Implicitly form a matrix
+    // Implicitly form a matrix d + rho z z^T, with
+    // d(0) <= d(1) <= d(2) <= ... <= d(n-1) and || z ||_2 = 1.
     //
-    //   M = | sqrt(rho)*z(0), sqrt(rho)*z(1), ..., sqrt(rho)*z(n-1) |
-    //       |                      d(1),                            |
-    //       |                                 .                     |
-    //       |                                                d(n-1) |
-    //
-    // where 0 = d(0) <= d(1) <= d(2) <= ... <= d(n-1) and || z ||_2 =1.
-    //
-    Uniform( d, n, 1, Real(2), Real(2) );
+    Uniform( d, n, 1, Real(0), Real(2) );
     Sort( d );
-    d(0) = 0;
     Gaussian( z, n, 1 );
     z *= Real(1) / FrobeniusNorm( z );
     rho = SampleUniform( Real(1), Real(1)/Real(2) );
@@ -135,7 +124,7 @@ void TestSecularHelper
 
     Timer timer;
 
-    SecularSVDCtrl<Real> ctrl;
+    SecularEVDCtrl<Real> ctrl;
     ctrl.maxIterations = maxIter;
     ctrl.negativeFix = negativeFix;
     ctrl.penalizeDerivative = penalizeDerivative;
@@ -143,15 +132,14 @@ void TestSecularHelper
     ctrl.cubicCtrl.maxIterations = maxCubicIter;
     ctrl.cubicCtrl.negativeFix = negativeFix;
 
-    Matrix<Real> s(n,1), wSecular(n,1);
+    Matrix<Real> w(n,1);
     Int measMinIter=1e9, measMaxIter=0, measTotalIter=0,
         measMinCubicIter=1e9, measMaxCubicIter=0, measTotalCubicIter=0,
         measMinCubicFails=1e9, measMaxCubicFails=0, measTotalCubicFails=0;
     timer.Start();
     for( Int i=0; i<n; ++i )
     {
-        auto info = SecularSingularValue( i, d, rho, z, s(i), ctrl );
-        wSecular(i) = s(i) * s(i);
+        auto info = SecularEigenvalue( i, d, rho, z, w(i), ctrl );
 
         measMinIter = Min( measMinIter, info.numIterations );
         measMaxIter = Max( measMaxIter, info.numIterations );
@@ -178,68 +166,58 @@ void TestSecularHelper
      measMinCubicFails,"/",measMaxCubicFails,"/",measTotalCubicFails);
     Output("");
 
-    // Now compute the singular values and vectors. We recompute the singular
-    // values to avoid interfering with the timing experiment above.
-    Matrix<Real> U, V;
+    // Now compute the eigenvalues and vectors. We recompute the eigenvalues
+    // to avoid interfering with the timing experiment above.
+    Matrix<Real> Q;
     timer.Start();
-    SecularSVD( d, rho, z, U, s, V, ctrl );
-    const double secularSVDTime = timer.Stop();
-    Output("Secular SVD: ",secularSVDTime," seconds");
+    SecularEVD( d, rho, z, w, Q, ctrl );
+    const double secularEVDTime = timer.Stop();
+    Output("Secular EVD: ",secularEVDTime," seconds");
     if( print )
     {
-        Print( U, "U" );
-        Print( s, "s" );
-        Print( V, "V" );
+        Print( w, "w" );
+        Print( Q, "Q" );
     }
 
-    // Explicitly form the matrix M
+    // Explicitly form the matrix M = diag(d) + rho z z^T
     Matrix<Real> M;
-    Zeros( M, n, n );
-    for( Int j=0; j<n; ++j )
-        M(0,j) = z(j)*Sqrt(rho);
-    for( Int j=1; j<n; ++j )
-        M(j,j) = d(j);
+    Diagonal( M, d );
+    Geru( rho, z, z, M );
     const Real MFrob = FrobeniusNorm( M );
     Output("|| M ||_F = ",MFrob);
     if( print )
         Print( M, "M" );
 
-    // Test the Singular Value Decomposition of M
-    Matrix<Real> UScaled( U );
-    DiagonalScale( RIGHT, NORMAL, s, UScaled );
+    // Test the EigenValue Decomposition of M
+    Matrix<Real> QScaled( Q );
+    DiagonalScale( RIGHT, NORMAL, w, QScaled );
     Matrix<Real> E( M );
-    Gemm( NORMAL, ADJOINT, Real(-1), UScaled, V, Real(1), E );
+    Gemm( NORMAL, ADJOINT, Real(-1), QScaled, Q, Real(1), E );
     const Real EFrob = FrobeniusNorm( E );
-    Output("|| M - U diag(s) V' ||_F = ",EFrob);
+    Output("|| M - Q diag(w) Q' ||_F = ",EFrob);
 
-    // Test the orthonormality of U and V
+    // Test the orthonormality of Q
     Identity( E, n, n );
-    Gemm( NORMAL, ADJOINT, Real(-1), U, U, Real(1), E );
-    const Real UOrthError = FrobeniusNorm( E );
-    Output("|| I - U U' ||_F = ",UOrthError);
-    Identity( E, n, n );
-    Gemm( NORMAL, ADJOINT, Real(-1), V, V, Real(1), E );
-    const Real VOrthError = FrobeniusNorm( E );
-    Output("|| I - V V' ||_F = ",VOrthError);
+    Gemm( NORMAL, ADJOINT, Real(-1), Q, Q, Real(1), E );
+    const Real QOrthError = FrobeniusNorm( E );
+    Output("|| I - Q Q' ||_F = ",QOrthError);
 
     if( testFull )
     {
-        Matrix<Real> A, w, Q;
-        Matrix<Real> dSquared;
-        Hadamard( d, d, dSquared );
-        Diagonal( A, dSquared );
+        Matrix<Real> A, wFull, QFull;
+        Diagonal( A, d );
         Syrk( LOWER, NORMAL, rho, z, Real(1), A );
         timer.Start();
-        HermitianEig( LOWER, A, w, Q );
+        HermitianEig( LOWER, A, wFull, QFull );
         const Real fullTime = timer.Stop();
         Output("Full Hermitian: ",fullTime," seconds");
         if( print )
-            Print( w, "w" );
+            Print( wFull, "wFull" );
 
-        auto wDiff( w );
-        wDiff -= wSecular;
+        auto wDiff( wFull );
+        wDiff -= w;
         const Real diffNorm = FrobeniusNorm( wDiff );
-        Output("|| w - wSecular ||_F = ", diffNorm);
+        Output("|| wFull - w ||_F = ", diffNorm);
         Output("");
     }
 }
@@ -304,7 +282,7 @@ int main( int argc, char* argv[] )
         const Int maxCubicIter = Input("--maxCubicIter","max cubic iter's",40);
         const bool clip = Input("--clip","clip negative?",true);
         const bool penalizeDerivative =
-          Input("--penalizeDerivative","penalize derivative?",false);
+          Input("--penalizeDerivative","penalize derivative?",true);
         const bool progress = Input("--progress","print progress?",false);
         const bool testFull = Input("--testFull","test full eigensolver?",true);
         const bool lapack =

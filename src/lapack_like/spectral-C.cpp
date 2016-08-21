@@ -149,23 +149,25 @@ ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl )
 }
 
 /* Secular SVD */
-ElError ElSecularSingularValueCtrlDefault_s
-( ElSecularSingularValueCtrl_s* ctrl )
+ElError ElSecularSVDCtrlDefault_s
+( ElSecularSVDCtrl_s* ctrl )
 {
     ctrl->maxIterations = 400;
     ctrl->sufficientDecay = float(1)/float(10);
     ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->penalizeDerivative = false;
     ctrl->progress = false;
     ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
     return EL_SUCCESS;
 }
 
-ElError ElSecularSingularValueCtrlDefault_d
-( ElSecularSingularValueCtrl_d* ctrl )
+ElError ElSecularSVDCtrlDefault_d
+( ElSecularSVDCtrl_d* ctrl )
 {
     ctrl->maxIterations = 400;
     ctrl->sufficientDecay = double(1)/double(10);
     ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->penalizeDerivative = false;
     ctrl->progress = false;
     ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
     return EL_SUCCESS;
@@ -184,7 +186,7 @@ ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl )
 
 ElError ElBidiagSVDDCCtrlDefault_s( ElBidiagSVDDCCtrl_s* ctrl )
 {
-    ElSecularSingularValueCtrlDefault_s( &ctrl->secularCtrl );
+    ElSecularSVDCtrlDefault_s( &ctrl->secularCtrl );
     ctrl->deflationFudge = float(8);
     ctrl->cutoff = 60;
     ctrl->exploitStructure = true;
@@ -192,7 +194,7 @@ ElError ElBidiagSVDDCCtrlDefault_s( ElBidiagSVDDCCtrl_s* ctrl )
 }
 ElError ElBidiagSVDDCCtrlDefault_d( ElBidiagSVDDCCtrl_d* ctrl )
 {
-    ElSecularSingularValueCtrlDefault_d( &ctrl->secularCtrl );
+    ElSecularSVDCtrlDefault_d( &ctrl->secularCtrl );
     ctrl->deflationFudge = double(8);
     ctrl->cutoff = 60;
     ctrl->exploitStructure = true;

@@ -105,11 +105,10 @@ SVDInfo GolubReinsch
     auto offDiag = GetRealPartOfDiagonal(A,offdiagonal);
 
     // Run the bidiagonal SVD
-    auto bidiagSVDCtrlMod = ctrl.bidiagSVDCtrl;
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
     info.bidiagSVDInfo =
-      BidiagSVD( uplo, mainDiag, offDiag, U, s, V, bidiagSVDCtrlMod );
+      BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
     if( ctrl.time )
     {
         mpi::Barrier( g.Comm() );

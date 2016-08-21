@@ -653,24 +653,26 @@ typedef struct {
   ElInt maxIterations;
   float sufficientDecay;
   ElFlipOrClip negativeFix;
+  bool penalizeDerivative;
   bool progress;
   ElCubicSecularCtrl cubicCtrl;
-} ElSecularSingularValueCtrl_s;
-EL_EXPORT ElError ElSecularSingularValueCtrlDefault_s
-( ElSecularSingularValueCtrl_s* ctrl );
+} ElSecularSVDCtrl_s;
+EL_EXPORT ElError ElSecularSVDCtrlDefault_s
+( ElSecularSVDCtrl_s* ctrl );
 
 typedef struct {
   ElInt maxIterations;
   double sufficientDecay;
   ElFlipOrClip negativeFix;
+  bool penalizeDerivative;
   bool progress;
   ElCubicSecularCtrl cubicCtrl;
-} ElSecularSingularValueCtrl_d;
-EL_EXPORT ElError ElSecularSingularValueCtrlDefault_d
-( ElSecularSingularValueCtrl_d* ctrl );
+} ElSecularSVDCtrl_d;
+EL_EXPORT ElError ElSecularSVDCtrlDefault_d
+( ElSecularSVDCtrl_d* ctrl );
 
 typedef struct {
-  ElSecularSingularValueCtrl_s secularCtrl;
+  ElSecularSVDCtrl_s secularCtrl;
   float deflationFudge;
   ElInt cutoff;
   bool exploitStructure;
@@ -678,7 +680,7 @@ typedef struct {
 EL_EXPORT ElError ElBidiagSVDDCCtrlDefault_s( ElBidiagSVDDCCtrl_s* ctrl );
 
 typedef struct {
-  ElSecularSingularValueCtrl_d secularCtrl;
+  ElSecularSVDCtrl_d secularCtrl;
   double deflationFudge;
   ElInt cutoff;
   bool exploitStructure;

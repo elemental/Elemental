@@ -93,6 +93,9 @@ void TestDivideAndConquer
     Output("Testing DivideAndConquer(",cutoff,") with ",TypeName<F>());
     typedef Base<F> Real;
 
+    // TODO(poulson): Make this configurable
+    const bool penalizeDerivative = false;
+
     BidiagSVDCtrl<Real> ctrl;
     ctrl.wantU = wantU;
     ctrl.wantV = wantV;
@@ -101,6 +104,7 @@ void TestDivideAndConquer
     ctrl.dcCtrl.cutoff = cutoff;
     ctrl.dcCtrl.secularCtrl.maxIterations = maxIter;
     ctrl.dcCtrl.secularCtrl.negativeFix = negativeFix;
+    ctrl.dcCtrl.secularCtrl.penalizeDerivative = penalizeDerivative;
     ctrl.dcCtrl.secularCtrl.progress = progress;
     ctrl.dcCtrl.secularCtrl.cubicCtrl.maxIterations = maxCubicIter;
     ctrl.dcCtrl.secularCtrl.cubicCtrl.negativeFix = negativeFix;
@@ -126,12 +130,11 @@ void TestDivideAndConquer
     auto info = BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl );
     const auto& dcInfo = info.dcInfo;
     const auto& secularInfo = dcInfo.secularInfo;
-    const auto& deflationInfo = dcInfo.deflationInfo;
     Output("Bidiag D&C: ",timer.Stop()," seconds");
-    Output("  num deflations: ",deflationInfo.numDeflations);
-    Output("    small diagonal: ",deflationInfo.numSmallDiagonalDeflations);
-    Output("    close diagonal: ",deflationInfo.numCloseDiagonalDeflations); 
-    Output("    small update:   ",deflationInfo.numSmallUpdateDeflations);
+    Output("  num deflations: ",secularInfo.numDeflations);
+    Output("    small diagonal: ",secularInfo.numSmallDiagonalDeflations);
+    Output("    close diagonal: ",secularInfo.numCloseDiagonalDeflations); 
+    Output("    small update:   ",secularInfo.numSmallUpdateDeflations);
     Output("  num secular iterations: ",secularInfo.numIterations);
     Output("  num secular alternations: ",secularInfo.numAlternations);
     Output("  num secular cubic iter's: ",secularInfo.numCubicIterations);

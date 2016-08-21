@@ -20,6 +20,7 @@ void TestSequentialSVD
   bool wantU,
   bool wantV,
   bool useQR,
+  bool penalizeDerivative,
   Int divideCutoff,
   bool print )
 {
@@ -47,6 +48,9 @@ void TestSequentialSVD
     ctrl.bidiagSVDCtrl.tol = tol;
     ctrl.bidiagSVDCtrl.progress = progress;
     ctrl.bidiagSVDCtrl.dcCtrl.cutoff = divideCutoff;
+    ctrl.bidiagSVDCtrl.dcCtrl.secularCtrl.penalizeDerivative =
+      penalizeDerivative;
+    ctrl.bidiagSVDCtrl.dcCtrl.secularCtrl.progress = progress;
     ctrl.time = time;
 
     Matrix<Real> s;
@@ -80,14 +84,15 @@ void TestSequentialSVD
     }
     else
     {
-        const auto& deflationInfo = dcInfo.deflationInfo;
-        Output("  num D&C deflations: ",deflationInfo.numDeflations); 
-        Output
-        ("    small diagonal: ",deflationInfo.numSmallDiagonalDeflations);
-        Output
-        ("    close diagonal: ",deflationInfo.numCloseDiagonalDeflations);
-        Output
-        ("    small update;   ",deflationInfo.numSmallUpdateDeflations);
+        const auto& secularInfo = dcInfo.secularInfo;
+        Output("  num D&C deflations: ",secularInfo.numDeflations); 
+        Output("    small diagonal: ",secularInfo.numSmallDiagonalDeflations);
+        Output("    close diagonal: ",secularInfo.numCloseDiagonalDeflations);
+        Output("    small update;   ",secularInfo.numSmallUpdateDeflations);
+        Output("  num secular iterations: ",secularInfo.numIterations);
+        Output("  num secular alternations: ",secularInfo.numAlternations);
+        Output("  num secular cubic iter's: ",secularInfo.numCubicIterations);
+        Output("  num secular cubic failures: ",secularInfo.numCubicFailures);
     }
     if( print )
     {
@@ -156,6 +161,7 @@ void TestDistributedSVD
   bool wantU,
   bool wantV,
   bool useQR,
+  bool penalizeDerivative,
   Int divideCutoff,
   bool print )
 {
@@ -183,6 +189,11 @@ void TestDistributedSVD
     ctrl.bidiagSVDCtrl.tol = tol;
     ctrl.bidiagSVDCtrl.progress = progress;
     ctrl.bidiagSVDCtrl.dcCtrl.cutoff = divideCutoff;
+    ctrl.bidiagSVDCtrl.dcCtrl.secularCtrl.penalizeDerivative =
+      penalizeDerivative;
+    ctrl.bidiagSVDCtrl.dcCtrl.secularCtrl.progress = progress;
+    ctrl.time = time;
+
     ctrl.time = time;
     ctrl.useScaLAPACK = scalapack;
     if( commRank == 0 )
@@ -218,14 +229,22 @@ void TestDistributedSVD
         }
         else
         {
-            const auto& deflationInfo = dcInfo.deflationInfo;
-            Output("  num D&C deflations: ",deflationInfo.numDeflations); 
+            const auto& secularInfo = dcInfo.secularInfo;
+            Output("  num D&C deflations: ",secularInfo.numDeflations); 
             Output
-            ("    small diagonal: ",deflationInfo.numSmallDiagonalDeflations);
+            ("    small diagonal: ",secularInfo.numSmallDiagonalDeflations);
             Output
-            ("    close diagonal: ",deflationInfo.numCloseDiagonalDeflations);
+            ("    close diagonal: ",secularInfo.numCloseDiagonalDeflations);
             Output
-            ("    small update;   ",deflationInfo.numSmallUpdateDeflations);
+            ("    small update;   ",secularInfo.numSmallUpdateDeflations);
+            Output
+            ("  num secular iterations: ",secularInfo.numIterations);
+            Output
+            ("  num secular alternations: ",secularInfo.numAlternations);
+            Output
+            ("  num secular cubic iter's: ",secularInfo.numCubicIterations);
+            Output
+            ("  num secular cubic failures: ",secularInfo.numCubicFailures);
         }
     }
     if( print )
@@ -308,6 +327,7 @@ void TestSVD
   bool wantU,
   bool wantV,
   bool useQR,
+  bool penalizeDerivative,
   Int divideCutoff,
   bool print )
 {
@@ -316,13 +336,13 @@ void TestSVD
     {
         TestSequentialSVD<F>
         ( m, n, rank, approach, tolType, tol, time, progress, wantU, wantV,
-          useQR, divideCutoff, print );
+          useQR, penalizeDerivative, divideCutoff, print );
     }
     if( testDist )
     {
         TestDistributedSVD<F> 
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          wantU, wantV, useQR, divideCutoff, print );
+          wantU, wantV, useQR, penalizeDerivative, divideCutoff, print );
     }
 }
 
@@ -339,7 +359,7 @@ main( int argc, char* argv[] )
         const Int blocksize = Input("--blocksize","algorithmic blocksize",32);
         const Int approachInt = Input("--approach","SVD approach",0);
 #ifdef EL_HAVE_SCALAPACK
-        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
+        const bool scalapack = Input("--scalapack","test ScaLAPACK?",false);
         const Int mb = Input("--mb","block height",32);
         const Int nb = Input("--nb","block width",32);
 #else
@@ -357,6 +377,9 @@ main( int argc, char* argv[] )
         const bool wantU = Input("--wantU","compute U?",true);
         const bool wantV = Input("--wantV","compute V?",true);
         const bool useQR = Input("--useQR","force use of QR algorithm?",false);
+        const bool penalizeDerivative =
+          Input
+          ("--penalizeDerivative","penalize secular derivative in D&C?",false);
         const Int divideCutoff = Input("--divideCutoff","D&C cutoff?",60);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -381,50 +404,62 @@ main( int argc, char* argv[] )
 
         TestSVD<float>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
         TestSVD<Complex<float>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
 
         TestSVD<double>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
         TestSVD<Complex<double>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
 
 #ifdef EL_HAVE_QD
         TestSVD<DoubleDouble>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
         TestSVD<Complex<DoubleDouble>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
 
         TestSVD<QuadDouble>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
         TestSVD<Complex<QuadDouble>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestSVD<Quad>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
         TestSVD<Complex<Quad>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestSVD<BigFloat>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
         TestSVD<Complex<BigFloat>>
         ( m, n, rank, approach, tolType, tol, time, progress, scalapack,
-          testSeq, testDist, wantU, wantV, useQR, divideCutoff, print );
+          testSeq, testDist, wantU, wantV, useQR, penalizeDerivative,
+          divideCutoff, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }
