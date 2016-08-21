@@ -684,26 +684,28 @@ class CubicSecularCtrl(ctypes.Structure):
   def __init__(self):
     lib.ElCubicSecularCtrlDefault(pointer(self))
 
-class SecularSingularValueCtrl_s(ctypes.Structure):
+class SecularSVDCtrl_s(ctypes.Structure):
   _fields_ = [("maxIterations",iType),
               ("sufficientDecay",sType),
               ("negativeFix",c_uint),
+              ("penalizeDerivative",bType),
               ("progress",bType),
               ("cubicCtrl",CubicSecularCtrl)]
   def __init__(self):
-    lib.ElSecularSingularValueCtrlDefault_s(pointer(self))
+    lib.ElSecularSVDCtrlDefault_s(pointer(self))
 
-class SecularSingularValueCtrl_d(ctypes.Structure):
+class SecularSVDCtrl_d(ctypes.Structure):
   _fields_ = [("maxIterations",iType),
               ("sufficientDecay",dType),
               ("negativeFix",c_uint),
+              ("penalizeDerivative",bType),
               ("progress",bType),
               ("cubicCtrl",CubicSecularCtrl)]
   def __init__(self):
-    lib.ElSecularSingularValueCtrlDefault_d(pointer(self))
+    lib.ElSecularSVDCtrlDefault_d(pointer(self))
 
 class BidiagSVDDCCtrl_s(ctypes.Structure):
-  _fields_ = [("secularCtrl",SecularSingularValueCtrl_s),
+  _fields_ = [("secularCtrl",SecularSVDCtrl_s),
               ("deflationFudge",sType),
               ("cutoff",iType),
               ("exploitStructure",bType)]
@@ -711,7 +713,7 @@ class BidiagSVDDCCtrl_s(ctypes.Structure):
     lib.ElBidiagSVDDCCtrlDefault_s(pointer(self))
 
 class BidiagSVDDCCtrl_d(ctypes.Structure):
-  _fields_ = [("secularCtrl",SecularSingularValueCtrl_d),
+  _fields_ = [("secularCtrl",SecularSVDCtrl_d),
               ("deflationFudge",dType),
               ("cutoff",iType),
               ("exploitStructure",bType)]
