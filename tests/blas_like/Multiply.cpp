@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2016, Ryan H. Lewis 
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -13,7 +13,7 @@
 using namespace El;
 
 template<typename T>
-void TestMultiply(Int m, Int n=100)
+void TestMultiply(Int m, Int n=1)
 {
     DEBUG_ONLY(CallStackEntry cse("TestMultiply"))
     SparseMatrix<T> A;
@@ -22,12 +22,12 @@ void TestMultiply(Int m, Int n=100)
     Bernoulli( B, m, n);
     auto G = A.Graph();
     Matrix<T> C(m,n),D(m,n);
-    Multiply(NORMAL, T(1.0), A, B, T(0.0), C);
-    Multiply(NORMAL, T(1.0), G, B, T(0.0), D);
-    Axpy(-1.0, C, D);
+    Multiply(NORMAL, T(1), A, B, T(0), C);
+    Multiply(NORMAL, T(1), G, B, T(0), D);
+    Axpy(T(-1), C, D);
     auto nrm = FrobeniusNorm(D);
     std::cout << "error = " << nrm << std::endl;
-    if( nrm > 1e-16){ throw std::runtime_error("Sparse(I)*x != Graph(I)*x"); }
+    if( nrm > limits::Epsilon<Real>()){ throw RuntimeError("Sparse(I)*x != Graph(I)*x"); }
 }
 
 void RunTests( Int m){
@@ -42,9 +42,9 @@ int main( int argc, char* argv[] )
     try
     {
 	Int m = 1;
-	for(int e = 1; e < 4; ++e){	
+	for( Int e = 1; e<4; ++e ){	
 		m *= 10;	
-		std::cout << " m = " << m << std::endl;
+		Output(" m = ",m,"\n");
 		RunTests( m);
 	}
     }
