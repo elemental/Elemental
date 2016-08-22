@@ -9,6 +9,7 @@
 #include <El.hpp>
 
 #include "./HermitianTridiagEig/QR.hpp"
+#include "./HermitianTridiagEig/DivideAndConquer.hpp"
 
 // NOTE: dSubReal and QReal could be packed into their complex counterparts
 
@@ -366,7 +367,7 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         // Only dSub needs to be modifiable
         auto dSubMod( dSub );
@@ -474,7 +475,7 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, wPre, ctrl );
     }
@@ -541,7 +542,7 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, wPre, ctrl );
     }
@@ -706,7 +707,7 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         // Only dSub needs to be modified
         auto dSubMod( dSub );
@@ -1046,7 +1047,7 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, Q, ctrl );
     }
@@ -1079,7 +1080,7 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, Q, ctrl );
     }

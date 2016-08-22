@@ -12,6 +12,64 @@ using namespace El;
 
 extern "C" {
 
+/* Cubic secular */
+ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl )
+{
+    ctrl->maxIterations = 40;
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    return EL_SUCCESS;
+}
+
+/* Secular EVD */
+ElError ElSecularEVDCtrlDefault_s
+( ElSecularEVDCtrl_s* ctrl )
+{
+    ctrl->maxIterations = 40;
+    ctrl->sufficientDecay = float(1)/float(10);
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->penalizeDerivative = false;
+    ctrl->progress = false;
+    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
+    return EL_SUCCESS;
+}
+
+ElError ElSecularEVDCtrlDefault_d
+( ElSecularEVDCtrl_d* ctrl )
+{
+    ctrl->maxIterations = 40;
+    ctrl->sufficientDecay = double(1)/double(10);
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->penalizeDerivative = false;
+    ctrl->progress = false;
+    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
+    return EL_SUCCESS;
+}
+
+/* Secular SVD */
+ElError ElSecularSVDCtrlDefault_s
+( ElSecularSVDCtrl_s* ctrl )
+{
+    ctrl->maxIterations = 400;
+    ctrl->sufficientDecay = float(1)/float(10);
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->penalizeDerivative = false;
+    ctrl->progress = false;
+    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
+    return EL_SUCCESS;
+}
+
+ElError ElSecularSVDCtrlDefault_d
+( ElSecularSVDCtrl_d* ctrl )
+{
+    ctrl->maxIterations = 400;
+    ctrl->sufficientDecay = double(1)/double(10);
+    ctrl->negativeFix = EL_CLIP_NEGATIVES;
+    ctrl->penalizeDerivative = false;
+    ctrl->progress = false;
+    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
+    return EL_SUCCESS;
+}
+
 /* HermitianEigSubset */
 ElError ElHermitianEigSubsetDefault_s( ElHermitianEigSubset_s* subset )
 {
@@ -43,6 +101,26 @@ ElError ElHermitianTridiagEigQRCtrlDefault( ElHermitianTridiagEigQRCtrl* ctrl )
     return EL_SUCCESS;
 }
 
+/* HermitianTridiagEigDCCtrl */
+ElError ElHermitianTridiagEigDCCtrlDefault_s
+( ElHermitianTridiagEigDCCtrl_s* ctrl )
+{
+    ElSecularEVDCtrlDefault_s( &ctrl->secularCtrl );
+    ctrl->deflationFudge = float(8);
+    ctrl->cutoff = 60;
+    ctrl->exploitStructure = true;
+    return EL_SUCCESS;
+}
+ElError ElHermitianTridiagEigDCCtrlDefault_d
+( ElHermitianTridiagEigDCCtrl_d* ctrl )
+{
+    ElSecularEVDCtrlDefault_d( &ctrl->secularCtrl );
+    ctrl->deflationFudge = double(8);
+    ctrl->cutoff = 60;
+    ctrl->exploitStructure = true;
+    return EL_SUCCESS;
+}
+
 /* HermitianTridiagEigCtrl */
 ElError ElHermitianTridiagEigCtrlDefault_s( ElHermitianTridiagEigCtrl_s* ctrl )
 {
@@ -51,8 +129,9 @@ ElError ElHermitianTridiagEigCtrlDefault_s( ElHermitianTridiagEigCtrl_s* ctrl )
     ctrl->sort = EL_ASCENDING;
     ElHermitianEigSubsetDefault_s( &ctrl->subset );
     ctrl->progress = false;
-    ctrl->useQR = false;
+    ctrl->alg = EL_HERM_TRIDIAG_EIG_MRRR;
     ElHermitianTridiagEigQRCtrlDefault( &ctrl->qrCtrl );
+    ElHermitianTridiagEigDCCtrlDefault_s( &ctrl->dcCtrl );
     return EL_SUCCESS;
 }
 
@@ -63,8 +142,9 @@ ElError ElHermitianTridiagEigCtrlDefault_d( ElHermitianTridiagEigCtrl_d* ctrl )
     ctrl->sort = EL_ASCENDING;
     ElHermitianEigSubsetDefault_d( &ctrl->subset );
     ctrl->progress = false;
-    ctrl->useQR = false;
+    ctrl->alg = EL_HERM_TRIDIAG_EIG_MRRR;
     ElHermitianTridiagEigQRCtrlDefault( &ctrl->qrCtrl );
+    ElHermitianTridiagEigDCCtrlDefault_d( &ctrl->dcCtrl );
     return EL_SUCCESS;
 }
 
@@ -137,39 +217,6 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
 {
     ctrl->qdwh = false;
     ElQDWHCtrlDefault( &ctrl->qdwhCtrl );
-    return EL_SUCCESS;
-}
-
-/* Cubic secular */
-ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl )
-{
-    ctrl->maxIterations = 40;
-    ctrl->negativeFix = EL_CLIP_NEGATIVES;
-    return EL_SUCCESS;
-}
-
-/* Secular SVD */
-ElError ElSecularSVDCtrlDefault_s
-( ElSecularSVDCtrl_s* ctrl )
-{
-    ctrl->maxIterations = 400;
-    ctrl->sufficientDecay = float(1)/float(10);
-    ctrl->negativeFix = EL_CLIP_NEGATIVES;
-    ctrl->penalizeDerivative = false;
-    ctrl->progress = false;
-    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
-    return EL_SUCCESS;
-}
-
-ElError ElSecularSVDCtrlDefault_d
-( ElSecularSVDCtrl_d* ctrl )
-{
-    ctrl->maxIterations = 400;
-    ctrl->sufficientDecay = double(1)/double(10);
-    ctrl->negativeFix = EL_CLIP_NEGATIVES;
-    ctrl->penalizeDerivative = false;
-    ctrl->progress = false;
-    ElCubicSecularCtrlDefault( &ctrl->cubicCtrl );
     return EL_SUCCESS;
 }
 

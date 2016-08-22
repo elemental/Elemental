@@ -12,7 +12,7 @@ using namespace El;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TestGraded
 ( bool progress,
-  bool useQR,
+  HermitianTridiagEigAlg alg,
   const herm_tridiag_eig::QRCtrl& qrCtrl,
   bool print )
 {
@@ -22,7 +22,7 @@ void TestGraded
 
     HermitianTridiagEigCtrl<Real> ctrl;
     ctrl.progress = progress;
-    ctrl.useQR = useQR;
+    ctrl.alg = alg;
     ctrl.qrCtrl = qrCtrl;
 
     Matrix<Real> d(n,1), e(n-1,1);
@@ -50,7 +50,7 @@ void TestGraded
     timer.Start();
     auto info = HermitianTridiagEig( d, e, w, Q, ctrl );
     Output("HermitianTridiagEig: ",timer.Stop()," seconds");
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
         Output
         ("Convergence achieved after ",info.qrInfo.numIterations," iterations");
     if( print )
@@ -86,7 +86,7 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TestRandom
 ( Int n,
   bool progress,
-  bool useQR,
+  HermitianTridiagEigAlg alg,
   const herm_tridiag_eig::QRCtrl& qrCtrl,
   bool print )
 {
@@ -95,7 +95,7 @@ void TestRandom
 
     HermitianTridiagEigCtrl<Real> ctrl;
     ctrl.progress = progress;
-    ctrl.useQR = useQR;
+    ctrl.alg = alg;
     ctrl.qrCtrl = qrCtrl;
 
     Matrix<Real> d, e;
@@ -116,7 +116,7 @@ void TestRandom
     timer.Start();
     auto info = HermitianTridiagEig( d, e, w, Q, ctrl );
     Output("HermitianTridiagEig: ",timer.Stop()," seconds");
-    if( ctrl.useQR )
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
         Output
         ("Convergence achieved after ",info.qrInfo.numIterations," iterations");
     if( print )
@@ -160,37 +160,38 @@ int main( int argc, char* argv[] )
           ("--fullAccuracyTwoByTwo?","full accuracy 2x2 eigenvalues?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
-        const bool useQR = Input("--useQR","use QR algorithm?",true);
+        const Int algInt = Input("--algInt","0: QR, 1: D&C, 2: MRRR",1);
         ProcessInput();
         PrintInputReport();
 
+        const auto alg = static_cast<HermitianTridiagEigAlg>(algInt);
         herm_tridiag_eig::QRCtrl qrCtrl;
         qrCtrl.fullAccuracyTwoByTwo = fullAccuracyTwoByTwo;
 
-        TestGraded<float>( progress, useQR, qrCtrl, print );
-        TestGraded<double>( progress, useQR, qrCtrl, print );
+        TestGraded<float>( progress, alg, qrCtrl, print );
+        TestGraded<double>( progress, alg, qrCtrl, print );
 #ifdef EL_HAVE_QUAD
-        TestGraded<Quad>( progress, useQR, qrCtrl, print );
+        TestGraded<Quad>( progress, alg, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestGraded<DoubleDouble>( progress, useQR, qrCtrl, print );
-        TestGraded<QuadDouble>( progress, useQR, qrCtrl, print );
+        TestGraded<DoubleDouble>( progress, alg, qrCtrl, print );
+        TestGraded<QuadDouble>( progress, alg, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestGraded<BigFloat>( progress, useQR, qrCtrl, print );
+        TestGraded<BigFloat>( progress, alg, qrCtrl, print );
 #endif
 
-        TestRandom<float>( n, progress, useQR, qrCtrl, print );
-        TestRandom<double>( n, progress, useQR, qrCtrl, print );
+        TestRandom<float>( n, progress, alg, qrCtrl, print );
+        TestRandom<double>( n, progress, alg, qrCtrl, print );
 #ifdef EL_HAVE_QUAD
-        TestRandom<Quad>( n, progress, useQR, qrCtrl, print );
+        TestRandom<Quad>( n, progress, alg, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestRandom<DoubleDouble>( n, progress, useQR, qrCtrl, print );
-        TestRandom<QuadDouble>( n, progress, useQR, qrCtrl, print );
+        TestRandom<DoubleDouble>( n, progress, alg, qrCtrl, print );
+        TestRandom<QuadDouble>( n, progress, alg, qrCtrl, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestRandom<BigFloat>( n, progress, useQR, qrCtrl, print );
+        TestRandom<BigFloat>( n, progress, alg, qrCtrl, print );
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }

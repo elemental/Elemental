@@ -1081,13 +1081,13 @@ HermitianEig
         herm_eig::SDC( uplo, A, w, Q, ctrl.sdcCtrl );
         herm_eig::SortAndFilter( w, Q, ctrl.tridiagEigCtrl );
     }
-    else if( ctrl.tridiagEigCtrl.useQR )
+    else if( ctrl.tridiagEigCtrl.alg == HERM_TRIDIAG_EIG_MRRR )
     {
-        info = herm_eig::BlackBox( uplo, A, w, Q, ctrl );
+        info = herm_eig::MRRR( uplo, A, w, Q, ctrl );
     }
     else
     {
-        info = herm_eig::MRRR( uplo, A, w, Q, ctrl );
+        info = herm_eig::BlackBox( uplo, A, w, Q, ctrl );
     }
 
     // Rescale the eigenvalues if necessary

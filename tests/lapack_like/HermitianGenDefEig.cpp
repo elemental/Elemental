@@ -457,7 +457,7 @@ void TestSuite
     ctrl.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv =
       ctrlDbl.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv;
     ctrl.tridiagEigCtrl.sort = ctrlDbl.tridiagEigCtrl.sort;
-    ctrl.tridiagEigCtrl.useQR = ctrlDbl.tridiagEigCtrl.useQR;
+    ctrl.tridiagEigCtrl.alg = ctrlDbl.tridiagEigCtrl.alg;
     ctrl.tridiagEigCtrl.subset = subset;
 
     if( sequential )
@@ -527,7 +527,7 @@ main( int argc, char* argv[] )
             Input("--avoidTrmv","avoid Trmv based Symv",true);
         const bool useScaLAPACK =
           Input("--useScaLAPACK","test ScaLAPACK?",false);
-        const bool useQR = Input("--useQR","use QR algorithm?",false);
+        const Int algInt = Input("--algInt","0: QR, 1: D&C, 2: MRRR",1); 
         const bool sequential =
           Input("--sequential","test sequential?",true);
         const bool distributed =
@@ -546,6 +546,7 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, r, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        const auto alg = static_cast<HermitianTridiagEigAlg>(algInt);
         SetBlocksize( nb );
         if( range != 'A' && range != 'I' && range != 'V' )
             throw runtime_error("'range' must be 'A', 'I', or 'V'");
@@ -599,7 +600,7 @@ main( int argc, char* argv[] )
         ctrl.tridiagCtrl.symvCtrl.bsize = nbLocal;
         ctrl.tridiagCtrl.symvCtrl.avoidTrmvBasedLocalSymv = avoidTrmv;
         ctrl.tridiagEigCtrl.sort = sort;
-        ctrl.tridiagEigCtrl.useQR = useQR;
+        ctrl.tridiagEigCtrl.alg = alg;
         ctrl.tridiagEigCtrl.subset = subset;
 
         if( testReal )

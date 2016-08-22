@@ -263,13 +263,14 @@ Merge
     rUndeflated(0) = r(0);
 
     // Deflate all (off-diagonal) update entries sufficiently close to zero
+    // and sufficiently small diagonal entries.
     Int numDeflated = 0;
     Int numUndeflated = 1; // We do not deflate the first index
     // We will keep track of the last column that we encountered that was not
     // initially deflatable (but that could be deflated later due to close
     // diagonal entries if another undeflatable column is not encountered
     // first).
-    Int revivalCandidate = 0;
+    Int revivalCandidate = m;
     for( Int j=1; j<m; ++j )
     {
         if( Abs(r(j)) <= deflationTol )
@@ -285,8 +286,9 @@ Merge
             ++numDeflated;
             ++secularInfo.numDeflations;
             ++secularInfo.numSmallUpdateDeflations;
+            continue;
         }
-        else if( d(j) <= deflationTol )
+        if( d(j) <= deflationTol )
         {
             // We can deflate due to d(0)=0 being close to d(j). We rotate r(j)
             // into r(0) (Cf. the discussion surrounding Eq. (4.3) of 
@@ -344,18 +346,16 @@ Merge
             ++numDeflated;
             ++secularInfo.numDeflations;
             ++secularInfo.numCloseDiagonalDeflations;
+            continue;
         }
-        else
-        {
-            revivalCandidate = j;
-            if( ctrl.progress )
-                Output("Breaking initial deflation loop at j=",j);
-            break;
-        }
+
+        revivalCandidate = j;
+        if( ctrl.progress )
+            Output("Breaking initial deflation loop at j=",j);
+        break;
     }
     // If we already fully deflated, then the following loop should be trivial
-    const Int deflationRestart =
-      ( revivalCandidate==0 ? m : revivalCandidate+1 );
+    const Int deflationRestart = revivalCandidate+1;
     for( Int j=deflationRestart; j<m; ++j )
     {
         if( Abs(r(j)) <= deflationTol )
@@ -370,8 +370,9 @@ Merge
             ++numDeflated;
             ++secularInfo.numDeflations;
             ++secularInfo.numSmallUpdateDeflations;
+            continue;
         }
-        else if( d(j)-d(revivalCandidate) <= deflationTol )
+        if( d(j)-d(revivalCandidate) <= deflationTol )
         {
             // Deflate the previously undeflatable index by rotating
             // r(revivalCandidate) into r(j) (Cf. the discussion
@@ -390,9 +391,11 @@ Merge
             //
             // implies
             //
-            //   |  c,  s | |        r(j)         | = | gamma |,
+            //   |  c,  s | |        r(j)         | = | gamma |.
             //   | -s,  c | | r(revivalCandidate) |   |   0   |
             //
+            // TODO(poulson): Switch to the more stringent deflation criterion
+            // used for the symmetric tridiagonal D&C.
             const Real f = r(j);
             const Real g = r(revivalCandidate);
             const Real gamma = SafeNorm( f, g );
@@ -441,35 +444,32 @@ Merge
             ++numDeflated;
             ++secularInfo.numDeflations;
             ++secularInfo.numCloseDiagonalDeflations;
-        }
-        else
-        {
-            // We cannot yet deflate index j, so we must give up on the previous
-            // revival candidate and then set revivalCandidate = j.
-            dUndeflated(numUndeflated) = d(revivalCandidate);
-            rUndeflated(numUndeflated) = r(revivalCandidate);
-            deflationPerm.SetImage( revivalCandidate, numUndeflated );
-            if( ctrl.progress )
-                Output
-                ("Could not deflate with j=",j," and revivalCandidate=",
-                 revivalCandidate,", so p(",revivalCandidate,")=",
-                 numUndeflated);
-            ++numUndeflated;
-
-            revivalCandidate = j;
+            continue;
         }
 
-        if( j == m-1 )
-        {
-            // This is the last iteration, so give up on the revival candidate
-            dUndeflated(numUndeflated) = d(revivalCandidate);
-            rUndeflated(numUndeflated) = r(revivalCandidate);
-            deflationPerm.SetImage( revivalCandidate, numUndeflated );
-            if( ctrl.progress )
-                Output
-                ("Final iteration, so p(",revivalCandidate,")=",numUndeflated);
-            ++numUndeflated;
-        }
+        // We cannot yet deflate index j, so we must give up on the previous
+        // revival candidate and then set revivalCandidate = j.
+        dUndeflated(numUndeflated) = d(revivalCandidate);
+        rUndeflated(numUndeflated) = r(revivalCandidate);
+        deflationPerm.SetImage( revivalCandidate, numUndeflated );
+        if( ctrl.progress )
+            Output
+            ("Could not deflate with j=",j," and revivalCandidate=",
+             revivalCandidate,", so p(",revivalCandidate,")=",
+             numUndeflated);
+        ++numUndeflated;
+        revivalCandidate = j;
+    }
+    if( revivalCandidate < m )
+    {
+        // Give up on the revival candidate
+        dUndeflated(numUndeflated) = d(revivalCandidate);
+        rUndeflated(numUndeflated) = r(revivalCandidate);
+        deflationPerm.SetImage( revivalCandidate, numUndeflated );
+        if( ctrl.progress )
+            Output
+            ("Final iteration, so p(",revivalCandidate,")=",numUndeflated);
+        ++numUndeflated;
     }
     // Now shrink dUndeflated and rUndeflated down to their proper size
     dUndeflated.Resize( numUndeflated, 1 );
@@ -788,7 +788,7 @@ Merge
     //
     // Conformally partitioning Q, we have
     //
-    //   Z Q = Z_{:,2} Q2 + | Z_{0,0} Q_0 |,
+    //   Z Q = Z_{:,2} Q2 + | Z_{0,0} Q_0 |.
     //                      |-------------|
     //                      | Z_{1,1} Q_1 |
     //
@@ -1128,13 +1128,14 @@ Merge
     rUndeflated(0) = r(0);
 
     // Deflate all (off-diagonal) update entries sufficiently close to zero
+    // and sufficiently small diagonal entries.
     Int numDeflated = 0;
     Int numUndeflated = 1; // We do not deflate the first index
     // We will keep track of the last column that we encountered that was not
     // initially deflatable (but that could be deflated later due to close
     // diagonal entries if another undeflatable column is not encountered
     // first).
-    Int revivalCandidate = 0;
+    Int revivalCandidate = m;
     for( Int j=1; j<m; ++j )
     {
         if( Abs(r(j)) <= deflationTol )
@@ -1153,8 +1154,9 @@ Merge
                 ++secularInfo.numDeflations;
                 ++secularInfo.numSmallUpdateDeflations;
             }
+            continue;
         }
-        else if( dLoc(j) <= deflationTol )
+        if( dLoc(j) <= deflationTol )
         {
             // We can deflate due to d(0)=0 being close to d(j). We rotate r(j)
             // into r(0) (Cf. the discussion surrounding Eq. (4.3) of 
@@ -1210,18 +1212,16 @@ Merge
                 ++secularInfo.numDeflations;
                 ++secularInfo.numCloseDiagonalDeflations;
             }
+            continue;
         }
-        else
-        {
-            revivalCandidate = j;
-            if( ctrl.progress && amRoot )
-                Output("Breaking initial deflation loop at j=",j);
-            break;
-        }
+
+        revivalCandidate = j;
+        if( ctrl.progress && amRoot )
+            Output("Breaking initial deflation loop at j=",j);
+        break;
     }
     // If we already fully deflated, then the following loop should be trivial
-    const Int deflationRestart =
-      ( revivalCandidate==0 ? m : revivalCandidate+1 );
+    const Int deflationRestart = revivalCandidate+1;
     for( Int j=deflationRestart; j<m; ++j )
     {
         if( Abs(r(j)) <= deflationTol )
@@ -1239,8 +1239,9 @@ Merge
                 ++secularInfo.numDeflations;
                 ++secularInfo.numSmallUpdateDeflations;
             }
+            continue;
         }
-        else if( dLoc(j)-dLoc(revivalCandidate) <= deflationTol )
+        if( dLoc(j)-dLoc(revivalCandidate) <= deflationTol )
         {
             // Deflate the previously undeflatable index by rotating
             // r(revivalCandidate) into r(j) (Cf. the discussion
@@ -1259,9 +1260,11 @@ Merge
             //
             // implies
             //
-            //   |  c,  s | |        r(j)         | = | gamma |,
+            //   |  c,  s | |        r(j)         | = | gamma |.
             //   | -s,  c | | r(revivalCandidate) |   |   0   |
             //
+            // TODO(poulson): Switch to the more stringent deflation criterion
+            // used for the symmetric tridiagonal D&C.
             const Real f = r(j);
             const Real g = r(revivalCandidate);
             const Real gamma = SafeNorm( f, g );
@@ -1310,35 +1313,32 @@ Merge
                 ++secularInfo.numDeflations;
                 ++secularInfo.numCloseDiagonalDeflations;
             }
-        }
-        else
-        {
-            // We cannot yet deflate index j, so we must give up on the previous
-            // revival candidate and then set revivalCandidate = j.
-            dUndeflated(numUndeflated) = dLoc(revivalCandidate);
-            rUndeflated(numUndeflated) = r(revivalCandidate);
-            deflationPerm.SetImage( revivalCandidate, numUndeflated );
-            if( ctrl.progress && amRoot )
-                Output
-                ("Could not deflate with j=",j," and revivalCandidate=",
-                 revivalCandidate,", so p(",revivalCandidate,")=",
-                 numUndeflated);
-            ++numUndeflated;
-
-            revivalCandidate = j;
+            continue;
         }
 
-        if( j == m-1 )
-        {
-            // This is the last iteration, so give up on the revival candidate
-            dUndeflated(numUndeflated) = dLoc(revivalCandidate);
-            rUndeflated(numUndeflated) = r(revivalCandidate);
-            deflationPerm.SetImage( revivalCandidate, numUndeflated );
-            if( ctrl.progress && amRoot )
-                Output
-                ("Final iteration, so p(",revivalCandidate,")=",numUndeflated);
-            ++numUndeflated;
-        }
+        // We cannot yet deflate index j, so we must give up on the previous
+        // revival candidate and then set revivalCandidate = j.
+        dUndeflated(numUndeflated) = dLoc(revivalCandidate);
+        rUndeflated(numUndeflated) = r(revivalCandidate);
+        deflationPerm.SetImage( revivalCandidate, numUndeflated );
+        if( ctrl.progress && amRoot )
+            Output
+            ("Could not deflate with j=",j," and revivalCandidate=",
+             revivalCandidate,", so p(",revivalCandidate,")=",
+             numUndeflated);
+        ++numUndeflated;
+        revivalCandidate = j;
+    }
+    if( revivalCandidate < m )
+    {
+        // Give up on the revival candidate
+        dUndeflated(numUndeflated) = dLoc(revivalCandidate);
+        rUndeflated(numUndeflated) = r(revivalCandidate);
+        deflationPerm.SetImage( revivalCandidate, numUndeflated );
+        if( ctrl.progress && amRoot )
+            Output
+            ("Final iteration, so p(",revivalCandidate,")=",numUndeflated);
+        ++numUndeflated;
     }
     // Now shrink dUndeflated and rUndeflated down to their proper size
     dUndeflated.Resize( numUndeflated, 1 );
@@ -1651,7 +1651,7 @@ Merge
     //
     // Conformally partitioning Q, we have
     //
-    //   Z Q = Z_{:,2} Q2 + | Z_{0,0} Q_0 |,
+    //   Z Q = Z_{:,2} Q2 + | Z_{0,0} Q_0 |.
     //                      |-------------|
     //                      | Z_{1,1} Q_1 |
     //

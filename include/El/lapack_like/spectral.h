@@ -16,8 +16,75 @@
 extern "C" {
 #endif
 
+// Cubic secular
+// =============
+typedef enum {
+  EL_FLIP_NEGATIVES,
+  EL_CLIP_NEGATIVES
+} ElFlipOrClip;
+
+typedef struct {
+  ElInt maxIterations;
+  ElFlipOrClip negativeFix;
+} ElCubicSecularCtrl;
+EL_EXPORT ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl );
+
+// Secular EVD
+// ===========
+typedef struct {
+  ElInt maxIterations;
+  float sufficientDecay;
+  ElFlipOrClip negativeFix;
+  bool penalizeDerivative;
+  bool progress;
+  ElCubicSecularCtrl cubicCtrl;
+} ElSecularEVDCtrl_s;
+EL_EXPORT ElError ElSecularEVDCtrlDefault_s
+( ElSecularEVDCtrl_s* ctrl );
+
+typedef struct {
+  ElInt maxIterations;
+  double sufficientDecay;
+  ElFlipOrClip negativeFix;
+  bool penalizeDerivative;
+  bool progress;
+  ElCubicSecularCtrl cubicCtrl;
+} ElSecularEVDCtrl_d;
+EL_EXPORT ElError ElSecularEVDCtrlDefault_d
+( ElSecularEVDCtrl_d* ctrl );
+
+// Secular SVD
+// ===========
+typedef struct {
+  ElInt maxIterations;
+  float sufficientDecay;
+  ElFlipOrClip negativeFix;
+  bool penalizeDerivative;
+  bool progress;
+  ElCubicSecularCtrl cubicCtrl;
+} ElSecularSVDCtrl_s;
+EL_EXPORT ElError ElSecularSVDCtrlDefault_s
+( ElSecularSVDCtrl_s* ctrl );
+
+typedef struct {
+  ElInt maxIterations;
+  double sufficientDecay;
+  ElFlipOrClip negativeFix;
+  bool penalizeDerivative;
+  bool progress;
+  ElCubicSecularCtrl cubicCtrl;
+} ElSecularSVDCtrl_d;
+EL_EXPORT ElError ElSecularSVDCtrlDefault_d
+( ElSecularSVDCtrl_d* ctrl );
+
 /* Hermitian tridiagonal eigensolvers
    ================================== */
+typedef enum {
+  EL_HERM_TRIDIAG_EIG_QR = 0,
+  EL_HERM_TRIDIAG_EIG_DC = 1,
+  EL_HERM_TRIDIAG_EIG_MRRR = 2
+} ElHermitianTridiagEigAlg;
+
 /* HermitianEigSubset */
 typedef struct {
   bool indexSubset;
@@ -48,13 +115,32 @@ EL_EXPORT ElError ElHermitianTridiagEigQRCtrlDefault
 ( ElHermitianTridiagEigQRCtrl* ctrl );
 
 typedef struct {
+  ElSecularEVDCtrl_s secularCtrl;
+  float deflationFudge;
+  ElInt cutoff;
+  bool exploitStructure;
+} ElHermitianTridiagEigDCCtrl_s;
+EL_EXPORT ElError ElHermitianTridiagEigDCCtrlDefault_s
+( ElHermitianTridiagEigDCCtrl_s* ctrl );
+
+typedef struct {
+  ElSecularEVDCtrl_d secularCtrl;
+  double deflationFudge;
+  ElInt cutoff;
+  bool exploitStructure;
+} ElHermitianTridiagEigDCCtrl_d;
+EL_EXPORT ElError ElHermitianTridiagEigDCCtrlDefault_d
+( ElHermitianTridiagEigDCCtrl_d* ctrl );
+
+typedef struct {
   bool wantEigVecs;
   bool accumulateEigVecs;
   ElSortType sort;
   ElHermitianEigSubset_s subset;
   bool progress;
-  bool useQR;
+  ElHermitianTridiagEigAlg alg;
   ElHermitianTridiagEigQRCtrl qrCtrl;
+  ElHermitianTridiagEigDCCtrl_s dcCtrl;
 } ElHermitianTridiagEigCtrl_s;
 EL_EXPORT ElError ElHermitianTridiagEigCtrlDefault_s
 ( ElHermitianTridiagEigCtrl_s* ctrl );
@@ -65,8 +151,9 @@ typedef struct {
   ElSortType sort;
   ElHermitianEigSubset_d subset;
   bool progress;
-  bool useQR;
+  ElHermitianTridiagEigAlg alg;
   ElHermitianTridiagEigQRCtrl qrCtrl;
+  ElHermitianTridiagEigDCCtrl_d dcCtrl;
 } ElHermitianTridiagEigCtrl_d;
 EL_EXPORT ElError ElHermitianTridiagEigCtrlDefault_s
 ( ElHermitianTridiagEigCtrl_s* ctrl );
@@ -637,39 +724,6 @@ typedef struct {
   bool useLAPACK;
 } ElBidiagSVDQRCtrl;
 EL_EXPORT ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl );
-
-typedef enum {
-  EL_FLIP_NEGATIVES,
-  EL_CLIP_NEGATIVES
-} ElFlipOrClip;
-
-typedef struct {
-  ElInt maxIterations;
-  ElFlipOrClip negativeFix;
-} ElCubicSecularCtrl;
-EL_EXPORT ElError ElCubicSecularCtrlDefault( ElCubicSecularCtrl* ctrl );
-
-typedef struct {
-  ElInt maxIterations;
-  float sufficientDecay;
-  ElFlipOrClip negativeFix;
-  bool penalizeDerivative;
-  bool progress;
-  ElCubicSecularCtrl cubicCtrl;
-} ElSecularSVDCtrl_s;
-EL_EXPORT ElError ElSecularSVDCtrlDefault_s
-( ElSecularSVDCtrl_s* ctrl );
-
-typedef struct {
-  ElInt maxIterations;
-  double sufficientDecay;
-  ElFlipOrClip negativeFix;
-  bool penalizeDerivative;
-  bool progress;
-  ElCubicSecularCtrl cubicCtrl;
-} ElSecularSVDCtrl_d;
-EL_EXPORT ElError ElSecularSVDCtrlDefault_d
-( ElSecularSVDCtrl_d* ctrl );
 
 typedef struct {
   ElSecularSVDCtrl_s secularCtrl;

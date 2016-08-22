@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SPECTRAL_HERM_TRIDIAG_EIG_QR_HPP
-#define EL_SPECTRAL_HERM_TRIDIAG_EIG_QR_HPP
+#ifndef EL_HERM_TRIDIAG_EIG_QR_HPP
+#define EL_HERM_TRIDIAG_EIG_QR_HPP
 namespace El {
 namespace herm_tridiag_eig {
 namespace qr {
@@ -673,4 +673,4 @@ QRAlg
 } // namespace herm_tridiag_eig
 } // namespace El
 
-#endif // ifndef EL_SPECTRAL_HERM_TRIDIAG_EIG_QR_HPP
+#endif // ifndef EL_HERM_TRIDIAG_EIG_QR_HPP

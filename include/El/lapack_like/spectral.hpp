@@ -13,6 +13,216 @@
 
 namespace El {
 
+// Cubic Secular
+// =============
+
+// Solve for an inner root of the secular equation
+//
+//   f(x) = rho + z(0) / (d(0)-x) + z(1) / (d(1)-x) + z(2) / (d(2)-x),
+//
+// where each numerator is positive and d(0) < d(1) < d(2).
+//
+// Just as in LAPACK's {s,d}laed6 [CITATION], we require that the user pass in
+// an accurate evaluation of f(0).
+//
+
+struct CubicSecularInfo
+{
+    Int numIterations = 0;
+    bool converged = true;
+};
+
+struct CubicSecularCtrl
+{
+    Int maxIterations = 40; // Cf. LAPACK's {s,d}laed6 for this choice
+    FlipOrClip negativeFix = CLIP_NEGATIVES;
+};
+
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+CubicSecularInfo
+CubicSecular
+( bool initialize, 
+  bool rightRoot,
+  const Real& rho,
+  const Matrix<Real>& z,
+  const Matrix<Real>& d,
+  const Real& originEval,
+        Real& root,
+  const CubicSecularCtrl& ctrl=CubicSecularCtrl() );
+
+// Secular Eigenvalue Decomposition
+// ================================
+
+struct SecularEVDInfo
+{
+    Int numIterations = 0;
+    Int numAlternations = 0;
+
+    Int numCubicIterations = 0;
+    Int numCubicFailures = 0;
+
+    Int numDeflations=0;
+    Int numCloseDiagonalDeflations=0;
+    Int numSmallUpdateDeflations=0;
+};
+
+template<typename Real>
+struct SecularEVDCtrl
+{
+    Int maxIterations = 40; // Cf. LAPACK's {s,d}laed4's choice of 30
+    // TODO(poulson): Specialize iteration bounds to grows with precision
+
+    Real sufficientDecay = Real(1)/Real(10);
+    FlipOrClip negativeFix = CLIP_NEGATIVES;
+
+    // Incorporate the derivative of the secular function times the absolute
+    // value of the current relative estimate of the root of the secular
+    // equation into the relative error bound? LAPACK incorporates this when
+    // solving for eigenvalues but *not* when solving for singular values.
+    bool penalizeDerivative = true;
+
+    bool progress = false;
+
+    CubicSecularCtrl cubicCtrl;
+};
+
+// Compute a single eigenvalue corresponding to the diagonal plus rank-one
+// matrix
+//
+//     diag(d) + rho z z^T,
+//
+// where || z ||_2 = 1, with
+//
+//     d(0) < d(1) < ... < d(n-1)
+//
+// and rho > 0.
+//
+// This routine loosely corresponds to LAPACK's {s,d}laed4 [CITATION].
+//
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularEVDInfo
+SecularEigenvalue
+( Int whichValue,
+  const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Real& eigenvalue,
+  const SecularEVDCtrl<Real>& ctrl=SecularEVDCtrl<Real>() );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularEVDInfo
+SecularEigenvalue
+( Int whichValue,
+  const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Real& eigenvalue,
+        Matrix<Real>& dMinusShift,
+  const SecularEVDCtrl<Real>& ctrl=SecularEVDCtrl<Real>() );
+
+// Note that this routine requires that d(0) <= d(1) <= ... <= d(n-1) and
+// that || z ||_2 = 1.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularEVDInfo
+SecularEVD
+( const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Matrix<Real>& w,
+        Matrix<Real>& Q,
+  const SecularEVDCtrl<Real>& ctrl=SecularEVDCtrl<Real>() );
+
+// Secular Singular Value Decomposition
+// ====================================
+
+struct SecularSVDInfo
+{
+    Int numIterations = 0;
+    Int numAlternations = 0;
+    Int numCubicIterations = 0;
+    Int numCubicFailures = 0;
+
+    Int numDeflations=0;
+    Int numSmallDiagonalDeflations=0;
+    Int numCloseDiagonalDeflations=0;
+    Int numSmallUpdateDeflations=0;
+};
+
+template<typename Real>
+struct SecularSVDCtrl
+{
+    Int maxIterations = 400; // Cf. LAPACK's {s,d}lasd4 for this choice
+    // TODO(poulson): Specialize iteration bounds to grows with precision
+
+    Real sufficientDecay = Real(1)/Real(10);
+    FlipOrClip negativeFix = CLIP_NEGATIVES;
+
+    // Incorporate the derivative of the secular function times the absolute
+    // value of the current relative estimate of the root of the secular
+    // equation into the relative error bound? LAPACK incorporates this when
+    // solving for eigenvalues but *not* when solving for singular values.
+    bool penalizeDerivative = false;
+
+    bool progress = false;
+
+    CubicSecularCtrl cubicCtrl;
+};
+
+// Compute a single singular value corresponding to the square-root of an
+// eigenvalue of the diagonal plus rank-one matrix
+//
+//     diag(d)^2 + rho z z^T,
+//
+// where || z ||_2 = 1, with
+//
+//     0 <= d(0) < d(1) < ... < d(n-1)
+//
+// and rho > 0. In the important case where d(0) = 0, we can build a
+// matrix
+//
+//   M = | sqrt(rho)*z(0), sqrt(rho)*z(1), ..., sqrt(rho)*z(n-1) |
+//       |                      d(1),                  .         |
+//       |                                  .          .         |
+//       |                                           d(n-1)      |
+//
+// which has said singular values.
+//
+// This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
+//
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularSVDInfo
+SecularSingularValue
+( Int whichValue,
+  const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Real& singularValue,
+  const SecularSVDCtrl<Real>& ctrl=SecularSVDCtrl<Real>() );
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularSVDInfo
+SecularSingularValue
+( Int whichValue,
+  const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Real& singularValue,
+        Matrix<Real>& dMinusShift,
+        Matrix<Real>& dPlusShift,
+  const SecularSVDCtrl<Real>& ctrl=SecularSVDCtrl<Real>() );
+
+// Note that this routine requires that 0 = d(0) <= d(1) <= ... <= d(n-1) and
+// that || z ||_2 = 1.
+template<typename Real,typename=EnableIf<IsReal<Real>>>
+SecularSVDInfo
+SecularSVD
+( const Matrix<Real>& d,
+  const Real& rho,
+  const Matrix<Real>& z,
+        Matrix<Real>& U,
+        Matrix<Real>& s,
+        Matrix<Real>& V,
+  const SecularSVDCtrl<Real>& ctrl=SecularSVDCtrl<Real>() );
+
+
 template<typename Real>
 struct HermitianEigSubset
 {
@@ -44,12 +254,67 @@ struct QRCtrl
     bool fullAccuracyTwoByTwo=true;
 };
 
+struct DCInfo
+{
+    // TODO(poulson): Extend with more information. For example, the maximum
+    // number of levels in the tree and/or the information on the QR iteration
+    // at the leaves?
+    SecularEVDInfo secularInfo;
+};
+
+template<typename Real>
+struct DCCtrl
+{
+    SecularEVDCtrl<Real> secularCtrl;
+
+    // Cf. LAPACK's {s,d}laed2 [CITATION] for the choice of Gu/Eisenstat's
+    // [CITATION] "tau" as 8.
+    Real deflationFudge = Real(8);
+
+    // Stop recursing when the height is at most 'cutoff'
+    Int cutoff = 60;
+
+    // Exploit the nonzero structure of Q when composing the secular
+    // eigenvectors with the outer singular vectors? This should only be
+    // disabled for academic reasons.
+    bool exploitStructure = true;
+};
+
+// Cf. Section 4 of Gu and Eisenstat's "A Divide-and-Conquer Algorithm for the
+// Bidiagonal SVD" [CITATION] and LAPACK's {s,d}lasd2 [CITATION].
+//
+// We operationalize Gu and Eisenstat's [CITATION] deflation-tracking
+// mechanism by initializing the tags for the nonzero structure of the
+// columns of the singular vectors:
+//
+//   0: nonzero in first block
+//   1: nonzero in second block
+//   2: dense
+//   3: deflated
+//
+// Cf. LAPACK's {s,d}laed2 [CITATION] for this mechanism.
+//
+enum DCCombinedColumnType {
+  COLUMN_NONZERO_IN_FIRST_BLOCK = 0,
+  COLUMN_NONZERO_IN_SECOND_BLOCK = 1,
+  DENSE_COLUMN = 2,
+  DEFLATED_COLUMN = 3
+};
+const Int NUM_DC_COMBINED_COLUMN_TYPES = 4;
+
 } // namespace herm_tridiag_eig
 
 struct HermitianTridiagEigInfo
 {
     herm_tridiag_eig::QRInfo qrInfo;
+    herm_tridiag_eig::DCInfo dcInfo;
     // TODO(poulson): MRRR info
+};
+
+enum HermitianTridiagEigAlg {
+  HERM_TRIDIAG_EIG_QR = 0,
+  HERM_TRIDIAG_EIG_DC = 1,
+  HERM_TRIDIAG_EIG_MRRR = 2
 };
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
@@ -61,8 +326,9 @@ struct HermitianTridiagEigCtrl
     HermitianEigSubset<Real> subset;
     bool progress=false;
 
-    bool useQR=false;
+    HermitianTridiagEigAlg alg=HERM_TRIDIAG_EIG_MRRR;
     herm_tridiag_eig::QRCtrl qrCtrl;
+    herm_tridiag_eig::DCCtrl<Real> dcCtrl;
     // TODO(poulson): MRRR ctrl
 };
 
@@ -651,215 +917,6 @@ void Eig
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
   ElementalMatrix<Complex<Base<F>>>& X );
-
-// Cubic Secular
-// =============
-
-// Solve for an inner root of the secular equation
-//
-//   f(x) = rho + z(0) / (d(0)-x) + z(1) / (d(1)-x) + z(2) / (d(2)-x),
-//
-// where each numerator is positive and d(0) < d(1) < d(2).
-//
-// Just as in LAPACK's {s,d}laed6 [CITATION], we require that the user pass in
-// an accurate evaluation of f(0).
-//
-
-struct CubicSecularInfo
-{
-    Int numIterations = 0;
-    bool converged = true;
-};
-
-struct CubicSecularCtrl
-{
-    Int maxIterations = 40; // Cf. LAPACK's {s,d}laed6 for this choice
-    FlipOrClip negativeFix = CLIP_NEGATIVES;
-};
-
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-CubicSecularInfo
-CubicSecular
-( bool initialize, 
-  bool rightRoot,
-  const Real& rho,
-  const Matrix<Real>& z,
-  const Matrix<Real>& d,
-  const Real& originEval,
-        Real& root,
-  const CubicSecularCtrl& ctrl=CubicSecularCtrl() );
-
-// Secular Eigenvalue Decomposition
-// ================================
-
-struct SecularEVDInfo
-{
-    Int numIterations = 0;
-    Int numAlternations = 0;
-
-    Int numCubicIterations = 0;
-    Int numCubicFailures = 0;
-
-    Int numDeflations=0;
-    Int numCloseDiagonalDeflations=0;
-    Int numSmallUpdateDeflations=0;
-};
-
-template<typename Real>
-struct SecularEVDCtrl
-{
-    Int maxIterations = 40; // Cf. LAPACK's {s,d}laed4's choice of 30
-    // TODO(poulson): Specialize iteration bounds to grows with precision
-
-    Real sufficientDecay = Real(1)/Real(10);
-    FlipOrClip negativeFix = CLIP_NEGATIVES;
-
-    // Incorporate the derivative of the secular function times the absolute
-    // value of the current relative estimate of the root of the secular
-    // equation into the relative error bound? LAPACK incorporates this when
-    // solving for eigenvalues but *not* when solving for singular values.
-    bool penalizeDerivative = true;
-
-    bool progress = false;
-
-    CubicSecularCtrl cubicCtrl;
-};
-
-// Compute a single eigenvalue corresponding to the diagonal plus rank-one
-// matrix
-//
-//     diag(d) + rho z z^T,
-//
-// where || z ||_2 = 1, with
-//
-//     d(0) < d(1) < ... < d(n-1)
-//
-// and rho > 0.
-//
-// This routine loosely corresponds to LAPACK's {s,d}laed4 [CITATION].
-//
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularEVDInfo
-SecularEigenvalue
-( Int whichValue,
-  const Matrix<Real>& d,
-  const Real& rho,
-  const Matrix<Real>& z,
-        Real& eigenvalue,
-  const SecularEVDCtrl<Real>& ctrl=SecularEVDCtrl<Real>() );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularEVDInfo
-SecularEigenvalue
-( Int whichValue,
-  const Matrix<Real>& d,
-  const Real& rho,
-  const Matrix<Real>& z,
-        Real& eigenvalue,
-        Matrix<Real>& dMinusShift,
-  const SecularEVDCtrl<Real>& ctrl=SecularEVDCtrl<Real>() );
-
-// Note that this routine requires that d(0) <= d(1) <= ... <= d(n-1) and
-// that || z ||_2 = 1.
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularEVDInfo
-SecularEVD
-( const Matrix<Real>& d,
-  const Real& rho,
-  const Matrix<Real>& z,
-        Matrix<Real>& w,
-        Matrix<Real>& Q,
-  const SecularEVDCtrl<Real>& ctrl=SecularEVDCtrl<Real>() );
-
-// Secular Singular Value Decomposition
-// ====================================
-
-struct SecularSVDInfo
-{
-    Int numIterations = 0;
-    Int numAlternations = 0;
-    Int numCubicIterations = 0;
-    Int numCubicFailures = 0;
-
-    Int numDeflations=0;
-    Int numSmallDiagonalDeflations=0;
-    Int numCloseDiagonalDeflations=0;
-    Int numSmallUpdateDeflations=0;
-};
-
-template<typename Real>
-struct SecularSVDCtrl
-{
-    Int maxIterations = 400; // Cf. LAPACK's {s,d}lasd4 for this choice
-    // TODO(poulson): Specialize iteration bounds to grows with precision
-
-    Real sufficientDecay = Real(1)/Real(10);
-    FlipOrClip negativeFix = CLIP_NEGATIVES;
-
-    // Incorporate the derivative of the secular function times the absolute
-    // value of the current relative estimate of the root of the secular
-    // equation into the relative error bound? LAPACK incorporates this when
-    // solving for eigenvalues but *not* when solving for singular values.
-    bool penalizeDerivative = false;
-
-    bool progress = false;
-
-    CubicSecularCtrl cubicCtrl;
-};
-
-// Compute a single singular value corresponding to the square-root of an
-// eigenvalue of the diagonal plus rank-one matrix
-//
-//     diag(d)^2 + rho z z^T,
-//
-// where || z ||_2 = 1, with
-//
-//     0 <= d(0) < d(1) < ... < d(n-1)
-//
-// and rho > 0. In the important case where d(0) = 0, we can build a
-// matrix
-//
-//   M = | sqrt(rho)*z(0), sqrt(rho)*z(1), ..., sqrt(rho)*z(n-1) |
-//       |                      d(1),                  .         |
-//       |                                  .          .         |
-//       |                                           d(n-1)      |
-//
-// which has said singular values.
-//
-// This routine loosely corresponds to LAPACK's {s,d}lasd4 [CITATION].
-//
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSVDInfo
-SecularSingularValue
-( Int whichValue,
-  const Matrix<Real>& d,
-  const Real& rho,
-  const Matrix<Real>& z,
-        Real& singularValue,
-  const SecularSVDCtrl<Real>& ctrl=SecularSVDCtrl<Real>() );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSVDInfo
-SecularSingularValue
-( Int whichValue,
-  const Matrix<Real>& d,
-  const Real& rho,
-  const Matrix<Real>& z,
-        Real& singularValue,
-        Matrix<Real>& dMinusShift,
-        Matrix<Real>& dPlusShift,
-  const SecularSVDCtrl<Real>& ctrl=SecularSVDCtrl<Real>() );
-
-// Note that this routine requires that 0 = d(0) <= d(1) <= ... <= d(n-1) and
-// that || z ||_2 = 1.
-template<typename Real,typename=EnableIf<IsReal<Real>>>
-SecularSVDInfo
-SecularSVD
-( const Matrix<Real>& d,
-  const Real& rho,
-  const Matrix<Real>& z,
-        Matrix<Real>& U,
-        Matrix<Real>& s,
-        Matrix<Real>& V,
-  const SecularSVDCtrl<Real>& ctrl=SecularSVDCtrl<Real>() );
 
 // Bidiagonal Singular Value Decomposition
 // =======================================
