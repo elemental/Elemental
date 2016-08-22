@@ -148,7 +148,7 @@ public:
     Int Row( Int localInd ) const EL_NO_RELEASE_EXCEPT;
     Int Col( Int localInd ) const EL_NO_RELEASE_EXCEPT;
     T Value( Int localInd ) const EL_NO_RELEASE_EXCEPT;
-    T Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT;
+    T GetLocal( Int row, Int col) const EL_NO_RELEASE_EXCEPT;
     void Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT;
     Int RowOffset( Int localRow ) const EL_NO_RELEASE_EXCEPT;
     Int Offset( Int localRow, Int col ) const EL_NO_RELEASE_EXCEPT;
