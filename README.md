@@ -68,7 +68,7 @@ datatypes:
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
-* Arbitrary-precision distributed SVD (QR and D&C support) and (generalized) Hermitian EVPs
+* Arbitrary-precision distributed SVD (QR and D&C support) and (generalized) Hermitian EVPs (QR and D&C support)
 
 **Lattice reduction**:
 * An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
