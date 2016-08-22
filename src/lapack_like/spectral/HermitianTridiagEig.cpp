@@ -321,6 +321,24 @@ QRHelper
     return info;
 }
 
+template<typename Real>
+HermitianTridiagEigInfo
+DCHelper
+(       Matrix<Real>& d,
+        Matrix<Real>& dSub,
+        Matrix<Real>& w,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    auto ctrlMod( ctrl );
+    ctrlMod.wantEigVecs = false;
+    Matrix<Real> Q;
+    info.dcInfo = DivideAndConquer( d, dSub, w, Q, ctrlMod );
+    herm_eig::SortAndFilter( w, ctrl );
+    return info;
+}
+
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 LAPACKHelper
@@ -373,6 +391,12 @@ Helper
         auto dSubMod( dSub );
         return QRHelper( d, dSubMod, w, ctrl );
     }
+    else if( ctrl.alg == HERM_TRIDIAG_EIG_DC )
+    {
+        auto dMod( d );
+        auto dSubMod( dSub );
+        return DCHelper( dMod, dSubMod, w, ctrl );
+    }
     // Both d and dSub need to be modifiable
     auto dMod( d );
     auto dSubMod( dSub );
@@ -388,9 +412,18 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    // Only dSub needs to be modifiable
-    auto dSubMod( dSub );
-    return QRHelper( d, dSubMod, w, ctrl );
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        // Only dSub needs to be modifiable
+        auto dSubMod( dSub );
+        return QRHelper( d, dSubMod, w, ctrl );
+    }
+    else
+    {
+        auto dMod( d );
+        auto dSubMod( dSub );
+        return DCHelper( dMod, dSubMod, w, ctrl );
+    }
 }
 
 template<typename Real>
@@ -402,6 +435,7 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
+    // TODO(poulson): Avoid making another copy of dSubReal later
     Matrix<Real> dSubReal;
     RemovePhase( dSub, dSubReal );
     return HermitianTridiagEig( d, dSubReal, w, ctrl );
@@ -445,7 +479,7 @@ HermitianTridiagEigInfo
 QRHelper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& w, 
+        AbstractDistMatrix<Real         >& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -465,20 +499,71 @@ QRHelper
     return info;
 }
 
-// TODO(poulson): Move into MRRRHelper
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real>
 HermitianTridiagEigInfo
-Helper
+DCHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
-    {
-        return QRHelper( d, dSub, wPre, ctrl );
-    }
+    HermitianTridiagEigInfo info;
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
+
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
+    auto ctrlMod( ctrl );
+    ctrlMod.wantEigVecs = false;
+    DistMatrix<Real> Q(w.Grid());
+    info.dcInfo =
+      DivideAndConquer
+      ( d_STAR_STAR.Matrix(), dSub_STAR_STAR.Matrix(), w, Q, ctrlMod );
+    herm_eig::SortAndFilter( w, ctrl );
+    return info;
+}
+
+template<typename Real>
+HermitianTridiagEigInfo
+DCHelper
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& wPre,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    const Grid& g = d.Grid();
+
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
+    DistMatrix<Complex<Real>,STAR,STAR> dSub_STAR_STAR( dSub );
+
+    DistMatrix<Real,STAR,STAR> dSubReal(g);
+    RemovePhase( dSub_STAR_STAR, dSubReal );
+
+    DistMatrixWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
+    auto ctrlMod( ctrl );
+    ctrlMod.wantEigVecs = false;
+    DistMatrix<Real> Q(w.Grid());
+    info.dcInfo =
+      DivideAndConquer( d_STAR_STAR.Matrix(), dSubReal.Matrix(), w, Q, ctrl );
+    herm_eig::SortAndFilter( w, ctrl );
+
+    return info;
+}
+
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+HermitianTridiagEigInfo
+MRRRHelper
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
     HermitianTridiagEigInfo info;
 
     ElementalProxyCtrl wCtrl;
@@ -521,6 +606,29 @@ Helper
     return info;
 }
 
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+HermitianTridiagEigInfo
+Helper
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        return QRHelper( d, dSub, wPre, ctrl );
+    }
+    else if( ctrl.alg == HERM_TRIDIAG_EIG_DC )
+    {
+        return DCHelper( d, dSub, wPre, ctrl );
+    }
+    else
+    {
+        return MRRRHelper( d, dSub, wPre, ctrl );
+    }
+}
+
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 Helper
@@ -530,22 +638,25 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    return QRHelper( d, dSub, w, ctrl );
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        return QRHelper( d, dSub, w, ctrl );
+    }
+    else
+    {
+        return DCHelper( d, dSub, w, ctrl );
+    }
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
-Helper
+MRRRHelper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
         AbstractDistMatrix<Real         >& wPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
-    {
-        return QRHelper( d, dSub, wPre, ctrl );
-    }
     HermitianTridiagEigInfo info;
 
     ElementalProxyCtrl wCtrl;
@@ -600,6 +711,29 @@ Helper
     return info;
 }
 
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+HermitianTridiagEigInfo
+Helper
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& wPre, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        return QRHelper( d, dSub, wPre, ctrl );
+    }
+    else if( ctrl.alg == HERM_TRIDIAG_EIG_DC )
+    {
+        return DCHelper( d, dSub, wPre, ctrl );
+    }
+    else
+    {
+        return MRRRHelper( d, dSub, wPre, ctrl );
+    }
+}
+
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
 HermitianTridiagEigInfo
 Helper
@@ -609,7 +743,14 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    return QRHelper( d, dSub, w, ctrl );
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        return QRHelper( d, dSub, w, ctrl );
+    }
+    else
+    {
+        return DCHelper( d, dSub, w, ctrl );
+    }
 }
 
 } // namespace herm_tridiag_eig
@@ -648,6 +789,29 @@ QRHelper
     return info;
 }
 
+template<typename Real>
+HermitianTridiagEigInfo
+DCHelper
+(       Matrix<Real>& d,
+        Matrix<Real>& dSub,
+        Matrix<Real>& w,
+        Matrix<Real>& Q,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    if( ctrl.accumulateEigVecs )
+    {
+        LogicError("Accumulating eigenvectors not yet supported for D&C");
+    }
+    else
+    {
+        info.dcInfo = DivideAndConquer( d, dSub, w, Q, ctrl );
+        herm_eig::SortAndFilter( w, Q, ctrl );
+    }
+    return info;
+}
+
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 LAPACKHelper
@@ -658,6 +822,8 @@ LAPACKHelper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
+    if( ctrl.accumulateEigVecs )
+        LogicError("Accumulation not yet supported for LAPACK wrapper");
     const Int n = d.Height();
     HermitianTridiagEigInfo info;
     w.Resize( n, 1 );
@@ -713,6 +879,12 @@ Helper
         auto dSubMod( dSub );
         return QRHelper( d, dSubMod, w, Q, ctrl );
     }
+    else if( ctrl.alg == HERM_TRIDIAG_EIG_DC )
+    {
+        auto dMod( d );
+        auto dSubMod( dSub );
+        return DCHelper( dMod, dSubMod, w, Q, ctrl );
+    }
     else
     {
         // Both d and dSub need to be modified
@@ -732,9 +904,18 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    // Only dSub needs to be modified
-    auto dSubMod( dSub );
-    return QRHelper( d, dSubMod, w, Q, ctrl );
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        // Only dSub needs to be modified
+        auto dSubMod( dSub );
+        return QRHelper( d, dSubMod, w, Q, ctrl );
+    }
+    else
+    {
+        auto dMod( d );
+        auto dSubMod( dSub );
+        return DCHelper( dMod, dSubMod, w, Q, ctrl );
+    }
 }
 
 // (Y^H T Y) QHat = QHat Lambda
@@ -750,6 +931,7 @@ Helper
 {
     HermitianTridiagEigInfo info;
 
+    // TODO(poulson): Avoid another copy of dSubReal down the road
     Matrix<Real> dSubReal;
     Matrix<Complex<Real>> phase;
     RemovePhase( dSub, dSubReal, phase );
@@ -786,7 +968,7 @@ QRHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
         AbstractDistMatrix<Real>& w, 
-        AbstractDistMatrix<Real>& Q, 
+        AbstractDistMatrix<Real>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -795,16 +977,18 @@ QRHelper
 
     if( ctrl.accumulateEigVecs )
     {
-        DistMatrix<Real,VC,STAR> Q_VC_STAR( Q );
+        DistMatrixReadWriteProxy<Real,Real,VC,STAR> QProx( QPre );
+        auto& Q = QProx.Get();
         info.qrInfo = QRAlg( d_STAR_STAR, dSub_STAR_STAR, Q, ctrl );
         herm_eig::SortAndFilter( d_STAR_STAR, Q, ctrl );
     }
     else
     {
-        DistMatrix<Real,VC,STAR> Q_VC_STAR( Q.Grid() );
-        info.qrInfo = QRAlg( d_STAR_STAR, dSub_STAR_STAR, Q_VC_STAR, ctrl );
-        herm_eig::SortAndFilter( d_STAR_STAR, Q_VC_STAR, ctrl );
-        Copy( Q_VC_STAR, Q );
+        DistMatrixWriteProxy<Real,Real,VC,STAR> QProx( QPre );
+        auto& Q = QProx.Get();
+
+        info.qrInfo = QRAlg( d_STAR_STAR, dSub_STAR_STAR, Q, ctrl );
+        herm_eig::SortAndFilter( d_STAR_STAR, Q, ctrl );
     }
     Copy( d_STAR_STAR, w );
 
@@ -851,15 +1035,87 @@ QRHelper
         info.qrInfo = QRAlg( d_STAR_STAR, dSubReal, QReal, ctrl );
         herm_eig::SortAndFilter( d_STAR_STAR, QReal, ctrl );
 
-        ElementalProxyCtrl proxCtrl;
-        proxCtrl.colConstrain = true;
-        proxCtrl.colAlign = QReal.ColAlign();
-        DistMatrixWriteProxy<F,F,VC,STAR> QProx(QPre,proxCtrl);
+        Copy( QReal, QPre );
+        DiagonalScale( LEFT, NORMAL, phase, QPre );
+    }
+    Copy( d_STAR_STAR, w );
+
+    return info;
+}
+
+template<typename Real>
+HermitianTridiagEigInfo
+DCHelper
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& dSub,
+        AbstractDistMatrix<Real>& wPre, 
+        AbstractDistMatrix<Real>& QPre, 
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    HermitianTridiagEigInfo info;
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
+
+    if( ctrl.accumulateEigVecs )
+    {
+        LogicError("Accumulation not yet supported for D&C");
+    }
+    else
+    {
+        DistMatrixWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
+        auto& w = wProx.Get();
+        DistMatrixWriteProxy<Real,Real,MC,MR> QProx( QPre );
         auto& Q = QProx.Get();
+        info.dcInfo =
+          DivideAndConquer
+          ( d_STAR_STAR.Matrix(), dSub_STAR_STAR.Matrix(), w, Q, ctrl );
+        herm_eig::SortAndFilter( w, Q, ctrl );
+    }
+
+    return info;
+}
+
+template<typename Real>
+HermitianTridiagEigInfo
+DCHelper
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& dSub,
+        AbstractDistMatrix<Real         >& wPre,
+        AbstractDistMatrix<Complex<Real>>& Q,
+  const HermitianTridiagEigCtrl<Real>& ctrl )
+{
+    DEBUG_CSE
+    typedef Complex<Real> F;
+    const Grid& g = d.Grid();
+    HermitianTridiagEigInfo info;
+
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
+    DistMatrix<F,STAR,STAR> dSub_STAR_STAR( dSub );
+
+    DistMatrix<Real,STAR,STAR> dSubReal(g);
+    DistMatrix<F,STAR,STAR> phase(g);
+    RemovePhase( dSub_STAR_STAR, dSubReal, phase );
+
+    if( ctrl.accumulateEigVecs )
+    {
+        LogicError("Accumulation not yet supported for D&C");
+    }
+    else
+    {
+        const Int n = d.Height();
+        DistMatrix<Real,MC,MR> QReal(g);
+
+        DistMatrixWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
+        auto& w = wProx.Get();
+
+        info.dcInfo =
+          DivideAndConquer
+          ( d_STAR_STAR.Matrix(), dSubReal.Matrix(), w, QReal, ctrl );
+        herm_eig::SortAndFilter( w, QReal, ctrl );
+
         Copy( QReal, Q );
         DiagonalScale( LEFT, NORMAL, phase, Q );
     }
-    Copy( d_STAR_STAR, w );
 
     return info;
 }
@@ -1051,6 +1307,10 @@ Helper
     {
         return QRHelper( d, dSub, w, Q, ctrl );
     }
+    else if( ctrl.alg == HERM_TRIDIAG_EIG_DC )
+    {
+        return DCHelper( d, dSub, w, Q, ctrl );
+    }
     else
     {
         return MRRRHelper( d, dSub, w, Q, ctrl );
@@ -1067,7 +1327,14 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    return QRHelper( d, dSub, w, Q, ctrl );
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        return QRHelper( d, dSub, w, Q, ctrl );
+    }
+    else
+    {
+        return DCHelper( d, dSub, w, Q, ctrl );
+    }
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -1083,6 +1350,10 @@ Helper
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, Q, ctrl );
+    }
+    else if( ctrl.alg == HERM_TRIDIAG_EIG_DC )
+    {
+        return DCHelper( d, dSub, w, Q, ctrl );
     }
     else
     {
@@ -1100,7 +1371,14 @@ Helper
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    return QRHelper( d, dSub, w, QPre, ctrl );
+    if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
+    {
+        return QRHelper( d, dSub, w, QPre, ctrl );
+    }
+    else
+    {
+        return DCHelper( d, dSub, w, QPre, ctrl );
+    }
 }
 
 } // namespace herm_tridiag_eig
