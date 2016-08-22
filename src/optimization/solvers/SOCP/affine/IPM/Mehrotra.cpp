@@ -1343,7 +1343,7 @@ void Mehrotra
     auto& sparseFirstIndsLoc = sparseFirstInds.LockedMatrix();
     auto& sparseToOrigOrdersLoc = sparseToOrigOrders.LockedMatrix();
 
-    DistSparseMultMeta metaOrig;
+    DistGraphMultMeta metaOrig;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
