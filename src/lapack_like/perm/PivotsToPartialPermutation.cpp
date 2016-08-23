@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -16,8 +16,8 @@ void PivotsToPartialPermutation
         Matrix<Int>& pInv, 
   Int offset )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("PivotsToPartialPermutation");
       if( pivots.Width() != 1 )
           LogicError("pivots must be a column vector");
     )
@@ -69,8 +69,8 @@ void PivotsToPartialPermutation
         AbstractDistMatrix<Int>& pInv,
   Int offset )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("PivotsToPartialPermutation");
       if( pivots.Width() != 1 )
           LogicError("pivots must be a column vector");
     )
@@ -123,7 +123,7 @@ void PivotsToPartialPermutation
         AbstractDistMatrix<Int>& pInv,
   Int offset )
 {
-    DEBUG_ONLY(CSE cse("PivotsToPartialPermutation"))
+    DEBUG_CSE
     DistMatrixReadProxy<Int,Int,STAR,STAR> pivotsProx( pivotsPre );
     auto& pivots = pivotsProx.GetLocked();
     PivotsToPartialPermutation( pivots, p, pInv, offset );

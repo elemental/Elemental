@@ -1,22 +1,20 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_RANDOM_IMPL_HPP
 #define EL_RANDOM_IMPL_HPP
 
 namespace El {
 
 template<typename Real>
-inline Real
-Choose( Int n, Int k )
+Real Choose( Int n, Int k )
 {
-    DEBUG_ONLY(CSE cse("Choose"))
+    DEBUG_CSE
     if( k < 0 || k > n )
         LogicError("Choose(",n,",",k,") is not defined");
 
@@ -36,10 +34,9 @@ Choose( Int n, Int k )
 }
 
 template<typename Real>
-inline Real
-LogChoose( Int n, Int k )
+Real LogChoose( Int n, Int k )
 {
-    DEBUG_ONLY(CSE cse("LogChoose"))
+    DEBUG_CSE
     if( k < 0 || k > n )
         LogicError("Choose(",n,",",k,") is not defined");
 
@@ -69,10 +66,9 @@ LogChoose( Int n, Int k )
 //       to be evaluated in linear time).
 // TODO: A parallel prefix version of this algorithm.
 template<typename Real>
-inline vector<Real>
-LogBinomial( Int n )
+vector<Real> LogBinomial( Int n )
 {
-    DEBUG_ONLY(CSE cse("LogBinomial"))
+    DEBUG_CSE
     vector<Real> binom(n+1,0), binomTmp(n+1,0);
     for( Int j=1; j<=n; ++j )
     {
@@ -88,10 +84,9 @@ LogBinomial( Int n )
 //
 // TODO: Attempt to reduce this to linear time.
 template<typename Real>
-inline vector<Real>
-LogEulerian( Int n )
+vector<Real> LogEulerian( Int n )
 {
-    DEBUG_ONLY(CSE cse("LogEulerian"))
+    DEBUG_CSE
     vector<Real> euler(n,0), eulerTmp(n,0);
     for( Int j=1; j<n; ++j )
     {
@@ -103,14 +98,8 @@ LogEulerian( Int n )
     return euler;
 }
 
-inline bool BooleanCoinFlip()
-{ return SampleUniform<double>(0,1) >= 0.5; }
-
-inline Int CoinFlip()
-{ return ( BooleanCoinFlip() ? 1 : -1 ); }
-
 template<typename T>
-inline T UnitCell()
+T UnitCell()
 {
     typedef Base<T> Real;
     T cell;
@@ -120,316 +109,119 @@ inline T UnitCell()
     return cell;
 }
 
-template<typename T>
-inline T SampleUniform( T a, T b )
+template<typename Real,typename>
+Real SampleUniformNaive( const Real& a, const Real& b )
 {
-    typedef Base<T> Real;
-    T sample;
-
+    // TODO: A better general-purpose uniform random number generator
+    //       that draws random bits?
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
-    std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
-    SetRealPart( sample, realUni(gen) ); 
-    if( IsComplex<T>::value )
-    {
-        std::uniform_real_distribution<Real> imagUni(ImagPart(a),ImagPart(b));
-        SetImagPart( sample, imagUni(gen) );
-    }
-#else
-    Real aReal = RealPart(a);
-    Real aImag = ImagPart(a);
-    Real bReal = RealPart(b);
-    Real bImag = ImagPart(b);
-    Real realPart = (Real(rand())/(Real(RAND_MAX)+1))*(bReal-aReal) + aReal;
-    SetRealPart( sample, realPart );
-    if( IsComplex<T>::value )
-    {
-        Real imagPart = (Real(rand())/(Real(RAND_MAX)+1))*(bImag-aImag) + aImag;
-        SetImagPart( sample, imagPart );
-    }
-#endif
-
-    return sample;
-}
-
-#ifdef EL_HAVE_QUAD
-template<>
-inline Quad SampleUniform( Quad a, Quad b )
-{
-    Quad sample;
-
-#ifdef EL_HAVE_CXX11RANDOM
-    std::mt19937& gen = Generator();
-    std::uniform_real_distribution<long double> 
+    std::uniform_real_distribution<long double>
       uni((long double)a,(long double)b);
-    sample = uni(gen);
+    return uni(gen);
 #else
-    sample = (Real(rand())/(Real(RAND_MAX)+1))*(b-a) + a;
+    return (Real(rand())/(Real(RAND_MAX)+1))*(b-a) + a;
 #endif
-
-    return sample;
 }
 
-template<>
-inline Complex<Quad> SampleUniform( Complex<Quad> a, Complex<Quad> b )
-{
-    Complex<Quad> sample;
-
-#ifdef EL_HAVE_CXX11RANDOM
-    std::mt19937& gen = Generator();
-    std::uniform_real_distribution<long double> 
-      realUni((long double)RealPart(a),(long double)RealPart(b));
-    SetRealPart( sample, Quad(realUni(gen)) ); 
-
-    std::uniform_real_distribution<long double> 
-      imagUni((long double)ImagPart(a),(long double)ImagPart(b));
-    SetImagPart( sample, Quad(imagUni(gen)) );
-#else
-    Real aReal = RealPart(a);
-    Real aImag = ImagPart(a);
-    Real bReal = RealPart(b);
-    Real bImag = ImagPart(b);
-    Real realPart = (Real(rand())/(Real(RAND_MAX)+1))*(bReal-aReal) + aReal;
-    SetRealPart( sample, realPart );
-
-    Real imagPart = (Real(rand())/(Real(RAND_MAX)+1))*(bImag-aImag) + aImag;
-    SetImagPart( sample, imagPart );
-#endif
-
-    return sample;
-}
-#endif // ifdef EL_HAVE_QUAD
-
-#ifdef EL_HAVE_MPC
-template<>
-inline BigFloat SampleUniform( BigFloat a, BigFloat b )
-{
-    BigFloat sample; 
-    gmp_randstate_t randState;
-    mpc::RandomState( randState );
-
-    while( 1 )
-    {
-        const int ret = mpfr_urandomb( sample.Pointer(), randState );
-        if( ret == 0 )
-            break;
-    }
-    return a + sample*(b-a);
-}
-#endif // ifdef EL_HAVE_MPC
-
-template<>
-inline Int SampleUniform<Int>( Int a, Int b )
+template<typename Real,typename,typename,typename>
+Real SampleUniform( const Real& a, const Real& b )
 {
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
-    std::uniform_int_distribution<Int> intDist(a,b-1); 
-    return intDist(gen);
+    std::uniform_real_distribution<Real> uni(a,b);
+    return uni(gen);
 #else
-    return a + (rand() % (b-a));
+    return (Real(rand())/(Real(RAND_MAX)+1))*(b-a) + a;
 #endif
+}
+
+template<typename Real,typename,typename,typename,typename>
+Real SampleUniform( const Real& a, const Real& b )
+{
+    return SampleUniformNaive( a, b );
+}
+
+template<typename F,typename>
+F SampleUniform( const F& a, const F& b )
+{
+    F sample;
+    sample.real( SampleUniform( a.real(), b.real() ) );
+    sample.imag( SampleUniform( a.imag(), b.imag() ) );
+    return sample;
 }
 
 template<typename F>
-inline F SampleNormal( F mean, Base<F> stddev )
+F SampleNormalMarsiglia( const F& mean, const Base<F>& stddev )
 {
     typedef Base<F> Real;
     F sample;
-    if( IsComplex<F>::value )
-        stddev = stddev / Sqrt(Real(2));
 
-#ifdef EL_HAVE_CXX11RANDOM
-    std::mt19937& gen = Generator();
-    std::normal_distribution<Real> realNormal( RealPart(mean), stddev );
-    SetRealPart( sample, realNormal(gen) );
+    Real stddevAdj = stddev;
     if( IsComplex<F>::value )
-    {
-        std::normal_distribution<Real> imagNormal( ImagPart(mean), stddev );
-        SetImagPart( sample, imagNormal(gen) );
-    }
-#else
+        stddevAdj /= Sqrt(Real(2));
+
     // Run Marsiglia's polar method
     // ============================
     // NOTE: Half of the generated samples are thrown away in the case that
     //       F is real.
     while( true )
     {
-        const Real U = SampleUniform<Real>(-1,1);
-        const Real V = SampleUniform<Real>(-1,1);
+        const Real U = SampleUniform(Real(-1),Real(1));
+        const Real V = SampleUniform(Real(-1),Real(1));
         const Real S = Sqrt(U*U+V*V);
         if( S > Real(0) && S < Real(1) )
         {
             const Real W = Sqrt(-2*Log(S)/S);
-            SetRealPart( sample, RealPart(mean) + stddev*U*W );
+            SetRealPart( sample, RealPart(mean) + stddevAdj*U*W );
             if( IsComplex<F>::value )
-                SetImagPart( sample, ImagPart(mean) + stddev*V*W );
+                SetImagPart( sample, ImagPart(mean) + stddevAdj*V*W );
             break;
         }
     }
-#endif
-
     return sample;
 }
 
-#ifdef EL_HAVE_QUAD
-template<>
-inline Quad SampleNormal( Quad mean, Quad stddev )
+template<typename F,typename>
+F SampleNormal( const F& mean, const Base<F>& stddev )
 {
-    Quad sample;
-
 #ifdef EL_HAVE_CXX11RANDOM
+    typedef Base<F> Real;
+    Real stddevAdj = stddev;
+    if( IsComplex<F>::value )
+        stddevAdj /= Sqrt(Real(2));
+
+    F sample;
     std::mt19937& gen = Generator();
-    std::normal_distribution<long double> 
-      normal( (long double)mean, (long double)stddev );
-    sample = normal(gen);
+    std::normal_distribution<Real> realNormal( RealPart(mean), stddevAdj );
+    SetRealPart( sample, realNormal(gen) );
+    if( IsComplex<F>::value )
+    {
+        std::normal_distribution<Real> imagNormal( ImagPart(mean), stddevAdj );
+        SetImagPart( sample, imagNormal(gen) );
+    }
+    return sample;
 #else
-    // Run Marsiglia's polar method
-    // ============================
-    // NOTE: Half of the generated samples are thrown away in the case that
-    //       F is real.
-    while( true )
-    {
-        const Quad U = SampleUniform<Quad>(-1,1);
-        const Quad V = SampleUniform<Quad>(-1,1);
-        const Quad S = Sqrt(U*U+V*V);
-        if( S > Quad(0) && S < Quad(1) )
-        {
-            const Quad W = Sqrt(-2*Log(S)/S);
-            sample = mean + stddev*U*W;
-            break;
-        }
-    }
+    return SampleNormalMarsiglia( mean, stddev );
 #endif
-
-    return sample;
 }
 
-template<>
-inline Complex<Quad> SampleNormal( Complex<Quad> mean, Quad stddev )
+template<typename F,typename,typename>
+F SampleNormal( const F& mean, const Base<F>& stddev )
+{ return SampleNormalMarsiglia( mean, stddev ); }
+
+template<typename F>
+F SampleBall( const F& center, const Base<F>& radius )
 {
-    Complex<Quad> sample;
-    stddev = stddev / Sqrt(Quad(2));
-
-#ifdef EL_HAVE_CXX11RANDOM
-    std::mt19937& gen = Generator();
-
-    std::normal_distribution<long double> 
-      realNormal( (long double)RealPart(mean), (long double)stddev );
-    SetRealPart( sample, Quad(realNormal(gen)) );
-
-    std::normal_distribution<long double>
-      imagNormal( (long double)ImagPart(mean), (long double)stddev );
-    SetImagPart( sample, Quad(imagNormal(gen)) );
-#else
-    // Run Marsiglia's polar method
-    // ============================
-    // NOTE: Half of the generated samples are thrown away in the case that
-    //       F is real.
-    while( true )
-    {
-        const Quad U = SampleUniform<Quad>(-1,1);
-        const Quad V = SampleUniform<Quad>(-1,1);
-        const Quad S = Sqrt(U*U+V*V);
-        if( S > Quad(0) && S < Quad(1) )
-        {
-            const Quad W = Sqrt(-2*Log(S)/S);
-            SetRealPart( sample, RealPart(mean) + stddev*U*W );
-            SetImagPart( sample, ImagPart(mean) + stddev*V*W );
-            break;
-        }
-    }
-#endif
-
-    return sample;
-}
-#endif // ifdef EL_HAVE_QUAD
-
-#ifdef EL_HAVE_MPC
-template<>
-inline BigFloat SampleNormal( BigFloat mean, BigFloat stddev )
-{
-    BigFloat sample;
-
-    // Run Marsiglia's polar method
-    // ============================
-    // NOTE: Half of the generated samples are thrown away in the case that
-    //       F is real.
-    while( true )
-    {
-        const BigFloat U = SampleUniform<BigFloat>(-1,1);
-        const BigFloat V = SampleUniform<BigFloat>(-1,1);
-        const BigFloat S = Sqrt(U*U+V*V);
-        if( S > BigFloat(0) && S < BigFloat(1) )
-        {
-            const BigFloat W = Sqrt(-2*Log(S)/S);
-            sample = mean + stddev*U*W;
-            break;
-        }
-    }
-
-    return sample;
-}
-#endif // ifdef EL_HAVE_MPC
-
-template<>
-inline float
-SampleBall<float>( float center, float radius )
-{ return SampleUniform<float>(center-radius,center+radius); }
-
-template<>
-inline double
-SampleBall<double>( double center, double radius )
-{ return SampleUniform<double>(center-radius,center+radius); }
-
-template<>
-inline Complex<float>
-SampleBall<Complex<float>>( Complex<float> center, float radius )
-{
-    const float r = SampleUniform<float>(0,radius);
-    const float angle = SampleUniform<float>(0.f,float(2*Pi));
-    return center + Complex<float>(r*cos(angle),r*sin(angle));
+    typedef Base<F> Real;
+    const Real r = SampleUniform(Real(0),radius);
+    const Real angle = SampleUniform(Real(0),2*Pi<Real>());
+    return center + F(r*Cos(angle),r*Sin(angle));
 }
 
-template<>
-inline Complex<double>
-SampleBall<Complex<double>>( Complex<double> center, double radius )
-{
-    const double r = SampleUniform<double>(0,radius);
-    const double angle = SampleUniform<double>(0.,2*Pi);
-    return center + Complex<double>(r*cos(angle),r*sin(angle));
-}
-
-#ifdef EL_HAVE_QUAD
-template<>
-inline Quad
-SampleBall<Quad>( Quad center, Quad radius )
-{ return SampleUniform<Quad>(center-radius,center+radius); }
-
-template<>
-inline Complex<Quad>
-SampleBall<Complex<Quad>>( Complex<Quad> center, Quad radius )
-{
-    const Quad r = SampleUniform<Quad>(0,radius);
-    const Quad angle = SampleUniform<Quad>(0.f,Quad(2*Pi));
-    return center + Complex<Quad>(r*Cos(angle),r*Sin(angle));
-}
-#endif
-
-#ifdef EL_HAVE_MPC
-template<>
-inline BigFloat
-SampleBall<BigFloat>( BigFloat center, BigFloat radius )
-{ return SampleUniform<BigFloat>(center-radius,center+radius); }
-#endif
-
-// I'm not certain if there is any good way to define this
-template<>
-inline Int
-SampleBall<Int>( Int center, Int radius )
-{
-    const double u = SampleBall<double>( center, radius );
-    return std::lround(u);
-}
+template<typename Real,typename>
+Real SampleBall( const Real& center, const Real& radius )
+{ return SampleUniform(center-radius,center+radius); }
 
 } // namespace El
 

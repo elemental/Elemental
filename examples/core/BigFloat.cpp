@@ -1,4 +1,4 @@
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 int main( int argc, char* argv[] )

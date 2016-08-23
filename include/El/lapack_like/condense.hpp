@@ -1,14 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_CONDENSE_HPP
 #define EL_CONDENSE_HPP
+
+#include <El/blas_like/level2.hpp>
 
 namespace El {
 
@@ -20,19 +21,19 @@ namespace El {
 template<typename F>
 void Bidiag
 ( Matrix<F>& A,
-  Matrix<F>& tP,
-  Matrix<F>& tQ );
+  Matrix<F>& phaseP,
+  Matrix<F>& phaseQ );
 
 template<typename F>
 void Bidiag
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& tP,
-  ElementalMatrix<F>& tQ );
+  ElementalMatrix<F>& phaseP,
+  ElementalMatrix<F>& phaseQ );
 template<typename F>
 void Bidiag
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& tP,
-  ElementalMatrix<F>& tQ );
+  ElementalMatrix<F>& phaseP,
+  ElementalMatrix<F>& phaseQ );
 
 namespace bidiag {
 
@@ -63,26 +64,26 @@ template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& t,
+  const Matrix<F>& phase,
         Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& phase,
         ElementalMatrix<F>& B );
 
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& t,
+  const Matrix<F>& phase,
         Matrix<F>& B );
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& phase,
         ElementalMatrix<F>& B );
 
 } // namespace bidiag
@@ -109,10 +110,12 @@ struct HermitianTridiagCtrl
 };
 
 template<typename F>
-void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
+void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase );
 template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t,
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A,
+  ElementalMatrix<F>& phase,
   const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
 
 namespace herm_tridiag {
@@ -127,11 +130,14 @@ void ExplicitCondensed
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B );
+  const Matrix<F>& A,
+  const Matrix<F>& phase,
+        Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& phase, 
         ElementalMatrix<F>& B );
 
 } // namespace herm_tridiag
@@ -139,10 +145,10 @@ void ApplyQ
 // Hessenberg
 // ==========
 template<typename F>
-void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
+void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase );
 template<typename F>
 void Hessenberg
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& t );
+( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& phase );
 
 namespace hessenberg {
 
@@ -154,12 +160,28 @@ void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B );
+  const Matrix<F>& A,
+  const Matrix<F>& phase,
+        Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, const ElementalMatrix<F>& t, 
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& phase, 
         ElementalMatrix<F>& B );
+
+template<typename F>
+void FormQ
+( UpperOrLower uplo,
+  const Matrix<F>& A,
+  const Matrix<F>& phase,
+        Matrix<F>& Q );
+template<typename F>
+void FormQ
+( UpperOrLower uplo,
+  const ElementalMatrix<F>& A,
+  const ElementalMatrix<F>& phase, 
+        ElementalMatrix<F>& Q );
 
 } // namespace hessenberg
 

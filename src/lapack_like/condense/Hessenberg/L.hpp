@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_HESSENBERG_L_HPP
 #define EL_HESSENBERG_L_HPP
 
@@ -17,16 +16,11 @@ namespace El {
 namespace hessenberg {
 
 template<typename F>
-inline void L( Matrix<F>& A, Matrix<F>& t )
+void L( Matrix<F>& A, Matrix<F>& phase )
 {
-    DEBUG_ONLY(
-      CSE cse("hessenberg::L");
-      // Is this requirement necessary?!?
-      if( t.Viewing() )
-          LogicError("t must not be a view");
-    )
+    DEBUG_CSE
     const Int n = A.Height();
-    t.Resize( Max(n-1,0), 1 );
+    phase.Resize( Max(n-1,0), 1 );
 
     Matrix<F> UB1, V01, VB1, G11;
 
@@ -43,11 +37,11 @@ inline void L( Matrix<F>& A, Matrix<F>& t )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto t1 = t( ind1, ALL );
+        auto phase1 = phase( ind1, ALL );
         UB1.Resize( n-k, nb );
         VB1.Resize( n-k, nb );
         G11.Resize( nb,  nb );
-        hessenberg::LPan( ABR, t1, UB1, VB1, G11 );
+        hessenberg::LPan( ABR, phase1, UB1, VB1, G11 );
 
         auto AB0 = A( indB, ind0 );
         auto A2R = A( ind2, indR );
@@ -75,21 +69,19 @@ inline void L( Matrix<F>& A, Matrix<F>& t )
 }
 
 template<typename F> 
-inline void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
+void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& phasePre )
 {
-    DEBUG_ONLY(
-      CSE cse("hessenberg::L");
-      AssertSameGrids( APre, tPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, phasePre ))
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> tProx( tPre );
+    DistMatrixWriteProxy<F,F,STAR,STAR> phaseProx( phasePre );
     auto& A = AProx.Get();
-    auto& t = tProx.Get();
+    auto& phase = phaseProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    t.Resize( Max(n-1,0), 1 );
+    phase.Resize( Max(n-1,0), 1 );
 
     DistMatrix<F,MC,STAR> UB1_MC_STAR(g), V21_MC_STAR(g);
     DistMatrix<F,MR,STAR> V01_MR_STAR(g), VB1_MR_STAR(g), UB1_MR_STAR(g);
@@ -108,7 +100,7 @@ inline void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto t1 = t( ind1, ALL );
+        auto phase1 = phase( ind1, ALL );
         UB1_MC_STAR.AlignWith( ABR );
         UB1_MR_STAR.AlignWith( ABR );
         VB1_MR_STAR.AlignWith( ABR );
@@ -117,7 +109,7 @@ inline void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& tPre )
         VB1_MR_STAR.Resize( n-k, nb );
         G11_STAR_STAR.Resize( nb, nb );
         hessenberg::LPan
-        ( ABR, t1, UB1_MC_STAR, UB1_MR_STAR, VB1_MR_STAR, G11_STAR_STAR );
+        ( ABR, phase1, UB1_MC_STAR, UB1_MR_STAR, VB1_MR_STAR, G11_STAR_STAR );
 
         auto AB0 = A( indB, ind0 );
         auto A2R = A( ind2, indR );

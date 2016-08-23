@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TWOSIDEDTRMM_UNBLOCKED_HPP
 #define EL_TWOSIDEDTRMM_UNBLOCKED_HPP
 
@@ -14,10 +13,9 @@ namespace El {
 namespace twotrmm {
 
 template<typename T>
-inline void
-LUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
+void LUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 {
-    DEBUG_ONLY(CSE cse("twotrmm::LUnb"))
+    DEBUG_CSE
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
     const Int n = A.Height();
@@ -47,7 +45,7 @@ LUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
         for( Int k=0; k<j; ++k )
             l10Conj[k] = Conj(l10[k*ldl]);
         blas::Her2
-        ( 'L', j, Base<T>(1), a10Conj.data(), 1, l10Conj.data(), 1, A00, lda );
+        ( 'L', j, T(1), a10Conj.data(), 1, l10Conj.data(), 1, A00, lda );
 
         // a10 := a10 + (alpha11/2)l10
         for( Int k=0; k<j; ++k )
@@ -74,10 +72,9 @@ LUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 }
 
 template<typename T>
-inline void
-UUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
+void UUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 {
-    DEBUG_ONLY(CSE cse("twotrmm::UUnb"))
+    DEBUG_CSE
     // Use the Variant 4 algorithm
     const Int n = A.Height();
     const Int lda = A.LDim();
@@ -100,7 +97,7 @@ UUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 
         // A00 := A00 + (u01 a01' + a01 u01')
         T* A00 = ABuffer;
-        blas::Her2( 'U', j, Base<T>(1), u01, 1, a01, 1, A00, lda );
+        blas::Her2( 'U', j, T(1), u01, 1, a01, 1, A00, lda );
 
         // a01 := a01 + (alpha11/2)u01
         for( Int k=0; k<j; ++k )

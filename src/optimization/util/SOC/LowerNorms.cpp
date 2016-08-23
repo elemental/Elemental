@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -18,7 +18,7 @@ void LowerNorms
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
+    DEBUG_CSE
     const Int height = x.Height();
     DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
@@ -27,19 +27,15 @@ void LowerNorms
           LogicError("orders and firstInds should be of the same height as x");
     )
 
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     auto xLower = x;
-    Real* xLowerBuf = xLower.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] )
-            xLowerBuf[i] = 0;
+        if( i == firstInds(i) )
+            xLower(i) = 0;
 
     soc::Dots( xLower, xLower, lowerNorms, orders, firstInds );
-    Real* lowerNormBuf = lowerNorms.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] )
-            lowerNormBuf[i] = Sqrt(lowerNormBuf[i]);
+        if( i == firstInds(i) )
+            lowerNorms(i) = Sqrt(lowerNorms(i));
 }
 
 template<typename Real,typename>
@@ -50,7 +46,7 @@ void LowerNorms
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
+    DEBUG_CSE
     AssertSameGrids( xPre, lowerNormsPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -101,7 +97,7 @@ void LowerNorms
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::LowerNorms"))
+    DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     DEBUG_ONLY(
@@ -147,7 +143,11 @@ void LowerNorms
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

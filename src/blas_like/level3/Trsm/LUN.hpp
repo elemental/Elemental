@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -15,14 +15,13 @@ namespace trsm {
 //   X := triuu(U)^-1 X
 
 template<typename F>
-inline void
-LUNLarge
+void LUNLarge
 ( UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("trsm::LUNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -71,14 +70,13 @@ LUNLarge
 }
 
 template<typename F>
-inline void
-LUNMedium
+void LUNMedium
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("trsm::LUNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -127,15 +125,14 @@ LUNMedium
 }
 
 template<typename F,Dist colDist>
-inline void
-LUNSmall
+void LUNSmall
 ( UnitOrNonUnit diag,
   const DistMatrix<F,colDist,STAR>& U,
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LUNSmall");
       AssertSameGrids( U, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError

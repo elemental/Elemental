@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  Copyright 2012, Jed Brown
@@ -12,7 +12,14 @@
 #  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-cmake_minimum_required(VERSION 2.8.12)
+if(APPLE)
+  # RPATH support for OS X was introduced in this version
+  cmake_minimum_required(VERSION 2.8.12)
+else()
+  # It is likely/possible that this version could be decreased, but this version
+  # was chosen to support the default version of CMake in CentOS 7
+  cmake_minimum_required(VERSION 2.8.11)
+endif()
 
 project(Elemental C CXX)
 set(EL_VERSION_MAJOR 0)
@@ -55,6 +62,26 @@ endif()
 if(BUILD_SHARED_LIBS AND NOT SUPPORTS_SHARED)
   message("Elemental was configured to build shared libraries, but they are not supported on the target platform: BUILD_SHARED_LIBS will be manually set to OFF")
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries?")
+endif()
+
+include(GNUInstallDirs)
+if(NOT CMAKE_INSTALL_INCLUDEDIR)
+  set(CMAKE_INSTALL_INCLUDEDIR "include")
+endif()
+if(NOT CMAKE_INSTALL_LIBDIR) 
+  set(CMAKE_INSTALL_LIBDIR "lib") 
+endif()
+if(NOT CMAKE_INSTALL_BINDIR)
+  set(CMAKE_INSTALL_BINDIR "bin")
+endif()
+if(NOT CMAKE_INSTALL_DATADIR)
+  set(CMAKE_INSTALL_DATADIR "share") 
+endif()
+if(NOT CMAKE_INSTALL_DOCDIR)
+  set(CMAKE_INSTALL_DOCDIR "share/doc/elemental") 
+endif()
+if(NOT CMAKE_INSTALL_SYSCONFDIR)
+  set(CMAKE_INSTALL_SYSCONFDIR "etc") 
 endif()
 
 # Whether or not to attempt to use OpenMP within hot-spots in Elemental
@@ -109,7 +136,14 @@ option(EL_PREFER_OPENBLAS "Prefer OpenBLAS over alternatives?" OFF)
 option(EL_FORCE_OPENBLAS_BUILD
   "Avoid search for OpenBLAS and instead build?" OFF)
 
-option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" OFF)
+# Ugh. Elemental currently supports ScaLAPACK building its own custom
+# BLAS and LAPACK if Elemental is using a custom symbol suffix for its own.
+if(EL_USE_64BIT_BLAS_INTS AND
+   (NOT CUSTOM_BLAS_SUFFIX OR NOT CUSTOM_LAPACK_SUFFIX))
+  option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" ON)
+else()
+  option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" OFF)
+endif()
 option(EL_FORCE_SCALAPACK_BUILD
   "Avoid search for ScaLAPACK and instead build?" OFF)
 
@@ -154,8 +188,7 @@ option(EL_DISABLE_VALGRIND "Prevent Elemental from looking for valgrind?" OFF)
 mark_as_advanced(EL_DISABLE_VALGRIND)
 
 option(EL_USE_CUSTOM_ALLTOALLV "Avoid MPI_Alltoallv for performance reasons" ON)
-option(EL_BARRIER_IN_ALLTOALLV "Barrier before posting non-blocking recvs" OFF)
-mark_as_advanced(EL_USE_CUSTOM_ALLTOALLV EL_BARRIER_IN_ALLTOALLV)
+mark_as_advanced(EL_USE_CUSTOM_ALLTOALLV)
 
 # Since it is surprisingly common for MPI libraries to have bugs in their
 # support for complex data, the following option forces Elemental to cast
@@ -355,8 +388,8 @@ include(external_projects/ElMath)
 # ----------------------------------------------------------
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 set(EL_LINK_FLAGS)
-if(MPI_LINK_FLAGS)
-  set(EL_LINK_FLAGS ${MPI_LINK_FLAGS})
+if(MPI_CXX_LINK_FLAGS)
+  set(EL_LINK_FLAGS ${MPI_CXX_LINK_FLAGS})
 endif()
 if(EL_BUILT_BLIS_LAPACK)
   if(EL_LINK_FLAGS)
@@ -394,7 +427,7 @@ include(CreateElVars)
 
 # Get the combined list of source files for Elemental
 # ---------------------------------------------------
-file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR}
+file(GLOB_RECURSE EL_C_CPP_SOURCE RELATIVE "${PROJECT_SOURCE_DIR}"
   "src/*.c" "src/*.cpp" "include/*.h" "include/*.hpp" )
 if(EL_HAVE_QT5)
   set(EL_HEADERS_PREMOC
@@ -415,14 +448,14 @@ endif()
 
 # Handle the header preparation and installation
 # ----------------------------------------------
-configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/config.h.in
-               ${PROJECT_BINARY_DIR}/include/El/config.h)
-install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h
-        DESTINATION include/El)
-add_custom_target(El_config DEPENDS ${PROJECT_BINARY_DIR}/include/El/config.h)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+configure_file("${PROJECT_SOURCE_DIR}/cmake/configure_files/config.h.in"
+               "${PROJECT_BINARY_DIR}/include/El/config.h")
+install(FILES "${PROJECT_BINARY_DIR}/include/El/config.h"
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/El)
+add_custom_target(El_config DEPENDS "${PROJECT_BINARY_DIR}/include/El/config.h")
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} 
+  	FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
 # Define the main library for Elemental
 # -------------------------------------
@@ -453,14 +486,14 @@ target_link_libraries(El ${LINK_LIBS})
 if(EL_LINK_FLAGS)
   set_target_properties(El PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS El EXPORT ElTargets DESTINATION lib)
+install(TARGETS El EXPORT ElementalTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Decide if/how to install the Python interface
 # ---------------------------------------------
 if(BUILD_SHARED_LIBS)
   # Create the environment file for Python which hardcodes the installation dir
-  configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/environment.py.in
-                 ${PROJECT_BINARY_DIR}/python/core/environment.py)
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/configure_files/environment.py.in"
+                 "${PROJECT_BINARY_DIR}/python/core/environment.py")
   if(INSTALL_PYTHON_PACKAGE)
     if(NOT PYTHON_SITE_PACKAGES)
       if(INSTALL_PYTHON_INTO_USER_SITE)
@@ -474,45 +507,66 @@ if(BUILD_SHARED_LIBS)
           OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
           OUTPUT_STRIP_TRAILING_WHITESPACE)
       endif()  
-      set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES} 
+      set(PYTHON_SITE_PACKAGES "${PYTHON_SITE_PACKAGES}"
         CACHE PATH "Destination for Python site package directory")
     endif()
-    install(DIRECTORY ${PROJECT_SOURCE_DIR}/python/
-      DESTINATION ${PYTHON_SITE_PACKAGES}/El 
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/python/"
+      DESTINATION "${PYTHON_SITE_PACKAGES}/El"
       FILES_MATCHING PATTERN "*.py")
-    install(FILES ${PROJECT_BINARY_DIR}/python/core/environment.py
-      DESTINATION ${PYTHON_SITE_PACKAGES}/El/core)
+    install(FILES "${PROJECT_BINARY_DIR}/python/core/environment.py"
+      DESTINATION "${PYTHON_SITE_PACKAGES}/El/core")
   else()
-    install(DIRECTORY ${PROJECT_SOURCE_DIR}/python/
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/python/"
       DESTINATION python/El
       FILES_MATCHING PATTERN "*.py")
-    install(FILES ${PROJECT_BINARY_DIR}/python/core/environment.py
+    install(FILES "${PROJECT_BINARY_DIR}/python/core/environment.py"
       DESTINATION python/El/core)
   endif()
 endif()
-
+if(NOT NO_BINARY_SUBDIRECTORIES)
+   set(EXPERIMENTAL_INSTALL_DIR experimental/g3d)
+endif()
 # Experimental
 # ============
+# NOTE: This is insanely outdated
 if(EL_EXPERIMENTAL)
-  set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
+  set(EXPERIMENTAL_DIR "${PROJECT_SOURCE_DIR}/experimental")
   # Build the G3D example(s)
   set(G3D_EXPERS G3DGemm)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
   foreach(EXPER ${G3D_EXPERS})
-    set(DRIVER ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
-    add_executable(experimental-g3d-${EXPER} ${DRIVER})
-    set_source_files_properties(${DRIVER} PROPERTIES
+    set(DRIVER "${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp")
+    add_executable(experimental-g3d-${EXPER} "${DRIVER}")
+    set_source_files_properties("${DRIVER}" PROPERTIES
       OBJECT_DEPENDS "${PREPARED_HEADERS}")
     target_link_libraries(experimental-g3d-${EXPER} El)
     set_target_properties(experimental-g3d-${EXPER} PROPERTIES
-      OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+      OUTPUT_NAME ${EXPER}
+      SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(EL_LINK_FLAGS)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
         LINK_FLAGS ${EL_LINK_FLAGS})
     endif()
-    install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
+    install(TARGETS experimental-g3d-${EXPER} DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXPERIMENTAL_INSTALL_DIR})
   endforeach()
 endif()
+
+# Install data
+# ============
+# TODO(poulson): Also install into the build directory? How to have drivers
+# automatically find the right path?
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/data/"
+	DESTINATION ${CMAKE_INSTALL_DATADIR}/elemental/ FILES_MATCHING PATTERN "*.*")
+
+# Install license and author information
+# ======================================
+install(FILES "${PROJECT_SOURCE_DIR}/AUTHORS"
+              "${PROJECT_SOURCE_DIR}/LICENSE"
+              "${PROJECT_SOURCE_DIR}/PUBLICATIONS.bib"
+              "${PROJECT_SOURCE_DIR}/README.md"
+              "${PROJECT_SOURCE_DIR}/REFERENCES.bib"
+	      DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Tests and examples
 # ==================
@@ -520,46 +574,54 @@ include(CTest)
 
 # Sandbox test
 # ------------
-install(FILES ${PROJECT_SOURCE_DIR}/sandbox/Makefile DESTINATION sandbox)
-install(FILES ${PROJECT_SOURCE_DIR}/sandbox/test.cpp DESTINATION sandbox)
-add_executable(sandbox-test ${PROJECT_SOURCE_DIR}/sandbox/test.cpp)
-set_source_files_properties(${PROJECT_SOURCE_DIR}/sandbox/test.cpp PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
+install(FILES "${PROJECT_SOURCE_DIR}/sandbox/Makefile" DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
+install(FILES "${PROJECT_SOURCE_DIR}/sandbox/test.cpp" DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
+add_executable(sandbox-test "${PROJECT_SOURCE_DIR}/sandbox/test.cpp")
+set_source_files_properties("${PROJECT_SOURCE_DIR}/sandbox/test.cpp"
+  PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
 target_link_libraries(sandbox-test El)
-set_target_properties(sandbox-test PROPERTIES OUTPUT_NAME sandbox-test 
-  RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+set_target_properties(sandbox-test PROPERTIES
+  OUTPUT_NAME sandbox-test
+  SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
+  RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 if(EL_LINK_FLAGS)
   set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-add_test(NAME sandbox/test WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin 
+add_test(NAME sandbox/test WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
   COMMAND sandbox-test)
 
 # Test drivers
 # ------------
 if(EL_TESTS)
-  set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
+  set(TEST_DIR "${PROJECT_SOURCE_DIR}/tests")
   set(TEST_TYPES core blas_like lapack_like optimization)
   foreach(TYPE ${TEST_TYPES})
     file(GLOB_RECURSE ${TYPE}_TESTS
-      RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ "tests/${TYPE}/*.cpp")
+      RELATIVE "${PROJECT_SOURCE_DIR}/tests/${TYPE}/" "tests/${TYPE}/*.cpp")
 
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")
     foreach(TEST ${${TYPE}_TESTS})
-      set(DRIVER ${TEST_DIR}/${TYPE}/${TEST})
+      set(DRIVER "${TEST_DIR}/${TYPE}/${TEST}")
       get_filename_component(TESTNAME ${TEST} NAME_WE)
-      add_executable(tests-${TYPE}-${TESTNAME} ${DRIVER})
-      set_source_files_properties(${DRIVER} PROPERTIES
+      add_executable(tests-${TYPE}-${TESTNAME} "${DRIVER}")
+      set_source_files_properties("${DRIVER}" PROPERTIES
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(tests-${TYPE}-${TESTNAME} El)
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
-        OUTPUT_NAME ${TESTNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+        OUTPUT_NAME ${TESTNAME}
+        SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
+        RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
         set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
-      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
+      if(NOT NO_BINARY_SUBDIRECTORIES)
+      	set(TEST_INSTALL_DIR test/${TYPE})
+      endif()
+      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME} 
-          WORKING_DIRECTORY ${TEST_DIR} COMMAND tests-${TYPE}-${TESTNAME})
+          WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME})
       endif()
     endforeach()
   endforeach()
@@ -568,35 +630,43 @@ endif()
 # Examples
 # --------
 if(EL_EXAMPLES)
-  set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
+  set(EXAMPLE_DIR "${PROJECT_SOURCE_DIR}/examples")
   set(EXAMPLE_TYPES
-      optimization core blas_like interface io lapack_like matrices)
+      optimization core blas_like interface io lapack_like matrices
+      number_theory)
   foreach(TYPE ${EXAMPLE_TYPES})
     if(EL_C_INTERFACE)
       file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE
-           ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp"
-                                                   "examples/${TYPE}/*.c" )
+           "${PROJECT_SOURCE_DIR}/examples/${TYPE}/"
+           "examples/${TYPE}/*.cpp"
+           "examples/${TYPE}/*.c" )
     else()
       file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE
-           ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp")
+           "${PROJECT_SOURCE_DIR}/examples/${TYPE}/"
+           "examples/${TYPE}/*.cpp")
     endif()
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/${TYPE}")
     foreach(EXAMPLE ${${TYPE}_EXAMPLES})
-      set(DRIVER ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE})
+      set(DRIVER "${EXAMPLE_DIR}/${TYPE}/${EXAMPLE}")
       get_filename_component(EXNAME ${EXAMPLE} NAME_WE)
-      add_executable(examples-${TYPE}-${EXNAME} ${DRIVER})
-      set_source_files_properties(${DRIVER} PROPERTIES
+      add_executable(examples-${TYPE}-${EXNAME} "${DRIVER}")
+      set_source_files_properties("${DRIVER}" PROPERTIES
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(examples-${TYPE}-${EXNAME} El)
       set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
-        OUTPUT_NAME ${EXNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+        OUTPUT_NAME ${EXNAME}
+        SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
+        RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
         set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
+      if(NOT NO_BINARY_SUBDIRECTORIES)
+      	set(EXAMPLE_INSTALL_DIR examples/${TYPE})
+      endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
-        DESTINATION bin/examples/${TYPE})
-      add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY ${OUTPUT_DIR}
+	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR})
+      add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
         COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
   endforeach()
@@ -618,43 +688,38 @@ set(CPACK_PACKAGE_VERSION_MAJOR ${EL_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${EL_VERSION_MINOR})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
   "Distributed-memory linear algebra and optimization")
-set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/cmake/El.png)
+set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/cmake/El.png")
 include(CPack)
 
 # ProjectConfig
 # =====
-# Create ElConfig.cmake for find_package.
+# Create ElementalConfig.cmake for find_package.
 # Add all targets to the build-tree export set
 export(TARGETS El pmrrr ElSuiteSparse
-  FILE "${PROJECT_BINARY_DIR}/ElTargets.cmake")
+  FILE "${PROJECT_BINARY_DIR}/ElementalTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
-export(PACKAGE El)
+export(PACKAGE Elemental)
 
-# Create the ElConfig.cmake and ElConfigVersion files
+# Create the ElementalConfig.cmake and ElementalConfigVersion files
 file(RELATIVE_PATH REL_INCLUDE_DIR "${PROJECT_BINARY_DIR}"
-    "${PROJECT_BINARY_DIR}include")
+  "${PROJECT_BINARY_DIR}/include")
 # ... for the build tree
-configure_file(${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfig.cmake.in
-    "${PROJECT_BINARY_DIR}/ElConfig.cmake" @ONLY)
+configure_file(
+  "${PROJECT_SOURCE_DIR}/cmake/configure_files/ElementalConfig.cmake.in"
+  "${PROJECT_BINARY_DIR}/ElementalConfig.cmake" @ONLY)
 # ... for both
 configure_file(
-    ${PROJECT_SOURCE_DIR}/cmake/configure_files/ElConfigVersion.cmake.in
-    "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake" @ONLY)
+  "${PROJECT_SOURCE_DIR}/cmake/configure_files/ElementalConfigVersion.cmake.in"
+  "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake" @ONLY)
 
-# Install the ElConfig.cmake and ElConfigVersion.cmake
+# Install the ElementalConfig.cmake and ElementalConfigVersion.cmake
 set(INSTALL_CMAKE_DIR CMake)
 install(FILES
-    "${PROJECT_BINARY_DIR}/ElConfig.cmake"
-    "${PROJECT_BINARY_DIR}/ElConfigVersion.cmake"
-    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  "${PROJECT_BINARY_DIR}/ElementalConfig.cmake"
+  "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/elemental/${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
-install(EXPORT ElTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
-# Subproject
-# ==========
-# If Elemental is a subproject, then pass some variables to the parent
-if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  include(ElSub)
-endif()
+install(EXPORT ElementalTargets
+	DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/elemental/${INSTALL_CMAKE_DIR}" COMPONENT dev)

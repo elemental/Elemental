@@ -1,18 +1,19 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 int 
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
 
     try
     {
@@ -36,16 +37,16 @@ main( int argc, char* argv[] )
 
         // Get a consistent set of row and column indices (duplication is okay)
         std::vector<Int> rowInds(numRows), colInds(numCols);
-        if( mpi::Rank() == 0 )
+        if( mpi::Rank(comm) == 0 )
         {
             for( Int j=0; j<numRows; ++j )
-                rowInds[j] = SampleUniform<Int>(0,n);
+                rowInds[j] = SampleUniform(0,n);
             for( Int j=0; j<numCols; ++j )
-                colInds[j] = SampleUniform<Int>(0,n);
+                colInds[j] = SampleUniform(0,n);
         }
-        mpi::Broadcast( rowInds.data(), numRows, 0 );
-        mpi::Broadcast( colInds.data(), numCols, 0 );
-        if( mpi::Rank() == 0 && print )
+        mpi::Broadcast( rowInds.data(), numRows, 0, comm );
+        mpi::Broadcast( colInds.data(), numCols, 0, comm );
+        if( mpi::Rank(comm) == 0 && print )
         {
             std::cout << "rowInds: \n";
             for( Int j=0; j<numRows; ++j )

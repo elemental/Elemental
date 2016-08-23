@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -111,11 +111,16 @@ namespace soc {
 namespace {
 
 template<typename Real,typename=EnableIf<IsReal<Real>>>
-inline Real ChooseStepLength
-( Real x0, Real y0, Real xDet, Real yDet, Real xTRy, Real upperBound, 
-  Real delta=limits::Epsilon<Real>() )
+Real ChooseStepLength
+( const Real& x0,
+  const Real& y0,
+  const Real& xDet,
+  const Real& yDet,
+  const Real& xTRy,
+  const Real& upperBound, 
+  const Real& delta=limits::Epsilon<Real>() )
 {
-    DEBUG_ONLY(CSE cse("ChooseStepLength"))
+    DEBUG_CSE
     Real step;
     if( y0 >= Real(0) && yDet >= Real(0) ) 
     {
@@ -160,7 +165,7 @@ Real MaxStep
   const Matrix<Int>& firstInds,
   Real upperBound )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int height = x.Height();
 
@@ -204,7 +209,7 @@ Real MaxStep
 
         i += order;
     }
-    return alpha;
+    return Real(alpha);
 }
 
 template<typename Real,typename>
@@ -215,7 +220,7 @@ Real MaxStep
   const ElementalMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
 
     ElementalProxyCtrl control;
@@ -266,7 +271,7 @@ Real MaxStep
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
 
-    return mpi::AllReduce( alpha, mpi::MIN, x.DistComm() );
+    return Real(mpi::AllReduce( alpha, mpi::MIN, x.DistComm() ));
 }
 
 template<typename Real,typename>
@@ -277,7 +282,7 @@ Real MaxStep
   const DistMultiVec<Int>& firstInds,
   Real upperBound, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MaxStep"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = x.Comm();
 
@@ -317,7 +322,7 @@ Real MaxStep
 
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
-    return mpi::AllReduce( alpha, mpi::MIN, comm );
+    return Real(mpi::AllReduce( alpha, mpi::MIN, comm ));
 }
 
 #define PROTO(Real) \
@@ -342,7 +347,11 @@ Real MaxStep
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

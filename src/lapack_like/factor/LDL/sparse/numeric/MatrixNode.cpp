@@ -19,7 +19,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace ldl {
@@ -44,7 +44,7 @@ MatrixNode<T>::MatrixNode
 ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X )
 : parent(nullptr), duplicateMat(nullptr), duplicateMV(nullptr)
 { 
-    DEBUG_ONLY(CSE cse("MatrixNode::MatrixNode"))
+    DEBUG_CSE
     Pull( invMap, info, X ); 
 }
 
@@ -58,7 +58,7 @@ MatrixNode<T>::~MatrixNode()
 template<typename T>
 const MatrixNode<T>& MatrixNode<T>::operator=( const MatrixNode<T>& X )
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::operator="))
+    DEBUG_CSE
     matrix = X.matrix; 
 
     // Clean up any pre-existing children if not the right amount
@@ -82,19 +82,15 @@ template<typename T>
 void MatrixNode<T>::Pull
 ( const vector<Int>& invMap, const NodeInfo& info, const Matrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::Pull"))
+    DEBUG_CSE
  
     const Int width = X.Width();
     matrix.Resize( info.size, width );
-    const T* XBuf = X.LockedBuffer();
-    const Int XLDim = X.LDim();
-    T* thisBuf = matrix.Buffer();
-    const Int thisLDim = matrix.LDim();
     for( Int t=0; t<info.size; ++t )
     {
         const Int i = invMap[info.off+t];
         for( Int j=0; j<width; ++j )
-            thisBuf[t+j*thisLDim] = XBuf[i+j*XLDim];
+            matrix(t,j) = X(i,j);
     }
 
     // Clean up any pre-existing children if not the right amount
@@ -116,12 +112,10 @@ template<typename T>
 void MatrixNode<T>::Push
 ( const vector<Int>& invMap, const NodeInfo& info, Matrix<T>& X ) const
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::Push"))
+    DEBUG_CSE
 
     const Int width = matrix.Width();
     X.Resize( info.off+info.size, width );
-    T* XBuf = X.Buffer();
-    const Int XLDim = X.LDim();
 
     function<void(const MatrixNode<T>&,const NodeInfo&)> push = 
       [&]( const MatrixNode<T>& matNode, const NodeInfo& infoNode ) 
@@ -130,13 +124,11 @@ void MatrixNode<T>::Push
           for( Int c=0; c<numChildren; ++c )
               push( *matNode.children[c], *infoNode.children[c] );
 
-          const T* nodeBuf = matNode.matrix.LockedBuffer();
-          const Int nodeLDim = matNode.matrix.LDim();
           for( Int t=0; t<infoNode.size; ++t )
           {
               const Int i = invMap[infoNode.off+t];
               for( Int j=0; j<width; ++j )
-                  XBuf[i+j*XLDim] = nodeBuf[t+j*nodeLDim];
+                  X(i,j) = matNode.matrix(t,j);
           }
       };
     push( *this, info ); 
@@ -145,7 +137,7 @@ void MatrixNode<T>::Push
 template<typename T>
 Int MatrixNode<T>::Height() const
 {
-    DEBUG_ONLY(CSE cse("MatrixNode::LocalHeight"))    
+    DEBUG_CSE
     Int height = 0;
     function<void(const MatrixNode<T>&)> count = 
       [&]( const MatrixNode<T>& node )
@@ -159,7 +151,11 @@ Int MatrixNode<T>::Height() const
 }
 
 #define PROTO(T) template struct MatrixNode<T>;
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace ldl
 } // namespace El

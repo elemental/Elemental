@@ -1,19 +1,19 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename F>
 Base<F> Norm( const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("Norm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -47,7 +47,7 @@ Base<F> Norm( const Matrix<F>& A, NormType type )
 template<typename F>
 Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("SymmetricNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -81,7 +81,7 @@ Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 template<typename F>
 Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("HermitianNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -115,7 +115,7 @@ Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 template<typename F> 
 Base<F> Norm( const ElementalMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("Norm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -150,7 +150,7 @@ template<typename F>
 Base<F> SymmetricNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("SymmetricNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -185,7 +185,7 @@ template<typename F>
 Base<F> HermitianNorm
 ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
 {
-    DEBUG_ONLY(CSE cse("HermitianNorm"))
+    DEBUG_CSE
     Base<F> norm = 0;
     switch( type )
     {
@@ -229,6 +229,10 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    Copyright (c) 2013, The University of Texas at Austin
@@ -9,7 +9,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TRMM_LLN_HPP
 #define EL_TRMM_LLN_HPP
 
@@ -17,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateLLN
+void LocalAccumulateLLN
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -26,8 +24,8 @@ LocalAccumulateLLN
   const DistMatrix<T,STAR,MR  >& XTrans,
         DistMatrix<T,MC,  STAR>& Z )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateLLN");
       AssertSameGrids( L, XTrans, Z );
       if( L.Height() != L.Width() ||
           L.Height() != XTrans.Width() ||
@@ -69,14 +67,13 @@ LocalAccumulateLLN
 }
 
 template<typename T>
-inline void
-LLNA
+void LLNA
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LLNA");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
           LogicError
@@ -108,7 +105,8 @@ LLNA
 
         X1_VR_STAR = X1;
         Transpose( X1_VR_STAR, X1Trans_STAR_MR );
-        Zeros( Z1_MC_STAR, m, nb );
+        Z1_MC_STAR.Resize( m, nb );
+        Zero( Z1_MC_STAR );
         LocalAccumulateLLN
         ( TRANSPOSE, diag, T(1), L, X1Trans_STAR_MR, Z1_MC_STAR );
         Contract( Z1_MC_STAR, X1 );
@@ -116,14 +114,13 @@ LLNA
 }
 
 template<typename T>
-inline void
-LLNCOld
+void LLNCOld
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LLNCOld");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
           LogicError
@@ -170,21 +167,21 @@ LLNCOld
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
-        Zeros( D1, nb, n );
+        D1.Resize( nb, n );
+        Zero( D1 );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
     }
 }
 
 template<typename T>
-inline void
-LLNC
+void LLNC
 ( UnitOrNonUnit diag, 
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LLNC");
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
           LogicError
@@ -234,13 +231,12 @@ LLNC
 //   X := tril(L)  X, or
 //   X := trilu(L) X
 template<typename T>
-inline void
-LLN
+void LLN
 ( UnitOrNonUnit diag,
-  const ElementalMatrix<T>& L,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& L,
+        AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::LLN"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )
         LLNA( diag, L, X );

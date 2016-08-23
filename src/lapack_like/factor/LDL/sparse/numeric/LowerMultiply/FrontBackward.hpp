@@ -17,7 +17,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERMULTIPLY_FRONTBACKWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERMULTIPLY_FRONTBACKWARD_HPP
 
@@ -25,11 +24,11 @@ namespace El {
 namespace ldl {
 
 template<typename F>
-inline void FrontVanillaLowerBackwardMultiply
+void FrontVanillaLowerBackwardMultiply
 ( const Matrix<F>& L, Matrix<F>& X, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardMultiply");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal multiply:\n",
@@ -45,10 +44,10 @@ inline void FrontVanillaLowerBackwardMultiply
 }
 
 template<typename F>
-inline void FrontLowerBackwardMultiply
+void FrontLowerBackwardMultiply
 ( const Front<F>& front, Matrix<F>& W, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardMultiply"))
+    DEBUG_CSE
     auto type = front.type;
     if( Unfactored(type) )
         LogicError("Cannot multiply against an unfactored matrix");
@@ -68,12 +67,13 @@ inline void FrontLowerBackwardMultiply
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardMultiply
-( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+void FrontVanillaLowerBackwardMultiply
+( const DistMatrix<F,VC,STAR>& L,
+        DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -108,11 +108,13 @@ inline void FrontVanillaLowerBackwardMultiply
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardMultiply
-( const DistMatrix<F>& L, DistMatrix<F>& X, bool conjugate )
+void FrontVanillaLowerBackwardMultiply
+( const DistMatrix<F>& L,
+        DistMatrix<F>& X,
+  bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardMultiply");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -138,10 +140,10 @@ inline void FrontVanillaLowerBackwardMultiply
 }
 
 template<typename F>
-inline void FrontLowerBackwardMultiply
+void FrontLowerBackwardMultiply
 ( const DistFront<F>& front, DistMatrix<F>& W, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardMultiply"))
+    DEBUG_CSE
     if( Unfactored(front.type) )
         LogicError("Cannot multiply against an unfactored matrix");
 
@@ -152,10 +154,10 @@ inline void FrontLowerBackwardMultiply
 }
 
 template<typename F>
-inline void FrontLowerBackwardMultiply
+void FrontLowerBackwardMultiply
 ( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardMultiply"))
+    DEBUG_CSE
     if( Unfactored(front.type) )
         LogicError("Cannot multiply against an unfactored matrix");
 

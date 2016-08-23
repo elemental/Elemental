@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -18,16 +18,15 @@ namespace trsm {
 
 // width(X) >> p
 template<typename F>
-inline void
-LUTLarge
+void LUTLarge
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LUTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -81,16 +80,15 @@ LUTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LUTMedium
+void LUTMedium
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LUTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -145,16 +143,15 @@ LUTMedium
 
 // width(X) << p
 template<typename F,Dist rowDist>
-inline void
-LUTSmall
+void LUTSmall
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const DistMatrix<F,STAR,rowDist>& U,
         DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LUTSmall");
       AssertSameGrids( U, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #ifdef EL_HAVE_QT5
 
@@ -31,7 +31,7 @@ DisplayWidget<T>::~DisplayWidget()
 template<typename T>
 void DisplayWidget<T>::paintEvent( QPaintEvent* event )
 {
-    DEBUG_ONLY(CSE cse("DisplayWidget::paintEvent"))
+    DEBUG_CSE
     QStylePainter painter( this );
     painter.drawPixmap( 0, 0, pixmap_ );
 }
@@ -39,7 +39,7 @@ void DisplayWidget<T>::paintEvent( QPaintEvent* event )
 template<typename T>
 void DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
 {
-    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayReal"))
+    DEBUG_CSE
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
@@ -65,7 +65,7 @@ template<typename T>
 void DisplayWidget<T>::DisplayReal
 ( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal )
 {
-    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayReal"))
+    DEBUG_CSE
     const Int m = A->Height();
     const Int n = A->Width();
     if( m == 0 || n == 0 )
@@ -105,7 +105,7 @@ void DisplayWidget<T>::DisplayReal
 template<typename T>
 void DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
 {
-    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayImag"))
+    DEBUG_CSE
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
@@ -131,7 +131,7 @@ template<typename T>
 void DisplayWidget<T>::DisplayImag
 ( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal )
 {
-    DEBUG_ONLY(CSE cse("DisplayWidget::DisplayImag"))
+    DEBUG_CSE
     const Int m = A->Height();
     const Int n = A->Width();
     if( m == 0 || n == 0 )
@@ -171,7 +171,7 @@ void DisplayWidget<T>::DisplayImag
 template<typename T>
 void DisplayWidget<T>::SavePng( string basename ) const
 {
-    DEBUG_ONLY(CSE cse("DisplayWidget::SavePng"))
+    DEBUG_CSE
     string filename = basename + ".png";
     QFile file( filename.c_str() );
     file.open( QIODevice::WriteOnly );
@@ -180,7 +180,7 @@ void DisplayWidget<T>::SavePng( string basename ) const
 
 #define PROTO(T) template class DisplayWidget<T>;
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El
 

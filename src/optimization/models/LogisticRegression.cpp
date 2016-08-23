@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // NOTE: This is adapted from a MATLAB script written by AJ Friend.
 
@@ -14,11 +14,14 @@ namespace El {
 
 template<typename Real>
 Int LogisticRegression
-( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& w,
-  Real gamma, Regularization penalty, 
+( const Matrix<Real>& G,
+  const Matrix<Real>& q,
+        Matrix<Real>& w,
+        Real gamma,
+        Regularization penalty, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LogisticRegression"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]
@@ -28,9 +31,9 @@ Int LogisticRegression
     AL = G;
     for( Int j=0; j<numFeatures; ++j )
         for( Int i=0; i<numExamples; ++i )
-            AL.Set( i, j, AL.Get(i,j)*q.Get(i,0) );
+            AL(i,j) = AL(i,j)*q(i);
     for( Int i=0; i<numExamples; ++i )
-        A.Set( i, numFeatures, q.Get(i,0) );
+        A(i,numFeatures) = q(i);
 
     auto logisticProx = [&]( Matrix<Real>& y, Real rho )
                         { LogisticProx( y, y.Height()*rho ); };
@@ -67,12 +70,13 @@ Int LogisticRegression
 
 template<typename Real>
 Int LogisticRegression
-( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, 
+( const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& q, 
         ElementalMatrix<Real>& w, 
   Real gamma, Regularization penalty, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LogisticRegression"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]
@@ -80,18 +84,21 @@ Int LogisticRegression
     DistMatrix<Real> A( numExamples, numFeatures+1, G.Grid() );
     auto AL = A( ALL, IR(0,numFeatures) );
     AL = G;
-    DistMatrix<Real,MC,STAR> q_MC_STAR(G.Grid());
-    q_MC_STAR.AlignWith( A );
-    q_MC_STAR = q;
+    DistMatrix<Real,MC,STAR> q_MC(G.Grid());
+    q_MC.AlignWith( A );
+    q_MC = q;
+
+    Matrix<Real>& ALoc = A.Matrix();
+    Matrix<Real>& ALLoc = AL.Matrix();
+    Matrix<Real>& q_MCLoc = q_MC.Matrix();
     for( Int jLoc=0; jLoc<AL.LocalWidth(); ++jLoc )
         for( Int iLoc=0; iLoc<AL.LocalHeight(); ++iLoc )
-            AL.SetLocal
-            ( iLoc, jLoc, AL.GetLocal(iLoc,jLoc)*q_MC_STAR.GetLocal(iLoc,0) );
+            ALLoc(iLoc,jLoc) *= q_MCLoc(iLoc);
     if( A.IsLocalCol(numFeatures) )
     {
         const Int jLoc = A.LocalCol(numFeatures);
         for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
-            A.SetLocal( iLoc, jLoc, q_MC_STAR.GetLocal(iLoc,0) );
+            ALoc(iLoc,jLoc) = q_MCLoc(iLoc);
     }
 
     auto logisticProx = [&]( DistMatrix<Real>& y, Real rho )
@@ -129,17 +136,26 @@ Int LogisticRegression
 
 #define PROTO(Real) \
   template Int LogisticRegression \
-  ( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& w, \
-    Real gamma, Regularization penalty, \
+  ( const Matrix<Real>& G, \
+    const Matrix<Real>& q, \
+          Matrix<Real>& w, \
+          Real gamma, \
+          Regularization penalty, \
     const ModelFitCtrl<Real>& ctrl ); \
   template Int LogisticRegression \
-  ( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, \
+  ( const ElementalMatrix<Real>& G, \
+    const ElementalMatrix<Real>& q, \
           ElementalMatrix<Real>& w, \
-    Real gamma, Regularization penalty, \
+          Real gamma, \
+          Regularization penalty, \
     const ModelFitCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

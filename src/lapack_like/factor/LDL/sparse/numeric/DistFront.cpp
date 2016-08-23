@@ -19,7 +19,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace ldl {
@@ -44,7 +44,7 @@ DistFront<F>::DistFront
   bool conjugate )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CSE cse("DistFront::DistFront"))
+    DEBUG_CSE
     Pull( A, reordering, sep, info, conjugate );
 }
 
@@ -56,7 +56,7 @@ DistFront<F>::~DistFront()
 }
 
 template<typename F>
-inline void UnpackEntriesLocal
+void UnpackEntriesLocal
 ( const Separator& sep,
   const NodeInfo& node, 
         Front<F>& front, 
@@ -67,7 +67,7 @@ inline void UnpackEntriesLocal
         vector<int>& offs, 
         vector<int>& entryOffs )
 {
-    DEBUG_ONLY(CSE cse("UnpackEntriesLocal"))
+    DEBUG_CSE
 
     // Delete any existing children
     for( auto* childFront : front.children )
@@ -96,8 +96,6 @@ inline void UnpackEntriesLocal
         front.workSparse.Empty();
         Zeros( front.workSparse, size, size );
         Zeros( front.LDense, lowerSize, size );
-        F* LDenseBuf = front.LDense.Buffer();
-        const Int LDenseLDim = front.LDense.LDim();
 
         Int numSparseEntries = 0;
         auto offsCopy = offs;
@@ -151,7 +149,7 @@ inline void UnpackEntriesLocal
                     // TODO: Avoid this binary search?
                     Int origOff = Find( node.origLowerStruct, target );
                     const Int row = node.origLowerRelInds[origOff];
-                    LDenseBuf[(row-size)+t*LDenseLDim] = value;
+                    front.LDense(row-size,t) = value;
                 }
             }
         }
@@ -161,8 +159,6 @@ inline void UnpackEntriesLocal
     else
     {
         Zeros( front.LDense, size+lowerSize, size );
-        F* LDenseBuf = front.LDense.Buffer();
-        const Int LDenseLDim = front.LDense.LDim();
         for( Int t=0; t<size; ++t )
         {
             const Int i = sep.inds[t];
@@ -183,14 +179,14 @@ inline void UnpackEntriesLocal
                 )
                 if( target < off+size )
                 {
-                    LDenseBuf[(target-off)+t*LDenseLDim] = value;
+                    front.LDense(target-off,t) = value;
                 }
                 else
                 {
                     // TODO: Avoid this binary search?
                     Int origOff = Find( node.origLowerStruct, target );
                     const Int row = node.origLowerRelInds[origOff];
-                    LDenseBuf[row+t*LDenseLDim] = value;
+                    front.LDense(row,t) = value;
                 }
             }
         }
@@ -198,7 +194,7 @@ inline void UnpackEntriesLocal
 }
 
 template<typename F>
-inline void UnpackEntries
+void UnpackEntries
 ( const DistSeparator& sep, 
   const DistNodeInfo& node, 
         DistFront<F>& front,
@@ -209,7 +205,7 @@ inline void UnpackEntries
         vector<int>& offs, 
         vector<int>& entryOffs )
 {
-    DEBUG_ONLY(CSE cse("UnpackEntries"))
+    DEBUG_CSE
     const Grid& grid = *node.grid;
 
     if( sep.child == nullptr )
@@ -281,7 +277,7 @@ void DistFront<F>::Pull
   const DistNodeInfo& rootInfo,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("DistFront::Pull"))
+    DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     Pull
     ( A, reordering, rootSep, rootInfo, 
@@ -300,8 +296,8 @@ void DistFront<F>::Pull
         vector<Int>& colOffs,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DistFront::Pull");
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
@@ -514,7 +510,7 @@ void DistFront<F>::PullUpdate
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo )
 {
-    DEBUG_ONLY(CSE cse("DistFront::PullUpdate"))
+    DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     PullUpdate
     ( A, reordering, rootSep, rootInfo, mappedSources, mappedTargets, colOffs );
@@ -531,8 +527,8 @@ void DistFront<F>::PullUpdate
         vector<Int>& mappedTargets,
         vector<Int>& colOffs )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("DistFront::PullUpdate");
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
@@ -742,8 +738,6 @@ void DistFront<F>::PullUpdate
         const Int size = node.size;
         const Int off = node.off;
 
-        F* LDenseBuf = front.LDense.Buffer();
-        const Int LDenseLDim = front.LDense.LDim();
         if( front.sparseLeaf )
         {
             LogicError("Sparse leaves not supported in DistFront::PullUpdated");
@@ -770,14 +764,14 @@ void DistFront<F>::PullUpdate
                     )
                     if( target < off+size )
                     {
-                        LDenseBuf[(target-off)+t*LDenseLDim] += value;
+                        front.LDense(target-off,t) += value;
                     }
                     else
                     {
                         // TODO: Avoid this binary search?
                         Int origOff = Find( node.origLowerStruct, target );
                         const Int row = node.origLowerRelInds[origOff];
-                        LDenseBuf[row+t*LDenseLDim] += value;
+                        front.LDense(row,t) += value;
                     }
                 }
             }
@@ -851,7 +845,7 @@ void DistFront<F>::Push
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::Push"))
+    DEBUG_CSE
     LogicError("This routine needs to be written");
 }
 
@@ -861,7 +855,7 @@ void DistFront<F>::Unpack
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::Unpack"))
+    DEBUG_CSE
     mpi::Comm comm = rootInfo.grid->Comm();
     A.SetComm( comm );
     const Int n = rootInfo.off + rootInfo.size;
@@ -886,18 +880,47 @@ void DistFront<F>::Unpack
         const Int structSize = node.lowerStruct.size();
         if( front.sparseLeaf )
         {
+            // Queue the diagonal block
             const Int numEntries = front.LSparse.NumEntries();
-            for( Int e=0; e<numEntries; ++e )
-                A.QueueUpdate
-                ( front.LSparse.Row(e)+node.off, 
-                  front.LSparse.Col(e)+node.off,
-                  front.LSparse.Value(e) );
+            if( numEntries == 0 )
+            {
+                // Since the matrix has not yet been factored, use the original
+                // sparse matrix in front.workSparse
+                const Int numWorkEntries = front.workSparse.NumEntries();
+                for( Int e=0; e<numWorkEntries; ++e )
+                {
+                    const F value = front.workSparse.Value(e);
+                    if( value != F(0) )
+                        A.QueueUpdate
+                        ( front.workSparse.Row(e)+node.off, 
+                          front.workSparse.Col(e)+node.off,
+                          value );
+                }
+            }
+            else
+            {
+                // The matrix has already been factored
+                for( Int e=0; e<numEntries; ++e )
+                {
+                    const F value = front.LSparse.Value(e);
+                    if( value != F(0) )
+                        A.QueueUpdate
+                        ( front.LSparse.Row(e)+node.off, 
+                          front.LSparse.Col(e)+node.off,
+                          value );
+                }
+            }
 
+            // Queue the lower conectivity
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
-                    A.QueueUpdate( i, t+node.off, front.LDense.Get(s,t) );
+                {
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
+                }
             }
         }
         else
@@ -906,15 +929,22 @@ void DistFront<F>::Unpack
             {
                 const Int i = node.off + s;
                 for( Int t=0; t<=s; ++t ) 
-                    A.QueueUpdate( i, t+node.off, front.LDense.Get(s,t) );
+                {
+                    const F value = front.LDense(s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
+                }
             }
 
             for( Int s=0; s<structSize; ++s ) 
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
-                    A.QueueUpdate
-                    ( i, t+node.off, front.LDense.Get(node.size+s,t) );
+                {
+                    const F value = front.LDense(node.size+s,t);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
+                }
             }
         }
       };
@@ -949,7 +979,11 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                        A.QueueUpdate( i, t+node.off, FTL.GetLocal(sLoc,tLoc) );
+                    {
+                        const F value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != F(0) )
+                            A.QueueUpdate( i, t+node.off, value );
+                    }
                 }
             }
 
@@ -959,8 +993,10 @@ void DistFront<F>::Unpack
                 const Int i = node.lowerStruct[s];
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
-                    Int t = FBL.GlobalCol(tLoc);
-                    A.QueueUpdate( i, t+node.off, FBL.GetLocal(sLoc,tLoc) );
+                    const Int t = FBL.GlobalCol(tLoc);
+                    const F value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
                 }
             }
         }
@@ -982,7 +1018,11 @@ void DistFront<F>::Unpack
                 {
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
-                        A.QueueUpdate( i, t+node.off, FTL.GetLocal(sLoc,tLoc) );
+                    {
+                        const F value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != F(0) )
+                            A.QueueUpdate( i, t+node.off, value );
+                    }
                 }
             }
 
@@ -992,8 +1032,10 @@ void DistFront<F>::Unpack
                 const Int i = node.lowerStruct[s];
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
-                    Int t = FBL.GlobalCol(tLoc);
-                    A.QueueUpdate( i, t+node.off, FBL.GetLocal(sLoc,tLoc) );
+                    const Int t = FBL.GlobalCol(tLoc);
+                    const F value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != F(0) )
+                        A.QueueUpdate( i, t+node.off, value );
                 }
             }
         }
@@ -1007,7 +1049,7 @@ template<typename F>
 const DistFront<F>& 
 DistFront<F>::operator=( const DistFront<F>& front )
 {
-    DEBUG_ONLY(CSE cse("DistFront::operator="))
+    DEBUG_CSE
     isHermitian = front.isHermitian;
     type = front.type;
     if( front.child == nullptr )
@@ -1042,7 +1084,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
 template<typename F>
 Int DistFront<F>::NumLocalEntries() const
 {
-    DEBUG_ONLY(CSE cse("DistFront::NumLocalEntries"))
+    DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1068,7 +1110,7 @@ Int DistFront<F>::NumLocalEntries() const
 template<typename F>
 Int DistFront<F>::NumTopLeftLocalEntries() const
 {
-    DEBUG_ONLY(CSE cse("DistFront::NumTopLeftLocalEntries"))
+    DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1100,7 +1142,7 @@ Int DistFront<F>::NumTopLeftLocalEntries() const
 template<typename F>
 Int DistFront<F>::NumBottomLeftLocalEntries() const
 {
-    DEBUG_ONLY(CSE cse("DistFront::NumBottomLeftLocalEntries"))
+    DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1134,7 +1176,7 @@ Int DistFront<F>::NumBottomLeftLocalEntries() const
 template<typename F>
 double DistFront<F>::LocalFactorGFlops( bool selInv ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::LocalFactorGFlops"))
+    DEBUG_CSE
     double gflops = 0.;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1172,7 +1214,7 @@ double DistFront<F>::LocalFactorGFlops( bool selInv ) const
 template<typename F>
 double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::LocalSolveGFlops"))
+    DEBUG_CSE
     double gflops = 0.;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1208,7 +1250,7 @@ double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
 template<typename F>
 void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::ComputeRecvInds"))
+    DEBUG_CSE
 
     vector<int> gridHeights, gridWidths;
     GetChildGridDims( info, gridHeights, gridWidths );
@@ -1287,7 +1329,7 @@ template<typename F>
 void DistFront<F>::ComputeCommMeta
 ( const DistNodeInfo& info, bool computeRecvInds ) const
 {
-    DEBUG_ONLY(CSE cse("DistFront::ComputeCommMeta"))
+    DEBUG_CSE
     commMeta.Empty();
     if( child == nullptr )
         return;
@@ -1327,7 +1369,11 @@ void DistFront<F>::ComputeCommMeta
 
 #define PROTO(F) template struct DistFront<F>;
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace ldl
 } // namespace El

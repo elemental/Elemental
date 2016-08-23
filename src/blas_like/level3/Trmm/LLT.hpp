@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    Copyright (c) 2013, The University of Texas at Austin
@@ -9,7 +9,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TRMM_LLT_HPP
 #define EL_TRMM_LLT_HPP
 
@@ -17,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateLLT
+void LocalAccumulateLLT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -26,8 +24,8 @@ LocalAccumulateLLT
   const DistMatrix<T,MC,STAR>& X,
         DistMatrix<T,MR,STAR>& Z )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateLLT");
       AssertSameGrids( L, X, Z );
       if( L.Height() != L.Width() || L.Height() != X.Height() ||
           L.Height() != Z.Height() )
@@ -67,15 +65,14 @@ LocalAccumulateLLT
 }
 
 template<typename T>
-inline void
-LLTA
+void LLTA
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LLTA");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -107,7 +104,8 @@ LLTA
         auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_MC_STAR = X1;
-        Zeros( Z1_MR_STAR, m, nb );
+        Z1_MR_STAR.Resize( m, nb );
+        Zero( Z1_MR_STAR );
         LocalAccumulateLLT
         ( orientation, diag, T(1), L, X1_MC_STAR, Z1_MR_STAR );
 
@@ -117,15 +115,14 @@ LLTA
 }
    
 template<typename T>
-inline void
-LLTCOld
+void LLTCOld
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LLTCOld");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -175,22 +172,22 @@ LLTCOld
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
-        Zeros( D1, nb, n );
+        D1.Resize( nb, n );
+        Zero( D1 );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
     }
 }
 
 template<typename T>
-inline void
-LLTC
+void LLTC
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LLTC");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -245,14 +242,13 @@ LLTC
 //   X := trilu(L)^T, or
 //   X := trilu(L)^H
 template<typename T>
-inline void
-LLT
+void LLT
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& L,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& L,
+        AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::LLT"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )
         LLTA( orientation, diag, L, X );

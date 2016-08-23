@@ -19,7 +19,7 @@ find_path(MPC_INCLUDES
   mpc.h
   PATHS
   $ENV{GMPDIR}
-  $ENV{MPCDIR}
+  $ENV{MPFRDIR}
   $ENV{MPCDIR}
   ${INCLUDE_INSTALL_DIR}
 )

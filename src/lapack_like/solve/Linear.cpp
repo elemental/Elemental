@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -28,11 +28,10 @@ void Panel
 
 // Short-circuited form of LU factorization with partial pivoting
 template<typename F> 
-inline void
-RowEchelon( Matrix<F>& A, Matrix<F>& B )
+void RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RowEchelon");
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
@@ -78,11 +77,10 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
 
 // Short-circuited form of LU factorization with partial pivoting
 template<typename F> 
-inline void
-RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
+void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RowEchelon");
       AssertSameGrids( A, B );
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
@@ -173,7 +171,7 @@ namespace lin_solve {
 template<typename F> 
 void Overwrite( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("lin_solve::Overwrite"))
+    DEBUG_CSE
     // Perform Gaussian elimination
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
@@ -183,7 +181,7 @@ template<typename F>
 void Overwrite
 ( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
 {
-    DEBUG_ONLY(CSE cse("lin_solve::Overwrite"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
@@ -209,7 +207,7 @@ void Overwrite
 template<typename F> 
 void LinearSolve( const Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("LinearSolve"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
 }
@@ -219,17 +217,18 @@ void LinearSolve
 ( const ElementalMatrix<F>& A,
         ElementalMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("LinearSolve"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
 }
 
-template<typename F>
-void LinearSolve
+namespace lin_solve {
+
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+void ScaLAPACKHelper
 ( const DistMatrix<F,MC,MR,BLOCK>& A,
         DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("LinearSolve"))
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const int m = A.Height();
@@ -257,12 +256,31 @@ void LinearSolve
 #endif
 }
 
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void ScaLAPACKHelper
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    LogicError("ScaLAPACK does not support this datatype");
+}
+
+} // namespace lin_solve
+
+template<typename F>
+void LinearSolve
+( const DistMatrix<F,MC,MR,BLOCK>& A,
+        DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    DEBUG_CSE
+    lin_solve::ScaLAPACKHelper( A, B );
+}
+
 template<typename F>
 void LinearSolve
 ( const SparseMatrix<F>& A, Matrix<F>& B, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LinearSolve"))
+    DEBUG_CSE
     Matrix<F> X;
     LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
@@ -273,7 +291,7 @@ void LinearSolve
 ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LinearSolve"))
+    DEBUG_CSE
     DistMultiVec<F> X;
     X.SetComm( B.Comm() );
     LeastSquares( NORMAL, A, B, X, ctrl );
@@ -299,6 +317,10 @@ void LinearSolve
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

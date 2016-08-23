@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -19,8 +19,8 @@ void LocalAccumulateLU
         DistMatrix<T,MC,  STAR>& Z_MC_STAR,
         DistMatrix<T,MR,  STAR>& Z_MR_STAR )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("symm::LocalAccumulateLU");
       AssertSameGrids( A, B_MC_STAR, BTrans_STAR_MR, Z_MC_STAR, Z_MR_STAR );
       if( A.Height() != A.Width() ||
           A.Height() != B_MC_STAR.Height() ||
@@ -89,18 +89,15 @@ void LocalAccumulateLU
 }
 
 template<typename T>
-inline void
-LUA
+void LUA
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
-    DEBUG_ONLY(
-      CSE cse("symm::LUA");
-      AssertSameGrids( APre, BPre, CPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, BPre, CPre ))
     const Int m = CPre.Height();
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
@@ -136,8 +133,10 @@ LUA
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         Transpose( B1_VR_STAR, B1Trans_STAR_MR, conjugate );
-        Zeros( Z1_MC_STAR, m, nb );
-        Zeros( Z1_MR_STAR, m, nb );
+        Z1_MC_STAR.Resize( m, nb );
+        Z1_MR_STAR.Resize( m, nb );
+        Zero( Z1_MC_STAR );
+        Zero( Z1_MR_STAR );
         LocalAccumulateLU
         ( orientation,
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
@@ -146,23 +145,20 @@ LUA
         Z1.AlignWith( C1 );
         Z1 = Z1_MR_MC;
         AxpyContract( T(1), Z1_MC_STAR, Z1 );
-        Axpy( T(1), Z1, C1 );
+        C1 += Z1;
     }
 }
 
 template<typename T>
-inline void
-LUC
+void LUC
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
-    DEBUG_ONLY(
-      CSE cse("symm::LUC");
-      AssertSameGrids( APre, BPre, CPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, BPre, CPre ))
     const Int m = CPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -217,15 +213,14 @@ LUC
 }
 
 template<typename T>
-inline void
-LU
+void LU
 ( T alpha,
-  const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C,
+  const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C,
   bool conjugate=false )
 {
-    DEBUG_ONLY(CSE cse("symm::LU"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Width() )
         symm::LUA( alpha, A, B, C, conjugate );

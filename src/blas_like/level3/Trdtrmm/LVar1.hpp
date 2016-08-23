@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,11 +11,10 @@ namespace El {
 namespace trdtrmm {
 
 template<typename F>
-inline void
-LVar1( Matrix<F>& L, bool conjugate=false )
+void LVar1( Matrix<F>& L, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
     )
@@ -45,11 +44,10 @@ LVar1( Matrix<F>& L, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
+void LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
     )
@@ -85,11 +83,10 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
+void LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
     )
@@ -143,14 +140,13 @@ LVar1( ElementalMatrix<F>& LPre, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-LVar1
-(       ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& dSubPre, 
+void LVar1
+(       AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& dSubPre, 
   bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trdtrmm::LVar1");
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
     )

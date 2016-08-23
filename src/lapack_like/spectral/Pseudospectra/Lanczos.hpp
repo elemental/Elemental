@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_PSEUDOSPECTRA_LANCZOS_HPP
 #define EL_PSEUDOSPECTRA_LANCZOS_HPP
 
@@ -18,13 +17,12 @@ namespace pspec {
 const Int HCapacityInit = 10;
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList, 
   const vector<Matrix<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
+    DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -42,27 +40,25 @@ ComputeNewEstimates
             ( krylovSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(), 
               krylovSize-1, krylovSize-1 );
             const Real est = Sqrt(w[0]);
-            activeEsts.Set( j, 0, Min(est,normCap) );
+            activeEsts(j) = Min(est,normCap);
         }
         else
-            activeEsts.Set( j, 0, normCap );
+            activeEsts(j) = normCap;
     }
 }
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList, 
   const vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
+    DEBUG_CSE
     ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts.Matrix() );
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( vector<Matrix<Real>>& HDiagList,
   vector<Matrix<Real>>& HSubdiagList,
   Matrix<Complex<Real>>& activeShifts, 
@@ -74,7 +70,7 @@ Deflate
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("pspec::Deflate"))
+    DEBUG_CSE
     Timer timer;
     if( progress )
         timer.Start();
@@ -82,7 +78,7 @@ Deflate
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( activeConverged.Get(swapFrom,0) )
+        if( activeConverged(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -103,8 +99,7 @@ Deflate
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( vector<Matrix<Real>>& HDiagList,
   vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
@@ -116,7 +111,7 @@ Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("pspec::Deflate"))
+    DEBUG_CSE
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
@@ -130,10 +125,12 @@ Deflate
     DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
     DistMatrix<Complex<Real>,VC,STAR> XOldCopy( activeXOld ), XCopy( activeX );
 
+    auto& convergedLoc = convergedCopy.Matrix();
+
     const Int n = ( activeX.LocalWidth()>0 ? HDiagList[0].Height() : 0 );
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.Get(swapFrom,0) )
+        if( convergedLoc(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -144,14 +141,14 @@ Deflate
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     const Int localTo = activeX.LocalCol(swapTo);
                     DEBUG_ONLY(
-                        if( HDiagList[localFrom].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HDiagList[localTo].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localFrom].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
-                        if( HSubdiagList[localTo].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
+                      if( HDiagList[localFrom].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HDiagList[localTo].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HSubdiagList[localFrom].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
+                      if( HSubdiagList[localTo].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
                     )
                     std::swap( HDiagList[localFrom], HDiagList[localTo] );
                     std::swap( HSubdiagList[localFrom], HSubdiagList[localTo] );
@@ -160,10 +157,10 @@ Deflate
                 {
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     DEBUG_ONLY(
-                        if( HDiagList[localFrom].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localFrom].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
+                      if( HDiagList[localFrom].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HSubdiagList[localFrom].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
                     )
                     const Int partner = activeX.ColOwner(swapTo);
                     mpi::TaggedSendRecv
@@ -177,10 +174,10 @@ Deflate
                 {
                     const Int localTo = activeX.LocalCol(swapTo);
                     DEBUG_ONLY(
-                        if( HDiagList[localTo].Height() != n )
-                            LogicError("Invalid HDiagList size");
-                        if( HSubdiagList[localTo].Height() != n )
-                            LogicError("Invalid HSubdiagList size");
+                      if( HDiagList[localTo].Height() != n )
+                          LogicError("Invalid HDiagList size");
+                      if( HSubdiagList[localTo].Height() != n )
+                          LogicError("Invalid HSubdiagList size");
                     )
                     const Int partner = activeX.ColOwner(swapFrom);
                     mpi::TaggedSendRecv
@@ -218,12 +215,14 @@ Deflate
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 Lanczos
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::Lanczos"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -244,7 +243,7 @@ Lanczos
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
  
     // MultiShiftTrsm requires write access for now
@@ -403,14 +402,14 @@ Lanczos
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 Lanczos
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::Lanczos"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -443,11 +442,12 @@ Lanczos
     {
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
+        auto& preimageLoc = preimage.Matrix();
         const Int numLocShifts = preimage.LocalHeight();
         for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
             const Int i = preimage.GlobalRow(iLoc);
-            preimage.SetLocal( iLoc, 0, i );
+            preimageLoc(iLoc) = i;
         }
     }
 

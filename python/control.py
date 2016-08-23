@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -43,64 +43,64 @@ def Lyapunov(A,C):
     return X
   else: TypeExcept()
 
-lib.ElRicatti_s.argtypes = \
-lib.ElRicatti_d.argtypes = \
-lib.ElRicatti_c.argtypes = \
-lib.ElRicatti_z.argtypes = \
-lib.ElRicattiDist_s.argtypes = \
-lib.ElRicattiDist_d.argtypes = \
-lib.ElRicattiDist_c.argtypes = \
-lib.ElRicattiDist_z.argtypes = \
+lib.ElRiccati_s.argtypes = \
+lib.ElRiccati_d.argtypes = \
+lib.ElRiccati_c.argtypes = \
+lib.ElRiccati_z.argtypes = \
+lib.ElRiccatiDist_s.argtypes = \
+lib.ElRiccatiDist_d.argtypes = \
+lib.ElRiccatiDist_c.argtypes = \
+lib.ElRiccatiDist_z.argtypes = \
   [c_uint,c_void_p,c_void_p,c_void_p,c_void_p]
 
-def Ricatti(uplo,A,K,L):
+def Riccati(uplo,A,K,L):
   if type(A) is Matrix:
     X = Matrix(A.tag)
     args = [uplo,A.obj,K.obj,L.obj,X.obj]
-    if   A.tag == sTag: lib.ElRicatti_s(*args)
-    elif A.tag == dTag: lib.ElRicatti_d(*args)
-    elif A.tag == cTag: lib.ElRicatti_c(*args)
-    elif A.tag == zTag: lib.ElRicatti_z(*args)
+    if   A.tag == sTag: lib.ElRiccati_s(*args)
+    elif A.tag == dTag: lib.ElRiccati_d(*args)
+    elif A.tag == cTag: lib.ElRiccati_c(*args)
+    elif A.tag == zTag: lib.ElRiccati_z(*args)
     else: DataExcept()
     return X
   elif type(A) is DistMatrix:
     X = DistMatrix(A.tag,MC,MR,A.Grid())
     args = [uplo,A.obj,K.obj,L.obj,X.obj]
-    if   A.tag == sTag: lib.ElRicattiDist_s(*args)
-    elif A.tag == dTag: lib.ElRicattiDist_d(*args)
-    elif A.tag == cTag: lib.ElRicattiDist_c(*args)
-    elif A.tag == zTag: lib.ElRicattiDist_z(*args)
+    if   A.tag == sTag: lib.ElRiccatiDist_s(*args)
+    elif A.tag == dTag: lib.ElRiccatiDist_d(*args)
+    elif A.tag == cTag: lib.ElRiccatiDist_c(*args)
+    elif A.tag == zTag: lib.ElRiccatiDist_z(*args)
     else: DataExcept()
     return X
   else: TypeExcept()
 
-lib.ElRicattiPreformed_s.argtypes = \
-lib.ElRicattiPreformed_d.argtypes = \
-lib.ElRicattiPreformed_c.argtypes = \
-lib.ElRicattiPreformed_z.argtypes = \
-lib.ElRicattiPreformedDist_s.argtypes = \
-lib.ElRicattiPreformedDist_d.argtypes = \
-lib.ElRicattiPreformedDist_c.argtypes = \
-lib.ElRicattiPreformedDist_z.argtypes = \
+lib.ElRiccatiPreformed_s.argtypes = \
+lib.ElRiccatiPreformed_d.argtypes = \
+lib.ElRiccatiPreformed_c.argtypes = \
+lib.ElRiccatiPreformed_z.argtypes = \
+lib.ElRiccatiPreformedDist_s.argtypes = \
+lib.ElRiccatiPreformedDist_d.argtypes = \
+lib.ElRiccatiPreformedDist_c.argtypes = \
+lib.ElRiccatiPreformedDist_z.argtypes = \
   [c_void_p,c_void_p]
 
-def RicattiPreformed(W):
+def RiccatiPreformed(W):
   if type(W) is Matrix:
     X = Matrix(W.tag)
     args = [W.obj,X.obj]
-    if   W.tag == sTag: lib.ElRicattiPreformed_s(*args)
-    elif W.tag == dTag: lib.ElRicattiPreformed_d(*args)
-    elif W.tag == cTag: lib.ElRicattiPreformed_c(*args)
-    elif W.tag == zTag: lib.ElRicattiPreformed_z(*args)
+    if   W.tag == sTag: lib.ElRiccatiPreformed_s(*args)
+    elif W.tag == dTag: lib.ElRiccatiPreformed_d(*args)
+    elif W.tag == cTag: lib.ElRiccatiPreformed_c(*args)
+    elif W.tag == zTag: lib.ElRiccatiPreformed_z(*args)
     else: DataExcept()
     return X
   elif type(W) is DistMatrix:
     X = DistMatrix(W.tag,MC,MR,W.Grid())
     args = [W.obj,X.obj]
-    if   W.tag == sTag: lib.ElRicattiPreformedDist_s(*args)
-    elif W.tag == dTag: lib.ElRicattiPreformedDist_d(*args)
-    elif W.tag == cTag: lib.ElRicattiPreformedDist_c(*args)
-    elif W.tag == zTag: lib.ElRicattiPreformedDist_z(*args)
+    if   W.tag == sTag: lib.ElRiccatiPreformedDist_s(*args)
+    elif W.tag == dTag: lib.ElRiccatiPreformedDist_d(*args)
+    elif W.tag == cTag: lib.ElRiccatiPreformedDist_c(*args)
+    elif W.tag == zTag: lib.ElRiccatiPreformedDist_z(*args)
     else: DataExcept()
     return X
   else: TypeExcept()

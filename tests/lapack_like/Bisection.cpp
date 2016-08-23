@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -8,7 +8,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 int
@@ -16,8 +16,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
-    const int commSize = mpi::Size( comm );
 
     try
     {
@@ -74,7 +72,7 @@ main( int argc, char* argv[] )
         if( print )
             Print( graph );
 
-        if( commSize > 1 )
+        if( mpi::Size(comm) > 1 )
         {
             DistGraph child;
             DistMap map;
@@ -93,17 +91,14 @@ main( int argc, char* argv[] )
                 rightChildSize = child.NumSources();
                 leftChildSize = numVertices - rightChildSize - sepSize;
             }
-            if( commRank == 0 )
-            {
-                if( haveLeftChild )
-                    std::cout << "Root is on left with sizes: " 
-                              << leftChildSize << ", " << rightChildSize << ", "
-                              << sepSize << std::endl;
-                else
-                    std::cout << "Root is on right with sizes: " 
-                              << leftChildSize << ", " << rightChildSize << ", "
-                              << sepSize << std::endl;
-            }
+            if( haveLeftChild )
+                OutputFromRoot
+                (comm,"Root is on left with sizes: ",leftChildSize,",",
+                 rightChildSize,",",sepSize);
+            else
+                OutputFromRoot
+                (comm,"Root is on right with sizes: ",leftChildSize,",",
+                 rightChildSize,",",sepSize);
         }
         else
         {
@@ -117,9 +112,9 @@ main( int argc, char* argv[] )
 
             const Int leftChildSize = leftChild.NumSources();
             const Int rightChildSize = rightChild.NumSources();
-            std::cout << "Partition sizes were: "
-                      << leftChildSize << ", " << rightChildSize << ", "
-                      << sepSize << std::endl;
+            Output
+            ("Partition sizes were: ",leftChildSize,",",rightChildSize,",",
+             sepSize);
         }
     }
     catch( std::exception& e ) { ReportException(e); }

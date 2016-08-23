@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_APPLYPACKEDREFLECTORS_LLVB_HPP
 #define EL_APPLYPACKEDREFLECTORS_LLVB_HPP
 
@@ -31,16 +30,15 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F>
-inline void
-LLVB
+void LLVB
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLVB");
       if( H.Height() != A.Height() )
           LogicError("H and A must have the same height");
     )
@@ -81,24 +79,23 @@ LLVB
 }
 
 template<typename F> 
-inline void
-LLVB
+void LLVB
 ( Conjugation conjugation,
   Int offset, 
   const ElementalMatrix<F>& HPre,
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LLVB");
       if( HPre.Height() != APre.Height() )
           LogicError("H and A must have the same height");
       AssertSameGrids( HPre, tPre, APre );
     )
 
-    DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
+    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR  > AProx( APre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& H = HProx.GetLocked();
     auto& t = tProx.GetLocked();
     auto& A = AProx.Get();

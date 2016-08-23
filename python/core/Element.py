@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -107,9 +107,9 @@ def SafeAbs(alpha):
     return result
   else: raise Exception('Unsupported datatype')
 
-lib.ElFastAbs_c.argtypes = [cType,POINTER(sType)]
-lib.ElFastAbs_z.argtypes = [zType,POINTER(dType)]
-def FastAbs(alpha):
+lib.ElOneAbs_c.argtypes = [cType,POINTER(sType)]
+lib.ElOneAbs_z.argtypes = [zType,POINTER(dType)]
+def OneAbs(alpha):
   if   type(alpha) is iType:
     result = iType()
     lib.ElAbs_i(alpha,pointer(result))
@@ -124,11 +124,11 @@ def FastAbs(alpha):
     return result
   elif type(alpha) is cType:
     result = sType()
-    lib.ElFastAbs_c(alpha,pointer(result))
+    lib.ElOneAbs_c(alpha,pointer(result))
     return result
   elif type(alpha) is zType:
     result = dType()
-    lib.ElFastAbs_z(alpha,pointer(result))
+    lib.ElOneAbs_z(alpha,pointer(result))
     return result
   else: raise Exception('Unsupported datatype')
 

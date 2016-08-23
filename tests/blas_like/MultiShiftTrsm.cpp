@@ -1,24 +1,28 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 template<typename F> 
 void TestMultiShiftTrsm
-( bool print,
-  LeftOrRight side,
+( LeftOrRight side,
   UpperOrLower uplo,
   Orientation orientation, 
-  Int m, Int n,
+  Int m,
+  Int n,
   F alpha,
-  const Grid& g )
+  const Grid& g,
+  bool print )
 {
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     typedef Base<F> Real;
     DistMatrix<F> U(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g);
@@ -70,31 +74,32 @@ void TestMultiShiftTrsm
         Print( X, "X" );
         Print( Y, "Y" );
     }
-    if( g.Rank() == 0 )
-        Output("  Starting MultiShiftTrsm");
+    OutputFromRoot(g.Comm(),"Starting MultiShiftTrsm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     MultiShiftTrsm( side, uplo, orientation, alpha, U, shifts, Y );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 
         ( side==LEFT ? double(m)*double(m)*double(n)
                      : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Finished after ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot
+    (g.Comm(),"Finished after ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( Y, "Y after solve" );
     Y -= X;
     const auto UFrob = FrobeniusNorm( U );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );
-    if( g.Rank() == 0 )
-    {
-        Output("  || U ||_F = ",UFrob);
-        Output("  || X ||_F = ",XFrob);
-        Output("  || E ||_F = ",EFrob);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "|| U ||_F = ",UFrob,"\n",Indent(),
+     "|| X ||_F = ",XFrob,"\n",Indent(),
+     "|| E ||_F = ",EFrob);
+
+    PopIndent();
 }
 
 int 
@@ -102,12 +107,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to solve from: L/R",'L');
         const char uploChar = Input
@@ -121,28 +124,90 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test MultiShiftTrsm ",sideChar,uploChar,transChar);
+        OutputFromRoot
+        (g.Comm(),"Will test MultiShiftTrsm ",sideChar,uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
+        TestMultiShiftTrsm<float>
+        ( side, uplo, orientation,
+          m, n,
+          float(3),
+          g, print );
+        TestMultiShiftTrsm<Complex<float>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<float>(3),
+          g, print );
+
         TestMultiShiftTrsm<double>
-        ( print, side, uplo, orientation, m, n, 3., g );
-
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        ( side, uplo, orientation,
+          m, n,
+          double(3),
+          g, print );
         TestMultiShiftTrsm<Complex<double>>
-        ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
+        ( side, uplo, orientation,
+          m, n,
+          Complex<double>(3),
+          g, print );
+
+#ifdef EL_HAVE_QD
+        TestMultiShiftTrsm<DoubleDouble>
+        ( side, uplo, orientation,
+          m, n,
+          DoubleDouble(3),
+          g, print );
+        TestMultiShiftTrsm<QuadDouble>
+        ( side, uplo, orientation,
+          m, n,
+          QuadDouble(3),
+          g, print );
+
+        TestMultiShiftTrsm<Complex<DoubleDouble>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<DoubleDouble>(3),
+          g, print );
+        TestMultiShiftTrsm<Complex<QuadDouble>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<QuadDouble>(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestMultiShiftTrsm<Quad>
+        ( side, uplo, orientation,
+          m, n,
+          Quad(3),
+          g, print );
+        TestMultiShiftTrsm<Complex<Quad>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<Quad>(3),
+          g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestMultiShiftTrsm<BigFloat>
+        ( side, uplo, orientation,
+          m, n,
+          BigFloat(3),
+          g, print );
+        TestMultiShiftTrsm<Complex<BigFloat>>
+        ( side, uplo, orientation,
+          m, n,
+          Complex<BigFloat>(3),
+          g, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

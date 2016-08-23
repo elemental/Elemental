@@ -1,13 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El-lite.hpp>
+#include <El/blas_like/level3.hpp>
+#include <El-lite.h>
+#include <El/blas_like/level3.h>
 using namespace El;
 
 extern "C" {
@@ -57,6 +59,21 @@ extern "C" {
                       CReflect(beta), *CReflect(Y) ) ) }
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
+  /* Hermitian from EVD */ \
+  ElError ElHermitianFromEVD_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIGBASE w, ElConstMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      HermitianFromEVD( \
+        CReflect(uplo), *CReflect(A), \
+        *CReflect(w), *CReflect(Z) ) ) } \
+  ElError ElHermitianFromEVDDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIGBASE w, ElConstDistMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      HermitianFromEVD( \
+        CReflect(uplo), *CReflect(A), \
+        *CReflect(w), *CReflect(Z) ) ) } \
   /* MultiShiftQuasiTrsm */ \
   ElError ElMultiShiftQuasiTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
@@ -95,7 +112,30 @@ extern "C" {
         CReflect(side), CReflect(uplo), CReflect(orientation), \
         CReflect(alpha), *CReflect(A), \
         *CReflect(shifts), *CReflect(B) ) ) } \
-  /* QuasiTrsm */ \
+  /* SafeMultiShiftTrsm */ \
+  ElError ElSafeMultiShiftTrsm_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
+    CREFLECT(F) alpha, ElMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIG shifts, ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIG scales ) \
+  { EL_TRY( \
+      SafeMultiShiftTrsm( \
+	CReflect(side), CReflect(uplo), CReflect(orientation), \
+	CReflect(alpha), *CReflect(A), \
+	*CReflect(shifts), *CReflect(B), \
+	*CReflect(scales) ) ) } \
+  ElError ElSafeMultiShiftTrsmDist_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
+    CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG A, \
+    ElConstDistMatrix_ ## SIG shifts, ElDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIG scales ) \
+  { EL_TRY( \
+      SafeMultiShiftTrsm( \
+	CReflect(side), CReflect(uplo), CReflect(orientation), \
+	CReflect(alpha), *CReflect(A), \
+	*CReflect(shifts), *CReflect(B), \
+	*CReflect(scales) ) ) } \
+  /* QuasiTrsm */	      \
   ElError ElQuasiTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
     CREFLECT(F) alpha, ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -411,6 +451,16 @@ extern "C" {
       Her2k( CReflect(uplo), CReflect(orientation), \
              CReflect(alpha), *CReflect(A), *CReflect(B), \
              beta, *CReflect(C) ) ) } \
+  /* NormalFromEVD */ \
+  ElError ElNormalFromEVD_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElConstMatrix_ ## SIG w, ElConstMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
+  ElError ElNormalFromEVDDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG w, \
+    ElConstDistMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      NormalFromEVD( *CReflect(A), *CReflect(w), *CReflect(Z) ) ) } \
   /* Trdtrmm */ \
   ElError ElTrdtrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
@@ -437,6 +487,6 @@ extern "C" {
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) }
 
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

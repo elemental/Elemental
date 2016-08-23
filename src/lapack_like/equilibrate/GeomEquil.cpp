@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "./Util.hpp"
 
 // The following routines are adaptations of the approach uses by 
@@ -30,7 +30,7 @@ void GeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -69,7 +69,7 @@ void GeomEquil
                 const Real propScale = Sqrt(minColAbsVal*maxColAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
                 aCol *= 1/scale;
-                dCol.Set( j, 0, scale*dCol.Get(j,0) );
+                dCol(j) *= scale;
             }
         }
 
@@ -85,7 +85,7 @@ void GeomEquil
                 const Real propScale = Sqrt(minRowAbsVal*maxRowAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxRowAbsVal);
                 aRow *= 1/scale;
-                dRow.Set( i, 0, scale*dRow.Get(i,0) );
+                dRow(i) *= scale;
             }
         }
 
@@ -110,7 +110,7 @@ void GeomEquil
         if( maxColAbsVal > Real(0) )
         {
             aCol *= 1/maxColAbsVal;
-            dCol.Set( j, 0, maxColAbsVal*dCol.Get(j,0) );
+            dCol(j) *= maxColAbsVal;
         }
     }
 }
@@ -124,7 +124,7 @@ void StackedGeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -173,7 +173,7 @@ void StackedGeomEquil
                 const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
                 aCol *= 1/scale;
                 bCol *= 1/scale;
-                dCol.Set( j, 0, scale*dCol.Get(j,0) );
+                dCol(j) *= scale;
             }
         }
 
@@ -189,7 +189,7 @@ void StackedGeomEquil
                 const Real propScale = Sqrt(minRowAbsVal*maxRowAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxRowAbsVal);
                 aRow *= 1/scale;
-                dRowA.Set( i, 0, scale*dRowA.Get(i,0) );
+                dRowA(i) *= scale;
             }
         }
         for( Int i=0; i<mB; ++i )
@@ -203,7 +203,7 @@ void StackedGeomEquil
                 const Real propScale = Sqrt(minRowAbsVal*maxRowAbsVal);
                 const Real scale = Max(propScale,sqrtDamp*maxRowAbsVal);
                 bRow *= 1/scale;
-                dRowB.Set( i, 0, scale*dRowB.Get(i,0) );
+                dRowB(i) *= scale;
             }
         }
 
@@ -234,7 +234,7 @@ void StackedGeomEquil
         {
             aCol *= 1/maxColAbsVal;
             bCol *= 1/maxColAbsVal;
-            dCol.Set( j, 0, maxColAbsVal*dCol.Get(j,0) );
+            dCol(j) *= maxColAbsVal;
         }
     }
 }
@@ -246,7 +246,7 @@ void GeomEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -290,6 +290,8 @@ void GeomEquil
 
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid());
+    auto& colScaleLoc = colScale.Matrix();
+    auto& rowScaleLoc = rowScale.Matrix();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -298,8 +300,8 @@ void GeomEquil
         // TODO: Remove GeometricColumnScaling
         GeometricColumnScaling( A, colScale ); 
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            if( colScale.GetLocal(jLoc,0) == Real(0) )
-                colScale.SetLocal(jLoc,0,Real(1));
+            if( colScaleLoc(jLoc) == Real(0) )
+                colScaleLoc(jLoc) = Real(1);
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
 
@@ -308,8 +310,8 @@ void GeomEquil
         // TODO: Remove GeometricRowScaling
         GeometricRowScaling( A, rowScale );
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            if( rowScale.GetLocal(iLoc,0) == Real(0) )
-                rowScale.SetLocal(iLoc,0,Real(1));
+            if( rowScaleLoc(iLoc) == Real(0) )
+                rowScaleLoc(iLoc) = Real(1);
         DiagonalScale( LEFT, NORMAL, rowScale, dRow );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
@@ -328,8 +330,8 @@ void GeomEquil
     // Scale each column so that its maximum entry is 1 or 0
     ColumnMaxNorms( A, colScale );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        if( colScale.GetLocal(jLoc,0) == Real(0) ) 
-            colScale.SetLocal(jLoc,0,Real(1));
+        if( colScaleLoc(jLoc) == Real(0) ) 
+            colScaleLoc(jLoc) = Real(1);
     DiagonalScale( LEFT, NORMAL, colScale, dCol );
     DiagonalSolve( RIGHT, NORMAL, colScale, A );
 }
@@ -343,7 +345,7 @@ void StackedGeomEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -398,6 +400,10 @@ void StackedGeomEquil
     DistMatrix<Real,MC,STAR> rowScaleA(A.Grid()),
                              rowScaleB(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid()), colScaleB(B.Grid());
+    auto& rowScaleALoc = rowScaleA.Matrix();
+    auto& rowScaleBLoc = rowScaleB.Matrix();
+    auto& colScaleLoc = colScale.Matrix();
+    auto& colScaleBLoc = colScaleB.Matrix();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -406,8 +412,8 @@ void StackedGeomEquil
         // TODO: Remove StackedGeometricColumnScaling
         StackedGeometricColumnScaling( A, B, colScale ); 
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            if( colScale.GetLocal(jLoc,0) == Real(0) )
-                colScale.SetLocal(jLoc,0,Real(1));
+            if( colScaleLoc(jLoc) == Real(0) )
+                colScaleLoc(jLoc) = Real(1);
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -417,16 +423,16 @@ void StackedGeomEquil
         // TODO: Remove GeometricRowScaling
         GeometricRowScaling( A, rowScaleA );
         for( Int iLoc=0; iLoc<mLocalA; ++iLoc )
-            if( rowScaleA.GetLocal(iLoc,0) == Real(0) )
-                rowScaleA.SetLocal(iLoc,0,Real(1));
+            if( rowScaleALoc(iLoc) == Real(0) )
+                rowScaleALoc(iLoc) = Real(1);
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
         // TODO: Remove GeometricRowScaling
         GeometricRowScaling( B, rowScaleB );
         for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
-            if( rowScaleB.GetLocal(iLoc,0) == Real(0) )
-                rowScaleB.SetLocal(iLoc,0,Real(1));
+            if( rowScaleBLoc(iLoc) == Real(0) )
+                rowScaleBLoc(iLoc) = Real(1);
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
@@ -452,11 +458,10 @@ void StackedGeomEquil
     ColumnMaxNorms( B, colScaleB );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        Real maxScale = 
-            Max(colScale.GetLocal(jLoc,0),colScaleB.GetLocal(jLoc,0));
+        Real maxScale = Max(colScaleLoc(jLoc),colScaleBLoc(jLoc));
         if( maxScale == Real(0) )
             maxScale = 1; 
-        colScale.SetLocal(jLoc,0,maxScale);
+        colScaleLoc(jLoc) = maxScale;
     }
     DiagonalScale( LEFT, NORMAL, colScale, dCol );
     DiagonalSolve( RIGHT, NORMAL, colScale, A );
@@ -470,7 +475,7 @@ void GeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -504,17 +509,17 @@ void GeomEquil
         ColumnMinAbsNonzero( A, maxAbsVals, minAbsVals );
         for( Int j=0; j<n; ++j )
         {
-            const Real maxAbs = maxAbsVals.Get(j,0);
+            const Real maxAbs = maxAbsVals(j);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsVals.Get(j,0);
+                const Real minAbs = minAbsVals(j);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                colScale.Set(j,0,scale);
+                colScale(j) = scale;
             }
             else
             {
-                colScale.Set(j,0,1);
+                colScale(j) = 1;
             }
         }
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
@@ -526,16 +531,16 @@ void GeomEquil
         RowMinAbsNonzero( A, maxAbsVals, minAbsVals );
         for( Int i=0; i<m; ++i )
         {
-            const Real maxAbs = maxAbsVals.Get(i,0);
+            const Real maxAbs = maxAbsVals(i);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsVals.Get(i,0);
+                const Real minAbs = minAbsVals(i);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                rowScale.Set(i,0,scale);
+                rowScale(i) = scale;
             } 
             else
-                rowScale.Set(i,0,Real(1));
+                rowScale(i) = Real(1);
         }
         DiagonalScale( LEFT, NORMAL, rowScale, dRow );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
@@ -568,7 +573,7 @@ void GeomEquil
 
         if( maxRowAbs > Real(0) )
         {
-            dRow.Set(i,0, maxRowAbs*dRow.Get(i,0) );
+            dRow(i) *= maxRowAbs;
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBuf[e] /= maxRowAbs;
         }
@@ -584,7 +589,7 @@ void StackedGeomEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -623,25 +628,23 @@ void StackedGeomEquil
         ColumnMaxNorms( A, maxAbsValsA );
         ColumnMaxNorms( B, maxAbsValsB );
         for( Int j=0; j<n; ++j )
-            maxAbsValsA.Set
-            ( j, 0, Max(maxAbsValsA.Get(j,0),maxAbsValsB.Get(j,0)) );
+            maxAbsValsA(j) = Max(maxAbsValsA(j),maxAbsValsB(j));
         ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         ColumnMinAbsNonzero( B, maxAbsValsA, minAbsValsB );
         for( Int j=0; j<n; ++j )
-            minAbsValsA.Set
-            ( j, 0, Min(minAbsValsA.Get(j,0),minAbsValsB.Get(j,0)) );
+            minAbsValsA(j) = Min(minAbsValsA(j),minAbsValsB(j));
         for( Int j=0; j<n; ++j )
         {
-            const Real maxAbs = maxAbsValsA.Get(j,0);
+            const Real maxAbs = maxAbsValsA(j);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsValsA.Get(j,0);
+                const Real minAbs = minAbsValsA(j);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                colScale.Set(j,0,scale);
+                colScale(j) = scale;
             }
             else
-                colScale.Set(j,0,Real(1));
+                colScale(j) = Real(1);
         }
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
@@ -653,16 +656,16 @@ void StackedGeomEquil
         RowMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         for( Int i=0; i<mA; ++i )
         {
-            const Real maxAbs = maxAbsValsA.Get(i,0);
+            const Real maxAbs = maxAbsValsA(i);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsValsA.Get(i,0);
+                const Real minAbs = minAbsValsA(i);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                rowScaleA.Set(i,0,scale);
+                rowScaleA(i) = scale;
             } 
             else
-                rowScaleA.Set(i,0,Real(1));
+                rowScaleA(i) = Real(1);
         }
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
@@ -671,16 +674,16 @@ void StackedGeomEquil
         RowMaxNorms( B, maxAbsValsB );
         for( Int i=0; i<mB; ++i )
         {
-            const Real maxAbs = maxAbsValsB.Get(i,0);
+            const Real maxAbs = maxAbsValsB(i);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsValsB.Get(i,0);
+                const Real minAbs = minAbsValsB(i);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                rowScaleB.Set(i,0,scale);
+                rowScaleB(i) = scale;
             } 
             else
-                rowScaleB.Set(i,0,Real(1));
+                rowScaleB(i) = Real(1);
         }
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
@@ -716,7 +719,7 @@ void StackedGeomEquil
 
         if( maxRowAbs > Real(0) )
         {
-            dRowA.Set(i,0, maxRowAbs*dRowA.Get(i,0) );
+            dRowA(i) *= maxRowAbs;
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBufA[e] /= maxRowAbs;
         }
@@ -734,7 +737,7 @@ void StackedGeomEquil
 
         if( maxRowAbs > Real(0) )
         {
-            dRowB.Set(i,0, maxRowAbs*dRowB.Get(i,0) );
+            dRowB(i) *= maxRowAbs;
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBufB[e] /= maxRowAbs;
         }
@@ -748,7 +751,7 @@ void GeomEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("GeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -777,6 +780,7 @@ void GeomEquil
 
     const Real sqrtDamp = Sqrt(damp);
     DistMultiVec<Real> maxAbsVals(comm), minAbsVals(comm), scales(comm);
+    auto& scalesLoc = scales.Matrix();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -784,20 +788,22 @@ void GeomEquil
         // ---------------------------------
         ColumnMaxNorms( A, maxAbsVals );
         ColumnMinAbsNonzero( A, maxAbsVals, minAbsVals );
+        auto& maxAbsValsLoc = maxAbsVals.Matrix();
+        auto& minAbsValsLoc = minAbsVals.Matrix();
         scales.Resize( n, 1 );
         const Int localWidth = maxAbsVals.LocalHeight(); 
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Real maxAbs = maxAbsVals.GetLocal(jLoc,0);
+            const Real maxAbs = maxAbsValsLoc(jLoc);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsVals.GetLocal(jLoc,0);
+                const Real minAbs = minAbsValsLoc(jLoc);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                scales.SetLocal( jLoc, 0, scale );
+                scalesLoc(jLoc) = scale;
             }
             else
-                scales.SetLocal( jLoc, 0, 1 ); 
+                scalesLoc(jLoc) = 1;
         }
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -810,16 +816,16 @@ void GeomEquil
         const Int localHeight = maxAbsVals.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Real maxAbs = maxAbsVals.GetLocal(iLoc,0);
+            const Real maxAbs = maxAbsValsLoc(iLoc);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsVals.GetLocal(iLoc,0);
+                const Real minAbs = minAbsValsLoc(iLoc);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                scales.SetLocal( iLoc, 0, scale );
+                scalesLoc(iLoc) = scale;
             }
             else
-                scales.SetLocal( iLoc, 0, 1 );
+                scalesLoc(iLoc) = 1;
         }
         DiagonalScale( LEFT, NORMAL, scales, dRow );
         DiagonalSolve( LEFT, NORMAL, scales, A );
@@ -841,6 +847,7 @@ void GeomEquil
     // Scale each row so that its maximum entry is 1 or 0
     F* valBuf = A.ValueBuffer();
     const Int localHeight = A.LocalHeight();
+    auto& dRowLoc = dRow.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int offset = A.RowOffset(iLoc);
@@ -853,7 +860,7 @@ void GeomEquil
 
         if( maxRowAbs > Real(0) )
         {
-            dRow.SetLocal(iLoc,0, maxRowAbs*dRow.GetLocal(iLoc,0) );
+            dRowLoc(iLoc) *= maxRowAbs;
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBuf[e] /= maxRowAbs;
         }
@@ -869,7 +876,7 @@ void StackedGeomEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -905,6 +912,11 @@ void StackedGeomEquil
     const Real sqrtDamp = Sqrt(damp);
     DistMultiVec<Real> maxAbsValsA(comm), maxAbsValsB(comm),
                        minAbsValsA(comm), minAbsValsB(comm), scales(comm);
+    auto& maxAbsValsALoc = maxAbsValsA.Matrix();
+    auto& maxAbsValsBLoc = maxAbsValsB.Matrix();
+    auto& minAbsValsALoc = minAbsValsA.Matrix();
+    auto& minAbsValsBLoc = minAbsValsB.Matrix();
+    auto& scalesLoc = scales.Matrix();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -915,27 +927,25 @@ void StackedGeomEquil
         ColumnMaxNorms( B, maxAbsValsB );
         const Int localWidth = maxAbsValsA.LocalHeight();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            maxAbsValsA.SetLocal
-            ( jLoc, 0, Max(maxAbsValsA.GetLocal(jLoc,0),
-                           maxAbsValsB.GetLocal(jLoc,0)) );
+            maxAbsValsALoc(jLoc) = 
+              Max(maxAbsValsALoc(jLoc),maxAbsValsBLoc(jLoc));
         ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         ColumnMinAbsNonzero( B, maxAbsValsA, minAbsValsB );
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            minAbsValsA.SetLocal
-            ( jLoc, 0, Min(minAbsValsA.GetLocal(jLoc,0),
-                           minAbsValsB.GetLocal(jLoc,0)) );
+            minAbsValsALoc(jLoc) =
+              Min(minAbsValsALoc(jLoc),minAbsValsBLoc(jLoc));
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Real maxAbs = maxAbsValsA.GetLocal(jLoc,0);
+            const Real maxAbs = maxAbsValsALoc(jLoc);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsValsA.GetLocal(jLoc,0);
+                const Real minAbs = minAbsValsALoc(jLoc);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                scales.SetLocal( jLoc, 0, scale );
+                scalesLoc(jLoc) = scale;
             }
             else
-                scales.SetLocal( jLoc, 0, 1 );
+                scalesLoc(jLoc) = 1;
         }
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -949,16 +959,16 @@ void StackedGeomEquil
         const Int localHeightA = maxAbsValsA.LocalHeight();
         for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
         {
-            const Real maxAbs = maxAbsValsA.GetLocal(iLoc,0);
+            const Real maxAbs = maxAbsValsALoc(iLoc);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsValsA.GetLocal(iLoc,0);
+                const Real minAbs = minAbsValsALoc(iLoc);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                scales.SetLocal( iLoc, 0, scale );
+                scalesLoc(iLoc) = scale;
             }
             else
-                scales.SetLocal( iLoc, 0, 1 );
+                scalesLoc(iLoc) = 1;
         }
         DiagonalScale( LEFT, NORMAL, scales, dRowA );
         DiagonalSolve( LEFT, NORMAL, scales, A );
@@ -969,16 +979,16 @@ void StackedGeomEquil
         const Int localHeightB = maxAbsValsB.LocalHeight();
         for( Int iLoc=0; iLoc<localHeightB; ++iLoc )
         {
-            const Real maxAbs = maxAbsValsB.GetLocal(iLoc,0);
+            const Real maxAbs = maxAbsValsBLoc(iLoc);
             if( maxAbs > Real(0) )
             {
-                const Real minAbs = minAbsValsB.GetLocal(iLoc,0);
+                const Real minAbs = minAbsValsBLoc(iLoc);
                 const Real propScale = Sqrt(minAbs*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
-                scales.SetLocal( iLoc, 0, scale );
+                scalesLoc(iLoc) = scale;
             }
             else
-                scales.SetLocal( iLoc, 0, 1 );
+                scalesLoc(iLoc) = 1;
         }
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
@@ -1003,6 +1013,7 @@ void StackedGeomEquil
     // Scale each row so that its maximum entry is 1 or 0
     F* valBufA = A.ValueBuffer();
     const Int localHeightA = A.LocalHeight();
+    auto& dRowALoc = dRowA.Matrix();
     for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
     {
         const Int offset = A.RowOffset(iLoc);
@@ -1015,13 +1026,14 @@ void StackedGeomEquil
 
         if( maxRowAbs > Real(0) )
         {
-            dRowA.SetLocal(iLoc,0, maxRowAbs*dRowA.GetLocal(iLoc,0) );
+            dRowALoc(iLoc) *= maxRowAbs;
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBufA[e] /= maxRowAbs;
         }
     }
     F* valBufB = B.ValueBuffer();
     const Int localHeightB = B.LocalHeight();
+    auto& dRowBLoc = dRowB.Matrix();
     for( Int iLoc=0; iLoc<localHeightB; ++iLoc )
     {
         const Int offset = B.RowOffset(iLoc);
@@ -1034,7 +1046,7 @@ void StackedGeomEquil
 
         if( maxRowAbs > Real(0) )
         {
-            dRowB.SetLocal(iLoc,0, maxRowAbs*dRowB.GetLocal(iLoc,0) );
+            dRowBLoc(iLoc) *= maxRowAbs;
             for( Int e=offset; e<offset+numConnect; ++e )
                 valBufB[e] /= maxRowAbs;
         }
@@ -1092,6 +1104,10 @@ void StackedGeomEquil
     bool progress );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_SPECTRAL_PRODUCT_LANCZOS_HPP
 #define EL_SPECTRAL_PRODUCT_LANCZOS_HPP
 
@@ -21,7 +20,7 @@ inline void ProductLanczos
         Matrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczos"))
+    DEBUG_CSE
     Matrix<F> s;
     if( m >= n )
     {
@@ -56,7 +55,7 @@ inline Base<F> ProductLanczosDecomp
         Matrix<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
+    DEBUG_CSE
     Matrix<F> s;
     if( m >= n )
     {
@@ -89,7 +88,7 @@ inline void ProductLanczos
         ElementalMatrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczos"))
+    DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
     DistMultiVec<F> s(comm);
     if( m >= n )
@@ -125,7 +124,7 @@ inline Base<F> ProductLanczosDecomp
         DistMultiVec<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("ProductLanczosDecomp"))
+    DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
     DistMultiVec<F> s(comm);
     if( m >= n )

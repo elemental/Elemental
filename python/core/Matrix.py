@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -321,7 +321,7 @@ class Matrix(object):
     elif self.tag == dTag: lib.ElMatrixGet_d(*args)
     elif self.tag == cTag: lib.ElMatrixGet_c(*args)
     elif self.tag == zTag: lib.ElMatrixGet_z(*args)
-    return value.value
+    return ScalarData(value)
 
   lib.ElMatrixGetRealPart_c.argtypes = [c_void_p,iType,iType,POINTER(sType)]
   lib.ElMatrixGetRealPart_z.argtypes = [c_void_p,iType,iType,POINTER(dType)]

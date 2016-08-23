@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -85,7 +85,7 @@ ctrl = El.LeastSquaresCtrl_d()
 ctrl.alpha = baseAlpha
 ctrl.progress = True
 ctrl.equilibrate = True
-ctrl.solveCtrl.relTol = 1e-10
+ctrl.solveCtrl.relTol = 1e-8
 ctrl.solveCtrl.relTolRefine = 1e-12
 ctrl.solveCtrl.progress = True
 startLSE = El.mpi.Time()

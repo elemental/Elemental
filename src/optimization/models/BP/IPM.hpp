@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // Basis Pursuit is the search for a solution to A x = b which minimizes
 // the one norm of x, i.e.,
@@ -41,7 +41,7 @@ void LPIPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -77,7 +77,7 @@ void LPIPM
         ElementalMatrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -114,7 +114,7 @@ void LPIPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -155,7 +155,7 @@ void LPIPM
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::LPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -220,7 +220,7 @@ void SOCPIPM
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -242,7 +242,7 @@ void SOCPIPM
     Zeros( AHat, m, 2*n ); 
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            AHat.Set( i, 2*j+1, A.Get(i,j) );
+            AHat(i,2*j+1) = A(i,j);
 
     // Solve the direct SOCP
     // =====================
@@ -254,7 +254,7 @@ void SOCPIPM
     Zeros( x, n, 1 );
     for( Int i=0; i<xHat.Height(); ++i )
         if( i % 2 == 1 )
-            x.Set( (i-1)/2, 0, xHat.Get(i,0) );
+            x((i-1)/2) = xHat(i);
 }
 
 template<typename Real>
@@ -264,7 +264,7 @@ void SOCPIPM
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -273,8 +273,8 @@ void SOCPIPM
     Zeros( firstInds, 2*n, 1 );
     for( Int i=0; i<orders.Height(); ++i )
     {
-        orders.Set( i, 0, 2 );
-        firstInds.Set( i, 0, i-(i%2) ); 
+        orders(i) = 2;
+        firstInds(i) = i-(i%2); 
     }
 
     Matrix<Real> c;
@@ -300,7 +300,7 @@ void SOCPIPM
     Zeros( x, n, 1 );
     for( Int i=0; i<xHat.Height(); ++i )
         if( i % 2 == 1 )
-            x.Set( (i-1)/2, 0, xHat.Get(i,0) );
+            x((i-1)/2) = xHat(i);
 }
 
 template<typename Real>
@@ -310,7 +310,7 @@ void SOCPIPM
         ElementalMatrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -318,11 +318,13 @@ void SOCPIPM
     DistMatrix<Int,VC,STAR> orders(grid), firstInds(grid);
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
+    auto& ordersLoc = orders.Matrix();
+    auto& firstIndsLoc = firstInds.Matrix();
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
-        orders.SetLocal( iLoc, 0, 2 );
-        firstInds.SetLocal( iLoc, 0, i-(i%2) ); 
+        ordersLoc(iLoc) = 2;
+        firstIndsLoc(iLoc) = i-(i%2); 
     }
 
     DistMatrix<Real> c(grid);
@@ -331,14 +333,14 @@ void SOCPIPM
     // \hat A := A E
     DistMatrix<Real> AHat(grid);
     Zeros( AHat, m, 2*n ); 
+    auto& ALoc = A.LockedMatrix();
     if( A.RedundantRank() == 0 )
     {
         AHat.Reserve( A.LocalHeight()*A.LocalWidth() );
         for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
             for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
                 AHat.QueueUpdate
-                ( A.GlobalRow(iLoc), 2*A.GlobalCol(jLoc)+1, 
-                  A.GetLocal(iLoc,jLoc) );
+                ( A.GlobalRow(iLoc), 2*A.GlobalCol(jLoc)+1, ALoc(iLoc,jLoc) );
     }
     AHat.ProcessQueues();
 
@@ -351,13 +353,14 @@ void SOCPIPM
     // ===========
     Zeros( x, n, 1 );
     x.Reserve( xHat.LocalHeight() );
+    auto& xHatLoc = xHat.LockedMatrix();
     if( xHat.IsLocalCol(0) )
     {
         for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
         {
             const Int i = xHat.GlobalRow(iLoc);
             if( i % 2 == 1 )
-                x.QueueUpdate( (i-1)/2, 0, xHat.GetLocal(iLoc,0) );
+                x.QueueUpdate( (i-1)/2, 0, xHatLoc(iLoc) );
         }
     }
     x.ProcessQueues();
@@ -370,7 +373,7 @@ void SOCPIPM
         DistMultiVec<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -378,11 +381,13 @@ void SOCPIPM
     DistMultiVec<Int> orders(comm), firstInds(comm);
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
+    auto& ordersLoc = orders.Matrix();
+    auto& firstIndsLoc = firstInds.Matrix();
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
-        orders.SetLocal( iLoc, 0, 2 );
-        firstInds.SetLocal( iLoc, 0, i-(i%2) ); 
+        ordersLoc(iLoc) = 2;
+        firstIndsLoc(iLoc) = i-(i%2);
     }
 
     DistMultiVec<Real> c(comm);
@@ -409,11 +414,12 @@ void SOCPIPM
     // ===========
     Zeros( x, n, 1 );
     x.Reserve( xHat.LocalHeight() );
+    auto& xHatLoc = xHat.LockedMatrix();
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i % 2 == 1 )
-            x.QueueUpdate( (i-1)/2, 0, xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( (i-1)/2, 0, xHatLoc(iLoc) );
     }
     x.ProcessQueues();
 }
@@ -442,7 +448,7 @@ void SOCPIPM
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -451,8 +457,8 @@ void SOCPIPM
     Zeros( firstInds, 3*n, 1 );
     for( Int i=0; i<orders.Height(); ++i )
     {
-        orders.Set( i, 0, 3 );
-        firstInds.Set( i, 0, i-(i%3) ); 
+        orders(i) = 3;
+        firstInds(i) = i-(i%3);
     }
 
     Matrix<Real> c;
@@ -467,12 +473,12 @@ void SOCPIPM
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real alphaReal = A.GetRealPart(i,j);
-            const Real alphaImag = A.GetImagPart(i,j);
-            AHat.Set( i,   3*j+1,  alphaReal );
-            AHat.Set( i,   3*j+2, -alphaImag );
-            AHat.Set( i+m, 3*j+1,  alphaImag );
-            AHat.Set( i+m, 3*j+2,  alphaReal );
+            const Real alphaReal = RealPart(A(i,j));
+            const Real alphaImag = ImagPart(A(i,j));
+            AHat(i,  3*j+1) =  alphaReal;
+            AHat(i,  3*j+2) = -alphaImag;
+            AHat(i+m,3*j+1) =  alphaImag;
+            AHat(i+m,3*j+2) =  alphaReal;
         }
     }
 
@@ -483,8 +489,8 @@ void SOCPIPM
     Zeros( bHat, 2*m, 1 );
     for( Int i=0; i<m; ++i )
     {
-        bHat.Set( i,   0, b.GetRealPart(i,0) );
-        bHat.Set( i+m, 0, b.GetImagPart(i,0) );
+        bHat(i) = RealPart(b(i));
+        bHat(i+m) = ImagPart(b(i));
     }
 
     // Solve the direct SOCP
@@ -498,9 +504,9 @@ void SOCPIPM
     for( Int i=0; i<xHat.Height(); ++i )
     {
         if( i % 3 == 1 )
-            x.UpdateRealPart( (i-1)/3, 0, xHat.Get(i,0) );
+            x.UpdateRealPart( (i-1)/3, 0, xHat(i) );
         else if( i % 3 == 2 )
-            x.UpdateImagPart( (i-2)/3, 0, xHat.Get(i,0) );
+            x.UpdateImagPart( (i-2)/3, 0, xHat(i) );
     }
 }
 
@@ -511,7 +517,7 @@ void SOCPIPM
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -520,8 +526,8 @@ void SOCPIPM
     Zeros( firstInds, 3*n, 1 );
     for( Int i=0; i<orders.Height(); ++i )
     {
-        orders.Set( i, 0, 3 );
-        firstInds.Set( i, 0, i-(i%3) ); 
+        orders(i) = 3;
+        firstInds(i) = i-(i%3);
     }
 
     Matrix<Real> c;
@@ -554,8 +560,8 @@ void SOCPIPM
     Zeros( bHat, 2*m, 1 );
     for( Int i=0; i<m; ++i )
     {
-        bHat.Set( i,   0, b.GetRealPart(i,0) );
-        bHat.Set( i+m, 0, b.GetImagPart(i,0) );
+        bHat(i) = RealPart(b(i));
+        bHat(i+m) = ImagPart(b(i));
     }
 
     // Solve the direct SOCP
@@ -569,9 +575,9 @@ void SOCPIPM
     for( Int i=0; i<xHat.Height(); ++i )
     {
         if( i % 3 == 1 )
-            x.UpdateRealPart( (i-1)/3, 0, xHat.Get(i,0) );
+            x.UpdateRealPart( (i-1)/3, 0, xHat(i) );
         else if( i % 3 == 2 )
-            x.UpdateImagPart( (i-2)/3, 0, xHat.Get(i,0) );
+            x.UpdateImagPart( (i-2)/3, 0, xHat(i) );
     }
 }
 
@@ -582,7 +588,7 @@ void SOCPIPM
         ElementalMatrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -590,11 +596,13 @@ void SOCPIPM
     DistMatrix<Int,VC,STAR> orders(grid), firstInds(grid);
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
+    auto& ordersLoc = orders.Matrix();
+    auto& firstIndsLoc = firstInds.Matrix();
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
-        orders.SetLocal( iLoc, 0, 3 );
-        firstInds.SetLocal( iLoc, 0, i-(i%3) ); 
+        ordersLoc(iLoc) = 3;
+        firstIndsLoc(iLoc) = i-(i%3);
     }
 
     DistMatrix<Real> c(grid);
@@ -605,13 +613,18 @@ void SOCPIPM
     // ========================================
     DistMatrix<Real> AHat(grid);
     Zeros( AHat, 2*m, 3*n ); 
-    AHat.Reserve( 4*A.LocalHeight()*A.LocalWidth() );
-    for( Int j=0; j<n; ++j )
+    auto& ALoc = A.LockedMatrix();
+    const Int ALocHeight = A.LocalHeight();
+    const Int ALocWidth = A.LocalWidth();
+    AHat.Reserve( 4*ALocHeight*ALocWidth );
+    for( Int jLoc=0; jLoc<ALocWidth; ++jLoc )
     {
-        for( Int i=0; i<m; ++i )
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<ALocHeight; ++iLoc )
         {
-            const Real alphaReal = A.GetRealPart(i,j);
-            const Real alphaImag = A.GetImagPart(i,j);
+            const Int i = A.GlobalRow(iLoc);
+            const Real alphaReal = RealPart(ALoc(iLoc,jLoc));
+            const Real alphaImag = ImagPart(ALoc(iLoc,jLoc));
             AHat.QueueUpdate( i,   3*j+1,  alphaReal );
             AHat.QueueUpdate( i,   3*j+2, -alphaImag );
             AHat.QueueUpdate( i+m, 3*j+1,  alphaImag );
@@ -626,11 +639,12 @@ void SOCPIPM
     DistMatrix<Real> bHat(grid);
     Zeros( bHat, 2*m, 1 );
     bHat.Reserve( 2*b.LocalHeight() );
+    auto& bLoc = b.LockedMatrix();
     for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
     {
         const Int i = b.GlobalRow(iLoc);
-        bHat.QueueUpdate( i,   0, b.GetRealPart(i,0) );
-        bHat.QueueUpdate( i+m, 0, b.GetImagPart(i,0) );
+        bHat.QueueUpdate( i,   0, RealPart(bLoc(i)) );
+        bHat.QueueUpdate( i+m, 0, ImagPart(bLoc(i)) );
     }
     bHat.ProcessQueues();
 
@@ -665,7 +679,7 @@ void SOCPIPM
         DistMultiVec<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::SOCPIPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -673,11 +687,13 @@ void SOCPIPM
     DistMultiVec<Int> orders(comm), firstInds(comm);
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
+    auto& ordersLoc = orders.Matrix();
+    auto& firstIndsLoc = firstInds.Matrix();
     for( Int iLoc=0; iLoc<orders.LocalHeight(); ++iLoc )
     {
         const Int i = orders.GlobalRow(iLoc);
-        orders.SetLocal( iLoc, 0, 3 );
-        firstInds.SetLocal( iLoc, 0, i-(i%3) ); 
+        ordersLoc(iLoc) = 3;
+        firstIndsLoc(iLoc) = i-(i%3);
     }
 
     DistMultiVec<Real> c(comm);
@@ -709,12 +725,12 @@ void SOCPIPM
     DistMultiVec<Real> bHat(comm);
     Zeros( bHat, 2*m, 1 );
     bHat.Reserve( 2*b.LocalHeight() );
+    auto& bLoc = b.LockedMatrix();
     for( Int iLoc=0; iLoc<b.LocalHeight(); ++iLoc )
     {
         const Int i = b.GlobalRow(iLoc);
-        // TODO: Make DistMultiVec's real/imag API consistent with DistMatrix
-        bHat.QueueUpdate( i,   0, b.LockedMatrix().GetRealPart(iLoc,0) );
-        bHat.QueueUpdate( i+m, 0, b.LockedMatrix().GetImagPart(iLoc,0) );
+        bHat.QueueUpdate( i,   0, RealPart(bLoc(iLoc)) );
+        bHat.QueueUpdate( i+m, 0, ImagPart(bLoc(iLoc)) );
     }
     bHat.ProcessQueues();
 

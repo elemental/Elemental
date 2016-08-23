@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/lapack_like/funcs.hpp>
+#include <El/control.hpp>
 
 namespace El {
 
@@ -26,7 +28,7 @@ void Sylvester
   Matrix<F>& X,
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sylvester"))
+    DEBUG_CSE
     Sign( W, ctrl );
     Matrix<F> WTL, WTR,
               WBL, WBR;
@@ -57,7 +59,7 @@ void Sylvester
   ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sylvester"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> WProx( WPre );
     auto& W = WProx.Get();
@@ -95,8 +97,8 @@ void Sylvester
         Matrix<F>& X,
   SignCtrl<Base<F>> ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Sylvester");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( B.Height() != B.Width() )
@@ -108,7 +110,8 @@ void Sylvester
     const Int n = C.Width();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
-    Zeros( W, m+n, m+n );
+    W.Resize( m+n, m+n );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, m );
@@ -126,8 +129,8 @@ void Sylvester
         ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Sylvester");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( B.Height() != B.Width() )
@@ -141,7 +144,8 @@ void Sylvester
     const Grid& g = A.Grid();
     DistMatrix<F> W(g), WTL(g), WTR(g),
                         WBL(g), WBR(g);
-    Zeros( W, m+n, m+n );
+    W.Resize( m+n, m+n );
+    Zero( W );
     PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, m );
@@ -176,6 +180,10 @@ void Sylvester
     SignCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

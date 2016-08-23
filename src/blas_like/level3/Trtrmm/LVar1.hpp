@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TRTRMM_LVAR1_HPP
 #define EL_TRTRMM_LVAR1_HPP
 
@@ -14,10 +13,9 @@ namespace El {
 namespace trtrmm {
 
 template<typename T>
-inline void
-LVar1( Matrix<T>& L, bool conjugate=false )
+void LVar1( Matrix<T>& L, bool conjugate=false )
 {
-    DEBUG_ONLY(CSE cse("trtrmm::LVar1"))
+    DEBUG_CSE
     const Int n = L.Height();
     const Int bsize = Blocksize();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -40,11 +38,10 @@ LVar1( Matrix<T>& L, bool conjugate=false )
 }
 
 template<typename T>
-inline void
-LVar1( ElementalMatrix<T>& LPre, bool conjugate=false )
+void LVar1( AbstractDistMatrix<T>& LPre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trtrmm::LVar1");
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
     )

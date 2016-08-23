@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_MATRICES_C_H
 #define EL_MATRICES_C_H
 
@@ -633,34 +632,6 @@ EL_EXPORT ElError ElHelmholtzPML3DDistSparse_z
 ( ElDistSparseMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double omega, 
   ElInt numPmlPoints, double sigma, double pmlExp );
 
-/* Hermitian from EVD
-   ================== */
-EL_EXPORT ElError ElHermitianFromEVD_s
-( ElUpperOrLower uplo, ElMatrix_s A, 
-  ElConstMatrix_s w, ElConstMatrix_s Z );
-EL_EXPORT ElError ElHermitianFromEVD_d
-( ElUpperOrLower uplo, ElMatrix_d A, 
-  ElConstMatrix_d w, ElConstMatrix_d Z );
-EL_EXPORT ElError ElHermitianFromEVD_c
-( ElUpperOrLower uplo, ElMatrix_c A, 
-  ElConstMatrix_s w, ElConstMatrix_c Z );
-EL_EXPORT ElError ElHermitianFromEVD_z
-( ElUpperOrLower uplo, ElMatrix_z A, 
-  ElConstMatrix_d w, ElConstMatrix_z Z );
-
-EL_EXPORT ElError ElHermitianFromEVDDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, 
-  ElConstDistMatrix_s w, ElConstDistMatrix_s Z );
-EL_EXPORT ElError ElHermitianFromEVDDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, 
-  ElConstDistMatrix_d w, ElConstDistMatrix_d Z );
-EL_EXPORT ElError ElHermitianFromEVDDist_c
-( ElUpperOrLower uplo, ElDistMatrix_c A, 
-  ElConstDistMatrix_s w, ElConstDistMatrix_c Z );
-EL_EXPORT ElError ElHermitianFromEVDDist_z
-( ElUpperOrLower uplo, ElDistMatrix_z A, 
-  ElConstDistMatrix_d w, ElConstDistMatrix_z Z );
-
 /* Hilbert
    ======= */
 EL_EXPORT ElError ElHilbert_s( ElMatrix_s A, ElInt n );
@@ -929,18 +900,6 @@ EL_EXPORT ElError ElMinIJDist_s( ElDistMatrix_s A, ElInt n );
 EL_EXPORT ElError ElMinIJDist_d( ElDistMatrix_d A, ElInt n );
 EL_EXPORT ElError ElMinIJDist_c( ElDistMatrix_c A, ElInt n );
 EL_EXPORT ElError ElMinIJDist_z( ElDistMatrix_z A, ElInt n );
-
-/* NormalFromEVD
-   ============= */
-EL_EXPORT ElError ElNormalFromEVD_c
-( ElMatrix_c A, ElConstMatrix_c w, ElConstMatrix_c Z );
-EL_EXPORT ElError ElNormalFromEVD_z
-( ElMatrix_z A, ElConstMatrix_z w, ElConstMatrix_z Z );
-
-EL_EXPORT ElError ElNormalFromEVDDist_c
-( ElDistMatrix_c A, ElConstDistMatrix_c w, ElConstDistMatrix_c Z );
-EL_EXPORT ElError ElNormalFromEVDDist_z
-( ElDistMatrix_z A, ElConstDistMatrix_z w, ElConstDistMatrix_z Z );
 
 /* Ones
    ==== */

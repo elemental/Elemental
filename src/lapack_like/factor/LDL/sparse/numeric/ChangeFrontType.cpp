@@ -17,7 +17,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace ldl {
@@ -25,7 +25,7 @@ namespace ldl {
 template<typename F>
 void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse )
 {
-    DEBUG_ONLY(CSE cse("ChangeFrontType"))
+    DEBUG_CSE
 
     if( type == SYMM_1D || type == SYMM_2D || 
         type == ConvertTo1D(front.type) || type == ConvertTo2D(front.type) )
@@ -44,7 +44,7 @@ void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse )
 template<typename F>
 void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
 {
-    DEBUG_ONLY(CSE cse("ChangeFrontType"))
+    DEBUG_CSE
 
     if( type == SYMM_1D || type == ConvertTo1D(front.type) )
     {
@@ -157,7 +157,11 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
   ( DistFront<F>& front, LDLFrontType type, bool recurse );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace ldl
 } // namespace El

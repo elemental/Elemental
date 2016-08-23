@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -10,7 +10,7 @@ import sys, ctypes
 import numpy as np
 from ctypes import pythonapi
 
-lib = ctypes.cdll.LoadLibrary("@CMAKE_INSTALL_PREFIX@/lib/@CMAKE_SHARED_LIBRARY_PREFIX@El@CMAKE_SHARED_LIBRARY_SUFFIX@")
+lib = ctypes.cdll.LoadLibrary("@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/@CMAKE_SHARED_LIBRARY_PREFIX@El@CMAKE_SHARED_LIBRARY_SUFFIX@")
 
 # Environment
 # ===========
@@ -99,6 +99,14 @@ def Complexify(tag):
   elif tag == cTag: return cTag
   elif tag == zTag: return zTag
   else: raise Exception('Invalid tag')
+
+# While for CTypes we should return the underlying value of, e.g., c_int,
+# we cannot/should-not do the same for ComplexDouble
+def ScalarData(alpha):
+  if   type(alpha) is iType: return alpha.value
+  elif type(alpha) is sType: return alpha.value
+  elif type(alpha) is dType: return alpha.value
+  else: return alpha
 
 def TagToType(tag):
   if   tag == iTag: return iType

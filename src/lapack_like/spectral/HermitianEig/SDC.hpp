@@ -1,18 +1,17 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_HERMITIANEIG_SDC_HPP
 #define EL_HERMITIANEIG_SDC_HPP
 
 #include "../Schur/SDC.hpp"
 
-// TODO: Reference to Yuji's work
+// TODO(poulson): Reference to Yuji's work
 
 namespace El {
 
@@ -23,15 +22,15 @@ using El::schur::SplitGrid;
 using El::schur::PushSubproblems;
 using El::schur::PullSubproblems;
 
-// TODO: Exploit symmetry in A := Q^H A Q. Routine for A := X^H A X?
+// TODO(poulson): Exploit symmetry in A := Q^H A Q. Routine for A := X^H A X?
 
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::QDWHDivide"))
+    DEBUG_CSE
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -71,14 +70,14 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 QDWHDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
   DistMatrix<F>& G,
   bool returnQ=false )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::QDWHDivide"))
+    DEBUG_CSE
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -119,7 +118,7 @@ QDWHDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
@@ -127,7 +126,7 @@ RandomizedSignDivide
   bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::RandomizedSignDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -188,7 +187,7 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
@@ -196,7 +195,7 @@ RandomizedSignDivide
   bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::RandomizedSignDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -259,13 +258,13 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -307,14 +306,14 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   Matrix<F>& A,
   Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -356,13 +355,13 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -405,14 +404,14 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo,
   DistMatrix<F>& A,
   DistMatrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SpectralDivide"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -461,9 +460,8 @@ void SDC
   Matrix<Base<F>>& w, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
-    typedef Base<F> Real;
     const Int n = A.Height();
     w.Resize( n, 1 );
     if( n <= ctrl.cutoff )
@@ -474,17 +472,21 @@ void SDC
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, ctrl );
-    Matrix<F> ATL, ATR,
-              ABL, ABR;
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
     if( uplo == LOWER )
         Zero( ABL );
     else
         Zero( ATR );
-    Matrix<Real> wT, wB;
-    PartitionDown( w, wT, wB, part.index );
 
     // Recurse on the two subproblems
     SDC( uplo, ATL, wT, ctrl );
@@ -499,9 +501,8 @@ void SDC
   Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
-    typedef Base<F> Real;
     const Int n = A.Height();
     w.Resize( n, 1 );
     Q.Resize( n, n );
@@ -513,19 +514,24 @@ void SDC
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, Q, ctrl );
-    Matrix<F> ATL, ATR,
-              ABL, ABR;
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
+    auto QL = Q( ALL, ind1 );
+    auto QR = Q( ALL, ind2 );
+   
     if( uplo == LOWER )
         Zero( ABL );
     else
         Zero( ATR );
-    Matrix<Real> wT, wB;
-    PartitionDown( w, wT, wB, part.index );
-    Matrix<F> QL, QR;
-    PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the top-left quadrant and update eigenvectors
     Matrix<F> Z;
@@ -542,14 +548,13 @@ void SDC
 template<typename F>
 void SDC
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre, 
-  ElementalMatrix<Base<F>>& wPre, 
+  AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<Base<F>>& wPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
-    const Grid& g = APre.Grid();
     const Int n = APre.Height();
     wPre.Resize( n, 1 );
     if( APre.Grid().Size() == 1 )
@@ -570,17 +575,21 @@ void SDC
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, ctrl );
-    DistMatrix<F> ATL(g), ATR(g),
-                  ABL(g), ABR(g);
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
     if( uplo == LOWER )
         Zero( ABL );
     else
         Zero( ATR );
-    DistMatrix<Real,VR,STAR> wT(g), wB(g);
-    PartitionDown( w, wT, wB, part.index );
 
     // Recurse on the two subproblems
     DistMatrix<F> ATLSub, ABRSub;
@@ -597,12 +606,12 @@ void SDC
 template<typename F>
 void SDC
 ( UpperOrLower uplo, 
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& wPre, 
-  ElementalMatrix<F>& QPre, 
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& wPre, 
+  AbstractDistMatrix<F>& QPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("herm_eig::SDC"))
+    DEBUG_CSE
 
     typedef Base<F> Real;
     const Grid& g = APre.Grid();
@@ -629,19 +638,24 @@ void SDC
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, Q, ctrl );
-    DistMatrix<F> ATL(g), ATR(g),
-                  ABL(g), ABR(g);
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
+    auto QL = Q( ALL, ind1 );
+    auto QR = Q( ALL, ind2 );
+
     if( uplo == LOWER )
         Zero( ABL );
     else
         Zero( ATR );
-    DistMatrix<Real,VR,STAR> wT(g), wB(g);
-    PartitionDown( w, wT, wB, part.index );
-    DistMatrix<F> QL(g), QR(g);
-    PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the two subproblems
     DistMatrix<F> ATLSub, ABRSub, ZTSub, ZBSub;

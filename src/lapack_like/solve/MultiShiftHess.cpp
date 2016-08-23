@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // NOTE: These algorithms are adaptations and/or extensions of Alg. 2 from
 //       Greg Henry's "The shifted Hessenberg system solve computation".
@@ -21,14 +21,14 @@ namespace El {
 namespace mshs {
 
 template<typename F>
-inline void
+void
 LN
 ( F alpha,
   const Matrix<F>& H,
   const Matrix<F>& shifts,
         Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CSE cse("mshs::LN"))
+    DEBUG_CSE
     X *= alpha;
 
     const Int m = X.Height();
@@ -46,40 +46,40 @@ LN
     for( Int j=0; j<n; ++j )
     {
         MemCopy( W.Buffer(0,j), H.LockedBuffer(), m );
-        W.Update( 0, j, -shifts.Get(j,0) );
+        W(0,j) -= shifts(j);
     }
      
     // Simultaneously find the LQ factorization and solve against L
     for( Int k=0; k<m-1; ++k )
     {
         auto hB = H( IR(k+2,m), IR(k+1) );
-        const F etakkp1 = H.Get(k,k+1);
-        const F etakp1kp1 = H.Get(k+1,k+1);
+        const F etakkp1 = H(k,k+1);
+        const F etakp1kp1 = H(k+1,k+1);
         for( Int j=0; j<n; ++j )
         {
             // Find the Givens rotation needed to zero H(k,k+1),
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,j), etakkp1, &c, &s );
-            C.Set( k, j, c );
-            S.Set( k, j, s );
+            Givens( W(k,j), etakkp1, c, s );
+            C(k,j) = c;
+            S(k,j) = s;
 
             // The new diagonal value of L
-            const F lambdakk = c*W.Get(k,j) + s*etakkp1;
+            const F lambdakk = c*W(k,j) + s*etakkp1;
 
             // Divide our current entry of x by the diagonal value of L
-            X.Set( k, j, X.Get(k,j)/lambdakk );
+            X(k,j) /= lambdakk;
 
             // x(k+1:end) -= x(k) * L(k+1:end,k), where
             // L(k+1:end,k) = c H(k+1:end,k) + s H(k+1:end,k+1). We express this
             // more concisely as xB -= x(k) * ( c wB + s hB ).
             // Note that we carefully handle updating the k+1'th entry since
             // it is shift-dependent.
-            const F mu = shifts.Get( j, 0 );
-            const F xc = X.Get(k,j)*c;
-            const F xs  = X.Get(k,j)*s;
-            X.Update( k+1, j, -xc*W.Get(k+1,j)-xs*(etakp1kp1-mu) );
+            const F mu = shifts(j);
+            const F xc = X(k,j)*c;
+            const F xs  = X(k,j)*s;
+            X(k+1,j) -= xc*W(k+1,j) + xs*(etakp1kp1-mu);
             blas::Axpy
             ( m-(k+2), -xc, W.LockedBuffer(k+2,j), 1, X.Buffer(k+2,j), 1 );
             blas::Axpy
@@ -90,14 +90,15 @@ LN
             // to a fully-updated portion of the k+1'th column of this iteration
             //
             // w(k+1:end) := -conj(s) H(k+1:end,k) + c H(k+1:end,k+1)
-            W.Set( k+1, j, -Conj(s)*W.Get(k+1,j)+c*(etakp1kp1-mu) );
+            W(k+1,j) = -Conj(s)*W(k+1,j) + c*(etakp1kp1-mu);
             blas::Scal( m-(k+2), -Conj(s), W.Buffer(k+2,j), 1 );
-            blas::Axpy( m-(k+2), c, hB.LockedBuffer(), 1, W.Buffer(k+2,j), 1 );
+            blas::Axpy
+            ( m-(k+2), F(c), hB.LockedBuffer(), 1, W.Buffer(k+2,j), 1 );
         }
     }
     // Divide x(end) by L(end,end)
     for( Int j=0; j<n; ++j )
-        X.Set( m-1, j, X.Get(m-1,j)/W.Get(m-1,j) );
+        X(m-1,j) /= W(m-1,j);
 
     // Solve against Q
     for( Int j=0; j<n; ++j )        
@@ -117,14 +118,14 @@ LN
 }
 
 template<typename F>
-inline void
+void
 UN
 ( F alpha,
   const Matrix<F>& H,
   const Matrix<F>& shifts,
         Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CSE cse("mshs::UN"))
+    DEBUG_CSE
     X *= alpha;
 
     const Int m = X.Height();
@@ -142,42 +143,42 @@ UN
     for( Int j=0; j<n; ++j )
     {
         MemCopy( W.Buffer(0,j), H.LockedBuffer(0,m-1), m );
-        W.Update( m-1, j, -shifts.Get(j,0) );
+        W(m-1,j) -= shifts(j);
     }
      
     // Simultaneously form the RQ factorization and solve against R
     for( Int k=m-1; k>0; --k )
     {
         auto hT = H( IR(0,k-1), IR(k-1) );
-        const F etakkm1 = H.Get(k,k-1);
-        const F etakm1km1 = H.Get(k-1,k-1);
+        const F etakkm1 = H(k,k-1);
+        const F etakm1km1 = H(k-1,k-1);
         for( Int j=0; j<n; ++j )
         {
             // Find the Givens rotation needed to zero H(k,k-1),
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,j), etakkm1, &c, &s );
-            C.Set( k, j, c );
-            S.Set( k, j, s );
+            Givens( W(k,j), etakkm1, c, s );
+            C(k,j) = c;
+            S(k,j) = s;
 
             // The new diagonal value of R
-            const F rhokk = c*W.Get(k,j) + s*etakkm1;
+            const F rhokk = c*W(k,j) + s*etakkm1;
 
             // Divide our current entry of x by the diagonal value of R
-            X.Set( k, j, X.Get(k,j)/rhokk );
+            X(k,j) /= rhokk;
 
             // x(0:k-1) -= x(k) * R(0:k-1,k), where
             // R(0:k-1,k) = c H(0:k-1,k) + s H(0:k-1,k-1). We express this
             // more concisely as xT -= x(k) * ( c wT + s hT ).
             // Note that we carefully handle updating the k-1'th entry since
             // it is shift-dependent.
-            const F mu = shifts.Get( j, 0 );
-            const F xc = X.Get(k,j)*c;
-            const F xs  = X.Get(k,j)*s;
+            const F mu = shifts(j);
+            const F xc = X(k,j)*c;
+            const F xs  = X(k,j)*s;
             blas::Axpy( k-1, -xc, W.LockedBuffer(0,j), 1, X.Buffer(0,j), 1 );
             blas::Axpy( k-1, -xs, hT.LockedBuffer(),   1, X.Buffer(0,j), 1 );
-            X.Update( k-1, j, -xc*W.Get(k-1,j)-xs*(etakm1km1-mu) );
+            X(k-1,j) -= xc*W(k-1,j) + xs*(etakm1km1-mu);
 
             // Change the working vector, wT, from representing a fully-updated
             // portion of the k'th column of H from the end of the last 
@@ -185,13 +186,13 @@ UN
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
             blas::Scal( k-1, -Conj(s), W.Buffer(0,j), 1 );
-            blas::Axpy( k-1, c, hT.LockedBuffer(), 1, W.Buffer(0,j), 1 );
-            W.Set( k-1, j, -Conj(s)*W.Get(k-1,j)+c*(etakm1km1-mu) );
+            blas::Axpy( k-1, F(c), hT.LockedBuffer(), 1, W.Buffer(0,j), 1 );
+            W(k-1,j) = -Conj(s)*W(k-1,j) + c*(etakm1km1-mu);
         }
     }
     // Divide x(0) by R(0,0)
     for( Int j=0; j<n; ++j )
-        X.Set( 0, j, X.Get(0,j)/W.Get(0,j) );
+        X(0,j) /= W(0,j);
 
     // Solve against Q
     for( Int j=0; j<n; ++j )        
@@ -216,14 +217,14 @@ UN
 //       balanced.
 
 template<typename F>
-inline void
+void
 LN
 ( F alpha,
   const ElementalMatrix<F>& H, 
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("mshs::LN"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,STAR,VR> XProx( XPre );
     auto& X = XProx.Get();
@@ -234,6 +235,7 @@ LN
 
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre, ctrl );
     auto& shifts = shiftsProx.GetLocked();
+    auto& shiftsLoc = shifts.LockedMatrix();
 
     X *= alpha;
 
@@ -241,6 +243,7 @@ LN
     const Int nLoc = X.LocalWidth();
     if( m == 0 )
         return;
+    auto& XLoc = X.Matrix();
 
     // Initialize storage for Givens rotations
     typedef Base<F> Real;
@@ -257,7 +260,7 @@ LN
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
             MemCopy( W.Buffer(0,jLoc), h0_STAR_STAR.LockedBuffer(), m );
-            W.Update( 0, jLoc, -shifts.GetLocal(jLoc,0) );
+            W(0,jLoc) -= shiftsLoc(jLoc);
         }
     }
      
@@ -276,25 +279,25 @@ LN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,jLoc), etakkp1, &c, &s );
-            C.Set( k, jLoc, c );
-            S.Set( k, jLoc, s );
+            Givens( W(k,jLoc), etakkp1, c, s );
+            C(k,jLoc) = c;
+            S(k,jLoc) = s;
 
             // The new diagonal value of L
-            const F lambdakk = c*W.Get(k,jLoc) + s*etakkp1;
+            const F lambdakk = c*W(k,jLoc) + s*etakkp1;
 
             // Divide our current entry of x by the diagonal value of L
-            X.SetLocal( k, jLoc, X.GetLocal(k,jLoc)/lambdakk );
+            XLoc(k,jLoc) /= lambdakk;
 
             // x(k+1:end) -= x(k) * L(k+1:end,k), where
             // L(k+1:end,k) = c H(k+1:end,k) + s H(k+1:end,k+1). We express this
             // more concisely as xB -= x(k) * ( c wB + s hB ).
             // Note that we carefully handle updating the k+1'th entry since
             // it is shift-dependent.
-            const F mu = shifts.GetLocal( jLoc, 0 );
-            const F xc = X.GetLocal(k,jLoc)*c;
-            const F xs  = X.GetLocal(k,jLoc)*s;
-            X.UpdateLocal( k+1, jLoc, -xc*W.Get(k+1,jLoc)-xs*(etakp1kp1-mu) );
+            const F mu = shiftsLoc(jLoc);
+            const F xc = XLoc(k,jLoc)*c;
+            const F xs  = XLoc(k,jLoc)*s;
+            XLoc(k+1,jLoc) -= xc*W(k+1,jLoc) + xs*(etakp1kp1-mu);
             blas::Axpy
             ( m-(k+2), -xc, W.LockedBuffer(k+2,jLoc), 1, 
                             X.Buffer(k+2,jLoc),       1 );
@@ -307,16 +310,16 @@ LN
             // to a fully-updated portion of the k+1'th column of this iteration
             //
             // w(k+1:end) := -conj(s) H(k+1:end,k) + c H(k+1:end,k+1)
-            W.Set( k+1, jLoc, -Conj(s)*W.Get(k+1,jLoc)+c*(etakp1kp1-mu) );
+            W(k+1,jLoc) = -Conj(s)*W(k+1,jLoc) + c*(etakp1kp1-mu);
             blas::Scal( m-(k+2), -Conj(s), W.Buffer(k+2,jLoc), 1 );
             blas::Axpy
-            ( m-(k+2), c, hB_STAR_STAR.LockedBuffer(), 1, 
-                          W.Buffer(k+2,jLoc),          1 );
+            ( m-(k+2), F(c), hB_STAR_STAR.LockedBuffer(), 1, 
+                             W.Buffer(k+2,jLoc),          1 );
         }
     }
     // Divide x(end) by L(end,end)
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-        X.SetLocal( m-1, jLoc, X.GetLocal(m-1,jLoc)/W.Get(m-1,jLoc) );
+        XLoc(m-1,jLoc) /= W(m-1,jLoc);
 
     // Solve against Q
     for( Int jLoc=0; jLoc<nLoc; ++jLoc ) 
@@ -336,14 +339,14 @@ LN
 }
 
 template<typename F>
-inline void
+void
 UN
 ( F alpha,
   const ElementalMatrix<F>& H, 
   const ElementalMatrix<F>& shiftsPre,
         ElementalMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("mshs::UN"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,STAR,VR> XProx( XPre );
     auto& X = XProx.Get();
@@ -354,6 +357,7 @@ UN
 
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre, ctrl );
     auto& shifts = shiftsProx.GetLocked();
+    auto& shiftsLoc = shifts.LockedMatrix();
 
     X *= alpha;
 
@@ -361,6 +365,7 @@ UN
     const Int nLoc = X.LocalWidth();
     if( m == 0 )
         return;
+    auto& XLoc = X.Matrix();
 
     // Initialize storage for Givens rotations
     typedef Base<F> Real;
@@ -377,7 +382,7 @@ UN
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
         {
             MemCopy( W.Buffer(0,jLoc), hLast_STAR_STAR.LockedBuffer(), m );
-            W.Update( m-1, jLoc, -shifts.GetLocal(jLoc,0) );
+            W(m-1,jLoc) -= shiftsLoc(jLoc);
         }
     }
      
@@ -396,29 +401,29 @@ UN
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
             Real c; F s;
-            lapack::Givens( W.Get(k,jLoc), etakkm1, &c, &s );
-            C.Set( k, jLoc, c );
-            S.Set( k, jLoc, s );
+            Givens( W(k,jLoc), etakkm1, c, s );
+            C(k,jLoc) = c;
+            S(k,jLoc) = s;
 
             // The new diagonal value of R
-            const F rhokk = c*W.Get(k,jLoc) + s*etakkm1;
+            const F rhokk = c*W(k,jLoc) + s*etakkm1;
 
             // Divide our current entry of x by the diagonal value of R
-            X.SetLocal( k, jLoc, X.GetLocal(k,jLoc)/rhokk );
+            XLoc(k,jLoc) /= rhokk;
 
             // x(0:k-1) -= x(k) * R(0:k-1,k), where
             // R(0:k-1,k) = c H(0:k-1,k) + s H(0:k-1,k-1). We express this
             // more concisely as xT -= x(k) * ( c wT + s hT ).
             // Note that we carefully handle updating the k-1'th entry since
             // it is shift-dependent.
-            const F mu = shifts.GetLocal( jLoc, 0 );
-            const F xc = X.GetLocal(k,jLoc)*c;
-            const F xs  = X.GetLocal(k,jLoc)*s;
+            const F mu = shiftsLoc(jLoc);
+            const F xc = XLoc(k,jLoc)*c;
+            const F xs  = XLoc(k,jLoc)*s;
             blas::Axpy
             ( k-1, -xc, W.LockedBuffer(0,jLoc),      1, X.Buffer(0,jLoc), 1 );
             blas::Axpy
             ( k-1, -xs, hT_STAR_STAR.LockedBuffer(), 1, X.Buffer(0,jLoc), 1 );
-            X.UpdateLocal( k-1, jLoc, -xc*W.Get(k-1,jLoc)-xs*(etakm1km1-mu) );
+            XLoc(k-1,jLoc) -= xc*W(k-1,jLoc) + xs*(etakm1km1-mu);
 
             // Change the working vector, wT, from representing a fully-updated
             // portion of the k'th column of H from the end of the last 
@@ -426,13 +431,13 @@ UN
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
             blas::Scal( k-1, -Conj(s), W.Buffer(0,jLoc), 1 );
-            blas::Axpy( k-1, c, hT_STAR_STAR.LockedBuffer(), 1, 
-                                W.Buffer(0,jLoc),            1 );
-            W.Set( k-1, jLoc, -Conj(s)*W.Get(k-1,jLoc)+c*(etakm1km1-mu) );
+            blas::Axpy( k-1, F(c), hT_STAR_STAR.LockedBuffer(), 1, 
+                                   W.Buffer(0,jLoc),            1 );
+            W(k-1,jLoc) = -Conj(s)*W(k-1,jLoc) + c*(etakm1km1-mu);
         }
     }
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-        X.SetLocal( 0, jLoc, X.GetLocal(0,jLoc)/W.Get(0,jLoc) );
+        XLoc(0,jLoc) /= W(0,jLoc);
 
     // Solve against Q
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
@@ -464,7 +469,7 @@ void MultiShiftHessSolve
   const Matrix<F>& shifts,
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("MultiShiftHessSolve"))
+    DEBUG_CSE
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -490,7 +495,7 @@ void MultiShiftHessSolve
   const ElementalMatrix<F>& shifts, 
         ElementalMatrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("MultiShiftHessSolve"))
+    DEBUG_CSE
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -524,6 +529,10 @@ void MultiShiftHessSolve
           ElementalMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

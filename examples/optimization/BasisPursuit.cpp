@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -59,12 +59,20 @@ main( int argc, char* argv[] )
         ctrl.admmCtrl.progress = progress;
 
         DistMatrix<Real> x;
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         BP( A, b, x, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
             Print( x, "x" );
         const Int xZeroNorm = ZeroNorm( x );
         if( mpi::Rank() == 0 )
+        {
+            Output("Basis Pursuit time: ",timer.Total()," secs");
             Output("|| x ||_0 = ",xZeroNorm);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

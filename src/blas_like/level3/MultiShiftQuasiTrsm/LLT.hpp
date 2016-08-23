@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,11 +11,10 @@ namespace El {
 namespace msquasitrsm {
 
 template<typename F>
-inline void
-LLTUnb
+void LLTUnb
 ( bool conjugate, const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLTUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -51,7 +50,7 @@ LLTUnb
                 const F delta22 = LBuf[(k+1)+(k+1)*ldl] - shifts.Get(j,0);
                 // Decompose D = L Q
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta12, &c, &s );
+                const F gamma11 = Givens( delta11, delta12, c, s );
                 const F gamma21 =        c*delta21 + s*delta22;
                 const F gamma22 = -Conj(s)*delta21 + c*delta22;
 
@@ -91,13 +90,12 @@ LLTUnb
 }
 
 template<typename F>
-inline void
-LLT
+void LLT
 ( Orientation orientation, 
   const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -141,15 +139,14 @@ LLT
 
 // width(X) >> p
 template<typename F>
-inline void
-LLTLarge
+void LLTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre )
+  const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -215,15 +212,14 @@ LLTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LLTMedium
+void LLTMedium
 ( Orientation orientation,
-  const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre )
+  const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -295,15 +291,14 @@ LLTMedium
 
 // width(X) << p
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation, 
   const DistMatrix<F,colDist,STAR>& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,colDist,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -358,15 +353,14 @@ LLTSmall
 }
 
 template<typename F,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation, 
   const DistMatrix<F,STAR,rowDist>& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,rowDist,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLTSmall");
       AssertSameGrids( L, shifts, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

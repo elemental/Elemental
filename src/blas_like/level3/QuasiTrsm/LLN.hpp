@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -15,10 +15,9 @@ namespace quasitrsm {
 //   X := trilu(L)^-1 X
 
 template<typename F>
-inline void
-LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
+void LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLNUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -48,7 +47,7 @@ LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
             const F delta22 = LBuf[(k+1)+(k+1)*ldl];
             // Decompose D = L Q
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
+            const F gamma11 = Givens( delta11, delta12, c, s );
             const F gamma21 =        c*delta21 + s*delta22;
             const F gamma22 = -Conj(s)*delta21 + c*delta22;
             if( checkIfSingular )
@@ -104,10 +103,9 @@ LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 }
 
 template<typename F>
-inline void
-LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
+void LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLN"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -133,13 +131,12 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
-inline void
-LLNLarge
-( const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre, 
+void LLNLarge
+( const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -189,13 +186,12 @@ LLNLarge
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
-inline void
-LLNMedium
-( const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre, 
+void LLNMedium
+( const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -246,14 +242,13 @@ LLNMedium
 
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F,Dist colDist>
-inline void
-LLNSmall
+void LLNSmall
 ( const DistMatrix<F,colDist,STAR>& L,
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

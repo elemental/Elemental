@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // See Chapter 5 of Nicholas J. Higham's "Functions of Matrices: Theory and
 // Computation", which is currently available at:
@@ -17,13 +17,13 @@ namespace El {
 namespace sign {
 
 template<typename F>
-inline void
+void
 NewtonStep
 ( const Matrix<F>& X,
         Matrix<F>& XNew,
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Calculate mu while forming XNew := inv(X)
@@ -48,13 +48,13 @@ NewtonStep
 }
 
 template<typename F>
-inline void
+void
 NewtonStep
 ( const DistMatrix<F>& X,
         DistMatrix<F>& XNew, 
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Calculate mu while forming B := inv(X)
@@ -79,13 +79,13 @@ NewtonStep
 }
 
 template<typename F>
-inline void
+void
 NewtonSchulzStep
 ( const Matrix<F>& X,
         Matrix<F>& XTmp,
         Matrix<F>& XNew )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonSchulzStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Height();
  
@@ -98,13 +98,13 @@ NewtonSchulzStep
 }
 
 template<typename F>
-inline void
+void
 NewtonSchulzStep
 ( const DistMatrix<F>& X,
         DistMatrix<F>& XTmp,
         DistMatrix<F>& XNew )
 {
-    DEBUG_ONLY(CSE cse("sign::NewtonSchulzStep"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Height();
 
@@ -120,10 +120,10 @@ NewtonSchulzStep
 // "Functions of Matrices: Theory and Computation" for motivation behind
 // the different choices of p, which are usually in {0,1,2}
 template<typename F>
-inline Int
+Int
 Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("sign::Newton"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -159,10 +159,10 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 }
 
 template<typename F>
-inline Int
+Int
 Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("sign::Newton"))
+    DEBUG_CSE
     typedef Base<F> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -204,14 +204,14 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 template<typename F>
 void Sign( Matrix<F>& A, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
     sign::Newton( A, ctrl );
 }
 
 template<typename F>
 void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
     Matrix<F> ACopy( A );
     sign::Newton( A, ctrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
@@ -220,7 +220,7 @@ void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 template<typename F>
 void Sign( ElementalMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -234,7 +234,7 @@ void Sign
   ElementalMatrix<F>& NPre, 
   const SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CSE cse("Sign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> NProx( NPre );
@@ -258,27 +258,28 @@ template<typename F>
 void HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Z;
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    Matrix<F> Q;
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         if( omega >= 0 )
-            w.Set(i,0,Real(1));
+            w(i) = Real(1);
         else
-            w.Set(i,0,Real(-1));
+            w(i) = Real(-1);
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
 template<typename F>
@@ -288,35 +289,36 @@ void HermitianSign
   Matrix<F>& N, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Z;
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    Matrix<F> Q;
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int n = A.Height();
     Matrix<Real> wSgn( n, 1 ), wAbs( n, 1 );
     for( Int i=0; i<n; ++i )
     {
-        const Real omega = w.Get(i,0);
+        const Real omega = w(i);
         if( omega >= 0 )
         {
-            wSgn.Set(i,0,Real(1));
-            wAbs.Set(i,0,omega);
+            wSgn(i) = Real(1);
+            wAbs(i) = omega;
         }
         else
         {
-            wSgn.Set(i,0,Real(-1));
-            wAbs.Set(i,0,-omega);
+            wSgn(i) = Real(-1);
+            wAbs(i) = -omega;
         }
     }
 
     // Form the Hermitian matrices with modified eigenvalues
-    HermitianFromEVD( uplo, A, wSgn, Z );
-    HermitianFromEVD( uplo, N, wAbs, Z );
+    HermitianFromEVD( uplo, A, wSgn, Q );
+    HermitianFromEVD( uplo, N, wAbs, Q );
 }
 
 template<typename F>
@@ -325,7 +327,7 @@ void HermitianSign
   ElementalMatrix<F>& APre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -334,9 +336,10 @@ void HermitianSign
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    DistMatrix<F> Q(g);
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int numLocalEigs = w.LocalHeight();
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
@@ -349,7 +352,7 @@ void HermitianSign
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues
-    HermitianFromEVD( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Q );
 }
 
 template<typename F>
@@ -359,7 +362,7 @@ void HermitianSign
   ElementalMatrix<F>& NPre,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("HermitianSign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR> NProx( NPre );
@@ -370,9 +373,10 @@ void HermitianSign
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
-    HermitianEigSubset<Real> subset;
-    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
+    DistMatrix<F> Q(g);
+    auto ctrlMod( ctrl );
+    ctrlMod.tridiagEigCtrl.sort = UNSORTED;
+    HermitianEig( uplo, A, w, Q, ctrlMod );
 
     const Int n = A.Height();
     const Int numLocalEigs = w.LocalHeight();
@@ -397,8 +401,8 @@ void HermitianSign
     }
 
     // Form the Hermitian matrix with the modified eigenvalues
-    HermitianFromEVD( uplo, A, wSgn, Z );
-    HermitianFromEVD( uplo, N, wAbs, Z );
+    HermitianFromEVD( uplo, A, wSgn, Q );
+    HermitianFromEVD( uplo, N, wAbs, Q );
 }
 
 #define PROTO(F) \
@@ -425,6 +429,10 @@ void HermitianSign
     const HermitianEigCtrl<F>& ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

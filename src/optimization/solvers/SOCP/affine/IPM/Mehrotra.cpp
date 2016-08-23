@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "./util.hpp"
 
 namespace El {
@@ -48,7 +48,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO: Move these into the control structure
@@ -149,6 +149,7 @@ void Mehrotra
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg1Perm*ctrl.reg1Perm y?
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -156,6 +157,7 @@ void Mehrotra
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
+        // TODO(poulson): Axpy with ctrl.reg0Perm*ctrl.reg0Perm x?
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
@@ -164,6 +166,7 @@ void Mehrotra
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg2Perm*ctrl.reg2Perm z?
 
         // Now check the pieces
         // --------------------
@@ -390,7 +393,7 @@ void Mehrotra
         ElementalMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = true;
 
@@ -776,7 +779,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
 
@@ -789,12 +792,6 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool cutoffSparse = 64;
     const bool standardShift = true;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta =  Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -881,26 +878,26 @@ void Mehrotra
     {
         if( i < n )
         {
-            regTmp.Set( i, 0, gammaTmp*gammaTmp );
+            regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
         }
         else if( i < n+m )
         {
-            regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+            regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
         }
         else
         {
             const Int iCone = i-(n+m);
-            const Int firstInd = sparseFirstInds.Get(iCone,0);
-            const Int order = sparseToOrigOrders.Get(iCone,0);
-            const Int sparseOrder = sparseOrders.Get(iCone,0);
+            const Int firstInd = sparseFirstInds(iCone);
+            const Int order = sparseToOrigOrders(iCone);
+            const Int sparseOrder = sparseOrders(iCone);
             const bool embedded = ( order != sparseOrder );
           
             // TODO: Use different diagonal modification for the auxiliary
             //       variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp.Set( i, 0, betaTmp*betaTmp );
+                regTmp(i) = ctrl.reg2Tmp*ctrl.reg2Tmp;
             else 
-                regTmp.Set( i, 0, -betaTmp*betaTmp );
+                regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
         }
     }
     regTmp *= origTwoNormEst;
@@ -909,7 +906,7 @@ void Mehrotra
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, gamma, delta, beta, 
+    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, 
       orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
       kSparse, JStatic, onlyLower );
 
@@ -1237,7 +1234,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("socp::affine::Mehrotra"))    
+    DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
 
@@ -1251,12 +1248,6 @@ void Mehrotra
     const Int cutoffSparse = 64;
     const Int cutoffPar = 1000;
     const bool standardShift = false;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta =  Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     auto A = APre;
     auto G = GPre;
@@ -1348,7 +1339,11 @@ void Mehrotra
       cutoffSparse );
     const Int kSparse = sparseFirstInds.Height();
 
-    DistSparseMultMeta metaOrig;
+    auto& sparseOrdersLoc = sparseOrders.LockedMatrix();
+    auto& sparseFirstIndsLoc = sparseFirstInds.LockedMatrix();
+    auto& sparseToOrigOrdersLoc = sparseToOrigOrders.LockedMatrix();
+
+    DistGraphMultMeta metaOrig;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm),
@@ -1368,8 +1363,10 @@ void Mehrotra
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
-        if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
-        else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+        if( i < n )
+          regTmp.SetLocal( iLoc, 0,  ctrl.reg0Tmp*ctrl.reg0Tmp );
+        else if( i < n+m )
+          regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
         else break;
     }
     // Perform the portion that requires remote updates
@@ -1380,14 +1377,14 @@ void Mehrotra
         for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
         {
             const Int iCone = sparseFirstInds.GlobalRow(iLoc);
-            const Int order = sparseToOrigOrders.GetLocal(iLoc,0);
-            const Int sparseOrder = sparseOrders.GetLocal(iLoc,0);
+            const Int order = sparseToOrigOrdersLoc(iLoc);
+            const Int sparseOrder = sparseOrdersLoc(iLoc);
             const bool embedded = ( order != sparseOrder ); 
-            const Int firstInd = sparseFirstInds.GetLocal(iLoc,0);
+            const Int firstInd = sparseFirstIndsLoc(iLoc);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp.QueueUpdate( n+m+iCone, 0, betaTmp*betaTmp );
+                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.reg2Tmp*ctrl.reg2Tmp );
             else
-                regTmp.QueueUpdate( n+m+iCone, 0, -betaTmp*betaTmp );
+                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
         }
         regTmp.ProcessQueues();
     }
@@ -1397,7 +1394,7 @@ void Mehrotra
     // =========================================
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT
-    ( A, G, gamma, delta, beta, 
+    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, 
       orders, firstInds, origToSparseOrders, origToSparseFirstInds, 
       kSparse, JStatic, onlyLower );
     if( ctrl.print )
@@ -1454,6 +1451,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg1Perm*ctrl.reg1Perm y?
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -1461,6 +1459,7 @@ void Mehrotra
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
+        // TODO(poulson): Axpy with ctrl.reg0Perm*ctrl.reg0Perm x?
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
@@ -1469,6 +1468,7 @@ void Mehrotra
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+        // TODO(poulson): Axpy with -ctrl.reg2Perm*ctrl.reg2Perm z?
 
         // Now check the pieces
         // --------------------
@@ -1563,7 +1563,7 @@ void Mehrotra
         try
         {
             // Cache the metadata for the finalized JOrig
-            JOrig.multMeta = meta;
+            JOrig.LockedDistGraph().multMeta = meta;
             J = JOrig;
             J.FreezeSparsity();
             UpdateDiagonal( J, Real(1), regTmp );
@@ -1580,7 +1580,7 @@ void Mehrotra
                 Output("Equilibration: ",timer.Stop()," secs");
 
             // Cache the metadata for the finalized J
-            J.multMeta = meta;
+            J.LockedDistGraph().multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
             JFront.Pull
@@ -1866,7 +1866,11 @@ void Mehrotra
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace affine
 } // namespace socp

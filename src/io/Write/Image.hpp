@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_WRITE_IMAGE_HPP
 #define EL_WRITE_IMAGE_HPP
 
@@ -26,7 +25,7 @@ SaveQImage
 ( const QImage& image, string basename="matrix", 
   FileFormat format=PNG )
 {
-    DEBUG_ONLY(CSE cse("write::Image"))
+    DEBUG_CSE
     string filename = basename + "." + FileExtension(format);
     QFile file( filename.c_str() );
     file.open( QIODevice::WriteOnly );
@@ -35,27 +34,26 @@ SaveQImage
 #endif // ifdef EL_HAVE_QT5
 
 template<typename T>
-inline void
-RealPartImage
+void RealPartImage
 ( const Matrix<T>& A, string basename="matrix", FileFormat format=PNG )
 {
-    DEBUG_ONLY(CSE cse("write::RealPartImage"))
+    DEBUG_CSE
 #ifdef EL_HAVE_QT5
     typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
     // Compute the maximum and minimum values
-    Real minVal=0, maxVal=0; 
+    double minVal=0, maxVal=0; 
     if( m != 0 && n != 0 )
     {
-        minVal = maxVal = A.GetRealPart( 0, 0 );
+        minVal = maxVal = double(A.GetRealPart( 0, 0 ));
         for( Int j=0; j<n; ++j )
         {
             for( Int i=0; i<m; ++i )
             {
-                minVal = Min( minVal, A.GetRealPart(i,j) );
-                maxVal = Max( maxVal, A.GetRealPart(i,j) );
+                minVal = Min( minVal, double(A.GetRealPart(i,j)) );
+                maxVal = Max( maxVal, double(A.GetRealPart(i,j)) );
             }
         }
     }
@@ -72,7 +70,8 @@ RealPartImage
         for( Int iPix=0; iPix<mPix; ++iPix )
         {
             const Int i = mRatio*iPix;
-            QRgb color = SampleColorMap( A.GetRealPart(i,j), minVal, maxVal );
+            QRgb color =
+              SampleColorMap( double(A.GetRealPart(i,j)), minVal, maxVal );
             image.setPixel( jPix, iPix, color );
         }
     }
@@ -84,27 +83,26 @@ RealPartImage
 }
 
 template<typename T>
-inline void
-ImagPartImage
+void ImagPartImage
 ( const Matrix<T>& A, string basename="matrix", FileFormat format=PNG )
 {
-    DEBUG_ONLY(CSE cse("write::ImagPartImage"))
+    DEBUG_CSE
 #ifdef EL_HAVE_QT5
     typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
     // Compute the maximum and minimum values
-    Real minVal=0, maxVal=0; 
+    double minVal=0, maxVal=0; 
     if( m != 0 && n != 0 )
     {
-        minVal = maxVal = A.GetImagPart( 0, 0 );
+        minVal = maxVal = double(A.GetImagPart( 0, 0 ));
         for( Int j=0; j<n; ++j )
         {
             for( Int i=0; i<m; ++i )
             {
-                minVal = Min( minVal, A.GetImagPart(i,j) );
-                maxVal = Max( maxVal, A.GetImagPart(i,j) );
+                minVal = Min( minVal, double(A.GetImagPart(i,j)) );
+                maxVal = Max( maxVal, double(A.GetImagPart(i,j)) );
             }
         }
     }
@@ -121,7 +119,8 @@ ImagPartImage
         for( Int iPix=0; iPix<mPix; ++iPix )
         {
             const Int i = mRatio*iPix;
-            QRgb color = SampleColorMap( A.GetImagPart(i,j), minVal, maxVal );
+            QRgb color =
+              SampleColorMap( double(A.GetImagPart(i,j)), minVal, maxVal );
             image.setPixel( jPix, iPix, color );
         }
     }
@@ -133,21 +132,19 @@ ImagPartImage
 }
 
 template<typename Real>
-inline void
-Image
+void Image
 ( const Matrix<Real>& A, string basename="matrix", FileFormat format=PNG )
 {
-    DEBUG_ONLY(CSE cse("write::Image"))
+    DEBUG_CSE
     RealPartImage( A, basename, format );
 }
 
 template<typename Real>
-inline void
-Image
+void Image
 ( const Matrix<Complex<Real>>& A, string basename="matrix", 
   FileFormat format=PNG )
 {
-    DEBUG_ONLY(CSE cse("write::Image"))
+    DEBUG_CSE
     RealPartImage( A, basename+"_real", format );
     ImagPartImage( A, basename+"_imag", format );
 }

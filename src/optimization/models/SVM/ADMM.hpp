@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // NOTE: This is adapted from a MATLAB script written by AJ Friend.
 
@@ -15,11 +15,13 @@ namespace svm {
 
 template<typename Real>
 Int ADMM
-( const Matrix<Real>& G, const Matrix<Real>& q, 
-        Real gamma,            Matrix<Real>& w,
+( const Matrix<Real>& G,
+  const Matrix<Real>& q, 
+        Real gamma,
+        Matrix<Real>& w,
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::ADMM"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]
@@ -29,9 +31,9 @@ Int ADMM
     AL = G;
     for( Int j=0; j<numFeatures; ++j )
         for( Int i=0; i<numExamples; ++i )
-            AL.Set( i, j, AL.Get(i,j)*q.Get(i,0) );
+            AL(i,j) = AL(i,j)*q(i);
     for( Int i=0; i<numExamples; ++i )
-        A.Set( i, numFeatures, q.Get(i,0) );
+        A(i,numFeatures) = q(i);
 
     auto hingeProx = [=]( Matrix<Real>& y, Real rho )
                      { HingeLossProx( y, y.Height()*rho ); };
@@ -51,11 +53,13 @@ Int ADMM
 
 template<typename Real>
 Int ADMM
-( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, 
-        Real gamma,                        ElementalMatrix<Real>& w, 
+( const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& q, 
+        Real gamma,
+        ElementalMatrix<Real>& w, 
   const ModelFitCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svm::ADMM"))
+    DEBUG_CSE
     const Int numExamples = G.Height();
     const Int numFeatures = G.Width();
     // A = [repmat(q,1,n).*G,q]
@@ -63,18 +67,22 @@ Int ADMM
     DistMatrix<Real> A( numExamples, numFeatures+1, G.Grid() );
     auto AL = A( ALL, IR(0,numFeatures) );
     AL = G;
-    DistMatrix<Real,MC,STAR> q_MC_STAR(G.Grid());
-    q_MC_STAR.AlignWith( A );
-    q_MC_STAR = q;
+    DistMatrix<Real,MC,STAR> q_MC(G.Grid());
+    q_MC.AlignWith( A );
+    q_MC = q;
+
+    Matrix<Real>& ALoc = A.Matrix();
+    Matrix<Real>& ALLoc = AL.Matrix();
+    Matrix<Real>& q_MCLoc = q_MC.Matrix();
+
     for( Int jLoc=0; jLoc<AL.LocalWidth(); ++jLoc )
         for( Int iLoc=0; iLoc<AL.LocalHeight(); ++iLoc )
-            AL.SetLocal
-            ( iLoc, jLoc, AL.GetLocal(iLoc,jLoc)*q_MC_STAR.GetLocal(iLoc,0) );
+            ALLoc(iLoc,jLoc) *= q_MCLoc(iLoc);
     if( A.IsLocalCol(numFeatures) )
     {
         const Int jLoc = A.LocalCol(numFeatures);
         for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
-            A.SetLocal( iLoc, jLoc, q_MC_STAR.GetLocal(iLoc,0) );
+            ALoc(iLoc,jLoc) = q_MCLoc(iLoc);
     }
 
     auto hingeProx = [=]( DistMatrix<Real>& y, Real rho )

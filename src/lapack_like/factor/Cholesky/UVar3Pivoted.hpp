@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_CHOLESKY_UVAR3PIVOTED_HPP
 #define EL_CHOLESKY_UVAR3PIVOTED_HPP
 
@@ -16,11 +15,10 @@ namespace El {
 namespace cholesky {
 
 template<typename F>
-inline void
-UUnblockedPivoted( Matrix<F>& A, Permutation& P )
+void UUnblockedPivoted( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UUnblockedPivoted");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -46,7 +44,7 @@ UUnblockedPivoted( Matrix<F>& A, Permutation& P )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( UPPER, A, k, from );
-        P.RowSwap( k, from );
+        P.Swap( k, from );
 
         // a12 := a12 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -63,13 +61,12 @@ UUnblockedPivoted( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-UUnblockedPivoted
+void UUnblockedPivoted
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UUnblockedPivoted");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
@@ -99,7 +96,7 @@ UUnblockedPivoted
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( UPPER, A, k, from );
-        P.RowSwap( k, from );
+        P.Swap( k, from );
 
         // a12 := a12 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -118,8 +115,7 @@ UUnblockedPivoted
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
-inline void
-UPanelPivoted
+void UPanelPivoted
 ( Matrix<F>& AFull,
   Permutation& PFull, 
   Matrix<F>& X,
@@ -127,7 +123,7 @@ UPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -165,7 +161,7 @@ UPanelPivoted
 
         // Apply the pivot
         HermitianSwap( UPPER, AFull, k+off, from+off );
-        PFull.RowSwap( k+off, from+off );
+        PFull.Swap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -187,7 +183,7 @@ UPanelPivoted
 }
 
 template<typename F>
-inline void
+void
 UPanelPivoted
 ( DistMatrix<F>& AFull,
   DistPermutation& PFull,
@@ -196,7 +192,7 @@ UPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::UPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -236,7 +232,7 @@ UPanelPivoted
 
         // Apply the pivot
         HermitianSwap( UPPER, AFull, k+off, from+off );
-        PFull.RowSwap( k+off, from+off );
+        PFull.Swap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -259,11 +255,10 @@ UPanelPivoted
 }
 
 template<typename F>
-inline void
-UVar3( Matrix<F>& A, Permutation& P )
+void UVar3( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UVar3");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -291,13 +286,12 @@ UVar3( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-UVar3
+void UVar3
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::UVar3");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

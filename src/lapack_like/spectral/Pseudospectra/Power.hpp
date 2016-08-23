@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_PSEUDOSPECTRA_POWER_HPP
 #define EL_PSEUDOSPECTRA_POWER_HPP
 
@@ -16,8 +15,7 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( Matrix<Complex<Real>>& activeShifts, 
   Matrix<Int          >& activePreimage,
   Matrix<Complex<Real>>& activeX,
@@ -26,7 +24,7 @@ Deflate
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("pspec::Deflate"))
+    DEBUG_CSE
     Timer timer;
     if( progress )
         timer.Start();
@@ -34,7 +32,7 @@ Deflate
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( activeConverged.Get(swapFrom,0) )
+        if( activeConverged(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -49,12 +47,11 @@ Deflate
         }
     }
     if( progress )
-        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+        Output("Deflation took ",timer.Stop()," seconds");
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( Matrix<Complex<Real>>& activeShifts,
   Matrix<Int          >& activePreimage,
   Matrix<Real         >& activeXReal,
@@ -64,7 +61,7 @@ Deflate
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("pspec::Deflate"))
+    DEBUG_CSE
     Timer timer;
     if( progress )
         timer.Start();
@@ -72,7 +69,7 @@ Deflate
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( activeConverged.Get(swapFrom,0) )
+        if( activeConverged(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -88,12 +85,11 @@ Deflate
         }
     }
     if( progress )
-        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+        Output("Deflation took ",timer.Stop()," seconds");
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Complex<Real>        >& activeX,
@@ -102,7 +98,7 @@ Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("pspec::Deflate"))
+    DEBUG_CSE
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
@@ -115,10 +111,11 @@ Deflate
     DistMatrix<Int, STAR,STAR> itCountsCopy( activeItCounts );
     DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
     DistMatrix<Complex<Real>,VC,STAR> XCopy( activeX );
+    auto& convergedLoc = convergedCopy.Matrix();
 
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.Get(swapFrom,0) )
+        if( convergedLoc(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -140,12 +137,11 @@ Deflate
     activeX        = XCopy;
 
     if( progress && activeShifts.Grid().Rank() == 0 )
-        cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+        Output("Deflation took ",timer.Stop()," seconds");
 }
 
 template<typename Real>
-inline void
-Deflate
+void Deflate
 ( DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Real                 >& activeXReal,
@@ -155,7 +151,7 @@ Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("pspec::Deflate"))
+    DEBUG_CSE
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
@@ -169,10 +165,11 @@ Deflate
     DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
     DistMatrix<Real,VC,STAR> XRealCopy( activeXReal ),
                              XImagCopy( activeXImag );
+    auto& convergedLoc = convergedCopy.Matrix();
 
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
-        if( convergedCopy.Get(swapFrom,0) )
+        if( convergedLoc(swapFrom) )
         {
             if( swapTo != swapFrom )
             {
@@ -199,17 +196,19 @@ Deflate
     {
         mpi::Barrier( activeShifts.Grid().Comm() );
         if( activeShifts.Grid().Rank() == 0 )
-            cout << "Deflation took " << timer.Stop() << " seconds" << endl;
+            Output("Deflation took ",timer.Stop()," seconds");
     }
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 Power
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::Power"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -230,7 +229,7 @@ Power
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -299,9 +298,9 @@ Power
         if( progress )
         {
             const double iterTime = timer.Stop();
-            cout << "iteration " << numIts << ": " << iterTime 
-                 << " seconds, " << numDone << " of " << numShifts 
-                 << " converged" << endl;
+            Output
+            ("iteration ",numIts,": ",iterTime," seconds, ",
+             numDone," of ",numShifts," converged");
         }
 
         ++numIts;
@@ -332,14 +331,14 @@ Power
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 Power
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::Power"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -369,11 +368,12 @@ Power
     {
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
+        auto& preimageLoc = preimage.Matrix();
         const Int numLocShifts = preimage.LocalHeight();
         for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
             const Int i = preimage.GlobalRow(iLoc);
-            preimage.SetLocal( iLoc, 0, i );
+            preimageLoc(iLoc) =  i;
         }
     }
 
@@ -446,9 +446,9 @@ Power
         if( progress && g.Rank() == 0 )
         {
             const double iterTime = timer.Stop();
-            cout << "iteration " << numIts << ": " << iterTime 
-                 << " seconds, " << numDone << " of " << numShifts 
-                 << " converged" << endl;
+            Output
+            ("iteration ",numIts,": ",iterTime," seconds, ",
+             numDone," of ",numShifts," converged");
         }
 
         ++numIts;

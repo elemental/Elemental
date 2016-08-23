@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -17,16 +17,15 @@ namespace trr2k {
 
 // E := alpha op(A) op(B) + beta op(C) op(D) + E
 template<typename T>
-inline void
-LocalTrr2kKernel
+void LocalTrr2kKernel
 ( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
-                 ElementalMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+                 AbstractDistMatrix<T>& E )
 {
-    DEBUG_ONLY(CSE cse("LocalTrr2kKernel"))
+    DEBUG_CSE
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;
@@ -34,7 +33,7 @@ LocalTrr2kKernel
     const bool transD = orientD != NORMAL;
     // TODO: Stringent distribution and alignment checks
 
-    typedef ElementalMatrix<T> ADM;
+    typedef AbstractDistMatrix<T> ADM;
     auto A0 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
     auto A1 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
     auto B0 = unique_ptr<ADM>( B.Construct(B.Grid(),B.Root()) );
@@ -47,30 +46,56 @@ LocalTrr2kKernel
     auto ETR = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
     auto EBL = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
     auto EBR = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
-    auto FTL = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
-    auto FBR = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
 
     const Int half = E.Height() / 2;
+    const auto indTL = IR(0,half);
+    const auto indBR = IR(half,END); 
     if( transA )
-        LockedPartitionRight( A, *A0, *A1, half );
+    {
+        LockedView( *A0, A, ALL, indTL );
+        LockedView( *A1, A, ALL, indBR );
+    }
     else
-        LockedPartitionDown( A, *A0, *A1, half );
+    {
+        LockedView( *A0, A, indTL, ALL );
+        LockedView( *A1, A, indBR, ALL );
+    }
     if( transB )
-        LockedPartitionDown( B, *B0, *B1, half );
+    {
+        LockedView( *B0, B, indTL, ALL );
+        LockedView( *B1, B, indBR, ALL );
+    }
     else
-        LockedPartitionRight( B, *B0, *B1, half );
+    {
+        LockedView( *B0, B, ALL, indTL );
+        LockedView( *B1, B, ALL, indBR );
+    }
     if( transC )
-        LockedPartitionRight( C, *C0, *C1, half );
+    {
+        LockedView( *C0, C, ALL, indTL );
+        LockedView( *C1, C, ALL, indBR );
+    }
     else
-        LockedPartitionDown( C, *C0, *C1, half );
+    {
+        LockedView( *C0, C, indTL, ALL );
+        LockedView( *C1, C, indBR, ALL );
+    }
     if( transD )
-        LockedPartitionDown( D, *D0, *D1, half );
+    {
+        LockedView( *D0, D, indTL, ALL );
+        LockedView( *D1, D, indBR, ALL );
+    }
     else
-        LockedPartitionRight( D, *D0, *D1, half );
-    PartitionDownDiagonal( E, *ETL, *ETR, *EBL, *EBR, half );
+    {
+        LockedView( *D0, D, ALL, indTL );
+        LockedView( *D1, D, ALL, indBR );
+    }
+    View( *ETL, E, indTL, indTL );
+    View( *EBR, E, indBR, indBR );
 
     if( uplo == LOWER )
     {
+        View( *EBL, E, indBR, indTL ); 
         Gemm
         ( orientA, orientB, 
           alpha, A1->LockedMatrix(), B0->LockedMatrix(), 
@@ -82,6 +107,7 @@ LocalTrr2kKernel
     }
     else
     {
+        View( *ETR, E, indTL, indBR );
         Gemm
         ( orientA, orientB, 
           alpha, A0->LockedMatrix(), B1->LockedMatrix(), 
@@ -92,6 +118,7 @@ LocalTrr2kKernel
           T(1), ETR->Matrix() );
     }
 
+    auto FTL = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
     FTL->AlignWith( *ETL );
     FTL->Resize( ETL->Height(), ETL->Width() );
     Gemm
@@ -102,8 +129,9 @@ LocalTrr2kKernel
     ( orientC, orientD,
       beta, C0->LockedMatrix(), D0->LockedMatrix(),
       T(1), FTL->Matrix() );
-    AxpyTrapezoid( uplo, T(1), *FTL, *ETL );
+    LocalAxpyTrapezoid( uplo, T(1), *FTL, *ETL );
 
+    auto FBR = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
     FBR->AlignWith( *EBR );
     FBR->Resize( EBR->Height(), EBR->Width() );
     Gemm
@@ -114,7 +142,7 @@ LocalTrr2kKernel
     ( orientC, orientD,
       beta, C1->LockedMatrix(), D1->LockedMatrix(),
       T(1), FBR->Matrix() );
-    AxpyTrapezoid( uplo, T(1), *FBR, *EBR );
+    LocalAxpyTrapezoid( uplo, T(1), *FBR, *EBR );
 }
 
 } // namespace trr2k
@@ -125,12 +153,12 @@ void LocalTrr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
-  T gamma,       ElementalMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T gamma,       AbstractDistMatrix<T>& E )
 {
     using namespace trr2k;
-    DEBUG_ONLY(CSE cse("LocalTrr2k"))
+    DEBUG_CSE
 
     const bool transA = orientA != NORMAL;
     const bool transB = orientB != NORMAL;
@@ -147,7 +175,7 @@ void LocalTrr2k
     }
     else
     {
-        typedef ElementalMatrix<T> ADM;
+        typedef AbstractDistMatrix<T> ADM;
         // Ugh. This is likely too much overhead. It should be measured.
         auto A0 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
         auto A1 = unique_ptr<ADM>( A.Construct(A.Grid(),A.Root()) );
@@ -163,26 +191,54 @@ void LocalTrr2k
         auto EBR = unique_ptr<ADM>( E.Construct(E.Grid(),E.Root()) );
 
         const Int half = E.Height() / 2;
+        const auto indTL = IR(0,half);
+        const auto indBR = IR(half,END); 
         if( transA )
-            LockedPartitionRight( A, *A0, *A1, half );
+        {
+            LockedView( *A0, A, ALL, indTL );
+            LockedView( *A1, A, ALL, indBR );
+        }
         else
-            LockedPartitionDown( A, *A0, *A1, half );
+        {
+            LockedView( *A0, A, indTL, ALL );
+            LockedView( *A1, A, indBR, ALL );
+        }
         if( transB )
-            LockedPartitionDown( B, *B0, *B1, half );
+        {
+            LockedView( *B0, B, indTL, ALL );
+            LockedView( *B1, B, indBR, ALL );
+        }
         else
-            LockedPartitionRight( B, *B0, *B1, half );
+        {
+            LockedView( *B0, B, ALL, indTL );
+            LockedView( *B1, B, ALL, indBR );
+        }
         if( transC )
-            LockedPartitionRight( C, *C0, *C1, half );
+        {
+            LockedView( *C0, C, ALL, indTL );
+            LockedView( *C1, C, ALL, indBR );
+        }
         else
-            LockedPartitionDown( C, *C0, *C1, half );
+        {
+            LockedView( *C0, C, indTL, ALL );
+            LockedView( *C1, C, indBR, ALL );
+        }
         if( transD )
-            LockedPartitionDown( D, *D0, *D1, half );
+        {
+            LockedView( *D0, D, indTL, ALL );
+            LockedView( *D1, D, indBR, ALL );
+        }
         else
-            LockedPartitionRight( D, *D0, *D1, half );
-        PartitionDownDiagonal( E, *ETL, *ETR, *EBL, *EBR, half );
+        {
+            LockedView( *D0, D, ALL, indTL );
+            LockedView( *D1, D, ALL, indBR );
+        }
+        View( *ETL, E, indTL, indTL );
+        View( *EBR, E, indBR, indBR );
 
         if( uplo == LOWER )
         { 
+            View( *EBL, E, indBR, indTL ); 
             Gemm
             ( orientA, orientB, 
               alpha, A1->LockedMatrix(), B0->LockedMatrix(), 
@@ -194,6 +250,7 @@ void LocalTrr2k
         }
         else
         {
+            View( *ETR, E, indTL, indBR );
             Gemm
             ( orientA, orientB,
               alpha, A0->LockedMatrix(), B1->LockedMatrix(), 

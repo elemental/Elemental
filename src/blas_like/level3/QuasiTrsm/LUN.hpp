@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -15,10 +15,9 @@ namespace quasitrsm {
 //   X := triuu(U)^-1 X
 
 template<typename F>
-inline void
-LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
+void LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LUNUnb"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int n = X.Width();
     typedef Base<F> Real;
@@ -50,7 +49,7 @@ LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
             const F delta22 = UBuf[(k+1)+(k+1)*ldu];
             // Decompose D = Q R
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+            const F gamma11 = Givens( delta11, delta21, c, s );
             const F gamma12 =        c*delta12 + s*delta22;
             const F gamma22 = -Conj(s)*delta12 + c*delta22;
             if( checkIfSingular )
@@ -98,10 +97,9 @@ LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 }
 
 template<typename F>
-inline void
-LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
+void LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LUN"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -134,13 +132,12 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 }
 
 template<typename F>
-inline void
-LUNLarge
-( const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& XPre, 
+void LUNLarge
+( const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LUNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -198,12 +195,11 @@ LUNLarge
 }
 
 template<typename F>
-inline void
-LUNMedium
-( const ElementalMatrix<F>& UPre, ElementalMatrix<F>& XPre, 
+void LUNMedium
+( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LUNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -261,13 +257,13 @@ LUNMedium
 }
 
 template<typename F,Dist colDist>
-inline void
-LUNSmall
-( const DistMatrix<F,colDist,STAR>& U, DistMatrix<F,colDist,STAR>& X,
+void LUNSmall
+( const DistMatrix<F,colDist,STAR>& U,
+        DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LUNSmall");
       AssertSameGrids( U, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError

@@ -1,23 +1,25 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename F> 
 void Ridge
 ( Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& B, 
-        Base<F> gamma,      Matrix<F>& X, 
+  const Matrix<F>& A,
+  const Matrix<F>& B, 
+        Base<F> gamma,
+        Matrix<F>& X, 
   RidgeAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Ridge"))
+    DEBUG_CSE
 
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
@@ -51,7 +53,7 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma*gamma) );
+            FillDiagonal( ZB, F(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
@@ -66,10 +68,20 @@ void Ridge
             Matrix<F> U, V;
             Matrix<Base<F>> s; 
             if( orientation == NORMAL )
-                U = A;
+            {
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = false;
+                SVD( A, U, s, V, ctrl );
+            }
             else
-                Adjoint( A, U );
-            SVD( U, s, V );
+            {
+                Matrix<F> AAdj;
+                Adjoint( A, AAdj );
+
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = true;
+                SVD( AAdj, U, s, V, ctrl );
+            }
             auto sigmaMap = 
               [=]( Base<F> sigma ) 
               { return sigma / (sigma*sigma + gamma*gamma); };
@@ -95,7 +107,7 @@ void Ridge
         ElementalMatrix<F>& XPre, 
         RidgeAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Ridge"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),
@@ -138,7 +150,7 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma*gamma) );
+            FillDiagonal( ZB, F(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
@@ -153,10 +165,21 @@ void Ridge
             DistMatrix<F> U(A.Grid()), V(A.Grid());
             DistMatrix<Base<F>,VR,STAR> s(A.Grid());
             if( orientation == NORMAL )
-                U = A;
+            {
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = false;
+                SVD( A, U, s, V, ctrl );
+            }
             else
-                Adjoint( A, U );
-            SVD( U, s, V );
+            {
+                DistMatrix<F> AAdj(A.Grid());
+                Adjoint( A, AAdj );
+
+                SVDCtrl<Base<F>> ctrl;
+                ctrl.overwrite = true;
+                SVD( AAdj, U, s, V );
+            }
+
             auto sigmaMap = 
               [=]( Base<F> sigma ) 
               { return sigma / (sigma*sigma + gamma*gamma); };
@@ -182,8 +205,8 @@ void Ridge
         Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -205,8 +228,8 @@ void Ridge
         DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Ridge");
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -250,6 +273,10 @@ void Ridge
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

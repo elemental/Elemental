@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -21,16 +21,20 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",20);
         const Int n = Input("--width","width of matrix",100);
-        const Int r = Input("--rank","rank of matrix",5);
-        const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
+        Int targetRank = Input("--rank","rank of matrix",5);
+        Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
         const Real tol = Input("--tol","tolerance for ID",Real(-1));
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
+        const Int minDim = Min( m, n );
+        targetRank = Min( targetRank, minDim );
+        maxSteps = Min( maxSteps, targetRank );
+
         DistMatrix<C> U, V;
-        Uniform( U, m, r );
-        Uniform( V, n, r );
+        Uniform( U, m, targetRank );
+        Uniform( V, n, targetRank );
         DistMatrix<C> A;
         Gemm( NORMAL, ADJOINT, C(1), U, V, A );
         const Real frobA = FrobeniusNorm( A );
@@ -48,7 +52,12 @@ main( int argc, char* argv[] )
         }
         DistPermutation PR(g), PC(g);
         DistMatrix<C> Z(g);
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         Skeleton( A, PR, PC, Z, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         const Int rank = Z.Height();
         if( print )
         {
@@ -82,9 +91,12 @@ main( int argc, char* argv[] )
             Print( A, "A - A_C Z A_R" );
 
         if( mpi::Rank() == 0 )
+        {
+            Output("Skeleton time: ",timer.Total()," secs");
             Output
             ("|| A ||_F = ",frobA,"\n",
              "|| A - A_C Z A_R ||_F / || A ||_F = ",frobError/frobA);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

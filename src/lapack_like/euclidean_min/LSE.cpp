@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
+
+#include "El/core/FlamePart.hpp"
 
 // This file implements both dense and sparse-direct solutions of 
 // Equality-constrained Least Squares (LSE):
@@ -74,7 +76,7 @@ void Overwrite
   Matrix<F>& D, 
   Matrix<F>& X, bool computeResidual )
 {
-    DEBUG_ONLY(CSE cse("lse::Overwrite"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Height();
@@ -101,14 +103,18 @@ void Overwrite
 
     // Partition the relevant matrices
     Zeros( X, n, numRhs );
-    Matrix<F> Y1, Y2;
-    PartitionUp( X, Y1, Y2, p );
-    Matrix<F> T11, T12;
-    PartitionLeft( B, T11, T12, p );
-    Matrix<F> R11, R12, R21, R22;
-    PartitionDownDiagonal( A, R11, R12, R21, R22, n-p );
-    Matrix<F> G1, G2;
-    PartitionDown( C, G1, G2, n-p );
+    auto ind1 = IR(0,n-p);
+    auto ind2 = IR(n-p,END);
+    auto Y1 = X( ind1, ALL );
+    auto Y2 = X( ind2, ALL );
+    auto T11 = B( ALL, ind1 );
+    auto T12 = B( ALL, ind2 );
+    auto R11 = A( ind1, ind1 );
+    auto R12 = A( ind1, ind2 );
+    auto R21 = A( ind2, ind1 );
+    auto R22 = A( ind2, ind2 );
+    auto G1 = C( ind1, ALL );
+    auto G2 = C( ind2, ALL );
 
     // Solve T12 Y2 = D
     Y2 = D; 
@@ -164,7 +170,7 @@ void Overwrite
   ElementalMatrix<F>& XPre,
   bool computeResidual )
 {
-    DEBUG_ONLY(CSE cse("lse::Overwrite"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre ),
@@ -273,7 +279,7 @@ void LSE
   const Matrix<F>& D, 
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     Matrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -286,7 +292,7 @@ void LSE
   const ElementalMatrix<F>& D, 
         ElementalMatrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -300,13 +306,8 @@ void LSE
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     typedef Base<F> Real;
-
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -374,15 +375,23 @@ void LSE
     
     // Add the a priori regularization
     // ===============================
-    Matrix<Real> reg;
-    Zeros( reg, n+m+k, 1 );
+    Matrix<Real> regTmp, regPerm;
+    Zeros( regTmp, n+m+k, 1 );
+    Zeros( regPerm, n+m+k, 1 );
     for( Int i=0; i<n; ++i )
-        reg.Set( i, 0, gammaTmp*gammaTmp );
+    {
+        regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
+        regPerm(i) = ctrl.reg0Perm*ctrl.reg0Perm;
+    }
     for( Int i=n; i<n+m+k; ++i )
-        reg.Set( i, 0, -deltaTmp*deltaTmp );
+    {
+        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+        regPerm(i) = -ctrl.reg1Perm*ctrl.reg1Perm;
+    }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     SparseMatrix<F> JOrig;
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // Factor the regularized system
     // =============================
@@ -396,7 +405,8 @@ void LSE
 
     // Solve the linear systems
     // ========================
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
@@ -413,13 +423,8 @@ void LSE
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("LSE"))
+    DEBUG_CSE
     typedef Base<F> Real;
-
-    // TODO: Expose as control parameters
-    const Real eps = limits::Epsilon<Real>();
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -527,20 +532,28 @@ void LSE
 
     // Add the a priori regularization
     // ===============================
-    DistMultiVec<Real> reg(comm);
-    Zeros( reg, n+m+k, 1 );
-    const Int regLocalHeight = reg.LocalHeight();
+    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    Zeros( regTmp, n+m+k, 1 );
+    Zeros( regPerm, n+m+k, 1 );
+    const Int regLocalHeight = regTmp.LocalHeight();
     for( Int iLoc=0; iLoc<regLocalHeight; ++iLoc )
     {
-        const Int i = reg.GlobalRow(iLoc);
+        const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-            reg.Set( i, 0, gammaTmp*gammaTmp );
+        {
+            regTmp.Set( i, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
+            regPerm.Set( i, 0, ctrl.reg0Perm*ctrl.reg0Perm );
+        }
         else
-            reg.Set( i, 0, -deltaTmp*deltaTmp );
+        {
+            regTmp.Set( i, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+            regPerm.Set( i, 0, -ctrl.reg1Perm*ctrl.reg1Perm );
+        }
     }
+    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
     DistSparseMatrix<F> JOrig(comm);
     JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), reg );
+    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // Factor the regularized system
     // =============================
@@ -554,7 +567,8 @@ void LSE
 
     // Solve the linear systems
     // ========================
-    reg_ldl::SolveAfter( JOrig, reg, invMap, info, JFront, G, ctrl.solveCtrl );
+    reg_ldl::SolveAfter
+    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
@@ -603,6 +617,10 @@ void LSE
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

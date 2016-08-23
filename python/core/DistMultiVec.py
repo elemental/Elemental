@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -279,7 +279,7 @@ class DistMultiVec(object):
     elif self.tag == cTag: lib.ElDistMultiVecGet_c(*args)
     elif self.tag == zTag: lib.ElDistMultiVecGet_z(*args)
     else: DataExcept()
-    return value.value
+    return ScalarData(value)
 
   lib.ElDistMultiVecSet_i.argtypes = [c_void_p,iType,iType,iType]
   lib.ElDistMultiVecSet_s.argtypes = [c_void_p,iType,iType,sType]
@@ -353,7 +353,7 @@ class DistMultiVec(object):
     elif self.tag == cTag: lib.ElDistMultiVecGetLocal_c(*args)
     elif self.tag == zTag: lib.ElDistMultiVecGetLocal_z(*args)
     else: DataExcept()
-    return value.value
+    return ScalarData(value)
 
   lib.ElDistMultiVecSetLocal_i.argtypes = [c_void_p,iType,iType,iType]
   lib.ElDistMultiVecSetLocal_s.argtypes = [c_void_p,iType,iType,sType]

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,11 +11,10 @@ namespace El {
 namespace msquasitrsm {
 
 template<typename F>
-inline void
-LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
+void LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUNUnb");
       if( U.Height() != U.Width() )
           LogicError("U should be square");
       if( X.Height() != U.Height() )
@@ -55,7 +54,7 @@ LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
                 const F delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta21, &c, &s );
+                const F gamma11 = Givens( delta11, delta21, c, s );
                 const F gamma12 =        c*delta12 + s*delta22;
                 const F gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -93,14 +92,13 @@ LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename Real>
-inline void
-LUNUnb
+void LUNUnb
 ( const Matrix<Real>& U, 
   const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUNUnb");
       if( U.Height() != U.Width() )
           LogicError("U should be square");
       if( XReal.Height() != XImag.Height() ||
@@ -144,7 +142,7 @@ LUNUnb
                 const C delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; C s;
-                const C gamma11 = blas::Givens( delta11, delta21, &c, &s );
+                const C gamma11 = Givens( delta11, C(delta21), c, s );
                 const C gamma12 =        c*delta12 + s*delta22;
                 const C gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -200,10 +198,9 @@ LUNUnb
 }
 
 template<typename F>
-inline void
-LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
+void LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUN"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -236,12 +233,11 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename Real>
-inline void
-LUN
+void LUN
 ( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUN"))
+    DEBUG_CSE
     const Int m = XReal.Height();
     const Int bsize = Blocksize();
 
@@ -277,13 +273,12 @@ LUN
 }
 
 template<typename F>
-inline void
-LUNLarge
-( const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+void LUNLarge
+( const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -343,14 +338,13 @@ LUNLarge
 }
 
 template<typename Real>
-inline void
-LUNLarge
-( const ElementalMatrix<Real>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& XRealPre, 
-        ElementalMatrix<Real>& XImagPre )
+void LUNLarge
+( const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUNLarge"))
+    DEBUG_CSE
     // TODO: More error checks, especially on alignments?
     typedef Complex<Real> C; 
     const Int m = XRealPre.Height();
@@ -428,13 +422,12 @@ LUNLarge
 }
 
 template<typename F>
-inline void
-LUNMedium
-( const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+void LUNMedium
+( const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -499,14 +492,13 @@ LUNMedium
 }
 
 template<typename Real>
-inline void
-LUNMedium
-( const ElementalMatrix<Real>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& XRealPre, 
-        ElementalMatrix<Real>& XImagPre )
+void LUNMedium
+( const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LUNMedium"))
+    DEBUG_CSE
     // TODO: Error checks, particularly on alignments?
     typedef Complex<Real> C;
     const Int m = XRealPre.Height();
@@ -587,14 +579,13 @@ LUNMedium
 }
 
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LUNSmall
+void LUNSmall
 ( const DistMatrix<F,     colDist,STAR        >& U, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<F,     colDist,STAR        >& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUNSmall");
       AssertSameGrids( U, shifts, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError
@@ -649,15 +640,14 @@ LUNSmall
 }
 
 template<typename Real,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LUNSmall
+void LUNSmall
 ( const DistMatrix<Real,              colDist,STAR        >& U, 
   const DistMatrix<Complex<Real>,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<Real,              colDist,STAR        >& XReal,
         DistMatrix<Real,              colDist,STAR        >& XImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LUNSmall");
       AssertSameGrids( U, shifts, XReal, XImag );
       if( XReal.Height() != XImag.Height() || 
           XReal.Width() != XImag.Width() )

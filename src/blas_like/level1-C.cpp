@@ -1,13 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El-lite.h>
+#include <El/blas_like/level1.h>
 using namespace El;
 
 extern "C" {
@@ -171,6 +173,18 @@ ElError ElGetSubgraphDist
   ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = CReflect(Dot(*CReflect(A),*CReflect(B))) ) } \
+  /* Unconjugated dot product, vec(A)^T vec(B) */ \
+  ElError ElDotu_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
+  ElError ElDotuDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
+    CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
+  ElError ElDotuDistMultiVec_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
+    CREFLECT(T)* prod ) \
+  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* EntrywiseFill */ \
   ElError ElEntrywiseFill_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) (*fill)() ) \
@@ -670,18 +684,6 @@ ElError ElGetSubgraphDist
       DiagonalScaleTrapezoid \
       ( CReflect(side), CReflect(uplo), NORMAL, \
         *CReflect(d), *CReflect(A), offset ) ) } \
-  /* Unconjugated dot product, vec(A)^T vec(B) */ \
-  ElError ElDotu_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, CREFLECT(T)* prod ) \
-  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
-  ElError ElDotuDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
-    CREFLECT(T)* prod ) \
-  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
-  ElError ElDotuDistMultiVec_ ## SIG \
-  ( ElConstDistMultiVec_ ## SIG A, ElConstDistMultiVec_ ## SIG B, \
-    CREFLECT(T)* prod ) \
-  { EL_TRY( *prod = CReflect(Dotu(*CReflect(A),*CReflect(B))) ) } \
   /* Max */ \
   ElError ElMax_ ## SIG \
   ( ElConstMatrix_ ## SIG A, CREFLECT(T)* value ) \
@@ -932,6 +934,6 @@ ElError ElGetSubgraphDist
   ElError ElMakeRealDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A ) { EL_TRY( MakeReal( *CReflect(A) ) ) }
 
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

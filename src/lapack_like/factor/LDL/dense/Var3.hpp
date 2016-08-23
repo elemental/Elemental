@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LDL_VAR3_HPP
 #define EL_LDL_VAR3_HPP
 
@@ -20,18 +19,16 @@ namespace ldl {
 // an exactly zero pivot, it is likely not worth the overhead of
 // exception handling to detect zero pivots
 template<typename F> 
-inline void
-Var3Unb( Matrix<F>& A, bool conjugate=false )
+void Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::Var3Unb");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
     typedef Base<F> Real;
     const Int n = A.Height();
-    const Int ldim = A.LDim();
-    F* ABuffer = A.Buffer();
+    const Int ALDim = A.LDim();
 
     if( conjugate )
     {
@@ -39,17 +36,17 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
         {
             const Int a21Height = n - (j+1);
 
-            const Real alpha11 = RealPart(ABuffer[j+j*ldim]);
+            const Real alpha11 = RealPart(A(j,j));
 
             DEBUG_ONLY(
               if( alpha11 == Real(0) )
                   throw ZeroPivotException();
             )
             const Real alpha11Inv = Real(1)/alpha11;
-            F* a21 = &ABuffer[(j+1)+ j   *ldim];
-            F* A22 = &ABuffer[(j+1)+(j+1)*ldim];
+            F* a21 = A.Buffer(j+1,j  );
+            F* A22 = A.Buffer(j+1,j+1);
 
-            blas::Her( 'L', a21Height, -alpha11Inv, a21, 1, A22, ldim );
+            blas::Her( 'L', a21Height, -alpha11Inv, a21, 1, A22, ALDim );
             blas::Scal( a21Height, alpha11Inv, a21, 1 );
         }
     }
@@ -59,16 +56,16 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
         {
             const Int a21Height = n - (j+1);
 
-            const F alpha11 = ABuffer[j+j*ldim];
+            const F alpha11 = A(j,j);
             DEBUG_ONLY(
               if( alpha11 == F(0) )
                   throw ZeroPivotException();
             )
             const F alpha11Inv = Real(1)/alpha11;
-            F* a21 = &ABuffer[(j+1)+ j   *ldim];
-            F* A22 = &ABuffer[(j+1)+(j+1)*ldim];
+            F* a21 = A.Buffer(j+1,j  );
+            F* A22 = A.Buffer(j+1,j+1);
 
-            blas::Syr( 'L', a21Height, -alpha11Inv, a21, 1, A22, ldim );
+            blas::Syr( 'L', a21Height, -alpha11Inv, a21, 1, A22, ALDim );
             blas::Scal( a21Height, alpha11Inv, a21, 1 );
         }
     }
@@ -76,11 +73,10 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
 
 // Blocked serial LDL _without_ partial pivoting
 template<typename F>
-inline void
-Var3( Matrix<F>& A, bool conjugate=false )
+void Var3( Matrix<F>& A, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::Var3");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -110,11 +106,10 @@ Var3( Matrix<F>& A, bool conjugate=false )
 }
 
 template<typename F>
-inline void
-Var3( ElementalMatrix<F>& APre, bool conjugate=false )
+void Var3( ElementalMatrix<F>& APre, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::Var3");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

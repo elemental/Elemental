@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TWOSIDEDTRMM_LVAR5_HPP
 #define EL_TWOSIDEDTRMM_LVAR5_HPP
 
@@ -16,11 +15,10 @@ namespace twotrmm {
 // The only reason a field is required is for the existence of 1/2, which is 
 // an artifact of the algorithm...
 template<typename F> 
-inline void
-LVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
+void LVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::LVar5");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( L.Height() != L.Width() )
@@ -50,7 +48,8 @@ LVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         auto L11 = L( ind1, ind1 );
 
         // Y10 := A11 L10
-        Zeros( Y10, nb, k );
+        Y10.Resize( nb, k );
+        Zero( Y10 );
         Hemm( LEFT, LOWER, F(1), A11, L10, F(0), Y10 );
 
         // A10 := A10 L00
@@ -74,14 +73,13 @@ LVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 }
 
 template<typename F> 
-inline void
-LVar5
+void LVar5
 ( UnitOrNonUnit diag, 
-        ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& LPre )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& LPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::LVar5");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( L.Height() != L.Width() )
@@ -126,7 +124,8 @@ LVar5
         L10_STAR_VR.AlignWith( A00 );
         L10_STAR_VR = L10;
         Y10_STAR_VR.AlignWith( A10 );
-        Zeros( Y10_STAR_VR, nb, k );
+        Y10_STAR_VR.Resize( nb, k );
+        Zero( Y10_STAR_VR );
         Hemm
         ( LEFT, LOWER, 
           F(1), A11_STAR_STAR.Matrix(), L10_STAR_VR.Matrix(),

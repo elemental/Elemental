@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -533,7 +533,7 @@ class DistSparseMatrix(object):
     elif self.tag == cTag: lib.ElDistSparseMatrixValue_c(*args)
     elif self.tag == zTag: lib.ElDistSparseMatrixValue_z(*args)
     else: DataExcept()
-    return value.value
+    return ScalarData(value)
 
   lib.ElDistSparseMatrixRowOffset_i.argtypes = \
   lib.ElDistSparseMatrixRowOffset_s.argtypes = \

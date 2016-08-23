@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -36,11 +36,12 @@
 #define EL_MPI_C_INCLUDE_PATH    "@MPI_C_INCLUDE_PATH@"
 #define EL_MPI_C_COMPILE_FLAGS   "@MPI_C_COMPILE_FLAGS@"
 #define EL_MPI_C_LIBRARIES       "@MPI_C_LIBRARIES@"
+#define EL_MPI_C_LINK_FLAGS      "@MPI_C_LINK_FLAGS@"
 #define EL_MPI_CXX_COMPILER      "@MPI_CXX_COMPILER@"
 #define EL_MPI_CXX_INCLUDE_PATH  "@MPI_CXX_INCLUDE_PATH@"
 #define EL_MPI_CXX_COMPILE_FLAGS "@MPI_CXX_COMPILE_FLAGS@"
 #define EL_MPI_CXX_LIBRARIES     "@MPI_CXX_LIBRARIES@"
-#define EL_MPI_LINK_FLAGS        "@MPI_LINK_FLAGS@"
+#define EL_MPI_CXX_LINK_FLAGS    "@MPI_CXX_LINK_FLAGS@"
 
 /* Math libraries */
 #define EL_MATH_LIBS "@MATH_LIBS@"
@@ -67,12 +68,15 @@
 #cmakedefine EL_HAVE_FLA_BSVD
 #cmakedefine EL_HAVE_QUAD
 #cmakedefine EL_HAVE_QUADMATH
+#cmakedefine EL_HAVE_QD
 #cmakedefine EL_HAVE_MPC
 #cmakedefine EL_HAVE_MKL
+#cmakedefine EL_HAVE_MKL_GEMMT
 #cmakedefine EL_DISABLE_MKL_CSRMV
 
 /* Miscellaneous configuration options */
-#define EL_RESTRICT @RESTRICT@
+#define EL_RESTRICT @EL_RESTRICT@
+#cmakedefine EL_HAVE_PRETTY_FUNCTION
 #cmakedefine EL_HAVE_OPENMP
 #cmakedefine EL_HAVE_OMP_COLLAPSE
 #cmakedefine EL_HAVE_QT5
@@ -81,7 +85,6 @@
 #cmakedefine EL_HAVE_STEADYCLOCK
 #cmakedefine EL_HAVE_NOEXCEPT
 #cmakedefine EL_HAVE_MPI_REDUCE_SCATTER_BLOCK
-#cmakedefine EL_HAVE_MPI_IN_PLACE
 #cmakedefine EL_HAVE_MPI_LONG_LONG
 #cmakedefine EL_HAVE_MPI_LONG_DOUBLE
 #cmakedefine EL_HAVE_MPI_LONG_DOUBLE_COMPLEX
@@ -98,7 +101,6 @@
 
 /* Sparse-direct configuration */
 #cmakedefine EL_USE_CUSTOM_ALLTOALLV
-#cmakedefine EL_BARRIER_IN_ALLTOALLV
 #cmakedefine EL_HAVE_METIS
 #cmakedefine EL_HAVE_PARMETIS
 

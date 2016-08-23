@@ -1,19 +1,20 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
 template<typename Real,typename>
 ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMaxLoc"))
+    DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -53,7 +54,7 @@ ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x )
 template<typename Real,typename>
 ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMaxLoc"))
+    DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -108,7 +109,7 @@ ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x )
 template<typename Real,typename>
 ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x )
 {
-    DEBUG_ONLY(CSE cse("VectorMaxLoc"))
+    DEBUG_CSE
     DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("Input should have been a vector");
@@ -133,7 +134,7 @@ ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x )
 template<typename Real,typename>
 Entry<Real> MaxLoc( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CSE cse("MaxLoc"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Real* ABuf = A.LockedBuffer();
@@ -162,8 +163,8 @@ Entry<Real> MaxLoc( const Matrix<Real>& A )
 template<typename Real,typename>
 Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MaxLoc");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -205,8 +206,8 @@ Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A )
 template<typename Real,typename>
 Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMaxLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -257,8 +258,8 @@ template<typename Real,typename>
 Entry<Real>
 SymmetricMaxLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricMaxLoc");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
@@ -330,7 +331,11 @@ SymmetricMaxLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
   ( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

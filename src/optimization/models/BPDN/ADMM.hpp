@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // NOTE: While this routine was originally implemented under the name Lasso,
 //       it has been moved into BPDN.
@@ -39,7 +39,7 @@ Int ADMM
         Matrix<F>& z, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::ADMM"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -167,7 +167,7 @@ Int ADMM
         ElementalMatrix<F>& zPre, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::ADMM"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),

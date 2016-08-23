@@ -1,17 +1,17 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 template<typename Real>
-inline Real DampScaling( Real alpha )
+Real DampScaling( Real alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -27,7 +27,7 @@ void RuizEquil
   Matrix<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -38,7 +38,7 @@ void RuizEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -92,7 +92,7 @@ void RuizEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -131,7 +131,7 @@ void RuizEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("RuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -175,7 +175,7 @@ void StackedRuizEquil
   Matrix<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -188,7 +188,7 @@ void StackedRuizEquil
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -222,6 +222,8 @@ void StackedRuizEquil
 
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid()), colScaleB(B.Grid());
+    auto& colScaleLoc = colScale.Matrix();
+    auto& colScaleBLoc = colScaleB.Matrix();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -230,9 +232,8 @@ void StackedRuizEquil
         ColumnMaxNorms( A, colScale );
         ColumnMaxNorms( B, colScaleB );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            colScale.SetLocal
-            ( jLoc, 0, Max(colScale.GetLocal(jLoc,0),
-                           colScaleB.GetLocal(jLoc,0)) );
+            colScaleLoc(jLoc) =
+              Max(colScaleLoc(jLoc),colScaleBLoc(jLoc));
         EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
@@ -262,7 +263,7 @@ void StackedRuizEquil
   Matrix<Base<F>>& dCol,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -284,8 +285,7 @@ void StackedRuizEquil
         ColumnMaxNorms( A, scales );
         ColumnMaxNorms( B, maxAbsValsB );
         for( Int j=0; j<n; ++j )
-            scales.Set
-            ( j, 0, Max(scales.Get(j,0),maxAbsValsB.Get(j,0)) );
+            scales(j) = Max(scales(j),maxAbsValsB(j));
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -315,7 +315,7 @@ void StackedRuizEquil
   DistMultiVec<Base<F>>& dCol, 
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("StackedRuizEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -333,6 +333,9 @@ void StackedRuizEquil
     const Int maxIter = 4;
 
     DistMultiVec<Real> scales(comm), maxAbsValsB(comm);
+    auto& scalesLoc = scales.Matrix();
+    auto& maxAbsValsBLoc = maxAbsValsB.Matrix();
+    const Int localHeight = scalesLoc.Height();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -340,9 +343,8 @@ void StackedRuizEquil
         // -------------------
         ColumnMaxNorms( A, scales );
         ColumnMaxNorms( B, maxAbsValsB );
-        for( Int j=0; j<n; ++j )
-            scales.Set
-            ( j, 0, Max(scales.Get(j,0),maxAbsValsB.Get(j,0)) );
+        for( Int jLoc=0; jLoc<localHeight; ++jLoc )
+            scalesLoc(jLoc) = Max(scalesLoc(jLoc),maxAbsValsBLoc(jLoc));
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -414,6 +416,10 @@ void StackedRuizEquil
     bool progress );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

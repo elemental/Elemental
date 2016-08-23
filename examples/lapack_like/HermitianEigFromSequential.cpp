@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 using namespace std;
  
@@ -44,15 +44,22 @@ main( int argc, char* argv[] )
 
         // Call the eigensolver.
         DistMatrix<Real,CIRC,CIRC> w;
-        DistMatrix<C,CIRC,CIRC> X;
+        DistMatrix<C,CIRC,CIRC> Q;
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        HermitianEig( LOWER, H, w, X, ASCENDING );
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
+        HermitianEig( LOWER, H, w, Q );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
         {
             Print( w, "Eigenvalues of H" );
-            Print( X, "Eigenvectors of H" );
+            Print( Q, "Eigenvectors of H" );
         }
+        if( mpi::Rank() == 0 )
+            Output("HermitianEig time: ",timer.Total()," secs");
     }
     catch( exception& e ) { ReportException(e); }
 

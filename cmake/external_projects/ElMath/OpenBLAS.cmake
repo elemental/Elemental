@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -9,6 +9,12 @@
 include(ExternalProject)
 include(ElCheckFunctionExists)
 include(ElLibraryName)
+
+if(EL_USE_64BIT_BLAS_INTS)
+  set(OPENBLAS_SUFFIX 64)
+else()
+  set(OPENBLAS_SUFFIX)
+endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   set(GFORTRAN_PATHS /usr/lib
@@ -54,13 +60,13 @@ endif()
 
 if(NOT EL_FORCE_OPENBLAS_BUILD)
   message(STATUS "Searching for previously installed OpenBLAS+LAPACK")
-  find_library(OpenBLAS NAMES openblas PATHS ${MATH_PATHS})
+  find_library(OpenBLAS NAMES openblas${OPENBLAS_SUFFIX} PATHS ${MATH_PATHS})
   if(OpenBLAS)
     set(CMAKE_REQUIRED_LIBRARIES ${OpenBLAS} ${GNU_ADDONS})
-    El_check_function_exists(dgemm   EL_HAVE_DGEMM_OPENBLAS)
-    El_check_function_exists(dgemm_  EL_HAVE_DGEMM_POST_OPENBLAS)
-    El_check_function_exists(dsytrd  EL_HAVE_DSYTRD_OPENBLAS)
-    El_check_function_exists(dsytrd_ EL_HAVE_DSYTRD_POST_OPENBLAS)
+    El_check_function_exists(dgemm${OPENBLAS_SUFFIX}   EL_HAVE_DGEMM_OPENBLAS)
+    El_check_function_exists(dgemm${OPENBLAS_SUFFIX}_  EL_HAVE_DGEMM_POST_OPENBLAS)
+    El_check_function_exists(dsytrd${OPENBLAS_SUFFIX}  EL_HAVE_DSYTRD_OPENBLAS)
+    El_check_function_exists(dsytrd${OPENBLAS_SUFFIX}_ EL_HAVE_DSYTRD_POST_OPENBLAS)
     if(EL_HAVE_DGEMM_OPENBLAS OR EL_HAVE_DGEMM_POST_OPENBLAS)
       set(EL_HAVE_OPENBLAS_BLAS TRUE)
       if(EL_HYBRID)
@@ -75,6 +81,18 @@ if(NOT EL_FORCE_OPENBLAS_BUILD)
       set(EL_HAVE_OPENBLAS_LAPACK TRUE)
     else()
       message(WARNING "OpenBLAS was found as ${OpenBLAS}, but LAPACK support was not detected")
+    endif()
+    if(EL_HAVE_OPENBLAS_BLAS AND EL_HAVE_OPENBLAS_LAPACK)
+      if(EL_HAVE_DGEMM_OPENBLAS)
+        set(EL_BLAS_SUFFIX ${OPENBLAS_SUFFIX})
+      else()
+        set(EL_BLAS_SUFFIX ${OPENBLAS_SUFFIX}_)
+      endif()
+      if(EL_HAVE_DSYTRD_OPENBLAS)
+        set(EL_LAPACK_SUFFIX ${OPENBLAS_SUFFIX})
+      else()
+        set(EL_LAPACK_SUFFIX ${OPENBLAS_SUFFIX}_)
+      endif()
     endif()
     unset(CMAKE_REQUIRED_LIBRARIES)
   endif()
@@ -114,10 +132,16 @@ elseif(FORTRAN_WORKS AND NOT MSVC AND NOT EL_CONFIG_TIME_OPENBLAS)
     endif()
   endif()
 
+  if(EL_USE_64BIT_BLAS_INTS)
+    set(OPENBLAS_INTERFACE_COMMAND INTERFACE64=1 SYMBOLSUFFIX=64)
+  else()
+    set(OPENBLAS_INTERFACE_COMMAND INTERFACE64=0)
+  endif()
+
   ExternalProject_Add(project_openblas
     PREFIX ${CMAKE_INSTALL_PREFIX}
     GIT_REPOSITORY ${OPENBLAS_URL}
-    GIT_TAG "v0.2.14"
+    GIT_TAG "v0.2.15"
     STAMP_DIR ${OPENBLAS_BINARY_DIR}/stamp
     BUILD_IN_SOURCE 1
     SOURCE_DIR ${OPENBLAS_SOURCE_DIR}
@@ -125,16 +149,22 @@ elseif(FORTRAN_WORKS AND NOT MSVC AND NOT EL_CONFIG_TIME_OPENBLAS)
     INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
     CONFIGURE_COMMAND ""
     UPDATE_COMMAND "" 
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${OPENBLAS_THREAD_COMMAND} ${OPENBLAS_ARCH_COMMAND} libs netlib shared
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+      CC=${CMAKE_C_COMPILER}
+      FC=${CMAKE_Fortran_COMPILER}
+      ${OPENBLAS_THREAD_COMMAND}
+      ${OPENBLAS_ARCH_COMMAND}
+      ${OPENBLAS_INTERFACE_COMMAND}
+      libs netlib shared
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install PREFIX=<INSTALL_DIR>
   )
 
   # Extract the installation directory
   ExternalProject_Get_Property(project_openblas install_dir)
 
-  # Add a target for libopenblas (either shared or static)
+  # Add a target for libopenblas(64) (either shared or static)
   add_library(libopenblas ${LIBRARY_TYPE} IMPORTED)
-  El_library_name(openblas_name openblas)
+  El_library_name(openblas_name openblas${OPENBLAS_SUFFIX})
   set(OPENBLAS_LIB ${install_dir}/lib/${openblas_name})
   set_property(TARGET libopenblas PROPERTY IMPORTED_LOCATION ${OPENBLAS_LIB})
 

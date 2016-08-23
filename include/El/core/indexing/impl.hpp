@@ -1,14 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_INDEXING_IMPL_HPP
 #define EL_INDEXING_IMPL_HPP
+
+#include <climits>
 
 namespace El {
 
@@ -17,8 +18,8 @@ namespace El {
 
 inline Int Length( Int n, Int shift, Int stride )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Length");
       if( n < 0 )
           LogicError("n must be non-negative");
       if( shift < 0 || shift >= stride )
@@ -37,7 +38,7 @@ inline Int Length_( Int n, Int shift, Int stride ) EL_NO_EXCEPT
 inline Int
 Length( Int n, Int rank, Int align, Int stride )
 {
-    DEBUG_ONLY(CSE cse("Length"))
+    DEBUG_CSE
     const Int shift = Shift( rank, align, stride );
     return Length( n, shift, stride );
 }
@@ -51,8 +52,8 @@ inline Int Length_
 
 inline Int MaxLength( Int n, Int stride )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MaxLength");
       if( n < 0 )
           LogicError("n must be non-negative");
       if( stride <= 0 )
@@ -72,8 +73,8 @@ inline Int GlobalIndex( Int iLoc, Int shift, Int numProcs )
 
 inline Int BlockedLength( Int n, Int shift, Int bsize, Int cut, Int stride )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("BlockedLength");
       if( n < 0 )
           LogicError("n must be non-negative");
       if( shift < 0 || shift >= stride )
@@ -119,7 +120,7 @@ inline Int BlockedLength_
 inline Int
 BlockedLength( Int n, Int rank, Int align, Int bsize, Int cut, Int stride )
 {
-    DEBUG_ONLY(CSE cse("BlockedLength"))
+    DEBUG_CSE
     const Int shift = Shift( rank, align, stride );
     return BlockedLength( n, shift, bsize, cut, stride );
 }
@@ -133,8 +134,8 @@ inline Int BlockedLength_
 
 inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MaxBlockedLength");
       if( n < 0 )
           LogicError("n must be non-negative");
       if( stride <= 0 )
@@ -169,8 +170,8 @@ GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs )
 
 inline Int Mod( Int a, Int b )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Mod");
       if( b <= 0 )
           LogicError("b is assumed to be positive");
     )
@@ -183,11 +184,44 @@ inline Int Mod_( Int a, Int b ) EL_NO_EXCEPT
     return ( rem >= 0 ? rem : rem+b );
 }
 
+#ifdef EL_HAVE_MPC
+inline BigInt Mod( const BigInt& a, const BigInt& b )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( b <= 0 )
+          LogicError("b is assumed to be positive");
+    )
+    return Mod_( a, b );
+}
+
+inline BigInt Mod( const BigInt& a, const unsigned& b )
+{
+    DEBUG_CSE
+    const BigInt rem = a % b;
+    return ( rem >= 0 ? rem : rem+b );
+}
+
+inline BigInt Mod( const BigInt& a, const unsigned long& b )
+{
+    DEBUG_CSE
+    const BigInt rem = a % b;
+    return ( rem >= 0 ? rem : rem+b );
+}
+
+inline BigInt Mod_( const BigInt& a, const BigInt& b )
+{
+    // TODO: Use a native routine for this
+    const BigInt rem = a % b;
+    return ( rem >= 0 ? rem : rem+b );
+}
+#endif
+
 // For determining the first index assigned to a given rank
 inline Int Shift( Int rank, Int align, Int stride )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Shift");
       if( rank < 0 || rank >= stride )
           LogicError("Invalid rank: rank=",rank,", stride=",stride);
       if( align < 0 || align >= stride )
@@ -222,8 +256,8 @@ DiagonalLength( Int height, Int width, Int offset ) EL_NO_EXCEPT
 
 inline Int GCD( Int a, Int b )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("GCD");
       if( a < 0 || b < 0 )
           LogicError("GCD called with negative argument");
     )
@@ -238,16 +272,176 @@ inline Int GCD_( Int a, Int b ) EL_NO_EXCEPT
         return GCD_( b, a-b*(a/b) );
 }
 
+#ifdef EL_HAVE_MPC
+inline void GCD( const BigInt& a, const BigInt& b, BigInt& gcd )
+{
+    mpz_gcd( gcd.Pointer(), a.LockedPointer(), b.LockedPointer() );
+}
+
+inline BigInt GCD( const BigInt& a, const BigInt& b )
+{
+    BigInt gcd;
+    GCD( a, b, gcd );
+    return gcd;
+}
+
+inline void ExtendedGCD
+( const BigInt& a, const BigInt& b, BigInt& gcd, BigInt& s, BigInt& t )
+{
+    mpz_gcdext
+    ( gcd.Pointer(), s.Pointer(), t.Pointer(),
+      a.LockedPointer(), b.LockedPointer() );
+}
+
+inline void LCM( const BigInt& a, const BigInt& b, BigInt& lcm )
+{
+    mpz_lcm( lcm.Pointer(), a.LockedPointer(), b.LockedPointer() );
+}
+
+inline BigInt LCM( const BigInt& a, const BigInt& b )
+{
+    BigInt lcm;
+    LCM( a, b, lcm );
+    return lcm;
+}
+
+inline void InvertMod( const BigInt& a, const BigInt& n, BigInt& aInv )
+{
+    mpz_invert( aInv.Pointer(), a.LockedPointer(), n.LockedPointer() );
+}
+
+inline BigInt InvertMod( const BigInt& a, const BigInt& n )
+{
+    BigInt aInv;
+    InvertMod( a, n, aInv );
+    return aInv;
+}
+#endif
+
 inline bool PowerOfTwo( Unsigned n )
 { return n && !(n & (n-1)); }
 
-inline Unsigned Log2( Unsigned n )
+inline Unsigned FlooredLog2( Unsigned n )
 {
     Unsigned result=0;
     while( n >>= 1 )
       ++result;
     return result;
 }
+
+template<typename T,typename>
+void SqrtRem( const T& alpha, T& alphaSqrt, T& remainder )
+{
+    alphaSqrt = Sqrt( alpha );
+    remainder = alpha-alphaSqrt*alphaSqrt;
+}
+#ifdef EL_HAVE_MPC
+template<>
+inline void SqrtRem( const BigInt& alpha, BigInt& alphaSqrt, BigInt& remainder )
+{
+    mpz_sqrtrem
+    ( alphaSqrt.Pointer(), remainder.Pointer(), alpha.LockedPointer() );
+}
+#endif
+
+template<typename T,typename>
+bool IsPerfectSquare( const T& alpha )
+{ 
+    T alphaSqrt = Sqrt( alpha );
+    return alpha == alphaSqrt*alphaSqrt;
+}
+#ifdef EL_HAVE_MPC
+template<>
+inline bool IsPerfectSquare( const BigInt& alpha )
+{
+    int result = mpz_perfect_square_p( alpha.LockedPointer() );
+    return result != 0;
+}
+#endif
+
+#ifdef EL_HAVE_MPC
+inline void PowMod
+( const BigInt& base,
+  const BigInt& exp,
+  const BigInt& mod,
+        BigInt& result )
+{
+    mpz_powm
+    ( result.Pointer(),
+      base.LockedPointer(),
+      exp.LockedPointer(),
+      mod.LockedPointer() );
+}
+
+inline BigInt PowMod
+( const BigInt& base,
+  const BigInt& exp,
+  const BigInt& mod )
+{
+    BigInt result;
+    PowMod( base, exp, mod, result );
+    return result;
+}
+
+inline void PowMod
+( const BigInt& base,
+        unsigned long exp,
+  const BigInt& mod,
+        BigInt& result )
+{
+    mpz_powm_ui
+    ( result.Pointer(),
+      base.LockedPointer(),
+      exp,
+      mod.LockedPointer() );
+}
+
+inline BigInt PowMod
+( const BigInt& base,
+        unsigned long exp,
+  const BigInt& mod )
+{
+    BigInt result;
+    PowMod( base, exp, mod, result );
+    return result;
+}
+
+inline void PowMod
+( const BigInt& base,
+        unsigned long long exp,
+  const BigInt& mod,
+        BigInt& result )
+{
+    if( exp <= static_cast<unsigned long long>(ULONG_MAX) )
+    {
+        mpz_powm_ui
+        ( result.Pointer(),
+          base.LockedPointer(),
+          static_cast<unsigned long>(exp),
+          mod.LockedPointer() );
+    }
+    else
+    {
+        BigInt expBig(exp);
+        mpz_powm
+        ( result.Pointer(),
+          base.LockedPointer(),
+          expBig.LockedPointer(),
+          mod.LockedPointer() );
+    }
+}
+
+inline BigInt PowMod
+( const BigInt& base,
+        unsigned long long exp,
+  const BigInt& mod )
+{
+    BigInt result;
+    PowMod( base, exp, mod, result );
+    return result;
+}
+
+#endif // ifdef EL_HAVE_MPC
 
 } // namespace El
 

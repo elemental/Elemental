@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "./Hyperbolic/Col.hpp"
 #include "./Hyperbolic/Row.hpp"
@@ -21,15 +21,15 @@ namespace El {
 template<typename F>
 F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("LeftHyperbolicReflector");
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
+      if( chi.Height() != 1 || chi.Width() != 1 )
+          LogicError("chi must be a scalar");
     )
 
-    F alpha = chi.Get( 0, 0 );
+    F alpha = chi(0);
     const F tau = LeftHyperbolicReflector( alpha, x );
-    chi.Set( 0, 0, alpha );
+    chi(0) = alpha;
 
     return tau;
 }
@@ -37,12 +37,12 @@ F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("LeftHyperbolicReflector");
-        if( x.Height() != 1 && x.Width() != 1 )
-            LogicError("x must be a vector");
-        if( ImagPart(chi) != Base<F>(0) )
-            LogicError("chi is assumed to be real");
+      if( x.Height() != 1 && x.Width() != 1 )
+          LogicError("x must be a vector");
+      if( ImagPart(chi) != Base<F>(0) )
+          LogicError("chi is assumed to be real");
     )
 
     // Compute lambda = sgn(chi) sqrt([chi;x]^H Sigma [chi;x])
@@ -83,15 +83,15 @@ template<typename F>
 F LeftHyperbolicReflector
 ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("LeftHyperbolicReflector");
-        AssertSameGrids( chi, x );
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
-        if( x.Width() != 1 )
-            LogicError("x must be a column vector");
-        if( chi.Root() != x.Root() )
-            LogicError("Roots must be the same");
+      AssertSameGrids( chi, x );
+      if( chi.Height() != 1 || chi.Width() != 1 )
+          LogicError("chi must be a scalar");
+      if( x.Width() != 1 )
+          LogicError("x must be a column vector");
+      if( chi.Root() != x.Root() )
+          LogicError("Roots must be the same");
     )
     F tau;
     if( x.CrossRank() == x.Root() )
@@ -107,10 +107,10 @@ F LeftHyperbolicReflector
 template<typename F>
 F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("LeftHyperbolicReflector");
-        if( x.Width() != 1 )
-            LogicError("x must be a column vector");
+      if( x.Width() != 1 )
+          LogicError("x must be a column vector");
     )
     F tau;
     if( x.CrossRank() == x.Root() )
@@ -131,7 +131,7 @@ F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
 template<typename F>
 F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CSE cse("RightHyperbolicReflector"))
+    DEBUG_CSE
     const F tau = LeftHyperbolicReflector( chi, x );
     Conjugate( x );
     return tau;
@@ -140,7 +140,7 @@ F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F RightHyperbolicReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CSE cse("RightHyperbolicReflector"))
+    DEBUG_CSE
     const F tau = LeftHyperbolicReflector( chi, x );
     Conjugate( x );
     return tau;
@@ -150,15 +150,15 @@ template<typename F>
 F RightHyperbolicReflector
 ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("RightHyperbolicReflector");
-        AssertSameGrids( chi, x );
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
-        if( x.Height() != 1 )
-            LogicError("x must be a row vector");
-        if( chi.Root() != x.Root() )
-            LogicError("Roots must be the same");
+      AssertSameGrids( chi, x );
+      if( chi.Height() != 1 || chi.Width() != 1 )
+          LogicError("chi must be a scalar");
+      if( x.Height() != 1 )
+          LogicError("x must be a row vector");
+      if( chi.Root() != x.Root() )
+          LogicError("Roots must be the same");
     )
     F tau;
     if( x.CrossRank() == x.Root() )
@@ -174,10 +174,10 @@ F RightHyperbolicReflector
 template<typename F>
 F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("RightHyperbolicReflector");
-        if( x.Height() != 1 )
-            LogicError("x must be a row vector");
+      if( x.Height() != 1 )
+          LogicError("x must be a row vector");
     )
     F tau;
     if( x.CrossRank() == x.Root() )
@@ -209,6 +209,10 @@ F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
   ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

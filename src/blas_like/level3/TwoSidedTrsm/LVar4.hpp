@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TWOSIDEDTRSM_LVAR4_HPP
 #define EL_TWOSIDEDTRSM_LVAR4_HPP
 
@@ -14,11 +13,10 @@ namespace El {
 namespace twotrsm {
 
 template<typename F> 
-inline void
-LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
+void LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrsm::LVar4");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( L.Height() != L.Width() )
@@ -59,7 +57,8 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         Gemm( NORMAL, NORMAL, F(-1), L21, A10, F(1), A20 );
 
         // Y21 := L21 A11
-        Zeros( Y21, A21.Height(), A21.Width() );
+        Y21.Resize( A21.Height(), A21.Width() );
+        Zero( Y21 );
         Hemm( RIGHT, LOWER, F(1), A11, L21, F(0), Y21 );
 
         // A21 := A21 inv(L11)'
@@ -77,14 +76,13 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 }
 
 template<typename F> 
-inline void
-LVar4
+void LVar4
 ( UnitOrNonUnit diag, 
-        ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& LPre )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& LPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrsm::LVar4");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( LPre.Height() != LPre.Width() )
@@ -152,7 +150,8 @@ LVar4
         L21_VC_STAR.AlignWith( A22 );
         L21_VC_STAR = L21_MC_STAR;
         Y21_VC_STAR.AlignWith( A22 );
-        Zeros( Y21_VC_STAR, A21.Height(), nb );
+        Y21_VC_STAR.Resize( A21.Height(), nb );
+        Zero( Y21_VC_STAR );
         Hemm
         ( RIGHT, LOWER, 
           F(1), A11_STAR_STAR.Matrix(), L21_VC_STAR.Matrix(), 

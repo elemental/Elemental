@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "./Util.hpp"
 
 // The following routines are adaptations of the approach uses by 
@@ -22,7 +22,7 @@
 namespace El {
 
 template<typename Real>
-inline Real DampScaling( Real alpha )
+Real DampScaling( Real alpha )
 {
     static const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -32,7 +32,7 @@ inline Real DampScaling( Real alpha )
 }
 
 template<typename Real>
-inline Real SquareRootScaling( Real alpha )
+Real SquareRootScaling( Real alpha )
 {
     return Sqrt(alpha);
 }
@@ -40,7 +40,7 @@ inline Real SquareRootScaling( Real alpha )
 template<typename F>
 void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     // TODO: Ensure A is symmetric
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -78,7 +78,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
             const Real minColAbsVal = MinAbsNonzero( aCol, maxColAbsVal );
             const Real propScale = Sqrt(minColAbsVal*maxColAbsVal);
             const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
-            scales.Set( j, 0, scale );
+            scales(j) = scale;
         }
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
@@ -104,9 +104,8 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         {
             Real maxAbs = 1;
             for( Int i=0; i<n; ++i )
-                maxAbs = Max( Abs(A.Get(i,j)), maxAbs );
-            const Real scale = Sqrt(maxAbs);
-            scales.Set( j, 0, scale );
+                maxAbs = Max( Abs(A(i,j)), maxAbs );
+            scales(j) = Sqrt(maxAbs);
         }
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
@@ -126,7 +125,7 @@ void SymmetricGeomEquil
   ElementalMatrix<Base<F>>& dPre,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     ElementalProxyCtrl control;
@@ -194,15 +193,17 @@ void SymmetricGeomEquil
     // Normalize the maximum absolute values towards one
     scales.AlignWith( A );
     Zeros( scales, n, 1 );
+    auto& ALoc = A.Matrix();
+    auto& scalesLoc = scales.Matrix();
     for( Int normIter=0; normIter<3; ++normIter )
     {
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
             Real maxAbs = 1;
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                maxAbs = Max( Abs(A.GetLocal(iLoc,jLoc)), maxAbs );
+                maxAbs = Max( Abs(ALoc(iLoc,jLoc)), maxAbs );
             const Real scale = Sqrt(maxAbs);
-            scales.SetLocal( jLoc, 0, scale );
+            scalesLoc(jLoc) = scale;
         }
         mpi::AllReduce( scales.Buffer(), nLocal, mpi::MAX, A.ColComm() );
         DiagonalScale( LEFT, NORMAL, scales, d );
@@ -225,7 +226,7 @@ void SymmetricGeomEquil
   Matrix<Base<F>>& d,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -257,11 +258,11 @@ void SymmetricGeomEquil
         RowMinAbsNonzero( A, rowMaxAbs, rowMinAbs );
         for( Int j=0; j<n; ++j )
         {
-            const Real maxAbs = rowMaxAbs.Get(j,0);
-            const Real minAbs = rowMinAbs.Get(j,0);
+            const Real maxAbs = rowMaxAbs(j);
+            const Real minAbs = rowMinAbs(j);
             const Real propScale = Sqrt(minAbs*maxAbs);
             const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            scales.Set( j, 0, scale );
+            scales(j) = scale;
         }
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
@@ -292,8 +293,7 @@ void SymmetricGeomEquil
             const Int entryOff = A.RowOffset(i);
             for( Int k=0; k<numConnections; ++k )
                 maxAbs = Max( Abs(A.Value(entryOff+k)), maxAbs );
-            const Real scale = Sqrt(maxAbs);
-            scales.Set( i, 0, scale );
+            scales(i) = Sqrt(maxAbs);
         }
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
@@ -313,7 +313,7 @@ void SymmetricGeomEquil
   DistMultiVec<Base<F>>& d,
   bool progress )
 {
-    DEBUG_ONLY(CSE cse("SymmetricGeomEquil"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
@@ -340,6 +340,7 @@ void SymmetricGeomEquil
 
     DistMultiVec<Real> scales(comm), rowMaxAbs(comm), rowMinAbs(comm);
     Zeros( scales, n, 1 );
+    auto& scalesLoc = scales.Matrix();
     const Real sqrtDamp = Sqrt(damp);
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -347,14 +348,16 @@ void SymmetricGeomEquil
         // -----------------------------------
         RowMaxNorms( A, rowMaxAbs );
         RowMinAbsNonzero( A, rowMaxAbs, rowMinAbs );
+        auto& rowMaxAbsLoc = rowMaxAbs.Matrix();
+        auto& rowMinAbsLoc = rowMinAbs.Matrix();
         const Int localHeight = scales.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Real maxAbs = rowMaxAbs.GetLocal(iLoc,0);
-            const Real minAbs = rowMinAbs.GetLocal(iLoc,0);
+            const Real maxAbs = rowMaxAbsLoc(iLoc);
+            const Real minAbs = rowMinAbsLoc(iLoc);
             const Real propScale = Sqrt(minAbs*maxAbs);
             const Real scale = Max(propScale,sqrtDamp*maxAbs);
-            scales.SetLocal( iLoc, 0, scale );
+            scalesLoc(iLoc) = scale;
         }
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
         EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
@@ -386,8 +389,7 @@ void SymmetricGeomEquil
             const Int entryOff = A.RowOffset(iLoc);
             for( Int k=0; k<numConnections; ++k )
                 maxAbs = Max( Abs(A.Value(entryOff+k)), maxAbs );
-            const Real scale = Sqrt(maxAbs);
-            scales.SetLocal( iLoc, 0, scale );
+            scalesLoc(iLoc) = Sqrt(maxAbs);
         }
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
@@ -413,6 +415,10 @@ void SymmetricGeomEquil
   ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, bool progress );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

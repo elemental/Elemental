@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -31,7 +31,7 @@ void ClassicalNT
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("ClassicalNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
 
     Matrix<PReal> sProm, zProm;
@@ -68,7 +68,7 @@ void ClassicalNT
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ClassicalNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
@@ -118,7 +118,7 @@ void ClassicalNT
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("ClassicalNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = s.Comm();
 
@@ -158,7 +158,7 @@ void VandenbergheNT
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("VandenbergheNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int n = s.Height();
 
@@ -177,8 +177,8 @@ void VandenbergheNT
     cone::Broadcast( zDets, orders, firstInds );
     for( Int i=0; i<n; ++i )
     {
-        sProm.Set( i, 0, sProm.Get(i,0)/Sqrt(sDets.Get(i,0)) );
-        zProm.Set( i, 0, zProm.Get(i,0)/Sqrt(zDets.Get(i,0)) );
+        sProm(i) /= Sqrt(sDets(i));
+        zProm(i) /= Sqrt(zDets(i));
     }
 
     // Compute the 'gamma' coefficients
@@ -187,7 +187,7 @@ void VandenbergheNT
     soc::Dots( zProm, sProm, gammas, orders, firstInds );
     cone::Broadcast( gammas, orders, firstInds );
     for( Int i=0; i<n; ++i )
-        gammas.Set( i, 0, Sqrt((PReal(1)+gammas.Get(i,0))/PReal(2)) );
+        gammas(i) = Sqrt((PReal(1)+gammas(i))/PReal(2));
 
     // Compute the normalized scaling point
     // ====================================
@@ -201,10 +201,10 @@ void VandenbergheNT
     // =========================
     for( Int i=0; i<n; ++i )
     {
-        const PReal sDet = sDets.Get(i,0);
-        const PReal zDet = zDets.Get(i,0);
+        const PReal sDet = sDets(i);
+        const PReal zDet = zDets(i);
         const PReal scale = Pow(sDet,PReal(0.25))/Pow(zDet,PReal(0.25));
-        wProm.Set( i, 0, wProm.Get(i,0)*scale );
+        wProm(i) *= scale;
     }
     Copy( wProm, w );
 }
@@ -218,7 +218,7 @@ void VandenbergheNT
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("VandenbergheNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     const Grid& grid = sPre.Grid();
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
@@ -248,12 +248,14 @@ void VandenbergheNT
     soc::Dets( z, zDets, orders, firstInds, cutoff );
     cone::Broadcast( sDets, orders, firstInds, cutoff );
     cone::Broadcast( zDets, orders, firstInds, cutoff );
+    auto& sLoc = s.Matrix();
+    auto& zLoc = z.Matrix();
+    auto& sDetsLoc = sDets.LockedMatrix();
+    auto& zDetsLoc = zDets.LockedMatrix();
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
-        s.SetLocal
-        ( iLoc, 0, s.GetLocal(iLoc,0)/Sqrt(sDets.GetLocal(iLoc,0)) );
-        z.SetLocal
-        ( iLoc, 0, z.GetLocal(iLoc,0)/Sqrt(zDets.GetLocal(iLoc,0)) );
+        sLoc(iLoc) /= Sqrt(sDetsLoc(iLoc));
+        zLoc(iLoc) /= Sqrt(zDetsLoc(iLoc));
     }
 
     // Compute the 'gamma' coefficients
@@ -261,9 +263,9 @@ void VandenbergheNT
     DistMatrix<PReal,VC,STAR> gammas(grid);
     soc::Dots( z, s, gammas, orders, firstInds, cutoff );
     cone::Broadcast( gammas, orders, firstInds, cutoff );
+    auto& gammasLoc = gammas.Matrix();
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-        gammas.SetLocal
-        ( iLoc, 0, Sqrt((PReal(1)+gammas.GetLocal(iLoc,0))/PReal(2)) );
+        gammasLoc(iLoc) = Sqrt((PReal(1)+gammasLoc(iLoc))/PReal(2));
 
     // Compute the normalized scaling point
     // ====================================
@@ -275,12 +277,13 @@ void VandenbergheNT
 
     // Rescale the scaling point
     // =========================
+    auto& wLoc = w.Matrix();
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
-        const PReal sDet = sDets.GetLocal(iLoc,0);
-        const PReal zDet = zDets.GetLocal(iLoc,0);
+        const PReal sDet = sDetsLoc(iLoc);
+        const PReal zDet = zDetsLoc(iLoc);
         const PReal scale = Pow(sDet,PReal(0.25))/Pow(zDet,PReal(0.25));
-        w.SetLocal( iLoc, 0, w.GetLocal(iLoc,0)*scale );
+        wLoc(iLoc) *= scale;
     }
 }
 
@@ -292,7 +295,7 @@ void VandenbergheNT
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("VandenbergheNT"))
+    DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = s.Comm();
 
@@ -308,12 +311,14 @@ void VandenbergheNT
     soc::Dets( zProm, zDets, orders, firstInds, cutoff );
     cone::Broadcast( sDets, orders, firstInds, cutoff );
     cone::Broadcast( zDets, orders, firstInds, cutoff );
+    auto& sPromLoc = sProm.Matrix();
+    auto& zPromLoc = zProm.Matrix();
+    auto& sDetsLoc = sDets.LockedMatrix();
+    auto& zDetsLoc = zDets.LockedMatrix();
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
-        sProm.SetLocal
-        ( iLoc, 0, sProm.GetLocal(iLoc,0)/Sqrt(sDets.GetLocal(iLoc,0)) );
-        zProm.SetLocal
-        ( iLoc, 0, zProm.GetLocal(iLoc,0)/Sqrt(zDets.GetLocal(iLoc,0)) );
+        sPromLoc(iLoc) /= Sqrt(sDetsLoc(iLoc));
+        zPromLoc(iLoc) /= Sqrt(zDetsLoc(iLoc));
     }
 
     // Compute the 'gamma' coefficients
@@ -321,9 +326,9 @@ void VandenbergheNT
     DistMultiVec<PReal> gammas(comm);
     soc::Dots( zProm, sProm, gammas, orders, firstInds, cutoff );
     cone::Broadcast( gammas, orders, firstInds, cutoff );
+    auto& gammasLoc = gammas.Matrix();
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-        gammas.SetLocal
-        ( iLoc, 0, Sqrt((PReal(1)+gammas.GetLocal(iLoc,0))/PReal(2)) );
+        gammasLoc(iLoc) = Sqrt((PReal(1)+gammasLoc(iLoc))/PReal(2));
 
     // Compute the normalized scaling point
     // ====================================
@@ -335,12 +340,13 @@ void VandenbergheNT
 
     // Rescale the scaling point
     // =========================
+    auto& wPromLoc = wProm.Matrix();
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
     {
-        const PReal sDet = sDets.GetLocal(iLoc,0);
-        const PReal zDet = zDets.GetLocal(iLoc,0);
+        const PReal sDet = sDetsLoc(iLoc);
+        const PReal zDet = zDetsLoc(iLoc);
         const PReal scale = Pow(sDet,PReal(0.25))/Pow(zDet,PReal(0.25));
-        wProm.SetLocal( iLoc, 0, wProm.GetLocal(iLoc,0)*scale );
+        wPromLoc(iLoc) *= scale;
     }
     Copy( wProm, w );
 }
@@ -355,7 +361,7 @@ void NesterovTodd
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
+    DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds );
@@ -372,7 +378,7 @@ void NesterovTodd
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
+    DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );
@@ -388,7 +394,7 @@ void NesterovTodd
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::NesterovTodd"))
+    DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );
@@ -420,7 +426,11 @@ void NesterovTodd
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

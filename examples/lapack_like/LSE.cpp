@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -17,7 +17,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try 
@@ -57,7 +56,12 @@ main( int argc, char* argv[] )
             Print( D, "D" );
         }
 
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         LSE( A, B, C, D, X );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print ) 
             Print( X, "X" );
         
@@ -67,10 +71,13 @@ main( int argc, char* argv[] )
         const Real EFrob = FrobeniusNorm( D );
         if( print )
             Print( D, "D - B X" );
-        if( commRank == 0 )
+        if( mpi::Rank() == 0 )
+        {
+            Output("LSE time: ",timer.Total()," secs");
             Output
             ("|| C - A X ||_F / || C ||_F = ",resid/CFrob,"\n",
              "|| D - B X ||_F / || D ||_F = ",EFrob/DFrob,"\n");
+        }
     }
     catch( std::exception& e ) { ReportException(e); }
 

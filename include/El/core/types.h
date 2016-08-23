@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TYPES_C_H
 #define EL_TYPES_C_H
 
@@ -59,7 +58,7 @@ const char* ElErrorString( ElError error );
 } // extern "C"
 #endif
 
-#include "El/core/Element.h"
+#include <El/core/Element.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -233,6 +232,23 @@ typedef enum
     EL_VERTICAL,
     EL_HORIZONTAL
 } ElVerticalOrHorizontal;
+
+typedef enum {
+  EL_AUTO,
+  EL_ASCII,
+  EL_ASCII_MATLAB,
+  EL_BINARY,
+  EL_BINARY_FLAT,
+  EL_BMP,
+  EL_JPG,
+  EL_JPEG,
+  EL_MATRIX_MARKET,
+  EL_PNG,
+  EL_PPM,
+  EL_XBM,
+  EL_XPM,
+  EL_FileFormat_MAX
+} ElFileFormat;
 
 #ifdef __cplusplus
 } // extern "C"

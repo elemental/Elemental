@@ -1,16 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BLAS_LEVEL3_C_H
 #define EL_BLAS_LEVEL3_C_H
 
-#include "El/core/DistMatrix.h"
+#include <El/core/DistMatrix.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -281,6 +280,42 @@ EL_EXPORT ElError ElMultiShiftTrsmDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
                         ElDistMatrix_z B );
+
+/* SafeMultiShiftTrsm
+   ================== */
+EL_EXPORT ElError ElSafeMultiShiftTrsm_s
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  float alpha, ElMatrix_s A, ElConstMatrix_s shifts, 
+               ElMatrix_s B, ElMatrix_s scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsm_d
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  double alpha, ElMatrix_d A, ElConstMatrix_d shifts, 
+                ElMatrix_d B, ElMatrix_d scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsm_c
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  complex_float alpha, ElMatrix_c A, ElConstMatrix_c shifts, 
+                       ElMatrix_c B, ElMatrix_c scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsm_z
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  complex_double alpha, ElMatrix_z A, ElConstMatrix_z shifts, 
+                        ElMatrix_z B, ElMatrix_z scales );
+
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_s
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
+               ElDistMatrix_s B, ElDistMatrix_s scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_d
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d shifts, 
+                ElDistMatrix_d B, ElDistMatrix_d scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_c
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
+                       ElDistMatrix_c B, ElDistMatrix_c scales );
+EL_EXPORT ElError ElSafeMultiShiftTrsmDist_z
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
+  complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
+                        ElDistMatrix_z B, ElDistMatrix_z scales );
 
 /* QuasiTrsm
    ========= */
@@ -775,8 +810,52 @@ EL_EXPORT ElError ElTwoSidedTrsmDist_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_z A, ElConstDistMatrix_z B );
 
+/* Hermitian from EVD
+   ================== */
+EL_EXPORT ElError ElHermitianFromEVD_s
+( ElUpperOrLower uplo, ElMatrix_s A,
+  ElConstMatrix_s w, ElConstMatrix_s Z );
+EL_EXPORT ElError ElHermitianFromEVD_d
+( ElUpperOrLower uplo, ElMatrix_d A,
+  ElConstMatrix_d w, ElConstMatrix_d Z );
+EL_EXPORT ElError ElHermitianFromEVD_c
+( ElUpperOrLower uplo, ElMatrix_c A,
+  ElConstMatrix_s w, ElConstMatrix_c Z );
+EL_EXPORT ElError ElHermitianFromEVD_z
+( ElUpperOrLower uplo, ElMatrix_z A,
+  ElConstMatrix_d w, ElConstMatrix_z Z );
+
+EL_EXPORT ElError ElHermitianFromEVDDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A,
+  ElConstDistMatrix_s w, ElConstDistMatrix_s Z );
+EL_EXPORT ElError ElHermitianFromEVDDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A,
+  ElConstDistMatrix_d w, ElConstDistMatrix_d Z );
+EL_EXPORT ElError ElHermitianFromEVDDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A,
+  ElConstDistMatrix_s w, ElConstDistMatrix_c Z );
+EL_EXPORT ElError ElHermitianFromEVDDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A,
+  ElConstDistMatrix_d w, ElConstDistMatrix_z Z );
+
+/* NormalFromEVD
+   ============= */
+EL_EXPORT ElError ElNormalFromEVD_c
+( ElMatrix_c A, ElConstMatrix_c w, ElConstMatrix_c Z );
+EL_EXPORT ElError ElNormalFromEVD_z
+( ElMatrix_z A, ElConstMatrix_z w, ElConstMatrix_z Z );
+
+EL_EXPORT ElError ElNormalFromEVDDist_c
+( ElDistMatrix_c A, ElConstDistMatrix_c w, ElConstDistMatrix_c Z );
+EL_EXPORT ElError ElNormalFromEVDDist_z
+( ElDistMatrix_z A, ElConstDistMatrix_z w, ElConstDistMatrix_z Z );
+
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/blas_like/level3/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_BLAS_LEVEL3_C_H */

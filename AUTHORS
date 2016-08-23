@@ -10,9 +10,7 @@ Matthias Petschow, Paolo Bientinesi, and RWTH Aachen University:
   fix for the Grid class.
 
 Univ. of Tennessee, Univ. of California Berkeley, and NAG Ltd.:
-  The serial code for the safe inversion process during the calculation of 
-  Householder reflectors (found in LAPACK's dlarfg.f and zlarfg.f) and 
-  several of the serial routines used within PMRRR.
+  Several of the serial routines used within PMRRR.
 
 Jeff Hammond and Argonne National Laboratory:
   Several bug fixes and toolchain files for BlueGene/P and BlueGene/Q, and an 

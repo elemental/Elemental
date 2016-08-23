@@ -1,19 +1,20 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
 template<typename T>
 void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y )
 {
-    DEBUG_ONLY(CSE cse("Swap"))
+    DEBUG_CSE
     const Int mX = X.Height();
     const Int nX = X.Width();
 
@@ -50,9 +51,9 @@ void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y )
             {
                 for( Int i=0; i<mX; ++i )
                 {
-                    const T alpha = X.Get(i,j);
-                    X.Set( i, j, Conj(Y.Get(j,i)) );
-                    Y.Set( j, i, Conj(alpha)      );
+                    const T alpha = X(i,j);
+                    X(i,j) = Conj(Y(j,i));
+                    Y(j,i) = Conj(alpha);
                 }
             }
             else
@@ -69,7 +70,7 @@ void Swap
   AbstractDistMatrix<T>& X,
   AbstractDistMatrix<T>& Y )
 {
-    DEBUG_ONLY(CSE cse("Swap"))
+    DEBUG_CSE
     if( orientation == NORMAL )
     {
         DEBUG_ONLY(
@@ -98,8 +99,8 @@ void Swap
 template<typename T>
 void RowSwap( Matrix<T>& A, Int to, Int from )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RowSwap");
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
           LogicError
           ("Attempted invalid row swap, (",to,",",from,") of matrix of height ",
@@ -116,8 +117,8 @@ void RowSwap( Matrix<T>& A, Int to, Int from )
 template<typename T>
 void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("RowSwap");
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
           LogicError
           ("Attempted invalid row swap, (",to,",",from,") of matrix of height ",
@@ -175,8 +176,8 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 template<typename T>
 void ColSwap( Matrix<T>& A, Int to, Int from )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ColSwap");
       if( to < 0 || to >= A.Width() || from < 0 || from >= A.Width() )
           LogicError
           ("Attempted invalid col swap, (",to,",",from,") of matrix of width ",
@@ -194,8 +195,8 @@ void ColSwap( Matrix<T>& A, Int to, Int from )
 template<typename T>
 void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ColSwap");
       if( to < 0 || to >= A.Width() || from < 0 || from >= A.Width() )
           LogicError
           ("Attempted invalid col swap, (",to,",",from,") of matrix of width ",
@@ -242,8 +243,8 @@ template<typename T>
 void SymmetricSwap
 ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricSwap");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
@@ -282,9 +283,9 @@ void SymmetricSwap
             A.Conjugate( from, to );
         // Diagonal swap
         {
-            const T value = A.Get(from,from);
-            A.Set( from, from, A.Get(to,to) );
-            A.Set( to,   to,   value        );
+            const T value = A(from,from);
+            A(from,from) = A(to,to);
+            A(to,to) = value;
             if( conjugate )
             {
                 A.MakeReal( to, to );
@@ -318,9 +319,9 @@ void SymmetricSwap
             A.Conjugate( to, from );
         // Diagonal swap
         {
-            const T value = A.Get(from,from);
-            A.Set( from, from, A.Get(to,to) );
-            A.Set( to,   to,   value        );
+            const T value = A(from,from);
+            A(from,from) = A(to,to);
+            A(to,to) = value;
             if( conjugate )
             {
                 A.MakeReal( to, to );
@@ -341,8 +342,8 @@ void SymmetricSwap
 ( UpperOrLower uplo, AbstractDistMatrix<T>& A, 
   Int to, Int from, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("SymmetricSwap");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
@@ -447,7 +448,7 @@ void SymmetricSwap
 template<typename T>
 void HermitianSwap( UpperOrLower uplo, Matrix<T>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CSE cse("HermitianSwap"))
+    DEBUG_CSE
     SymmetricSwap( uplo, A, to, from, true );
 }
 
@@ -455,7 +456,7 @@ template<typename T>
 void HermitianSwap
 ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CSE cse("HermitianSwap"))
+    DEBUG_CSE
     SymmetricSwap( uplo, A, to, from, true );
 }
 
@@ -478,7 +479,11 @@ void HermitianSwap
   template void HermitianSwap \
   ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

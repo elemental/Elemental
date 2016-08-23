@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_APPLYPACKEDREFLECTORS_RLHF_HPP
 #define EL_APPLYPACKEDREFLECTORS_RLHF_HPP
 
@@ -30,7 +29,7 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F> 
-inline void
+void
 RLHF
 ( Conjugation conjugation,
   Int offset, 
@@ -38,8 +37,8 @@ RLHF
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLHF");
       if( A.Width() != H.Width() )
           LogicError("A and H must have the same width");
     )
@@ -78,7 +77,7 @@ RLHF
 }
 
 template<typename F> 
-inline void
+void
 RLHF
 ( Conjugation conjugation,
   Int offset, 
@@ -86,8 +85,8 @@ RLHF
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::RLHF");
       if( APre.Width() != HPre.Width() )
           LogicError("A and H must have the same width");
       AssertSameGrids( HPre, tPre, APre );

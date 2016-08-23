@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 //
@@ -143,8 +143,13 @@ main( int argc, char* argv[] )
         ctrl.rho = rho;
         ctrl.tol = tol;
 
+        Timer timer;
         DistMatrix<C> L, S;
+        if( commRank == 0 )
+            timer.Start();
         RPCA( M, L, S, ctrl );
+        if( commRank == 0 )
+            timer.Stop();
 
         if( display )
         {
@@ -165,10 +170,13 @@ main( int argc, char* argv[] )
         const double frobLDiff = FrobeniusNorm( L );
         const double frobSDiff = FrobeniusNorm( S );
         if( commRank == 0 )
+        {
+            Output("RPCA time: ",timer.Total()," secs");
             Output
             ("Error in decomposition:\n",
              "  || L - LTrue ||_F / || LTrue ||_F = ",frobLDiff/frobLTrue,"\n",
              "  || S - STrue ||_F / || STrue ||_F = ",frobSDiff/frobSTrue,"\n");
+        }
 
         if( display )
         {

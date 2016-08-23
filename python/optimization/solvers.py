@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -35,7 +35,9 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("ruizEquilTol",sType),
               ("ruizMaxIter",iType),
               ("diagEquilTol",sType),
-              ("checkResiduals",bType)]
+              ("checkResiduals",bType),
+              ("reg0Tmp",sType),("reg1Tmp",sType),("reg2Tmp",sType),
+              ("reg0Perm",sType),("reg1Perm",sType),("reg2Perm",sType)]
   def __init__(self):
     lib.ElMehrotraCtrlDefault_s(pointer(self))
 class MehrotraCtrl_d(ctypes.Structure):
@@ -57,7 +59,9 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("ruizEquilTol",dType),
               ("ruizMaxIter",iType),
               ("diagEquilTol",dType),
-              ("checkResiduals",bType)]
+              ("checkResiduals",bType),
+              ("reg0Tmp",dType),("reg1Tmp",dType),("reg2Tmp",dType),
+              ("reg0Perm",dType),("reg1Perm",dType),("reg2Perm",dType)]
   def __init__(self):
     lib.ElMehrotraCtrlDefault_d(pointer(self))
 

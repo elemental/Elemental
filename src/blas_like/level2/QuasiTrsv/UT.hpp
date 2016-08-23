@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,13 +11,12 @@ namespace El {
 namespace quasitrsv {
 
 template<typename F>
-inline void
-UTUnb
+void UTUnb
 ( Orientation orientation, const Matrix<F>& U, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::UTUnb");
       if( U.Height() != U.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -58,7 +57,7 @@ UTUnb
             const F delta22 = UBuf[(k+1)+(k+1)*ldu];
             // Decompose D = Q R
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+            const F gamma11 = Givens( delta11, delta21, c, s );
             const F gamma12 =        c*delta12 + s*delta22;
             const F gamma22 = -Conj(s)*delta12 + c*delta22;
             if( checkIfSingular )
@@ -109,13 +108,12 @@ UTUnb
 }
 
 template<typename F>
-inline void
-UT
+void UT
 ( Orientation orientation, const Matrix<F>& U, Matrix<F>& x,
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::UT");
       if( U.Height() != U.Width() )
           LogicError("U must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -166,15 +164,14 @@ UT
 }
 
 template<typename F>
-inline void
-UT
+void UT
 ( Orientation orientation, 
-  const ElementalMatrix<F>& UPre,
-        ElementalMatrix<F>& xPre,
+  const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::UT");
       AssertSameGrids( UPre, xPre );
       if( UPre.Height() != UPre.Width() )
           LogicError("U must be square");
@@ -214,7 +211,8 @@ UT
         DistMatrix<F,MC,STAR> z1_MC_STAR(g), z2_MC_STAR(g);
 
         z_MC_STAR.AlignWith( U );
-        Zeros( z_MC_STAR, m, 1 );
+        z_MC_STAR.Resize( m, 1 );
+        Zero( z_MC_STAR );
 
         Int k=0;
         while( k < m )
@@ -260,7 +258,8 @@ UT
         DistMatrix<F,STAR,MC> z1_STAR_MC(g), z2_STAR_MC(g);
 
         z_STAR_MC.AlignWith( U );
-        Zeros( z_STAR_MC, 1, m );
+        z_STAR_MC.Resize( 1, m );
+        Zero( z_STAR_MC );
 
         Int k=0;
         while( k < m )

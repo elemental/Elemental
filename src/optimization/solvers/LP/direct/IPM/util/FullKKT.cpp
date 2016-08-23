@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "../util.hpp"
 
 namespace El {
@@ -38,7 +38,7 @@ void KKT
   const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -85,7 +85,7 @@ void KKT
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -137,7 +137,7 @@ void KKT
   const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::KKT"))
+    DEBUG_CSE
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
@@ -154,7 +154,7 @@ void KKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::KKT"))
+    DEBUG_CSE
     const Int n = A.Width();
     DistSparseMatrix<Real> Q(A.Comm());
     Q.Resize( n, n );
@@ -191,7 +191,11 @@ void KKT
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace direct
 } // namespace lp

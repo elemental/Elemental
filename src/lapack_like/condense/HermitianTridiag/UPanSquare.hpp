@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -23,10 +23,10 @@ void UPanSquare
   DistMatrix<F,MR,STAR>& W_MR_STAR,
   const SymvCtrl<F>& ctrl )
 {
+    DEBUG_CSE
     const Int n = A.Height();
     const Int nW = W.Width();
     DEBUG_ONLY(
-      CSE cse("herm_tridiag::UPanSquare");
       AssertSameGrids( A, W, t );
       if( n != A.Width() )
           LogicError("A must be square.");
@@ -68,11 +68,11 @@ void UPanSquare
     FastResize( w01LastBuf, n/r+1 );
 
     DistMatrix<F> w01Last(g);
-    DistMatrix<F,MC,STAR> a01_MC_STAR(g), p01_MC_STAR(g),
-                          a01Last_MC_STAR(g), w01Last_MC_STAR(g);
-    DistMatrix<F,MR,STAR> a01_MR_STAR(g), q01_MR_STAR(g),
-                          a01Last_MR_STAR(g), w01Last_MR_STAR(g),
-                          x21_MR_STAR(g), y21_MR_STAR(g);
+    DistMatrix<F,MC,STAR> a01_MC(g), p01_MC(g),
+                          a01Last_MC(g), w01Last_MC(g);
+    DistMatrix<F,MR,STAR> a01_MR(g), q01_MR(g),
+                          a01Last_MR(g), w01Last_MR(g),
+                          x21_MR(g), y21_MR(g);
 
     F tau = 0;
     F w01LastBottomEntry = 0;
@@ -104,25 +104,25 @@ void UPanSquare
         auto tau1     = t( ind1-off, ALL );
         auto epsilon1 = e( ind1-off, ALL );
 
-        a01_MC_STAR.AlignWith( A00 );
-        a01_MR_STAR.AlignWith( A00 );
-        p01_MC_STAR.AlignWith( A00 );
-        q01_MR_STAR.AlignWith( A00 );
-        a01_MC_STAR.Resize( kA, 1 );
-        a01_MR_STAR.Resize( kA, 1 );
-        Zeros( p01_MC_STAR, kA, 1 );
-        Zeros( q01_MR_STAR, kA, 1 );
+        a01_MC.AlignWith( A00 );
+        a01_MR.AlignWith( A00 );
+        p01_MC.AlignWith( A00 );
+        q01_MR.AlignWith( A00 );
+        a01_MC.Resize( kA, 1 );
+        a01_MR.Resize( kA, 1 );
+        Zeros( p01_MC, kA, 1 );
+        Zeros( q01_MR, kA, 1 );
 
         // View the portions of A02 and W0T outside of this panel's square
-        auto a01T_MC_STAR = a01_MC_STAR( IR(0,off), ALL );
-        auto p01T_MC_STAR = p01_MC_STAR( IR(0,off), ALL ); 
+        auto a01T_MC = a01_MC( IR(0,off), ALL );
+        auto p01T_MC = p01_MC( IR(0,off), ALL ); 
 
         if( !firstIteration )
         {
             // TODO: Move these and make them auto
-            View( a01Last_MC_STAR, B_MC_STAR, indT, IR(k+1) );
-            View( a01Last_MR_STAR, B_MR_STAR, indT, IR(k+1) );
-            View( w01Last,         W,         indT, IR(k+1) );
+            View( a01Last_MC, B_MC_STAR, indT, IR(k+1) );
+            View( a01Last_MR, B_MR_STAR, indT, IR(k+1) );
+            View( w01Last,    W,         indT, IR(k+1) );
         }
 
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
@@ -133,11 +133,11 @@ void UPanSquare
                 // Finish updating the current column with two axpy's
                 const Int aT1LocalHeight = aT1.LocalHeight();
                 F* aT1Buffer = aT1.Buffer();
-                const F* a01Last_MC_STAR_Buf = a01Last_MC_STAR.Buffer();
+                const F* a01Last_MC_Buf = a01Last_MC.Buffer();
                 for( Int i=0; i<aT1LocalHeight; ++i )
                     aT1Buffer[i] -=
                         w01LastBuf[i] + 
-                        a01Last_MC_STAR_Buf[i]*Conj(w01LastBottomEntry);
+                        a01Last_MC_Buf[i]*Conj(w01LastBottomEntry);
             }
             // Compute the Householder reflector
             tau = reflector::Col( alpha01B, a01T );
@@ -170,11 +170,11 @@ void UPanSquare
             mpi::Broadcast
             ( rowBcastBuf.data(), 
               a01LocalHeight+1, a01.RowAlign(), g.RowComm() );
-            // Store a01[MC,* ] into its DistMatrix class and also store a copy
+            // Store a01[MC] into its DistMatrix class and also store a copy
             // for the next iteration
             MemCopy
-            ( a01_MC_STAR.Buffer(), rowBcastBuf.data(), a01LocalHeight );
-            // Store a01[MC,* ] into B[MC,* ]
+            ( a01_MC.Buffer(), rowBcastBuf.data(), a01LocalHeight );
+            // Store a01[MC] into B[MC,* ]
             MemCopy
             ( B_MC_STAR.Buffer(0,k), 
               rowBcastBuf.data(), a01LocalHeight );
@@ -186,8 +186,8 @@ void UPanSquare
             if( onDiagonal )
             {
                 MemCopy
-                ( a01_MR_STAR.Buffer(),
-                  a01_MC_STAR.Buffer(), a01LocalHeight );
+                ( a01_MR.Buffer(),
+                  a01_MC.Buffer(), a01LocalHeight );
             }
             else
             {
@@ -195,13 +195,13 @@ void UPanSquare
                 const Int sendSize = A00.LocalHeight();
                 const Int recvSize = A00.LocalWidth();
                 mpi::SendRecv
-                ( a01_MC_STAR.Buffer(), sendSize, transposeRank,
-                  a01_MR_STAR.Buffer(), recvSize, transposeRank, g.VCComm() );
+                ( a01_MC.Buffer(), sendSize, transposeRank,
+                  a01_MR.Buffer(), recvSize, transposeRank, g.VCComm() );
             }
-            // Store a01[MR,* ]
+            // Store a01[MR]
             MemCopy
             ( B_MR_STAR.Buffer(0,k),
-              a01_MR_STAR.Buffer(), a01_MR_STAR.LocalHeight() );
+              a01_MR.Buffer(), a01_MR.LocalHeight() );
         }
         else
         {
@@ -224,20 +224,20 @@ void UPanSquare
             ( rowBcastBuf.data(), 
               a01LocalHeight+w01LastLocalHeight+1, 
               a01.RowAlign(), g.RowComm() );
-            // Store a01[MC,* ] into its DistMatrix class 
+            // Store a01[MC] into its DistMatrix class 
             MemCopy
-            ( a01_MC_STAR.Buffer(), rowBcastBuf.data(), a01LocalHeight );
-            // Store a01[MC,* ] into B[MC,* ]
+            ( a01_MC.Buffer(), rowBcastBuf.data(), a01LocalHeight );
+            // Store a01[MC] into B[MC,* ]
             MemCopy
             ( B_MC_STAR.Buffer(0,k), 
               rowBcastBuf.data(), a01LocalHeight );
-            // Store w01Last[MC,* ] into its DistMatrix class
-            w01Last_MC_STAR.AlignWith( A00 );
-            w01Last_MC_STAR.Resize( a01.Height()+1, 1 );
+            // Store w01Last[MC] into its DistMatrix class
+            w01Last_MC.AlignWith( A00 );
+            w01Last_MC.Resize( a01.Height()+1, 1 );
             MemCopy
-            ( w01Last_MC_STAR.Buffer(), 
+            ( w01Last_MC.Buffer(), 
               &rowBcastBuf[a01LocalHeight], w01LastLocalHeight );
-            // Store the bottom part of w01Last[MC,* ] into WB[MC,* ] and, 
+            // Store the bottom part of w01Last[MC] into WB[MC,* ] and, 
             // if necessary, w01.
             MemCopy
             ( W_MC_STAR.Buffer(0,k+1),
@@ -254,16 +254,16 @@ void UPanSquare
             // Take advantage of the square process grid in order to quickly
             // form a01[MR,* ] and w01Last[MR,* ] from their [MC,* ]
             // counterparts
-            w01Last_MR_STAR.AlignWith( A00 );
-            w01Last_MR_STAR.Resize( w01Last.Height(), 1 );
+            w01Last_MR.AlignWith( A00 );
+            w01Last_MR.Resize( w01Last.Height(), 1 );
             if( onDiagonal )
             {
                 MemCopy
-                ( a01_MR_STAR.Buffer(),
-                  a01_MC_STAR.Buffer(), a01LocalHeight );
+                ( a01_MR.Buffer(),
+                  a01_MC.Buffer(), a01LocalHeight );
                 MemCopy
-                ( w01Last_MR_STAR.Buffer(),
-                  w01Last_MC_STAR.Buffer(), w01LastLocalHeight );
+                ( w01Last_MR.Buffer(),
+                  w01Last_MC.Buffer(), w01LastLocalHeight );
             }
             else
             {
@@ -275,10 +275,10 @@ void UPanSquare
 
                 // Pack the send buffer
                 MemCopy
-                ( sendBuf.data(), a01_MC_STAR.Buffer(), A00.LocalHeight() );
+                ( sendBuf.data(), a01_MC.Buffer(), A00.LocalHeight() );
                 MemCopy
                 ( &sendBuf[A00.LocalHeight()],
-                  w01Last_MC_STAR.Buffer(), ATL.LocalHeight() );
+                  w01Last_MC.Buffer(), ATL.LocalHeight() );
 
                 // Pairwise exchange
                 mpi::SendRecv
@@ -287,103 +287,90 @@ void UPanSquare
 
                 // Unpack the recv buffer
                 MemCopy
-                ( a01_MR_STAR.Buffer(), recvBuf.data(), A00.LocalWidth() );
+                ( a01_MR.Buffer(), recvBuf.data(), A00.LocalWidth() );
                 MemCopy
-                ( w01Last_MR_STAR.Buffer(),
+                ( w01Last_MR.Buffer(),
                   &recvBuf[A00.LocalWidth()], ATL.LocalWidth() );
             }
 
-            // Store w01Last[MR,* ]
+            // Store w01Last[MR]
             MemCopy
             ( W_MR_STAR.Buffer(0,k+1),
-              w01Last_MR_STAR.Buffer(),
-              w01Last_MR_STAR.LocalHeight() );
-            // Store a01[MR,* ]
+              w01Last_MR.Buffer(),
+              w01Last_MR.LocalHeight() );
+            // Store a01[MR]
             MemCopy
             ( B_MR_STAR.Buffer(0,k),
-              a01_MR_STAR.Buffer(), a01_MR_STAR.LocalHeight() );
+              a01_MR.Buffer(), a01_MR.LocalHeight() );
 
             // Update the portion of A00 that is in our current panel with 
             // w01Last and a01Last using two gers. We do not need their bottom
             // entries. We trash the lower triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            auto a01Last_MC_STAR_Top = a01Last_MC_STAR( ind0, ALL );
-            auto w01Last_MC_STAR_Top = w01Last_MC_STAR( ind0, ALL );
-            auto a01Last_MR_STAR_TopPan = a01Last_MR_STAR( IR(off,kA), ALL );
-            auto w01Last_MR_STAR_TopPan = w01Last_MR_STAR( IR(off,kA), ALL );
-            const F* a01_MC_STAR_Buf = a01Last_MC_STAR_Top.Buffer();
-            const F* w01_MC_STAR_Buf = w01Last_MC_STAR_Top.Buffer();
-            const F* a01_MR_STAR_Buf = a01Last_MR_STAR_TopPan.Buffer();
-            const F* w01_MR_STAR_Buf = w01Last_MR_STAR_TopPan.Buffer();
-            F* A00PanBuffer = A00Pan.Buffer();
-            const Int localHeight = A00Pan.LocalHeight();
-            const Int localWidth = A00Pan.LocalWidth();
-            const Int lDim = A00Pan.LDim();
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const F delta = Conj(a01_MR_STAR_Buf[jLoc]);
-                const F gamma = Conj(w01_MR_STAR_Buf[jLoc]);
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    A00PanBuffer[iLoc+jLoc*lDim] -=
-                        w01_MC_STAR_Buf[iLoc]*delta +
-                        a01_MC_STAR_Buf[iLoc]*gamma;
-            }
+            auto a01Last_MC_Top = a01Last_MC( ind0, ALL );
+            auto w01Last_MC_Top = w01Last_MC( ind0, ALL );
+            auto a01Last_MR_TopPan = a01Last_MR( IR(off,kA), ALL );
+            auto w01Last_MR_TopPan = w01Last_MR( IR(off,kA), ALL );
+            Ger2Sub
+            ( a01Last_MC_Top,
+              w01Last_MC_Top,
+              a01Last_MR_TopPan,
+              w01Last_MR_TopPan,
+              A00Pan );
         }
 
-        // Form the local portions of (A00 a01) into p01[MC,* ] and q01[MR,* ]:
-        //   p01[MC,* ] := triu(A00)[MC,MR] a01[MR,* ]
-        //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
+        // Form the local portions of (A00 a01) into p01[MC] and q01[MR]:
+        //   p01[MC] := triu(A00)[MC,MR] a01[MR]
+        //   q01[MR] := triu(A00,+1)'[MR,MC] a01[MC]
         symv::LocalColAccumulate
-        ( UPPER, F(1),
-          A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true,
-          ctrl );
+        ( UPPER, F(1), A00, a01_MC, a01_MR, p01_MC, q01_MR, true, ctrl );
 
-        x21_MR_STAR.AlignWith( A02T );
-        y21_MR_STAR.AlignWith( A02T );
-        Zeros( x21_MR_STAR, A02.Width(), 1 );
-        Zeros( y21_MR_STAR, A02.Width(), 1 );
-        LocalGemv( ADJOINT, F(1), W02T, a01T_MC_STAR, F(0), x21_MR_STAR );
-        LocalGemv( ADJOINT, F(1), A02T, a01T_MC_STAR, F(0), y21_MR_STAR );
+        x21_MR.AlignWith( A02T );
+        y21_MR.AlignWith( A02T );
+        Zeros( x21_MR, A02.Width(), 1 );
+        Zeros( y21_MR, A02.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), W02T, a01T_MC, F(0), x21_MR );
+        LocalGemv( ADJOINT, F(1), A02T, a01T_MC, F(0), y21_MR );
 
-        // Combine the AllReduce column summations of x21[MR,* ] and y21[MR,* ]
+        // Combine the AllReduce column summations of x21[MR] and y21[MR]
         {
-            const Int x21LocalHeight = x21_MR_STAR.LocalHeight();
-            const Int y21LocalHeight = y21_MR_STAR.LocalHeight();
+            const Int x21LocalHeight = x21_MR.LocalHeight();
+            const Int y21LocalHeight = y21_MR.LocalHeight();
             const Int reduceSize = x21LocalHeight+y21LocalHeight;
             vector<F> colSumSendBuf, colSumRecvBuf;
             FastResize( colSumSendBuf, reduceSize );
             FastResize( colSumRecvBuf, reduceSize );
 
             MemCopy
-            ( colSumSendBuf.data(), x21_MR_STAR.Buffer(), x21LocalHeight );
+            ( colSumSendBuf.data(), x21_MR.Buffer(), x21LocalHeight );
             MemCopy
             ( &colSumSendBuf[x21LocalHeight],
-              y21_MR_STAR.Buffer(), y21LocalHeight );
+              y21_MR.Buffer(), y21LocalHeight );
             mpi::AllReduce
             ( colSumSendBuf.data(), colSumRecvBuf.data(),
               reduceSize, g.ColComm() );
             MemCopy
-            ( x21_MR_STAR.Buffer(), colSumRecvBuf.data(), x21LocalHeight );
+            ( x21_MR.Buffer(), colSumRecvBuf.data(), x21LocalHeight );
             MemCopy
-            ( y21_MR_STAR.Buffer(), 
+            ( y21_MR.Buffer(), 
               &colSumRecvBuf[x21LocalHeight], y21LocalHeight );
         }
 
-        LocalGemv( NORMAL, F(-1), A02T, x21_MR_STAR, F(1), p01T_MC_STAR );
-        LocalGemv( NORMAL, F(-1), W02T, y21_MR_STAR, F(1), p01T_MC_STAR );
+        LocalGemv( NORMAL, F(-1), A02T, x21_MR, F(1), p01T_MC );
+        LocalGemv( NORMAL, F(-1), W02T, y21_MR, F(1), p01T_MC );
 
-        // Fast transpose the unsummed q01[MR,* ] -> q01[MC,* ], so that
+        // Fast transpose the unsummed q01[MR] -> q01[MC], so that
         // it needs to be summed over process rows instead of process 
-        // columns. We immediately add it onto p01[MC,* ], which also needs
+        // columns. We immediately add it onto p01[MC], which also needs
         // to be summed within process rows.
         if( onDiagonal )
         {
             const Int a01LocalHeight = a01.LocalHeight();
-            F* p01_MC_STAR_Buf = p01_MC_STAR.Buffer();
-            const F* q01_MR_STAR_Buf = q01_MR_STAR.Buffer();
+            F* p01_MC_Buf = p01_MC.Buffer();
+            const F* q01_MR_Buf = q01_MR.Buffer();
             for( Int i=0; i<a01LocalHeight; ++i )
-                p01_MC_STAR_Buf[i] += q01_MR_STAR_Buf[i];
+                p01_MC_Buf[i] += q01_MR_Buf[i];
         }
         else
         {
@@ -394,19 +381,19 @@ void UPanSquare
             FastResize( recvBuf, recvSize );
 
             mpi::SendRecv
-            ( q01_MR_STAR.Buffer(), sendSize, transposeRank,
-              recvBuf.data(),    recvSize, transposeRank, g.VCComm() );
+            ( q01_MR.Buffer(), sendSize, transposeRank,
+              recvBuf.data(),  recvSize, transposeRank, g.VCComm() );
 
-            // Unpack the recv buffer directly onto p01[MC,* ]
-            F* p01_MC_STAR_Buf = p01_MC_STAR.Buffer();
+            // Unpack the recv buffer directly onto p01[MC]
+            F* p01_MC_Buf = p01_MC.Buffer();
             for( Int i=0; i<recvSize; ++i )
-                p01_MC_STAR_Buf[i] += recvBuf[i];
+                p01_MC_Buf[i] += recvBuf[i];
         }
 
         if( k > 0 )
         {
             // This is not the last iteration of the panel factorization, 
-            // Reduce to one p01[MC,* ] to the next process column.
+            // Reduce to one p01[MC] to the next process column.
             const Int a01LocalHeight = a01.LocalHeight();
 
             const Int nextProcRow = Mod( alpha11.ColAlign()-1, r );
@@ -416,17 +403,17 @@ void UPanSquare
             FastResize( reduceToOneRecvBuf, a01LocalHeight );
 
             mpi::Reduce
-            ( p01_MC_STAR.Buffer(), reduceToOneRecvBuf.data(),
+            ( p01_MC.Buffer(), reduceToOneRecvBuf.data(),
               a01LocalHeight, nextProcCol, g.RowComm() );
             if( g.Col() == nextProcCol )
             {
                 // Finish computing w01. During its computation, ensure that 
                 // every process has a copy of the last element of the w01.
                 // We know a priori that the last element of a01 is one.
-                const F* a01_MC_STAR_Buf = a01_MC_STAR.Buffer();
+                const F* a01_MC_Buf = a01_MC.Buffer();
                 F myDotProduct = blas::Dot
                     ( a01LocalHeight, reduceToOneRecvBuf.data(), 1, 
-                                      a01_MC_STAR_Buf,        1 );
+                                      a01_MC_Buf,                1 );
                 F sendBuf[2], recvBuf[2];
                 sendBuf[0] = myDotProduct;
                 sendBuf[1] = ( g.Row()==nextProcRow ? 
@@ -440,50 +427,49 @@ void UPanSquare
                 F scale = dotProduct*tau / F(2);
                 for( Int i=0; i<a01LocalHeight; ++i )
                     w01LastBuf[i] = Conj(tau)*
-                        ( reduceToOneRecvBuf[i]-
-                          scale*a01_MC_STAR_Buf[i] );
+                        ( reduceToOneRecvBuf[i]-scale*a01_MC_Buf[i] );
                 w01LastBottomEntry = Conj(tau)*( recvBuf[1]-scale );
             }
         }
         else
         {
             // This is the last iteration, our last task is to finish forming
-            // w01[MC,* ] and w01[MR,* ]
+            // w01[MC] and w01[MR]
             const Int a01LocalHeight = a01.LocalHeight();
 
-            // AllReduce sum p01[MC,* ] over process rows
+            // AllReduce sum p01[MC] over process rows
             vector<F> allReduceRecvBuf;
             FastResize( allReduceRecvBuf, a01LocalHeight );
 
             mpi::AllReduce
-            ( p01_MC_STAR.Buffer(), allReduceRecvBuf.data(), 
+            ( p01_MC.Buffer(), allReduceRecvBuf.data(), 
               a01LocalHeight, g.RowComm() );
 
             // Finish computing w01. During its computation, ensure that 
             // every process has a copy of the last element of the w01.
             // We know a priori that the last element of a01 is one.
-            const F* a01_MC_STAR_Buf = a01_MC_STAR.Buffer();
+            const F* a01_MC_Buf = a01_MC.Buffer();
             F myDotProduct = blas::Dot
                 ( a01LocalHeight, allReduceRecvBuf.data(), 1, 
-                                  a01_MC_STAR_Buf,         1 );
+                                  a01_MC_Buf,              1 );
             const F dotProduct = mpi::AllReduce( myDotProduct, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
-            auto w01_MC_STAR = W_MC_STAR( ind0, ind1-off );
-            auto w01_MR_STAR = W_MR_STAR( ind0, ind1-off );
+            auto w01_MC = W_MC_STAR( ind0, ind1-off );
+            auto w01_MR = W_MR_STAR( ind0, ind1-off );
 
-            // Store w01[MC,* ]
+            // Store w01[MC]
             F scale = dotProduct*tau / F(2);
-            F* w01_MC_STAR_Buf = w01_MC_STAR.Buffer();
+            F* w01_MC_Buf = w01_MC.Buffer();
             for( Int i=0; i<a01LocalHeight; ++i )
-                w01_MC_STAR_Buf[i] = Conj(tau)*
-                    ( allReduceRecvBuf[i]-scale*a01_MC_STAR_Buf[i] );
+                w01_MC_Buf[i] = Conj(tau)*
+                    ( allReduceRecvBuf[i]-scale*a01_MC_Buf[i] );
 
-            // Fast transpose w01[MC,* ] -> w01[MR,* ]
+            // Fast transpose w01[MC] -> w01[MR]
             if( onDiagonal )
             {
                 MemCopy
-                ( w01_MR_STAR.Buffer(), w01_MC_STAR.Buffer(), a01LocalHeight );
+                ( w01_MR.Buffer(), w01_MC.Buffer(), a01LocalHeight );
             }
             else
             {
@@ -491,8 +477,8 @@ void UPanSquare
                 const Int sendSize = A00.LocalHeight();
                 const Int recvSize = A00.LocalWidth();
                 mpi::SendRecv
-                ( w01_MC_STAR.Buffer(), sendSize, transposeRank,
-                  w01_MR_STAR.Buffer(), recvSize, transposeRank, g.VCComm() );
+                ( w01_MC.Buffer(), sendSize, transposeRank,
+                  w01_MR.Buffer(), recvSize, transposeRank, g.VCComm() );
             }
         }
     }

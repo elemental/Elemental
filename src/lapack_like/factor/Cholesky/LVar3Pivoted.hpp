@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_CHOLESKY_LVAR3PIVOTED_HPP
 #define EL_CHOLESKY_LVAR3PIVOTED_HPP
 
@@ -16,10 +15,9 @@ namespace cholesky {
 namespace pivot {
 
 template<typename F>
-inline LDLPivot
-Full( const Matrix<F>& A )
+LDLPivot Full( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
+    DEBUG_CSE
     const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -28,10 +26,9 @@ Full( const Matrix<F>& A )
 }
 
 template<typename F>
-inline LDLPivot
-Full( const DistMatrix<F>& A )
+LDLPivot Full( const DistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("cholesky::pivot::Full"))
+    DEBUG_CSE
     const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -40,27 +37,21 @@ Full( const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline LDLPivot
-PanelFull
+LDLPivot PanelFull
 ( const Matrix<F>& A,
         Matrix<F>& d,
   const Matrix<F>& X,
   const Matrix<F>& Y )
 {
-    DEBUG_ONLY(CSE cse("cholesky::pivot::PanelFull"))
+    DEBUG_CSE
 
     // Form updated diagonal
     const Int height = d.Height();
     const Int k = X.Width();
-          F* dBuf = d.Buffer();
-    const F* XBuf = X.LockedBuffer();
-    const F* YBuf = Y.LockedBuffer();
-    const Int XLDim = X.LDim();
-    const Int YLDim = Y.LDim();
     for( Int i=0; i<height; ++i )
     {
-        dBuf[i] -= XBuf[i+(k-1)*XLDim]*YBuf[i+(k-1)*YLDim];
-        dBuf[i] = RealPart(dBuf[i]);
+        d(i) -= X(i,k-1)*Y(i,k-1);
+        d(i) = RealPart(d(i));
     }
 
     // Return maximum from it
@@ -72,15 +63,14 @@ PanelFull
 }
 
 template<typename F>
-inline LDLPivot
-PanelFull
+LDLPivot PanelFull
 ( const DistMatrix<F>& A, 
         DistMatrix<F,MD,STAR>& d,
   const DistMatrix<F,MC,STAR>& X,
   const DistMatrix<F,MR,STAR>& Y )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::pivot::PanelFull");
       if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
           LogicError("A, X, and Y are not properly aligned");
     )
@@ -90,11 +80,9 @@ PanelFull
     {
         const Int dLocalHeight = d.LocalHeight();
         const Int k = X.Width();
-        F* dBuf = d.Buffer();
-        const F* XBuf = X.LockedBuffer();
-        const F* YBuf = Y.LockedBuffer();
-        const Int XLDim = X.LDim();
-        const Int YLDim = Y.LDim();
+              Matrix<F>& dLoc = d.Matrix();
+        const Matrix<F>& XLoc = X.LockedMatrix();
+        const Matrix<F>& YLoc = Y.LockedMatrix();
 
         const Int dColShift = d.ColShift();
         const Int dColStride = d.ColStride();
@@ -104,8 +92,8 @@ PanelFull
             // TODO: Avoid repeated calls to LocalRow and use strides
             const Int iLocX = X.LocalRow(i);
             const Int iLocY = Y.LocalRow(i);
-            dBuf[iLoc] -= XBuf[iLocX+(k-1)*XLDim]*YBuf[iLocY+(k-1)*YLDim];
-            dBuf[iLoc] = RealPart(dBuf[iLoc]);
+            dLoc(iLoc) -= XLoc(iLocX,k-1)*YLoc(iLocY,k-1);
+            dLoc(iLoc) = RealPart(dLoc(iLoc));
         }
     }
 
@@ -121,11 +109,10 @@ PanelFull
 } // namespace pivot
 
 template<typename F>
-inline void
-LUnblockedPivoted( Matrix<F>& A, Permutation& P )
+void LUnblockedPivoted( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LUnblockedPivoted");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -151,7 +138,7 @@ LUnblockedPivoted( Matrix<F>& A, Permutation& P )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        P.RowSwap( k, from );
+        P.Swap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -165,13 +152,12 @@ LUnblockedPivoted( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-LUnblockedPivoted
+void LUnblockedPivoted
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LUnblockedPivoted");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
@@ -201,7 +187,7 @@ LUnblockedPivoted
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        P.RowSwap( k, from );
+        P.Swap( k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -217,8 +203,7 @@ LUnblockedPivoted
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
-inline void
-LPanelPivoted
+void LPanelPivoted
 ( Matrix<F>& AFull,
   Permutation& PFull, 
   Matrix<F>& X,
@@ -226,7 +211,7 @@ LPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -264,7 +249,7 @@ LPanelPivoted
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        PFull.RowSwap( k+off, from+off );
+        PFull.Swap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -286,8 +271,7 @@ LPanelPivoted
 }
 
 template<typename F>
-inline void
-LPanelPivoted
+void LPanelPivoted
 ( DistMatrix<F>& AFull,
   DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
@@ -295,7 +279,7 @@ LPanelPivoted
   Int bsize,
   Int off )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LPanelPivoted"))
+    DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
     DEBUG_ONLY(
@@ -335,7 +319,7 @@ LPanelPivoted
 
         // Apply the pivot
         HermitianSwap( LOWER, AFull, k+off, from+off );
-        PFull.RowSwap( k+off, from+off );
+        PFull.Swap( k+off, from+off );
         RowSwap( dB, 0, pivot.from[0] );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -358,11 +342,10 @@ LPanelPivoted
 }
 
 template<typename F>
-inline void
-LVar3( Matrix<F>& A, Permutation& P )
+void LVar3( Matrix<F>& A, Permutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LVar3");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -390,13 +373,12 @@ LVar3( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-inline void
-LVar3
+void LVar3
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::LVar3");
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

@@ -1,12 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
 
 namespace El {
 
@@ -18,8 +19,8 @@ void Syr
         Matrix<T>& A, 
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Syr");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -48,12 +49,12 @@ template<typename T>
 void Syr
 ( UpperOrLower uplo,
   T alpha,
-  const ElementalMatrix<T>& x,
-        ElementalMatrix<T>& APre,
+  const AbstractDistMatrix<T>& x,
+        AbstractDistMatrix<T>& APre,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Syr");
       AssertSameGrids( APre, x );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
@@ -160,9 +161,13 @@ void Syr
     const Matrix<T>& x, Matrix<T>& A, bool conjugate ); \
   template void Syr \
   ( UpperOrLower uplo, T alpha, \
-    const ElementalMatrix<T>& x, ElementalMatrix<T>& A, bool conjugate );
+    const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A, bool conjugate );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

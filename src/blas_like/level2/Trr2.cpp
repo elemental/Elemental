@@ -1,12 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
 
 namespace El {
 
@@ -20,8 +21,8 @@ void Trr2
         Matrix<T>& A, 
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trr2");
       if( X.Width() != 2 || Y.Width() != 2 )
           LogicError("X and Y must be of width 2");
     )
@@ -67,13 +68,13 @@ template<typename T>
 void Trr2
 ( UpperOrLower uplo,
   T alpha,
-  const ElementalMatrix<T>& XPre,
-  const ElementalMatrix<T>& YPre,
-        ElementalMatrix<T>& APre,
+  const AbstractDistMatrix<T>& XPre,
+  const AbstractDistMatrix<T>& YPre,
+        AbstractDistMatrix<T>& APre,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trr2");
       if( XPre.Width() != 2 || YPre.Width() != 2 )
           LogicError("X and Y must be of width 2");
     )
@@ -148,10 +149,14 @@ void Trr2
     Matrix<T>& A, bool conjugate ); \
   template void Trr2 \
   ( UpperOrLower uplo, \
-    T alpha, const ElementalMatrix<T>& X, const ElementalMatrix<T>& Y, \
-    ElementalMatrix<T>& A, bool conjugate );
+    T alpha, const AbstractDistMatrix<T>& X, const AbstractDistMatrix<T>& Y, \
+    AbstractDistMatrix<T>& A, bool conjugate );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

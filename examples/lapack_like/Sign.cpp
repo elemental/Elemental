@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -44,12 +44,19 @@ main( int argc, char* argv[] )
         signCtrl.progress = progress;
         signCtrl.scaling = scaling;
 
+        Timer timer;
         // Compute sgn(A)
+        if( mpi::Rank() == 0 )
+            timer.Start();
         Sign( A, signCtrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print )
             Print( A, "A" );
         if( display )
             Display( A, "A" );
+        if( mpi::Rank() == 0 )
+            Output("Sign time: ",timer.Total()," secs");
     }
     catch( exception& e ) { ReportException(e); }
 

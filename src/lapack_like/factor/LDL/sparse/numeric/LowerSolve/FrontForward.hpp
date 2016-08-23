@@ -17,64 +17,66 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTFORWARD_HPP
 
-#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {
 namespace ldl {
 
 template<typename F>
-inline void FrontVanillaLowerForwardSolve
+void FrontVanillaLowerForwardSolve
 ( const Matrix<F>& L,
         Matrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerForwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), LT, XT );
     Gemm( NORMAL, NORMAL, F(-1), LB, XT, F(1), XB );
 }
 
 template<typename F>
-inline void FrontIntraPivLowerForwardSolve
+void FrontIntraPivLowerForwardSolve
 ( const Matrix<F>& L,
   const Permutation& P,
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
-    Matrix<F> XT, XB;
-    PartitionDown( X, XT, XB, L.Width() );
+    DEBUG_CSE
+    const Int n = L.Width();
+    auto XT = X( IR(0,n),   ALL );
     P.PermuteRows( XT );
     FrontVanillaLowerForwardSolve( L, X );
 }
 
 template<typename F>
-inline void FrontBlockLowerForwardSolve
+void FrontBlockLowerForwardSolve
 ( const Matrix<F>& L,
         Matrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerForwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(ATL) XT
     Matrix<F> YT( XT );
@@ -85,10 +87,9 @@ inline void FrontBlockLowerForwardSolve
 }
 
 template<typename F>
-inline void 
-FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
+void FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardSolve"))
+    DEBUG_CSE
     const LDLFrontType type = front.type;
     DEBUG_ONLY(
       if( Unfactored(type) )
@@ -101,8 +102,9 @@ FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
         const F* LValBuf = front.LSparse.LockedValueBuffer();
         const Int* LColBuf = front.LSparse.LockedTargetBuffer();
         const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
-        Matrix<F> WT, WB;
-        PartitionDown( W, WT, WB, n );
+
+        auto WT = W( IR(0,n),   ALL );
+        auto WB = W( IR(n,END), ALL );
 
         const bool onLeft = true;
         suite_sparse::ldl::LSolveMulti
@@ -125,7 +127,7 @@ FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
 namespace internal {
 
 template<typename F>
-inline void ForwardMany
+void ForwardMany
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X )
 {
@@ -212,13 +214,13 @@ void ForwardSingle
 } // namespace internal
 
 template<typename F>
-inline void FrontVanillaLowerForwardSolve
+void FrontVanillaLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X,
   bool singleL11AllGather=true )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -235,29 +237,28 @@ inline void FrontVanillaLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerForwardSolve
+void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
   const DistPermutation& P, 
         DistMatrix<F,VC,STAR>& X,
   bool singleL11AllGather=true )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
+    DEBUG_CSE
 
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X, singleL11AllGather );
 }
 
 template<typename F>
-inline void FrontVanillaLowerForwardSolve
+void FrontVanillaLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -265,6 +266,7 @@ inline void FrontVanillaLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -272,11 +274,11 @@ inline void FrontVanillaLowerForwardSolve
         return;
     }
 
-    // Separate the top and bottom portions of X and L
-    const Int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(LT) XT
     // TODO: Replace with TrsmLLNMedium?
@@ -287,12 +289,12 @@ inline void FrontVanillaLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontVanillaLowerForwardSolve
+void FrontVanillaLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerForwardSolve");
       if( L.Grid() != XPre.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != XPre.Height() )
@@ -300,6 +302,7 @@ inline void FrontVanillaLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(XPre,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -310,10 +313,10 @@ inline void FrontVanillaLowerForwardSolve
     DistMatrix<F> X( XPre );
 
     // Separate the top and bottom portions of X and L
-    const Int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(LT) XT
     // TODO: Replace with TrsmLLNMedium?
@@ -326,28 +329,27 @@ inline void FrontVanillaLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerForwardSolve
+void FrontIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerForwardSolve"))
+    DEBUG_CSE
 
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontVanillaLowerForwardSolve( L, X );
 }
 
 template<typename F>
-inline void FrontFastLowerForwardSolve
+void FrontFastLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -357,6 +359,7 @@ inline void FrontFastLowerForwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -365,10 +368,10 @@ inline void FrontFastLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := LT XT
     DistMatrix<F,STAR,STAR> XT_STAR_STAR( XT );
@@ -383,28 +386,27 @@ inline void FrontFastLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerForwardSolve
+void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
+    DEBUG_CSE
 
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
 
 template<typename F>
-inline void FrontFastLowerForwardSolve
+void FrontFastLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -412,6 +414,7 @@ inline void FrontFastLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -420,11 +423,10 @@ inline void FrontFastLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // Get ready for the local multiply
     DistMatrix<F,MR,STAR> XT_MR_STAR(g);
@@ -456,28 +458,27 @@ inline void FrontFastLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerForwardSolve
+void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
+    DEBUG_CSE
 
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
 
 template<typename F>
-inline void FrontFastLowerForwardSolve
+void FrontFastLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -485,6 +486,7 @@ inline void FrontFastLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -493,10 +495,10 @@ inline void FrontFastLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := LT XT
     DistMatrix<F> YT( XT );
@@ -507,28 +509,27 @@ inline void FrontFastLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerForwardSolve
+void FrontFastIntraPivLowerForwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerForwardSolve"))
+    DEBUG_CSE
 
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.PermuteRows( XT );
 
     FrontFastLowerForwardSolve( L, X );
 }
 
 template<typename F>
-inline void FrontBlockLowerForwardSolve
+void FrontBlockLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -538,6 +539,7 @@ inline void FrontBlockLowerForwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -546,10 +548,10 @@ inline void FrontBlockLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(ATL) XT
     DistMatrix<F,STAR,STAR> XT_STAR_STAR( XT );
@@ -564,12 +566,12 @@ inline void FrontBlockLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerForwardSolve
+void FrontBlockLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -577,6 +579,7 @@ inline void FrontBlockLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -585,11 +588,10 @@ inline void FrontBlockLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // Get ready for the local multiply
     DistMatrix<F,MR,STAR> XT_MR_STAR(g);
@@ -619,12 +621,12 @@ inline void FrontBlockLowerForwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerForwardSolve
+void FrontBlockLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerForwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -632,6 +634,7 @@ inline void FrontBlockLowerForwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -640,10 +643,10 @@ inline void FrontBlockLowerForwardSolve
     }
 
     // Separate the top and bottom portions of X and L
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := inv(ATL) XT
     DistMatrix<F> Z( XT );
@@ -654,12 +657,12 @@ inline void FrontBlockLowerForwardSolve
 }
 
 template<typename F>
-inline void 
+void 
 FrontLowerForwardSolve
 ( const DistFront<F>& front,
         DistMatrix<F,VC,STAR>& W )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardSolve"))
+    DEBUG_CSE
     const LDLFrontType type = front.type;
 
     // TODO: Add support for LDL_2D
@@ -684,11 +687,10 @@ FrontLowerForwardSolve
 }
 
 template<typename F>
-inline void 
-FrontLowerForwardSolve
-( const DistFront<F>& front, DistMatrix<F>& W )
+void 
+FrontLowerForwardSolve( const DistFront<F>& front, DistMatrix<F>& W )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerForwardSolve"))
+    DEBUG_CSE
     const LDLFrontType type = front.type;
 
     if( type == LDL_2D )

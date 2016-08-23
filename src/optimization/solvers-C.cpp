@@ -1,13 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El.hpp>
+#include <El.h>
 using namespace El;
 
 extern "C" {
@@ -44,6 +44,9 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->checkResiduals = true;
 #endif
 
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->reg2Tmp = Pow(eps,float(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = ctrl->reg2Perm = Pow(eps,float(0.35));
+
     return EL_SUCCESS;
 }
 
@@ -76,6 +79,9 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
 #else
     ctrl->checkResiduals = true;
 #endif
+
+    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->reg2Tmp = Pow(eps,double(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = ctrl->reg2Perm = Pow(eps,double(0.35));
 
     return EL_SUCCESS;
 }
@@ -984,6 +990,6 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

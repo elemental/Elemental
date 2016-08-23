@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -15,7 +15,6 @@ typedef Complex<Real> F;
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    const int commRank = mpi::Rank();
 
     try 
     {
@@ -30,9 +29,7 @@ int main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Timer timer;
-
-        const Grid& g = DefaultGrid();
+        const Grid& g = Grid::Default();
         DistMatrix<F> U(g), V(g), A(g);
         Uniform( U, m, r );
         Uniform( V, n, r );
@@ -52,11 +49,12 @@ int main( int argc, char* argv[] )
             ctrl.tol = tol;
         }
         ctrl.smallestFirst = smallestFirst;
-        if( commRank == 0 )
+        Timer timer;
+        if( mpi::Rank() == 0 )
             timer.Start();
         ID( A, Omega, Z, ctrl );
-        if( commRank == 0 )
-            Output("  ID time: ",timer.Stop()," seconds");
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         const Int rank = Z.Height();
         if( print )
         {
@@ -67,7 +65,11 @@ int main( int argc, char* argv[] )
         }
 
         // Pivot A and form the matrix of its (hopefully) dominant columns
+        Timer permTimer( "permTimer" );
+        permTimer.Start();
         Omega.PermuteCols( A );
+        permTimer.Stop();
+
         auto hatA( A );
         hatA.Resize( m, rank );
         if( print )
@@ -94,11 +96,14 @@ int main( int argc, char* argv[] )
         if( print )
             Print( A, "A Omega^T - \\hat{A} [I, Z]" );
 
-        if( commRank == 0 )
+        if( mpi::Rank() == 0 )
+        {
+            Output("  ID time: ",timer.Total()," secs");
             Output
             ("|| A ||_F = ",frobA,"\n",
              "|| A Omega^T - \\hat{A} [I, Z] ||_F / || A ||_F = ",
              frobError/frobA);
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_SCHUR_QUASITRIANGEIG_HPP
 #define EL_SCHUR_QUASITRIANGEIG_HPP
 
@@ -20,7 +19,7 @@ void QuasiTriangEig
   const Matrix<F>& dSup,
   Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
+    DEBUG_CSE
     const Int n = dMain.Height();
     Matrix<F> H11(2,2);
     w.Resize( n, 1 );
@@ -28,17 +27,17 @@ void QuasiTriangEig
     Int j=0;
     while( j < n )
     {
-        if( j == n-1 || dSub.Get(j,0) == F(0) )
+        if( j == n-1 || dSub(j) == F(0) )
         {
-            w.Set( j, 0, dMain.Get(j,0) );
+            w(j) = dMain(j);
             ++j;
         }
         else
         {
-            H11.Set( 0, 0, dMain.Get(j,0) );
-            H11.Set( 1, 0, dSub.Get(j,0) );
-            H11.Set( 0, 1, dSup.Get(j,0) );
-            H11.Set( 1, 1, dMain.Get(j+1,0) );
+            H11(0,0) = dMain(j);
+            H11(1,0) = dSub(j);
+            H11(0,1) = dSup(j);
+            H11(1,1) = dMain(j+1);
             lapack::HessenbergEig( 2, H11.Buffer(), H11.LDim(), w.Buffer(j,0) );
             j += 2;
         }
@@ -48,7 +47,7 @@ void QuasiTriangEig
 template<typename F>
 void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
+    DEBUG_CSE
     auto dMain = GetDiagonal(U);
     auto dSub = GetDiagonal(U,-1);
     auto dSup = GetDiagonal(U,+1);
@@ -58,7 +57,7 @@ void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 template<typename F>
 Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
 {
-    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
+    DEBUG_CSE
     Matrix<Complex<Base<F>>> w;
     QuasiTriangEig( U, w );
     return w;
@@ -69,7 +68,7 @@ void QuasiTriangEig
 ( const ElementalMatrix<F>& UPre,
         ElementalMatrix<Complex<Base<F>>>& w )
 {
-    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     auto& U = UProx.GetLocked();
@@ -90,7 +89,7 @@ template<typename F>
 DistMatrix<Complex<Base<F>>,VR,STAR> 
 QuasiTriangEig( const ElementalMatrix<F>& U )
 {
-    DEBUG_ONLY(CSE cse("schur::QuasiTriangEig"))
+    DEBUG_CSE
     DistMatrix<Complex<Base<F>>,VR,STAR> w(U.Grid());
     QuasiTriangEig( U, w );
     return w;

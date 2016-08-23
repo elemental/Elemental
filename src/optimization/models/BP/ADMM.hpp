@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html
@@ -24,7 +24,7 @@ Int ADMM
         Matrix<F>& z, 
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::ADMM"))
+    DEBUG_CSE
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
     // NOTE: If m >= n and A has full column rank, then basis pursuit is 
     //       irrelevant, as there is a unique solution, which is found 
@@ -157,7 +157,7 @@ Int ADMM
         ElementalMatrix<F>& zPre,
   const ADMMCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bp::ADMM"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),

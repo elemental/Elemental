@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./QuasiTrsm/LLN.hpp"
 #include "./QuasiTrsm/LLT.hpp"
@@ -22,24 +24,25 @@ namespace El {
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
+  F alpha, const AbstractDistMatrix<F>& A,
+                 AbstractDistMatrix<F>& B,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("QuasiTrsm");
-        AssertSameGrids( A, B );
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
-        }
+      AssertSameGrids( A, B );
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal Trsm");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal Trsm");
+      }
     )
     B *= alpha;
     // Call the single right-hand side algorithm if appropriate
@@ -116,11 +119,12 @@ void QuasiTrsm
 template<typename F>
 void LocalQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X,
+  F alpha, const DistMatrix<F,STAR,STAR>& A,
+                 AbstractDistMatrix<F>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalQuasiTrsm");
       if( (side == LEFT && X.ColDist() != STAR) ||
           (side == RIGHT && X.RowDist() != STAR) )
           LogicError
@@ -134,23 +138,24 @@ void LocalQuasiTrsm
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const Matrix<F>& A, Matrix<F>& B,
+  F alpha, const Matrix<F>& A,
+                 Matrix<F>& B,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("QuasiTrsm");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( side == LEFT )
-        {
-            if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
-        }
-        else
-        {
-            if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
-        }
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( side == LEFT )
+      {
+          if( A.Height() != B.Height() )
+              LogicError("Nonconformal Trsm");
+      }
+      else
+      {
+          if( A.Height() != B.Width() )
+              LogicError("Nonconformal Trsm");
+      }
     )
     B *= alpha;
     // Call the single right-hand side algorithm if appropriate
@@ -209,14 +214,18 @@ void QuasiTrsm
     F alpha, const Matrix<F>& A, Matrix<F>& B, bool checkIfSingular ); \
   template void QuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+    F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     bool checkIfSingular ); \
   template void LocalQuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const DistMatrix<F,STAR,STAR>& A, ElementalMatrix<F>& X, \
+    F alpha, const DistMatrix<F,STAR,STAR>& A, AbstractDistMatrix<F>& X, \
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -20,15 +20,15 @@ void Trr2kTNTT
   Orientation orientC,
   Orientation orientD,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
   T beta,
-  const ElementalMatrix<T>& CPre,
-  const ElementalMatrix<T>& DPre,
-        ElementalMatrix<T>& EPre )
+  const AbstractDistMatrix<T>& CPre,
+  const AbstractDistMatrix<T>& DPre,
+        AbstractDistMatrix<T>& EPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trr2k::Trr2kTNTT");
       if( EPre.Height() != EPre.Width()  || APre.Height() != CPre.Height() ||
           APre.Width()  != EPre.Height() || CPre.Width()  != EPre.Height() ||
           BPre.Width()  != EPre.Width()  || DPre.Height() != EPre.Width()  ||

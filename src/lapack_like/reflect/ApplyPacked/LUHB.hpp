@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_APPLYPACKEDREFLECTORS_LUHB_HPP
 #define EL_APPLYPACKEDREFLECTORS_LUHB_HPP
 
@@ -31,16 +30,15 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F> 
-inline void
-LUHB
+void LUHB
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUHB");
       if( H.Width() != A.Height() )
           LogicError("H's width and A's height must match");
     )
@@ -81,18 +79,15 @@ LUHB
 }
 
 template<typename F> 
-inline void
-LUHB
+void LUHB
 ( Conjugation conjugation,
   Int offset, 
   const ElementalMatrix<F>& HPre,
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUHB");
-      AssertSameGrids( HPre, tPre, APre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( HPre, tPre, APre ))
 
     DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );

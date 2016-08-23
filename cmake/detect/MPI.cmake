@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -22,7 +22,7 @@ endif()
 # Ensure that we have MPI1 by looking for MPI_Reduce_scatter
 # ==========================================================
 set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
-set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
 set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
 set(MPI_REDUCE_SCATTER_CODE
@@ -41,6 +41,54 @@ El_check_c_source_compiles("${MPI_REDUCE_SCATTER_CODE}"
   EL_HAVE_MPI_REDUCE_SCATTER)
 if(NOT EL_HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
+endif()
+
+# If we have Open MPI, ensure that we have a sufficiently new version
+# ===================================================================
+# Allow advanced users to override the default minimum version requirement.
+# Version 1.6.5 is known to cause problems with complex datatypes, even when
+# EL_AVOID_COMPLEX_MPI is enabled. Since 1.7 was a feature branch, 1.8 is the
+# lowest stable branch after 1.6.5.
+# (e.g., for academic investigations of behavior)
+#
+# NOTE: MPI_C_INCLUDE_PATH has been observed to be a list containing both
+#       an item corresponding to the directory containing mpi.h *and* the full
+#       path to mpi.h for Open MPI!
+#
+if(NOT OMPI_MIN_VERSION)
+  set(OMPI_MIN_VERSION 1.8.1)
+endif()
+foreach(MPI_PATH ${MPI_C_INCLUDE_PATH})
+  if(EXISTS "${MPI_PATH}/mpi.h")
+    set(MPI_HEADER_PATH ${MPI_PATH})
+  endif()
+endforeach()
+if(MPI_HEADER_PATH)
+  message(STATUS "Will parse MPI header ${MPI_HEADER_PATH}/mpi.h")
+else()
+  message(FATAL_ERROR "Could not find mpi.h")
+endif()
+file(READ "${MPI_HEADER_PATH}/mpi.h" _mpi_header)
+string(REGEX MATCH "define[ \t]+OMPI_MAJOR_VERSION[ \t]+([0-9]+)"
+  _ompi_major_version_match "${_mpi_header}")
+set(OMPI_MAJOR_VERSION "${CMAKE_MATCH_1}")
+if(OMPI_MAJOR_VERSION)
+  set(HAVE_OMPI TRUE)
+endif()
+if(HAVE_OMPI)
+  string(REGEX MATCH "define[ \t]+OMPI_MINOR_VERSION[ \t]+([0-9]+)"
+    _ompi_minor_version_match "${_mpi_header}")
+  set(OMPI_MINOR_VERSION "${CMAKE_MATCH_1}")
+  string(REGEX MATCH "define[ \t]+OMPI_RELEASE_VERSION[ \t]+([0-9]+)"
+    _ompi_release_version_match "${_mpi_header}")
+  set(OMPI_RELEASE_VERSION "${CMAKE_MATCH_1}")
+  set(OMPI_VERSION
+    ${OMPI_MAJOR_VERSION}.${OMPI_MINOR_VERSION}.${OMPI_RELEASE_VERSION})
+  if(${OMPI_VERSION} VERSION_LESS ${OMPI_MIN_VERSION})
+    message(FATAL_ERROR "Detected Open MPI version ${OMPI_VERSION}, but known bugs in version 1.6.5 of Open MPI have led Elemental to require at least version ${OMPI_MIN_VERSION}")
+  else()
+    message(STATUS "Using Open MPI version ${OMPI_VERSION}")
+  endif()
 endif()
 
 # Test for whether or not we have Fortran MPI support
@@ -229,6 +277,9 @@ set(MPI_IN_PLACE_CODE
          return 0;
      }")
 El_check_c_source_compiles("${MPI_IN_PLACE_CODE}" EL_HAVE_MPI_IN_PLACE)
+if(NOT EL_HAVE_MPI_IN_PLACE)
+  message(FATAL_ERROR "MPI_IN_PLACE support was not detected")
+endif()
 set(MPI_COMM_F2C_CODE
 "#include \"mpi.h\"
  int main( int argc, char* argv[] )

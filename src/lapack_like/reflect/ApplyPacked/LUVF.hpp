@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_APPLYPACKEDREFLECTORS_LUVF_HPP
 #define EL_APPLYPACKEDREFLECTORS_LUVF_HPP
 
@@ -31,23 +30,22 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F>
-inline void
-LUVF
+void LUVF
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
   const Matrix<F>& t,
         Matrix<F>& A )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUVF");
       if( H.Height() != A.Height() )
           LogicError("H and A must be the same height");
     )
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-        if( t.Height() != diagLength )
-            LogicError("t must be the same length as H's offset diag");
+      if( t.Height() != diagLength )
+          LogicError("t must be the same length as H's offset diag");
     )
     Matrix<F> HPanCopy, SInv, Z;
 
@@ -78,16 +76,15 @@ LUVF
 }
 
 template<typename F> 
-inline void
-LUVF
+void LUVF
 ( Conjugation conjugation,
   Int offset, 
   const ElementalMatrix<F>& HPre,
   const ElementalMatrix<F>& tPre, 
         ElementalMatrix<F>& APre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("apply_packed_reflectors::LUVF");
       AssertSameGrids( HPre, tPre, APre );
       if( HPre.Height() != APre.Height() )
           LogicError("H and A must be the same height");

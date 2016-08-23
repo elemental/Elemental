@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace std;
 using namespace El;
 
@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
+        const Grid& g = Grid::Default();
         DistMatrix<C> A(g);
         if( matType == 0 )
             Uniform( A, n, n );
@@ -70,7 +70,12 @@ main( int argc, char* argv[] )
         ctrl.sdcCtrl.signCtrl.tol = signTol;
         ctrl.sdcCtrl.signCtrl.progress = progress;
 #endif
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         Schur( T, w, Q, fullTriangle, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         MakeTrapezoidal( UPPER, T );
 
         if( display )
@@ -89,9 +94,12 @@ main( int argc, char* argv[] )
         Herk( LOWER, ADJOINT, Real(-1), Q, Real(1), A );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, A );
         if( mpi::Rank() == 0 )
+        {
+            Output("Schur time: ",timer.Total()," secs");
             Output
             (" || A - Q T Q^H ||_F / || A ||_F = ",frobE/frobA,"\n",
              " || I - Q^H Q ||_F   / || A ||_F = ",frobOrthog/frobA,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,13 +11,12 @@ namespace El {
 namespace quasitrsv {
 
 template<typename F>
-inline void
-LTUnb
+void LTUnb
 ( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LTUnb");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -59,7 +58,7 @@ LTUnb
             const F delta22 = LBuf[(k+1)+(k+1)*ldl];
             // Decompose D = L Q
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
+            const F gamma11 = Givens( delta11, delta12, c, s );
             const F gamma21 =        c*delta21 + s*delta22;
             const F gamma22 = -Conj(s)*delta21 + c*delta22;
             if( checkIfSingular )
@@ -100,13 +99,12 @@ LTUnb
 }
 
 template<typename F>
-inline void
-LT
+void LT
 ( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LT");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -161,15 +159,14 @@ LT
 }
 
 template<typename F>
-inline void
-LT
+void LT
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& xPre,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LT");
       AssertSameGrids( LPre, xPre );
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
@@ -210,7 +207,8 @@ LT
         DistMatrix<F,MC,STAR> z0_MC_STAR(g), z1_MC_STAR(g);
 
         z_MC_STAR.AlignWith( L );
-        Zeros( z_MC_STAR, m, 1 );
+        z_MC_STAR.Resize( m, 1 );
+        Zero( z_MC_STAR );
 
         Int k=kLast, kOld=m;
         while( true )
@@ -259,7 +257,8 @@ LT
         DistMatrix<F,STAR,MC> z0_STAR_MC(g), z1_STAR_MC(g);
 
         z_STAR_MC.AlignWith( L );
-        Zeros( z_STAR_MC, 1, m );
+        z_STAR_MC.Resize( 1, m );
+        Zero( z_STAR_MC );
 
         Int k=kLast, kOld=m;
         while( true )

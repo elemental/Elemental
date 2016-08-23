@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
                       2013, Jed Brown 
    All rights reserved.
 
@@ -7,7 +7,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_GRID_C_H
 #define EL_GRID_C_H
 
@@ -18,7 +17,7 @@ extern "C" {
 typedef       struct ElGridDummy* ElGrid;
 typedef const struct ElGridDummy* ElConstGrid;
 
-/* const Grid& DefaultGrid() 
+/* const Grid& Grid::Default() 
    ------------------------- */
 EL_EXPORT ElError ElDefaultGrid( ElConstGrid* grid );
 

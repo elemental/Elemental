@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -17,7 +17,7 @@ void Identity
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Identity"))
+    DEBUG_CSE
     const Int height = orders.Height();
     DEBUG_ONLY(
       if( firstInds.Height() != height || 
@@ -25,13 +25,10 @@ void Identity
           LogicError("orders and firstInds should vectors of the same height");
     )
 
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     Zeros( x, height, 1 );
-    Real* xBuf = x.Buffer();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] )
-            xBuf[i] = 1;
+        if( i == firstInds(i) )
+            x(i) = 1;
 }
 
 template<typename Real,typename>
@@ -40,7 +37,7 @@ void Identity
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("soc::Identity"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -82,7 +79,7 @@ void Identity
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Identity"))
+    DEBUG_CSE
 
     const Int height = orders.Height();
     DEBUG_ONLY(
@@ -121,7 +118,11 @@ void Identity
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

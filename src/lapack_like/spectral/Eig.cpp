@@ -1,25 +1,24 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
 namespace eig {
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( Matrix<Real>& A,
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& X ) 
 {
-    DEBUG_ONLY(CSE cse("eig::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     Matrix<Real> Q;
@@ -35,13 +34,12 @@ Helper
 }
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( Matrix<Complex<Real>>& A,
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& X ) 
 {
-    DEBUG_ONLY(CSE cse("eig::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     Schur( A, w, X );
@@ -53,13 +51,12 @@ Helper
 }
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( ElementalMatrix<Real>& APre, 
   ElementalMatrix<Complex<Real>>& w,
   ElementalMatrix<Complex<Real>>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("eig::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProxy( APre );
@@ -81,13 +78,12 @@ Helper
 }
 
 template<typename Real>
-inline void
-Helper
+void Helper
 ( ElementalMatrix<Complex<Real>>& APre, 
   ElementalMatrix<Complex<Real>>& w,
   ElementalMatrix<Complex<Real>>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("eig::Helper"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadProxy<C,C,MC,MR> AProxy( APre );
@@ -106,24 +102,22 @@ Helper
 } // namespace eig
 
 template<typename F>
-inline void
-Eig
+void Eig
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
   Matrix<Complex<Base<F>>>& X ) 
 {
-    DEBUG_ONLY(CSE cse("Eig"))
+    DEBUG_CSE
     eig::Helper( A, w, X );
 }
 
 template<typename F>
-inline void
-Eig
+void Eig
 ( ElementalMatrix<F>& A, 
   ElementalMatrix<Complex<Base<F>>>& w,
   ElementalMatrix<Complex<Base<F>>>& X ) 
 {
-    DEBUG_ONLY(CSE cse("Eig"))
+    DEBUG_CSE
     eig::Helper( A, w, X );
 }
 
@@ -138,6 +132,6 @@ Eig
     ElementalMatrix<Complex<Base<F>>>& X );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

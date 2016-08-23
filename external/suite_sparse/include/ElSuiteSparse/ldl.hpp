@@ -140,12 +140,14 @@ IntType ValidMatrix( IntType n, const IntType* Ap, const IntType* Ai );
 } // namespace ldl
 } // namespace suite_sparse
 
-#define EL_LDL_DATE "Oct 10, 2014"
+#define EL_LDL_DATE "Dec 27, 2015"
 #define EL_LDL_VERSION_CODE(main,sub) ((main) * 1000 + (sub))
 #define EL_LDL_MAIN_VERSION 2
 #define EL_LDL_SUB_VERSION 2
 #define EL_LDL_SUBSUB_VERSION 1
 #define EL_LDL_VERSION EL_LDL_VERSION_CODE( \
  EL_LDL_MAIN_VERSION,EL_LDL_SUB_VERSION)
+
+#include "./ldl/impl.hpp"
 
 #endif // ifndef EL_SUITE_SPARSE_LDL_HPP

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
                       2013, Jed Brown 
    All rights reserved.
 
@@ -7,9 +7,34 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
 
 namespace El {
+
+Grid* Grid::defaultGrid = 0;
+
+void Grid::InitializeDefault()
+{
+    defaultGrid = new Grid( mpi::COMM_WORLD );    
+}
+
+void Grid::FinalizeDefault()
+{
+    delete defaultGrid;
+    defaultGrid = 0;
+}
+
+const Grid& Grid::Default() EL_NO_RELEASE_EXCEPT
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( defaultGrid == 0 )
+          LogicError
+          ("Attempted to return a non-existant default grid. Please ensure "
+           "that Elemental is initialized before creating a DistMatrix.");
+    )
+    return *defaultGrid;
+}
 
 int Grid::FindFactor( int p ) EL_NO_EXCEPT
 {
@@ -22,7 +47,7 @@ int Grid::FindFactor( int p ) EL_NO_EXCEPT
 Grid::Grid( mpi::Comm comm, GridOrder order )
 : haveViewers_(false), order_(order)
 {
-    DEBUG_ONLY(CSE cse("Grid::Grid"))
+    DEBUG_CSE
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::Dup( comm, viewingComm_ );
@@ -40,7 +65,7 @@ Grid::Grid( mpi::Comm comm, GridOrder order )
 Grid::Grid( mpi::Comm comm, int height, GridOrder order )
 : haveViewers_(false), order_(order)
 {
-    DEBUG_ONLY(CSE cse("Grid::Grid"))
+    DEBUG_CSE
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::Dup( comm, viewingComm_ );
@@ -59,7 +84,7 @@ Grid::Grid( mpi::Comm comm, int height, GridOrder order )
 
 void Grid::SetUpGrid()
 {
-    DEBUG_ONLY(CSE cse("Grid::SetUpGrid"))
+    DEBUG_CSE
     if( size_ % height_ != 0 )
         LogicError
         ("Grid height, ",height_,", does not evenly divide grid size, ",size_);
@@ -249,7 +274,7 @@ mpi::Comm Grid::Comm() const EL_NO_EXCEPT
 Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, GridOrder order )
 : haveViewers_(true), order_(order)
 {
-    DEBUG_ONLY(CSE cse("Grid::Grid"))
+    DEBUG_CSE
 
     // Extract our rank and the underlying group from the viewing comm
     mpi::Dup( viewers, viewingComm_ );

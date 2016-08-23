@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_IMPORTS_MKL_HPP
 #define EL_IMPORTS_MKL_HPP
 
@@ -39,11 +38,6 @@ void csrmv
   const BlasInt* pntrb, const BlasInt* pntre,
   const Complex<double>* x, Complex<double> beta, Complex<double>* y );
 
-// NOTE: This is a filler routine not provided by MKL
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt lda, Int* B, BlasInt ldb );
-
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, const float* A, BlasInt lda, float* B, BlasInt ldb );
@@ -57,22 +51,33 @@ void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, const dcomplex* A, BlasInt lda, dcomplex* B, BlasInt ldb );
 
-#ifdef EL_HAVE_QUAD
-// NOTE: These are filler routines not provided by MKL
+// Filler routine not provided by MKL
+template<typename T>
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Quad alpha, const Quad* A, BlasInt lda, Quad* B, BlasInt ldb );
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt lda,
-                             Complex<Quad>* B, BlasInt ldb );
-#endif
-
-// NOTE: This is a filler routine not provided by MKL
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, const Int* A, BlasInt lda, BlasInt stridea,
-                   Int* B, BlasInt ldb, BlasInt strideb );
+  T alpha,
+  const T* A, BlasInt ALDim,
+        T* B, BlasInt BLDim )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i+j*BLDim] = A[i+j*ALDim];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*BLDim] = A[i+j*ALDim];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j+i*BLDim] = Conj(A[i+j*ALDim]);
+    }
+}
 
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -91,22 +96,33 @@ void omatcopy
   dcomplex alpha, const dcomplex* A, BlasInt lda, BlasInt stridea,
                         dcomplex* B, BlasInt ldb, BlasInt strideb );
 
-#ifdef EL_HAVE_QUAD
-// NOTE: These are filler routines not provided by MKL
+// Filler routine not provided by MKL
+template<typename T>
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Quad alpha, const Quad* A, BlasInt lda, BlasInt stridea,
-                    Quad* B, BlasInt ldb, BlasInt strideb );
-void omatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<Quad> alpha, const Complex<Quad>* A, BlasInt lda, BlasInt stridea,
-                             Complex<Quad>* B, BlasInt ldb, BlasInt strideb );
-#endif
-
-// NOTE: This is a filler routine not provided by MKL
-void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Int alpha, Int* A, BlasInt lda, BlasInt ldb );
+  T alpha,
+  const T* A, BlasInt ALDim, BlasInt stridea,
+        T* B, BlasInt BLDim, BlasInt strideb )
+{
+    if( orientation == NORMAL )
+    {
+        for( BlasInt j=0; j<n; ++j )
+            for( BlasInt i=0; i<m; ++i )
+                B[i*strideb+j*BLDim] = A[i*stridea+j*ALDim];
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*BLDim] = A[i*stridea+j*ALDim];
+    }
+    else
+    {
+        for( BlasInt i=0; i<m; ++i )
+            for( BlasInt j=0; j<n; ++j )
+                B[j*strideb+i*BLDim] = Conj(A[i*stridea+j*ALDim]);
+    }
+}
 
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
@@ -121,15 +137,48 @@ void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   dcomplex alpha, dcomplex* A, BlasInt lda, BlasInt ldb );
 
-#ifdef EL_HAVE_QUAD
-// NOTE: These are filler routines not provided by MKL
+// Filler routine not provided by MKL
+template<typename T>
 void imatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
-  Quad alpha, Quad* A, BlasInt lda, BlasInt ldb );
-void imatcopy
-( Orientation orientation, BlasInt m, BlasInt n,
-  Complex<Quad> alpha, Complex<Quad>* A, BlasInt lda, BlasInt ldb );
-#endif
+  T alpha, T* A, BlasInt ALDim, BlasInt BLDim )
+{
+    // TODO
+    LogicError("This routine not yet written");
+}
+
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        float alpha,
+  const float* A, BlasInt ALDim,
+  const float* B, BlasInt BLDim,
+        float beta,
+        float* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        double alpha,
+  const double* A, BlasInt ALDim,
+  const double* B, BlasInt BLDim,
+        double beta,
+        double* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        scomplex alpha,
+  const scomplex* A, BlasInt ALDim,
+  const scomplex* B, BlasInt BLDim,
+        scomplex beta,
+        scomplex* C, BlasInt CLDim );
+void Trrk
+( char uplo, char transA, char transB,
+  BlasInt n, BlasInt k,
+        dcomplex alpha,
+  const dcomplex* A, BlasInt ALDim,
+  const dcomplex* B, BlasInt BLDim,
+        dcomplex beta,
+        dcomplex* C, BlasInt CLDim );
 
 } // namespace mkl
 } // namespace El
