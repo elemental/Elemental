@@ -257,8 +257,7 @@ void DiagonalSolve
     else
     {
         A.InitializeMultMeta();
-        const auto& meta = A.multMeta;
-
+        const auto& meta = A.LockedDistGraph().multMeta;
         // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         vector<F> sendVals;
@@ -308,8 +307,7 @@ void SymmetricDiagonalSolve
     const Int firstLocalRow = d.FirstLocalRow();
 
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
-
+    const auto& meta = A.LockedDistGraph().multMeta;
     // Pack the send values
     const Int numSendInds = meta.sendInds.size();
     vector<Real> sendVals( numSendInds );

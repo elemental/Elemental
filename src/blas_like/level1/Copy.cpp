@@ -71,6 +71,7 @@ void Copy( const DistGraph& A, DistGraph& B )
     // Directly assign instead of queueing up the individual edges
     B.sources_ = A.sources_;
     B.targets_ = A.targets_;
+    B.multMeta = A.multMeta;
     B.locallyConsistent_ = A.locallyConsistent_;
     B.localSourceOffsets_ = A.localSourceOffsets_;
     B.ProcessLocalQueues();

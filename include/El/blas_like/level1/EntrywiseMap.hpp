@@ -160,7 +160,6 @@ void EntrywiseMap
     B.remoteVals_.resize( numRemoteEntries );
     for( Int k=0; k<numRemoteEntries; ++k )
         B.remoteVals_[k] = func(A.remoteVals_[k]);
-    B.multMeta = A.multMeta;
     B.ProcessQueues();
 }
 

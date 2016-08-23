@@ -19,6 +19,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef EL_CORE_DISTSPARSEMATRIX_IMPL_HPP
+#define EL_CORE_DISTSPARSEMATRIX_IMPL_HPP
 
 #include <El/blas_like/level1/Axpy.hpp>
 #include <El/blas_like/level1/Scale.hpp>
@@ -70,7 +72,7 @@ void DistSparseMatrix<T>::Empty( bool freeMemory )
         SwapClear( vals_ );
     else
         vals_.resize( 0 );
-    multMeta.Clear();
+    distGraph_.multMeta.Clear();
 
     SwapClear( remoteVals_ );
 }
@@ -199,7 +201,7 @@ EL_NO_RELEASE_EXCEPT
     {
         distGraph_.QueueLocalConnection( localRow, col );
         vals_.push_back( value );
-        multMeta.ready = false;
+        distGraph_.multMeta.ready = false;
     }
 }
 
@@ -234,7 +236,7 @@ EL_NO_RELEASE_EXCEPT
     else
     {
         distGraph_.QueueLocalDisconnection( localRow, col );
-        multMeta.ready = false;
+        distGraph_.multMeta.ready = false;
     }
 }
 
@@ -404,7 +406,6 @@ DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
     distGraph_ = A.distGraph_;
     vals_ = A.vals_;
     remoteVals_ = A.remoteVals_;
-    multMeta = A.multMeta;
     return *this;
 }
 
@@ -716,97 +717,8 @@ void DistSparseMatrix<T>::AssertLocallyConsistent() const
     if( !LocallyConsistent() )
         LogicError("Distributed sparse matrix must be consistent");
 }
-
 template<typename T>
-DistSparseMultMeta DistSparseMatrix<T>::InitializeMultMeta() const
-{
-    DEBUG_CSE
-    if( multMeta.ready )
-        return multMeta;
-    mpi::Comm comm = Comm();
-    const int commSize = distGraph_.commSize_;
-    auto& meta = multMeta;
- 
-    // Compute the set of row indices that we need from X in a normal
-    // multiply or update of Y in the adjoint case
-    const Int* colBuffer = LockedTargetBuffer();
-    const Int numLocalEntries = NumLocalEntries();
-    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
-    for( Int e=0; e<numLocalEntries; ++e )
-        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
-    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
-    meta.colOffs.resize(numLocalEntries);
-    {
-        Int uniqueOff=-1, lastUnique=-1;
-        for( Int e=0; e<numLocalEntries; ++e )    
-        {
-            if( lastUnique != uniqueCols[e].value )
-            {
-                ++uniqueOff;
-                lastUnique = uniqueCols[e].value;
-                uniqueCols[uniqueOff] = uniqueCols[e];
-            }
-            meta.colOffs[uniqueCols[e].index] = uniqueOff;
-        }
-        uniqueCols.resize( uniqueOff+1 );
-    }
-    const Int numRecvInds = uniqueCols.size();
-    meta.numRecvInds = numRecvInds;
-    vector<Int> recvInds( numRecvInds );
-    meta.recvSizes.clear();
-    meta.recvSizes.resize( commSize, 0 );
-    meta.recvOffs.resize( commSize );
-    Int vecBlocksize = Width() / commSize;
-    if( vecBlocksize*commSize < Width() || Width() == 0 ) 
-        ++vecBlocksize;
-
-    {
-        Int off=0, lastOff=0, qPrev=0;
-        for( ; off<numRecvInds; ++off )
-        {
-            const Int j = uniqueCols[off].value;
-            const int q = j / vecBlocksize;
-            while( qPrev != q )
-            {
-                meta.recvSizes[qPrev] = off - lastOff;
-                meta.recvOffs[qPrev+1] = off;
-
-                lastOff = off;
-                ++qPrev;
-            }
-            recvInds[off] = j;
-        }
-        while( qPrev != commSize-1 )
-        {
-            meta.recvSizes[qPrev] = off - lastOff;
-            meta.recvOffs[qPrev+1] = off;
-            lastOff = off;
-            ++qPrev;
-        }
-        meta.recvSizes[commSize-1] = off - lastOff;
-    }
-
-    // Coordinate
-    meta.sendSizes.resize( commSize );
-    mpi::AllToAll( meta.recvSizes.data(), 1, meta.sendSizes.data(), 1, comm );
-    Int numSendInds=0;
-    meta.sendOffs.resize( commSize );
-    for( int q=0; q<commSize; ++q )
-    {
-        meta.sendOffs[q] = numSendInds;
-        numSendInds += meta.sendSizes[q];
-    }
-    meta.sendInds.resize( numSendInds );
-    mpi::AllToAll
-    ( recvInds.data(),      meta.recvSizes.data(), meta.recvOffs.data(),
-      meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-      comm );
-
-    meta.numRecvInds = numRecvInds;
-    meta.ready = true;
-
-    return meta;
-}
+DistGraphMultMeta DistSparseMatrix<T>::InitializeMultMeta() const {  return distGraph_.InitializeMultMeta();  }
 
 template<typename T>
 void DistSparseMatrix<T>::MappedSources
@@ -908,3 +820,4 @@ bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 #undef EL_EXTERN
 
 } // namespace El
+#endif //EL_CORE_DISTSPARSEMATRIX_IMPL_HPP
