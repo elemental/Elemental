@@ -30,7 +30,8 @@ void TestMultiply(Int m, Int n=1)
     if( nrm > limits::Epsilon<T>()){ RuntimeError("Sparse(I)*x != Graph(I)*x"); }
 }
 
-void RunTests( Int m){
+void RunTests( Int m)
+{
   TestMultiply<double>( m);
   //List all the types here..
 }
@@ -42,7 +43,8 @@ int main( int argc, char* argv[] )
     try
     {
 	Int m = 1;
-	for( Int e = 1; e<4; ++e ){	
+	for( Int e = 1; e<4; ++e )
+	{	
 		m *= 10;	
 		Output(" m = ",m,"\n");
 		RunTests( m);

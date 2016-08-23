@@ -235,7 +235,7 @@ class DistMatrix;
 #include <El/core/Matrix/decl.hpp>
 #include <El/core/Graph/decl.hpp>
 #include <El/core/DistMap/decl.hpp>
-#include <El/core/DistGraph.hpp>
+#include <El/core/DistGraph/decl.hpp>
 #include <El/core/SparseMatrix/decl.hpp>
 #include <El/core/DistSparseMatrix/decl.hpp>
 #include <El/core/DistMultiVec/decl.hpp>

@@ -43,21 +43,8 @@ void MultiplyCSR
     }
     else
     {
-        const bool conj = ( orientation == ADJOINT );
-        for( Int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j ){
             y[j] *= beta;
-        if( conj )
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*x[i];         
-            }
-        }
-        else
-        {
             for( Int i=0; i<m; ++i )
             {
                 const Int eStart = rowOffsets[i];
@@ -65,7 +52,7 @@ void MultiplyCSR
                 for( Int e=eStart; e<eStop; ++e )
                     y[colIndices[e]] += alpha*x[i];         
             }
-        }
+	}
     }
 }
 
@@ -294,36 +281,22 @@ void MultiplyCSR
     }
     else
     {
-        const bool conj = ( orientation == ADJOINT );
         for( Int k=0; k<numRHS; ++k )
+	{
             for( Int j=0; j<n; ++j )
+	    {
                 Y[j+k*ldY] *= beta;
-        if( conj )
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                {
-                    T prod = alpha;
-                    for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
-                }
-            }
-        }
-        else
-        {
-            for( Int i=0; i<m; ++i )
-            {
-                const Int eStart = rowOffsets[i];
-                const Int eStop = rowOffsets[i+1];
-                for( Int e=eStart; e<eStop; ++e )
-                {
-                    T prod = alpha;
-                    for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
-                }
+            	for( Int i=0; i<m; ++i )
+            	{
+            	    const Int eStart = rowOffsets[i];
+            	    const Int eStop = rowOffsets[i+1];
+            	    for( Int e=eStart; e<eStop; ++e )
+            	    {
+            	        for( Int k=0; k<numRHS; ++k ){
+            	            Y[colIndices[e]+k*ldY] += alpha*X[i+k*ldX]; 
+			}	    
+            	    }
+            	}
             }
         }
     }

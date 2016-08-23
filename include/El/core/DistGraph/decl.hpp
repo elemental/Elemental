@@ -176,7 +176,6 @@ public:
     mutable DistGraphMultMeta multMeta;
     DistGraphMultMeta InitializeMultMeta() const;
 
-
     void AssertConsistent() const;
     void AssertLocallyConsistent() const;
 
