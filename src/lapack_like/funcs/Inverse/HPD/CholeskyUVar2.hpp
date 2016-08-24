@@ -16,7 +16,6 @@ namespace hpd_inv {
 // Bientinesi et al.'s "Families of Algorithms Related to the Inversion of 
 // a Symmetric Positive Definite Matrix".
 
-// TODO: Rewrite this routine without partition tracking
 template<typename F> 
 void
 CholeskyUVar2( Matrix<F>& A )
@@ -54,7 +53,6 @@ CholeskyUVar2( Matrix<F>& A )
     }
 }
 
-// TODO: Rewrite this routine without partition tracking
 template<typename F> 
 void
 CholeskyUVar2( ElementalMatrix<F>& APre )

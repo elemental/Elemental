@@ -228,13 +228,58 @@ void TranslateBetweenGrids
     const Int width = A.Width();
     B.Resize( height, width );
 
-    // TODO:Decide whether this condition can be lifted or simplified.
+    // Attempt to distinguish between the owning groups of A and B both being
+    // subsets of the same viewing communicator, the owning group of A being
+    // the same as the viewing communicator of B (A is the *parent* of B),
+    // and the viewing communicator of A being the owning communicator of B
+    // (B is the *parent* of A).
+    //
+    // TODO(poulson): Decide whether these condition can be simplified.
+    mpi::Comm commA = A.Grid().VCComm();
+    mpi::Comm commB = B.Grid().VCComm();
     mpi::Comm viewingCommA = A.Grid().ViewingComm();
     mpi::Comm viewingCommB = B.Grid().ViewingComm();
-    if( !mpi::Congruent( viewingCommA, viewingCommB ) )
-        LogicError
-        ("Redistributing between nonmatching grids currently requires"
-         " the viewing communicators to match.");
+    const int commSizeA = mpi::Size(commA);
+    const int commSizeB = mpi::Size(commB);
+    const int viewingCommSizeA = mpi::Size(viewingCommA);
+    const int viewingCommSizeB = mpi::Size(viewingCommB);
+    bool usingViewingA=false, usingViewingB=false;
+    mpi::Comm activeCommA, activeCommB;
+    if( viewingCommSizeA == viewingCommSizeB )
+    {
+        usingViewingA = true;
+        usingViewingB = true;
+        activeCommA = viewingCommA;
+        activeCommB = viewingCommB;
+        if( !mpi::Congruent( viewingCommA, viewingCommB ) )
+            LogicError("Viewing communicators were not congruent");
+    }
+    else if( viewingCommSizeA == commSizeB )
+    {
+        usingViewingA = true;
+        usingViewingB = false;
+        activeCommA = viewingCommA;
+        activeCommB = commB;
+        if( !mpi::Congruent( viewingCommA, commB ) )
+            LogicError("Communicators were not congruent");
+    }
+    else if( commSizeA == viewingCommSizeB )
+    {
+        usingViewingA = false;
+        usingViewingB = true;
+        activeCommA = commA;
+        activeCommB = viewingCommB;
+        if( !mpi::Congruent( commA, viewingCommB ) )
+            LogicError("Communicators were not congruent");
+    }
+    else
+    {
+        usingViewingA = false;
+        usingViewingB = false;
+        activeCommA = commA;
+        activeCommB = commB;
+        LogicError("Unsupported TranslateBetweenGrids instance");
+    }
 
     const Int rankA = A.RedundantRank();
     const Int rankB = B.RedundantRank();
@@ -261,11 +306,10 @@ void TranslateBetweenGrids
         ( height, width,
           A.LockedBuffer(), 1, A.LDim(),
           sendBuf,          1, height );
-        // TODO: Use mpi::Translate instead?
-        const Int recvViewingRank = B.Grid().VCToViewing(0);
+        // TODO(poulson): Use mpi::Translate instead?
+        const Int recvRank = ( usingViewingB ? B.Grid().VCToViewing(0) : 0 );
         mpi::ISend
-        ( sendBuf, height*width, recvViewingRank,
-          viewingCommB, sendRequest );
+        ( sendBuf, height*width, recvRank, activeCommB, sendRequest );
     }
 
     // Receive on the root of B's matrix's grid and then broadcast
@@ -274,11 +318,10 @@ void TranslateBetweenGrids
     {
         if( rankB == 0 ) 
         {
-            // TODO: Use mpi::Translate instead?
-            const Int sendViewingRank = A.Grid().VCToViewing(0);
-            mpi::Recv
-            ( bcastBuffer, height*width, sendViewingRank,
-              viewingCommB );
+            // TODO(poulson): Use mpi::Translate instead?
+            const Int sendRank =
+              ( usingViewingA ? A.Grid().VCToViewing(0) : 0 );
+            mpi::Recv( bcastBuffer, height*width, sendRank, activeCommB );
         }
 
         mpi::Broadcast( bcastBuffer, height*width, 0, B.RedundantComm() );
