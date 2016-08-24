@@ -1663,7 +1663,7 @@ void Mehrotra
     }
     regTmp *= origTwoNormEst;
 
-    DistSparseMultMeta metaOrig, meta;
+    DistGraphMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm), 
@@ -1782,7 +1782,7 @@ void Mehrotra
                 if( numIts == 0 )
                     metaOrig = JOrig.InitializeMultMeta();
                 else
-                    JOrig.multMeta = metaOrig;
+                    JOrig.LockedDistGraph().multMeta = metaOrig;
                 J = JOrig;
 
                 UpdateDiagonal( J, Real(1), regTmp );
@@ -1805,7 +1805,7 @@ void Mehrotra
                     InvertMap( map, invMap );
                 }
                 else
-                    J.multMeta = meta;
+                    J.LockedDistGraph().multMeta = meta;
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
@@ -1896,7 +1896,7 @@ void Mehrotra
                     InvertMap( map, invMap );
                 }
                 else
-                    J.multMeta = meta;
+                    J.LockedDistGraph().multMeta = meta;
                 JFront.Pull
                 ( J, map, rootSep, info, 
                   mappedSources, mappedTargets, colOffs );

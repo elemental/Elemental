@@ -162,6 +162,12 @@ void Multiply
 template<typename T>
 void Multiply
 ( Orientation orientation,
+  T alpha, const Graph& A, const Matrix<T>& X,
+  T beta,                        Matrix<T>& Y );
+
+template<typename T>
+void Multiply
+( Orientation orientation,
   T alpha,
   const DistSparseMatrix<T>& A,
   const DistMultiVec<T>& X,

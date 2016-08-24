@@ -664,6 +664,95 @@ void DistGraph::AssertLocallyConsistent() const
     if( !locallyConsistent_ )
         LogicError("DistGraph was not consistent");
 }
+DistGraphMultMeta DistGraph::InitializeMultMeta() const
+{
+    DEBUG_ONLY(CSE cse("DistSparseMatrix::InitializeMultMeta"))
+    if( multMeta.ready )
+        return multMeta;
+    mpi::Comm comm = Comm();
+    const int commSize = commSize_;
+    auto& meta = multMeta;
+
+    // Compute the set of row indices that we need from X in a normal
+    // multiply or update of Y in the adjoint case
+    const Int* colBuffer = LockedTargetBuffer();
+    const Int numLocalEntries = NumLocalEdges();
+    vector<ValueInt<Int>> uniqueCols(numLocalEntries);
+    for( Int e=0; e<numLocalEntries; ++e )
+        uniqueCols[e] = ValueInt<Int>{colBuffer[e],e};
+    std::sort( uniqueCols.begin(), uniqueCols.end(), ValueInt<Int>::Lesser );
+    meta.colOffs.resize(numLocalEntries);
+    {
+        Int uniqueOff=-1, lastUnique=-1;
+        for( Int e=0; e<numLocalEntries; ++e )
+        {
+            if( lastUnique != uniqueCols[e].value )
+            {
+                ++uniqueOff;
+                lastUnique = uniqueCols[e].value;
+                uniqueCols[uniqueOff] = uniqueCols[e];
+            }
+            meta.colOffs[uniqueCols[e].index] = uniqueOff;
+        }
+        uniqueCols.resize( uniqueOff+1 );
+    }
+    const Int numRecvInds = uniqueCols.size();
+    meta.numRecvInds = numRecvInds;
+    vector<Int> recvInds( numRecvInds );
+    meta.recvSizes.clear();
+    meta.recvSizes.resize( commSize, 0 );
+    meta.recvOffs.resize( commSize );
+    Int vecBlocksize = NumTargets() / commSize;
+    if( vecBlocksize*commSize < NumTargets() || NumTargets() == 0 )
+        ++vecBlocksize;
+
+    {
+        Int off=0, lastOff=0, qPrev=0;
+        for( ; off<numRecvInds; ++off )
+        {
+            const Int j = uniqueCols[off].value;
+            const int q = j / vecBlocksize;
+            while( qPrev != q )
+            {
+                meta.recvSizes[qPrev] = off - lastOff;
+                meta.recvOffs[qPrev+1] = off;
+
+                lastOff = off;
+                ++qPrev;
+            }
+            recvInds[off] = j;
+        }
+        while( qPrev != commSize-1 )
+        {
+            meta.recvSizes[qPrev] = off - lastOff;
+            meta.recvOffs[qPrev+1] = off;
+            lastOff = off;
+            ++qPrev;
+        }
+        meta.recvSizes[commSize-1] = off - lastOff;
+    }
+
+    // Coordinate
+    meta.sendSizes.resize( commSize );
+    mpi::AllToAll( meta.recvSizes.data(), 1, meta.sendSizes.data(), 1, comm );
+    Int numSendInds=0;
+    meta.sendOffs.resize( commSize );
+    for( int q=0; q<commSize; ++q )
+    {
+        meta.sendOffs[q] = numSendInds;
+        numSendInds += meta.sendSizes[q];
+    }
+    meta.sendInds.resize( numSendInds );
+    mpi::AllToAll
+    ( recvInds.data(),      meta.recvSizes.data(), meta.recvOffs.data(),
+      meta.sendInds.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+      comm );
+
+    meta.numRecvInds = numRecvInds;
+    meta.ready = true;
+
+    return meta;
+}
 
 void DistGraph::ComputeSourceOffsets()
 {

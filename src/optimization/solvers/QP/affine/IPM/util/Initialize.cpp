@@ -505,13 +505,13 @@ void Initialize
     DistSparseMatrix<Real> JOrig(comm);
     JOrig = JStatic;
     JOrig.FreezeSparsity();
-    JOrig.multMeta = JStatic.multMeta;
+    JOrig.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
     DistMultiVec<Real> ones(comm);
     Ones( ones, k, 1 );
     FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
     J.FreezeSparsity();
-    J.multMeta = JStatic.multMeta;
+    J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
     UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
     // (Approximately) factor the KKT matrix

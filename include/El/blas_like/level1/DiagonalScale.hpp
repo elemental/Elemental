@@ -231,8 +231,7 @@ void DiagonalScale
               LogicError("The size of d must match the width of A");
         )
         A.InitializeMultMeta();
-        const auto& meta = A.multMeta;
-
+        const auto& meta = A.LockedDistGraph().multMeta;
         // Pack the send values 
         const Int numSendInds = meta.sendInds.size();
         vector<T> sendVals;

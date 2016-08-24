@@ -191,8 +191,7 @@ void ColumnTwoNorms
     norms.Resize( A.Width(), 1 );
     Zero( norms );
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
-
+    const auto& meta = A.LockedDistGraph().multMeta;
     // Pack the send values 
     // --------------------
     vector<Real> sendScales( meta.numRecvInds, 0 ),
@@ -263,7 +262,7 @@ void ColumnMaxNorms
     norms.Resize( A.Width(), 1 );
     Zero( norms );
     A.InitializeMultMeta();
-    const auto& meta = A.multMeta;
+    const auto& meta = A.LockedDistGraph().multMeta;
 
     // Pack the send values 
     // --------------------
