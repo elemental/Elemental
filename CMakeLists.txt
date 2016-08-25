@@ -618,7 +618,7 @@ if(EL_TESTS)
       if(NOT NO_BINARY_SUBDIRECTORIES)
       	set(TEST_INSTALL_DIR test/${TYPE})
       endif()
-      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR})
+      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR} RENAME tests-${TYPE}-${TESTNAME})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME} 
           WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME})
@@ -665,7 +665,7 @@ if(EL_EXAMPLES)
       	set(EXAMPLE_INSTALL_DIR examples/${TYPE})
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
-	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR})
+	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR} RENAME examples-${TYPE}-${EXNAME})
       add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
         COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
