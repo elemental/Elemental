@@ -607,18 +607,20 @@ if(EL_TESTS)
       set_source_files_properties("${DRIVER}" PROPERTIES
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(tests-${TYPE}-${TESTNAME} El)
+      set(TEST_OUTPUT_NAME ${TESTNAME})
+      if(NOT NO_BINARY_SUBDIRECTORIES)
+      	set(TEST_INSTALL_DIR test/${TYPE})
+	set(TEST_OUTPUT_NAME tests-${TYPE}-${TESTNAME})
+      endif()
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
-        OUTPUT_NAME ${TESTNAME}
+	OUTPUT_NAME ${TEST_OUTPUT_NAME}
         SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
         RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
         set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
-      if(NOT NO_BINARY_SUBDIRECTORIES)
-      	set(TEST_INSTALL_DIR test/${TYPE})
-      endif()
-      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR} RENAME tests-${TYPE}-${TESTNAME})
+      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME} 
           WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME})
@@ -653,8 +655,13 @@ if(EL_EXAMPLES)
       set_source_files_properties("${DRIVER}" PROPERTIES
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(examples-${TYPE}-${EXNAME} El)
+      set(EXAMPLE_OUTPUT_NAME ${EXNAME})
+      if(NOT NO_BINARY_SUBDIRECTORIES)
+      	set(EXAMPLE_INSTALL_DIR examples/${TYPE})
+	set(EXAMPLE_OUTPUT_NAME examples-${TYPE}-${EXNAME})
+      endif()
       set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
-        OUTPUT_NAME ${EXNAME}
+	OUTPUT_NAME ${EXAMPLE_OUTPUT_NAME}
         SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
         RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
@@ -665,7 +672,7 @@ if(EL_EXAMPLES)
       	set(EXAMPLE_INSTALL_DIR examples/${TYPE})
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
-	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR} RENAME examples-${TYPE}-${EXNAME})
+	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR})
       add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
         COMMAND examples-${TYPE}-${EXNAME})
     endforeach()
