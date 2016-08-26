@@ -45,9 +45,9 @@ namespace El {
             const Int ALDim = A.LDim();
             for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                    value = Max(value,ABuf[iLoc+jLoc*ALDim]);
+                    value = Max(std::abs(value),ABuf[iLoc+jLoc*ALDim]);
 
-            value = mpi::AllReduce( std::abs(value), mpi::MAX, A.DistComm() );
+            value = mpi::AllReduce( value, mpi::MAX, A.DistComm() );
         }
         mpi::Broadcast( value, A.Root(), A.CrossComm() );
         return value;
