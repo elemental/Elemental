@@ -11,46 +11,58 @@
 
 namespace El {
 
-    template<typename Real,typename>
-    Real MaxAbs( const Matrix<Real>& A )
+template<typename Real>
+Base<Real> MaxAbs( const Matrix<Real>& A )
+{
+    DEBUG_CSE
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    Real value = 0;
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
+            value = Max(abs(value),ABuf[i+j*ALDim]);
+    return value;
+}
+
+template<typename Real>
+Base<Real> MaxAbs( const AbstractDistMatrix<Real>& A )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( !A.Grid().InGrid() )
+          LogicError("Viewing processes are not allowed");
+    )
+    Real value = 0;
+    if( A.Participating() )
     {
-        DEBUG_CSE
-        const Int m = A.Height();
-        const Int n = A.Width();
+        // Store the index/value of the local pivot candidate
+        const Int mLocal = A.LocalHeight();
+        const Int nLocal = A.LocalWidth();
         const Real* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+                value = Max(abs(value),ABuf[iLoc+jLoc*ALDim]);
 
-        Real value = 0;
-        for( Int j=0; j<n; ++j )
-            for( Int i=0; i<m; ++i )
-                value = Max(std::abs(value),ABuf[i+j*ALDim]);
-        return value;
+        value = mpi::AllReduce( value, mpi::MAX, A.DistComm() );
     }
-
-    template<typename Real,typename>
-    Real MaxAbs( const AbstractDistMatrix<Real>& A )
-    {
-        DEBUG_CSE
-        DEBUG_ONLY(
-          if( !A.Grid().InGrid() )
-              LogicError("Viewing processes are not allowed");
-        )
-        Real value = 0;
-        if( A.Participating() )
-        {
-            // Store the index/value of the local pivot candidate
-            const Int mLocal = A.LocalHeight();
-            const Int nLocal = A.LocalWidth();
-            const Real* ABuf = A.LockedBuffer();
-            const Int ALDim = A.LDim();
-            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-                for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                    value = Max(std::abs(value),ABuf[iLoc+jLoc*ALDim]);
-
-            value = mpi::AllReduce( value, mpi::MAX, A.DistComm() );
-        }
-        mpi::Broadcast( value, A.Root(), A.CrossComm() );
-        return value;
-    }
-
+    mpi::Broadcast( value, A.Root(), A.CrossComm() );
+    return value;
 }
+
+#define PROTO(Real) \
+  template Base<Real> MaxAbs( const Matrix<Real>& x ); \
+  template Base<Real> MaxAbs( const AbstractDistMatrix<Real>& x ); \
+
+#define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
+
+} // namespace El
