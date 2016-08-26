@@ -609,9 +609,9 @@ if(EL_TESTS)
       target_link_libraries(tests-${TYPE}-${TESTNAME} El)
       if(NOT NO_BINARY_SUBDIRECTORIES)
       	set(TEST_INSTALL_DIR test/${TYPE})
-	set(TEST_OUTPUT_NAME tests-${TYPE}-${TESTNAME})
-      else()
         set(TEST_OUTPUT_NAME ${TESTNAME})
+      else()
+	set(TEST_OUTPUT_NAME tests-${TYPE}-${TESTNAME})
       endif()
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
 	OUTPUT_NAME ${TEST_OUTPUT_NAME}
@@ -658,9 +658,9 @@ if(EL_EXAMPLES)
       target_link_libraries(examples-${TYPE}-${EXNAME} El)
       if(NOT NO_BINARY_SUBDIRECTORIES)
       	set(EXAMPLE_INSTALL_DIR examples/${TYPE})
-	set(EXAMPLE_OUTPUT_NAME examples-${TYPE}-${EXNAME})
-      else()
         set(EXAMPLE_OUTPUT_NAME ${EXNAME})
+      else()
+	set(EXAMPLE_OUTPUT_NAME examples-${TYPE}-${EXNAME})
       endif()
       set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
 	OUTPUT_NAME ${EXAMPLE_OUTPUT_NAME}
