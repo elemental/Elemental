@@ -23,7 +23,7 @@ Base<Real> MaxAbs( const Matrix<Real>& A )
     Real value = 0;
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            value = Max(abs(value),ABuf[i+j*ALDim]);
+            value = Max(value,abs(ABuf[i+j*ALDim]));
     return value;
 }
 
@@ -45,8 +45,80 @@ Base<Real> MaxAbs( const AbstractDistMatrix<Real>& A )
         const Int ALDim = A.LDim();
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                value = Max(abs(value),ABuf[iLoc+jLoc*ALDim]);
+                value = Max(value,abs(ABuf[iLoc+jLoc*ALDim]));
 
+        value = mpi::AllReduce( value, mpi::MAX, A.DistComm() );
+    }
+    mpi::Broadcast( value, A.Root(), A.CrossComm() );
+    return value;
+}
+
+template<typename Real>
+Base<Real> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<Real>& A )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+    )
+    const Int n = A.Width();
+    const Real* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    Real value = 0;
+    if( uplo == LOWER )
+    {
+        for( Int j=0; j<n; ++j )
+            for( Int i=j; i<n; ++i )
+                value = Max(value,abs(ABuf[i+j*ALDim]));
+    }
+    else
+    {
+        for( Int j=0; j<n; ++j )
+            for( Int i=0; i<=j; ++i )
+                value = Max(value,abs(ABuf[i+j*ALDim]));
+    }
+    return value;
+}
+
+template<typename Real>
+Base<Real> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( A.Height() != A.Width() )
+          LogicError("A must be square");
+      if( !A.Grid().InGrid() )
+          LogicError("Viewing processes are not allowed");
+    )
+
+    Real value = 0;
+    if( A.Participating() )
+    {
+        const Int mLocal = A.LocalHeight();
+        const Int nLocal = A.LocalWidth();
+        const Real* ABuf = A.LockedBuffer();
+        const Int ALDim = A.LDim();
+        if( uplo == LOWER )
+        {
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            {
+                const Int j = A.GlobalCol(jLoc);
+                const Int mLocBefore = A.LocalRowOffset(j);
+                for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
+                    value = Max(value,abs(ABuf[iLoc+jLoc*ALDim]));
+            }
+        }
+        else
+        {
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            {
+                const Int j = A.GlobalCol(jLoc);
+                const Int mLocBefore = A.LocalRowOffset(j+1);
+                for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
+                    value = Max(value,abs(ABuf[iLoc+jLoc*ALDim]));
+            }
+        }
         value = mpi::AllReduce( value, mpi::MAX, A.DistComm() );
     }
     mpi::Broadcast( value, A.Root(), A.CrossComm() );
@@ -56,6 +128,8 @@ Base<Real> MaxAbs( const AbstractDistMatrix<Real>& A )
 #define PROTO(Real) \
   template Base<Real> MaxAbs( const Matrix<Real>& x ); \
   template Base<Real> MaxAbs( const AbstractDistMatrix<Real>& x ); \
+  template Base<Real> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<Real>& x ); \
+  template Base<Real> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<Real>& x );
 
 #define EL_NO_COMPLEX_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

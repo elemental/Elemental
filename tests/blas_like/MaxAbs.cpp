@@ -10,7 +10,6 @@
 #include <cassert>
 using namespace El;
 
-// template<typename Real, typename matrix<Real>>
 template<typename Real, typename TestMatrix>
 void TestMaxAbs(Int m, Int n=1)
 {
@@ -20,10 +19,45 @@ void TestMaxAbs(Int m, Int n=1)
     assert( MaxAbs( A ) == Real(0) );
     Ones( A, m, m);
     assert( MaxAbs( A ) == Real(1) );
+    Scale( Real(5), A );
+    assert( MaxAbs( A ) == Real(5) );
+    Scale( Real(-5), A );
+    assert( MaxAbs( A ) == Real(25) );
     MinIJ( A, m );
     assert( MaxAbs( A ) == Real(m) );
     OneTwoOne( A, m );
     assert( MaxAbs( A ) == Real(2) );
+}
+
+template<typename Real, typename TestMatrix>
+void TestSymmetricMaxAbs(Int m, Int n=1)
+{
+    DEBUG_ONLY(CallStackEntry cse("TestSymmetricMaxAbs"))
+    TestMatrix A;
+    Zeros( A, m, m);
+    assert( SymmetricMaxAbs( UpperOrLower::LOWER, A ) == Real(0) );
+    Ones( A, m, m);
+    assert( SymmetricMaxAbs( UpperOrLower::LOWER, A ) == Real(1) );
+    Scale( Real(5), A );
+    assert( SymmetricMaxAbs( UpperOrLower::LOWER, A ) == Real(5) );
+    Scale( Real(-5), A );
+    assert( SymmetricMaxAbs( UpperOrLower::LOWER, A ) == Real(25) );
+    MinIJ( A, m );
+    assert( SymmetricMaxAbs( UpperOrLower::LOWER, A ) == Real(m) );
+    OneTwoOne( A, m );
+    assert( SymmetricMaxAbs( UpperOrLower::LOWER, A ) == Real(2) );
+    Zeros( A, m, m);
+    assert( SymmetricMaxAbs( UpperOrLower::UPPER, A ) == Real(0) );
+    Ones( A, m, m);
+    assert( SymmetricMaxAbs( UpperOrLower::UPPER, A ) == Real(1) );
+    Scale( Real(5), A );
+    assert( SymmetricMaxAbs( UpperOrLower::UPPER, A ) == Real(5) );
+    Scale( Real(-5), A );
+    assert( SymmetricMaxAbs( UpperOrLower::UPPER, A ) == Real(25) );
+    MinIJ( A, m );
+    assert( SymmetricMaxAbs( UpperOrLower::UPPER, A ) == Real(m) );
+    OneTwoOne( A, m );
+    assert( SymmetricMaxAbs( UpperOrLower::UPPER, A ) == Real(2) );
 }
 
 void RunTests( Int m)
@@ -32,6 +66,11 @@ void RunTests( Int m)
   TestMaxAbs<float,DistMatrix<float>>( m );
   TestMaxAbs<double,Matrix<double>>( m );
   TestMaxAbs<float,Matrix<float>>( m );
+
+  TestSymmetricMaxAbs<double,DistMatrix<double>>( m );
+  TestSymmetricMaxAbs<float,DistMatrix<float>>( m );
+  TestSymmetricMaxAbs<double,Matrix<double>>( m );
+  TestSymmetricMaxAbs<float,Matrix<float>>( m );
 }
 
 int main( int argc, char* argv[] )
