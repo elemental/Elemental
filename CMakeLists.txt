@@ -421,6 +421,9 @@ endif()
 add_subdirectory(external/suite_sparse)
 include_directories(external/suite_sparse/include)
 
+# Unit Testing Framework
+include_directories(external/catch)
+
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
 include(CreateElVars)
