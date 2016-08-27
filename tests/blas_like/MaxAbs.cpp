@@ -11,7 +11,7 @@
 using namespace El;
 
 template<typename Real, typename TestMatrix>
-void TestMaxAbs(Int m, Int n=1)
+void TestMaxAbs( Int m )
 {
     DEBUG_ONLY(CallStackEntry cse("TestMaxAbs"))
     TestMatrix A;
@@ -29,8 +29,19 @@ void TestMaxAbs(Int m, Int n=1)
     assert( MaxAbs( A ) == Real(2) );
 }
 
+template<typename F, typename TestMatrix>
+void TestComplexMaxAbs( Int m )
+{
+    DEBUG_ONLY(CallStackEntry cse("TestComplexMaxAbs"))
+    TestMatrix A;
+    Ones( A, m, m );
+    assert( ( MaxAbs( A ) - Base<F>( 2.828427125 ) ) < Base<F>(1e-8) );
+    Scale( Base<F>( -1 ), A );
+    assert( ( MaxAbs( A ) - Base<F>( 2.828427125 ) ) < Base<F>(1e-8) );
+}
+
 template<typename Real, typename TestMatrix>
-void TestSymmetricMaxAbs(Int m, Int n=1)
+void TestSymmetricMaxAbs( Int m )
 {
     DEBUG_ONLY(CallStackEntry cse("TestSymmetricMaxAbs"))
     TestMatrix A;
@@ -66,6 +77,11 @@ void RunTests( Int m)
     TestMaxAbs<float,DistMatrix<float>>( m );
     TestMaxAbs<double,Matrix<double>>( m );
     TestMaxAbs<float,Matrix<float>>( m );
+
+    TestComplexMaxAbs<Complex<double>, DistMatrix<Complex<double>>>( m );
+    TestComplexMaxAbs<Complex<double>, Matrix<Complex<double>>>( m );
+    TestComplexMaxAbs<Complex<float>, DistMatrix<Complex<float>>>( m );
+    TestComplexMaxAbs<Complex<float>, Matrix<Complex<float>>>( m );
 
     TestSymmetricMaxAbs<double,DistMatrix<double>>( m );
     TestSymmetricMaxAbs<float,DistMatrix<float>>( m );
