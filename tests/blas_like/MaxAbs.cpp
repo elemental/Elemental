@@ -62,15 +62,15 @@ void TestSymmetricMaxAbs(Int m, Int n=1)
 
 void RunTests( Int m)
 {
-  TestMaxAbs<double,DistMatrix<double>>( m );
-  TestMaxAbs<float,DistMatrix<float>>( m );
-  TestMaxAbs<double,Matrix<double>>( m );
-  TestMaxAbs<float,Matrix<float>>( m );
+    TestMaxAbs<double,DistMatrix<double>>( m );
+    TestMaxAbs<float,DistMatrix<float>>( m );
+    TestMaxAbs<double,Matrix<double>>( m );
+    TestMaxAbs<float,Matrix<float>>( m );
 
-  TestSymmetricMaxAbs<double,DistMatrix<double>>( m );
-  TestSymmetricMaxAbs<float,DistMatrix<float>>( m );
-  TestSymmetricMaxAbs<double,Matrix<double>>( m );
-  TestSymmetricMaxAbs<float,Matrix<float>>( m );
+    TestSymmetricMaxAbs<double,DistMatrix<double>>( m );
+    TestSymmetricMaxAbs<float,DistMatrix<float>>( m );
+    TestSymmetricMaxAbs<double,Matrix<double>>( m );
+    TestSymmetricMaxAbs<float,Matrix<float>>( m );
 }
 
 int main( int argc, char* argv[] )
@@ -79,13 +79,13 @@ int main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     try
     {
-	Int m = 1;
-	for( Int e = 1; e<4; ++e )
-	{
-		m *= 10;
-		Output(" m = ",m,"\n");
-		RunTests( m);
-	}
+	    Int m = 1;
+	    for( Int e = 1; e<4; ++e )
+	    {
+		    m *= 10;
+		    Output(" m = ",m,"\n");
+		    RunTests( m);
+	    }
     }
     catch( exception& e ) { ReportException(e); }
     return 0;
