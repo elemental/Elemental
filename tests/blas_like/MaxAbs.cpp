@@ -79,13 +79,13 @@ int main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     try
     {
-	    Int m = 1;
-	    for( Int e = 1; e<4; ++e )
-	    {
-		    m *= 10;
-		    Output(" m = ",m,"\n");
-		    RunTests( m);
-	    }
+        Int m = 1;
+        for( Int e = 1; e<4; ++e )
+        {
+            m *= 10;
+            Output(" m = ",m,"\n");
+            RunTests( m);
+        }
     }
     catch( exception& e ) { ReportException(e); }
     return 0;
