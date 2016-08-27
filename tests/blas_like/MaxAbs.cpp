@@ -84,7 +84,7 @@ int main( int argc, char* argv[] )
         {
             m *= 10;
             Output(" m = ",m,"\n");
-            RunTests( m);
+            RunTests( m );
         }
     }
     catch( exception& e ) { ReportException(e); }
