@@ -13,7 +13,10 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-void LUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
+void LUnb
+( Matrix<F>& A,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -22,10 +25,10 @@ void LUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int phasePHeight = m;
-    const Int phaseQHeight = Max(m-1,0);
-    phaseP.Resize( phasePHeight, 1 );
-    phaseQ.Resize( phaseQHeight, 1 );
+    const Int householderScalarsPHeight = m;
+    const Int householderScalarsQHeight = Max(m-1,0);
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
 
     // Views
     Matrix<F> alpha21T, a21B;
@@ -46,7 +49,7 @@ void LUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
         //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
         //                  \          | v^T |                /
         const F tauP = RightReflector( alpha11, a12 );
-        phaseP(k) = tauP;
+        householderScalarsP(k) = tauP;
 
         // Temporarily set a1R = | 1 v |
         const F epsilonP = alpha11(0);
@@ -75,7 +78,7 @@ void LUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
             //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilonQ |
             //  \          | u |            / | a21B     | = |    0     |
             const F tauQ = LeftReflector( alpha21T, a21B );
-            phaseQ(k) = tauQ;
+            householderScalarsQ(k) = tauQ;
 
             // Temporarily set a21 = | 1 |
             //                       | u |
@@ -102,12 +105,12 @@ void LUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
 template<typename F> 
 void LUnb
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& phasePPre,
-  ElementalMatrix<F>& phaseQPre )
+  ElementalMatrix<F>& householderScalarsPPre,
+  ElementalMatrix<F>& householderScalarsQPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      AssertSameGrids( APre, phasePPre, phaseQPre );
+      AssertSameGrids( APre, householderScalarsPPre, householderScalarsQPre );
       if( APre.Height() > APre.Width() )
           LogicError("A must be at least as wide as it is tall");
     )
@@ -115,19 +118,19 @@ void LUnb
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      phasePProx( phasePPre ),
-      phaseQProx( phaseQPre );
+      householderScalarsPProx( householderScalarsPPre ),
+      householderScalarsQProx( householderScalarsQPre );
     auto& A = AProx.Get();
-    auto& phaseP = phasePProx.Get();
-    auto& phaseQ = phaseQProx.Get();
+    auto& householderScalarsP = householderScalarsPProx.Get();
+    auto& householderScalarsQ = householderScalarsQProx.Get();
 
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int phasePHeight = m;
-    const Int phaseQHeight = Max(m-1,0);
-    phaseP.Resize( phasePHeight, 1 );
-    phaseQ.Resize( phaseQHeight, 1 );
+    const Int householderScalarsPHeight = m;
+    const Int householderScalarsQHeight = Max(m-1,0);
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
 
     DistMatrix<F,MC,  STAR> a21_MC_STAR(g);
     DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);
@@ -147,7 +150,7 @@ void LUnb
         //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
         //                  \          | v^T |                /
         const F tauP = RightReflector( alpha11, a12 );
-        phaseP.Set(k,0,tauP);
+        householderScalarsP.Set(k,0,tauP);
 
         // Temporarily set a1R = | 1 v |
         F epsilonP=0;
@@ -185,7 +188,7 @@ void LUnb
             //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilonQ |
             //  \          | u |            / | a21B     | = |    0     |
             const F tauQ = LeftReflector( alpha21T, a21B );
-            phaseQ.Set(k,0,tauQ);
+            householderScalarsQ.Set(k,0,tauQ);
 
             // Temporarily set a21 = | 1 |
             //                       | u |

@@ -35,14 +35,14 @@ void Skeleton
 
     // Find the row permutation
     Matrix<F> B(AAdj);
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
-    QR( B, phase, signature, PR, ctrl );
-    const Int numSteps = phase.Height();
+    QR( B, householderScalars, signature, PR, ctrl );
+    const Int numSteps = householderScalars.Height();
     B.Resize( B.Height(), numSteps );
     // Form K' := (A pinv(AR))' = pinv(AR') A'
     Matrix<F> KAdj;
-    qr::SolveAfter( NORMAL, B, phase, signature, AAdj, KAdj );
+    qr::SolveAfter( NORMAL, B, householderScalars, signature, AAdj, KAdj );
     // Form K := (K')'
     Matrix<F> K;
     Adjoint( KAdj, K );
@@ -53,10 +53,10 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, phase, signature, PC, secondCtrl );
+    QR( B, householderScalars, signature, PC, secondCtrl );
     // Form Z := pinv(AC) K = pinv(AC) (A pinv(AR))
     B.Resize( B.Height(), numSteps );
-    qr::SolveAfter( NORMAL, B, phase, signature, K, Z );
+    qr::SolveAfter( NORMAL, B, householderScalars, signature, K, Z );
 }
 
 template<typename F> 
@@ -77,14 +77,14 @@ void Skeleton
 
     // Find the row permutation
     DistMatrix<F> B(AAdj);
-    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
     DistMatrix<Base<F>,MD,STAR> signature(g);
-    QR( B, phase, signature, PR, ctrl );
-    const Int numSteps = phase.Height();
+    QR( B, householderScalars, signature, PR, ctrl );
+    const Int numSteps = householderScalars.Height();
     B.Resize( B.Height(), numSteps );
     // Form K' := (A pinv(AR))' = pinv(AR') A'
     DistMatrix<F> KAdj(g);
-    qr::SolveAfter( NORMAL, B, phase, signature, AAdj, KAdj );
+    qr::SolveAfter( NORMAL, B, householderScalars, signature, AAdj, KAdj );
     // Form K := (K')'
     DistMatrix<F> K(g);
     Adjoint( KAdj, K );
@@ -95,10 +95,10 @@ void Skeleton
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
-    QR( B, phase, signature, PC, secondCtrl );
+    QR( B, householderScalars, signature, PC, secondCtrl );
     // Form Z := pinv(AC) K = pinv(AC) (A pinv(AR))
     B.Resize( B.Height(), numSteps );
-    qr::SolveAfter( NORMAL, B, phase, signature, K, Z );
+    qr::SolveAfter( NORMAL, B, householderScalars, signature, K, Z );
 }
 
 #define PROTO(F) \

@@ -16,28 +16,28 @@ template<typename F>
 void FormQ
 ( UpperOrLower uplo,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& Q )
 {
     DEBUG_CSE
     // TODO: Make this smarter
     const Int n = A.Height();
     Identity( Q, n, n );
-    ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+    ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
 }
 
 template<typename F>
 void FormQ
 ( UpperOrLower uplo,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
+  const ElementalMatrix<F>& householderScalars, 
         ElementalMatrix<F>& Q )
 {
     DEBUG_CSE
     // TODO: Make this smarter
     const Int n = A.Height();
     Identity( Q, n, n );
-    ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+    ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
 }
 
 } // namespace hessenberg

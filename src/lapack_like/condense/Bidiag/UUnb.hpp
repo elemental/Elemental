@@ -13,19 +13,22 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-void UUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
+void UUnb
+( Matrix<F>& A,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ )
 {
     DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int phasePHeight = Max(n-1,0);
-    const Int phaseQHeight = n;
+    const Int householderScalarsPHeight = Max(n-1,0);
+    const Int householderScalarsQHeight = n;
     DEBUG_ONLY(
       if( m < n )
           LogicError("A must be at least as tall as it is wide");
     )
-    phaseP.Resize( phasePHeight, 1 );
-    phaseQ.Resize( phaseQHeight, 1 );
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
 
     Matrix<F> x12Adj, w21;
 
@@ -42,7 +45,7 @@ void UUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | epsilonQ |
         //  \          | u |            / |     a21 | = |    0     |
         const F tauQ = LeftReflector( alpha11, a21 );
-        phaseQ(k) = tauQ;
+        householderScalarsQ(k) = tauQ;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -73,7 +76,7 @@ void UUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
             //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilonP 0|
             //                  \         |v^T|             /
             const F tauP = RightReflector( alpha12L, a12R );
-            phaseP(k) = tauP;
+            householderScalarsP(k) = tauP;
 
             // Temporarily set a12^T = | 1 | 
             //                         | v |
@@ -100,20 +103,21 @@ void UUnb( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
 template<typename F> 
 void UUnb
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& phasePPre,
-  ElementalMatrix<F>& phaseQPre )
+  ElementalMatrix<F>& householderScalarsPPre,
+  ElementalMatrix<F>& householderScalarsQPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, phasePPre, phaseQPre ))
-
+    DEBUG_ONLY(
+      AssertSameGrids( APre, householderScalarsPPre, householderScalarsQPre )
+    )
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      phasePProx( phasePPre ),
-      phaseQProx( phaseQPre );
+      householderScalarsPProx( householderScalarsPPre ),
+      householderScalarsQProx( householderScalarsQPre );
     auto& A = AProx.Get();
-    auto& phaseP = phasePProx.Get();
-    auto& phaseQ = phaseQProx.Get();
+    auto& householderScalarsP = householderScalarsPProx.Get();
+    auto& householderScalarsQ = householderScalarsQProx.Get();
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -122,10 +126,10 @@ void UUnb
           LogicError("A must be at least as tall as it is wide");
     )
     const Grid& g = A.Grid();
-    const Int phasePHeight = Max(n-1,0);
-    const Int phaseQHeight = n;
-    phaseP.Resize( phasePHeight, 1 );
-    phaseQ.Resize( phaseQHeight, 1 );
+    const Int householderScalarsPHeight = Max(n-1,0);
+    const Int householderScalarsQHeight = n;
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
 
     DistMatrix<F,STAR,MR  > a12_STAR_MR(g);
     DistMatrix<F,MC,  STAR> aB1_MC_STAR(g);
@@ -145,7 +149,7 @@ void UUnb
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | epsilonQ |
         //  \          | u |            / |     a21 | = |    0     |
         const F tauQ = LeftReflector( alpha11, a21 );
-        phaseQ.Set(k,0,tauQ );
+        householderScalarsQ.Set(k,0,tauQ );
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -182,7 +186,7 @@ void UUnb
             //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilonP 0|
             //                  \         |v^T|             /
             const F tauP = RightReflector( alpha12L, a12R );
-            phaseP.Set(k,0,tauP);
+            householderScalarsP.Set(k,0,tauP);
 
             // Temporarily set a12^T = | 1   |
             //                         | v^T |

@@ -13,7 +13,7 @@ template<typename F>
 void TestCorrectness
 ( UpperOrLower uplo, 
   const Matrix<F>& A, 
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& AOrig,
   bool print,
   bool display )
@@ -43,8 +43,8 @@ void TestCorrectness
         Display( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, B );
-    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, phase, B );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, householderScalars, B );
     if( print )
         Print( B, "Rotated tridiagonal" );
     if( display )
@@ -64,13 +64,13 @@ void TestCorrectness
 
     // Compute || I - Q Q^H ||
     MakeIdentity( B );
-    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, phase, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, householderScalars, B );
     Matrix<F> QHAdj;
     Adjoint( B, QHAdj );
     MakeIdentity( B );
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, B );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, B );
     QHAdj -= B;
-    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, phase, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, householderScalars, B );
     ShiftDiagonal( B, F(-1) );
     const Real infOrthogError = InfinityNorm( B );
     const Real relOrthogError = infOrthogError / (eps*m);
@@ -89,7 +89,7 @@ template<typename F>
 void TestCorrectness
 ( UpperOrLower uplo, 
   const DistMatrix<F>& A, 
-  const DistMatrix<F,STAR,STAR>& phase,
+  const DistMatrix<F,STAR,STAR>& householderScalars,
         DistMatrix<F>& AOrig,
   bool print,
   bool display )
@@ -121,8 +121,8 @@ void TestCorrectness
         Display( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, B );
-    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, phase, B );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, householderScalars, B );
     if( print )
         Print( B, "Rotated tridiagonal" );
     if( display )
@@ -143,13 +143,13 @@ void TestCorrectness
 
     // Compute || I - Q Q^H ||
     MakeIdentity( B );
-    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, phase, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, householderScalars, B );
     DistMatrix<F> QHAdj( g );
     Adjoint( B, QHAdj );
     MakeIdentity( B );
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, B );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, B );
     QHAdj -= B;
-    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, phase, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, householderScalars, B );
     ShiftDiagonal( B, F(-1) );
     const Real infOrthogError = InfinityNorm( B );
     const Real relOrthogError = infOrthogError / (eps*m);
@@ -168,7 +168,7 @@ template<typename F>
 void InnerTestHermitianTridiag
 ( UpperOrLower uplo,
         Matrix<F>& A,
-        Matrix<F>& phase,
+        Matrix<F>& householderScalars,
   bool correctness,
   bool print,
   bool display )
@@ -179,7 +179,7 @@ void InnerTestHermitianTridiag
 
     Output("Starting tridiagonalization...");
     timer.Start();
-    HermitianTridiag( uplo, A, phase );
+    HermitianTridiag( uplo, A, householderScalars );
     const double runTime = timer.Stop();
     const double realGFlops = 16./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
@@ -187,15 +187,17 @@ void InnerTestHermitianTridiag
     if( print )
     {
         Print( A, "A after HermitianTridiag" );
-        Print( phase, "phase after HermitianTridiag" );
+        Print
+        ( householderScalars, "householderScalars after HermitianTridiag" );
     }
     if( display )
     {
         Display( A, "A after HermitianTridiag" );
-        Display( phase, "phase after HermitianTridiag" );
+        Display
+        ( householderScalars, "householderScalars after HermitianTridiag" );
     }
     if( correctness )
-        TestCorrectness( uplo, A, phase, AOrig, print, display );
+        TestCorrectness( uplo, A, householderScalars, AOrig, print, display );
     A = ACopy;
 }
 
@@ -203,7 +205,7 @@ template<typename F>
 void InnerTestHermitianTridiag
 ( UpperOrLower uplo,
         DistMatrix<F>& A,
-        DistMatrix<F,STAR,STAR>& phase,
+        DistMatrix<F,STAR,STAR>& householderScalars,
   const HermitianTridiagCtrl<F>& ctrl,
   bool correctness,
   bool print,
@@ -217,7 +219,7 @@ void InnerTestHermitianTridiag
     OutputFromRoot(g.Comm(),"Starting tridiagonalization...");
     mpi::Barrier( g.Comm() );
     timer.Start();
-    HermitianTridiag( uplo, A, phase, ctrl );
+    HermitianTridiag( uplo, A, householderScalars, ctrl );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double realGFlops = 16./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -226,15 +228,17 @@ void InnerTestHermitianTridiag
     if( print )
     {
         Print( A, "A after HermitianTridiag" );
-        Print( phase, "phase after HermitianTridiag" );
+        Print
+        ( householderScalars, "householderScalars after HermitianTridiag" );
     }
     if( display )
     {
         Display( A, "A after HermitianTridiag" );
-        Display( phase, "phase after HermitianTridiag" );
+        Display
+        ( householderScalars, "householderScalars after HermitianTridiag" );
     }
     if( correctness )
-        TestCorrectness( uplo, A, phase, AOrig, print, display );
+        TestCorrectness( uplo, A, householderScalars, AOrig, print, display );
     A = ACopy;
 }
 
@@ -247,7 +251,7 @@ void TestHermitianTridiag
   bool display )
 {
     Matrix<F> A, AOrig;
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     Output("Testing with ",TypeName<F>());
     PushIndent();
 
@@ -261,7 +265,7 @@ void TestHermitianTridiag
 
     Output("Sequential algorithm:");
     InnerTestHermitianTridiag
-    ( uplo, A, phase, correctness, print, display );
+    ( uplo, A, householderScalars, correctness, print, display );
 
     PopIndent();
 }
@@ -278,7 +282,7 @@ void TestHermitianTridiag
   bool display )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,STAR,STAR> phase(g);
+    DistMatrix<F,STAR,STAR> householderScalars(g);
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
 
@@ -297,19 +301,19 @@ void TestHermitianTridiag
     OutputFromRoot(g.Comm(),"Normal algorithm:");
     ctrl.approach = HERMITIAN_TRIDIAG_NORMAL;
     InnerTestHermitianTridiag
-    ( uplo, A, phase, ctrl, correctness, print, display );
+    ( uplo, A, householderScalars, ctrl, correctness, print, display );
 
     OutputFromRoot(g.Comm(),"Square row-major algorithm:");
     ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.order = ROW_MAJOR;
     InnerTestHermitianTridiag
-    ( uplo, A, phase, ctrl, correctness, print, display );
+    ( uplo, A, householderScalars, ctrl, correctness, print, display );
 
     OutputFromRoot(g.Comm(),"Square column-major algorithm:");
     ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
     ctrl.order = COLUMN_MAJOR;
     InnerTestHermitianTridiag
-    ( uplo, A, phase, ctrl, correctness, print, display );
+    ( uplo, A, householderScalars, ctrl, correctness, print, display );
     PopIndent();
 }
 

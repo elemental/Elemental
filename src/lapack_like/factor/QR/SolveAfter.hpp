@@ -18,7 +18,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A, 
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature, 
   const Matrix<F>& B,
         Matrix<F>& X )
@@ -40,7 +40,7 @@ void SolveAfter
         X = B;
 
         // Apply Q' to X
-        qr::ApplyQ( LEFT, ADJOINT, A, phase, signature, X );
+        qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, X );
 
         // Shrink X to its new height
         X.Resize( n, X.Width() );
@@ -67,7 +67,7 @@ void SolveAfter
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
         // Apply Q to X
-        qr::ApplyQ( LEFT, NORMAL, A, phase, signature, X );
+        qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, X );
 
         if( orientation == TRANSPOSE )
             Conjugate( X );
@@ -78,7 +78,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation, 
   const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& phase, 
+  const ElementalMatrix<F>& householderScalars, 
   const ElementalMatrix<Base<F>>& signature,
   const ElementalMatrix<F>& B, 
         ElementalMatrix<F>& XPre )
@@ -110,7 +110,7 @@ void SolveAfter
             Conjugate( X );
 
         // Apply Q' to X
-        qr::ApplyQ( LEFT, ADJOINT, A, phase, signature, X );
+        qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, X );
 
         // Shrink X to its new height
         X.Resize( n, X.Width() );
@@ -136,7 +136,7 @@ void SolveAfter
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
         // Apply Q to X
-        qr::ApplyQ( LEFT, NORMAL, A, phase, signature, X );
+        qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, X );
 
         if( orientation == TRANSPOSE )
             Conjugate( X );

@@ -16,11 +16,11 @@ namespace El {
 namespace hessenberg {
 
 template<typename F>
-void L( Matrix<F>& A, Matrix<F>& phase )
+void L( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     const Int n = A.Height();
-    phase.Resize( Max(n-1,0), 1 );
+    householderScalars.Resize( Max(n-1,0), 1 );
 
     Matrix<F> UB1, V01, VB1, G11;
 
@@ -37,11 +37,11 @@ void L( Matrix<F>& A, Matrix<F>& phase )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto phase1 = phase( ind1, ALL );
+        auto householderScalars1 = householderScalars( ind1, ALL );
         UB1.Resize( n-k, nb );
         VB1.Resize( n-k, nb );
         G11.Resize( nb,  nb );
-        hessenberg::LPan( ABR, phase1, UB1, VB1, G11 );
+        hessenberg::LPan( ABR, householderScalars1, UB1, VB1, G11 );
 
         auto AB0 = A( indB, ind0 );
         auto A2R = A( ind2, indR );
@@ -69,19 +69,22 @@ void L( Matrix<F>& A, Matrix<F>& phase )
 }
 
 template<typename F> 
-void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& phasePre )
+void L
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& householderScalarsPre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, phasePre ))
+    DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre ))
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> phaseProx( phasePre );
+    DistMatrixWriteProxy<F,F,STAR,STAR>
+      householderScalarsProx( householderScalarsPre );
     auto& A = AProx.Get();
-    auto& phase = phaseProx.Get();
+    auto& householderScalars = householderScalarsProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    phase.Resize( Max(n-1,0), 1 );
+    householderScalars.Resize( Max(n-1,0), 1 );
 
     DistMatrix<F,MC,STAR> UB1_MC_STAR(g), V21_MC_STAR(g);
     DistMatrix<F,MR,STAR> V01_MR_STAR(g), VB1_MR_STAR(g), UB1_MR_STAR(g);
@@ -100,7 +103,7 @@ void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& phasePre )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto phase1 = phase( ind1, ALL );
+        auto householderScalars1 = householderScalars( ind1, ALL );
         UB1_MC_STAR.AlignWith( ABR );
         UB1_MR_STAR.AlignWith( ABR );
         VB1_MR_STAR.AlignWith( ABR );
@@ -109,7 +112,8 @@ void L( ElementalMatrix<F>& APre, ElementalMatrix<F>& phasePre )
         VB1_MR_STAR.Resize( n-k, nb );
         G11_STAR_STAR.Resize( nb, nb );
         hessenberg::LPan
-        ( ABR, phase1, UB1_MC_STAR, UB1_MR_STAR, VB1_MR_STAR, G11_STAR_STAR );
+        ( ABR, householderScalars1, UB1_MC_STAR, UB1_MR_STAR, VB1_MR_STAR,
+          G11_STAR_STAR );
 
         auto AB0 = A( indB, ind0 );
         auto A2R = A( ind2, indR );

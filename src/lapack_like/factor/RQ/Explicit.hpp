@@ -26,9 +26,9 @@ template<typename F>
 void ExplicitTriang( ElementalMatrix<F>& A )
 {
     DEBUG_CSE
-    DistMatrix<F,MD,STAR> phase(A.Grid());
+    DistMatrix<F,MD,STAR> householderScalars(A.Grid());
     DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
-    Householder( A, phase, signature );
+    Householder( A, householderScalars, signature );
     MakeTrapezoidal( UPPER, A, A.Width()-A.Height() );
 }
 

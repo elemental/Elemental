@@ -549,15 +549,15 @@ BlackBox
     HermitianEigInfo info;
 
     // TODO(poulson): Extend interface to support ctrl.tridiagCtrl
-    Matrix<F> phase;
-    HermitianTridiag( uplo, A, phase );
+    Matrix<F> householderScalars;
+    HermitianTridiag( uplo, A, householderScalars );
 
     auto d = GetRealPartOfDiagonal(A);
     auto dSub = GetDiagonal( A, (uplo==LOWER?-1:1) );
     info.tridiagEigInfo =
       HermitianTridiagEig( d, dSub, w, Q, ctrl.tridiagEigCtrl );
 
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
 
     return info;
 }
@@ -579,8 +579,8 @@ BlackBox
     auto& A = AProx.Get();
 
     // TODO(poulson): Extend interface to support ctrl.tridiagCtrl
-    DistMatrix<F,VC,STAR> phase(g);
-    HermitianTridiag( uplo, A, phase );
+    DistMatrix<F,VC,STAR> householderScalars(g);
+    HermitianTridiag( uplo, A, householderScalars );
 
     auto d = GetRealPartOfDiagonal(A);
     auto dSub = GetDiagonal( A, (uplo==LOWER?-1:1) );
@@ -592,7 +592,7 @@ BlackBox
 
         info.tridiagEigInfo =
           HermitianTridiagEig( d, dSub, w, Q, ctrl.tridiagEigCtrl );
-        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
     }
     else
     {
@@ -601,7 +601,7 @@ BlackBox
 
         info.tridiagEigInfo =
           HermitianTridiagEig( d, dSub, w, Q, ctrl.tridiagEigCtrl );
-        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
     }
 
     return info;
@@ -862,8 +862,8 @@ MRRR
         if( A.Grid().Rank() == 0 )
             timer.Start();
     }
-    DistMatrix<F,STAR,STAR> phase(g);
-    HermitianTridiag( uplo, A, phase, ctrl.tridiagCtrl );
+    DistMatrix<F,STAR,STAR> householderScalars(g);
+    HermitianTridiag( uplo, A, householderScalars, ctrl.tridiagCtrl );
     if( ctrl.timeStages )
     {
         mpi::Barrier( A.DistComm() );
@@ -983,7 +983,7 @@ MRRR
             timer.Start();
         }
     }
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
     if( ctrl.timeStages )
     {
         mpi::Barrier( A.DistComm() );

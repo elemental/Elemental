@@ -13,7 +13,7 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
         Matrix<F>& AOrig )
 {
@@ -30,8 +30,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     Matrix<F> Z;
     Identity( Z, m, n );
-    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
-    lq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Z );
+    lq::ApplyQ( RIGHT, ADJOINT, A, householderScalars, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
@@ -50,7 +50,7 @@ void TestCorrectness
     // Form L Q - A
     auto L( A );
     MakeTrapezoidal( LOWER, L );
-    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, L );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, L );
     L -= AOrig;
 
     const Real infError = InfinityNorm( L );
@@ -69,7 +69,7 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   const DistMatrix<F>& A,
-  const DistMatrix<F,MD,STAR>& phase,
+  const DistMatrix<F,MD,STAR>& householderScalars,
   const DistMatrix<Base<F>,MD,STAR>& signature,
         DistMatrix<F>& AOrig )
 {
@@ -87,8 +87,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
-    lq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Z );
+    lq::ApplyQ( RIGHT, ADJOINT, A, householderScalars, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
@@ -108,7 +108,7 @@ void TestCorrectness
     // Form L Q - A
     auto L( A );
     MakeTrapezoidal( LOWER, L );
-    lq::ApplyQ( RIGHT, NORMAL, A, phase, signature, L );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, L );
     L -= AOrig;
 
     const Real infError = InfinityNorm( L );
@@ -136,13 +136,13 @@ void TestLQ( Int m, Int n, bool correctness, bool print )
         AOrig = A;
     if( print )
         Print( A, "A" );
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
 
     Output("Starting LQ factorization...");
     Timer timer;
     timer.Start();
-    LQ( A, phase, signature );
+    LQ( A, householderScalars, signature );
     const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
@@ -152,11 +152,11 @@ void TestLQ( Int m, Int n, bool correctness, bool print )
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
         Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( print, A, phase, signature, AOrig );
+        TestCorrectness( print, A, householderScalars, signature, AOrig );
     PopIndent();
 }
 
@@ -172,14 +172,14 @@ void TestLQ( const Grid& g, Int m, Int n, bool correctness, bool print )
         AOrig = A;
     if( print )
         Print( A, "A" );
-    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
     DistMatrix<Base<F>,MD,STAR> signature(g);
 
     OutputFromRoot(g.Comm(),"Starting LQ factorization...");
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
-    LQ( A, phase, signature );
+    LQ( A, householderScalars, signature );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double mD = double(m);
@@ -190,11 +190,11 @@ void TestLQ( const Grid& g, Int m, Int n, bool correctness, bool print )
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
         Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( print, A, phase, signature, AOrig );
+        TestCorrectness( print, A, householderScalars, signature, AOrig );
     PopIndent();
 }
 

@@ -16,7 +16,7 @@ template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& B )
 {
     DEBUG_CSE
@@ -27,13 +27,15 @@ void ApplyQ
     {
         const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
         ApplyPackedReflectors
-        ( side, UPPER, HORIZONTAL, direction, conjugation, 1, A, phase, B );
+        ( side, UPPER, HORIZONTAL, direction, conjugation, 1,
+          A, householderScalars, B );
     }
     else
     {
         const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
         ApplyPackedReflectors
-        ( side, LOWER, VERTICAL, direction, conjugation, -1, A, phase, B );
+        ( side, LOWER, VERTICAL, direction, conjugation, -1,
+          A, householderScalars, B );
     }
 }
 
@@ -41,7 +43,7 @@ template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
+  const ElementalMatrix<F>& householderScalars, 
         ElementalMatrix<F>& B )
 {
     DEBUG_CSE
@@ -52,13 +54,15 @@ void ApplyQ
     {
         const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
         ApplyPackedReflectors
-        ( side, UPPER, HORIZONTAL, direction, conjugation, 1, A, phase, B );
+        ( side, UPPER, HORIZONTAL, direction, conjugation, 1,
+          A, householderScalars, B );
     }
     else
     {
         const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
         ApplyPackedReflectors
-        ( side, LOWER, VERTICAL, direction, conjugation, -1, A, phase, B );
+        ( side, LOWER, VERTICAL, direction, conjugation, -1,
+          A, householderScalars, B );
     }
 }
 

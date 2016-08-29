@@ -649,7 +649,7 @@ SVDInfo TSQR
     SVDInfo info;
     qr::TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.phase0, treeData.signature0 );
+    QR( treeData.QR0, treeData.householderScalars0, treeData.signature0 );
     qr::ts::Reduce( A, treeData );
     if( A.ColRank() == 0 )
         info = SVD( qr::ts::RootQR(A,treeData), s.Matrix() );
@@ -692,7 +692,7 @@ SVDInfo TSQR
     Copy( A, U );
     qr::TreeData<F> treeData;
     treeData.QR0 = U.LockedMatrix();
-    QR( treeData.QR0, treeData.phase0, treeData.signature0 );
+    QR( treeData.QR0, treeData.householderScalars0, treeData.signature0 );
     qr::ts::Reduce( U, treeData );
     if( U.ColRank() == 0 )
     {

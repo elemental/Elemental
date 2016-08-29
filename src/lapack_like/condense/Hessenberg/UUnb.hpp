@@ -13,12 +13,12 @@ namespace El {
 namespace hessenberg {
 
 template<typename F>
-void UUnb( Matrix<F>& A, Matrix<F>& phase )
+void UUnb( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     const Int n = A.Height();
-    const Int phaseHeight = Max(n-1,0);
-    phase.Resize( phaseHeight, 1 );
+    const Int householderScalarsHeight = Max(n-1,0);
+    householderScalars.Resize( householderScalarsHeight, 1 );
 
     // Temporary products
     Matrix<F> x1, x12Adj;
@@ -39,7 +39,7 @@ void UUnb( Matrix<F>& A, Matrix<F>& phase )
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
         //  \         | v |            / |     a21B |   |    0 |
         const F tau = LeftReflector( alpha21T, a21B );
-        phase(k) = tau;
+        householderScalars(k) = tau;
 
         // Temporarily set a21 := | 1 |
         //                        | v |
@@ -72,20 +72,23 @@ void UUnb( Matrix<F>& A, Matrix<F>& phase )
 }
 
 template<typename F> 
-void UUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& phasePre )
+void UUnb
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<F>& householderScalarsPre )
 {
     DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> phaseProx( phasePre );
+    DistMatrixWriteProxy<F,F,STAR,STAR>
+      householderScalarsProx( householderScalarsPre );
     auto& A = AProx.Get();
-    auto& phase = phaseProx.Get();
+    auto& householderScalars = householderScalarsProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    const Int phaseHeight = Max(n-1,0);
-    phase.SetGrid( g );
-    phase.Resize( phaseHeight, 1 );
+    const Int householderScalarsHeight = Max(n-1,0);
+    householderScalars.SetGrid( g );
+    householderScalars.Resize( householderScalarsHeight, 1 );
 
     DistMatrix<F,MC,STAR> a21_MC(g);
     DistMatrix<F,MR,STAR> a21_MR(g);
@@ -108,7 +111,7 @@ void UUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& phasePre )
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
         //  \         | v |            / |     a21B |   |    0 |
         const F tau = LeftReflector( alpha21T, a21B );
-        phase.Set(k,0,tau);
+        householderScalars.Set(k,0,tau);
 
         // Temporarily set a21 := | 1 |
         //                        | v |

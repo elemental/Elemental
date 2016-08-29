@@ -20,21 +20,21 @@ namespace El {
 template<typename F> 
 void LQ
 ( Matrix<F>& A,
-  Matrix<F>& phase,
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature )
 {
     DEBUG_CSE
-    lq::Householder( A, phase, signature );
+    lq::Householder( A, householderScalars, signature );
 }
 
 template<typename F> 
 void LQ
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
+  ElementalMatrix<F>& householderScalars, 
   ElementalMatrix<Base<F>>& signature )
 {
     DEBUG_CSE
-    lq::Householder( A, phase, signature );
+    lq::Householder( A, householderScalars, signature );
 }
 
 // Variants which perform (Businger-Golub) row-pivoting
@@ -44,35 +44,35 @@ void LQ
 #define PROTO(F) \
   template void LQ \
   ( Matrix<F>& A, \
-    Matrix<F>& phase, \
+    Matrix<F>& householderScalars, \
     Matrix<Base<F>>& signature ); \
   template void LQ \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& phase, \
+    ElementalMatrix<F>& householderScalars, \
     ElementalMatrix<Base<F>>& signature ); \
   template void lq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<F>& phase, \
+    const Matrix<F>& householderScalars, \
     const Matrix<Base<F>>& signature, \
           Matrix<F>& B ); \
   template void lq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<F>& householderScalars, \
     const ElementalMatrix<Base<F>>& signature, \
           ElementalMatrix<F>& B ); \
   template void lq::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<F>& phase, \
+    const Matrix<F>& householderScalars, \
     const Matrix<Base<F>>& signature, \
     const Matrix<F>& B, \
           Matrix<F>& X ); \
   template void lq::SolveAfter \
   ( Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<F>& householderScalars, \
     const ElementalMatrix<Base<F>>& signature, \
     const ElementalMatrix<F>& B, \
           ElementalMatrix<F>& X ); \

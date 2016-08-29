@@ -37,10 +37,10 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    Matrix<F> phaseP, phaseQ;
+    Matrix<F> householderScalarsP, householderScalarsQ;
     if( ctrl.time )
         timer.Start();
-    Bidiag( A, phaseP, phaseQ );
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( ctrl.time )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
@@ -60,8 +60,8 @@ SVDInfo GolubReinsch
     // Backtransform U and V
     if( ctrl.time )
         timer.Start();
-    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, phaseQ, U );
-    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, phaseP, V );
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, householderScalarsQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, V );
     if( ctrl.time )
         Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
 
@@ -91,10 +91,10 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    DistMatrix<F,STAR,STAR> phaseP(g), phaseQ(g);
+    DistMatrix<F,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    Bidiag( A, phaseP, phaseQ );
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
@@ -119,8 +119,8 @@ SVDInfo GolubReinsch
     // Backtransform U and V
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, phaseQ, U );
-    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, phaseP, V );
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, householderScalarsQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, V );
     if( ctrl.time && g.Rank() == 0 )
         Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
 
@@ -159,10 +159,10 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    Matrix<F> phaseP, phaseQ;
+    Matrix<F> householderScalarsP, householderScalarsQ;
     if( ctrl.time )
         timer.Start();
-    Bidiag( A, phaseP, phaseQ );
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( ctrl.time )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
@@ -196,10 +196,10 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    DistMatrix<F,STAR,STAR> phaseP(g), phaseQ(g);
+    DistMatrix<F,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    Bidiag( A, phaseP, phaseQ );
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( ctrl.time && g.Rank() == 0 )
         Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 

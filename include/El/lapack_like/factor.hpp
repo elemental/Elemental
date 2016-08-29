@@ -579,12 +579,12 @@ void SolveAfter
 template<typename F>
 void LQ
 ( Matrix<F>& A,
-  Matrix<F>& phase,
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature );
 template<typename F>
 void LQ
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
+  ElementalMatrix<F>& householderScalars, 
   ElementalMatrix<Base<F>>& signature );
 
 namespace lq {
@@ -595,14 +595,14 @@ template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
         Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
+  const ElementalMatrix<F>& householderScalars,
   const ElementalMatrix<Base<F>>& signature,
         ElementalMatrix<F>& B );
 
@@ -612,7 +612,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
   const Matrix<F>& B,
         Matrix<F>& X );
@@ -620,7 +620,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
+  const ElementalMatrix<F>& householderScalars,
   const ElementalMatrix<Base<F>>& signature,
   const ElementalMatrix<F>& B,
         ElementalMatrix<F>& X );
@@ -678,12 +678,12 @@ struct QRCtrl
 template<typename F>
 void QR
 ( Matrix<F>& A,
-  Matrix<F>& phase,
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature );
 template<typename F>
 void QR
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
+  ElementalMatrix<F>& householderScalars, 
   ElementalMatrix<Base<F>>& signature );
 // NOTE: This is a ScaLAPACK wrapper, and ScaLAPACK uses a different convention
 //       for Householder transformations (that includes identity matrices,
@@ -691,21 +691,21 @@ void QR
 template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<F,MR,STAR,BLOCK>& phase );
+  DistMatrix<F,MR,STAR,BLOCK>& householderScalars );
 
 // Return an implicit representation of (Q,R,Omega) such that A Omega^T ~= Q R
 // ---------------------------------------------------------------------------
 template<typename F>
 void QR
 ( Matrix<F>& A,
-  Matrix<F>& phase, 
+  Matrix<F>& householderScalars, 
   Matrix<Base<F>>& signature,
   Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void QR
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
+  ElementalMatrix<F>& householderScalars, 
   ElementalMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
@@ -719,7 +719,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
         Matrix<F>& B );
 template<typename F>
@@ -727,7 +727,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
+  const ElementalMatrix<F>& householderScalars,
   const ElementalMatrix<Base<F>>& signature,
         ElementalMatrix<F>& B );
 
@@ -737,7 +737,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
   const Matrix<F>& B,
         Matrix<F>& X );
@@ -745,7 +745,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
+  const ElementalMatrix<F>& householderScalars,
   const ElementalMatrix<Base<F>>& signature,
   const ElementalMatrix<F>& B,
         ElementalMatrix<F>& X );
@@ -834,32 +834,34 @@ void DisjointNeighborColSwaps
 template<typename F>
 struct TreeData
 {
-    Matrix<F> QR0, phase0;
+    Matrix<F> QR0, householderScalars0;
     Matrix<Base<F>> signature0;
     vector<Matrix<F>> QRList;
-    vector<Matrix<F>> phaseList;
+    vector<Matrix<F>> householderScalarsList;
     vector<Matrix<Base<F>>> signatureList;
 
     TreeData( Int numStages=0 )
-    : QRList(numStages), phaseList(numStages), signatureList(numStages)
+    : QRList(numStages),
+      householderScalarsList(numStages),
+      signatureList(numStages)
     { }
 
     TreeData( TreeData<F>&& treeData )
     : QR0(move(treeData.QR0)),
-      phase0(move(treeData.phase0)),
+      householderScalars0(move(treeData.householderScalars0)),
       signature0(move(treeData.signature0)),
       QRList(move(treeData.QRList)),
-      phaseList(move(treeData.phaseList)),
+      householderScalarsList(move(treeData.householderScalarsList)),
       signatureList(move(treeData.signatureList))
     { }
 
     TreeData<F>& operator=( TreeData<F>&& treeData )
     {
         QR0 = move(treeData.QR0);
-        phase0 = move(treeData.phase0);
+        householderScalars0 = move(treeData.householderScalars0);
         signature0 = move(treeData.signature0);
         QRList = move(treeData.QRList);
-        phaseList = move(treeData.phaseList);
+        householderScalarsList = move(treeData.householderScalarsList);
         signatureList = move(treeData.signatureList);
         return *this;
     }
@@ -898,12 +900,12 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData );
 template<typename F>
 void RQ
 ( Matrix<F>& A,
-  Matrix<F>& phase,
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature );
 template<typename F>
 void RQ
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
+  ElementalMatrix<F>& householderScalars, 
   ElementalMatrix<Base<F>>& signature );
 
 namespace rq {
@@ -913,7 +915,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
         Matrix<F>& B );
 template<typename F>
@@ -921,7 +923,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
+  const ElementalMatrix<F>& householderScalars,
   const ElementalMatrix<Base<F>>& signature,
         ElementalMatrix<F>& B );
 
@@ -929,7 +931,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
   const Matrix<F>& B,
         Matrix<F>& X );
@@ -937,7 +939,7 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
+  const ElementalMatrix<F>& householderScalars,
   const ElementalMatrix<Base<F>>& signature,
   const ElementalMatrix<F>& B,
         ElementalMatrix<F>& X );
@@ -960,18 +962,18 @@ void ExplicitTriang( ElementalMatrix<F>& A );
 template<typename F>
 void GQR
 ( Matrix<F>& A,
-  Matrix<F>& phaseA,
+  Matrix<F>& householderScalarsA,
   Matrix<Base<F>>& signatureA,
   Matrix<F>& B,
-  Matrix<F>& phaseB,
+  Matrix<F>& householderScalarsB,
   Matrix<Base<F>>& signatureB );
 template<typename F>
 void GQR
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseA,
+  ElementalMatrix<F>& householderScalarsA,
   ElementalMatrix<Base<F>>& signatureA,
   ElementalMatrix<F>& B, 
-  ElementalMatrix<F>& phaseB,
+  ElementalMatrix<F>& householderScalarsB,
   ElementalMatrix<Base<F>>& signatureB );
 
 namespace gqr {
@@ -988,18 +990,18 @@ void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 template<typename F>
 void GRQ
 ( Matrix<F>& A,
-  Matrix<F>& phaseA,
+  Matrix<F>& householderScalarsA,
   Matrix<Base<F>>& signatureA,
   Matrix<F>& B,
-  Matrix<F>& phaseB,
+  Matrix<F>& householderScalarsB,
   Matrix<Base<F>>& signatureB );
 template<typename F>
 void GRQ
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseA,
+  ElementalMatrix<F>& householderScalarsA,
   ElementalMatrix<Base<F>>& signatureA,
   ElementalMatrix<F>& B, 
-  ElementalMatrix<F>& phaseB,
+  ElementalMatrix<F>& householderScalarsB,
   ElementalMatrix<Base<F>>& signatureB );
 
 namespace grq {

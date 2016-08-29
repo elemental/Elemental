@@ -18,7 +18,10 @@ namespace bidiag {
 // NOTE: Very little is changed versus the upper case. Perhaps they should be
 //       combined.
 template<typename F>
-void L( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
+void L
+( Matrix<F>& A,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ )
 {
     DEBUG_CSE
     const Int m = A.Height();
@@ -26,14 +29,11 @@ void L( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
     DEBUG_ONLY(
       if( m > n )
           LogicError("A must be at least as wide as it is tall");
-      // Are these requirements necessary?!?
-      if( phaseP.Viewing() || phaseQ.Viewing() )
-          LogicError("phaseP and phaseQ must not be views");
     )
-    const Int phasePHeight = m;
-    const Int phaseQHeight = Max(m-1,0);
-    phaseP.Resize( phasePHeight, 1 );
-    phaseQ.Resize( phaseQHeight, 1 );
+    const Int householderScalarsPHeight = m;
+    const Int householderScalarsQHeight = Max(m-1,0);
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
 
     Matrix<F> X, Y;
 
@@ -48,17 +48,18 @@ void L( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
         auto A22 = A( ind2, ind2 );
         auto ABR = A( indB, indR );
 
-        auto phaseP1 = phaseP( ind1, ALL );
+        auto householderScalarsP1 = householderScalarsP( ind1, ALL );
 
         if( A22.Height() > 0 )
         {
             auto A12 = A( ind1, ind2 );
             auto A21 = A( ind2, ind1 );
 
-            auto phaseQ1 = phaseQ( ind1, ALL );
+            auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::LPan( ABR, phaseP1, phaseQ1, X, Y );
+            bidiag::LPan
+            ( ABR, householderScalarsP1, householderScalarsQ1, X, Y );
 
             auto X21 = X( IR(nb,END), ALL        );
             auto Y12 = Y( ALL,        IR(nb,END) );
@@ -77,8 +78,9 @@ void L( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
         }
         else
         {
-            auto phaseQ1 = phaseQ( IR(k,k+nb-1), ALL );
-            bidiag::LUnb( ABR, phaseP1, phaseQ1 );
+            auto householderScalarsQ1 =
+              householderScalarsQ( IR(k,k+nb-1), ALL );
+            bidiag::LUnb( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
@@ -89,28 +91,27 @@ template<typename F>
 void
 L
 ( DistMatrix<F>& A, 
-  DistMatrix<F,STAR,STAR>& phaseP,
-  DistMatrix<F,STAR,STAR>& phaseQ )
+  DistMatrix<F,STAR,STAR>& householderScalarsP,
+  DistMatrix<F,STAR,STAR>& householderScalarsQ )
 {
     DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
-      AssertSameGrids( A, phaseP, phaseQ );
+      AssertSameGrids( A, householderScalarsP, householderScalarsQ );
       if( m > n )
           LogicError("A must be at least as wide as it is tall");
-      // Are these requirements necessary?!?
-      if( phaseP.Viewing() || phaseQ.Viewing() )
-          LogicError("phaseP and phaseQ must not be views");
     )
     const Grid& g = A.Grid();
-    const Int phasePHeight = m;
-    const Int phaseQHeight = Max(m-1,0);
-    phaseP.Resize( phasePHeight, 1 );
-    phaseQ.Resize( phaseQHeight, 1 );
+    const Int householderScalarsPHeight = m;
+    const Int householderScalarsQHeight = Max(m-1,0);
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
     if( g.Size() == 1 )
     {
-        L( A.Matrix(), phaseP.Matrix(), phaseQ.Matrix() );
+        L
+        ( A.Matrix(), householderScalarsP.Matrix(),
+          householderScalarsQ.Matrix() );
         return;
     }
 
@@ -132,7 +133,7 @@ L
         auto A22 = A( ind2, ind2 );
         auto ABR = A( indB, indR );
 
-        auto phaseP1 = phaseP( ind1, ALL );
+        auto householderScalarsP1 = householderScalarsP( ind1, ALL );
 
         if( A22.Height() > 0 )
         {
@@ -146,9 +147,10 @@ L
             AB1_MC_STAR.Resize( m-k, nb  );
             A1R_STAR_MR.Resize( nb,  n-k );
 
-            auto phaseQ1 = phaseQ( ind1, ALL );
+            auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
             bidiag::LPan
-            ( ABR, phaseP1, phaseQ1, X, Y, AB1_MC_STAR, A1R_STAR_MR );
+            ( ABR, householderScalarsP1, householderScalarsQ1, X, Y,
+              AB1_MC_STAR, A1R_STAR_MR );
 
             auto X21 = X( IR(nb,END), ALL        );
             auto Y12 = Y( ALL,        IR(nb,END) );
@@ -168,8 +170,8 @@ L
         }
         else
         {
-            auto phaseQ1 = phaseQ( IR(k,k+nb-1), ALL );
-            bidiag::LUnb( ABR, phaseP1, phaseQ1 );
+            auto householderScalarsQ1 = householderScalarsQ( IR(k,k+nb-1), ALL );
+            bidiag::LUnb( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
@@ -178,19 +180,19 @@ template<typename F>
 void
 L
 ( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& phasePPre,
-  ElementalMatrix<F>& phaseQPre )
+  ElementalMatrix<F>& householderScalarsPPre,
+  ElementalMatrix<F>& householderScalarsQPre )
 {
     DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      phasePProx( phasePPre ),
-      phaseQProx( phaseQPre );
+      householderScalarsPProx( householderScalarsPPre ),
+      householderScalarsQProx( householderScalarsQPre );
     auto& A = AProx.Get();
-    auto& phaseP = phasePProx.Get();
-    auto& phaseQ = phaseQProx.Get();
-    L( A, phaseP, phaseQ );
+    auto& householderScalarsP = householderScalarsPProx.Get();
+    auto& householderScalarsQ = householderScalarsQProx.Get();
+    L( A, householderScalarsP, householderScalarsQ );
 }
 
 } // namespace bidiag

@@ -16,7 +16,7 @@ template<typename F>
 void
 PanelHouseholder
 ( Matrix<F>& A,
-  Matrix<F>& phase,
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature )
 {
     DEBUG_CSE
@@ -27,7 +27,7 @@ PanelHouseholder
     const Int iOff = m-minDim;
     const Int jOff = n-minDim;
 
-    phase.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
     signature.Resize( minDim, 1 );
 
     Matrix<F> z01;
@@ -49,7 +49,7 @@ PanelHouseholder
         //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
         //                \        |1  |            /
         const F tau = RightReflector( alpha11, a10 );
-        phase(k) = tau;
+        householderScalars(k) = tau;
 
         // Temporarily set a1L = | v 1 |
         const F alpha = alpha11(0);
@@ -78,11 +78,11 @@ template<typename F>
 void
 PanelHouseholder
 ( DistMatrix<F>& A,
-  ElementalMatrix<F>& phase,
+  ElementalMatrix<F>& householderScalars,
   ElementalMatrix<Base<F>>& signature )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, phase, signature ))
+    DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,MR  > a1L_STAR_MR(g);
@@ -93,7 +93,7 @@ PanelHouseholder
     const Int minDim = Min(m,n);
     const Int iOff = m-minDim;
     const Int jOff = n-minDim;
-    phase.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
 
     for( Int k=minDim-1; k>=0; --k )
     {
@@ -113,7 +113,7 @@ PanelHouseholder
         //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
         //                \        |1  |            /
         const F tau = RightReflector( alpha11, a10 );
-        phase.Set( k, 0, tau );
+        householderScalars.Set( k, 0, tau );
 
         // Temporarily set a1L = | v 1 |
         F alpha = 0;

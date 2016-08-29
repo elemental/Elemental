@@ -23,9 +23,11 @@ namespace apply_packed_reflectors {
 // which has an upper-triangular center matrix, say S, we will form S as 
 // the inverse of a matrix T, which can easily be formed as
 // 
-//   triu(T) = triu( conj(V V^H) ),  diag(T) = 1/t or 1/conj(t),
+//   triu(T,1) = triu( conj(V V^H) ),
+//   diag(T) = 1/householderScalars or 1/conj(householderScalars),
 //
-// where V is the matrix of Householder vectors and t is the vector of scalars.
+// where V is the matrix of Householder vectors and householderScalars is the
+// vector of Householder reflection coefficients.
 //
 
 template<typename F> 
@@ -34,7 +36,7 @@ RLHF
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
-  const Matrix<F>& t,
+  const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
     DEBUG_CSE
@@ -44,8 +46,9 @@ RLHF
     )
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-      if( t.Height() != diagLength )
-          LogicError("t must be the same length as H's offset diag");
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
     )
     Matrix<F> HPanConj, SInv, Z;
 
@@ -61,14 +64,14 @@ RLHF
 
         auto HPan  = H( IR(ki,ki+nb), IR(0,kj+nb) );
         auto ALeft = A( ALL,          IR(0,kj+nb) );
-        auto t1    = t( IR(k,k+nb),   ALL         );
+        auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
         FillDiagonal( HPanConj, F(1), HPanConj.Width()-HPanConj.Height() );
 
         Herk( UPPER, NORMAL, Base<F>(1), HPanConj, SInv );
-        FixDiagonal( conjugation, t1, SInv );
+        FixDiagonal( conjugation, householderScalars1, SInv );
 
         Gemm( NORMAL, ADJOINT, F(1), ALeft, HPanConj, Z );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
@@ -82,33 +85,35 @@ RLHF
 ( Conjugation conjugation,
   Int offset, 
   const ElementalMatrix<F>& HPre,
-  const ElementalMatrix<F>& tPre, 
+  const ElementalMatrix<F>& householderScalarsPre, 
         ElementalMatrix<F>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
       if( APre.Width() != HPre.Width() )
           LogicError("A and H must have the same width");
-      AssertSameGrids( HPre, tPre, APre );
+      AssertSameGrids( HPre, householderScalarsPre, APre );
     )
 
-    DistMatrixReadProxy<F,F,MC,MR  > HProx( HPre );
-    DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR  > AProx( APre );
+    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
+    DistMatrixReadProxy<F,F,MC,STAR>
+      householderScalarsProx( householderScalarsPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& H = HProx.GetLocked();
-    auto& t = tProx.GetLocked();
+    auto& householderScalars = householderScalarsProx.GetLocked();
     auto& A = AProx.Get();
 
     const Int diagLength = H.DiagonalLength(offset);
     DEBUG_ONLY(
-      if( t.Height() != diagLength )
-          LogicError("t must be the same length as H's offset diag");
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanConj(g);
     DistMatrix<F,STAR,VR  > HPan_STAR_VR(g);
     DistMatrix<F,STAR,MR  > HPan_STAR_MR(g);
-    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> householderScalars1_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> SInv_STAR_STAR(g);
     DistMatrix<F,STAR,MC  > ZAdj_STAR_MC(g);
     DistMatrix<F,STAR,VC  > ZAdj_STAR_VC(g);
@@ -125,7 +130,7 @@ RLHF
 
         auto HPan  = H( IR(ki,ki+nb), IR(0,kj+nb) );
         auto ALeft = A( ALL,          IR(0,kj+nb) );
-        auto t1    = t( IR(k,k+nb),   ALL         );
+        auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
@@ -138,8 +143,9 @@ RLHF
           Base<F>(1), HPan_STAR_VR.LockedMatrix(),
           Base<F>(0), SInv_STAR_STAR.Matrix() );
         El::AllReduce( SInv_STAR_STAR, HPan_STAR_VR.RowComm() );
-        t1_STAR_STAR = t1;
-        FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
+        householderScalars1_STAR_STAR = householderScalars1;
+        FixDiagonal
+        ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
         HPan_STAR_MR.AlignWith( ALeft );
         HPan_STAR_MR = HPan_STAR_VR;

@@ -16,7 +16,7 @@ namespace herm_tridiag {
 
 // TODO(poulson): Blocked sequential implementation
 template<typename F>
-void U( Matrix<F>& A, Matrix<F>& phase )
+void U( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -26,10 +26,10 @@ void U( Matrix<F>& A, Matrix<F>& phase )
     const Int n = A.Height();
     if( n == 0 )
     {
-        phase.Resize( 0, 1 );
+        householderScalars.Resize( 0, 1 );
         return;
     }
-    phase.Resize( n-1, 1 );
+    householderScalars.Resize( n-1, 1 );
 
     Matrix<F> w01;
     for( Int k=n-1; k>0; --k )
@@ -45,7 +45,7 @@ void U( Matrix<F>& A, Matrix<F>& phase )
 
         const F tau = LeftReflector( alpha01B, a01T );
         const Base<F> epsilon1 = RealPart(alpha01B(0));
-        phase(k-1) = tau;
+        householderScalars(k-1) = tau;
         alpha01B(0) = F(1);
 
         Zeros( w01, k, 1 );
@@ -63,35 +63,37 @@ void U( Matrix<F>& A, Matrix<F>& phase )
 template<typename F>
 void U
 ( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& phasePre,
+  ElementalMatrix<F>& householderScalarsPre,
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      AssertSameGrids( APre, phasePre );
+      AssertSameGrids( APre, householderScalarsPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> phaseProx( phasePre );
+    DistMatrixWriteProxy<F,F,STAR,STAR>
+      householderScalarsProx( householderScalarsPre );
     auto& A = AProx.Get();
-    auto& phase = phaseProx.Get();
+    auto& householderScalars = householderScalarsProx.Get();
 
     const Grid& g = A.Grid();
     const Int n = A.Height();
     if( n == 0 )
     {
-        phase.Resize( 0, 1 );
+        householderScalars.Resize( 0, 1 );
         return;
     }
-    DistMatrix<F,MD,STAR> phaseDiag(g);
-    phaseDiag.SetRoot( A.DiagonalRoot(1) );
-    phaseDiag.AlignCols( A.DiagonalAlign(1) );
-    phaseDiag.Resize( n-1, 1 );
+    DistMatrix<F,MD,STAR> householderScalarsDiag(g);
+    householderScalarsDiag.SetRoot( A.DiagonalRoot(1) );
+    householderScalarsDiag.AlignCols( A.DiagonalAlign(1) );
+    householderScalarsDiag.Resize( n-1, 1 );
 
     DistMatrix<F> WPan(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), phase1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g),
+      householderScalars1_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> APan_MC_STAR(g), WPan_MC_STAR(g);
     DistMatrix<F,MR,  STAR> APan_MR_STAR(g), WPan_MR_STAR(g);
     
@@ -112,7 +114,8 @@ void U
         
         if( k > 0 )
         {
-            auto phase1 = phaseDiag( IR(k-1,k+nb-1), ALL );
+            auto householderScalars1 =
+              householderScalarsDiag( IR(k-1,k+nb-1), ALL );
             WPan.AlignWith( A01 );
             WPan.Resize( k+nb, nb );
             APan_MC_STAR.AlignWith( A00 );
@@ -125,7 +128,7 @@ void U
             WPan_MR_STAR.Resize( k+nb, nb );
 
             UPan
-            ( ATL, WPan, phase1,
+            ( ATL, WPan, householderScalars1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR, ctrl );
 
@@ -142,17 +145,19 @@ void U
         }
         else
         {
-            auto phase1 = phaseDiag( IR(0,nb-1), ALL );
+            auto householderScalars1 =
+              householderScalarsDiag( IR(0,nb-1), ALL );
             A11_STAR_STAR = A11;
-            phase1_STAR_STAR.Resize( nb-1, 1 );
+            householderScalars1_STAR_STAR.Resize( nb-1, 1 );
             HermitianTridiag
-            ( UPPER, A11_STAR_STAR.Matrix(), phase1_STAR_STAR.Matrix() );
+            ( UPPER, A11_STAR_STAR.Matrix(),
+              householderScalars1_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;
-            phase1 = phase1_STAR_STAR;
+            householderScalars1 = householderScalars1_STAR_STAR;
         }
     }
     // Redistribute from matrix-diagonal form to fully replicated
-    phase = phaseDiag;
+    householderScalars = householderScalarsDiag;
 }
 
 } // namespace herm_tridiag

@@ -16,18 +16,20 @@ template<typename F>
 void
 LPan
 ( Matrix<F>& A,
-  Matrix<F>& phaseP,
-  Matrix<F>& phaseQ,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ,
   Matrix<F>& X,
   Matrix<F>& Y )
 {
     DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      if( phaseP.Height() != nX || phaseP.Width() != 1 )
-          LogicError("phaseP was not the right size");
-      if( phaseQ.Height() != nX || phaseQ.Width() != 1 )
-          LogicError("phaseQ was not the right size");
+      if( householderScalarsP.Height() != nX ||
+          householderScalarsP.Width() != 1 )
+          LogicError("householderScalarsP was not the right size");
+      if( householderScalarsQ.Height() != nX ||
+          householderScalarsQ.Width() != 1 )
+          LogicError("householderScalarsQ was not the right size");
       if( A.Height() > A.Width() )
           LogicError("A must be at least as wide as it is tall"); 
       if( A.Height() != X.Height() )
@@ -89,7 +91,7 @@ LPan
         //  |alpha11 a12| /I - tauP |1  | |1 conj(v)|\ = |delta 0|
         //                \         |v^T|            /
         const F tauP = RightReflector( alpha11, a12 );
-        phaseP(k) = tauP;
+        householderScalarsP(k) = tauP;
 
         // Temporarily set a1R = | 1 v |
         d(k) = RealPart(alpha11(0));
@@ -128,7 +130,7 @@ LPan
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilon |
         //  \          | u |            / |     a21B |   |    0    |
         const F tauQ = LeftReflector( alpha21T, a21B );
-        phaseQ(k) = tauQ;
+        householderScalarsQ(k) = tauQ;
 
         // Temporarily set a21 = | 1 |
         //                       | u |
@@ -164,8 +166,8 @@ template<typename F>
 void
 LPan
 ( DistMatrix<F>& A,
-  DistMatrix<F,STAR,STAR>& phaseP,
-  DistMatrix<F,STAR,STAR>& phaseQ,
+  DistMatrix<F,STAR,STAR>& householderScalarsP,
+  DistMatrix<F,STAR,STAR>& householderScalarsQ,
   DistMatrix<F>& X,
   DistMatrix<F>& Y,
   DistMatrix<F,MC,  STAR>& AL_MC_STAR,
@@ -174,17 +176,21 @@ LPan
     DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      AssertSameGrids( A, phaseP, phaseQ, X, Y, AL_MC_STAR, AT_STAR_MR );
+      AssertSameGrids
+      ( A, householderScalarsP, householderScalarsQ, X, Y, AL_MC_STAR,
+        AT_STAR_MR );
       if( A.ColAlign() != X.ColAlign() ||
           A.RowAlign() != X.RowAlign() )
           LogicError("A and X must be aligned");
       if( A.ColAlign() != Y.ColAlign() ||
           A.RowAlign() != Y.RowAlign() )
           LogicError("A and Y must be aligned");
-      if( phaseP.Height() != nX || phaseP.Width() != 1 )
-          LogicError("phaseP was not the right size");
-      if( phaseQ.Height() != nX || phaseQ.Width() != 1 )
-          LogicError("phaseQ was not the right size");
+      if( householderScalarsP.Height() != nX ||
+          householderScalarsP.Width() != 1 )
+          LogicError("householderScalarsP was not the right size");
+      if( householderScalarsQ.Height() != nX ||
+          householderScalarsQ.Width() != 1 )
+          LogicError("householderScalarsQ was not the right size");
       if( A.Height() > A.Width() )
           LogicError("A must be at least as wide as it is tall"); 
       if( A.Height() != X.Height() )
@@ -281,7 +287,7 @@ LPan
         //  |alpha11 a12| /I - tauP |1  | |1 conj(v)|\ = |delta 0|
         //                \         |v^T|            /
         const F tauP = RightReflector( alpha11, a12 );
-        phaseP.Set(k,0,tauP);
+        householderScalarsP.Set(k,0,tauP);
 
         // Temporarily set a1R = | 1 v |
         if( alpha11.IsLocal(0,0) )
@@ -361,7 +367,7 @@ LPan
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilon |
         //  \          | u |            / |     a21B |   |    0    |
         const F tauQ = LeftReflector( alpha21T, a21B );
-        phaseQ.Set(k,0,tauQ);
+        householderScalarsQ.Set(k,0,tauQ);
 
         // Temporarily set a21 = | 1 |
         //                       | u |

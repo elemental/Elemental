@@ -17,13 +17,16 @@ namespace lq {
 
 template<typename F> 
 void
-Householder( Matrix<F>& A, Matrix<F>& phase, Matrix<Base<F>>& signature )
+Householder
+( Matrix<F>& A,
+  Matrix<F>& householderScalars,
+  Matrix<Base<F>>& signature )
 {
     DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    phase.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
     signature.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
@@ -37,11 +40,11 @@ Householder( Matrix<F>& A, Matrix<F>& phase, Matrix<Base<F>>& signature )
 
         auto A1R = A( ind1, indR );
         auto A2R = A( ind2, indR );
-        auto phase1 = phase( ind1, ALL  );
+        auto householderScalars1 = householderScalars( ind1, ALL  );
         auto sig1 = signature( ind1, ALL  );
 
-        PanelHouseholder( A1R, phase1, sig1 );
-        ApplyQ( RIGHT, ADJOINT, A1R, phase1, sig1, A2R );
+        PanelHouseholder( A1R, householderScalars1, sig1 );
+        ApplyQ( RIGHT, ADJOINT, A1R, householderScalars1, sig1, A2R );
     }
 }
 
@@ -49,22 +52,23 @@ template<typename F>
 void
 Householder
 ( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& phasePre, 
+  ElementalMatrix<F>& householderScalarsPre, 
   ElementalMatrix<Base<F>>& signaturePre )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, phasePre, signaturePre ))
+    DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre, signaturePre ))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MD,STAR> phaseProx( phasePre );
+    DistMatrixWriteProxy<F,F,MD,STAR>
+      householderScalarsProx( householderScalarsPre );
     DistMatrixWriteProxy<Base<F>,Base<F>,MD,STAR> signatureProx( signaturePre );
     auto& A = AProx.Get();
-    auto& phase = phaseProx.Get();
+    auto& householderScalars = householderScalarsProx.Get();
     auto& signature = signatureProx.Get();
-    phase.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
     signature.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
@@ -78,11 +82,11 @@ Householder
 
         auto A1R = A( ind1, indR );
         auto A2R = A( ind2, indR );
-        auto phase1 = phase( ind1, ALL  );
+        auto householderScalars1 = householderScalars( ind1, ALL  );
         auto sig1 = signature( ind1, ALL  );
 
-        PanelHouseholder( A1R, phase1, sig1 );
-        ApplyQ( RIGHT, ADJOINT, A1R, phase1, sig1, A2R );
+        PanelHouseholder( A1R, householderScalars1, sig1 );
+        ApplyQ( RIGHT, ADJOINT, A1R, householderScalars1, sig1, A2R );
     }
 }
 

@@ -16,24 +16,29 @@
 namespace El {
 
 template<typename F>
-void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase )
+void Hessenberg
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     if( uplo == UPPER )
-        hessenberg::U( A, phase );
+        hessenberg::U( A, householderScalars );
     else
-        hessenberg::L( A, phase );
+        hessenberg::L( A, householderScalars );
 }
 
 template<typename F> 
 void Hessenberg
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& phase )
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A,
+  ElementalMatrix<F>& householderScalars )
 {
     DEBUG_CSE
     if( uplo == UPPER )
-        hessenberg::U( A, phase );
+        hessenberg::U( A, householderScalars );
     else
-        hessenberg::L( A, phase );
+        hessenberg::L( A, householderScalars );
 }
 
 namespace hessenberg {
@@ -42,8 +47,8 @@ template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_CSE
-    Matrix<F> phase;
-    Hessenberg( uplo, A, phase );
+    Matrix<F> householderScalars;
+    Hessenberg( uplo, A, householderScalars );
     if( uplo == LOWER )
         MakeTrapezoidal( LOWER, A, 1 );
     else
@@ -54,8 +59,8 @@ template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
 {
     DEBUG_CSE
-    DistMatrix<F,STAR,STAR> phase(A.Grid());
-    Hessenberg( uplo, A, phase );
+    DistMatrix<F,STAR,STAR> householderScalars(A.Grid());
+    Hessenberg( uplo, A, householderScalars );
     if( uplo == LOWER )
         MakeTrapezoidal( LOWER, A, 1 );
     else
@@ -66,9 +71,13 @@ void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
 
 #define PROTO(F) \
   template void Hessenberg \
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase ); \
+  ( UpperOrLower uplo, \
+    Matrix<F>& A, \
+    Matrix<F>& householderScalars ); \
   template void Hessenberg \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& phase ); \
+  ( UpperOrLower uplo, \
+    ElementalMatrix<F>& A, \
+    ElementalMatrix<F>& householderScalars ); \
   template void hessenberg::ExplicitCondensed \
   ( UpperOrLower uplo, Matrix<F>& A ); \
   template void hessenberg::ExplicitCondensed \
@@ -76,22 +85,22 @@ void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<F>& phase, \
+    const Matrix<F>& householderScalars, \
           Matrix<F>& H ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<F>& householderScalars, \
           ElementalMatrix<F>& B ); \
   template void hessenberg::FormQ \
   ( UpperOrLower uplo, \
     const Matrix<F>& A, \
-    const Matrix<F>& phase, \
+    const Matrix<F>& householderScalars, \
           Matrix<F>& Q ); \
   template void hessenberg::FormQ \
   ( UpperOrLower uplo, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<F>& householderScalars, \
           ElementalMatrix<F>& Q );
 
 #define EL_NO_INT_PROTO

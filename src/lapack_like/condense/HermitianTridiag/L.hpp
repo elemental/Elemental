@@ -16,7 +16,7 @@ namespace herm_tridiag {
 
 // TODO(poulson): Sequential blocked implementation
 template<typename F>
-void L( Matrix<F>& A, Matrix<F>& phase )
+void L( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -26,10 +26,10 @@ void L( Matrix<F>& A, Matrix<F>& phase )
     const Int n = A.Height();
     if( n == 0 )
     {
-        phase.Resize( 0, 1 );
+        householderScalars.Resize( 0, 1 );
         return;
     }
-    phase.Resize( n-1, 1 );
+    householderScalars.Resize( n-1, 1 );
 
     Matrix<F> w21;
     for( Int k=0; k<n-1; ++k )
@@ -45,7 +45,7 @@ void L( Matrix<F>& A, Matrix<F>& phase )
 
         const F tau = LeftReflector( alpha21T, a21B );
         const Base<F> epsilon1 = RealPart(alpha21T(0));
-        phase(k) = tau;
+        householderScalars(k) = tau;
         alpha21T(0) = F(1);
 
         Zeros( w21, a21.Height(), 1 );
@@ -63,35 +63,36 @@ void L( Matrix<F>& A, Matrix<F>& phase )
 template<typename F> 
 void L
 ( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& phasePre, 
+  ElementalMatrix<F>& householderScalarsPre, 
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      AssertSameGrids( APre, phasePre );
+      AssertSameGrids( APre, householderScalarsPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> phaseProx( phasePre );
+    DistMatrixWriteProxy<F,F,STAR,STAR>
+      householderScalarsProx( householderScalarsPre );
     auto& A = AProx.Get();
-    auto& phase = phaseProx.Get();
+    auto& householderScalars = householderScalarsProx.Get();
 
     const Int n = A.Height();
     if( n == 0 )
     {
-        phase.Resize( 0, 1 );
+        householderScalars.Resize( 0, 1 );
         return;
     }
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> phaseDiag(g);
-    phaseDiag.SetRoot( A.DiagonalRoot(-1) );
-    phaseDiag.AlignCols( A.DiagonalAlign(-1) );
-    phaseDiag.Resize( n-1, 1 );
+    DistMatrix<F,MD,STAR> householderScalarsDiag(g);
+    householderScalarsDiag.SetRoot( A.DiagonalRoot(-1) );
+    householderScalarsDiag.AlignCols( A.DiagonalAlign(-1) );
+    householderScalarsDiag.Resize( n-1, 1 );
 
     DistMatrix<F> WPan(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), phase1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), householderScalars1_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> APan_MC_STAR(g), WPan_MC_STAR(g);
     DistMatrix<F,MR,  STAR> APan_MR_STAR(g), WPan_MR_STAR(g);
 
@@ -110,7 +111,7 @@ void L
         auto ABR = A( indB, indR );
 
         const Int nbt = Min(bsize,(n-1)-k);
-        auto phase1 = phaseDiag( IR(k,k+nbt), ALL );
+        auto householderScalars1 = householderScalarsDiag( IR(k,k+nbt), ALL );
 
         if( A22.Height() > 0 )
         {
@@ -126,7 +127,7 @@ void L
             WPan_MR_STAR.Resize( n-k, nb );
 
             LPan
-            ( ABR, WPan, phase1,
+            ( ABR, WPan, householderScalars1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR, ctrl );
 
@@ -144,15 +145,16 @@ void L
         else
         {
             A11_STAR_STAR = A11;
-            phase1_STAR_STAR.Resize( nbt, 1 );
+            householderScalars1_STAR_STAR.Resize( nbt, 1 );
             HermitianTridiag
-            ( LOWER, A11_STAR_STAR.Matrix(), phase1_STAR_STAR.Matrix() );
+            ( LOWER, A11_STAR_STAR.Matrix(),
+              householderScalars1_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;
-            phase1 = phase1_STAR_STAR;
+            householderScalars1 = householderScalars1_STAR_STAR;
         }
     }
     // Redistribute from matrix-diagonal form to fully replicated
-    phase = phaseDiag;
+    householderScalars = householderScalarsDiag;
 }
 
 } // namespace herm_tridiag

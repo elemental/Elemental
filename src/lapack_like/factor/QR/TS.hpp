@@ -38,7 +38,7 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
     lastZ = treeData.QR0( IR(0,n), IR(0,n) );
 
     treeData.QRList.resize( logp );
-    treeData.phaseList.resize( logp );
+    treeData.householderScalarsList.resize( logp );
     treeData.signatureList.resize( logp );
 
     // Run the binary tree reduction
@@ -63,10 +63,10 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
         }
 
         auto& QRFact = treeData.QRList[stage];
-        auto& phase = treeData.phaseList[stage];
+        auto& householderScalars = treeData.householderScalarsList[stage];
         auto& signature = treeData.signatureList[stage];
         QRFact.Resize( 2*n, n, 2*n );
-        phase.Resize( n, 1 );
+        householderScalars.Resize( n, 1 );
         signature.Resize( n, 1 );
         auto QRFactTop = QRFact( IR(0,n),   IR(0,n) );
         auto QRFactBot = QRFact( IR(n,2*n), IR(0,n) );
@@ -79,7 +79,7 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
         if( stage < logp-1 )
         {
             // TODO: Exploit double-triangular structure
-            QR( QRFact, phase, signature );
+            QR( QRFact, householderScalars, signature );
             lastZ = QRFact( IR(0,n), IR(0,n) );
         }
     }
@@ -119,34 +119,37 @@ RootQR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 
 template<typename F>
 inline Matrix<F>&
-RootPhases( const ElementalMatrix<F>& A, TreeData<F>& treeData )
+RootHouseholderScalars( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
-        LogicError("This process does not have access to the root phases");
+        LogicError
+        ("This process does not have access to the root Householder scalars");
     if( p == 1 )
-        return treeData.phase0;
+        return treeData.householderScalars0;
     else
-        return treeData.phaseList.back();
+        return treeData.householderScalarsList.back();
 }
 
 template<typename F>
 inline const Matrix<F>&
-RootPhases( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
+RootHouseholderScalars
+( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
-        LogicError("This process does not have access to the root phases");
+        LogicError
+        ("This process does not have access to the root Householder scalars");
     if( p == 1 )
-        return treeData.phase0;
+        return treeData.householderScalars0;
     else
-        return treeData.phaseList.back();
+        return treeData.householderScalarsList.back();
 }
 
 template<typename F>
@@ -229,7 +232,7 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
                 ApplyQ
                 ( LEFT, NORMAL, 
                   treeData.QRList[stage],
-                  treeData.phaseList[stage], 
+                  treeData.householderScalarsList[stage], 
                   treeData.signatureList[stage],
                   Z );
             }
@@ -253,7 +256,8 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
     // TODO: Exploit sparsity
     ApplyQ
     ( LEFT, NORMAL,
-      treeData.QR0, treeData.phase0, treeData.signature0, A.Matrix() );
+      treeData.QR0, treeData.householderScalars0, treeData.signature0,
+      A.Matrix() );
 }
 
 template<typename F>
@@ -292,7 +296,7 @@ FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
         A.Matrix() = treeData.QR0;
         ExpandPackedReflectors
         ( LOWER, VERTICAL, CONJUGATED, 0,
-          A.Matrix(), RootPhases(A,treeData) );
+          A.Matrix(), RootHouseholderScalars(A,treeData) );
         DiagonalScale( RIGHT, NORMAL, RootSignature(A,treeData), A.Matrix() );
     }
     else
@@ -301,7 +305,7 @@ FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
         {
             ExpandPackedReflectors
             ( LOWER, VERTICAL, CONJUGATED, 0, 
-              RootQR(A,treeData), RootPhases(A,treeData) );
+              RootQR(A,treeData), RootHouseholderScalars(A,treeData) );
             DiagonalScale
             ( RIGHT, NORMAL, RootSignature(A,treeData), RootQR(A,treeData) );
         }
@@ -318,7 +322,7 @@ TreeData<F> TS( const ElementalMatrix<F>& A )
         LogicError("Invalid row distribution for TSQR");
     TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.phase0, treeData.signature0 );
+    QR( treeData.QR0, treeData.householderScalars0, treeData.signature0 );
 
     const Int p = mpi::Size( A.ColComm() );
     if( p != 1 )
@@ -327,7 +331,7 @@ TreeData<F> TS( const ElementalMatrix<F>& A )
         if( A.ColRank() == 0 )
             QR
             ( ts::RootQR(A,treeData),
-              ts::RootPhases(A,treeData), 
+              ts::RootHouseholderScalars(A,treeData), 
               ts::RootSignature(A,treeData) );
     }
     return treeData;

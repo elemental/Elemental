@@ -49,10 +49,10 @@ BusingerGolub
     }
 
     // Perform the pivoted QR factorization
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
-    QR( A, phase, signature, Omega, ctrlCopy );
-    const Int numSteps = phase.Height();
+    QR( A, householderScalars, signature, Omega, ctrlCopy );
+    const Int numSteps = householderScalars.Height();
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     auto RL = A( IR(0,numSteps), IR(0,numSteps) );
@@ -92,10 +92,10 @@ BusingerGolub
     }
 
     // Perform an adaptive pivoted QR factorization
-    DistMatrix<F,MD,STAR> phase(A.Grid());
+    DistMatrix<F,MD,STAR> householderScalars(A.Grid());
     DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
-    QR( A, phase, signature, Omega, ctrlCopy );
-    const Int numSteps = phase.Height();
+    QR( A, householderScalars, signature, Omega, ctrlCopy );
+    const Int numSteps = householderScalars.Height();
 
     auto RL = A( IR(0,numSteps), IR(0,numSteps) );
     auto RR = A( IR(0,numSteps), IR(numSteps,n) );

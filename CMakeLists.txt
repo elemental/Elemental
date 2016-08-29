@@ -64,7 +64,7 @@ if(BUILD_SHARED_LIBS AND NOT SUPPORTS_SHARED)
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries?")
 endif()
 
-#Useful to turn off for shipping in OS packages
+# Useful to turn off for shipping in OS packages
 option(BINARY_SUBDIRECTORIES "Install binaries into tree based on type" ON)
 
 include(GNUInstallDirs)

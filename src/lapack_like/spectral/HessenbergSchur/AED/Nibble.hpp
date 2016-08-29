@@ -151,7 +151,7 @@ AEDInfo Nibble
         auto TTL = T(spikeInd,spikeInd);
         auto TTR = T(spikeInd,IR(spikeSize,END));
         auto VL = V(ALL,spikeInd);
-        Matrix<Real> phaseT;
+        Matrix<Real> householderScalarsT;
 
         if( spikeSize > 1 && spikeValue != zero )
         {
@@ -186,8 +186,9 @@ AEDInfo Nibble
               VL.Buffer(), VL.LDim(),
               &work[blockSize] );
 
-            Hessenberg( UPPER, TTL, phaseT );
-            hessenberg::ApplyQ( LEFT, UPPER, ADJOINT, TTL, phaseT, TTR );
+            Hessenberg( UPPER, TTL, householderScalarsT );
+            hessenberg::ApplyQ
+            ( LEFT, UPPER, ADJOINT, TTL, householderScalarsT, TTR );
         }
 
         if( deflateBeg >= 1 )
@@ -198,7 +199,8 @@ AEDInfo Nibble
 
         if( spikeSize > 1 && spikeValue != zero )
         {
-            hessenberg::ApplyQ( RIGHT, UPPER, NORMAL, TTL, phaseT, VL );
+            hessenberg::ApplyQ
+            ( RIGHT, UPPER, NORMAL, TTL, householderScalarsT, VL );
         }
 
         Matrix<Real> WAccum; // TODO(poulson): Reuse this buffer?
@@ -347,7 +349,7 @@ AEDInfo Nibble
         auto TTL = T(spikeInd,spikeInd);
         auto TTR = T(spikeInd,IR(spikeSize,END));
         auto VL = V(ALL,spikeInd);
-        Matrix<F> phaseT;
+        Matrix<F> householderScalarsT;
 
         if( spikeSize > 1 && spikeValue != zero )
         {
@@ -382,8 +384,9 @@ AEDInfo Nibble
               VL.Buffer(), VL.LDim(),
               &work[blockSize] );
 
-            Hessenberg( UPPER, TTL, phaseT );
-            hessenberg::ApplyQ( LEFT, UPPER, ADJOINT, TTL, phaseT, TTR );
+            Hessenberg( UPPER, TTL, householderScalarsT );
+            hessenberg::ApplyQ
+            ( LEFT, UPPER, ADJOINT, TTL, householderScalarsT, TTR );
         }
 
         if( deflateBeg >= 1 )
@@ -394,7 +397,8 @@ AEDInfo Nibble
 
         if( spikeSize > 1 && spikeValue != zero )
         {
-            hessenberg::ApplyQ( RIGHT, UPPER, NORMAL, TTL, phaseT, VL );
+            hessenberg::ApplyQ
+            ( RIGHT, UPPER, NORMAL, TTL, householderScalarsT, VL );
         }
 
         Matrix<F> WAccum; // TODO(poulson): Reuse this buffer?

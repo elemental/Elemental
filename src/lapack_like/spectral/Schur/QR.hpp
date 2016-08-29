@@ -22,10 +22,10 @@ void QR
     DEBUG_CSE
     Timer timer;
 
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     if( time )
         timer.Start();
-    Hessenberg( UPPER, A, phase );
+    Hessenberg( UPPER, A, householderScalars );
     if( time )
         Output("  Hessenberg reduction: ",timer.Stop()," seconds");
     MakeTrapezoidal( UPPER, A, -1 );
@@ -62,13 +62,13 @@ void QR
     DEBUG_CSE
     Timer timer;
 
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     if( time )
         timer.Start();
-    Hessenberg( UPPER, A, phase );
+    Hessenberg( UPPER, A, householderScalars );
     if( time )
         Output("  Hessenberg reduction: ",timer.Stop()," seconds");
-    hessenberg::FormQ( UPPER, A, phase, Q );
+    hessenberg::FormQ( UPPER, A, householderScalars, Q );
     MakeTrapezoidal( UPPER, A, -1 );
 
     HessenbergSchurCtrl hessSchurCtrl;
@@ -194,17 +194,17 @@ void QR
     // Reduce A to upper-Hessenberg form in an element-wise distribution
     // and form the explicit reflector matrix
     DistMatrix<F> AElem( A ), QElem( A.Grid() );
-    DistMatrix<F,STAR,STAR> phase( A.Grid() );
+    DistMatrix<F,STAR,STAR> householderScalars( A.Grid() );
     if( time && gridRank == 0 )
         timer.Start();
-    Hessenberg( UPPER, AElem, phase );
+    Hessenberg( UPPER, AElem, householderScalars );
     if( time && gridRank == 0 )
         Output("  Hessenberg: ",timer.Stop()," seconds");
     // There is not yet a 'form Q'
     if( time && gridRank == 0 )
         timer.Start();
     Identity( QElem, n, n ); 
-    hessenberg::FormQ( UPPER, AElem, phase, QElem );
+    hessenberg::FormQ( UPPER, AElem, householderScalars, QElem );
     if( time && gridRank == 0 )
         Output("  hessenberg::FormQ: ",timer.Stop()," seconds");
     MakeTrapezoidal( UPPER, AElem, -1 );
@@ -357,17 +357,17 @@ void QR
     const Int n = A.Height();
     // Reduce A to upper-Hessenberg form in an element-wise distribution
     // and form the explicit reflector matrix
-    DistMatrix<F,STAR,STAR> phase( A.Grid() );
+    DistMatrix<F,STAR,STAR> householderScalars( A.Grid() );
     if( time && gridRank == 0 )
         timer.Start();
-    Hessenberg( UPPER, A, phase );
+    Hessenberg( UPPER, A, householderScalars );
     if( time && gridRank == 0 )
         Output("  Hessenberg: ",timer.Stop()," seconds");
     // There is not yet a 'form Q'
     Identity( Q, n, n ); 
     if( time && gridRank == 0 )
         timer.Start();
-    hessenberg::FormQ( UPPER, A, phase, Q );
+    hessenberg::FormQ( UPPER, A, householderScalars, Q );
     if( time && gridRank == 0 )
         Output("  hessenberg::FormQ: ",timer.Stop()," seconds");
     MakeTrapezoidal( UPPER, A, -1 );

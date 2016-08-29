@@ -17,7 +17,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<F>& phase, 
+  const Matrix<F>& householderScalars, 
   const Matrix<Base<F>>& signature,
         Matrix<F>& B )
 {
@@ -49,7 +49,8 @@ void ApplyQ
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, phase, B );
+    ( side, LOWER, HORIZONTAL, direction, conjugation, offset,
+      A, householderScalars, B );
 
     if( !applyDFirst )
     {
@@ -71,7 +72,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation, 
   const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& phasePre, 
+  const ElementalMatrix<F>& householderScalarsPre, 
   const ElementalMatrix<Base<F>>& signature,
         ElementalMatrix<F>& BPre )
 {
@@ -90,14 +91,15 @@ void ApplyQ
     auto& A = AProx.GetLocked();
     auto& B = BProx.Get();
 
-    ElementalProxyCtrl phaseCtrl;
-    phaseCtrl.rootConstrain = true;
-    phaseCtrl.colConstrain = true;
-    phaseCtrl.root = A.DiagonalRoot(offset);
-    phaseCtrl.colAlign = A.DiagonalAlign(offset);
+    ElementalProxyCtrl householderScalarsCtrl;
+    householderScalarsCtrl.rootConstrain = true;
+    householderScalarsCtrl.colConstrain = true;
+    householderScalarsCtrl.root = A.DiagonalRoot(offset);
+    householderScalarsCtrl.colAlign = A.DiagonalAlign(offset);
 
-    DistMatrixReadProxy<F,F,MD,STAR> phaseProx( phasePre, phaseCtrl );
-    auto& phase = phaseProx.GetLocked();
+    DistMatrixReadProxy<F,F,MD,STAR>
+     householderScalarsProx( householderScalarsPre, householderScalarsCtrl );
+    auto& householderScalars = householderScalarsProx.GetLocked();
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -117,7 +119,8 @@ void ApplyQ
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, phase, B );
+    ( side, LOWER, HORIZONTAL, direction, conjugation, offset,
+      A, householderScalars, B );
 
     if( !applyDFirst ) 
     {

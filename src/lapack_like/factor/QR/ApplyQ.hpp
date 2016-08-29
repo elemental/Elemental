@@ -17,7 +17,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature, 
         Matrix<F>& B )
 {
@@ -48,7 +48,8 @@ void ApplyQ
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, phase, B );
+    ( side, LOWER, VERTICAL, direction, conjugation, 0,
+      A, householderScalars, B );
 
     if( !applyDFirst )
     {
@@ -70,7 +71,7 @@ void ApplyQ
 ( LeftOrRight side,
   Orientation orientation, 
   const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& phase, 
+  const ElementalMatrix<F>& householderScalars, 
   const ElementalMatrix<Base<F>>& signature,
         ElementalMatrix<F>& BPre )
 {
@@ -106,7 +107,8 @@ void ApplyQ
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, phase, B );
+    ( side, LOWER, VERTICAL, direction, conjugation, 0,
+      A, householderScalars, B );
 
     if( !applyDFirst )
     {

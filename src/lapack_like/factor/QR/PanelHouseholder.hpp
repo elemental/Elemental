@@ -15,7 +15,7 @@ namespace qr {
 template<typename F> 
 void PanelHouseholder
 ( Matrix<F>& A,
-  Matrix<F>& phase,
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature )
 {
     DEBUG_CSE
@@ -23,7 +23,7 @@ void PanelHouseholder
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    phase.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
     signature.Resize( minDim, 1 );
 
     Matrix<F> z21;
@@ -41,7 +41,7 @@ void PanelHouseholder
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        phase(k) = tau;
+        householderScalars(k) = tau;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -70,11 +70,11 @@ void PanelHouseholder
 template<typename F> 
 void PanelHouseholder
 ( DistMatrix<F>& A,
-  ElementalMatrix<F>& phase,
+  ElementalMatrix<F>& householderScalars,
   ElementalMatrix<Base<F>>& signature )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, phase, signature ))
+    DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
@@ -84,12 +84,13 @@ void PanelHouseholder
     const Int n = A.Width();
     const Int minDim = Min(m,n);
  
-    if( phase.Height() != minDim || phase.Width() != 1 )
-        LogicError("Unexpected size of t");
+    if( householderScalars.Height() != minDim ||
+        householderScalars.Width() != 1 )
+        LogicError("Unexpected size of householderScalars");
     if( signature.Height() != minDim || signature.Width() != 1 )
         LogicError("Unexpected size of signature");
 
-    phase.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -104,7 +105,7 @@ void PanelHouseholder
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        phase.Set( k, 0, tau );
+        householderScalars.Set( k, 0, tau );
 
         // Temporarily set aB1 = | 1 |
         //                       | u |

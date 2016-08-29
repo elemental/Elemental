@@ -18,7 +18,7 @@ void TestCorrectness
   Int offset,
   bool printMatrices,
   const DistMatrix<F>& H,
-  const DistMatrix<F,MD,STAR>& phase )
+  const DistMatrix<F,MD,STAR>& householderScalars )
 {
     typedef Base<F> Real;
     const Grid& g = H.Grid();
@@ -32,7 +32,8 @@ void TestCorrectness
     DistMatrix<F> Y(g);
     Identity( Y, m, m );
     ApplyPackedReflectors
-    ( side, uplo, VERTICAL, order, conjugation, offset, H, phase, Y );
+    ( side, uplo, VERTICAL, order, conjugation, offset,
+      H, householderScalars, Y );
     if( printMatrices )
     {
         DistMatrix<F> W(g);
@@ -41,7 +42,7 @@ void TestCorrectness
         {
             ApplyPackedReflectors
             ( side, uplo, VERTICAL, BACKWARD, conjugation, offset,
-              H, phase, W );
+              H, householderScalars, W );
             Print( Y, "Q" );
             Print( W, "Q^H" );
         }
@@ -49,7 +50,7 @@ void TestCorrectness
         {
             ApplyPackedReflectors
             ( side, uplo, VERTICAL, FORWARD, conjugation, offset,
-              H, phase, W );
+              H, householderScalars, W );
             Print( Y, "Q^H" );
             Print( W, "Q" );
         }
@@ -105,32 +106,32 @@ void TestUT
     Uniform( A, m, m );
 
     const Int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
-    DistMatrix<F,MD,STAR> phase(g);
-    phase.SetRoot( H.DiagonalRoot(offset) );
-    phase.AlignCols( H.DiagonalAlign(offset) );
-    phase.Resize( diagLength, 1 );
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    householderScalars.SetRoot( H.DiagonalRoot(offset) );
+    householderScalars.AlignCols( H.DiagonalAlign(offset) );
+    householderScalars.Resize( diagLength, 1 );
 
     DistMatrix<F> HCol(g);
     if( uplo == LOWER )
     {
-        for( Int i=0; i<phase.Height(); ++i )
+        for( Int i=0; i<householderScalars.Height(); ++i )
         {
             // View below the diagonal containing the implicit 1
             HCol = View( H, i-offset+1, i, m-(i-offset+1), 1 );
             F norm = Nrm2( HCol );
             F alpha = F(2)/(norm*norm+F(1));
-            phase.Set( i, 0, alpha );
+            householderScalars.Set( i, 0, alpha );
         }
     }
     else
     {
-        for( Int i=0; i<phase.Height(); ++i ) 
+        for( Int i=0; i<householderScalars.Height(); ++i ) 
         {
             // View above the diagonal containing the implicit 1
             HCol = View( H, 0, i+offset, i, 1 );
             F norm = Nrm2( HCol );
             F alpha = F(2)/(norm*norm+F(1));
-            phase.Set( i, 0, alpha );
+            householderScalars.Set( i, 0, alpha );
         }
     }
 
@@ -138,7 +139,7 @@ void TestUT
     {
         Print( H, "H" );
         Print( A, "A" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
     }
 
     OutputFromRoot(g.Comm(),"Starting UT transform...");
@@ -146,7 +147,8 @@ void TestUT
     Timer timer; 
     timer.Start();
     ApplyPackedReflectors
-    ( side, uplo, VERTICAL, order, conjugation, offset, H, phase, A );
+    ( side, uplo, VERTICAL, order, conjugation, offset,
+      H, householderScalars, A );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double realGFlops = 8.*Pow(double(m),3.)/(1.e9*runTime);
@@ -157,7 +159,7 @@ void TestUT
     if( correctness )
     {
         TestCorrectness
-        ( side, uplo, order, conjugation, offset, printMatrices, H, phase );
+        ( side, uplo, order, conjugation, offset, printMatrices, H, householderScalars );
     }
     PopIndent();
 }

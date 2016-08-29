@@ -54,7 +54,7 @@ ValueInt<Real> FindPivot
 template<typename F> 
 void BusingerGolub
 (       Matrix<F>& A,
-        Matrix<F>& phase,
+        Matrix<F>& householderScalars,
         Matrix<Base<F>>& signature,
         Permutation& Omega,
   const QRCtrl<Base<F>> ctrl )
@@ -67,7 +67,7 @@ void BusingerGolub
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Int maxSteps = ( ctrl.boundRank ? Min(ctrl.maxRank,minDim) : minDim );
-    phase.Resize( maxSteps, 1 );
+    householderScalars.Resize( maxSteps, 1 );
     signature.Resize( maxSteps, 1 );
 
     Matrix<F> z21;
@@ -122,7 +122,7 @@ void BusingerGolub
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        phase(k) = tau;
+        householderScalars(k) = tau;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -168,7 +168,7 @@ void BusingerGolub
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 
     // Ensure that t is the correct length
-    phase.Resize( k, 1 );
+    householderScalars.Resize( k, 1 );
 }
 
 // TODO: Implement lambda op which is registered to MPI but can easily
@@ -314,13 +314,13 @@ void ReplaceColNorms
 template<typename F>
 void BusingerGolub
 ( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& phase, 
+  ElementalMatrix<F>& householderScalars, 
   ElementalMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, phase, signature ))
+    DEBUG_ONLY(AssertSameGrids( APre, householderScalars, signature ))
     typedef Base<F> Real;
     const Real zero(0), one(1);
 
@@ -332,7 +332,7 @@ void BusingerGolub
     const Int minDim = Min(m,n);
     const Int mLocal = A.LocalHeight();
     const Int maxSteps = ( ctrl.boundRank ? Min(ctrl.maxRank,minDim) : minDim );
-    phase.Resize( maxSteps, 1 );
+    householderScalars.Resize( maxSteps, 1 );
     signature.Resize( maxSteps, 1 );
 
     // Initialize two copies of the column norms, one will be consistently
@@ -417,7 +417,7 @@ void BusingerGolub
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        phase.Set( k, 0, tau );
+        householderScalars.Set( k, 0, tau );
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -476,6 +476,7 @@ void BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColNorms( A(ind2,ALL), inaccurateNorms, norms, origNorms );
     }
+    householderScalars.Resize( k, 1 );
 
     // Form d and rescale R
     auto R = A( IR(0,k), ALL );
@@ -483,9 +484,6 @@ void BusingerGolub
     auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
     EntrywiseMap( signature, function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
-
-    // Ensure that t is the correct length
-    phase.Resize( k, 1 );
 }
 
 } // namespace qr

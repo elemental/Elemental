@@ -12,8 +12,8 @@ using namespace El;
 template<typename F> 
 void TestCorrectness
 ( const Matrix<F>& A, 
-  const Matrix<F>& phaseP,
-  const Matrix<F>& phaseQ,
+  const Matrix<F>& householderScalarsP,
+  const Matrix<F>& householderScalarsQ,
         Matrix<F>& AOrig,
   bool print,
   bool display )
@@ -45,8 +45,8 @@ void TestCorrectness
         Matrix<F> Q, P;
         Identity( Q, m, m );
         Identity( P, n, n );
-        bidiag::ApplyQ( LEFT,  NORMAL, A, phaseQ, Q );
-        bidiag::ApplyP( RIGHT, NORMAL, A, phaseP, P );
+        bidiag::ApplyQ( LEFT,  NORMAL, A, householderScalarsQ, Q );
+        bidiag::ApplyP( RIGHT, NORMAL, A, householderScalarsP, P );
         if( print )
         {
             Print( Q, "Q" );
@@ -60,8 +60,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    bidiag::ApplyQ( LEFT,  ADJOINT, A, phaseQ, AOrig );
-    bidiag::ApplyP( RIGHT, NORMAL,  A, phaseP, AOrig );
+    bidiag::ApplyQ( LEFT,  ADJOINT, A, householderScalarsQ, AOrig );
+    bidiag::ApplyP( RIGHT, NORMAL,  A, householderScalarsP, AOrig );
     if( print )
         Print( AOrig, "Manual bidiagonal" );
     if( display )
@@ -97,8 +97,8 @@ void TestCorrectness
 template<typename F> 
 void TestCorrectness
 ( const DistMatrix<F>& A, 
-  const DistMatrix<F,STAR,STAR>& phaseP,
-  const DistMatrix<F,STAR,STAR>& phaseQ,
+  const DistMatrix<F,STAR,STAR>& householderScalarsP,
+  const DistMatrix<F,STAR,STAR>& householderScalarsQ,
         DistMatrix<F>& AOrig,
   bool print,
   bool display )
@@ -132,8 +132,8 @@ void TestCorrectness
         DistMatrix<F> Q(g), P(g);
         Identity( Q, m, m );
         Identity( P, n, n );
-        bidiag::ApplyQ( LEFT,  NORMAL, A, phaseQ, Q );
-        bidiag::ApplyP( RIGHT, NORMAL, A, phaseP, P );
+        bidiag::ApplyQ( LEFT,  NORMAL, A, householderScalarsQ, Q );
+        bidiag::ApplyP( RIGHT, NORMAL, A, householderScalarsP, P );
         if( print )
         {
             Print( Q, "Q" );
@@ -147,8 +147,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    bidiag::ApplyQ( LEFT,  ADJOINT, A, phaseQ, AOrig );
-    bidiag::ApplyP( RIGHT, NORMAL,  A, phaseP, AOrig );
+    bidiag::ApplyQ( LEFT,  ADJOINT, A, householderScalarsQ, AOrig );
+    bidiag::ApplyP( RIGHT, NORMAL,  A, householderScalarsP, AOrig );
     if( print )
         Print( AOrig, "Manual bidiagonal" );
     if( display )
@@ -194,7 +194,7 @@ void TestBidiag
     Output("Testing with ",TypeName<F>());
     PushIndent();
     Matrix<F> A, AOrig;
-    Matrix<F> phaseP, phaseQ;
+    Matrix<F> householderScalarsP, householderScalarsQ;
 
     Uniform( A, m, n );
     if( correctness )
@@ -207,23 +207,24 @@ void TestBidiag
     Output("Starting bidiagonalization");
     Timer timer;
     timer.Start();
-    Bidiag( A, phaseP, phaseQ );
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     // TODO: Flop calculation
     Output("Time = ",timer.Stop()," seconds.");
     if( print )
     {
         Print( A, "A after Bidiag" );
-        Print( phaseP, "phaseP after Bidiag" );
-        Print( phaseQ, "phaseQ after Bidiag" );
+        Print( householderScalarsP, "householderScalarsP after Bidiag" );
+        Print( householderScalarsQ, "householderScalarsQ after Bidiag" );
     }
     if( display )
     {
         Display( A, "A after Bidiag" );
-        Display( phaseP, "phaseP after Bidiag" );
-        Display( phaseQ, "phaseQ after Bidiag" );
+        Display( householderScalarsP, "householderScalarsP after Bidiag" );
+        Display( householderScalarsQ, "householderScalarsQ after Bidiag" );
     }
     if( correctness )
-        TestCorrectness( A, phaseP, phaseQ, AOrig, print, display );
+        TestCorrectness
+        ( A, householderScalarsP, householderScalarsQ, AOrig, print, display );
     PopIndent();
 }
 
@@ -239,7 +240,7 @@ void TestBidiag
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,STAR,STAR> phaseP(g), phaseQ(g);
+    DistMatrix<F,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
 
     Uniform( A, m, n );
     if( correctness )
@@ -253,24 +254,25 @@ void TestBidiag
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
-    Bidiag( A, phaseP, phaseQ );
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     mpi::Barrier( g.Comm() );
     // TODO: Flop calculation
     OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds.");
     if( print )
     {
         Print( A, "A after Bidiag" );
-        Print( phaseP, "phaseP after Bidiag" );
-        Print( phaseQ, "phaseQ after Bidiag" );
+        Print( householderScalarsP, "householderScalarsP after Bidiag" );
+        Print( householderScalarsQ, "householderScalarsQ after Bidiag" );
     }
     if( display )
     {
         Display( A, "A after Bidiag" );
-        Display( phaseP, "phaseP after Bidiag" );
-        Display( phaseQ, "phaseQ after Bidiag" );
+        Display( householderScalarsP, "householderScalarsP after Bidiag" );
+        Display( householderScalarsQ, "householderScalarsQ after Bidiag" );
     }
     if( correctness )
-        TestCorrectness( A, phaseP, phaseQ, AOrig, print, display );
+        TestCorrectness
+        ( A, householderScalarsP, householderScalarsQ, AOrig, print, display );
     PopIndent();
 }
 

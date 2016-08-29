@@ -12,7 +12,7 @@ using namespace El;
 template<typename F>
 void TestCorrectness
 ( const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& d,
         Matrix<F>& AOrig )
 {
@@ -30,8 +30,8 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     Matrix<F> Z;
     Identity( Z, m, n );
-    qr::ApplyQ( LEFT, NORMAL, A, phase, d, Z );
-    qr::ApplyQ( LEFT, ADJOINT, A, phase, d, Z );
+    qr::ApplyQ( LEFT, NORMAL, A, householderScalars, d, Z );
+    qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, d, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q^H Q
@@ -50,7 +50,7 @@ void TestCorrectness
     // Form Q R
     auto U( A );
     MakeTrapezoidal( UPPER, U );
-    qr::ApplyQ( LEFT, NORMAL, A, phase, d, U );
+    qr::ApplyQ( LEFT, NORMAL, A, householderScalars, d, U );
     U -= AOrig;
     const Real infError = InfinityNorm( U ); 
     const Real relError = infError / (eps*maxDim*oneNormA);
@@ -68,7 +68,7 @@ void TestCorrectness
 template<typename F>
 void TestCorrectness
 ( const DistMatrix<F>& A,
-  const DistMatrix<F,MD,STAR>& phase,
+  const DistMatrix<F,MD,STAR>& householderScalars,
   const DistMatrix<Base<F>,MD,STAR>& signature,
         DistMatrix<F>& AOrig )
 {
@@ -87,8 +87,8 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    qr::ApplyQ( LEFT, NORMAL, A, phase, signature, Z );
-    qr::ApplyQ( LEFT, ADJOINT, A, phase, signature, Z );
+    qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, Z );
+    qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q^H Q
@@ -108,7 +108,7 @@ void TestCorrectness
     // Form Q R
     auto U( A );
     MakeTrapezoidal( UPPER, U );
-    qr::ApplyQ( LEFT, NORMAL, A, phase, signature, U );
+    qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, U );
     U -= AOrig;
     const Real infError = InfinityNorm( U ); 
     const Real relError = infError / (eps*maxDim*oneNormA);
@@ -134,7 +134,7 @@ void TestQR
     Output("Testing with ",TypeName<F>());
     PushIndent();
     Matrix<F> A, AOrig;
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
 
     Uniform( A, m, n );
@@ -148,7 +148,7 @@ void TestQR
     Timer timer;
     Output("Starting QR factorization...");
     timer.Start();
-    QR( A, phase, signature );
+    QR( A, householderScalars, signature );
     const double runTime = timer.Stop();
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
@@ -156,11 +156,11 @@ void TestQR
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
         Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( A, phase, signature, AOrig );
+        TestCorrectness( A, householderScalars, signature, AOrig );
     PopIndent();
 }
 
@@ -176,7 +176,7 @@ void TestQR
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
     DistMatrix<Base<F>,MD,STAR> signature(g);
 
     Uniform( A, m, n );
@@ -193,10 +193,10 @@ void TestQR
         // TODO(poulson): Fold this interface into the standard QR via a Ctrl
         // option of 'useScaLAPACK'
         DistMatrix<F,MC,MR,BLOCK> ABlock( A );
-        DistMatrix<F,MR,STAR,BLOCK> phaseBlock(g);
+        DistMatrix<F,MR,STAR,BLOCK> householderScalarsBlock(g);
         mpi::Barrier( g.Comm() );
         timer.Start();
-        QR( ABlock, phaseBlock ); 
+        QR( ABlock, householderScalarsBlock ); 
         const double runTime = timer.Stop();
         const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
         const double gFlops =
@@ -208,7 +208,7 @@ void TestQR
     OutputFromRoot(g.Comm(),"Starting QR factorization...");
     mpi::Barrier( g.Comm() );
     timer.Start();
-    QR( A, phase, signature );
+    QR( A, householderScalars, signature );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
@@ -217,11 +217,11 @@ void TestQR
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
         Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( A, phase, signature, AOrig );
+        TestCorrectness( A, householderScalars, signature, AOrig );
     PopIndent();
 }
 
@@ -236,7 +236,7 @@ void TestQR
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
     PushIndent();
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,MD,STAR> phase(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
     DistMatrix<Base<F>,MD,STAR> signature(g);
 
     Uniform( A, m, n );
@@ -250,7 +250,7 @@ void TestQR
     OutputFromRoot(g.Comm(),"Starting QR factorization...");
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    QR( A, phase, signature );
+    QR( A, householderScalars, signature );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
@@ -259,11 +259,11 @@ void TestQR
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
         Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( A, phase, signature, AOrig );
+        TestCorrectness( A, householderScalars, signature, AOrig );
     PopIndent();
 }
 

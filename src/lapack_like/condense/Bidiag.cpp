@@ -15,26 +15,29 @@
 namespace El {
 
 template<typename F>
-void Bidiag( Matrix<F>& A, Matrix<F>& phaseP, Matrix<F>& phaseQ )
+void Bidiag
+( Matrix<F>& A,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ )
 {
     DEBUG_CSE
     if( A.Height() >= A.Width() )
-        bidiag::U( A, phaseP, phaseQ );
+        bidiag::U( A, householderScalarsP, householderScalarsQ );
     else
-        bidiag::L( A, phaseP, phaseQ );
+        bidiag::L( A, householderScalarsP, householderScalarsQ );
 }
 
 template<typename F> 
 void Bidiag
 ( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseP,
-  ElementalMatrix<F>& phaseQ )
+  ElementalMatrix<F>& householderScalarsP,
+  ElementalMatrix<F>& householderScalarsQ )
 {
     DEBUG_CSE
     if( A.Height() >= A.Width() )
-        bidiag::U( A, phaseP, phaseQ );
+        bidiag::U( A, householderScalarsP, householderScalarsQ );
     else
-        bidiag::L( A, phaseP, phaseQ );
+        bidiag::L( A, householderScalarsP, householderScalarsQ );
 }
 
 namespace bidiag {
@@ -43,15 +46,15 @@ template<typename F>
 void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
 {
     DEBUG_CSE
-    Matrix<F> phaseP, phaseQ;
-    Bidiag( A, phaseP, phaseQ );
+    Matrix<F> householderScalarsP, householderScalarsQ;
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( A.Height() >= A.Width() )
     {
         Q = A;
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, Q, phaseQ );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, Q, householderScalarsQ );
         // TODO: Use ExpandPackedReflectors when it is available
         Identity( P, A.Width(), A.Width() );
-        bidiag::ApplyP( LEFT, NORMAL, A, phaseP, P ); 
+        bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, P ); 
  
         MakeTrapezoidal( UPPER, A );    
         MakeTrapezoidal( LOWER, A, 1 );
@@ -59,10 +62,10 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
     else
     {
         Q = A;
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, -1, Q, phaseQ );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, -1, Q, householderScalarsQ );
         // TODO: Use ExpandPackedReflectors when it is available
         Identity( P, A.Width(), A.Width() );
-        bidiag::ApplyP( LEFT, NORMAL, A, phaseP, P ); 
+        bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, P ); 
 
         MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
@@ -76,15 +79,17 @@ void Explicit
   DistMatrix<F>& Q )
 {
     DEBUG_CSE
-    DistMatrix<F,MD,STAR> phaseP(A.Grid()), phaseQ(A.Grid());
-    Bidiag( A, phaseP, phaseQ );
+    DistMatrix<F,MD,STAR> householderScalarsP(A.Grid()),
+      householderScalarsQ(A.Grid());
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( A.Height() >= A.Width() )
     {
         Q = A;
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, Q, phaseQ );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, 0, Q, householderScalarsQ );
         // TODO: Use ExpandPackedReflectors when it is available
         Identity( P, A.Width(), A.Width() );
-        bidiag::ApplyP( LEFT, NORMAL, A, phaseP, P ); 
+        bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, P ); 
  
         MakeTrapezoidal( UPPER, A );    
         MakeTrapezoidal( LOWER, A, 1 );
@@ -92,10 +97,11 @@ void Explicit
     else
     {
         Q = A;
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, -1, Q, phaseQ );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, -1, Q, householderScalarsQ );
         // TODO: Use ExpandPackedReflectors when it is available
         Identity( P, A.Width(), A.Width() );
-        bidiag::ApplyP( LEFT, NORMAL, A, phaseP, P ); 
+        bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, P ); 
 
         MakeTrapezoidal( LOWER, A );    
         MakeTrapezoidal( UPPER, A, -1 );
@@ -124,8 +130,8 @@ template<typename F>
 void ExplicitCondensed( Matrix<F>& A )
 {
     DEBUG_CSE
-    Matrix<F> phaseP, phaseQ;
-    Bidiag( A, phaseP, phaseQ );
+    Matrix<F> householderScalarsP, householderScalarsQ;
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( A.Height() >= A.Width() )
     {
         MakeTrapezoidal( UPPER, A );    
@@ -142,8 +148,9 @@ template<typename F>
 void ExplicitCondensed( ElementalMatrix<F>& A )
 {
     DEBUG_CSE
-    DistMatrix<F,STAR,STAR> phaseP(A.Grid()), phaseQ(A.Grid());
-    Bidiag( A, phaseP, phaseQ );
+    DistMatrix<F,STAR,STAR> householderScalarsP(A.Grid()),
+      householderScalarsQ(A.Grid());
+    Bidiag( A, householderScalarsP, householderScalarsQ );
     if( A.Height() >= A.Width() )
     {
         MakeTrapezoidal( UPPER, A );    
@@ -161,12 +168,12 @@ void ExplicitCondensed( ElementalMatrix<F>& A )
 #define PROTO(F) \
   template void Bidiag \
   ( Matrix<F>& A, \
-    Matrix<F>& phaseP, \
-    Matrix<F>& phaseQ ); \
+    Matrix<F>& householderScalarsP, \
+    Matrix<F>& householderScalarsQ ); \
   template void Bidiag \
   ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& phaseP, \
-    ElementalMatrix<F>& phaseQ ); \
+    ElementalMatrix<F>& householderScalarsP, \
+    ElementalMatrix<F>& householderScalarsQ ); \
   template void bidiag::Explicit \
   ( Matrix<F>& A, \
     Matrix<F>& P, \
@@ -180,22 +187,22 @@ void ExplicitCondensed( ElementalMatrix<F>& A )
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<F>& phase, \
+    const Matrix<F>& householderScalars, \
           Matrix<F>& B ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<F>& householderScalars, \
           ElementalMatrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, \
-    const Matrix<F>& phase, \
+    const Matrix<F>& householderScalars, \
           Matrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
     const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& phase, \
+    const ElementalMatrix<F>& householderScalars, \
           ElementalMatrix<F>& B );
 
 #define EL_NO_INT_PROTO

@@ -47,11 +47,11 @@ SVDInfo ChanUpper
     {
         if( m > heightRatio*n )
         {
-            Matrix<F> phase;
+            Matrix<F> householderScalars;
             Matrix<Real> signature;
             if( ctrl.time )
                 timer.Start();
-            QR( A, phase, signature );
+            QR( A, householderScalars, signature );
             if( ctrl.time )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
@@ -74,11 +74,11 @@ SVDInfo ChanUpper
         // This branch handles (avoidU,avoidV) in {(false,false),(false,true)}
         if( m > heightRatio*n )
         {
-            Matrix<F> phase;
+            Matrix<F> householderScalars;
             Matrix<Real> signature;
             if( ctrl.time )
                 timer.Start();
-            QR( A, phase, signature );
+            QR( A, householderScalars, signature );
             if( ctrl.time )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
@@ -94,7 +94,7 @@ SVDInfo ChanUpper
                 info = svd::GolubReinsch( R, UTL, s, V, ctrl );
                 if( ctrl.time )
                     timer.Start();
-                qr::ApplyQ( LEFT, NORMAL, A, phase, signature, U );
+                qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, U );
                 if( ctrl.time )
                     Output("Chan backtransformation: ",timer.Stop()," seconds");
             }
@@ -108,7 +108,7 @@ SVDInfo ChanUpper
                 // (U,s,V) holds an SVD of the R from the QR fact. of original A
                 if( ctrl.time )
                     timer.Start();
-                qr::ApplyQ( LEFT, NORMAL, A, phase, signature, U );
+                qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, U );
                 if( ctrl.time )
                     Output("Chan backtransformation: ",timer.Stop()," seconds");
             }
@@ -165,11 +165,11 @@ SVDInfo ChanUpper
     {
         if( m > heightRatio*n )
         {
-            DistMatrix<F,MD,STAR> phase(g);
+            DistMatrix<F,MD,STAR> householderScalars(g);
             DistMatrix<Real,MD,STAR> signature(g);
             if( ctrl.time && g.Rank() == 0 )
                 timer.Start();
-            QR( A, phase, signature );
+            QR( A, householderScalars, signature );
             if( ctrl.time && g.Rank() == 0 )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
@@ -192,11 +192,11 @@ SVDInfo ChanUpper
         // This branch handles (avoidU,avoidV) in {(false,false),(false,true)}
         if( m > heightRatio*n )
         {
-            DistMatrix<F,MD,STAR> phase(g);
+            DistMatrix<F,MD,STAR> householderScalars(g);
             DistMatrix<Real,MD,STAR> signature(g);
             if( ctrl.time && g.Rank() == 0 )
                 timer.Start();
-            QR( A, phase, signature );
+            QR( A, householderScalars, signature );
             if( ctrl.time && g.Rank() == 0 )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
@@ -212,7 +212,7 @@ SVDInfo ChanUpper
                 info = svd::GolubReinsch( R, UTL, s, V, ctrl );
                 if( ctrl.time && g.Rank() == 0 )
                     timer.Start();
-                qr::ApplyQ( LEFT, NORMAL, A, phase, signature, U );
+                qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, U );
                 if( ctrl.time && g.Rank() == 0 )
                     Output("Chan backtransformation: ",timer.Stop()," seconds");
             }
@@ -226,7 +226,7 @@ SVDInfo ChanUpper
                 // (U,s,V) holds an SVD of the R from the QR fact. of original A
                 if( ctrl.time && g.Rank() == 0 )
                     timer.Start();
-                qr::ApplyQ( LEFT, NORMAL, A, phase, signature, U );
+                qr::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, U );
                 if( ctrl.time && g.Rank() == 0 )
                     Output("Chan backtransformation: ",timer.Stop()," seconds");
             }
