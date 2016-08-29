@@ -147,7 +147,8 @@ RUVB
           Base<F>(0), SInv_STAR_STAR.Matrix() );
         El::AllReduce( SInv_STAR_STAR, HPan_VC_STAR.ColComm() );
         householderScalars1_STAR_STAR = householderScalars1;
-        FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
+        FixDiagonal
+        ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
         HPan_MR_STAR.AlignWith( ALeft );
         HPan_MR_STAR = HPan_VC_STAR;
