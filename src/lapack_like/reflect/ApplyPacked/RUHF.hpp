@@ -87,23 +87,22 @@ void
 RUHF
 ( Conjugation conjugation,
   Int offset,
-  const ElementalMatrix<F>& HPre,
+  const ElementalMatrix<F>& H,
   const ElementalMatrix<F>& householderScalarsPre,
         ElementalMatrix<F>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( APre.Width() != HPre.Width() )
+      if( APre.Width() != H.Width() )
           LogicError("A and H must have the same width");
-      AssertSameGrids( HPre, householderScalarsPre, APre );
+      AssertSameGrids( H, householderScalarsPre, APre );
     )
 
-    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR>
       householderScalarsProx( householderScalarsPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    auto& H = HProx.GetLocked();
     auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     const Int nA = A.Width();
@@ -114,6 +113,7 @@ RUHF
           ("householderScalars must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
+    auto HPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
     DistMatrix<F> HPanConj(g);
     DistMatrix<F,STAR,VR  > HPan_STAR_VR(g);
     DistMatrix<F,STAR,MR  > HPan_STAR_MR(g);
@@ -132,11 +132,11 @@ RUHF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan   = H( IR(ki,ki+nb), IR(kj,nA) );
-        auto ARight = A( ALL,          IR(kj,nA) );
+        auto ARight = A( ALL, IR(kj,nA) );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
-        Conjugate( HPan, HPanConj );
+        LockedView( *HPan, H, IR(ki,ki+nb), IR(kj,nA) );
+        Conjugate( *HPan, HPanConj );
         MakeTrapezoidal( UPPER, HPanConj );
         FillDiagonal( HPanConj, F(1) );
 

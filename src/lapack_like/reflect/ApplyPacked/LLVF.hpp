@@ -64,12 +64,14 @@ void LLVFUnblocked
         auto hPan = H( IR(ki,m),   IR(kj) );
         auto ABot = A( IR(ki,m),   ALL    );
         const F tau = householderScalars(k);
-        const F gamma = ( conjugation ? Conj(tau) : tau );
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
 
         hPanCopy = hPan;
         hPanCopy(0) = 1;
 
+        // z := ABot' hPan
         Gemv( ADJOINT, F(1), ABot, hPanCopy, z );
+        // ABot := (I - gamma hPan hPan') ABot = ABot - gamma hPan (ABot' hPan)'
         Ger( -gamma, hPanCopy, z, ABot );
     }
 }
@@ -117,8 +119,11 @@ void LLVFBlocked
         Herk( LOWER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
+        // Z := HPan' ABot
         Gemm( ADJOINT, NORMAL, F(1), HPanCopy, ABot, Z );
+        // Z := inv(SInv) HPan' ABot
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
+        // ABot := ABot (I - HPan inv(SInv) HPan') = ABot - HPan Z
         Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), ABot );
     }
 }
@@ -163,9 +168,9 @@ void LLVFUnblocked
     // continually paying the latency cost of the broadcasts in a 'Get' call
     DistMatrixReadProxy<F,F,STAR,STAR>
       householderScalarsProx( householderScalarsPre );
+    auto& householderScalars = householderScalarsProx.GetLocked();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    auto& householderScalars = householderScalarsProx.GetLocked();
     auto& A = AProx.Get();
 
     const Int m = H.Height();
@@ -177,9 +182,8 @@ void LLVFUnblocked
     )
     const Grid& g = H.Grid();
     auto hPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
-    DistMatrix<F,MC,  STAR> hPan_MC_STAR(g);
+    DistMatrix<F,MC,STAR> hPan_MC_STAR(g);
     DistMatrix<F,MR,STAR> z_MR_STAR(g);
-    DistMatrix<F,VR,STAR> z_VR_STAR(g);
 
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
@@ -189,20 +193,22 @@ void LLVFUnblocked
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        LockedView( *hPan, H, IR(ki,m), IR(kj) );
         auto ABot = A( IR(ki,m), ALL );
         const F tau = householderScalars.GetLocal( k, 0 );
-        const F gamma = ( conjugation ? Conj(tau) : tau );
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
 
+        LockedView( *hPan, H, IR(ki,m), IR(kj) );
         hPan_MC_STAR.AlignWith( ABot );
         Copy( *hPan, hPan_MC_STAR );
         hPan_MC_STAR.Set( 0, 0, F(1) );
 
+        // z := ABot' hPan
         z_MR_STAR.AlignWith( ABot );
         Zeros( z_MR_STAR, ABot.Width(), 1 );
         LocalGemv( ADJOINT, F(1), ABot, hPan_MC_STAR, F(0), z_MR_STAR );
         El::AllReduce( z_MR_STAR.Matrix(), ABot.ColComm() );
 
+        // ABot := (I - gamma hPan hPan') ABot = ABot - gamma hPan (ABot' hPan)'
         LocalGer( -gamma, hPan_MC_STAR, z_MR_STAR, ABot );
     }
 }
@@ -224,8 +230,9 @@ void LLVFBlocked
 
     DistMatrixReadProxy<F,F,MC,STAR>
       householderScalarsProx( householderScalarsPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     const Int m = H.Height();
@@ -255,10 +262,10 @@ void LLVFBlocked
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        LockedView( *HPan, H, IR(ki,m), IR(kj,kj+nb) );
         auto ABot = A( IR(ki,m), ALL );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        LockedView( *HPan, H, IR(ki,m), IR(kj,kj+nb) );
         Copy( *HPan, HPanCopy );
         MakeTrapezoidal( LOWER, HPanCopy );
         FillDiagonal( HPanCopy, F(1) );
@@ -274,6 +281,7 @@ void LLVFBlocked
         FixDiagonal
         ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
+        // Z := HPan' ABot
         HPan_MC_STAR.AlignWith( ABot );
         HPan_MC_STAR = HPanCopy;
         Z_STAR_MR.AlignWith( ABot );
@@ -281,9 +289,11 @@ void LLVFBlocked
         Z_STAR_VR.AlignWith( ABot );
         Contract( Z_STAR_MR, Z_STAR_VR );
         
+        // Z := inv(SInv) HPan' ABot
         LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
 
+        // ABot := ABot (I - HPan inv(SInv) HPan') = ABot - HPan Z
         Z_STAR_MR = Z_STAR_VR;
         LocalGemm( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), ABot );
     }

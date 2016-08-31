@@ -85,23 +85,22 @@ template<typename F>
 void LLVB
 ( Conjugation conjugation,
   Int offset, 
-  const ElementalMatrix<F>& HPre,
+  const ElementalMatrix<F>& H,
   const ElementalMatrix<F>& householderScalarsPre, 
         ElementalMatrix<F>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( HPre.Height() != APre.Height() )
+      if( H.Height() != APre.Height() )
           LogicError("H and A must have the same height");
-      AssertSameGrids( HPre, householderScalarsPre, APre );
+      AssertSameGrids( H, householderScalarsPre, APre );
     )
 
-    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR>
       householderScalarsProx( householderScalarsPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    auto& H = HProx.GetLocked();
     auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     const Int m = H.Height();
@@ -112,6 +111,7 @@ void LLVB
           ("householderScalars must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
+    auto HPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
     DistMatrix<F> HPanCopy(g);
     DistMatrix<F,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<F,MC,  STAR> HPan_MC_STAR(g);
@@ -130,11 +130,11 @@ void LLVB
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = H( IR(ki,m),   IR(kj,kj+nb) );
-        auto ABot = A( IR(ki,m),   ALL          );
+        auto ABot = A( IR(ki,m), ALL );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
-        HPanCopy = HPan;
+        LockedView( *HPan, H, IR(ki,m), IR(kj,kj+nb) );
+        Copy( *HPan, HPanCopy );
         MakeTrapezoidal( LOWER, HPanCopy );
         FillDiagonal( HPanCopy, F(1) );
 

@@ -82,23 +82,22 @@ template<typename F>
 void LUVF
 ( Conjugation conjugation,
   Int offset, 
-  const ElementalMatrix<F>& HPre,
+  const ElementalMatrix<F>& H,
   const ElementalMatrix<F>& householderScalarsPre, 
         ElementalMatrix<F>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      AssertSameGrids( HPre, householderScalarsPre, APre );
-      if( HPre.Height() != APre.Height() )
+      AssertSameGrids( H, householderScalarsPre, APre );
+      if( H.Height() != APre.Height() )
           LogicError("H and A must be the same height");
     )
 
-    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
     DistMatrixReadProxy<F,F,MC,STAR>
       householderScalarsProx( householderScalarsPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    auto& H = HProx.GetLocked();
     auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     const Int diagLength = H.DiagonalLength(offset);
@@ -108,6 +107,7 @@ void LUVF
           ("householderScalars must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
+    auto HPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
     DistMatrix<F> HPanCopy(g);
     DistMatrix<F,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<F,MC,  STAR> HPan_MC_STAR(g);
@@ -126,11 +126,11 @@ void LUVF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = H( IR(0,ki+nb), IR(kj,kj+nb) );
-        auto ATop = A( IR(0,ki+nb), ALL          );
+        auto ATop = A( IR(0,ki+nb), ALL );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
-        HPanCopy = HPan;
+        LockedView( *HPan, H, IR(0,ki+nb), IR(kj,kj+nb) );
+        Copy( *HPan, HPanCopy );
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
         FillDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
         HPan_VC_STAR = HPanCopy;
