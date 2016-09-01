@@ -32,7 +32,52 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F>
-void LLVB
+void LLVBUnblocked
+( Conjugation conjugation,
+  Int offset, 
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( H.Height() != A.Height() )
+          LogicError("A and H must be the same height");
+    )
+    const Int m = H.Height();
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag.");
+    )
+    Matrix<F> hPanCopy, z;
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto hPan = H( IR(ki,m),   IR(kj) );
+        auto ABot = A( IR(ki,m),   ALL    );
+        const F tau = householderScalars(k);
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        hPanCopy = hPan;
+        hPanCopy(0) = 1;
+
+        // z := ABot' hPan
+        Gemv( ADJOINT, F(1), ABot, hPanCopy, z );
+        // ABot := (I - gamma hPan hPan') ABot = ABot - gamma hPan (ABot' hPan)'
+        Ger( -gamma, hPanCopy, z, ABot );
+    }
+}
+
+template<typename F>
+void LLVBBlocked
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
@@ -75,14 +120,102 @@ void LLVB
         Herk( UPPER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
+        // Z := HPan' ABot
         Gemm( ADJOINT, NORMAL, F(1), HPanCopy, ABot, Z );
+        // Z := inv(SInv) HPan' ABot
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
+        // ABot := (I - HPan inv(SInv) HPan') ABot = ABot - HPan Z
         Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), ABot );
     }
 }
 
-template<typename F> 
+template<typename F>
 void LLVB
+( Conjugation conjugation,
+  Int offset, 
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numRHS = A.Width();
+    const Int blocksize = Blocksize();
+    if( numRHS < blocksize )
+    {
+        LLVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        LLVBBlocked( conjugation, offset, H, householderScalars, A );
+    }
+}
+
+template<typename F> 
+void LLVBUnblocked
+( Conjugation conjugation,
+  Int offset, 
+  const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& householderScalarsPre, 
+        ElementalMatrix<F>& APre )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( H.Height() != APre.Height() )
+          LogicError("A and H must be the same height");
+      AssertSameGrids( H, householderScalarsPre, APre );
+    )
+
+    // We gather the entire set of Householder scalars at the start rather than
+    // continually paying the latency cost of the broadcasts in a 'Get' call
+    DistMatrixReadProxy<F,F,STAR,STAR>
+      householderScalarsProx( householderScalarsPre );
+    auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
+
+    const Int m = H.Height();
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag.");
+    )
+    const Grid& g = H.Grid();
+    auto hPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
+    DistMatrix<F,MC,STAR> hPan_MC_STAR(g);
+    DistMatrix<F,MR,STAR> z_MR_STAR(g);
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto ABot = A( IR(ki,m), ALL );
+        const F tau = householderScalars.GetLocal( k, 0 );
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        LockedView( *hPan, H, IR(ki,m), IR(kj) );
+        hPan_MC_STAR.AlignWith( ABot );
+        Copy( *hPan, hPan_MC_STAR );
+        hPan_MC_STAR.Set( 0, 0, F(1) );
+
+        // z := ABot' hPan
+        z_MR_STAR.AlignWith( ABot );
+        Zeros( z_MR_STAR, ABot.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), ABot, hPan_MC_STAR, F(0), z_MR_STAR );
+        El::AllReduce( z_MR_STAR.Matrix(), ABot.ColComm() );
+
+        // ABot := (I - gamma hPan hPan') ABot = ABot - gamma hPan (ABot' hPan)'
+        LocalGer( -gamma, hPan_MC_STAR, z_MR_STAR, ABot );
+    }
+}
+
+template<typename F> 
+void LLVBBlocked
 ( Conjugation conjugation,
   Int offset, 
   const ElementalMatrix<F>& H,
@@ -149,6 +282,7 @@ void LLVB
         FixDiagonal
         ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
+        // Z := HPan' ABot
         HPan_MC_STAR.AlignWith( ABot );
         HPan_MC_STAR = HPanCopy;
         Z_STAR_MR.AlignWith( ABot );
@@ -156,11 +290,34 @@ void LLVB
         Z_STAR_VR.AlignWith( ABot );
         Contract( Z_STAR_MR, Z_STAR_VR );
  
+        // Z := inv(SInv) HPan' ABot
         LocalTrsm
         ( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
 
+        // ABot := (I - HPan inv(SInv) HPan') ABot = ABot - HPan Z
         Z_STAR_MR = Z_STAR_VR;
         LocalGemm( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), ABot );
+    }
+}
+
+template<typename F> 
+void LLVB
+( Conjugation conjugation,
+  Int offset, 
+  const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& householderScalars, 
+        ElementalMatrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numRHS = A.Width();
+    const Int blocksize = Blocksize();
+    if( numRHS < blocksize )
+    {
+        LLVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        LLVBBlocked( conjugation, offset, H, householderScalars, A );
     }
 }
 

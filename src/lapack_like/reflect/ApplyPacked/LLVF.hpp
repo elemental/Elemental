@@ -123,7 +123,7 @@ void LLVFBlocked
         Gemm( ADJOINT, NORMAL, F(1), HPanCopy, ABot, Z );
         // Z := inv(SInv) HPan' ABot
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
-        // ABot := ABot (I - HPan inv(SInv) HPan') = ABot - HPan Z
+        // ABot := (I - HPan inv(SInv) HPan') ABot = ABot - HPan Z
         Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), ABot );
     }
 }
@@ -293,7 +293,7 @@ void LLVFBlocked
         LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
 
-        // ABot := ABot (I - HPan inv(SInv) HPan') = ABot - HPan Z
+        // ABot := (I - HPan inv(SInv) HPan') ABot = ABot - HPan Z
         Z_STAR_MR = Z_STAR_VR;
         LocalGemm( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), ABot );
     }
