@@ -67,7 +67,7 @@ void LUVBUnblocked
         // z := ATop' hPan
         Gemv( ADJOINT, F(1), ATop, hPanCopy, z );
         // ATop := (I - gamma hPan HPan') ATop
-        Ger( -gamma, hPan, z, ATop );
+        Ger( -gamma, hPanCopy, z, ATop );
     }
 }
 

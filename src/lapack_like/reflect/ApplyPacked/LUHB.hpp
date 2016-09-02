@@ -71,9 +71,9 @@ void LUHBUnblocked
         hPanCopy(0,0) = 1;
 
         // z := ABot' hPan^T 
-        Gemv( ADJOINT, F(1), ABot, hPan, z );
+        Gemv( ADJOINT, F(1), ABot, hPanCopy, z );
         // ABot := (I - gamma hPan^T conj(hPan)) ABot = ABot - gamma hPan^T z'
-        Ger( -gamma, hPan, z, ABot );
+        Ger( -gamma, hPanCopy, z, ABot );
     }
 }
 

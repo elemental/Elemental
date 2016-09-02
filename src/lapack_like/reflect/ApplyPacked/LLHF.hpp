@@ -68,9 +68,9 @@ void LLHFUnblocked
         hPanCopy(0,kj) = 1;
 
         // z := ATop' hPan^T
-        Gemv( ADJOINT, F(1), ATop, hPan, z );
+        Gemv( ADJOINT, F(1), ATop, hPanCopy, z );
         // ATop := (I - gamma hPan^T conj(hPan)) ATop = ATop - gamma hPan^T z'
-        Ger( -gamma, hPan, z, ATop );
+        Ger( -gamma, hPanCopy, z, ATop );
     }
 }
 

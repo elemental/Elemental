@@ -71,7 +71,7 @@ void LUVFUnblocked
         // z := ATop' hPan
         Gemv( ADJOINT, F(1), ATop, hPanCopy, z );
         // ATop := (I - gamma hPan hPan') ATop
-        Ger( -gamma, hPan, z, ATop );
+        Ger( -gamma, hPanCopy, z, ATop );
     }
 }
 
