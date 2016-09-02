@@ -33,9 +33,55 @@ namespace apply_packed_reflectors {
 
 template<typename F> 
 void
-RLVB
+RLVBUnblocked
 ( Conjugation conjugation,
-  Int offset, 
+  Int offset,
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( H.Height() != A.Width() )
+          LogicError("H's height must match A's width");
+    )
+    const Int nA = A.Width();
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
+    )
+    Matrix<F> hPanCopy, z;
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto hPan = H( IR(ki,nA), IR(kj) );
+        auto ARight = A( ALL, IR(ki,nA) );
+        const F tau = householderScalars(k);
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        hPanCopy = hPan;
+        hPanCopy(0) = F(1);
+
+        // z := ARight hPan
+        Gemv( NORMAL, F(1), ARight, hPanCopy, z );
+        // ARight := ARight (I - gamma hPan hPan')
+        Ger( -gamma, z, hPanCopy, ARight );
+    }
+} 
+
+template<typename F> 
+void
+RLVBBlocked
+( Conjugation conjugation,
+  Int offset,
   const Matrix<F>& H,
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
@@ -76,8 +122,11 @@ RLVB
         Herk( LOWER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
+        // Z := ARight HPan
         Gemm( NORMAL, NORMAL, F(1), ARight, HPanCopy, Z );
+        // Z := ARight HPan inv(SInv)
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
+        // ARight := ARight (I - HPan inv(SInv) HPan')
         Gemm( NORMAL, ADJOINT, F(-1), Z, HPanCopy, F(1), ARight );
     }
 }
@@ -86,9 +135,92 @@ template<typename F>
 void
 RLVB
 ( Conjugation conjugation,
-  Int offset, 
+  Int offset,
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numLHS = A.Height();
+    const Int blocksize = Blocksize();
+    if( numLHS < blocksize )
+    {
+        RLVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        RLVBBlocked( conjugation, offset, H, householderScalars, A );
+    }
+}
+
+template<typename F> 
+void
+RLVBUnblocked
+( Conjugation conjugation,
+  Int offset,
   const ElementalMatrix<F>& H,
-  const ElementalMatrix<F>& householderScalarsPre, 
+  const ElementalMatrix<F>& householderScalarsPre,
+        ElementalMatrix<F>& APre )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( H, householderScalarsPre, APre ))
+
+    // We gather the entire set of Householder scalars at the start rather than
+    // continually paying the latency cost of the broadcasts in a 'Get' call
+    DistMatrixReadProxy<F,F,STAR,STAR>
+      householderScalarsProx( householderScalarsPre );
+    auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
+
+    const Int nA = A.Width();
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
+    )
+    const Grid& g = H.Grid();
+    auto hPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
+    DistMatrix<F,MR,STAR> hPan_MR_STAR(g);
+    DistMatrix<F,MC,STAR> z_MC_STAR(g);
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto ARight = A( ALL, IR(ki,nA) ); 
+        const F tau = householderScalars.GetLocal( k, 0 );
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        LockedView( *hPan, H, IR(ki,nA), IR(kj) );
+        hPan_MR_STAR.AlignWith( ARight );
+        Copy( *hPan, hPan_MR_STAR );
+        hPan_MR_STAR.Set( 0, 0, F(1) );
+
+        // z := ARight hPan
+        z_MC_STAR.AlignWith( ARight );
+        Zeros( z_MC_STAR, ARight.Height(), 1 );
+        LocalGemv( NORMAL, F(1), ARight, hPan_MR_STAR, F(0), z_MC_STAR );
+        El::AllReduce( z_MC_STAR, ARight.RowComm() );
+ 
+        // ARight := ARight (I - HPan inv(SInv) HPan')
+        LocalGer( -gamma, z_MC_STAR, hPan_MR_STAR, ARight );
+    }
+}
+
+template<typename F> 
+void
+RLVBBlocked
+( Conjugation conjugation,
+  Int offset,
+  const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& householderScalarsPre,
         ElementalMatrix<F>& APre )
 {
     DEBUG_CSE
@@ -148,6 +280,7 @@ RLVB
         FixDiagonal
         ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
+        // Z := ARight HPan
         HPan_MR_STAR.AlignWith( ARight );
         HPan_MR_STAR = HPan_VC_STAR;
         ZAdj_STAR_MC.AlignWith( ARight );
@@ -155,12 +288,36 @@ RLVB
         ZAdj_STAR_VC.AlignWith( ARight );
         Contract( ZAdj_STAR_MC, ZAdj_STAR_VC );
  
+        // Z := ARight HPan inv(SInv)
         LocalTrsm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );
 
+        // ARight := ARight (I - HPan inv(SInv) HPan')
         ZAdj_STAR_MC = ZAdj_STAR_VC;
         LocalGemm
         ( ADJOINT, ADJOINT, F(-1), ZAdj_STAR_MC, HPan_MR_STAR, F(1), ARight );
+    }
+}
+
+template<typename F> 
+void
+RLVB
+( Conjugation conjugation,
+  Int offset,
+  const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& householderScalars,
+        ElementalMatrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numLHS = A.Height();
+    const Int blocksize = Blocksize();
+    if( numLHS < blocksize )
+    {
+        RLVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        RLVBBlocked( conjugation, offset, H, householderScalars, A );
     }
 }
 
