@@ -67,6 +67,7 @@ void LUHBUnblocked
         const F tau = householderScalars(k);
         const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
 
+        // Convert to an explicit (scaled) Householder vector
         hPanCopy = hPan;
         hPanCopy(0,0) = 1;
 
@@ -114,10 +115,12 @@ void LUHBBlocked
         auto ABot = A( IR(kj,nH),    ALL       );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( UPPER, HPanConj );
         FillDiagonal( HPanConj, F(1) );
 
+        // Form the small triangular matrix needed for the UT transform
         Herk( UPPER, NORMAL, Base<F>(1), HPanConj, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
@@ -195,6 +198,7 @@ void LUHBUnblocked
         const F tau = householderScalars.GetLocal( k, 0 );
         const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
 
+        // Convert to an explicit (scaled) Householder vector
         LockedView( *hPan, H, IR(ki), IR(kj,nH) );
         hPan_STAR_MC.AlignWith( ABot );
         Conjugate( *hPan, hPan_STAR_MC );
@@ -260,11 +264,13 @@ void LUHBBlocked
         auto ABot = A( IR(kj,nH), ALL );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         LockedView( *HPan, H, IR(ki,ki+nb), IR(kj,nH) );
         Conjugate( *HPan, HPanConj );
         MakeTrapezoidal( UPPER, HPanConj );
         FillDiagonal( HPanConj, F(1) );
 
+        // Form the small triangular matrix needed for the UT transform
         HPan_STAR_VR = HPanConj;
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk

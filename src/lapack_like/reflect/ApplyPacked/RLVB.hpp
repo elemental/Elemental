@@ -67,6 +67,7 @@ RLVBUnblocked
         const F tau = householderScalars(k);
         const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
 
+        // Convert to an explicit (scaled) Householder vector
         hPanCopy = hPan;
         hPanCopy(0) = F(1);
 
@@ -115,10 +116,12 @@ RLVBBlocked
         auto ARight = A( ALL,        IR(ki,nA)    );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         HPanCopy = HPan;
         MakeTrapezoidal( LOWER, HPanCopy );
         FillDiagonal( HPanCopy, F(1) );
 
+        // Form the small triangular matrix needed for the UT transform
         Herk( LOWER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
@@ -198,6 +201,7 @@ RLVBUnblocked
         const F tau = householderScalars.GetLocal( k, 0 );
         const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
 
+        // Convert to an explicit (scaled) Householder vector
         LockedView( *hPan, H, IR(ki,nA), IR(kj) );
         hPan_MR_STAR.AlignWith( ARight );
         Copy( *hPan, hPan_MR_STAR );
@@ -209,7 +213,7 @@ RLVBUnblocked
         LocalGemv( NORMAL, F(1), ARight, hPan_MR_STAR, F(0), z_MC_STAR );
         El::AllReduce( z_MC_STAR, ARight.RowComm() );
  
-        // ARight := ARight (I - HPan inv(SInv) HPan')
+        // ARight := ARight (I - hPan inv(SInv) hPan')
         LocalGer( -gamma, z_MC_STAR, hPan_MR_STAR, ARight );
     }
 }
@@ -264,11 +268,13 @@ RLVBBlocked
         auto ARight = A( ALL, IR(ki,nA) ); 
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         LockedView( *HPan, H, IR(ki,nA), IR(kj,kj+nb) );
         Copy( *HPan, HPanCopy );
         MakeTrapezoidal( LOWER, HPanCopy );
         FillDiagonal( HPanCopy, F(1) );
 
+        // Form the small triangular matrix needed for the UT transform
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk
