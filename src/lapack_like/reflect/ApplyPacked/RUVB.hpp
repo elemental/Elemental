@@ -33,9 +33,55 @@ namespace apply_packed_reflectors {
 
 template<typename F>
 void
-RUVB
+RUVBUnblocked
 ( Conjugation conjugation,
-  Int offset, 
+  Int offset,
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( A.Width() != H.Height() )
+          LogicError("A's width must match H's height");
+    )
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
+    )
+    Matrix<F> hPanCopy, z;
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto hPan = H( IR(0,ki+1), IR(kj) );
+        auto ALeft = A( ALL, IR(0,ki+1)  );
+        const F tau = householderScalars(k);
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        // Convert to an explicit (scaled) Householder vector
+        hPanCopy = hPan;
+        hPanCopy(ki) = F(1);
+
+        // z := ALeft hPan
+        Gemv( NORMAL, F(1), ALeft, hPanCopy, z );
+        // ALeft := ALeft (I - gamma hPan hPan')
+        Ger( -gamma, z, hPanCopy, ALeft );
+    }
+}
+
+template<typename F>
+void
+RUVBBlocked
+( Conjugation conjugation,
+  Int offset,
   const Matrix<F>& H,
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
@@ -68,22 +114,114 @@ RUVB
         auto ALeft = A( ALL,         IR(0,ki+nb)  );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
         FillDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
 
+        // Form the small triangular matrix needed for the UT transform
         Herk( LOWER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
+        // Z := ALeft HPan
         Gemm( NORMAL, NORMAL, F(1), ALeft, HPanCopy, Z );
+        // Z := ALeft HPan inv(SInv)
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
+        // ALeft := ALeft (I - HPan inv(SInv) HPan')
         Gemm( NORMAL, ADJOINT, F(-1), Z, HPanCopy, F(1), ALeft );
+    }
+}
+
+template<typename F>
+void
+RUVB
+( Conjugation conjugation,
+  Int offset,
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numLHS = A.Height();
+    const Int blocksize = Blocksize();
+    if( numLHS < blocksize )
+    {
+        RUVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        RUVBBlocked( conjugation, offset, H, householderScalars, A );
     }
 }
 
 template<typename F> 
 void
-RUVB
+RUVBUnblocked
+( Conjugation conjugation,
+  Int offset,
+  const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& householderScalarsPre,
+        ElementalMatrix<F>& APre )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( APre.Width() != H.Height() )
+          LogicError("A's width must match H's height");
+      AssertSameGrids( H, householderScalarsPre, APre );
+    )
+
+    // We gather the entire set of Householder scalars at the start rather than
+    // continually paying the latency cost of the broadcasts in a 'Get' call
+    DistMatrixReadProxy<F,F,STAR,STAR>
+      householderScalarsProx( householderScalarsPre );
+    auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR  > AProx( APre );
+    auto& A = AProx.Get();
+
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
+    )
+    const Grid& g = H.Grid();
+    auto hPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
+    DistMatrix<F,MR,STAR> hPan_MR_STAR(g);
+    DistMatrix<F,MC,STAR> z_MC_STAR(g);
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto ALeft = A( ALL, IR(0,ki+1) );
+        const F tau = householderScalars.GetLocal( k, 0 );
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        // Convert to an explicit (scaled) Householder vector
+        LockedView( *hPan, H, IR(0,ki+1), IR(kj) );
+        hPan_MR_STAR.AlignWith( ALeft );
+        Copy( *hPan, hPan_MR_STAR );
+        hPan_MR_STAR.Set( ki, 0, F(1) );
+
+        // z := ALeft hPan
+        z_MC_STAR.AlignWith( ALeft );
+        Zeros( z_MC_STAR, ALeft.Height(), 1 );
+        LocalGemv( NORMAL, F(1), ALeft, hPan_MR_STAR, F(0), z_MC_STAR );
+        El::AllReduce( z_MC_STAR, ALeft.RowComm() );
+
+        // ALeft := ALeft (I - gamma hPan hPan')
+        LocalGer( -gamma, z_MC_STAR, hPan_MR_STAR, ALeft );
+    }
+}
+
+template<typename F> 
+void
+RUVBBlocked
 ( Conjugation conjugation,
   Int offset,
   const ElementalMatrix<F>& H,
@@ -134,11 +272,13 @@ RUVB
         auto ALeft = A( ALL, IR(0,ki+nb) );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         LockedView( *HPan, H, IR(0,ki+nb), IR(kj,kj+nb) );
         Copy( *HPan, HPanCopy );
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
         FillDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
 
+        // Form the small triangular matrix needed for the UT transform
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk
@@ -150,6 +290,7 @@ RUVB
         FixDiagonal
         ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
+        // Z := ALeft HPan
         HPan_MR_STAR.AlignWith( ALeft );
         HPan_MR_STAR = HPan_VC_STAR;
         ZAdj_STAR_MC.AlignWith( ALeft );
@@ -157,12 +298,36 @@ RUVB
         ZAdj_STAR_VC.AlignWith( ALeft );
         Contract( ZAdj_STAR_MC, ZAdj_STAR_VC );
         
+        // Z := ALeft HPan inv(SInv)
         LocalTrsm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );
 
+        // ALeft := ALeft (I - HPan inv(SInv) HPan')
         ZAdj_STAR_MC = ZAdj_STAR_VC;
         LocalGemm
         ( ADJOINT, ADJOINT, F(-1), ZAdj_STAR_MC, HPan_MR_STAR, F(1), ALeft );
+    }
+}
+
+template<typename F> 
+void
+RUVB
+( Conjugation conjugation,
+  Int offset,
+  const ElementalMatrix<F>& H,
+  const ElementalMatrix<F>& householderScalars,
+        ElementalMatrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numLHS = A.Height();
+    const Int blocksize = Blocksize();
+    if( numLHS < blocksize )
+    {
+        RUVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        RUVBBlocked( conjugation, offset, H, householderScalars, A );
     }
 }
 
