@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_DOUBLE_SHIFT_HPP
-#define EL_SCHUR_HESS_DOUBLE_SHIFT_HPP
+#ifndef EL_HESS_SCHUR_DOUBLE_SHIFT_HPP
+#define EL_HESS_SCHUR_DOUBLE_SHIFT_HPP
 
 #include "./SingleShift.hpp"
 #include "./DoubleShift/Sweep.hpp"
@@ -168,4 +168,4 @@ DoubleShift
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_DOUBLE_SHIFT_HPP
+#endif // ifndef EL_HESS_SCHUR_DOUBLE_SHIFT_HPP

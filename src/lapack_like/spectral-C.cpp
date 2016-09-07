@@ -311,9 +311,26 @@ ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
-/* HessQRCtrl */
-ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl )
+/* HessenbergSchurCtrl */
+ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
 {
+    ctrl->winBeg = 0;
+    ctrl->winEnd = END;
+    ctrl->fullTriangle = true;
+    ctrl->wantSchurVecs = false;
+    ctrl->demandConverged = true;
+
+    ctrl->alg = EL_HESSENBERG_SCHUR_AED;
+    ctrl->recursiveAED = true;
+    ctrl->accumulateReflections = true;
+
+    ctrl->progress = false;
+
+    ctrl->minMultiBulgeSize = 75;
+    ctrl->numShifts = &hess_schur::aed::NumShifts;
+    ctrl->deflationSize = &hess_schur::aed::DeflationSize;
+    ctrl->sufficientDeflation = &hess_schur::aed::SufficientDeflation;
+    
     ctrl->distAED = false;
     ctrl->blockHeight = DefaultBlockHeight();
     ctrl->blockWidth = DefaultBlockWidth();
@@ -350,7 +367,7 @@ ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl )
 ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
 {
     ctrl->useSDC = false;
-    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_s( &ctrl->sdcCtrl );
     ctrl->time = false;
     return EL_SUCCESS; 
@@ -358,7 +375,7 @@ ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
 {
     ctrl->useSDC = false;
-    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_d( &ctrl->sdcCtrl );
     ctrl->time = false;
     return EL_SUCCESS; 

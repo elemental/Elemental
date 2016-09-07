@@ -128,10 +128,11 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     w.Resize( n, 1 );
     Identity( Z, n, n ); 
     timer.Start();
-    bool multiplyZ = true;
+    const bool multiplyZ = true;
+    const bool useAED = ( ctrl.alg == HESSENBERG_SCHUR_AED );
     lapack::HessenbergSchur
     ( n, T.Buffer(), T.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
-      ctrl.fullTriangle, multiplyZ, ctrl.useAED );
+      ctrl.fullTriangle, multiplyZ, useAED );
     Output("LAPACK HessenbergSchur: ",timer.Stop()," seconds");
 
     T = H;
@@ -219,10 +220,11 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     w.Resize( n, 1 );
     Identity( Z, n, n ); 
     timer.Start();
-    bool multiplyZ = true;
+    const bool multiplyZ = true;
+    const bool useAED = ( ctrl.alg == HESSENBERG_SCHUR_AED );
     lapack::HessenbergSchur
     ( n, T.Buffer(), T.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
-      ctrl.fullTriangle, multiplyZ, ctrl.useAED );
+      ctrl.fullTriangle, multiplyZ, useAED );
     Output("LAPACK HessenbergSchur: ",timer.Stop()," seconds");
 
     T = H;
@@ -295,14 +297,14 @@ int main( int argc, char* argv[] )
     try
     {
         const Int n = Input("--n","random matrix size",60);
-        const bool useAED = Input("--aed","use Aggressive Early Deflat?",true);
+        const Int algInt = Input("--alg","AED: 0, MultiBulge: 1, Simple: 2",0);
         const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
         HessenbergSchurCtrl ctrl;
-        ctrl.useAED = useAED;
+        ctrl.alg = static_cast<HessenbergSchurAlg>(algInt);
         ctrl.progress = progress;
 
         TestAhuesTisseurQuasi<float>( ctrl, print );

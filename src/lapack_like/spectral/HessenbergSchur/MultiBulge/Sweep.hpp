@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_AED_SWEEP_HPP
-#define EL_SCHUR_HESS_AED_SWEEP_HPP
+#ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_HPP
+#define EL_SCHUR_HESS_MULTIBULGE_SWEEP_HPP
 
 namespace El {
 namespace hess_schur {
-namespace aed {
+namespace multibulge {
 
 template<typename Real>
 void ImplicitQQuadraticSeed
@@ -936,8 +936,8 @@ void Sweep
     }
 }
 
-} // namespace aed
+} // namespace multibulge
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_AED_SWEEP_HPP
+#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_HPP

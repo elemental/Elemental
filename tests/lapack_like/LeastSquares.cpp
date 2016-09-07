@@ -29,15 +29,18 @@ void TestSequentialLeastSquares
     const Int n = A.Width();
     Output("Read matrix was ",m," x ",n," with ",A.NumEntries()," nonzeros");
 
+    /*
     SparseMatrix<F> ATwice;
     VCat( A, A, ATwice );
     if( print )
         Print( ATwice, "ATwice" );
+    */
 
     Matrix<F> B;
     if( feasible )
     {
-        Output("Generating a duplicated feasible linear system");
+        //Output("Generating a duplicated feasible linear system");
+        Output("Generating a feasible linear system");
         Matrix<F> X;
         if( ones )
             Ones( X, n, numRHS );
@@ -57,6 +60,7 @@ void TestSequentialLeastSquares
     if( print )
         Print( B, "B" );
 
+    /*
     Matrix<F> BTwice;
     VCat( B, B, BTwice );
     if( print )
@@ -64,15 +68,21 @@ void TestSequentialLeastSquares
     Matrix<Real> BTwiceNorms;
     ColumnTwoNorms( BTwice, BTwiceNorms );
     Print( BTwiceNorms, "BTwice column norms" );
+    */
+    Matrix<Real> BNorms;
+    ColumnTwoNorms( B, BNorms );
+    Print( BNorms, "B column norms" );
 
     Matrix<F> X;
     if( gamma == double(0) )
     {
-        LeastSquares( NORMAL, ATwice, BTwice, X );
+        //LeastSquares( NORMAL, ATwice, BTwice, X );
+        LeastSquares( NORMAL, A, B, X );
     }
     else
     {
-        Ridge( NORMAL, ATwice, BTwice, Real(gamma), X );
+        //Ridge( NORMAL, ATwice, BTwice, Real(gamma), X );
+        Ridge( NORMAL, A, B, Real(gamma), X );
     }
     if( print )
         Print( X, "X" );
@@ -81,12 +91,15 @@ void TestSequentialLeastSquares
     Print( XNorms, "X norms" );
 
     // Compute the residual
-    Matrix<F> E( BTwice );
-    Multiply( NORMAL, F(-1), ATwice, X, F(1), E ); 
+    //Matrix<F> E( BTwice );
+    //Multiply( NORMAL, F(-1), ATwice, X, F(1), E ); 
+    Matrix<F> E( B );
+    Multiply( NORMAL, F(-1), A, X, F(1), E ); 
     Matrix<Real> residNorms;
     ColumnTwoNorms( E, residNorms );
     Print( residNorms, "residual norms" );
-    DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
+    //DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
+    DiagonalSolve( RIGHT, NORMAL, BNorms, residNorms );
     Print( residNorms, "relative residual norms" );
     Output("Objectives:");
     for( Int j=0; j<numRHS; ++j )

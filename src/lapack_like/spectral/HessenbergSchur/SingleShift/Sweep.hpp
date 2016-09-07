@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_SINGLE_SHIFT_SWEEP_HPP
-#define EL_SCHUR_HESSQR_SINGLE_SHIFT_SWEEP_HPP
+#ifndef EL_HESS_SCHUR_SINGLE_SHIFT_SWEEP_HPP
+#define EL_HESS_SCHUR_SINGLE_SHIFT_SWEEP_HPP
 
 namespace El {
 namespace hess_schur {

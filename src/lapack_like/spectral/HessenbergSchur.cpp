@@ -10,6 +10,7 @@
 
 #include "./HessenbergSchur/SingleShift.hpp"
 #include "./HessenbergSchur/DoubleShift.hpp"
+#include "./HessenbergSchur/MultiBulge.hpp"
 #include "./HessenbergSchur/AED.hpp"
 
 namespace El {
@@ -28,9 +29,13 @@ HessenbergSchur
     ctrlMod.wantSchurVecs = false;
 
     Matrix<Real> Z;
-    if( ctrl.useAED )
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
     {
         return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else if( ctrl.alg == HESSENBERG_SCHUR_MULTIBULGE )
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
     }
     else
     {
@@ -52,9 +57,13 @@ HessenbergSchur
     ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     ctrlMod.wantSchurVecs = true;
 
-    if( ctrl.useAED )
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
     {
         return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else if( ctrl.alg == HESSENBERG_SCHUR_MULTIBULGE )
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
     }
     else
     {
@@ -76,9 +85,13 @@ HessenbergSchur
     ctrlMod.wantSchurVecs = false;
 
     Matrix<Complex<Real>> Z;
-    if( ctrl.useAED )
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
     {
         return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else if( ctrl.alg == HESSENBERG_SCHUR_MULTIBULGE )
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
     }
     else
     {
@@ -100,9 +113,13 @@ HessenbergSchur
     ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     ctrlMod.wantSchurVecs = true;
 
-    if( ctrl.useAED )
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
     {
         return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else if( ctrl.alg == HESSENBERG_SCHUR_MULTIBULGE )
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
     }
     else
     {

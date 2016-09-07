@@ -251,8 +251,8 @@ void EigBenchmark
     Timer timer;
  
     SchurCtrl<Real> schurCtrl;
-    schurCtrl.qrCtrl.distAED = distAED;
-    schurCtrl.qrCtrl.blockHeight = blockHeight;
+    schurCtrl.hessSchurCtrl.distAED = distAED;
+    schurCtrl.hessSchurCtrl.blockHeight = blockHeight;
     schurCtrl.time = true;
 
     // Compute eigenvectors with Elemental

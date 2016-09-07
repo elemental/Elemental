@@ -682,6 +682,12 @@ inline Int SufficientDeflation( Int deflationSize )
 } // namespace aed
 } // namespace hess_schur
 
+enum HessenbergSchurAlg {
+  HESSENBERG_SCHUR_AED=0,
+  HESSENBERG_SCHUR_MULTIBULGE=1,
+  HESSENBERG_SCHUR_SIMPLE=2
+};
+
 struct HessenbergSchurCtrl
 {
     Int winBeg=0;
@@ -690,7 +696,7 @@ struct HessenbergSchurCtrl
     bool wantSchurVecs=false;
     bool demandConverged=true;
 
-    bool useAED=true;
+    HessenbergSchurAlg alg=HESSENBERG_SCHUR_AED;
     bool recursiveAED=true;
     bool accumulateReflections=true;
 
@@ -698,7 +704,7 @@ struct HessenbergSchurCtrl
 
     // Cf. LAPACK's IPARMQ for this choice;
     // note that LAPACK's hard minimum of 12 does not apply to us
-    Int minAEDSize = 75;
+    Int minMultiBulgeSize = 75;
 
     function<Int(Int,Int)> numShifts =
       function<Int(Int,Int)>(hess_schur::aed::NumShifts);
@@ -708,6 +714,11 @@ struct HessenbergSchurCtrl
 
     function<Int(Int)> sufficientDeflation =
       function<Int(Int)>(hess_schur::aed::SufficientDeflation);
+
+    // For the distributed Hessenberg QR algorithm
+    // TODO(poulson): Move this into a substructure?
+    bool distAED=false;
+    Int blockHeight=DefaultBlockHeight(), blockWidth=DefaultBlockWidth();
 };
 
 template<typename Real>
@@ -756,18 +767,11 @@ struct SDCCtrl
     SignCtrl<Real> signCtrl;
 };
 
-// TODO: Combine with HessenbergSchurCtrl
-struct HessQRCtrl 
-{
-    bool distAED=false;
-    Int blockHeight=DefaultBlockHeight(), blockWidth=DefaultBlockWidth();
-};
-
 template<typename Real>
 struct SchurCtrl 
 {
     bool useSDC=false;
-    HessQRCtrl qrCtrl;
+    HessenbergSchurCtrl hessSchurCtrl;
     SDCCtrl<Real> sdcCtrl;    
     bool time=false;
 };

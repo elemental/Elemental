@@ -55,9 +55,9 @@ main( int argc, char* argv[] )
         DistMatrix<C,VR,STAR> w(g);
         SchurCtrl<Real> ctrl;
 #ifdef EL_HAVE_SCALAPACK
-        //ctrl.qrCtrl.blockHeight = nbDist;
-        //ctrl.qrCtrl.blockWidth = nbDist;
-        ctrl.qrCtrl.distAED = false;
+        //ctrl.hessSchurCtrl.blockHeight = nbDist;
+        //ctrl.hessSchurCtrl.blockWidth = nbDist;
+        ctrl.hessSchurCtrl.distAED = false;
 #else
         ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;

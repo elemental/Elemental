@@ -724,19 +724,75 @@ inline ElSVDCtrl_d CReflect( const SVDCtrl<double>& ctrl )
     return ctrlC;
 }
 
-/* HessQRCtrl */
-inline ElHessQRCtrl CReflect( const HessQRCtrl& ctrl )
+/* HessenbergSchurCtrl */
+inline ElHessenbergSchurAlg CReflect( const HessenbergSchurAlg& alg )
+{ return static_cast<ElHessenbergSchurAlg>(alg); }
+inline HessenbergSchurAlg CReflect( const ElHessenbergSchurAlg& alg )
+{ return static_cast<HessenbergSchurAlg>(alg); }
+
+inline ElHessenbergSchurCtrl CReflect( const HessenbergSchurCtrl& ctrl )
 {
-    ElHessQRCtrl ctrlC;
+    ElHessenbergSchurCtrl ctrlC;
+    ctrlC.winBeg = ctrl.winBeg;
+    ctrlC.winEnd = ctrl.winEnd;
+    ctrlC.fullTriangle = ctrl.fullTriangle;
+    ctrlC.wantSchurVecs = ctrl.wantSchurVecs;
+    ctrlC.demandConverged = ctrl.demandConverged;
+
+    ctrlC.alg = CReflect(ctrl.alg);
+    ctrlC.recursiveAED = ctrl.recursiveAED;
+    ctrlC.accumulateReflections = ctrl.accumulateReflections;
+
+    ctrlC.progress = ctrl.progress;
+
+    ctrlC.minMultiBulgeSize = ctrl.minMultiBulgeSize;
+    auto numShiftsRes = ctrl.numShifts.target<ElInt(*)(ElInt,ElInt)>(); 
+    if( numShiftsRes )
+        ctrlC.numShifts = *numShiftsRes;
+    else
+        RuntimeError("Could not convert numShifts to C function pointer");
+
+    auto deflationSizeRes =
+      ctrl.deflationSize.target<ElInt(*)(ElInt,ElInt,ElInt)>();
+    if( deflationSizeRes )
+        ctrlC.deflationSize = *deflationSizeRes;
+    else
+        RuntimeError("Could not convert deflationSize to C function pointer");
+
+    auto sufficientDeflationRes =
+      ctrl.sufficientDeflation.target<ElInt(*)(ElInt)>();
+    if( sufficientDeflationRes )
+        ctrlC.sufficientDeflation = *sufficientDeflationRes;
+    else
+        RuntimeError
+        ("Could not convert sufficientDeflation to C function pointer");
+
     ctrlC.distAED = ctrl.distAED;
     ctrlC.blockHeight = ctrl.blockHeight;
     ctrlC.blockWidth = ctrl.blockWidth;
     return ctrlC;
 }
 
-inline HessQRCtrl CReflect( const ElHessQRCtrl& ctrlC )
+inline HessenbergSchurCtrl CReflect( const ElHessenbergSchurCtrl& ctrlC )
 {
-    HessQRCtrl ctrl;
+    HessenbergSchurCtrl ctrl;
+    ctrl.winBeg = ctrlC.winBeg;
+    ctrl.winEnd = ctrlC.winEnd;
+    ctrl.fullTriangle = ctrlC.fullTriangle;
+    ctrl.wantSchurVecs = ctrlC.wantSchurVecs;
+    ctrl.demandConverged = ctrlC.demandConverged;
+
+    ctrl.alg = CReflect(ctrlC.alg);
+    ctrl.recursiveAED = ctrlC.recursiveAED;
+    ctrl.accumulateReflections = ctrlC.accumulateReflections;
+
+    ctrl.progress = ctrlC.progress;
+
+    ctrl.minMultiBulgeSize = ctrlC.minMultiBulgeSize;
+    ctrl.numShifts = ctrlC.numShifts;
+    ctrl.deflationSize = ctrlC.deflationSize;
+    ctrl.sufficientDeflation = ctrlC.sufficientDeflation;
+
     ctrl.distAED = ctrlC.distAED;
     ctrl.blockHeight = ctrlC.blockHeight;
     ctrl.blockWidth = ctrlC.blockWidth;
@@ -799,7 +855,7 @@ inline ElSchurCtrl_s CReflect( const SchurCtrl<float>& ctrl )
 {
     ElSchurCtrl_s ctrlC;
     ctrlC.useSDC = ctrl.useSDC;
-    ctrlC.qrCtrl = CReflect( ctrl.qrCtrl );
+    ctrlC.hessSchurCtrl = CReflect( ctrl.hessSchurCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     ctrlC.time = ctrl.time;
     return ctrlC;
@@ -808,7 +864,7 @@ inline ElSchurCtrl_d CReflect( const SchurCtrl<double>& ctrl )
 {
     ElSchurCtrl_d ctrlC;
     ctrlC.useSDC = ctrl.useSDC;
-    ctrlC.qrCtrl = CReflect( ctrl.qrCtrl );
+    ctrlC.hessSchurCtrl = CReflect( ctrl.hessSchurCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     ctrlC.time = ctrl.time;
     return ctrlC;
@@ -818,7 +874,7 @@ inline SchurCtrl<float> CReflect( const ElSchurCtrl_s& ctrlC )
 {
     SchurCtrl<float> ctrl;
     ctrl.useSDC = ctrlC.useSDC;
-    ctrl.qrCtrl = CReflect( ctrlC.qrCtrl );
+    ctrl.hessSchurCtrl = CReflect( ctrlC.hessSchurCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.time = ctrlC.time;
     return ctrl;
@@ -827,7 +883,7 @@ inline SchurCtrl<double> CReflect( const ElSchurCtrl_d& ctrlC )
 {
     SchurCtrl<double> ctrl;
     ctrl.useSDC = ctrlC.useSDC;
-    ctrl.qrCtrl = CReflect( ctrlC.qrCtrl );
+    ctrl.hessSchurCtrl = CReflect( ctrlC.hessSchurCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     ctrl.time = ctrlC.time;
     return ctrl;

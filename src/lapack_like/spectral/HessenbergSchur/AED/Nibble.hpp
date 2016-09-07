@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_AED_NIBBLE_HPP
-#define EL_SCHUR_HESS_AED_NIBBLE_HPP
+#ifndef EL_HESS_SCHUR_AED_NIBBLE_HPP
+#define EL_HESS_SCHUR_AED_NIBBLE_HPP
 
 #include "./SpikeDeflation.hpp"
 
@@ -82,7 +82,8 @@ AEDInfo Nibble
     ctrlSub.fullTriangle = true;
     ctrlSub.wantSchurVecs = true;
     ctrlSub.demandConverged = false;
-    ctrlSub.useAED = ( ctrl.recursiveAED ? true : false );
+    ctrlSub.alg = ( ctrl.recursiveAED ? HESSENBERG_SCHUR_AED
+                                      : HESSENBERG_SCHUR_MULTIBULGE );
     
     auto infoSub = HessenbergSchur( T, w1, V, ctrlSub );
     DEBUG_ONLY(
@@ -298,7 +299,8 @@ AEDInfo Nibble
     ctrlSub.fullTriangle = true;
     ctrlSub.wantSchurVecs = true;
     ctrlSub.demandConverged = false;
-    ctrlSub.useAED = ( ctrl.recursiveAED ? true : false );
+    ctrlSub.alg = ( ctrl.recursiveAED ? HESSENBERG_SCHUR_AED
+                                      : HESSENBERG_SCHUR_MULTIBULGE );
     auto infoSub = HessenbergSchur( T, w1, V, ctrlSub );
     DEBUG_ONLY(
       if( infoSub.numUnconverged != 0 )
@@ -433,4 +435,4 @@ AEDInfo Nibble
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_AED_NIBBLE_HPP
+#endif // ifndef EL_HESS_SCHUR_AED_NIBBLE_HPP

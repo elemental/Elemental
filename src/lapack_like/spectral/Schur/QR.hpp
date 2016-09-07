@@ -12,6 +12,7 @@
 namespace El {
 namespace schur {
 
+// TODO(poulson): Extend SchurCtrl
 template<typename F>
 void QR
 ( Matrix<F>& A,
@@ -34,7 +35,7 @@ void QR
     hessSchurCtrl.fullTriangle = fullTriangle;
     hessSchurCtrl.wantSchurVecs = false;
     hessSchurCtrl.demandConverged = true;
-    hessSchurCtrl.useAED = true;
+    hessSchurCtrl.alg = HESSENBERG_SCHUR_AED;
     hessSchurCtrl.recursiveAED = true;
     if( time )
         timer.Start();
@@ -75,7 +76,7 @@ void QR
     hessSchurCtrl.fullTriangle = fullTriangle;
     hessSchurCtrl.wantSchurVecs = true;
     hessSchurCtrl.demandConverged = true;
-    hessSchurCtrl.useAED = true;
+    hessSchurCtrl.alg = HESSENBERG_SCHUR_AED;
     hessSchurCtrl.recursiveAED = true;
     if( time )
         timer.Start();
@@ -97,7 +98,7 @@ void QR
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
   bool fullTriangle,
-  const HessQRCtrl& ctrl,
+  const HessenbergSchurCtrl& ctrl,
   bool time=false )
 {
     DEBUG_CSE
@@ -174,7 +175,7 @@ void QR
   ElementalMatrix<Complex<Base<F>>>& w,
   DistMatrix<F,MC,MR,BLOCK>& Q,
   bool fullTriangle,
-  const HessQRCtrl& ctrl,
+  const HessenbergSchurCtrl& ctrl,
   bool time=false )
 {
     DEBUG_CSE
@@ -251,7 +252,7 @@ void QR
 ( ElementalMatrix<F>& APre,
   ElementalMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle,
-  const HessQRCtrl& ctrl,
+  const HessenbergSchurCtrl& ctrl,
   bool time=false )
 {
     DEBUG_CSE
@@ -339,7 +340,7 @@ void QR
   ElementalMatrix<Complex<Base<F>>>& w, 
   ElementalMatrix<F>& QPre,
   bool fullTriangle,
-  const HessQRCtrl& ctrl,
+  const HessenbergSchurCtrl& ctrl,
   bool time=false )
 {
     DEBUG_CSE

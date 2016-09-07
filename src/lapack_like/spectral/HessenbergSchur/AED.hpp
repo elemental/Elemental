@@ -6,14 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_AED_HPP
-#define EL_SCHUR_HESS_AED_HPP
+#ifndef EL_HESS_SCHUR_AED_HPP
+#define EL_HESS_SCHUR_AED_HPP
 
 #include "./DoubleShift.hpp"
-
+#include "./MultiBulge/Sweep.hpp"
 #include "./AED/SpikeDeflation.hpp"
 #include "./AED/Nibble.hpp"
-#include "./AED/Sweep.hpp"
 
 namespace El {
 namespace hess_schur {
@@ -59,7 +58,7 @@ AED
                exceptShift1(-Real(7)/Real(16));
     HessenbergSchurInfo info;
 
-    if( n < ctrl.minAEDSize )
+    if( n < ctrl.minMultiBulgeSize )
     {
         // Run the double-shift QR algorithm
         return DoubleShift( H, w, Z, ctrl );
@@ -77,7 +76,7 @@ AED
     }
     Int deflationSize = deflationSizeRec;
 
-    // For aed::Sweep
+    // For multibulge::Sweep
     Matrix<Real> U, W, WAccum;
     auto ctrlSub( ctrl );
 
@@ -160,7 +159,7 @@ AED
         const Int newIterWinSize = winEnd-iterBeg;
         if( numDeflated == 0 ||
           (numDeflated <= ctrl.sufficientDeflation(deflationSize) && 
-           newIterWinSize >= ctrl.minAEDSize) )
+           newIterWinSize >= ctrl.minMultiBulgeSize) )
         {
             Int numShifts = Min( numShiftsRec, Max(2,newIterWinSize-1) );
             numShifts = numShifts - Mod(numShifts,2); 
@@ -241,7 +240,7 @@ AED
                 }
                 // Pair together the real shifts
                 auto wSub = w(IR(shiftBeg,winEnd),ALL); 
-                aed::PairShifts( wSub );
+                multibulge::PairShifts( wSub );
             }
 
             if( winBeg-shiftBeg == 2 )
@@ -272,7 +271,7 @@ AED
             auto wSub = w(IR(shiftBeg,winEnd),ALL); 
             ctrlSub.winBeg = iterBeg;
             ctrlSub.winEnd = winEnd;
-            aed::Sweep( H, wSub, Z, U, W, WAccum, ctrlSub );
+            multibulge::Sweep( H, wSub, Z, U, W, WAccum, ctrlSub );
         }
         else if( ctrl.progress )
             Output("  Skipping QR sweep");
@@ -308,7 +307,7 @@ AED
     const Real exceptShift0(Real(4)/Real(3));
     HessenbergSchurInfo info;
 
-    if( n < ctrl.minAEDSize )
+    if( n < ctrl.minMultiBulgeSize )
     {
         // Run the single-shift QR algorithm
         return SingleShift( H, w, Z, ctrl );
@@ -326,7 +325,7 @@ AED
     }
     Int deflationSize = deflationSizeRec;
 
-    // For aed::Sweep
+    // For multibulge::Sweep
     Matrix<F> U, W, WAccum;
     auto ctrlSub( ctrl );
 
@@ -409,7 +408,7 @@ AED
         const Int newIterWinSize = winEnd-iterBeg;
         if( numDeflated == 0 ||
           (numDeflated <= ctrl.sufficientDeflation(deflationSize) && 
-           newIterWinSize >= ctrl.minAEDSize) )
+           newIterWinSize >= ctrl.minMultiBulgeSize) )
         {
             Int numShifts = Min( numShiftsRec, Max(2,newIterWinSize-1) );
             numShifts = numShifts - Mod(numShifts,2); 
@@ -506,7 +505,7 @@ AED
             auto wSub = w(IR(shiftBeg,winEnd),ALL); 
             ctrlSub.winBeg = iterBeg;
             ctrlSub.winEnd = winEnd;
-            aed::Sweep( H, wSub, Z, U, W, WAccum, ctrlSub );
+            multibulge::Sweep( H, wSub, Z, U, W, WAccum, ctrlSub );
         }
         else if( ctrl.progress )
             Output("  Skipping QR sweep");
@@ -524,4 +523,4 @@ AED
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_AED_HPP
+#endif // ifndef EL_HESS_SCHUR_AED_HPP
