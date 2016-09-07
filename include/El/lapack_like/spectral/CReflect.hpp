@@ -617,7 +617,7 @@ inline BidiagSVDCtrl<float> CReflect( const ElBidiagSVDCtrl_s& ctrlC )
     ctrl.tolType = CReflect(ctrlC.tolType);
     ctrl.tol = ctrlC.tol;
     ctrl.progress = ctrlC.progress;
-    ctrl.useQR = CReflect(ctrlC.useQR);
+    ctrl.useQR = ctrlC.useQR;
     ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
     ctrl.dcCtrl = CReflect(ctrlC.dcCtrl); 
     return ctrl;
@@ -634,7 +634,7 @@ inline BidiagSVDCtrl<double> CReflect( const ElBidiagSVDCtrl_d& ctrlC )
     ctrl.tolType = CReflect(ctrlC.tolType);
     ctrl.tol = ctrlC.tol;
     ctrl.progress = ctrlC.progress;
-    ctrl.useQR = CReflect(ctrlC.useQR);
+    ctrl.useQR = ctrlC.useQR;
     ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
     ctrl.dcCtrl = CReflect(ctrlC.dcCtrl); 
     return ctrl;
@@ -650,7 +650,7 @@ inline ElBidiagSVDCtrl_s CReflect( const BidiagSVDCtrl<float>& ctrl )
     ctrlC.tolType = CReflect(ctrl.tolType);
     ctrlC.tol = ctrl.tol;
     ctrlC.progress = ctrl.progress;
-    ctrlC.useQR = CReflect(ctrl.useQR);
+    ctrlC.useQR = ctrl.useQR;
     ctrlC.qrCtrl = CReflect(ctrl.qrCtrl);
     ctrlC.dcCtrl = CReflect(ctrl.dcCtrl);
     return ctrlC;
@@ -666,7 +666,7 @@ inline ElBidiagSVDCtrl_d CReflect( const BidiagSVDCtrl<double>& ctrl )
     ctrlC.tolType = CReflect(ctrl.tolType);
     ctrlC.tol = ctrl.tol;
     ctrlC.progress = ctrl.progress;
-    ctrlC.useQR = CReflect(ctrl.useQR);
+    ctrlC.useQR = ctrl.useQR;
     ctrlC.qrCtrl = CReflect(ctrl.qrCtrl);
     ctrlC.dcCtrl = CReflect(ctrl.dcCtrl);
     return ctrlC;
