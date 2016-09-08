@@ -15,6 +15,7 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
     DEBUG_CSE
     typedef Complex<Real> F;
     const Int n = 3;
+    const Real eps = limits::Epsilon<Real>();
     Output("Testing Ahues/Tisseur with ",TypeName<F>());
 
     Matrix<F> H;
@@ -52,9 +53,13 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
     const Real errFrob = FrobeniusNorm( R ); 
-    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    const Real relErr = errFrob / (eps*n*HFrob);
+    Output("|| H Z - Z T ||_F / (eps n || H ||_F) = ",relErr);
     if( print )
         Print( R );
+    // TODO(poulson): A more refined failure condition
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename Real>
@@ -63,6 +68,7 @@ void TestAhuesTisseurQuasi( const HessenbergSchurCtrl& ctrl, bool print )
     DEBUG_CSE
     typedef Real F;
     const Int n = 3;
+    const Real eps = limits::Epsilon<Real>();
     Output("Testing Ahues/Tisseur with ",TypeName<F>());
 
     Matrix<F> H;
@@ -101,9 +107,13 @@ void TestAhuesTisseurQuasi( const HessenbergSchurCtrl& ctrl, bool print )
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
     const Real errFrob = FrobeniusNorm( R ); 
-    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    const Real relErr = errFrob / (eps*n*HFrob);
+    Output("|| H Z - Z T ||_F / (eps n || H ||_F) = ",relErr);
     if( print )
         Print( R );
+    // TODO(poulson): A more refined failure condition
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -111,6 +121,7 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
+    const Real eps = limits::Epsilon<Real>();
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     Matrix<F> H;
@@ -152,9 +163,13 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
     const Real errFrob = FrobeniusNorm( R ); 
-    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    const Real relErr = errFrob / (eps*n*HFrob);
+    Output("|| H Z - Z T ||_F / (eps n || H ||_F) = ",relErr);
     if( print )
         Print( R );
+    // TODO(poulson): A more refined failure condition
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -162,6 +177,7 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
+    const Real eps = limits::Epsilon<Real>();
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     Matrix<F> H;
@@ -192,9 +208,13 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
     const Real errFrob = FrobeniusNorm( R ); 
-    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    const Real relErr = errFrob / (eps*n*HFrob);
+    Output("|| H Z - Z T ||_F / (eps n || H ||_F) = ",relErr);
     if( print )
         Print( R );
+    // TODO(poulson): A more refined failure condition
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -202,6 +222,7 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     DEBUG_CSE
     typedef Real F;
+    const Real eps = limits::Epsilon<Real>();
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     Matrix<F> H;
@@ -244,9 +265,13 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
     const Real errFrob = FrobeniusNorm( R ); 
-    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    const Real relErr = errFrob / (eps*n*HFrob);
+    Output("|| H Z - Z T ||_F / (eps n || H ||_F) = ",relErr);
     if( print )
         Print( R );
+    // TODO(poulson): A more refined failure condition
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -254,6 +279,7 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
     DEBUG_CSE
     typedef Real F;
+    const Real eps = limits::Epsilon<Real>();
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     Matrix<F> H;
@@ -285,9 +311,13 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
     const Real errFrob = FrobeniusNorm( R ); 
-    Output("|| H Z - Z T ||_F / || H ||_F = ",errFrob/HFrob);
+    const Real relErr = errFrob / (eps*n*HFrob);
+    Output("|| H Z - Z T ||_F / (eps n || H ||_F) = ",relErr);
     if( print )
         Print( R );
+    // TODO(poulson): A more refined failure condition
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
 }
 
 int main( int argc, char* argv[] )
@@ -298,6 +328,12 @@ int main( int argc, char* argv[] )
     {
         const Int n = Input("--n","random matrix size",60);
         const Int algInt = Input("--alg","AED: 0, MultiBulge: 1, Simple: 2",0);
+        const Int minMultiBulgeSize =
+          Input
+          ("--minMultiBulgeSize",
+           "minimum size for using a multi-bulge algorithm",75);
+        const bool accumulate =
+          Input("--accumulate","accumulate reflections?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -305,6 +341,8 @@ int main( int argc, char* argv[] )
 
         HessenbergSchurCtrl ctrl;
         ctrl.alg = static_cast<HessenbergSchurAlg>(algInt);
+        ctrl.minMultiBulgeSize = minMultiBulgeSize;
+        ctrl.accumulateReflections = accumulate;
         ctrl.progress = progress;
 
         TestAhuesTisseurQuasi<float>( ctrl, print );

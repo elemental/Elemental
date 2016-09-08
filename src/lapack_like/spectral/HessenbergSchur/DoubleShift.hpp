@@ -65,10 +65,8 @@ DoubleShift
         Int iter;
         for( iter=0; iter<maxIter; ++iter )
         {
-            {
-                auto winInd = IR(iterBeg,winEnd);
-                iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
-            }
+            auto winInd = IR(iterBeg,winEnd);
+            iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
             if( iterBeg > winBeg )
             {
                 H(iterBeg,iterBeg-1) = realZero;

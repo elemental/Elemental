@@ -33,7 +33,7 @@ MultiBulge
                exceptShift1(-Real(7)/Real(16));
     HessenbergSchurInfo info;
 
-    if( n < ctrl.minMultiBulgeSize )
+    if( winSize < ctrl.minMultiBulgeSize )
     {
         // Run the double-shift QR algorithm
         return DoubleShift( H, w, Z, ctrl );
@@ -41,12 +41,10 @@ MultiBulge
 
     w.Resize( n, 1 );
 
-    const Int numShiftsRec = ctrl.numShifts( n, winSize );
-    if( ctrl.progress )
-        Output("Recommending ",numShiftsRec," shifts");
-
     Matrix<Real> U, W, WAccum, shifts;
     auto ctrlSweep( ctrl ), ctrlShifts( ctrl );
+    ctrlShifts.winBeg = 0;
+    ctrlShifts.winEnd = END;
     ctrlShifts.fullTriangle = false;
 
     Int numIterSinceDeflation = 0;
@@ -68,10 +66,8 @@ MultiBulge
         // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
         // ---------------------------------------------------------
         Int iterBeg = winBeg;
-        {
-            auto winInd = IR(iterBeg,winEnd);
-            iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
-        }
+        auto winInd = IR(iterBeg,winEnd);
+        iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
         if( iterBeg > winBeg )
         {
             H(iterBeg,iterBeg-1) = zero;
@@ -110,16 +106,29 @@ MultiBulge
         }
 
         const Int iterWinSize = winEnd-iterBeg;
+        if( iterWinSize < ctrl.minMultiBulgeSize )
+        {
+            // The window is small enough to switch to the simple scheme
+            auto ctrlSub( ctrl );
+            ctrlSub.winBeg = iterBeg;
+            ctrlSub.winEnd = winEnd;
+            auto subInfo = DoubleShift( H, w, Z, ctrlSub );
+            winEnd = iterBeg;
+            continue;
+        }
+
+        const Int numShiftsRec = ctrl.numShifts( n, iterWinSize );
         if( ctrl.progress )
         {
             Output("Iter. ",info.numIterations,": ");
             Output("  window is [",iterBeg,",",winEnd,")");
+            Output("  recommending ",numShiftsRec," shifts");
         }
+
         const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
         const Int numShifts = winEnd - shiftBeg;
         auto shiftInd = IR(shiftBeg,winEnd);
         auto wShifts = w(shiftInd,ALL); 
-         
         if( numIterSinceDeflation > 0 &&
             Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
         {
@@ -145,10 +154,11 @@ MultiBulge
         {
             // Compute the eigenvalues of the bottom-right window
             auto HShifts = H(shiftInd,shiftInd);
-            auto shiftInfo = HessenbergSchur( HShifts, wShifts, ctrlShifts );
+            auto HShiftsCopy( HShifts );
+            auto shiftInfo =
+              HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
             multibulge::PairShifts( wShifts );
         }
-
         if( winBeg-shiftBeg == 2 )
         {
             // Use a single real shift twice instead of using two separate
@@ -205,7 +215,7 @@ MultiBulge
     const Real exceptShift0(Real(4)/Real(3));
     HessenbergSchurInfo info;
 
-    if( n < ctrl.minMultiBulgeSize )
+    if( winSize < ctrl.minMultiBulgeSize )
     {
         // Run the single-shift QR algorithm
         return SingleShift( H, w, Z, ctrl );
@@ -213,12 +223,10 @@ MultiBulge
 
     w.Resize( n, 1 );
 
-    const Int numShiftsRec = ctrl.numShifts( n, winSize );
-    if( ctrl.progress )
-        Output("Recommending ",numShiftsRec," shifts");
-
     Matrix<F> U, W, WAccum;
     auto ctrlSweep( ctrl ), ctrlShifts( ctrl );
+    ctrlShifts.winBeg = 0;
+    ctrlShifts.winEnd = END;
     ctrlShifts.fullTriangle = false;
 
     Int numIterSinceDeflation = 0;
@@ -240,10 +248,8 @@ MultiBulge
         // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
         // ---------------------------------------------------------
         Int iterBeg = winBeg;
-        {
-            auto winInd = IR(iterBeg,winEnd);
-            iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
-        }
+        auto winInd = IR(iterBeg,winEnd);
+        iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
         if( iterBeg > winBeg )
         {
             H(iterBeg,iterBeg-1) = zero;
@@ -255,16 +261,31 @@ MultiBulge
             numIterSinceDeflation = 0;
             continue;
         }
+
+        const Int iterWinSize = winEnd-iterBeg;
+        if( iterWinSize < ctrl.minMultiBulgeSize )
+        {
+            // The window is small enough to switch to the simple scheme
+            auto ctrlSub( ctrl );
+            ctrlSub.winBeg = iterBeg;
+            ctrlSub.winEnd = winEnd;
+            auto subInfo = SingleShift( H, w, Z, ctrlSub );
+            winEnd = iterBeg;
+            continue;
+        }
+
+        const Int numShiftsRec = ctrl.numShifts( n, iterWinSize );
         if( ctrl.progress )
         {
             Output("Iter. ",info.numIterations,": ");
             Output("  window is [",iterBeg,",",winEnd,")");
+            Output("  recommending ",numShiftsRec," shifts");
         }
+
         const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
         const Int numShifts = winEnd - shiftBeg;
         auto shiftInd = IR(shiftBeg,winEnd);
         auto wShifts = w(shiftInd,ALL);
-
         if( numIterSinceDeflation > 0 &&
             Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
         {
@@ -275,8 +296,9 @@ MultiBulge
         {
             // Compute the eigenvalues of the bottom-right window
             auto HShifts = H(shiftInd,shiftInd);
-            auto shiftInfo = HessenbergSchur( HShifts, wShifts, ctrlShifts );
-            multibulge::PairShifts( wShifts );
+            auto HShiftsCopy( HShifts );
+            auto shiftInfo =
+              HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
         }
         if( winBeg-shiftBeg == 2 )
         {

@@ -37,7 +37,7 @@ void TestCorrectness
     const Real relError = infError / (eps*n*oneNormA);
     Output("|| A V - V W ||_oo / (eps n || A ||_1) = ",relError);
 
-    // TODO: A more refined failure condition
+    // TODO(poulson): A more refined failure condition
     if( relError > Real(100) )
         LogicError("Relative error was unacceptably large");
 }
@@ -68,7 +68,7 @@ void TestCorrectness
     OutputFromRoot
     (A.Grid().Comm(),"|| A V - V W ||_oo / (eps n || A ||_1) = ",relError);
 
-    // TODO: A more refined failure condition
+    // TODO(poulson): A more refined failure condition
     if( relError > Real(100) )
         LogicError("Relative error was unacceptably large");
 }
@@ -230,7 +230,7 @@ void EigBenchmark
   Int blockHeight )
 {
     OutputFromRoot( g.Comm(), "Testing with ", TypeName<Real>() );
-    // TODO: Convert to distributed analogue
+    // TODO(poulson): Convert to distributed analogue
     DistMatrix<Complex<Real>> A(m,m,g), AOrig(m,m,g);
     DistMatrix<Complex<Real>> w(m,1,g), V(m,m,g), X(g);
 

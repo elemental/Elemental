@@ -58,7 +58,7 @@ AED
                exceptShift1(-Real(7)/Real(16));
     HessenbergSchurInfo info;
 
-    if( n < ctrl.minMultiBulgeSize )
+    if( winSize < ctrl.minMultiBulgeSize )
     {
         // Run the double-shift QR algorithm
         return DoubleShift( H, w, Z, ctrl );
@@ -86,6 +86,8 @@ AED
     const Int maxIter =
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
     Int decreaseLevel = -1;
+    // TODO(poulson): Switch to simple algorithm when the window size is 
+    // sufficiently small
     while( winBeg < winEnd )
     {
         if( info.numIterations >= maxIter )
@@ -307,7 +309,7 @@ AED
     const Real exceptShift0(Real(4)/Real(3));
     HessenbergSchurInfo info;
 
-    if( n < ctrl.minMultiBulgeSize )
+    if( winSize < ctrl.minMultiBulgeSize )
     {
         // Run the single-shift QR algorithm
         return SingleShift( H, w, Z, ctrl );
@@ -335,6 +337,8 @@ AED
     const Int maxIter =
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
     Int decreaseLevel = -1;
+    // TODO(poulson): Switch to simple algorithm when the window size is 
+    // sufficiently small
     while( winBeg < winEnd )
     {
         if( info.numIterations >= maxIter )

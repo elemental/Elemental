@@ -198,6 +198,7 @@ void PairShifts( Matrix<Complex<Real>>& shifts )
       {
           if( shifts(i).imag() != -shifts(i-1).imag() )
           {
+              Print( shifts, "shifts" );
               RuntimeError("Shifts were not properly paired");
           }
       }
