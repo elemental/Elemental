@@ -60,6 +60,9 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
     // TODO(poulson): A more refined failure condition
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
+    else
+        Output("Passed test");
+    Output("");
 }
 
 template<typename Real>
@@ -114,6 +117,9 @@ void TestAhuesTisseurQuasi( const HessenbergSchurCtrl& ctrl, bool print )
     // TODO(poulson): A more refined failure condition
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
+    else
+        Output("Passed test");
+    Output("");
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -170,6 +176,9 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     // TODO(poulson): A more refined failure condition
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
+    else
+        Output("Passed test");
+    Output("");
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -215,6 +224,9 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     // TODO(poulson): A more refined failure condition
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
+    else
+        Output("Passed test");
+    Output("");
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -272,6 +284,9 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     // TODO(poulson): A more refined failure condition
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
+    else
+        Output("Passed test");
+    Output("");
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
@@ -318,6 +333,9 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
     // TODO(poulson): A more refined failure condition
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
+    else
+        Output("Passed test");
+    Output("");
 }
 
 int main( int argc, char* argv[] )
