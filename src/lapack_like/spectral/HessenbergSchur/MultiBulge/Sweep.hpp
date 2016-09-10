@@ -9,6 +9,8 @@
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_HPP
 #define EL_SCHUR_HESS_MULTIBULGE_SWEEP_HPP
 
+#include "./PairShifts.hpp"
+
 namespace El {
 namespace hess_schur {
 namespace multibulge {
@@ -171,38 +173,6 @@ void IntroduceBulge
     ImplicitQQuadraticSeed( H, shift0, shift1, v ); 
     F beta = v[0];
     v[0] = lapack::Reflector( n, beta, &v[1], 1 );
-}
-
-// NOTE: This should only be called for real matrices, where one can assume
-// conjugate pairs of shifts
-template<typename Real>
-void PairShifts( Matrix<Complex<Real>>& shifts )
-{
-    DEBUG_CSE
-    const Int numShifts = shifts.Height();
-
-    Complex<Real> tmp;
-    for( Int i=numShifts-1; i>=2; i-=2 )
-    {
-        if( shifts(i).imag() != -shifts(i-1).imag() )
-        {
-            tmp = shifts(i);
-            shifts(i) = shifts(i-1);
-            shifts(i-1) = shifts(i-2);
-            shifts(i-2) = tmp;
-        }
-    }
-
-    DEBUG_ONLY(
-      for( Int i=numShifts-1; i>=2; i-=2 )
-      {
-          if( shifts(i).imag() != -shifts(i-1).imag() )
-          {
-              Print( shifts, "shifts" );
-              RuntimeError("Shifts were not properly paired");
-          }
-      }
-    )
 }
 
 template<typename F>

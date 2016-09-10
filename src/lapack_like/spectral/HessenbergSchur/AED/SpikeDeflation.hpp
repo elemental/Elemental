@@ -173,7 +173,6 @@ AEDInfo SpikeDeflation
 }
 
 } // namespace aed
-
 } // namespace hess_schur
 } // namespace El
 

@@ -721,32 +721,18 @@ struct HessenbergSchurCtrl
     Int blockHeight=DefaultBlockHeight(), blockWidth=DefaultBlockWidth();
 };
 
-template<typename Real>
+template<typename F>
 HessenbergSchurInfo
 HessenbergSchur
-( Matrix<Real>& H,
-  Matrix<Complex<Real>>& w,
+( Matrix<F>& H,
+  Matrix<Complex<Base<F>>>& w,
   const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
-template<typename Real>
+template<typename F>
 HessenbergSchurInfo
 HessenbergSchur
-( Matrix<Real>& H,
-  Matrix<Complex<Real>>& w,
-  Matrix<Real>& Z,
-  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
-
-template<typename Real>
-HessenbergSchurInfo
-HessenbergSchur
-( Matrix<Complex<Real>>& H,
-  Matrix<Complex<Real>>& w,
-  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
-template<typename Real>
-HessenbergSchurInfo
-HessenbergSchur
-( Matrix<Complex<Real>>& H,
-  Matrix<Complex<Real>>& w,
-  Matrix<Complex<Real>>& Z,
+( Matrix<F>& H,
+  Matrix<Complex<Base<F>>>& w,
+  Matrix<F>& Z,
   const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
 
 // Schur decomposition

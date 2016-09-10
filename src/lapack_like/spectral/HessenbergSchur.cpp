@@ -8,47 +8,18 @@
 */
 #include <El.hpp>
 
-#include "./HessenbergSchur/SingleShift.hpp"
-#include "./HessenbergSchur/DoubleShift.hpp"
+#include "./HessenbergSchur/Simple.hpp"
 #include "./HessenbergSchur/MultiBulge.hpp"
 #include "./HessenbergSchur/AED.hpp"
 
 namespace El {
 
-template<typename Real>
+template<typename F>
 HessenbergSchurInfo
 HessenbergSchur
-( Matrix<Real>& H,
-  Matrix<Complex<Real>>& w,
-  const HessenbergSchurCtrl& ctrl )
-{
-    const Int n = H.Height();
-    auto ctrlMod( ctrl );
-    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    ctrlMod.wantSchurVecs = false;
-
-    Matrix<Real> Z;
-    if( ctrl.alg == HESSENBERG_SCHUR_AED )
-    {
-        return hess_schur::AED( H, w, Z, ctrlMod );
-    }
-    else if( ctrl.alg == HESSENBERG_SCHUR_MULTIBULGE )
-    {
-        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
-    }
-    else
-    {
-        return hess_schur::DoubleShift( H, w, Z, ctrlMod );
-    }
-}
-
-template<typename Real>
-HessenbergSchurInfo
-HessenbergSchur
-( Matrix<Real>& H,
-  Matrix<Complex<Real>>& w,
-  Matrix<Real>& Z,
+( Matrix<F>& H,
+  Matrix<Complex<Base<F>>>& w,
+  Matrix<F>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     const Int n = H.Height();
@@ -67,15 +38,15 @@ HessenbergSchur
     }
     else
     {
-        return hess_schur::DoubleShift( H, w, Z, ctrlMod );
+        return hess_schur::Simple( H, w, Z, ctrlMod );
     }
 }
 
-template<typename Real>
+template<typename F>
 HessenbergSchurInfo
 HessenbergSchur
-( Matrix<Complex<Real>>& H,
-  Matrix<Complex<Real>>& w,
+( Matrix<F>& H,
+  Matrix<Complex<Base<F>>>& w,
   const HessenbergSchurCtrl& ctrl )
 {
     const Int n = H.Height();
@@ -84,7 +55,7 @@ HessenbergSchur
     ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     ctrlMod.wantSchurVecs = false;
 
-    Matrix<Complex<Real>> Z;
+    Matrix<F> Z;
     if( ctrl.alg == HESSENBERG_SCHUR_AED )
     {
         return hess_schur::AED( H, w, Z, ctrlMod );
@@ -95,35 +66,7 @@ HessenbergSchur
     }
     else
     {
-        return hess_schur::SingleShift( H, w, Z, ctrlMod );
-    }
-}
-
-template<typename Real>
-HessenbergSchurInfo
-HessenbergSchur
-( Matrix<Complex<Real>>& H,
-  Matrix<Complex<Real>>& w,
-  Matrix<Complex<Real>>& Z,
-  const HessenbergSchurCtrl& ctrl )
-{
-    const Int n = H.Height();
-    auto ctrlMod( ctrl );
-    ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    ctrlMod.wantSchurVecs = true;
-
-    if( ctrl.alg == HESSENBERG_SCHUR_AED )
-    {
-        return hess_schur::AED( H, w, Z, ctrlMod );
-    }
-    else if( ctrl.alg == HESSENBERG_SCHUR_MULTIBULGE )
-    {
-        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
-    }
-    else
-    {
-        return hess_schur::SingleShift( H, w, Z, ctrlMod );
+        return hess_schur::Simple( H, w, Z, ctrlMod );
     }
 }
 
