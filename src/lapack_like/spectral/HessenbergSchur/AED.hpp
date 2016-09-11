@@ -52,15 +52,16 @@ AED
 {
     DEBUG_CSE 
     typedef Base<F> Real;
+    const Real zero(0);
 
     const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int winSize = winEnd - winBeg;
-    const Real zero(0);
+    const Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 4 );
     HessenbergSchurInfo info;
 
-    if( winSize < ctrl.minMultiBulgeSize )
+    if( winSize < minMultiBulgeSize )
     {
         return Simple( H, w, Z, ctrl );
     }
@@ -86,6 +87,7 @@ AED
     // Cf. LAPACK's DLAQR0 for this choice
     const Int maxIter =
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
+
     Int decreaseLevel = -1;
     while( winBeg < winEnd )
     {
@@ -122,9 +124,10 @@ AED
         Int shiftBeg = winEnd - deflateInfo.numShiftCandidates;
 
         const Int newIterWinSize = winEnd-iterBeg;
+        const Int sufficientDeflation = ctrl.sufficientDeflation(deflationSize);
         if( numDeflated == 0 ||
-          (numDeflated <= ctrl.sufficientDeflation(deflationSize) && 
-           newIterWinSize >= ctrl.minMultiBulgeSize) )
+          (numDeflated <= sufficientDeflation && 
+           newIterWinSize >= minMultiBulgeSize) )
         {
             shiftBeg =
               aed::ModifyShifts

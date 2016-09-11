@@ -465,16 +465,12 @@ void ApplyReflectors
         const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-
         DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
-
         for( Int j=bulgeBeg+1; j<transformEnd; ++j )
-        {
             ApplyLeftReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
-        }
     }
 
     // Apply from the right (excluding the fourth row to support vig. deflation)
@@ -488,54 +484,40 @@ void ApplyReflectors
         const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
-        {
             ApplyRightReflector( H(i,bulgeBeg+1), H(i,bulgeBeg+2), w );
-        }
 
         if( accumulate )
         {
             const Int kU = bulgeBeg - ghostCol;
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
-            {
                 ApplyRightReflector( U(i,kU), U(i,kU+1), w );
-            }
         }
         else if( wantSchurVecs )
         {
             for( Int i=0; i<nZ; ++i )
-            {
                 ApplyRightReflector( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), w );
-            }
         }
     }
     for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+4); ++i )
-        {
             ApplyRightReflector
             ( H(i,bulgeBeg+1), H(i,bulgeBeg+2), H(i,bulgeBeg+3), w );
-        }
 
         if( accumulate )
         {
             const Int kU = bulgeBeg - ghostCol;
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
-            {
                 ApplyRightReflector( U(i,kU), U(i,kU+1), U(i,kU+2), w );
-            }
         }
         else if( wantSchurVecs )
         {
             for( Int i=0; i<nZ; ++i )
-            {
                 ApplyRightReflector
                 ( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), Z(i,bulgeBeg+3), w );
-            }
         }
     }
 
@@ -633,18 +615,14 @@ void ApplyReflectorsOpt
         const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-
         DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
-
         for( Int j=bulgeBeg+1; j<transformEnd; ++j )
-        {
             ApplyLeftReflector
             ( HBuf[(bulgeBeg+1)+j*HLDim],
               HBuf[(bulgeBeg+2)+j*HLDim], w );
-        }
     }
 
     // Apply from the right (excluding the fourth row to support vig. deflation)
@@ -658,67 +636,53 @@ void ApplyReflectorsOpt
         const Int bulge = fullEnd;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
-        {
             ApplyRightReflector
             ( HBuf[i+(bulgeBeg+1)*HLDim],
               HBuf[i+(bulgeBeg+2)*HLDim], w );
-        }
 
         if( accumulate )
         {
             const Int kU = bulgeBeg - ghostCol;
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
-            {
                 ApplyRightReflector
                 ( UBuf[i+ kU   *ULDim],
                   UBuf[i+(kU+1)*ULDim], w );
-            }
         }
         else if( wantSchurVecs )
         {
             for( Int i=0; i<nZ; ++i )
-            {
                 ApplyRightReflector
                 ( ZBuf[i+(bulgeBeg+1)*ZLDim],
                   ZBuf[i+(bulgeBeg+2)*ZLDim], w );
-            }
         }
     }
     for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+4); ++i )
-        {
             ApplyRightReflector
             ( HBuf[i+(bulgeBeg+1)*HLDim],
               HBuf[i+(bulgeBeg+2)*HLDim],
               HBuf[i+(bulgeBeg+3)*HLDim], w );
-        }
 
         if( accumulate )
         {
             const Int kU = bulgeBeg - ghostCol;
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
-            {
                 ApplyRightReflector
                 ( UBuf[i+ kU   *ULDim],
                   UBuf[i+(kU+1)*ULDim],
                   UBuf[i+(kU+2)*ULDim], w );
-            }
         }
         else if( wantSchurVecs )
         {
             for( Int i=0; i<nZ; ++i )
-            {
                 ApplyRightReflector
                 ( ZBuf[i+(bulgeBeg+1)*ZLDim],
                   ZBuf[i+(bulgeBeg+2)*ZLDim],
                   ZBuf[i+(bulgeBeg+3)*ZLDim], w );
-            }
         }
     }
 
@@ -826,6 +790,8 @@ void Sweep
     // the span of numBulges 3x3 Householder reflections and the translation
     // distance of the packet (ghostStride)
     const Int slabSize = 3*numBulges + ghostStride;
+    if( slabSize-1 > n )
+        LogicError("An attempt was made to chase too many simulaneous bulges");
 
     for( Int ghostCol=ghostBeg; ghostCol<ghostEnd; ghostCol+=ghostStride )
     {

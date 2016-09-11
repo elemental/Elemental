@@ -27,15 +27,17 @@ MultiBulge
 {
     DEBUG_CSE 
     typedef Base<F> Real;
+    const Real zero(0);
+
     const Int n = H.Height();
     const Int nZ = Z.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int winSize = winEnd - winBeg;
-    const Real zero(0);
+    const Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 4 );
     HessenbergSchurInfo info;
 
-    if( winSize < ctrl.minMultiBulgeSize )
+    if( winSize < minMultiBulgeSize )
     {
         return Simple( H, w, Z, ctrl );
     }
@@ -53,6 +55,7 @@ MultiBulge
     // Cf. LAPACK's DLAQR0 for this choice
     const Int maxIter =
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
+
     Int iterBegLast=-1, winEndLast=-1;
     while( winBeg < winEnd )
     {
@@ -89,7 +92,7 @@ MultiBulge
         }
 
         const Int iterWinSize = winEnd-iterBeg;
-        if( iterWinSize < ctrl.minMultiBulgeSize )
+        if( iterWinSize < minMultiBulgeSize )
         {
             // The window is small enough to switch to the simple scheme
             auto ctrlSub( ctrl );
