@@ -55,12 +55,12 @@ AED
     const Real zero(0);
 
     const Int n = H.Height();
-    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    const Int winSize = winEnd - winBeg;
     const Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 4 );
     HessenbergSchurInfo info;
 
+    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    const Int winSize = winEnd - winBeg;
     if( winSize < minMultiBulgeSize )
     {
         return Simple( H, w, Z, ctrl );
@@ -125,6 +125,8 @@ AED
 
         const Int newIterWinSize = winEnd-iterBeg;
         const Int sufficientDeflation = ctrl.sufficientDeflation(deflationSize);
+        // TODO(poulson): Provide an explanation for this strategy for when to
+        // avoid sweeps
         if( numDeflated == 0 ||
           (numDeflated <= sufficientDeflation && 
            newIterWinSize >= minMultiBulgeSize) )

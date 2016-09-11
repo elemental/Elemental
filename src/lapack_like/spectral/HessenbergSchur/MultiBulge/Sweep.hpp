@@ -729,7 +729,7 @@ void ApplyReflectorsOpt
 }
 
 template<typename F>
-void Sweep
+void SweepHelper
 ( Matrix<F>& H,
   Matrix<Complex<Base<F>>>& shifts,
   Matrix<F>& Z,
@@ -740,10 +740,7 @@ void Sweep
 {
     DEBUG_CSE
     typedef Base<F> Real;
-    const Real realZero(0);
     const Int n = H.Height();
-    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
 
     const Int numShifts = shifts.Height();
     DEBUG_ONLY(
@@ -753,12 +750,6 @@ void Sweep
           LogicError("Expected an even number of sweeps");
     )
     const Int numBulges = numShifts / 2;
-
-    if( !IsComplex<F>::value )
-        PairShifts( shifts );
-
-    // TODO: Decide if this is strictly necessary
-    H(winBeg+2,winBeg) = realZero;
 
     // Set aside space for storing either the three nonzero entries of the first
     // column of a quadratic polynomial for introducing each bulge or the scalar
@@ -775,6 +766,8 @@ void Sweep
     // the bulge has starting index winBeg.
     //
     // Initialize with the last bulge about to be introduced in the upper-left
+    const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int ghostBeg = (winBeg-1) - 3*(numBulges-1);
 
     // The last bulge must be at least 3x3 in order to involve a 2x2 
@@ -790,9 +783,11 @@ void Sweep
     // the span of numBulges 3x3 Householder reflections and the translation
     // distance of the packet (ghostStride)
     const Int slabSize = 3*numBulges + ghostStride;
-    if( slabSize-1 > n )
-        LogicError("An attempt was made to chase too many simulaneous bulges");
 
+    DEBUG_ONLY(
+      if( H(winBeg+2,winBeg) != F(0) )
+          LogicError("H was not upper Hessenberg"); 
+    )
     for( Int ghostCol=ghostBeg; ghostCol<ghostEnd; ghostCol+=ghostStride )
     {
         // Note that this slab endpoint may be past winEnd
@@ -870,6 +865,42 @@ void Sweep
                 ZSub = WAccum;
             }
         }
+    }
+}
+
+template<typename F>
+void Sweep
+( Matrix<F>& H,
+  Matrix<Complex<Base<F>>>& shifts,
+  Matrix<F>& Z,
+  Matrix<F>& U,
+  Matrix<F>& W,
+  Matrix<F>& WAccum,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    const Int n = H.Height();
+
+    const Int numShifts = shifts.Height();
+    DEBUG_ONLY(
+      if( numShifts < 2 )
+          LogicError("Expected at least one pair of shifts..."); 
+    )
+    if( numShifts % 2 != 0 )
+        LogicError("Expected an even number of shifts");
+    if( !IsComplex<F>::value )
+        PairShifts( shifts );
+
+    const Int maxBulgesPerSweep = Max( n/5, 1 );
+    const Int maxShiftsPerSweep = 2*maxBulgesPerSweep;
+    for( Int shiftStart=0; shiftStart<numShifts; shiftStart+=maxShiftsPerSweep )
+    {
+        const Int numSweepShifts =
+          Min( maxShiftsPerSweep, numShifts-shiftStart );
+        auto sweepInd = IR(shiftStart,shiftStart+numSweepShifts);
+        auto sweepShifts = shifts(sweepInd,ALL);
+        SweepHelper( H, sweepShifts, Z, U, W, WAccum, ctrl );
     }
 }
 
