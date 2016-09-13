@@ -323,6 +323,7 @@ ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
     ctrl->alg = EL_HESSENBERG_SCHUR_AED;
     ctrl->recursiveAED = true;
     ctrl->accumulateReflections = true;
+    ctrl->sortShifts = true;
 
     ctrl->progress = false;
 

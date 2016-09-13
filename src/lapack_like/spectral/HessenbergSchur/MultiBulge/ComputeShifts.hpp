@@ -51,17 +51,14 @@ Int ComputeShifts
               w(i-1), w(i) );
         }
         if( shiftBeg == winBeg )
-        {
             w(shiftBeg) = w(shiftBeg+1) = H(shiftBeg+1,shiftBeg+1);
-        }
     }
     else
     {
         // Compute the eigenvalues of the bottom-right window
         auto HShifts = H(shiftInd,shiftInd);
         auto HShiftsCopy( HShifts );
-        auto shiftInfo =
-          HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
+        auto shiftInfo = HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
     }
     if( winBeg-shiftBeg == 2 )
     {
@@ -97,7 +94,6 @@ Int ComputeShifts
   const HessenbergSchurCtrl& ctrlShifts )
 {
     DEBUG_CSE
-    const Real zero(0);
     // For some reason, LAPACK suggests only using a single exceptional shift
     // for complex matrices.
     const Real exceptShift0(Real(4)/Real(3));
@@ -116,25 +112,21 @@ Int ComputeShifts
         // Compute the eigenvalues of the bottom-right window
         auto HShifts = H(shiftInd,shiftInd);
         auto HShiftsCopy( HShifts );
-        auto shiftInfo =
-          HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
+        auto shiftInfo = HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
     }
     if( winBeg-shiftBeg == 2 )
     {
-        // Use a single real shift twice instead of using two separate
-        // real shifts; we choose the one closest to the bottom-right
-        // entry, as it is our best guess as to the smallest eigenvalue
-        if( w(winEnd-1).imag() == zero ) 
+        // Use the same shift twice; we choose the one closest to the
+        // bottom-right entry, as it is our best guess as to the smallest
+        // eigenvalue
+        if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
+            Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
         {
-            if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
-                Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
-            {
-                w(winEnd-2) = w(winEnd-1);
-            }
-            else
-            {
-                w(winEnd-1) = w(winEnd-2);
-            }
+            w(winEnd-2) = w(winEnd-1);
+        }
+        else
+        {
+            w(winEnd-1) = w(winEnd-2);
         }
     }
     return shiftBeg;

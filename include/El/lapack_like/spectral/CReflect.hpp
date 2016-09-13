@@ -742,6 +742,7 @@ inline ElHessenbergSchurCtrl CReflect( const HessenbergSchurCtrl& ctrl )
     ctrlC.alg = CReflect(ctrl.alg);
     ctrlC.recursiveAED = ctrl.recursiveAED;
     ctrlC.accumulateReflections = ctrl.accumulateReflections;
+    ctrlC.sortShifts = ctrl.sortShifts;
 
     ctrlC.progress = ctrl.progress;
 
@@ -785,6 +786,7 @@ inline HessenbergSchurCtrl CReflect( const ElHessenbergSchurCtrl& ctrlC )
     ctrl.alg = CReflect(ctrlC.alg);
     ctrl.recursiveAED = ctrlC.recursiveAED;
     ctrl.accumulateReflections = ctrlC.accumulateReflections;
+    ctrl.sortShifts = ctrlC.sortShifts;
 
     ctrl.progress = ctrlC.progress;
 

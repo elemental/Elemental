@@ -26,18 +26,18 @@ Int ModifyShifts
         Matrix<Complex<Real>>& w,
   const HessenbergSchurCtrl& ctrl )
 {
-    const Real zero(0);
-    const Real exceptShift0(Real(4)/Real(3)),
-               exceptShift1(-Real(7)/Real(16));
-
-    Int numShifts = Min( numShiftsRec, Max(2,newIterWinSize-1) );
-    numShifts = numShifts - Mod(numShifts,2); 
+    // Compute the ideal number of (even) shifts to apply this sweep
+    Int numShiftsIdeal = Min( numShiftsRec, Max(2,newIterWinSize-1) );
+    numShiftsIdeal = numShiftsIdeal - Mod(numShiftsIdeal,2); 
 
     if( numIterSinceDeflation > 0 &&
         Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
     {
-        // Use exceptional shifts
-        shiftBeg = winEnd - numShifts;
+        // Use exceptional shifts to attempt to break out of a convergence rut
+        Output("Using exceptional shifts");
+        shiftBeg = winEnd - numShiftsIdeal;
+        const Real exceptShift0(Real(4)/Real(3)),
+                   exceptShift1(-Real(7)/Real(16));
         for( Int i=winEnd-1; i>=Max(shiftBeg+1,winBeg+2); i-=2 ) 
         {
             const Real scale = Abs(H(i,i-1)) + Abs(H(i-1,i-2));
@@ -51,29 +51,28 @@ Int ModifyShifts
               w(i-1), w(i) );
         }
         if( shiftBeg == winBeg )
-        {
             w(shiftBeg) = w(shiftBeg+1) = H(shiftBeg+1,shiftBeg+1);
-        }
     }
     else
     {
-        if( winEnd-shiftBeg <= numShifts/2 )
+        // TODO(poulson): Come up with a principled switching point
+        if( winEnd-shiftBeg <= numShiftsIdeal/2 )
         {
             // Grab more shifts from another trailing submatrix
-            shiftBeg = winEnd - numShifts;
-            auto shiftsInd = IR(shiftBeg,shiftBeg+numShifts);
+            Output("Grabbing more shifts");
+            shiftBeg = winEnd - numShiftsIdeal;
+            auto shiftsInd = IR(shiftBeg,shiftBeg+numShiftsIdeal);
             auto HShifts = H(shiftsInd,shiftsInd);
             auto wShifts = w(shiftsInd,ALL);
             auto HShiftsCopy( HShifts );
 
             auto ctrlShifts( ctrl );
             ctrlShifts.winBeg = 0;
-            ctrlShifts.winEnd = numShifts;
+            ctrlShifts.winEnd = numShiftsIdeal;
             ctrlShifts.fullTriangle = false;
             ctrlShifts.demandConverged = false;
             auto infoShifts =
               HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
-
             shiftBeg += infoShifts.numUnconverged;
             if( shiftBeg >= winEnd-1 )
             {
@@ -89,31 +88,13 @@ Int ModifyShifts
                 shiftBeg = winEnd-2;
             }
         }
-        if( winEnd-shiftBeg > numShifts )
-        {
-            bool sorted = false;
-            for( Int k=winEnd-1; k>shiftBeg; --k )
-            {
-                if( sorted )
-                    break;
-                sorted = true;
-                for( Int i=shiftBeg; i<k; ++i )
-                {
-                    if( OneAbs(w(i)) < OneAbs(w(i+1)) )
-                    {
-                        sorted = false;
-                        RowSwap( w, i, i+1 );
-                    }
-                }
-            }
-        }
     }
     if( winBeg-shiftBeg == 2 )
     {
         // Use a single real shift twice instead of using two separate
         // real shifts; we choose the one closest to the bottom-right
         // entry, as it is our best guess as to the smallest eigenvalue
-        if( w(winEnd-1).imag() == zero ) 
+        if( w(winEnd-1).imag() == Real(0) ) 
         {
             if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
                 Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
@@ -127,10 +108,52 @@ Int ModifyShifts
         }
     }
 
-    // Use the smallest magnitude shifts
-    numShifts = Min( numShifts, winEnd-shiftBeg );
-    numShifts = numShifts - Mod(numShifts,2);
-    shiftBeg = winEnd - numShifts;
+    auto wShifts = w(IR(shiftBeg,winEnd),ALL);
+    multibulge::PairShifts( wShifts );
+    if( winEnd-shiftBeg > numShiftsIdeal )
+    {
+        // We have too many shifts and need to eliminate some
+        if( ctrl.sortShifts )
+        {
+            // Sort the shifts into ascending order in a manner which preserves
+            // consecutive pairs
+            Output("Sorting shifts");
+            typedef std::pair<Complex<Real>,Complex<Real>> ShiftPair;
+            const Int numShifts = winEnd - shiftBeg;
+            const Int remainder = numShifts % 2;
+            const Int numShiftPairs = (numShifts/2) + remainder;
+            std::vector<ShiftPair> shiftPairs(numShiftPairs);
+            if( remainder == 1 )
+            {
+                shiftPairs[0].first = w(shiftBeg);
+                shiftPairs[0].second = Conj(w(shiftBeg));
+            }
+            for( Int i=0; i<numShiftPairs-remainder; ++i )
+            {
+                shiftPairs[i+remainder].first = w(shiftBeg+2*i+remainder);
+                shiftPairs[i+remainder].second = w(shiftBeg+2*i+1+remainder);
+            }
+            std::sort
+            ( shiftPairs.begin(), shiftPairs.end(),
+              [](const ShiftPair& a, const ShiftPair& b)
+              { return OneAbs(b.first) < OneAbs(a.first); } );
+            const Int numKeptPairs = numShiftsIdeal / 2;
+            const Int numDroppedPairs = numShiftPairs - numKeptPairs;
+            const Int shiftBegNew = winEnd - numShiftsIdeal;
+            for( Int i=0; i<numKeptPairs; ++i )
+            {
+                w(shiftBegNew+2*i) = shiftPairs[i+numDroppedPairs].first;
+                w(shiftBegNew+2*i+1) = shiftPairs[i+numDroppedPairs].second;
+            }
+        }
+        shiftBeg = winEnd - numShiftsIdeal;
+    }
+    else
+    {
+        Int numShifts = winEnd-shiftBeg;
+        numShifts = numShifts - Mod(numShifts,2);    
+        shiftBeg = winEnd - numShifts;
+    }
     return shiftBeg;
 }
 
@@ -148,43 +171,41 @@ Int ModifyShifts
   const HessenbergSchurCtrl& ctrl )
 {
     typedef Complex<Real> F;
-    const Real zero(0);
-    // For some reason, LAPACK suggests only using a single exceptional shift
-    // for complex matrices.
-    const Real exceptShift0(Real(4)/Real(3));
 
-    Int numShifts = Min( numShiftsRec, Max(2,newIterWinSize-1) );
-    numShifts = numShifts - Mod(numShifts,2); 
+    // Compute the ideal number of (even) shifts to apply this sweep
+    Int numShiftsIdeal = Min( numShiftsRec, Max(2,newIterWinSize-1) );
+    numShiftsIdeal = numShiftsIdeal - Mod(numShiftsIdeal,2); 
 
     if( numIterSinceDeflation > 0 &&
         Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
     {
-        // Use exceptional shifts
-        shiftBeg = winEnd - numShifts;
+        // Use exceptional shifts.
+        // For some reason, LAPACK suggests only using a single exceptional
+        // shift for complex matrices.
+        shiftBeg = winEnd-numShiftsIdeal;
+        const Real exceptShift0(Real(4)/Real(3));
         for( Int i=winEnd-1; i>=shiftBeg+1; i-=2 )
-        {
             w(i-1) = w(i) = H(i,i) + exceptShift0*OneAbs(H(i,i-1));
-        }
     }
     else
     {
-        if( winEnd-shiftBeg <= numShifts/2 )
+        // TODO(poulson): Come up with a principled switching point
+        if( winEnd-shiftBeg <= numShiftsIdeal/2 )
         {
             // Grab more shifts from another trailing submatrix
-            shiftBeg = winEnd - numShifts;
-            auto shiftsInd = IR(shiftBeg,shiftBeg+numShifts);
+            shiftBeg = winEnd-numShiftsIdeal;
+            auto shiftsInd = IR(shiftBeg,shiftBeg+numShiftsIdeal);
             auto HShifts = H(shiftsInd,shiftsInd);
             auto wShifts = w(shiftsInd,ALL);
             auto HShiftsCopy( HShifts );
 
             auto ctrlShifts( ctrl );
             ctrlShifts.winBeg = 0;
-            ctrlShifts.winEnd = numShifts;
+            ctrlShifts.winEnd = numShiftsIdeal;
             ctrlShifts.fullTriangle = false;
             ctrlShifts.demandConverged = false;
             auto infoShifts =
               HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
-
             shiftBeg += infoShifts.numUnconverged;
             if( shiftBeg >= winEnd-1 )
             {
@@ -200,48 +221,42 @@ Int ModifyShifts
                 shiftBeg = winEnd-2;
             }
         }
-        if( winEnd-shiftBeg > numShifts )
-        {
-            bool sorted = false;
-            for( Int k=winEnd-1; k>shiftBeg; --k )
-            {
-                if( sorted )
-                    break;
-                sorted = true;
-                for( Int i=shiftBeg; i<k; ++i )
-                {
-                    if( OneAbs(w(i)) < OneAbs(w(i+1)) )
-                    {
-                        sorted = false;
-                        RowSwap( w, i, i+1 );
-                    }
-                }
-            }
-        }
     }
     if( winBeg-shiftBeg == 2 )
     {
-        // Use a single real shift twice instead of using two separate
-        // real shifts; we choose the one closest to the bottom-right
-        // entry, as it is our best guess as to the smallest eigenvalue
-        if( w(winEnd-1).imag() == zero ) 
+        // Use the same shift twice; we choose the one closest to the
+        // bottom-right entry, as it is our best guess as to the smallest
+        // eigenvalue
+        if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
+            Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
         {
-            if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
-                Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
-            {
-                w(winEnd-2) = w(winEnd-1);
-            }
-            else
-            {
-                w(winEnd-1) = w(winEnd-2);
-            }
+            w(winEnd-2) = w(winEnd-1);
+        }
+        else
+        {
+            w(winEnd-1) = w(winEnd-2);
         }
     }
 
-    // Use the smallest magnitude shifts
-    numShifts = Min( numShifts, winEnd-shiftBeg );
-    numShifts = numShifts - Mod(numShifts,2);
-    shiftBeg = winEnd - numShifts;
+    if( winEnd-shiftBeg > numShiftsIdeal )
+    {
+        // We have too many shifts and need to eliminate some
+        if( ctrl.sortShifts )
+        {
+            // Sort the shifts into ascending order
+            std::sort
+            ( w.Buffer()+shiftBeg, w.Buffer()+winEnd,
+              [](const Complex<Real>& a, const Complex<Real>& b)
+              { return OneAbs(b) < OneAbs(a); } );
+        }
+        shiftBeg = winEnd-numShiftsIdeal;
+    }
+    else
+    {
+        Int numShifts = winEnd-shiftBeg;
+        numShifts = numShifts - Mod(numShifts,2);    
+        shiftBeg = winEnd - numShifts;
+    }
     return shiftBeg;
 }
 

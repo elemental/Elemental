@@ -604,6 +604,7 @@ typedef struct {
   ElHessenbergSchurAlg alg;
   bool recursiveAED;
   bool accumulateReflections;
+  bool sortShifts;
 
   bool progress;
 

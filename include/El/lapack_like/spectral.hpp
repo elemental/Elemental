@@ -699,6 +699,7 @@ struct HessenbergSchurCtrl
     HessenbergSchurAlg alg=HESSENBERG_SCHUR_AED;
     bool recursiveAED=true;
     bool accumulateReflections=true;
+    bool sortShifts=true;
 
     bool progress=false;
 
@@ -734,6 +735,17 @@ HessenbergSchur
   Matrix<Complex<Base<F>>>& w,
   Matrix<F>& Z,
   const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+
+namespace hess_schur {
+
+template<typename F>
+void Sweep
+( Matrix<F>& H,
+  Matrix<Complex<Base<F>>>& shifts,
+  Matrix<F>& Z,
+  const HessenbergSchurCtrl& ctrl );
+
+} // namespace hess_schur
 
 // Schur decomposition
 // ===================

@@ -1,7 +1,6 @@
 /*
    Copyright (c) 2009-2016, Jack Poulson
-   All rights reserved.
-
+   All rights reserved.  
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
@@ -123,7 +122,8 @@ void TestAhuesTisseurQuasi( const HessenbergSchurCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
-void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
+void TestRandom
+( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
@@ -165,6 +165,37 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
         Print( T, "T" );
     }
 
+    if( testSweep )
+    {
+        T = H;
+        auto ctrlEig( ctrl );
+        ctrlEig.fullTriangle = false;
+        ctrlEig.wantSchurVecs = false;
+        timer.Start();
+        auto infoEig = HessenbergSchur( T, w, ctrlEig );
+        Output("HessenbergSchur (eigenvalues only): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoEig.numIterations," iterations");
+
+        T = H;
+        Identity( Z, n, n );
+        auto ctrlSweep( ctrl );
+        ctrlSweep.wantSchurVecs = true;
+        timer.Start();
+        hess_schur::Sweep( T, w, Z, ctrlSweep );
+        Output("hess_schur::Sweep: ",timer.Stop()," seconds");
+        if( print )
+        {
+            Print( T, "T after sweep" );
+            Print( Z, "Z after sweep" );
+        }
+        timer.Start();
+        auto infoFinish = HessenbergSchur( T, w, Z, ctrl );
+        Output("HessenbergSchur (after sweep): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoFinish.numIterations," iterations");
+    }
+
     Matrix<F> R;
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
@@ -182,7 +213,8 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
-void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
+void TestRandom
+( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
     DEBUG_CSE
     typedef Complex<Real> F;
@@ -211,6 +243,37 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
         Print( w, "w" );
         Print( Z, "Z" );
         Print( T, "T" );
+    }
+
+    if( testSweep )
+    {
+        T = H;
+        auto ctrlEig( ctrl );
+        ctrlEig.fullTriangle = false;
+        ctrlEig.wantSchurVecs = false;
+        timer.Start();
+        auto infoEig = HessenbergSchur( T, w, ctrlEig );
+        Output("HessenbergSchur (eigenvalues only): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoEig.numIterations," iterations");
+
+        T = H;
+        Identity( Z, n, n );
+        auto ctrlSweep( ctrl );
+        ctrlSweep.wantSchurVecs = true;
+        timer.Start();
+        hess_schur::Sweep( T, w, Z, ctrlSweep );
+        Output("hess_schur::Sweep: ",timer.Stop()," seconds");
+        if( print )
+        {
+            Print( T, "T after sweep" );
+            Print( Z, "Z after sweep" );
+        }
+        timer.Start();
+        auto infoFinish = HessenbergSchur( T, w, Z, ctrl );
+        Output("HessenbergSchur (after sweep): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoFinish.numIterations," iterations");
     }
 
     Matrix<F> R;
@@ -230,7 +293,8 @@ void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
-void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
+void TestRandomQuasi
+( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
     DEBUG_CSE
     typedef Real F;
@@ -273,6 +337,37 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
         Print( T, "T" );
     }
 
+    if( testSweep )
+    {
+        T = H;
+        auto ctrlEig( ctrl );
+        ctrlEig.fullTriangle = false;
+        ctrlEig.wantSchurVecs = false;
+        timer.Start();
+        auto infoEig = HessenbergSchur( T, w, ctrlEig );
+        Output("HessenbergSchur (eigenvalues only): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoEig.numIterations," iterations");
+
+        T = H;
+        Identity( Z, n, n );
+        auto ctrlSweep( ctrl );
+        ctrlSweep.wantSchurVecs = true;
+        timer.Start();
+        hess_schur::Sweep( T, w, Z, ctrlSweep );
+        Output("hess_schur::Sweep: ",timer.Stop()," seconds");
+        if( print )
+        {
+            Print( T, "T after sweep" );
+            Print( Z, "Z after sweep" );
+        }
+        timer.Start();
+        auto infoFinish = HessenbergSchur( T, w, Z, ctrl );
+        Output("HessenbergSchur (after sweep): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoFinish.numIterations," iterations");
+    }
+
     Matrix<F> R;
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
@@ -290,7 +385,8 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 }
 
 template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
-void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
+void TestRandomQuasi
+( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
     DEBUG_CSE
     typedef Real F;
@@ -320,6 +416,37 @@ void TestRandomQuasi( Int n, const HessenbergSchurCtrl& ctrl, bool print )
         Print( w, "w" );
         Print( Z, "Z" );
         Print( T, "T" );
+    }
+
+    if( testSweep )
+    {
+        T = H;
+        auto ctrlEig( ctrl );
+        ctrlEig.fullTriangle = false;
+        ctrlEig.wantSchurVecs = false;
+        timer.Start();
+        auto infoEig = HessenbergSchur( T, w, ctrlEig );
+        Output("HessenbergSchur (eigenvalues only): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoEig.numIterations," iterations");
+
+        T = H;
+        Identity( Z, n, n );
+        auto ctrlSweep( ctrl );
+        ctrlSweep.wantSchurVecs = true;
+        timer.Start();
+        hess_schur::Sweep( T, w, Z, ctrlSweep );
+        Output("hess_schur::Sweep: ",timer.Stop()," seconds");
+        if( print )
+        {
+            Print( T, "T after sweep" );
+            Print( Z, "Z after sweep" );
+        }
+        timer.Start();
+        auto infoFinish = HessenbergSchur( T, w, Z, ctrl );
+        Output("HessenbergSchur (after sweep): ",timer.Stop()," seconds");
+        Output
+        ("Convergence achieved after ",infoFinish.numIterations," iterations");
     }
 
     Matrix<F> R;
@@ -352,6 +479,10 @@ int main( int argc, char* argv[] )
            "minimum size for using a multi-bulge algorithm",75);
         const bool accumulate =
           Input("--accumulate","accumulate reflections?",true);
+        const bool sortShifts =
+          Input("--sortShifts","sort shifts for AED?",true);
+        const bool testSweep =
+          Input("--testSweep","test pure-shift sweep?",false);
         const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -361,6 +492,7 @@ int main( int argc, char* argv[] )
         ctrl.alg = static_cast<HessenbergSchurAlg>(algInt);
         ctrl.minMultiBulgeSize = minMultiBulgeSize;
         ctrl.accumulateReflections = accumulate;
+        ctrl.sortShifts = sortShifts;
         ctrl.progress = progress;
 
         TestAhuesTisseurQuasi<float>( ctrl, print );
@@ -389,30 +521,30 @@ int main( int argc, char* argv[] )
         TestAhuesTisseur<BigFloat>( ctrl, print );
 #endif
 
-        TestRandomQuasi<float>( n, ctrl, print );
-        TestRandomQuasi<double>( n, ctrl, print );
+        TestRandomQuasi<float>( n, ctrl, testSweep, print );
+        TestRandomQuasi<double>( n, ctrl, testSweep, print );
 #ifdef EL_HAVE_QUAD
-        TestRandomQuasi<Quad>( n, ctrl, print );
+        TestRandomQuasi<Quad>( n, ctrl, testSweep, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestRandomQuasi<DoubleDouble>( n, ctrl, print );
-        TestRandomQuasi<QuadDouble>( n, ctrl, print );
+        TestRandomQuasi<DoubleDouble>( n, ctrl, testSweep, print );
+        TestRandomQuasi<QuadDouble>( n, ctrl, testSweep, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestRandomQuasi<BigFloat>( n, ctrl, print );
+        TestRandomQuasi<BigFloat>( n, ctrl, testSweep, print );
 #endif
 
-        TestRandom<float>( n, ctrl, print );
-        TestRandom<double>( n, ctrl, print );
+        TestRandom<float>( n, ctrl, testSweep, print );
+        TestRandom<double>( n, ctrl, testSweep, print );
 #ifdef EL_HAVE_QUAD
-        TestRandom<Quad>( n, ctrl, print );
+        TestRandom<Quad>( n, ctrl, testSweep, print );
 #endif
 #ifdef EL_HAVE_QD
-        TestRandom<DoubleDouble>( n, ctrl, print );
-        TestRandom<QuadDouble>( n, ctrl, print );
+        TestRandom<DoubleDouble>( n, ctrl, testSweep, print );
+        TestRandom<QuadDouble>( n, ctrl, testSweep, print );
 #endif
 #ifdef EL_HAVE_MPC
-        TestRandom<BigFloat>( n, ctrl, print );
+        TestRandom<BigFloat>( n, ctrl, testSweep, print );
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }

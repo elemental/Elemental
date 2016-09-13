@@ -564,6 +564,7 @@ class HessenbergSchurCtrl(ctypes.Structure):
               ("alg",c_uint),
               ("recursiveAED",bType),
               ("accumulateReflections",bType),
+              ("sortShifts",bType),
               ("progress",bType),
               ("minMultiBulgeSize",iType),
               ("numShifts",CFUNCTYPE(iType,iType,iType)),
