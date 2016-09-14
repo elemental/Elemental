@@ -739,7 +739,6 @@ void SweepHelper
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int n = H.Height();
 
     const Int numShifts = shifts.Height();
@@ -884,7 +883,6 @@ void Sweep
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int n = H.Height();
 
     const Int numShifts = shifts.Height();

@@ -1105,7 +1105,6 @@ Helper
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    const Grid& g = mainDiagOrig.Grid();
     DistMatrix<Real,STAR,STAR> mainDiag( mainDiagOrig );
     DistMatrix<Real,STAR,STAR> offDiag( offDiagOrig );
 

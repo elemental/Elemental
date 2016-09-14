@@ -59,7 +59,6 @@ SingleShift
     const Real zero(0), threeFourths=Real(3)/Real(4);
     const Int maxIter=30;    
     const Int n = H.Height();
-    const Int nZ = Z.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int windowSize = winEnd - winBeg;

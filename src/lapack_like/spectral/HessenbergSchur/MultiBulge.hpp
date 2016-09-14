@@ -30,7 +30,6 @@ MultiBulge
     const Real zero(0);
 
     const Int n = H.Height();
-    const Int nZ = Z.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int winSize = winEnd - winBeg;
@@ -98,7 +97,7 @@ MultiBulge
             auto ctrlSub( ctrl );
             ctrlSub.winBeg = iterBeg;
             ctrlSub.winEnd = winEnd;
-            auto subInfo = Simple( H, w, Z, ctrlSub );
+            Simple( H, w, Z, ctrlSub );
             winEnd = iterBeg;
             continue;
         }

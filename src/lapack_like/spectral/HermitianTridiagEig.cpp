@@ -1102,7 +1102,6 @@ DCHelper
     }
     else
     {
-        const Int n = d.Height();
         DistMatrix<Real,MC,MR> QReal(g);
 
         DistMatrixWriteProxy<Real,Real,STAR,STAR> wProx( wPre );

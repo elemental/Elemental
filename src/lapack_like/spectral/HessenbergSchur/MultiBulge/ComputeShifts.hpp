@@ -58,7 +58,7 @@ Int ComputeShifts
         // Compute the eigenvalues of the bottom-right window
         auto HShifts = H(shiftInd,shiftInd);
         auto HShiftsCopy( HShifts );
-        auto shiftInfo = HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
+        HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
     }
     if( winBeg-shiftBeg == 2 )
     {
@@ -112,7 +112,7 @@ Int ComputeShifts
         // Compute the eigenvalues of the bottom-right window
         auto HShifts = H(shiftInd,shiftInd);
         auto HShiftsCopy( HShifts );
-        auto shiftInfo = HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
+        HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
     }
     if( winBeg-shiftBeg == 2 )
     {

@@ -196,7 +196,6 @@ RUHFUnblocked
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
 
-    const Int bsize = Blocksize();
     for( Int k=0; k<diagLength; ++k )
     {
         const Int ki = k+iOff;

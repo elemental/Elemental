@@ -23,10 +23,8 @@ SVDInfo GolubReinsch
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
     const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     if( avoidU && avoidV )
@@ -79,7 +77,6 @@ SVDInfo GolubReinsch
     DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
     const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     const Grid& g = A.Grid();
@@ -152,7 +149,6 @@ SVDInfo GolubReinsch
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     SVDInfo info;
@@ -188,7 +184,6 @@ SVDInfo GolubReinsch
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();

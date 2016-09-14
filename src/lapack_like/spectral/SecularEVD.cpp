@@ -225,11 +225,9 @@ void SecularInitialGuess
     //
     //   center = (d(k) + d(k+1))/2.
     //
-    const Real center = (d(k) + d(k+1)) / 2; 
-
     // Follow LAPACK's {s,d}laed4's [CITATION] lead in carefully computing
     //
-    //   shiftedCenter = center - d(k).
+    //   shiftedCenter = (d(k) + d(k+1))/2 - d(k) = (d(k+1) - d(k))/2.
     //
     const Real shiftedCenter = state.diagDiff / 2;
 
@@ -237,9 +235,7 @@ void SecularInitialGuess
     // diagonal entries minus the center roots be computed in a safe
     // (but somewhat obscured) manner.
     for( Int j=0; j<n; ++j ) 
-    {
         state.dMinusShift(j) = (d(j) - d(k)) - shiftedCenter;
-    }
 
     // Given the partition of the secular equation as
     //
@@ -331,9 +327,7 @@ void SecularInitialGuess
 
     state.rootEst = state.rootRelEst + d(state.origin);
     for( Int j=0; j<n; ++j ) 
-    {
         state.dMinusShift(j) = (d(j) - d(state.origin)) - state.rootRelEst;
-    }
 
     EvaluateSecular( rho, z, state, ctrl.penalizeDerivative );
 }
@@ -442,9 +436,7 @@ void SecularInitialGuessLast
 
     state.rootEst = state.rootRelEst + d(origin);
     for( Int j=0; j<n; ++j ) 
-    {
         state.dMinusShift(j) = (d(j) - d(origin)) - state.rootRelEst;
-    }
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
 
@@ -812,9 +804,7 @@ void SecularUpdate
     state.rootRelEst += eta;
     state.secularOld = state.secular;
     for( Int j=0; j<n; ++j )
-    {
         state.dMinusShift(j) -= eta;
-    }
     EvaluateSecular( rho, z, state, ctrl.penalizeDerivative );
 }
 
@@ -923,9 +913,7 @@ void SecularUpdateLast
     state.rootRelEst += eta;
     state.secularOld = state.secular;
     for( Int j=0; j<n; ++j )
-    {
         state.dMinusShift(j) -= eta;
-    }
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
 
