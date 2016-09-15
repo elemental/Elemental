@@ -115,7 +115,7 @@ Int ModifyShifts
         // We have too many shifts and need to eliminate some
         if( ctrl.sortShifts )
         {
-            // Sort the shifts into ascending order in a manner which preserves
+            // Sort the shifts into descending order in a manner which preserves
             // consecutive pairs
             Output("Sorting shifts");
             typedef std::pair<Complex<Real>,Complex<Real>> ShiftPair;
@@ -243,7 +243,7 @@ Int ModifyShifts
         // We have too many shifts and need to eliminate some
         if( ctrl.sortShifts )
         {
-            // Sort the shifts into ascending order
+            // Sort the shifts into descending order
             std::sort
             ( w.Buffer()+shiftBeg, w.Buffer()+winEnd,
               [](const Complex<Real>& a, const Complex<Real>& b)

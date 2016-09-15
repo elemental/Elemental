@@ -174,6 +174,8 @@ void Sweep
     const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg ); 
     const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
 
+    // TODO(poulson): Assert that H(k+1,k-1) is real for all k
+
     auto subInd = IR(winBeg,winEnd);
     auto qrTuple = ChooseStart( H(subInd,subInd), shift );
     const Int shiftStart = winBeg + std::get<0>(qrTuple);
@@ -187,7 +189,6 @@ void Sweep
             nu0 = H(k,k-1);
             nu1 = RealPart( H(k+1,k-1) );
         }
-        // TODO: Assert nu1 is real
         F tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
         if( k > shiftStart )
         {
