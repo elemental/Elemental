@@ -22,9 +22,9 @@ void ComputeReflectors
   const Matrix<Complex<Base<F>>>& shifts,
         Matrix<F>& W,
         Int packetBeg,
-        Int fullBeg,
-        Int fullEnd,
-        bool have3x3,
+        Int firstBulge,
+        Int numFullBulges,
+        bool haveSmallBulge,
         bool progress )
 {
     DEBUG_CSE
@@ -37,9 +37,9 @@ void ComputeReflectors
     // a deflated bulge
     vector<F> wCand(3);
 
-    if( have3x3 )
+    if( haveSmallBulge )
     {
-        const Int bulge = fullEnd;
+        const Int bulge = firstBulge+numFullBulges;
         const Complex<Real> shift0 = shifts(2*bulge);
         const Complex<Real> shift1 = shifts(2*bulge+1);
         const Int bulgeBeg = packetBeg + 3*bulge;
@@ -61,7 +61,7 @@ void ComputeReflectors
             H( bulgeBeg+2, bulgeBeg ) = realZero;
         }
     }
-    for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
+    for( Int bulge=firstBulge+numFullBulges-1; bulge>=firstBulge; --bulge )
     {
         const Complex<Real> shift0 = shifts(2*bulge);
         const Complex<Real> shift1 = shifts(2*bulge+1);

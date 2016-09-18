@@ -11,10 +11,10 @@ using namespace El;
 
 // The following example performs a bulge sweep using a pair of eigenvalues
 // using both a given datatype and an equivalent substituting the base datatype
-// for BigFloat. The fact that the deviation is so large for perfect shifts,
-// but not for random shifts, even when there are no bulge collapses or vigilant
-// deflations, would seem to imply that the divergence is due to discontinuities
-// in the computation of the Householder reflectors.
+// for BigFloat. Note that the deviation is large for perfect shifts, but not
+// for most random shifts, even when there are no bulge collapses or vigilant
+// deflations.
+//
 
 #ifdef EL_HAVE_MPC
 template<typename F>

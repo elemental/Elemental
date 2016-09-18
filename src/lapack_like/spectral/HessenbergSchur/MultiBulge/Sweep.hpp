@@ -91,17 +91,19 @@ void SweepHelper
         const Int packetEnd = Min(ghostCol+ghostStride,ghostEnd);
         for( Int packetBeg=ghostCol; packetBeg<packetEnd; ++packetBeg )
         {
-            const Int fullBeg = Max( 0, ((winBeg-1)-packetBeg+2)/3 );
-            const Int fullEnd = Min( numBulges, (winEnd-packetBeg-1)/3 );
+            const Int firstBulge = Max( 0, ((winBeg-1)-packetBeg+2)/3 );
+            const Int numFullBulges =
+              Min( numBulges, ((winEnd-1)-packetBeg)/3 ) - firstBulge;
 
             // 2x2 reflectors can only occur if a bulge occupies the 3x3 in the
             // bottom-right corner (which begins at index winEnd-3)
-            const bool have3x3 =
-              ( fullEnd < numBulges && packetBeg+3*fullEnd == winEnd-3 );
+            const bool haveSmallBulge =
+              ( firstBulge+numFullBulges < numBulges &&
+                packetBeg+3*(firstBulge+numFullBulges) == winEnd-3 );
 
             ComputeReflectors
-            ( H, winBeg, shifts, W, packetBeg, fullBeg, fullEnd, have3x3,
-              ctrl.progress );
+            ( H, winBeg, shifts, W, packetBeg, firstBulge, numFullBulges,
+              haveSmallBulge, ctrl.progress );
 
             Int transformBeg;
             if( ctrl.accumulateReflections )
@@ -123,8 +125,8 @@ void SweepHelper
             ( H, winBeg, winEnd,
               slabSize, ghostCol, packetBeg, transformBeg, transformEnd,
               Z, ctrl.wantSchurVecs, U, W,
-              fullBeg, fullEnd, have3x3, ctrl.accumulateReflections,
-              ctrl.progress );
+              firstBulge, numFullBulges, haveSmallBulge,
+              ctrl.accumulateReflections, ctrl.progress );
         }
 
         if( ctrl.accumulateReflections )

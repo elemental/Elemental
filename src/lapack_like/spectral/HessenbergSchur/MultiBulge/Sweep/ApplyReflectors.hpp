@@ -9,145 +9,12 @@
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_APPLY_REFLECTORS_HPP
 #define EL_SCHUR_HESS_MULTIBULGE_SWEEP_APPLY_REFLECTORS_HPP
 
+#include "./ApplyReflector.hpp"
+#include "./VigilantDeflation.hpp"
+
 namespace El {
 namespace hess_schur {
 namespace multibulge {
-
-// TODO(poulson): Avoid temporaries for innerProd and innerProd*nu1 to void
-// memory allocations for heap scalars?
-template<typename F>
-void ApplyLeftReflector( F& eta0, F& eta1, const F* w )
-{
-    // Update
-    //
-    //   | eta0 | -= tau |  1  | | 1, conj(nu1) | | eta0 |
-    //   | eta1 |        | nu1 |                  | eta1 |
-    //
-    // where tau is stored in w[0] and nu1 in w[1].
-    //
-    const F& tau = w[0];
-    const F& nu1 = w[1];
-
-    const F innerProd = tau*(eta0+Conj(nu1)*eta1);
-    eta0 -= innerProd;
-    eta1 -= innerProd*nu1;
-}
-
-template<typename F>
-void ApplyRightReflector( F& eta0, F& eta1, const F* w )
-{
-    eta0 = Conj(eta0);
-    eta1 = Conj(eta1);
-    ApplyLeftReflector( eta0, eta1, w );
-    eta0 = Conj(eta0);
-    eta1 = Conj(eta1);
-}
-
-// TODO(poulson): Avoid temporaries for innerProd, innerProd*nu1, and
-// innerProd*nu2 to avoid memory allocations for heap scalars?
-template<typename F>
-void ApplyLeftReflector( F& eta0, F& eta1, F& eta2, const F* w )
-{
-    // Update
-    //
-    //   | eta0 | -= tau |  1  | | 1, conj(nu1), conj(nu2) | | eta0 |
-    //   | eta1 |        | nu1 |                             | eta1 |
-    //   | eta2 |        | nu2 |                             | eta2 |
-    //
-    // where tau is stored in w[0], nu1 in w[1], and nu2 in w[2].
-    //
-    const F& tau = w[0]; 
-    const F& nu1 = w[1];
-    const F& nu2 = w[2];
-
-    const F innerProd = tau*(eta0+Conj(nu1)*eta1+Conj(nu2)*eta2);
-    eta0 -= innerProd;
-    eta1 -= innerProd*nu1;
-    eta2 -= innerProd*nu2;
-}
-
-template<typename F>
-void ApplyRightReflector( F& eta0, F& eta1, F& eta2, const F* w )
-{
-    eta0 = Conj(eta0);
-    eta1 = Conj(eta1);
-    eta2 = Conj(eta2);
-    ApplyLeftReflector( eta0, eta1, eta2, w );
-    eta0 = Conj(eta0);
-    eta1 = Conj(eta1);
-    eta2 = Conj(eta2);
-}
-
-// To be performed during the application of the reflections from the right
-template<typename F>
-void VigilantDeflation
-( Matrix<F>& H,
-  Int winBeg,
-  Int winEnd,
-  Int packetBeg,
-  Int vigBeg,
-  Int vigEnd,
-  bool progress )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
-    const Real zero(0);
-    const F complexZero(0);
-    const Real ulp = limits::Precision<Real>();
-    const Real safeMin = limits::SafeMin<Real>();
-    const Real smallNum = safeMin*(Real(H.Height())/ulp);
-
-    // NOTE: LAPACK has a strange increment of vigEnd by one if
-    //       packetBeg is equal to winBeg-3 here...
-    for( Int bulge=vigEnd-1; bulge>=vigBeg; --bulge )
-    {
-        const Int k = Min( winEnd-2, packetBeg+3*bulge );
-        F& eta00 = H(k  ,k  );
-        F& eta01 = H(k  ,k+1);
-        F& eta10 = H(k+1,k  );
-        F& eta11 = H(k+1,k+1);
-        const Real eta00Abs = OneAbs(eta00);
-        const Real eta10Abs = OneAbs(eta10);
-        const Real eta11Abs = OneAbs(eta11);
-
-        if( eta10 == complexZero )
-            continue;
-        Real localScale = eta00Abs + eta11Abs;
-        if( localScale == zero )
-        {
-            if( k >= winBeg+3 )
-                localScale += OneAbs(H(k,k-3));
-            if( k >= winBeg+2 )
-                localScale += OneAbs(H(k,k-2));
-            if( k >= winBeg+1 )
-                localScale += OneAbs(H(k,k-1));
-            if( k < winEnd-2 )
-                localScale += OneAbs(H(k+2,k+1));
-            if( k < winEnd-3 )
-                localScale += OneAbs(H(k+3,k+1));
-            if( k < winEnd-4 )
-                localScale += OneAbs(H(k+4,k+1));
-        }
-        if( eta10Abs <= Max(smallNum,ulp*localScale) )
-        {
-            const Real eta01Abs = OneAbs(eta01);
-            const Real diagDiffAbs = OneAbs(eta00-eta11);
-            Real offMax = Max( eta10Abs, eta01Abs );
-            Real offMin = Min( eta10Abs, eta01Abs );
-            Real diagMax = Max( eta11Abs, diagDiffAbs );
-            Real diagMin = Min( eta11Abs, diagDiffAbs );
-            Real scale = diagMax + offMax;
-            Real localScale2 = diagMin*(diagMax/scale);
-            if( localScale2 == zero ||
-                offMin*(offMax/scale) <= Max(smallNum,ulp*localScale2) )
-            {
-                if( progress )
-                    Output("Vigilant deflation of H(",k+1,",",k,")");
-                eta10 = zero;
-            }
-        }
-    }
-}
 
 template<typename F>
 void ApplyReflectors
@@ -163,9 +30,9 @@ void ApplyReflectors
   bool wantSchurVecs,
   Matrix<F>& U,
   Matrix<F>& W,
-  Int fullBeg,
-  Int fullEnd,
-  bool have3x3,
+  Int firstBulge,
+  Int numFullBulges,
+  bool haveSmallBulge,
   bool accumulate,
   bool progress )
 {
@@ -177,8 +44,9 @@ void ApplyReflectors
     {
         // Avoid re-applying freshly generated reflections
         // (which is only relevant when (j-packetBeg) % 3 = 0)
-        const Int applyBulgeEnd = Min( fullEnd, (j-packetBeg+2)/3 );
-        for( Int bulge=fullBeg; bulge<applyBulgeEnd; ++bulge )
+        const Int applyBulgeEnd =
+          Min( firstBulge+numFullBulges, (j-packetBeg+2)/3 );
+        for( Int bulge=firstBulge; bulge<applyBulgeEnd; ++bulge )
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
             const F* w = &W(0,bulge);
@@ -186,9 +54,9 @@ void ApplyReflectors
             ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
         }
     }
-    if( have3x3 )
+    if( haveSmallBulge )
     {
-        const Int bulge = fullEnd;
+        const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
         DEBUG_ONLY(
@@ -205,9 +73,9 @@ void ApplyReflectors
     // The first relative index of the slab that is in the window
     // (with 4x4 bulges being introduced at winBeg-1)
     const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
-    if( have3x3 )
+    if( haveSmallBulge )
     {
-        const Int bulge = fullEnd;
+        const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
@@ -225,7 +93,7 @@ void ApplyReflectors
                 ApplyRightReflector( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), w );
         }
     }
-    for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
+    for( Int bulge=firstBulge+numFullBulges-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
@@ -249,10 +117,16 @@ void ApplyReflectors
 
     // Vigilant deflation check using Ahues/Tisseur criteria
     // =====================================================
-    const Int vigBeg =
-      ( packetBeg+3*fullBeg == winBeg-1 ? fullBeg+1 : fullBeg );
-    const Int vigEnd = ( have3x3 ? fullEnd+1 : fullEnd );
-    VigilantDeflation( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd, progress );
+    Int firstVigBulge = firstBulge;
+    Int numVigBulges = ( haveSmallBulge ? numFullBulges+1 : numFullBulges );
+    const bool skipFirstBulge = ( packetBeg+3*firstBulge == winBeg-1 );
+    if( skipFirstBulge ) 
+    {
+        ++firstVigBulge;
+        --numVigBulges;
+    }
+    VigilantDeflation
+    ( H, winBeg, winEnd, packetBeg, firstVigBulge, numVigBulges, progress );
 
     // Form the last row of the result of applying from the right:
     //
@@ -273,8 +147,9 @@ void ApplyReflectors
     //
     // TODO(poulson): Avoid memory allocations for several of the temporaries
     // below in the case where we have heap scalars (e.g., BigFloat).
-    const Int lastRowBulgeEnd = Min( fullEnd, (winEnd-packetBeg-2)/3 );
-    for( Int bulge=lastRowBulgeEnd-1; bulge>=fullBeg; --bulge )
+    const Int lastRowBulgeEnd =
+      Min( firstBulge+numFullBulges, (winEnd-packetBeg-2)/3 );
+    for( Int bulge=lastRowBulgeEnd-1; bulge>=firstBulge; --bulge )
     {
         const Int k = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
@@ -306,9 +181,9 @@ void ApplyReflectorsOpt
   bool wantSchurVecs,
   Matrix<F>& U,
   Matrix<F>& W,
-  Int fullBeg,
-  Int fullEnd,
-  bool have3x3,
+  Int firstBulge,
+  Int numFullBulges,
+  bool haveSmallBulge,
   bool accumulate,
   bool progress )
 {
@@ -326,8 +201,9 @@ void ApplyReflectorsOpt
     {
         // Avoid re-applying freshly generated reflections
         // (which is only relevant when (j-packetBeg) % 3 = 0)
-        const Int applyBulgeEnd = Min( fullEnd, (j-packetBeg+2)/3 );
-        for( Int bulge=fullBeg; bulge<applyBulgeEnd; ++bulge )
+        const Int applyBulgeEnd =
+          Min( firstBulge+numFullBulges, (j-packetBeg+2)/3 );
+        for( Int bulge=firstBulge; bulge<applyBulgeEnd; ++bulge )
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
             const F* w = &W(0,bulge);
@@ -337,9 +213,9 @@ void ApplyReflectorsOpt
               HBuf[(bulgeBeg+3)+j*HLDim], w );
         }
     }
-    if( have3x3 )
+    if( haveSmallBulge )
     {
-        const Int bulge = fullEnd;
+        const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
         DEBUG_ONLY(
@@ -358,9 +234,9 @@ void ApplyReflectorsOpt
     // The first relative index of the slab that is in the window
     // (with 4x4 bulges being introduced at winBeg-1)
     const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
-    if( have3x3 )
+    if( haveSmallBulge )
     {
-        const Int bulge = fullEnd;
+        const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
@@ -384,7 +260,7 @@ void ApplyReflectorsOpt
                   ZBuf[i+(bulgeBeg+2)*ZLDim], w );
         }
     }
-    for( Int bulge=fullEnd-1; bulge>=fullBeg; --bulge )
+    for( Int bulge=firstBulge+numFullBulges-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
@@ -415,10 +291,16 @@ void ApplyReflectorsOpt
 
     // Vigilant deflation check using Ahues/Tisseur criteria
     // =====================================================
-    const Int vigBeg =
-      ( packetBeg+3*fullBeg == winBeg-1 ? fullBeg+1 : fullBeg );
-    const Int vigEnd = ( have3x3 ? fullEnd+1 : fullEnd );
-    VigilantDeflation( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd, progress );
+    Int firstVigBulge = firstBulge;
+    Int numVigBulges = ( haveSmallBulge ? numFullBulges+1 : numFullBulges );
+    const bool skipFirstBulge = ( packetBeg+3*firstBulge == winBeg-1 );
+    if( skipFirstBulge ) 
+    {
+        ++firstVigBulge;
+        --numVigBulges;
+    }
+    VigilantDeflation
+    ( H, winBeg, winEnd, packetBeg, firstVigBulge, numVigBulges, progress );
 
     // Form the last row of the result of applying from the right:
     //
@@ -439,8 +321,9 @@ void ApplyReflectorsOpt
     //
     // TODO(poulson): Avoid memory allocations for several of the temporaries
     // below in the case where we have heap scalars (e.g., BigFloat).
-    const Int lastRowBulgeEnd = Min( fullEnd, (winEnd-packetBeg-2)/3 );
-    for( Int bulge=lastRowBulgeEnd-1; bulge>=fullBeg; --bulge )
+    const Int lastRowBulgeEnd =
+      Min( firstBulge+numFullBulges, (winEnd-packetBeg-2)/3 );
+    for( Int bulge=lastRowBulgeEnd-1; bulge>=firstBulge; --bulge )
     {
         const Int k = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
@@ -459,4 +342,4 @@ void ApplyReflectorsOpt
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_HPP
+#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_APPLY_REFLECTORS_HPP
