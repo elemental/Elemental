@@ -34,7 +34,8 @@ Int ModifyShifts
         Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
     {
         // Use exceptional shifts to attempt to break out of a convergence rut
-        Output("Using exceptional shifts");
+        if( ctrl.progress )
+            Output("Using exceptional shifts");
         shiftBeg = winEnd - numShiftsIdeal;
         const Real exceptShift0(Real(4)/Real(3)),
                    exceptShift1(-Real(7)/Real(16));
@@ -59,7 +60,8 @@ Int ModifyShifts
         if( winEnd-shiftBeg <= numShiftsIdeal/2 )
         {
             // Grab more shifts from another trailing submatrix
-            Output("Grabbing more shifts");
+            if( ctrl.progress )
+                Output("Grabbing more shifts");
             shiftBeg = winEnd - numShiftsIdeal;
             auto shiftsInd = IR(shiftBeg,shiftBeg+numShiftsIdeal);
             auto HShifts = H(shiftsInd,shiftsInd);
@@ -117,7 +119,8 @@ Int ModifyShifts
         {
             // Sort the shifts into descending order in a manner which preserves
             // consecutive pairs
-            Output("Sorting shifts");
+            if( ctrl.progress )
+                Output("Sorting shifts");
             typedef std::pair<Complex<Real>,Complex<Real>> ShiftPair;
             const Int numShifts = winEnd - shiftBeg;
             const Int remainder = numShifts % 2;

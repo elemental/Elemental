@@ -24,7 +24,8 @@ void ComputeReflectors
         Int packetBeg,
         Int fullBeg,
         Int fullEnd,
-        bool have3x3 )
+        bool have3x3,
+        bool progress )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -112,6 +113,8 @@ void ComputeReflectors
                 {
                     // The proposed bulge was unacceptable;
                     // continue using the collapsed one with regret
+                    if( progress )
+                        Output("Unacceptable replacement bulge at ",bulgeBeg);
                     eta10 = beta;
                     eta20 = realZero;
                     eta30 = realZero;
@@ -119,6 +122,8 @@ void ComputeReflectors
                 else
                 {
                     // Accept the proposed replacement bulge
+                    if( progress )
+                        Output("Accepted replacement bulge at ",bulgeBeg);
                     eta10 -= innerProd;
                     eta20 = realZero; 
                     eta30 = realZero;

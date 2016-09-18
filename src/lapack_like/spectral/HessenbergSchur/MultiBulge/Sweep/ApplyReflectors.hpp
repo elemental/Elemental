@@ -86,7 +86,8 @@ void VigilantDeflation
   Int winEnd,
   Int packetBeg,
   Int vigBeg,
-  Int vigEnd )
+  Int vigEnd,
+  bool progress )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -140,6 +141,8 @@ void VigilantDeflation
             if( localScale2 == zero ||
                 offMin*(offMax/scale) <= Max(smallNum,ulp*localScale2) )
             {
+                if( progress )
+                    Output("Vigilant deflation of H(",k+1,",",k,")");
                 eta10 = zero;
             }
         }
@@ -163,7 +166,8 @@ void ApplyReflectors
   Int fullBeg,
   Int fullEnd,
   bool have3x3,
-  bool accumulate )
+  bool accumulate,
+  bool progress )
 {
     DEBUG_CSE
 
@@ -248,7 +252,7 @@ void ApplyReflectors
     const Int vigBeg =
       ( packetBeg+3*fullBeg == winBeg-1 ? fullBeg+1 : fullBeg );
     const Int vigEnd = ( have3x3 ? fullEnd+1 : fullEnd );
-    VigilantDeflation( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd );
+    VigilantDeflation( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd, progress );
 
     // Form the last row of the result of applying from the right:
     //
@@ -305,7 +309,8 @@ void ApplyReflectorsOpt
   Int fullBeg,
   Int fullEnd,
   bool have3x3,
-  bool accumulate )
+  bool accumulate,
+  bool progress )
 {
     DEBUG_CSE
     F* HBuf = H.Buffer();
@@ -413,7 +418,7 @@ void ApplyReflectorsOpt
     const Int vigBeg =
       ( packetBeg+3*fullBeg == winBeg-1 ? fullBeg+1 : fullBeg );
     const Int vigEnd = ( have3x3 ? fullEnd+1 : fullEnd );
-    VigilantDeflation( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd );
+    VigilantDeflation( H, winBeg, winEnd, packetBeg, vigBeg, vigEnd, progress );
 
     // Form the last row of the result of applying from the right:
     //

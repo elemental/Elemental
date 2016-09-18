@@ -100,7 +100,8 @@ void SweepHelper
               ( fullEnd < numBulges && packetBeg+3*fullEnd == winEnd-3 );
 
             ComputeReflectors
-            ( H, winBeg, shifts, W, packetBeg, fullBeg, fullEnd, have3x3 );
+            ( H, winBeg, shifts, W, packetBeg, fullBeg, fullEnd, have3x3,
+              ctrl.progress );
 
             Int transformBeg;
             if( ctrl.accumulateReflections )
@@ -122,7 +123,8 @@ void SweepHelper
             ( H, winBeg, winEnd,
               slabSize, ghostCol, packetBeg, transformBeg, transformEnd,
               Z, ctrl.wantSchurVecs, U, W,
-              fullBeg, fullEnd, have3x3, ctrl.accumulateReflections );
+              fullBeg, fullEnd, have3x3, ctrl.accumulateReflections,
+              ctrl.progress );
         }
 
         if( ctrl.accumulateReflections )
@@ -184,7 +186,7 @@ void Sweep
     if( !IsComplex<F>::value )
         PairShifts( shifts );
 
-    const Int maxBulgesPerSweep = Max( n/5, 1 );
+    const Int maxBulgesPerSweep = Max( n/6, 1 );
     const Int maxShiftsPerSweep = 2*maxBulgesPerSweep;
     for( Int shiftStart=0; shiftStart<numShifts; shiftStart+=maxShiftsPerSweep )
     {
