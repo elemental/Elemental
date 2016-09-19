@@ -17,6 +17,7 @@ using namespace El;
 //
 
 #ifdef EL_HAVE_MPC
+
 template<typename F>
 void TestRandomHelper
 ( const Matrix<F>& H, 
@@ -165,4 +166,14 @@ int main( int argc, char* argv[] )
 
     return 0;
 }
+
+#else // ifdef EL_HAVE_MPC
+
+// We provide a trivial main program to prevent linker errors on some systems
+int main( int argc, char* argv[] )
+{
+    Environment env( argc, argv );
+    return 0;
+}
+
 #endif // ifdef EL_HAVE_MPC
