@@ -83,9 +83,10 @@ void ApplyReflectors
 
         if( accumulate )
         {
-            const Int kU = bulgeBeg - ghostCol;
+            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
-                ApplyRightReflector( U(i,kU), U(i,kU+1), w );
+                ApplyRightReflector
+                ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), w );
         }
         else if( wantSchurVecs )
         {
@@ -103,9 +104,11 @@ void ApplyReflectors
 
         if( accumulate )
         {
-            const Int kU = bulgeBeg - ghostCol;
+            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
-                ApplyRightReflector( U(i,kU), U(i,kU+1), U(i,kU+2), w );
+                ApplyRightReflector
+                ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), U(i,bulgeBegRel+3),
+                  w );
         }
         else if( wantSchurVecs )
         {
@@ -191,9 +194,11 @@ void ApplyReflectorsOpt
     F* HBuf = H.Buffer();
     F* ZBuf = Z.Buffer();
     F* UBuf = U.Buffer();
+    F* WBuf = W.Buffer();
     const Int HLDim = H.LDim();
     const Int ZLDim = Z.LDim();
     const Int ULDim = U.LDim();
+    const Int WLDim = W.LDim();
 
     // Apply from the left
     // ===================
@@ -206,7 +211,7 @@ void ApplyReflectorsOpt
         for( Int bulge=firstBulge; bulge<applyBulgeEnd; ++bulge )
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
-            const F* w = &W(0,bulge);
+            const F* w = &WBuf[bulge*WLDim];
             ApplyLeftReflector
             ( HBuf[(bulgeBeg+1)+j*HLDim],
               HBuf[(bulgeBeg+2)+j*HLDim],
@@ -217,7 +222,7 @@ void ApplyReflectorsOpt
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
+        const F* w = &WBuf[bulge*WLDim];
         DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
@@ -238,7 +243,7 @@ void ApplyReflectorsOpt
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
+        const F* w = &WBuf[bulge*WLDim];
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
             ApplyRightReflector
             ( HBuf[i+(bulgeBeg+1)*HLDim],
@@ -246,11 +251,11 @@ void ApplyReflectorsOpt
 
         if( accumulate )
         {
-            const Int kU = bulgeBeg - ghostCol;
+            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
                 ApplyRightReflector
-                ( UBuf[i+ kU   *ULDim],
-                  UBuf[i+(kU+1)*ULDim], w );
+                ( UBuf[i+(bulgeBegRel+1)*ULDim],
+                  UBuf[i+(bulgeBegRel+2)*ULDim], w );
         }
         else if( wantSchurVecs )
         {
@@ -263,7 +268,7 @@ void ApplyReflectorsOpt
     for( Int bulge=firstBulge+numFullBulges-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
+        const F* w = &WBuf[bulge*WLDim];
         for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+4); ++i )
             ApplyRightReflector
             ( HBuf[i+(bulgeBeg+1)*HLDim],
@@ -272,12 +277,12 @@ void ApplyReflectorsOpt
 
         if( accumulate )
         {
-            const Int kU = bulgeBeg - ghostCol;
+            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
             for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
                 ApplyRightReflector
-                ( UBuf[i+ kU   *ULDim],
-                  UBuf[i+(kU+1)*ULDim],
-                  UBuf[i+(kU+2)*ULDim], w );
+                ( UBuf[i+(bulgeBegRel+1)*ULDim],
+                  UBuf[i+(bulgeBegRel+2)*ULDim],
+                  UBuf[i+(bulgeBegRel+3)*ULDim], w );
         }
         else if( wantSchurVecs )
         {
@@ -326,7 +331,7 @@ void ApplyReflectorsOpt
     for( Int bulge=lastRowBulgeEnd-1; bulge>=firstBulge; --bulge )
     {
         const Int k = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
+        const F* w = &WBuf[bulge*WLDim];
         const F& tau = w[0];
         const F& nu1 = w[1];
         const F& nu2 = w[2];

@@ -14,6 +14,9 @@
 #include "./MultiBulge/ComputeShifts.hpp"
 #include "./MultiBulge/Sweep.hpp"
 
+// This is not yet functional but is included for testing reasons
+#include "./MultiBulge/IntraBlockChase.hpp"
+
 namespace El {
 namespace hess_schur {
 

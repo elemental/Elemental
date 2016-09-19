@@ -29,6 +29,13 @@ void SweepHelper
 {
     DEBUG_CSE
     const Int n = H.Height();
+    const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    DEBUG_ONLY(
+      if( winEnd-winBeg < 4 )
+          LogicError
+          ("multibulge::Sweep shouldn't be called for window sizes < 4"); 
+    )
 
     const Int numShifts = shifts.Height();
     DEBUG_ONLY(
@@ -54,13 +61,6 @@ void SweepHelper
     // the bulge has starting index winBeg.
     //
     // Initialize with the last bulge about to be introduced in the upper-left
-    const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    DEBUG_ONLY(
-      if( winEnd-winBeg < 4 )
-          LogicError
-          ("multibulge::Sweep shouldn't be called for window sizes < 4"); 
-    )
     const Int ghostBeg = (winBeg-1) - 3*(numBulges-1);
 
     // The last bulge must be at least 3x3 in order to involve a 2x2 
