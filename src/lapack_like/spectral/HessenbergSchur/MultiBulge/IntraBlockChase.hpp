@@ -79,7 +79,6 @@ void IntraBlockChase
         while( diagOffset < n && bulgeOffset < numIntroducedBulges )
         {
             const Int thisBlockHeight = Min( blockHeight, n-diagOffset );
-            const Int bulgeOffset = diagBlock*numBulgesPerBlock;
             const Int numBlockBulges =
               Min( numBulgesPerBlock, numIntroducedBulges-bulgeOffset );
 
@@ -121,7 +120,6 @@ void IntraBlockChase
         while( diagOffset < n && bulgeOffset < numIntroducedBulges )
         {
             const Int thisBlockHeight = Min( blockHeight, n-diagOffset );
-            const Int bulgeOffset = diagBlock*numBulgesPerBlock;
             const Int numBlockBulges =
               Min( numBulgesPerBlock, numIntroducedBulges-bulgeOffset );
 
