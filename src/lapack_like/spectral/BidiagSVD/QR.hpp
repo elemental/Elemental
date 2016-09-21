@@ -852,8 +852,6 @@ FLAMEHelper
     const Int n = mainDiag.Height();
     bidiag_svd::QRInfo info;
 
-    s = mainDiag;
-
     flame::BidiagSVD
     ( n, U.Height(), V.Height(),
       mainDiag.Buffer(), superDiag.Buffer(),
