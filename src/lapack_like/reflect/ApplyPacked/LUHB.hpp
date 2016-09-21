@@ -201,7 +201,7 @@ void LUHBUnblocked
         // Convert to an explicit (scaled) Householder vector
         LockedView( *hPan, H, IR(ki), IR(kj,nH) );
         hPan_STAR_MC.AlignWith( ABot );
-        Conjugate( *hPan, hPan_STAR_MC );
+        Copy( *hPan, hPan_STAR_MC );
         hPan_STAR_MC.Set( 0, 0, F(1) );
 
         // z := ABot' hPan^T
