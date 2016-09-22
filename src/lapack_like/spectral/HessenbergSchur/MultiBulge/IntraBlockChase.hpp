@@ -69,39 +69,27 @@ void IntraBlockChase
 
     const int colAlign = H.ColAlign();
     const int rowAlign = H.RowAlign();
-    vector<vector<int>> diagBlockRowLists(gridWidth),
-                        diagBlockColLists(gridHeight);
+    const int colShift = H.ColShift();
+    const int rowShift = H.RowShift();
+
+    // Count the number of diagonal blocks assigned to this process
+    // TODO(poulson): Move this into a subroutine
     Int numLocalDiagBlocks;
     {
-        Int bulgeOffset = 0; 
-        Int diagOffset = 0, diagBlock = 0;
+        // Only loop over the row blocks that are assigned to our process row
+        Int diagBlock = colShift;
+        Int diagOffset = colShift * blockHeight;
+        Int bulgeOffset = colShift * numBulgesPerBlock;
         Int localDiagBlock = 0;
         while( diagOffset < n && bulgeOffset < numIntroducedBulges )
         {
-            const Int thisBlockHeight = Min( blockHeight, n-diagOffset );
-            const Int numBlockBulges =
-              Min( numBulgesPerBlock, numIntroducedBulges-bulgeOffset );
-
-            const int ownerRow = (colAlign + diagBlock) % gridHeight;
             const int ownerCol = (rowAlign + diagBlock) % gridWidth;
-            const int owner = ownerRow + ownerCol*gridHeight;
-            if( ownerRow == gridRow && ownerCol == gridCol )
-            {
-                diagBlockRowLists[ownerCol].push_back(diagBlock); 
-                diagBlockColLists[ownerRow].push_back(diagBlock);
+            if( ownerCol == gridCol )
                 ++localDiagBlock;
-            }
-            else if( ownerRow == gridRow )
-            {
-                diagBlockRowLists[ownerCol].push_back(diagBlock); 
-            }
-            else if( ownerCol == gridCol )
-            {
-                diagBlockColLists[ownerRow].push_back(diagBlock);
-            }
-            ++diagBlock;
-            diagOffset += thisBlockHeight;
-            bulgeOffset += numBlockBulges;
+
+            diagBlock += gridHeight;
+            diagOffset += gridHeight * blockHeight;
+            bulgeOffset += gridHeight * numBulgesPerBlock;
         }
         numLocalDiagBlocks = localDiagBlock;
     }
@@ -110,9 +98,10 @@ void IntraBlockChase
     // of the Householder reflections.
     vector<Matrix<F>> UList(numLocalDiagBlocks);
     {
-        Int bulgeOffset = 0;
-        Int diagOffset = 0, diagBlock = 0;
-        Int localRowOffset = 0, localColOffset = 0;
+        // Only loop over the row blocks that are assigned to our process row
+        Int diagBlock = colShift;
+        Int diagOffset = colShift * blockHeight;
+        Int bulgeOffset = colShift * numBulgesPerBlock;
         Int localDiagBlock = 0;
         auto& HLoc = H.Matrix();
         const auto& shiftsLoc = shifts.LockedMatrix();
@@ -123,11 +112,11 @@ void IntraBlockChase
             const Int numBlockBulges =
               Min( numBulgesPerBlock, numIntroducedBulges-bulgeOffset );
 
-            const int ownerRow = (colAlign + diagBlock) % gridHeight;
             const int ownerCol = (rowAlign + diagBlock) % gridWidth;
-            const int owner = ownerRow + ownerCol*gridHeight;
-            if( ownerRow == gridRow && ownerCol == gridCol )
+            if( ownerCol == gridCol )
             {
+                const Int localRowOffset = H.LocalRowOffset( diagOffset );
+                const Int localColOffset = H.LocalColOffset( diagOffset );
                 auto HBlockLoc = 
                   HLoc
                   ( IR(0,thisBlockHeight)+localRowOffset,
@@ -148,21 +137,103 @@ void IntraBlockChase
                 }
                 ++localDiagBlock;
             }
-            if( ownerRow == gridRow )
-                localRowOffset += thisBlockHeight;
-            if( ownerCol == gridCol )
-                localColOffset += thisBlockHeight;
-            ++diagBlock;
-            diagOffset += thisBlockHeight;
-            bulgeOffset += numBlockBulges;
+
+            diagBlock += gridHeight;
+            diagOffset += gridHeight * blockHeight;
+            bulgeOffset += gridHeight * numBulgesPerBlock;
         }
     }
 
     // Broadcast/Allgather the accumulated reflections within rows
-    // TODO(poulson): Improve upon simply broadcasting one at a time
+    // TODO(poulson): Move this into a subroutine
+    const bool immediatelyApply = true;
+    if( immediatelyApply )
+    {
+        Matrix<F> UBlock;
+        Matrix<F> HLocRightCopy;
+
+        // Only loop over the row blocks assigned to this grid row
+        Int diagBlock = colShift;
+        Int diagOffset = colShift * blockHeight;
+        Int bulgeOffset = colShift * numBulgesPerBlock;
+        Int localDiagBlock = 0;
+        auto& HLoc = H.Matrix();
+        while( diagOffset < n && bulgeOffset < numIntroducedBulges )
+        {
+            const Int thisBlockHeight = Min( blockHeight, n-diagOffset );
+            const Int numBlockBulges =
+              Min( numBulgesPerBlock, numIntroducedBulges-bulgeOffset );
+
+            const int ownerCol = (rowAlign + diagBlock) % gridWidth;
+            if( ownerCol == gridCol )
+            {
+                UBlock = UList[localDiagBlock];
+                ++localDiagBlock;
+            }
+
+            const Int localRowOffset = H.LocalRowOffset( diagOffset );
+            const Int localColOffset = H.LocalColOffset( diagOffset );
+            El::Broadcast( UBlock, H.RowComm(), ownerCol );
+            const auto applyRowInd = IR(1,thisBlockHeight-1) + localRowOffset;
+            const auto applyColInd = IR(localColOffset+thisBlockHeight,END);
+            auto HLocRight = HLoc( applyRowInd, applyColInd );
+            HLocRightCopy = HLocRight;
+            Gemm( NORMAL, NORMAL, F(1), UBlock, HLocRightCopy, HLocRight );
+
+            diagBlock += gridHeight;
+            diagOffset += gridHeight * blockHeight;
+            bulgeOffset += gridHeight * numBulgesPerBlock;
+        }
+    }
+    else
+    {
+        // TODO(poulson): Add support for AllGather variant
+    }
 
     // Broadcast/Allgather the accumulated reflections within columns
-    // TODO(poulson): Improve upon simply broadcasting one at a time
+    // TODO(poulson): Move this into a subroutine
+    if( immediatelyApply )
+    {
+        Matrix<F> UBlock;
+        Matrix<F> HLocAboveCopy;
+
+        // Only loop over the column blocks assigned to this grid column
+        Int diagBlock = rowShift;
+        Int diagOffset = rowShift * blockHeight;
+        Int bulgeOffset = rowShift * numBulgesPerBlock;
+        Int localDiagBlock = 0;
+        auto& HLoc = H.Matrix();
+        while( diagOffset < n && bulgeOffset < numIntroducedBulges )
+        {
+            const Int thisBlockHeight = Min( blockHeight, n-diagOffset );
+            const Int numBlockBulges =
+              Min( numBulgesPerBlock, numIntroducedBulges-bulgeOffset );
+
+            const int ownerRow = (colAlign + diagBlock) % gridHeight;
+            if( ownerRow == gridRow )
+            {
+                UBlock = UList[localDiagBlock];
+                ++localDiagBlock;
+            }
+
+            const Int localRowOffset = H.LocalRowOffset( diagOffset );
+            const Int localColOffset = H.LocalColOffset( diagOffset );
+            El::Broadcast( UBlock, H.ColComm(), ownerRow );
+            const auto applyRowInd = IR(0,localRowOffset);
+            const auto applyColInd = IR(1,thisBlockHeight-1) + localColOffset;
+            auto HLocAbove = HLoc( applyRowInd, applyColInd );
+            HLocAboveCopy = HLocAbove;
+            Gemm( NORMAL, ADJOINT, F(1), HLocAboveCopy, UBlock, HLocAbove );
+
+            diagBlock += gridWidth;
+            diagOffset += gridWidth * blockHeight;
+            bulgeOffset += gridWidth * numBulgesPerBlock;
+        }
+    }
+    else
+    {
+        // TODO(poulson): Add support for AllGather variant
+    }
 }
 
 } // namespace multibulge
