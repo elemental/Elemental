@@ -15,7 +15,8 @@
 #include "./MultiBulge/Sweep.hpp"
 
 // This is not yet functional but is included for testing reasons
-#include "./MultiBulge/IntraBlockChase.hpp"
+#include "./MultiBulge/Dist/IntraBlockChase.hpp"
+#include "./MultiBulge/Dist/InterBlockChase.hpp"
 
 namespace El {
 namespace hess_schur {

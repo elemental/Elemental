@@ -9,9 +9,8 @@
 #ifndef EL_SCHUR_HESS_MULTIBULGE_INTRA_BLOCK_CHASE_HPP
 #define EL_SCHUR_HESS_MULTIBULGE_INTRA_BLOCK_CHASE_HPP
 
-#include "./PairShifts.hpp"
-
-#include "IntraBlockChase/ComputeReflectors.hpp"
+#include "./ComputeIntraBlockReflectors.hpp"
+#include "./ApplyIntraBlockReflectors.hpp"
 
 namespace El {
 namespace hess_schur {
@@ -41,10 +40,7 @@ void IntraBlockChase
         Int numIntroducedBulges,
         DistMatrix<F,MC,MR,BLOCK>& H,
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
-        Matrix<F>& Z,
-        Matrix<F>& U,
         Matrix<F>& W,
-        Matrix<F>& WAccum,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -105,7 +101,7 @@ void IntraBlockChase
         Int localDiagBlock = 0;
         auto& HLoc = H.Matrix();
         const auto& shiftsLoc = shifts.LockedMatrix();
-        Matrix<F> W( 3, numBulgesPerBlock );
+        Zeros( W, 3, numBulgesPerBlock );
         while( diagOffset < n && bulgeOffset < numIntroducedBulges )
         {
             const Int thisBlockHeight = Min( blockHeight, n-diagOffset );
@@ -128,10 +124,10 @@ void IntraBlockChase
                 const Int numSteps = (thisBlockHeight-1) - 3*numBlockBulges;
                 for( Int step=0; step<numSteps; ++step )
                 {
-                    ComputeDiagonalBlockReflectors
+                    ComputeIntraBlockReflectors
                     ( step, numBlockBulges, HBlockLoc, shiftsLoc, W,
                       ctrl.progress );
-                    ApplyReflectorsToDiagonalBlockOpt
+                    ApplyIntraBlockReflectorsOpt
                     ( step, numBlockBulges, HBlockLoc, UBlock, W,
                       ctrl.progress );
                 }

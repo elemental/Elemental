@@ -6,13 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_MULTIBULGE_INTRABLOCK_COMPUTE_REFLECTORS_HPP
-#define EL_SCHUR_HESS_MULTIBULGE_INTRABLOCK_COMPUTE_REFLECTORS_HPP
+#ifndef EL_SCHUR_HESS_MULTIBULGE_DIST_COMPUTE_INTRABLOCK_REFLECTORS_HPP
+#define EL_SCHUR_HESS_MULTIBULGE_DIST_COMPUTE_INTRABLOCK_REFLECTORS_HPP
 
 namespace El {
 namespace hess_schur {
 namespace multibulge {
-namespace intrablock {
+namespace dist {
 
 // Compute the Householder reflections needed to chase a set of tightly-packed
 // full 4x4 bulges one step downward from the top-left corner of H down to the
@@ -24,7 +24,7 @@ namespace intrablock {
 // [CITATION] for a diagram.
 //
 template<typename F>
-void ComputeDiagonalBlockReflectors
+void ComputeIntraBlockReflectors
 (       Int step,
         Int numBulges, 
         Matrix<F>& H,
@@ -128,9 +128,9 @@ void ComputeDiagonalBlockReflectors
     }
 }
 
-} // namespace intrablock
+} // namespace dist
 } // namespace multibulge
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_INTRABLOCK_COMPUTE_REFLECTORS_HPP
+#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_DIST_COMPUTE_INTRABLOCK_REFLECTORS_HPP

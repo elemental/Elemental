@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_MULTIBULGE_INTRABLOCK_APPLY_REFLECTORS_HPP
-#define EL_SCHUR_HESS_MULTIBULGE_INTRABLOCK_APPLY_REFLECTORS_HPP
+#ifndef EL_SCHUR_HESS_MULTIBULGE_DIST_APPLY_INTRABLOCK_REFLECTORS_HPP
+#define EL_SCHUR_HESS_MULTIBULGE_DIST_APPLY_INTRABLOCK_REFLECTORS_HPP
 
 #include "../Sweep/ApplyReflector.hpp"
 #include "../Sweep/VigilantDeflation.hpp"
@@ -15,10 +15,10 @@
 namespace El {
 namespace hess_schur {
 namespace multibulge {
-namespace intrablock {
+namespace dist {
 
 template<typename F>
-void ApplyReflectorsToDiagonalBlock
+void ApplyIntraBlockReflectors
 ( Int step,
   Int numBulges,
   Matrix<F>& H,
@@ -110,7 +110,7 @@ void ApplyReflectorsToDiagonalBlock
 // for this routine to manually inline the data access than to use the 
 // (presumably inlined) Matrix::operator()(int,int) calls.
 template<typename F>
-void ApplyReflectorsToDiagonalBlockOpt
+void ApplyIntraBlockReflectorsOpt
 ( Int step,
   Int numBulges,
   Matrix<F>& H,
@@ -210,9 +210,9 @@ void ApplyReflectorsToDiagonalBlockOpt
     }
 }
 
-} // namespace intrablock
+} // namespace dist
 } // namespace multibulge
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_INTRABLOCK_APPLY_REFLECTORS_HPP
+#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_DIST_APPLY_INTRABLOCK_REFLECTORS_HPP
