@@ -242,8 +242,7 @@ main( int argc, char* argv[] )
         SchurCtrl<Real> ctrl;
 #ifdef EL_HAVE_SCALAPACK
         ctrl.hessSchurCtrl.blockHeight = nbDist;
-        ctrl.hessSchurCtrl.blockWidth = nbDist;
-        ctrl.hessSchurCtrl.distAED = false;
+        ctrl.hessSchurCtrl.scalapackAED = false;
 #else
         ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;

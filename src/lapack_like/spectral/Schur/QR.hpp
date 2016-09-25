@@ -143,13 +143,13 @@ void QR
       A.Buffer(), descA.data(),
       w_STAR_STAR.Buffer(),
       Z.Buffer(), descA.data(),
-      fullTriangle, multiplyZ, ctrl.distAED );
+      fullTriangle, multiplyZ, ctrl.scalapackAED );
 #else
     scalapack::HessenbergSchur
     ( n,
       A.Buffer(), descA.data(),
       w_STAR_STAR.Buffer(),
-      fullTriangle, ctrl.distAED );
+      fullTriangle, ctrl.scalapackAED );
 #endif
     if( time && gridRank == 0 )
         Output("  ScaLAPACK HessenbergSchur: ",timer.Stop()," seconds");
@@ -228,7 +228,7 @@ void QR
       A.Buffer(), descA.data(),
       w_STAR_STAR.Buffer(), 
       Q.Buffer(), descQ.data(),
-      fullTriangle, multiplyQ, ctrl.distAED );
+      fullTriangle, multiplyQ, ctrl.scalapackAED );
     if( time && gridRank == 0 )
         Output("  ScaLAPACK HessenbergSchur: ",timer.Stop()," seconds");
     Copy( w_STAR_STAR, w );
@@ -277,9 +277,8 @@ void QR
     // Run the QR algorithm in block form
     // TODO: Create schur::HessenbergQR
     const Int n = A.Height(); 
-    const Int mb = ctrl.blockHeight;
-    const Int nb = ctrl.blockWidth;
-    DistMatrix<F,MC,MR,BLOCK> ABlock( n, n, A.Grid(), mb, nb );
+    const Int nb = ctrl.blockHeight;
+    DistMatrix<F,MC,MR,BLOCK> ABlock( n, n, A.Grid(), nb, nb );
     if( time && gridRank == 0 )
         timer.Start();
     ABlock = A;
@@ -294,7 +293,7 @@ void QR
         timer.Start();
 #define FORCE_WANTZ_TRUE 1
 #if FORCE_WANTZ_TRUE
-    DistMatrix<F,MC,MR,BLOCK> Z(n,n,A.Grid(),mb,nb);
+    DistMatrix<F,MC,MR,BLOCK> Z(n,n,A.Grid(),nb,nb);
     Identity( Z, n, n );
     blacs::Desc descZ = FillDesc( Z, context );
     bool multiplyZ=true;
@@ -303,13 +302,13 @@ void QR
       ABlock.Buffer(), descA.data(),
       w_STAR_STAR.Buffer(),
       Z.Buffer(), descZ.data(),
-      fullTriangle, multiplyZ, ctrl.distAED );
+      fullTriangle, multiplyZ, ctrl.scalapackAED );
 #else
     scalapack::HessenbergSchur
     ( n, 
       ABlock.Buffer(), descA.data(),
       w_STAR_STAR.Buffer(), 
-      fullTriangle, ctrl.distAED );
+      fullTriangle, ctrl.scalapackAED );
 #endif
     if( time && gridRank == 0 )    
         Output("  scalapack::HessenbergSchur: ",timer.Stop()," seconds");
@@ -374,11 +373,10 @@ void QR
     MakeTrapezoidal( UPPER, A, -1 );
 
     // Run the Hessenberg QR algorithm in block form
-    const Int mb = ctrl.blockHeight;
-    const Int nb = ctrl.blockWidth;
+    const Int nb = ctrl.blockHeight;
     DistMatrix<F,MC,MR,BLOCK>
-      ABlock( n, n, A.Grid(), mb, nb ), 
-      QBlock( n, n, A.Grid(), mb, nb );
+      ABlock( n, n, A.Grid(), nb, nb ), 
+      QBlock( n, n, A.Grid(), nb, nb );
     if( time && gridRank == 0 )
         timer.Start();
     ABlock = A;
@@ -402,7 +400,7 @@ void QR
       ABlock.Buffer(), descA.data(),
       w_STAR_STAR.Buffer(), 
       QBlock.Buffer(), descQ.data(),
-      fullTriangle, multiplyQ, ctrl.distAED );
+      fullTriangle, multiplyQ, ctrl.scalapackAED );
     if( time && gridRank == 0 )
         Output("  scalapack::HessenbergSchur: ",timer.Stop()," seconds");
     if( time && gridRank == 0 )

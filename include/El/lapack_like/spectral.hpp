@@ -627,6 +627,14 @@ struct HessenbergSchurInfo
 };
 
 namespace hess_schur {
+
+namespace multibulge {
+
+inline Int NumBulgesPerBlock( Int blockHeight )
+{ return (blockHeight-1) / 6; }
+
+} // namespace multibulge
+
 namespace aed {
 
 // Cf. LAPACK's IPARMQ for these choices. The primary difference here is that
@@ -680,6 +688,7 @@ inline Int SufficientDeflation( Int deflationSize )
 }
 
 } // namespace aed
+
 } // namespace hess_schur
 
 enum HessenbergSchurAlg {
@@ -718,8 +727,12 @@ struct HessenbergSchurCtrl
 
     // For the distributed Hessenberg QR algorithm
     // TODO(poulson): Move this into a substructure?
-    bool distAED=false;
-    Int blockHeight=DefaultBlockHeight(), blockWidth=DefaultBlockWidth();
+    bool scalapackAED=false;
+    Int blockHeight=DefaultBlockHeight();
+    // A map from the block height to the number of bulges per diagonal block in
+    // the distributed multibulge algorithm.
+    function<Int(Int)> numBulgesPerBlock =
+      function<Int(Int)>(hess_schur::multibulge::NumBulgesPerBlock);
 };
 
 template<typename F>

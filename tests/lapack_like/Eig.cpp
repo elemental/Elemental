@@ -226,7 +226,7 @@ void EigBenchmark
   bool correctness,
   bool print,
   Int whichMatrix,
-  bool distAED,
+  bool scalapackAED,
   Int blockHeight )
 {
     OutputFromRoot( g.Comm(), "Testing with ", TypeName<Real>() );
@@ -251,7 +251,7 @@ void EigBenchmark
     Timer timer;
  
     SchurCtrl<Real> schurCtrl;
-    schurCtrl.hessSchurCtrl.distAED = distAED;
+    schurCtrl.hessSchurCtrl.scalapackAED = scalapackAED;
     schurCtrl.hessSchurCtrl.blockHeight = blockHeight;
     schurCtrl.time = true;
 
@@ -312,9 +312,9 @@ main( int argc, char* argv[] )
         const Int blockHeight =
           Input("--blockHeight","ScaLAPACK block height",32);
         // NOTE: Distributed AED is not supported by ScaLAPACK for complex :-(
-        const bool distAED =
+        const bool scalapackAED =
           Input
-          ("--distAED",
+          ("--scalapackAED",
            "Distributed Aggressive Early Deflation? (it can be buggy...)",
            false);
         const bool sequential = Input("--sequential","test sequential?",true);
@@ -343,9 +343,9 @@ main( int argc, char* argv[] )
         }
 
         EigBenchmark<float>
-        ( grid, n, correctness, print, whichMatrix, distAED, blockHeight );
+        ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
         EigBenchmark<double>
-        ( grid, n, correctness, print, whichMatrix, distAED, blockHeight );
+        ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
     }
     catch( exception& e ) { ReportException(e); }
 

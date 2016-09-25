@@ -250,8 +250,7 @@ main( int argc, char* argv[] )
         psCtrl.progress = progress;
 #ifdef EL_HAVE_SCALAPACK
         psCtrl.schurCtrl.hessSchurCtrl.blockHeight = nbDist;
-        psCtrl.schurCtrl.hessSchurCtrl.blockWidth = nbDist;
-        psCtrl.schurCtrl.hessSchurCtrl.distAED = false;
+        psCtrl.schurCtrl.hessSchurCtrl.scalapackAED = false;
 #else
         psCtrl.schurCtrl.sdcCtrl.cutoff = cutoff;
         psCtrl.schurCtrl.sdcCtrl.maxInnerIts = maxInnerIts;

@@ -768,9 +768,16 @@ inline ElHessenbergSchurCtrl CReflect( const HessenbergSchurCtrl& ctrl )
         RuntimeError
         ("Could not convert sufficientDeflation to C function pointer");
 
-    ctrlC.distAED = ctrl.distAED;
+    ctrlC.scalapackAED = ctrl.scalapackAED;
     ctrlC.blockHeight = ctrl.blockHeight;
-    ctrlC.blockWidth = ctrl.blockWidth;
+    auto numBulgesPerBlockRes =
+      ctrl.numBulgesPerBlock.target<ElInt(*)(ElInt)>();
+    if( numBulgesPerBlockRes )
+        ctrlC.numBulgesPerBlock = *numBulgesPerBlockRes;
+    else
+        RuntimeError
+        ("Could not convert numBulgesPerBlock to C function pointer");
+
     return ctrlC;
 }
 
@@ -795,9 +802,10 @@ inline HessenbergSchurCtrl CReflect( const ElHessenbergSchurCtrl& ctrlC )
     ctrl.deflationSize = ctrlC.deflationSize;
     ctrl.sufficientDeflation = ctrlC.sufficientDeflation;
 
-    ctrl.distAED = ctrlC.distAED;
+    ctrl.scalapackAED = ctrlC.scalapackAED;
     ctrl.blockHeight = ctrlC.blockHeight;
-    ctrl.blockWidth = ctrlC.blockWidth;
+    ctrl.numBulgesPerBlock = ctrlC.numBulgesPerBlock;
+
     return ctrl;
 }
 

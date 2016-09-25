@@ -614,8 +614,9 @@ typedef struct {
   ElInt (*deflationSize)(ElInt,ElInt,ElInt);
   ElInt (*sufficientDeflation)(ElInt);
 
-  bool distAED;
-  ElInt blockHeight, blockWidth;
+  bool scalapackAED;
+  ElInt blockHeight;
+  ElInt (*numBulgesPerBlock)(ElInt);
 } ElHessenbergSchurCtrl;
 EL_EXPORT ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl );
 

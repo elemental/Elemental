@@ -71,13 +71,16 @@ void ApplyIntraBlockReflectors
     ( H, 0 /*winBeg*/, n /*winEnd*/, 0 /*packetBeg*/,
       0 /*firstVigBulge*/, numBulges /*numVigBulges*/, progress );
 
-    // Form the last row of the result of applying from the right:
+    // Form the last row of the single-step bulge chase
     //
-    // | X X X X X |     | X X X X X |
-    // | X X X X X |     | X X X X X |
-    // | X X X X X | |-> |   X X X X |
-    // | X X X X X |     |   X X X X |
-    // |       X X |     |   X X X X |
+    //       ~ ~ ~                 ~ ~ ~
+    //     -----------          -----------
+    //    | B B B B x |        | x x x x x |
+    //  ~ | B B B B x |      ~ | x B B B B |
+    //  ~ | B B B B x | |->  ~ |   B B B B |.
+    //  ~ | B B B B x |      ~ |   B B B B |
+    //    |       x x |        |   B B B B |
+    //     -----------          -----------
     //
     // The last row is introduced from the transformation
     //
@@ -175,13 +178,16 @@ void ApplyIntraBlockReflectorsOpt
     ( H, 0 /*winBeg*/, n /*winEnd*/, 0 /*packetBeg*/,
       0 /*firstVigBulge*/, numBulges /*numVigBulges*/, progress );
 
-    // Form the last row of the result of applying from the right:
+    // Form the last row of the single-step bulge chase
     //
-    // | X X X X X |     | X X X X X |
-    // | X X X X X |     | X X X X X |
-    // | X X X X X | |-> |   X X X X |
-    // | X X X X X |     |   X X X X |
-    // |       X X |     |   X X X X |
+    //       ~ ~ ~                 ~ ~ ~
+    //     -----------          -----------
+    //    | B B B B x |        | x x x x x |
+    //  ~ | B B B B x |      ~ | x B B B B |
+    //  ~ | B B B B x | |->  ~ |   B B B B |.
+    //  ~ | B B B B x |      ~ |   B B B B |
+    //    |       x x |        |   B B B B |
+    //     -----------          -----------
     //
     // The last row is introduced from the transformation
     //
