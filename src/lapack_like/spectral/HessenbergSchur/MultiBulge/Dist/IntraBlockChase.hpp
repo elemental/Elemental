@@ -96,14 +96,174 @@ struct DistChaseState
 // diagonal block are immediately chased out of the window.
 //
 
+namespace intrablock {
+
+// Form the list of accumulated Householder transformations, which should be
+// applied as
+//
+//     \hat{U}_i' H_i \hat{U}_i,
+//
+// where \hat{U}_i = | 1, 0,   0 |
+//                   | 0, U_i, 0 |
+//                   | 0, 0,   1 |
+//
+// is the extension of U_i to the entire diagonal block (as the transformation
+// leaves the first and last rows unchanged when applied from the left), and 
+// H_i is the i'th locally-owned diagonal block of H.
+//
 template<typename F>
-void IntraBlockChase
+void LocalChase
+(       DistMatrix<F,MC,MR,BLOCK>& H,
+  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+  const DistChaseState& state,
+  const HessenbergSchurCtrl& ctrl,
+        vector<Matrix<F>>& UList )
+{
+    DEBUG_CSE
+    const Int n = H.Height();
+    const Int winBeg = ( ctrl.winBeg == END ? n : ctrl.winBeg );
+    const int winRowAlign = H.ColOwner( winBeg );
+
+    const Int numShifts = shifts.Height();
+    const Int numBulges = numShifts / 2;
+
+    const Grid& grid = H.Grid();
+    const int gridHeight = grid.Height();
+    const int gridWidth = grid.Width();
+    const int gridCol = grid.Col();
+    const int gridRow = grid.Row();
+
+    // TODO(poulson): Avoid some of the redundant alignment information computed
+    // in both this routine and ApplyAccumulatedReflections
+
+    // Compute the remaining size of the first block in the window
+    const Int blockSize = H.BlockHeight();
+    const Int blockCut = H.ColCut();
+    const Int windowCut = Mod( blockCut+winBeg, blockSize );
+    const Int firstBlockSize = blockSize - windowCut;
+
+    // Compute the row owners of the beginning of the active bulge region and
+    // the first block assigned to us.
+    const Int activeBeg = winBeg +
+      ( state.activeBlockBeg == 0 ?
+        0 :
+        firstBlockSize + (state.activeBlockBeg-1)*blockSize );
+    const int activeColAlign = H.RowOwner( activeBeg );
+    const int activeColShift = Shift( gridRow, activeColAlign, gridHeight );
+    const Int activeRowBlockBeg = state.activeBlockBeg + activeColShift;
+
+    // We push the leftover shifts through first, so the last block only has
+    // the leftover number of shifts if shiftEnd is equal to the number of
+    // shifts.
+    const Int numBulgesPerBlock = ctrl.numBulgesPerBlock(blockSize);
+    const Int numBulgesInLastBlock =
+      ( state.shiftEnd == numShifts ?
+        Mod(numBulges,numBulgesPerBlock) :
+        numBulgesPerBlock );
+
+    Matrix<F> W;
+    auto& HLoc = H.Matrix();
+    const auto& shiftsLoc = shifts.LockedMatrix();
+
+    // Count the number of diagonal blocks assigned to this process
+    {
+        // Only loop over the row blocks that are assigned to our process row
+        // and occur within the active window.
+        Int diagBlock = activeRowBlockBeg;
+        Int localDiagBlock = 0;
+        while( diagBlock < state.activeBlockEnd )
+        {
+            const int ownerCol = (winRowAlign + diagBlock) % gridWidth;
+            if( ownerCol == gridCol )
+                ++localDiagBlock;
+            diagBlock += gridHeight;
+        }
+        UList.resize(localDiagBlock);
+    }
+    
+    // Chase bulges down the local diagonal blocks and store the accumulations
+    // of the Householder reflections. We only loop over the row blocks that
+    // are assigned to our process row and filter based upon whether or not
+    // we are in the correct process column.
+    Int diagBlock = activeRowBlockBeg;
+    Int localDiagBlock = 0;
+    Zeros( W, 3, numBulgesPerBlock );
+    while( diagBlock < state.activeBlockEnd )
+    {
+        const Int thisBlockHeight = 
+          ( diagBlock == 0 ? firstBlockSize : blockSize );
+        const Int numBlockBulges =
+          ( diagBlock==state.activeBlockEnd-1 ?
+            numBulgesInLastBlock :
+            numBulgesPerBlock );
+
+        const int ownerCol = (winRowAlign + diagBlock) % gridWidth;
+        if( ownerCol == gridCol )
+        {
+            const Int diagOffset = winBeg +
+              (diagBlock == 0 ?
+               0 :
+               firstBlockSize + (diagBlock-1)*blockSize );
+
+            // View the local diagonal block of H
+            const Int localRowOffset = H.LocalRowOffset( diagOffset );
+            const Int localColOffset = H.LocalColOffset( diagOffset );
+            auto HBlockLoc = 
+              HLoc
+              ( IR(0,thisBlockHeight)+localRowOffset,
+                IR(0,thisBlockHeight)+localColOffset );
+
+            // View the local shifts for this diagonal block
+            const Int shiftOffset = state.shiftBeg +
+              (2*numBulgesPerBlock)*(diagBlock-state.activeBlockBeg);
+            auto shiftsBlockLoc =
+              shiftsLoc( IR(0,2*numBlockBulges)+shiftOffset, ALL );
+
+            // Initialize the accumulated reflection matrix; recall that it 
+            // does not effect the first or last index of the block. For
+            // example, consider the effects of a single 3x3 Householder 
+            // similarity bulge chase step
+            //
+            //        ~ ~ ~                 ~ ~ ~
+            //     -----------           -----------
+            //    | B B B B x |  |->    | x x x x x |
+            //  ~ | B B B B x |       ~ | x B B B B |
+            //  ~ | B B B B x |       ~ |   B B B B |.
+            //  ~ | B B B B x |       ~ |   B B B B |
+            //    |       x x |         |   B B B B |
+            //     -----------           -----------
+            //
+            auto& UBlock = UList[localDiagBlock];
+            Identity( UBlock, thisBlockHeight-2, thisBlockHeight-2 );
+
+            // Perform the diagonal block sweep and accumulate the
+            // reflections in UBlock. The number of diagonal entries spanned
+            // by numBlockBulges bulges is 1 + 3 numBlockBulges, so the number
+            // of steps is thisBlockHeight - (1 + 3*numBlockBulges).
+            const Int numSteps = thisBlockHeight - (1 + 3*numBlockBulges);
+            for( Int step=0; step<numSteps; ++step )
+            {
+                ComputeIntraBlockReflectors
+                ( step, numBlockBulges, HBlockLoc, shiftsBlockLoc, W,
+                  ctrl.progress );
+                ApplyIntraBlockReflectorsOpt
+                ( step, numBlockBulges, HBlockLoc, UBlock, W,
+                  ctrl.progress );
+            }
+            ++localDiagBlock;
+        }
+        diagBlock += gridHeight;
+    }
+}
+
+template<typename F>
+void ApplyAccumulatedReflections
 (       DistMatrix<F,MC,MR,BLOCK>& H,
         DistMatrix<F,MC,MR,BLOCK>& Z,
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
-        Matrix<F>& W,
   const DistChaseState& state,
-  const HessenbergSchurCtrl& ctrl )
+  const HessenbergSchurCtrl& ctrl,
+  const vector<Matrix<F>>& UList )
 {
     DEBUG_CSE
     const Int n = H.Height();
@@ -134,26 +294,10 @@ void IntraBlockChase
     const int gridCol = grid.Col();
 
     const Int blockSize = H.BlockHeight();
-    if( blockSize != H.BlockWidth() )
-        LogicError("IntraBlockChase assumes square distribution blocks"); 
-    if( winSize < 2 * blockSize )
-        LogicError("The window size must be at least twice the block size");
     const Int blockCut = H.ColCut();
-    if( blockCut != H.RowCut() )
-        LogicError("IntraBlockChase assumes that the cuts are equal");
-    if( ctrl.wantSchurVecs )
-    {
-        // Ensure that H and Z have the same distributions
-        if( Z.DistData() != H.DistData() )
-            LogicError("The distributions of H and Z should match");
-    }
 
     // Apply the black-box function for determining the number of bulges
     const Int numBulgesPerBlock = ctrl.numBulgesPerBlock(blockSize);
-    if( numBulgesPerBlock*6 + 1 > blockSize )
-        LogicError
-        ("Cannot incorporate ",numBulgesPerBlock,
-         " bulges into a distributed block size of ",blockSize);
 
     // We push the leftover shifts through first, so the last block only has
     // the leftover number of shifts if shiftEnd is equal to the number of
@@ -186,87 +330,7 @@ void IntraBlockChase
     const Int activeRowBlockBeg = state.activeBlockBeg + activeColShift;
     const Int activeColBlockBeg = state.activeBlockBeg + activeRowShift;
 
-    // Count the number of diagonal blocks assigned to this process
-    // TODO(poulson): Move this into a subroutine?
-    Int numLocalDiagBlocks;
-    {
-        // Only loop over the row blocks that are assigned to our process row
-        // and occur within the active window.
-        Int diagBlock = activeRowBlockBeg;
-        Int localDiagBlock = 0;
-        while( diagBlock < state.activeBlockEnd )
-        {
-            const int ownerCol = (winRowAlign + diagBlock) % gridWidth;
-            if( ownerCol == gridCol )
-                ++localDiagBlock;
-            diagBlock += gridHeight;
-        }
-        numLocalDiagBlocks = localDiagBlock;
-    }
-    
-    // Chase bulges down the local diagonal blocks and store the accumulations
-    // of the Householder reflections.
-    vector<Matrix<F>> UList(numLocalDiagBlocks);
-    {
-        // Only loop over the row blocks that are assigned to our process row
-        Int diagBlock = activeRowBlockBeg;
-        Int localDiagBlock = 0;
-        Zeros( W, 3, numBulgesPerBlock );
-        while( diagBlock < state.activeBlockEnd )
-        {
-            const Int thisBlockHeight = 
-              ( diagBlock == 0 ? firstBlockSize : blockSize );
-            const Int numBlockBulges =
-              ( diagBlock==state.activeBlockEnd-1 ?
-                numBulgesInLastBlock :
-                numBulgesPerBlock );
-
-            const int ownerCol = (winRowAlign + diagBlock) % gridWidth;
-            if( ownerCol == gridCol )
-            {
-                const Int diagOffset = winBeg +
-                  (diagBlock == 0 ?
-                   0 :
-                   firstBlockSize + (diagBlock-1)*blockSize );
-
-                // View the local diagonal block of H
-                const Int localRowOffset = H.LocalRowOffset( diagOffset );
-                const Int localColOffset = H.LocalColOffset( diagOffset );
-                auto HBlockLoc = 
-                  HLoc
-                  ( IR(0,thisBlockHeight)+localRowOffset,
-                    IR(0,thisBlockHeight)+localColOffset );
-
-                // View the local shifts for this diagonal block
-                const Int shiftOffset = state.shiftBeg +
-                  (2*numBulgesPerBlock)*(diagBlock-state.activeBlockBeg);
-                auto shiftsBlockLoc =
-                  shiftsLoc( IR(0,2*numBlockBulges)+shiftOffset, ALL );
-
-                // Initialize the accumulated reflection matrix
-                auto& UBlock = UList[localDiagBlock];
-                Identity( UBlock, thisBlockHeight-1, thisBlockHeight-1 );
-
-                // Perform the diagonal block sweep and accumulate the
-                // reflections in UBlock
-                const Int numSteps = (thisBlockHeight-1) - 3*numBlockBulges;
-                for( Int step=0; step<numSteps; ++step )
-                {
-                    ComputeIntraBlockReflectors
-                    ( step, numBlockBulges, HBlockLoc, shiftsLoc, W,
-                      ctrl.progress );
-                    ApplyIntraBlockReflectorsOpt
-                    ( step, numBlockBulges, HBlockLoc, UBlock, W,
-                      ctrl.progress );
-                }
-                ++localDiagBlock;
-            }
-            diagBlock += gridHeight;
-        }
-    }
-
     // Broadcast/Allgather the accumulated reflections within rows
-    // TODO(poulson): Move this into a subroutine
     if( immediatelyApply )
     {
         Matrix<F> UBlock;
@@ -316,7 +380,6 @@ void IntraBlockChase
     }
 
     // Broadcast/Allgather the accumulated reflections within columns
-    // TODO(poulson): Move this into a subroutine
     if( immediatelyApply )
     {
         Matrix<F> UBlock;
@@ -369,6 +432,70 @@ void IntraBlockChase
         // TODO(poulson): Add support for AllGather variant
         LogicError("This option is not yet supported");
     }
+}
+
+} // namespace intrablock
+
+template<typename F>
+void IntraBlockChase
+(       DistMatrix<F,MC,MR,BLOCK>& H,
+        DistMatrix<F,MC,MR,BLOCK>& Z,
+  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+  const DistChaseState& state,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+
+    // Do some preliminary sanity checks
+    {
+        const Int n = H.Height();
+        const Int blockSize = H.BlockSize();
+        const Int numBulgesPerBlock = ctrl.numBulgesPerBlock(blockSize);
+
+        const Int winBeg = ( ctrl.winBeg == END ? n : ctrl.winBeg );
+        const Int winEnd = ( ctrl.winEnd == END ? n : ctrl.winEnd );
+        const Int winSize = winEnd - winBeg;
+        if( winSize < 2 * blockSize )
+            LogicError("The window size must be at least twice the block size");
+
+        if( blockSize != H.BlockWidth() )
+            LogicError("IntraBlockChase assumes square distribution blocks"); 
+        if( H.ColCut() != H.RowCut() )
+            LogicError("IntraBlockChase assumes that the cuts are equal");
+        if( ctrl.wantSchurVecs )
+        {
+            // Ensure that H and Z have the same distributions
+            if( Z.DistData() != H.DistData() )
+                LogicError("The distributions of H and Z should match");
+        }
+        if( numBulgesPerBlock*6 + 1 > blockSize )
+            LogicError
+            ("Cannot incorporate ",numBulgesPerBlock,
+             " bulges into a distributed block size of ",blockSize);
+    }
+
+    // Form the list of accumulated Householder transformations, which should be
+    // applied as
+    //
+    //     \hat{U}_i' H_i \hat{U}_i,
+    //
+    // where \hat{U}_i = | 1, 0,   0 |
+    //                   | 0, U_i, 0 |
+    //                   | 0, 0,   1 |
+    //
+    // is the extension of U_i to the entire diagonal block (as the
+    // transformation leaves the first and last rows unchanged when applied from
+    // the left), and H_i is the i'th locally-owned diagonal block of H.
+    //
+    vector<Matrix<F>> UList;
+    intrablock::LocalChase( H, shifts, state, ctrl, UList );
+
+    // Broadcast the accumulated transformations from the owning diagonal block
+    // over the entire process row/column teams and then apply them to Z from
+    // the right (if the Schur vectors are desired), to the above-diagonal
+    // portion of H from the right, and their adjoints to the relevant
+    // right-of-diagonal portions of H from the left.
+    intrablock::ApplyAccumulatedReflections( H, Z, shifts, state, ctrl, UList );
 }
 
 } // namespace multibulge

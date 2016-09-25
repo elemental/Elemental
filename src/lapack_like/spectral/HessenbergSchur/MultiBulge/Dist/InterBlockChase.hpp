@@ -391,7 +391,6 @@ void InterBlockEvenChase
 (       DistMatrix<F,MC,MR,BLOCK>& H,
         DistMatrix<F,MC,MR,BLOCK>& Z,
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
-        Matrix<F>& W,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
@@ -405,6 +404,11 @@ void InterBlockEvenChase
         LogicError("InterBlockEvenChase assumes that the cuts are equal");
 
     // TODO(poulson): Handle 'introductory', standard, and 'exit' chases here
+
+    // TODO(poulson): Count the number of times that we are serving each of the
+    // four roles within introductory, standard, and exit chases, then pack the
+    // relevant data. The best default communication pattern is perhaps an
+    // MPI_Alltoallv over the entire process grid.
 }
 
 template<typename F>
@@ -412,7 +416,6 @@ void InterBlockOddChase
 (       DistMatrix<F,MC,MR,BLOCK>& H,
         DistMatrix<F,MC,MR,BLOCK>& Z,
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
-        Matrix<F>& W,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {

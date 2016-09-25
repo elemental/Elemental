@@ -60,9 +60,13 @@ void ApplyIntraBlockReflectors
         for( Int i=0; i<n; ++i )
             ApplyRightReflector
             ( H(i,bulgeBeg+1), H(i,bulgeBeg+2), H(i,bulgeBeg+3), w );
-        for( Int i=0; i<n-1; ++i ) 
+        // Recall that U does not effect either the first or last row of the
+        // diagonal block, so it is of dimension two less than n. Further, the
+        // fact that the first column is skipped means that the effected column
+        // indices are one less than those of H when applying from the right.
+        for( Int i=0; i<n-2; ++i ) 
             ApplyRightReflector
-            ( U(i,bulgeBeg+1), U(i,bulgeBeg+2), U(i,bulgeBeg+3), w );
+            ( U(i,bulgeBeg), U(i,bulgeBeg+1), U(i,bulgeBeg+2), w );
     }
 
     // Vigilant deflation check using Ahues/Tisseur criteria
@@ -71,7 +75,7 @@ void ApplyIntraBlockReflectors
     ( H, 0 /*winBeg*/, n /*winEnd*/, 0 /*packetBeg*/,
       0 /*firstVigBulge*/, numBulges /*numVigBulges*/, progress );
 
-    // Form the last row of the single-step bulge chase
+    // Form the last row of each of the single-step bulge chases
     //
     //       ~ ~ ~                 ~ ~ ~
     //     -----------          -----------
@@ -82,7 +86,7 @@ void ApplyIntraBlockReflectors
     //    |       x x |        |   B B B B |
     //     -----------          -----------
     //
-    // The last row is introduced from the transformation
+    // The last row is introduced entirely due to the transformation
     //
     //  H(k+4,k+1:k+3) -= conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2] [1; nu1; nu2]'.
     //
@@ -112,6 +116,10 @@ void ApplyIntraBlockReflectors
 // Unfortunately, it seems to be the case that it is noticeably faster
 // for this routine to manually inline the data access than to use the 
 // (presumably inlined) Matrix::operator()(int,int) calls.
+//
+// Please see the above routine for inlined comments, as there is no need to
+// duplicate the detailed comments.
+//
 template<typename F>
 void ApplyIntraBlockReflectorsOpt
 ( Int step,
@@ -140,8 +148,6 @@ void ApplyIntraBlockReflectorsOpt
     // ===================
     for( Int j=0; j<n; ++j )
     {
-        // Avoid re-applying freshly generated reflections
-        // (which is only relevant when (j-step) % 3 = 0)
         const Int applyBulgeEnd = Min( numBulges, (j-step+2)/3 );
         for( Int bulge=0; bulge<applyBulgeEnd; ++bulge )
         {
@@ -165,11 +171,11 @@ void ApplyIntraBlockReflectorsOpt
             ( HBuf[i+(bulgeBeg+1)*HLDim],
               HBuf[i+(bulgeBeg+2)*HLDim],
               HBuf[i+(bulgeBeg+3)*HLDim], w );
-        for( Int i=0; i<n-1; ++i ) 
+        for( Int i=0; i<n-2; ++i ) 
             ApplyRightReflector
-            ( UBuf[i+(bulgeBeg+1)*ULDim],
-              UBuf[i+(bulgeBeg+2)*ULDim],
-              UBuf[i+(bulgeBeg+3)*ULDim], w );
+            ( UBuf[i+(bulgeBeg+0)*ULDim],
+              UBuf[i+(bulgeBeg+1)*ULDim],
+              UBuf[i+(bulgeBeg+2)*ULDim], w );
     }
 
     // Vigilant deflation check using Ahues/Tisseur criteria
@@ -178,25 +184,7 @@ void ApplyIntraBlockReflectorsOpt
     ( H, 0 /*winBeg*/, n /*winEnd*/, 0 /*packetBeg*/,
       0 /*firstVigBulge*/, numBulges /*numVigBulges*/, progress );
 
-    // Form the last row of the single-step bulge chase
-    //
-    //       ~ ~ ~                 ~ ~ ~
-    //     -----------          -----------
-    //    | B B B B x |        | x x x x x |
-    //  ~ | B B B B x |      ~ | x B B B B |
-    //  ~ | B B B B x | |->  ~ |   B B B B |.
-    //  ~ | B B B B x |      ~ |   B B B B |
-    //    |       x x |        |   B B B B |
-    //     -----------          -----------
-    //
-    // The last row is introduced from the transformation
-    //
-    //  H(k+4,k+1:k+3) -= conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2] [1; nu1; nu2]'.
-    //
-    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing 
-    //
-    //   innerProd = conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2]
-    //             = conj(tau) H(k+4,k+3) nu2
+    // Form the last row of the single-step bulge chase.
     //
     // TODO(poulson): Avoid memory allocations for several of the temporaries
     // below in the case where we have heap scalars (e.g., BigFloat).
