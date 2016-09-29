@@ -28,141 +28,6 @@ namespace multibulge {
 // [CITATION] for a diagram.
 //
 
-struct DistChaseState
-{
-  Int activeBlockBeg; // The block index of the first active block
-  Int activeBlockEnd; // The block index of the end of the active blocks
-
-  // The activeBlock{Beg,End} indices are relative to the active window implied
-  // by the coupled HessenbergSchurCtrl.win{Beg,End} parameters.
-
-  Int shiftBeg; // The first active shift index
-  Int shiftEnd; // The end of the active shift indices
-};
-
-// A structure for storing auxiliary metadata that is somewhat tedious to 
-// repeatedly recompute
-struct DistChaseContext
-{
-  // These are the same as ctrl.win{Beg,End} but with END replaced with 'n'
-  Int winBeg, winEnd;
-
-  // The size of the piece of the bottom-right quadrant of the distribution
-  // block that the window starts at. For example, if the distribution block
-  // size is 16 but the window starts two diagonals down the diagonal of such 
-  // a block, then 'firstBlockSize' is 14.
-  Int firstBlockSize;
-
-  // The index of the diagonal entry that the first active shift is in. If 
-  // activeBlockBeg is zero, then this is the top-left entry of the bottom-right
-  // quadrant of the distribution block lying within the window; otherwise, it
-  // is the index of the top-left entry of the full distribution block.
-  Int activeBeg;
-
-  // The first diagonal block assigned to our process row that occurs on or
-  // after activeBlockBeg
-  Int activeRowBlockBeg;
-
-  // The first diagonal block assigned to our process column that occurs on or
-  // after activeBlockBeg
-  Int activeColBlockBeg; 
-
-  // The number of bulges in the vast majority of the packets
-  Int numBulgesPerBlock;
-  // The number of bulges currently in the very last active block
-  Int numBulgesInLastBlock;
-
-  // The first local row index of H that should be updated
-  Int localTransformRowBeg;
-
-  // The last local column index of H that should be updated
-  Int localTransformColEnd;
-};
-
-template<typename F>
-DistChaseContext BuildDistChaseContext
-( const DistMatrix<F,MC,MR,BLOCK>& H,
-  const DistMatrix<F,MC,MR,BLOCK>& Z,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
-  const DistChaseState& state,
-  const HessenbergSchurCtrl& ctrl )
-{
-    DEBUG_CSE
-    const Int n = H.Height();
-    const Int numShifts = shifts.Height();
-    const Int numBulges = numShifts / 2;
-    const Int blockSize = H.BlockHeight();
-    const Grid& grid = H.Grid();
-
-    DistChaseContext context;
-    context.winBeg = ( ctrl.winBeg == END ? n : ctrl.winBeg );
-    context.winEnd = ( ctrl.winEnd == END ? n : ctrl.winEnd );
-
-    // Apply the black-box function for determining the number of bulges
-    context.numBulgesPerBlock = ctrl.numBulgesPerBlock(blockSize);
-
-    // We push the leftover shifts through first, so the last block only has
-    // the leftover number of shifts if shiftEnd is equal to the number of
-    // shifts.
-    context.numBulgesInLastBlock =
-      ( state.shiftEnd == numShifts ?
-        Mod(numBulges,context.numBulgesPerBlock) :
-        context.numBulgesPerBlock );
-
-    // Compute the offset into the distribution block that the window begins in
-    const Int winCut = Mod( context.winBeg + H.ColCut(), blockSize );
-
-    // Compute the remaining size of the first block in the window
-    context.firstBlockSize = blockSize - winCut;
-
-    // Compute the row and column owners of the beginning of the active bulge
-    // region and the first block assigned to us.
-    context.activeBeg = context.winBeg +
-      ( state.activeBlockBeg == 0 ?
-        0 :
-        context.firstBlockSize + (state.activeBlockBeg-1)*blockSize );
-    const int activeColAlign = H.RowOwner( context.activeBeg );
-    const int activeRowAlign = H.ColOwner( context.activeBeg );
-    const int activeColShift =
-      Shift( grid.Row(), activeColAlign, grid.Height() );
-    const int activeRowShift =
-      Shift( grid.Col(), activeRowAlign, grid.Width() );
-    context.activeRowBlockBeg = state.activeBlockBeg + activeColShift;
-    context.activeColBlockBeg = state.activeBlockBeg + activeRowShift;
-
-    // Store the local indices for bounding the off-diagonal application of the
-    // accumulated Householder transformations for each diagonal block
-    context.localTransformRowBeg =
-      ( ctrl.fullTriangle ?
-        0 :
-        H.LocalRowOffset(context.winBeg) );
-    context.localTransformColEnd =
-      ( ctrl.fullTriangle ?
-        H.LocalColOffset(n) :
-        H.LocalColOffset(context.winEnd) );
-
-    // Do some preliminary sanity checks
-    const Int winSize = context.winEnd - context.winBeg;
-    if( winSize < 2*blockSize )
-        LogicError("The window size must be at least twice the block size");
-    if( blockSize != H.BlockWidth() )
-        LogicError("IntraBlockChase assumes square distribution blocks"); 
-    if( H.ColCut() != H.RowCut() )
-        LogicError("IntraBlockChase assumes that the cuts are equal");
-    if( ctrl.wantSchurVecs )
-    {
-        // Ensure that H and Z have the same distributions
-        if( Z.DistData() != H.DistData() )
-            LogicError("The distributions of H and Z should match");
-    }
-    if( context.numBulgesPerBlock*6 + 1 > blockSize )
-        LogicError
-        ("Cannot incorporate ",context.numBulgesPerBlock,
-         " bulges into a distributed block size of ",blockSize);
-
-    return context;
-}
-
 // The following extends the discussion in Granat et al. to handle active
 // windows. For example, ctrl.winBeg and ctrl.winEnd define index sets
 //
@@ -245,12 +110,7 @@ void LocalChase
 {
     DEBUG_CSE
     const Int n = H.Height();
-    const Int blockSize = H.BlockHeight();
     const Grid& grid = H.Grid();
-
-    // Compute the process column that the top-left block of the window is
-    // assigned to
-    const int winRowAlign = H.ColOwner( context.winBeg );
 
     Matrix<F> W;
     auto& HLoc = H.Matrix();
@@ -261,15 +121,16 @@ void LocalChase
         // Only loop over the row blocks that are assigned to our process row
         // and occur within the active window.
         Int diagBlock = context.activeRowBlockBeg;
-        Int localDiagBlock = 0;
+        Int numLocalBlocks = 0;
         while( diagBlock < state.activeBlockEnd )
         {
-            const int ownerCol = (winRowAlign + diagBlock) % grid.Width();
+            const int ownerCol =
+              Mod( context.winRowAlign+diagBlock, grid.Width() );
             if( ownerCol == grid.Col() )
-                ++localDiagBlock;
+                ++numLocalBlocks;
             diagBlock += grid.Height();
         }
-        UList.resize(localDiagBlock);
+        UList.resize(numLocalBlocks);
     }
     
     // Chase bulges down the local diagonal blocks and store the accumulations
@@ -282,19 +143,19 @@ void LocalChase
     while( diagBlock < state.activeBlockEnd )
     {
         const Int thisBlockHeight = 
-          ( diagBlock == 0 ? context.firstBlockSize : blockSize );
+          ( diagBlock == 0 ? context.firstBlockSize : context.blockSize );
         const Int numBlockBulges =
           ( diagBlock==state.activeBlockEnd-1 ?
             context.numBulgesInLastBlock :
             context.numBulgesPerBlock );
 
-        const int ownerCol = (winRowAlign + diagBlock) % grid.Width();
+        const int ownerCol = Mod( context.winRowAlign+diagBlock, grid.Width() );
         if( ownerCol == grid.Col() )
         {
             const Int diagOffset = context.winBeg +
-              (diagBlock == 0 ?
-               0 :
-               context.firstBlockSize + (diagBlock-1)*blockSize );
+              ( diagBlock == 0 ?
+                0 :
+                context.firstBlockSize + (diagBlock-1)*context.blockSize );
 
             // View the local diagonal block of H
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
@@ -358,7 +219,6 @@ void ApplyAccumulatedReflections
   const vector<Matrix<F>>& UList )
 {
     DEBUG_CSE
-    const Int blockSize = H.BlockHeight();
     const Grid& grid = H.Grid();
 
     // We will immediately apply the accumulated Householder transformations
@@ -368,10 +228,6 @@ void ApplyAccumulatedReflections
     auto& HLoc = H.Matrix();
     auto& ZLoc = Z.Matrix();
     const auto& shiftsLoc = shifts.LockedMatrix();
-
-    // Compute the row and column owners of the beginning of the window.
-    const int winColAlign = H.RowOwner( context.winBeg );
-    const int winRowAlign = H.ColOwner( context.winBeg );
 
     // Broadcast/Allgather the accumulated reflections within rows
     if( immediatelyApply )
@@ -385,13 +241,14 @@ void ApplyAccumulatedReflections
         while( diagBlock < state.activeBlockEnd )
         {
             const Int thisBlockHeight = 
-              ( diagBlock == 0 ? context.firstBlockSize : blockSize );
+              ( diagBlock == 0 ? context.firstBlockSize : context.blockSize );
             const Int numBlockBulges =
               ( diagBlock==state.activeBlockEnd-1 ?
                 context.numBulgesInLastBlock :
                 context.numBulgesPerBlock );
 
-            const int ownerCol = (winRowAlign + diagBlock) % grid.Width();
+            const int ownerCol =
+              Mod( context.winRowAlign+diagBlock, grid.Width() );
             if( ownerCol == grid.Col() )
             {
                 UBlock = UList[localDiagBlock];
@@ -399,9 +256,9 @@ void ApplyAccumulatedReflections
             }
 
             const Int diagOffset = context.winBeg +
-              (diagBlock == 0 ?
-               0 :
-               context.firstBlockSize + (diagBlock-1)*blockSize );
+              ( diagBlock == 0 ?
+                0 :
+                context.firstBlockSize + (diagBlock-1)*context.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
             const Int localColOffset = H.LocalColOffset( diagOffset );
             El::Broadcast( UBlock, H.RowComm(), ownerCol );
@@ -434,13 +291,14 @@ void ApplyAccumulatedReflections
         while( diagBlock < state.activeBlockEnd )
         {
             const Int thisBlockHeight = 
-              ( diagBlock == 0 ? context.firstBlockSize : blockSize );
+              ( diagBlock == 0 ? context.firstBlockSize : context.blockSize );
             const Int numBlockBulges =
               ( diagBlock==state.activeBlockEnd-1 ?
                 context.numBulgesInLastBlock :
                 context.numBulgesPerBlock );
 
-            const int ownerRow = (winColAlign + diagBlock) % grid.Height();
+            const int ownerRow =
+              Mod( context.winColAlign+diagBlock, grid.Height() );
             if( ownerRow == grid.Row() )
             {
                 UBlock = UList[localDiagBlock];
@@ -450,7 +308,7 @@ void ApplyAccumulatedReflections
             const Int diagOffset = context.winBeg +
               ( diagBlock == 0 ?
                 0 :
-                context.firstBlockSize + (diagBlock-1)*blockSize );
+                context.firstBlockSize + (diagBlock-1)*context.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
             const Int localColOffset = H.LocalColOffset( diagOffset );
             El::Broadcast( UBlock, H.ColComm(), ownerRow );

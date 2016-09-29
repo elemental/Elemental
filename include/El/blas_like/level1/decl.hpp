@@ -159,6 +159,18 @@ void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank=0 );
 template<typename T>
 void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank=0 );
 
+// Send
+// ====
+template<typename T>
+void Send( const Matrix<T>& A, mpi::Comm comm, int destination );
+
+// Recv
+// ====
+// On entry, the matrix 'A' must be of the correct size and will be overwritten
+// on exit (without changing the leading dimension).
+template<typename T>
+void Recv( Matrix<T>& A, mpi::Comm comm, int source );
+
 // Column norms
 // ============
 
