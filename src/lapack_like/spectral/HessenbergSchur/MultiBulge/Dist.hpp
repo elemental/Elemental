@@ -29,7 +29,7 @@ struct DistChaseState
 // repeatedly recompute
 struct DistChaseContext
 {
-  // These are the same as ctrl.win{Beg,End} but with END replaced with 'n'
+  // These are the same as ctrl.win{Beg,End} but with END properly replaced
   Int winBeg, winEnd;
   // The process rows and columns owning the block at the top-left of the window
   Int winRowAlign, winColAlign;
@@ -41,6 +41,8 @@ struct DistChaseContext
   // size is 16 but the window starts two diagonals down the diagonal of such 
   // a block, then 'firstBlockSize' is 14.
   Int firstBlockSize;
+  // The size of the last block in the window.
+  Int lastBlockSize;
 
   // The number of (full or partial) diagonal blocks in the window.
   Int numWinBlocks; 
@@ -101,12 +103,12 @@ DistChaseContext BuildDistChaseContext
     const Int winSizeAfterFirst = winSize - context.firstBlockSize;
     if( winSizeAfterFirst == 0 )
     {
-        // This should never be allowed to happen, but we handle it anyway.
-        context.numWinBlocks = 1;
+        LogicError("Single-block windows are not allowed.");
     }
     else
     {
         context.numWinBlocks = 2 + (winSizeAfterFirst-1)/context.blockSize;
+        context.lastBlockSize = winSizeAfterFirst % context.blockSize;
     }
 
     // Apply the black-box function for determining the number of bulges

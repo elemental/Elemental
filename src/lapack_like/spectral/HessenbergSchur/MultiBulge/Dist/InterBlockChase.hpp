@@ -404,8 +404,17 @@ enum DistChaseType {
 struct InterBlockInteraction
 {
   DistChaseType chaseType;
-  Int source;
-  Int destination;
+  Int block0;
+  // We always have block1 = block0 + 1 for non-trivial interactions, but we
+  // keep it here for the sake of simplicity.
+  Int block1;
+  Int blockSize0;
+  Int blockSize1;
+  Int numBulges;
+
+  // The (entry-wise) indices of the beginning and end of the interaction
+  Int beg;
+  Int end;
 };
 
 namespace interblock {
@@ -438,8 +447,10 @@ DetermineInteraction
 
     InterBlockInteraction interaction;
     interaction.chaseType = NO_CHASE;
-    interaction.source = -1;
-    interaction.destination = -1;
+    interaction.block0 = -1;
+    interaction.block1 = -1;
+    interaction.blockSize0 = 0;
+    interaction.blockSize1 = 0;
     if( diagBlockRow == 0 )
     {
         if( sameParity )
@@ -451,15 +462,19 @@ DetermineInteraction
                 {
                     // A packet is already lying the (0,0) diagonal block.
                     interaction.chaseType = STANDARD_CHASE;
-                    interaction.source = 0;
-                    interaction.destination = 1;
+                    interaction.block0 = 0;
+                    interaction.block1 = 1;
+                    interaction.blockSize0 = context.blockSize;
+                    interaction.blockSize1 = context.blockSize;
                 }
                 else
                 {
                     // We need to introduce and chase a packet.
                     interaction.chaseType = COUPLED_INTRO_CHASE;
-                    interaction.source = -1;
-                    interaction.destination = 1;
+                    interaction.block0 = 0;
+                    interaction.block1 = 1;
+                    interaction.blockSize0 = context.firstBlockSize;
+                    interaction.blockSize1 = context.blockSize; 
                 }
             }
         }
@@ -471,8 +486,10 @@ DetermineInteraction
                 {
                     // We will introduce a packet into this block
                     interaction.chaseType = SIMPLE_INTRO_CHASE;
-                    interaction.source = -1;
-                    interaction.destination = 0;
+                    interaction.block0 = -1;
+                    interaction.block1 = 0;
+                    interaction.blockSize0 = 0;
+                    interaction.blockSize1 = context.blockSize;
                 }
                 else
                 {
@@ -495,14 +512,18 @@ DetermineInteraction
                 if( context.numWinBlocks == 3 )
                 {
                     interaction.chaseType = EXIT_CHASE;
-                    interaction.source = 1;
-                    interaction.destination = 3;
+                    interaction.block0 = 1;
+                    interaction.block1 = 2;
+                    interaction.blockSize0 = context.blockSize;
+                    interaction.blockSize1 = context.lastBlockSize;
                 }
                 else
                 {
                     interaction.chaseType = STANDARD_CHASE;
-                    interaction.source = 1;
-                    interaction.destination = 2;
+                    interaction.block0 = 1;
+                    interaction.block1 = 2;
+                    interaction.blockSize0 = context.blockSize;
+                    interaction.blockSize1 = context.blockSize;
                 }
             }
         }
@@ -515,16 +536,20 @@ DetermineInteraction
                 {
                     // This chase will pull a packet from (0,0) to (1,1)
                     interaction.chaseType = STANDARD_CHASE;
-                    interaction.source = 0;
-                    interaction.destination = 1;
+                    interaction.block0 = 0;
+                    interaction.block1 = 1;
+                    interaction.blockSize0 = context.blockSize;
+                    interaction.blockSize1 = context.blockSize;
                 }
                 else
                 {
                     // This chase will introduce a packet and immediately chase 
                     // it into diagonal block (1,1)
                     interaction.chaseType = COUPLED_INTRO_CHASE;
-                    interaction.source= -1;
-                    interaction.destination = 1;
+                    interaction.block0 = 0;
+                    interaction.block1 = 1;
+                    interaction.blockSize0 = context.firstBlockSize;
+                    interaction.blockSize1 = context.blockSize;
                 }
             }
         }
@@ -537,8 +562,10 @@ DetermineInteraction
             if( gridCol == ownerCol || gridCol == nextCol )
             {
                 interaction.chaseType = EXIT_CHASE;
-                interaction.source = context.numWinBlocks-2;
-                interaction.destination = context.numWinBlocks;
+                interaction.block0 = context.numWinBlocks-2;
+                interaction.block1 = context.numWinBlocks-1;
+                interaction.blockSize0 = context.blockSize;
+                interaction.blockSize1 = context.lastBlockSize; 
             }
         }
         else
@@ -547,8 +574,10 @@ DetermineInteraction
             if( gridCol == ownerCol || gridCol == prevCol )
             {
                 interaction.chaseType = STANDARD_CHASE;
-                interaction.source = context.numWinBlocks-3;
-                interaction.destination = context.numWinBlocks-2;
+                interaction.block0 = context.numWinBlocks-3;
+                interaction.block1 = context.numWinBlocks-2;
+                interaction.blockSize0 = context.blockSize;
+                interaction.blockSize1 = context.blockSize;
             }
         }
     }
@@ -564,8 +593,10 @@ DetermineInteraction
             if( gridCol == ownerCol || gridCol == prevCol )
             {
                 interaction.chaseType = EXIT_CHASE;
-                interaction.source = context.numWinBlocks-2;
-                interaction.destination = context.numWinBlocks;
+                interaction.block0 = context.numWinBlocks-2;
+                interaction.block1 = context.numWinBlocks-1;
+                interaction.blockSize0 = context.blockSize;
+                interaction.blockSize1 = context.lastBlockSize;
             }
         }
     }
@@ -577,8 +608,10 @@ DetermineInteraction
             if( gridCol == ownerCol || gridCol == nextCol )
             {
                 interaction.chaseType = STANDARD_CHASE;
-                interaction.source = diagBlockRow;
-                interaction.destination = diagBlockRow+1;
+                interaction.block0 = diagBlockRow;
+                interaction.block1 = diagBlockRow+1;
+                interaction.blockSize0 = context.blockSize;
+                interaction.blockSize1 = context.blockSize;
             }
         }
         else
@@ -587,11 +620,30 @@ DetermineInteraction
             if( gridCol == ownerCol || gridCol == prevCol )
             {
                 interaction.chaseType = STANDARD_CHASE;
-                interaction.source = diagBlockRow-1;
-                interaction.destination = diagBlockRow;
+                interaction.block0 = diagBlockRow-1;
+                interaction.block1 = diagBlockRow;
+                interaction.blockSize0 = context.blockSize;
+                interaction.blockSize1 = context.blockSize;
             }
         }
     }
+
+    // The number of bulges is guaranteed to be equal to
+    // context.numBulgesPerBlock except (possibly) in the last active
+    // interaction, which must have its second block at position
+    // state.activeBlockEnd-1.
+    interaction.numBulges =
+      ( interaction.block1 < state.activeBlockEnd-1 ?
+        context.numBulgesPerBlock :
+        context.numBulgesInLastBlock );
+
+    interaction.beg = context.winBeg +
+      ( interaction.block0 <= 0 ?
+        0 :
+        context.firstBlockSize + (interaction.block0-1)*context.blockSize );
+    interaction.end = interaction.beg + interaction.blockSize0 +
+      interaction.blockSize1;
+
     return interaction;
 }
 
@@ -618,11 +670,9 @@ FormInteractionList
         else
         {
             interactionList.push_back(interaction);
+            // We must take care to not participate twice in one chase
             if( grid.Height() == 1 )
-            {
-                // We must take care to not participate twice in one chase
-                diagBlock = interaction.destination;
-            }
+                diagBlock = interaction.block1 + 1;
             else
                 diagBlock += grid.Height();
         }
@@ -690,40 +740,32 @@ void CollectInterBlock
     else if( interaction.chaseType == NO_CHASE )
         LogicError("Invalid request to collect an inter-block window");
 
-    // Introductory chases label their source as "-1".
-    const Int source = Max( interaction.source, 0 );
+    // Only "simple" introductory chases label their first block as "-1".
+    const Int block0 = interaction.block0;
 
     // (Up to) four processes may participate in introducing and chasing
     // a packet into and out of a partial block.
-    const int firstRow = Mod( context.winColAlign+source, grid.Height() );
+    const int firstRow = Mod( context.winColAlign+block0, grid.Height() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
-    const int firstCol = Mod( context.winRowAlign+source, grid.Width() );
+    const int firstCol = Mod( context.winRowAlign+block0, grid.Width() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
-
-    // Compute the beginning and end of the 2x2 interaction block
-    // (ensuring that we do not exceed the window)
-    const Int interBlockBeg = context.winBeg +
-      ( source == 0 ? 0 : firstBlockSize + (source-1)*blockSize );
-    Int interBlockEnd = context.winBeg + firstBlockSize + source*blockSize;
-    interBlockEnd = Min( interBlockEnd, context.winEnd );
 
     // We can grab the indices of our local portion of the 2x2 interaction
     // window in a black-box manner.
-    const Int localRowBeg = H.LocalRowOffset( interBlockBeg );
-    const Int localRowEnd = H.LocalRowOffset( interBlockEnd );
-    const Int localColBeg = H.LocalColOffset( interBlockBeg );
-    const Int localColEnd = H.LocalColOffset( interBlockEnd );
+    const Int localRowBeg = H.LocalRowOffset( interaction.beg );
+    const Int localRowEnd = H.LocalRowOffset( interaction.end );
+    const Int localColBeg = H.LocalColOffset( interaction.beg );
+    const Int localColEnd = H.LocalColOffset( interaction.end );
     auto HInteractLoc =
       HLoc( IR(localRowBeg,localRowEnd), IR(localColBeg,localColEnd) );
 
     // The interior blocks are all full, and we know the first block size and
     // the inter-block interaction size, so we can easily compute the two
     // interaction block sizes.
-    const Int blockSize0 = ( source == 0 ? firstBlockSize : blockSize );
-    const Int blockSize1 = (interBlockEnd-interBlockBeg) - blockSize0;
-    const auto ind0 = IR(0,blockSize0);
-    const auto ind1 = IR(blockSize0,END);
-    Zeros( HBlock, blockSize0+blockSize1, blockSize0+blockSize1 );
+    const Int interactionSize = interaction.blockSize0 + interaction.blockSize1;
+    const auto ind0 = IR(0,interaction.blockSize0);
+    const auto ind1 = IR(interaction.blockSize0,interactionSize);
+    Zeros( HBlock, interactionSize, interactionSize );
 
     if( grid.Height() == 1 && grid.Width() == 1 )
     {
