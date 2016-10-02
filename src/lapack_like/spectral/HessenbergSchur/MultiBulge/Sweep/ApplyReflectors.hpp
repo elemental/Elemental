@@ -30,12 +30,19 @@ void ApplyReflectors
   Matrix<F>& U,
   Matrix<F>& W,
   Int firstBulge,
-  Int numFullBulges,
-  bool haveSmallBulge,
+  Int numBulges,
   bool accumulate,
   bool progress )
 {
     DEBUG_CSE
+    const Int lastBulge = firstBulge + numBulges - 1;
+    const Int lastBulgeBeg = packetBeg + 3*lastBulge;
+    const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
+    DEBUG_ONLY(
+      if( lastBulgeBeg > winEnd-3 )
+          LogicError("Last bulge starts too late");
+    )
+    const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
 
     // Apply from the left
     // ===================
@@ -188,12 +195,20 @@ void ApplyReflectorsOpt
   Matrix<F>& U,
   Matrix<F>& W,
   Int firstBulge,
-  Int numFullBulges,
-  bool haveSmallBulge,
+  Int numBulges,
   bool accumulate,
   bool progress )
 {
     DEBUG_CSE
+    const Int lastBulge = firstBulge + numBulges - 1;
+    const Int lastBulgeBeg = packetBeg + 3*lastBulge;
+    const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
+    DEBUG_ONLY(
+      if( lastBulgeBeg > winEnd-3 )
+          LogicError("Last bulge starts too late");
+    )
+    const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
+
     F* HBuf = H.Buffer();
     F* ZBuf = Z.Buffer();
     F* UBuf = U.Buffer();

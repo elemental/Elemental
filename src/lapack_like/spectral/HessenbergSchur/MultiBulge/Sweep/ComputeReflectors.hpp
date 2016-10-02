@@ -19,12 +19,12 @@ template<typename F>
 void ComputeReflectors
 (       Matrix<F>& H,
         Int winBeg,
+        Int winEnd,
   const Matrix<Complex<Base<F>>>& shifts,
         Matrix<F>& W,
         Int packetBeg,
         Int firstBulge,
-        Int numFullBulges,
-        bool haveSmallBulge,
+        Int numBulges,
         bool progress )
 {
     DEBUG_CSE
@@ -33,13 +33,22 @@ void ComputeReflectors
     const F zero(0);
     const Real ulp = limits::Precision<Real>();
 
+    const Int lastBulge = firstBulge + numBulges - 1;
+    const Int lastBulgeBeg = packetBeg + 3*lastBulge;
+    const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
+    DEBUG_ONLY(
+      if( lastBulgeBeg > winEnd-3 )
+          LogicError("Last bulge starts too late");
+    )
+    const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
+
     // Set aside space for a Householder vector for a candidate reinflation of
     // a deflated bulge
     vector<F> wCand(3);
 
     if( haveSmallBulge )
     {
-        const Int bulge = firstBulge+numFullBulges;
+        const Int bulge = firstBulge + numFullBulges;
         const Complex<Real> shift0 = shifts(2*bulge);
         const Complex<Real> shift1 = shifts(2*bulge+1);
         const Int bulgeBeg = packetBeg + 3*bulge;
