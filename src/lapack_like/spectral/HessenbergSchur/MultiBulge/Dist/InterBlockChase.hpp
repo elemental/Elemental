@@ -9,9 +9,6 @@
 #ifndef EL_SCHUR_HESS_MULTIBULGE_INTER_BLOCK_CHASE_HPP
 #define EL_SCHUR_HESS_MULTIBULGE_INTER_BLOCK_CHASE_HPP
 
-#include "ComputeIntraBlockReflectors.hpp"
-//#include "ComputeIntroductoryReflectors.hpp"
-
 namespace El {
 namespace hess_schur {
 namespace multibulge {

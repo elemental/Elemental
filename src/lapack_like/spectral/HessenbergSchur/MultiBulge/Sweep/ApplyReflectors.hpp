@@ -75,10 +75,7 @@ void ApplyReflectors
 
     // Apply from the right (excluding the fourth row to support vig. deflation)
     // =========================================================================
-    const Int nZ = Z.Height();
-    // The first relative index of the slab that is in the window
-    // (with 4x4 bulges being introduced at winBeg-1)
-    const Int slabRelBeg = Max(0,(winBeg-1)-chaseBeg);
+    const Int ZHeight = Z.Height();
     if( haveSmallBulge )
     {
         const Int bulge = firstBulge + numFullBulges;
@@ -90,14 +87,14 @@ void ApplyReflectors
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
-            for( Int i=slabRelBeg; i<UHeight; ++i ) 
+            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+            for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), w );
         }
         else if( wantSchurVecs )
         {
-            for( Int i=0; i<nZ; ++i )
+            for( Int i=0; i<ZHeight; ++i )
                 ApplyRightReflector( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), w );
         }
     }
@@ -112,15 +109,15 @@ void ApplyReflectors
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
-            for( Int i=slabRelBeg; i<UHeight; ++i ) 
+            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+            for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), U(i,bulgeBegRel+3),
                   w );
         }
         else if( wantSchurVecs )
         {
-            for( Int i=0; i<nZ; ++i )
+            for( Int i=0; i<ZHeight; ++i )
                 ApplyRightReflector
                 ( Z(i,bulgeBeg+1), Z(i,bulgeBeg+2), Z(i,bulgeBeg+3), w );
         }
@@ -253,10 +250,7 @@ void ApplyReflectorsOpt
 
     // Apply from the right (excluding the fourth row to support vig. deflation)
     // =========================================================================
-    const Int nZ = Z.Height();
-    // The first relative index of the slab that is in the window
-    // (with 4x4 bulges being introduced at winBeg-1)
-    const Int slabRelBeg = Max(0,(winBeg-1)-chaseBeg);
+    const Int ZHeight = Z.Height();
     if( haveSmallBulge )
     {
         const Int bulge = firstBulge + numFullBulges;
@@ -270,15 +264,15 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
-            for( Int i=slabRelBeg; i<UHeight; ++i ) 
+            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+            for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],
                   UBuf[i+(bulgeBegRel+2)*ULDim], w );
         }
         else if( wantSchurVecs )
         {
-            for( Int i=0; i<nZ; ++i )
+            for( Int i=0; i<ZHeight; ++i )
                 ApplyRightReflector
                 ( ZBuf[i+(bulgeBeg+1)*ZLDim],
                   ZBuf[i+(bulgeBeg+2)*ZLDim], w );
@@ -297,8 +291,8 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
-            for( Int i=slabRelBeg; i<UHeight; ++i ) 
+            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+            for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],
                   UBuf[i+(bulgeBegRel+2)*ULDim],
@@ -306,7 +300,7 @@ void ApplyReflectorsOpt
         }
         else if( wantSchurVecs )
         {
-            for( Int i=0; i<nZ; ++i )
+            for( Int i=0; i<ZHeight; ++i )
                 ApplyRightReflector
                 ( ZBuf[i+(bulgeBeg+1)*ZLDim],
                   ZBuf[i+(bulgeBeg+2)*ZLDim],

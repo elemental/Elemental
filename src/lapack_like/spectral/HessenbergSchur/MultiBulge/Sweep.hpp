@@ -83,8 +83,9 @@ void SweepHelper
     )
     for( Int chaseBeg=sweepBeg; chaseBeg<sweepEnd; chaseBeg+=chaseStride )
     {
+        const Int slabBeg = Max( chaseBeg, winBeg-1 );
         const Int slabEnd = Min( chaseBeg+maxSlabSize, winEnd );
-        const Int slabSize = slabEnd - chaseBeg;
+        const Int slabSize = slabEnd - slabBeg;
         if( ctrl.accumulateReflections )
             Identity( U, slabSize-1, slabSize-1 );
 
@@ -127,31 +128,26 @@ void SweepHelper
         {
             const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg );
             const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
- 
-            const Int slabRelBeg = Max(0,(winBeg-1)-chaseBeg);
-
-            auto contractInd = IR(slabRelBeg,slabSize-1);
-            auto UAccum = U( contractInd, contractInd );
 
             // Horizontal far-from-diagonal application
-            const Int rightIndBeg = chaseBeg + slabSize;
+            const Int rightIndBeg = slabEnd;
             const Int rightIndEnd = transformEnd;
             const auto rightInd = IR(rightIndBeg,rightIndEnd);
-            auto horzInd = contractInd + (chaseBeg+1);
+            const auto horzInd = IR( Max(chaseBeg+1,winBeg), slabEnd );
             auto HHorzFar = H( horzInd, rightInd );
-            Gemm( ADJOINT, NORMAL, F(1), UAccum, HHorzFar, WAccum );
+            Gemm( ADJOINT, NORMAL, F(1), U, HHorzFar, WAccum );
             HHorzFar = WAccum;
 
             // Vertical far-from-diagonal application
             auto vertInd = IR(transformBeg,Max(winBeg,chaseBeg));
             auto HVertFar = H( vertInd, horzInd );
-            Gemm( NORMAL, NORMAL, F(1), HVertFar, UAccum, WAccum );
+            Gemm( NORMAL, NORMAL, F(1), HVertFar, U, WAccum );
             HVertFar = WAccum;
 
             if( ctrl.wantSchurVecs )
             {
                 auto ZSub = Z( ALL, horzInd );
-                Gemm( NORMAL, NORMAL, F(1), ZSub, UAccum, WAccum );
+                Gemm( NORMAL, NORMAL, F(1), ZSub, U, WAccum );
                 ZSub = WAccum;
             }
         }
