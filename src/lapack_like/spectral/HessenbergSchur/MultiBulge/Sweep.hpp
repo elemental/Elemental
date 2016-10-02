@@ -61,35 +61,35 @@ void SweepHelper
     // the bulge has starting index winBeg.
     //
     // Initialize with the last bulge about to be introduced in the upper-left
-    const Int ghostBeg = (winBeg-1) - 3*(numBulges-1);
+    const Int sweepBeg = (winBeg-1) - 3*(numBulges-1);
 
     // The last bulge must be at least 3x3 in order to involve a 2x2 
     // reflection, so it must start before winEnd-2
-    const Int ghostEnd = winEnd-2;
+    const Int sweepEnd = winEnd-2;
 
-    // Each movement of a packet involves shifting the first bulge one 
+    // Each chase of a packet involves shifting the first bulge one 
     // column right of the starting position of the last bulge. This involves
     // shifting every bulge right 3*(numBulges-1) + 1 columns.
-    const Int ghostStride = 3*(numBulges-1) + 1;
+    const Int chaseStride = 3*(numBulges-1) + 1;
 
     // The total effected region of each movement is therefore (at most)
     // the span of numBulges 3x3 Householder reflections and the translation
-    // distance of the packet (ghostStride)
-    const Int maxSlabSize = 3*numBulges + ghostStride;
+    // distance of the packet (chaseStride)
+    const Int maxSlabSize = 3*numBulges + chaseStride;
 
     DEBUG_ONLY(
       if( H(winBeg+2,winBeg) != F(0) )
           LogicError("H was not upper Hessenberg"); 
     )
-    for( Int ghostCol=ghostBeg; ghostCol<ghostEnd; ghostCol+=ghostStride )
+    for( Int chaseBeg=sweepBeg; chaseBeg<sweepEnd; chaseBeg+=chaseStride )
     {
-        const Int slabEnd = Min( ghostCol+maxSlabSize, winEnd );
-        const Int slabSize = slabEnd - ghostCol;
+        const Int slabEnd = Min( chaseBeg+maxSlabSize, winEnd );
+        const Int slabSize = slabEnd - chaseBeg;
         if( ctrl.accumulateReflections )
             Identity( U, slabSize-1, slabSize-1 );
 
-        const Int packetEnd = Min(ghostCol+ghostStride,ghostEnd);
-        for( Int packetBeg=ghostCol; packetBeg<packetEnd; ++packetBeg )
+        const Int packetEnd = Min(chaseBeg+chaseStride,sweepEnd);
+        for( Int packetBeg=chaseBeg; packetBeg<packetEnd; ++packetBeg )
         {
             const Int firstBulge = Max( 0, ((winBeg-1)-packetBeg+2)/3 );
             const Int numStepBulges =
@@ -101,7 +101,7 @@ void SweepHelper
 
             Int transformBeg;
             if( ctrl.accumulateReflections )
-                transformBeg = Max( winBeg, ghostCol );
+                transformBeg = Max( winBeg, chaseBeg );
             else if( ctrl.fullTriangle )
                 transformBeg = 0;
             else
@@ -117,7 +117,7 @@ void SweepHelper
 
             ApplyReflectorsOpt
             ( H, winBeg, winEnd,
-              ghostCol, packetBeg, transformBeg, transformEnd,
+              chaseBeg, packetBeg, transformBeg, transformEnd,
               Z, ctrl.wantSchurVecs, U, W,
               firstBulge, numStepBulges, ctrl.accumulateReflections,
               ctrl.progress );
@@ -128,22 +128,22 @@ void SweepHelper
             const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg );
             const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
  
-            const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
+            const Int slabRelBeg = Max(0,(winBeg-1)-chaseBeg);
 
             auto contractInd = IR(slabRelBeg,slabSize-1);
             auto UAccum = U( contractInd, contractInd );
 
             // Horizontal far-from-diagonal application
-            const Int rightIndBeg = ghostCol + slabSize;
+            const Int rightIndBeg = chaseBeg + slabSize;
             const Int rightIndEnd = transformEnd;
             const auto rightInd = IR(rightIndBeg,rightIndEnd);
-            auto horzInd = contractInd + (ghostCol+1);
+            auto horzInd = contractInd + (chaseBeg+1);
             auto HHorzFar = H( horzInd, rightInd );
             Gemm( ADJOINT, NORMAL, F(1), UAccum, HHorzFar, WAccum );
             HHorzFar = WAccum;
 
             // Vertical far-from-diagonal application
-            auto vertInd = IR(transformBeg,Max(winBeg,ghostCol));
+            auto vertInd = IR(transformBeg,Max(winBeg,chaseBeg));
             auto HVertFar = H( vertInd, horzInd );
             Gemm( NORMAL, NORMAL, F(1), HVertFar, UAccum, WAccum );
             HVertFar = WAccum;

@@ -21,10 +21,10 @@ void ApplyReflectors
 ( Matrix<F>& H,
   Int winBeg,
   Int winEnd,
-  Int ghostCol,
+  Int chaseBeg,
   Int packetBeg,
-  Int transformBeg,
-  Int transformEnd,
+  Int transformRowBeg,
+  Int transformColEnd,
   Matrix<F>& Z,
   bool wantSchurVecs,
   Matrix<F>& U,
@@ -46,7 +46,7 @@ void ApplyReflectors
 
     // Apply from the left
     // ===================
-    for( Int j=Max(ghostCol,winBeg); j<transformEnd; ++j )
+    for( Int j=Max(chaseBeg,winBeg); j<transformColEnd; ++j )
     {
         // Avoid re-applying freshly generated reflections
         // (which is only relevant when (j-packetBeg) % 3 = 0)
@@ -69,7 +69,7 @@ void ApplyReflectors
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
-        for( Int j=bulgeBeg+1; j<transformEnd; ++j )
+        for( Int j=bulgeBeg+1; j<transformColEnd; ++j )
             ApplyLeftReflector( H(bulgeBeg+1,j), H(bulgeBeg+2,j), w );
     }
 
@@ -78,19 +78,19 @@ void ApplyReflectors
     const Int nZ = Z.Height();
     // The first relative index of the slab that is in the window
     // (with 4x4 bulges being introduced at winBeg-1)
-    const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
+    const Int slabRelBeg = Max(0,(winBeg-1)-chaseBeg);
     if( haveSmallBulge )
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-        for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
+        for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+3); ++i )
             ApplyRightReflector( H(i,bulgeBeg+1), H(i,bulgeBeg+2), w );
 
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
+            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
             for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), w );
@@ -105,14 +105,14 @@ void ApplyReflectors
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &W(0,bulge);
-        for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+4); ++i )
+        for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+4); ++i )
             ApplyRightReflector
             ( H(i,bulgeBeg+1), H(i,bulgeBeg+2), H(i,bulgeBeg+3), w );
 
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
+            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
             for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), U(i,bulgeBegRel+3),
@@ -129,10 +129,10 @@ void ApplyReflectors
     // Vigilant deflation check using Ahues/Tisseur criteria
     // =====================================================
     Int firstVigBulge = firstBulge;
-    Int numVigBulges = ( haveSmallBulge ? numFullBulges+1 : numFullBulges );
-    const bool skipFirstBulge = ( packetBeg+3*firstBulge == winBeg-1 );
-    if( skipFirstBulge ) 
+    Int numVigBulges = numBulges;
+    if( packetBeg + 3*firstBulge == winBeg-1 )
     {
+        // The first bulge needs to be introduced
         ++firstVigBulge;
         --numVigBulges;
     }
@@ -186,10 +186,10 @@ void ApplyReflectorsOpt
 ( Matrix<F>& H,
   Int winBeg,
   Int winEnd,
-  Int ghostCol,
+  Int chaseBeg,
   Int packetBeg,
-  Int transformBeg,
-  Int transformEnd,
+  Int transformRowBeg,
+  Int transformColEnd,
   Matrix<F>& Z,
   bool wantSchurVecs,
   Matrix<F>& U,
@@ -220,7 +220,7 @@ void ApplyReflectorsOpt
 
     // Apply from the left
     // ===================
-    for( Int j=Max(ghostCol,winBeg); j<transformEnd; ++j )
+    for( Int j=Max(chaseBeg,winBeg); j<transformColEnd; ++j )
     {
         // Avoid re-applying freshly generated reflections
         // (which is only relevant when (j-packetBeg) % 3 = 0)
@@ -245,7 +245,7 @@ void ApplyReflectorsOpt
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
-        for( Int j=bulgeBeg+1; j<transformEnd; ++j )
+        for( Int j=bulgeBeg+1; j<transformColEnd; ++j )
             ApplyLeftReflector
             ( HBuf[(bulgeBeg+1)+j*HLDim],
               HBuf[(bulgeBeg+2)+j*HLDim], w );
@@ -256,13 +256,13 @@ void ApplyReflectorsOpt
     const Int nZ = Z.Height();
     // The first relative index of the slab that is in the window
     // (with 4x4 bulges being introduced at winBeg-1)
-    const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
+    const Int slabRelBeg = Max(0,(winBeg-1)-chaseBeg);
     if( haveSmallBulge )
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &WBuf[bulge*WLDim];
-        for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+3); ++i )
+        for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+3); ++i )
             ApplyRightReflector
             ( HBuf[i+(bulgeBeg+1)*HLDim],
               HBuf[i+(bulgeBeg+2)*HLDim], w );
@@ -270,7 +270,7 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
+            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
             for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],
@@ -288,7 +288,7 @@ void ApplyReflectorsOpt
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
         const F* w = &WBuf[bulge*WLDim];
-        for( Int i=transformBeg; i<Min(winEnd,bulgeBeg+4); ++i )
+        for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+4); ++i )
             ApplyRightReflector
             ( HBuf[i+(bulgeBeg+1)*HLDim],
               HBuf[i+(bulgeBeg+2)*HLDim],
@@ -297,7 +297,7 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
+            const Int bulgeBegRel = bulgeBeg - (chaseBeg+1);
             for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],
@@ -317,10 +317,10 @@ void ApplyReflectorsOpt
     // Vigilant deflation check using Ahues/Tisseur criteria
     // =====================================================
     Int firstVigBulge = firstBulge;
-    Int numVigBulges = ( haveSmallBulge ? numFullBulges+1 : numFullBulges );
-    const bool skipFirstBulge = ( packetBeg+3*firstBulge == winBeg-1 );
-    if( skipFirstBulge ) 
+    Int numVigBulges = numBulges;
+    if( packetBeg + 3*firstBulge == winBeg-1 )
     {
+        // The first bulge still needs to be introduced
         ++firstVigBulge;
         --numVigBulges;
     }

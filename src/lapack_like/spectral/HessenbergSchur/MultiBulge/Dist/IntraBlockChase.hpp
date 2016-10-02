@@ -193,11 +193,14 @@ void LocalChase
             // by numBlockBulges bulges is 1 + 3 numBlockBulges, so the number
             // of steps is thisBlockHeight - (1 + 3*numBlockBulges).
             const Int numSteps = thisBlockHeight - (1 + 3*numBlockBulges);
+            const Int blockWinBeg = 0;
+            const Int blockWinEnd = thisBlockHeight;
+            const Int firstBulge = 0;
             for( Int step=0; step<numSteps; ++step )
             {
-                ComputeIntraBlockReflectors
-                ( step, numBlockBulges, HBlockLoc, shiftsBlockLoc, W,
-                  ctrl.progress );
+                ComputeReflectors
+                ( HBlockLoc, blockWinBeg, blockWinEnd, shiftsBlockLoc, W, step,
+                  firstBulge, numBlockBulges, ctrl.progress );
                 ApplyIntraBlockReflectorsOpt
                 ( step, numBlockBulges, HBlockLoc, UBlock, W,
                   ctrl.progress );
