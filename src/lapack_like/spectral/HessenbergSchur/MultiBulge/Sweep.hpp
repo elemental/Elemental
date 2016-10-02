@@ -75,7 +75,7 @@ void SweepHelper
     // The total effected region of each movement is therefore (at most)
     // the span of numBulges 3x3 Householder reflections and the translation
     // distance of the packet (ghostStride)
-    const Int slabSize = 3*numBulges + ghostStride;
+    const Int maxSlabSize = 3*numBulges + ghostStride;
 
     DEBUG_ONLY(
       if( H(winBeg+2,winBeg) != F(0) )
@@ -83,8 +83,8 @@ void SweepHelper
     )
     for( Int ghostCol=ghostBeg; ghostCol<ghostEnd; ghostCol+=ghostStride )
     {
-        // Note that this slab endpoint may be past winEnd
-        const Int slabEnd = ghostCol + slabSize;
+        const Int slabEnd = Min( ghostCol+maxSlabSize, winEnd );
+        const Int slabSize = slabEnd - ghostCol;
         if( ctrl.accumulateReflections )
             Identity( U, slabSize-1, slabSize-1 );
 
@@ -115,7 +115,7 @@ void SweepHelper
 
             Int transformEnd;
             if( ctrl.accumulateReflections )
-                transformEnd = Min( slabEnd, winEnd );
+                transformEnd = slabEnd;
             else if( ctrl.fullTriangle )
                 transformEnd = n;
             else
@@ -123,7 +123,7 @@ void SweepHelper
 
             ApplyReflectorsOpt
             ( H, winBeg, winEnd,
-              slabSize, ghostCol, packetBeg, transformBeg, transformEnd,
+              ghostCol, packetBeg, transformBeg, transformEnd,
               Z, ctrl.wantSchurVecs, U, W,
               firstBulge, numFullBulges, haveSmallBulge,
               ctrl.accumulateReflections, ctrl.progress );
@@ -135,16 +135,15 @@ void SweepHelper
             const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
  
             const Int slabRelBeg = Max(0,(winBeg-1)-ghostCol);
-            const Int nU = (slabSize-1) - Max(0,slabEnd-winEnd) - slabRelBeg;
 
-            auto contractInd = IR(0,nU) + slabRelBeg;
+            auto contractInd = IR(slabRelBeg,slabSize-1);
             auto UAccum = U( contractInd, contractInd );
 
             // Horizontal far-from-diagonal application
-            const Int rightIndBeg = Min(ghostCol+slabSize,winEnd);
+            const Int rightIndBeg = ghostCol + slabSize;
             const Int rightIndEnd = transformEnd;
             const auto rightInd = IR(rightIndBeg,rightIndEnd);
-            auto horzInd = IR(0,nU) + (ghostCol+slabRelBeg+1);
+            auto horzInd = contractInd + (ghostCol+1);
             auto HHorzFar = H( horzInd, rightInd );
             Gemm( ADJOINT, NORMAL, F(1), UAccum, HHorzFar, WAccum );
             HHorzFar = WAccum;

@@ -21,7 +21,6 @@ void ApplyReflectors
 ( Matrix<F>& H,
   Int winBeg,
   Int winEnd,
-  Int slabSize,
   Int ghostCol,
   Int packetBeg,
   Int transformBeg,
@@ -83,8 +82,9 @@ void ApplyReflectors
 
         if( accumulate )
         {
+            const Int UHeight = U.Height();
             const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
-            for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
+            for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), w );
         }
@@ -104,8 +104,9 @@ void ApplyReflectors
 
         if( accumulate )
         {
+            const Int UHeight = U.Height();
             const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
-            for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
+            for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), U(i,bulgeBegRel+3),
                   w );
@@ -178,7 +179,6 @@ void ApplyReflectorsOpt
 ( Matrix<F>& H,
   Int winBeg,
   Int winEnd,
-  Int slabSize,
   Int ghostCol,
   Int packetBeg,
   Int transformBeg,
@@ -254,8 +254,9 @@ void ApplyReflectorsOpt
 
         if( accumulate )
         {
+            const Int UHeight = U.Height();
             const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
-            for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
+            for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],
                   UBuf[i+(bulgeBegRel+2)*ULDim], w );
@@ -280,8 +281,9 @@ void ApplyReflectorsOpt
 
         if( accumulate )
         {
+            const Int UHeight = U.Height();
             const Int bulgeBegRel = bulgeBeg - (ghostCol+1);
-            for( Int i=slabRelBeg; i<slabSize-1; ++i ) 
+            for( Int i=slabRelBeg; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],
                   UBuf[i+(bulgeBegRel+2)*ULDim],
