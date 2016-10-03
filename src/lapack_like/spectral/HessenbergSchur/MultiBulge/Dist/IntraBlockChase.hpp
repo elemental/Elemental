@@ -9,8 +9,6 @@
 #ifndef EL_SCHUR_HESS_MULTIBULGE_INTRA_BLOCK_CHASE_HPP
 #define EL_SCHUR_HESS_MULTIBULGE_INTRA_BLOCK_CHASE_HPP
 
-#include "./ApplyIntraBlockReflectors.hpp"
-
 namespace El {
 namespace hess_schur {
 namespace multibulge {
@@ -139,6 +137,7 @@ void LocalChase
     Int localDiagBlock = 0;
     Int diagBlock = context.activeRowBlockBeg;
     Zeros( W, 3, context.numBulgesPerBlock );
+    Matrix<F> ZDummy;
     while( diagBlock < state.activeBlockEnd )
     {
         const Int thisBlockHeight = 
@@ -194,15 +193,22 @@ void LocalChase
             const Int numSteps = thisBlockHeight - (1 + 3*numBlockBulges);
             const Int blockWinBeg = 0;
             const Int blockWinEnd = thisBlockHeight;
+            const Int chaseBeg = 0;
+            const Int transformRowBeg = 0;
+            const Int transformColEnd = thisBlockHeight;
+            const bool wantSchurVecsSub = false;
+            const bool accumulateSub = true;
             const Int firstBulge = 0;
             for( Int step=0; step<numSteps; ++step )
             {
+                const Int packetBeg = step;
                 ComputeReflectors
-                ( HBlockLoc, blockWinBeg, blockWinEnd, shiftsBlockLoc, W, step,
-                  firstBulge, numBlockBulges, ctrl.progress );
-                ApplyIntraBlockReflectorsOpt
-                ( step, numBlockBulges, HBlockLoc, UBlock, W,
-                  ctrl.progress );
+                ( HBlockLoc, blockWinBeg, blockWinEnd, shiftsBlockLoc, W,
+                  packetBeg, firstBulge, numBlockBulges, ctrl.progress );
+                ApplyReflectorsOpt
+                ( HBlockLoc, blockWinBeg, blockWinEnd, chaseBeg, packetBeg,
+                  transformRowBeg, transformColEnd, ZDummy, wantSchurVecsSub,
+                  UBlock, W, firstBulge, accumulateSub, ctrl.progress );
             }
             ++localDiagBlock;
         }
@@ -238,32 +244,33 @@ void ApplyAccumulatedReflections
         Matrix<F> tempMatrix;
 
         // Only loop over the row blocks assigned to this grid row
-        Int diagBlock = context.activeRowBlockBeg;
+        Int diagBlockRow = context.activeRowBlockBeg;
         Int localDiagBlock = 0;
-        while( diagBlock < state.activeBlockEnd )
+        while( diagBlockRow < state.activeBlockEnd )
         {
             const Int thisBlockHeight = 
-              ( diagBlock == 0 ? context.firstBlockSize : context.blockSize );
+              ( diagBlockRow == 0 ?
+                context.firstBlockSize : context.blockSize );
             const Int numBlockBulges =
-              ( diagBlock==state.activeBlockEnd-1 ?
+              ( diagBlockRow==state.activeBlockEnd-1 ?
                 context.numBulgesInLastBlock :
                 context.numBulgesPerBlock );
 
             const int ownerCol =
-              Mod( context.winRowAlign+diagBlock, grid.Width() );
+              Mod( context.winRowAlign+diagBlockRow, grid.Width() );
             if( ownerCol == grid.Col() )
-            {
-                UBlock = UList[localDiagBlock];
-                ++localDiagBlock;
-            }
-
+                UBlock = UList[localDiagBlock++];
+            else
+                Zeros( UBlock, thisBlockHeight, thisBlockHeight );
+            El::Broadcast( UBlock, H.RowComm(), ownerCol );
+            
+            // TODO(poulson): Move into subroutine
             const Int diagOffset = context.winBeg +
-              ( diagBlock == 0 ?
+              ( diagBlockRow == 0 ?
                 0 :
-                context.firstBlockSize + (diagBlock-1)*context.blockSize );
+                context.firstBlockSize + (diagBlockRow-1)*context.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
             const Int localColOffset = H.LocalColOffset( diagOffset );
-            El::Broadcast( UBlock, H.RowComm(), ownerCol );
             const auto applyRowInd = IR(1,thisBlockHeight-1) + localRowOffset;
             const auto applyColInd =
               IR(localColOffset+thisBlockHeight,context.localTransformColEnd);
@@ -272,7 +279,7 @@ void ApplyAccumulatedReflections
             tempMatrix = HLocRight;
             Gemm( ADJOINT, NORMAL, F(1), UBlock, tempMatrix, HLocRight );
 
-            diagBlock += grid.Height();
+            diagBlockRow += grid.Height();
         }
     }
     else
@@ -288,32 +295,33 @@ void ApplyAccumulatedReflections
         Matrix<F> tempMatrix;
 
         // Only loop over the row blocks assigned to this grid row
-        Int diagBlock = context.activeColBlockBeg;
+        Int diagBlockCol = context.activeColBlockBeg;
         Int localDiagBlock = 0;
-        while( diagBlock < state.activeBlockEnd )
+        while( diagBlockCol < state.activeBlockEnd )
         {
             const Int thisBlockHeight = 
-              ( diagBlock == 0 ? context.firstBlockSize : context.blockSize );
+              ( diagBlockCol == 0 ?
+                context.firstBlockSize : context.blockSize );
             const Int numBlockBulges =
-              ( diagBlock==state.activeBlockEnd-1 ?
+              ( diagBlockCol==state.activeBlockEnd-1 ?
                 context.numBulgesInLastBlock :
                 context.numBulgesPerBlock );
 
             const int ownerRow =
-              Mod( context.winColAlign+diagBlock, grid.Height() );
+              Mod( context.winColAlign+diagBlockCol, grid.Height() );
             if( ownerRow == grid.Row() )
-            {
-                UBlock = UList[localDiagBlock];
-                ++localDiagBlock;
-            }
+                UBlock = UList[localDiagBlock++];
+            else
+                Zeros( UBlock, thisBlockHeight, thisBlockHeight );
+            El::Broadcast( UBlock, H.ColComm(), ownerRow );
 
+            // TODO(poulson): Move into subroutine
             const Int diagOffset = context.winBeg +
-              ( diagBlock == 0 ?
+              ( diagBlockCol == 0 ?
                 0 :
-                context.firstBlockSize + (diagBlock-1)*context.blockSize );
+                context.firstBlockSize + (diagBlockCol-1)*context.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
             const Int localColOffset = H.LocalColOffset( diagOffset );
-            El::Broadcast( UBlock, H.ColComm(), ownerRow );
             const auto applyRowInd =
               IR(context.localTransformRowBeg,localRowOffset);
             const auto applyColInd = IR(1,thisBlockHeight-1) + localColOffset;
@@ -328,7 +336,7 @@ void ApplyAccumulatedReflections
                 Gemm( NORMAL, NORMAL, F(1), tempMatrix, UBlock, ZLocBlock );
             }
 
-            diagBlock += grid.Width();
+            diagBlockCol += grid.Width();
         }
     }
     else
