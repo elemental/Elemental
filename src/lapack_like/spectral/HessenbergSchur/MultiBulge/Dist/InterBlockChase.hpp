@@ -1004,7 +1004,8 @@ void StoreBlock
 
 template<typename F>
 void LocalChase
-(       InterBlockInteraction interaction,
+( bool evenToOdd,
+  const InterBlockInteraction& interaction,
         Matrix<F>& HBlock,
         Matrix<F>& UBlock,
         Matrix<F>& W,
@@ -1019,58 +1020,77 @@ void LocalChase
     const Int blockWinEnd = interaction.blockSize0 + interaction.blockSize1;
     Identity( UBlock, blockWinEnd, blockWinEnd );
 
+    const Int householderSize =
+      interaction.householderEnd - interaction.householderBeg;
+
+    // If this is not an exit chase, each of the Householder transformations is
+    // 3x3 and overlaps in one entry with the previous transformation(s).
+    // If this *is* an exit chase, the last transformation is 2x2 and again
+    // overlaps in one entry.
+    const Int numSteps = 
+      ( interaction.chaseType == EXIT_CHASE ?
+        householderSize - 1 :
+        householderSize - 2 );
+
+    // All non-exit blocks can carry a full load of shifts, with the exception
+    // of non-full first diagonal blocks. Further, the block indices of a
+    // non-full introductory chase are (0,1), whereas they are (-1,0) for a full
+    // introductory chase.
+    //
+    // Let us consider the four scenarios: the first block is either full or
+    // non-full, and the chase is either of the same or different parity. The
+    // following diagrams mark the sequences of interactions with the (maximum) 
+    // number of packets that will live in each at the end of the chase.
+    //
+    // Full, Same parity:
+    //
+    //  (0,1), (2,3), (4,5), ...
+    //    2      2      2
+    //
+    // Non-full, Same parity:
+    //
+    //  (0,1), (2,3), (4,5), ...
+    //    2      2      2
+    //
+    // Full, Different parity:
+    //
+    //  (-1,0), (1,2), (3,4), ...
+    //     2      2      2 
+    //
+    // Non-full, Different parity:
+    //
+    //  (1,2), (3,4), (5,6), ...
+    //    2      2      2
+    //
+    const bool fullFirstBlock = ( context.firstBlockSize == context.blockSize );
+    const bool evenFirst = ( Mod( state.activeBlockEnd, 2 ) == 0 );
+    const bool sameParity = ( evenFirst == evenToOdd );
+    Int packetOffset;
+    if( sameParity )
+        packetOffset = interaction.block0;
+    else if( fullFirstBlock )
+        packetOffset = interaction.block0 + 1;
+    else
+        packetOffset = interaction.block0 - 1;
+
+    const Int firstBulge = (state.shiftBeg/2) + packetOffset;
+
     Matrix<F> ZDummy;
-    if( interaction.chaseType == SIMPLE_INTRO_CHASE )
+    const Int chaseBeg = interaction.householderBeg-1;
+    const Int transformRowBeg = blockWinBeg;
+    const Int transformColEnd = blockWinEnd;
+    const bool wantSchurVecsSub = false;
+    const bool accumulateSub = true;
+    for( Int step=0; step<numSteps; ++step )
     {
-        // Consider the scenario
-        //
-        //     ~ ~ ~ ~ ~ ~              ~ ~ ~ ~ ~ ~
-        //    ---------------          ---------------
-        // ~ | x x x x x x x |      ~ | B B B B x x x |
-        // ~ | x x x x x x x |      ~ | B B B B x x x |
-        // ~ |   x x x x x x |      ~ | B B B B x x x |
-        // ~ |     x x x x x | |->  ~ | B B B B B B B |,
-        // ~ |       x x x x |      ~ |       B B B B |
-        // ~ |         x x x |      ~ |       B B B B |
-        //   |           x x |        |       B B B B |
-        //    ---------------         ---------------
-        //
-        // which requires four steps, where step 's' mixes indices
-        // (s,s+1,s+2).
-        // 
-        const Int numSteps = 1 + 3*interaction.numBulges;
-        const Int firstBulge = state.shiftBeg / 2;
-        const Int chaseBeg = -1;
-        const Int transformRowBeg = blockWinBeg;
-        const Int transformColEnd = blockWinEnd;
-        const bool wantSchurVecsSub = false;
-        const bool accumulateSub = true;
-        for( Int step=0; step<numSteps; ++step )
-        {
-            const Int packetBeg = step-1;
-            ComputeReflectors
-            ( HBlock, blockWinBeg, blockWinEnd, shiftsLoc, W, packetBeg,
-              firstBulge, interaction.numBulges, progress );
-            ApplyReflectorsOpt
-            ( HBlock, blockWinBeg, blockWinEnd, chaseBeg, packetBeg,
-              transformRowBeg, transformColEnd, ZDummy, wantSchurVecsSub,
-              UBlock, W, firstBulge, accumulateSub, progress );
-        }
-    }
-    else if( interaction.chaseType == COUPLED_INTRO_CHASE )
-    {
-        // TODO(poulson)
-        LogicError("This case is not yet implemented");
-    }
-    else if( interaction.chaseType == STANDARD_CHASE )
-    {
-        // TODO(poulson)
-        LogicError("This case is not yet implemented");
-    }
-    else if( interaction.chaseType == EXIT_CHASE )
-    {
-        // TODO(poulson)
-        LogicError("This case is not yet implemented");
+        const Int packetBeg = chaseBeg + step;
+        ComputeReflectors
+        ( HBlock, blockWinBeg, blockWinEnd, shiftsLoc, W, packetBeg,
+          firstBulge, interaction.numBulges, progress );
+        ApplyReflectorsOpt
+        ( HBlock, blockWinBeg, blockWinEnd, chaseBeg, packetBeg,
+          transformRowBeg, transformColEnd, ZDummy, wantSchurVecsSub,
+          UBlock, W, firstBulge, accumulateSub, progress );
     }
 }
 
@@ -1196,7 +1216,8 @@ void InterBlockChase
             auto& UBlock = UList[localInteraction];
             interblock::CollectBlock( interaction, H, HBlock, state, context );
             interblock::LocalChase
-            ( interaction, HBlock, UBlock, W, state, context, ctrl.progress );
+            ( evenToOdd, interaction, HBlock, UBlock, W, shifts, state, context,
+              ctrl.progress );
             interblock::StoreBlock( interaction, H, HBlock, state, context );
             ++localInteraction;
         }
