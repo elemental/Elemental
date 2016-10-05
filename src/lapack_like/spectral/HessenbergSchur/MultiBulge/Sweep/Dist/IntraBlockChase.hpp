@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_MULTIBULGE_INTRA_BLOCK_CHASE_HPP
-#define EL_SCHUR_HESS_MULTIBULGE_INTRA_BLOCK_CHASE_HPP
+#ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTRA_BLOCK_CHASE_HPP
+#define EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTRA_BLOCK_CHASE_HPP
 
 namespace El {
 namespace hess_schur {
@@ -101,7 +101,6 @@ void LocalChase
 (       DistMatrix<F,MC,MR,BLOCK>& H,
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
   const DistChaseState& state,
-  const DistChaseContext& context,
   const HessenbergSchurCtrl& ctrl,
         vector<Matrix<F>>& UList )
 {
@@ -117,12 +116,12 @@ void LocalChase
     {
         // Only loop over the row blocks that are assigned to our process row
         // and occur within the active window.
-        Int diagBlock = context.activeRowBlockBeg;
+        Int diagBlock = state.activeRowBlockBeg;
         Int numLocalBlocks = 0;
         while( diagBlock < state.activeBlockEnd )
         {
             const int ownerCol =
-              Mod( context.winRowAlign+diagBlock, grid.Width() );
+              Mod( state.winRowAlign+diagBlock, grid.Width() );
             if( ownerCol == grid.Col() )
                 ++numLocalBlocks;
             diagBlock += grid.Height();
@@ -135,25 +134,25 @@ void LocalChase
     // are assigned to our process row and filter based upon whether or not
     // we are in the correct process column.
     Int localDiagBlock = 0;
-    Int diagBlock = context.activeRowBlockBeg;
-    Zeros( W, 3, context.numBulgesPerBlock );
+    Int diagBlock = state.activeRowBlockBeg;
+    Zeros( W, 3, state.numBulgesPerBlock );
     Matrix<F> ZDummy;
     while( diagBlock < state.activeBlockEnd )
     {
         const Int thisBlockHeight = 
-          ( diagBlock == 0 ? context.firstBlockSize : context.blockSize );
+          ( diagBlock == 0 ? state.firstBlockSize : state.blockSize );
         const Int numBlockBulges =
           ( diagBlock==state.activeBlockEnd-1 ?
-            context.numBulgesInLastBlock :
-            context.numBulgesPerBlock );
+            state.numBulgesInLastBlock :
+            state.numBulgesPerBlock );
 
-        const int ownerCol = Mod( context.winRowAlign+diagBlock, grid.Width() );
+        const int ownerCol = Mod( state.winRowAlign+diagBlock, grid.Width() );
         if( ownerCol == grid.Col() )
         {
-            const Int diagOffset = context.winBeg +
+            const Int diagOffset = state.winBeg +
               ( diagBlock == 0 ?
                 0 :
-                context.firstBlockSize + (diagBlock-1)*context.blockSize );
+                state.firstBlockSize + (diagBlock-1)*state.blockSize );
 
             // View the local diagonal block of H
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
@@ -164,10 +163,10 @@ void LocalChase
                 IR(0,thisBlockHeight)+localColOffset );
 
             // View the local shifts for this diagonal block
-            const Int shiftOffset = state.shiftBeg +
-              (2*context.numBulgesPerBlock)*(diagBlock-state.activeBlockBeg);
+            const Int bulgeOffset = state.bulgeBeg +
+              state.numBulgesPerBlock*(diagBlock-state.activeBlockBeg);
             auto shiftsBlockLoc =
-              shiftsLoc( IR(0,2*numBlockBulges)+shiftOffset, ALL );
+              shiftsLoc( IR(0,2*numBlockBulges)+(2*bulgeOffset), ALL );
 
             // Initialize the accumulated reflection matrix; recall that it 
             // does not effect the first or last index of the block. For
@@ -222,7 +221,6 @@ void ApplyAccumulatedReflections
         DistMatrix<F,MC,MR,BLOCK>& Z,
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
   const DistChaseState& state,
-  const DistChaseContext& context,
   const HessenbergSchurCtrl& ctrl,
   const vector<Matrix<F>>& UList )
 {
@@ -244,20 +242,20 @@ void ApplyAccumulatedReflections
         Matrix<F> tempMatrix;
 
         // Only loop over the row blocks assigned to this grid row
-        Int diagBlockRow = context.activeRowBlockBeg;
+        Int diagBlockRow = state.activeRowBlockBeg;
         Int localDiagBlock = 0;
         while( diagBlockRow < state.activeBlockEnd )
         {
             const Int thisBlockHeight = 
               ( diagBlockRow == 0 ?
-                context.firstBlockSize : context.blockSize );
+                state.firstBlockSize : state.blockSize );
             const Int numBlockBulges =
               ( diagBlockRow==state.activeBlockEnd-1 ?
-                context.numBulgesInLastBlock :
-                context.numBulgesPerBlock );
+                state.numBulgesInLastBlock :
+                state.numBulgesPerBlock );
 
             const int ownerCol =
-              Mod( context.winRowAlign+diagBlockRow, grid.Width() );
+              Mod( state.winRowAlign+diagBlockRow, grid.Width() );
             if( ownerCol == grid.Col() )
                 UBlock = UList[localDiagBlock++];
             else
@@ -265,15 +263,15 @@ void ApplyAccumulatedReflections
             El::Broadcast( UBlock, H.RowComm(), ownerCol );
             
             // TODO(poulson): Move into subroutine
-            const Int diagOffset = context.winBeg +
+            const Int diagOffset = state.winBeg +
               ( diagBlockRow == 0 ?
                 0 :
-                context.firstBlockSize + (diagBlockRow-1)*context.blockSize );
+                state.firstBlockSize + (diagBlockRow-1)*state.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
             const Int localColOffset = H.LocalColOffset( diagOffset );
             const auto applyRowInd = IR(1,thisBlockHeight-1) + localRowOffset;
             const auto applyColInd =
-              IR(localColOffset+thisBlockHeight,context.localTransformColEnd);
+              IR(localColOffset+thisBlockHeight,state.localTransformColEnd);
 
             auto HLocRight = HLoc( applyRowInd, applyColInd );
             tempMatrix = HLocRight;
@@ -295,20 +293,20 @@ void ApplyAccumulatedReflections
         Matrix<F> tempMatrix;
 
         // Only loop over the row blocks assigned to this grid row
-        Int diagBlockCol = context.activeColBlockBeg;
+        Int diagBlockCol = state.activeColBlockBeg;
         Int localDiagBlock = 0;
         while( diagBlockCol < state.activeBlockEnd )
         {
             const Int thisBlockHeight = 
               ( diagBlockCol == 0 ?
-                context.firstBlockSize : context.blockSize );
+                state.firstBlockSize : state.blockSize );
             const Int numBlockBulges =
               ( diagBlockCol==state.activeBlockEnd-1 ?
-                context.numBulgesInLastBlock :
-                context.numBulgesPerBlock );
+                state.numBulgesInLastBlock :
+                state.numBulgesPerBlock );
 
             const int ownerRow =
-              Mod( context.winColAlign+diagBlockCol, grid.Height() );
+              Mod( state.winColAlign+diagBlockCol, grid.Height() );
             if( ownerRow == grid.Row() )
                 UBlock = UList[localDiagBlock++];
             else
@@ -316,14 +314,14 @@ void ApplyAccumulatedReflections
             El::Broadcast( UBlock, H.ColComm(), ownerRow );
 
             // TODO(poulson): Move into subroutine
-            const Int diagOffset = context.winBeg +
+            const Int diagOffset = state.winBeg +
               ( diagBlockCol == 0 ?
                 0 :
-                context.firstBlockSize + (diagBlockCol-1)*context.blockSize );
+                state.firstBlockSize + (diagBlockCol-1)*state.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
             const Int localColOffset = H.LocalColOffset( diagOffset );
             const auto applyRowInd =
-              IR(context.localTransformRowBeg,localRowOffset);
+              IR(state.localTransformRowBeg,localRowOffset);
             const auto applyColInd = IR(1,thisBlockHeight-1) + localColOffset;
 
             auto HLocAbove = HLoc( applyRowInd, applyColInd );
@@ -358,8 +356,6 @@ void IntraBlockChase
 {
     DEBUG_CSE
 
-    auto context = BuildDistChaseContext( H, shifts, state, ctrl );
-
     // Form the list of accumulated Householder transformations, which should be
     // applied as
     //
@@ -374,19 +370,18 @@ void IntraBlockChase
     // the left), and H_i is the i'th locally-owned diagonal block of H.
     //
     vector<Matrix<F>> UList;
-    intrablock::LocalChase( H, shifts, state, context, ctrl, UList );
+    intrablock::LocalChase( H, shifts, state, ctrl, UList );
 
     // Broadcast the accumulated transformations from the owning diagonal block
     // over the entire process row/column teams and then apply them to Z from
     // the right (if the Schur vectors are desired), to the above-diagonal
     // portion of H from the right, and their adjoints to the relevant
     // right-of-diagonal portions of H from the left.
-    intrablock::ApplyAccumulatedReflections
-    ( H, Z, shifts, state, context, ctrl, UList );
+    intrablock::ApplyAccumulatedReflections( H, Z, shifts, state, ctrl, UList );
 }
 
 } // namespace multibulge
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_INTRA_BLOCK_CHASE_HPP
+#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTRA_BLOCK_CHASE_HPP

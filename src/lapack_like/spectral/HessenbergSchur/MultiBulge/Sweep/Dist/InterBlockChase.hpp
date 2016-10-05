@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_MULTIBULGE_INTER_BLOCK_CHASE_HPP
-#define EL_SCHUR_HESS_MULTIBULGE_INTER_BLOCK_CHASE_HPP
+#ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTER_BLOCK_CHASE_HPP
+#define EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTER_BLOCK_CHASE_HPP
 
 namespace El {
 namespace hess_schur {
@@ -428,15 +428,14 @@ DetermineInteraction
 ( bool evenToOdd,
   Int diagBlockRow,
   const Grid& grid,
-  const DistChaseState& state,
-  const DistChaseContext& context )
+  const DistChaseState& state )
 {
     DEBUG_CSE
     if( diagBlockRow < state.activeBlockBeg ||
         diagBlockRow >= state.activeBlockEnd )
         LogicError("Diagonal block row was not in the active range");
 
-    const bool fullFirstBlock = ( context.firstBlockSize == context.blockSize );
+    const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
 
     const Int distFromEnd = state.activeBlockEnd - diagBlockRow;
     const bool evenBlock = ( Mod( distFromEnd, 2 ) == 0 );
@@ -459,15 +458,15 @@ DetermineInteraction
             {
                 // A packet is already lying the (0,0) diagonal block.
                 interaction.chaseType = STANDARD_CHASE;
-                interaction.blockSize0 = context.blockSize;
-                interaction.blockSize1 = context.blockSize;
+                interaction.blockSize0 = state.blockSize;
+                interaction.blockSize1 = state.blockSize;
             }
             else
             {
                 // We need to introduce and chase a packet.
                 interaction.chaseType = COUPLED_INTRO_CHASE;
-                interaction.blockSize0 = context.firstBlockSize;
-                interaction.blockSize1 = context.blockSize; 
+                interaction.blockSize0 = state.firstBlockSize;
+                interaction.blockSize1 = state.blockSize; 
             }
         }
         else
@@ -477,7 +476,7 @@ DetermineInteraction
                 // We will introduce a packet into this block
                 interaction.chaseType = SIMPLE_INTRO_CHASE;
                 interaction.blockSize0 = 0;
-                interaction.blockSize1 = context.blockSize;
+                interaction.blockSize1 = state.blockSize;
             }
             else
             {
@@ -494,17 +493,17 @@ DetermineInteraction
             // A packet was put in the (1,1) diagonal block in the previous
             // chase (of opposite parity); this chase will push it to the
             // (2,2) block.
-            if( context.numWinBlocks == 3 )
+            if( state.numWinBlocks == 3 )
             {
                 interaction.chaseType = EXIT_CHASE;
-                interaction.blockSize0 = context.blockSize;
-                interaction.blockSize1 = context.lastBlockSize;
+                interaction.blockSize0 = state.blockSize;
+                interaction.blockSize1 = state.lastBlockSize;
             }
             else
             {
                 interaction.chaseType = STANDARD_CHASE;
-                interaction.blockSize0 = context.blockSize;
-                interaction.blockSize1 = context.blockSize;
+                interaction.blockSize0 = state.blockSize;
+                interaction.blockSize1 = state.blockSize;
             }
         }
         else
@@ -513,37 +512,37 @@ DetermineInteraction
             {
                 // This chase will pull a packet from (0,0) to (1,1)
                 interaction.chaseType = STANDARD_CHASE;
-                interaction.blockSize0 = context.blockSize;
-                interaction.blockSize1 = context.blockSize;
+                interaction.blockSize0 = state.blockSize;
+                interaction.blockSize1 = state.blockSize;
             }
             else
             {
                 // This chase will introduce a packet and immediately chase 
                 // it into diagonal block (1,1)
                 interaction.chaseType = COUPLED_INTRO_CHASE;
-                interaction.blockSize0 = context.firstBlockSize;
-                interaction.blockSize1 = context.blockSize;
+                interaction.blockSize0 = state.firstBlockSize;
+                interaction.blockSize1 = state.blockSize;
             }
         }
     }
-    else if( diagBlockRow == context.numWinBlocks-2 )
+    else if( diagBlockRow == state.numWinBlocks-2 )
     {
         if( sameParity )
         {
             // We will push a packet into the last block (and then exit it)
             interaction.chaseType = EXIT_CHASE;
-            interaction.blockSize0 = context.blockSize;
-            interaction.blockSize1 = context.lastBlockSize; 
+            interaction.blockSize0 = state.blockSize;
+            interaction.blockSize1 = state.lastBlockSize; 
         }
         else
         {
             // We will pull a packet into the next-to-last diagonal block
             interaction.chaseType = STANDARD_CHASE;
-            interaction.blockSize0 = context.blockSize;
-            interaction.blockSize1 = context.blockSize;
+            interaction.blockSize0 = state.blockSize;
+            interaction.blockSize1 = state.blockSize;
         }
     }
-    else if( diagBlockRow == context.numWinBlocks-1 )
+    else if( diagBlockRow == state.numWinBlocks-1 )
     {
         if( sameParity )
         {
@@ -554,8 +553,8 @@ DetermineInteraction
         {
             // We will pull a packet into this last diagonal block and exit it
             interaction.chaseType = EXIT_CHASE;
-            interaction.blockSize0 = context.blockSize;
-            interaction.blockSize1 = context.lastBlockSize;
+            interaction.blockSize0 = state.blockSize;
+            interaction.blockSize1 = state.lastBlockSize;
         }
     }
     else
@@ -564,31 +563,31 @@ DetermineInteraction
         {
             // We will push a packet into the next diagonal block
             interaction.chaseType = STANDARD_CHASE;
-            interaction.blockSize0 = context.blockSize;
-            interaction.blockSize1 = context.blockSize;
+            interaction.blockSize0 = state.blockSize;
+            interaction.blockSize1 = state.blockSize;
         }
         else
         {
             // We will pull a packet into this diagonal block.
             interaction.chaseType = STANDARD_CHASE;
-            interaction.blockSize0 = context.blockSize;
-            interaction.blockSize1 = context.blockSize;
+            interaction.blockSize0 = state.blockSize;
+            interaction.blockSize1 = state.blockSize;
         }
     }
 
     // The number of bulges is guaranteed to be equal to
-    // context.numBulgesPerBlock except (possibly) in the last active
+    // state.numBulgesPerBlock except (possibly) in the last active
     // interaction, which must have its second block at position
     // state.activeBlockEnd-1.
     interaction.numBulges =
       ( interaction.block1 < state.activeBlockEnd-1 ?
-        context.numBulgesPerBlock :
-        context.numBulgesInLastBlock );
+        state.numBulgesPerBlock :
+        state.numBulgesInLastBlock );
 
-    interaction.beg = context.winBeg +
+    interaction.beg = state.winBeg +
       ( interaction.block0 <= 0 ?
         0 :
-        context.firstBlockSize + (interaction.block0-1)*context.blockSize );
+        state.firstBlockSize + (interaction.block0-1)*state.blockSize );
     interaction.end = interaction.beg + interaction.blockSize0 +
       interaction.blockSize1;
 
@@ -604,9 +603,9 @@ DetermineInteraction
 
     // (Up to) four processes may participate.
     const int firstRow =
-      Mod( context.winColAlign+interaction.block0, grid.Height() );
+      Mod( state.winColAlign+interaction.block0, grid.Height() );
     const int firstCol =
-      Mod( context.winRowAlign+interaction.block0, grid.Width() );
+      Mod( state.winRowAlign+interaction.block0, grid.Width() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
     if( (grid.Row() == firstRow || grid.Row() == secondRow) &&
@@ -622,19 +621,17 @@ inline vector<InterBlockInteraction>
 FormRowInteractionList
 ( bool evenToOdd,
   const Grid& grid,
-  const DistChaseState& state,
-  const DistChaseContext& context )
+  const DistChaseState& state )
 {
     DEBUG_CSE
     vector<InterBlockInteraction> interactionList;
     // Only loop over the blocks that are assigned to our process row
     // and occur within the active window.
-    Int diagBlock = context.activeRowBlockBeg;
+    Int diagBlock = state.activeRowBlockBeg;
     while( diagBlock < state.activeBlockEnd )
     {
         auto interaction =
-          interblock::DetermineInteraction
-          ( evenToOdd, diagBlock, grid, state, context );
+          interblock::DetermineInteraction( evenToOdd, diagBlock, grid, state );
         if( interaction.chaseType == NO_CHASE )
         {
             diagBlock += grid.Height();
@@ -656,19 +653,17 @@ inline vector<InterBlockInteraction>
 FormColumnInteractionList
 ( bool evenToOdd,
   const Grid& grid,
-  const DistChaseState& state,
-  const DistChaseContext& context )
+  const DistChaseState& state )
 {
     DEBUG_CSE
     vector<InterBlockInteraction> interactionList;
     // Only loop over the blocks that are assigned to our process column
     // and occur within the active window.
-    Int diagBlock = context.activeColBlockBeg;
+    Int diagBlock = state.activeColBlockBeg;
     while( diagBlock < state.activeBlockEnd )
     {
         auto interaction =
-          interblock::DetermineInteraction
-          ( evenToOdd, diagBlock, grid, state, context );
+          interblock::DetermineInteraction( evenToOdd, diagBlock, grid, state );
         if( interaction.chaseType == NO_CHASE )
         {
             diagBlock += grid.Width();
@@ -719,8 +714,7 @@ void CollectBlock
 ( const InterBlockInteraction& interaction,
   const DistMatrix<F,MC,MR,BLOCK>& H,
         Matrix<F>& HBlock,
-  const DistChaseState& state,
-  const DistChaseContext& context )
+  const DistChaseState& state )
 {
     DEBUG_CSE
     const auto& HLoc = H.LockedMatrix();
@@ -729,9 +723,9 @@ void CollectBlock
     // (Up to) four processes may participate in introducing and chasing
     // a packet into and out of a partial block.
     const int firstRow =
-      Mod( context.winColAlign+interaction.block0, grid.Height() );
+      Mod( state.winColAlign+interaction.block0, grid.Height() );
     const int firstCol =
-      Mod( context.winRowAlign+interaction.block0, grid.Width() );
+      Mod( state.winRowAlign+interaction.block0, grid.Width() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
     DEBUG_ONLY(
@@ -746,8 +740,8 @@ void CollectBlock
         // occur over the entire top-left block (which must have been full).
         if( grid.Row() == secondRow && grid.Col() == secondCol )
         {
-            const Int indexBeg = context.winBeg;
-            const Int indexEnd = context.winBeg + interaction.blockSize1;
+            const Int indexBeg = state.winBeg;
+            const Int indexEnd = state.winBeg + interaction.blockSize1;
             const Int localRowBeg = H.LocalRowOffset( indexBeg );
             const Int localRowEnd = H.LocalRowOffset( indexEnd );
             const Int localColBeg = H.LocalColOffset( indexBeg );
@@ -879,8 +873,7 @@ void StoreBlock
 ( const InterBlockInteraction& interaction,
         DistMatrix<F,MC,MR,BLOCK>& H,
   const Matrix<F>& HBlock,
-  const DistChaseState& state,
-  const DistChaseContext& context )
+  const DistChaseState& state )
 {
     DEBUG_CSE
     const auto& HLoc = H.LockedMatrix();
@@ -889,9 +882,9 @@ void StoreBlock
     // (Up to) four processes may participate in introducing and chasing
     // a packet into and out of a partial block.
     const int firstRow =
-      Mod( context.winColAlign+interaction.block0, grid.Height() );
+      Mod( state.winColAlign+interaction.block0, grid.Height() );
     const int firstCol =
-      Mod( context.winRowAlign+interaction.block0, grid.Width() );
+      Mod( state.winRowAlign+interaction.block0, grid.Width() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
     DEBUG_ONLY(
@@ -906,8 +899,8 @@ void StoreBlock
         // occur over the entire top-left block (which must have been full).
         if( grid.Row() == secondRow && grid.Col() == secondCol )
         { 
-            const Int indexBeg = context.winBeg;
-            const Int indexEnd = context.winBeg + interaction.blockSize1;
+            const Int indexBeg = state.winBeg;
+            const Int indexEnd = state.winBeg + interaction.blockSize1;
             const Int localRowBeg = H.LocalRowOffset( indexBeg );
             const Int localRowEnd = H.LocalRowOffset( indexEnd );
             const Int localColBeg = H.LocalColOffset( indexBeg );
@@ -1011,7 +1004,6 @@ void LocalChase
         Matrix<F>& W,
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
   const DistChaseState& state,
-  const DistChaseContext& context, 
         bool progress )
 {
     DEBUG_CSE
@@ -1062,7 +1054,7 @@ void LocalChase
     //  (1,2), (3,4), (5,6), ...
     //    2      2      2
     //
-    const bool fullFirstBlock = ( context.firstBlockSize == context.blockSize );
+    const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
     const bool evenFirst = ( Mod( state.activeBlockEnd, 2 ) == 0 );
     const bool sameParity = ( evenFirst == evenToOdd );
     Int packetOffset;
@@ -1073,7 +1065,7 @@ void LocalChase
     else
         packetOffset = interaction.block0 - 1;
 
-    const Int firstBulge = (state.shiftBeg/2) + packetOffset;
+    const Int firstBulge = state.bulgeBeg + packetOffset;
 
     Matrix<F> ZDummy;
     const Int chaseBeg = interaction.householderBeg-1;
@@ -1100,7 +1092,6 @@ void ApplyAccumulatedFromLeft
         DistMatrix<F,MC,MR,BLOCK>& H,
   const Matrix<F>& U,
   const DistChaseState& state,
-  const DistChaseContext& context,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -1110,7 +1101,7 @@ void ApplyAccumulatedFromLeft
     // HRight := U' HRight
     {
         const Int colBeg = interaction.end; 
-        const Int colEnd = ( ctrl.fullTriangle ? n : context.winEnd );
+        const Int colEnd = ( ctrl.fullTriangle ? n : state.winEnd );
         const Int localRowBeg = H.LocalRowOffset( interaction.householderBeg ); 
         const Int localRowEnd = H.LocalRowOffset( interaction.householderEnd );
         const Int localColBeg = H.LocalColOffset( colBeg );
@@ -1129,7 +1120,6 @@ void ApplyAccumulatedFromRight
         DistMatrix<F,MC,MR,BLOCK>& Z,
   const Matrix<F>& U,
   const DistChaseState& state,
-  const DistChaseContext& context,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -1138,7 +1128,7 @@ void ApplyAccumulatedFromRight
 
     // HTop := HTop U
     {
-        const Int rowBeg = ( ctrl.fullTriangle ? 0 : context.winBeg );
+        const Int rowBeg = ( ctrl.fullTriangle ? 0 : state.winBeg );
         const Int rowEnd = interaction.beg;
         const Int localRowBeg = H.LocalRowOffset( rowBeg ); 
         const Int localRowEnd = H.LocalRowOffset( rowEnd );
@@ -1170,13 +1160,12 @@ void InterBlockChase
   const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
         bool evenToOdd,
   const DistChaseState& state,
-  const DistChaseContext& context,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     const auto& shiftsLoc = shifts.LockedMatrix();
     const Grid& grid = H.Grid();
-    const bool fullFirstBlock = ( context.firstBlockSize == context.blockSize );
+    const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
     // If fullFirstBlock is false, then we need to subtract one from the block
     // index when computing the beginning shift.
     
@@ -1188,9 +1177,9 @@ void InterBlockChase
         LogicError("Cannot introduce any bulges");
 
     auto rowInteractionList =
-      interblock::FormRowInteractionList( evenToOdd, grid, state, context );
+      interblock::FormRowInteractionList( evenToOdd, grid, state );
     auto colInteractionList =
-      interblock::FormColumnInteractionList( evenToOdd, grid, state, context );
+      interblock::FormColumnInteractionList( evenToOdd, grid, state );
 
     const Int numRowInteractions = rowInteractionList.size();
     const Int numColInteractions = colInteractionList.size();
@@ -1214,11 +1203,11 @@ void InterBlockChase
         if( interaction.participating )
         {
             auto& UBlock = UList[localInteraction];
-            interblock::CollectBlock( interaction, H, HBlock, state, context );
+            interblock::CollectBlock( interaction, H, HBlock, state );
             interblock::LocalChase
-            ( evenToOdd, interaction, HBlock, UBlock, W, shifts, state, context,
+            ( evenToOdd, interaction, HBlock, UBlock, W, shifts, state,
               ctrl.progress );
-            interblock::StoreBlock( interaction, H, HBlock, state, context );
+            interblock::StoreBlock( interaction, H, HBlock, state );
             ++localInteraction;
         }
     }
@@ -1237,9 +1226,9 @@ void InterBlockChase
             Zeros( U, interactionSize, interactionSize );
 
         const int firstRow =
-          Mod( context.winColAlign+interaction.block0, grid.Height() );
+          Mod( state.winColAlign+interaction.block0, grid.Height() );
         const int firstCol =
-          Mod( context.winRowAlign+interaction.block0, grid.Width() );
+          Mod( state.winRowAlign+interaction.block0, grid.Width() );
         const int secondRow = Mod( firstRow+1, grid.Height() );
         const int secondCol = Mod( firstCol+1, grid.Width() );
 
@@ -1253,8 +1242,7 @@ void InterBlockChase
 
         El::Broadcast( U, grid.RowComm(), ownerCol );
 
-        interblock::ApplyAccumulatedFromLeft
-        ( interaction, H, U, state, context, ctrl );
+        interblock::ApplyAccumulatedFromLeft( interaction, H, U, state, ctrl );
     }
 
     localInteraction = 0;
@@ -1270,9 +1258,9 @@ void InterBlockChase
             Zeros( U, interactionSize, interactionSize );
 
         const int firstRow =
-          Mod( context.winColAlign+interaction.block0, grid.Height() );
+          Mod( state.winColAlign+interaction.block0, grid.Height() );
         const int firstCol =
-          Mod( context.winRowAlign+interaction.block0, grid.Width() );
+          Mod( state.winRowAlign+interaction.block0, grid.Width() );
         const int secondRow = Mod( firstRow+1, grid.Height() );
         const int secondCol = Mod( firstCol+1, grid.Width() );
 
@@ -1287,7 +1275,7 @@ void InterBlockChase
         El::Broadcast( U, grid.ColComm(), ownerRow );
 
         interblock::ApplyAccumulatedFromRight
-        ( interaction, H, Z, U, state, context, ctrl );
+        ( interaction, H, Z, U, state, ctrl );
     }
 }
 
@@ -1295,4 +1283,4 @@ void InterBlockChase
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_INTER_BLOCK_CHASE_HPP
+#endif // ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTER_BLOCK_CHASE_HPP

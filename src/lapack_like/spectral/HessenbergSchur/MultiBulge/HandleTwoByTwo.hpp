@@ -21,30 +21,29 @@ void HandleTwoByTwo
         Matrix<Complex<Real>>& w,
         Matrix<Real>& Z,
         Int iterBeg,
-        Int winEnd,
   const HessenbergSchurCtrl& ctrl )
 {
     const Int n = H.Height();
     const Int nZ = Z.Height();
     Real c, s;
     schur::TwoByTwo
-    ( H(winEnd-2,winEnd-2), H(winEnd-2,winEnd-1),
-      H(winEnd-1,winEnd-2), H(winEnd-1,winEnd-1),
+    ( H(iterBeg,  iterBeg), H(iterBeg,  iterBeg+1),
+      H(iterBeg+1,iterBeg), H(iterBeg+1,iterBeg+1),
       w(iterBeg), w(iterBeg+1),
       c, s );
     if( ctrl.fullTriangle )
     {
-        if( n > winEnd )
+        if( n > iterBeg+2 )
             blas::Rot
-            ( n-winEnd,
-              &H(winEnd-2,winEnd), H.LDim(),
-              &H(winEnd-1,winEnd), H.LDim(),
+            ( n-(iterBeg+2),
+              &H(iterBeg,  iterBeg+2), H.LDim(),
+              &H(iterBeg+1,iterBeg+2), H.LDim(),
               c, s );
         blas::Rot
-        ( winEnd-2, &H(0,winEnd-2), 1, &H(0,winEnd-1), 1, c, s );
+        ( iterBeg, &H(0,iterBeg), 1, &H(0,iterBeg+1), 1, c, s );
     }
     if( ctrl.wantSchurVecs )
-        blas::Rot( nZ, &Z(0,winEnd-2), 1, &Z(0,winEnd-1), 1, c, s );
+        blas::Rot( nZ, &Z(0,iterBeg), 1, &Z(0,iterBeg+1), 1, c, s );
 }
 
 template<typename Real>
@@ -53,12 +52,11 @@ void HandleTwoByTwo
         Matrix<Complex<Real>>& w,
         Matrix<Complex<Real>>& Z,
         Int iterBeg,
-        Int winEnd,
   const HessenbergSchurCtrl& ctrl )
 {
     auto ctrlSub( ctrl );
-    ctrlSub.winBeg = winEnd - 2;
-    ctrlSub.winEnd = winEnd;
+    ctrlSub.winBeg = iterBeg;
+    ctrlSub.winEnd = iterBeg + 2;
     Simple( H, w, Z, ctrlSub );
 }
 

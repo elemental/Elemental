@@ -13,6 +13,9 @@
 #include "./Sweep/ComputeReflectors.hpp"
 #include "./Sweep/ApplyReflectors.hpp"
 
+// This is not yet functional but is included for testing reasons
+#include "./Sweep/Dist.hpp"
+
 namespace El {
 namespace hess_schur {
 namespace multibulge {
@@ -42,7 +45,7 @@ void SweepHelper
       if( numShifts < 2 )
           LogicError("Expected at least one pair of shifts..."); 
       if( numShifts % 2 != 0 )
-          LogicError("Expected an even number of sweeps");
+          LogicError("Expected an even number of shifts");
     )
     const Int numBulges = numShifts / 2;
 
@@ -155,6 +158,36 @@ void SweepHelper
 }
 
 template<typename F>
+void SweepHelper
+(       DistMatrix<F,MC,MR,BLOCK>& H,
+  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+        DistMatrix<F,MC,MR,BLOCK>& Z,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    // TODO(poulson): Check that H is upper Hessenberg
+
+    auto state = BuildDistChaseState( H, shifts, ctrl ); 
+
+    while( state.bulgeEnd != 0 )
+    {
+        // Chase packets from the bottom-right corners of the even parity blocks
+        // to the top-left corners of the odd parity blocks
+        InterBlockChase( H, Z, shifts, true, state, ctrl );
+
+        // Chase packets from the bottom-right corners of the odd parity blocks
+        // to the top-left corners of the even parity blocks
+        InterBlockChase( H, Z, shifts, false, state, ctrl );
+
+        // Chase the packets from the top-left corners to the bottom-right 
+        // corners of each diagonal block.
+        IntraBlockChase( H, Z, shifts, state, ctrl );
+
+        AdvanceChaseState( H, state );
+    }
+}
+
+template<typename F>
 void Sweep
 (       Matrix<F>& H,
         Matrix<Complex<Base<F>>>& shifts,
@@ -186,6 +219,47 @@ void Sweep
         auto sweepInd = IR(shiftStart,shiftStart+numSweepShifts);
         auto sweepShifts = shifts(sweepInd,ALL);
         SweepHelper( H, sweepShifts, Z, U, W, WAccum, ctrl );
+    }
+}
+
+template<typename F>
+void Sweep
+(       DistMatrix<F,MC,MR,BLOCK>& H,
+  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+        DistMatrix<F,MC,MR,BLOCK>& Z,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    if( ctrl.wantSchurVecs )
+    {
+        // Ensure that H and Z have the same distributions
+        if( Z.DistData() != H.DistData() )
+            LogicError("The distributions of H and Z should match");
+    }
+    // TODO(poulson): Check that H is upper Hessenberg
+    const Int n = H.Height();
+
+    const Int numShifts = shifts.Height();
+    DEBUG_ONLY(
+      if( numShifts < 2 )
+          LogicError("Expected at least one pair of shifts..."); 
+    )
+    if( numShifts % 2 != 0 )
+        LogicError("Expected an even number of shifts");
+
+    DistMatrix<Complex<Base<F>>,STAR,STAR> validShifts(shifts);
+    if( !IsComplex<F>::value )
+        PairShifts( validShifts.Matrix() );
+
+    const Int maxBulgesPerSweep = Max( n/6, 1 );
+    const Int maxShiftsPerSweep = 2*maxBulgesPerSweep;
+    for( Int shiftStart=0; shiftStart<numShifts; shiftStart+=maxShiftsPerSweep )
+    {
+        const Int numSweepShifts =
+          Min( maxShiftsPerSweep, numShifts-shiftStart );
+        auto sweepInd = IR(shiftStart,shiftStart+numSweepShifts);
+        auto sweepShifts = validShifts(sweepInd,ALL);
+        SweepHelper( H, sweepShifts, Z, ctrl );
     }
 }
 

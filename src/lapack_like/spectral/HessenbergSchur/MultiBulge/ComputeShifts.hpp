@@ -13,6 +13,38 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
+template<typename F>
+void GatherBidiagonal
+( const DistMatrix<F,MC,MR,BLOCK>& H,
+  const IR& winInd,
+        DistMatrix<F,STAR,STAR>& hMainWin,
+        DistMatrix<Base<F>,STAR,STAR>& hSubWin )
+{
+    DEBUG_CSE
+    const Int winSize = winInd.end - winInd.beg;
+    hMainWin.Resize( winSize, 1 );
+    hSubWin.Resize( winSize-1, 1 );
+    // TODO(poulson)
+    LogicError("This routine is not yet finished");
+}
+
+template<typename F>
+void GatherTridiagonal
+( const DistMatrix<F,MC,MR,BLOCK>& H,
+  const IR& winInd,
+        DistMatrix<F,STAR,STAR>& hMainWin,
+        DistMatrix<Base<F>,STAR,STAR>& hSubWin,
+        DistMatrix<F,STAR,STAR>& hSuperWin )
+{
+    DEBUG_CSE
+    const Int winSize = winInd.end - winInd.beg;
+    hMainWin.Resize( winSize, 1 );
+    hSubWin.Resize( winSize-1, 1 );
+    hSuperWin.Resize( winSize-1, 1 );
+    // TODO(poulson)
+    LogicError("This routine is not yet finished");
+}
+
 template<typename Real>
 Int ComputeShifts
 ( const Matrix<Real>& H,
@@ -26,18 +58,18 @@ Int ComputeShifts
   const HessenbergSchurCtrl& ctrlShifts )
 {
     DEBUG_CSE
-    const Real zero(0);
-    const Real exceptShift0(Real(4)/Real(3)),
-               exceptShift1(-Real(7)/Real(16));
 
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
     const Int numShifts = winEnd - shiftBeg;
     auto shiftInd = IR(shiftBeg,winEnd);
     auto wShifts = w(shiftInd,ALL); 
+
     if( numIterSinceDeflation > 0 &&
         Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
     {
         // Use exceptional shifts
+        const Real exceptShift0(Real(4)/Real(3)),
+                   exceptShift1(-Real(7)/Real(16));
         for( Int i=winEnd-1; i>=Max(shiftBeg+1,winBeg+2); i-=2 )
         {
             const Real scale = Abs(H(i,i-1)) + Abs(H(i-1,i-2));
@@ -60,26 +92,106 @@ Int ComputeShifts
         auto HShiftsCopy( HShifts );
         HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
     }
+
     if( winBeg-shiftBeg == 2 )
     {
         // Use a single real shift twice instead of using two separate
         // real shifts; we choose the one closest to the bottom-right
         // entry, as it is our best guess as to the smallest eigenvalue
-        if( wShifts(numShifts-1).imag() == zero ) 
+        if( wShifts(numShifts-1).imag() == Real(0) ) 
         {
-            if( Abs(wShifts(numShifts-1).real()-H(winEnd-1,winEnd-1)) <
-                Abs(wShifts(numShifts-2).real()-H(winEnd-1,winEnd-1)) )
-            {
-                wShifts(numShifts-2) = wShifts(numShifts-1);
-            }
+            const Real eta11 = H(winEnd-1,winEnd-1);
+            if( Abs(wShifts(1).real()-eta11) < Abs(wShifts(0).real()-eta11) )
+                wShifts(0) = wShifts(1);
             else
-            {
-                wShifts(numShifts-1) = wShifts(numShifts-2);
-            }
+                wShifts(1) = wShifts(0);
         }
     }
+
     return shiftBeg;
-} 
+}
+
+template<typename Real>
+Int ComputeShifts
+( const DistMatrix<Real,MC,MR,BLOCK>& H,
+        DistMatrix<Complex<Real>,STAR,STAR>& w,
+        Int iterBeg,
+        Int winBeg,
+        Int winEnd,
+        Int numShiftsRec,
+        Int numIterSinceDeflation,
+        Int numStaleIterBeforeExceptional,
+  const HessenbergSchurCtrl& ctrlShifts )
+{
+    DEBUG_CSE
+
+    const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
+    const Int numShifts = winEnd - shiftBeg;
+    auto shiftInd = IR(shiftBeg,winEnd);
+    auto wShifts = w(shiftInd,ALL); 
+
+    if( numIterSinceDeflation > 0 &&
+        Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
+    {
+        // Use exceptional shifts
+        const Real exceptShift0(Real(4)/Real(3)),
+                   exceptShift1(-Real(7)/Real(16));
+
+        // Get a full copy of the bidiagonal of the bottom-right section of H
+        DistMatrix<Real,STAR,STAR> hMain(H.Grid());
+        DistMatrix<Real,STAR,STAR> hSub(H.Grid());
+        GatherBidiagonal( H, shiftInd, hMain, hSub );
+        const auto& hMainLoc = hMain.LockedMatrix();
+        const auto& hSubLoc = hSub.LockedMatrix();
+
+        for( Int i=winEnd-1; i>=Max(shiftBeg+1,winBeg+2); i-=2 )
+        {
+            const Int iRel = i - shiftBeg;
+            const Real scale = Abs(hSubLoc(iRel-1)) + Abs(hSubLoc(iRel-2));
+            Real eta00 = exceptShift0*scale + hMainLoc(iRel);
+            Real eta01 = scale;
+            Real eta10 = exceptShift1*scale;
+            Real eta11 = eta00;
+            Complex<Real> omega0, omega1;
+            schur::TwoByTwo
+            ( eta00, eta01,
+              eta10, eta11,
+              omega0, omega1 );
+            w.Set( i-1, 0, omega0 );
+            w.Set( i,   0, omega1 );
+        }
+        if( shiftBeg == winBeg )
+        {
+            w.Set( shiftBeg,   0, hMainLoc(1) );
+            w.Set( shiftBeg+1, 0, hMainLoc(1) );
+        }
+    }
+    else
+    {
+        // Compute the eigenvalues of the bottom-right window
+        DistMatrix<Real,STAR,STAR> HShifts( H(shiftInd,shiftInd) );
+        HessenbergSchur( HShifts.Matrix(), wShifts.Matrix(), ctrlShifts );
+    }
+
+    if( numShifts == 2 )
+    {
+        // Use a single real shift twice instead of using two separate
+        // real shifts; we choose the one closest to the bottom-right
+        // entry, as it is our best guess as to the smallest eigenvalue
+        const Complex<Real> omega0 = wShifts.GetLocal(0,0);
+        const Complex<Real> omega1 = wShifts.GetLocal(1,0);
+        if( omega1.imag() == Real(0) )
+        {
+            const Real eta11 = H.Get(winEnd-1,winEnd-1);
+            if( Abs(omega1.real()-eta11) < Abs(omega0.real()-eta11) )
+                wShifts.Set( 0, 0, omega1 );
+            else
+                wShifts.Set( 1, 0, omega0 );
+        }
+    }
+
+    return shiftBeg;
+}
 
 template<typename Real>
 Int ComputeShifts
@@ -94,16 +206,20 @@ Int ComputeShifts
   const HessenbergSchurCtrl& ctrlShifts )
 {
     DEBUG_CSE
-    // For some reason, LAPACK suggests only using a single exceptional shift
-    // for complex matrices.
-    const Real exceptShift0(Real(4)/Real(3));
 
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
+    const Int numShifts = winEnd - shiftBeg;
     auto shiftInd = IR(shiftBeg,winEnd);
     auto wShifts = w(shiftInd,ALL);
+
     if( numIterSinceDeflation > 0 &&
         Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
     {
+        // Use exceptional shifts
+        //
+        // For some reason, LAPACK suggests only using a single exceptional
+        // shift for complex matrices.
+        const Real exceptShift0(Real(4)/Real(3));
         for( Int i=winEnd-1; i>=shiftBeg+1; i-=2 )
             w(i-1) = w(i) = H(i,i) + exceptShift0*OneAbs(H(i,i-1));
     }
@@ -114,21 +230,88 @@ Int ComputeShifts
         auto HShiftsCopy( HShifts );
         HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
     }
-    if( winBeg-shiftBeg == 2 )
+
+    if( numShifts == 2 )
     {
         // Use the same shift twice; we choose the one closest to the
         // bottom-right entry, as it is our best guess as to the smallest
         // eigenvalue
-        if( Abs(w(winEnd-1).real()-H(winEnd-1,winEnd-1)) <
-            Abs(w(winEnd-2).real()-H(winEnd-1,winEnd-1)) )
-        {
-            w(winEnd-2) = w(winEnd-1);
-        }
+        const Complex<Real> eta11 = H(winEnd-1,winEnd-1);
+        if( Abs(wShifts(1)-eta11) < Abs(wShifts(0)-eta11) )
+            wShifts(0) = wShifts(1);
         else
+            wShifts(1) = wShifts(0);
+    }
+
+    return shiftBeg;
+}
+
+template<typename Real>
+Int ComputeShifts
+( const DistMatrix<Complex<Real>,MC,MR,BLOCK>& H,
+        DistMatrix<Complex<Real>,STAR,STAR>& w,
+        Int iterBeg,
+        Int winBeg,
+        Int winEnd,
+        Int numShiftsRec,
+        Int numIterSinceDeflation,
+        Int numStaleIterBeforeExceptional,
+  const HessenbergSchurCtrl& ctrlShifts )
+{
+    DEBUG_CSE
+
+    const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
+    const Int numShifts = winEnd - shiftBeg;
+    auto shiftInd = IR(shiftBeg,winEnd);
+    auto wShifts = w(shiftInd,ALL);
+
+    if( numIterSinceDeflation > 0 &&
+        Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
+    {
+        // Use exceptional shifts
+        //
+        // For some reason, LAPACK suggests only using a single exceptional
+        // shift for complex matrices.
+        const Real exceptShift0(Real(4)/Real(3));
+
+        // Gather the relevant bidiagonal of H
+        DistMatrix<Complex<Real>,STAR,STAR> hMain(H.Grid());
+        DistMatrix<Real,STAR,STAR> hSub(H.Grid());
+        GatherBidiagonal( H, shiftInd, hMain, hSub );
+        const auto& hMainLoc = hMain.LockedMatrix();
+        const auto& hSubLoc = hSub.LockedMatrix();
+
+        for( Int i=winEnd-1; i>=shiftBeg+1; i-=2 )
         {
-            w(winEnd-1) = w(winEnd-2);
+            const Int iRel = i - shiftBeg;
+            const Complex<Real> shift = hMainLoc(iRel) +
+              exceptShift0*Abs(hSubLoc(iRel-1));
+            wShifts.Set( iRel-1, 0, shift );
+            wShifts.Set( iRel,   0, shift );
         }
     }
+    else
+    {
+        // Compute the eigenvalues of the bottom-right window
+        auto HShifts = H(shiftInd,shiftInd);
+        auto HShiftsCopy( HShifts );
+        HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
+    }
+
+    if( numShifts == 2 )
+    {
+        // Use the same shift twice; we choose the one closest to the
+        // bottom-right entry, as it is our best guess as to the smallest
+        // eigenvalue
+        const Complex<Real> omega0 = wShifts.GetLocal(0,0);
+        const Complex<Real> omega1 = wShifts.GetLocal(1,0);
+        const Complex<Real> eta11 = H.Get(winEnd-1,winEnd-1);
+        if( Abs(omega1-eta11) < Abs(omega0-eta11) )
+            wShifts.Set( 0, 0, omega1 );
+        else
+            wShifts.Set( 1, 0, omega0 );
+    }
+
     return shiftBeg;
 }
 
