@@ -195,6 +195,9 @@ void TwoByTwo
     lambda1 = (halfTrace-discrim)*scale;
 }
 
+// TODO(poulson): Provide support for the 2x2 complex Schur with the
+// eigenvectors in Givens rotation form?
+
 } // namespace schur
 } // namespace El
 

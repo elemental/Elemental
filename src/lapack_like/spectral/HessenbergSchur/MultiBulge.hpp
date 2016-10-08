@@ -10,7 +10,7 @@
 #define EL_HESS_SCHUR_MULTIBULGE_HPP
 
 #include "./Simple.hpp"
-#include "./MultiBulge/HandleTwoByTwo.hpp"
+#include "./MultiBulge/TwoByTwo.hpp"
 #include "./MultiBulge/ComputeShifts.hpp"
 #include "./MultiBulge/Sweep.hpp"
 
@@ -84,7 +84,7 @@ MultiBulge
         }
         else if( iterBeg == winEnd-2 )
         {
-            multibulge::HandleTwoByTwo( H, w, Z, iterBeg, ctrl );
+            multibulge::TwoByTwo( H, w, Z, iterBeg, ctrl );
             winEnd -= 2;
             numIterSinceDeflation = 0;
             continue;
@@ -203,36 +203,39 @@ MultiBulge
             else
                 break;
         }
+        auto winInd = IR(winBeg,winEnd);
 
         // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
         // ---------------------------------------------------------
-        Int iterBeg = winBeg;
-        auto winInd = IR(iterBeg,winEnd);
-
         // TODO(poulson): Have the interblock chase from the previous sweep
         // collect the main and sub diagonal of H along the diagonal workers 
         // and then broadcast across the "cross" communicator.
         multibulge::GatherTridiagonal
         ( H, winInd, hMainWin, hSubWin, hSuperWin );
 
-        iterBeg += DetectSmallSubdiagonal( hMainWin, hSubWin, hSuperWin );
-        if( iterBeg > winBeg )
+        const Int iterOffset =
+          DetectSmallSubdiagonal( hMainWin, hSubWin, hSuperWin );
+        const Int iterBeg = winEnd + iterOffset;
+        if( iterOffset > 0 )
         {
             H.Set( iterBeg, iterBeg-1, zero );
-            hSubWin.Set( (iterBeg-1)-winBeg, 0, zero );
+            hSubWin.Set( iterOffset, 0, zero );
         }
         if( iterBeg == winEnd-1 )
         {
-            w.Set( iterBeg, 0, hMainWin.GetLocal(iterBeg-winBeg,0) );
+            w.Set( iterBeg, 0, hMainWin.GetLocal(iterOffset,0) );
             --winEnd;
             numIterSinceDeflation = 0;
             continue;
         }
         else if( iterBeg == winEnd-2 )
         {
-            LogicError("This section is not yet finished");
-            // TODO(poulson): Implement an analogue of this
-            //multibulge::HandleTwoByTwo( H, w, Z, iterBeg, ctrl );
+            const Real eta00 = hMainWin.GetLocal(iterOffset,0);
+            const Real eta01 = hSuperWin.GetLocal(iterOffset,0);
+            const Real eta10 = hSubWin.GetLocal(iterOffset,0);
+            const Real eta11 = hMainWin.GetLocal(iterOffset+1,0);
+            multibulge::TwoByTwo
+            ( H, eta00, eta01, eta10, eta11, Z, iterBeg, ctrl );
             winEnd -= 2;
             numIterSinceDeflation = 0;
             continue;

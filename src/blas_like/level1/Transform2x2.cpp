@@ -11,6 +11,7 @@
 
 namespace El {
 
+// Ovewrite [a1, a2] := [a1, a2] [gamma11, gamma12; gamma21, gamma22]
 template<typename T>
 void Transform2x2
 ( Int n,
@@ -27,6 +28,18 @@ void Transform2x2
     }
 }
 
+// Note that, if a1 and a2 are column vectors, we are overwriting
+//
+//   [a1, a2] := [a1, a2] G^T,
+//
+// *not* 
+//
+//   [a1, a2] := [a1, a2] G.
+//
+// In the case where a1 and a2 are row vectors, we are performing
+//
+//   [a1; a2] := G [a1; a2].
+//
 template<typename T>
 void Transform2x2( const Matrix<T>& G, Matrix<T>& a1, Matrix<T>& a2 )
 {
@@ -155,9 +168,12 @@ void Transform2x2Cols
 ( const Matrix<T>& G, Matrix<T>& A, Int i1, Int i2 )
 {
     DEBUG_CSE
-    auto a1 = A( ALL, IR(i1) );
-    auto a2 = A( ALL, IR(i2) );
-    Transform2x2( G, a1, a2 );
+    // Since the scalar version of Transform2x2 assumes that a1 and a2 are
+    // row vectors, we implicitly transpose G on input to it so that we can
+    // apply [a1, a2] G via G^T [a1^T; a2^T].
+    Transform2x2
+    ( A.Height(), G(0,0), G(1,0), G(0,1), G(1,1),
+      A.Buffer(0,i1), 1, A.Buffer(0,i2), 1 );
 }
 
 template<typename T>
@@ -187,14 +203,18 @@ void Transform2x2Cols
     const T gamma21 = G.GetLocal(1,0);
     const T gamma22 = G.GetLocal(1,1);
         
+
     if( inFirstCol && inSecondCol )
     {
         const Int j1Loc = A.LocalCol(j1);
         const Int j2Loc = A.LocalCol(j2);
 
+        // Since the scalar version of Transform2x2 assumes that a1 and a2 are
+        // row vectors, we implicitly transpose G on input to it so that we can
+        // apply [a1, a2] G via G^T [a1^T; a2^T].
         Transform2x2
         ( mLoc,
-          gamma11, gamma12, gamma21, gamma22,
+          gamma11, gamma21, gamma12, gamma22,
           &ABuf[j1Loc*ALDim], 1,
           &ABuf[j2Loc*ALDim], 1 );
     }
@@ -208,7 +228,7 @@ void Transform2x2Cols
 
         // TODO: Generalized Axpy?
         blas::Scal( mLoc, gamma11, &ABuf[j1Loc*ALDim], 1 );
-        blas::Axpy( mLoc, gamma12, buf.data(), 1, &ABuf[j1Loc*ALDim], 1 );
+        blas::Axpy( mLoc, gamma21, buf.data(), 1, &ABuf[j1Loc*ALDim], 1 );
     }
     else
     {
@@ -220,7 +240,7 @@ void Transform2x2Cols
 
         // TODO: Generalized Axpy?
         blas::Scal( mLoc, gamma22, &ABuf[j2Loc*ALDim], 1 );
-        blas::Axpy( mLoc, gamma21, buf.data(), 1, &ABuf[j2Loc*ALDim], 1 );
+        blas::Axpy( mLoc, gamma12, buf.data(), 1, &ABuf[j2Loc*ALDim], 1 );
     }
 }
 

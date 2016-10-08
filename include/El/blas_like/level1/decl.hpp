@@ -1526,8 +1526,20 @@ DistSparseMatrix<T> GetSubmatrix( Int m, Int n, const DistSparseMatrix<T>& A );
 // Transform2x2 
 // ============
 
-// [a1,a2] := G [a1,a2], where G is 2x2
-// ------------------------------------
+// Note that, if a1 and a2 are column vectors, the following overwrites
+//
+//   [a1, a2] := [a1, a2] G^T,
+//
+// and *not* 
+//
+//   [a1, a2] := [a1, a2] G.
+//
+// In the case where a1 and a2 are row vectors, we are performing
+//
+//   [a1; a2] := G [a1; a2].
+//
+// It is recommended to use Transform2x2Rows or Transform2x2Cols instead.
+//
 template<typename T>
 void Transform2x2
 ( const Matrix<T>& G,
@@ -1567,8 +1579,8 @@ void Transform2x2Cols
 // ===================
 // NOTE: BLAS calls this 'rot'
 
-// [a1,a2] := [c s; -conj(s) c] [a1,a2]
-// ------------------------------------
+// [a1; a2] := [c s; -conj(s) c] [a1; a2]
+// --------------------------------------
 template<typename F>
 void Rotate( Base<F> c, F s, Matrix<F>& a1, Matrix<F>& a2 );
 template<typename F>
