@@ -138,6 +138,8 @@ public:
     Int BlockWidth()  const override EL_NO_EXCEPT;
     Int ColCut()      const override EL_NO_EXCEPT;
     Int RowCut()      const override EL_NO_EXCEPT;
+    // TODO(poulson): Add specialization of ColCut() and RowCut() that return
+    // the cuts at arbitrary row/column indices
 
     int RowOwner( Int i )       const override EL_NO_EXCEPT;
     int ColOwner( Int j )       const override EL_NO_EXCEPT;

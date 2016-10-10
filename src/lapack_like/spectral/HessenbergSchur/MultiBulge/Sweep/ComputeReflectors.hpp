@@ -32,6 +32,7 @@ void ComputeReflectors
     const Real realZero(0);
     const F zero(0);
     const Real ulp = limits::Precision<Real>();
+    W.Resize( 3, numBulges );
 
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;

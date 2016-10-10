@@ -60,15 +60,12 @@ void Transform2x2( const Matrix<T>& G, Matrix<T>& a1, Matrix<T>& a2 )
 
 template<typename T>
 void Transform2x2
-( const AbstractDistMatrix<T>& GPre,
+( const Matrix<T>& G,
         AbstractDistMatrix<T>& a1,
         AbstractDistMatrix<T>& a2 )
 {
     DEBUG_CSE
     typedef unique_ptr<AbstractDistMatrix<T>> ADMPtr;
-
-    DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
-    const auto& G = GProx.GetLocked();
 
     // TODO: Optimize by attempting SendRecv when possible
 
@@ -81,12 +78,24 @@ void Transform2x2
     Copy( a2, *a2_like_a1 );
 
     // TODO: Generalized axpy?
-    Scale( G.GetLocal(0,0), a1 );
-    Axpy( G.GetLocal(0,1), *a2_like_a1, a1 );
+    Scale( G(0,0), a1 );
+    Axpy( G(0,1), *a2_like_a1, a1 );
 
     // TODO: Generalized axpy?
-    Scale( G.GetLocal(1,1), a2 );
-    Axpy( G.GetLocal(1,0), *a1_like_a2, a2 );
+    Scale( G(1,1), a2 );
+    Axpy( G(1,0), *a1_like_a2, a2 );
+}
+
+template<typename T>
+void Transform2x2
+( const AbstractDistMatrix<T>& GPre,
+        AbstractDistMatrix<T>& a1,
+        AbstractDistMatrix<T>& a2 )
+{
+    DEBUG_CSE
+    DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
+    const auto& G = GProx.GetLocked();
+    Transform2x2( G.LockedMatrix(), a1, a2 );
 }
 
 template<typename T>
@@ -102,13 +111,9 @@ void Transform2x2Rows
 
 template<typename T>
 void Transform2x2Rows
-( const AbstractDistMatrix<T>& GPre,
-        AbstractDistMatrix<T>& A, Int i1, Int i2 )
+( const Matrix<T>& G, AbstractDistMatrix<T>& A, Int i1, Int i2 )
 {
     DEBUG_CSE
-
-    DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
-    const auto& G = GProx.GetLocked();
 
     const int rowOwner1 = A.RowOwner(i1);
     const int rowOwner2 = A.RowOwner(i2);
@@ -121,10 +126,10 @@ void Transform2x2Rows
     const Int ALDim = A.LDim();
     const Int nLoc = A.LocalWidth();
 
-    const T gamma11 = G.GetLocal(0,0);
-    const T gamma12 = G.GetLocal(0,1);
-    const T gamma21 = G.GetLocal(1,0);
-    const T gamma22 = G.GetLocal(1,1);
+    const T gamma11 = G(0,0);
+    const T gamma12 = G(0,1);
+    const T gamma21 = G(1,0);
+    const T gamma22 = G(1,1);
 
     if( inFirstRow && inSecondRow )
     {
@@ -164,6 +169,17 @@ void Transform2x2Rows
 }
 
 template<typename T>
+void Transform2x2Rows
+( const AbstractDistMatrix<T>& GPre,
+        AbstractDistMatrix<T>& A, Int i1, Int i2 )
+{
+    DEBUG_CSE
+    DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
+    const auto& G = GProx.GetLocked();
+    Transform2x2Rows( G.LockedMatrix(), A, i1, i2 );
+}
+
+template<typename T>
 void Transform2x2Cols
 ( const Matrix<T>& G, Matrix<T>& A, Int i1, Int i2 )
 {
@@ -178,13 +194,9 @@ void Transform2x2Cols
 
 template<typename T>
 void Transform2x2Cols
-( const AbstractDistMatrix<T>& GPre,
-        AbstractDistMatrix<T>& A, Int j1, Int j2 )
+( const Matrix<T>& G, AbstractDistMatrix<T>& A, Int j1, Int j2 )
 {
     DEBUG_CSE
-
-    DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
-    const auto& G = GProx.GetLocked();
 
     const int colOwner1 = A.ColOwner(j1);
     const int colOwner2 = A.ColOwner(j2);
@@ -198,11 +210,10 @@ void Transform2x2Cols
     const Int mLoc = A.LocalHeight();
 
     vector<T> buf(mLoc);
-    const T gamma11 = G.GetLocal(0,0);
-    const T gamma12 = G.GetLocal(0,1);
-    const T gamma21 = G.GetLocal(1,0);
-    const T gamma22 = G.GetLocal(1,1);
-        
+    const T gamma11 = G(0,0);
+    const T gamma12 = G(0,1);
+    const T gamma21 = G(1,0);
+    const T gamma22 = G(1,1);
 
     if( inFirstCol && inSecondCol )
     {
@@ -244,11 +255,26 @@ void Transform2x2Cols
     }
 }
 
+template<typename T>
+void Transform2x2Cols
+( const AbstractDistMatrix<T>& GPre,
+        AbstractDistMatrix<T>& A, Int j1, Int j2 )
+{
+    DEBUG_CSE
+    DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
+    const auto& G = GProx.GetLocked();
+    Transform2x2Cols( G.LockedMatrix(), A, j1, j2 );
+}
+
 #define PROTO(T) \
   template void Transform2x2 \
   ( const Matrix<T>& G, \
           Matrix<T>& a1, \
           Matrix<T>& a2 ); \
+  template void Transform2x2 \
+  ( const Matrix<T>& G, \
+          AbstractDistMatrix<T>& a1, \
+          AbstractDistMatrix<T>& a2 ); \
   template void Transform2x2 \
   ( const AbstractDistMatrix<T>& G, \
           AbstractDistMatrix<T>& a1, \
@@ -257,11 +283,17 @@ void Transform2x2Cols
   ( const Matrix<T>& G, \
           Matrix<T>& A, Int i1, Int i2 ); \
   template void Transform2x2Rows \
+  ( const Matrix<T>& G, \
+          AbstractDistMatrix<T>& A, Int i1, Int i2 ); \
+  template void Transform2x2Rows \
   ( const AbstractDistMatrix<T>& G, \
           AbstractDistMatrix<T>& A, Int i1, Int i2 ); \
   template void Transform2x2Cols \
   ( const Matrix<T>& G, \
           Matrix<T>& A, Int j1, Int j2 ); \
+  template void Transform2x2Cols \
+  ( const Matrix<T>& G, \
+          AbstractDistMatrix<T>& A, Int j1, Int j2 ); \
   template void Transform2x2Cols \
   ( const AbstractDistMatrix<T>& G, \
           AbstractDistMatrix<T>& A, Int j1, Int j2 );

@@ -608,11 +608,14 @@ DetermineInteraction
       Mod( state.winRowAlign+interaction.block0, grid.Width() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
-    if( (grid.Row() == firstRow || grid.Row() == secondRow) &&
-        (grid.Col() == firstCol || grid.Col() == secondCol) )
-        interaction.participating = true;
+    const bool inTwoByTwo =
+      (grid.Row() == firstRow || grid.Row() == secondRow) &&
+      (grid.Col() == firstCol || grid.Col() == secondCol);
+    if( interaction.chaseType == SIMPLE_INTRO_CHASE )
+        interaction.participating =
+          (grid.Row() == secondRow && grid.Col() == secondCol);
     else
-        interaction.participating = false;
+        interaction.participating = inTwoByTwo;
 
     return interaction;
 }
@@ -752,11 +755,11 @@ void CollectBlock
         }
         else
         {
-            LogicError("Invalid SIMPLE_INTRO_CHASE StoreBlock");
+            LogicError("Invalid SIMPLE_INTRO_CHASE in CollectBlock");
         }
         return;
     }
-    else if( interaction.chaseType == NO_CHASE )
+    if( interaction.chaseType == NO_CHASE )
         LogicError("Invalid request to collect an inter-block window");
 
      // We can grab the indices of our local portion of the 2x2 interaction
@@ -789,14 +792,14 @@ void CollectBlock
         if( grid.Col() == firstCol )
         {
             HBlockLeft = HInteractLoc;
-            El::Send( HBlockLeft, secondCol, grid.RowComm() );
-            El::Recv( HBlockRight, secondCol, grid.RowComm() );
+            El::Send( HBlockLeft, grid.RowComm(), secondCol );
+            El::Recv( HBlockRight, grid.RowComm(), secondCol );
         }
         else
         {
             HBlockRight = HInteractLoc;
-            El::Recv( HBlockLeft, firstCol, grid.RowComm() );
-            El::Send( HBlockRight, firstCol, grid.RowComm() );
+            El::Recv( HBlockLeft, grid.RowComm(), firstCol );
+            El::Send( HBlockRight, grid.RowComm(), firstCol );
         }
     }
     else if( grid.Width() == 1 )
@@ -807,14 +810,14 @@ void CollectBlock
         if( grid.Row() == firstRow )
         {
             HBlockTop = HInteractLoc; 
-            El::Send( HBlockTop, secondRow, grid.ColComm() );
-            El::Recv( HBlockBottom, secondRow, grid.ColComm() );
+            El::Send( HBlockTop, grid.ColComm(), secondRow );
+            El::Recv( HBlockBottom, grid.ColComm(), secondRow );
         }
         else
         {
             HBlockBottom = HInteractLoc;
-            El::Recv( HBlockTop, secondRow, grid.ColComm() );
-            El::Send( HBlockBottom, secondRow, grid.ColComm() );
+            El::Recv( HBlockTop, grid.ColComm(), secondRow );
+            El::Send( HBlockBottom, grid.ColComm(), secondRow );
         }
     }
     else
@@ -876,7 +879,7 @@ void StoreBlock
   const DistChaseState& state )
 {
     DEBUG_CSE
-    const auto& HLoc = H.LockedMatrix();
+    auto& HLoc = H.Matrix();
     const Grid& grid = H.Grid();
 
     // (Up to) four processes may participate in introducing and chasing
@@ -915,7 +918,7 @@ void StoreBlock
         }
         return;
     }
-    else if( interaction.chaseType == NO_CHASE )
+    if( interaction.chaseType == NO_CHASE )
         LogicError("Invalid request to collect an inter-block window");
 
     // We can grab the indices of our local portion of the 2x2 interaction
@@ -1011,6 +1014,7 @@ void LocalChase
     const Int blockWinBeg = 0;
     const Int blockWinEnd = interaction.blockSize0 + interaction.blockSize1;
     Identity( UBlock, blockWinEnd, blockWinEnd );
+    Zeros( W, 3, interaction.numBulges );
 
     const Int householderSize =
       interaction.householderEnd - interaction.householderBeg;
@@ -1065,7 +1069,9 @@ void LocalChase
     else
         packetOffset = interaction.block0 - 1;
 
-    const Int firstBulge = state.bulgeBeg + packetOffset;
+    const Int bulgeOffset = state.bulgeBeg + packetOffset;
+    const auto& packetShifts =
+      shiftsLoc( IR(0,2*interaction.numBulges)+(2*bulgeOffset), ALL );
 
     Matrix<F> ZDummy;
     const Int chaseBeg = interaction.householderBeg-1;
@@ -1073,16 +1079,20 @@ void LocalChase
     const Int transformColEnd = blockWinEnd;
     const bool wantSchurVecsSub = false;
     const bool accumulateSub = true;
+    const Int firstBulge = 0;
+    Output("interaction.householderBeg=",interaction.householderBeg,", blockWinBeg=",blockWinBeg,", blockWinEnd=",blockWinEnd,", bulgeOffset=",bulgeOffset,", interaction.numBulges=",interaction.numBulges);
     for( Int step=0; step<numSteps; ++step )
     {
         const Int packetBeg = chaseBeg + step;
+        Output("step=",step,", packetBeg=",packetBeg);
         ComputeReflectors
-        ( HBlock, blockWinBeg, blockWinEnd, shiftsLoc, W, packetBeg,
+        ( HBlock, blockWinBeg, blockWinEnd, packetShifts, W, packetBeg,
           firstBulge, interaction.numBulges, progress );
         ApplyReflectorsOpt
         ( HBlock, blockWinBeg, blockWinEnd, chaseBeg, packetBeg,
           transformRowBeg, transformColEnd, ZDummy, wantSchurVecsSub,
-          UBlock, W, firstBulge, accumulateSub, progress );
+          UBlock, W, firstBulge, interaction.numBulges, accumulateSub,
+          progress );
     }
 }
 
@@ -1099,6 +1109,8 @@ void ApplyAccumulatedFromLeft
     auto& HLoc = H.Matrix();
 
     // HRight := U' HRight
+    // TODO(poulson): Handle SendRecv (or not)
+    LogicError("This routine is not yet finished");
     {
         const Int colBeg = interaction.end; 
         const Int colEnd = ( ctrl.fullTriangle ? n : state.winEnd );
@@ -1127,6 +1139,8 @@ void ApplyAccumulatedFromRight
     auto& ZLoc = Z.Matrix();
 
     // HTop := HTop U
+    // TODO(poulson): Handle SendRecv (or not)
+    LogicError("This routine is not yet finished");
     {
         const Int rowBeg = ( ctrl.fullTriangle ? 0 : state.winBeg );
         const Int rowEnd = interaction.beg;
@@ -1141,6 +1155,8 @@ void ApplyAccumulatedFromRight
     }
 
     // ZInteract := ZInteract U
+    // TODO(poulson): Handle SendRecv (or not)
+    LogicError("This routine is not yet finished");
     if( ctrl.wantSchurVecs )
     {
         const Int localColBeg = Z.LocalColOffset( interaction.householderBeg );
@@ -1163,7 +1179,6 @@ void InterBlockChase
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    const auto& shiftsLoc = shifts.LockedMatrix();
     const Grid& grid = H.Grid();
     const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
     // If fullFirstBlock is false, then we need to subtract one from the block
@@ -1229,7 +1244,6 @@ void InterBlockChase
           Mod( state.winColAlign+interaction.block0, grid.Height() );
         const int firstCol =
           Mod( state.winRowAlign+interaction.block0, grid.Width() );
-        const int secondRow = Mod( firstRow+1, grid.Height() );
         const int secondCol = Mod( firstCol+1, grid.Width() );
 
         int ownerCol;
@@ -1262,7 +1276,6 @@ void InterBlockChase
         const int firstCol =
           Mod( state.winRowAlign+interaction.block0, grid.Width() );
         const int secondRow = Mod( firstRow+1, grid.Height() );
-        const int secondCol = Mod( firstCol+1, grid.Width() );
 
         int ownerRow;
         if( interaction.chaseType == SIMPLE_INTRO_CHASE )

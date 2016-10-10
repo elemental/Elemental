@@ -560,6 +560,7 @@ class HessenbergSchurCtrl(ctypes.Structure):
               ("winEnd",iType),
               ("fullTriangle",bType),
               ("wantSchurVecs",bType),
+              ("accumulateSchurVecs",bType),
               ("demandConverged",bType),
               ("alg",c_uint),
               ("recursiveAED",bType),

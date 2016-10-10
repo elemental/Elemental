@@ -51,8 +51,8 @@ Matrix<T> LockedView( const Matrix<T>& B )
     return A;
 }
 
-// DistMatrix
-// ----------
+// ElementalMatrix
+// ---------------
 
 template<typename T>
 void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B )
@@ -82,24 +82,55 @@ void LockedView
 
 // Return by value
 // ^^^^^^^^^^^^^^^
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> View( DistMatrix<T,U,V,wrapType>& B )
 {
-    DistMatrix<T,U,V> A(B.Grid());
+    DistMatrix<T,U,V,wrapType> A(B.Grid());
     View( A, B );
     return A;
 }
 
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> LockedView( const DistMatrix<T,U,V,wrapType>& B )
 {
-    DistMatrix<T,U,V> A(B.Grid());
+    DistMatrix<T,U,V,wrapType> A(B.Grid());
     LockedView( A, B );
     return A;
 }
 
 // BlockMatrix
 // -----------
+template<typename T>
+void View( BlockMatrix<T>& A, BlockMatrix<T>& B )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
+    if( B.Locked() )
+        A.LockedAttach
+        ( B.Height(), B.Width(), B.Grid(), B.BlockHeight(), B.BlockWidth(),
+          B.ColAlign(), B.RowAlign(), B.ColCut(), B.RowCut(),
+          B.LockedBuffer(), B.LDim(), B.Root() );
+    else
+        A.Attach
+        ( B.Height(), B.Width(), B.Grid(), B.BlockHeight(), B.BlockWidth(),
+          B.ColAlign(), B.RowAlign(), B.ColCut(), B.RowCut(),
+          B.Buffer(), B.LDim(), B.Root() );
+}
+
+template<typename T>
+void LockedView
+( BlockMatrix<T>& A, const BlockMatrix<T>& B )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameDist( A.DistData(), B.DistData() ))
+    A.LockedAttach
+    ( B.Height(), B.Width(), B.Grid(), B.BlockHeight(), B.BlockWidth(),
+      B.ColAlign(), B.RowAlign(), B.ColCut(), B.RowCut(),
+      B.LockedBuffer(), B.LDim(), B.Root() );
+}
+
+// Mixed
+// -----
 template<typename T>
 void View
 ( BlockMatrix<T>& A,
@@ -369,12 +400,12 @@ void View
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
-    const Int colAlign = (B.ColAlign()+i) % B.ColStride();
-    const Int rowAlign = (B.RowAlign()+j) % B.RowStride();
+    const Int colAlign = B.RowOwner(i);
+    const Int rowAlign = B.ColOwner(j);
     if( B.Participating() )
     {
-        const Int iLoc = Length( i, B.ColShift(), B.ColStride() );
-        const Int jLoc = Length( j, B.RowShift(), B.RowStride() );
+        const Int iLoc = B.LocalRowOffset(i);
+        const Int jLoc = B.LocalColOffset(j);
         if( B.Locked() )
             A.LockedAttach
             ( height, width, B.Grid(), colAlign, rowAlign, 
@@ -408,12 +439,12 @@ void LockedView
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
-    const Int colAlign = (B.ColAlign()+i) % B.ColStride();
-    const Int rowAlign = (B.RowAlign()+j) % B.RowStride();
+    const Int colAlign = B.RowOwner(i);
+    const Int rowAlign = B.ColOwner(j);
     if( B.Participating() )
     {
-        const Int iLoc = Length( i, B.ColShift(), B.ColStride() );
-        const Int jLoc = Length( j, B.RowShift(), B.RowStride() );
+        const Int iLoc = B.LocalRowOffset(i);
+        const Int jLoc = B.LocalColOffset(j);
         A.LockedAttach
         ( height, width, B.Grid(), colAlign, rowAlign, 
           B.LockedBuffer(iLoc,jLoc), B.LDim(), B.Root() );
@@ -454,27 +485,27 @@ void LockedView
 // Return by value
 // ^^^^^^^^^^^^^^^
 
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> View
-( DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> View
+( DistMatrix<T,U,V,wrapType>& B, Int i, Int j, Int height, Int width )
 {
-    DistMatrix<T,U,V> A(B.Grid());
+    DistMatrix<T,U,V,wrapType> A(B.Grid());
     View( A, B, i, j, height, width );
     return A;
 }
 
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> LockedView
-( const DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> LockedView
+( const DistMatrix<T,U,V,wrapType>& B, Int i, Int j, Int height, Int width )
 {
-    DistMatrix<T,U,V> A(B.Grid());
+    DistMatrix<T,U,V,wrapType> A(B.Grid());
     LockedView( A, B, i, j, height, width );
     return A;
 }
 
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> View
-( DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> View
+( DistMatrix<T,U,V,wrapType>& B, Range<Int> I, Range<Int> J )
 {
     if( I.end == END )
         I.end = B.Height();
@@ -483,9 +514,9 @@ DistMatrix<T,U,V> View
     return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
 }
  
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> LockedView
-( const DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J )
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> LockedView
+( const DistMatrix<T,U,V,wrapType>& B, Range<Int> I, Range<Int> J )
 { 
     if( I.end == END )
         I.end = B.Height();
@@ -511,20 +542,24 @@ void View
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
+    const Int iLoc = B.LocalRowOffset(i);
+    const Int jLoc = B.LocalColOffset(j);
     if( B.Locked() )
         A.LockedAttach
-        ( B.Height(), B.Width(), B.Grid(), 
+        ( height, width, B.Grid(), 
           B.BlockHeight(), B.BlockWidth(),
-          B.ColAlign(), B.RowAlign(), 
-          B.ColCut(), B.RowCut(),
-          B.LockedBuffer(), B.LDim(), B.Root() );
+          B.RowOwner(i), B.ColOwner(j), 
+          Mod(B.ColCut()+i,B.BlockHeight()),
+          Mod(B.RowCut()+j,B.BlockWidth()),
+          B.LockedBuffer(iLoc,jLoc), B.LDim(), B.Root() );
     else
         A.Attach
-        ( B.Height(), B.Width(), B.Grid(),
+        ( height, width, B.Grid(),
           B.BlockHeight(), B.BlockWidth(),
-          B.ColAlign(), B.RowAlign(), 
-          B.ColCut(), B.RowCut(),
-          B.Buffer(), B.LDim(), B.Root() );
+          B.RowOwner(i), B.ColOwner(j), 
+          Mod(B.ColCut()+i,B.BlockHeight()),
+          Mod(B.RowCut()+j,B.BlockWidth()),
+          B.Buffer(iLoc,jLoc), B.LDim(), B.Root() );
 }
 
 template<typename T>
@@ -538,12 +573,15 @@ void LockedView
       AssertSameDist( A.DistData(), B.DistData() );
       B.AssertValidSubmatrix( i, j, height, width );
     )
+    const Int iLoc = B.LocalRowOffset(i);
+    const Int jLoc = B.LocalColOffset(j);
     A.LockedAttach
-    ( B.Height(), B.Width(), B.Grid(), 
+    ( height, width, B.Grid(), 
       B.BlockHeight(), B.BlockWidth(),
-      B.ColAlign(), B.RowAlign(), 
-      B.ColCut(), B.RowCut(),
-      B.LockedBuffer(), B.LDim(), B.Root() );
+      B.RowOwner(i), B.ColOwner(j), 
+      Mod(B.ColCut()+i,B.BlockHeight()),
+      Mod(B.RowCut()+j,B.BlockWidth()),
+      B.LockedBuffer(iLoc,jLoc), B.LDim(), B.Root() );
 }
 
 template<typename T>
@@ -570,49 +608,6 @@ void LockedView
     if( J.end == END )
         J.end = B.Width();
     LockedView( A, B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
-}
-
-// Return by value
-// ^^^^^^^^^^^^^^^
-
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> View
-( DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width )
-{
-    DistMatrix<T,U,V,BLOCK> A(B.Grid());
-    View( A, B, i, j, height, width );
-    return A;
-}
-
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> LockedView
-( const DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width )
-{
-    DistMatrix<T,U,V,BLOCK> A(B.Grid());
-    LockedView( A, B, i, j, height, width );
-    return A;
-}
-
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> View
-( DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J )
-{
-    if( I.end == END )
-        I.end = B.Height();
-    if( J.end == END )
-        J.end = B.Width();
-    return View( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
-}
- 
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> LockedView
-( const DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J )
-{ 
-    if( I.end == END )
-        I.end = B.Height();
-    if( J.end == END )
-        J.end = B.Width();
-    return LockedView( B, I.beg, J.beg, I.end-I.beg, J.end-J.beg ); 
 }
 
 // AbstractDistMatrix
@@ -726,14 +721,20 @@ void LockedView
   EL_EXTERN template void LockedView( Matrix<T>& A, const Matrix<T>& B ); \
   EL_EXTERN template Matrix<T> View( Matrix<T>& B ); \
   EL_EXTERN template Matrix<T> LockedView( const Matrix<T>& B ); \
-  /* DistMatrix
-     ---------- */ \
+  /* ElementalMatrix
+     --------------- */ \
   EL_EXTERN template void View \
   ( ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
   EL_EXTERN template void LockedView \
   ( ElementalMatrix<T>& A, const ElementalMatrix<T>& B ); \
   /* BlockMatrix
      ----------- */ \
+  EL_EXTERN template void View \
+  ( BlockMatrix<T>& A, BlockMatrix<T>& B ); \
+  EL_EXTERN template void LockedView \
+  ( BlockMatrix<T>& A, const BlockMatrix<T>& B ); \
+  /* Mixed
+     ----- */ \
   EL_EXTERN template void View \
   ( BlockMatrix<T>& A, ElementalMatrix<T>& B ); \
   EL_EXTERN template void LockedView \

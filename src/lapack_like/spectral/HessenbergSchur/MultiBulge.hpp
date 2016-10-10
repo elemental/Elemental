@@ -65,33 +65,30 @@ MultiBulge
             else
                 break;
         }
+        auto winInd = IR(winBeg,winEnd);
 
         // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
         // ---------------------------------------------------------
-        Int iterBeg = winBeg;
-        auto winInd = IR(iterBeg,winEnd);
-        iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
-        if( iterBeg > winBeg )
-        {
+        const Int iterOffset = DetectSmallSubdiagonal( H(winInd,winInd) );
+        const Int iterBeg = winBeg + iterOffset;
+        const Int iterWinSize = winEnd-iterBeg;
+        if( iterOffset > 0 )
             H(iterBeg,iterBeg-1) = zero;
-        }
-        if( iterBeg == winEnd-1 )
+        if( iterWinSize == 1 )
         {
             w(iterBeg) = H(iterBeg,iterBeg);
             --winEnd;
             numIterSinceDeflation = 0;
             continue;
         }
-        else if( iterBeg == winEnd-2 )
+        else if( iterWinSize == 2 )
         {
             multibulge::TwoByTwo( H, w, Z, iterBeg, ctrl );
             winEnd -= 2;
             numIterSinceDeflation = 0;
             continue;
         }
-
-        const Int iterWinSize = winEnd-iterBeg;
-        if( iterWinSize < minMultiBulgeSize )
+        else if( iterWinSize < minMultiBulgeSize )
         {
             // The window is small enough to switch to the simple scheme
             auto ctrlSub( ctrl );
@@ -132,6 +129,112 @@ MultiBulge
     return info;
 }
 
+namespace multibulge {
+
+// TODO(poulson): Move this into MultiBulge/RedundantlyHandleWindow.hpp
+template<typename F>
+HessenbergSchurInfo
+RedundantlyHandleWindow
+( DistMatrix<F,MC,MR,BLOCK>& H,
+  DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
+  DistMatrix<F,MC,MR,BLOCK>& Z,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    const Int n = H.Height();
+    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    const Int winSize = winEnd - winBeg;
+    const Int blockSize = H.BlockHeight();
+
+    auto winInd = IR(winBeg,winEnd);
+    auto HWin = H(winInd,winInd);
+    auto& wLoc = w.Matrix();
+
+    // Compute the Schur decomposition HWin = ZWin TWin ZWin',
+    // where HWin is overwritten by TWin, and wWin by diag(TWin).
+    DistMatrix<F,STAR,STAR> HWinFull( HWin );
+    auto wWin = wLoc(winInd,ALL);
+    Matrix<F> ZWin;
+    Identity( ZWin, winSize, winSize );
+    auto info = HessenbergSchur( HWinFull.Matrix(), wWin, ZWin );
+    HWin = HWinFull;
+
+    if( ctrl.fullTriangle )
+    {
+        if( n > winEnd )
+        {
+            // Overwrite H(winInd,winEnd:n) *= ZWin'
+            // (applied from the left)
+            auto HRight = H( winInd, IR(winEnd,n) );
+            // Since we only need to overwrite HRight, it is overkill to
+            // fully collect the columns over the columns of the process
+            // grid.
+            const Int firstBlockHeight = blockSize - HRight.ColCut();
+            if( winSize <= firstBlockHeight )
+            {
+                Matrix<F> HRightLocCopy( HRight.Matrix() );
+                Gemm
+                ( NORMAL, ADJOINT, F(1), ZWin, HRightLocCopy, HRight.Matrix() );
+            }
+            else
+            {
+                DistMatrix<F,STAR,MR,BLOCK> HRight_STAR_MR( HRight );
+                Matrix<F> HRightLocCopy( HRight_STAR_MR.Matrix() );
+                Gemm
+                ( NORMAL, ADJOINT, F(1), ZWin, HRightLocCopy,
+                  HRight_STAR_MR.Matrix() );
+                HRight = HRight_STAR_MR;
+            }
+        }
+        // Overwrite H(0:winBeg,winInd) *= ZWin
+        auto HTop = H( IR(0,winBeg), winInd );
+        // Again, we only need to overwrite HTop, so it is overkill to
+        // always fully collect the rows over the rows of the grid.
+        const Int firstBlockWidth = blockSize - HTop.RowCut();
+        if( winSize <= firstBlockWidth )
+        {
+            Matrix<F> HTopLocCopy( HTop.Matrix() );
+            Gemm( NORMAL, NORMAL, F(1), HTopLocCopy, ZWin, HTop.Matrix() );
+        }
+        else
+        {
+            DistMatrix<F,MC,STAR,BLOCK> HTop_MC_STAR( HTop );
+            Matrix<F> HTopLocCopy( HTop_MC_STAR.Matrix() );
+            Gemm
+            ( NORMAL, NORMAL, F(1), HTopLocCopy, ZWin, HTop_MC_STAR.Matrix() );
+            HTop = HTop_MC_STAR;
+        }
+    }
+    if( ctrl.wantSchurVecs )
+    {
+        // Overwrite Z(:,winInd) *= ZWin
+        auto ZBlock = Z( ALL, winInd );
+        // Again, we only need to overwrite ZBlock, so it is overkill to
+        // always fully collect the rows over the rows of the grid.
+        const Int firstBlockWidth = blockSize - ZBlock.RowCut();
+        if( winSize <= firstBlockWidth )
+        {
+            Matrix<F> ZBlockLocCopy( ZBlock.Matrix() );
+            Gemm
+            ( NORMAL, NORMAL, F(1), ZBlockLocCopy, ZWin, ZBlock.Matrix() );
+        }
+        else
+        {
+            DistMatrix<F,MC,STAR,BLOCK> ZBlock_MC_STAR( ZBlock );
+            Matrix<F> ZBlockLocCopy( ZBlock_MC_STAR.Matrix() );
+            Gemm
+            ( NORMAL, NORMAL, F(1), ZBlockLocCopy, ZWin,
+              ZBlock_MC_STAR.Matrix() );
+            ZBlock = ZBlock_MC_STAR;
+        }
+    }
+
+    return info;
+}
+
+} // namespace multibulge
+
 template<typename F>
 HessenbergSchurInfo
 MultiBulge
@@ -149,35 +252,23 @@ MultiBulge
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int winSize = winEnd - winBeg;
+    const Int blockSize = H.BlockHeight();
 
     // TODO(poulson): Implement a more reasonable/configurable means of deciding
     // when to call the sequential implementation
-    Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 2*H.BlockSize() );
+    Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 2*blockSize );
     // This maximum is meant to account for parallel overheads and needs to be
     // more principled (and perhaps based upon the number of workers and the 
     // cluster characteristics)
-    minMultiBulgeSize = Max( minMultiBulgeSize, 500 );
+    // TODO(poulson): Re-enable this
+    //minMultiBulgeSize = Max( minMultiBulgeSize, 500 );
 
     HessenbergSchurInfo info;
 
     w.Resize( n, 1 );
     if( winSize < minMultiBulgeSize )
     {
-        DistMatrix<F,STAR,STAR> HFull( H );
-        DistMatrix<F,STAR,STAR> ZFull( H.Grid() );
-        if( ctrl.wantSchurVecs )
-        {
-            ZFull = Z;
-            // In case Z was not n x n, ensure that ZFull is
-            ZFull.Resize( n, n );
-        }
-
-        auto info = Simple( HFull.Matrix(), w.Matrix(), ZFull.Matrix(), ctrl );
-
-        H = HFull;
-        if( ctrl.wantSchurVecs )
-            Z = ZFull;
-        return info;
+        return multibulge::RedundantlyHandleWindow( H, w, Z, ctrl );
     }
 
     auto ctrlShifts( ctrl );
@@ -210,53 +301,51 @@ MultiBulge
         // TODO(poulson): Have the interblock chase from the previous sweep
         // collect the main and sub diagonal of H along the diagonal workers 
         // and then broadcast across the "cross" communicator.
-        multibulge::GatherTridiagonal
-        ( H, winInd, hMainWin, hSubWin, hSuperWin );
+        util::GatherTridiagonal( H, winInd, hMainWin, hSubWin, hSuperWin );
 
         const Int iterOffset =
-          DetectSmallSubdiagonal( hMainWin, hSubWin, hSuperWin );
-        const Int iterBeg = winEnd + iterOffset;
+          DetectSmallSubdiagonal
+          ( hMainWin.Matrix(), hSubWin.Matrix(), hSuperWin.Matrix() );
+        const Int iterBeg = winBeg + iterOffset;
+        const Int iterWinSize = winEnd-iterBeg;
         if( iterOffset > 0 )
         {
             H.Set( iterBeg, iterBeg-1, zero );
             hSubWin.Set( iterOffset, 0, zero );
         }
-        if( iterBeg == winEnd-1 )
+        if( iterWinSize == 1 )
         {
             w.Set( iterBeg, 0, hMainWin.GetLocal(iterOffset,0) );
-            --winEnd;
-            numIterSinceDeflation = 0;
-            continue;
-        }
-        else if( iterBeg == winEnd-2 )
-        {
-            const Real eta00 = hMainWin.GetLocal(iterOffset,0);
-            const Real eta01 = hSuperWin.GetLocal(iterOffset,0);
-            const Real eta10 = hSubWin.GetLocal(iterOffset,0);
-            const Real eta11 = hMainWin.GetLocal(iterOffset+1,0);
-            multibulge::TwoByTwo
-            ( H, eta00, eta01, eta10, eta11, Z, iterBeg, ctrl );
-            winEnd -= 2;
-            numIterSinceDeflation = 0;
-            continue;
-        }
 
-        const Int iterWinSize = winEnd-iterBeg;
-        if( iterWinSize < minMultiBulgeSize )
+            winEnd = iterBeg;
+            numIterSinceDeflation = 0;
+            continue;
+        }
+        else if( iterWinSize == 2 )
+        {
+            const F eta00 = hMainWin.GetLocal(iterOffset,0);
+            const F eta01 = hSuperWin.GetLocal(iterOffset,0);
+            const Real eta10 = hSubWin.GetLocal(iterOffset,0);
+            const F eta11 = hMainWin.GetLocal(iterOffset+1,0);
+            multibulge::TwoByTwo
+            ( H, eta00, eta01, eta10, eta11, w, Z, iterBeg, ctrl );
+
+            winEnd = iterBeg;
+            numIterSinceDeflation = 0;
+            continue;
+        }
+        else if( iterWinSize < minMultiBulgeSize )
         {
             // The window is small enough to switch to the simple scheme
-            //
-            // TODO(poulson): Have all workers independently process the
-            // diagonal block and then apply the transformation into the
-            // remainder of the matrix.
-            LogicError("This section is not yet finished");
-            /*
-            auto ctrlSub( ctrl );
-            ctrlSub.winBeg = iterBeg;
-            ctrlSub.winEnd = winEnd;
-            Simple( H, w, Z, ctrlSub );
-            */
+            auto ctrlIter( ctrl );
+            ctrlIter.winBeg = iterBeg;
+            ctrlIter.winEnd = winEnd;
+            auto iterInfo =
+              multibulge::RedundantlyHandleWindow( H, w, Z, ctrlIter );
+            info.numIterations += iterInfo.numIterations;
+             
             winEnd = iterBeg;
+            numIterSinceDeflation = 0;
             continue;
         }
 

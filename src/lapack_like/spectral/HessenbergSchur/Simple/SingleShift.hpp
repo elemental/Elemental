@@ -9,42 +9,11 @@
 #ifndef EL_HESS_SCHUR_SINGLE_SHIFT_HPP
 #define EL_HESS_SCHUR_SINGLE_SHIFT_HPP
 
+#include "../Util/MakeSubdiagonalReal.hpp"
 #include "./SingleShift/Sweep.hpp"
 
 namespace El {
 namespace hess_schur {
-
-// Rotate the matrix so that the subdiagonals are real
-template<typename Real>
-void MakeSubdiagonalReal
-( Matrix<Complex<Real>>& H,
-  Matrix<Complex<Real>>& Z,
-  const HessenbergSchurCtrl& ctrl )
-{
-    DEBUG_CSE
-    const Real zero(0);
-    const Int n = H.Height();
-    const Int nZ = Z.Height();
-    const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    const Int scaleBeg = ( ctrl.fullTriangle ? 0 : winBeg );
-    const Int scaleEnd = ( ctrl.fullTriangle ? n : winEnd );
-    for( Int i=winBeg+1; i<winEnd; ++i )
-    {
-        Complex<Real>& eta = H(i,i-1);
-        if( ImagPart(eta) != zero )
-        {
-            Complex<Real> phase = eta / OneAbs(eta);
-            phase = Conj(phase) / Abs(phase);
-            eta = Abs(eta);
-            blas::Scal( scaleEnd-i, phase, &H(i,i), H.LDim() );
-            blas::Scal
-            ( Min(scaleEnd,i+2)-scaleBeg, Conj(phase), &H(scaleBeg,i), 1 );
-            if( ctrl.wantSchurVecs )
-                blas::Scal( nZ, Conj(phase), &Z(0,i), 1 );
-        }
-    }
-}
 
 template<typename Real>
 HessenbergSchurInfo
@@ -86,7 +55,7 @@ SingleShift
         H(winEnd-1,winEnd-3) = zero;
     
     // The optimized sweeping procedure assumes/maintains a real subdiagonal
-    MakeSubdiagonalReal( H, Z, ctrl );
+    util::MakeSubdiagonalReal( H, Z, ctrl );
 
     // Attempt to converge the eigenvalues one at a time
     auto ctrlSweep( ctrl );

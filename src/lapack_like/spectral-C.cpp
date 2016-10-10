@@ -318,6 +318,7 @@ ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
     ctrl->winEnd = END;
     ctrl->fullTriangle = true;
     ctrl->wantSchurVecs = false;
+    ctrl->accumulateSchurVecs = false;
     ctrl->demandConverged = true;
 
     ctrl->alg = EL_HESSENBERG_SCHUR_AED;

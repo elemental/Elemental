@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HESS_SCHUR_MULTIBULGE_HANDLE_TWOBYTWO_HPP
-#define EL_HESS_SCHUR_MULTIBULGE_HANDLE_TWOBYTWO_HPP
+#ifndef EL_HESS_SCHUR_MULTIBULGE_TWOBYTWO_HPP
+#define EL_HESS_SCHUR_MULTIBULGE_TWOBYTWO_HPP
 
 #include "../Simple.hpp"
 
@@ -85,7 +85,8 @@ void TwoByTwo
     {
         if( n > offset+2 )
         {
-            // Overwrite Z(:,(offset,offset+1)) *= ZSub' (applied from the left)
+            // Overwrite H((offset,offset+1),offset+2:end) *= ZSub'
+            // (applied from the left)
             auto HRight = H( ALL, IR(offset+2,END) );
             Matrix<Complex<Real>> ZSubAdj;
             Adjoint( ZSub, ZSubAdj );
@@ -115,7 +116,6 @@ void TwoByTwo
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int n = H.Height();
     auto& wLoc = w.Matrix(); 
 
@@ -147,7 +147,8 @@ void TwoByTwo
     {
         if( n > offset+2 )
         {
-            // Overwrite Z(:,(offset,offset+1)) *= ZSub' (applied from the left)
+            // Overwrite H((offset,offset+1),offset+2:end) *= ZSub'
+            // (applied from the left)
             auto HRight = H( ALL, IR(offset+2,END) );
             Matrix<F> ZSubAdj;
             Adjoint( ZSub, ZSubAdj );
@@ -168,4 +169,4 @@ void TwoByTwo
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_HESS_SCHUR_MULTIBULGE_HANDLE_TWOBYTWO_HPP
+#endif // ifndef EL_HESS_SCHUR_MULTIBULGE_TWOBYTWO_HPP

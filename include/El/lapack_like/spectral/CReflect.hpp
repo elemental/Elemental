@@ -737,6 +737,7 @@ inline ElHessenbergSchurCtrl CReflect( const HessenbergSchurCtrl& ctrl )
     ctrlC.winEnd = ctrl.winEnd;
     ctrlC.fullTriangle = ctrl.fullTriangle;
     ctrlC.wantSchurVecs = ctrl.wantSchurVecs;
+    ctrlC.accumulateSchurVecs = ctrl.accumulateSchurVecs;
     ctrlC.demandConverged = ctrl.demandConverged;
 
     ctrlC.alg = CReflect(ctrl.alg);
@@ -788,6 +789,7 @@ inline HessenbergSchurCtrl CReflect( const ElHessenbergSchurCtrl& ctrlC )
     ctrl.winEnd = ctrlC.winEnd;
     ctrl.fullTriangle = ctrlC.fullTriangle;
     ctrl.wantSchurVecs = ctrlC.wantSchurVecs;
+    ctrl.accumulateSchurVecs = ctrlC.accumulateSchurVecs;
     ctrl.demandConverged = ctrlC.demandConverged;
 
     ctrl.alg = CReflect(ctrlC.alg);

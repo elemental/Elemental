@@ -599,6 +599,7 @@ typedef struct {
   ElInt winEnd;
   bool fullTriangle;
   bool wantSchurVecs;
+  bool accumulateSchurVecs;
   bool demandConverged;
 
   ElHessenbergSchurAlg alg;

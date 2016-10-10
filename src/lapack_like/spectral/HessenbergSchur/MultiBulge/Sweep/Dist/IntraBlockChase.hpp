@@ -105,7 +105,6 @@ void LocalChase
         vector<Matrix<F>>& UList )
 {
     DEBUG_CSE
-    const Int n = H.Height();
     const Grid& grid = H.Grid();
 
     Matrix<F> W;
@@ -165,7 +164,7 @@ void LocalChase
             // View the local shifts for this diagonal block
             const Int bulgeOffset = state.bulgeBeg +
               state.numBulgesPerBlock*(diagBlock-state.activeBlockBeg);
-            auto shiftsBlockLoc =
+            auto packetShifts =
               shiftsLoc( IR(0,2*numBlockBulges)+(2*bulgeOffset), ALL );
 
             // Initialize the accumulated reflection matrix; recall that it 
@@ -202,12 +201,13 @@ void LocalChase
             {
                 const Int packetBeg = step;
                 ComputeReflectors
-                ( HBlockLoc, blockWinBeg, blockWinEnd, shiftsBlockLoc, W,
+                ( HBlockLoc, blockWinBeg, blockWinEnd, packetShifts, W,
                   packetBeg, firstBulge, numBlockBulges, ctrl.progress );
                 ApplyReflectorsOpt
                 ( HBlockLoc, blockWinBeg, blockWinEnd, chaseBeg, packetBeg,
                   transformRowBeg, transformColEnd, ZDummy, wantSchurVecsSub,
-                  UBlock, W, firstBulge, accumulateSub, ctrl.progress );
+                  UBlock, W, firstBulge, numBlockBulges, accumulateSub,
+                  ctrl.progress );
             }
             ++localDiagBlock;
         }
@@ -233,7 +233,6 @@ void ApplyAccumulatedReflections
 
     auto& HLoc = H.Matrix();
     auto& ZLoc = Z.Matrix();
-    const auto& shiftsLoc = shifts.LockedMatrix();
 
     // Broadcast/Allgather the accumulated reflections within rows
     if( immediatelyApply )
@@ -249,10 +248,6 @@ void ApplyAccumulatedReflections
             const Int thisBlockHeight = 
               ( diagBlockRow == 0 ?
                 state.firstBlockSize : state.blockSize );
-            const Int numBlockBulges =
-              ( diagBlockRow==state.activeBlockEnd-1 ?
-                state.numBulgesInLastBlock :
-                state.numBulgesPerBlock );
 
             const int ownerCol =
               Mod( state.winRowAlign+diagBlockRow, grid.Width() );
@@ -300,10 +295,6 @@ void ApplyAccumulatedReflections
             const Int thisBlockHeight = 
               ( diagBlockCol == 0 ?
                 state.firstBlockSize : state.blockSize );
-            const Int numBlockBulges =
-              ( diagBlockCol==state.activeBlockEnd-1 ?
-                state.numBulgesInLastBlock :
-                state.numBulgesPerBlock );
 
             const int ownerRow =
               Mod( state.winColAlign+diagBlockCol, grid.Height() );

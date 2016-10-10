@@ -75,6 +75,7 @@ void QR
     HessenbergSchurCtrl hessSchurCtrl;
     hessSchurCtrl.fullTriangle = fullTriangle;
     hessSchurCtrl.wantSchurVecs = true;
+    hessSchurCtrl.accumulateSchurVecs = true;
     hessSchurCtrl.demandConverged = true;
     hessSchurCtrl.alg = HESSENBERG_SCHUR_AED;
     hessSchurCtrl.recursiveAED = true;

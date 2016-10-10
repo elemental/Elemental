@@ -703,6 +703,7 @@ struct HessenbergSchurCtrl
     Int winEnd=END;
     bool fullTriangle=true;
     bool wantSchurVecs=false;
+    bool accumulateSchurVecs=false;
     bool demandConverged=true;
 
     HessenbergSchurAlg alg=HESSENBERG_SCHUR_AED;
@@ -749,6 +750,20 @@ HessenbergSchur
   Matrix<F>& Z,
   const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
 
+template<typename F>
+HessenbergSchurInfo
+HessenbergSchur
+( AbstractDistMatrix<F>& H,
+  AbstractDistMatrix<Complex<Base<F>>>& w,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+template<typename F>
+HessenbergSchurInfo
+HessenbergSchur
+( AbstractDistMatrix<F>& H,
+  AbstractDistMatrix<Complex<Base<F>>>& w,
+  AbstractDistMatrix<F>& Z,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() );
+
 namespace hess_schur {
 
 template<typename F>
@@ -756,6 +771,13 @@ void Sweep
 ( Matrix<F>& H,
   Matrix<Complex<Base<F>>>& shifts,
   Matrix<F>& Z,
+  const HessenbergSchurCtrl& ctrl );
+// TODO(poulson): Generalize to AbstractDistMatrix?
+template<typename F>
+void Sweep
+( DistMatrix<F,MC,MR,BLOCK>& H,
+  DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+  DistMatrix<F,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl );
 
 } // namespace hess_schur

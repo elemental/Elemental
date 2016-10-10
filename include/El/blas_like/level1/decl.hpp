@@ -1547,6 +1547,11 @@ void Transform2x2
         Matrix<T>& a2 );
 template<typename T>
 void Transform2x2
+( const Matrix<T>& G,
+        AbstractDistMatrix<T>& a1,
+        AbstractDistMatrix<T>& a2 );
+template<typename T>
+void Transform2x2
 ( const AbstractDistMatrix<T>& G,
         AbstractDistMatrix<T>& a1,
         AbstractDistMatrix<T>& a2 );
@@ -1559,6 +1564,10 @@ void Transform2x2Rows
         Matrix<T>& A, Int i1, Int i2 );
 template<typename T>
 void Transform2x2Rows
+( const Matrix<T>& G,
+        AbstractDistMatrix<T>& A, Int i1, Int i2 );
+template<typename T>
+void Transform2x2Rows
 ( const AbstractDistMatrix<T>& G,
         AbstractDistMatrix<T>& A, Int i1, Int i2 );
 
@@ -1568,6 +1577,10 @@ template<typename T>
 void Transform2x2Cols
 ( const Matrix<T>& G,
         Matrix<T>& A, Int j1, Int j2 );
+template<typename T>
+void Transform2x2Cols
+( const Matrix<T>& G,
+        AbstractDistMatrix<T>& A, Int j1, Int j2 );
 template<typename T>
 void Transform2x2Cols
 ( const AbstractDistMatrix<T>& G,
