@@ -311,7 +311,7 @@ MultiBulge
         if( iterOffset > 0 )
         {
             H.Set( iterBeg, iterBeg-1, zero );
-            hSubWin.Set( iterOffset, 0, zero );
+            hSubWin.Set( iterOffset-1, 0, zero );
         }
         if( iterWinSize == 1 )
         {
