@@ -240,6 +240,7 @@ main( int argc, char* argv[] )
         DistMatrix<Real> QReal(g);
         DistMatrix<C> QCpx(g);
         SchurCtrl<Real> ctrl;
+        ctrl.hessSchurCtrl.fullTriangle = formATR;
 #ifdef EL_HAVE_SCALAPACK
         ctrl.hessSchurCtrl.blockHeight = nbDist;
         ctrl.hessSchurCtrl.scalapackAED = false;
@@ -259,16 +260,16 @@ main( int argc, char* argv[] )
         if( isReal )
         {
             if( psNorm == PS_TWO_NORM )
-                Schur( AReal, w, formATR, ctrl );
+                Schur( AReal, w, ctrl );
             else
-                Schur( AReal, w, QReal, formATR, ctrl );
+                Schur( AReal, w, QReal, ctrl );
         }
         else
         {
             if( psNorm == PS_TWO_NORM )
-                Schur( ACpx, w, formATR, ctrl );
+                Schur( ACpx, w, ctrl );
             else
-                Schur( ACpx, w, QCpx, formATR, ctrl );
+                Schur( ACpx, w, QCpx, ctrl );
         }
         mpi::Barrier( mpi::COMM_WORLD );
         const double schurTime = timer.Stop();

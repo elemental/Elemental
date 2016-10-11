@@ -54,6 +54,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> T( A ), Q(g);
         DistMatrix<C,VR,STAR> w(g);
         SchurCtrl<Real> ctrl;
+        ctrl.hessSchurCtrl.fullTriangle = fullTriangle;
 #ifdef EL_HAVE_SCALAPACK
         //ctrl.hessSchurCtrl.blockHeight = nbDist;
         ctrl.hessSchurCtrl.scalapackAED = false;
@@ -72,7 +73,7 @@ main( int argc, char* argv[] )
         Timer timer;
         if( mpi::Rank() == 0 )
             timer.Start();
-        Schur( T, w, Q, fullTriangle, ctrl );
+        Schur( T, w, Q, ctrl );
         if( mpi::Rank() == 0 )
             timer.Stop();
         MakeTrapezoidal( UPPER, T );

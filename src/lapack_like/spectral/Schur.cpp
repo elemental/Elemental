@@ -21,10 +21,10 @@ template<typename F>
 void Schur
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
-  bool fullTriangle,
-  const SchurCtrl<Base<F>> ctrl )
+  const SchurCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
+    const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
     if( ctrl.useSDC )
     {
         if( fullTriangle )
@@ -36,7 +36,7 @@ void Schur
             schur::SDC( A, w, ctrl.sdcCtrl );
     }
     else
-        schur::QR( A, w, fullTriangle, ctrl.time );
+        schur::QR( A, w, ctrl );
 }
 
 template<typename F>
@@ -44,24 +44,24 @@ void Schur
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
   Matrix<F>& Q,
-  bool fullTriangle,
-  const SchurCtrl<Base<F>> ctrl )
+  const SchurCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
+    const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
-        schur::QR( A, w, Q, fullTriangle, ctrl.time );
+        schur::QR( A, w, Q, ctrl );
 }
 
 template<typename F>
 void Schur
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
-  bool fullTriangle,
-  const SchurCtrl<Base<F>> ctrl )
+  const SchurCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
+    const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
 #ifdef EL_HAVE_SCALAPACK
     if( ctrl.useSDC )
     {
@@ -75,7 +75,7 @@ void Schur
     }
     else
     {
-        schur::QR( A, w, fullTriangle, ctrl.hessSchurCtrl, ctrl.time );
+        schur::QR( A, w, ctrl );
     }
 #else
     if( fullTriangle )
@@ -92,11 +92,10 @@ template<typename F>
 void Schur
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
-  bool fullTriangle,
-  const SchurCtrl<Base<F>> ctrl )
+  const SchurCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    schur::QR( A, w, fullTriangle, ctrl.hessSchurCtrl, ctrl.time );
+    schur::QR( A, w, ctrl );
 }
 
 template<typename F>
@@ -104,15 +103,15 @@ void Schur
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
   ElementalMatrix<F>& Q,
-  bool fullTriangle,
-  const SchurCtrl<Base<F>> ctrl )
+  const SchurCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
+    const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
 #ifdef EL_HAVE_SCALAPACK
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
-        schur::QR( A, w, Q, fullTriangle, ctrl.hessSchurCtrl, ctrl.time );
+        schur::QR( A, w, Q, ctrl );
 #else
     schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
 #endif
@@ -123,47 +122,40 @@ void Schur
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
   DistMatrix<F,MC,MR,BLOCK>& Q,
-  bool fullTriangle,
-  const SchurCtrl<Base<F>> ctrl )
+  const SchurCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    schur::QR( A, w, Q, fullTriangle, ctrl.hessSchurCtrl, ctrl.time );
+    schur::QR( A, w, Q, ctrl );
 }
 
 #define PROTO(F) \
   template void Schur \
   ( Matrix<F>& A, \
     Matrix<Complex<Base<F>>>& w, \
-    bool fullTriangle, \
-    const SchurCtrl<Base<F>> ctrl ); \
+    const SchurCtrl<Base<F>>& ctrl ); \
   template void Schur \
   ( ElementalMatrix<F>& A, \
     ElementalMatrix<Complex<Base<F>>>& w, \
-    bool fullTriangle, \
-    const SchurCtrl<Base<F>> ctrl ); \
+    const SchurCtrl<Base<F>>& ctrl ); \
   template void Schur \
   ( DistMatrix<F,MC,MR,BLOCK>& A, \
     ElementalMatrix<Complex<Base<F>>>& w, \
-    bool fullTriangle, \
-    const SchurCtrl<Base<F>> ctrl ); \
+    const SchurCtrl<Base<F>>& ctrl ); \
   template void Schur \
   ( Matrix<F>& A, \
     Matrix<Complex<Base<F>>>& w, \
     Matrix<F>& Q, \
-    bool fullTriangle, \
-    const SchurCtrl<Base<F>> ctrl ); \
+    const SchurCtrl<Base<F>>& ctrl ); \
   template void Schur \
   ( ElementalMatrix<F>& A, \
     ElementalMatrix<Complex<Base<F>>>& w, \
     ElementalMatrix<F>& Q, \
-    bool fullTriangle, \
-    const SchurCtrl<Base<F>> ctrl ); \
+    const SchurCtrl<Base<F>>& ctrl ); \
   template void Schur \
   ( DistMatrix<F,MC,MR,BLOCK>& A, \
     ElementalMatrix<Complex<Base<F>>>& w, \
     DistMatrix<F,MC,MR,BLOCK>& Q, \
-    bool fullTriangle, \
-    const SchurCtrl<Base<F>> ctrl ); \
+    const SchurCtrl<Base<F>>& ctrl ); \
   template void schur::CheckRealSchur \
   ( const Matrix<F>& U, bool standardForm ); \
   template void schur::CheckRealSchur \
@@ -204,6 +196,10 @@ void Schur
           ElementalMatrix<Complex<Real>>& Q );
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
 } // namespace El

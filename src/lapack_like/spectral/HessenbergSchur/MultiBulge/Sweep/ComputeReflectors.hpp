@@ -32,7 +32,7 @@ void ComputeReflectors
     const Real realZero(0);
     const F zero(0);
     const Real ulp = limits::Precision<Real>();
-    W.Resize( 3, numBulges );
+
 
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;
@@ -42,6 +42,8 @@ void ComputeReflectors
           LogicError("Last bulge starts too late");
     )
     const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
+    if( W.Height() < 3 || W.Width() < numFullBulges )
+        W.Resize( 3, numFullBulges );
 
     // Set aside space for a Householder vector for a candidate reinflation of
     // a deflated bulge

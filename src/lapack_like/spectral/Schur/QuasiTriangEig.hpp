@@ -38,7 +38,8 @@ void QuasiTriangEig
             H11(1,0) = dSub(j);
             H11(0,1) = dSup(j);
             H11(1,1) = dMain(j+1);
-            lapack::HessenbergEig( 2, H11.Buffer(), H11.LDim(), w.Buffer(j,0) );
+            auto w1 = w( IR(j,j+2), ALL );
+            HessenbergSchur( H11, w1 );
             j += 2;
         }
     }

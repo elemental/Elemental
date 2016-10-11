@@ -36,6 +36,9 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
 
+        SchurCtrl<double> ctrl;
+        ctrl.hessSchurCtrl.fullTriangle = fullTriangle;
+
         DistMatrix<Complex<double>,MC,MR,BLOCK> A(m,n,g,mb,nb);
         Fill( A, Complex<double>(1) );
         A.Matrix() *= double(commRank);
@@ -56,7 +59,7 @@ main( int argc, char* argv[] )
             //       This driver was therefore switched to complex arithmetic.
             DistMatrix<Complex<double>,VR,STAR> w( m, 1, g );
             DistMatrix<Complex<double>,MC,MR,BLOCK> Q(m,m,g,mb,nb);
-            Schur( A, w, Q, fullTriangle );
+            Schur( A, w, Q, ctrl );
             if( print )
             {
                 Print( A, "Schur(A)" );

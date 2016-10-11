@@ -920,7 +920,9 @@ SDC
     {
         if( ctrl.progress )
             Output(n," <= ",ctrl.cutoff,": switching to QR algorithm");
-        Schur( A, w, false );
+        SchurCtrl<Base<F>> schurCtrl;
+        schurCtrl.hessSchurCtrl.fullTriangle = false;
+        Schur( A, w, schurCtrl );
         return;
     }
 
@@ -967,7 +969,9 @@ SDC
     {
         if( ctrl.progress )
             Output(n," <= ",ctrl.cutoff,": switching to QR algorithm");
-        Schur( A, w, Q, fullTriangle );
+        SchurCtrl<Base<F>> schurCtrl;
+        schurCtrl.hessSchurCtrl.fullTriangle = fullTriangle;
+        Schur( A, w, Q, schurCtrl );
         return;
     }
 
@@ -1182,6 +1186,9 @@ SDC
     auto& A = AProx.Get();
     auto& w = wProx.Get();
 
+    SchurCtrl<Base<F>> schurCtrl;
+    schurCtrl.hessSchurCtrl.fullTriangle = false;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -1189,7 +1196,7 @@ SDC
     {
         if( ctrl.progress && g.Rank() == 0 )
             Output("One process: using QR algorithm");
-        Schur( A.Matrix(), w.Matrix(), false );
+        Schur( A.Matrix(), w.Matrix(), schurCtrl );
         return;
     }
     if( n <= ctrl.cutoff )
@@ -1198,8 +1205,9 @@ SDC
             Output(n," <= ",ctrl.cutoff,": using QR algorithm"); 
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
         DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( w );
+
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-            Schur( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), false );
+            Schur( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), schurCtrl );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
         return;
@@ -1373,6 +1381,9 @@ SDC
     auto& w = wProx.Get();
     auto& Q = QProx.Get();
 
+    SchurCtrl<Base<F>> schurCtrl;
+    schurCtrl.hessSchurCtrl.fullTriangle = fullTriangle;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -1381,7 +1392,7 @@ SDC
     {
         if( ctrl.progress && g.Rank() == 0 )
             Output("One process: using QR algorithm");
-        Schur( A.Matrix(), w.Matrix(), Q.Matrix(), fullTriangle );
+        Schur( A.Matrix(), w.Matrix(), Q.Matrix(), schurCtrl );
         return;
     }
     if( n <= ctrl.cutoff )
@@ -1393,7 +1404,7 @@ SDC
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Schur
             ( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(),
-              fullTriangle );
+              schurCtrl );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
         Q = Q_CIRC_CIRC;

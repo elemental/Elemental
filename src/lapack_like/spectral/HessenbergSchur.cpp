@@ -73,7 +73,9 @@ HessenbergSchur
     proxCtrl.rowAlign = H.RowAlign();
     proxCtrl.colCut = H.ColCut();
     proxCtrl.rowCut = H.RowCut();
-    DistMatrixWriteProxy<F,F,MC,MR,BLOCK> ZProx( ZPre, proxCtrl );
+    // Technically, the 'Read' portion of the proxy is only needed if
+    // ctrl.accumulateSchurVecs is true.
+    DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> ZProx( ZPre, proxCtrl );
     auto& Z = ZProx.Get();
 
     const Int n = H.Height();

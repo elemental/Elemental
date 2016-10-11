@@ -813,42 +813,36 @@ template<typename F>
 void Schur
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
-  bool fullTriangle=false,
-  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  const SchurCtrl<Base<F>>& ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
-  bool fullTriangle=false,
-  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  const SchurCtrl<Base<F>>& ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w,
-  bool fullTriangle=false,
-  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  const SchurCtrl<Base<F>>& ctrl=SchurCtrl<Base<F>>() );
 
 template<typename F>
 void Schur
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
   Matrix<F>& Q,
-  bool fullTriangle=true,
-  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  const SchurCtrl<Base<F>>& ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
 ( ElementalMatrix<F>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
   ElementalMatrix<F>& Q,
-  bool fullTriangle=true, 
-  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  const SchurCtrl<Base<F>>& ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   ElementalMatrix<Complex<Base<F>>>& w, 
   DistMatrix<F,MC,MR,BLOCK>& Q,
-  bool fullTriangle=true, 
-  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  const SchurCtrl<Base<F>>& ctrl=SchurCtrl<Base<F>>() );
 
 namespace schur {
 

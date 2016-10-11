@@ -25,10 +25,7 @@ void TestCorrectness
 
     // Find the residual R = AV-VW
     Matrix<Complex<Real>> R( V.Height(), V.Width() );
-    Gemm
-    ( NORMAL, NORMAL,
-      Complex<Real>(1), A, V,
-      Complex<Real>(0), R);
+    Gemm( NORMAL, NORMAL, Complex<Real>(1), A, V, R );
     Matrix<Complex<Real>> VW( V );
     DiagonalScale( RIGHT, NORMAL, w, VW );
     R -= VW;
@@ -55,10 +52,7 @@ void TestCorrectness
 
     // Find the residual R = AV-VW
     DistMatrix<Complex<Real>> R( V.Height(), V.Width(), A.Grid() );
-    Gemm
-    ( NORMAL, NORMAL,
-      Complex<Real>(1), A, V,
-      Complex<Real>(0), R);
+    Gemm( NORMAL, NORMAL, Complex<Real>(1), A, V, R );
     DistMatrix<Complex<Real>> VW( V );
     DiagonalScale( RIGHT, NORMAL, w, VW );
     R -= VW;
@@ -103,7 +97,11 @@ void EigBenchmark
 
     SchurCtrl<Real> schurCtrl;
     schurCtrl.time = true;
+    schurCtrl.hessSchurCtrl.fullTriangle = true;
 
+    // TODO(poulson): Remove this line after debugging
+    //schurCtrl.hessSchurCtrl.minMultiBulgeSize = 12;
+ 
     // Compute eigenvectors with Elemental
     Output("Elemental");
     PushIndent();
@@ -111,7 +109,7 @@ void EigBenchmark
     Output("Schur decomposition...");
     PushIndent();
     timer.Start();
-    Schur( A, w, V, true, schurCtrl );
+    Schur( A, w, V, schurCtrl );
     Output("Time = ",timer.Stop()," seconds");
     PopIndent();
     if( print )
@@ -251,6 +249,7 @@ void EigBenchmark
     Timer timer;
  
     SchurCtrl<Real> schurCtrl;
+    schurCtrl.hessSchurCtrl.fullTriangle = true;
     schurCtrl.hessSchurCtrl.scalapackAED = scalapackAED;
     schurCtrl.hessSchurCtrl.blockHeight = blockHeight;
     schurCtrl.time = true;
@@ -262,7 +261,7 @@ void EigBenchmark
     OutputFromRoot(g.Comm(),"Schur decomposition...");
     PushIndent();
     timer.Start();
-    Schur( A, w, V, true, schurCtrl );
+    Schur( A, w, V, schurCtrl );
     OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
     PopIndent();
     if( print )
@@ -318,6 +317,8 @@ main( int argc, char* argv[] )
            "Distributed Aggressive Early Deflation? (it can be buggy...)",
            false);
         const bool sequential = Input("--sequential","test sequential?",true);
+        const bool distributed =
+          Input("--distributed","test distributed?",true);
         const bool correctness =
           Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -341,11 +342,13 @@ main( int argc, char* argv[] )
             EigBenchmark<double>
             ( n, correctness, print, whichMatrix );
         }
-
-        EigBenchmark<float>
-        ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
-        EigBenchmark<double>
-        ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
+        if( distributed )
+        {
+            EigBenchmark<float>
+            ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
+            EigBenchmark<double>
+            ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

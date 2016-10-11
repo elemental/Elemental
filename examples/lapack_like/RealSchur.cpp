@@ -50,6 +50,7 @@ main( int argc, char* argv[] )
         DistMatrix<Real> T( A ), Q;
         DistMatrix<Complex<Real>,VR,STAR> w;
         SchurCtrl<Real> ctrl;
+        ctrl.hessSchurCtrl.fullTriangle = fullTriangle;
 #ifdef EL_HAVE_SCALAPACK
         ctrl.hessSchurCtrl.scalapackAED = aed;
         // TODO: distribution block size
@@ -65,7 +66,7 @@ main( int argc, char* argv[] )
         ctrl.sdcCtrl.signCtrl.tol = signTol;
         ctrl.sdcCtrl.signCtrl.progress = progress;
 #endif
-        Schur( T, w, Q, fullTriangle, ctrl );
+        Schur( T, w, Q, ctrl );
         MakeTrapezoidal( UPPER, T, -1 );
         if( display )
         {

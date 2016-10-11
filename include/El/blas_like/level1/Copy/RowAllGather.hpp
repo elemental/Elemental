@@ -159,8 +159,7 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 }
 
 template<typename T>
-void RowAllGather
-( const BlockMatrix<T>& A, BlockMatrix<T>& B ) 
+void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B ) 
 {
     DEBUG_CSE
     AssertSameGrids( A, B );
