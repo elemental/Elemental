@@ -302,6 +302,11 @@ MultiBulge
         // collect the main and sub diagonal of H along the diagonal workers 
         // and then broadcast across the "cross" communicator.
         util::GatherTridiagonal( H, winInd, hMainWin, hSubWin, hSuperWin );
+        Output("winBeg=",winBeg,", winEnd=",winEnd);
+        Print( H, "H" );
+        Print( hMainWin, "hMainWin" );
+        Print( hSubWin, "hSubWin" );
+        Print( hSuperWin, "hSuperWin" );
 
         const Int iterOffset =
           DetectSmallSubdiagonal
@@ -315,6 +320,8 @@ MultiBulge
         }
         if( iterWinSize == 1 )
         {
+            if( ctrl.progress )
+                Output("One-by-one window at ",iterBeg);
             w.Set( iterBeg, 0, hMainWin.GetLocal(iterOffset,0) );
 
             winEnd = iterBeg;
@@ -323,6 +330,8 @@ MultiBulge
         }
         else if( iterWinSize == 2 )
         {
+            if( ctrl.progress )
+                Output("Two-by-two window at ",iterBeg);
             const F eta00 = hMainWin.GetLocal(iterOffset,0);
             const F eta01 = hSuperWin.GetLocal(iterOffset,0);
             const Real eta10 = hSubWin.GetLocal(iterOffset,0);
@@ -337,6 +346,8 @@ MultiBulge
         else if( iterWinSize < minMultiBulgeSize )
         {
             // The window is small enough to switch to the simple scheme
+            if( ctrl.progress )
+                Output("Redundantly handling window [",iterBeg,",",winEnd,"]");
             auto ctrlIter( ctrl );
             ctrlIter.winBeg = iterBeg;
             ctrlIter.winEnd = winEnd;

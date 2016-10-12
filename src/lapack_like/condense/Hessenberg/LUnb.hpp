@@ -70,7 +70,9 @@ void LUnb( Matrix<F>& A, Matrix<F>& householderScalars )
 }
 
 template<typename F> 
-void LUnb( ElementalMatrix<F>& APre, ElementalMatrix<F>& householderScalarsPre )
+void LUnb
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalarsPre )
 {
     DEBUG_CSE
 

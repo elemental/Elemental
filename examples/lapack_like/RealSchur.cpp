@@ -21,11 +21,8 @@ main( int argc, char* argv[] )
         const Int matType = Input("--matType","0: uniform, 1: Haar",0);
         const Int n = Input("--size","height of matrix",100);
         const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
-#ifdef EL_HAVE_SCALAPACK
-        // QR algorithm options
-        const bool aed = Input("--aed","use Agg. Early Deflat.?",false);
-#else
         // Spectral Divide and Conquer options
+        const bool sdc = Input("--sdc","Use Spectral D&C?",false);
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",2);
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
@@ -34,7 +31,6 @@ main( int argc, char* argv[] )
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const bool random = Input("--random","random RRQR?",true);
         const bool progress = Input("--progress","output progress?",false);
-#endif
         const bool display = Input("--display","display matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -51,11 +47,10 @@ main( int argc, char* argv[] )
         DistMatrix<Complex<Real>,VR,STAR> w;
         SchurCtrl<Real> ctrl;
         ctrl.hessSchurCtrl.fullTriangle = fullTriangle;
-#ifdef EL_HAVE_SCALAPACK
-        ctrl.hessSchurCtrl.scalapackAED = aed;
+        ctrl.hessSchurCtrl.scalapack = false;
         // TODO: distribution block size
-#else
-        ctrl.useSDC = true;
+        ctrl.useSDC = sdc;
+        // Spectral D&C options (only relevant if 'sdc' is true)
         ctrl.sdcCtrl.cutoff = cutoff;
         ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
         ctrl.sdcCtrl.maxOuterIts = maxOuterIts;
@@ -65,7 +60,7 @@ main( int argc, char* argv[] )
         ctrl.sdcCtrl.progress = progress;
         ctrl.sdcCtrl.signCtrl.tol = signTol;
         ctrl.sdcCtrl.signCtrl.progress = progress;
-#endif
+
         Schur( T, w, Q, ctrl );
         MakeTrapezoidal( UPPER, T, -1 );
         if( display )

@@ -125,8 +125,8 @@ void
 LV
 ( Conjugation conjugation,
   Int offset, 
-        ElementalMatrix<F>& HPre,
-  const ElementalMatrix<F>& householderScalarsPre )
+        AbstractDistMatrix<F>& HPre,
+  const AbstractDistMatrix<F>& householderScalarsPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(

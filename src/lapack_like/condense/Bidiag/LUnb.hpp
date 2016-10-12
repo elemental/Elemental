@@ -104,9 +104,9 @@ void LUnb
 
 template<typename F> 
 void LUnb
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& householderScalarsPPre,
-  ElementalMatrix<F>& householderScalarsQPre )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& householderScalarsPPre,
+  AbstractDistMatrix<F>& householderScalarsQPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(

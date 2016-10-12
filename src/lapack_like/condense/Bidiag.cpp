@@ -29,9 +29,9 @@ void Bidiag
 
 template<typename F> 
 void Bidiag
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& householderScalarsP,
-  ElementalMatrix<F>& householderScalarsQ )
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& householderScalarsP,
+  AbstractDistMatrix<F>& householderScalarsQ )
 {
     DEBUG_CSE
     if( A.Height() >= A.Width() )
@@ -51,7 +51,8 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
     if( A.Height() >= A.Width() )
     {
         Q = A;
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, Q, householderScalarsQ );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, 0, Q, householderScalarsQ );
         // TODO: Use ExpandPackedReflectors when it is available
         Identity( P, A.Width(), A.Width() );
         bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, P ); 
@@ -62,7 +63,8 @@ void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
     else
     {
         Q = A;
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, -1, Q, householderScalarsQ );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, -1, Q, householderScalarsQ );
         // TODO: Use ExpandPackedReflectors when it is available
         Identity( P, A.Width(), A.Width() );
         bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, P ); 
@@ -110,9 +112,9 @@ void Explicit
 
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& PPre,
-  ElementalMatrix<F>& QPre )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& PPre,
+  AbstractDistMatrix<F>& QPre )
 {
     DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
@@ -145,7 +147,7 @@ void ExplicitCondensed( Matrix<F>& A )
 }
 
 template<typename F> 
-void ExplicitCondensed( ElementalMatrix<F>& A )
+void ExplicitCondensed( AbstractDistMatrix<F>& A )
 {
     DEBUG_CSE
     DistMatrix<F,STAR,STAR> householderScalarsP(A.Grid()),
@@ -171,19 +173,19 @@ void ExplicitCondensed( ElementalMatrix<F>& A )
     Matrix<F>& householderScalarsP, \
     Matrix<F>& householderScalarsQ ); \
   template void Bidiag \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& householderScalarsP, \
-    ElementalMatrix<F>& householderScalarsQ ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& householderScalarsP, \
+    AbstractDistMatrix<F>& householderScalarsQ ); \
   template void bidiag::Explicit \
   ( Matrix<F>& A, \
     Matrix<F>& P, \
     Matrix<F>& Q ); \
   template void bidiag::Explicit \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& P, \
-    ElementalMatrix<F>& Q ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& P, \
+    AbstractDistMatrix<F>& Q ); \
   template void bidiag::ExplicitCondensed( Matrix<F>& A ); \
-  template void bidiag::ExplicitCondensed( ElementalMatrix<F>& A ); \
+  template void bidiag::ExplicitCondensed( AbstractDistMatrix<F>& A ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, \
@@ -191,9 +193,9 @@ void ExplicitCondensed( ElementalMatrix<F>& A )
           Matrix<F>& B ); \
   template void bidiag::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& householderScalars, \
-          ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& householderScalars, \
+          AbstractDistMatrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, \
@@ -201,9 +203,9 @@ void ExplicitCondensed( ElementalMatrix<F>& A )
           Matrix<F>& B ); \
   template void bidiag::ApplyP \
   ( LeftOrRight side, Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& householderScalars, \
-          ElementalMatrix<F>& B );
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& householderScalars, \
+          AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

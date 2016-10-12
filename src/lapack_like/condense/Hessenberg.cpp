@@ -31,8 +31,8 @@ void Hessenberg
 template<typename F> 
 void Hessenberg
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars )
+  AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars )
 {
     DEBUG_CSE
     if( uplo == UPPER )
@@ -56,7 +56,7 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
+void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
     DEBUG_CSE
     DistMatrix<F,STAR,STAR> householderScalars(A.Grid());
@@ -76,12 +76,12 @@ void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
     Matrix<F>& householderScalars ); \
   template void Hessenberg \
   ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& householderScalars ); \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& householderScalars ); \
   template void hessenberg::ExplicitCondensed \
   ( UpperOrLower uplo, Matrix<F>& A ); \
   template void hessenberg::ExplicitCondensed \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, \
@@ -89,9 +89,9 @@ void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
           Matrix<F>& H ); \
   template void hessenberg::ApplyQ \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& householderScalars, \
-          ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& householderScalars, \
+          AbstractDistMatrix<F>& B ); \
   template void hessenberg::FormQ \
   ( UpperOrLower uplo, \
     const Matrix<F>& A, \
@@ -99,9 +99,9 @@ void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A )
           Matrix<F>& Q ); \
   template void hessenberg::FormQ \
   ( UpperOrLower uplo, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& householderScalars, \
-          ElementalMatrix<F>& Q );
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& householderScalars, \
+          AbstractDistMatrix<F>& Q );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

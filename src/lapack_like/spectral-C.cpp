@@ -333,7 +333,7 @@ ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
     ctrl->deflationSize = &hess_schur::aed::DeflationSize;
     ctrl->sufficientDeflation = &hess_schur::aed::SufficientDeflation;
     
-    ctrl->scalapackAED = false;
+    ctrl->scalapack = false;
     ctrl->blockHeight = DefaultBlockHeight();
     ctrl->numBulgesPerBlock = &hess_schur::multibulge::NumBulgesPerBlock;
 

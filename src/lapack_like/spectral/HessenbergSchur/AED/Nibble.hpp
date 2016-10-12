@@ -337,10 +337,7 @@ AEDInfo Nibble
     // Reform the eigenvalues and shift candidates by looping over the converged
     // eigenvalues from last to first
     for( Int i=blockSize-1; i>=info.numUnconverged; --i )
-    {
         w(deflateBeg+i) = T(i,i);
-        i -= 1;
-    }
 
     const Int spikeSize = info.numUnconverged + info.numShiftCandidates;
     if( spikeSize < blockSize || spikeValue == zero )

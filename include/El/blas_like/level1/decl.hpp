@@ -433,7 +433,7 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B );
 template<typename T>
 void Conjugate( AbstractDistMatrix<T>& A );
 template<typename T>
-void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
+void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 // ConjugateDiagonal
 // =================

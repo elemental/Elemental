@@ -21,19 +21,19 @@ namespace El {
 template<typename F>
 void Bidiag
 ( Matrix<F>& A,
-  Matrix<F>& phaseP,
-  Matrix<F>& phaseQ );
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ );
 
 template<typename F>
 void Bidiag
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseP,
-  ElementalMatrix<F>& phaseQ );
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& householderScalarsP,
+  AbstractDistMatrix<F>& householderScalarsQ );
 template<typename F>
 void Bidiag
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseP,
-  ElementalMatrix<F>& phaseQ );
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& householderScalarsP,
+  AbstractDistMatrix<F>& householderScalarsQ );
 
 namespace bidiag {
 
@@ -45,9 +45,9 @@ void Explicit
   Matrix<F>& Q );
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& P,
-  ElementalMatrix<F>& Q );
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& P,
+  AbstractDistMatrix<F>& Q );
 template<typename F>
 void Explicit
 ( DistMatrix<F>& A, 
@@ -58,33 +58,33 @@ void Explicit
 template<typename F>
 void ExplicitCondensed( Matrix<F>& A ); 
 template<typename F>
-void ExplicitCondensed( ElementalMatrix<F>& A );
+void ExplicitCondensed( AbstractDistMatrix<F>& A );
 
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+        AbstractDistMatrix<F>& B );
 
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& B );
 template<typename F>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+        AbstractDistMatrix<F>& B );
 
 } // namespace bidiag
 
@@ -110,12 +110,13 @@ struct HermitianTridiagCtrl
 };
 
 template<typename F>
-void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase );
+void HermitianTridiag
+( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& householderScalars );
 template<typename F>
 void HermitianTridiag
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase,
+  AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars,
   const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
 
 namespace herm_tridiag {
@@ -124,64 +125,66 @@ template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void ExplicitCondensed
-( UpperOrLower uplo, ElementalMatrix<F>& A,
+( UpperOrLower uplo, AbstractDistMatrix<F>& A,
   const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
 
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars, 
+        AbstractDistMatrix<F>& B );
 
 } // namespace herm_tridiag
 
 // Hessenberg
 // ==========
 template<typename F>
-void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase );
+void Hessenberg
+( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& householderScalars );
 template<typename F>
 void Hessenberg
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& phase );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars );
 
 namespace hessenberg {
 
 template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A );
+void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& B );
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars, 
+        AbstractDistMatrix<F>& B );
 
 template<typename F>
 void FormQ
 ( UpperOrLower uplo,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
+  const Matrix<F>& householderScalars,
         Matrix<F>& Q );
 template<typename F>
 void FormQ
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
-        ElementalMatrix<F>& Q );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars, 
+        AbstractDistMatrix<F>& Q );
 
 } // namespace hessenberg
 

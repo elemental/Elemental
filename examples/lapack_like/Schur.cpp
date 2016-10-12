@@ -57,7 +57,7 @@ main( int argc, char* argv[] )
         ctrl.hessSchurCtrl.fullTriangle = fullTriangle;
 #ifdef EL_HAVE_SCALAPACK
         //ctrl.hessSchurCtrl.blockHeight = nbDist;
-        ctrl.hessSchurCtrl.scalapackAED = false;
+        ctrl.hessSchurCtrl.scalapack = false;
 #else
         ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;

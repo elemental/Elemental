@@ -49,6 +49,147 @@ HessenbergSchur
     }
 }
 
+namespace hess_schur {
+
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+HessenbergSchurInfo
+ScaLAPACKHelper
+( AbstractDistMatrix<F>& HPre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre,
+  AbstractDistMatrix<F>& ZPre,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    AssertScaLAPACKSupport();
+    HessenbergSchurInfo info;
+
+    ProxyCtrl proxyCtrl;
+    proxyCtrl.colConstrain = true;
+    proxyCtrl.rowConstrain = true;
+    proxyCtrl.blockHeight = ctrl.blockHeight;
+    proxyCtrl.blockWidth = ctrl.blockHeight;
+    proxyCtrl.colAlign = 0;
+    proxyCtrl.rowAlign = 0;
+    proxyCtrl.colCut = 0;
+    proxyCtrl.rowCut = 0;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> HProx( HPre, proxyCtrl );
+    auto& H = HProx.Get();
+    const Int n = H.Height();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> ZProx( ZPre, proxyCtrl );
+    auto& Z = ZProx.Get();
+    if( !ctrl.accumulateSchurVecs )
+        Identity( Z, n, n );
+
+    DistMatrixWriteProxy<Complex<Real>,Complex<Real>,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
+#ifdef EL_HAVE_SCALAPACK
+    const int bHandle = blacs::Handle( H );
+    const int context = blacs::GridInit( bHandle, H );
+    auto descH = FillDesc( H, context );
+
+    bool accumulateSchurVecs=true;
+    bool useAED = ( ctrl.alg == HESSENBERG_SCHUR_AED );
+    scalapack::HessenbergSchur
+    ( n,
+      H.Buffer(), descH.data(),
+      w.Buffer(),
+      Z.Buffer(), descH.data(),
+      ctrl.fullTriangle,
+      accumulateSchurVecs,
+      useAED );
+    // TODO(poulson): Find a way to fill in info?
+
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
+#endif
+
+    return info;
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+HessenbergSchurInfo
+ScaLAPACKHelper
+( AbstractDistMatrix<F>& HPre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre,
+  AbstractDistMatrix<F>& ZPre,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    LogicError("ScalapackHelper should never be called for this datatype");
+    HessenbergSchurInfo info;
+    return info;
+}
+
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+HessenbergSchurInfo
+ScaLAPACKHelper
+( AbstractDistMatrix<F>& HPre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    AssertScaLAPACKSupport();
+    HessenbergSchurInfo info;
+
+    ProxyCtrl proxyCtrl;
+    proxyCtrl.colConstrain = true;
+    proxyCtrl.rowConstrain = true;
+    proxyCtrl.blockHeight = ctrl.blockHeight;
+    proxyCtrl.blockWidth = ctrl.blockHeight;
+    proxyCtrl.colAlign = 0;
+    proxyCtrl.rowAlign = 0;
+    proxyCtrl.colCut = 0;
+    proxyCtrl.rowCut = 0;
+
+    DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> HProx( HPre, proxyCtrl );
+    auto& H = HProx.Get();
+    const Int n = H.Height();
+
+    DistMatrixWriteProxy<Complex<Real>,Complex<Real>,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
+#ifdef EL_HAVE_SCALAPACK
+    const int bHandle = blacs::Handle( H );
+    const int context = blacs::GridInit( bHandle, H );
+    auto descH = FillDesc( H, context );
+
+    bool useAED = ( ctrl.alg == HESSENBERG_SCHUR_AED );
+    scalapack::HessenbergSchur
+    ( n,
+      H.Buffer(), descH.data(),
+      w.Buffer(),
+      ctrl.fullTriangle, useAED );
+    // TODO(poulson): Find a way to fill in info?
+
+    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
+    blacs::FreeGrid( context );
+    blacs::FreeHandle( bHandle );
+#endif
+
+    return info;
+}
+
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+HessenbergSchurInfo
+ScaLAPACKHelper
+( AbstractDistMatrix<F>& HPre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    LogicError("ScalapackHelper should never be called for this datatype");
+    HessenbergSchurInfo info;
+    return info;
+}
+
+} // namespace hess_schur
+
 template<typename F>
 HessenbergSchurInfo
 HessenbergSchur
@@ -87,6 +228,18 @@ HessenbergSchur
     {
         Identity( Z, n, n );
         ctrlMod.accumulateSchurVecs = true;
+    }
+
+    if( ctrlMod.scalapack )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        if( IsBlasScalar<F>::value )
+            return hess_schur::ScaLAPACKHelper( H, w, Z, ctrlMod );
+        else
+            Output("Warning: ScaLAPACK is not supported for this datatype");
+#else
+        Output("Warning: Elemental was not configured with ScaLAPACK support");
+#endif
     }
 
     // For now, only the MultiBulge algorithm is supported
@@ -146,6 +299,18 @@ HessenbergSchur
     ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     ctrlMod.winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     ctrlMod.wantSchurVecs = false;
+
+    if( ctrlMod.scalapack )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        if( IsBlasScalar<F>::value )
+            return hess_schur::ScaLAPACKHelper( H, w, ctrlMod );
+        else
+            Output("Warning: ScaLAPACK is not supported for this datatype");
+#else
+        Output("Warning: Elemental was not configured with ScaLAPACK support");
+#endif
+    }
 
     // For now, only the MultiBulge algorithm is supported
     return hess_schur::MultiBulge( H, w, Z, ctrlMod );

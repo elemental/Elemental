@@ -158,9 +158,9 @@ void
 RUVFUnblocked
 ( Conjugation conjugation,
   Int offset,
-  const ElementalMatrix<F>& H,
-  const ElementalMatrix<F>& householderScalarsPre,
-        ElementalMatrix<F>& APre )
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalarsPre,
+        AbstractDistMatrix<F>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -185,7 +185,7 @@ RUVFUnblocked
           ("householderScalars must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
-    auto hPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
+    auto hPan = unique_ptr<AbstractDistMatrix<F>>( H.Construct(g,H.Root()) );
     DistMatrix<F,MR,STAR> hPan_MR_STAR(g);
     DistMatrix<F,MC,STAR> z_MC_STAR(g);
 
@@ -223,9 +223,9 @@ void
 RUVFBlocked
 ( Conjugation conjugation,
   Int offset,
-  const ElementalMatrix<F>& H,
-  const ElementalMatrix<F>& householderScalarsPre,
-        ElementalMatrix<F>& APre )
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalarsPre,
+        AbstractDistMatrix<F>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -248,7 +248,7 @@ RUVFBlocked
           ("householderScalars must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
-    auto HPan = unique_ptr<ElementalMatrix<F>>( H.Construct(g,H.Root()) );
+    auto HPan = unique_ptr<AbstractDistMatrix<F>>( H.Construct(g,H.Root()) );
     DistMatrix<F> HPanCopy(g);
     DistMatrix<F,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<F,MR,  STAR> HPan_MR_STAR(g);
@@ -313,9 +313,9 @@ void
 RUVF
 ( Conjugation conjugation,
   Int offset,
-  const ElementalMatrix<F>& H,
-  const ElementalMatrix<F>& householderScalars,
-        ElementalMatrix<F>& A )
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalars,
+        AbstractDistMatrix<F>& A )
 {
     DEBUG_CSE
     const Int numLHS = A.Height();

@@ -102,9 +102,9 @@ void UUnb
 
 template<typename F> 
 void UUnb
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& householderScalarsPPre,
-  ElementalMatrix<F>& householderScalarsQPre )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& householderScalarsPPre,
+  AbstractDistMatrix<F>& householderScalarsQPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(

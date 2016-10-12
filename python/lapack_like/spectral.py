@@ -571,7 +571,7 @@ class HessenbergSchurCtrl(ctypes.Structure):
               ("numShifts",CFUNCTYPE(iType,iType,iType)),
               ("deflationSize",CFUNCTYPE(iType,iType,iType,iType)),
               ("sufficientDeflation",CFUNCTYPE(iType,iType)),
-              ("scalapackAED",bType),
+              ("scalapack",bType),
               ("blockHeight",iType),
               ("numBulgesPerBlock",CFUNCTYPE(iType,iType))]
   def __init__(self):

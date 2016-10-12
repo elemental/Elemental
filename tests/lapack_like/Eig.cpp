@@ -99,9 +99,6 @@ void EigBenchmark
     schurCtrl.time = true;
     schurCtrl.hessSchurCtrl.fullTriangle = true;
 
-    // TODO(poulson): Remove this line after debugging
-    //schurCtrl.hessSchurCtrl.minMultiBulgeSize = 12;
- 
     // Compute eigenvectors with Elemental
     Output("Elemental");
     PushIndent();
@@ -115,6 +112,7 @@ void EigBenchmark
     if( print )
     {
         Print( A, "T" );
+        Print( w, "w" );
         Print( V, "Q" );
     }
     Output("Triangular eigensolver...");
@@ -224,7 +222,7 @@ void EigBenchmark
   bool correctness,
   bool print,
   Int whichMatrix,
-  bool scalapackAED,
+  bool scalapack,
   Int blockHeight )
 {
     OutputFromRoot( g.Comm(), "Testing with ", TypeName<Real>() );
@@ -250,7 +248,7 @@ void EigBenchmark
  
     SchurCtrl<Real> schurCtrl;
     schurCtrl.hessSchurCtrl.fullTriangle = true;
-    schurCtrl.hessSchurCtrl.scalapackAED = scalapackAED;
+    schurCtrl.hessSchurCtrl.scalapack = scalapack;
     schurCtrl.hessSchurCtrl.blockHeight = blockHeight;
     schurCtrl.time = true;
 
@@ -311,11 +309,9 @@ main( int argc, char* argv[] )
         const Int blockHeight =
           Input("--blockHeight","ScaLAPACK block height",32);
         // NOTE: Distributed AED is not supported by ScaLAPACK for complex :-(
-        const bool scalapackAED =
+        const bool scalapack =
           Input
-          ("--scalapackAED",
-           "Distributed Aggressive Early Deflation? (it can be buggy...)",
-           false);
+          ("--scalapack","Use ScaLAPACK for the distributed solver?",false);
         const bool sequential = Input("--sequential","test sequential?",true);
         const bool distributed =
           Input("--distributed","test distributed?",true);
@@ -345,9 +341,11 @@ main( int argc, char* argv[] )
         if( distributed )
         {
             EigBenchmark<float>
-            ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
+            ( grid, n, correctness, print, whichMatrix, scalapack,
+              blockHeight );
             EigBenchmark<double>
-            ( grid, n, correctness, print, whichMatrix, scalapackAED, blockHeight );
+            ( grid, n, correctness, print, whichMatrix, scalapack,
+              blockHeight );
         }
     }
     catch( exception& e ) { ReportException(e); }

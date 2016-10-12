@@ -106,8 +106,8 @@ void RealToComplex
 
 template<typename Real>
 void RealToComplex
-( const ElementalMatrix<        Real >& UQuasi, 
-        ElementalMatrix<Complex<Real>>& UPre )
+( const AbstractDistMatrix<        Real >& UQuasi, 
+        AbstractDistMatrix<Complex<Real>>& UPre )
 {
     DEBUG_CSE
     typedef Complex<Real> C;
@@ -166,10 +166,10 @@ void RealToComplex
 
 template<typename Real>
 void RealToComplex
-( const ElementalMatrix<        Real >& UQuasi, 
-  const ElementalMatrix<        Real >& QQuasi,
-        ElementalMatrix<Complex<Real>>& UPre,
-        ElementalMatrix<Complex<Real>>& QPre )
+( const AbstractDistMatrix<        Real >& UQuasi, 
+  const AbstractDistMatrix<        Real >& QQuasi,
+        AbstractDistMatrix<Complex<Real>>& UPre,
+        AbstractDistMatrix<Complex<Real>>& QPre )
 {
     DEBUG_CSE
     typedef Complex<Real> C;
