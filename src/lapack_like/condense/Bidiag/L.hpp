@@ -179,9 +179,9 @@ L
 template<typename F> 
 void
 L
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& householderScalarsPPre,
-  ElementalMatrix<F>& householderScalarsQPre )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& householderScalarsPPre,
+  AbstractDistMatrix<F>& householderScalarsQPre )
 {
     DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>

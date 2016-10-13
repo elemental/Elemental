@@ -113,9 +113,9 @@ void ApplyPackedReflectors
   VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation,
   Int offset,
-  const ElementalMatrix<F>& H,
-  const ElementalMatrix<F>& householderScalars,
-        ElementalMatrix<F>& A )
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalars,
+        AbstractDistMatrix<F>& A )
 {
     DEBUG_CSE
     if( side == LEFT )
@@ -198,9 +198,9 @@ void ApplyPackedReflectors
   ( LeftOrRight side, UpperOrLower uplo, \
     VerticalOrHorizontal dir, ForwardOrBackward order, \
     Conjugation conjugation, Int offset, \
-    const ElementalMatrix<F>& H, \
-    const ElementalMatrix<F>& householderScalars, \
-          ElementalMatrix<F>& A );
+    const AbstractDistMatrix<F>& H, \
+    const AbstractDistMatrix<F>& householderScalars, \
+          AbstractDistMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

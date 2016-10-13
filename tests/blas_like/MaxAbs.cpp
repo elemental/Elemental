@@ -92,7 +92,6 @@ void RunTests( Int m)
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
     try
     {
         Int m = 1;

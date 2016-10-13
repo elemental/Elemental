@@ -29,9 +29,9 @@ void FormQ
 template<typename F>
 void FormQ
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars, 
-        ElementalMatrix<F>& Q )
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars, 
+        AbstractDistMatrix<F>& Q )
 {
     DEBUG_CSE
     // TODO: Make this smarter

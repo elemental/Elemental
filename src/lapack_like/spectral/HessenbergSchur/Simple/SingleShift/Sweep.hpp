@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESSQR_SINGLE_SHIFT_SWEEP_HPP
-#define EL_SCHUR_HESSQR_SINGLE_SHIFT_SWEEP_HPP
+#ifndef EL_HESS_SCHUR_SINGLE_SHIFT_SWEEP_HPP
+#define EL_HESS_SCHUR_SINGLE_SHIFT_SWEEP_HPP
 
 namespace El {
 namespace hess_schur {
@@ -46,6 +46,62 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
                 localScale += Abs( RealPart( H(k,k-1) ) );
             if( k+2 <= n-1 )
                 localScale += Abs( RealPart( H(k+2,k+1) ) );
+        }
+        
+        if( Abs(eta10) <= ulp*localScale )
+        {
+            const Real maxOff = Max( Abs(eta10), OneAbs(eta01) );
+            const Real minOff = Min( Abs(eta10), OneAbs(eta01) ); 
+
+            const Real diagDiff = OneAbs(eta00-eta11);
+            const Real maxDiag = Max( OneAbs(eta11), diagDiff );
+            const Real minDiag = Min( OneAbs(eta11), diagDiff );
+
+            const Real sigma = maxDiag + maxOff;
+            if( minOff*(maxOff/sigma) <=
+                Max(smallNum,ulp*(minDiag*(maxDiag/sigma))) )
+            {
+                return k+1;
+            }
+        }
+    }
+    return 0;
+}
+
+// This is an adaptation of the above that only takes in the relevant 
+// tridiagonal information.
+template<typename F>
+Int DetectSmallSubdiagonal
+( const Matrix<F>& hMain, const Matrix<Base<F>>& hSub, const Matrix<F>& hSuper )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+
+    const Int n = hMain.Height();
+    const Real ulp = limits::Precision<Real>();
+    const Real safeMin = limits::SafeMin<Real>();
+    const Real smallNum = safeMin*(Real(n)/ulp);
+
+    // Search up the subdiagonal
+    for( Int k=n-2; k>=0; --k )
+    {
+        const F eta00 = hMain(k);
+        const F eta01 = hSuper(k);
+        const Real eta10 = hSub(k);
+        const F eta11 = hMain(k+1);
+        if( OneAbs(eta10) <= smallNum )
+        {
+            return k+1;
+        }
+
+        Real localScale = OneAbs(eta00) + OneAbs(eta11);
+        if( localScale == Real(0) )
+        {
+            // Search outward a bit to get a sense of the matrix's local scale
+            if( k-1 >= 0 )
+                localScale += Abs( hSub(k-1) );
+            if( k+2 <= n-1 )
+                localScale += Abs( hSub(k+1) );
         }
         
         if( Abs(eta10) <= ulp*localScale )
@@ -174,6 +230,8 @@ void Sweep
     const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg ); 
     const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
 
+    // TODO(poulson): Assert that H(k+1,k-1) is real for all k
+
     auto subInd = IR(winBeg,winEnd);
     auto qrTuple = ChooseStart( H(subInd,subInd), shift );
     const Int shiftStart = winBeg + std::get<0>(qrTuple);
@@ -187,7 +245,6 @@ void Sweep
             nu0 = H(k,k-1);
             nu1 = RealPart( H(k+1,k-1) );
         }
-        // TODO: Assert nu1 is real
         F tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
         if( k > shiftStart )
         {

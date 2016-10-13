@@ -62,8 +62,8 @@ void U( Matrix<F>& A, Matrix<F>& householderScalars )
 // implementation.
 template<typename F>
 void U
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& householderScalarsPre,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalarsPre,
   const SymvCtrl<F>& ctrl )
 {
     DEBUG_CSE

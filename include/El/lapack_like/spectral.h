@@ -80,9 +80,9 @@ EL_EXPORT ElError ElSecularSVDCtrlDefault_d
 /* Hermitian tridiagonal eigensolvers
    ================================== */
 typedef enum {
-  EL_HERM_TRIDIAG_EIG_QR = 0,
-  EL_HERM_TRIDIAG_EIG_DC = 1,
-  EL_HERM_TRIDIAG_EIG_MRRR = 2
+  EL_HERM_TRIDIAG_EIG_QR=0,
+  EL_HERM_TRIDIAG_EIG_DC=1,
+  EL_HERM_TRIDIAG_EIG_MRRR=2
 } ElHermitianTridiagEigAlg;
 
 /* HermitianEigSubset */
@@ -587,12 +587,39 @@ EL_EXPORT ElError ElHermitianPolarDecompDist_z
 
 /* Schur decomposition
    =================== */
-/* HessQRCtrl */
+typedef enum {
+  EL_HESSENBERG_SCHUR_AED=0,
+  EL_HESSENBERG_SCHUR_MULTIBULGE=1,
+  EL_HESSENBERG_SCHUR_SIMPLE=2
+} ElHessenbergSchurAlg;
+
+/* HessenbergSchurCtrl */
 typedef struct {
-  bool distAED;
-  ElInt blockHeight, blockWidth;
-} ElHessQRCtrl;
-EL_EXPORT ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl );
+  ElInt winBeg;
+  ElInt winEnd;
+  bool fullTriangle;
+  bool wantSchurVecs;
+  bool accumulateSchurVecs;
+  bool demandConverged;
+
+  ElHessenbergSchurAlg alg;
+  bool recursiveAED;
+  bool accumulateReflections;
+  bool sortShifts;
+
+  bool progress;
+
+  ElInt minMultiBulgeSize;
+  
+  ElInt (*numShifts)(ElInt,ElInt);
+  ElInt (*deflationSize)(ElInt,ElInt,ElInt);
+  ElInt (*sufficientDeflation)(ElInt);
+
+  bool scalapack;
+  ElInt blockHeight;
+  ElInt (*numBulgesPerBlock)(ElInt);
+} ElHessenbergSchurCtrl;
+EL_EXPORT ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl );
 
 /* SDCCtrl */
 typedef struct {
@@ -620,7 +647,7 @@ EL_EXPORT ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl );
 /* SchurCtrl */
 typedef struct {
   bool useSDC;
-  ElHessQRCtrl qrCtrl;
+  ElHessenbergSchurCtrl hessSchurCtrl;
   ElSDCCtrl_s sdcCtrl;
   bool time;
 } ElSchurCtrl_s;
@@ -628,7 +655,7 @@ EL_EXPORT ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
 
 typedef struct {
   bool useSDC;
-  ElHessQRCtrl qrCtrl;
+  ElHessenbergSchurCtrl hessSchurCtrl;
   ElSDCCtrl_d sdcCtrl;
   bool time;
 } ElSchurCtrl_d;

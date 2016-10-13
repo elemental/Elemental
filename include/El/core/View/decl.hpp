@@ -27,8 +27,8 @@ Matrix<T> View( Matrix<T>& B );
 template<typename T>
 Matrix<T> LockedView( const Matrix<T>& B );
 
-// DistMatrix
-// ----------
+// ElementalMatrix
+// ---------------
 
 template<typename T>
 void View( ElementalMatrix<T>& A, ElementalMatrix<T>& B );
@@ -37,13 +37,20 @@ void LockedView( ElementalMatrix<T>& A, const ElementalMatrix<T>& B );
 
 // Return by value
 // ^^^^^^^^^^^^^^^
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B );
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B );
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> View( DistMatrix<T,U,V,wrapType>& B );
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> LockedView( const DistMatrix<T,U,V,wrapType>& B );
 
 // BlockMatrix
 // -----------
+template<typename T>
+void View( BlockMatrix<T>& A, BlockMatrix<T>& B );
+template<typename T>
+void LockedView( BlockMatrix<T>& A, const BlockMatrix<T>& B );
+
+// Mixed
+// -----
 template<typename T>
 void View
 ( BlockMatrix<T>& A,
@@ -144,18 +151,19 @@ void LockedView
 // Return by value
 // ^^^^^^^^^^^^^^^
 
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> View
-( DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width );
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> LockedView
-( const DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width );
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> View
+( DistMatrix<T,U,V,wrapType>& B, Int i, Int j, Int height, Int width );
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> LockedView
+( const DistMatrix<T,U,V,wrapType>& B, Int i, Int j, Int height, Int width );
 
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J );
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> LockedView
-( const DistMatrix<T,U,V>& B, Range<Int> I, Range<Int> J );
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> View
+( DistMatrix<T,U,V,wrapType>& B, Range<Int> I, Range<Int> J );
+template<typename T,Dist U,Dist V,DistWrap wrapType>
+DistMatrix<T,U,V,wrapType> LockedView
+( const DistMatrix<T,U,V,wrapType>& B, Range<Int> I, Range<Int> J );
 
 // BlockMatrix
 // -----------
@@ -184,23 +192,6 @@ void LockedView
 (       BlockMatrix<T>& A,
   const BlockMatrix<T>& B, 
   Range<Int> I, Range<Int> J );
-
-// Return by value
-// ^^^^^^^^^^^^^^^
-
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> View
-( DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width );
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> LockedView
-( const DistMatrix<T,U,V,BLOCK>& B, Int i, Int j, Int height, Int width );
-
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> View
-( DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J );
-template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V,BLOCK> LockedView
-( const DistMatrix<T,U,V,BLOCK>& B, Range<Int> I, Range<Int> J );
 
 // AbstractDistMatrix
 // ------------------

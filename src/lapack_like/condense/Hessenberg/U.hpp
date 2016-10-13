@@ -70,7 +70,9 @@ void U( Matrix<F>& A, Matrix<F>& householderScalars )
 }
 
 template<typename F> 
-void U( ElementalMatrix<F>& APre, ElementalMatrix<F>& householderScalarsPre )
+void U
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalarsPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre ))

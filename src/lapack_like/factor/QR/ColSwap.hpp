@@ -38,14 +38,22 @@ void NeighborColSwap
     if( j < m-1 )
     {
         Real c; F s;
-        Givens( R.Get(j,j), R.Get(j+1,j), c, s );
+        Givens( R(j,j), R(j+1,j), c, s );
 
         auto RBR = R( IR(j,END), IR(j,END) );
+        // RBR((0,1),:) := |  c,       s | RBR((0,1),:)
+        //                 | -conj(s), c |
         RotateRows( c, s, RBR, 0, 1 );
-
-        auto col1 = Q( ALL, IR(j)   );
-        auto col2 = Q( ALL, IR(j+1) );
-        RotateCols( c, Conj(s), Q, j, j+1 );
+        // Since |  c,       s |^H = | c,       -s |, the transformation
+        //       | -conj(s), c |     | conj(s),  c |
+        //
+        // s |-> -s inverts a Givens rotation matrix.
+        //
+        // We therefore update
+        //
+        //   Q(:,(j,j+1)) := Q(:,(j,j+1)) | c,       -s |.
+        //                                | conj(s),  c |
+        RotateCols( c, -s, Q, j, j+1 );
     }
 }
 

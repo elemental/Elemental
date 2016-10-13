@@ -27,6 +27,12 @@ namespace schur {
 // where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
 // are beta00 +- sqrt(beta10*beta01).
 //
+// TODO(poulson): Verify whether ot not the Intel compilers need to be
+// constrained to avoid over-aggressive FMA optimizations as discussed at
+//
+// <https://software.intel.com/en-us/articles/consistency-of-floating-point-results-using-the-intel-compiler>.
+//
+// It would seem that this is not necessary.
 
 template<typename Real,typename>
 void TwoByTwo
@@ -188,6 +194,9 @@ void TwoByTwo
     lambda0 = (halfTrace+discrim)*scale;
     lambda1 = (halfTrace-discrim)*scale;
 }
+
+// TODO(poulson): Provide support for the 2x2 complex Schur with the
+// eigenvectors in Givens rotation form?
 
 } // namespace schur
 } // namespace El

@@ -35,7 +35,8 @@ void TestGraded
     e(1) = Pow( Real(10), Real(2) );
     e(2) = Pow( Real(10), Real(5) );
     e(3) = Pow( Real(10), Real(8) );
-    auto dOrig(d), eOrig(e);
+    auto dOrig(d);
+    auto eOrig(e);
 
     const Real TOne = HermitianTridiagOneNorm( d, e );
     Output("|| T ||_1 = ",TOne);
@@ -101,7 +102,8 @@ void TestRandom
     Matrix<Real> d, e;
     Uniform( d, n, 1 );
     Uniform( e, n-1, 1 );
-    auto dOrig(d), eOrig(e);
+    auto dOrig(d);
+    auto eOrig(e);
 
     const Real TOne = HermitianTridiagOneNorm( d, e );
     Output("|| T ||_1 = ",TOne);

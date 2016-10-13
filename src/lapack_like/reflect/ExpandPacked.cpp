@@ -34,8 +34,8 @@ template<typename F>
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset,
-        ElementalMatrix<F>& H,
-  const ElementalMatrix<F>& householderScalars )
+        AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalars )
 {
     DEBUG_CSE
     if( uplo == LOWER && dir == VERTICAL )
@@ -54,8 +54,8 @@ void ExpandPackedReflectors
   template void ExpandPackedReflectors \
   ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
     Int offset, \
-          ElementalMatrix<F>& H, \
-    const ElementalMatrix<F>& householderScalars );
+          AbstractDistMatrix<F>& H, \
+    const AbstractDistMatrix<F>& householderScalars );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

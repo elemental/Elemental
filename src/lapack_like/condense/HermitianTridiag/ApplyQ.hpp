@@ -39,9 +39,9 @@ void ApplyQ
 ( LeftOrRight side,
   UpperOrLower uplo,
   Orientation orientation, 
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars, 
-        ElementalMatrix<F>& B )
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars, 
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_CSE
     const bool normal = (orientation==NORMAL);

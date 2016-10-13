@@ -8,6 +8,18 @@
 */
 #include <El.hpp>
 
+// As discussed in FP_Consistency_070816.pdf, which is linked from
+//
+// <https://software.intel.com/en-us/articles/consistency-of-floating-point-results-using-the-intel-compiler>,
+//
+// the Intel compilers do not preserve evaluation order by default and may issue
+// an FMA that ignores parentheses. The following pragmas avoid this behavior.
+//
+#ifdef __INTEL_COMPILER
+#pragma float_control (precise, on)
+#pragma float_control (source, on)
+#endif
+
 #include "./SecularSVD/TwoByTwo.hpp"
 
 namespace El {

@@ -10,6 +10,7 @@ from ..core import *
 from ..blas_like import Copy, EntrywiseMap
 from ..io import ProcessEvents
 import ctypes
+from ctypes import CFUNCTYPE
 
 # Cubic secular
 # =============
@@ -550,12 +551,31 @@ class SignCtrl_d(ctypes.Structure):
   def __init__(self):
     lib.ElSignCtrlDefault_d(pointer(self))
 
-lib.ElHessQRCtrlDefault.argtypes = [c_void_p]
-class HessQRCtrl(ctypes.Structure):
-  _fields_ = [("distAED",bType),
-              ("blockHeight",iType),("blockWidth",iType)]
+(HESSENBERG_SCHUR_AED,HESSENBERG_SCHUR_MULTIBULGE,HESSENBERG_SCHUR_SIMPLE)= \
+(0,1,2)
+
+lib.ElHessenbergSchurCtrlDefault.argtypes = [c_void_p]
+class HessenbergSchurCtrl(ctypes.Structure):
+  _fields_ = [("winBeg",iType),
+              ("winEnd",iType),
+              ("fullTriangle",bType),
+              ("wantSchurVecs",bType),
+              ("accumulateSchurVecs",bType),
+              ("demandConverged",bType),
+              ("alg",c_uint),
+              ("recursiveAED",bType),
+              ("accumulateReflections",bType),
+              ("sortShifts",bType),
+              ("progress",bType),
+              ("minMultiBulgeSize",iType),
+              ("numShifts",CFUNCTYPE(iType,iType,iType)),
+              ("deflationSize",CFUNCTYPE(iType,iType,iType,iType)),
+              ("sufficientDeflation",CFUNCTYPE(iType,iType)),
+              ("scalapack",bType),
+              ("blockHeight",iType),
+              ("numBulgesPerBlock",CFUNCTYPE(iType,iType))]
   def __init__(self):
-    lib.ElHessQRCtrlDefault(pointer(self))
+    lib.ElHessenbergSchurCtrlDefault(pointer(self))
 
 lib.ElSDCCtrlDefault_s.argtypes = [c_void_p]
 class SDCCtrl_s(ctypes.Structure):
@@ -584,7 +604,7 @@ class SDCCtrl_d(ctypes.Structure):
 lib.ElSchurCtrlDefault_s.argtypes = [c_void_p]
 class SchurCtrl_s(ctypes.Structure):
   _fields_ = [("useSDC",bType),
-              ("qrCtrl",HessQRCtrl),
+              ("hessSchurCtrl",HessenbergSchurCtrl),
               ("sdcCtrl",SDCCtrl_s),
               ("time",bType)]
   def __init__(self):
@@ -593,7 +613,7 @@ class SchurCtrl_s(ctypes.Structure):
 lib.ElSchurCtrlDefault_d.argtypes = [c_void_p]
 class SchurCtrl_d(ctypes.Structure):
   _fields_ = [("useSDC",bType),
-              ("qrCtrl",HessQRCtrl),
+              ("hessSchurCtrl",HessenbergSchurCtrl),
               ("sdcCtrl",SDCCtrl_d),
               ("time",bType)]
   def __init__(self):

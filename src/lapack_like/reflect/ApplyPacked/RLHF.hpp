@@ -32,7 +32,53 @@ namespace apply_packed_reflectors {
 
 template<typename F> 
 void
-RLHF
+RLHFUnblocked
+( Conjugation conjugation,
+  Int offset, 
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( A.Width() != H.Width() )
+          LogicError("A and H must have the same width");
+    )
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
+    )
+    Matrix<F> hPanCopy, z;
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=0; k<diagLength; ++k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto hPan = H( IR(ki), IR(0,kj+1) );
+        auto ALeft = A( ALL, IR(0,kj+1) );
+        const F tau = householderScalars(k);
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        // Convert to an explicit (scaled) Householder vector
+        hPanCopy = hPan;
+        hPanCopy(0,kj) = 1;
+
+        // z := ALeft hPan^T
+        Gemv( NORMAL, F(1), ALeft, hPanCopy, z );
+        // ALeft := ALeft (I - gamma hPan^T conj(hPan))
+        Ger( -gamma, z, hPanCopy, ALeft );
+    }
+}
+
+template<typename F> 
+void
+RLHFBlocked
 ( Conjugation conjugation,
   Int offset, 
   const Matrix<F>& H,
@@ -66,15 +112,20 @@ RLHF
         auto ALeft = A( ALL,          IR(0,kj+nb) );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
         FillDiagonal( HPanConj, F(1), HPanConj.Width()-HPanConj.Height() );
 
+        // Form the small triangular matrix needed for the UT transform
         Herk( UPPER, NORMAL, Base<F>(1), HPanConj, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
+        // Z := ALeft HPan^T
         Gemm( NORMAL, ADJOINT, F(1), ALeft, HPanConj, Z );
+        // Z := ALeft HPan^T inv(SInv)
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
+        // ALeft := ALeft (I - HPan^T inv(SInv) conj(HPan))
         Gemm( NORMAL, NORMAL, F(-1), Z, HPanConj, F(1), ALeft );
     }
 }
@@ -84,23 +135,46 @@ void
 RLHF
 ( Conjugation conjugation,
   Int offset, 
-  const ElementalMatrix<F>& HPre,
-  const ElementalMatrix<F>& householderScalarsPre, 
-        ElementalMatrix<F>& APre )
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numLHS = A.Height();
+    const Int blocksize = Blocksize();
+    if( numLHS < blocksize )
+    {
+        RLHFUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        RLHFBlocked( conjugation, offset, H, householderScalars, A );
+    }
+}
+
+template<typename F> 
+void
+RLHFUnblocked
+( Conjugation conjugation,
+  Int offset,
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalarsPre,
+        AbstractDistMatrix<F>& APre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( APre.Width() != HPre.Width() )
+      if( APre.Width() != H.Width() )
           LogicError("A and H must have the same width");
-      AssertSameGrids( HPre, householderScalarsPre, APre );
+      AssertSameGrids( H, householderScalarsPre, APre );
     )
 
-    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
-    DistMatrixReadProxy<F,F,MC,STAR>
+    // We gather the entire set of Householder scalars at the start rather than
+    // continually paying the latency cost of the broadcasts in a 'Get' call
+    DistMatrixReadProxy<F,F,STAR,STAR>
       householderScalarsProx( householderScalarsPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    auto& H = HProx.GetLocked();
     auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     const Int diagLength = H.DiagonalLength(offset);
@@ -110,6 +184,70 @@ RLHF
           ("householderScalars must be the same length as H's offset diag");
     )
     const Grid& g = H.Grid();
+    auto hPan = unique_ptr<AbstractDistMatrix<F>>( H.Construct(g,H.Root()) );
+    DistMatrix<F,STAR,MR> hPan_STAR_MR(g);
+    DistMatrix<F,MC,STAR> z_MC_STAR(g);
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=0; k<diagLength; ++k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto ALeft = A( ALL, IR(0,kj+1) );
+        const F tau = householderScalars.GetLocal( k, 0 );
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        // Convert to an explicit (scaled) Householder vector
+        LockedView( *hPan, H, IR(ki), IR(0,kj+1) );
+        hPan_STAR_MR.AlignWith( ALeft );
+        Copy( *hPan, hPan_STAR_MR );
+        hPan_STAR_MR.Set( 0, kj, F(1) );
+
+        // z := ALeft hPan^T
+        z_MC_STAR.AlignWith( ALeft );
+        Zeros( z_MC_STAR, ALeft.Height(), 1 );
+        LocalGemv( NORMAL, F(1), ALeft, hPan_STAR_MR, F(0), z_MC_STAR );
+        El::AllReduce( z_MC_STAR, ALeft.RowComm() );
+
+        // ALeft := ALeft (I - gamma hPan^T conj(hPan))
+        LocalGer( -gamma, z_MC_STAR, hPan_STAR_MR, ALeft );
+    }
+}
+
+template<typename F> 
+void
+RLHFBlocked
+( Conjugation conjugation,
+  Int offset,
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalarsPre,
+        AbstractDistMatrix<F>& APre )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(
+      if( APre.Width() != H.Width() )
+          LogicError("A and H must have the same width");
+      AssertSameGrids( H, householderScalarsPre, APre );
+    )
+
+    DistMatrixReadProxy<F,F,MC,STAR>
+      householderScalarsProx( householderScalarsPre );
+    auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
+
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
+    )
+    const Grid& g = H.Grid();
+    auto HPan = unique_ptr<AbstractDistMatrix<F>>( H.Construct(g,H.Root()) );
     DistMatrix<F> HPanConj(g);
     DistMatrix<F,STAR,VR  > HPan_STAR_VR(g);
     DistMatrix<F,STAR,MR  > HPan_STAR_MR(g);
@@ -128,14 +266,16 @@ RLHF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan  = H( IR(ki,ki+nb), IR(0,kj+nb) );
-        auto ALeft = A( ALL,          IR(0,kj+nb) );
+        auto ALeft = A( ALL, IR(0,kj+nb) );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
-        Conjugate( HPan, HPanConj );
+        // Convert to an explicit matrix of (scaled) Householder vectors
+        LockedView( *HPan, H, IR(ki,ki+nb), IR(0,kj+nb) );
+        Conjugate( *HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
         FillDiagonal( HPanConj, F(1), HPanConj.Width()-HPanConj.Height() );
 
+        // Form the small triangular matrix needed for the UT transform
         HPan_STAR_VR = HPanConj;
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk
@@ -147,6 +287,7 @@ RLHF
         FixDiagonal
         ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
+        // Z := ALeft HPan^T
         HPan_STAR_MR.AlignWith( ALeft );
         HPan_STAR_MR = HPan_STAR_VR;
         ZAdj_STAR_MC.AlignWith( ALeft );
@@ -154,13 +295,37 @@ RLHF
         ZAdj_STAR_VC.AlignWith( ALeft );
         Contract( ZAdj_STAR_MC, ZAdj_STAR_VC );
 
+        // Z := ALeft HPan^T inv(SInv)
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT,
           F(1), SInv_STAR_STAR, ZAdj_STAR_VC );
 
+        // ALeft := ALeft (I - HPan^T inv(SInv) conj(HPan))
         ZAdj_STAR_MC = ZAdj_STAR_VC;
         LocalGemm
         ( ADJOINT, NORMAL, F(-1), ZAdj_STAR_MC, HPan_STAR_MR, F(1), ALeft );
+    }
+}
+
+template<typename F> 
+void
+RLHF
+( Conjugation conjugation,
+  Int offset,
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalars,
+        AbstractDistMatrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numLHS = A.Height();
+    const Int blocksize = Blocksize();
+    if( numLHS < blocksize )
+    {
+        RLHFUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        RLHFBlocked( conjugation, offset, H, householderScalars, A );
     }
 }
 

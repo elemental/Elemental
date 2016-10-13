@@ -45,7 +45,7 @@ Matrix<Int> TriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            cout << "Matrix was numerically normal" << endl;
+            Output("Matrix was numerically normal");
         auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -98,7 +98,7 @@ Matrix<Int> TriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            cout << "Matrix was numerically normal" << endl;
+            Output("Matrix was numerically normal");
         auto w = GetDiagonal(U);
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -148,7 +148,7 @@ Matrix<Int> QuasiTriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            cout << "Matrix was numerically normal" << endl;
+            Output("Matrix was numerically normal");
         const auto w = schur::QuasiTriangEig( U );
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -183,7 +183,7 @@ Matrix<Int> QuasiTriangularSpectralCloud
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
-            cout << "Matrix was numerically normal" << endl;
+            Output("Matrix was numerically normal");
         auto w = schur::QuasiTriangEig( U );
         if( psCtrl.norm == PS_TWO_NORM )
             pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
@@ -591,10 +591,12 @@ Matrix<Int> Helper
         LogicError("Real Hessenberg algorithm not yet supported");
     Matrix<Real> U( A );
     Matrix<C> w;
-    const bool fullTriangle = true;
+    auto schurCtrl( psCtrl.schurCtrl );
+    schurCtrl.hessSchurCtrl.fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-        Schur( U, w, fullTriangle, psCtrl.schurCtrl );
+
+        Schur( U, w, schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             Matrix<C> UCpx;
@@ -606,7 +608,7 @@ Matrix<Int> Helper
     else
     {
         Matrix<Real> Q;
-        Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
+        Schur( U, w, Q, schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             Matrix<C> UCpx, QCpx;
@@ -640,10 +642,11 @@ DistMatrix<Int,VR,STAR> Helper
         LogicError("Real Hessenberg algorithm not yet supported");
     DistMatrix<Real> U( A );
     DistMatrix<C,VR,STAR> w(g);
-    const bool fullTriangle = true;
+    auto schurCtrl( psCtrl.schurCtrl );
+    schurCtrl.hessSchurCtrl.fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-        Schur( U, w, fullTriangle, psCtrl.schurCtrl );
+        Schur( U, w, schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             DistMatrix<C> UCpx(g);
@@ -655,7 +658,7 @@ DistMatrix<Int,VR,STAR> Helper
     else
     {
         DistMatrix<Real> Q(g);
-        Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
+        Schur( U, w, Q, schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             DistMatrix<C> UCpx(g), QCpx(g);
@@ -683,8 +686,9 @@ Matrix<Int> Helper
         if( psCtrl.schur )
         {
             Matrix<C> w;
-            const bool fullTriangle = true;
-            Schur( U, w, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( U, w, schurCtrl );
             return TriangularSpectralCloud( U, shifts, invNorms, psCtrl );
         }
         else
@@ -699,8 +703,9 @@ Matrix<Int> Helper
         if( psCtrl.schur )
         {
             Matrix<C> w;
-            const bool fullTriangle = true;
-            Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( U, w, Q, schurCtrl );
             return TriangularSpectralCloud( U, Q, shifts, invNorms, psCtrl );
         }
         else
@@ -732,8 +737,9 @@ DistMatrix<Int,VR,STAR> Helper
         if( psCtrl.schur )
         {
             DistMatrix<C,VR,STAR> w(g);
-            const bool fullTriangle = true;
-            Schur( U, w, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( U, w, schurCtrl );
             return TriangularSpectralCloud( U, shifts, invNorms, psCtrl );
         }
         else
@@ -748,8 +754,9 @@ DistMatrix<Int,VR,STAR> Helper
         if( psCtrl.schur )
         {
             DistMatrix<C,VR,STAR> w(g);
-            const bool fullTriangle = true;
-            Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( U, w, Q, schurCtrl );
             return TriangularSpectralCloud( U, Q, shifts, invNorms, psCtrl );
         }
         else
@@ -1636,8 +1643,6 @@ Matrix<Int> QuasiTriangularSpectralPortrait
              psCtrl );
 }
 
-// LEFT OFF HERE for cout -> Output conversion
-
 template<typename F>
 Matrix<Int> HessenbergSpectralPortrait
 ( const Matrix<F>& H,
@@ -1657,15 +1662,15 @@ Matrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress )
-            cout << "Setting width to " << width 
-                 << " based on the one norm, " << oneNorm 
-                 << ", and infinity norm, " << infNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm,
+             ", and infinity norm, ",infNorm);
     }
     Complex<Real> center(0,0);
 
@@ -1697,15 +1702,15 @@ Matrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress )
-            cout << "Setting width to " << width 
-                 << " based on the one norm, " << oneNorm 
-                 << ", and infinity norm, " << infNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm,
+             ", and infinity norm, ",infNorm);
     }
     Complex<Real> center(0,0);
 
@@ -1747,21 +1752,22 @@ DistMatrix<Int> TriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width 
-                 << " based on the spectral radius, " << radius << endl;
+            Output
+            ("Setting width to ",width,
+             " based on the spectral radius, ",radius);
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width
-                 << " based on the one norm, " << oneNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm);
     }
     Complex<Real> center(0,0);
 
@@ -1803,21 +1809,22 @@ DistMatrix<Int> TriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width 
-                 << " based on the spectral radius, " << radius << endl;
+            Output
+            ("Setting width to ",width,
+             " based on the spectral radius, ",radius);
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width
-                 << " based on the one norm, " << oneNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm);
     }
     Complex<Real> center(0,0);
 
@@ -1859,21 +1866,22 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width 
-                 << " based on the spectral radius, " << radius << endl;
+            Output
+            ("Setting width to ",width,
+             " based on the spectral radius, ",radius);
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width
-                 << " based on the one norm, " << oneNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm);
     }
     Complex<Real> center(0,0);
 
@@ -1915,21 +1923,22 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else if( radius >= 0.2*oneNorm )
     {
         width = 2.5*radius;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width 
-                 << " based on the spectral radius, " << radius << endl;
+            Output
+            ("Setting width to ",width,
+             " based on the spectral radius, ",radius);
     }
     else
     {
         width = 0.8*oneNorm;
         if( psCtrl.progress && g.Rank() == 0 )
-            cout << "Setting width to " << width
-                 << " based on the one norm, " << oneNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm);
     }
     Complex<Real> center(0,0);
 
@@ -1961,15 +1970,15 @@ DistMatrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            cout << "Setting width to " << width 
-                 << " based on the one norm, " << oneNorm 
-                 << ", and infinity norm, " << infNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm, 
+             ", and infinity norm, ",infNorm);
     }
     Complex<Real> center(0,0);
 
@@ -2001,15 +2010,15 @@ DistMatrix<Int> HessenbergSpectralPortrait
     {
         width = 1;
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            cout << "Setting width to 1 to handle zero matrix" << endl;
+            Output("Setting width to 1 to handle zero matrix");
     }
     else
     {
         width = 0.8*Max(oneNorm,infNorm);
         if( psCtrl.progress && H.Grid().Rank() == 0 )
-            cout << "Setting width to " << width 
-                 << " based on the one norm, " << oneNorm 
-                 << ", and infinity norm, " << infNorm << endl;
+            Output
+            ("Setting width to ",width," based on the one norm, ",oneNorm, 
+             ", and infinity norm, ",infNorm);
     }
     Complex<Real> center(0,0);
 
@@ -2042,8 +2051,9 @@ Matrix<Int> Helper
         if( psCtrl.schur )
         {
             Matrix<C> w;
-            const bool fullTriangle = true;
-            Schur( B, w, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( B, w, schurCtrl );
             return TriangularSpectralPortrait
                    ( B, invNormMap, realSize, imagSize, box, psCtrl );
         }
@@ -2060,8 +2070,9 @@ Matrix<Int> Helper
         if( psCtrl.schur )
         {
             Matrix<C> w;
-            const bool fullTriangle = true;
-            Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( B, w, Q, schurCtrl );
             return TriangularSpectralPortrait
                    ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
         }
@@ -2096,8 +2107,9 @@ DistMatrix<Int> Helper
         if( psCtrl.schur )
         {
             DistMatrix<C,VR,STAR> w(g);
-            const bool fullTriangle = true;
-            Schur( B, w, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( B, w, schurCtrl );
             return TriangularSpectralPortrait
                    ( B, invNormMap, realSize, imagSize, box, psCtrl );
         }
@@ -2114,8 +2126,9 @@ DistMatrix<Int> Helper
         if( psCtrl.schur )
         {
             DistMatrix<C,VR,STAR> w(g);
-            const bool fullTriangle = true;
-            Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
+            auto schurCtrl( psCtrl.schurCtrl );
+            schurCtrl.hessSchurCtrl.fullTriangle = true;
+            Schur( B, w, Q, schurCtrl );
             return TriangularSpectralPortrait
                    ( B, Q, invNormMap, realSize, imagSize, box, psCtrl );
         }
@@ -2154,10 +2167,11 @@ Matrix<Int> Helper
         LogicError("Real Hessenberg algorithm not yet supported");
     Matrix<Real> B( A );
     Matrix<C> w;
-    const bool fullTriangle = true;
+    auto schurCtrl( psCtrl.schurCtrl );
+    schurCtrl.hessSchurCtrl.fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-        Schur( B, w, fullTriangle, psCtrl.schurCtrl );
+        Schur( B, w, schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             Matrix<C> BCpx;
@@ -2171,7 +2185,7 @@ Matrix<Int> Helper
     else
     {
         Matrix<Real> Q;
-        Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
+        Schur( B, w, Q, schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             LogicError("Real to complex full Schur not yet supported");
@@ -2211,10 +2225,11 @@ DistMatrix<Int> Helper
     DistMatrix<Real> B( A );
 
     DistMatrix<C,VR,STAR> w(g);
-    const bool fullTriangle = true;
+    auto schurCtrl( psCtrl.schurCtrl );
+    schurCtrl.hessSchurCtrl.fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-        Schur( B, w, fullTriangle, psCtrl.schurCtrl );
+        Schur( B, w, schurCtrl );
         if( psCtrl.forceComplexPs ) 
         {
             DistMatrix<C> BCpx(g);
@@ -2228,7 +2243,7 @@ DistMatrix<Int> Helper
     else
     {
         DistMatrix<Real> Q(g); 
-        Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
+        Schur( B, w, Q, schurCtrl );
         if( psCtrl.forceComplexPs ) 
         {
             DistMatrix<C> BCpx(g), QCpx(g);

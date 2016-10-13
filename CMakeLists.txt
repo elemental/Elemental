@@ -294,11 +294,16 @@ if(NOT WIN32)
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(EL_RELEASE)
-        set(${LANG}_FLAGS "-O3" CACHE STRING
-          "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+          set(${LANG}_FLAGS "-O3 -Wno-tautological-compare" CACHE STRING
+            "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
+        else()
+          set(${LANG}_FLAGS "-O3" CACHE STRING
+            "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
+        endif()
       else()
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-          set(${LANG}_FLAGS "-O2 -g -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O2 -g -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs -Wno-tautological-compare" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
         else()
           set(${LANG}_FLAGS "-O2 -g" CACHE STRING
             "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")

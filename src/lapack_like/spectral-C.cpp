@@ -311,12 +311,32 @@ ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
-/* HessQRCtrl */
-ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl )
+/* HessenbergSchurCtrl */
+ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
 {
-    ctrl->distAED = false;
+    ctrl->winBeg = 0;
+    ctrl->winEnd = END;
+    ctrl->fullTriangle = true;
+    ctrl->wantSchurVecs = false;
+    ctrl->accumulateSchurVecs = false;
+    ctrl->demandConverged = true;
+
+    ctrl->alg = EL_HESSENBERG_SCHUR_AED;
+    ctrl->recursiveAED = true;
+    ctrl->accumulateReflections = true;
+    ctrl->sortShifts = true;
+
+    ctrl->progress = false;
+
+    ctrl->minMultiBulgeSize = 75;
+    ctrl->numShifts = &hess_schur::aed::NumShifts;
+    ctrl->deflationSize = &hess_schur::aed::DeflationSize;
+    ctrl->sufficientDeflation = &hess_schur::aed::SufficientDeflation;
+    
+    ctrl->scalapack = false;
     ctrl->blockHeight = DefaultBlockHeight();
-    ctrl->blockWidth = DefaultBlockWidth();
+    ctrl->numBulgesPerBlock = &hess_schur::multibulge::NumBulgesPerBlock;
+
     return EL_SUCCESS;
 }
 
@@ -350,7 +370,7 @@ ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl )
 ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
 {
     ctrl->useSDC = false;
-    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_s( &ctrl->sdcCtrl );
     ctrl->time = false;
     return EL_SUCCESS; 
@@ -358,7 +378,7 @@ ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
 {
     ctrl->useSDC = false;
-    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_d( &ctrl->sdcCtrl );
     ctrl->time = false;
     return EL_SUCCESS; 
@@ -730,37 +750,58 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
      --------------------------------------------------- */ \
   ElError ElSchur_ ## SIGBASE \
   ( ElMatrix_ ## SIGBASE A, ElMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   ElError ElSchurDist_ ## SIGBASE \
   ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   ElError ElSchur_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   ElError ElSchurDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   /* Compute the eigvalues and Schur vectors (and possibly Schur factor)
      ------------------------------------------------------------------- */ \
   ElError ElSchurDecomp_ ## SIGBASE \
   ( ElMatrix_ ## SIGBASE A, ElMatrix_ ## SIG w, ElMatrix_ ## SIGBASE Q, \
     bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) } \
   ElError ElSchurDecompDist_ ## SIGBASE \
   ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, \
     ElDistMatrix_ ## SIGBASE Q, bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) } \
   ElError ElSchurDecomp_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, \
     ElMatrix_ ## SIG Q, bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) } \
   ElError ElSchurDecompDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, \
     ElDistMatrix_ ## SIG Q, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) }\
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) }\
   /* SkewHermitianEig
      ================ */ \
   /* Return all eigenpairs

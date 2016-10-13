@@ -32,9 +32,50 @@ namespace apply_packed_reflectors {
 //
 
 template<typename F>
-void LUVB
+void LUVBUnblocked
 ( Conjugation conjugation,
-  Int offset, 
+  Int offset,
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
+{
+    DEBUG_CSE
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag.");
+    )
+    Matrix<F> hPanCopy, z;
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto hPan = H( IR(0,ki+1), IR(kj) );
+        auto ATop = A( IR(0,ki+1), ALL );
+        const F tau = householderScalars(k);
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        // Convert to an explicit (scaled) Householder vector
+        hPanCopy = hPan;
+        hPanCopy(ki) = 1;
+
+        // z := ATop' hPan
+        Gemv( ADJOINT, F(1), ATop, hPanCopy, z );
+        // ATop := (I - gamma hPan HPan') ATop
+        Ger( -gamma, hPanCopy, z, ATop );
+    }
+}
+
+template<typename F>
+void LUVBBlocked
+( Conjugation conjugation,
+  Int offset,
   const Matrix<F>& H,
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
@@ -63,36 +104,63 @@ void LUVB
         auto ATop = A( IR(0,ki+nb), ALL          );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
+        // Convert to an explicit matrix of (scaled) Householder vectors
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
         FillDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
 
+        // Form the small triangular matrix needed for the UT transform
         Herk( UPPER, ADJOINT, Base<F>(1), HPanCopy, SInv );
         FixDiagonal( conjugation, householderScalars1, SInv );
 
+        // Z := HPan' ATop
         Gemm( ADJOINT, NORMAL, F(1), HPanCopy, ATop, Z );
+        // Z := inv(SInv) HPan' ATop
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
+        // ATop := (I - HPan inv(SInv) HPan') ATop
         Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), ATop );
     }
 }
 
-template<typename F> 
+template<typename F>
 void LUVB
 ( Conjugation conjugation,
-  Int offset, 
-  const ElementalMatrix<F>& HPre,
-  const ElementalMatrix<F>& householderScalarsPre, 
-        ElementalMatrix<F>& APre )
+  Int offset,
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( HPre, householderScalarsPre, APre ))
+    const Int numRHS = A.Width();
+    const Int blocksize = Blocksize();
+    if( numRHS < blocksize )
+    {
+        LUVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        LUVBBlocked( conjugation, offset, H, householderScalars, A );
+    }
+}
 
-    DistMatrixReadProxy<F,F,MC,MR> HProx( HPre );
-    DistMatrixReadProxy<F,F,MC,STAR>
+template<typename F> 
+void LUVBUnblocked
+( Conjugation conjugation,
+  Int offset,
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalarsPre,
+        AbstractDistMatrix<F>& APre )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( H, householderScalarsPre, APre ))
+
+    // We gather the entire set of Householder scalars at the start rather than
+    // continually paying the latency cost of the broadcasts in a 'Get' call
+    DistMatrixReadProxy<F,F,STAR,STAR>
       householderScalarsProx( householderScalarsPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    auto& H = HProx.GetLocked();
     auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     const Int diagLength = H.DiagonalLength(offset);
@@ -102,6 +170,65 @@ void LUVB
           ("householderScalars must be the same length as H's offset diag.");
     )
     const Grid& g = H.Grid();
+    auto hPan = unique_ptr<AbstractDistMatrix<F>>( H.Construct(g,H.Root()) );
+    DistMatrix<F,MC,STAR> hPan_MC_STAR(g);
+    DistMatrix<F,MR,STAR> z_MR_STAR(g);
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    for( Int k=diagLength-1; k>=0; --k )
+    {
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
+
+        auto ATop = A( IR(0,ki+1), ALL );
+        const F tau = householderScalars.GetLocal( k, 0 );
+        const F gamma = ( conjugation == CONJUGATED ? Conj(tau) : tau );
+
+        // Convert to an explicit (scaled) Householder vector
+        LockedView( *hPan, H, IR(0,ki+1), IR(kj) );
+        hPan_MC_STAR.AlignWith( ATop );
+        Copy( *hPan, hPan_MC_STAR );
+        hPan_MC_STAR.Set( ki, 0, F(1) );
+
+        // z := ATop' hPan
+        z_MR_STAR.AlignWith( ATop );
+        Zeros( z_MR_STAR, ATop.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), ATop, hPan_MC_STAR, F(0), z_MR_STAR );
+        El::AllReduce( z_MR_STAR.Matrix(), ATop.ColComm() );
+        
+        // ATop := (I - gamma hPan hPan') ATop
+        LocalGer( -gamma, hPan_MC_STAR, z_MR_STAR, ATop );
+    }
+}
+
+template<typename F> 
+void LUVBBlocked
+( Conjugation conjugation,
+  Int offset,
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalarsPre,
+        AbstractDistMatrix<F>& APre )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( H, householderScalarsPre, APre ))
+
+    DistMatrixReadProxy<F,F,MC,STAR>
+      householderScalarsProx( householderScalarsPre );
+    auto& householderScalars = householderScalarsProx.GetLocked();
+
+    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
+
+    const Int diagLength = H.DiagonalLength(offset);
+    DEBUG_ONLY(
+      if( householderScalars.Height() != diagLength )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag.");
+    )
+    const Grid& g = H.Grid();
+    auto HPan = unique_ptr<AbstractDistMatrix<F>>( H.Construct(g,H.Root()) );
     DistMatrix<F> HPanCopy(g);
     DistMatrix<F,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<F,MC,  STAR> HPan_MC_STAR(g);
@@ -121,14 +248,16 @@ void LUVB
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = H( IR(0,ki+nb), IR(kj,kj+nb) );
-        auto ATop = A( IR(0,ki+nb), ALL          );
+        auto ATop = A( IR(0,ki+nb), ALL );
         auto householderScalars1 = householderScalars( IR(k,k+nb), ALL );
 
-        HPanCopy = HPan;
+        // Convert to an explicit matrix of (scaled) Householder vectors
+        LockedView( *HPan, H, IR(0,ki+nb), IR(kj,kj+nb) );
+        Copy( *HPan, HPanCopy );
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
         FillDiagonal( HPanCopy, F(1), HPanCopy.Width()-HPanCopy.Height() );
 
+        // Form the small triangular matrix needed for the UT transform
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk
@@ -140,6 +269,7 @@ void LUVB
         FixDiagonal
         ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
+        // Z := HPan' ATop
         HPan_MC_STAR.AlignWith( ATop );
         HPan_MC_STAR = HPanCopy;
         Z_STAR_MR.AlignWith( ATop );
@@ -147,11 +277,34 @@ void LUVB
         Z_STAR_VR.AlignWith( ATop );
         Contract( Z_STAR_MR, Z_STAR_VR );
         
+        // Z := inv(SInv) HPan' ATop
         LocalTrsm
         ( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
 
+        // ATop := (I - HPan inv(SInv) HPan') ATop
         Z_STAR_MR = Z_STAR_VR;
         LocalGemm( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), ATop );
+    }
+}
+
+template<typename F> 
+void LUVB
+( Conjugation conjugation,
+  Int offset,
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalars,
+        AbstractDistMatrix<F>& A )
+{
+    DEBUG_CSE
+    const Int numRHS = A.Width();
+    const Int blocksize = Blocksize();
+    if( numRHS < blocksize )
+    {
+        LUVBUnblocked( conjugation, offset, H, householderScalars, A );
+    }
+    else
+    {
+        LUVBBlocked( conjugation, offset, H, householderScalars, A );
     }
 }
 

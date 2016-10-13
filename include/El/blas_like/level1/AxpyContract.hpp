@@ -50,8 +50,10 @@ void PartialColScatter
         const Int recvSize = mpi::Pad( maxLocalHeight*width );
         const Int sendSize = colStrideUnion*recvSize;
 
-        vector<T> buffer;
-        FastResize( buffer, sendSize );
+        // We explicitly zero-initialize rather than calling FastResize to avoid
+        // inadvertently causing a floating-point exception in the reduction of
+        // the padding entries.
+        vector<T> buffer(sendSize, T(0));
 
         // Pack
         copy::util::PartialColStridedPack
@@ -102,8 +104,7 @@ void PartialRowScatter
         const Int recvSize = mpi::Pad( height*maxLocalWidth );
         const Int sendSize = rowStrideUnion*recvSize;
 
-        vector<T> buffer;
-        FastResize( buffer, sendSize );
+        vector<T> buffer(sendSize, T(0));
 
         // Pack
         copy::util::PartialRowStridedPack
@@ -174,8 +175,7 @@ void ColScatter
 
         const Int recvSize = mpi::Pad( maxLocalHeight*localWidth );
         const Int sendSize = colStride*recvSize;
-        vector<T> buffer;
-        FastResize( buffer, sendSize );
+        vector<T> buffer(sendSize, T(0));
 
         // Pack 
         copy::util::ColStridedPack
@@ -206,8 +206,7 @@ void ColScatter
         const Int sendSize_RS = colStride*recvSize_RS;
         const Int recvSize_SR = localHeight*localWidth;
 
-        vector<T> buffer;
-        FastResize( buffer, recvSize_RS + Max(sendSize_RS,recvSize_SR) );
+        vector<T> buffer(recvSize_RS + Max(sendSize_RS,recvSize_SR), T(0));
         T* firstBuf = &buffer[0];
         T* secondBuf = &buffer[recvSize_RS];
 
@@ -258,8 +257,7 @@ void RowScatter
         {
             const Int localHeight = B.LocalHeight();
             const Int portionSize = mpi::Pad( localHeight );
-            vector<T> buffer;
-            FastResize( buffer, portionSize );
+            vector<T> buffer(portionSize, T(0));
 
             // Reduce to rowAlign
             const Int rowAlign = B.RowAlign();
@@ -288,8 +286,7 @@ void RowScatter
             const Int sendSize = rowStride*portionSize;
 
             // Pack 
-            vector<T> buffer;
-            FastResize( buffer, sendSize );
+            vector<T> buffer(sendSize, T(0));
             copy::util::RowStridedPack
             ( localHeight, width,
               rowAlign, rowStride,
@@ -323,8 +320,7 @@ void RowScatter
 
         if( width == 1 )
         {
-            vector<T> buffer;
-            FastResize( buffer, localHeight+localHeightA );
+            vector<T> buffer(localHeight + localHeightA, T(0));
             T* sendBuf = &buffer[0];
             T* recvBuf = &buffer[localHeightA];
 
@@ -358,8 +354,7 @@ void RowScatter
             const Int sendSize_RS = rowStride * recvSize_RS;
             const Int recvSize_SR = localHeight * localWidth;
 
-            vector<T> buffer;
-            FastResize( buffer, recvSize_RS + Max(sendSize_RS,recvSize_SR) );
+            vector<T> buffer(recvSize_RS + Max(sendSize_RS,recvSize_SR), T(0));
             T* firstBuf = &buffer[0];
             T* secondBuf = &buffer[recvSize_RS];
 
@@ -416,8 +411,7 @@ void Scatter
     const Int recvSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
     const Int sendSize = colStride*rowStride*recvSize;
 
-    vector<T> buffer;
-    FastResize( buffer, sendSize );
+    vector<T> buffer(sendSize, T(0));
 
     // Pack 
     copy::util::StridedPack

@@ -20,8 +20,7 @@ main( int argc, char* argv[] )
     {
         int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",100);
-        const Int n = Input("--width","width of matrix",100);
+        const Int n = Input("--height","height of matrix",100);
         const Int mb = Input("--blockHeight","height of dist block",32);
         const Int nb = Input("--blockWidth","width of dist block",32);
         const bool print = Input("--print","print wrong matrices?",false);
@@ -36,7 +35,10 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
 
-        DistMatrix<Complex<double>,MC,MR,BLOCK> A(m,n,g,mb,nb);
+        SchurCtrl<double> ctrl;
+        ctrl.hessSchurCtrl.fullTriangle = fullTriangle;
+
+        DistMatrix<Complex<double>,MC,MR,BLOCK> A(n,n,g,mb,nb);
         Fill( A, Complex<double>(1) );
         A.Matrix() *= double(commRank);
         if( print )
@@ -49,20 +51,17 @@ main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
 #ifdef EL_HAVE_SCALAPACK        
-        if( m == n )
+        // NOTE: There appears to be a bug in the parallel eigenvalue
+        //       reordering in ScaLAPACK's P{S,D}HSEQR (within P{S,D}TRORD).
+        //       This driver was therefore switched to complex arithmetic.
+        DistMatrix<Complex<double>,VR,STAR> w( n, 1, g );
+        DistMatrix<Complex<double>,MC,MR,BLOCK> Q(n,n,g,mb,nb);
+        Schur( A, w, Q, ctrl );
+        if( print )
         {
-            // NOTE: There appears to be a bug in the parallel eigenvalue
-            //       reordering in P{S,D}HSEQR (within P{S,D}TRORD).
-            //       This driver was therefore switched to complex arithmetic.
-            DistMatrix<Complex<double>,VR,STAR> w( m, 1, g );
-            DistMatrix<Complex<double>,MC,MR,BLOCK> Q(m,m,g,mb,nb);
-            Schur( A, w, Q, fullTriangle );
-            if( print )
-            {
-                Print( A, "Schur(A)" );
-                Print( w, "w(A)" );
-                Print( Q, "Q" );
-            }
+            Print( A, "Schur(A)" );
+            Print( w, "w(A)" );
+            Print( Q, "Q" );
         }
 #endif
     }

@@ -145,25 +145,26 @@ ValueInt<Base<F>> SignDivide
     G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
-    Matrix<F> t;
-    Matrix<Base<F>> d;
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
     Permutation Omega;
-    El::QR( G, t, d, Omega );
+    El::QR( G, householderScalars, signature, Omega );
 
     // A := Q^H A Q
     const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-        DiagonalScale( RIGHT, NORMAL, d, G );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+        DiagonalScale( RIGHT, NORMAL, signature, G );
         Matrix<F> B;
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-        qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+        qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
@@ -189,25 +190,26 @@ ValueInt<Base<F>> SignDivide
     G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
     DistPermutation Omega(g);
-    El::QR( G, t, d, Omega );
+    El::QR( G, householderScalars, signature, Omega );
 
     // A := Q^H A Q
     const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-        DiagonalScale( RIGHT, NORMAL, d, G );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+        DiagonalScale( RIGHT, NORMAL, signature, G );
         DistMatrix<F> B(g);
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-        qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+        qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
@@ -239,31 +241,32 @@ ValueInt<Base<F>> RandomizedSignDivide
     S *= F(1)/F(2);
 
     ValueInt<Real> part;
-    Matrix<F> V, B, t;
-    Matrix<Base<F>> d;
+    Matrix<F> V, B, householderScalars;
+    Matrix<Base<F>> signature;
     Int it=0;
     while( it < ctrl.maxInnerIts )
     {
         G = S;
 
         // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, d, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, d, G );
-        El::QR( G, t, d );
+        ImplicitHaar( V, householderScalars, signature, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, householderScalars, signature, G );
+        El::QR( G, householderScalars, signature );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
         if( returnQ )
         {
-            ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-            DiagonalScale( RIGHT, NORMAL, d, G );
+            ExpandPackedReflectors
+            ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+            DiagonalScale( RIGHT, NORMAL, signature, G );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }
         else
         {
-            qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-            qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+            qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
         }
 
         // || E21 ||1 / || A ||1 and the chosen rank
@@ -304,31 +307,32 @@ ValueInt<Base<F>> RandomizedSignDivide
 
     ValueInt<Real> part;
     DistMatrix<F> V(g), B(g);
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
     Int it=0;
     while( it < ctrl.maxInnerIts )
     {
         G = S;
 
         // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, d, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, d, G );
-        El::QR( G, t, d );
+        ImplicitHaar( V, householderScalars, signature, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, householderScalars, signature, G );
+        El::QR( G, householderScalars, signature );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
         if( returnQ )
         {
-            ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-            DiagonalScale( RIGHT, NORMAL, d, G );
+            ExpandPackedReflectors
+            ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+            DiagonalScale( RIGHT, NORMAL, signature, G );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }
         else
         {
-            qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-            qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+            qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
         }
 
         // || E21 ||1 / || A ||1 and the chosen rank
@@ -920,7 +924,9 @@ SDC
     {
         if( ctrl.progress )
             Output(n," <= ",ctrl.cutoff,": switching to QR algorithm");
-        Schur( A, w, false );
+        SchurCtrl<Base<F>> schurCtrl;
+        schurCtrl.hessSchurCtrl.fullTriangle = false;
+        Schur( A, w, schurCtrl );
         return;
     }
 
@@ -967,7 +973,9 @@ SDC
     {
         if( ctrl.progress )
             Output(n," <= ",ctrl.cutoff,": switching to QR algorithm");
-        Schur( A, w, Q, fullTriangle );
+        SchurCtrl<Base<F>> schurCtrl;
+        schurCtrl.hessSchurCtrl.fullTriangle = fullTriangle;
+        Schur( A, w, Q, schurCtrl );
         return;
     }
 
@@ -1168,8 +1176,8 @@ void PullSubproblems
 template<typename F>
 void
 SDC
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Complex<Base<F>>>& wPre, 
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_CSE
@@ -1182,6 +1190,9 @@ SDC
     auto& A = AProx.Get();
     auto& w = wProx.Get();
 
+    SchurCtrl<Base<F>> schurCtrl;
+    schurCtrl.hessSchurCtrl.fullTriangle = false;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -1189,7 +1200,7 @@ SDC
     {
         if( ctrl.progress && g.Rank() == 0 )
             Output("One process: using QR algorithm");
-        Schur( A.Matrix(), w.Matrix(), false );
+        Schur( A.Matrix(), w.Matrix(), schurCtrl );
         return;
     }
     if( n <= ctrl.cutoff )
@@ -1198,8 +1209,9 @@ SDC
             Output(n," <= ",ctrl.cutoff,": using QR algorithm"); 
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
         DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( w );
+
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-            Schur( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), false );
+            Schur( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), schurCtrl );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
         return;
@@ -1355,9 +1367,9 @@ void PullSubproblems
 template<typename F>
 void
 SDC
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Complex<Base<F>>>& wPre, 
-  ElementalMatrix<F>& QPre,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre, 
+  AbstractDistMatrix<F>& QPre,
   bool fullTriangle=true, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
@@ -1373,6 +1385,9 @@ SDC
     auto& w = wProx.Get();
     auto& Q = QProx.Get();
 
+    SchurCtrl<Base<F>> schurCtrl;
+    schurCtrl.hessSchurCtrl.fullTriangle = fullTriangle;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -1381,7 +1396,7 @@ SDC
     {
         if( ctrl.progress && g.Rank() == 0 )
             Output("One process: using QR algorithm");
-        Schur( A.Matrix(), w.Matrix(), Q.Matrix(), fullTriangle );
+        Schur( A.Matrix(), w.Matrix(), Q.Matrix(), schurCtrl );
         return;
     }
     if( n <= ctrl.cutoff )
@@ -1393,7 +1408,7 @@ SDC
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Schur
             ( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(),
-              fullTriangle );
+              schurCtrl );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
         Q = Q_CIRC_CIRC;

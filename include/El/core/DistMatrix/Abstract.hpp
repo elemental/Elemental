@@ -372,6 +372,8 @@ inline bool operator==( const ElementalData& A, const ElementalData& B )
          A.rowAlign == B.rowAlign &&
          A.root     == B.root &&
          A.grid     == B.grid; }
+inline bool operator!=( const ElementalData& A, const ElementalData& B )
+{ return !(A == B); }
 
 struct DistData
 {
@@ -410,7 +412,8 @@ inline bool operator==( const DistData& A, const DistData& B )
          A.rowAlign    == B.rowAlign &&
          A.root        == B.root &&
          A.grid        == B.grid; }
-
+inline bool operator!=( const DistData& A, const DistData& B )
+{ return !(A == B); }
 
 } // namespace El
 

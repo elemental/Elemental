@@ -23,10 +23,8 @@ SVDInfo GolubReinsch
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
     const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     if( avoidU && avoidV )
@@ -52,8 +50,36 @@ SVDInfo GolubReinsch
     auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
     if( ctrl.time )
         timer.Start();
-    info.bidiagSVDInfo =
-      BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
+    if( m == n || (m > n && avoidU) || (m < n && avoidV) )
+    {
+        // There is no need to work on a subset of U or V
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
+    }
+    else if( m > n )
+    {
+        // We need to work on a subset of U
+        Matrix<F> USub;
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, USub, s, V, ctrl.bidiagSVDCtrl );
+        // Copy USub into U
+        const Int UWidth = USub.Width();
+        Identity( U, m, UWidth );
+        auto UTop = U( IR(0,n), ALL );
+        UTop = USub;
+    }
+    else if( m < n )
+    {
+        // We need to work on a subset of V
+        Matrix<F> VSub;
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, VSub, ctrl.bidiagSVDCtrl );
+        // Copy VSub into V
+        const Int VWidth = VSub.Width();
+        Identity( V, n, VWidth );
+        auto VTop = V( IR(0,m), ALL );
+        VTop = VSub;
+    }
     if( ctrl.time )
         Output("Bidiag SVD: ",timer.Stop()," seconds");
 
@@ -79,7 +105,6 @@ SVDInfo GolubReinsch
     DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
     const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     const Grid& g = A.Grid();
@@ -107,8 +132,37 @@ SVDInfo GolubReinsch
     // Run the bidiagonal SVD
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
-    info.bidiagSVDInfo =
-      BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
+    if( m == n || (m > n && avoidU) || (m < n && avoidV) )
+    {
+        // There is no need to work on a subset of U or V
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
+    }
+    else if( m > n )
+    {
+        // We need to work on a subset of U
+        DistMatrix<F> USub(g);
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, USub, s, V, ctrl.bidiagSVDCtrl );
+        // Copy USub into U
+        const Int UWidth = USub.Width();
+        Identity( U, m, UWidth );
+        auto UTop = U( IR(0,n), ALL );
+        UTop = USub;
+    }
+    else if( m < n )
+    {
+        // We need to work on a subset of V
+        DistMatrix<F> VSub(g);
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, VSub, ctrl.bidiagSVDCtrl );
+        // Copy VSub into V
+        const Int VWidth = VSub.Width();
+        Identity( V, n, VWidth );
+        auto VTop = V( IR(0,m), ALL );
+        VTop = VSub;
+    }
+
     if( ctrl.time )
     {
         mpi::Barrier( g.Comm() );
@@ -152,7 +206,6 @@ SVDInfo GolubReinsch
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     SVDInfo info;
@@ -188,7 +241,6 @@ SVDInfo GolubReinsch
   const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();

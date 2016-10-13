@@ -57,7 +57,7 @@ void ColStridedPack
     }
 }
 
-// TODO: Use this routine
+// TODO(poulson): Use this routine
 template<typename T>
 void ColStridedColumnPack
 ( Int height, 
@@ -90,6 +90,46 @@ void ColStridedUnpack
         ( localHeight, width,
           &APortions[k*portionSize], 1,         localHeight,
           &B[colShift],              colStride, BLDim );
+    }
+}
+
+template<typename T>
+void BlockedColStridedUnpack
+( Int height, Int width,
+  Int colAlign, Int colStride,
+  Int blockHeight, Int colCut,
+  const T* APortions, Int portionSize,
+        T* B,         Int BLDim )
+{
+    const Int firstBlockHeight = blockHeight - colCut;
+    for( Int portion=0; portion<colStride; ++portion )
+    {
+        const T* APortion = &APortions[portion*portionSize];
+        const Int colShift = Shift_( portion, colAlign, colStride );
+        const Int localHeight =
+          BlockedLength_( height, colShift, blockHeight, colCut, colStride );
+
+        // Loop over the block rows from this portion
+        Int blockRow = colShift;
+        Int rowIndex =
+          ( colShift==0 ? 0 : firstBlockHeight + (colShift-1)*blockHeight );
+        Int packedRowIndex = 0; 
+        while( rowIndex < height )
+        {
+            const Int thisBlockHeight =
+              ( blockRow == 0 ?
+                firstBlockHeight :
+                Min(blockHeight,height-rowIndex) );
+
+            lapack::Copy
+            ( 'F', thisBlockHeight, width,
+              &APortion[packedRowIndex], localHeight,
+              &B[rowIndex],              BLDim );
+
+            blockRow += colStride;
+            rowIndex += thisBlockHeight + (colStride-1)*blockHeight;
+            packedRowIndex += thisBlockHeight;
+        }
     }
 }
 
@@ -212,6 +252,43 @@ void RowStridedUnpack
         ( 'F', height, localWidth,
           &APortions[k*portionSize], height,
           &B[rowShift*BLDim],        rowStride*BLDim );
+    }
+}
+
+template<typename T>
+void BlockedRowStridedUnpack
+( Int height, Int width,
+  Int rowAlign, Int rowStride,
+  Int blockWidth, Int rowCut,
+  const T* APortions, Int portionSize,
+        T* B,         Int BLDim )
+{
+    const Int firstBlockWidth = blockWidth - rowCut;
+    for( Int portion=0; portion<rowStride; ++portion )
+    {
+        const T* APortion = &APortions[portion*portionSize];
+        const Int rowShift = Shift_( portion, rowAlign, rowStride );
+        // Loop over the block columns from this portion
+        Int blockCol = rowShift;
+        Int colIndex =
+          ( rowShift==0 ? 0 : firstBlockWidth + (rowShift-1)*blockWidth );
+        Int packedColIndex = 0;
+        while( colIndex < width )
+        {
+            const Int thisBlockWidth =
+              ( blockCol == 0 ?
+                firstBlockWidth :
+                Min(blockWidth,width-colIndex) );
+
+            lapack::Copy
+            ( 'F', height, thisBlockWidth,
+              &APortion[packedColIndex*height], height,
+              &B[colIndex*BLDim],               BLDim );
+
+            blockCol += rowStride;
+            colIndex += thisBlockWidth + (rowStride-1)*blockWidth;
+            packedColIndex += thisBlockWidth;
+        }
     }
 }
 

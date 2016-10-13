@@ -6,9 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_HESS_SINGLE_SHIFT_HPP
-#define EL_SCHUR_HESS_SINGLE_SHIFT_HPP
+#ifndef EL_HESS_SCHUR_SINGLE_SHIFT_HPP
+#define EL_HESS_SCHUR_SINGLE_SHIFT_HPP
 
+#include "../Util/MakeSubdiagonalReal.hpp"
 #include "./SingleShift/Sweep.hpp"
 
 namespace El {
@@ -27,7 +28,6 @@ SingleShift
     const Real zero(0), threeFourths=Real(3)/Real(4);
     const Int maxIter=30;    
     const Int n = H.Height();
-    const Int nZ = Z.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int windowSize = winEnd - winBeg;
@@ -54,24 +54,8 @@ SingleShift
     if( winBeg <= winEnd-3 )
         H(winEnd-1,winEnd-3) = zero;
     
-    // Rotate the matrix so that the subdiagonals are real
-    const Int scaleBeg = ( ctrl.fullTriangle ? 0 : winBeg );
-    const Int scaleEnd = ( ctrl.fullTriangle ? n : winEnd );
-    for( Int i=winBeg+1; i<winEnd; ++i )
-    {
-        F& eta = H(i,i-1);
-        if( ImagPart(eta) != zero )
-        {
-            F phase = eta / OneAbs(eta);
-            phase = Conj(phase) / Abs(phase);
-            eta = Abs(eta);
-            blas::Scal( scaleEnd-i, phase, &H(i,i), H.LDim() );
-            blas::Scal
-            ( Min(scaleEnd,i+2)-scaleBeg, Conj(phase), &H(scaleBeg,i), 1 );
-            if( ctrl.wantSchurVecs )
-                blas::Scal( nZ, Conj(phase), &Z(0,i), 1 );
-        }
-    }
+    // The optimized sweeping procedure assumes/maintains a real subdiagonal
+    util::MakeSubdiagonalReal( H, Z, ctrl );
 
     // Attempt to converge the eigenvalues one at a time
     auto ctrlSweep( ctrl );
@@ -81,10 +65,8 @@ SingleShift
         Int iter;
         for( iter=0; iter<maxIter; ++iter )
         {
-            {
-                auto winInd = IR(iterBeg,winEnd);
-                iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
-            }
+            auto winInd = IR(iterBeg,winEnd);
+            iterBeg += DetectSmallSubdiagonal( H(winInd,winInd) );
             if( iterBeg > winBeg )
             {
                 H(iterBeg,iterBeg-1) = zero;
@@ -136,4 +118,4 @@ SingleShift
 } // namespace hess_schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_HESS_SINGLE_SHIFT_HPP
+#endif // ifndef EL_HESS_SCHUR_SINGLE_SHIFT_HPP

@@ -159,6 +159,18 @@ void Broadcast( Matrix<T>& A, mpi::Comm comm, int rank=0 );
 template<typename T>
 void Broadcast( AbstractDistMatrix<T>& A, mpi::Comm comm, int rank=0 );
 
+// Send
+// ====
+template<typename T>
+void Send( const Matrix<T>& A, mpi::Comm comm, int destination );
+
+// Recv
+// ====
+// On entry, the matrix 'A' must be of the correct size and will be overwritten
+// on exit (without changing the leading dimension).
+template<typename T>
+void Recv( Matrix<T>& A, mpi::Comm comm, int source );
+
 // Column norms
 // ============
 
@@ -421,7 +433,7 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B );
 template<typename T>
 void Conjugate( AbstractDistMatrix<T>& A );
 template<typename T>
-void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
+void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 // ConjugateDiagonal
 // =================
@@ -1514,13 +1526,30 @@ DistSparseMatrix<T> GetSubmatrix( Int m, Int n, const DistSparseMatrix<T>& A );
 // Transform2x2 
 // ============
 
-// [a1,a2] := G [a1,a2], where G is 2x2
-// ------------------------------------
+// Note that, if a1 and a2 are column vectors, the following overwrites
+//
+//   [a1, a2] := [a1, a2] G^T,
+//
+// and *not* 
+//
+//   [a1, a2] := [a1, a2] G.
+//
+// In the case where a1 and a2 are row vectors, we are performing
+//
+//   [a1; a2] := G [a1; a2].
+//
+// It is recommended to use Transform2x2Rows or Transform2x2Cols instead.
+//
 template<typename T>
 void Transform2x2
 ( const Matrix<T>& G,
         Matrix<T>& a1,
         Matrix<T>& a2 );
+template<typename T>
+void Transform2x2
+( const Matrix<T>& G,
+        AbstractDistMatrix<T>& a1,
+        AbstractDistMatrix<T>& a2 );
 template<typename T>
 void Transform2x2
 ( const AbstractDistMatrix<T>& G,
@@ -1535,6 +1564,10 @@ void Transform2x2Rows
         Matrix<T>& A, Int i1, Int i2 );
 template<typename T>
 void Transform2x2Rows
+( const Matrix<T>& G,
+        AbstractDistMatrix<T>& A, Int i1, Int i2 );
+template<typename T>
+void Transform2x2Rows
 ( const AbstractDistMatrix<T>& G,
         AbstractDistMatrix<T>& A, Int i1, Int i2 );
 
@@ -1546,6 +1579,10 @@ void Transform2x2Cols
         Matrix<T>& A, Int j1, Int j2 );
 template<typename T>
 void Transform2x2Cols
+( const Matrix<T>& G,
+        AbstractDistMatrix<T>& A, Int j1, Int j2 );
+template<typename T>
+void Transform2x2Cols
 ( const AbstractDistMatrix<T>& G,
         AbstractDistMatrix<T>& A, Int j1, Int j2 );
 
@@ -1555,8 +1592,8 @@ void Transform2x2Cols
 // ===================
 // NOTE: BLAS calls this 'rot'
 
-// [a1,a2] := [c s; -conj(s) c] [a1,a2]
-// ------------------------------------
+// [a1; a2] := [c s; -conj(s) c] [a1; a2]
+// --------------------------------------
 template<typename F>
 void Rotate( Base<F> c, F s, Matrix<F>& a1, Matrix<F>& a2 );
 template<typename F>

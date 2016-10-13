@@ -64,8 +64,8 @@ void HermitianTridiag
 template<typename F> 
 void HermitianTridiag
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& householderScalarsPre,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalarsPre,
   const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -171,7 +171,7 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 template<typename F>
 void ExplicitCondensed
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A, 
+  AbstractDistMatrix<F>& A, 
   const HermitianTridiagCtrl<F>& ctrl )
 {
     DEBUG_CSE
@@ -192,14 +192,14 @@ void ExplicitCondensed
     Matrix<F>& householderScalars ); \
   template void HermitianTridiag \
   ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& householderScalars, \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& householderScalars, \
     const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ExplicitCondensed \
   ( UpperOrLower uplo, Matrix<F>& A ); \
   template void herm_tridiag::ExplicitCondensed \
   ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
+    AbstractDistMatrix<F>& A, \
     const HermitianTridiagCtrl<F>& ctrl ); \
   template void herm_tridiag::ApplyQ \
   ( LeftOrRight side, \
@@ -212,9 +212,9 @@ void ExplicitCondensed
   ( LeftOrRight side, \
     UpperOrLower uplo, \
     Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& householderScalars, \
-          ElementalMatrix<F>& B );
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& householderScalars, \
+          AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

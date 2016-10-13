@@ -15,7 +15,7 @@ namespace hyp_reflector {
 // Please see the comments in the sequential implementation for details.
 
 template<typename F> 
-F Col( F& chi, ElementalMatrix<F>& x )
+F Col( F& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -56,7 +56,7 @@ F Col( F& chi, ElementalMatrix<F>& x )
 }
 
 template<typename F> 
-F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
+F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
     DEBUG_CSE
     DEBUG_ONLY(
