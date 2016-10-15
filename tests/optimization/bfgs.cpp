@@ -21,10 +21,10 @@ LogisticRegression( const DistMatrix<T>& X, const DistMatrix<T>& y, const T lamb
      El::DistMatrix<T> y(theta);
      El::DistMatrix<T> r(X.Height(), 1);
      El::Gemv(El::NORMAL, T(-1), X, theta, T(0), r);
-     for( auto i = 0; i < y.Height(); ++i){ r(i,0) *= y(i,0);  }
+     for( auto i = 0; i < y.Height(); ++i){ r.Set(i, 0, y.Get(i,0));  }
 
      T v = lambda*nrm*nrm;
-     for(auto i = 0; i < y.Height(); ++i){ v += El::Log(T(1) + El::Exp(-1*y(i,0)*r(i,0))); }
+     for(auto i = 0; i < y.Height(); ++i){ v += El::Log(T(1) + El::Exp(-1*y.Get(i,0)*r.Get(i,0))); }
      return v;
   };
 
@@ -34,7 +34,7 @@ LogisticRegression( const DistMatrix<T>& X, const DistMatrix<T>& y, const T lamb
       El::Gemv(El::NORMAL, T(-1), X, theta, T(0), r);
       for(auto i = 0; i < y.Height(); ++i){
          //TODO: Finish this.
-         y(i, 0) = T(1)/(T(1) + El::Exp(-1*y(i,0)*r(i,0)));
+         y.Set(i, 0, T(1)/(T(1) + El::Exp(-1*y.Get(i,0)*r.Get(i,0))));
       }
       return y;
   };
@@ -44,16 +44,40 @@ LogisticRegression( const DistMatrix<T>& X, const DistMatrix<T>& y, const T lamb
   return std::make_pair( x0, val);
 }
 
+template< typename T>
+std::pair< DistMatrix<T>, T>
+QuadraticFunction( const Int & N){
+  const std::function< T(const DistMatrix<T>&)>
+  quadratic_function = [&](const DistMatrix<T>& theta){
+        return .5*Dot(theta,theta);
+  };
+
+  const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+  gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y){
+      y = theta;
+      return y;
+  };
+  DistMatrix<T> x0( N, 1);
+  x0.Set(0,0,5);
+  auto val = El::BFGS( x0, quadratic_function,  gradient);
+  return std::make_pair( x0, val);
+}
+
+
 
 template< typename T>
 void TestBFGS(){
-   DistMatrix<T> X(1000, 30);
-   DistMatrix<T> y(X.Height(), 1);
-   for(int i = 0; i < y.Height(); ++i){
-       y(i, 0)= 2*(i % 2)-1;
-   }
-   auto opt = LogisticRegression( X, y, T(2));   
-   std::cout << opt.second << std::endl;
+   //DistMatrix<T> X(1000, 30);
+   //DistMatrix<T> y(X.Height(), 1);
+   //for(int i = 0; i < y.Height(); ++i){
+   //    y.Set(i, 0, 2*(i % 2)-1);
+   //}
+   //auto opt = LogisticRegression( X, y, T(2));
+   //std::cout << opt.second << std::endl;
+    for(Int i = 1; i < 2; ++i){
+        std::cout << QuadraticFunction<T>(i).second << std::endl;
+    }
+
 }
 
 int main( int argc, char* argv[] )
@@ -69,6 +93,5 @@ int main( int argc, char* argv[] )
         TestBFGS<double>();
     }
     catch( exception& e ) { ReportException(e); }
-
     return 0;
 }
