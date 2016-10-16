@@ -91,7 +91,34 @@ QuadraticFunction( const DistMatrix<T> & A, const DistMatrix<T>& b){
   return std::make_pair( x0, val);
 }
 
-
+template< typename T>
+std::pair< DistMatrix<T>, T>
+rosenbrock_test(){
+  const std::function< T(const DistMatrix<T>&)>
+  rosenbrock = [&](const DistMatrix<T>& theta){
+      auto x1 = theta.Get(0,0);
+      auto x2 = theta.Get(1,0);
+      auto t1 = (x2 -x1*x1);
+      auto t2 = (T(1)-x1);
+      return T(100)*t1*t1 + t2*t2;
+  };
+  const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+  gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y) {
+      auto x1 = theta.Get(0,0);
+      auto x2 = theta.Get(1,0);
+      T g1 = T(400)*x1*(x2 - x1*x1)- T(2)*(1-x1);
+      T g2 = 0;
+      y.Set(0, 0, g1);
+      y.Set(1, 0, g2);
+      return y;
+  };
+  DistMatrix<T> x0( 2, 1);
+  Gaussian( x0, 2, 1);
+  auto val = El::BFGS( x0, rosenbrock,  gradient);
+    El::Display(x0, "Solution should be (1,1)");
+    El::Abs(x0.Get(0,0) - 1) < 1e-16;
+    El::Abs(x0.Get(1,0) - 1) < 1e-16;
+}
 
 template< typename T>
 void TestBFGS(){
@@ -121,6 +148,7 @@ void TestBFGS(){
        std::cout << "Quadratic: " << p.second << std::endl;
        El::Display(p.first, " solution");
    }
+   rosenbrock_test();
 
 }
 
