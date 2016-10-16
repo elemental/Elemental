@@ -12,6 +12,29 @@
 #include <El.hpp>
 
 namespace El {
+
+template< typename T, typename Function, typename Gradient>
+T zoom( const Function& f, const Gradient& gradient, T f0, const DistMatrix<T>& x0, const DistMatrix<T>& p,
+        T alpha_low, T alpha_high, T c1, T c2){
+    DistMatrix<T> x_j(x0);
+    DistMatrix<T> g2(p.Height(), 1);
+    while (alpha_high - alpha_low > 10*El::limits::Epsilon<T>()){
+        T alpha = (alpha_low + alpha_high)/2.0;
+        x_j = x0;
+        Axpy(alpha, p, x_j);
+        T fval = f(x_j);
+        if(El::Abs(fval)<= -c2*f0){
+            return alpha;
+        }
+        gradient( x_j, g2);
+        auto fval_dash = Dot(p, g2);
+        if(  fval_dash*(alpha_high - alpha_low) >= 0){
+            alpha_high = alpha_low;
+        }
+        alpha_low = alpha;
+    }
+    return (alpha_high+alpha_low/2.0);
+}
 /***
  * This function approximately minimizes the function min_\alpha f(x0 + alpha*p)
  * In some sense minimizing this function is "ideal" however, this may take a lot of work, and since
@@ -31,36 +54,34 @@ T lineSearch( const Function& f, const Gradient& gradient,
         T f0 = f(x0);
         DistMatrix<T> g2(D, 1);
         T f0_dash = Dot(p,g);
-        T  alpha = 0;
-        T  t = 1;
-        T  beta = El::limits::Infinity<T>();
+        T  alpha = 1;
+        T  alpha_prev = 1;
+        T  alphaMax = 1e3;
+        T fvalPrev = 0;
+        T fval = 0;
         DistMatrix<T> x_candidate(x0);
         for(std::size_t iter = 0; iter < maxIter; ++iter){
             x_candidate = x0;
             Axpy(alpha, p, x_candidate);
-            auto fval = f(x_candidate);
+            fval = f(x_candidate);
             //The quantity on the LHS is less than f0
-            //So we have found a direction where the fval
+            //So we have found a direction where the function value
             //has not gone down sufficiently.
-            if ( fval > f0 + c1*alpha*f0_dash){
-                beta = t;
-                alpha = T(0.5)*(alpha + beta);
-            } else { //The function has gone down sufficiently
-            //We now seek to satisfy curvature constraints.
+            if ( fval > f0 + c1*alpha*f0_dash || (iter > 0 && fval > fvalPrev) ){
+                return zoom(f, gradient, f0, x0, p, alpha_prev, alpha, c1, c2);
+            }
             gradient( x_candidate, g2);
             auto fval_dash = Dot(p, g2);
-            if ( fval_dash < c2*f0_dash){
-                alpha = t;
-                if (El::limits::IsFinite(beta)){
-                    t = (alpha+beta)*T(.5);
-                } else {
-                    t = 2*alpha;
-                }
-            } else {
+            if(  El::Abs(fval_dash) <= -c2*f0_dash){
                 return alpha;
             }
+            if( fval_dash > 0){
+                return zoom(f, gradient, f0, x0, p, alpha, alpha_prev, c1, c2);
+            }
+            alpha_prev = alpha;
+            fvalPrev = fval;
+            alpha = std::min(2*alpha, alphaMax);
         }
-    }
     return alpha;
 }
 
@@ -152,9 +173,10 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
     Vector g(x);
     Vector g_old(x);
     Vector y(g);
+    gradient(x, g);
     detail::HessianInverseOperator<T> Hinv;
-    for( std::size_t iter=0; (InfinityNorm(g) > limits::Epsilon<T>()); ++iter){
-        gradient(x, g);
+    auto norm_g = InfinityNorm(g);
+    for( std::size_t iter=0; (norm_g > 100*limits::Epsilon<T>()); ++iter){
         //El::Display(x, "Iterate");
         //El::Display(g, "Gradient");
         //Construct the quasi-newton step
@@ -172,12 +194,14 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
         g_old = g;
         //Re-evaluate
         gradient(x, g);
-
+        norm_g = InfinityNorm(g);
+        if( norm_g < 100*limits::Epsilon<T>()){ return f(x); }
         //Evaluate change in gradient
         y = g;
         //y = g - g_old
         Axpy(T(-1), g_old, y);
         Hinv.update(p, y);
+        //std::cout << "||g||_inf = " << norm_g << std::endl;
     }
     return f(x);
 }

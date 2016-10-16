@@ -46,7 +46,7 @@ LogisticRegression( const DistMatrix<T>& X, const DistMatrix<T>& y, const T lamb
 
 template< typename T>
 std::pair< DistMatrix<T>, T>
-QuadraticFunction( const Int & N){
+SimpleQuadraticFunction( const Int & N){
   const std::function< T(const DistMatrix<T>&)>
   quadratic_function = [&](const DistMatrix<T>& theta){
         return .5*Dot(theta,theta);
@@ -58,7 +58,35 @@ QuadraticFunction( const Int & N){
       return y;
   };
   DistMatrix<T> x0( N, 1);
-  x0.Set(0,0,5);
+  Ones(x0, N, 1);
+  auto val = El::BFGS( x0, quadratic_function,  gradient);
+  return std::make_pair( x0, val);
+}
+/***
+ *  f(x) = .5*(x'Ax - x'b)
+ *  grad(f) = Ax - b
+ * @param A
+ * @param x
+ * @return
+ */
+template< typename T>
+std::pair< DistMatrix<T>, T>
+QuadraticFunction( const DistMatrix<T> & A, const DistMatrix<T>& b){
+  const std::function< T(const DistMatrix<T>&)>
+  quadratic_function = [&](const DistMatrix<T>& theta){
+        DistMatrix<T> y( theta);
+        Gemv(El::NORMAL, T(1), A, theta, T(0), y);
+        return .5*(Dot(y,theta) - Dot(b, theta));
+  };
+
+  const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+  gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y){
+      Gemv(El::NORMAL, T(1), A, theta, T(0), y);
+      Axpy(T(-1), b, y);
+      return y;
+  };
+  DistMatrix<T> x0( A.Height(), 1);
+  Gaussian( x0, A.Height(), 1);
   auto val = El::BFGS( x0, quadratic_function,  gradient);
   return std::make_pair( x0, val);
 }
@@ -74,11 +102,29 @@ void TestBFGS(){
    //}
    //auto opt = LogisticRegression( X, y, T(2));
    //std::cout << opt.second << std::endl;
-    for(Int i = 1; i < 2; ++i){
-        std::cout << QuadraticFunction<T>(i).second << std::endl;
-    }
+   for(Int i = 10; i < 11; ++i){
+       auto pair1 = SimpleQuadraticFunction<T>(i);
+       std::cout << pair1.second << std::endl;
+       El::Display(pair1.first, "solution 1");
+       DistMatrix<T> A,B;
+       Laplacian(A, i);
+       auto nrm = Norm(A);
+       Gemm(El::NORMAL, El::ADJOINT, T(1), A, A, B);
+       A = B;
+       A *= T(1)/(nrm*nrm);
+       DistMatrix<T> b( i, 1);
+       Gaussian(b, i, 1);
+       b *= (T(1)/Norm(b));
+       El::Display(A, "A");
+       El::Display(b, "b");
+       auto p =  QuadraticFunction<T>(A, b);
+       std::cout << "Quadratic: " << p.second << std::endl;
+       El::Display(p.first, " solution");
+   }
 
 }
+
+
 
 int main( int argc, char* argv[] )
 {
