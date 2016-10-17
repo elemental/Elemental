@@ -108,15 +108,17 @@ Int ComputeShifts
                    exceptShift1(-Real(7)/Real(16));
 
         // Get a full copy of the bidiagonal of the bottom-right section of H
+        const Int subStart = Max(shiftBeg-1,winBeg);
+        auto subInd = IR(subStart,winEnd); 
         DistMatrix<Real,STAR,STAR> hMain(H.Grid());
         DistMatrix<Real,STAR,STAR> hSub(H.Grid());
-        util::GatherBidiagonal( H, shiftInd, hMain, hSub );
+        util::GatherBidiagonal( H, subInd, hMain, hSub );
         const auto& hMainLoc = hMain.LockedMatrix();
         const auto& hSubLoc = hSub.LockedMatrix();
-
-        for( Int i=winEnd-1; i>=Max(shiftBeg+1,winBeg+2); i-=2 )
+         
+        for( Int i=winEnd-1; i>=subStart+2; i-=2 )
         {
-            const Int iRel = i - shiftBeg;
+            const Int iRel = i - subStart;
             const Real scale = Abs(hSubLoc(iRel-1)) + Abs(hSubLoc(iRel-2));
             Real eta00 = exceptShift0*scale + hMainLoc(iRel);
             Real eta01 = scale;

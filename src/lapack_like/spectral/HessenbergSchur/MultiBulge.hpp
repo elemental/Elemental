@@ -12,6 +12,7 @@
 #include "./Simple.hpp"
 #include "./MultiBulge/TwoByTwo.hpp"
 #include "./MultiBulge/ComputeShifts.hpp"
+#include "./MultiBulge/RedundantlyHandleWindow.hpp"
 #include "./MultiBulge/Sweep.hpp"
 
 namespace El {
@@ -128,112 +129,6 @@ MultiBulge
     info.numUnconverged = winEnd-winBeg;
     return info;
 }
-
-namespace multibulge {
-
-// TODO(poulson): Move this into MultiBulge/RedundantlyHandleWindow.hpp
-template<typename F>
-HessenbergSchurInfo
-RedundantlyHandleWindow
-( DistMatrix<F,MC,MR,BLOCK>& H,
-  DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Z,
-  const HessenbergSchurCtrl& ctrl )
-{
-    DEBUG_CSE
-    const Int n = H.Height();
-    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    const Int winSize = winEnd - winBeg;
-    const Int blockSize = H.BlockHeight();
-
-    auto winInd = IR(winBeg,winEnd);
-    auto HWin = H(winInd,winInd);
-    auto& wLoc = w.Matrix();
-
-    // Compute the Schur decomposition HWin = ZWin TWin ZWin',
-    // where HWin is overwritten by TWin, and wWin by diag(TWin).
-    DistMatrix<F,STAR,STAR> HWinFull( HWin );
-    auto wWin = wLoc(winInd,ALL);
-    Matrix<F> ZWin;
-    Identity( ZWin, winSize, winSize );
-    auto info = HessenbergSchur( HWinFull.Matrix(), wWin, ZWin );
-    HWin = HWinFull;
-
-    if( ctrl.fullTriangle )
-    {
-        if( n > winEnd )
-        {
-            // Overwrite H(winInd,winEnd:n) *= ZWin'
-            // (applied from the left)
-            auto HRight = H( winInd, IR(winEnd,n) );
-            // Since we only need to overwrite HRight, it is overkill to
-            // fully collect the columns over the columns of the process
-            // grid.
-            const Int firstBlockHeight = blockSize - HRight.ColCut();
-            if( winSize <= firstBlockHeight )
-            {
-                Matrix<F> HRightLocCopy( HRight.Matrix() );
-                Gemm
-                ( NORMAL, ADJOINT, F(1), ZWin, HRightLocCopy, HRight.Matrix() );
-            }
-            else
-            {
-                DistMatrix<F,STAR,MR,BLOCK> HRight_STAR_MR( HRight );
-                Matrix<F> HRightLocCopy( HRight_STAR_MR.Matrix() );
-                Gemm
-                ( NORMAL, ADJOINT, F(1), ZWin, HRightLocCopy,
-                  HRight_STAR_MR.Matrix() );
-                HRight = HRight_STAR_MR;
-            }
-        }
-        // Overwrite H(0:winBeg,winInd) *= ZWin
-        auto HTop = H( IR(0,winBeg), winInd );
-        // Again, we only need to overwrite HTop, so it is overkill to
-        // always fully collect the rows over the rows of the grid.
-        const Int firstBlockWidth = blockSize - HTop.RowCut();
-        if( winSize <= firstBlockWidth )
-        {
-            Matrix<F> HTopLocCopy( HTop.Matrix() );
-            Gemm( NORMAL, NORMAL, F(1), HTopLocCopy, ZWin, HTop.Matrix() );
-        }
-        else
-        {
-            DistMatrix<F,MC,STAR,BLOCK> HTop_MC_STAR( HTop );
-            Matrix<F> HTopLocCopy( HTop_MC_STAR.Matrix() );
-            Gemm
-            ( NORMAL, NORMAL, F(1), HTopLocCopy, ZWin, HTop_MC_STAR.Matrix() );
-            HTop = HTop_MC_STAR;
-        }
-    }
-    if( ctrl.wantSchurVecs )
-    {
-        // Overwrite Z(:,winInd) *= ZWin
-        auto ZBlock = Z( ALL, winInd );
-        // Again, we only need to overwrite ZBlock, so it is overkill to
-        // always fully collect the rows over the rows of the grid.
-        const Int firstBlockWidth = blockSize - ZBlock.RowCut();
-        if( winSize <= firstBlockWidth )
-        {
-            Matrix<F> ZBlockLocCopy( ZBlock.Matrix() );
-            Gemm
-            ( NORMAL, NORMAL, F(1), ZBlockLocCopy, ZWin, ZBlock.Matrix() );
-        }
-        else
-        {
-            DistMatrix<F,MC,STAR,BLOCK> ZBlock_MC_STAR( ZBlock );
-            Matrix<F> ZBlockLocCopy( ZBlock_MC_STAR.Matrix() );
-            Gemm
-            ( NORMAL, NORMAL, F(1), ZBlockLocCopy, ZWin,
-              ZBlock_MC_STAR.Matrix() );
-            ZBlock = ZBlock_MC_STAR;
-        }
-    }
-
-    return info;
-}
-
-} // namespace multibulge
 
 template<typename F>
 HessenbergSchurInfo

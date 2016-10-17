@@ -107,7 +107,7 @@ inline Int BlockedLength_
     length += lengthBlock*bsize;
     n -= nBlock*bsize;
     // Cycle each process's first block left by nBlock
-    shift = Mod(shift-nBlock,stride);
+    shift = Mod(shift-Mod(nBlock,stride),stride);
 
     // Handle the (possibly empty) last block
     // ======================================

@@ -111,6 +111,13 @@ void LocalChase
     auto& HLoc = H.Matrix();
     const auto& shiftsLoc = shifts.LockedMatrix();
 
+    // Packets are originally pushed directly into the second block if the first
+    // is not full.
+    const Int startBlock = 
+      ( state.firstBlockSize == state.blockSize ?
+        state.activeBlockBeg :
+        Max(state.activeBlockBeg,1) );
+
     // Count the number of diagonal blocks assigned to this process
     {
         // Only loop over the row blocks that are assigned to our process row
@@ -119,6 +126,34 @@ void LocalChase
         Int numLocalBlocks = 0;
         while( diagBlock < state.activeBlockEnd )
         {
+            if( diagBlock == 0 && state.firstBlockSize < state.blockSize )
+            {
+                // This first block was part of a COUPLED_INTRO_CHASE and
+                // should not contain a packet
+                diagBlock += grid.Height();
+                continue;
+            }
+            if( state.bulgeBeg == 0 && diagBlock == state.activeBlockBeg )
+            {
+                // state.firstBlockSize == state.blockSize
+                // The last packet was just pushed out of this block
+                diagBlock += grid.Height();
+                continue;
+            }
+            if( state.bulgeBeg == 0 && diagBlock == 1 &&
+                state.firstBlockSize < state.blockSize )
+            {
+                // The last packet was just pushed out of this block
+                diagBlock += grid.Height();
+                continue;
+            }
+            if( diagBlock == state.numWinBlocks-1 )
+            {
+                // Packets are never left in the final block
+                diagBlock += grid.Height();
+                continue;
+            }
+
             const int ownerCol =
               Mod( state.winRowAlign+diagBlock, grid.Width() );
             if( ownerCol == grid.Col() )
@@ -138,8 +173,34 @@ void LocalChase
     Matrix<F> ZDummy;
     while( diagBlock < state.activeBlockEnd )
     {
-        const Int thisBlockHeight = 
-          ( diagBlock == 0 ? state.firstBlockSize : state.blockSize );
+        if( diagBlock == 0 && state.firstBlockSize < state.blockSize )
+        {
+            // This first block was part of a COUPLED_INTRO_CHASE and
+            // should not contain a packet
+            diagBlock += grid.Height();
+            continue;
+        }
+        if( state.bulgeBeg == 0 && diagBlock == state.activeBlockBeg )
+        {
+            // state.firstBlockSize == state.blockSize
+            // The last packet was just pushed out of this block
+            diagBlock += grid.Height();
+            continue;
+        }
+        if( state.bulgeBeg == 0 && diagBlock == 1 &&
+            state.firstBlockSize < state.blockSize )
+        {
+            // The last packet was just pushed out of this block
+            diagBlock += grid.Height();
+            continue;
+        }
+        if( diagBlock == state.numWinBlocks-1 )
+        {
+            // Packets are never left in the final block
+            diagBlock += grid.Height();
+            continue;
+        }
+
         const Int numBlockBulges =
           ( diagBlock==state.activeBlockEnd-1 ?
             state.numBulgesInLastBlock :
@@ -158,12 +219,12 @@ void LocalChase
             const Int localColOffset = H.LocalColOffset( diagOffset );
             auto HBlockLoc = 
               HLoc
-              ( IR(0,thisBlockHeight)+localRowOffset,
-                IR(0,thisBlockHeight)+localColOffset );
+              ( IR(0,state.blockSize)+localRowOffset,
+                IR(0,state.blockSize)+localColOffset );
 
             // View the local shifts for this diagonal block
             const Int bulgeOffset = state.bulgeBeg +
-              state.numBulgesPerBlock*(diagBlock-state.activeBlockBeg);
+              state.numBulgesPerBlock*(diagBlock-startBlock);
             auto packetShifts =
               shiftsLoc( IR(0,2*numBlockBulges)+(2*bulgeOffset), ALL );
 
@@ -182,18 +243,18 @@ void LocalChase
             //     -----------           -----------
             //
             auto& UBlock = UList[localDiagBlock];
-            Identity( UBlock, thisBlockHeight-2, thisBlockHeight-2 );
+            Identity( UBlock, state.blockSize-2, state.blockSize-2 );
 
             // Perform the diagonal block sweep and accumulate the
             // reflections in UBlock. The number of diagonal entries spanned
             // by numBlockBulges bulges is 1 + 3 numBlockBulges, so the number
-            // of steps is thisBlockHeight - (1 + 3*numBlockBulges).
-            const Int numSteps = thisBlockHeight - (1 + 3*numBlockBulges);
+            // of steps is blockSize - (1 + 3*numBlockBulges).
+            const Int numSteps = state.blockSize - (1 + 3*numBlockBulges);
             const Int blockWinBeg = 0;
-            const Int blockWinEnd = thisBlockHeight;
+            const Int blockWinEnd = state.blockSize;
             const Int chaseBeg = 0;
             const Int transformRowBeg = 0;
-            const Int transformColEnd = thisBlockHeight;
+            const Int transformColEnd = state.blockSize;
             const bool wantSchurVecsSub = false;
             const bool accumulateSub = true;
             const Int firstBulge = 0;
@@ -245,16 +306,44 @@ void ApplyAccumulatedReflections
         Int localDiagBlock = 0;
         while( diagBlockRow < state.activeBlockEnd )
         {
-            const Int thisBlockHeight = 
-              ( diagBlockRow == 0 ?
-                state.firstBlockSize : state.blockSize );
+            if( diagBlockRow == 0 && state.firstBlockSize < state.blockSize )
+            {
+                // This first block was part of a COUPLED_INTRO_CHASE and
+                // should not contain a packet
+                diagBlockRow += grid.Height();
+                continue;
+            }
+            if( state.bulgeBeg == 0 && diagBlockRow == state.activeBlockBeg )
+            {
+                // The last packet was just pushed out of this block
+                diagBlockRow += grid.Height();
+                continue;
+            }
+            if( state.bulgeBeg == 0 && diagBlockRow == 1 &&
+                state.firstBlockSize < state.blockSize )
+            {
+                // The last packet was just pushed out of this block
+                diagBlockRow += grid.Height();
+                continue;
+            }
+            if( diagBlockRow == state.numWinBlocks-1 )
+            {
+                // Packets are never left in the final block
+                diagBlockRow += grid.Height();
+                continue;
+            }
 
             const int ownerCol =
               Mod( state.winRowAlign+diagBlockRow, grid.Width() );
             if( ownerCol == grid.Col() )
                 UBlock = UList[localDiagBlock++];
             else
-                Zeros( UBlock, thisBlockHeight, thisBlockHeight );
+                Zeros( UBlock, state.blockSize-2, state.blockSize-2 );
+            if( UBlock.Height() != state.blockSize-2 ||
+                UBlock.Width() != state.blockSize-2 )
+                LogicError
+                ("UBlock was ",UBlock.Height()," x ",UBlock.Width(),
+                 " instead of ",state.blockSize-2," x ",state.blockSize-2);
             El::Broadcast( UBlock, H.RowComm(), ownerCol );
             
             // TODO(poulson): Move into subroutine
@@ -263,10 +352,11 @@ void ApplyAccumulatedReflections
                 0 :
                 state.firstBlockSize + (diagBlockRow-1)*state.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
-            const Int localColOffset = H.LocalColOffset( diagOffset );
-            const auto applyRowInd = IR(1,thisBlockHeight-1) + localRowOffset;
+            const Int localColOffset =
+              H.LocalColOffset( diagOffset+state.blockSize );
+            const auto applyRowInd = IR(1,state.blockSize-1) + localRowOffset;
             const auto applyColInd =
-              IR(localColOffset+thisBlockHeight,state.localTransformColEnd);
+              IR(localColOffset,state.localTransformColEnd);
 
             auto HLocRight = HLoc( applyRowInd, applyColInd );
             tempMatrix = HLocRight;
@@ -292,16 +382,45 @@ void ApplyAccumulatedReflections
         Int localDiagBlock = 0;
         while( diagBlockCol < state.activeBlockEnd )
         {
-            const Int thisBlockHeight = 
-              ( diagBlockCol == 0 ?
-                state.firstBlockSize : state.blockSize );
+            if( diagBlockCol == 0 && state.firstBlockSize < state.blockSize )
+            {
+                // This first block was part of a COUPLED_INTRO_CHASE and
+                // should not contain a packet
+                diagBlockCol += grid.Width();
+                continue;
+            }
+            if( state.bulgeBeg == 0 && diagBlockCol == state.activeBlockBeg )
+            {
+                // state.firstBlockSize == state.blockSize
+                // The last packet was just pushed out of this block
+                diagBlockCol += grid.Width();
+                continue;
+            }
+            if( state.bulgeBeg == 0 && diagBlockCol == 1 &&
+                state.firstBlockSize < state.blockSize )
+            {
+                // The last packet was just pushed out of this block
+                diagBlockCol += grid.Width();
+                continue;
+            }
+            if( diagBlockCol == state.numWinBlocks-1 )
+            {
+                // Packets are never left in the final block
+                diagBlockCol += grid.Width();
+                continue;
+            }
 
             const int ownerRow =
               Mod( state.winColAlign+diagBlockCol, grid.Height() );
             if( ownerRow == grid.Row() )
                 UBlock = UList[localDiagBlock++];
             else
-                Zeros( UBlock, thisBlockHeight, thisBlockHeight );
+                Zeros( UBlock, state.blockSize-2, state.blockSize-2 );
+            if( UBlock.Height() != state.blockSize-2 ||
+                UBlock.Width() != state.blockSize-2 )
+                LogicError
+                ("UBlock was ",UBlock.Height()," x ",UBlock.Width(),
+                 " instead of ",state.blockSize-2," x ",state.blockSize-2);
             El::Broadcast( UBlock, H.ColComm(), ownerRow );
 
             // TODO(poulson): Move into subroutine
@@ -313,7 +432,7 @@ void ApplyAccumulatedReflections
             const Int localColOffset = H.LocalColOffset( diagOffset );
             const auto applyRowInd =
               IR(state.localTransformRowBeg,localRowOffset);
-            const auto applyColInd = IR(1,thisBlockHeight-1) + localColOffset;
+            const auto applyColInd = IR(1,state.blockSize-1) + localColOffset;
 
             auto HLocAbove = HLoc( applyRowInd, applyColInd );
             tempMatrix = HLocAbove;

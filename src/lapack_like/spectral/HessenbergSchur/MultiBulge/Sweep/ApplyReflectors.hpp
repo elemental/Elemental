@@ -43,6 +43,7 @@ void ApplyReflectors
           LogicError("Last bulge starts too late");
     )
     const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
+    const Int clippedChaseBeg = Max(chaseBeg,winBeg-1);
 
     // Apply from the left
     // ===================
@@ -87,7 +88,8 @@ void ApplyReflectors
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+
+            const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
             for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), w );
@@ -109,7 +111,7 @@ void ApplyReflectors
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+            const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
             for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), U(i,bulgeBegRel+3),
@@ -205,6 +207,7 @@ void ApplyReflectorsOpt
           LogicError("Last bulge starts too late");
     )
     const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
+    const Int clippedChaseBeg = Max(chaseBeg,winBeg-1);
 
     F* HBuf = H.Buffer();
     F* ZBuf = Z.Buffer();
@@ -264,7 +267,7 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+            const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
             for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],
@@ -281,6 +284,10 @@ void ApplyReflectorsOpt
     for( Int bulge=firstBulge+numFullBulges-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
+        if( bulge >= W.Width() )
+            LogicError
+            ("W.Width()=",W.Width(),", bulge=",bulge,", firstBulge=",firstBulge,
+             ", numFullBulges=",numFullBulges);
         const F* w = &WBuf[bulge*WLDim];
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+4); ++i )
             ApplyRightReflector
@@ -291,7 +298,13 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int UHeight = U.Height();
-            const Int bulgeBegRel = bulgeBeg - Max(chaseBeg+1,winBeg);
+            const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
+            if( bulgeBegRel+3 >= UHeight )
+                LogicError
+                ("UHeight=",UHeight,", bulgeBeg=",bulgeBeg,
+                 ", chaseBeg=",chaseBeg,", winBeg=",winBeg,
+                 ", bulgeBegRel=",bulgeBegRel,", firstBulge=",firstBulge,
+                 ", numFullBulges=",numFullBulges);
             for( Int i=0; i<UHeight; ++i ) 
                 ApplyRightReflector
                 ( UBuf[i+(bulgeBegRel+1)*ULDim],

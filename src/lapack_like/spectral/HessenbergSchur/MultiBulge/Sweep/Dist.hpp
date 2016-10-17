@@ -144,7 +144,9 @@ DistChaseState BuildDistChaseState
 
     // Bulges are introduced starting from the bottom, and we introduce the
     // leftover number of shifts first.
-    state.numBulgesInLastBlock = Mod(numBulges,state.numBulgesPerBlock);
+    const Int bulgeLeftover = Mod(numBulges,state.numBulgesPerBlock);
+    state.numBulgesInLastBlock =
+      ( bulgeLeftover==0 ? state.numBulgesPerBlock : bulgeLeftover );
     state.bulgeBeg = numBulges - state.numBulgesInLastBlock;
     state.bulgeEnd = numBulges;
 
@@ -211,11 +213,17 @@ void AdvanceChaseState
         // All of the packets are in play, so the sweep is winding down
 
         // Push the active block indices up one block
-        if( state.activeBlockBeg == 0 )
-            state.activeBeg += state.firstBlockSize;
+        if( state.activeBlockBeg == 0 &&
+            state.firstBlockSize != state.blockSize )
+        {
+            state.activeBeg += state.firstBlockSize + state.blockSize;
+            state.activeBlockBeg += 2; 
+        }
         else
+        {
             state.activeBeg += state.blockSize;
-        ++state.activeBlockBeg;
+            state.activeBlockBeg += 1;
+        }
 
         // Compute the active region alignments and first assigned rows/col's
         const int activeColAlign = H.RowOwner( state.activeBeg );

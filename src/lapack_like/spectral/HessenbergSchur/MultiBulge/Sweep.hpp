@@ -90,7 +90,10 @@ void SweepHelper
         const Int slabEnd = Min( chaseBeg+maxSlabSize, winEnd );
         const Int slabSize = slabEnd - slabBeg;
         if( ctrl.accumulateReflections )
+        {
+            // The Householder transformations do not effect the first index
             Identity( U, slabSize-1, slabSize-1 );
+        }
 
         const Int packetEnd = Min(chaseBeg+chaseStride,sweepEnd);
         for( Int packetBeg=chaseBeg; packetBeg<packetEnd; ++packetBeg )
