@@ -174,10 +174,10 @@ Merge
     // 
     //   | r(0), rhoExtra | | cExtra,  -sExtra | = | gamma, 0 |.
     //                      | sExtra,   cExtra |
-    Real rhoExtra=0, cExtra=1, sExtra=0;
     if( n == m+1 )
     {
-        rhoExtra = beta*V1(0,m1);
+        Real cExtra=1, sExtra=0;
+        Real rhoExtra = beta*V1(0,m1);
         const Real gamma = SafeNorm( r(0), rhoExtra );
         if( gamma <= deflationTol )
         {
@@ -1025,10 +1025,10 @@ Merge
     // 
     //   | r(0), rhoExtra | | cExtra,  -sExtra | = | gamma, 0 |.
     //                      | sExtra,   cExtra |
-    Real rhoExtra=0, cExtra=1, sExtra=0;
     if( n == m+1 )
     {
-        rhoExtra = beta*v1FirstLoc(0,m1);
+        Real cExtra=1, sExtra=0;
+        Real rhoExtra = beta*v1FirstLoc(0,m1);
         const Real gamma = SafeNorm( r(0), rhoExtra );
         if( gamma <= deflationTol )
         {
@@ -1088,6 +1088,9 @@ Merge
                     }
                 }
             }
+            auto vNull_VC_STAR = V_VC_STAR( ALL, IR(m) );
+            auto vNull = V( ALL, IR(m) );
+            vNull = vNull_VC_STAR;
             // V(:,m) should now lie in the null space of the inner matrix.
         }
     }
@@ -1918,6 +1921,8 @@ DivideAndConquer
                 V.SetLocal( iLoc, jLoc, VLoc(i,j) );
             }
         }
+        // TODO(poulson): Remove this
+        CheckError( mainDiag, superDiag, U, s, V, ctrl, "Small call" );
 
         return info;
     }
@@ -1935,6 +1940,8 @@ DivideAndConquer
 
         V.Resize( VLoc.Height(), VLoc.Width() );
         V.Matrix() = VLoc;
+
+        CheckError( mainDiag, superDiag, U, s, V, ctrl, "Local call" );
 
         return info;
     }
@@ -1982,12 +1989,14 @@ DivideAndConquer
         info0 =
           DivideAndConquer
           ( mainDiag0, superDiag0, U0Sub, s0Sub, V0Sub, ctrl, false );
+        CheckError( mainDiag0, superDiag0, U0Sub, s0Sub, V0Sub, ctrl, "Sub0" );
     }
     if( s1Sub.Participating() )
     {
         info1 =
           DivideAndConquer
           ( mainDiag1, superDiag1, U1Sub, s1Sub, V1Sub, ctrl, false );
+        CheckError( mainDiag1, superDiag1, U1Sub, s1Sub, V1Sub, ctrl, "Sub1" );
     }
 
     const bool includeViewers = true;
