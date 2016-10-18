@@ -55,7 +55,7 @@ T lineSearch( const Function& f, const Gradient& gradient,
         DistMatrix<T> g2(D, 1);
         T f0_dash = Dot(p,g);
         T  alpha = 1;
-        T  alpha_prev = 1;
+        T  alpha_prev = 0;
         T  alphaMax = 1e3;
         T fvalPrev = 0;
         T fval = 0;
@@ -177,6 +177,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
     detail::HessianInverseOperator<T> Hinv;
     auto norm_g = InfinityNorm(g);
     for( std::size_t iter=0; (norm_g > 100*limits::Epsilon<T>()); ++iter){
+        //std::cout << "iter: " << iter << std::endl;
         //El::Display(x, "Iterate");
         //El::Display(g, "Gradient");
         //Construct the quasi-newton step

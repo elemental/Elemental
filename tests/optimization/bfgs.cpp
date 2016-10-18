@@ -9,6 +9,8 @@
 #include <utility>
 #include <El.hpp>
 #include <El/optimization/bfgs.hpp>
+#define CATCH_CONFIG_RUNNER
+#include <catch.hpp>
 
 using namespace El;
 
@@ -46,7 +48,7 @@ LogisticRegression( const DistMatrix<T>& X, const DistMatrix<T>& y, const T lamb
 
 template< typename T>
 std::pair< DistMatrix<T>, T>
-SimpleQuadraticFunction( const Int & N){
+SimpleQuadraticBFGSTest( const Int & N){
   const std::function< T(const DistMatrix<T>&)>
   quadratic_function = [&](const DistMatrix<T>& theta){
         return .5*Dot(theta,theta);
@@ -93,79 +95,78 @@ QuadraticFunction( const DistMatrix<T> & A, const DistMatrix<T>& b){
 
 template< typename T>
 std::pair< DistMatrix<T>, T>
-rosenbrock_test(){
-  const std::function< T(const DistMatrix<T>&)>
-  rosenbrock = [&](const DistMatrix<T>& theta){
-      auto x1 = theta.Get(0,0);
-      auto x2 = theta.Get(1,0);
-      auto t1 = (x2 -x1*x1);
-      auto t2 = (T(1)-x1);
-      return T(100)*t1*t1 + t2*t2;
-  };
-  const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
-  gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y) {
-      auto x1 = theta.Get(0,0);
-      auto x2 = theta.Get(1,0);
-      T g1 = T(400)*x1*(x2 - x1*x1)- T(2)*(1-x1);
-      T g2 = 0;
-      y.Set(0, 0, g1);
-      y.Set(1, 0, g2);
-      return y;
-  };
-  DistMatrix<T> x0( 2, 1);
-  Gaussian( x0, 2, 1);
-  auto val = El::BFGS( x0, rosenbrock,  gradient);
-    El::Display(x0, "Solution should be (1,1)");
-    El::Abs(x0.Get(0,0) - 1) < 1e-16;
-    El::Abs(x0.Get(1,0) - 1) < 1e-16;
+QuadraticBFGSTest(Int N){
+ DistMatrix<T> A,B;
+ Laplacian(A, N);
+ auto nrm = Norm(A);
+ Gemm(El::NORMAL, El::ADJOINT, T(1), A, A, B);
+ A = B;
+ A *= T(1)/(nrm*nrm);
+ DistMatrix<T> b( N, 1);
+ Gaussian(b, N, 1);
+ b *= (T(1)/Norm(b));
+ return QuadraticFunction<T>(A, b);
 }
 
 template< typename T>
-void TestBFGS(){
-   //DistMatrix<T> X(1000, 30);
-   //DistMatrix<T> y(X.Height(), 1);
-   //for(int i = 0; i < y.Height(); ++i){
-   //    y.Set(i, 0, 2*(i % 2)-1);
-   //}
-   //auto opt = LogisticRegression( X, y, T(2));
-   //std::cout << opt.second << std::endl;
-   for(Int i = 10; i < 11; ++i){
-       auto pair1 = SimpleQuadraticFunction<T>(i);
-       std::cout << pair1.second << std::endl;
-       El::Display(pair1.first, "solution 1");
-       DistMatrix<T> A,B;
-       Laplacian(A, i);
-       auto nrm = Norm(A);
-       Gemm(El::NORMAL, El::ADJOINT, T(1), A, A, B);
-       A = B;
-       A *= T(1)/(nrm*nrm);
-       DistMatrix<T> b( i, 1);
-       Gaussian(b, i, 1);
-       b *= (T(1)/Norm(b));
-       El::Display(A, "A");
-       El::Display(b, "b");
-       auto p =  QuadraticFunction<T>(A, b);
-       std::cout << "Quadratic: " << p.second << std::endl;
-       El::Display(p.first, " solution");
-   }
-   rosenbrock_test();
+std::pair< DistMatrix<T>, T>
+RosenbrockTest(){
+    const std::function< T(const DistMatrix<T>&)>
+            rosenbrock = [&](const DistMatrix<T>& theta){
+        auto x1 = theta.Get(0,0);
+        auto x2 = theta.Get(1,0);
+        auto t1 = (x2 -x1*x1);
+        auto t2 = (T(1)-x1);
+        //f(x1,x2) = 100*(x2-x1^2)^2 + (1-x1)^2
+        return T(100)*t1*t1 + t2*t2;
+    };
+    const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+            gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y) {
+        auto x1 = theta.Get(0,0);
+        auto x2 = theta.Get(1,0);
+
+        T g1 = T(2)*(T(200)*x1*x1*x1 - T(200)*x1*x2  + x1 - T(1));
+        T g2 = T(2)*(x2-x1*x1);
+
+        y.Set(0, 0, g1);
+        y.Set(1, 0, g2);
+        return y;
+    };
+    DistMatrix<T> x0( 2, 1);
+    Gaussian( x0, 2, 1);
+    auto val = El::BFGS( x0, rosenbrock,  gradient);
+    return std::make_pair(x0,val);
 
 }
 
+TEST_CASE( "Can Minimize Simple Quadratic", "[BFGS]" ) {
+    auto pair = SimpleQuadraticBFGSTest<double>(10);
+    auto x0 = pair.first;
+    auto val = pair.second;
+    REQUIRE(El::Norm(x0) < 1e-15);
+    REQUIRE(val < 1e-15);
+}
+TEST_CASE( "Can Minimize Laplacian Quadratic", "[BFGS]"){
+    auto pair = QuadraticBFGSTest<double>( 10);
+    auto x = pair.first;
+    auto val = pair.second;
+    REQUIRE(El::MaxNorm(x) < 941.5901860155);
+    REQUIRE(val < 1e-11);
+}
 
+TEST_CASE( "Can Minimize rosenbrock", "[BFGS]" ) {
+    auto pair = RosenbrockTest<double>();
+    auto x0 = pair.first;
+    auto val = pair.second;
+    REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
+    REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
+    REQUIRE( val < 1e-16);
+}
 
-int main( int argc, char* argv[] )
-{
+int main( int argc, char* argv[])  {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
-
-    try
-    {
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestBFGS<double>();
-    }
-    catch( exception& e ) { ReportException(e); }
+    int result = Catch::Session().run( argc, (const char**)(argv));
     return 0;
 }

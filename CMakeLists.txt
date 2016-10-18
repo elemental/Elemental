@@ -259,27 +259,23 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g.,\nrm CMakeCache.txt && rm -Rf CMakeFiles/\nmkdir build/ && cd build/ && cmake ..")
 endif()
 
-# Get the Git revision
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-
 # Ensure that the build type is set to either Release or Debug
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  # This option is okay as-is
-  set(CMAKE_BUILD_TYPE Release)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  # This option is okay as-is
-  set(CMAKE_BUILD_TYPE Debug)
-elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  message(WARNING "RelWithDebInfo not supported; switching to Release")
-  set(CMAKE_BUILD_TYPE Release)
-elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-  message(WARNING "MinSizeRel not supported; switching to Release")
-  set(CMAKE_BUILD_TYPE Release)
-else()
-  message(WARNING "Build mode not specified, defaulting to Release build.")
-  set(CMAKE_BUILD_TYPE Release)
-endif()
+#if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#  # This option is okay as-is
+#  set(CMAKE_BUILD_TYPE Release)
+#elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#  # This option is okay as-is
+#  set(CMAKE_BUILD_TYPE Debug)
+#elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+#  message(WARNING "RelWithDebInfo not supported; switching to Release")
+#  set(CMAKE_BUILD_TYPE Release)
+#elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+#  message(WARNING "MinSizeRel not supported; switching to Release")
+#  set(CMAKE_BUILD_TYPE Release)
+#else()
+#  message(WARNING "Build mode not specified, defaulting to Release build.")
+#  set(CMAKE_BUILD_TYPE Release)
+#endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   set(EL_RELEASE TRUE)
@@ -420,7 +416,7 @@ else()
     add_dependencies(pmrrr project_openblas)
   endif()
 endif()
-
+include_directories(external/catch)
 # Elemental's modifications of (a subset of) SuiteSparse
 # ------------------------------------------------------
 add_subdirectory(external/suite_sparse)
