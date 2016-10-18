@@ -17,8 +17,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "ElSuiteSparse/ldl.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace ldl {
@@ -27,7 +26,7 @@ template<typename F>
 void DiagonalSolve
 ( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DiagonalSolve"))
+    DEBUG_CSE
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -46,7 +45,7 @@ template<typename F>
 void DiagonalSolve
 ( const DistNodeInfo& info, const DistFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DiagonalSolve"))
+    DEBUG_CSE
 
     if( front.child == nullptr )
     {
@@ -66,7 +65,7 @@ template<typename F>
 void DiagonalSolve
 ( const DistNodeInfo& info, const DistFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DiagonalSolve"))
+    DEBUG_CSE
 
     if( front.child == nullptr )
     {
@@ -94,7 +93,11 @@ void DiagonalSolve
     DistMatrixNode<F>& X );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace ldl
 } // namespace El

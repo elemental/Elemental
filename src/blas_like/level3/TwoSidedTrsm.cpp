@@ -1,12 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./TwoSidedTrsm/Unblocked.hpp"
 #include "./TwoSidedTrsm/LVar4.hpp"
@@ -20,7 +21,7 @@ void TwoSidedTrsm
         Matrix<F>& A,
   const Matrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -30,10 +31,10 @@ void TwoSidedTrsm
 template<typename F> 
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-        ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& B )
+        AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
+    DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -47,13 +48,14 @@ void TwoSidedTrsm
   const DistMatrix<F,STAR,STAR>& B )
 { TwoSidedTrsm( uplo, diag, A.Matrix(), B.LockedMatrix() ); }
 
-template<typename F>
-void TwoSidedTrsm
+namespace twotrsm {
+
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+void ScaLAPACKHelper
 ( UpperOrLower uplo, UnitOrNonUnit diag,
         DistMatrix<F,MC,MR,BLOCK>& A,
   const DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_ONLY(CSE cse("TwoSidedTrsm"))
     if( diag == UNIT )
         LogicError("ScaLAPACK does not support unit-diagonal two-sided TRSM");
     // NOTE: ScaLAPACK additionally assumes that the diagonal of the triangular
@@ -73,6 +75,27 @@ void TwoSidedTrsm
 #endif
 }
 
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void ScaLAPACKHelper
+( UpperOrLower uplo, UnitOrNonUnit diag,
+        DistMatrix<F,MC,MR,BLOCK>& A,
+  const DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    LogicError("ScaLAPACK does not support this datatype");
+}
+
+} // namespace twotrsm
+
+template<typename F>
+void TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag,
+        DistMatrix<F,MC,MR,BLOCK>& A,
+  const DistMatrix<F,MC,MR,BLOCK>& B )
+{
+    DEBUG_CSE
+    twotrsm::ScaLAPACKHelper( uplo, diag, A, B );
+}
+
 #define PROTO(F) \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
@@ -80,8 +103,8 @@ void TwoSidedTrsm
     const Matrix<F>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-          ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& B ); \
+          AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
           DistMatrix<F,STAR,STAR>& A, \
@@ -92,6 +115,10 @@ void TwoSidedTrsm
     const DistMatrix<F,MC,MR,BLOCK>& B );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

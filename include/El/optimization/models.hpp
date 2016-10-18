@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_OPTIMIZATION_MODELS_HPP
 #define EL_OPTIMIZATION_MODELS_HPP
 
@@ -29,11 +28,11 @@ namespace bp {
 
 template<typename Real>
 struct ADMMCtrl {
-  Real rho=1;
-  Real alpha=1.2;
+  Real rho=Real(1);
+  Real alpha=Real(1.2);
   Int maxIter=500;
-  Real absTol=1e-6;
-  Real relTol=1e-4;
+  Real absTol=Real(1e-6);
+  Real relTol=Real(1e-4);
   bool usePinv=false;
   Real pinvTol=0;
   bool progress=true;
@@ -88,22 +87,26 @@ void BP
 // ====================================
 template<typename Real>
 void CP
-( const Matrix<Real>& A, const Matrix<Real>& b,
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void CP
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
         ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void CP
-( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void CP
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 
@@ -112,22 +115,26 @@ void CP
 // TODO: Generalize to complex after SOCP support
 template<typename Real>
 void LAV
-( const Matrix<Real>& A, const Matrix<Real>& b,
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LAV
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
         ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LAV
-( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LAV
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 
@@ -149,25 +156,29 @@ void LAV
 
 template<typename Real>
 void DS
-( const Matrix<Real>& A, const Matrix<Real>& b,
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void DS
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
         Real lambda,
         ElementalMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void DS
-( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void DS
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
@@ -205,14 +216,19 @@ Int ModelFit
 
 template<typename Real>
 Int LogisticRegression
-( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& z,
-  Real gamma, Regularization penalty=L1_PENALTY,
+( const Matrix<Real>& G,
+  const Matrix<Real>& q,
+        Matrix<Real>& z,
+  Real gamma,
+  Regularization penalty=L1_PENALTY,
   const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 template<typename Real>
 Int LogisticRegression
-( const ElementalMatrix<Real>& G, const ElementalMatrix<Real>& q, 
+( const ElementalMatrix<Real>& G,
+  const ElementalMatrix<Real>& q, 
         ElementalMatrix<Real>& z,
-  Real gamma, Regularization penalty=L1_PENALTY,
+  Real gamma,
+  Regularization penalty=L1_PENALTY,
   const ModelFitCtrl<Real>& ctrl=ModelFitCtrl<Real>() );
 
 // Robust least squares
@@ -413,11 +429,11 @@ namespace bpdn {
 
 template<typename Real>
 struct ADMMCtrl {
-  Real rho=1;
-  Real alpha=1.2;
+  Real rho=Real(1);
+  Real alpha=Real(1.2);
   Int maxIter=500;
-  Real absTol=1e-6;
-  Real relTol=1e-4;
+  Real absTol=Real(1e-6);
+  Real relTol=Real(1e-4);
   bool inv=true;
   bool progress=true;
 };
@@ -434,25 +450,29 @@ struct BPDNCtrl {
 
 template<typename Real>
 void BPDN
-( const Matrix<Real>& A, const Matrix<Real>& b, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
         Real lambda,
         Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
         Real lambda,
         ElementalMatrix<Real>& x,
   const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
-( const SparseMatrix<Real>& A, const Matrix<Real>& b,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
 template<typename Real>
 void BPDN
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
   const BPDNCtrl<Real>& ctrl=BPDNCtrl<Real>() );
@@ -464,26 +484,34 @@ void BPDN
 
 template<typename Real>
 void EN
-( const Matrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda1,          Real lambda2,
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
+        Real lambda1,
+        Real lambda2,
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void EN
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b,
-        Real lambda1,                      Real lambda2,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b,
+        Real lambda1,
+        Real lambda2,
         ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void EN
-( const SparseMatrix<Real>& A, const Matrix<Real>& b,
-        Real lambda1,                Real lambda2,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
+        Real lambda1,
+        Real lambda2,
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void EN
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b,
-        Real lambda1,                    Real lambda2,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
+        Real lambda1,
+        Real lambda2,
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 
@@ -500,20 +528,23 @@ struct RPCACtrl
     Int numPivSteps=75;
     Int maxIts=1000;
 
-    Real tau=0;
-    Real beta=1;
-    Real rho=6;
-    Real tol=1e-5;
+    Real tau=Real(0);
+    Real beta=Real(1);
+    Real rho=Real(6);
+    Real tol=Real(1e-5);
 };
 
 template<typename F>
 void RPCA
-( const Matrix<F>& M, Matrix<F>& L, Matrix<F>& S,
+( const Matrix<F>& M,
+        Matrix<F>& L,
+        Matrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl=RPCACtrl<Base<F>>() );
 
 template<typename F>
 void RPCA
-( const ElementalMatrix<F>& M, ElementalMatrix<F>& L, 
+( const ElementalMatrix<F>& M,
+        ElementalMatrix<F>& L, 
         ElementalMatrix<F>& S,
   const RPCACtrl<Base<F>>& ctrl=RPCACtrl<Base<F>>() );
 
@@ -522,21 +553,25 @@ void RPCA
 template<typename Real>
 struct SparseInvCovCtrl
 {
-    Real rho=1.;
-    Real alpha=1.2;
+    Real rho=Real(1.);
+    Real alpha=Real(1.2);
     Int maxIter=500;
-    Real absTol=1e-6;
-    Real relTol=1e-4;
+    Real absTol=Real(1e-6);
+    Real relTol=Real(1e-4);
     bool progress=true;
 };
 
 template<typename F>
 Int SparseInvCov
-( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z,
+( const Matrix<F>& D,
+        Base<F> lambda,
+        Matrix<F>& Z,
   const SparseInvCovCtrl<Base<F>>& ctrl=SparseInvCovCtrl<Base<F>>() );
 template<typename F>
 Int SparseInvCov
-( const ElementalMatrix<F>& D, Base<F> lambda, ElementalMatrix<F>& Z,
+( const ElementalMatrix<F>& D,
+        Base<F> lambda,
+        ElementalMatrix<F>& Z,
   const SparseInvCovCtrl<Base<F>>& ctrl=SparseInvCovCtrl<Base<F>>() );
 
 // Support Vector Machine (soft-margin)
@@ -565,23 +600,31 @@ struct SVMCtrl
 //       for users to unpack a DistMultiVec
 template<typename Real>
 void SVM
-( const Matrix<Real>& A, const Matrix<Real>& d, 
-        Real lambda,           Matrix<Real>& x,
+( const Matrix<Real>& A,
+  const Matrix<Real>& d, 
+        Real lambda,
+        Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& d, 
-        Real lambda,                       ElementalMatrix<Real>& x,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& d, 
+        Real lambda,
+        ElementalMatrix<Real>& x,
   const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
-( const SparseMatrix<Real>& A, const Matrix<Real>& d, 
-        Real lambda,                 Matrix<Real>& x,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& d, 
+        Real lambda,
+        Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 template<typename Real>
 void SVM
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& d, 
-        Real lambda,                     DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& d, 
+        Real lambda,
+        DistMultiVec<Real>& x,
   const SVMCtrl<Real>& ctrl=SVMCtrl<Real>() );
 
 // 1D total variation denoising (TV):

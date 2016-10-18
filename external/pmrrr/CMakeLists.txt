@@ -25,7 +25,7 @@ include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 # Define the header files installation rules
 # ------------------------------------------
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} 
   FILES_MATCHING PATTERN "*.h")
 if(WIN32 OR APPLE OR NOT EL_HYBRID)
   # Disable for Windows because of lack of POSIX support;
@@ -47,7 +47,8 @@ endif()
 if(NOT DISABLE_PTHREADS)
   include(ElCheckFunctionExists)
   set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
-  set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+  set(CMAKE_REQUIRED_LINKER_FLAGS
+    "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
   set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
   set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
   El_check_function_exists(MPI_Query_thread HAVE_MPI_QUERY_THREAD)
@@ -84,4 +85,4 @@ endif()
 if(EL_LINK_FLAGS)
   set_target_properties(pmrrr PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-install(TARGETS pmrrr EXPORT ElTargets DESTINATION lib)
+install(TARGETS pmrrr EXPORT ElementalTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})

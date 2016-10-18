@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -10,16 +10,10 @@
 namespace El {
 namespace msquasitrsm {
 
-// NOTE: The less stable blas::Givens is used instead of blas::Givens due to
-//       the fact that the caching of an expensive-to-compute function of 
-//       machine constants is recomputed for every call of the latter to avoid
-//       a thread safety issue.
-
 template<typename F>
-inline void
-LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
+void LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLNUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -51,7 +45,7 @@ LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
                 const F delta22 = LBuf[(k+1)+(k+1)*ldl] - shifts.Get(j,0);
                 // Decompose D = L Q
                 Real c; F s;
-                const F gamma11 = blas::Givens( delta11, delta12, &c, &s );
+                const F gamma11 = Givens( delta11, delta12, c, s );
                 const F gamma21 =        c*delta21 + s*delta22;
                 const F gamma22 = -Conj(s)*delta21 + c*delta22;
 
@@ -94,10 +88,9 @@ LLNUnb( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename F>
-inline void
-LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
+void LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLN"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -123,13 +116,12 @@ LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
-inline void
-LLNLarge
-( const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+void LLNLarge
+( const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -182,13 +174,12 @@ LLNLarge
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
-inline void
-LLNMedium
-( const ElementalMatrix<F>& LPre,
-  const ElementalMatrix<F>& shiftsPre, 
-        ElementalMatrix<F>& XPre )
+void LLNMedium
+( const AbstractDistMatrix<F>& LPre,
+  const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("msquasitrsm::LLNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -246,14 +237,13 @@ LLNMedium
 
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
-inline void
-LLNSmall
+void LLNSmall
 ( const DistMatrix<F,     colDist,STAR        >& L, 
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
         DistMatrix<F,     colDist,STAR        >& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("msquasitrsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

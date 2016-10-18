@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_CHOLESKY_LMOD_HPP
 #define EL_CHOLESKY_LMOD_HPP
 
@@ -18,11 +17,10 @@ namespace cholesky {
 namespace mod {
 
 template<typename F>
-inline void
-LUpdate( Matrix<F>& L, Matrix<F>& V )
+void LUpdate( Matrix<F>& L, Matrix<F>& V )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LUpdate");
       if( L.Height() != L.Width() )
           LogicError("Cholesky factors must be square");
       if( V.Height() != L.Height() )
@@ -32,13 +30,11 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
 
     Matrix<F> z21;
 
-    F* LBuf = L.Buffer();
-    const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
         const IR ind1( k ), ind2( k+1, END );
 
-        F& lambda11 = LBuf[k+k*ldl];
+        F& lambda11 = L(k,k);
         auto l21 = L( ind2, ind1 );
 
         auto v1 = V( ind1, ALL );
@@ -65,13 +61,12 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
 }
 
 template<typename F>
-inline void
-LUpdate
+void LUpdate
 ( AbstractDistMatrix<F>& LPre,
   AbstractDistMatrix<F>& VPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LUpdate");
       if( LPre.Height() != LPre.Width() )
           LogicError("Cholesky factors must be square");
       if( VPre.Height() != LPre.Height() )
@@ -126,11 +121,10 @@ LUpdate
 }
 
 template<typename F>
-inline void
-LDowndate( Matrix<F>& L, Matrix<F>& V )
+void LDowndate( Matrix<F>& L, Matrix<F>& V )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LDowndate");
       if( L.Height() != L.Width() )
           LogicError("Cholesky factors must be square");
       if( V.Height() != L.Height() )
@@ -140,13 +134,11 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
 
     Matrix<F> z21;
 
-    F* LBuf = L.Buffer();
-    const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
         const IR ind1( k ), ind2( k+1, END );
 
-        F& lambda11 = LBuf[k+k*ldl];
+        F& lambda11 = L(k,k);
         auto l21 = L( ind2, ind1 );
 
         auto v1 = V( ind1, ALL );
@@ -176,12 +168,10 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
 }
 
 template<typename F>
-inline void
-LDowndate
-( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
+void LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("cholesky::mod::LDowndate");
       if( LPre.Height() != LPre.Width() )
           LogicError("Cholesky factors must be square");
       if( VPre.Height() != LPre.Height() )
@@ -241,10 +231,9 @@ LDowndate
 } // namespace mod
 
 template<typename F>
-inline void
-LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
+void LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LMod"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;
@@ -261,13 +250,12 @@ LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
 }
 
 template<typename F>
-inline void
-LMod
+void LMod
 ( AbstractDistMatrix<F>& L,
   Base<F> alpha,
   AbstractDistMatrix<F>& V )
 {
-    DEBUG_ONLY(CSE cse("cholesky::LMod"))
+    DEBUG_CSE
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;

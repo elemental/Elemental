@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
 
 extern "C" {
 
@@ -41,7 +41,7 @@ Estimate EigEstimate
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag_eig::EigEstimate"))
+    DEBUG_CSE
     Estimate estimate;
     char jobz='C';
     char range='V';
@@ -64,7 +64,7 @@ Estimate EigEstimate
 // Compute all of the eigenvalues
 Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag_eig::Eig"))
+    DEBUG_CSE
     Info info;
     char jobz='N';
     char range='A';
@@ -90,7 +90,7 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag_eig::Eig"))
+    DEBUG_CSE
     Info info;
     char jobz='V';
     char range='A';
@@ -116,7 +116,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag_eig::Eig"))
+    DEBUG_CSE
     Info info;
     char jobz='N';
     char range='V';
@@ -142,7 +142,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag_eig::Eig"))
+    DEBUG_CSE
     Info info;
     char jobz='V';
     char range='V';
@@ -167,7 +167,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag_eig::Eig"))
+    DEBUG_CSE
     Info info;
     ++lowerBound;
     ++upperBound;
@@ -196,7 +196,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-    DEBUG_ONLY(CSE cse("herm_tridiag_eig::Eig"))
+    DEBUG_CSE
     Info info;
     ++lowerBound;
     ++upperBound;

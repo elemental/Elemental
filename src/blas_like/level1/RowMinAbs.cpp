@@ -1,19 +1,20 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
 
 namespace El {
 
 template<typename F>
 void RowMinAbs( const Matrix<F>& A, Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -33,7 +34,7 @@ void RowMinAbsNonzero
   const Matrix<Base<F>>& upperBounds,
         Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -54,7 +55,7 @@ void RowMinAbsNonzero
 template<typename F,Dist U,Dist V>
 void RowMinAbs( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     mins.AlignWith( A );
     mins.Resize( A.Height(), 1 );
     RowMinAbs( A.LockedMatrix(), mins.Matrix() );
@@ -67,7 +68,7 @@ void RowMinAbsNonzero
   const DistMatrix<Base<F>,U,STAR>& upperBounds, 
         DistMatrix<Base<F>,U,STAR>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     if( upperBounds.ColAlign() != A.ColAlign() )
         LogicError("upperBounds was not aligned with A");
     mins.AlignWith( A );
@@ -80,7 +81,7 @@ void RowMinAbsNonzero
 template<typename F>
 void RowMinAbs( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );
     RowMinAbs( A.LockedMatrix(), mins.Matrix() );
@@ -92,7 +93,7 @@ void RowMinAbsNonzero
   const DistMultiVec<Base<F>>& upperBounds,
         DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );
     RowMinAbsNonzero
@@ -102,7 +103,7 @@ void RowMinAbsNonzero
 template<typename F>
 void RowMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     mins.Resize( m, 1 );
@@ -123,7 +124,7 @@ void RowMinAbsNonzero
   const Matrix<Base<F>>& upperBounds,
         Matrix<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     mins.Resize( m, 1 );
@@ -145,7 +146,7 @@ void RowMinAbsNonzero
 template<typename F>
 void RowMinAbs( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbs"))
+    DEBUG_CSE
     typedef Base<F> Real;
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );
@@ -167,7 +168,7 @@ void RowMinAbsNonzero
   const DistMultiVec<Base<F>>& upperBounds,
         DistMultiVec<Base<F>>& mins )
 {
-    DEBUG_ONLY(CSE cse("RowMinAbsNonzero"))
+    DEBUG_CSE
     typedef Base<F> Real;
     mins.SetComm( A.Comm() );
     mins.Resize( A.Height(), 1 );
@@ -235,7 +236,10 @@ void RowMinAbsNonzero
   PROTO_DIST(F,VR,  STAR)
 
 #define EL_NO_INT_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

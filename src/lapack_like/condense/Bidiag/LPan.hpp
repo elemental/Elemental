@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BIDIAG_LPAN_HPP
 #define EL_BIDIAG_LPAN_HPP
 
@@ -14,16 +13,23 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-inline void
-LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
+void
+LPan
+( Matrix<F>& A,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ,
+  Matrix<F>& X,
+  Matrix<F>& Y )
 {
+    DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      CSE cse("bidiag::LPan");
-      if( tP.Height() != nX || tP.Width() != 1 )
-          LogicError("tP was not the right size");
-      if( tQ.Height() != nX || tQ.Width() != 1 )
-          LogicError("tQ was not the right size");
+      if( householderScalarsP.Height() != nX ||
+          householderScalarsP.Width() != 1 )
+          LogicError("householderScalarsP was not the right size");
+      if( householderScalarsQ.Height() != nX ||
+          householderScalarsQ.Width() != 1 )
+          LogicError("householderScalarsQ was not the right size");
       if( A.Height() > A.Width() )
           LogicError("A must be at least as wide as it is tall"); 
       if( A.Height() != X.Height() )
@@ -85,11 +91,11 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         //  |alpha11 a12| /I - tauP |1  | |1 conj(v)|\ = |delta 0|
         //                \         |v^T|            /
         const F tauP = RightReflector( alpha11, a12 );
-        tP.Set(k,0,tauP);
+        householderScalarsP(k) = tauP;
 
         // Temporarily set a1R = | 1 v |
-        d.Set(k,0,alpha11.GetRealPart(0,0));
-        alpha11.Set(0,0,F(1));
+        d(k) = RealPart(alpha11(0));
+        alpha11(0) = F(1);
 
         // Form half of the right-reflector using an implicitly-updated A2R:
         // x21 := tauP (A2R - A20 Y0R - X20 conj(A0R)) a1R^T
@@ -124,12 +130,12 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilon |
         //  \          | u |            / |     a21B |   |    0    |
         const F tauQ = LeftReflector( alpha21T, a21B );
-        tQ.Set(k,0,tauQ);
+        householderScalarsQ(k) = tauQ;
 
         // Temporarily set a21 = | 1 |
         //                       | u |
-        e.Set(k,0,alpha21T.GetRealPart(0,0));
-        alpha21T.Set(0,0,F(1));
+        e(k) = RealPart(alpha21T(0));
+        alpha21T(0) = F(1);
 
         // Form half of the left-reflector using an implicitly-updated A22:
         // y12 := tauQ a21^H ( A22 - A20 Y02 - X2L conj(AT2) )
@@ -157,30 +163,34 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 }
 
 template<typename F>
-inline void
+void
 LPan
 ( DistMatrix<F>& A,
-  DistMatrix<F,STAR,STAR>& tP,
-  DistMatrix<F,STAR,STAR>& tQ,
+  DistMatrix<F,STAR,STAR>& householderScalarsP,
+  DistMatrix<F,STAR,STAR>& householderScalarsQ,
   DistMatrix<F>& X,
   DistMatrix<F>& Y,
   DistMatrix<F,MC,  STAR>& AL_MC_STAR,
   DistMatrix<F,STAR,MR  >& AT_STAR_MR )
 {
+    DEBUG_CSE
     const Int nX = X.Width();
     DEBUG_ONLY(
-      CSE cse("bidiag::LPan");
-      AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, AT_STAR_MR );
+      AssertSameGrids
+      ( A, householderScalarsP, householderScalarsQ, X, Y, AL_MC_STAR,
+        AT_STAR_MR );
       if( A.ColAlign() != X.ColAlign() ||
           A.RowAlign() != X.RowAlign() )
           LogicError("A and X must be aligned");
       if( A.ColAlign() != Y.ColAlign() ||
           A.RowAlign() != Y.RowAlign() )
           LogicError("A and Y must be aligned");
-      if( tP.Height() != nX || tP.Width() != 1 )
-          LogicError("tP was not the right size");
-      if( tQ.Height() != nX || tQ.Width() != 1 )
-          LogicError("tQ was not the right size");
+      if( householderScalarsP.Height() != nX ||
+          householderScalarsP.Width() != 1 )
+          LogicError("householderScalarsP was not the right size");
+      if( householderScalarsQ.Height() != nX ||
+          householderScalarsQ.Width() != 1 )
+          LogicError("householderScalarsQ was not the right size");
       if( A.Height() > A.Width() )
           LogicError("A must be at least as wide as it is tall"); 
       if( A.Height() != X.Height() )
@@ -277,7 +287,7 @@ LPan
         //  |alpha11 a12| /I - tauP |1  | |1 conj(v)|\ = |delta 0|
         //                \         |v^T|            /
         const F tauP = RightReflector( alpha11, a12 );
-        tP.Set(k,0,tauP);
+        householderScalarsP.Set(k,0,tauP);
 
         // Temporarily set a1R = | 1 v |
         if( alpha11.IsLocal(0,0) )
@@ -357,7 +367,7 @@ LPan
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilon |
         //  \          | u |            / |     a21B |   |    0    |
         const F tauQ = LeftReflector( alpha21T, a21B );
-        tQ.Set(k,0,tauQ);
+        householderScalarsQ.Set(k,0,tauQ);
 
         // Temporarily set a21 = | 1 |
         //                       | u |

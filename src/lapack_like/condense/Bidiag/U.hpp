@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BIDIAG_U_HPP
 #define EL_BIDIAG_U_HPP
 
@@ -17,22 +16,22 @@ namespace El {
 namespace bidiag {
 
 template<typename F>
-inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void U
+( Matrix<F>& A,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ )
 {
-    DEBUG_ONLY(CSE cse("bidiag::U"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
       if( m < n ) 
           LogicError("A must be at least as tall as it is wide");
-      // Are these requirements necessary?!?
-      if( tP.Viewing() || tQ.Viewing() )
-          LogicError("tP and tQ must not be views");
     )
-    const Int tPHeight = Max(n-1,0);
-    const Int tQHeight = n;
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int householderScalarsPHeight = Max(n-1,0);
+    const Int householderScalarsQHeight = n;
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
 
     Matrix<F> X, Y;
 
@@ -47,14 +46,15 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         auto ABR = A( indB, indR );
         auto A22 = A( ind2, ind2 );
 
-        auto tQ1 = tQ( ind1, ALL );
+        auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
 
         if( A22.Width() > 0 )
         {
-            auto tP1 = tP( ind1, ALL );
+            auto householderScalarsP1 = householderScalarsP( ind1, ALL );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::UPan( ABR, tP1, tQ1, X, Y );
+            bidiag::UPan
+            ( ABR, householderScalarsP1, householderScalarsQ1, X, Y );
 
             auto A12 = A( ind1, ind2 );
             auto A21 = A( ind2, ind1 );
@@ -62,8 +62,8 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             auto Y12 = Y( ALL,        IR(nb,END) );
 
             // Set bottom-left entry of A12 to 1
-            const F epsilon = A12.Get(nb-1,0);
-            A12.Set(nb-1,0,F(1));
+            const F epsilon = A12(nb-1,0);
+            A12(nb-1,0) = F(1);
 
             Gemm( NORMAL, NORMAL, F(-1), A21, Y12, F(1), A22 );
             Conjugate( A12 );
@@ -71,44 +71,42 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             Conjugate( A12 );
 
             // Put back bottom-left entry of A12
-            A12.Set(nb-1,0,epsilon);
+            A12(nb-1,0) = epsilon;
         }
         else
         {
-            auto tP1 = tP( IR(k,k+nb-1), ALL );
-            bidiag::UUnb( ABR, tP1, tQ1 );
+            auto householderScalarsP1 =
+              householderScalarsP( IR(k,k+nb-1), ALL );
+            bidiag::UUnb( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
 
 template<typename F> 
-inline void
+void
 U
 ( DistMatrix<F>& A, 
-  DistMatrix<F,STAR,STAR>& tP,
-  DistMatrix<F,STAR,STAR>& tQ )
+  DistMatrix<F,STAR,STAR>& householderScalarsP,
+  DistMatrix<F,STAR,STAR>& householderScalarsQ )
 {
-    DEBUG_ONLY(
-      CSE cse("bidiag::U");
-      AssertSameGrids( A, tP, tQ );
-    )
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
+      AssertSameGrids( A, householderScalarsP, householderScalarsQ );
       if( m < n ) 
           LogicError("A must be at least as tall as it is wide");
-      // Are these requirements necessary?!?
-      if( tP.Viewing() || tQ.Viewing() )
-          LogicError("tP and tQ must not be views");
     )
     const Grid& g = A.Grid();
-    const Int tPHeight = Max(n-1,0);
-    const Int tQHeight = n;
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int householderScalarsPHeight = Max(n-1,0);
+    const Int householderScalarsQHeight = n;
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
     if( g.Size() == 1 )
     {
-        U( A.Matrix(), tP.Matrix(), tQ.Matrix() );
+        U
+        ( A.Matrix(), householderScalarsP.Matrix(),
+          householderScalarsQ.Matrix() );
         return;
     }
 
@@ -130,7 +128,7 @@ U
         auto A22 = A( ind2, ind2 );
         auto ABR = A( indB, indR );
 
-        auto tQ1 = tQ( ind1, ALL );
+        auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
 
         if( A22.Width() > 0 )
         {
@@ -144,8 +142,10 @@ U
             AB1_MC_STAR.Resize( m-k, nb  );
             A1RTrans_MR_STAR.Resize( n-k, nb );
 
-            auto tP1 = tP( ind1, ALL );
-            bidiag::UPan( ABR, tP1, tQ1, X, Y, AB1_MC_STAR, A1RTrans_MR_STAR );
+            auto householderScalarsP1 = householderScalarsP( ind1, ALL );
+            bidiag::UPan
+            ( ABR, householderScalarsP1, householderScalarsQ1, X, Y,
+              AB1_MC_STAR, A1RTrans_MR_STAR );
 
             auto X21 = X( IR(nb,END), ALL        );
             auto Y12 = Y( ALL,        IR(nb,END) );
@@ -166,29 +166,30 @@ U
         }
         else
         {
-            auto tP1 = tP( IR(k,k+nb-1), ALL );
-            bidiag::UUnb( ABR, tP1, tQ1 );
+            auto householderScalarsP1 =
+              householderScalarsP( IR(k,k+nb-1), ALL );
+            bidiag::UUnb( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
 
 template<typename F> 
-inline void
+void
 U
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre,
-  ElementalMatrix<F>& tQPre )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& householderScalarsPPre,
+  AbstractDistMatrix<F>& householderScalarsQPre )
 {
-    DEBUG_ONLY(CSE cse("bidiag::U"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      tPProx( tPPre ),
-      tQProx( tQPre );
+      householderScalarsPProx( householderScalarsPPre ),
+      householderScalarsQProx( householderScalarsQPre );
     auto& A = AProx.Get();
-    auto& tP = tPProx.Get();
-    auto& tQ = tQProx.Get();
-    U( A, tP, tQ );
+    auto& householderScalarsP = householderScalarsPProx.Get();
+    auto& householderScalarsQ = householderScalarsQProx.Get();
+    U( A, householderScalarsP, householderScalarsQ );
 }
 
 } // namespace bidiag

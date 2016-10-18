@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // Basis pursuit denoising seeks the solution to the optimization problem
 //
@@ -52,11 +52,13 @@ namespace bpdn {
 
 template<typename Real>
 void IPM
-( const Matrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,           Matrix<Real>& x,
+( const Matrix<Real>& A,
+  const Matrix<Real>& b, 
+        Real lambda,
+        Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -110,11 +112,13 @@ void IPM
 
 template<typename Real>
 void IPM
-( const ElementalMatrix<Real>& A, const ElementalMatrix<Real>& b, 
-        Real lambda,                       ElementalMatrix<Real>& x,
+( const ElementalMatrix<Real>& A,
+  const ElementalMatrix<Real>& b, 
+        Real lambda,
+        ElementalMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -168,11 +172,13 @@ void IPM
 
 template<typename Real>
 void IPM
-( const SparseMatrix<Real>& A, const Matrix<Real>& b, 
-        Real lambda,                 Matrix<Real>& x,
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b, 
+        Real lambda,
+        Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -235,11 +241,13 @@ void IPM
 
 template<typename Real>
 void IPM
-( const DistSparseMatrix<Real>& A, const DistMultiVec<Real>& b, 
-        Real lambda,                     DistMultiVec<Real>& x,
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b, 
+        Real lambda,
+        DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("bpdn::IPM"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -266,9 +274,10 @@ void IPM
     // c := lambda*[1;1;0]
     // ===================
     Zeros( c, 2*n+m, 1 );
+    auto& cLoc = c.Matrix();
     for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
         if( c.GlobalRow(iLoc) < 2*n )
-            c.SetLocal( iLoc, 0, lambda );
+            cLoc(iLoc) = lambda;
 
     // \hat A := [A, -A, I]
     // ====================
@@ -320,13 +329,14 @@ void IPM
         else
             break;
     x.Reserve( numRemoteUpdates );
+    auto& xHatLoc = xHat.LockedMatrix();
     for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
     {
         const Int i = xHat.GlobalRow(iLoc);
         if( i < n )
-            x.QueueUpdate( i, 0, xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i, 0, xHatLoc(iLoc) );
         else if( i < 2*n )
-            x.QueueUpdate( i-n, 0, -xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i-n, 0, -xHatLoc(iLoc) );
         else
             break;
     }

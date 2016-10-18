@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_QR_TS_HPP
 #define EL_QR_TS_HPP
 
@@ -17,8 +16,8 @@ namespace ts {
 template<typename F>
 void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("qr::ts::Reduce");
       if( A.RowDist() != STAR )
           LogicError("Invalid row distribution for TSQR");
     )
@@ -33,14 +32,14 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
-    const Int logp = Log2(p);
+    const Int logp = FlooredLog2(p);
 
     Matrix<F> lastZ;
     lastZ = treeData.QR0( IR(0,n), IR(0,n) );
 
     treeData.QRList.resize( logp );
-    treeData.tList.resize( logp );
-    treeData.dList.resize( logp );
+    treeData.householderScalarsList.resize( logp );
+    treeData.signatureList.resize( logp );
 
     // Run the binary tree reduction
     Matrix<F> ZTop(n,n,n), ZBot(n,n,n);
@@ -64,11 +63,11 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
         }
 
         auto& QRFact = treeData.QRList[stage];
-        auto& t = treeData.tList[stage];
-        auto& d = treeData.dList[stage];
+        auto& householderScalars = treeData.householderScalarsList[stage];
+        auto& signature = treeData.signatureList[stage];
         QRFact.Resize( 2*n, n, 2*n );
-        t.Resize( n, 1 );
-        d.Resize( n, 1 );
+        householderScalars.Resize( n, 1 );
+        signature.Resize( n, 1 );
         auto QRFactTop = QRFact( IR(0,n),   IR(0,n) );
         auto QRFactBot = QRFact( IR(n,2*n), IR(0,n) );
         QRFactTop = ZTop;
@@ -80,7 +79,7 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
         if( stage < logp-1 )
         {
             // TODO: Exploit double-triangular structure
-            QR( QRFact, t, d );
+            QR( QRFact, householderScalars, signature );
             lastZ = QRFact( IR(0,n), IR(0,n) );
         }
     }
@@ -120,34 +119,37 @@ RootQR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 
 template<typename F>
 inline Matrix<F>&
-RootPhases( const ElementalMatrix<F>& A, TreeData<F>& treeData )
+RootHouseholderScalars( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
-        LogicError("This process does not have access to the root phases");
+        LogicError
+        ("This process does not have access to the root Householder scalars");
     if( p == 1 )
-        return treeData.t0;
+        return treeData.householderScalars0;
     else
-        return treeData.tList.back();
+        return treeData.householderScalarsList.back();
 }
 
 template<typename F>
 inline const Matrix<F>&
-RootPhases( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
+RootHouseholderScalars
+( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
-        LogicError("This process does not have access to the root phases");
+        LogicError
+        ("This process does not have access to the root Householder scalars");
     if( p == 1 )
-        return treeData.t0;
+        return treeData.householderScalars0;
     else
-        return treeData.tList.back();
+        return treeData.householderScalarsList.back();
 }
 
 template<typename F>
@@ -161,9 +163,9 @@ RootSignature( const ElementalMatrix<F>& A, TreeData<F>& treeData )
     if( rank != 0 )
         LogicError("This process does not have access to the root signature");
     if( p == 1 )
-        return treeData.d0;
+        return treeData.signature0;
     else
-        return treeData.dList.back();
+        return treeData.signatureList.back();
 }
 
 template<typename F>
@@ -177,16 +179,16 @@ RootSignature( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
     if( rank != 0 )
         LogicError("This process does not have access to the root signature");
     if( p == 1 )
-        return treeData.d0;
+        return treeData.signature0;
     else
-        return treeData.dList.back();
+        return treeData.signatureList.back();
 }
 
 template<typename F>
 void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("qr::ts::Scatter");
       if( A.RowDist() != STAR )
           LogicError("Invalid row distribution for TSQR");
     )
@@ -201,7 +203,7 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
-    const Int logp = Log2(p);
+    const Int logp = FlooredLog2(p);
 
     // Run the binary tree scatter
     Matrix<F> Z(2*n,n,2*n), ZHalf(n,n,n);
@@ -230,8 +232,8 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
                 ApplyQ
                 ( LEFT, NORMAL, 
                   treeData.QRList[stage],
-                  treeData.tList[stage], 
-                  treeData.dList[stage],
+                  treeData.householderScalarsList[stage], 
+                  treeData.signatureList[stage],
                   Z );
             }
             // Send bottom-half to partner and keep top half
@@ -252,7 +254,10 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
     ATop = ZHalf;
 
     // TODO: Exploit sparsity
-    ApplyQ( LEFT, NORMAL, treeData.QR0, treeData.t0, treeData.d0, A.Matrix() );
+    ApplyQ
+    ( LEFT, NORMAL,
+      treeData.QR0, treeData.householderScalars0, treeData.signature0,
+      A.Matrix() );
 }
 
 template<typename F>
@@ -291,7 +296,7 @@ FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
         A.Matrix() = treeData.QR0;
         ExpandPackedReflectors
         ( LOWER, VERTICAL, CONJUGATED, 0,
-          A.Matrix(), RootPhases(A,treeData) );
+          A.Matrix(), RootHouseholderScalars(A,treeData) );
         DiagonalScale( RIGHT, NORMAL, RootSignature(A,treeData), A.Matrix() );
     }
     else
@@ -300,7 +305,7 @@ FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
         {
             ExpandPackedReflectors
             ( LOWER, VERTICAL, CONJUGATED, 0, 
-              RootQR(A,treeData), RootPhases(A,treeData) );
+              RootQR(A,treeData), RootHouseholderScalars(A,treeData) );
             DiagonalScale
             ( RIGHT, NORMAL, RootSignature(A,treeData), RootQR(A,treeData) );
         }
@@ -317,7 +322,7 @@ TreeData<F> TS( const ElementalMatrix<F>& A )
         LogicError("Invalid row distribution for TSQR");
     TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.t0, treeData.d0 );
+    QR( treeData.QR0, treeData.householderScalars0, treeData.signature0 );
 
     const Int p = mpi::Size( A.ColComm() );
     if( p != 1 )
@@ -326,7 +331,7 @@ TreeData<F> TS( const ElementalMatrix<F>& A )
         if( A.ColRank() == 0 )
             QR
             ( ts::RootQR(A,treeData),
-              ts::RootPhases(A,treeData), 
+              ts::RootHouseholderScalars(A,treeData), 
               ts::RootSignature(A,treeData) );
     }
     return treeData;

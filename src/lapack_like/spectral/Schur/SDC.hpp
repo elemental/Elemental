@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_SCHUR_SDC_HPP
 #define EL_SCHUR_SDC_HPP
 
@@ -24,10 +23,9 @@ namespace El {
 namespace schur {
 
 template<typename F>
-inline ValueInt<Base<F>>
-ComputePartition( Matrix<F>& A )
+ValueInt<Base<F>> ComputePartition( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("schur::ComputePartition"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     if( n == 0 ) 
@@ -42,10 +40,10 @@ ComputePartition( Matrix<F>& A )
     vector<Real> colSums(n-1,0), rowSums(n-1,0);
     for( Int j=0; j<n-1; ++j )
         for( Int i=j+1; i<n; ++i )
-            colSums[j] += Abs( A.Get(i,j) ); 
+            colSums[j] += Abs( A(i,j) ); 
     for( Int i=1; i<n-1; ++i )
         for( Int j=0; j<i; ++j )
-            rowSums[i-1] += Abs( A.Get(i,j) );
+            rowSums[i-1] += Abs( A(i,j) );
 
     // Compute the list of norms and its minimum value/index
     ValueInt<Real> part;
@@ -71,10 +69,9 @@ ComputePartition( Matrix<F>& A )
 // most practical computations, it is at least O(n^2) work, which should dwarf
 // the O(n lg p) unparallelized component of this algorithm.
 template<typename F>
-inline ValueInt<Base<F>>
-ComputePartition( DistMatrix<F>& A )
+ValueInt<Base<F>> ComputePartition( DistMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("schur::ComputePartition"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -90,6 +87,7 @@ ComputePartition( DistMatrix<F>& A )
     vector<Real> colSums(n-1,0), rowSums(n-1,0);
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
+    auto& ALoc = A.LockedMatrix();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);
@@ -100,8 +98,8 @@ ComputePartition( DistMatrix<F>& A )
                 const Int i = A.GlobalRow(iLoc);
                 if( i > j )
                 {
-                    colSums[j] += Abs( A.GetLocal(iLoc,jLoc) ); 
-                    rowSums[i-1] += Abs( A.GetLocal(iLoc,jLoc) );
+                    colSums[j] += Abs( ALoc(iLoc,jLoc) ); 
+                    rowSums[i-1] += Abs( ALoc(iLoc,jLoc) );
                 }
             }
         }
@@ -132,14 +130,13 @@ ComputePartition( DistMatrix<F>& A )
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<Base<F>>
-SignDivide
+ValueInt<Base<F>> SignDivide
 ( Matrix<F>& A,
   Matrix<F>& G,
   bool returnQ,
   const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SignDivide"))
+    DEBUG_CSE
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -148,25 +145,26 @@ SignDivide
     G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
-    Matrix<F> t;
-    Matrix<Base<F>> d;
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
     Permutation Omega;
-    El::QR( G, t, d, Omega );
+    El::QR( G, householderScalars, signature, Omega );
 
     // A := Q^H A Q
     const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-        DiagonalScale( RIGHT, NORMAL, d, G );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+        DiagonalScale( RIGHT, NORMAL, signature, G );
         Matrix<F> B;
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-        qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+        qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
@@ -176,14 +174,13 @@ SignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-SignDivide
+ValueInt<Base<F>> SignDivide
 ( DistMatrix<F>& A,
   DistMatrix<F>& G,
   bool returnQ, 
   const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SignDivide"))
+    DEBUG_CSE
     const Grid& g = A.Grid();
 
     // G := sgn(G)
@@ -193,25 +190,26 @@ SignDivide
     G *= F(1)/F(2);
 
     // Compute the pivoted QR decomposition of the spectral projection 
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
     DistPermutation Omega(g);
-    El::QR( G, t, d, Omega );
+    El::QR( G, householderScalars, signature, Omega );
 
     // A := Q^H A Q
     const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
-        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-        DiagonalScale( RIGHT, NORMAL, d, G );
+        ExpandPackedReflectors
+        ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+        DiagonalScale( RIGHT, NORMAL, signature, G );
         DistMatrix<F> B(g);
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-        qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+        qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
@@ -221,14 +219,13 @@ SignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-RandomizedSignDivide
+ValueInt<Base<F>> RandomizedSignDivide
 ( Matrix<F>& A,
   Matrix<F>& G,
   bool returnQ,
   const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::RandomizedSignDivide"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
@@ -244,31 +241,32 @@ RandomizedSignDivide
     S *= F(1)/F(2);
 
     ValueInt<Real> part;
-    Matrix<F> V, B, t;
-    Matrix<Base<F>> d;
+    Matrix<F> V, B, householderScalars;
+    Matrix<Base<F>> signature;
     Int it=0;
     while( it < ctrl.maxInnerIts )
     {
         G = S;
 
         // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, d, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, d, G );
-        El::QR( G, t, d );
+        ImplicitHaar( V, householderScalars, signature, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, householderScalars, signature, G );
+        El::QR( G, householderScalars, signature );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
         if( returnQ )
         {
-            ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-            DiagonalScale( RIGHT, NORMAL, d, G );
+            ExpandPackedReflectors
+            ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+            DiagonalScale( RIGHT, NORMAL, signature, G );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }
         else
         {
-            qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-            qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+            qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
         }
 
         // || E21 ||1 / || A ||1 and the chosen rank
@@ -285,14 +283,13 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-RandomizedSignDivide
+ValueInt<Base<F>> RandomizedSignDivide
 ( DistMatrix<F>& A,
   DistMatrix<F>& G,
   bool returnQ,
   const SDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::RandomizedSignDivide"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -310,31 +307,32 @@ RandomizedSignDivide
 
     ValueInt<Real> part;
     DistMatrix<F> V(g), B(g);
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
     Int it=0;
     while( it < ctrl.maxInnerIts )
     {
         G = S;
 
         // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, d, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, d, G );
-        El::QR( G, t, d );
+        ImplicitHaar( V, householderScalars, signature, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, householderScalars, signature, G );
+        El::QR( G, householderScalars, signature );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
         if( returnQ )
         {
-            ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
-            DiagonalScale( RIGHT, NORMAL, d, G );
+            ExpandPackedReflectors
+            ( LOWER, VERTICAL, CONJUGATED, 0, G, householderScalars );
+            DiagonalScale( RIGHT, NORMAL, signature, G );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }
         else
         {
-            qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
-            qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
+            qr::ApplyQ( LEFT, ADJOINT, G, householderScalars, signature, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, householderScalars, signature, A );
         }
 
         // || E21 ||1 / || A ||1 and the chosen rank
@@ -351,10 +349,10 @@ RandomizedSignDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     const Int n = A.Height();
     const ValueInt<Real> median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
@@ -416,11 +414,10 @@ SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
 }
 
 template<typename Real>
-inline ValueInt<Real>
-SpectralDivide
-( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
+ValueInt<Real>
+SpectralDivide( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -439,7 +436,7 @@ SpectralDivide
     while( it < ctrl.maxOuterIts )
     {
         ++it;
-        const Real angle = SampleUniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi<Real>());
         const F gamma = F(Cos(angle),Sin(angle));
         G = A;
         G *= gamma;
@@ -487,13 +484,13 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A,
   Matrix<Real>& Q,
   const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     const Int n = A.Height();
     const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
@@ -555,13 +552,13 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real>>& A,
   Matrix<Complex<Real>>& Q, 
   const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -580,7 +577,7 @@ SpectralDivide
     while( it < ctrl.maxOuterIts )
     {
         ++it;
-        const Real angle = SampleUniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi<Real>());
         const F gamma = F(Cos(angle),Sin(angle));
         Q = A;
         Q *= gamma;
@@ -628,10 +625,10 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     const Int n = A.Height();
     const auto median = Median(GetDiagonal(A));
     const Real infNorm = InfinityNorm(A);
@@ -695,11 +692,10 @@ SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
 }
 
 template<typename Real>
-inline ValueInt<Real>
-SpectralDivide
-( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
+ValueInt<Real>
+SpectralDivide( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -719,7 +715,7 @@ SpectralDivide
     while( it < ctrl.maxOuterIts )
     {
         ++it;
-        const Real angle = SampleUniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi<Real>());
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
         G = A;
@@ -769,13 +765,13 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A,
   DistMatrix<Real>& Q,
   const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const auto median = Median(GetDiagonal(A));
@@ -839,13 +835,13 @@ SpectralDivide
 }
 
 template<typename Real>
-inline ValueInt<Real>
+ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real>>& A,
   DistMatrix<Complex<Real>>& Q,
   const SDCCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("schur::SpectralDivide"))
+    DEBUG_CSE
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -865,7 +861,7 @@ SpectralDivide
     while( it < ctrl.maxOuterIts )
     {
         ++it;
-        const Real angle = SampleUniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi<Real>());
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, g.VCComm() );
         Q = A;
@@ -915,50 +911,53 @@ SpectralDivide
 }
 
 template<typename F>
-inline void
+void
 SDC
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(CSE cse("schur::SDC"))
+    DEBUG_CSE
     const Int n = A.Height();
     w.Resize( n, 1 );
     if( n <= ctrl.cutoff )
     {
         if( ctrl.progress )
-            cout << n << " <= " << ctrl.cutoff 
-                 << ": switching to QR algorithm" << endl;
-        Schur( A, w, false );
+            Output(n," <= ",ctrl.cutoff,": switching to QR algorithm");
+        SchurCtrl<Base<F>> schurCtrl;
+        schurCtrl.hessSchurCtrl.fullTriangle = false;
+        Schur( A, w, schurCtrl );
         return;
     }
 
     // Perform this level's split
     if( ctrl.progress )
-        cout << "Splitting " << n << " x " << n << " matrix" << endl;
+        Output("Splitting ",n," x ",n," matrix");
     const auto part = SpectralDivide( A, ctrl );
-    Matrix<F> ATL, ATR,
-              ABL, ABR;
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
     Zero( ABL );
-    Matrix<Complex<Base<F>>> wT, wB;
-    PartitionDown( w, wT, wB, part.index );
 
     // Recurse on the two subproblems
     if( ctrl.progress )
-        cout << "Recursing on " << ATL.Height() << " x " << ATL.Width() 
-             << " left subproblem" << endl;
+        Output("Recursing on ",ATL.Height()," x ",ATL.Width()," top-left");
     SDC( ATL, wT, ctrl );
     if( ctrl.progress )
-        cout << "Recursing on " << ABR.Height() << " x " << ABR.Width() 
-             << " right subproblem" << endl;
+        Output("Recursing on ",ABR.Height()," x ",ABR.Width()," bottom-right");
     SDC( ABR, wB, ctrl );
 }
 
 template<typename F>
-inline void
+void
 SDC
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
@@ -966,42 +965,48 @@ SDC
   bool fullTriangle=true,
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(CSE cse("schur::SDC"))
+    DEBUG_CSE
     const Int n = A.Height();
     w.Resize( n, 1 );
     Q.Resize( n, n );
     if( n <= ctrl.cutoff )
     {
         if( ctrl.progress )
-            cout << n << " <= " << ctrl.cutoff 
-                 << ": switching to QR algorithm" << endl;
-        Schur( A, w, Q, fullTriangle );
+            Output(n," <= ",ctrl.cutoff,": switching to QR algorithm");
+        SchurCtrl<Base<F>> schurCtrl;
+        schurCtrl.hessSchurCtrl.fullTriangle = fullTriangle;
+        Schur( A, w, Q, schurCtrl );
         return;
     }
 
     // Perform this level's split
     if( ctrl.progress )
-        cout << "Splitting " << n << " x " << n << " matrix" << endl;
+        Output("Splitting ",n," x ",n," matrix");
     const auto part = SpectralDivide( A, Q, ctrl );
-    Matrix<F> ATL, ATR,
-              ABL, ABR;
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto QL = Q( ALL, ind1 );
+    auto QR = Q( ALL, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
     Zero( ABL );
-    Matrix<Complex<Base<F>>> wT, wB;
-    PartitionDown( w, wT, wB, part.index );
-    Matrix<F> QL, QR;
-    PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the top-left quadrant and update Schur vectors and ATR
     if( ctrl.progress )
-        cout << "Recursing on " << ATL.Height() << " x " << ATL.Width() 
-             << " left subproblem" << endl;
+        Output("Recursing on ",ATL.Height()," x ",ATL.Width()," top-left");
     Matrix<F> Z;
     SDC( ATL, wT, Z, fullTriangle, ctrl );
     if( ctrl.progress )
-        cout << "Left subproblem update" << endl;
+        Output("Left subproblem update");
     auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
     if( fullTriangle )
@@ -1009,11 +1014,10 @@ SDC
 
     // Recurse on the bottom-right quadrant and update Schur vectors and ATR
     if( ctrl.progress )
-        cout << "Recursing on " << ABR.Height() << " x " << ABR.Width() 
-             << " right subproblem" << endl;
+        Output("Recursing on ",ABR.Height()," x ",ABR.Width()," bottom-right");
     SDC( ABR, wB, Z, fullTriangle, ctrl );
     if( ctrl.progress )
-        cout << "Right subproblem update" << endl;
+        Output("Right subproblem update");
     if( fullTriangle )
         Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
     G = QR;
@@ -1078,7 +1082,7 @@ inline void SplitGrid
 }
 
 template<typename F,typename EigType>
-inline void PushSubproblems
+void PushSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub,
@@ -1089,7 +1093,7 @@ inline void PushSubproblems
   DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("schur::PushSubproblems"))
+    DEBUG_CSE
     const Grid& grid = ATL.Grid();
 
     // Split based on the work estimates
@@ -1101,13 +1105,13 @@ inline void PushSubproblems
     wTSub.SetGrid( *leftGrid );
     wBSub.SetGrid( *rightGrid );
     if( progress && grid.Rank() == 0 )
-        cout << "Pushing ATL and ABR" << endl;
+        Output("Pushing ATL and ABR");
     ATLSub = ATL;
     ABRSub = ABR;
 }
 
 template<typename F,typename EigType>
-inline void PullSubproblems
+void PullSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
@@ -1118,19 +1122,19 @@ inline void PullSubproblems
   DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("schur::PullSubproblems"))
+    DEBUG_CSE
     const Grid& grid = ATL.Grid();
     const bool sameGrid = ( wT.Grid() == wTSub.Grid() );
 
     if( progress && grid.Rank() == 0 )
-        cout << "Pulling ATL and ABR" << endl;
+        Output("Pulling ATL and ABR");
     ATL = ATLSub;
     ABR = ABRSub;
 
     // This section is a hack since no inter-grid redistributions exist for 
     // [VR,* ] distributions yet
     if( progress && grid.Rank() == 0 )
-        cout << "Pulling wT and wB" << endl;
+        Output("Pulling wT and wB");
     if( sameGrid )
     {
         wT = wTSub;
@@ -1138,10 +1142,11 @@ inline void PullSubproblems
     }
     else
     {
+        bool includeViewers = true; 
         DistMatrix<EigType> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
-        wTSub_MC_MR.MakeConsistent();
+        wTSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
@@ -1149,7 +1154,7 @@ inline void PullSubproblems
         DistMatrix<EigType> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
-        wBSub_MC_MR.MakeConsistent();
+        wBSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
@@ -1169,16 +1174,14 @@ inline void PullSubproblems
 }
 
 template<typename F>
-inline void
+void
 SDC
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Complex<Base<F>>>& wPre, 
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(
-      CSE cse("schur::SDC");
-      AssertSameGrids( APre, wPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, wPre ))
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -1187,25 +1190,28 @@ SDC
     auto& A = AProx.Get();
     auto& w = wProx.Get();
 
+    SchurCtrl<Base<F>> schurCtrl;
+    schurCtrl.hessSchurCtrl.fullTriangle = false;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
     if( A.Grid().Size() == 1 )
     {
         if( ctrl.progress && g.Rank() == 0 )
-            cout << "One process: using QR algorithm" << endl;
-        Schur( A.Matrix(), w.Matrix(), false );
+            Output("One process: using QR algorithm");
+        Schur( A.Matrix(), w.Matrix(), schurCtrl );
         return;
     }
     if( n <= ctrl.cutoff )
     {
         if( ctrl.progress && g.Rank() == 0 )
-            cout << n << " <= " << ctrl.cutoff 
-                 << ": using QR algorithm" << endl;
+            Output(n," <= ",ctrl.cutoff,": using QR algorithm"); 
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
         DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( w );
+
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-            Schur( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), false );
+            Schur( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), schurCtrl );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
         return;
@@ -1213,19 +1219,23 @@ SDC
 
     // Perform this level's split
     if( ctrl.progress && g.Rank() == 0 )
-        cout << "Splitting " << n << " x " << n << " matrix" << endl;
+        Output("Splitting ",n," x ",n," matrix");
     const auto part = SpectralDivide( A, ctrl );
-    DistMatrix<F> ATL(g), ATR(g),
-                  ABL(g), ABR(g);
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
     Zero( ABL );
-    DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
-    PartitionDown( w, wT, wB, part.index );
 
     if( ctrl.progress && g.Rank() == 0 )
-        cout << "Pushing subproblems" << endl;
+        Output("Pushing subproblems");
     DistMatrix<F> ATLSub, ABRSub;
     DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
     PushSubproblems
@@ -1235,13 +1245,13 @@ SDC
     if( ABRSub.Participating() )
         SDC( ABRSub, wBSub, ctrl );
     if( ctrl.progress && g.Rank() == 0 )
-        cout << "Pulling subproblems" << endl;
+        Output("Pulling subproblems");
     PullSubproblems
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ctrl.progress );
 }
 
 template<typename F,typename EigType>
-inline void PushSubproblems
+void PushSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub,
@@ -1254,7 +1264,7 @@ inline void PushSubproblems
   DistMatrix<F>& ZBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("schur::PushSubproblems"))
+    DEBUG_CSE
     const Grid& grid = ATL.Grid();
 
     // Split based on the work estimates
@@ -1268,15 +1278,15 @@ inline void PushSubproblems
     ZTSub.SetGrid( *leftGrid );
     ZBSub.SetGrid( *rightGrid );
     if( progress && grid.Rank() == 0 )
-        cout << "Pushing ATLSub" << endl;
+        Output("Pushing ATLSub");
     ATLSub = ATL;
     if( progress && grid.Rank() == 0 )
-        cout << "Pushing ABRSub" << endl;
+        Output("Pushing ABRSub");
     ABRSub = ABR;
 }
 
 template<typename F,typename EigType>
-inline void PullSubproblems
+void PullSubproblems
 ( DistMatrix<F>& ATL,
   DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
@@ -1291,19 +1301,20 @@ inline void PullSubproblems
   DistMatrix<F>& ZBSub,
   bool progress=false )
 {
-    DEBUG_ONLY(CSE cse("schur::PullSubproblems"))
+    DEBUG_CSE
     const Grid& grid = ATL.Grid();
     const bool sameGrid = ( wT.Grid() == wTSub.Grid() );
 
     if( progress && grid.Rank() == 0 )
-        cout << "Pulling ATL and ABR" << endl;
+        Output("Pulling ATL and ABR");
     ATL = ATLSub;
     ABR = ABRSub;
 
     // This section is a hack since no inter-grid redistributions exist for 
     // [VR,* ] distributions yet
+    bool includeViewers = true; 
     if( progress && grid.Rank() == 0 )
-        cout << "Pulling wT and wB" << endl;
+        Output("Pulling wT and wB");
     if( sameGrid )
     {
         wT = wTSub;
@@ -1314,7 +1325,7 @@ inline void PullSubproblems
         DistMatrix<EigType> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
-        wTSub_MC_MR.MakeConsistent();
+        wTSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
@@ -1322,18 +1333,18 @@ inline void PullSubproblems
         DistMatrix<EigType> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
-        wBSub_MC_MR.MakeConsistent();
+        wBSub_MC_MR.MakeConsistent( includeViewers );
         DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
 
     if( progress && grid.Rank() == 0 )
-        cout << "Pulling ZT and ZB" << endl;
+        Output("Pulling ZT and ZB");
     if( !sameGrid )
     {
-        ZTSub.MakeConsistent();
-        ZBSub.MakeConsistent();
+        ZTSub.MakeConsistent( includeViewers );
+        ZBSub.MakeConsistent( includeViewers );
     }
     ZT = ZTSub;
     ZB = ZBSub;
@@ -1354,18 +1365,16 @@ inline void PullSubproblems
 }
 
 template<typename F>
-inline void
+void
 SDC
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Complex<Base<F>>>& wPre, 
-  ElementalMatrix<F>& QPre,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Complex<Base<F>>>& wPre, 
+  AbstractDistMatrix<F>& QPre,
   bool fullTriangle=true, 
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(
-      CSE cse("schur::SDC");
-      AssertSameGrids( APre, wPre, QPre );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( APre, wPre, QPre ))
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
@@ -1376,6 +1385,9 @@ SDC
     auto& w = wProx.Get();
     auto& Q = QProx.Get();
 
+    SchurCtrl<Base<F>> schurCtrl;
+    schurCtrl.hessSchurCtrl.fullTriangle = fullTriangle;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -1383,21 +1395,20 @@ SDC
     if( A.Grid().Size() == 1 )
     {
         if( ctrl.progress && g.Rank() == 0 )
-            cout << "One process: using QR algorithm" << endl;
-        Schur( A.Matrix(), w.Matrix(), Q.Matrix(), fullTriangle );
+            Output("One process: using QR algorithm");
+        Schur( A.Matrix(), w.Matrix(), Q.Matrix(), schurCtrl );
         return;
     }
     if( n <= ctrl.cutoff )
     {
         if( ctrl.progress && g.Rank() == 0 )
-            cout << n << " <= " << ctrl.cutoff 
-                 << ": using QR algorithm" << endl;
+            Output(n," <= ",ctrl.cutoff,": using QR algorithm");
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
         DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( n, 1, g );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Schur
             ( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(),
-              fullTriangle );
+              schurCtrl );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
         Q = Q_CIRC_CIRC;
@@ -1406,24 +1417,29 @@ SDC
 
     // Perform this level's split
     if( ctrl.progress && g.Rank() == 0 )
-        cout << "Splitting " << n << " x " << n << " matrix" << endl;
+        Output("Splitting ",n," x ",n," matrix");
     const auto part = SpectralDivide( A, Q, ctrl );
-    DistMatrix<F> ATL(g), ATR(g),
-                  ABL(g), ABR(g);
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, part.index );
+    auto ind1 = IR(0,part.index);
+    auto ind2 = IR(part.index,n);
+
+    auto ATL = A( ind1, ind1 );
+    auto ATR = A( ind1, ind2 );
+    auto ABL = A( ind2, ind1 );
+    auto ABR = A( ind2, ind2 );
+
+    auto wT = w( ind1, ALL );
+    auto wB = w( ind2, ALL );
+
+    auto QL = Q( ALL, ind1 );
+    auto QR = Q( ALL, ind2 );
+
     Zero( ABL );
-    DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
-    PartitionDown( w, wT, wB, part.index );
-    DistMatrix<F> QL(g), QR(g);
-    PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the two subproblems
     DistMatrix<F> ATLSub, ABRSub, ZTSub, ZBSub;
     DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
     if( ctrl.progress && g.Rank() == 0 )
-        cout << "Pushing subproblems" << endl;
+        Output("Pushing subproblems");
     PushSubproblems
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub, 
       ctrl.progress );
@@ -1434,7 +1450,7 @@ SDC
     
     // Ensure that the results are back on this level's grid
     if( ctrl.progress && g.Rank() == 0 )
-        cout << "Pulling subproblems" << endl;
+        Output("Pulling subproblems");
     DistMatrix<F> ZT(g), ZB(g);
     PullSubproblems
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZT, ZB, ZTSub, ZBSub,
@@ -1442,7 +1458,7 @@ SDC
 
     // Update the Schur vectors
     if( ctrl.progress && g.Rank() == 0 )
-        cout << "Updating Schur vectors" << endl;
+        Output("Updating Schur vectors");
     auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
     G = QR;
@@ -1451,7 +1467,7 @@ SDC
     if( fullTriangle )
     {
         if( ctrl.progress && g.Rank() == 0 )
-            cout << "Updating top-right quadrant" << endl;
+            Output("Updating top-right quadrant");
         // Update the top-right quadrant
         Gemm( ADJOINT, NORMAL, F(1), ZT, ATR, G );
         Gemm( NORMAL, NORMAL, F(1), G, ZB, ATR ); 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,15 +11,15 @@ namespace El {
 namespace gemv {
 
 template<typename T>
-inline void Normal
+void Normal
 ( T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& x,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& x,
   T beta,
-        ElementalMatrix<T>& yPre )
+        AbstractDistMatrix<T>& yPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemv::Normal");
       AssertSameGrids( APre, x, yPre );
       if( ( x.Width() != 1 && x.Height() != 1 ) ||
           ( yPre.Width() != 1 && yPre.Height() != 1 )   )
@@ -47,7 +47,8 @@ inline void Normal
 
         DistMatrix<T,MC,STAR> z_MC_STAR(g);
         z_MC_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, A.Height(), 1 );
+        z_MC_STAR.Resize( A.Height(), 1 );
+        Zero( z_MC_STAR );
         LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
         AxpyContract( T(1), z_MC_STAR, y );
     }
@@ -59,7 +60,8 @@ inline void Normal
 
         DistMatrix<T,MC,STAR> z_MC_STAR(g);
         z_MC_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, A.Height(), 1 );
+        z_MC_STAR.Resize( A.Height(), 1 );
+        Zero( z_MC_STAR );
         LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
 
         DistMatrix<T> z(g), zTrans(g);
@@ -76,7 +78,8 @@ inline void Normal
         x_STAR_MR = x;
         DistMatrix<T,MC,  STAR> z_MC_STAR(g);
         z_MC_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, A.Height(), 1 );
+        z_MC_STAR.Resize( A.Height(), 1 );
+        Zero( z_MC_STAR );
         LocalGemv( NORMAL, alpha, A, x_STAR_MR, T(0), z_MC_STAR );
         AxpyContract( T(1), z_MC_STAR, y );
     }
@@ -88,7 +91,8 @@ inline void Normal
 
         DistMatrix<T,MC,  STAR> z_MC_STAR(g);
         z_MC_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, A.Height(), 1 );
+        z_MC_STAR.Resize( A.Height(), 1 );
+        Zero( z_MC_STAR );
         LocalGemv( NORMAL, alpha, A, x_STAR_MR, T(0), z_MC_STAR );
 
         DistMatrix<T> z(g), zTrans(g);
@@ -101,15 +105,15 @@ inline void Normal
 }
 
 template<typename T>
-inline void Normal
+void Normal
 ( T alpha,
   const DistMatrix<T>& A,
-  const ElementalMatrix<T>& x,
+  const AbstractDistMatrix<T>& x,
   T beta,
         DistMatrix<T,VC,STAR>& y )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("gemv::Normal");
       AssertSameGrids( A, x, y );
       if( x.Width() != 1 || y.Width() != 1 )
           LogicError("x and y are assumed to be column vectors");
@@ -127,7 +131,8 @@ inline void Normal
 
     DistMatrix<T,MC,STAR> z_MC_STAR(g);
     z_MC_STAR.AlignWith( A );
-    Zeros( z_MC_STAR, A.Height(), 1 );
+    z_MC_STAR.Resize( A.Height(), 1 );
+    Zero( z_MC_STAR );
     LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
     AxpyContract( T(1), z_MC_STAR, y );
 }

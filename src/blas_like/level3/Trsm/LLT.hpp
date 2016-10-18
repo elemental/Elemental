@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -18,16 +18,15 @@ namespace trsm {
 
 // width(X) >> p
 template<typename F>
-inline void
-LLTLarge
+void LLTLarge
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LLTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -82,16 +81,15 @@ LLTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LLTMedium
+void LLTMedium
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LLTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -147,16 +145,15 @@ LLTMedium
 
 // width(X) << p
 template<typename F,Dist colDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const DistMatrix<F,colDist,STAR>& L,
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -201,16 +198,15 @@ LLTSmall
 }
 
 template<typename F,Dist rowDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const DistMatrix<F,STAR,rowDist>& L,
         DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

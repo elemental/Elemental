@@ -1,14 +1,23 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
+
+template<typename T>
+void ConfigurePrecision( ostream& os )
+{
+    // Force the full precision to be reported
+    const Int numDecimals =
+      BinaryToDecimalPrecision(NumMantissaBits(Base<T>()))+1;
+    os.precision( numDecimals );
+}
 
 // Dense
 // =====
@@ -16,9 +25,11 @@ namespace El {
 template<typename T>
 void Print( const Matrix<T>& A, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print"))
+    DEBUG_CSE
     if( title != "" )
         os << title << endl;
+
+    ConfigurePrecision<T>( os );
     
     const Int height = A.Height();
     const Int width = A.Width();
@@ -35,7 +46,7 @@ template<typename T>
 void Print
 ( const AbstractDistMatrix<T>& A, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print"))
+    DEBUG_CSE
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -52,7 +63,7 @@ void Print
 template<typename T>
 void Print( const DistMultiVec<T>& X, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [DistMultiVec]"))
+    DEBUG_CSE
     const int commRank = mpi::Rank( X.Comm() );
     if( commRank == 0 )
     {
@@ -68,7 +79,7 @@ void Print( const DistMultiVec<T>& X, string title, ostream& os )
 
 void Print( const Graph& graph, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [Graph]"))
+    DEBUG_CSE
     graph.AssertConsistent();
     if( msg != "" )
         os << msg << endl;
@@ -82,7 +93,7 @@ void Print( const Graph& graph, string msg, ostream& os )
 
 void Print( const DistGraph& graph, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [DistGraph]"))
+    DEBUG_CSE
     graph.AssertLocallyConsistent();
     const mpi::Comm comm = graph.Comm();
     const int commRank = mpi::Rank( comm );
@@ -101,10 +112,13 @@ void Print( const DistGraph& graph, string msg, ostream& os )
 template<typename T>
 void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [SparseMatrix]"))
+    DEBUG_CSE
     A.AssertConsistent();
     if( msg != "" )
         os << msg << endl;
+
+    ConfigurePrecision<T>( os );
+
     const Int numEntries = A.NumEntries();
     const Int* srcBuf = A.LockedSourceBuffer();
     const Int* tgtBuf = A.LockedTargetBuffer();
@@ -117,7 +131,7 @@ void Print( const SparseMatrix<T>& A, string msg, ostream& os )
 template<typename T>
 void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print [DistSparseMatrix]"))
+    DEBUG_CSE
     A.AssertLocallyConsistent();
     const mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank( comm );
@@ -140,7 +154,7 @@ void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 void PrintLocal
 ( const ldl::DistNodeInfo& info, string msg, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("PrintLocal [ldl::DistNodeInfo]"))
+    DEBUG_CSE
     LogicError("This routine needs to be rewritten");
 }
 
@@ -150,9 +164,11 @@ void PrintLocal
 template<typename T>
 void Print( const vector<T>& x, string title, ostream& os )
 {
-    DEBUG_ONLY(CSE cse("Print"))
+    DEBUG_CSE
     if( title != "" )
         os << title << endl;
+
+    ConfigurePrecision<T>( os );
     
     const Int length = x.size();
     for( Int i=0; i<length; ++i )
@@ -174,14 +190,11 @@ void Print( const vector<T>& x, string title, ostream& os )
   template void Print \
   ( const DistSparseMatrix<T>& A, string title, ostream& os );
 
-#define PROTO_BIGFLOAT \
-  template void Print \
-  ( const vector<BigFloat>& x, string title, ostream& os ); \
-  template void Print \
-  ( const Matrix<BigFloat>& A, string title, ostream& os );
-
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

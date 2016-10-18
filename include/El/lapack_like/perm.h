@@ -1,16 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_PERM_C_H
 #define EL_PERM_C_H
 
-#include "El/core/DistMatrix.h"
+#include <El/core/DistMatrix.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,14 +76,14 @@ EL_EXPORT ElError ElDistPermutationReserveSwaps
 EL_EXPORT ElError ElPermutationMakeArbitrary( ElPermutation P );
 EL_EXPORT ElError ElDistPermutationMakeArbitrary( ElDistPermutation P );
 
-EL_EXPORT ElError ElPermutationRowSwap
+EL_EXPORT ElError ElPermutationSwap
 ( ElPermutation P, ElInt origin, ElInt dest );
-EL_EXPORT ElError ElDistPermutationRowSwap
+EL_EXPORT ElError ElDistPermutationSwap
 ( ElDistPermutation P, ElInt origin, ElInt dest );
 
-EL_EXPORT ElError ElPermutationRowSwapSequence
+EL_EXPORT ElError ElPermutationSwapSequence
 ( ElPermutation P, ElConstPermutation PAppend, ElInt offset );
-EL_EXPORT ElError ElDistPermutationRowSwapSequence
+EL_EXPORT ElError ElDistPermutationSwapSequence
 ( ElDistPermutation P, ElConstDistPermutation PAppend, ElInt offset );
 
 /* TODO: Support for ElMatrix_i and ElDistMatrix_i swap vectors */
@@ -205,6 +204,10 @@ EL_EXPORT ElError ElDistPermutationExplicitMatrix
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/lapack_like/perm/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_PERM_C_H */

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LDL_PIVOTED_BUNCHKAUFMAND_HPP
 #define EL_LDL_PIVOTED_BUNCHKAUFMAND_HPP
 
@@ -15,16 +14,16 @@ namespace ldl {
 namespace pivot {
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::BunchKaufmanD"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_KAUFMAN_D );
 
-    const Real alpha11Abs = Abs(A.Get(0,0));
+    const Real alpha11Abs = Abs(A(0,0));
     const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
     const auto a21Max = VectorMaxAbsLoc( A(ind2,ind1) );
@@ -63,10 +62,10 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
 }
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::BunchKaufmanD"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
@@ -113,11 +112,11 @@ BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
 // TODO: Switch to the simpler panel update scheme used for Cholesky
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 PanelBunchKaufmanD
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::PanelBunchKaufmanD"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();
@@ -138,7 +137,7 @@ PanelBunchKaufmanD
         Gemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
-    const Real alpha11Abs = Abs(zB1.Get(0,0));
+    const Real alpha11Abs = Abs(zB1(0));
     const auto a21Max = VectorMaxAbsLoc( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
@@ -198,13 +197,14 @@ PanelBunchKaufmanD
 }
 
 template<typename F>
-inline LDLPivot
+LDLPivot
 PanelBunchKaufmanD
 ( const DistMatrix<F>& A, 
-  const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
+  const DistMatrix<F,MC,STAR>& X,
+  const DistMatrix<F,MR,STAR>& Y, 
   Base<F> gamma )
 {
-    DEBUG_ONLY(CSE cse("ldl::pivot::PanelBunchKaufmanD"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();

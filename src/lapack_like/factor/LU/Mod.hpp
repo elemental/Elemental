@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LU_MOD_HPP
 #define EL_LU_MOD_HPP
 
@@ -46,7 +45,7 @@ void LUMod
   bool conjugate,
   Base<F> tau )
 {
-    DEBUG_ONLY(CSE cse("LUMod"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -71,10 +70,10 @@ void LUMod
     for( Int i=minDim-2; i>=0; --i )
     {
         // Decide if we should pivot the i'th and i+1'th rows of w
-        const F lambdaSub = A.Get( i+1, i );
-        const F ups_ii = A.Get(i,i); 
-        const F omega_i = w.Get( i, 0 );
-        const F omega_ip1 = w.Get( i+1, 0 );
+        const F lambdaSub = A(i+1,i);
+        const F ups_ii = A(i,i); 
+        const F omega_i = w(i);
+        const F omega_ip1 = w(i+1);
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
@@ -91,7 +90,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -111,8 +110,8 @@ void LUMod
             //     U(i+1,:) -= gamma U(i,:).
             const F gamma = omega_i / omega_ip1;
             const F lambda_ii = F(1) + gamma*lambdaSub;
-            A.Set( i,   i, gamma );
-            A.Set( i+1, i, 0     );
+            A(i,  i) = gamma;
+            A(i+1,i) = 0;
 
             auto lBiCopy = lBi;
             Swap( NORMAL, lBi, lBip1 );
@@ -143,18 +142,18 @@ void LUMod
             const F delta_ip1 = F(1) - eta*gamma;
 
             Axpy( -eta, lBi, lBip1 );
-            A.Set( i+1, i, gamma/delta_i );
+            A(i+1,i) = gamma/delta_i;
             lBi   *= F(1)/delta_i;
             lBip1 *= F(1)/delta_ip1;
 
-            A.Set( i, i, eta*ups_ii*delta_i );
+            A(i,i) = eta*ups_ii*delta_i;
             Axpy( eta, uip1R, uiR );
             uiR   *= delta_i;
             uip1R *= delta_ip1;
-            uSub.Set( i, 0, ups_ii*delta_ip1 );
+            uSub(i) = ups_ii*delta_ip1;
 
             // Finally set w(i)
-            w.Set( i, 0, omega_ip1*delta_i );
+            w(i) = omega_ip1*delta_i;
         }
         else
         {
@@ -170,17 +169,17 @@ void LUMod
             //     U(i+1,:) -= gamma U(i,:),
             //     w(i+1)   := 0.
             const F gamma = omega_ip1 / omega_i;
-            A.Update( i+1, i, gamma );
+            A(i+1,i) += gamma;
             Axpy(  gamma, lBip1, lBi );
             Axpy( -gamma, uiR, uip1R );
-            uSub.Set( i, 0, -gamma*ups_ii );
+            uSub(i) = -gamma*ups_ii;
         }
     }
 
     // Add the modified w v' into U
     {
         auto a0 = A( IR(0), ALL );
-        const F omega_0 = w.Get( 0, 0 ); 
+        const F omega_0 = w(0); 
         Matrix<F> vTrans;
         Transpose( v, vTrans, conjugate );
         Axpy( omega_0, vTrans, a0 );
@@ -190,9 +189,9 @@ void LUMod
     for( Int i=0; i<minDim-1; ++i ) 
     {
         // Decide if we should pivot the i'th and i+1'th rows U
-        const F lambdaSub = A.Get(i+1,i);
-        const F ups_ii = A.Get( i, i );
-        const F ups_ip1i = uSub.Get( i, 0 );
+        const F lambdaSub = A(i+1,i);
+        const F ups_ii = A(i,i);
+        const F ups_ip1i = uSub(i);
         const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
@@ -209,7 +208,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -226,8 +225,8 @@ void LUMod
             //     U(i+1,:) -= gamma U(i,:).
             const F gamma = ups_ii / ups_ip1i;
             const F lambda_ii = F(1) + gamma*lambdaSub;
-            A.Set( i+1, i, ups_ip1i );
-            A.Set( i, i, gamma );
+            A(i+1,i) = ups_ip1i;
+            A(i,  i) = gamma;
 
             auto lBiCopy = lBi;
             Swap( NORMAL, lBi, lBip1 );
@@ -256,11 +255,11 @@ void LUMod
             const F delta_ip1 = F(1) - eta*gamma;
 
             Axpy( -eta, lBi, lBip1 );
-            A.Set( i+1, i, gamma/delta_i );
+            A(i+1,i) = gamma/delta_i;
             lBi   *= F(1)/delta_i;
             lBip1 *= F(1)/delta_ip1;
 
-            A.Set( i, i, ups_ip1i*delta_i );
+            A(i,i) = ups_ip1i*delta_i;
             Axpy( eta, uip1R, uiR );
             uiR   *= delta_i;
             uip1R *= delta_ip1;
@@ -277,7 +276,7 @@ void LUMod
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
             const F gamma = ups_ip1i / ups_ii;
-            A.Update( i+1, i, gamma );
+            A(i+1,i) += gamma;
             Axpy(  gamma, lBip1, lBi );
             Axpy( -gamma, uiR, uip1R );
         }
@@ -293,7 +292,7 @@ void LUMod
   bool conjugate,
   Base<F> tau )
 {
-    DEBUG_ONLY(CSE cse("LUMod"))
+    DEBUG_CSE
     const Grid& g = APre.Grid();
     typedef Base<F> Real;
 
@@ -349,7 +348,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -468,7 +467,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            P.RowSwap( i, i+1 );
+            P.Swap( i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and

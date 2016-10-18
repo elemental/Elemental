@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_PSEUDOSPECTRA_IRL_HPP
 #define EL_PSEUDOSPECTRA_IRL_HPP
 
@@ -16,14 +15,13 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
+    DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -34,7 +32,7 @@ ComputeNewEstimates
     {
         HDiag = HDiagList[j];
         HSubdiag = HSubdiagList[j];
-        if( !activeConverged.Get(j,0) )
+        if( !activeConverged(j) )
         {
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
@@ -42,37 +40,35 @@ ComputeNewEstimates
                 ( basisSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(),
                   basisSize-1, basisSize-1 );
                 const Real est = Sqrt(w[0]);
-                activeEsts.Set( j, 0, Min(est,normCap) );
+                activeEsts(j) = Min(est,normCap);
             }
             else
-               activeEsts.Set( j, 0, normCap );
+               activeEsts(j) = normCap;
         }
     }
 }
 
 template<typename Real>
-inline void
-ComputeNewEstimates
+void ComputeNewEstimates
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_ONLY(CSE cse("pspec::ComputeNewEstimates"))
+    DEBUG_CSE
     ComputeNewEstimates
     ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), 
       activeEsts.Matrix() );
 }
 
 template<typename Real>
-inline void
-Restart
+void Restart
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
   vector<Matrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CSE cse("pspec::Restart"))
+    DEBUG_CSE
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )
@@ -86,7 +82,7 @@ Restart
         HDiag = HDiagList[j];
         HSubdiag = HSubdiagList[j];
 
-        if( !activeConverged.Get(j,0) )
+        if( !activeConverged(j) )
         {
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
@@ -99,7 +95,7 @@ Restart
                 {
                     const Matrix<Complex<Real>>& V = VList[k];
                     auto v = V( ALL, IR(j) ); 
-                    Axpy( q.Get(k,0), v, u );
+                    Axpy( q(k), v, u );
                 }
                 Matrix<Complex<Real>>& V = VList[0];
                 auto v = V( ALL, IR(j) );
@@ -110,14 +106,13 @@ Restart
 }
 
 template<typename Real>
-inline void
-Restart
+void Restart
 ( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
   vector<DistMatrix<Complex<Real>>>& VList )
 {
-    DEBUG_ONLY(CSE cse("pspec::Restart"))
+    DEBUG_CSE
     const Int basisSize = HDiagList[0].size();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -127,12 +122,14 @@ Restart
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 IRL
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real>& invNorms,
+        PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::IRL"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -155,7 +152,7 @@ IRL
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     // MultiShiftTrsm currently requires write access
@@ -351,14 +348,14 @@ IRL
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 IRL
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::IRL"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 

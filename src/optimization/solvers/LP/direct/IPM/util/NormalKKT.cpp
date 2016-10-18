@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace lp {
@@ -64,7 +64,7 @@ void NormalKKT
         Matrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -73,7 +73,7 @@ void NormalKKT
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -99,7 +99,7 @@ void NormalKKT
         ElementalMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -112,16 +112,15 @@ void NormalKKT
       zProx( zPre, ctrl );
     auto& x = xProx.GetLocked();
     auto& z = zProx.GetLocked();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix(); 
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -147,7 +146,7 @@ void NormalKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     // TODO: Expose this value as a parameter
@@ -158,7 +157,7 @@ void NormalKKT
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -195,7 +194,7 @@ void NormalKKT
         DistSparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -207,14 +206,17 @@ void NormalKKT
     // TODO: Expose this value as a parameter
     const Real inflateRatio = Pow(limits::Epsilon<Real>(),Real(0.83));
 
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
+
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================
     DistMultiVec<Real> dInv(comm);
     dInv.Resize( n, 1 );
+    auto& dInvLoc = dInv.Matrix();
     const Int dInvLocalHeight = dInv.LocalHeight();
     for( Int iLoc=0; iLoc<dInvLocalHeight; ++iLoc )
-        dInv.SetLocal
-        ( iLoc, 0, Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0) + gamma*gamma) );
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc) + gamma*gamma);
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
@@ -254,7 +256,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -262,7 +264,7 @@ void NormalKKTRHS
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -290,7 +292,7 @@ void NormalKKTRHS
   const ElementalMatrix<Real>& rmu,        
         ElementalMatrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     ElementalProxyCtrl ctrl;
@@ -302,16 +304,15 @@ void NormalKKTRHS
       zProx( zPre, ctrl );
     auto& x = xProx.GetLocked();
     auto& z = zProx.GetLocked();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -339,7 +340,7 @@ void NormalKKTRHS
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -347,7 +348,7 @@ void NormalKKTRHS
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -375,7 +376,7 @@ void NormalKKTRHS
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::NormalKKTRHS"))
+    DEBUG_CSE
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     if( !mpi::Congruent( comm, rmu.Comm() ) )
@@ -389,15 +390,15 @@ void NormalKKTRHS
     if( !mpi::Congruent( comm, z.Comm() ) )
         LogicError("Communicators of A and z must match");
 
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
+
     DistMultiVec<Real> dInv(comm);
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // g := D^2( r_1 + inv(X) r_3 ) = D^2 ( -r_c - inv(X) r_mu )
     // =========================================================
@@ -426,7 +427,7 @@ void ExpandNormalSolution
   const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -434,7 +435,7 @@ void ExpandNormalSolution
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
@@ -470,7 +471,7 @@ void ExpandNormalSolution
   const ElementalMatrix<Real>& dy, 
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     ElementalProxyCtrl ctrl;
@@ -482,16 +483,15 @@ void ExpandNormalSolution
       zProx( zPre, ctrl );
     auto& x = xProx.GetLocked();
     auto& z = zProx.GetLocked();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
@@ -527,7 +527,7 @@ void ExpandNormalSolution
   const Matrix<Real>& dy, 
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -535,7 +535,7 @@ void ExpandNormalSolution
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv.Set( i, 0, Sqrt(z.Get(i,0)/x.Get(i,0) + gamma*gamma) );
+        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
@@ -571,18 +571,17 @@ void ExpandNormalSolution
   const DistMultiVec<Real>& dy, 
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("lp::direct::ExpandNormalSolution"))
+    DEBUG_CSE
     const Int n = A.Width();
+    auto& xLoc = x.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     DistMultiVec<Real> dInv(A.Comm());
     dInv.Resize( n, 1 );
-    {
-        const Int nLocal = dInv.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocal; ++iLoc )
-            dInv.SetLocal
-            ( iLoc, 0, 
-              Sqrt(z.GetLocal(iLoc,0)/x.GetLocal(iLoc,0)+gamma*gamma) );
-    }
+    auto& dInvLoc = dInv.Matrix();
+    const Int nLocal = dInv.LocalHeight();
+    for( Int iLoc=0; iLoc<nLocal; ++iLoc )
+        dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
 
     // Use dz as a temporary for storing A^T dy
     // ========================================
@@ -714,7 +713,11 @@ void ExpandNormalSolution
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace direct
 } // namespace lp

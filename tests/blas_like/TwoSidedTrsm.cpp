@@ -1,20 +1,22 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( bool print, UpperOrLower uplo, UnitOrNonUnit diag,
+( UpperOrLower uplo,
+  UnitOrNonUnit diag,
   const DistMatrix<F>& A,
   const DistMatrix<F>& B,
-  const DistMatrix<F>& AOrig )
+  const DistMatrix<F>& AOrig,
+  bool print )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -42,16 +44,15 @@ void TestCorrectness
         Real oneNormError = OneNorm( Z );
         Real infNormError = InfinityNorm( Z );
         Real frobNormError = FrobeniusNorm( Z );
-        if( g.Rank() == 0 )
-        {
-            Output("||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig);
-            Output("||AOrig||_F                    = ",frobNormAOrig);
-            Output("||A||_1 = ||A||_oo             = ",infNormA);
-            Output("||A||_F                        = ",frobNormA);
-            Output("||A X - L^-1 AOrig L^-H X||_1  = ",oneNormError);
-            Output("||A X - L^-1 AOrig L^-H X||_oo = ",infNormError);
-            Output("||A X - L^-1 AOrig L^-H X||_F  = ",frobNormError);
-        }
+        OutputFromRoot
+        (g.Comm(),
+         "||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig,"\n",Indent(),
+         "||AOrig||_F                    = ",frobNormAOrig,"\n",Indent(),
+         "||A||_1 = ||A||_oo             = ",infNormA,"\n",Indent(),
+         "||A||_F                        = ",frobNormA,"\n",Indent(),
+         "||A X - L^-1 AOrig L^-H X||_1  = ",oneNormError,"\n",Indent(),
+         "||A X - L^-1 AOrig L^-H X||_oo = ",infNormError,"\n",Indent(),
+         "||A X - L^-1 AOrig L^-H X||_F  = ",frobNormError);
     }
     else
     {
@@ -69,30 +70,36 @@ void TestCorrectness
         Real oneNormError = OneNorm( Z );
         Real infNormError = InfinityNorm( Z );
         Real frobNormError = FrobeniusNorm( Z );
-        if( g.Rank() == 0 )
-        {
-            Output("||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig);
-            Output("||AOrig||_F                    = ",frobNormAOrig);
-            Output("||A||_1 = ||A||_oo             = ",infNormA);
-            Output("||A||_F                        = ",frobNormA);
-            Output("||A X - U^-H AOrig U^-1 X||_1  = ",oneNormError);
-            Output("||A X - U^-H AOrig U^-1 X||_oo = ",infNormError);
-            Output("||A X - U^-H AOrig U^-1 X||_F  = ",frobNormError);
-        }
+        OutputFromRoot
+        (g.Comm(),
+         "||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig,"\n",Indent(),
+         "||AOrig||_F                    = ",frobNormAOrig,"\n",Indent(),
+         "||A||_1 = ||A||_oo             = ",infNormA,"\n",Indent(),
+         "||A||_F                        = ",frobNormA,"\n",Indent(),
+         "||A X - U^-H AOrig U^-1 X||_1  = ",oneNormError,"\n",Indent(),
+         "||A X - U^-H AOrig U^-1 X||_oo = ",infNormError,"\n",Indent(),
+         "||A X - U^-H AOrig U^-1 X||_F  = ",frobNormError);
     }
 }
 
-template<typename F> 
+template<typename F,typename=EnableIf<IsBlasScalar<F>>> 
 void TestTwoSidedTrsm
-( bool testCorrectness, bool print,
-  UpperOrLower uplo, UnitOrNonUnit diag,
-  Int m, const Grid& g, bool scalapack )
+( UpperOrLower uplo,
+  UnitOrNonUnit diag,
+  Int m,
+  const Grid& g,
+  bool scalapack,
+  bool print,
+  bool correctness )
 {
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F> A(g), B(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
     HermitianUniformSpectrum( B, m, 1, 10 );
     MakeTrapezoidal( uplo, B );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
     {
@@ -100,38 +107,80 @@ void TestTwoSidedTrsm
         Print( B, "B" );
     }
 
+    Timer timer;
     if( scalapack )
     {
-        if( g.Rank() == 0 )
-            Output("  Starting ScaLAPACK TwoSidedTrsm");
+        OutputFromRoot(g.Comm(),"Starting ScaLAPACK TwoSidedTrsm");
         mpi::Barrier( g.Comm() );
-        const double startTime = mpi::Time();
+        timer.Start();
         DistMatrix<F,MC,MR,BLOCK> ABlock( A ), BBlock( B ); 
         TwoSidedTrsm( uplo, diag, ABlock, BBlock );
-        const double runTime = mpi::Time() - startTime;
+        double runTime = timer.Stop();
         double gFlops = Pow(double(m),3.)/(runTime*1.e9);
         if( IsComplex<F>::value )
             gFlops *= 4.;
-        if( g.Rank() == 0 )
-            Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
+        OutputFromRoot(g.Comm(),"Time = ",runTime," seconds. GFlops = ",gFlops);
     }
 
-    if( g.Rank() == 0 )
-        Output("  Starting Elemental TwoSidedTrsm");
+    OutputFromRoot(g.Comm(),"Starting Elemental TwoSidedTrsm");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    timer.Start();
     TwoSidedTrsm( uplo, diag, A, B );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    double runTime = timer.Stop();
     double gFlops = Pow(double(m),3.)/(runTime*1.e9);
     if( IsComplex<F>::value )
         gFlops *= 4.;
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds. GFlops = ",gFlops);
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds. GFlops = ",gFlops);
     if( print )
         Print( A, "A after reduction" );
-    if( testCorrectness )
-        TestCorrectness( print, uplo, diag, A, B, AOrig );
+    if( correctness )
+        TestCorrectness( uplo, diag, A, B, AOrig, print );
+
+    PopIndent();
+}
+
+template<typename F> 
+void TestTwoSidedTrsm
+( UpperOrLower uplo,
+  UnitOrNonUnit diag,
+  Int m,
+  const Grid& g,
+  bool print,
+  bool correctness )
+{
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
+    DistMatrix<F> A(g), B(g), AOrig(g);
+    HermitianUniformSpectrum( A, m, 1, 10 );
+    HermitianUniformSpectrum( B, m, 1, 10 );
+    MakeTrapezoidal( uplo, B );
+    if( correctness )
+        AOrig = A;
+    if( print )
+    {
+        Print( A, "A" );
+        Print( B, "B" );
+    }
+
+    OutputFromRoot(g.Comm(),"Starting Elemental TwoSidedTrsm");
+    mpi::Barrier( g.Comm() );
+    Timer timer;
+    timer.Start();
+    TwoSidedTrsm( uplo, diag, A, B );
+    mpi::Barrier( g.Comm() );
+    double runTime = timer.Stop();
+    double gFlops = Pow(double(m),3.)/(runTime*1.e9);
+    if( IsComplex<F>::value )
+        gFlops *= 4.;
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds. GFlops = ",gFlops);
+    if( print )
+        Print( A, "A after reduction" );
+    if( correctness )
+        TestCorrectness( uplo, diag, A, B, AOrig, print );
+
+    PopIndent();
 }
 
 int 
@@ -139,12 +188,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input
             ("--uplo","lower or upper triangular storage: L/U",'L');
@@ -160,16 +207,16 @@ main( int argc, char* argv[] )
         const Int mb = 32;
         const Int nb = 32;
 #endif
-        const bool testCorrectness = Input
+        const bool correctness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
         SetBlocksize( blocksize );
@@ -177,18 +224,43 @@ main( int argc, char* argv[] )
         SetDefaultBlockWidth( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test TwoSidedTrsm",uploChar,diagChar);
+        OutputFromRoot(comm,"Will test TwoSidedTrsm",uploChar,diagChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
+        TestTwoSidedTrsm<float>
+        ( uplo, diag, m, g, scalapack, print, correctness );
+        TestTwoSidedTrsm<Complex<float>>
+        ( uplo, diag, m, g, scalapack, print, correctness );
+
         TestTwoSidedTrsm<double>
-        ( testCorrectness, print, uplo, diag, m, g, scalapack );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
+        ( uplo, diag, m, g, scalapack, print, correctness );
         TestTwoSidedTrsm<Complex<double>>
-        ( testCorrectness, print, uplo, diag, m, g, scalapack );
+        ( uplo, diag, m, g, scalapack, print, correctness );
+
+#ifdef EL_HAVE_QD
+       TestTwoSidedTrsm<DoubleDouble>
+        ( uplo, diag, m, g, print, correctness );
+       TestTwoSidedTrsm<QuadDouble>
+        ( uplo, diag, m, g, print, correctness );
+
+       TestTwoSidedTrsm<Complex<DoubleDouble>>
+        ( uplo, diag, m, g, print, correctness );
+       TestTwoSidedTrsm<Complex<QuadDouble>>
+        ( uplo, diag, m, g, print, correctness );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestTwoSidedTrsm<Quad>
+        ( uplo, diag, m, g, print, correctness );
+        TestTwoSidedTrsm<Complex<Quad>>
+        ( uplo, diag, m, g, print, correctness );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestTwoSidedTrsm<BigFloat>
+        ( uplo, diag, m, g, print, correctness );
+        TestTwoSidedTrsm<Complex<BigFloat>>
+        ( uplo, diag, m, g, print, correctness );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

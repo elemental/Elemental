@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -21,7 +21,7 @@ void Apply
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
@@ -29,16 +29,9 @@ void Apply
     cone::Broadcast( yRoots, orders, firstInds );
 
     const Int height = x.Height();
-    const Real* xBuf     = x.LockedBuffer();
-    const Real* xRootBuf = xRoots.LockedBuffer();
-    const Real* yBuf     = y.LockedBuffer();
-    const Real* yRootBuf = yRoots.LockedBuffer();
-          Real* zBuf = z.Buffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     for( Int i=0; i<height; ++i )
-        if( i != firstIndBuf[i] )
-            zBuf[i] += xRootBuf[i]*yBuf[i] + yRootBuf[i]*xBuf[i];
+        if( i != firstInds(i) )
+            z(i) += xRoots(i)*y(i) + yRoots(i)*x(i);
 }
 
 template<typename Real,typename>
@@ -50,7 +43,7 @@ void Apply
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -103,7 +96,7 @@ void Apply
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
@@ -135,7 +128,7 @@ void Apply
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     // TODO?: Optimize
     Matrix<Real> z;
     soc::Apply( x, y, z, orders, firstInds );
@@ -150,7 +143,7 @@ void Apply
   const ElementalMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     // TODO?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid());
     soc::Apply( x, y, z, orders, firstInds, cutoff );
@@ -165,7 +158,7 @@ void Apply
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Apply"))
+    DEBUG_CSE
     // TODO?: Optimize
     DistMultiVec<Real> z(x.Comm());
     soc::Apply( x, y, z, orders, firstInds, cutoff );
@@ -213,7 +206,11 @@ void Apply
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

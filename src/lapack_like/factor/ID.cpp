@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // TODO: Add detailed references to Tygert et al.'s ID package and the papers
 //       "Randomized algorithms for the low-rank approximation of matrices", 
@@ -29,7 +29,7 @@ BusingerGolub
   Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("id::BusingerGolub"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     auto ctrlCopy = ctrl;
@@ -49,10 +49,10 @@ BusingerGolub
     }
 
     // Perform the pivoted QR factorization
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    QR( A, t, d, Omega, ctrlCopy );
-    const Int numSteps = t.Height();
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
+    QR( A, householderScalars, signature, Omega, ctrlCopy );
+    const Int numSteps = householderScalars.Height();
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     auto RL = A( IR(0,numSteps), IR(0,numSteps) );
@@ -69,7 +69,7 @@ BusingerGolub
   ElementalMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("id::BusingerGolub"))
+    DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -92,10 +92,10 @@ BusingerGolub
     }
 
     // Perform an adaptive pivoted QR factorization
-    DistMatrix<F,MD,STAR> t(A.Grid());
-    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
-    QR( A, t, d, Omega, ctrlCopy );
-    const Int numSteps = t.Height();
+    DistMatrix<F,MD,STAR> householderScalars(A.Grid());
+    DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
+    QR( A, householderScalars, signature, Omega, ctrlCopy );
+    const Int numSteps = householderScalars.Height();
 
     auto RL = A( IR(0,numSteps), IR(0,numSteps) );
     auto RR = A( IR(0,numSteps), IR(numSteps,n) );
@@ -112,7 +112,7 @@ void ID
         Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ID"))
+    DEBUG_CSE
     Matrix<F> B( A );
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
@@ -125,7 +125,7 @@ void ID
   const QRCtrl<Base<F>>& ctrl,
         bool canOverwrite )
 {
-    DEBUG_ONLY(CSE cse("ID"))
+    DEBUG_CSE
     Matrix<F> B;
     if( canOverwrite )
         View( B, A );
@@ -141,7 +141,7 @@ void ID
         ElementalMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ID"))
+    DEBUG_CSE
     DistMatrix<F> B( A );
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
@@ -154,7 +154,7 @@ void ID
   const QRCtrl<Base<F>>& ctrl,
         bool canOverwrite )
 {
-    DEBUG_ONLY(CSE cse("ID"))
+    DEBUG_CSE
     if( canOverwrite )
     {
         id::BusingerGolub( A, Omega, Z, ctrl );
@@ -191,6 +191,10 @@ void ID
     bool canOverwrite ); 
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

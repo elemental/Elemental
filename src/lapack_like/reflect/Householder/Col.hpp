@@ -2,7 +2,7 @@
    Copyright (c) 1992-2008 The University of Tennessee.
    All rights reserved.
 
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is loosely based upon the LAPACK routines dlarfg.f and zlarfg.f.
@@ -11,7 +11,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_REFLECTOR_COL_HPP
 #define EL_REFLECTOR_COL_HPP
 
@@ -19,10 +18,10 @@ namespace El {
 namespace reflector {
 
 template<typename F> 
-F Col( F& chi, ElementalMatrix<F>& x )
+F Col( F& chi, AbstractDistMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("reflector::Col");
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
       if( x.RowRank() != x.RowAlign() )
@@ -46,9 +45,9 @@ F Col( F& chi, ElementalMatrix<F>& x )
 
     Real beta;
     if( RealPart(alpha) <= 0 )
-        beta = lapack::SafeNorm( alpha, norm );
+        beta = SafeNorm( alpha, norm );
     else
-        beta = -lapack::SafeNorm( alpha, norm );
+        beta = -SafeNorm( alpha, norm );
 
     // Rescale if the vector is too small
     const Real safeMin = limits::SafeMin<Real>();
@@ -70,9 +69,9 @@ F Col( F& chi, ElementalMatrix<F>& x )
         mpi::AllGather( &localNorm, 1, localNorms.data(), 1, colComm );
         norm = blas::Nrm2( colStride, localNorms.data(), 1 );
         if( RealPart(alpha) <= 0 )
-            beta = lapack::SafeNorm( alpha, norm );
+            beta = SafeNorm( alpha, norm );
         else
-            beta = -lapack::SafeNorm( alpha, norm );
+            beta = -SafeNorm( alpha, norm );
     }
 
     F tau = (beta-Conj(alpha)) / beta;
@@ -87,10 +86,10 @@ F Col( F& chi, ElementalMatrix<F>& x )
 }
 
 template<typename F> 
-F Col( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
+F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("reflector::Col");
       if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
           LogicError("Reflecting from incorrect process");
     )

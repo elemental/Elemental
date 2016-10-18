@@ -1,16 +1,76 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 // Test if (op(H) - mu_j I) x_j = y_j for each j.
 // This is checked by testing the norm of  op(H) X - X Mu - Y.
+template<typename F> 
+void TestCorrectness
+( UpperOrLower uplo,
+  Orientation orientation,
+  const Matrix<F>& H, 
+  const Matrix<F>& shifts, 
+  const Matrix<F>& X, 
+  const Matrix<F>& Y,
+  bool print,
+  bool display )
+{
+    typedef Base<F> Real;
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormY = OneNorm( Y );
+    const Real oneNormH = OneNorm( H );
+
+    auto modShifts( shifts );
+    if( orientation == ADJOINT )
+        Conjugate( modShifts );
+    
+    Matrix<F> Z( Y );
+    for( Int j=0; j<n; ++j )
+    {
+        auto x = LockedView( X, 0, j, m, 1 );
+        auto z =       View( Z, 0, j, m, 1 );
+        Axpy( modShifts(j), x, z );
+    }
+    {
+        Gemm( orientation, NORMAL, F(-1), H, X, F(1), Z );
+    }
+
+    if( print )
+    {
+        Print( H, "H" );
+        Print( X, "X" );
+        Print( Y, "Y" );
+        Print( shifts, "shifts" );
+        Print( Z, "-H X + X Mu + Y" );
+    }
+    if( display )
+    {
+        Display( H, "H" );
+        Display( X, "X" );
+        Display( Y, "Y" );
+        Display( shifts, "shifts" );
+        Display( Z, "-H X + X Mu + Y" );
+    }
+
+    const Real infError = InfinityNorm( Z );
+    const Real relError = infError / (eps*n*Max(oneNormH,oneNormY));
+    Output
+    ("|| H X - X Mu - Y ||_oo / (eps n Max(||H||_1,||Y||_1)) = ",relError);
+
+    // TODO: More refined failure condition
+    if( relError > Real(1) )
+        LogicError("Relative error was unacceptably large");
+}
+
 template<typename F> 
 void TestCorrectness
 ( UpperOrLower uplo,
@@ -25,6 +85,9 @@ void TestCorrectness
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormY = OneNorm( Y );
+    const Real oneNormH = OneNorm( H );
 
     auto modShifts( shifts );
     if( orientation == ADJOINT )
@@ -59,20 +122,15 @@ void TestCorrectness
         Display( Z, "-H X + X Mu + Y" );
     }
 
-    const Real YFrob = FrobeniusNorm( Y );
-    const Real YInf = InfinityNorm( Y );
-    const Real HFrob = FrobeniusNorm( H );
-    const Real HInf = InfinityNorm( H );
-    const Real ZFrob = FrobeniusNorm( Z );
-    const Real ZInf = InfinityNorm( Z );
-    if( mpi::Rank() == 0 )
-        Output
-        ("    || H ||_F  = ",HFrob,"\n",
-         "    || H ||_oo = ",HInf,"\n",
-         "    || Y ||_F  = ",YFrob,"\n",
-         "    || Y ||_oo = ",YInf,"\n",
-         "    || H X - X Mu - Y ||_F  = ",ZFrob,"\n",
-         "    || H X - X Mu - Y ||_oo = ",ZInf);
+    const Real infError = InfinityNorm( Z );
+    const Real relError = infError / (eps*n*Max(oneNormH,oneNormY));
+    OutputFromRoot
+    (H.Grid().Comm(),
+     "|| H X - X Mu - Y ||_oo / (eps n Max(||H||_1,||Y||_1)) = ",relError);
+
+    // TODO: More refined failure condition
+    if( relError > Real(1) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F>
@@ -81,11 +139,53 @@ void TestHessenberg
   Orientation orientation,
   Int m,
   Int n, 
-  bool testCorrectness,
+  bool correctness,
   bool print,
-  bool display,
-  const Grid& g )
+  bool display )
 {
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+    Matrix<F> H;
+    Matrix<F> X, Y;
+    Matrix<F> shifts;
+
+    Uniform( H, m, m );
+    ShiftDiagonal( H, F(5) ); // ensure that H-mu is far from zero
+    if( uplo == LOWER )
+        MakeTrapezoidal( LOWER, H, 1 );
+    else
+        MakeTrapezoidal( UPPER, H, -1 );
+
+    Uniform( X, m, n );
+    Uniform( Y, m, n );
+    Uniform( shifts, n, 1 );
+
+    X = Y;
+    Output("Starting Hessenberg solve...");
+    Timer timer;
+    timer.Start();
+    MultiShiftHessSolve( uplo, orientation, F(1), H, shifts, X );
+    const double runTime = timer.Stop();
+    // TODO: Flop calculation
+    Output("Time = ",runTime," seconds");
+    if( correctness )
+        TestCorrectness( uplo, orientation, H, shifts, X, Y, print, display );
+    PopIndent();
+}
+
+template<typename F>
+void TestHessenberg
+( const Grid& g,
+  UpperOrLower uplo,
+  Orientation orientation,
+  Int m,
+  Int n, 
+  bool correctness,
+  bool print,
+  bool display )
+{
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F,VC,STAR> H(g);
     DistMatrix<F,STAR,VR> X(g), Y(g);
     DistMatrix<F,VR,STAR> shifts(g);
@@ -102,18 +202,18 @@ void TestHessenberg
     Uniform( shifts, n, 1 );
 
     X = Y;
-    if( mpi::Rank() == 0 )
-        Output("  Starting Hessenberg solve...");
+    OutputFromRoot(g.Comm(),"Starting Hessenberg solve...");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     MultiShiftHessSolve( uplo, orientation, F(1), H, shifts, X );
     mpi::Barrier( mpi::COMM_WORLD );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     // TODO: Flop calculation
-    if( mpi::Rank() == 0 )
-        Output("  Time = ",runTime," seconds");
-    if( testCorrectness )
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds");
+    if( correctness )
         TestCorrectness( uplo, orientation, H, shifts, X, Y, print, display );
+    PopIndent();
 }
 
 int 
@@ -121,7 +221,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -131,12 +230,20 @@ main( int argc, char* argv[] )
         const Int m = Input("--m","height of Hessenberg matrix",100);
         const Int n = Input("--n","number of right-hand sides",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness = Input
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpfr::SetPrecision( prec );
+#endif
 
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid grid( comm, order );
@@ -145,15 +252,76 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
 
-        if( commRank == 0 )
-            Output("Double-precision:");
-        TestHessenberg<double>
-        ( uplo, orient, m, n, testCorrectness, print, display, grid );
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestHessenberg<float>
+            ( uplo, orient, m, n, correctness, print, display );
+            TestHessenberg<Complex<float>>
+            ( uplo, orient, m, n, correctness, print, display );
 
-        if( commRank == 0 )
-            Output("Double-precision complex:");
+            TestHessenberg<double>
+            ( uplo, orient, m, n, correctness, print, display );
+            TestHessenberg<Complex<double>>
+            ( uplo, orient, m, n, correctness, print, display );
+
+#ifdef EL_HAVE_QD
+            TestHessenberg<DoubleDouble>
+            ( uplo, orient, m, n, correctness, print, display );
+            TestHessenberg<QuadDouble>
+            ( uplo, orient, m, n, correctness, print, display );
+
+            TestHessenberg<Complex<DoubleDouble>>
+            ( uplo, orient, m, n, correctness, print, display );
+            TestHessenberg<Complex<QuadDouble>>
+            ( uplo, orient, m, n, correctness, print, display );
+#endif
+
+#ifdef EL_HAVE_QUAD
+            TestHessenberg<Quad>
+            ( uplo, orient, m, n, correctness, print, display );
+            TestHessenberg<Complex<Quad>>
+            ( uplo, orient, m, n, correctness, print, display );
+#endif
+
+#ifdef EL_HAVE_MPC
+            TestHessenberg<BigFloat>
+            ( uplo, orient, m, n, correctness, print, display );
+#endif
+        }
+
+        TestHessenberg<float>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+        TestHessenberg<Complex<float>>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+
+        TestHessenberg<double>
+        ( grid, uplo, orient, m, n, correctness, print, display );
         TestHessenberg<Complex<double>>
-        ( uplo, orient, m, n, testCorrectness, print, display, grid );
+        ( grid, uplo, orient, m, n, correctness, print, display );
+
+#ifdef EL_HAVE_QD
+        TestHessenberg<DoubleDouble>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+        TestHessenberg<QuadDouble>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+
+        TestHessenberg<Complex<DoubleDouble>>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+        TestHessenberg<Complex<QuadDouble>>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestHessenberg<Quad>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+        TestHessenberg<Complex<Quad>>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestHessenberg<BigFloat>
+        ( grid, uplo, orient, m, n, correctness, print, display );
+#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_QR_PANEL_HPP
 #define EL_QR_PANEL_HPP
 
@@ -14,18 +13,18 @@ namespace El {
 namespace qr {
 
 template<typename F> 
-inline void PanelHouseholder
+void PanelHouseholder
 ( Matrix<F>& A,
-  Matrix<F>& t,
-  Matrix<Base<F>>& d )
+  Matrix<F>& householderScalars,
+  Matrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(CSE cse("qr::PanelHouseholder"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.Resize( minDim, 1 );
-    d.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
+    signature.Resize( minDim, 1 );
 
     Matrix<F> z21;
 
@@ -42,12 +41,12 @@ inline void PanelHouseholder
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        t.Set( k, 0, tau );
+        householderScalars(k) = tau;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
-        const F alpha = alpha11.Get(0,0);
-        alpha11.Set(0,0,1);
+        const F alpha = alpha11(0);
+        alpha11(0) = 1;
 
         // AB2 := Hous(aB1,tau) AB2
         //      = (I - tau aB1 aB1^H) AB2
@@ -57,27 +56,25 @@ inline void PanelHouseholder
         Ger( -tau, aB1, z21, AB2 );
 
         // Replace alpha11's value
-        alpha11.Set(0,0,alpha);
+        alpha11(0) = alpha;
     }
     // Form d and rescale R
     auto R = A( IR(0,minDim), ALL );
-    GetRealPartOfDiagonal(R,d);
-    auto sgn = []( Real delta )
+    GetRealPartOfDiagonal(R,signature);
+    auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, function<Real(Real)>(sgn) );
-    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
+    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 }
 
 template<typename F> 
-inline void PanelHouseholder
+void PanelHouseholder
 ( DistMatrix<F>& A,
-  ElementalMatrix<F>& t,
-  ElementalMatrix<Base<F>>& d )
+  ElementalMatrix<F>& householderScalars,
+  ElementalMatrix<Base<F>>& signature )
 {
-    DEBUG_ONLY(
-      CSE cse("qr::PanelHouseholder");
-      AssertSameGrids( A, t, d );
-    )
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
@@ -87,12 +84,13 @@ inline void PanelHouseholder
     const Int n = A.Width();
     const Int minDim = Min(m,n);
  
-    if( t.Height() != minDim || t.Width() != 1 )
-        LogicError("Unexpected size of t");
-    if( d.Height() != minDim || d.Width() != 1 )
-        LogicError("Unexpected size of d");
+    if( householderScalars.Height() != minDim ||
+        householderScalars.Width() != 1 )
+        LogicError("Unexpected size of householderScalars");
+    if( signature.Height() != minDim || signature.Width() != 1 )
+        LogicError("Unexpected size of signature");
 
-    t.Resize( minDim, 1 );
+    householderScalars.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -107,7 +105,7 @@ inline void PanelHouseholder
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        t.Set( k, 0, tau );
+        householderScalars.Set( k, 0, tau );
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -137,11 +135,11 @@ inline void PanelHouseholder
     }
     // Form d and rescale R
     auto R = A( IR(0,minDim), ALL );
-    GetRealPartOfDiagonal(R,d);
-    auto sgn = []( Real delta )
+    GetRealPartOfDiagonal(R,signature);
+    auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( d, function<Real(Real)>(sgn) );
-    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
+    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 }
 
 } // namespace qr

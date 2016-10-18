@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 // This driver is an adaptation of the solver described at
@@ -76,11 +76,18 @@ int main( int argc, char* argv[] )
         if( display )
             Display( Q, "Q" );
 
+        Timer timer;
         DistMatrix<Real> z;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         qp::box::ADMM( Q, c, lb, ub, z, ctrl );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
 
         if( print )
             Print( z, "z" );
+        if( mpi::Rank() == 0 )
+            Output("QPBox time: ",timer.Total(),"secs");
     }
     catch( exception& e ) { ReportException(e); }
 

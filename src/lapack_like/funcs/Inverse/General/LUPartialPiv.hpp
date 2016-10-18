@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_INVERSE_LUPARTIALPIV_HPP
 #define EL_INVERSE_LUPARTIALPIV_HPP
 
@@ -23,7 +22,7 @@ namespace inverse {
 template<typename F> 
 void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
 {
-    DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
 
@@ -65,10 +64,9 @@ void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
 }
 
 template<typename F> 
-inline void
-LUPartialPiv( Matrix<F>& A )
+void LUPartialPiv( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     Permutation P;
@@ -81,7 +79,7 @@ void AfterLUPartialPiv
 (       ElementalMatrix<F>& APre,
   const DistPermutation& P )
 {
-    DEBUG_ONLY(CSE cse("inverse::AfterLUPartialPiv"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -143,10 +141,9 @@ void AfterLUPartialPiv
 }
 
 template<typename F> 
-inline void
-LUPartialPiv( ElementalMatrix<F>& A )
+void LUPartialPiv( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("inverse::LUPartialPiv"))
+    DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();

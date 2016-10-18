@@ -1,3 +1,6 @@
+The vast majority of Elemental is licensed under the New BSD License:
+
+"""
 Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met:
 
@@ -23,3 +26,17 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 POSSIBILITY OF SUCH DAMAGE.
+"""
+
+with individual copyrights listed at the top of each file. In addition, several
+external (and sometimes modified) dependencies of Elemental, such as
+SuiteSparse's Alternating Minimum Degree (AMD) reordering and unblocked 
+sparse LDL factorization, libquadmath, The GNU MPFR Library, The GNU MPC
+Library, and Qt 5, are licensed under the terms of the
+[GNU Lesser General Public License, version 3]
+(http://www.gnu.org/licenses/lgpl-3.0.en.html) or later.
+
+Lastly, METIS is licensed under the terms of the
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html),
+while ParMETIS is unfortunately licensed in a manner which only allows its
+usage for research purposes.

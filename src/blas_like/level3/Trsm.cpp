@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Trsm/LLN.hpp"
 #include "./Trsm/LLT.hpp"
@@ -30,8 +32,8 @@ void Trsm
         Matrix<F>& B,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trsm");
       if( A.Height() != A.Width() )
           LogicError("Triangular matrix must be square");
       if( side == LEFT )
@@ -73,8 +75,8 @@ void Trsm
         AbstractDistMatrix<F>& B,
   bool checkIfSingular, TrsmAlgorithm alg )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trsm");
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -383,8 +385,8 @@ void LocalTrsm
         AbstractDistMatrix<F>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalTrsm");
       if( (side == LEFT && X.ColDist() != STAR) ||
           (side == RIGHT && X.RowDist() != STAR) )
           LogicError
@@ -426,6 +428,10 @@ void LocalTrsm
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

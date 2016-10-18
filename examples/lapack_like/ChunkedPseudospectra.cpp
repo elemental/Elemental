@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -41,11 +41,12 @@ main( int argc, char* argv[] )
         const Int normInt = Input("--norm","0:two norm,1:one norm",0);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
-#ifdef EL_HAVE_SCALAPACK
+
         // QR algorithm options
         const Int nbDist = Input("--nbDist","distribution blocksize",32);
-#else
+
         // Spectral Divide and Conquer options
+        const bool sdc = Input("--sdc","use Spectral D&C?",false);
         const Int cutoff = Input("--cutoff","problem size for QR",256);
         const Int maxInnerIts = Input("--maxInnerIts","SDC limit",2);
         const Int maxOuterIts = Input("--maxOuterIts","SDC limit",10);
@@ -53,7 +54,7 @@ main( int argc, char* argv[] )
         const Real sdcTol = Input("--sdcTol","Rel. tol. for SDC",1e-6);
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const Real signTol = Input("--signTol","Sign tolerance for SDC",1e-9);
-#endif
+
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
         Real realWidth = Input("--realWidth","x width of image",0.);
@@ -240,12 +241,11 @@ main( int argc, char* argv[] )
         DistMatrix<Real> QReal(g);
         DistMatrix<C> QCpx(g);
         SchurCtrl<Real> ctrl;
-#ifdef EL_HAVE_SCALAPACK
-        ctrl.qrCtrl.blockHeight = nbDist;
-        ctrl.qrCtrl.blockWidth = nbDist;
-        ctrl.qrCtrl.distAED = false;
-#else
-        ctrl.useSDC = true;
+        ctrl.hessSchurCtrl.fullTriangle = formATR;
+        ctrl.hessSchurCtrl.blockHeight = nbDist;
+        ctrl.hessSchurCtrl.scalapack = false;
+        ctrl.useSDC = sdc;
+        // Spectral D&C options (only relevant if 'sdc' is true)
         ctrl.sdcCtrl.cutoff = cutoff;
         ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
         ctrl.sdcCtrl.maxOuterIts = maxOuterIts;
@@ -255,21 +255,21 @@ main( int argc, char* argv[] )
         ctrl.sdcCtrl.progress = progress;
         ctrl.sdcCtrl.signCtrl.tol = signTol;
         ctrl.sdcCtrl.signCtrl.progress = progress;
-#endif
+
         timer.Start();
         if( isReal )
         {
             if( psNorm == PS_TWO_NORM )
-                Schur( AReal, w, formATR, ctrl );
+                Schur( AReal, w, ctrl );
             else
-                Schur( AReal, w, QReal, formATR, ctrl );
+                Schur( AReal, w, QReal, ctrl );
         }
         else
         {
             if( psNorm == PS_TWO_NORM )
-                Schur( ACpx, w, formATR, ctrl );
+                Schur( ACpx, w, ctrl );
             else
-                Schur( ACpx, w, QCpx, formATR, ctrl );
+                Schur( ACpx, w, QCpx, ctrl );
         }
         mpi::Barrier( mpi::COMM_WORLD );
         const double schurTime = timer.Stop();

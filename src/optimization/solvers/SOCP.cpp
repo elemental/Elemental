@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "./SOCP/direct/IPM.hpp"
 #include "./SOCP/affine/IPM.hpp"
 
@@ -24,7 +24,7 @@ void SOCP
         Matrix<Real>& z,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -44,7 +44,7 @@ void SOCP
         ElementalMatrix<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -64,7 +64,7 @@ void SOCP
         Matrix<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -84,7 +84,7 @@ void SOCP
         DistMultiVec<Real>& z, 
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::direct::Mehrotra
         ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
@@ -107,7 +107,7 @@ void SOCP
         Matrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -131,7 +131,7 @@ void SOCP
         ElementalMatrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -155,7 +155,7 @@ void SOCP
         Matrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -179,7 +179,7 @@ void SOCP
         DistMultiVec<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SOCP"))
+    DEBUG_CSE
     if( ctrl.approach == SOCP_MEHROTRA )
         socp::affine::Mehrotra
         ( A, G, b, c, h, orders, firstInds, x, y, z, s,
@@ -284,6 +284,10 @@ void SOCP
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

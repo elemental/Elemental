@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,14 +11,13 @@ namespace El {
 namespace trsv {
 
 template<typename F>
-inline void
-UN
+void UN
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& xPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsv::UN");
       AssertSameGrids( UPre, xPre );
       if( UPre.Height() != UPre.Width() )
           LogicError("U must be square");
@@ -54,7 +53,8 @@ UN
         DistMatrix<F,MC,STAR> z0_MC_STAR(g), z1_MC_STAR(g);
 
         z_MC_STAR.AlignWith( U );
-        Zeros( z_MC_STAR, m, 1 );
+        z_MC_STAR.Resize( m, 1 );
+        Zero( z_MC_STAR );
 
         for( Int k=kLast; k>=0; k-=bsize )
         {
@@ -93,7 +93,8 @@ UN
         DistMatrix<F,STAR,MC> z0_STAR_MC(g), z1_STAR_MC(g);
 
         z_STAR_MC.AlignWith( U );
-        Zeros( z_STAR_MC, 1, m );
+        z_STAR_MC.Resize( 1, m );
+        Zero( z_STAR_MC );
 
         for( Int k=kLast; k>=0; k-=bsize )
         {

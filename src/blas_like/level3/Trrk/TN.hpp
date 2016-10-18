@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -18,12 +18,12 @@ void TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& BPre,
-        ElementalMatrix<T>& CPre )
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& BPre,
+        AbstractDistMatrix<T>& CPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trrk::TrrkTN");
       if( CPre.Height() != CPre.Width() || APre.Width() != CPre.Height() || 
           BPre.Width() != CPre.Width() || APre.Height() != BPre.Height() )
           LogicError("Nonconformal TrrkTN");

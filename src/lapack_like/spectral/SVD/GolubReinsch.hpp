@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_SVD_GOLUBREINSCH_HPP
 #define EL_SVD_GOLUBREINSCH_HPP
 
@@ -16,265 +15,271 @@ namespace El {
 namespace svd {
 
 template<typename F>
-inline void
-GolubReinsch
-( DistMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  DistMatrix<F>& V )
+SVDInfo GolubReinsch
+( Matrix<F>& A,
+  Matrix<F>& U,
+  Matrix<Base<F>>& s, 
+  Matrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
-    const Int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
+    const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
+    const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
+    if( avoidU && avoidV )
+    {
+        return SVD( A, s, ctrl );
+    }
+    SVDInfo info;
 
     // Bidiagonalize A
+    Timer timer;
+    Matrix<F> householderScalarsP, householderScalarsQ;
+    if( ctrl.time )
+        timer.Start();
+    Bidiag( A, householderScalarsP, householderScalarsQ );
+    if( ctrl.time )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
+
+    // Compute the SVD of the bidiagonal matrix.
+    // (We can guarantee that accumulation was not requested.)
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    auto mainDiag = GetRealPartOfDiagonal( A );
+    auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
+    if( ctrl.time )
+        timer.Start();
+    if( m == n || (m > n && avoidU) || (m < n && avoidV) )
+    {
+        // There is no need to work on a subset of U or V
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
+    }
+    else if( m > n )
+    {
+        // We need to work on a subset of U
+        Matrix<F> USub;
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, USub, s, V, ctrl.bidiagSVDCtrl );
+        // Copy USub into U
+        const Int UWidth = USub.Width();
+        Identity( U, m, UWidth );
+        auto UTop = U( IR(0,n), ALL );
+        UTop = USub;
+    }
+    else if( m < n )
+    {
+        // We need to work on a subset of V
+        Matrix<F> VSub;
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, VSub, ctrl.bidiagSVDCtrl );
+        // Copy VSub into V
+        const Int VWidth = VSub.Width();
+        Identity( V, n, VWidth );
+        auto VTop = V( IR(0,m), ALL );
+        VTop = VSub;
+    }
+    if( ctrl.time )
+        Output("Bidiag SVD: ",timer.Stop()," seconds");
+
+    // Backtransform U and V
+    if( ctrl.time )
+        timer.Start();
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, householderScalarsQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, V );
+    if( ctrl.time )
+        Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
+
+    return info;
+}
+
+template<typename F>
+SVDInfo GolubReinsch
+( DistMatrix<F>& A,
+  DistMatrix<F>& U,
+  AbstractDistMatrix<Base<F>>& s, 
+  DistMatrix<F>& V,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
+    const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     const Grid& g = A.Grid();
-    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
-    Bidiag( A, tP, tQ );
+    if( avoidU && avoidV )
+    {
+        return SVD( A, s, ctrl );
+    }
+    SVDInfo info;
+
+    // Bidiagonalize A
+    Timer timer;
+    DistMatrix<F,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
+    Bidiag( A, householderScalarsP, householderScalarsQ );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    auto d_MD_STAR = GetRealPartOfDiagonal(A);
-    auto e_MD_STAR = GetRealPartOfDiagonal(A,offdiagonal);
+    const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    auto mainDiag = GetRealPartOfDiagonal(A);
+    auto offDiag = GetRealPartOfDiagonal(A,offdiagonal);
 
-    // NOTE: lapack::BidiagQRAlg expects e to be of length k
-    typedef Base<F> Real;
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               eHat_STAR_STAR( k, 1, g );
-    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), ALL );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Initialize U and VAdj to the appropriate identity matrices
-    DistMatrix<F,VC,STAR> U_VC_STAR( g );
-    U_VC_STAR.AlignWith( A );
-    Identity( U_VC_STAR, m, k );
-    DistMatrix<F,STAR,VC> VAdj_STAR_VC( g );
-    VAdj_STAR_VC.AlignWith( V );
-    Identity( VAdj_STAR_VC, k, n );
-
-    // Compute the SVD of the bidiagonal matrix and accumulate the Givens
-    // rotations into our local portion of U and VAdj
-    Matrix<F>& ULoc = U_VC_STAR.Matrix();
-    Matrix<F>& VAdjLoc = VAdj_STAR_VC.Matrix();
-    lapack::BidiagQRAlg
-    ( uplo, k, VAdjLoc.Width(), ULoc.Height(),
-      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-      VAdjLoc.Buffer(), VAdjLoc.LDim(), 
-      ULoc.Buffer(), ULoc.LDim() );
-
-    // Make a copy of A (for the Householder vectors) and pull the necessary 
-    // portions of U and VAdj into a standard matrix dist.
-    auto B( A );
-    if( m >= n )
+    // Run the bidiagonal SVD
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
+    if( m == n || (m > n && avoidU) || (m < n && avoidV) )
     {
-        DistMatrix<F> AT(g), AB(g);
-        DistMatrix<F,VC,STAR> UT_VC_STAR(g), UB_VC_STAR(g);
-        PartitionDown( A, AT, AB, n );
-        PartitionDown( U_VC_STAR, UT_VC_STAR, UB_VC_STAR, n );
-        AT = UT_VC_STAR;
-        Zero( AB );
-        Adjoint( VAdj_STAR_VC, V );
+        // There is no need to work on a subset of U or V
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, V, ctrl.bidiagSVDCtrl );
     }
-    else
+    else if( m > n )
     {
-        auto VAdjL_STAR_VC = VAdj_STAR_VC( IR(0,k), IR(0,m) );
-        DistMatrix<F> VT(g), VB(g);
-        PartitionDown( V, VT, VB, m );
-        Adjoint( VAdjL_STAR_VC, VT );
-        Zero( VB );
+        // We need to work on a subset of U
+        DistMatrix<F> USub(g);
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, USub, s, V, ctrl.bidiagSVDCtrl );
+        // Copy USub into U
+        const Int UWidth = USub.Width();
+        Identity( U, m, UWidth );
+        auto UTop = U( IR(0,n), ALL );
+        UTop = USub;
+    }
+    else if( m < n )
+    {
+        // We need to work on a subset of V
+        DistMatrix<F> VSub(g);
+        info.bidiagSVDInfo =
+          BidiagSVD( uplo, mainDiag, offDiag, U, s, VSub, ctrl.bidiagSVDCtrl );
+        // Copy VSub into V
+        const Int VWidth = VSub.Width();
+        Identity( V, n, VWidth );
+        auto VTop = V( IR(0,m), ALL );
+        VTop = VSub;
+    }
+
+    if( ctrl.time )
+    {
+        mpi::Barrier( g.Comm() );
+        if( g.Rank() == 0 )
+            Output("Bidiag SVD: ",timer.Stop()," seconds");
     }
 
     // Backtransform U and V
-    bidiag::ApplyQ( LEFT, NORMAL, B, tQ, A );
-    bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
+    if( !avoidU ) bidiag::ApplyQ( LEFT, NORMAL, A, householderScalarsQ, U );
+    if( !avoidV ) bidiag::ApplyP( LEFT, NORMAL, A, householderScalarsP, V );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("GolubReinsch backtransformation: ",timer.Stop()," seconds");
 
-    // Copy out the appropriate subset of the singular values
-    Copy( d_STAR_STAR, s );
+    return info;
 }
 
 template<typename F>
-inline void
-GolubReinsch
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre )
+void GolubReinsch
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& UPre,
+  AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre,
+  const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
+    auto& U = UProx.Get();
     auto& V = VProx.Get();
-    GolubReinsch( A, s, V );
+    return GolubReinsch( A, U, s, V, ctrl );
 }
 
-#ifdef EL_HAVE_FLA_BSVD
 template<typename F>
-inline void
-GolubReinschFlame
+SVDInfo GolubReinsch
+( Matrix<F>& A,
+  Matrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
+{
+    DEBUG_CSE
+    const Int m = A.Height();
+    const Int n = A.Width();
+    SVDInfo info;
+
+    // Bidiagonalize A
+    Timer timer;
+    Matrix<F> householderScalarsP, householderScalarsQ;
+    if( ctrl.time )
+        timer.Start();
+    Bidiag( A, householderScalarsP, householderScalarsQ );
+    if( ctrl.time )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
+
+    // Compute the singular values of the bidiagonal matrix
+    const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    const Int offdiagonal = ( uplo==UPPER ? 1 : -1 );
+    auto mainDiag = GetRealPartOfDiagonal( A );
+    auto offDiag = GetRealPartOfDiagonal( A, offdiagonal );
+    if( ctrl.time )
+        timer.Start();
+    info.bidiagSVDInfo =
+      BidiagSVD( uplo, mainDiag, offDiag, s, ctrl.bidiagSVDCtrl );
+    if( ctrl.time )
+        Output("Bidiag SVD: ",timer.Stop()," seconds");
+
+    return info;
+}
+
+template<typename F>
+SVDInfo GolubReinsch
 ( DistMatrix<F>& A,
-  ElementalMatrix<Base<F>>& s, 
-  DistMatrix<F>& V )
+  AbstractDistMatrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = Min( m, n );
-    const Int offdiagonal = ( m>=n ? 1 : -1 );
+    const Grid& g = A.Grid();
+    SVDInfo info;
 
     // Bidiagonalize A
-    const Grid& g = A.Grid();
-    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
-    Bidiag( A, tP, tQ );
+    Timer timer;
+    DistMatrix<F,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
+    Bidiag( A, householderScalarsP, householderScalarsQ );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("Reduction to bidiagonal: ",timer.Stop()," seconds");
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    auto d_MD_STAR = GetRealPartOfDiagonal(A);
-    auto e_MD_STAR = GetRealPartOfDiagonal(A,offdiagonal);
+    const UpperOrLower uplo = ( m>=n ? UPPER : LOWER );
+    const Int offdiagonal = ( uplo==UPPER ? 1 : -1 );
+    auto mainDiag = GetRealPartOfDiagonal(A);
+    auto offDiag = GetRealPartOfDiagonal(A,offdiagonal);
+    if( ctrl.time && g.Rank() == 0 )
+        timer.Start();
+    info.bidiagSVDInfo =
+      BidiagSVD( uplo, mainDiag, offDiag, s, ctrl.bidiagSVDCtrl );
+    if( ctrl.time && g.Rank() == 0 )
+        Output("Bidiag SVD: ",timer.Stop()," seconds");
 
-    // In order to use serial QR kernels, we need the full bidiagonal matrix
-    // on each process
-    typedef Base<F> Real;
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( e_MD_STAR );
-
-    // Initialize U and VAdj to the appropriate identity matrices
-    DistMatrix<F,VC,STAR> U_VC_STAR(g), V_VC_STAR(g);
-    U_VC_STAR.AlignWith( A );
-    V_VC_STAR.AlignWith( V );
-    Identity( U_VC_STAR, m, k );
-    Identity( V_VC_STAR, n, k );
-
-    // Since libFLAME, to the best of my current knowledge, only supports the
-    // upper-bidiagonal case, we may instead work with the adjoint in the 
-    // lower-bidiagonal case.
-    if( m >= n )
-    {
-        flame::BidiagSVD
-        ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(),
-          d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          U_VC_STAR.Buffer(), U_VC_STAR.LDim(),
-          V_VC_STAR.Buffer(), V_VC_STAR.LDim() );
-    }
-    else
-    {
-        flame::BidiagSVD
-        ( k, V_VC_STAR.LocalHeight(), U_VC_STAR.LocalHeight(),
-          d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          V_VC_STAR.Buffer(), V_VC_STAR.LDim(),
-          U_VC_STAR.Buffer(), U_VC_STAR.LDim() );
-    }
-
-    // Make a copy of A (for the Householder vectors) and pull the necessary 
-    // portions of U and V into a standard matrix dist.
-    auto B( A );
-    if( m >= n )
-    {
-        auto UT_VC_STAR = U_VC_STAR( IR(0,n), IR(0,k) );
-        DistMatrix<F> AT(g), AB(g);
-        PartitionDown( A, AT, AB, n );
-        AT = UT_VC_STAR;
-        Zero( AB );
-        V = V_VC_STAR;
-    }
-    else
-    {
-        auto VT_VC_STAR = V_VC_STAR( IR(0,m), IR(0,k) );
-        DistMatrix<F> VT(g), VB(g);
-        PartitionDown( V, VT, VB, m );
-        VT = VT_VC_STAR;
-        Zero( VB );
-    }
-
-    // Backtransform U and V
-    bidiag::ApplyQ( LEFT, NORMAL, B, tQ, A );
-    bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
-
-    // Copy out the appropriate subset of the singular values
-    Copy( d_STAR_STAR, s );
+    return info;
 }
 
 template<typename F>
-inline void
-GolubReinschFlame
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& s, 
-  ElementalMatrix<F>& VPre )
+SVDInfo GolubReinsch
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<Base<F>>& s,
+  const SVDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("svd::GolubReinschFlame"))
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
-    auto& A = AProx.Get();
-    auto& V = VProx.Get();
-    GolubReinschFlame( A, s, V );
-}
-
-template<>
-inline void
-GolubReinsch
-( ElementalMatrix<double>& A,
-  ElementalMatrix<double>& s, 
-  ElementalMatrix<double>& V )
-{
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-    GolubReinschFlame( A, s, V );
-}
-
-template<>
-inline void
-GolubReinsch
-( ElementalMatrix<Complex<double>>& A,
-  ElementalMatrix<double>& s, 
-  ElementalMatrix<Complex<double>>& V )
-{
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-    GolubReinschFlame( A, s, V );
-}
-#endif // EL_HAVE_FLA_BSVD
-
-template<typename F>
-inline void
-GolubReinsch( DistMatrix<F>& A, ElementalMatrix<Base<F>>& s )
-{
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = Min( m, n );
-    const Int offdiagonal = ( m>=n ? 1 : -1 );
-
-    // Bidiagonalize A
-    const Grid& g = A.Grid();
-    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
-    Bidiag( A, tP, tQ );
-
-    // Grab copies of the diagonal and sub/super-diagonal of A
-    auto d_MD_STAR = GetRealPartOfDiagonal(A);
-    auto e_MD_STAR = GetRealPartOfDiagonal(A,offdiagonal);
-
-    // In order to use serial DQDS kernels, we need the full bidiagonal matrix
-    // on each process
-    //
-    // NOTE: lapack::BidiagDQDS expects e to be of length k
-    typedef Base<F> Real;
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               eHat_STAR_STAR( k, 1, g );
-    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), ALL );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Compute the singular values of the bidiagonal matrix via DQDS
-    lapack::BidiagDQDS( k, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer() );
-
-    // Copy out the appropriate subset of the singular values
-    Copy( d_STAR_STAR, s );
-}
-
-template<typename F>
-inline void
-GolubReinsch( ElementalMatrix<F>& APre, ElementalMatrix<Base<F>>& s )
-{
-    DEBUG_ONLY(CSE cse("svd::GolubReinsch"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    GolubReinsch( A, s );
+    return GolubReinsch( A, s, ctrl );
 }
 
 } // namespace svd

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -52,3 +52,28 @@ C_PROTO_COMPLEX_FLOAT
 C_PROTO_COMPLEX_DOUBLE
 # endif
 #endif
+
+#undef C_PROTO
+#undef C_PROTO_INT
+#undef C_PROTO_BIGINT
+
+#undef C_PROTO_REAL
+#undef C_PROTO_FLOAT
+#undef C_PROTO_DOUBLE
+#undef C_PROTO_DOUBLEDOUBLE
+#undef C_PROTO_QUADDOUBLE
+#undef C_PROTO_QUAD
+#undef C_PROTO_BIGFLOAT
+
+#undef C_PROTO_COMPLEX
+#undef C_PROTO_COMPLEX_FLOAT
+#undef C_PROTO_COMPLEX_DOUBLE
+#undef C_PROTO_COMPLEX_QUAD
+
+#undef EL_NO_INT_PROTO
+#undef EL_NO_REAL_PROTO
+#undef EL_NO_FLOAT_PROTO
+#undef EL_NO_DOUBLE_PROTO
+#undef EL_NO_COMPLEX_PROTO
+#undef EL_NO_COMPLEX_FLOAT_PROTO
+#undef EL_NO_COMPLEX_DOUBLE_PROTO

@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 template<typename T,Dist AColDist,Dist ARowDist,Dist BColDist,Dist BRowDist>
@@ -17,14 +17,13 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     DEBUG_ONLY(CallStackEntry cse("Check"))
     const Grid& g = A.Grid();
 
-    const Int commRank = g.Rank();
     const Int height = B.Height();
     const Int width = B.Width();
 
-    if( commRank == 0 )
-        Output
-        ("Testing [",DistToString(AColDist),",",DistToString(ARowDist),"]",
-         " <- [",DistToString(BColDist),",",DistToString(BRowDist),"]");
+    OutputFromRoot
+    (g.Comm(),
+     "Testing [",DistToString(AColDist),",",DistToString(ARowDist),"]",
+     " <- [",DistToString(BColDist),",",DistToString(BRowDist),"]");
     Int colAlign = SampleUniform<Int>(0,A.ColStride());
     Int rowAlign = SampleUniform<Int>(0,A.RowStride());
     mpi::Broadcast( colAlign, 0, g.Comm() );
@@ -56,17 +55,20 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 
     if( summedErrorFlag == 0 )
     {
-        if( commRank == 0 )
-            Output("PASSED");
-    }
-    else
-    {
-        if( commRank == 0 )
-            Output("FAILED");
+        OutputFromRoot(g.Comm(),"PASSED");
         if( print )
             Print( A, "A" );
         if( print ) 
             Print( B, "B" );
+    }
+    else
+    {
+        OutputFromRoot(g.Comm(),"FAILED");
+        if( print )
+            Print( A, "A" );
+        if( print ) 
+            Print( B, "B" );
+        LogicError("Redistribution test failed");
     }
 }
 
@@ -79,7 +81,10 @@ void CheckAll( Int m, Int n, const Grid& g, bool print )
     mpi::Broadcast( colAlign, 0, g.Comm() );
     mpi::Broadcast( rowAlign, 0, g.Comm() );
     A.Align( colAlign, rowAlign );
-    Uniform( A, m, n );
+
+    const T center = 0;
+    const Base<T> radius = 5;
+    Uniform( A, m, n, center, radius );
 
     {
       DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC(g);
@@ -157,6 +162,7 @@ void
 DistMatrixTest( Int m, Int n, const Grid& g, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("DistMatrixTest"))
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<T>());
     CheckAll<T,CIRC,CIRC>( m, n, g, print );
     CheckAll<T,MC,  MR  >( m, n, g, print );
     CheckAll<T,MC,  STAR>( m, n, g, print );
@@ -178,54 +184,52 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",100);
-        const Int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",50);
+        const Int n = Input("--width","width of matrix",50);
         const bool print = Input("--print","print wrong matrices?",false);
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
 
-        if( commRank == 0 )
-            Output("Testing with integers:");
         DistMatrixTest<Int>( m, n, g, print );
 
-        if( commRank == 0 )
-            Output("Testing with floats:");
         DistMatrixTest<float>( m, n, g, print );
-
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        DistMatrixTest<double>( m, n, g, print );
-
-#ifdef EL_HAVE_QUAD
-        if( commRank == 0 )
-            Output("Testing with quads:");
-        DistMatrixTest<Quad>( m, n, g, print );
-#endif
-
-        if( commRank == 0 )
-            Output("Testing with single-precision complex:");
         DistMatrixTest<Complex<float>>( m, n, g, print );
-        
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
+
+        DistMatrixTest<double>( m, n, g, print );
         DistMatrixTest<Complex<double>>( m, n, g, print );
 
+#ifdef EL_HAVE_QD
+        DistMatrixTest<DoubleDouble>( m, n, g, print );
+        DistMatrixTest<QuadDouble>( m, n, g, print );
+#endif
+
 #ifdef EL_HAVE_QUAD
-        if( commRank == 0 )
-            Output("Testing with quad-precision complex:");
+        DistMatrixTest<Quad>( m, n, g, print );
         DistMatrixTest<Complex<Quad>>( m, n, g, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        DistMatrixTest<BigInt>( m, n, g, print );
+        OutputFromRoot(comm,"Setting BigInt precision to 512 bits");
+        mpfr::SetMinIntBits( 512 );
+        DistMatrixTest<BigInt>( m, n, g, print );
+
+        DistMatrixTest<BigFloat>( m, n, g, print );
+        DistMatrixTest<Complex<BigFloat>>( m, n, g, print );
+        OutputFromRoot(comm,"Setting BigFloat precision to 512 bits");
+        mpfr::SetPrecision( 512 );
+        DistMatrixTest<BigFloat>( m, n, g, print );
+        DistMatrixTest<Complex<BigFloat>>( m, n, g, print );
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }

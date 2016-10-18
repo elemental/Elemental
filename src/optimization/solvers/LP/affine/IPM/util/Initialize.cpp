@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "../util.hpp"
 
@@ -74,9 +74,11 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift )
+  bool primalInit,
+  bool dualInit,
+  bool standardShift )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -194,9 +196,11 @@ void Initialize
         ElementalMatrix<Real>& y,
         ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift )
+  bool primalInit,
+  bool dualInit,
+  bool standardShift )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -319,10 +323,12 @@ void Initialize
   const vector<Int>& invMap, 
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift,
+  bool primalInit,
+  bool dualInit,
+  bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
+    DEBUG_CSE
     qp::affine::Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
       primalInit, dualInit, standardShift, solveCtrl );
@@ -346,10 +352,12 @@ void Initialize
         vector<Int>& mappedSources,
         vector<Int>& mappedTargets,
         vector<Int>& colOffs,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit,
+  bool dualInit,
+  bool standardShift, 
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_ONLY(CSE cse("lp::affine::Initialize"))
+    DEBUG_CSE
     qp::affine::Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s,
       map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs,
@@ -367,7 +375,9 @@ void Initialize
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    bool primalInit, bool dualInit, bool standardShift ); \
+    bool primalInit, \
+    bool dualInit, \
+    bool standardShift ); \
   template void Initialize \
   ( const ElementalMatrix<Real>& A, \
     const ElementalMatrix<Real>& G, \
@@ -378,7 +388,9 @@ void Initialize
           ElementalMatrix<Real>& y, \
           ElementalMatrix<Real>& z, \
           ElementalMatrix<Real>& s, \
-    bool primalInit, bool dualInit, bool standardShift ); \
+    bool primalInit, \
+    bool dualInit, \
+    bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& JStatic, \
     const Matrix<Real>& regTmp, \
@@ -393,7 +405,9 @@ void Initialize
     const vector<Int>& invMap, \
     const ldl::Separator& rootSep, \
     const ldl::NodeInfo& info, \
-    bool primalInit, bool dualInit, bool standardShift, \
+    bool primalInit, \
+    bool dualInit, \
+    bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
@@ -412,12 +426,18 @@ void Initialize
           vector<Int>& mappedSources, \
           vector<Int>& mappedTargets, \
           vector<Int>& colOffs, \
-    bool primalInit, bool dualInit, bool standardShift, \
+    bool primalInit, \
+    bool dualInit, \
+    bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace affine
 } // namespace lp

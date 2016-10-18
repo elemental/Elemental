@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace std;
 using namespace El;
 
@@ -18,51 +18,51 @@ void TestCorrectness
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
+    const Int m = A.Height();
     const Int n = A.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( A );
 
     // Form I - Q^H Q
-    if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of Q..." << endl;
+    OutputFromRoot(g.Comm(),"Testing orthogonality of Q");
+    PushIndent();
     DistMatrix<F> Z(g);
     Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
-    Herk( UPPER, ADJOINT, F(-1), Q_MC_MR, F(1), Z );
-    Real oneNormOfError = HermitianOneNorm( UPPER, Z );
-    Real infNormOfError = HermitianInfinityNorm( UPPER, Z );
-    Real frobNormOfError = HermitianFrobeniusNorm( UPPER, Z );
-    if( g.Rank() == 0 )
-    {
-        cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
-             << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
-    }
+    Herk( UPPER, ADJOINT, Base<F>(-1), Q_MC_MR, Base<F>(1), Z );
+    const Real infOrthogError = HermitianInfinityNorm( UPPER, Z );
+    const Real relOrthogError = infOrthogError / (eps*Max(m,n)*oneNormA);
+    OutputFromRoot
+    (g.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n) || A ||_1) = ",relOrthogError);
+    PopIndent();
 
     // Form A - Q R
-    if( g.Rank() == 0 )
-        cout << "  Testing if A = QR..." << endl;
-    const Real oneNormOfA = OneNorm( A );
-    const Real infNormOfA = InfinityNorm( A );
-    const Real frobNormOfA = FrobeniusNorm( A );
+    OutputFromRoot(g.Comm(),"Testing if A = QR");
+    PushIndent();
     LocalGemm( NORMAL, NORMAL, F(-1), Q, R, F(1), A );
-    oneNormOfError = OneNorm( A );
-    infNormOfError = InfinityNorm( A );
-    frobNormOfError = FrobeniusNorm( A );
-    if( g.Rank() == 0 )
-    {
-        cout << "    ||A||_1       = " << oneNormOfA << "\n"
-             << "    ||A||_oo      = " << infNormOfA << "\n"
-             << "    ||A||_F       = " << frobNormOfA << "\n"
-             << "    ||A - QR||_1  = " << oneNormOfError << "\n"
-             << "    ||A - QR||_oo = " << infNormOfError << "\n"
-             << "    ||A - QR||_F  = " << frobNormOfError << endl;
-    }
+    const Real infNormError = InfinityNorm( A );
+    const Real relError = infNormError / (eps*Max(m,n)*oneNormA);
+    OutputFromRoot
+    (g.Comm(),"||A - QR||_oo / (eps Max(m,n) || A ||_1) = ",relError);
+    PopIndent();
+
+    // TODO: More refined failure conditions (especially in this case...)
+    if( relOrthogError > Real(10) )
+        LogicError("Relative orthog error was unacceptably large");
+    if( relError > Real(1) )
+        LogicError("Relative error was unacceptably large");
 }
 
 template<typename F>
 void TestQR
-( bool testCorrectness, bool print,
-  Int m, Int n, const Grid& g )
+( const Grid& g,
+  Int m, 
+  Int n,
+  bool testCorrectness,
+  bool print )
 {
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
     DistMatrix<F,VC,STAR> A(g), Q(g);
     DistMatrix<F,STAR,STAR> R(g);
 
@@ -71,25 +71,17 @@ void TestQR
         Print( A, "A" );
     Q = A;
 
-    if( g.Rank() == 0 )
-    {
-        cout << "  Starting Cholesky QR factorization...";
-        cout.flush();
-    }
+    OutputFromRoot(g.Comm(),"Starting Cholesky QR factorization");
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     qr::Cholesky( Q, R );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double gFlops = (2.*mD*nD*nD + 1./3.*nD*nD*nD)/(1.e9*runTime);
-    if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
+    OutputFromRoot(g.Comm(),"Time: ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( Q, "Q" );
@@ -97,6 +89,7 @@ void TestQR
     }
     if( testCorrectness )
         TestCorrectness( Q, R, A );
+    PopIndent();
 }
 
 int 
@@ -104,7 +97,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -115,23 +107,41 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpfr::SetPrecision( prec );
+#endif
 
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            cout << "Will test CholeskyQR" << endl;
 
-        if( commRank == 0 )
-            cout << "Testing with doubles:" << endl;
-        TestQR<double>( testCorrectness, print, m, n, g );
+        TestQR<float>( g, m, n, testCorrectness, print );
+        TestQR<Complex<float>>( g, m, n, testCorrectness, print );
 
-        if( commRank == 0 )
-            cout << "Testing with double-precision complex:" << endl;
-        TestQR<double>( testCorrectness, print, m, n, g );
+        TestQR<double>( g, m, n, testCorrectness, print );
+        TestQR<Complex<double>>( g, m, n, testCorrectness, print );
+
+#ifdef EL_HAVE_QD
+        TestQR<DoubleDouble>( g, m, n, testCorrectness, print );
+        TestQR<QuadDouble>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestQR<Quad>( g, m, n, testCorrectness, print );
+        TestQR<Complex<Quad>>( g, m, n, testCorrectness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestQR<BigFloat>( g, m, n, testCorrectness, print );
+        TestQR<Complex<BigFloat>>( g, m, n, testCorrectness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

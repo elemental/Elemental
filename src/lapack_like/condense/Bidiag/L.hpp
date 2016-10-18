@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_BIDIAG_L_HPP
 #define EL_BIDIAG_L_HPP
 
@@ -19,22 +18,22 @@ namespace bidiag {
 // NOTE: Very little is changed versus the upper case. Perhaps they should be
 //       combined.
 template<typename F>
-inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+void L
+( Matrix<F>& A,
+  Matrix<F>& householderScalarsP,
+  Matrix<F>& householderScalarsQ )
 {
-    DEBUG_ONLY(CSE cse("bidiag::L"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
       if( m > n )
           LogicError("A must be at least as wide as it is tall");
-      // Are these requirements necessary?!?
-      if( tP.Viewing() || tQ.Viewing() )
-          LogicError("tP and tQ must not be views");
     )
-    const Int tPHeight = m;
-    const Int tQHeight = Max(m-1,0);
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int householderScalarsPHeight = m;
+    const Int householderScalarsQHeight = Max(m-1,0);
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
 
     Matrix<F> X, Y;
 
@@ -49,24 +48,25 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         auto A22 = A( ind2, ind2 );
         auto ABR = A( indB, indR );
 
-        auto tP1 = tP( ind1, ALL );
+        auto householderScalarsP1 = householderScalarsP( ind1, ALL );
 
         if( A22.Height() > 0 )
         {
             auto A12 = A( ind1, ind2 );
             auto A21 = A( ind2, ind1 );
 
-            auto tQ1 = tQ( ind1, ALL );
+            auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::LPan( ABR, tP1, tQ1, X, Y );
+            bidiag::LPan
+            ( ABR, householderScalarsP1, householderScalarsQ1, X, Y );
 
             auto X21 = X( IR(nb,END), ALL        );
             auto Y12 = Y( ALL,        IR(nb,END) );
 
             // Set top-right entry of A21 to 1
-            const F epsilon = A21.Get(0,nb-1);
-            A21.Set(0,nb-1,F(1));
+            const F epsilon = A21(0,nb-1);
+            A21(0,nb-1) = F(1);
 
             Gemm( NORMAL, NORMAL, F(-1), A21, Y12, F(1), A22 );
             Conjugate( A12 );
@@ -74,12 +74,13 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             Conjugate( A12 );
 
             // Put back top-right entry of A21
-            A21.Set(0,nb-1,epsilon);
+            A21(0,nb-1) = epsilon;
         }
         else
         {
-            auto tQ1 = tQ( IR(k,k+nb-1), ALL );
-            bidiag::LUnb( ABR, tP1, tQ1 );
+            auto householderScalarsQ1 =
+              householderScalarsQ( IR(k,k+nb-1), ALL );
+            bidiag::LUnb( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
@@ -87,33 +88,30 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 // NOTE: Very little is different from the upper case. Perhaps they should
 //       be combined.
 template<typename F> 
-inline void
+void
 L
 ( DistMatrix<F>& A, 
-  DistMatrix<F,STAR,STAR>& tP,
-  DistMatrix<F,STAR,STAR>& tQ )
+  DistMatrix<F,STAR,STAR>& householderScalarsP,
+  DistMatrix<F,STAR,STAR>& householderScalarsQ )
 {
-    DEBUG_ONLY(
-      CSE cse("bidiag::L");
-      AssertSameGrids( A, tP, tQ );
-    )
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     DEBUG_ONLY(
+      AssertSameGrids( A, householderScalarsP, householderScalarsQ );
       if( m > n )
           LogicError("A must be at least as wide as it is tall");
-      // Are these requirements necessary?!?
-      if( tP.Viewing() || tQ.Viewing() )
-          LogicError("tP and tQ must not be views");
     )
     const Grid& g = A.Grid();
-    const Int tPHeight = m;
-    const Int tQHeight = Max(m-1,0);
-    tP.Resize( tPHeight, 1 );
-    tQ.Resize( tQHeight, 1 );
+    const Int householderScalarsPHeight = m;
+    const Int householderScalarsQHeight = Max(m-1,0);
+    householderScalarsP.Resize( householderScalarsPHeight, 1 );
+    householderScalarsQ.Resize( householderScalarsQHeight, 1 );
     if( g.Size() == 1 )
     {
-        L( A.Matrix(), tP.Matrix(), tQ.Matrix() );
+        L
+        ( A.Matrix(), householderScalarsP.Matrix(),
+          householderScalarsQ.Matrix() );
         return;
     }
 
@@ -135,7 +133,7 @@ L
         auto A22 = A( ind2, ind2 );
         auto ABR = A( indB, indR );
 
-        auto tP1 = tP( ind1, ALL );
+        auto householderScalarsP1 = householderScalarsP( ind1, ALL );
 
         if( A22.Height() > 0 )
         {
@@ -149,8 +147,10 @@ L
             AB1_MC_STAR.Resize( m-k, nb  );
             A1R_STAR_MR.Resize( nb,  n-k );
 
-            auto tQ1 = tQ( ind1, ALL );
-            bidiag::LPan( ABR, tP1, tQ1, X, Y, AB1_MC_STAR, A1R_STAR_MR );
+            auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
+            bidiag::LPan
+            ( ABR, householderScalarsP1, householderScalarsQ1, X, Y,
+              AB1_MC_STAR, A1R_STAR_MR );
 
             auto X21 = X( IR(nb,END), ALL        );
             auto Y12 = Y( ALL,        IR(nb,END) );
@@ -170,29 +170,29 @@ L
         }
         else
         {
-            auto tQ1 = tQ( IR(k,k+nb-1), ALL );
-            bidiag::LUnb( ABR, tP1, tQ1 );
+            auto householderScalarsQ1 = householderScalarsQ( IR(k,k+nb-1), ALL );
+            bidiag::LUnb( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
 
 template<typename F> 
-inline void
+void
 L
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& tPPre,
-  ElementalMatrix<F>& tQPre )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& householderScalarsPPre,
+  AbstractDistMatrix<F>& householderScalarsQPre )
 {
-    DEBUG_ONLY(CSE cse("bidiag::L"))
+    DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
-      tPProx( tPPre ),
-      tQProx( tQPre );
+      householderScalarsPProx( householderScalarsPPre ),
+      householderScalarsQProx( householderScalarsQPre );
     auto& A = AProx.Get();
-    auto& tP = tPProx.Get();
-    auto& tQ = tQProx.Get();
-    L( A, tP, tQ );
+    auto& householderScalarsP = householderScalarsPProx.Get();
+    auto& householderScalarsQ = householderScalarsQProx.Get();
+    L( A, householderScalarsP, householderScalarsQ );
 }
 
 } // namespace bidiag

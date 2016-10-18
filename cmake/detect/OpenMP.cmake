@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -13,7 +13,7 @@ if(OpenMP_C_FLAGS AND OpenMP_CXX_FLAGS)
   message(STATUS "Using prespecified OpenMP_C_FLAGS=${OpenMP_C_FLAGS}")
   message(STATUS "Using prespecified OpenMP_CXX_FLAGS=${OpenMP_CXX_FLAGS}")
 else()
-  find_package(OpenMP)
+  find_package(OpenMP QUIET)
   if(OPENMP_FOUND)
     set(EL_HAVE_OPENMP TRUE)
   else()

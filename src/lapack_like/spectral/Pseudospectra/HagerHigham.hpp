@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_PSEUDOSPECTRA_HAGERHIGHAM_HPP
 #define EL_PSEUDOSPECTRA_HAGERHIGHAM_HPP
 
@@ -16,7 +15,7 @@ namespace El {
 namespace pspec {
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 OneNormConvergenceTest
 (       Matrix<Complex<Real>>& activeX,
   const Matrix<Complex<Real>>& activeY,
@@ -25,7 +24,7 @@ OneNormConvergenceTest
         Matrix<Int >& activeItCounts,
         Int numIts )
 {
-    DEBUG_ONLY(CSE cse("pspec::OneNormConvergenceTest"))
+    DEBUG_CSE
     typedef Complex<Real> C;
     const Int n = activeX.Height();
 
@@ -41,7 +40,7 @@ OneNormConvergenceTest
         valueInts[j].value = 0;
         for( Int i=0; i<n; ++i )
         {
-            const Real absVal = Abs(activeZ.Get(i,j));
+            const Real absVal = Abs(activeZ(i,j));
             if( absVal > valueInts[j].value )
             {
                 valueInts[j].value = absVal;
@@ -67,24 +66,24 @@ OneNormConvergenceTest
     for( Int j=0; j<numActiveShifts; ++j )
     {
         const Real gamma = blas::Nrm1( n, activeY.LockedBuffer(0,j), 1 );
-        activeEsts.Set( j, 0, gamma );
+        activeEsts(j) = gamma;
         if( numIts > 0 && valueInts[j].value <= innerProds[j] )
         {
-            activeConverged.Set( j, 0, 1 );
+            activeConverged(j) = 1;
         }
         else
         {
             for( Int i=0; i<n; ++i )
-                activeX.Set( i, j, 0 );
-            activeX.Set( valueInts[j].index, j, 1 );
-            activeItCounts.Update( j, 0, 1 );
+                activeX(i,j) = 0;
+            activeX( valueInts[j].index, j ) = 1;
+            ++activeItCounts(j);
         }
     }
     return activeConverged;
 }
 
 template<typename Real>
-inline DistMatrix<Int,MR,STAR>
+DistMatrix<Int,MR,STAR>
 OneNormConvergenceTest
 (       DistMatrix<Complex<Real>>& activeX,
   const DistMatrix<Complex<Real>>& activeY,
@@ -93,25 +92,25 @@ OneNormConvergenceTest
         DistMatrix<Int ,VR,STAR>& activeItCounts,
         Int numIts )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("pspec::OneNormConvergenceTest");
-        if( activeX.Height() != activeY.Height() || 
-            activeY.Height() != activeZ.Height() )
-            LogicError("active{X,Y,Z} should be the same height");
-        if( activeX.Width() != activeY.Width() || 
-            activeY.Width() != activeZ.Width() )
-            LogicError("active{X,Y,Z} should be the same height");
-        if( activeX.ColAlign() != activeY.ColAlign() || 
-            activeY.ColAlign() != activeZ.ColAlign() )
-            LogicError("active{X,Y,Z} should be column aligned");
-        if( activeX.RowAlign() != activeY.RowAlign() || 
-            activeY.RowAlign() != activeZ.RowAlign() )
-            LogicError("active{X,Y,Z} should be row aligned");
-        if( activeZ.RowAlign() != activeEsts.ColAlign() )
-            LogicError("Invalid activeZ alignment");
-        if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
-            activeEsts.ColAlign() )
-            LogicError("Invalid column alignment");
+      if( activeX.Height() != activeY.Height() || 
+          activeY.Height() != activeZ.Height() )
+          LogicError("active{X,Y,Z} should be the same height");
+      if( activeX.Width() != activeY.Width() || 
+          activeY.Width() != activeZ.Width() )
+          LogicError("active{X,Y,Z} should be the same height");
+      if( activeX.ColAlign() != activeY.ColAlign() || 
+          activeY.ColAlign() != activeZ.ColAlign() )
+          LogicError("active{X,Y,Z} should be column aligned");
+      if( activeX.RowAlign() != activeY.RowAlign() || 
+          activeY.RowAlign() != activeZ.RowAlign() )
+          LogicError("active{X,Y,Z} should be row aligned");
+      if( activeZ.RowAlign() != activeEsts.ColAlign() )
+          LogicError("Invalid activeZ alignment");
+      if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
+          activeEsts.ColAlign() )
+          LogicError("Invalid column alignment");
     )
     typedef Complex<Real> C;
     const Int nLoc = activeX.LocalHeight();
@@ -120,6 +119,11 @@ OneNormConvergenceTest
     DistMatrix<Int,MR,STAR> activeConverged( activeEsts.Grid() );
     activeConverged.AlignWith( activeEsts );
     Zeros( activeConverged, numActiveShifts, 1 );
+
+    auto& activeXLoc = activeX.Matrix();
+    auto& activeZLoc = activeZ.LockedMatrix();
+    auto& activeEstsLoc = activeEsts.Matrix();
+    auto& activeConvergedLoc = activeConverged.Matrix();
 
     // Compute the infinity norm of each local column of Z and its location
     const Int numLocShifts = activeEsts.LocalHeight();
@@ -130,7 +134,7 @@ OneNormConvergenceTest
         valueInts[jLoc].index = 0;
         for( Int iLoc=0; iLoc<nLoc; ++iLoc )
         {
-            const Real absVal = Abs(activeZ.GetLocal(iLoc,jLoc));
+            const Real absVal = Abs(activeZLoc(iLoc,jLoc));
             if( absVal > valueInts[jLoc].value )
             {
                 valueInts[jLoc].value = absVal;
@@ -167,15 +171,15 @@ OneNormConvergenceTest
     // Check for convergence
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
-        activeEsts.SetLocal( jLoc, 0, oneNorms[jLoc] );
+        activeEstsLoc(jLoc) = oneNorms[jLoc];
         if( numIts > 0 && valueInts[jLoc].value <= innerProds[jLoc] )
         {
-            activeConverged.SetLocal( jLoc, 0, 1 );
+            activeConvergedLoc(jLoc) = 1;
         }
         else
         {
             for( Int iLoc=0; iLoc<nLoc; ++iLoc )
-                activeX.SetLocal( iLoc, jLoc, 0 );
+                activeXLoc(iLoc,jLoc) = 0;
             const Int j = activeEsts.GlobalRow(jLoc);
             activeX.Set( valueInts[jLoc].index, j, 1 );
             activeItCounts.Update( j, 0, 1 );
@@ -186,13 +190,14 @@ OneNormConvergenceTest
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 HagerHigham
 ( const Matrix<Complex<Real>>& U,
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -213,7 +218,7 @@ HagerHigham
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -323,8 +328,9 @@ HagerHigham
     // cancellation in large entries in inv(U - zI)
     for( Int j=0; j<numShifts; ++j )
         for( Int i=0; i<n; ++i )
-            X.Set( i, j, (i%2==0 ?  Real(i+n-1)/Real(n-1)  
-                                 : -Real(i+n-1)/Real(n-1) ) );
+            X(i,j) = 
+              (i%2==0 ?  Real(i+n-1)/Real(n-1)  
+                      : -Real(i+n-1)/Real(n-1) );
     if( psCtrl.schur )
         MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), UCopy, shifts, X );
     else
@@ -333,8 +339,8 @@ HagerHigham
     {
         const Real oneNorm = blas::Nrm1( n, X.LockedBuffer(0,j), 1 );
         const Real heurNorm = 2*oneNorm/(3*Real(n));
-        if( heurNorm > invNorms.Get(j,0) )
-            invNorms.Set( j, 0, heurNorm );
+        if( heurNorm > invNorms(j) )
+            invNorms(j) = heurNorm;
     }
 
     FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
@@ -342,13 +348,15 @@ HagerHigham
 }
 
 template<typename Real>
-inline Matrix<Int>
+Matrix<Int>
 HagerHigham
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& Q, 
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& Q, 
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms,
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -369,7 +377,7 @@ HagerHigham
     {
         preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
+            preimage(j) = j;
     }
 
     psCtrl.snapCtrl.ResetCounts();
@@ -486,8 +494,8 @@ HagerHigham
         return itCounts;
     auto x = X( ALL, IR(0) );
     for( Int i=0; i<n; ++i )
-        x.Set( i, 0, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
-                             : -Real(i+n-1)/Real(n-1) ) );
+        x(i) = (i%2==0 ?  Real(i+n-1)/Real(n-1) 
+                       : -Real(i+n-1)/Real(n-1) );
     Matrix<C> yRep;
     Gemv( ADJOINT, C(1), Q, x, yRep );
     Matrix<C> Y( n, numShifts );
@@ -505,8 +513,8 @@ HagerHigham
     {
         const Real oneNorm = blas::Nrm1( n, X.LockedBuffer(0,j), 1 );
         const Real heurNorm = 2*oneNorm/(3*Real(n));
-        if( heurNorm > invNorms.Get(j,0) )
-            invNorms.Set( j, 0, heurNorm );
+        if( heurNorm > invNorms(j) )
+            invNorms(j) = heurNorm;
     }
 
     FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
@@ -514,14 +522,14 @@ HagerHigham
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 HagerHigham
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& shiftsPre, 
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadProxy<C,C,MC,MR> UProx( UPre );
@@ -673,14 +681,14 @@ HagerHigham
 
     // Solve one final linear system to attempt to counteract possible
     // cancellation in large entries in inv(U - zI)
+    auto& XLoc = X.Matrix();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         for( Int iLoc=0; iLoc<nLoc; ++iLoc )
         {
             const Int i = X.GlobalRow(iLoc);
-            X.SetLocal
-            ( iLoc, jLoc, (i%2==0 ?  Real(i+n-1)/Real(n-1) : 
-                                    -Real(i+n-1)/Real(n-1) ) );
+            XLoc(iLoc,jLoc) = (i%2==0 ?  Real(i+n-1)/Real(n-1) : 
+                                        -Real(i+n-1)/Real(n-1) );
         }
     }
     if( psCtrl.schur )
@@ -698,11 +706,12 @@ HagerHigham
     DistMatrix<Real,MR,STAR> invNorms_MR_STAR(g);
     invNorms_MR_STAR.AlignWith( X );
     invNorms_MR_STAR = invNorms;
+    auto& invNormsLoc = invNorms_MR_STAR.Matrix();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         const Real heurNorm = 2*oneNorms[jLoc]/(3*Real(n));
-        if( heurNorm > invNorms_MR_STAR.GetLocal(jLoc,0) )
-            invNorms_MR_STAR.SetLocal( jLoc, 0, heurNorm );
+        if( heurNorm > invNormsLoc(jLoc) )
+            invNormsLoc(jLoc) =  heurNorm;
     }
     invNorms = invNorms_MR_STAR;
 
@@ -711,7 +720,7 @@ HagerHigham
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
+DistMatrix<Int,VR,STAR>
 HagerHigham
 ( const ElementalMatrix<Complex<Real>>& UPre, 
   const ElementalMatrix<Complex<Real>>& QPre,
@@ -719,7 +728,7 @@ HagerHigham
         ElementalMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CSE cse("pspec::HagerHigham"))
+    DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -922,11 +931,12 @@ HagerHigham
     DistMatrix<Real,MR,STAR> invNorms_MR_STAR(g);
     invNorms_MR_STAR.AlignWith( X );
     invNorms_MR_STAR = invNorms;
+    auto& invNormsLoc = invNorms_MR_STAR.Matrix();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         const Real heurNorm = 2*oneNorms[jLoc]/(3*Real(n));
-        if( heurNorm > invNorms_MR_STAR.GetLocal(jLoc,0) )
-            invNorms_MR_STAR.SetLocal( jLoc, 0, heurNorm );
+        if( heurNorm > invNormsLoc(jLoc) )
+            invNormsLoc(jLoc) =  heurNorm;
     }
     invNorms = invNorms_MR_STAR;
 

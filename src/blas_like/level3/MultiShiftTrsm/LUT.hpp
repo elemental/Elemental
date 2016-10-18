@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,14 +11,13 @@ namespace El {
 namespace mstrsm {
 
 template<typename F>
-inline void
-LUT
+void LUT
 ( Orientation orientation,
         Matrix<F>& U,
   const Matrix<F>& shifts,
         Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CSE cse("mstrsm::LUT"))
+    DEBUG_CSE
 
     const Int m = X.Height();
     const Int bsize = Blocksize();
@@ -42,14 +41,13 @@ LUT
 }
 
 template<typename F>
-inline void
-LUT
+void LUT
 ( Orientation orientation,
-  const ElementalMatrix<F>& UPre,
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre ) 
+  const AbstractDistMatrix<F>& UPre,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("mstrsm::LUT"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );

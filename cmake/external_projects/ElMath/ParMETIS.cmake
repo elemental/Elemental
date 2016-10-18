@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -18,7 +18,7 @@ if(NOT EL_FORCE_PARMETIS_BUILD)
     include(CheckFunctionExists)
     set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
     set(CMAKE_REQUIRED_LINKER_FLAGS
-      "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+      "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
     set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
     set(CMAKE_REQUIRED_LIBRARIES ${PARMETIS_LIBRARIES} ${MPI_C_LIBRARIES})
     El_check_function_exists(ParMETIS_ComputeVertexSeparator 
@@ -48,7 +48,7 @@ if(USE_FOUND_PARMETIS)
 
 elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
   if(NOT DEFINED PARMETIS_URL)
-    set(PARMETIS_URL https://github.com/poulson/parmetis.git)
+    set(PARMETIS_URL https://github.com/scibuilder/parmetis.git)
   endif()
   message(STATUS "Will pull ParMETIS from ${PARMETIS_URL}")
 
@@ -77,11 +77,14 @@ elseif(NOT EL_PREVENT_PARMETIS_DOWNLOAD)
       -D PCRE=${METIS_PCRE}
       -D GKREGEX=${METIS_GKREGEX}
       -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -D CMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D CMAKE_EXECUTABLE_SUFFIX_C=${CMAKE_EXECUTABLE_SUFFIX_C}
       -D MPI_C_INCLUDE_PATH=${MPI_C_INCSTRING}
+      -D MPI_C_COMPILE_FLAGS=${MPI_C_COMPILE_FLAGS}
       -D MPI_C_LIBRARIES=${MPI_C_LIBSTRING}
-      -D MPI_LINK_FLAGS=${MPI_LINK_FLAGS}
+      -D MPI_C_LINK_FLAGS=${MPI_C_LINK_FLAGS}
       -D DISABLE_PARMETIS_PROGRAMS=ON
       -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}
       -D CMAKE_SKIP_RPATH=${CMAKE_SKIP_RPATH}

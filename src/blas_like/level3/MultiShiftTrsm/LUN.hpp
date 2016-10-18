@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,16 +11,15 @@ namespace El {
 namespace mstrsm {
 
 template<typename F>
-inline void
-LeftUnb
+void LeftUnb
 ( UpperOrLower uplo,
   Orientation orientation,
         Matrix<F>& T,
   const Matrix<F>& shifts,
         Matrix<F>& X ) 
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("mstrsm::LeftUnb");
       if( shifts.Height() != X.Width() )
           LogicError("Incompatible number of shifts");
     )
@@ -47,10 +46,9 @@ LeftUnb
 }
 
 template<typename F>
-inline void
-LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
+void LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CSE cse("mstrsm::LUN"))
+    DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
@@ -74,13 +72,12 @@ LUN( Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 }
 
 template<typename F>
-inline void
-LUN
-( const ElementalMatrix<F>& UPre, 
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre ) 
+void LUN
+( const AbstractDistMatrix<F>& UPre, 
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_ONLY(CSE cse("mstrsm::LUN"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );

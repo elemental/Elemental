@@ -1,12 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level2.hpp>
 
 #include "./Symv/L.hpp"
 #include "./Symv/U.hpp"
@@ -23,8 +24,8 @@ void Symv
         Matrix<T>& y,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Symv");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -59,27 +60,27 @@ template<typename T>
 void Symv
 ( UpperOrLower uplo,
   T alpha,
-  const ElementalMatrix<T>& APre,
-  const ElementalMatrix<T>& x,
+  const AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<T>& x,
   T beta,
-        ElementalMatrix<T>& yPre,
+        AbstractDistMatrix<T>& yPre,
   bool conjugate,
   const SymvCtrl<T>& ctrl )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("Symv");
-        AssertSameGrids( APre, x, yPre );
-        if( APre.Height() != APre.Width() )
-            LogicError("A must be square");
-        if( ( x.Width() != 1 && x.Height() != 1 ) ||
-            ( yPre.Width() != 1 && yPre.Height() != 1 ) )
-            LogicError("x and y are assumed to be vectors");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
-        if( APre.Height() != xLength || APre.Height() != yLength )
-            LogicError
-            ("Nonconformal Symv: \n",DimsString(APre,"A"),"\n",
-             DimsString(x,"x"),"\n",DimsString(yPre,"y"));
+      AssertSameGrids( APre, x, yPre );
+      if( APre.Height() != APre.Width() )
+          LogicError("A must be square");
+      if( ( x.Width() != 1 && x.Height() != 1 ) ||
+          ( yPre.Width() != 1 && yPre.Height() != 1 ) )
+          LogicError("x and y are assumed to be vectors");
+      const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+      const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
+      if( APre.Height() != xLength || APre.Height() != yLength )
+          LogicError
+          ("Nonconformal Symv: \n",DimsString(APre,"A"),"\n",
+           DimsString(x,"x"),"\n",DimsString(yPre,"y"));
     )
     const Grid& g = APre.Grid();
 
@@ -103,8 +104,10 @@ void Symv
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, y.Height(), 1 );
-        Zeros( z_MR_STAR, y.Height(), 1 );
+        z_MC_STAR.Resize( y.Height(), 1 );
+        z_MR_STAR.Resize( y.Height(), 1 );
+        Zero( z_MC_STAR );
+        Zero( z_MR_STAR );
         if( uplo == LOWER )
         {
             symv::LocalColAccumulateL
@@ -141,8 +144,10 @@ void Symv
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         z_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MC_STAR, y.Width(), 1 );
-        Zeros( z_MR_STAR, y.Width(), 1 );
+        z_MC_STAR.Resize( y.Width(), 1 );
+        z_MR_STAR.Resize( y.Width(), 1 );
+        Zero( z_MC_STAR );
+        Zero( z_MR_STAR );
         if( uplo == LOWER )
         {
             symv::LocalColAccumulateL
@@ -183,8 +188,10 @@ void Symv
         DistMatrix<T,STAR,MR> z_STAR_MR(g);
         z_STAR_MC.AlignWith( A );
         z_STAR_MR.AlignWith( A );
-        Zeros( z_STAR_MC, 1, y.Height() );
-        Zeros( z_STAR_MR, 1, y.Height() );
+        z_STAR_MC.Resize( 1, y.Height() );
+        z_STAR_MR.Resize( 1, y.Height() );
+        Zero( z_STAR_MC );
+        Zero( z_STAR_MR );
         if( uplo == LOWER )
         {
             symv::LocalRowAccumulateL
@@ -225,8 +232,10 @@ void Symv
         DistMatrix<T,STAR,MR> z_STAR_MR(g);
         z_STAR_MR.AlignWith( A );
         z_STAR_MC.AlignWith( A );
-        Zeros( z_STAR_MC, 1, y.Width() );
-        Zeros( z_STAR_MR, 1, y.Width() );
+        z_STAR_MR.Resize( 1, y.Width() );
+        z_STAR_MC.Resize( 1, y.Width() );
+        Zero( z_STAR_MR );
+        Zero( z_STAR_MC );
         if( uplo == LOWER )
         {
             symv::LocalRowAccumulateL
@@ -308,10 +317,10 @@ void LocalRowAccumulate
   template void Symv \
   ( UpperOrLower uplo, \
     T alpha, \
-    const ElementalMatrix<T>& A, \
-    const ElementalMatrix<T>& x, \
+    const AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<T>& x, \
     T beta, \
-          ElementalMatrix<T>& y, \
+          AbstractDistMatrix<T>& y, \
     bool conjugate, \
     const SymvCtrl<T>& ctrl ); \
   template void symv::LocalColAccumulate \
@@ -333,7 +342,11 @@ void LocalRowAccumulate
           DistMatrix<T,STAR,MR>& z_STAR_MR, bool conjugate, \
     const SymvCtrl<T>& ctrl );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

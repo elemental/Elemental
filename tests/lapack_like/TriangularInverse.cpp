@@ -1,89 +1,146 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 template<typename F> 
 void TestCorrectness
-( bool print,
-  UpperOrLower uplo,
+( UpperOrLower uplo,
+  UnitOrNonUnit diag,
+  const Matrix<F>& A,
+  const Matrix<F>& AOrig,
+  bool print )
+{
+    typedef Base<F> Real;
+    const Int m = AOrig.Height();
+    const Real oneNormA = OneNorm( AOrig );
+    const Real eps = limits::Epsilon<Real>();
+
+    // Test I - inv(A) A
+    Matrix<F> X;
+    X = AOrig;
+    MakeTrapezoidal( uplo, X );
+    Trmm( LEFT, uplo, NORMAL, diag, F(1), A, X );
+    ShiftDiagonal( X, F(-1) );
+
+    const Real maxError = MaxNorm( X );
+    const Real relError = maxError / (eps*m*oneNormA);
+    Output("||I - inv(A) A||_max / (eps m ||A||_1) = ",relError);
+
+    // TODO: More rigorous failure condition
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
+}
+
+template<typename F> 
+void TestCorrectness
+( UpperOrLower uplo,
   UnitOrNonUnit diag,
   const DistMatrix<F>& A,
-  const DistMatrix<F>& AOrig )
+  const DistMatrix<F>& AOrig,
+  bool print )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
+    const Real oneNormA = OneNorm( AOrig );
+    const Real eps = limits::Epsilon<Real>();
 
-    DistMatrix<F> X(g), Y(g);
-    Uniform( X, m, 100 );
-    Y = X;
+    // Test I - inv(A) A
+    DistMatrix<F> X(g);
+    X = AOrig;
+    MakeTrapezoidal( uplo, X );
+    Trmm( LEFT, uplo, NORMAL, diag, F(1), A, X );
+    ShiftDiagonal( X, F(-1) );
 
-    // Since A o A^-1 = I, test the change introduced by the approximate comp.
-    Trmm( LEFT, uplo, NORMAL, diag, F(1), A,     Y );
-    Trmm( LEFT, uplo, NORMAL, diag, F(1), AOrig, Y );
-    Y -= X;
+    const Real maxError = MaxNorm( X );
+    const Real relError = maxError / (eps*m*oneNormA);
+    OutputFromRoot
+    (g.Comm(),
+     "||I - inv(A) A||_max / (eps m ||A||_1) = ",relError);
 
-    const Real oneNormOrig = OneNorm( AOrig );
-    const Real infNormOrig = InfinityNorm( AOrig );
-    const Real frobNormOrig = FrobeniusNorm( AOrig );
-    const Real oneNormFinal = OneNorm( A );
-    const Real infNormFinal = InfinityNorm( A );
-    const Real frobNormFinal = FrobeniusNorm( A );
-    const Real oneNormError = OneNorm( Y );
-    const Real infNormError = InfinityNorm( Y );
-    const Real frobNormError = FrobeniusNorm( Y );
-    if( g.Rank() == 0 )
-        Output
-        ("||A||_1           = ",oneNormOrig,"\n",
-         "||A||_oo          = ",infNormOrig,"\n",
-         "||A||_F           = ",frobNormOrig,"\n",
-         "||A^-1||_1        = ",oneNormFinal,"\n",
-         "||A^-1||_oo       = ",infNormFinal,"\n",
-         "||A^-1||_F        = ",frobNormFinal,"\n",
-         "||A A^-1 - I||_1  = ",oneNormError,"\n",
-         "||A A^-1 - I||_oo = ",infNormError,"\n",
-         "||A A^-1 - I||_F  = ",frobNormError);
+    // TODO: More rigorous failure condition
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
 }
 
 template<typename F> 
 void TestTriangularInverse
-( bool testCorrectness,
-  bool print,
-  UpperOrLower uplo,
+( UpperOrLower uplo,
   UnitOrNonUnit diag,
   Int m,
-  const Grid& g )
+  bool correctness,
+  bool print )
 {
-    DistMatrix<F> A(g), AOrig(g);
-    HermitianUniformSpectrum( A, m, 1, 10 );
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+
+    Matrix<F> A, AOrig;
+    Uniform( A, m, m );
     MakeTrapezoidal( uplo, A );
-    if( testCorrectness )
+    ShiftDiagonal( A, F(3) );
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting triangular inversion...");
-    mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Output("Starting triangular inversion...");
+    Timer timer;
+    timer.Start();
     TriangularInverse( uplo, diag, A );
-    mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Time = ",runTime," seconds (",gFlops," GFlop/s)");
+    Output("Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( A, "A after inversion" );
-    if( testCorrectness )
-        TestCorrectness( print, uplo, diag, A, AOrig );
+    if( correctness )
+        TestCorrectness( uplo, diag, A, AOrig, print );
+    PopIndent();
+}
+
+template<typename F> 
+void TestTriangularInverse
+( const Grid& g,
+  UpperOrLower uplo,
+  UnitOrNonUnit diag,
+  Int m,
+  bool correctness,
+  bool print )
+{
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
+    DistMatrix<F> A(g), AOrig(g);
+    Uniform( A, m, m );
+    MakeTrapezoidal( uplo, A );
+    ShiftDiagonal( A, F(3) );
+    if( correctness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+
+    OutputFromRoot(g.Comm(),"Starting triangular inversion...");
+    mpi::Barrier( g.Comm() );
+    Timer timer;
+    timer.Start();
+    TriangularInverse( uplo, diag, A );
+    mpi::Barrier( g.Comm() );
+    const double runTime = timer.Stop();
+    const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    OutputFromRoot(g.Comm(),"Time = ",runTime," seconds (",gFlops," GFlop/s)");
+    if( print )
+        Print( A, "A after inversion" );
+    if( correctness )
+        TestCorrectness( uplo, diag, A, AOrig, print );
+    PopIndent();
 }
 
 int 
@@ -91,44 +148,115 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
+
+#ifdef EL_HAVE_MPC
+        mpfr::SetPrecision( prec );
+#endif
 
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test TriangularInverse",uploChar,diagChar);
+        OutputFromRoot
+        (g.Comm(),"Will test TriangularInverse",uploChar,diagChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestTriangularInverse<float>
+            ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<Complex<float>>
+            ( uplo, diag, m, correctness, print );
+
+            TestTriangularInverse<double>
+            ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<Complex<double>>
+            ( uplo, diag, m, correctness, print );
+
+#ifdef EL_HAVE_QD
+            TestTriangularInverse<DoubleDouble>
+            ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<QuadDouble>
+            ( uplo, diag, m, correctness, print );
+
+            TestTriangularInverse<Complex<DoubleDouble>>
+            ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<Complex<QuadDouble>>
+            ( uplo, diag, m, correctness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+            TestTriangularInverse<Quad>
+            ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<Complex<Quad>>
+            ( uplo, diag, m, correctness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+            TestTriangularInverse<BigFloat>
+            ( uplo, diag, m, correctness, print );
+            TestTriangularInverse<Complex<BigFloat>>
+            ( uplo, diag, m, correctness, print );
+#endif
+        }
+
+        TestTriangularInverse<float>
+        ( g, uplo, diag, m, correctness, print );
+        TestTriangularInverse<Complex<float>>
+        ( g, uplo, diag, m, correctness, print );
+
         TestTriangularInverse<double>
-        ( testCorrectness, print, uplo, diag, m, g );
-
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
+        ( g, uplo, diag, m, correctness, print );
         TestTriangularInverse<Complex<double>>
-        ( testCorrectness, print, uplo, diag, m, g );
+        ( g, uplo, diag, m, correctness, print );
+
+#ifdef EL_HAVE_QD
+        TestTriangularInverse<DoubleDouble>
+        ( g, uplo, diag, m, correctness, print );
+        TestTriangularInverse<QuadDouble>
+        ( g, uplo, diag, m, correctness, print );
+
+        TestTriangularInverse<Complex<DoubleDouble>>
+        ( g, uplo, diag, m, correctness, print );
+        TestTriangularInverse<Complex<QuadDouble>>
+        ( g, uplo, diag, m, correctness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestTriangularInverse<Quad>
+        ( g, uplo, diag, m, correctness, print );
+        TestTriangularInverse<Complex<Quad>>
+        ( g, uplo, diag, m, correctness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestTriangularInverse<BigFloat>
+        ( g, uplo, diag, m, correctness, print );
+        TestTriangularInverse<Complex<BigFloat>>
+        ( g, uplo, diag, m, correctness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -1,12 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Trmm/LLN.hpp"
 #include "./Trmm/LLT.hpp"
@@ -25,8 +26,8 @@ void Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Trmm");
       if( A.Height() != A.Width() )
           LogicError("Triangular matrix must be square");
       if( side == LEFT )
@@ -53,9 +54,9 @@ template<typename T>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& X )
+  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("Trmm"))
+    DEBUG_CSE
     X *= alpha;
     if( side == LEFT && uplo == LOWER )
     {
@@ -91,10 +92,10 @@ template<typename T>
 void LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B )
+  T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalTrmm");
       if( (side == LEFT && B.ColDist() != STAR) ||
           (side == RIGHT && B.RowDist() != STAR) )
           LogicError
@@ -112,13 +113,17 @@ void LocalTrmm
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B ); \
+    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
   template void LocalTrmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const DistMatrix<T,STAR,STAR>& A, ElementalMatrix<T>& B );
+    T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B );
 
-#define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

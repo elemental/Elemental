@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -17,10 +17,10 @@ namespace quasitrsm {
 //   X := trilu(L)^-H
 
 template<typename F>
-inline void
-LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
+void LLTUnb
+( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("quasitrsm::LLTUnb"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -54,7 +54,7 @@ LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
             const F delta22 = LBuf[(k+1)+(k+1)*ldl];
             // Decompose D = L Q
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
+            const F gamma11 = Givens( delta11, delta12, c, s );
             const F gamma21 =        c*delta21 + s*delta22;
             const F gamma22 = -Conj(s)*delta21 + c*delta22;
             if( checkIfSingular )
@@ -104,13 +104,12 @@ LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 }
 
 template<typename F>
-inline void
-LLT
+void LLT
 ( Orientation orientation, 
   const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LLT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -149,15 +148,14 @@ LLT
 
 // width(X) >> p
 template<typename F>
-inline void
-LLTLarge
+void LLTLarge
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LLTLarge");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -220,15 +218,14 @@ LLTLarge
 
 // width(X) ~= p
 template<typename F>
-inline void
-LLTMedium
+void LLTMedium
 ( Orientation orientation, 
-  const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& XPre,
+  const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LLTMedium");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )
@@ -293,15 +290,14 @@ LLTMedium
 
 // width(X) << p
 template<typename F,Dist colDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation, 
   const DistMatrix<F,colDist,STAR>& L,
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -356,15 +352,14 @@ LLTSmall
 }
 
 template<typename F,Dist rowDist>
-inline void
-LLTSmall
+void LLTSmall
 ( Orientation orientation, 
   const DistMatrix<F,STAR,rowDist>& L,
         DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsm::LLTSmall");
       AssertSameGrids( L, X );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");

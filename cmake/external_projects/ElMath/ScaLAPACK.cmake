@@ -1,5 +1,5 @@
 #
-#  Copyright 2009-2015, Jack Poulson
+#  Copyright 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License,
@@ -13,7 +13,8 @@ include(ElLibraryName)
 # If MATH_LIBS_AT_CONFIG exists, see if it supports ScaLAPACK
 if(MATH_LIBS_AT_CONFIG)
   set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
-  set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+  set(CMAKE_REQUIRED_LINKER_FLAGS
+    "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
   set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
   set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS_AT_CONFIG} ${MPI_C_LIBRARIES})
   if(EL_BLAS_SUFFIX)
@@ -105,7 +106,8 @@ if(NOT MATH_LIBS_HAS_SCALAPACK AND NOT EL_FORCE_SCALAPACK_BUILD)
       message(WARNING "Found blacs library in ${ScaLAPACK_DIR}; ScaLAPACK appears to be too old to link to")
     else()
       set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS}")
-      set(CMAKE_REQUIRED_LINKER_FLAGS "${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
+      set(CMAKE_REQUIRED_LINKER_FLAGS
+        "${MPI_C_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
       set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
       set(CMAKE_REQUIRED_LIBRARIES 
         ${ScaLAPACK} ${MATH_LIBS_AT_CONFIG} ${MPI_C_LIBRARIES})
@@ -206,7 +208,7 @@ elseif(USE_FOUND_SCALAPACK)
 elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
        (MATH_LIBS_AT_CONFIG OR NOT MSVC))
   if(NOT DEFINED SCALAPACK_URL)
-    set(SCALAPACK_URL https://github.com/poulson/scalapack.git)
+    set(SCALAPACK_URL https://github.com/scibuilder/scalapack.git)
   endif()
   message(STATUS "Will pull ScaLAPACK from ${SCALAPACK_URL}")
 
@@ -221,9 +223,21 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
     message(FATAL_ERROR 
       "Attempted custom LAPACK but not custom BLAS ScaLAPACK build")
   endif()
+
+  # Convert various MPI lists (delimted with ';') to use a '^^' delimiter
+  # (following the advice from
+  # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html)
+  # due to running into build problems within ScaLAPACK's linking of OpenMPI 
+  # Fortran libraries.
+  string(REPLACE ";" "^^" MPI_C_INCSTRING "${MPI_C_INCLUDE_PATH}")
+  string(REPLACE ";" "^^" MPI_Fortran_INCSTRING "${MPI_Fortran_INCLUDE_PATH}")
+  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBRARIES}")
+  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBRARIES}")
+  string(REPLACE ";" "^^" MATH_LIBS_AT_CONFIG_STRING "${MATH_LIBS_AT_CONFIG}")
+
   if(MATH_LIBS_AT_CONFIG AND 
      NOT CUSTOM_BLAS_SUFFIX AND NOT CUSTOM_LAPACK_SUFFIX)
-    set(LAPACK_COMMAND -D LAPACK_LIBRARIES=${MATH_LIBS_AT_CONFIG})
+    set(LAPACK_COMMAND -D LAPACK_LIBRARIES=${MATH_LIBS_AT_CONFIG_STRING})
   elseif(EL_HAVE_VECLIB AND 
          NOT EL_PREFER_OPENBLAS AND NOT EL_PREFER_BLIS_LAPACK)
     set(LAPACK_COMMAND -D LAPACK_LIBRARIES:STRING=-framework\ vecLib) 
@@ -250,15 +264,6 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
     endif()
   endif()
 
-  # Convert various MPI lists (delimted with ';') to use a '^^' delimiter
-  # (following the advice from
-  # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html)
-  # due to running into build problems within ScaLAPACK's linking of OpenMPI 
-  # Fortran libraries.
-  string(REPLACE ";" "^^" MPI_C_INCSTRING "${MPI_C_INCLUDE_PATH}")
-  string(REPLACE ";" "^^" MPI_Fortran_INCSTRING "${MPI_Fortran_INCLUDE_PATH}")
-  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBRARIES}")
-  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBRARIES}")
   if(GFORTRAN_LIB)
     set(GFORTRAN_COMMAND -D GFORTRAN_LIB=${GFORTRAN_LIB})
   else()
@@ -284,7 +289,7 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
       -D MPI_Fortran_COMPILE_FLAGS=${MPI_Fortran_COMPILE_FLAGS}
       -D MPI_C_LIBRARIES:STRING=${MPI_C_LIBSTRING}
       -D MPI_Fortran_LIBRARIES:STRING=${MPI_Fortran_LIBSTRING}
-      -D MPI_LINK_FLAGS=${MPI_LINK_FLAGS}
+      -D MPI_C_LINK_FLAGS=${MPI_C_LINK_FLAGS}
       ${LAPACK_COMMAND}
       ${GFORTRAN_COMMAND}
       -D SCALAPACK_HYBRID=${EL_HYBRID}
@@ -292,6 +297,7 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
       -D TEST_SCALAPACK=OFF
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D CMAKE_EXECUTABLE_SUFFIX_C=${CMAKE_EXECUTABLE_SUFFIX_C}
       -D CMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}
       -D CMAKE_SKIP_RPATH=${CMAKE_SKIP_RPATH}
       -D CMAKE_SKIP_BUILD_RPATH=${CMAKE_SKIP_BUILD_RPATH}
@@ -365,7 +371,7 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
     set_property(TARGET libblis PROPERTY IMPORTED_LOCATION ${BLIS_LIB})
 
     set(EL_BUILT_BLIS_LAPACK TRUE)
-    set(SCALAPACK_LIBS ${SCALAPACK_BASE} ${LAPACK_LIBS} ${BLIS_LIB})
+    set(SCALAPACK_LIBS ${SCALAPACK_BASE} ${LAPACK_LIB} ${BLIS_LIB})
   endif()
 
   set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SCALAPACK_LIBS})

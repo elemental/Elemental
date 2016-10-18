@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_OPTIMIZATION_SOLVERS_HPP
 #define EL_OPTIMIZATION_SOLVERS_HPP
 
@@ -61,7 +60,7 @@ struct MehrotraCtrl
 
     // If a step of length alpha would hit the boundary, instead step a distance
     // of 'maxStepRatio*alpha'.
-    Real maxStepRatio=0.99;
+    Real maxStepRatio=Real(0.99);
 
     // For configuring how many reductions of the first-order optimality 
     // conditions should be performed before solving a linear system.
@@ -135,6 +134,16 @@ struct MehrotraCtrl
     bool checkResiduals=true;
 #endif
 
+    // Temporary regularization for the primal, dual, and dual slack variables
+    Real reg0Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg1Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real reg2Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+
+    // Permanent regularization for the primal, dual, and dual slack variables
+    Real reg0Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
+    Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
+    Real reg2Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
+
     // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
     //       the default, (muAff/mu)^3 
 };
@@ -144,11 +153,12 @@ struct MehrotraCtrl
 template<typename Real>
 struct ADMMCtrl
 {
-    Real rho=1;
-    Real alpha=1.2;
+    Real rho=Real(1);
+    Real alpha=Real(1.2);
     Int maxIter=500;
-    Real absTol=1e-6;
-    Real relTol=1e-4;
+    // TODO: Base upon machine epsilon?
+    Real absTol=Real(1e-6);
+    Real relTol=Real(1e-4);
     bool inv=true;
     bool print=true;
 };

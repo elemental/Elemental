@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace qp {
@@ -41,7 +41,7 @@ void KKT
         Matrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -94,7 +94,7 @@ void KKT
         ElementalMatrix<Real>& JPre, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -149,7 +149,7 @@ void KKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -206,7 +206,7 @@ void KKT
     // Jzz = -z <> s
     // =============
     for( Int e=0; e<k; ++e )
-        J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
+        J.QueueUpdate( n+m+e, n+m+e, -s(e)/z(e) );
 
     J.ProcessQueues();
 }
@@ -222,7 +222,7 @@ void StaticKKT
         SparseMatrix<Real>& J, 
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -299,7 +299,7 @@ void FinishKKT
   const Matrix<Real>& z,
         SparseMatrix<Real>& J )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::FinishKKT"))
+    DEBUG_CSE
     const Int k = s.Height();
 
     // Jzz = -z <> s
@@ -307,7 +307,7 @@ void FinishKKT
     if( !J.FrozenSparsity() )
         J.Reserve( J.NumEntries()+k );
     for( Int e=0; e<k; ++e )
-        J.QueueUpdate( n+m+e, n+m+e, -s.Get(e,0)/z.Get(e,0) );
+        J.QueueUpdate( n+m+e, n+m+e, -s(e)/z(e) );
     J.ProcessQueues();
 }
 
@@ -321,13 +321,15 @@ void KKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
     const Int numEntriesQ = Q.NumLocalEntries();
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesG = G.NumLocalEntries();
+    auto& sLoc = s.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     J.SetComm( A.Comm() );
     Zeros( J, n+m+k, n+m+k );
@@ -382,7 +384,7 @@ void KKT
     for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
     {
         const Int i = m+n + s.GlobalRow(iLoc);
-        const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
+        const Real value = -sLoc(iLoc)/zLoc(iLoc);
         J.QueueUpdate( i, i, value );
     }
     J.ProcessQueues();
@@ -399,7 +401,7 @@ void StaticKKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::StaticKKT"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -476,7 +478,9 @@ void FinishKKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::FinishKKT"))
+    DEBUG_CSE
+    auto& sLoc = s.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
 
     // Pack -z <> s
     // ------------
@@ -486,7 +490,7 @@ void FinishKKT
     for( Int iLoc=0; iLoc<s.LocalHeight(); ++iLoc )
     {
         const Int i = m+n + s.GlobalRow(iLoc);
-        const Real value = -s.GetLocal(iLoc,0)/z.GetLocal(iLoc,0);
+        const Real value = -sLoc(iLoc)/zLoc(iLoc);
         J.QueueUpdate( i, i, value );
     }
     J.ProcessQueues();
@@ -501,7 +505,7 @@ void KKTRHS
   const Matrix<Real>& z, 
         Matrix<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const Int k = rh.Height();
@@ -530,7 +534,7 @@ void KKTRHS
   const ElementalMatrix<Real>& z, 
         ElementalMatrix<Real>& dPre )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -564,10 +568,16 @@ void KKTRHS
   const DistMultiVec<Real>& z, 
         DistMultiVec<Real>& d )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::KKTRHS"))
+    DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const int k = rh.Height();
+    auto& rcLoc = rc.LockedMatrix();
+    auto& rbLoc = rb.LockedMatrix();
+    auto& rhLoc = rh.LockedMatrix();
+    auto& rmuLoc = rmu.LockedMatrix();
+    auto& zLoc = z.LockedMatrix();
+
     d.SetComm( rc.Comm() );
     Zeros( d, n+m+k, 1 );
 
@@ -576,20 +586,19 @@ void KKTRHS
     for( Int iLoc=0; iLoc<rc.LocalHeight(); ++iLoc )
     {
         Int i = rc.GlobalRow(iLoc);
-        Real value = -rc.GetLocal(iLoc,0);
+        Real value = -rcLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rb.LocalHeight(); ++iLoc )
     {
         Int i = n + rb.GlobalRow(iLoc);
-        Real value = -rb.GetLocal(iLoc,0);
+        Real value = -rbLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     for( Int iLoc=0; iLoc<rmu.LocalHeight(); ++iLoc )
     {
         Int i = n+m + rmu.GlobalRow(iLoc);
-        Real value = rmu.GetLocal(iLoc,0)/z.GetLocal(iLoc,0) - 
-                     rh.GetLocal(iLoc,0);
+        Real value = rmuLoc(iLoc)/zLoc(iLoc) - rhLoc(iLoc);
         d.QueueUpdate( i, 0, value );
     }
     d.ProcessQueues();
@@ -603,7 +612,7 @@ void ExpandCoreSolution
         Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
+    DEBUG_CSE
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
     dx = d(IR(0,  n    ),ALL);
@@ -619,7 +628,7 @@ void ExpandCoreSolution
         ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.GetLocked();
@@ -640,7 +649,7 @@ void ExpandCoreSolution
         DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandCoreSolution"))
+    DEBUG_CSE
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
@@ -671,10 +680,11 @@ void ExpandCoreSolution
     dx.Reserve( dxNumEntries );
     dy.Reserve( dyNumEntries );
     dz.Reserve( dzNumEntries );
+    auto& dLoc = d.LockedMatrix();
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const Int i = d.GlobalRow(iLoc);
-        const Real value = d.GetLocal(iLoc,0);
+        const Real value = dLoc(iLoc);
         if( i < n )
             dx.QueueUpdate( i, 0, value );
         else if( i < n+m )
@@ -699,7 +709,7 @@ void ExpandSolution
         Matrix<Real>& dz,
         Matrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
@@ -723,7 +733,7 @@ void ExpandSolution
         ElementalMatrix<Real>& dz,
         ElementalMatrix<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
@@ -747,7 +757,7 @@ void ExpandSolution
         DistMultiVec<Real>& dz,
         DistMultiVec<Real>& ds )
 {
-    DEBUG_ONLY(CSE cse("qp::affine::ExpandSolution"))
+    DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
@@ -892,7 +902,11 @@ void ExpandSolution
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace affine
 } // namespace qp

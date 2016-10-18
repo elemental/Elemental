@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TRTRMM_UNBLOCKED_HPP
 #define EL_TRTRMM_UNBLOCKED_HPP
 
@@ -14,13 +13,12 @@ namespace El {
 namespace trtrmm {
 
 template<typename T>
-inline void
-LUnblocked( Matrix<T>& L, bool conjugate=false )
+void LUnblocked( Matrix<T>& L, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("trtrmm::LUnblocked");
-        if( L.Height() != L.Width() )
-            LogicError("L must be square");
+      if( L.Height() != L.Width() )
+          LogicError("L must be square");
     )
     const Int n = L.Height();
 
@@ -66,13 +64,12 @@ LUnblocked( Matrix<T>& L, bool conjugate=false )
 }
 
 template<typename T>
-inline void
-UUnblocked( Matrix<T>& U, bool conjugate=false )
+void UUnblocked( Matrix<T>& U, bool conjugate=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-        CSE cse("trtrmm::UUnblocked");
-        if( U.Height() != U.Width() )
-            LogicError("U must be square");
+      if( U.Height() != U.Width() )
+          LogicError("U must be square");
     )
     const Int n = U.Height();
 

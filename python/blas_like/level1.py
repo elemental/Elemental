@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -831,7 +831,7 @@ def Dot(A,B):
     elif A.tag == zTag: lib.ElDotDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
-  return prod.value
+  return ScalarData(prod)
 
 # Dotu
 # ----
@@ -872,7 +872,7 @@ def Dotu(A,B):
     elif A.tag == zTag: lib.ElDotuDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
-  return prod.value
+  return ScalarData(prod)
 
 # Entrywise fill
 # --------------
@@ -1355,7 +1355,7 @@ def HilbertSchmidt(A,B):
     elif A.tag == zTag: lib.ElHilbertSchmidtDistMultiVec_z(*args)
     else: DataExcept()
   else: TypeExcept()
-  return prod.value
+  return ScalarData(prod)
 
 # Index dependent fill
 # --------------------
@@ -1677,8 +1677,8 @@ lib.ElMaxDist_d.argtypes = \
   [c_void_p,POINTER(dType)]
 
 def Max(A):
-  value = TagToType(A.tag)()
-  args = [A.obj,pointer(value)]
+  alpha = TagToType(A.tag)()
+  args = [A.obj,pointer(alpha)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElMax_i(*args) 
     elif A.tag == sTag: lib.ElMax_s(*args) 
@@ -1690,7 +1690,7 @@ def Max(A):
     elif A.tag == dTag: lib.ElMaxDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return value
+  return alpha.value
 
 lib.ElSymmetricMax_i.argtypes = \
 lib.ElSymmetricMaxDist_i.argtypes = \
@@ -1705,8 +1705,8 @@ lib.ElSymmetricMaxDist_d.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
 def SymmetricMax(uplo,A):
-  value = TagToType(A.tag)()
-  args = [uplo,A.obj,pointer(value)]
+  alpha = TagToType(A.tag)()
+  args = [uplo,A.obj,pointer(alpha)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSymmetricMax_i(*args) 
     elif A.tag == sTag: lib.ElSymmetricMax_s(*args) 
@@ -1718,7 +1718,7 @@ def SymmetricMax(uplo,A):
     elif A.tag == dTag: lib.ElSymmetricMaxDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return value
+  return alpha.value
 
 # MaxLoc
 # ------
@@ -1975,8 +1975,8 @@ lib.ElMinDist_d.argtypes = \
   [c_void_p,POINTER(dType)]
 
 def Min(A):
-  value = TagToType(A.tag)()
-  args = [A.obj,pointer(value)]
+  alpha = TagToType(A.tag)()
+  args = [A.obj,pointer(alpha)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElMin_i(*args) 
     elif A.tag == sTag: lib.ElMin_s(*args) 
@@ -1988,7 +1988,7 @@ def Min(A):
     elif A.tag == dTag: lib.ElMinDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return value
+  return alpha.value
 
 lib.ElSymmetricMin_i.argtypes = \
 lib.ElSymmetricMinDist_i.argtypes = \
@@ -2003,8 +2003,8 @@ lib.ElSymmetricMinDist_d.argtypes = \
   [c_uint,c_void_p,POINTER(dType)]
 
 def SymmetricMin(uplo,A):
-  value = TagToType(A.tag)()
-  args = [uplo,A.obj,pointer(value)]
+  alpha = TagToType(A.tag)()
+  args = [uplo,A.obj,pointer(alpha)]
   if type(A) is Matrix:
     if   A.tag == iTag: lib.ElSymmetricMin_i(*args) 
     elif A.tag == sTag: lib.ElSymmetricMin_s(*args) 
@@ -2016,7 +2016,7 @@ def SymmetricMin(uplo,A):
     elif A.tag == dTag: lib.ElSymmetricMinDist_d(*args) 
     else: DataExcept()
   else: TypeExcept()
-  return value
+  return alpha.value
 
 # MinLoc
 # ------

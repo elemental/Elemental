@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 template<typename F>
@@ -51,9 +51,17 @@ void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
 template<typename F> 
 void TestQuasiTrsm
 ( bool print,
-  LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  Int m, Int n, F alpha, const Grid& g )
+  LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation, 
+  Int m,
+  Int n,
+  F alpha,
+  const Grid& g )
 {
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+
     DistMatrix<F> H(g), X(g);
 
     if( side == LEFT )
@@ -75,31 +83,33 @@ void TestQuasiTrsm
         Print( X, "X" );
         Print( Y, "Y" );
     }
-    if( g.Rank() == 0 )
-        Output("  Starting QuasiTrsm");
+    OutputFromRoot(g.Comm(),"Starting QuasiTrsm");
+
     mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
+    Timer timer;
+    timer.Start();
     QuasiTrsm( side, uplo, orientation, alpha, H, Y );
     mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    const double runTime = timer.Stop();
     const double realGFlops = 
         ( side==LEFT ? double(m)*double(m)*double(n)
                      : double(m)*double(n)*double(n) ) /(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  Finished in ",runTime," seconds (",gFlops," GFlop/s)");
+    OutputFromRoot
+    (g.Comm(),"Finished in ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( Y, "Y after solve" );
     Y -= X;
     const auto HFrob = FrobeniusNorm( H );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );
-    if( g.Rank() == 0 )
-    {
-        Output("  || H ||_F = ",HFrob);
-        Output("  || X ||_F = ",XFrob);
-        Output("  || E ||_F = ",EFrob);
-    }
+    OutputFromRoot
+    (g.Comm(),
+     "|| H ||_F = ",HFrob,"\n",Indent(),
+     "|| X ||_F = ",XFrob,"\n",Indent(),
+     "|| E ||_F = ",EFrob);
+
+    PopIndent();
 }
 
 int 
@@ -107,12 +117,10 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--r","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to solve from: L/R",'L');
         const char uploChar = Input
@@ -126,27 +134,54 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test QuasiTrsm ",sideChar,uploChar,transChar);
+        OutputFromRoot(comm,"Will test QuasiTrsm ",sideChar,uploChar,transChar);
 
-        if( commRank == 0 )
-            Output("Testing with doubles");
-        TestQuasiTrsm<double>( print, side, uplo, orientation, m, n, 3., g );
+        TestQuasiTrsm<float>
+        ( print, side, uplo, orientation, m, n, float(3), g );
+        TestQuasiTrsm<Complex<float>>
+        ( print, side, uplo, orientation, m, n, Complex<float>(3), g );
 
-        if( commRank == 0 )
-            Output("Testing with Complex<double>");
+        TestQuasiTrsm<double>
+        ( print, side, uplo, orientation, m, n, double(3), g );
         TestQuasiTrsm<Complex<double>>
         ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
+
+#ifdef EL_HAVE_QUAD
+        TestQuasiTrsm<Quad>
+        ( print, side, uplo, orientation, m, n, Quad(3), g );
+        TestQuasiTrsm<Complex<Quad>>
+        ( print, side, uplo, orientation, m, n, Complex<Quad>(3), g );
+#endif
+
+#ifdef EL_HAVE_QD
+        TestQuasiTrsm<DoubleDouble>
+        ( print, side, uplo, orientation, m, n, DoubleDouble(3), g );
+        TestQuasiTrsm<QuadDouble>
+        ( print, side, uplo, orientation, m, n, QuadDouble(3), g );
+
+        TestQuasiTrsm<Complex<DoubleDouble>>
+        ( print, side, uplo, orientation, m, n, Complex<DoubleDouble>(3), g );
+        TestQuasiTrsm<Complex<QuadDouble>>
+        ( print, side, uplo, orientation, m, n, Complex<QuadDouble>(3), g );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestQuasiTrsm<BigFloat>
+        ( print, side, uplo, orientation, m, n, BigFloat(3), g );
+        TestQuasiTrsm<Complex<BigFloat>>
+        ( print, side, uplo, orientation, m, n, Complex<BigFloat>(3), g );
+
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 

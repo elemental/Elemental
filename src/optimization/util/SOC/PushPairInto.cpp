@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -27,7 +27,7 @@ void PushPairInto
   const Matrix<Int>& firstInds,
   Real wMaxNormLimit )
 {
-    DEBUG_ONLY(CSE cse("soc::PushPairInto"))
+    DEBUG_CSE
 
     Matrix<Real> sLower, zLower;
     soc::LowerNorms( s, sLower, orders, firstInds );
@@ -36,13 +36,11 @@ void PushPairInto
     const Int height = s.Height();
     for( Int i=0; i<height; ++i )
     {
-        const Real w0 = w.Get(i,0);
-        const Int firstInd = firstInds.Get(i,0);
-        if( i == firstInd && w0 > wMaxNormLimit )
+        if( i == firstInds(i) && w(i) > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            s.Update( i, 0, Real(1)/wMaxNormLimit );
-            z.Update( i, 0, Real(1)/wMaxNormLimit );
+            s(i) += Real(1)/wMaxNormLimit;
+            z(i) += Real(1)/wMaxNormLimit;
         }
     }
 }
@@ -56,7 +54,7 @@ void PushPairInto
   const ElementalMatrix<Int>& firstIndsPre,
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::PushPairInto"))
+    DEBUG_CSE
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -82,15 +80,18 @@ void PushPairInto
     soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 
     const Int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
+    auto& zLoc = z.Matrix();
+    auto& wLoc = w.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = s.GlobalRow(iLoc);
-        const Real w0 = w.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && w0 > wMaxNormLimit )
+        if( i == firstIndsLoc(iLoc) && wLoc(iLoc) > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
-            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
+            sLoc(iLoc) += Real(1)/wMaxNormLimit;
+            zLoc(iLoc) += Real(1)/wMaxNormLimit;
         }
     }
 }
@@ -104,22 +105,25 @@ void PushPairInto
   const DistMultiVec<Int>& firstInds, 
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::PushPairInto"))
+    DEBUG_CSE
 
     DistMultiVec<Real> sLower(s.Comm()), zLower(z.Comm());
     soc::LowerNorms( s, sLower, orders, firstInds, cutoff );
     soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 
     const int localHeight = s.LocalHeight();
+    auto& sLoc = s.Matrix();
+    auto& zLoc = z.Matrix();
+    auto& wLoc = w.LockedMatrix();
+    auto& firstIndsLoc = firstInds.LockedMatrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = s.GlobalRow(iLoc);
-        const Real w0 = w.GetLocal(iLoc,0);
-        if( i == firstInds.GetLocal(iLoc,0) && w0 > wMaxNormLimit )
+        if( i == firstIndsLoc(iLoc) && wLoc(iLoc) > wMaxNormLimit )
         {
             // TODO: Switch to a non-adhoc modification     
-            s.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
-            z.UpdateLocal( iLoc, 0, Real(1)/wMaxNormLimit );
+            sLoc(iLoc) += Real(1)/wMaxNormLimit;
+            zLoc(iLoc) += Real(1)/wMaxNormLimit;
         }
     }
 }
@@ -149,7 +153,11 @@ void PushPairInto
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

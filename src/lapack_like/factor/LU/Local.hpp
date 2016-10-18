@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LU_LOCAL_HPP
 #define EL_LU_LOCAL_HPP
 
@@ -19,7 +18,7 @@ template<typename F>
 inline void
 UnbObj( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lu::UnbObj"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -32,7 +31,7 @@ UnbObj( Matrix<F>& A )
         auto a21     = A( ind2, ind1 );
         auto A22     = A( ind2, ind2 );
 
-        F alpha = alpha11.Get(0,0);
+        F alpha = alpha11(0);
         if( alpha == F(0) )
             throw SingularMatrixException();
         a21 *= 1/alpha;
@@ -44,12 +43,12 @@ template<typename F>
 inline void
 Unb( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lu::Unb"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<Min(m,n); ++j )
     {
-        const F alpha = A.Get(j,j);
+        const F alpha = A(j,j);
         if( alpha == F(0) )
             throw SingularMatrixException();
 

@@ -1,16 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LAPACK_EUCLIDEANMIN_C_H
 #define EL_LAPACK_EUCLIDEANMIN_C_H
 
-#include "El/core/DistMatrix.h"
+#include <El/core/DistMatrix.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,6 +83,10 @@ typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
   float alpha;
+  float reg0Tmp;
+  float reg0Perm;
+  float reg1Tmp;
+  float reg1Perm;
   ElRegSolveCtrl_s solveCtrl;
   bool equilibrate;
   bool progress;
@@ -95,6 +98,10 @@ typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
   double alpha;
+  double reg0Tmp;
+  double reg0Perm;
+  double reg1Tmp;
+  double reg1Perm;
   ElRegSolveCtrl_d solveCtrl;
   bool equilibrate;
   bool progress;
@@ -544,6 +551,10 @@ EL_EXPORT ElError ElGLMXDistSparse_z
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+#ifdef __cplusplus
+#include <El/lapack_like/euclidean_min/CReflect.hpp>
 #endif
 
 #endif /* ifndef EL_LAPACK_EUCLIDEANMIN_C_H */

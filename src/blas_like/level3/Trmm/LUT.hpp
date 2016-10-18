@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    Copyright (c) 2013, The University of Texas at Austin
@@ -9,7 +9,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TRMM_LUT_HPP
 #define EL_TRMM_LUT_HPP
 
@@ -17,8 +16,7 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateLUT
+void LocalAccumulateLUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
@@ -26,8 +24,8 @@ LocalAccumulateLUT
   const DistMatrix<T,MC,STAR>& X,
         DistMatrix<T,MR,STAR>& Z )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateLUT");
       AssertSameGrids( U, X, Z );
       if( U.Height() != U.Width() ||
           U.Height() != X.Height() ||
@@ -68,15 +66,14 @@ LocalAccumulateLUT
 }
 
 template<typename T>
-inline void
-LUTA
+void LUTA
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUTA");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -108,7 +105,8 @@ LUTA
         auto X1 = X( ALL, IR(k,k+nb) );
 
         X1_MC_STAR = X1;
-        Zeros( Z1_MR_STAR, m, nb );
+        Z1_MR_STAR.Resize( m, nb );
+        Zero( Z1_MR_STAR );
         LocalAccumulateLUT
         ( orientation, diag, T(1), U, X1_MC_STAR, Z1_MR_STAR );
 
@@ -118,15 +116,14 @@ LUTA
 }
 
 template<typename T>
-inline void
-LUTCOld
+void LUTCOld
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUTCOld");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -177,22 +174,22 @@ LUTCOld
         D1Trans_MR_MC.AlignWith( X1 );
         Contract( D1Trans_MR_STAR, D1Trans_MR_MC );
         D1.AlignWith( X1 );
-        Zeros( D1, nb, n );
+        D1.Resize( nb, n );
+        Zero( D1 );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
     }
 }
 
 template<typename T>
-inline void
-LUTC
+void LUTC
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& UPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& UPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LUTC");
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -248,14 +245,13 @@ LUTC
 //   X := triuu(U)^T X, or
 //   X := triuu(U)^H X
 template<typename T>
-inline void
-LUT
+void LUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& U,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& U,
+        AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::LUT"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         LUTA( orientation, diag, U, X );

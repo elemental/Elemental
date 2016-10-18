@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -1530,7 +1530,7 @@ class DistMatrix(object):
     elif self.tag == cTag: lib.ElDistMatrixGet_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixGet_z(*args)
     else: DataExcept()
-    return value.value
+    return ScalarData(value)
 
   lib.ElDistMatrixGetRealPart_c.argtypes = [c_void_p,iType,iType,POINTER(sType)]
   lib.ElDistMatrixGetRealPart_z.argtypes = [c_void_p,iType,iType,POINTER(dType)]
@@ -1543,7 +1543,7 @@ class DistMatrix(object):
     elif self.tag == cTag: lib.ElDistMatrixGetRealPart_c(*args)
     elif self.tag == zTag: lib.ElDistMatrixGetRealPart_z(*args)
     else: DataExcept()
-    return value.value
+    return ScalarData(value)
 
   lib.ElDistMatrixGetImagPart_c.argtypes = [c_void_p,iType,iType,POINTER(sType)]
   lib.ElDistMatrixGetImagPart_z.argtypes = [c_void_p,iType,iType,POINTER(dType)]

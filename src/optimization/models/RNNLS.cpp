@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -43,7 +43,7 @@ void RNNLS
         Matrix<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -126,7 +126,7 @@ void RNNLS
         ElementalMatrix<Real>& xPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),
@@ -144,6 +144,10 @@ void RNNLS
     DistMatrix<Int,VC,STAR> orders(g), firstInds(g);
     Zeros( orders, m+2*n+3, 1 );
     Zeros( firstInds, m+2*n+3, 1 );
+
+    auto& ordersLoc = orders.Matrix(); 
+    auto& firstIndsLoc = firstInds.Matrix();
+
     {
         const Int localHeight = orders.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -151,18 +155,18 @@ void RNNLS
             const Int i = orders.GlobalRow(iLoc);
             if( i < m+1 )
             {
-                orders.SetLocal( iLoc, 0, m+1 );
-                firstInds.SetLocal( iLoc, 0, 0 );
+                ordersLoc(iLoc) = m+1;
+                firstIndsLoc(iLoc) = 0;
             }
             else if( i < m+n+3 )
             {
-                orders.SetLocal( iLoc, 0, n+2 );
-                firstInds.SetLocal( iLoc, 0, m+1 );
+                ordersLoc(iLoc) = n+2;
+                firstIndsLoc(iLoc) = m+1;
             }
             else
             {
-                orders.SetLocal( iLoc, 0, 1 );
-                firstInds.SetLocal( iLoc, 0, i );
+                ordersLoc(iLoc) = 1;
+                firstIndsLoc(iLoc) = i;
             }
         }
     }
@@ -227,7 +231,7 @@ void RNNLS
         Matrix<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -308,7 +312,7 @@ void RNNLS
         DistMultiVec<Real>& x, 
   const socp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("RNNLS"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -393,11 +397,12 @@ void RNNLS
     //      | 0 |
     DistMultiVec<Real> h(comm);
     Zeros( h, m+2*n+3, 1 ); 
+    auto& bLoc = b.LockedMatrix();
     {
         const Int bLocalHeight = b.LocalHeight();
         h.Reserve( bLocalHeight );
         for( Int iLoc=0; iLoc<bLocalHeight; ++iLoc )
-            h.QueueUpdate( b.GlobalRow(iLoc)+1, 0, b.GetLocal(iLoc,0) );
+            h.QueueUpdate( b.GlobalRow(iLoc)+1, 0, bLoc(iLoc) );
         h.ProcessQueues();
     }
     h.Set( m+n+2, 0, 1 );
@@ -446,6 +451,10 @@ void RNNLS
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

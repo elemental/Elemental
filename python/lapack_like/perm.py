@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -75,13 +75,13 @@ class Permutation(object):
   def MakeArbitrary(self):
     lib.ElPermutationMakeArbitrary(self.obj)
 
-  lib.ElPermutationRowSwap.argtypes = [c_void_p,iType,iType]
-  def RowSwap(self,origin,dest):
-    lib.ElPermutationRowSwap(self.obj,origin,dest)
+  lib.ElPermutationSwap.argtypes = [c_void_p,iType,iType]
+  def Swap(self,origin,dest):
+    lib.ElPermutationSwap(self.obj,origin,dest)
 
-  lib.ElPermutationRowSwapSequence.argtypes = [c_void_p,c_void_p,iType]
-  def RowSwapSequence(self,PAppend,offset=0):
-    lib.ElPermutationRowSwapSequence(self.obj,PAppend.obj,offset)
+  lib.ElPermutationSwapSequence.argtypes = [c_void_p,c_void_p,iType]
+  def SwapSequence(self,PAppend,offset=0):
+    lib.ElPermutationSwapSequence(self.obj,PAppend.obj,offset)
 
   lib.ElPermutationSetImage.argtypes = [c_void_p,iType,iType] 
   def SetImage(self,origin,dest):
@@ -208,13 +208,13 @@ class DistPermutation(object):
   def MakeArbitrary(self):
     lib.ElDistPermutationMakeArbitrary(self.obj)
 
-  lib.ElDistPermutationRowSwap.argtypes = [c_void_p,iType,iType]
-  def RowSwap(self,origin,dest):
-    lib.ElDistPermutationRowSwap(self.obj,origin,dest)
+  lib.ElDistPermutationSwap.argtypes = [c_void_p,iType,iType]
+  def Swap(self,origin,dest):
+    lib.ElDistPermutationSwap(self.obj,origin,dest)
 
-  lib.ElDistPermutationRowSwapSequence.argtypes = [c_void_p,c_void_p,iType]
-  def RowSwapSequence(self,PAppend,offset=0):
-    lib.ElDistPermutationRowSwapSequence(self.obj,PAppend.obj,offset)
+  lib.ElDistPermutationSwapSequence.argtypes = [c_void_p,c_void_p,iType]
+  def SwapSequence(self,PAppend,offset=0):
+    lib.ElDistPermutationSwapSequence(self.obj,PAppend.obj,offset)
 
   lib.ElDistPermutationSetImage.argtypes = [c_void_p,iType,iType] 
   def SetImage(self,origin,dest):

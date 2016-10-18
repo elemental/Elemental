@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Trr2k/Local.hpp"
 #include "./Trr2k/NNNN.hpp"
@@ -33,11 +35,11 @@ void Trr2k
 ( UpperOrLower uplo, 
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
-  T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B,
-  T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D,
-  T gamma,       ElementalMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T gamma,       AbstractDistMatrix<T>& E )
 {
-    DEBUG_ONLY(CSE cse("Trr2k"))
+    DEBUG_CSE
     const bool normalA = orientA == NORMAL;
     const bool normalB = orientB == NORMAL;
     const bool normalC = orientC == NORMAL;
@@ -130,18 +132,22 @@ void Trr2k
   ( UpperOrLower uplo, \
     Orientation orientA, Orientation orientB, \
     Orientation orientC, Orientation orientD, \
-    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
-    T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D, \
-    T gamma,       ElementalMatrix<T>& E ); \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
+    T gamma,       AbstractDistMatrix<T>& E ); \
   template void LocalTrr2k \
   ( UpperOrLower uplo, \
     Orientation orientA, Orientation orientB, \
     Orientation orientC, Orientation orientD, \
-    T alpha, const ElementalMatrix<T>& A, const ElementalMatrix<T>& B, \
-    T beta,  const ElementalMatrix<T>& C, const ElementalMatrix<T>& D, \
-    T gamma,       ElementalMatrix<T>& E );
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
+    T gamma,       AbstractDistMatrix<T>& E );
 
-#define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

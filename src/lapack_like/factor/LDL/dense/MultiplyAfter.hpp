@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LDL_MULTIPLYAFTER_HPP
 #define EL_LDL_MULTIPLYAFTER_HPP
 
@@ -16,8 +15,8 @@ namespace ldl {
 template<typename F> 
 void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -34,8 +33,8 @@ template<typename F>
 void MultiplyAfter
 ( const ElementalMatrix<F>& APre, ElementalMatrix<F>& B, bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       AssertSameGrids( APre, B );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
@@ -62,8 +61,8 @@ void MultiplyAfter
         Matrix<F>& B,
   bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -88,8 +87,8 @@ void MultiplyAfter
         ElementalMatrix<F>& BPre, 
   bool conjugated )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::MultiplyAfter");
       AssertSameGrids( APre, BPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

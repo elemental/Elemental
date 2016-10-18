@@ -17,9 +17,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_FACTOR_LDL_SPARSE_NUMERIC_LOWERMULTIPLY_FORWARD_HPP
 #define EL_FACTOR_LDL_SPARSE_NUMERIC_LOWERMULTIPLY_FORWARD_HPP
+
+#include "El/core/FlamePart.hpp"
 
 #include "./FrontForward.hpp"
 
@@ -31,7 +32,7 @@ inline void LowerForwardMultiply
 ( const NodeInfo& info, 
   const Front<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerForwardMultiply"))
+    DEBUG_CSE
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -65,7 +66,7 @@ inline void LowerForwardMultiply
         {
             const Int iFront = info.childRelInds[c][iChild]; 
             for( Int j=0; j<numRHS; ++j )
-                W.Update( iFront, j, childU.Get(iChild,j) );
+                W(iFront,j) += childU(iChild,j);
         }
         childW.Empty();
     }
@@ -79,7 +80,7 @@ inline void LowerForwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::LowerForwardMultiply"))
+    DEBUG_CSE
 
     const bool frontIs1D = FrontIs1D( front.type );
     const Grid& grid = ( frontIs1D ? front.L1D.Grid() : front.L2D.Grid() );
@@ -178,7 +179,7 @@ inline void LowerForwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::DistLowerForwardMultiply"))
+    DEBUG_CSE
     const Grid& grid = front.L2D.Grid();
     if( front.duplicate != nullptr )
     {

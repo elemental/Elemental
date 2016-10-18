@@ -19,7 +19,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace ldl {
@@ -36,7 +36,7 @@ DistMultiVecNode<T>::DistMultiVecNode
   const DistMultiVec<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::DistMultiVecNode"))
+    DEBUG_CSE
     Pull( invMap, info, X );
 }
 
@@ -44,7 +44,7 @@ template<typename T>
 DistMultiVecNode<T>::DistMultiVecNode( const DistMatrixNode<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::DistMultiVecNode"))
+    DEBUG_CSE
     *this = X;
 }
 
@@ -59,7 +59,7 @@ template<typename T>
 const DistMultiVecNode<T>&
 DistMultiVecNode<T>::operator=( const DistMatrixNode<T>& X )
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::operator="))
+    DEBUG_CSE
 
     if( X.child == nullptr )
     {
@@ -89,7 +89,7 @@ void DistMultiVecNode<T>::Pull
   const DistNodeInfo& info,
   const DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::Pull"))
+    DEBUG_CSE
     DistMultiVecNodeMeta meta;
     Pull( invMap, info, X, meta );
 }
@@ -100,7 +100,7 @@ static void PullLocalInit
         MatrixNode<T>& XNode,
   Int width )
 {
-    DEBUG_ONLY(CSE cse("PullLocalInit [DistMultiVecNode]"))
+    DEBUG_CSE
     const Int numChildren = node.children.size();
     if( XNode.children.size() != node.children.size() )
     {
@@ -123,7 +123,7 @@ static void PullInit
         DistMultiVecNode<T>& XNode,
   Int width )
 {
-    DEBUG_ONLY(CSE cse("PullInit [DistMultiVecNode]"))
+    DEBUG_CSE
     if( node.child == nullptr )
     {
         DEBUG_ONLY(
@@ -164,7 +164,7 @@ static void PullLocalUnpack
         MatrixNode<T>& XNode,
   Int& off, std::vector<int>& offs )
 {
-    DEBUG_ONLY(CSE cse("PullLocalUnpack [DistMultiVecNode]"))
+    DEBUG_CSE
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
         PullLocalUnpack
@@ -188,20 +188,18 @@ static void PullLocalUnpackMulti
   Int& off, std::vector<int>& offs,
   Int width )
 {
-    DEBUG_ONLY(CSE cse("PullLocalUnpackMulti [DistMultiVecNode]"))
+    DEBUG_CSE
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
         PullLocalUnpackMulti
         ( *info.children[c], recvVals, mappedOwners, *XNode.children[c],
           off, offs, width );
 
-    T* XNodeBuf = XNode.matrix.Buffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
     for( Int t=0; t<info.size; ++t )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            XNodeBuf[t+j*XNodeLDim] = recvVals[offs[q]++];
+            XNode.matrix(t,j) = recvVals[offs[q]++];
     }
 }
 
@@ -251,13 +249,12 @@ static void PullUnpackMulti
     ( *info.child, recvVals, mappedOwners, *XNode.child, off, offs, width );
 
     const Int localHeight = XNode.matrix.LocalHeight();
-    T* XNodeBuf = XNode.matrix.Buffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
+    Matrix<T>& XNodeLoc = XNode.matrix.Matrix();
     for( Int tLoc=0; tLoc<localHeight; ++tLoc )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            XNodeBuf[tLoc+j*XNodeLDim] = recvVals[offs[q]++];
+            XNodeLoc(tLoc,j) = recvVals[offs[q]++];
     }
 }
 
@@ -268,10 +265,9 @@ void DistMultiVecNode<T>::Pull
   const DistMultiVec<T>& X,
         DistMultiVecNodeMeta& meta )
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::Pull"))
+    DEBUG_CSE
     const Int width = X.Width();
-    const T* XBuf = X.LockedMatrix().LockedBuffer();
-    const Int XLDim = X.LockedMatrix().LDim();
+    const Matrix<T>& XLoc = X.LockedMatrix();
     const Int firstLocalRow = X.FirstLocalRow();
     mpi::Comm comm = X.Comm();
     const int commSize = mpi::Size( comm );
@@ -288,14 +284,13 @@ void DistMultiVecNode<T>::Pull
     if( width == 1 )
     {
         for( Int s=0; s<numSendInds; ++s )
-            sendVals[s] = XBuf[meta.recvInds[s]-firstLocalRow];
+            sendVals[s] = XLoc(meta.recvInds[s]-firstLocalRow,0);
     }
     else
     {
         for( Int s=0; s<numSendInds; ++s )
             for( Int j=0; j<width; ++j )
-                sendVals[s*width+j] = 
-                  XBuf[meta.recvInds[s]-firstLocalRow+j*XLDim];
+                sendVals[s*width+j] = XLoc(meta.recvInds[s]-firstLocalRow,j);
     }
 
     // Reply with the values
@@ -350,7 +345,7 @@ static void PushLocalPack
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_ONLY(CSE cse("PushLocalPack [DistMultiVecNode]"))
+    DEBUG_CSE
     const Int numChildren = node.children.size();
     for( Int c=0; c<numChildren; ++c )
         PushLocalPack
@@ -373,21 +368,19 @@ static void PushLocalPackMulti
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_ONLY(CSE cse("PushLocalPackMulti [DistMultiVecNode]"))
+    DEBUG_CSE
     const Int numChildren = node.children.size();
     for( Int c=0; c<numChildren; ++c )
         PushLocalPackMulti
         ( *node.children[c], *XNode.children[c], mappedOwners,
           sendVals, off, offs );
 
-    const T* XNodeBuf = XNode.matrix.LockedBuffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
     const Int width = XNode.matrix.Width();
     for( Int t=0; t<node.size; ++t )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            sendVals[offs[q]*width+j] = XNodeBuf[t+j*XNodeLDim];
+            sendVals[offs[q]*width+j] = XNode.matrix(t,j);
         offs[q]++; 
     }
 }
@@ -400,7 +393,7 @@ static void PushPack
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_ONLY(CSE cse("PushPack [DistMultiVecNode]"))
+    DEBUG_CSE
     if( node.child == nullptr )
     {
         PushLocalPack
@@ -427,7 +420,7 @@ static void PushPackMulti
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_ONLY(CSE cse("PushPackMulti [DistMultiVecNode]"))
+    DEBUG_CSE
     if( node.child == nullptr )
     {
         PushLocalPackMulti
@@ -439,14 +432,13 @@ static void PushPackMulti
     ( *node.child, *XNode.child, mappedOwners, sendVals, off, offs );
     
     const Int localHeight = XNode.matrix.LocalHeight();
-    const T* XNodeBuf = XNode.matrix.LockedBuffer();
-    const Int XNodeLDim = XNode.matrix.LDim();
     const Int width = XNode.matrix.Width();
+    const Matrix<T>& XNodeLoc = XNode.matrix.LockedMatrix(); 
     for( Int tLoc=0; tLoc<localHeight; ++tLoc )
     {
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
-            sendVals[offs[q]*width+j] = XNodeBuf[tLoc+j*XNodeLDim];
+            sendVals[offs[q]*width+j] = XNodeLoc(tLoc,j);
         offs[q]++;
     }
 }
@@ -457,7 +449,7 @@ void DistMultiVecNode<T>::Push
   const DistNodeInfo& info,
         DistMultiVec<T>& X ) const
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::Push"))
+    DEBUG_CSE
     DistMultiVecNodeMeta meta;
     Push( invMap, info, X, meta );
 }
@@ -469,7 +461,7 @@ void DistMultiVecNodeMeta::Initialize
   const DistMap& invMap,
   const DistMultiVec<T>& X )
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNodeMeta::Initialize"))
+    DEBUG_CSE
     if( sendInds.size()     != 0 &&
         recvInds.size()     != 0 &&
         mappedOwners.size() != 0 &&
@@ -595,7 +587,7 @@ void DistMultiVecNode<T>::Push
         DistMultiVec<T>& X,
         DistMultiVecNodeMeta& meta ) const
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::Push"))
+    DEBUG_CSE
     const Int height = info.size + info.off;
     const Int width = matrix.Width();
     Timer timer;
@@ -607,8 +599,7 @@ void DistMultiVecNode<T>::Push
     X.SetComm( comm );
     X.Resize( height, width );
     const Int firstLocalRow = X.FirstLocalRow();
-    T* XBuf = X.Matrix().Buffer();
-    const Int XLDim = X.Matrix().LDim();
+    Matrix<T>& XLoc = X.Matrix();
 
     meta.Initialize( *this, info, invMap, X );
     const int numSendInds = meta.mappedOwners.size();
@@ -661,7 +652,7 @@ void DistMultiVecNode<T>::Push
         {
             const Int i = meta.recvInds[s];
             const Int iLoc = i - firstLocalRow;
-            XBuf[iLoc] = recvVals[s];
+            XLoc(iLoc) = recvVals[s];
         }
     }
     else
@@ -671,7 +662,7 @@ void DistMultiVecNode<T>::Push
             const Int i = meta.recvInds[s];
             const Int iLoc = i - firstLocalRow;
             for( Int j=0; j<width; ++j )
-                XBuf[iLoc+j*XLDim] = recvVals[s*width+j];
+                XLoc(iLoc,j) = recvVals[s*width+j];
         }
         for( int q=0; q<commSize; ++q )
         {
@@ -688,7 +679,7 @@ void DistMultiVecNode<T>::Push
 template<typename T>
 Int DistMultiVecNode<T>::LocalHeight() const
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::LocalHeight"))
+    DEBUG_CSE
     Int localHeight = 0;
     function<void(const DistMultiVecNode<T>&)> count = 
       [&]( const DistMultiVecNode<T>& node )
@@ -708,7 +699,7 @@ Int DistMultiVecNode<T>::LocalHeight() const
 template<typename T>
 void DistMultiVecNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
 {
-    DEBUG_ONLY(CSE cse("DistMultiVecNode::ComputeCommMeta"))
+    DEBUG_CSE
     if( commMeta.numChildSendInds.size() != 0 )
         return;
 
@@ -783,7 +774,11 @@ void DistMultiVecNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
 }
 
 #define PROTO(T) template struct DistMultiVecNode<T>;
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace ldl
 } // namespace El

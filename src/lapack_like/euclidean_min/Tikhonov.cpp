@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -19,7 +19,7 @@ void Tikhonov
         Matrix<F>& X,
   TikhonovAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Tikhonov"))
+    DEBUG_CSE
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
@@ -74,7 +74,7 @@ void Tikhonov
         ElementalMatrix<F>& XPre, 
   TikhonovAlg alg )
 {
-    DEBUG_ONLY(CSE cse("Tikhonov"))
+    DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),
@@ -180,7 +180,7 @@ void Tikhonov
 //   "Chapter 8, Cholesky-based Methods for Sparse Least Squares:
 //    The Benefits of Regularization",
 //    in L. Adams and J.L. Nazareth (eds.), Linear and Nonlinear Conjugate
-//    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996).
+//    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996) [CITATION].
 //
 // But note that SymmLQ and LSQR were used rather than flexible GMRES, and 
 // iteratively refining *within* the preconditioner was not discussed.
@@ -195,7 +195,7 @@ void Tikhonov
         Matrix<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Tikhonov"))
+    DEBUG_CSE
     
     // Explicitly form W := op(A)
     // ==========================
@@ -250,9 +250,8 @@ void Tikhonov
         DistMultiVec<F>& X, 
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Tikhonov"))
+    DEBUG_CSE
     mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size(comm);
     
     // Explicitly form W := op(A)
     // ==========================
@@ -275,36 +274,22 @@ void Tikhonov
         VCat( W, G, WEmb ); 
     else
         HCat( W, G, WEmb );
+
     DistMultiVec<F> BEmb(comm);
     Zeros( BEmb, WEmb.Height(), numRHS );
     if( m >= n )
     {
         // BEmb := [B; 0]
         // --------------
-        // TODO: Automate this process
-        // Compute the metadata
-        // ^^^^^^^^^^^^^^^^^^^^
-        vector<int> sendCounts(commSize,0);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
-            sendCounts[ BEmb.RowOwner(B.GlobalRow(iLoc)) ] += numRHS;
-        vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs );
-        // Pack
-        // ^^^^
-        auto offs = sendOffs;
-        vector<Entry<F>> sendBuf(totalSend);
-        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
+        const Int mLocB = B.LocalHeight();
+        BEmb.Reserve( mLocB*numRHS );
+        for( Int iLoc=0; iLoc<mLocB; ++iLoc )
         {
             const Int i = B.GlobalRow(iLoc);
-            const int owner = BEmb.RowOwner(i);
             for( Int j=0; j<numRHS; ++j )
-                sendBuf[offs[owner]++] = Entry<F>{ i, j, B.GetLocal(iLoc,j) };
+                BEmb.QueueUpdate( i, j, B.GetLocal(iLoc,j) );
         }
-        // Exchange and unpack
-        // ^^^^^^^^^^^^^^^^^^^
-        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-        for( auto& entry : recvBuf )
-            BEmb.Update( entry );
+        BEmb.ProcessQueues();
     }
     else
         BEmb = B;
@@ -353,6 +338,10 @@ void Tikhonov
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

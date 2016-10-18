@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./MultiShiftQuasiTrsm/LLN.hpp"
 #include "./MultiShiftQuasiTrsm/LLT.hpp"
@@ -29,8 +31,8 @@ void MultiShiftQuasiTrsm
   const Matrix<F>& shifts,
         Matrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( side == LEFT )
@@ -92,8 +94,8 @@ void MultiShiftQuasiTrsm
         Matrix<Real>& BReal,
         Matrix<Real>& BImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( side == LEFT )
@@ -152,12 +154,12 @@ void MultiShiftQuasiTrsm
   UpperOrLower uplo,
   Orientation orientation, 
   F alpha,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& shifts, 
-        ElementalMatrix<F>& B )
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& shifts, 
+        AbstractDistMatrix<F>& B )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -248,13 +250,13 @@ void MultiShiftQuasiTrsm
   UpperOrLower uplo,
   Orientation orientation, 
   Complex<Real> alpha, 
-  const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Complex<Real>>& shifts, 
-        ElementalMatrix<Real>& BReal,
-        ElementalMatrix<Real>& BImag )
+  const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Complex<Real>>& shifts, 
+        AbstractDistMatrix<Real>& BReal,
+        AbstractDistMatrix<Real>& BImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("MultiShiftQuasiTrsm");
       AssertSameGrids( A, BReal, BImag );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -347,11 +349,11 @@ void LocalMultiShiftQuasiTrsm
   Orientation orientation,
   F alpha,
   const DistMatrix<F,STAR,STAR>& A,
-  const ElementalMatrix<F>& shifts,
-        ElementalMatrix<F>& X )
+  const AbstractDistMatrix<F>& shifts,
+        AbstractDistMatrix<F>& X )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalMultiShiftQuasiTrsm");
       if( shifts.RowDist() != STAR )
           LogicError("shifts must only be distributed within columns");
       if( (side == LEFT &&  
@@ -373,12 +375,12 @@ void LocalMultiShiftQuasiTrsm
   Orientation orientation,
   Complex<Real> alpha,
   const DistMatrix<Real,STAR,STAR>& A,
-  const ElementalMatrix<Complex<Real>>& shifts,
-        ElementalMatrix<Real>& XReal,
-        ElementalMatrix<Real>& XImag )
+  const AbstractDistMatrix<Complex<Real>>& shifts,
+        AbstractDistMatrix<Real>& XReal,
+        AbstractDistMatrix<Real>& XImag )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("LocalMultiShiftQuasiTrsm");
       if( shifts.RowDist() != STAR )
           LogicError("shifts must only be distributed within columns");
       if( XReal.ColDist() != XImag.ColDist() ||
@@ -411,17 +413,17 @@ void LocalMultiShiftQuasiTrsm
     UpperOrLower uplo, \
     Orientation orientation, \
     F alpha, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& shifts, \
-          ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& shifts, \
+          AbstractDistMatrix<F>& B ); \
   template void LocalMultiShiftQuasiTrsm \
   ( LeftOrRight side, \
     UpperOrLower uplo, \
     Orientation orientation, \
     F alpha, \
     const DistMatrix<F,STAR,STAR>& A, \
-    const ElementalMatrix<F>& shifts, \
-          ElementalMatrix<F>& X );
+    const AbstractDistMatrix<F>& shifts, \
+          AbstractDistMatrix<F>& X );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
@@ -439,21 +441,29 @@ void LocalMultiShiftQuasiTrsm
     UpperOrLower uplo, \
     Orientation orientation, \
     Complex<Real> alpha, \
-    const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Complex<Real>>& shifts, \
-          ElementalMatrix<Real>& BReal, \
-          ElementalMatrix<Real>& BImag ); \
+    const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Complex<Real>>& shifts, \
+          AbstractDistMatrix<Real>& BReal, \
+          AbstractDistMatrix<Real>& BImag ); \
   template void LocalMultiShiftQuasiTrsm \
   ( LeftOrRight side, \
     UpperOrLower uplo, \
     Orientation orientation, \
     Complex<Real> alpha, \
     const DistMatrix<Real,STAR,STAR>& A, \
-    const ElementalMatrix<Complex<Real>>& shifts, \
-          ElementalMatrix<Real>& XReal, \
-          ElementalMatrix<Real>& XImag );
+    const AbstractDistMatrix<Complex<Real>>& shifts, \
+          AbstractDistMatrix<Real>& XReal, \
+          AbstractDistMatrix<Real>& XImag );
+
+#define PROTO_DOUBLEDOUBLE PROTO(DoubleDouble)
+#define PROTO_QUADDOUBLE PROTO(QuadDouble)
+#define PROTO_BIGFLOAT PROTO(BigFloat)
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

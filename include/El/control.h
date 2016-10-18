@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_CONTROL_C_H
 #define EL_CONTROL_C_H
 
@@ -36,54 +35,54 @@ EL_EXPORT ElError ElLyapunovDist_z
 
 /* TODO: Expert versions */
 
-/* Ricatti
+/* Riccati
    ======= */
-EL_EXPORT ElError ElRicatti_s
+EL_EXPORT ElError ElRiccati_s
 ( ElUpperOrLower uplo, 
   ElConstMatrix_s A, ElConstMatrix_s K, ElConstMatrix_s L, 
   ElMatrix_s X );
-EL_EXPORT ElError ElRicatti_d
+EL_EXPORT ElError ElRiccati_d
 ( ElUpperOrLower uplo, 
   ElConstMatrix_d A, ElConstMatrix_d K, ElConstMatrix_d L, 
   ElMatrix_d X );
-EL_EXPORT ElError ElRicatti_c
+EL_EXPORT ElError ElRiccati_c
 ( ElUpperOrLower uplo, 
   ElConstMatrix_c A, ElConstMatrix_c K, ElConstMatrix_c L, 
   ElMatrix_c X );
-EL_EXPORT ElError ElRicatti_z
+EL_EXPORT ElError ElRiccati_z
 ( ElUpperOrLower uplo, 
   ElConstMatrix_z A, ElConstMatrix_z K, ElConstMatrix_z L, 
   ElMatrix_z X );
 
-EL_EXPORT ElError ElRicattiDist_s
+EL_EXPORT ElError ElRiccatiDist_s
 ( ElUpperOrLower uplo, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s K, ElConstDistMatrix_s L, 
   ElDistMatrix_s X );
-EL_EXPORT ElError ElRicattiDist_d
+EL_EXPORT ElError ElRiccatiDist_d
 ( ElUpperOrLower uplo, 
   ElConstDistMatrix_d A, ElConstDistMatrix_d K, ElConstDistMatrix_d L, 
   ElDistMatrix_d X );
-EL_EXPORT ElError ElRicattiDist_c
+EL_EXPORT ElError ElRiccatiDist_c
 ( ElUpperOrLower uplo, 
   ElConstDistMatrix_c A, ElConstDistMatrix_c K, ElConstDistMatrix_c L, 
   ElDistMatrix_c X );
-EL_EXPORT ElError ElRicattiDist_z
+EL_EXPORT ElError ElRiccatiDist_z
 ( ElUpperOrLower uplo, 
   ElConstDistMatrix_z A, ElConstDistMatrix_z K, ElConstDistMatrix_z L, 
   ElDistMatrix_z X );
 
-EL_EXPORT ElError ElRicattiPreformed_s( ElMatrix_s W, ElMatrix_s X );
-EL_EXPORT ElError ElRicattiPreformed_d( ElMatrix_d W, ElMatrix_d X );
-EL_EXPORT ElError ElRicattiPreformed_c( ElMatrix_c W, ElMatrix_c X );
-EL_EXPORT ElError ElRicattiPreformed_z( ElMatrix_z W, ElMatrix_z X );
+EL_EXPORT ElError ElRiccatiPreformed_s( ElMatrix_s W, ElMatrix_s X );
+EL_EXPORT ElError ElRiccatiPreformed_d( ElMatrix_d W, ElMatrix_d X );
+EL_EXPORT ElError ElRiccatiPreformed_c( ElMatrix_c W, ElMatrix_c X );
+EL_EXPORT ElError ElRiccatiPreformed_z( ElMatrix_z W, ElMatrix_z X );
 
-EL_EXPORT ElError ElRicattiPreformedDist_s
+EL_EXPORT ElError ElRiccatiPreformedDist_s
 ( ElDistMatrix_s W, ElDistMatrix_s X );
-EL_EXPORT ElError ElRicattiPreformedDist_d
+EL_EXPORT ElError ElRiccatiPreformedDist_d
 ( ElDistMatrix_d W, ElDistMatrix_d X );
-EL_EXPORT ElError ElRicattiPreformedDist_c
+EL_EXPORT ElError ElRiccatiPreformedDist_c
 ( ElDistMatrix_c W, ElDistMatrix_c X );
-EL_EXPORT ElError ElRicattiPreformedDist_z
+EL_EXPORT ElError ElRiccatiPreformedDist_z
 ( ElDistMatrix_z W, ElDistMatrix_z X );
 
 /* TODO: Expert versions */

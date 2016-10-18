@@ -1,14 +1,15 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_CONTROL_HPP
 #define EL_CONTROL_HPP
+
+#include <El/lapack_like/funcs.hpp>
 
 namespace El {
 
@@ -27,19 +28,19 @@ void Lyapunov
         ElementalMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
-// Ricatti
+// Riccati
 // =======
 template<typename F>
-void Ricatti
+void Riccati
 ( Matrix<F>& W, Matrix<F>& X, 
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
-void Ricatti
+void Riccati
 ( ElementalMatrix<F>& W, ElementalMatrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo,
   const Matrix<F>& A,
   const Matrix<F>& K,
@@ -47,7 +48,7 @@ void Ricatti
         Matrix<F>& X,
   SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
-void Ricatti
+void Riccati
 ( UpperOrLower uplo,
   const ElementalMatrix<F>& A,
   const ElementalMatrix<F>& K, 

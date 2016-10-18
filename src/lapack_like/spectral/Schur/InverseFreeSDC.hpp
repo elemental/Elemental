@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_SCHUR_INVERSEFREESDC_HPP
 #define EL_SCHUR_INVERSEFREESDC_HPP
 
@@ -23,10 +22,9 @@ namespace schur {
 //
 
 template<typename F>
-inline int
-InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
+int InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -37,18 +35,20 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 
     // Expose A and B in the original and temporary
     Matrix<F> XAlt( 2*n, n );
-    Matrix<F> A, B, AAlt, BAlt;
-    PartitionDown( X, B, A, n );
-    PartitionDown( XAlt, BAlt, AAlt, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL ); 
+    auto BAlt = XAlt( IR(0,n  ), ALL );
+    auto AAlt = XAlt( IR(n,2*n), ALL );
 
     // Flip the sign of A
     A *= -1;
 
     // Set up the space for explicitly computing the left half of Q
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    Matrix<F> Q( 2*n, n ), Q12, Q22;
-    PartitionDown( Q, Q12, Q22, n );
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
+    Matrix<F> Q( 2*n, n );
+    auto Q12 = Q( IR(0,n  ), ALL );
+    auto Q22 = Q( IR(n,2*n), ALL );
 
     // Run the iterative algorithm
     Int numIts=0;
@@ -56,12 +56,12 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
     while( numIts < maxIts )
     {
         XAlt = X;
-        QR( XAlt, t, d );
+        QR( XAlt, householderScalars, signature );
  
         // Form the left half of Q
         Zero( Q12 );
         MakeIdentity( Q22 );
-        qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
+        qr::ApplyQ( LEFT, NORMAL, XAlt, householderScalars, signature, Q );
 
         // Save a copy of R
         R = BAlt;
@@ -91,10 +91,10 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 }
 
 template<typename F>
-inline int
-InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
+int InverseFreeSign
+( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSign"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();
@@ -110,18 +110,20 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 
     // Expose A and B in the original and temporary
     DistMatrix<F> XAlt( 2*n, n, g );
-    DistMatrix<F> A(g), B(g), AAlt(g), BAlt(g);
-    PartitionDown( X, B, A, n );
-    PartitionDown( XAlt, BAlt, AAlt, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL );
+    auto BAlt = XAlt( IR(0,n  ), ALL );
+    auto AAlt = XAlt( IR(n,2*n), ALL );
 
     // Flip the sign of A
     A *= -1;
 
     // Set up the space for explicitly computing the left half of Q
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<F> Q( 2*n, n, g ), Q12(g), Q22(g);
-    PartitionDown( Q, Q12, Q22, n );
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    DistMatrix<F> Q( 2*n, n, g );
+    auto Q12 = Q( IR(0,n  ), ALL );
+    auto Q22 = Q( IR(n,2*n), ALL );
 
     // Run the iterative algorithm
     Int numIts=0;
@@ -129,12 +131,12 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
     while( numIts < maxIts )
     {
         XAlt = X;
-        QR( XAlt, t, d );
+        QR( XAlt, householderScalars, signature );
  
         // Form the left half of Q
         Zero( Q12 );
         MakeIdentity( Q22 );
-        qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
+        qr::ApplyQ( LEFT, NORMAL, XAlt, householderScalars, signature, Q );
 
         // Save a copy of R
         R = BAlt;
@@ -164,18 +166,17 @@ InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 }
 
 template<typename F>
-inline Base<F>
-InverseFreeSignDivide( Matrix<F>& X )
+Base<F> InverseFreeSignDivide( Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
         LogicError("Matrix should be 2n x n");
    
     // Expose A and B, and then copy A
-    Matrix<F> A, B;
-    PartitionDown( X, B, A, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL );
     Matrix<F> ACopy( A );
 
     // Run the inverse-free alternative to Sign
@@ -187,17 +188,17 @@ InverseFreeSignDivide( Matrix<F>& X )
     // 3) B := Q^H B
     // 4) [R,Q] := RQ(B)
     B += A;
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    Matrix<Int> p;
-    QR( A, t, d, p );
-    qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
-    RQ( B, t, d );
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
+    Permutation perm;
+    QR( A, householderScalars, signature, perm );
+    qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, B );
+    RQ( B, householderScalars, signature );
 
     // A := Q^H A Q
     A = ACopy;
-    rq::ApplyQ( LEFT, ADJOINT, B, t, d, A );
-    rq::ApplyQ( RIGHT, NORMAL, B, t, d, A );
+    rq::ApplyQ( LEFT, ADJOINT, B, householderScalars, signature, A );
+    rq::ApplyQ( RIGHT, NORMAL, B, householderScalars, signature, A );
 
     // Return || E21 ||1 / || A ||1
     ValueInt<Real> part = ComputePartition( A );
@@ -206,10 +207,9 @@ InverseFreeSignDivide( Matrix<F>& X )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-InverseFreeSignDivide( ElementalMatrix<F>& XPre )
+ValueInt<Base<F>> InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("schur::InverseFreeSignDivide"))
+    DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();
@@ -221,8 +221,8 @@ InverseFreeSignDivide( ElementalMatrix<F>& XPre )
         LogicError("Matrix should be 2n x n");
    
     // Expose A and B, and then copy A
-    DistMatrix<F> A(g), B(g);
-    PartitionDown( X, B, A, n );
+    auto B = X( IR(0,n  ), ALL );
+    auto A = X( IR(n,2*n), ALL );
     DistMatrix<F> ACopy( A );
 
     // Run the inverse-free alternative to Sign
@@ -234,17 +234,17 @@ InverseFreeSignDivide( ElementalMatrix<F>& XPre )
     // 3) B := Q^H B
     // 4) [R,Q] := RQ(B)
     B += A;
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    QR( A, t, d, p );
-    qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
-    RQ( B, t, d );
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    DistPermutation perm(g);
+    QR( A, householderScalars, signature, perm );
+    qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, B );
+    RQ( B, householderScalars, signature );
 
     // A := Q^H A Q
     A = ACopy;
-    rq::ApplyQ( LEFT, ADJOINT, B, t, d, A );
-    rq::ApplyQ( RIGHT, NORMAL, B, t, d, A );
+    rq::ApplyQ( LEFT, ADJOINT, B, householderScalars, signature, A );
+    rq::ApplyQ( RIGHT, NORMAL, B, householderScalars, signature, A );
 
     // Return || E21 ||1 / || A ||1
     // Return || E21 ||1 / || A ||1

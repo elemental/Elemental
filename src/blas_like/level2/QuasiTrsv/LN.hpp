@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,11 +11,10 @@ namespace El {
 namespace quasitrsv {
 
 template<typename F>
-inline void
-LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
+void LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LNUnb");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -50,7 +49,7 @@ LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
             const F delta22 = LBuf[(k+1)+(k+1)*ldl];
             // Decompose D = L Q
             Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
+            const F gamma11 = Givens( delta11, delta12, c, s );
             const F gamma21 =        c*delta21 + s*delta22;
             const F gamma22 = -Conj(s)*delta21 + c*delta22; 
             if( checkIfSingular )
@@ -98,11 +97,10 @@ LNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 }
 
 template<typename F>
-inline void
-LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
+void LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LN");
       if( L.Height() != L.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -146,14 +144,13 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 }
 
 template<typename F>
-inline void
-LN
-( const ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& xPre, 
+void LN
+( const AbstractDistMatrix<F>& LPre,
+        AbstractDistMatrix<F>& xPre, 
   bool checkIfSingular=false )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("quasitrsv::LN");
       AssertSameGrids( LPre, xPre );
       if( LPre.Height() != LPre.Width() )
           LogicError("L must be square");
@@ -188,7 +185,8 @@ LN
         DistMatrix<F,MC,STAR> z1_MC_STAR(g), z2_MC_STAR(g);
 
         z_MC_STAR.AlignWith( L );
-        Zeros( z_MC_STAR, m, 1 );
+        z_MC_STAR.Resize( m, 1 );
+        Zero( z_MC_STAR );
 
         Int k=0;
         while( k < m )
@@ -233,7 +231,8 @@ LN
         DistMatrix<F,STAR,MC> z1_STAR_MC(g), z2_STAR_MC(g);
 
         z_STAR_MC.AlignWith( L );
-        Zeros( z_STAR_MC, 1, m );
+        z_STAR_MC.Resize( 1, m );
+        Zero( z_STAR_MC );
 
         Int k=0;
         while( k < m )

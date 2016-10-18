@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -18,18 +18,13 @@ void MinEig
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     soc::LowerNorms( x, minEigs, orders, firstInds );
 
     const Int height = x.Height();
-
-          Real* minEigBuf = minEigs.Buffer();
-    const Real* xBuf = x.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] ) 
-            minEigBuf[i] = xBuf[i]-minEigBuf[i];
+        if( i == firstInds(i) ) 
+            minEigs(i) = x(i)-minEigs(i);
 }
 
 template<typename Real,typename>
@@ -40,7 +35,7 @@ void MinEig
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     AssertSameGrids( xPre, minEigsPre, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -85,7 +80,7 @@ void MinEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     DEBUG_ONLY(
@@ -112,18 +107,15 @@ Real MinEig
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     Matrix<Real> minEigs;
     soc::MinEig( x, minEigs, orders, firstInds );
-
-    const Real* minEigBuf = minEigs.LockedBuffer();
-    const Int* firstIndBuf = firstInds.LockedBuffer();
 
     Real minEig = limits::Max<Real>();
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstIndBuf[i] ) 
-            minEig = Min(minEigBuf[i],minEig);
+        if( i == firstInds(i) ) 
+            minEig = Min(minEigs(i),minEig);
     return minEig;
 }
 
@@ -134,7 +126,7 @@ Real MinEig
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     AssertSameGrids( x, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -165,7 +157,7 @@ Real MinEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::MinEig"))
+    DEBUG_CSE
     DistMultiVec<Real> minEigs(x.Comm());
     soc::MinEig( x, minEigs, orders, firstInds, cutoff );
 
@@ -215,7 +207,11 @@ Real MinEig
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

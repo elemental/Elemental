@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -16,7 +16,7 @@ void Lanczos
         Matrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("Lanczos"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -38,7 +38,7 @@ Base<F> LanczosDecomp
         Matrix<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("LanczosDecomp"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -58,7 +58,7 @@ void Lanczos
         ElementalMatrix<Base<F>>& T,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("Lanczos"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -80,7 +80,7 @@ Base<F> LanczosDecomp
         DistMultiVec<F>& v,
         Int basisSize )
 {
-    DEBUG_ONLY(CSE cse("LanczosDecomp"))
+    DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -117,6 +117,10 @@ Base<F> LanczosDecomp
           Int basisSize );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

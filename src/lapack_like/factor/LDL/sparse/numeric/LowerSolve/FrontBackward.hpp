@@ -17,11 +17,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTBACKWARD_HPP
 #define EL_FACTOR_LDL_NUMERIC_LOWERSOLVE_FRONTBACKWARD_HPP
 
-#include "ElSuiteSparse/ldl.hpp"
 #include "./FrontUtil.hpp"
 
 namespace El {
@@ -83,20 +81,23 @@ void BackwardSingle
 } // namespace internal
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const Matrix<F>& L,
-        Matrix<F>& X, bool conjugate )
+        Matrix<F>& X,
+  bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
@@ -104,27 +105,29 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerBackwardSolve
+void FrontIntraPivLowerBackwardSolve
 ( const Matrix<F>& L,
   const Permutation& P,
         Matrix<F>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
-    Matrix<F> XT, XB;
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
     P.InversePermuteRows( XT );
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X,
-  bool conjugate, bool singleL11AllGather=true )
+  bool conjugate,
+  bool singleL11AllGather=true )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -134,6 +137,7 @@ inline void FrontVanillaLowerBackwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -142,9 +146,10 @@ inline void FrontVanillaLowerBackwardSolve
         return;
     }
 
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     if( XB.Height() != 0 )
     {
@@ -162,32 +167,30 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerBackwardSolve
+void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate,
   bool singleL11AllGather=true )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontVanillaLowerBackwardSolve( L, X, conjugate, singleL11AllGather );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -195,6 +198,7 @@ inline void FrontVanillaLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -203,9 +207,10 @@ inline void FrontVanillaLowerBackwardSolve
         return;
     }
 
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
@@ -213,13 +218,13 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontVanillaLowerBackwardSolve
+void FrontVanillaLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& XPre,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontVanillaLowerBackwardSolve");
       if( L.Grid() != XPre.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != XPre.Height() )
@@ -227,6 +232,7 @@ inline void FrontVanillaLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(XPre,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -237,9 +243,10 @@ inline void FrontVanillaLowerBackwardSolve
 
     DistMatrix<F> X( XPre );
 
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Gemm( orientation, NORMAL, F(-1), LB, XB, F(1), XT );
@@ -249,31 +256,29 @@ inline void FrontVanillaLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontIntraPivLowerBackwardSolve
+void FrontIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontVanillaLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
 template<typename F>
-inline void FrontFastLowerBackwardSolve
+void FrontFastLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -283,6 +288,7 @@ inline void FrontFastLowerBackwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -291,10 +297,10 @@ inline void FrontFastLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := XT - LB^{T/H} XB
     DistMatrix<F,STAR,STAR> Z(g);
@@ -311,30 +317,29 @@ inline void FrontFastLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerBackwardSolve
+void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n),   ALL );
     P.InversePermuteRows( XT );
 }
 
 template<typename F>
-inline void FrontFastLowerBackwardSolve
+void FrontFastLowerBackwardSolve
 ( const DistMatrix<F>& L,
-        DistMatrix<F,VC,STAR>& X, bool conjugate )
+        DistMatrix<F,VC,STAR>& X,
+  bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -342,6 +347,7 @@ inline void FrontFastLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -350,11 +356,10 @@ inline void FrontFastLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     DistMatrix<F,MR,STAR> ZT_MR_STAR( g );
     DistMatrix<F,VR,STAR> ZT_VR_STAR( g );
@@ -394,31 +399,29 @@ inline void FrontFastLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerBackwardSolve
+void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
 template<typename F>
-inline void FrontFastLowerBackwardSolve
+void FrontFastLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontFastLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -426,6 +429,7 @@ inline void FrontFastLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -434,10 +438,10 @@ inline void FrontFastLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // XT := XT - LB^{T/H} XB
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -450,39 +454,39 @@ inline void FrontFastLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontFastIntraPivLowerBackwardSolve
+void FrontFastIntraPivLowerBackwardSolve
 ( const DistMatrix<F>& L,
   const DistPermutation& P,
         DistMatrix<F>& X,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontFastIntraPivLowerBackwardSolve"))
+    DEBUG_CSE
 
     FrontFastLowerBackwardSolve( L, X, conjugate );
 
-    // TODO: Cache the send and recv data for the pivots to avoid p[*,*]
-    const Grid& g = L.Grid();
-    DistMatrix<F> XT(g), XB(g);
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto XT = X( IR(0,n), ALL );
     P.InversePermuteRows( XT );
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const Matrix<F>& L,
         Matrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
-    Matrix<F> LT, LB, XT, XB;
-    LockedPartitionDown( L, LT, LB, L.Width() );
-    PartitionDown( X, XT, XB, L.Width() );
+    const Int n = L.Width();
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     // YT := LB^[T/H] XB
     Matrix<F> YT;
@@ -494,13 +498,13 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -510,6 +514,7 @@ inline void FrontBlockLowerBackwardSolve
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -517,10 +522,10 @@ inline void FrontBlockLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F,VC,STAR> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     if( XB.Height() == 0 )
         return;
@@ -539,13 +544,13 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -553,6 +558,7 @@ inline void FrontBlockLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -560,11 +566,10 @@ inline void FrontBlockLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    DistMatrix<F,VC,STAR> XT(g), XB(g);
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
 
     if( XB.Height() == 0 )
         return;
@@ -609,13 +614,13 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontBlockLowerBackwardSolve
+void FrontBlockLowerBackwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X,
   bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("ldl::FrontBlockLowerBackwardSolve");
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -623,6 +628,7 @@ inline void FrontBlockLowerBackwardSolve
           ("Nonconformal solve:\n",
            DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
+    const Int n = L.Width();
     const Grid& g = L.Grid();
     if( g.Size() == 1 )
     {
@@ -630,10 +636,10 @@ inline void FrontBlockLowerBackwardSolve
         return;
     }
 
-    const int snSize = L.Width();
-    DistMatrix<F> LT(g), LB(g), XT(g), XB(g);
-    LockedPartitionDown( L, LT, LB, snSize );
-    PartitionDown( X, XT, XB, snSize );
+    auto LT = L( IR(0,n),   ALL );
+    auto LB = L( IR(n,END), ALL );
+    auto XT = X( IR(0,n),   ALL );
+    auto XB = X( IR(n,END), ALL );
     if( XB.Height() == 0 )
         return;
 
@@ -647,12 +653,12 @@ inline void FrontBlockLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontLowerBackwardSolve
+void FrontLowerBackwardSolve
 ( const Front<F>& front,
         Matrix<F>& W,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
+    DEBUG_CSE
     LDLFrontType type = front.type;
     DEBUG_ONLY(
       if( Unfactored(type) )
@@ -665,8 +671,9 @@ inline void FrontLowerBackwardSolve
         const F* LValBuf = front.LSparse.LockedValueBuffer();
         const Int* LColBuf = front.LSparse.LockedTargetBuffer();
         const Int* LOffsetBuf = front.LSparse.LockedOffsetBuffer();
-        Matrix<F> WT, WB;
-        PartitionDown( W, WT, WB, n );
+
+        auto WT = W( IR(0,n), ALL );
+        auto WB = W( IR(n,END), ALL );
 
         const Orientation orientation = 
           ( front.isHermitian ? ADJOINT : TRANSPOSE );
@@ -690,12 +697,12 @@ inline void FrontLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontLowerBackwardSolve
+void FrontLowerBackwardSolve
 ( const DistFront<F>& front,
         DistMatrix<F>& W,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
+    DEBUG_CSE
     LDLFrontType type = front.type;
     DEBUG_ONLY(
       if( Unfactored(type) )
@@ -720,12 +727,12 @@ inline void FrontLowerBackwardSolve
 }
 
 template<typename F>
-inline void FrontLowerBackwardSolve
+void FrontLowerBackwardSolve
 ( const DistFront<F>& front,
         DistMatrix<F,VC,STAR>& W,
   bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("ldl::FrontLowerBackwardSolve"))
+    DEBUG_CSE
     LDLFrontType type = front.type;
     DEBUG_ONLY(
       if( Unfactored(type) )

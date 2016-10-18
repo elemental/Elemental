@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/covsel/covsel.html
@@ -26,7 +26,7 @@ Int SparseInvCov
         Matrix<F>& Z,
   const SparseInvCovCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SparseInvCov"))
+    DEBUG_CSE
     typedef Base<F> Real;
     const Int n = D.Width();
 
@@ -116,7 +116,7 @@ Int SparseInvCov
         ElementalMatrix<F>& ZPre,
   const SparseInvCovCtrl<Base<F>>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("SparseInvCov"))
+    DEBUG_CSE
 
     DistMatrixWriteProxy<F,F,MC,MR> ZProx( ZPre );
     auto& Z = ZProx.Get();
@@ -218,6 +218,6 @@ Int SparseInvCov
     const SparseInvCovCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#include <El/macros/Instantiate.h>
 
 } // namespace El

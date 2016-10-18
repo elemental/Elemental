@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 typedef double Real;
@@ -17,7 +17,6 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm;
-    const Int commRank = mpi::Rank( comm );
     const Int commSize = mpi::Size( comm );
 
     try 
@@ -52,7 +51,12 @@ main( int argc, char* argv[] )
             Print( D, "D" );
         }
 
+        Timer timer;
+        if( mpi::Rank() == 0 )
+            timer.Start();
         GLM( A, B, D, X, Y );
+        if( mpi::Rank() == 0 )
+            timer.Stop();
         if( print ) 
         {
             Print( X, "X" );
@@ -65,10 +69,13 @@ main( int argc, char* argv[] )
         const Real EFrob = FrobeniusNorm( D );
         if( print )
             Print( D, "D - A X - B Y" );
-        if( commRank == 0 )
+        if( mpi::Rank() == 0 )
+        {
+            Output("GLM time: ",timer.Total()," secs");
             Output
             ("|| D             ||_F = ",DFrob,"\n",
              "|| A X + B Y - D ||_F = ",EFrob,"\n");
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

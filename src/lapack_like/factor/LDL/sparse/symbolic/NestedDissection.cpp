@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -8,8 +8,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "ElSuiteSparse/ldl.hpp"
+#include <El.hpp>
+#include <set>
 
 namespace El {
 namespace ldl {
@@ -21,8 +21,9 @@ void AMDOrder
         double* control,
         double* info )
 {
-    DEBUG_ONLY(CSE cse("ldl::AMDOrder"))
+    DEBUG_CSE
     const Int numSources = subOffsets.size()-1;
+    // TODO: Simplify this after templating ElSuiteSparse's AMD
 #ifdef EL_USE_64BIT_INTS
     const Int numEdges = subTargets.size();
     vector<int> subOffsets_int( numSources+1 ),
@@ -54,6 +55,26 @@ void AMDOrder
 #endif
 }
 
+inline bool IsSymmetric( const Graph& graph )
+{
+    DEBUG_CSE
+    // NOTE: We only check within the numSources x numSources upper-left
+    const Int numSources = graph.NumSources();
+    const Int numEdges = graph.NumEdges();
+    bool isSymmetric = true;
+    for( Int e=0; e<numEdges; ++e  )
+    {
+        const Int source = graph.Source(e);
+        const Int target = graph.Target(e);
+        if( source < numSources && target < numSources )
+        {
+            if( !graph.EdgeExists(target,source) )
+                isSymmetric = false;
+        }
+    }
+    return isSymmetric;
+}
+
 inline void
 NestedDissectionRecursion
 ( const Graph& graph, 
@@ -63,7 +84,7 @@ NestedDissectionRecursion
         Int off, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ldl::NestedDissectionRecursion"))
+    DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int* offsetBuf = graph.LockedOffsetBuffer();
     const Int* sourceBuf = graph.LockedSourceBuffer();
@@ -141,6 +162,14 @@ NestedDissectionRecursion
     }
     else
     {
+        DEBUG_ONLY(
+          if( !IsSymmetric(graph) )
+          {
+              Print( graph, "graph" );
+              LogicError("Graph was not symmetric");
+          }
+        )
+
         // Partition the graph and construct the inverse map
         Graph leftChild, rightChild;
         vector<Int> map;
@@ -148,6 +177,23 @@ NestedDissectionRecursion
         vector<Int> invMap( numSources );
         for( Int s=0; s<numSources; ++s )
             invMap[map[s]] = s;
+
+        DEBUG_ONLY(
+          if( !IsSymmetric(leftChild) )
+          {
+              Print( graph, "graph" );
+              Print( leftChild, "leftChild" );
+              LogicError("Left child was not symmetric");
+          }
+        )
+        DEBUG_ONLY(
+          if( !IsSymmetric(rightChild) )
+          {
+              Print( graph, "graph" );
+              Print( rightChild, "rightChild" );
+              LogicError("Right child was not symmetric");
+          }
+        )
 
         // Mostly compute this node of the local separator tree
         // (we will finish computing the separator indices soon)
@@ -216,7 +262,7 @@ NestedDissectionRecursion
         Int off, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ldl::NestedDissectionRecursion"))
+    DEBUG_CSE
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -342,7 +388,7 @@ void NestedDissection
         NodeInfo& node,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ldl::NestedDissection"))
+    DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
@@ -367,7 +413,7 @@ void NestedDissection
         DistNodeInfo& node,
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("ldl::NestedDissection"))
+    DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     DistMap perm( graph.NumSources(), graph.Comm() );
@@ -388,7 +434,7 @@ void NestedDissection
 
 void BuildMap( const Separator& rootSep, vector<Int>& map )
 {
-    DEBUG_ONLY(CSE cse("ldl::BuildMap"))
+    DEBUG_CSE
     const Int numSources = rootSep.off + rootSep.inds.size();
     map.resize( numSources );
 
@@ -405,7 +451,7 @@ void BuildMap( const Separator& rootSep, vector<Int>& map )
 
 void BuildMap( const DistSeparator& rootSep, DistMap& map )
 {
-    DEBUG_ONLY(CSE cse("ldl::BuildMap"))
+    DEBUG_CSE
 
     const Int numSources = rootSep.off + rootSep.inds.size();
     mpi::Comm comm = rootSep.comm;

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    Copyright (c) 2013, The University of Texas at Austin
@@ -9,7 +9,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TRMM_RLT_HPP
 #define EL_TRMM_RLT_HPP
 
@@ -17,16 +16,15 @@ namespace El {
 namespace trmm {
 
 template<typename T>
-inline void
-LocalAccumulateRLT
+void LocalAccumulateRLT
 ( UnitOrNonUnit diag,
   T alpha,
   const DistMatrix<T>& L,
   const DistMatrix<T,MR,STAR>& XTrans,
         DistMatrix<T,MC,STAR>& ZTrans )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::LocalAccumulateRLT");
       AssertSameGrids( L, XTrans, ZTrans );
       if( L.Height() != L.Width() ||
           L.Height() != XTrans.Height() ||
@@ -70,15 +68,14 @@ LocalAccumulateRLT
 }
 
 template<typename T>
-inline void
-RLTA
+void RLTA
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLTA");
       AssertSameGrids( LPre, XPre );
       // TODO: More error checks
     )
@@ -107,7 +104,8 @@ RLTA
         auto X1 = X( IR(k,k+nb), ALL );
 
         Transpose( X1, X1Trans_MR_STAR, conjugate );
-        Zeros( Z1Trans_MC_STAR, X1.Width(), X1.Height() );
+        Z1Trans_MC_STAR.Resize( X1.Width(), X1.Height() );
+        Zero( Z1Trans_MC_STAR );
         LocalAccumulateRLT
         ( diag, T(1), L, X1Trans_MR_STAR, Z1Trans_MC_STAR );
 
@@ -119,15 +117,14 @@ RLTA
 }
 
 template<typename T>
-inline void
-RLTC
+void RLTC
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& LPre,
-        ElementalMatrix<T>& XPre )
+  const AbstractDistMatrix<T>& LPre,
+        AbstractDistMatrix<T>& XPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trmm::RLTC");
       AssertSameGrids( LPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected Adjoint/Transpose option");
@@ -181,14 +178,13 @@ RLTC
 //   X := X trilu(L)^T, or
 //   X := X trilu(L)^H
 template<typename T>
-inline void
-RLT
+void RLT
 ( Orientation orientation,
   UnitOrNonUnit diag,
-  const ElementalMatrix<T>& L,
-        ElementalMatrix<T>& X )
+  const AbstractDistMatrix<T>& L,
+        AbstractDistMatrix<T>& X )
 {
-    DEBUG_ONLY(CSE cse("trmm::RLT"))
+    DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         RLTA( orientation, diag, L, X );

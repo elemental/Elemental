@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -17,23 +17,17 @@ void Reflect
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Reflect"))
-
+    DEBUG_CSE
     const Int height = x.Height();
-
     DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
     )
-
-    const Int* firstIndBuf = firstInds.LockedBuffer();
-    Real* xBuf = x.Buffer(); 
-    
     for( Int i=0; i<height; ++i )
-        if( i != firstIndBuf[i] )
-            xBuf[i] = -xBuf[i];
+        if( i != firstInds(i) )
+            x(i) = -x(i);
 }
 
 template<typename Real,typename>
@@ -42,7 +36,7 @@ void Reflect
   const ElementalMatrix<Int>& ordersPre, 
   const ElementalMatrix<Int>& firstIndsPre )
 {
-    DEBUG_ONLY(CSE cse("soc::Reflect"))
+    DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -81,7 +75,7 @@ void Reflect
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Reflect"))
+    DEBUG_CSE
 
     DEBUG_ONLY(
       const Int height = x.Height();
@@ -117,8 +111,11 @@ void Reflect
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

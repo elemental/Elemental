@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -16,16 +16,15 @@ namespace trsm {
 //   X := X triuu(U)^-T, or
 //   X := X triuu(U)^-H
 template<typename F>
-inline void
-RUT
+void RUT
 ( Orientation orientation,
   UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::RUT");
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
     )

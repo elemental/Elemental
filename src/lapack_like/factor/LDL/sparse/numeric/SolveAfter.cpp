@@ -9,7 +9,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 namespace El {
@@ -22,7 +22,7 @@ void SolveAfter
   const Front<F>& front,
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
+    DEBUG_CSE
 
     MatrixNode<F> XNodal( invMap, info, X );
     SolveAfter( info, front, XNodal );
@@ -35,7 +35,7 @@ void SolveAfter
   const Front<F>& front,
         MatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
+    DEBUG_CSE
 
     const Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE );
     if( BlockFactorization(front.type) )
@@ -63,7 +63,7 @@ void SolveAfter
   const DistFront<F>& front,
         DistMultiVec<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
+    DEBUG_CSE
 
     if( FrontIs1D(front.type) )
     {
@@ -85,7 +85,7 @@ void SolveAfter
   const DistFront<F>& front,
         DistMultiVecNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
+    DEBUG_CSE
 
     // TODO: Only perform the switch if there are a sufficient 
     //       number of right-hand sides?
@@ -125,7 +125,7 @@ void SolveAfter
   const DistFront<F>& front,
         DistMatrixNode<F>& X )
 {
-    DEBUG_ONLY(CSE cse("ldl::SolveAfter"))
+    DEBUG_CSE
 
     if( FrontIs1D(front.type) )
     {
@@ -166,7 +166,7 @@ Int SolveWithIterativeRefinement
         Matrix<F>& y,
   Base<F> minReductionFactor, Int maxRefineIts )
 {
-    DEBUG_ONLY(CSE cse("ldl::SolveWithIterativeRefinement"))
+    DEBUG_CSE
     auto yOrig = y;
 
     // Compute the initial guess
@@ -227,7 +227,7 @@ Int SolveWithIterativeRefinement
         DistMultiVec<F>& y,
   Base<F> minReductionFactor, Int maxRefineIts )
 {
-    DEBUG_ONLY(CSE cse("ldl::SolveWithIterativeRefinement"))
+    DEBUG_CSE
     mpi::Comm comm = y.Comm();
 
     DistMultiVec<F> yOrig(comm);
@@ -324,7 +324,11 @@ Int SolveWithIterativeRefinement
     Base<F> minReductionFactor, Int maxRefineIts );
  
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace ldl
 } // namespace El

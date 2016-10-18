@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace std;
 using namespace El;
 
@@ -249,9 +249,8 @@ main( int argc, char* argv[] )
         psCtrl.basisSize = basisSize;
         psCtrl.progress = progress;
 #ifdef EL_HAVE_SCALAPACK
-        psCtrl.schurCtrl.qrCtrl.blockHeight = nbDist;
-        psCtrl.schurCtrl.qrCtrl.blockWidth = nbDist;
-        psCtrl.schurCtrl.qrCtrl.distAED = false;
+        psCtrl.schurCtrl.hessSchurCtrl.blockHeight = nbDist;
+        psCtrl.schurCtrl.hessSchurCtrl.scalapack = false;
 #else
         psCtrl.schurCtrl.sdcCtrl.cutoff = cutoff;
         psCtrl.schurCtrl.sdcCtrl.maxInnerIts = maxInnerIts;

@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace std;
 using namespace El;
 
@@ -69,38 +69,38 @@ main( int argc, char* argv[] )
         auto HCopy( H );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
-        // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
+        // matrix, Q[MC,MR], and an eigenvalue column vector, w[VR,* ]
         //
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
         DistMatrix<Real,VR,STAR> w( g );
-        DistMatrix<C> X( g );
-        HermitianEig( LOWER, H, w, X, ASCENDING ); 
+        DistMatrix<C> Q( g );
+        HermitianEig( LOWER, H, w, Q ); 
 
         if( print )
         {
             Print( HCopy, "H" );
-            Print( X, "X" );
+            Print( Q, "Q" );
             Print( w, "w" );
         }
 
-        // Check the residual, || H X - Omega X ||_F
+        // Check the residual, || H Q - Omega Q ||_F
         const Real frobH = HermitianFrobeniusNorm( LOWER, HCopy );
-        auto E( X );
+        auto E( Q );
         DiagonalScale( RIGHT, NORMAL, w, E );
-        Hemm( LEFT, LOWER, C(-1), HCopy, X, C(1), E );
+        Hemm( LEFT, LOWER, C(-1), HCopy, Q, C(1), E );
         const Real frobResid = FrobeniusNorm( E );
 
-        // Check the orthogonality of X
+        // Check the orthogonality of Q
         Identity( E, n, n );
-        Herk( LOWER, NORMAL, Real(-1), X, Real(1), E );
+        Herk( LOWER, ADJOINT, Real(-1), Q, Real(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( mpi::Rank() == 0 )
             Output
             ("|| H ||_F = ",frobH,"\n",
-             "|| H X - X Omega ||_F / || A ||_F = ",frobResid/frobH,"\n",
-             "|| X X^H - I ||_F = ",frobOrthog,"\n");
+             "|| H Q - Q Omega ||_F / || A ||_F = ",frobResid/frobH,"\n",
+             "|| Q' Q - I ||_F = ",frobOrthog,"\n");
     }
     catch( exception& e ) { ReportException(e); }
 

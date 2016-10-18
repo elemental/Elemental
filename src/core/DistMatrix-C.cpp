@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
    Copyright (c) 2014, Jed Brown
    All rights reserved.
@@ -8,8 +8,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El-lite.hpp>
+#include <El-lite.h>
 using namespace El;
 
 template<typename T>
@@ -546,6 +546,6 @@ extern "C" {
   C_PROTO(SIG,SIGBASE,T) \
   DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T)
 
-#include "El/macros/CInstantiate.h"
+#include <El/macros/CInstantiate.h>
 
 } // extern "C"

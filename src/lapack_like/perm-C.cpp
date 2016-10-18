@@ -1,13 +1,13 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "El.h"
+#include <El.hpp>
+#include <El.h>
 using namespace El;
 
 extern "C" {
@@ -117,19 +117,19 @@ ElError ElPermutationMakeArbitrary( ElPermutation P )
 ElError ElDistPermutationMakeArbitrary( ElDistPermutation P )
 { EL_TRY( CReflect(P)->MakeArbitrary() ) }
 
-ElError ElPermutationRowSwap
+ElError ElPermutationSwap
 ( ElPermutation P, ElInt origin, ElInt dest )
-{ EL_TRY( CReflect(P)->RowSwap(origin,dest) ) }
-ElError ElDistPermutationRowSwap
+{ EL_TRY( CReflect(P)->Swap(origin,dest) ) }
+ElError ElDistPermutationSwap
 ( ElDistPermutation P, ElInt origin, ElInt dest )
-{ EL_TRY( CReflect(P)->RowSwap(origin,dest) ) }
+{ EL_TRY( CReflect(P)->Swap(origin,dest) ) }
 
-ElError ElPermutationRowSwapSequence
+ElError ElPermutationSwapSequence
 ( ElPermutation P, ElConstPermutation PAppend, ElInt offset )
-{ EL_TRY( CReflect(P)->RowSwapSequence(*CReflect(PAppend),offset) ) }
-ElError ElDistPermutationRowSwapSequence
+{ EL_TRY( CReflect(P)->SwapSequence(*CReflect(PAppend),offset) ) }
+ElError ElDistPermutationSwapSequence
 ( ElDistPermutation P, ElConstDistPermutation PAppend, ElInt offset )
-{ EL_TRY( CReflect(P)->RowSwapSequence(*CReflect(PAppend),offset) ) }
+{ EL_TRY( CReflect(P)->SwapSequence(*CReflect(PAppend),offset) ) }
 
 ElError ElPermutationSetImage
 ( ElPermutation P, ElInt origin, ElInt dest )

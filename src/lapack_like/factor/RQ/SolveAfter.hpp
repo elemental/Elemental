@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_RQ_SOLVEAFTER_HPP
 #define EL_RQ_SOLVEAFTER_HPP
 
@@ -19,12 +18,12 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation, 
   const Matrix<F>& A,
-  const Matrix<F>& t, 
-  const Matrix<Base<F>>& d,
+  const Matrix<F>& householderScalars, 
+  const Matrix<Base<F>>& signature,
   const Matrix<F>& B,       
         Matrix<F>& X )
 {
-    DEBUG_ONLY(CSE cse("rq::SolveAfter"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( m > n )
@@ -38,8 +37,8 @@ void SolveAfter
 
         // Copy B into X
         X.Resize( n, B.Width() );
-        Matrix<F> XT, XB;
-        PartitionDown( X, XT, XB, m );
+        auto XT = X( IR(0,m), ALL );
+        auto XB = X( IR(m,n), ALL );
         XT = B;
         Zero( XB );
 
@@ -47,7 +46,7 @@ void SolveAfter
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AR, XT, true );
 
         // Apply Q' to X 
-        rq::ApplyQ( LEFT, ADJOINT, A, t, d, X );
+        rq::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, X );
     }
     else // orientation in {TRANSPOSE,ADJOINT}
     {
@@ -61,7 +60,7 @@ void SolveAfter
             Conjugate( X );
 
         // Apply Q to X
-        rq::ApplyQ( LEFT, NORMAL, A, t, d, X );
+        rq::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, X );
 
         // Shrink X to its new height
         X.Resize( m, X.Width() );
@@ -78,15 +77,14 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& t, 
-  const ElementalMatrix<Base<F>>& d,
+  const ElementalMatrix<F>& householderScalars, 
+  const ElementalMatrix<Base<F>>& signature,
   const ElementalMatrix<F>& B, 
         ElementalMatrix<F>& XPre )
 {
-    DEBUG_ONLY(CSE cse("lq::SolveAfter"))
+    DEBUG_CSE
     const Int m = APre.Height();
     const Int n = APre.Width();
-    const Grid& g = APre.Grid();
     if( m > n )
         LogicError("Must have full row rank");
 
@@ -105,8 +103,8 @@ void SolveAfter
             LogicError("A and B do not conform");
 
         // Copy B into X
-        DistMatrix<F> XT(g), XB(g);
-        PartitionDown( X, XT, XB, m );
+        auto XT = X( IR(0,m), ALL );
+        auto XB = X( IR(m,n), ALL );
         XT = B;
         Zero( XB );
 
@@ -117,7 +115,7 @@ void SolveAfter
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AR, XT, true );
 
         // Apply Q' to X 
-        rq::ApplyQ( LEFT, ADJOINT, A, t, d, X );
+        rq::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, X );
 
         if( orientation == TRANSPOSE )
             Conjugate( X );
@@ -131,7 +129,7 @@ void SolveAfter
             Conjugate( X );
 
         // Apply Q to X
-        rq::ApplyQ( LEFT, NORMAL, A, t, d, X );
+        rq::ApplyQ( LEFT, NORMAL, A, householderScalars, signature, X );
 
         // Shrink X to its new height
         X.Resize( m, X.Width() );

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TWOSIDEDTRMM_LVAR1_HPP
 #define EL_TWOSIDEDTRMM_LVAR1_HPP
 
@@ -16,11 +15,10 @@ namespace twotrmm {
 // The only reason a field is required is for the existence of 1/2, which is 
 // an artifact of the algorithm...
 template<typename F> 
-inline void
-LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
+void LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::LVar1");
       if( A.Height() != A.Width() )
           LogicError( "A must be square." );
       if( L.Height() != L.Width() )
@@ -50,7 +48,8 @@ LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         auto L22 = L( ind2, ind2 );
 
         // Y21 := A22 L21
-        Zeros( Y21, A21.Height(), nb );
+        Y21.Resize( A21.Height(), nb );
+        Zero( Y21 );
         Hemm( LEFT, LOWER, F(1), A22, L21, F(0), Y21 );
 
         // A21 := A21 L11
@@ -74,14 +73,13 @@ LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 }
 
 template<typename F> 
-inline void
-LVar1
+void LVar1
 ( UnitOrNonUnit diag, 
-        ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& LPre )
+        AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& LPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("twotrmm::LVar1");
       if( APre.Height() != APre.Width() )
           LogicError( "A must be square." );
       if( LPre.Height() != LPre.Width() )
@@ -134,8 +132,10 @@ LVar1
         L21_VR_STAR.AdjointPartialColAllGather( L21Adj_STAR_MR );
         Z21_MC_STAR.AlignWith( A22 );
         Z21_MR_STAR.AlignWith( A22 );
-        Zeros( Z21_MC_STAR, A21.Height(), nb );
-        Zeros( Z21_MR_STAR, A21.Height(), nb );
+        Z21_MC_STAR.Resize( A21.Height(), nb );
+        Z21_MR_STAR.Resize( A21.Height(), nb );
+        Zero( Z21_MC_STAR );
+        Zero( Z21_MR_STAR );
         symm::LocalAccumulateLL
         ( ADJOINT, 
           F(1), A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );
@@ -163,7 +163,8 @@ LVar1
 
         // A11 := A11 + (A21' L21 + L21' A21)
         A21_VC_STAR = A21;
-        Zeros( X11_STAR_STAR, nb, nb );
+        X11_STAR_STAR.Resize( nb, nb );
+        Zero( X11_STAR_STAR );
         Her2k
         ( LOWER, ADJOINT,
           F(1), A21_VC_STAR.Matrix(), L21_VC_STAR.Matrix(),

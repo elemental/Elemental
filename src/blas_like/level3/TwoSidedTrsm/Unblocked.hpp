@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_TWOSIDEDTRSM_UNBLOCKED_HPP
 #define EL_TWOSIDEDTRSM_UNBLOCKED_HPP
 
@@ -14,10 +13,9 @@ namespace El {
 namespace twotrsm {
 
 template<typename F>
-inline void
-LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
+void LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
-    DEBUG_ONLY(CSE cse("twotrsm::LUnb"))
+    DEBUG_CSE
     // Use the Variant 4 algorithm
     const Int n = A.Height();
     const Int lda = A.LDim();
@@ -58,7 +56,7 @@ LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         // A22 := A22 - (l21 a21' + a21 l21')
         F* A22 = &ABuffer[(j+1)+(j+1)*lda];
-        blas::Her2( 'L', a21Height, Base<F>(-1), l21, 1, a21, 1, A22, lda );
+        blas::Her2( 'L', a21Height, F(-1), l21, 1, a21, 1, A22, lda );
 
         // a21 := a21 - (alpha11/2)l21
         for( Int k=0; k<a21Height; ++k )
@@ -67,10 +65,9 @@ LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 }
 
 template<typename F>
-inline void
-UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
+void UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
-    DEBUG_ONLY(CSE cse("twotrsm::UUnb"))
+    DEBUG_CSE
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
     const Int n = A.Height();
@@ -119,7 +116,7 @@ UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
             u12Conj[k] = Conj(u12[k*ldu]);
         blas::Her2
         ( 'U', a21Height,
-          Base<F>(-1), u12Conj.data(), 1, a12Conj.data(), 1, A22, lda );
+          F(-1), u12Conj.data(), 1, a12Conj.data(), 1, A22, lda );
 
         // a12 := a12 - (alpha11/2)u12
         for( Int k=0; k<a21Height; ++k )

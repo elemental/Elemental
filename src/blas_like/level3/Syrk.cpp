@@ -1,12 +1,14 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
+#include <El/blas_like/level1.hpp>
+#include <El/blas_like/level3.hpp>
 
 #include "./Syrk/LN.hpp"
 #include "./Syrk/LT.hpp"
@@ -20,8 +22,8 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C, bool conjugate )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("Syrk");
       if( orientation == NORMAL )
       {
           if( A.Height() != C.Height() || A.Height() != C.Width() )
@@ -57,19 +59,20 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const ElementalMatrix<T>& A, 
-  T beta,        ElementalMatrix<T>& C, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& A, 
+  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     ScaleTrapezoid( beta, uplo, C );
     if( uplo == LOWER && orientation == NORMAL )
         syrk::LN( alpha, A, C, conjugate );
@@ -84,12 +87,13 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const ElementalMatrix<T>& A, 
-                 ElementalMatrix<T>& C, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& A, 
+                 AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
-    Zeros( C, n, n );
+    C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
@@ -99,7 +103,7 @@ void Syrk
   T alpha, const SparseMatrix<T>& A, 
   T beta,        SparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
 
     if( orientation == NORMAL )
     {
@@ -163,13 +167,14 @@ void Syrk
   T alpha, const SparseMatrix<T>& A, 
                  SparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
-        Zeros( C, m, m );
+        C.Resize( m, m );
     else
-        Zeros( C, n, n );
+        C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
@@ -179,7 +184,7 @@ void Syrk
   T alpha, const DistSparseMatrix<T>& A, 
   T beta,        DistSparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
 
     if( orientation == NORMAL )
     {
@@ -252,13 +257,14 @@ void Syrk
   T alpha, const DistSparseMatrix<T>& A, 
                  DistSparseMatrix<T>& C, bool conjugate )
 {
-    DEBUG_ONLY(CSE cse("Syrk"))
+    DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( orientation == NORMAL )
-        Zeros( C, m, m );
+        C.Resize( m, m );
     else
-        Zeros( C, n, n );
+        C.Resize( n, n );
+    Zero( C );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
@@ -271,12 +277,12 @@ void Syrk
     T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const ElementalMatrix<T>& A, \
-    T beta, ElementalMatrix<T>& C, bool conjugate ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+    T beta, AbstractDistMatrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const ElementalMatrix<T>& A, \
-                   ElementalMatrix<T>& C, bool conjugate ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+                   AbstractDistMatrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
     T alpha, const SparseMatrix<T>& A, \
@@ -294,8 +300,11 @@ void Syrk
     T alpha, const DistSparseMatrix<T>& A, \
                    DistSparseMatrix<T>& C, bool conjugate );
 
-// blas::Syrk is not yet supported for Int
-#define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

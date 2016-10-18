@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 namespace soc {
@@ -18,7 +18,7 @@ void Dets
   const Matrix<Int>& orders, 
   const Matrix<Int>& firstInds )
 {
-    DEBUG_ONLY(CSE cse("soc::Dets"))
+    DEBUG_CSE
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
     soc::Dots( x, Rx, d, orders, firstInds );
@@ -32,7 +32,7 @@ void Dets
   const ElementalMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Dets"))
+    DEBUG_CSE
     AssertSameGrids( xPre, dPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -63,7 +63,7 @@ void Dets
   const DistMultiVec<Int>& orders, 
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("soc::Dets"))
+    DEBUG_CSE
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
     soc::Dots( x, Rx, d, orders, firstInds, cutoff );
@@ -88,8 +88,11 @@ void Dets
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace soc
 } // namespace El

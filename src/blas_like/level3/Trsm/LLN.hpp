@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -16,14 +16,13 @@ namespace trsm {
 
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
-inline void
-LLNLarge
+void LLNLarge
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("trsm::LLNLarge"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -72,14 +71,13 @@ LLNLarge
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
-inline void
-LLNMedium
+void LLNMedium
 ( UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& LPre,
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CSE cse("trsm::LLNMedium"))
+    DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -128,14 +126,13 @@ LLNMedium
 
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F,Dist colDist>
-inline void
-LLNSmall
+void LLNSmall
 ( UnitOrNonUnit diag, 
   const DistMatrix<F,colDist,STAR>& L, 
         DistMatrix<F,colDist,STAR>& X, bool checkIfSingular )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsm::LLNSmall");
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

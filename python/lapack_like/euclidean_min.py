@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2009-2015, Jack Poulson
+#  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -14,12 +14,16 @@ import ctypes
 # =============
 class LeastSquaresCtrl_s(ctypes.Structure):
   _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",sType),
+              ("reg0Tmp",sType),("reg0Perm",sType),
+              ("reg1Tmp",sType),("reg1Perm",sType),
               ("solveCtrl",RegSolveCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElLeastSquaresCtrlDefault_s(pointer(self))
 class LeastSquaresCtrl_d(ctypes.Structure):
   _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",dType),
+              ("reg0Tmp",dType),("reg0Perm",dType),
+              ("reg1Tmp",dType),("reg1Perm",dType),
               ("solveCtrl",RegSolveCtrl_d),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):

@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_INVERSE_TRIANGULAR_UVAR3_HPP
 #define EL_INVERSE_TRIANGULAR_UVAR3_HPP
 
@@ -14,11 +13,11 @@ namespace El {
 namespace triang_inv {
 
 template<typename F>
-inline void
+void
 UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::UVar3Unb");
       if( U.Height() != U.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -44,11 +43,11 @@ UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 }
 
 template<typename F>
-inline void
+void
 UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::UVar3");
       if( U.Height() != U.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -77,11 +76,11 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 }
 
 template<typename F>
-inline void
+void
 UVar3( UnitOrNonUnit diag, ElementalMatrix<F>& UPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("triang_inv::UVar3");
       if( UPre.Height() != UPre.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )

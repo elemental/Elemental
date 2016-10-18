@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -8,7 +8,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #ifdef EL_HAVE_PARMETIS
 # include "parmetis.h"
@@ -19,10 +19,13 @@
 namespace El {
 
 Int Bisect
-( const Graph& graph, Graph& leftChild, Graph& rightChild,
-  vector<Int>& perm, const BisectCtrl& ctrl )
+( const Graph& graph,
+  Graph& leftChild,
+  Graph& rightChild,
+  vector<Int>& perm,
+  const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Bisect"))
+    DEBUG_CSE
 #ifdef EL_HAVE_METIS
     // METIS assumes that there are no self-connections or connections 
     // outside the sources, so we must manually remove them from our graph
@@ -99,7 +102,7 @@ Int Bisect
         bool& onLeft, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_ONLY(CSE cse("Bisect"))
+    DEBUG_CSE
 #ifdef EL_HAVE_METIS
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size( comm );
@@ -319,7 +322,7 @@ Int Bisect
 
 void EnsurePermutation( const vector<Int>& map )
 {
-    DEBUG_ONLY(CSE cse("EnsurePermutation"))
+    DEBUG_CSE
     const Int numSources = map.size();
     vector<Int> timesMapped( numSources, 0 );
     for( Int i=0; i<numSources; ++i )
@@ -333,7 +336,7 @@ void EnsurePermutation( const vector<Int>& map )
 
 void EnsurePermutation( const DistMap& map )
 {
-    DEBUG_ONLY(CSE cse("EnsurePermutation"))
+    DEBUG_CSE
     mpi::Comm comm = map.Comm();
     const int commRank = mpi::Rank( comm );
     const Int numSources = map.NumSources();
@@ -350,15 +353,14 @@ void EnsurePermutation( const DistMap& map )
                  " in parallel map");
 }
 
-
-
 void BuildChildrenFromPerm
-( const Graph& graph, const vector<Int>& perm, 
+( const Graph& graph,
+  const vector<Int>& perm, 
   Int leftChildSize, Graph& leftChild,
   Int rightChildSize, Graph& rightChild )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("BuildChildrenFromPerm");
       const Int sepSize = graph.NumSources() - leftChildSize - rightChildSize;
     )
     const Int numSources = graph.NumSources();
@@ -394,7 +396,7 @@ void BuildChildrenFromPerm
                                  invTarget );
             DEBUG_ONLY(
               if( target >= leftChildSize && target < (numSources-sepSize) )
-                  LogicError("Invalid bisection, left set touches right set");
+                  LogicError("Invalid bisection, left set touches right set at (",source,",",target,") since leftChildSize=",leftChildSize);
             )
             leftChild.QueueConnection( source, target );
         }
@@ -418,7 +420,7 @@ void BuildChildrenFromPerm
                                  invTarget );
             DEBUG_ONLY(
               if( target < leftChildSize )
-                  LogicError("Invalid bisection, right set touches left set");
+                  LogicError("Invalid bisection, right set touches left set at (",source,",",target,") since leftChildSize=",leftChildSize);
             )
             // The targets that are in parent separators do not need to be
             rightChild.QueueConnection
@@ -436,7 +438,7 @@ void BuildChildFromPerm
         bool& onLeft,
         DistGraph& child )
 {
-    DEBUG_ONLY(CSE cse("BuildChildFromPerm"))
+    DEBUG_CSE
     const Int numTargets = graph.NumTargets();
     const Int numLocalSources = graph.NumLocalSources();
     DEBUG_ONLY(

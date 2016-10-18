@@ -1,15 +1,16 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El-lite.hpp>
 
 #ifdef EL_HAVE_SCALAPACK
 
+using El::FortranLogical;
 using El::scomplex;
 using El::dcomplex;
 
@@ -21,19 +22,23 @@ extern "C" {
 // Cholesky
 // --------
 void EL_SCALAPACK(pspotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   float* A, const int* iA, const int* jA, const int* descA,
   int* info );
 void EL_SCALAPACK(pdpotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   double* A, const int* iA, const int* jA, const int* descA,
   int* info );
 void EL_SCALAPACK(pcpotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   scomplex* A, const int* iA, const int* jA, const int* descA,
   int* info );
 void EL_SCALAPACK(pzpotrf)
-( const char* uplo, const int* n,
+( const char* uplo,
+  const int* n,
   dcomplex* A, const int* iA, const int* jA, const int* descA,
   int* info );
 
@@ -103,7 +108,9 @@ void EL_SCALAPACK(pzgesv)
 // MRRR
 // ^^^^
 void EL_SCALAPACK(pssyevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   float* A, const int* iA, const int* jA, const int* descA,
   const float* vl, const float* vu,
@@ -116,7 +123,9 @@ void EL_SCALAPACK(pssyevr)
   int* iWork, const int* liWork,
   int* info );
 void EL_SCALAPACK(pdsyevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   double* A, const int* iA, const int* jA, const int* descA,
   const double* vl, const double* vu,
@@ -129,7 +138,9 @@ void EL_SCALAPACK(pdsyevr)
   int* iWork, const int* liWork,
   int* info );
 void EL_SCALAPACK(pcheevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   scomplex* A, const int* iA, const int* jA, const int* descA,
   const float* vl, const float* vu,
@@ -143,7 +154,9 @@ void EL_SCALAPACK(pcheevr)
   int* iWork, const int* liWork,
   int* info );
 void EL_SCALAPACK(pzheevr)
-( const char* jobZ, const char* range, const char* uplo,
+( const char* jobZ,
+  const char* range,
+  const char* uplo,
   const int* n,
   dcomplex* A, const int* iA, const int* jA, const int* descA,
   const double* vl, const double* vu,
@@ -160,7 +173,8 @@ void EL_SCALAPACK(pzheevr)
 // SVD
 // ---
 void EL_SCALAPACK(psgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   float* A, const int* iA, const int* jA, const int* descA,
   float* S,
@@ -169,7 +183,8 @@ void EL_SCALAPACK(psgesvd)
   float* work, const int* lwork,
   int* info );
 void EL_SCALAPACK(pdgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   double* A, const int* iA, const int* jA, const int* descA,
   double* S,
@@ -178,7 +193,8 @@ void EL_SCALAPACK(pdgesvd)
   double* work, const int* lwork,
   int* info );
 void EL_SCALAPACK(pcgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   scomplex* A, const int* iA, const int* jA, const int* descA,
   float* S,
@@ -188,7 +204,8 @@ void EL_SCALAPACK(pcgesvd)
   float* rwork,
   int* info );
 void EL_SCALAPACK(pzgesvd)
-( const char* jobU, const char* jobVH,
+( const char* jobU,
+  const char* jobVH,
   const int* m, const int* n,
   dcomplex* A, const int* iA, const int* jA, const int* descA,
   double* S,
@@ -201,25 +218,37 @@ void EL_SCALAPACK(pzgesvd)
 // Reduction of a Hermitian positive-definite EVP to standard form
 // ---------------------------------------------------------------
 void EL_SCALAPACK(pssyngst)
-( const int* typeB, const char* uplo, const int* n, 
+( const int* typeB,
+  const char* uplo,
+  const int* n, 
         float* A, const int* iA, const int* jA, const int* descA,
   const float* B, const int* iB, const int* jB, const int* descB,
-        float* scale, float* work, const int* workSize, int* info );
+        float* scale,
+        float* work, const int* workSize,
+        int* info );
 void EL_SCALAPACK(pdsyngst)
-( const int* typeB, const char* uplo, const int* n, 
+( const int* typeB,
+  const char* uplo,
+  const int* n, 
         double* A, const int* iA, const int* jA, const int* descA,
   const double* B, const int* iB, const int* jB, const int* descB,
-        double* scale, double* work, const int* workSize, int* info );
+        double* scale,
+        double* work, const int* workSize,
+        int* info );
 void EL_SCALAPACK(pchengst)
 ( const int* typeB, const char* uplo, const int* n, 
         scomplex* A, const int* iA, const int* jA, const int* descA,
   const scomplex* B, const int* iB, const int* jB, const int* descB,
-        float* scale, scomplex* work, const int* workSize, int* info );
+        float* scale,
+        scomplex* work, const int* workSize,
+        int* info );
 void EL_SCALAPACK(pzhengst)
 ( const int* typeB, const char* uplo, const int* n, 
         dcomplex* A, const int* iA, const int* jA, const int* descA,
   const dcomplex* B, const int* iB, const int* jB, const int* descB,
-        double* scale, dcomplex* work, const int* workSize, int* info );
+        double* scale,
+        dcomplex* work, const int* workSize,
+        int* info );
 
 // Hessenberg QR algorithm
 // -----------------------
@@ -228,76 +257,134 @@ void EL_SCALAPACK(pzhengst)
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
 // NOTE: ScaLAPACK currently only supports AED for real matrices
 void EL_SCALAPACK(pshseqr)
-( const char* job, const char* compz, 
-  const int* n, const int* ilo, const int* ihi, 
-  float* H, const int* descH, float* wr, float* wi, 
-  float* Q, const int* descQ, float* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const char* job,
+  const char* compz, 
+  const int* n,
+  const int* ilo, const int* ihi, 
+  float* H, const int* descH,
+  float* wr, float* wi, 
+  float* Q, const int* descQ,
+  float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 void EL_SCALAPACK(pdhseqr)
-( const char* job, const char* compz, 
-  const int* n, const int* ilo, const int* ihi, 
-  double* H, const int* descH, double* wr, double* wi, 
-  double* Q, const int* descQ, double* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const char* job,
+  const char* compz, 
+  const int* n,
+  const int* ilo, const int* ihi, 
+  double* H, const int* descH,
+  double* wr, double* wi, 
+  double* Q, const int* descQ,
+  double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 
 // Pipelined without AED
 // ^^^^^^^^^^^^^^^^^^^^^
 void EL_SCALAPACK(pslahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* descH,
-  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  float* H, const int* descH,
+  float* wr, float* wi,
+  const int* iloQ, const int* ihiQ, 
   float* Q, const int* descQ,
-  float* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  float* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 void EL_SCALAPACK(pdlahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* descH,
-  double* wr, double* wi, const int* iloQ, const int* ihiQ, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  double* H, const int* descH,
+  double* wr, double* wi,
+  const int* iloQ, const int* ihiQ, 
   double* Q, const int* descQ,
-  double* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  double* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 void EL_SCALAPACK(pclahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, scomplex* H, const int* descH,
-  scomplex* w, const int* iloQ, const int* ihiQ, scomplex* Q, const int* descQ,
-  scomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  scomplex* H, const int* descH,
+  scomplex* w,
+  const int* iloQ, const int* ihiQ,
+  scomplex* Q, const int* descQ,
+  scomplex* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 void EL_SCALAPACK(pzlahqr)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, dcomplex* H, const int* descH,
-  dcomplex* w, const int* iloQ, const int* ihiQ, dcomplex* Q, const int* descQ,
-  dcomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  dcomplex* H, const int* descH,
+  dcomplex* w,
+  const int* iloQ, const int* ihiQ,
+  dcomplex* Q, const int* descQ,
+  dcomplex* work, const int* workSize,
+  int* iWork, const int* iWorkSize, 
   int* info );
 
 // Pipelined with AED for big matrices
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void EL_SCALAPACK(pslaqr0)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* descH, 
-  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
-  float* Q, const int* descQ, float* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info, const int* reclevel );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  float* H, const int* descH, 
+  float* wr, float* wi,
+  const int* iloQ, const int* ihiQ, 
+  float* Q, const int* descQ,
+  float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info,
+  const int* reclevel );
 void EL_SCALAPACK(pdlaqr0)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* descH, 
-  double* wr, double* wi, const int* iloQ, const int* ihiQ,
-  double* Q, const int* descQ, double* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info, const int* reclevel );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  double* H, const int* descH, 
+  double* wr, double* wi,
+  const int* iloQ, const int* ihiQ,
+  double* Q, const int* descQ,
+  double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info,
+  const int* reclevel );
 
 // Pipelined with AED for small matrices
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void EL_SCALAPACK(pslaqr1)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* descH, 
-  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
-  float* Q, const int* descQ, float* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  float* H, const int* descH, 
+  float* wr, float* wi,
+  const int* iloQ, const int* ihiQ, 
+  float* Q, const int* descQ,
+  float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 void EL_SCALAPACK(pdlaqr1)
-( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* descH, 
-  double* wr, double* wi, const int* iloQ, const int* ihiQ, 
-  double* Q, const int* descQ, double* work, const int* workSize, 
-  int* iWork, const int* iWorkSize, int* info );
+( const FortranLogical* wantt,
+  const FortranLogical* wantz,
+  const int* n,
+  const int* ilo, const int* ihi,
+  double* H, const int* descH, 
+  double* wr, double* wi,
+  const int* iloQ, const int* ihiQ, 
+  double* Q, const int* descQ,
+  double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize,
+  int* info );
 
 } // extern "C"
 
@@ -311,7 +398,7 @@ namespace scalapack {
 // --------
 void Cholesky( char uplo, int n, float* A, const int* descA )
 {
-    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
+    DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pspotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -320,7 +407,7 @@ void Cholesky( char uplo, int n, float* A, const int* descA )
 
 void Cholesky( char uplo, int n, double* A, const int* descA )
 {
-    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
+    DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pdpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -329,7 +416,7 @@ void Cholesky( char uplo, int n, double* A, const int* descA )
 
 void Cholesky( char uplo, int n, scomplex* A, const int* descA )
 {
-    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
+    DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pcpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -338,7 +425,7 @@ void Cholesky( char uplo, int n, scomplex* A, const int* descA )
 
 void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 {
-    DEBUG_ONLY(CSE cse("scalapack::Cholesky"))
+    DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pzpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -349,7 +436,7 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 // --
 void QR( int m, int n, float* A, const int* descA, float* tau )
 {
-    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -367,7 +454,7 @@ void QR( int m, int n, float* A, const int* descA, float* tau )
 
 void QR( int m, int n, double* A, const int* descA, double* tau )
 {
-    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -385,7 +472,7 @@ void QR( int m, int n, double* A, const int* descA, double* tau )
 
 void QR( int m, int n, scomplex* A, const int* descA, scomplex* tau )
 {
-    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -403,7 +490,7 @@ void QR( int m, int n, scomplex* A, const int* descA, scomplex* tau )
 
 void QR( int m, int n, dcomplex* A, const int* descA, dcomplex* tau )
 {
-    DEBUG_ONLY(CSE cse("scalapack::QR"))
+    DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -431,7 +518,7 @@ void LinearSolve
   int* ipiv,
   float* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(psgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -445,7 +532,7 @@ void LinearSolve
   int* ipiv,
   double* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(pdgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -459,7 +546,7 @@ void LinearSolve
   int* ipiv,
   scomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(pcgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -473,7 +560,7 @@ void LinearSolve
   int* ipiv,
   dcomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::LinearSolve"))
+    DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(pzgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -492,7 +579,7 @@ void LinearSolve
 void HermitianEig
 ( char uplo, int n, float* A, const int* descA, float* w )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -539,7 +626,7 @@ void HermitianEig
 void HermitianEig
 ( char uplo, int n, double* A, const int* descA, double* w )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -586,7 +673,7 @@ void HermitianEig
 void HermitianEig
 ( char uplo, int n, scomplex* A, const int* descA, float* w )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -638,7 +725,7 @@ void HermitianEig
 void HermitianEig
 ( char uplo, int n, dcomplex* A, const int* descA, double* w )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -695,7 +782,7 @@ void HermitianEig
   float* w,
   float* Z, const int* descZ )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -744,7 +831,7 @@ void HermitianEig
   double* w,
   double* Z, const int* descZ )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -793,7 +880,7 @@ void HermitianEig
   float* w,
   scomplex* Z, const int* descZ )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -847,7 +934,7 @@ void HermitianEig
   double* w,
   dcomplex* Z, const int* descZ )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HermitianEig"))
+    DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -902,7 +989,7 @@ void HermitianEig
 // ^^^^^^^^^^^^^^^
 void SingularValues( int m, int n, float* A, const int* descA, float* s )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     float* U=nullptr;
@@ -937,7 +1024,7 @@ void SingularValues( int m, int n, float* A, const int* descA, float* s )
 
 void SingularValues( int m, int n, double* A, const int* descA, double* s )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     double* U=nullptr;
@@ -972,7 +1059,7 @@ void SingularValues( int m, int n, double* A, const int* descA, double* s )
 
 void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     scomplex* U=nullptr;
@@ -1017,7 +1104,7 @@ void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
 
 void SingularValues( int m, int n, dcomplex* A, const int* descA, double* s )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SingularValues"))
+    DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     dcomplex* U=nullptr;
@@ -1070,7 +1157,7 @@ void SVD
   float* U, const int* descU,
   float* VH, const int* descVH )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     // Workspace query
@@ -1108,7 +1195,7 @@ void SVD
   double* U, const int* descU,
   double* VH, const int* descVH )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     // Workspace query
@@ -1146,7 +1233,7 @@ void SVD
   scomplex* U, const int* descU,
   scomplex* VH, const int* descVH )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     const int maxDim = Max(m,n);
@@ -1187,7 +1274,7 @@ void SVD
   dcomplex* U, const int* descU,
   dcomplex* VH, const int* descVH )
 {
-    DEBUG_ONLY(CSE cse("scalapack::SVD"))
+    DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     const int maxDim = Max(m,n);
@@ -1265,7 +1352,7 @@ void TwoSidedTrsm
         float* A, const int* descA, 
   const float* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
+    DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
@@ -1290,7 +1377,7 @@ void TwoSidedTrsm
         double* A, const int* descA, 
   const double* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
+    DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
@@ -1315,7 +1402,7 @@ void TwoSidedTrsm
         scomplex* A, const int* descA, 
   const scomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
+    DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
@@ -1341,7 +1428,7 @@ void TwoSidedTrsm
         dcomplex* A, const int* descA, 
   const dcomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrsm"))
+    DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
@@ -1369,7 +1456,7 @@ void TwoSidedTrmm
         float* A, const int* descA, 
   const float* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
+    DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
@@ -1394,7 +1481,7 @@ void TwoSidedTrmm
         double* A, const int* descA, 
   const double* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
+    DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
@@ -1419,7 +1506,7 @@ void TwoSidedTrmm
         scomplex* A, const int* descA, 
   const scomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
+    DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
@@ -1445,7 +1532,7 @@ void TwoSidedTrmm
         dcomplex* A, const int* descA, 
   const dcomplex* B, const int* descB )
 {
-    DEBUG_ONLY(CSE cse("scalapack::TwoSidedTrmm"))
+    DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
@@ -1471,7 +1558,7 @@ void TwoSidedTrmm
 void HessenbergSchur
 ( int n, float* H, const int* descH, scomplex* w, bool fullTriangle, bool aed ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
+    DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<float> wr(n), wi(n);
     int descQ[9] = 
@@ -1482,7 +1569,7 @@ void HessenbergSchur
         cerr << 
           "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz='N';
+        const char job=(fullTriangle ? 'S' : 'E'), compz='N';
 
         // Query the workspace sizes
         int workSize=-1, dummyIWork, iWorkSize=-1;
@@ -1505,8 +1592,8 @@ void HessenbergSchur
     }
     else
     {
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_FALSE;
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                       wantz=FORTRAN_FALSE;
 
         // PSLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1547,7 +1634,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( int n, double* H, const int* descH, dcomplex* w, bool fullTriangle, bool aed )
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
+    DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<double> wr(n), wi(n);
     int descQ[9] = 
@@ -1558,7 +1645,7 @@ void HessenbergSchur
         cerr << 
           "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz='N';
+        const char job=(fullTriangle ? 'S' : 'E'), compz='N';
 
         // Query the workspace sizes
         int workSize=-1, dummyIWork, iWorkSize=-1;
@@ -1580,8 +1667,8 @@ void HessenbergSchur
     }
     else
     {
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_FALSE;
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                       wantz=FORTRAN_FALSE;
 
         // PDLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1623,9 +1710,9 @@ void HessenbergSchur
 ( int n, scomplex* H, const int* descH, scomplex* w, bool fullTriangle, 
   bool aed ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_FALSE;
+    DEBUG_CSE
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                   wantz=FORTRAN_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
@@ -1657,9 +1744,9 @@ void HessenbergSchur
 ( int n, dcomplex* H, const int* descH, dcomplex* w, bool fullTriangle,
   bool aed ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_FALSE;
+    DEBUG_CSE
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                   wantz=FORTRAN_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
@@ -1691,7 +1778,7 @@ void HessenbergSchur
 ( int n, float* H, const int* descH, scomplex* w, float* Q, const int* descQ, 
   bool fullTriangle, bool multiplyQ, bool aed ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
+    DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<float> wr(n), wi(n);
     int info;
@@ -1700,7 +1787,8 @@ void HessenbergSchur
         cerr << 
           "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compz=(multiplyQ ? 'V' : 'I');
 
         // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
         // querying, which is located in p{s,d}laqr1, 
@@ -1727,8 +1815,8 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_TRUE;
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                       wantz=FORTRAN_TRUE;
 
         // PSLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1767,10 +1855,15 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, double* H, const int* descH, dcomplex* w, 
-  double* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n,
+  double* H, const int* descH,
+  dcomplex* w, 
+  double* Q, const int* descQ,
+  bool fullTriangle,
+  bool multiplyQ,
+  bool aed ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
+    DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<double> wr(n), wi(n);
     int info;
@@ -1779,7 +1872,8 @@ void HessenbergSchur
         cerr << 
           "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
           << endl;
-        const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+        const char job=(fullTriangle ? 'S' : 'E'),
+                   compz=(multiplyQ ? 'V' : 'I');
 
         // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
         // querying, which is located in p{s,d}laqr1, 
@@ -1806,8 +1900,8 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                        wantz=EL_FORT_TRUE;
+        FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                       wantz=FORTRAN_TRUE;
 
         // PDLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -1846,16 +1940,21 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, scomplex* H, const int* descH, scomplex* w, 
-  scomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n,
+  scomplex* H, const int* descH,
+  scomplex* w, 
+  scomplex* Q, const int* descQ,
+  bool fullTriangle,
+  bool multiplyQ,
+  bool aed ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
+    DEBUG_CSE
     if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_TRUE;
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                   wantz=FORTRAN_TRUE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -1880,16 +1979,21 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, const int* descH, dcomplex* w, 
-  dcomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n,
+  dcomplex* H, const int* descH,
+  dcomplex* w, 
+  dcomplex* Q, const int* descQ,
+  bool fullTriangle,
+  bool multiplyQ,
+  bool aed ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergSchur"))
+    DEBUG_CSE
     if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
-                    wantz=EL_FORT_TRUE;
+    FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
+                   wantz=FORTRAN_TRUE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -1917,25 +2021,25 @@ void HessenbergSchur
 // -------------------------------------------------
 void HessenbergEig( int n, float* H, const int* descH, scomplex* w ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
+    DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, double* H, const int* descH, dcomplex* w ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
+    DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, scomplex* H, const int* descH, scomplex* w ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
+    DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, dcomplex* H, const int* descH, dcomplex* w ) 
 {
-    DEBUG_ONLY(CSE cse("scalapack::HessenbergEig"))
+    DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 

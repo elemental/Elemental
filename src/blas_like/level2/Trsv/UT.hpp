@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,15 +11,14 @@ namespace El {
 namespace trsv {
 
 template<typename F>
-inline void
-UT
+void UT
 ( Orientation orientation,
   UnitOrNonUnit diag, 
   const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<F>& xPre )
 {
+    DEBUG_CSE
     DEBUG_ONLY(
-      CSE cse("trsv::UT");
       if( orientation == NORMAL )
           LogicError("Expected a (conjugate-)transpose option");
       AssertSameGrids( UPre, xPre );
@@ -57,7 +56,8 @@ UT
         DistMatrix<F,MR,STAR> z1_MR_STAR(g), z2_MR_STAR(g);
 
         z_MR_STAR.AlignWith( U );
-        Zeros( z_MR_STAR, m, 1 );
+        z_MR_STAR.Resize( m, 1 );
+        Zero( z_MR_STAR );
 
         for( Int k=0; k<m; k+=bsize )
         {
@@ -98,7 +98,8 @@ UT
         DistMatrix<F,STAR,MR> z1_STAR_MR(g), z2_STAR_MR(g);
 
         z_STAR_MR.AlignWith( U );
-        Zeros( z_STAR_MR, 1, m );
+        z_STAR_MR.Resize( 1, m );
+        Zero( z_STAR_MR );
 
         for( Int k=0; k<m; k+=bsize )
         {

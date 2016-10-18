@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -8,14 +8,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 int main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -47,11 +46,7 @@ int main( int argc, char* argv[] )
 
         // Fill our portion of the graph of a 3D n x n x n 7-point stencil
         // in natural ordering: (x,y,z) at x + y*n + z*n*n
-        if( commRank == 0 )
-        {
-            cout << "Filling local portion of graph...";
-            cout.flush();
-        }
+        OutputFromRoot(comm,"Filling local portion of graph");
         graph.Reserve( 7*numLocalSources );
         for( int iLocal=0; iLocal<numLocalSources; ++iLocal )
         {
@@ -75,31 +70,20 @@ int main( int argc, char* argv[] )
                 graph.QueueLocalConnection( iLocal, i+n*n );
         }
         graph.ProcessQueues();
-        mpi::Barrier( comm );
-        if( commRank == 0 )
-            cout << "done" << endl;
         if( display )
             Display( graph );
         if( print )
             Print( graph );
 
-        if( commRank == 0 )
-        {
-            cout << "Running nested dissection...";
-            cout.flush();
-        }
+        OutputFromRoot(comm,"Running nested dissection");
         ldl::DistNodeInfo info;
         ldl::DistSeparator sep;
         DistMap map;
         ldl::NestedDissection( graph, map, sep, info, ctrl );
-        mpi::Barrier( comm );
-        if( commRank == 0 )
-            cout << "done" << endl;
 
         const int rootSepSize = info.size;
         // TODO: Print more than just the root separator size
-        if( commRank == 0 )
-            cout << rootSepSize << " vertices in root separator\n" << endl;
+        OutputFromRoot(comm,rootSepSize," vertices in root separator");
     }
     catch( exception& e ) { ReportException(e); }
 

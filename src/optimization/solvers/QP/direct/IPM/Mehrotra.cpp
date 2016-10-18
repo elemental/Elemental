@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 #include "./util.hpp"
 
 namespace El {
@@ -43,7 +43,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
+    DEBUG_CSE
 
     const bool stepLengthSigma = true;
     const bool standardShift = true;
@@ -390,7 +390,7 @@ void Mehrotra
         ElementalMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
+    DEBUG_CSE
 
     const bool stepLengthSigma = true;
     const bool standardShift = true;
@@ -776,8 +776,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
-    const Real eps = limits::Epsilon<Real>();
+    DEBUG_CSE
 
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
@@ -786,12 +785,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta =  Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -869,9 +862,9 @@ void Mehrotra
         regTmp.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
-            if( i < n )        regTmp.Set( i, 0,  gammaTmp*gammaTmp );
-            else if( i < n+m ) regTmp.Set( i, 0, -deltaTmp*deltaTmp );
-            else               regTmp.Set( i, 0, -betaTmp*betaTmp );
+            if( i < n )        regTmp(i) =  ctrl.reg0Tmp*ctrl.reg0Tmp;
+            else if( i < n+m ) regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+            else               regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -879,8 +872,8 @@ void Mehrotra
         regTmp.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
-            if( i < n ) regTmp.Set( i, 0,  gammaTmp*gammaTmp );
-            else        regTmp.Set( i, 0, -deltaTmp*deltaTmp );
+            if( i < n ) regTmp(i) =  ctrl.reg0Tmp*ctrl.reg0Tmp;
+            else        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
         }
     }
     regTmp *= origTwoNormEst;
@@ -932,7 +925,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -delta*delta, y, rb );
+        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
@@ -941,7 +934,7 @@ void Mehrotra
         rc -= z;
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( gamma*gamma, x, rc );
+        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -984,13 +977,16 @@ void Mehrotra
             // -------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( Q, A, gamma, delta, beta, x, z, JOrig, false );
+                KKT
+                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, x, z,
+                  JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( Q, A, gamma, delta, x, z, JOrig, false );
-                // TODO: Incorporate beta?
+                AugmentedKKT
+                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, x, z, JOrig, false );
+                // TODO: Incorporate ctrl.reg2Perm?
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
@@ -1218,8 +1214,7 @@ void Mehrotra
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_ONLY(CSE cse("qp::direct::Mehrotra"))    
-    const Real eps = limits::Epsilon<Real>();
+    DEBUG_CSE
 
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
@@ -1228,12 +1223,6 @@ void Mehrotra
     else
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
-    const Real gamma = Pow(eps,Real(0.35));
-    const Real delta = Pow(eps,Real(0.35));
-    const Real beta =  Pow(eps,Real(0.35));
-    const Real gammaTmp = Pow(eps,Real(0.25));
-    const Real deltaTmp = Pow(eps,Real(0.25));
-    const Real betaTmp  = Pow(eps,Real(0.25));
 
     mpi::Comm comm = APre.Comm();
     const int commRank = mpi::Rank(comm);
@@ -1335,9 +1324,12 @@ void Mehrotra
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n )        regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
-            else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
-            else               regTmp.SetLocal( iLoc, 0, -betaTmp*betaTmp );
+            if( i < n )
+              regTmp.SetLocal( iLoc, 0,  ctrl.reg0Tmp*ctrl.reg0Tmp );
+            else if( i < n+m )
+              regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+            else
+              regTmp.SetLocal( iLoc, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -1346,13 +1338,13 @@ void Mehrotra
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n ) regTmp.SetLocal( iLoc, 0,  gammaTmp*gammaTmp );
-            else        regTmp.SetLocal( iLoc, 0, -deltaTmp*deltaTmp );
+            if( i < n ) regTmp.SetLocal( iLoc, 0,  ctrl.reg0Tmp*ctrl.reg0Tmp );
+            else        regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
         }
     }
     regTmp *= origTwoNormEst;
 
-    DistSparseMultMeta metaOrig, meta;
+    DistGraphMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(comm), 
@@ -1452,12 +1444,15 @@ void Mehrotra
             // -------------------
             if( ctrl.system == FULL_KKT )
             {
-                KKT( Q, A, gamma, delta, beta, x, z, JOrig, false );
+                KKT
+                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, x, z,
+                  JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
-                AugmentedKKT( Q, A, gamma, delta, x, z, JOrig, false );
+                AugmentedKKT
+                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
 
@@ -1469,7 +1464,7 @@ void Mehrotra
                 if( numIts == 0 )
                     metaOrig = JOrig.InitializeMultMeta();
                 else
-                    JOrig.multMeta = metaOrig;
+                    JOrig.LockedDistGraph().multMeta = metaOrig;
                 J = JOrig;
 
                 UpdateDiagonal( J, Real(1), regTmp );
@@ -1497,7 +1492,7 @@ void Mehrotra
                     }
                 }
                 else
-                    J.multMeta = meta;
+                    J.LockedDistGraph().multMeta = meta;
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
@@ -1761,7 +1756,11 @@ void Mehrotra
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace direct
 } // namespace qp

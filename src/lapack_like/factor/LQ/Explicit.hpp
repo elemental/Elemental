@@ -1,12 +1,11 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
 #ifndef EL_LQ_EXPLICIT_HPP
 #define EL_LQ_EXPLICIT_HPP
 
@@ -16,10 +15,10 @@ namespace lq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    LQ( A, t, d );
+    DEBUG_CSE
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
+    LQ( A, householderScalars, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -31,11 +30,11 @@ void ExplicitTriang( Matrix<F>& A )
 template<typename F>
 void ExplicitTriang( ElementalMatrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitTriang"))
+    DEBUG_CSE
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    LQ( A, t, d );
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    LQ( A, householderScalars, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -47,46 +46,46 @@ void ExplicitTriang( ElementalMatrix<F>& A )
 template<typename F>
 void ExplicitUnitary( Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    LQ( A, t, d );
+    DEBUG_CSE
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
+    LQ( A, householderScalars, signature );
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Q );
     A = Q;
 }
 
 template<typename F>
 void ExplicitUnitary( ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("lq::ExplicitUnitary"))
+    DEBUG_CSE
     const Grid& g = APre.Grid();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    LQ( A, t, d );
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    LQ( A, householderScalars, signature );
 
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<F> Q(g);
     Q.AlignWith( A );
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Q );
     Copy( Q, APre );
 }
 
 template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A )
 {
-    DEBUG_ONLY(CSE cse("lq::Explicit"))
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    LQ( A, t, d );
+    DEBUG_CSE
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
+    LQ( A, householderScalars, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -98,22 +97,22 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Q );
     A = Q;
 }
 
 template<typename F>
 void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
 {
-    DEBUG_ONLY(CSE cse("lq::Explicit"))
+    DEBUG_CSE
     const Grid& g = APre.Grid();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    LQ( A, t, d );
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    LQ( A, householderScalars, signature );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -125,7 +124,7 @@ void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<F> Q(g);
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Q );
     Copy( Q, APre );
 }
 

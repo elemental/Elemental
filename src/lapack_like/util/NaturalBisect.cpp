@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -8,7 +8,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 namespace El {
 
@@ -27,7 +27,7 @@ Int NaturalBisect
         Graph& rightChild,
         vector<Int>& perm )
 {
-    DEBUG_ONLY(CSE cse("NaturalBisect"))
+    DEBUG_CSE
     const Int numSources = graph.NumSources();
     if( numSources == 0 )
         LogicError("There is no reason to bisect an empty sequential graph");
@@ -154,7 +154,7 @@ Int NaturalBisect
         DistMap& perm,
         bool& onLeft )
 {
-    DEBUG_ONLY(CSE cse("NaturalBisect"))
+    DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     const Int numLocalSources = graph.NumLocalSources();

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson, Lexing Ying,
+   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
@@ -8,8 +8,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
-#include "ElSuiteSparse/ldl.hpp"
+#include <El.hpp>
+#include <set>
 
 namespace El {
 namespace ldl {
@@ -26,7 +26,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissectionRecursion"))
+    DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int* offsetBuf = graph.LockedOffsetBuffer();
     const Int* sourceBuf = graph.LockedSourceBuffer();
@@ -183,7 +183,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissectionRecursion"))
+    DEBUG_CSE
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -316,7 +316,7 @@ void NaturalNestedDissection
         NodeInfo& node,
         Int cutoff )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissection"))
+    DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
@@ -346,7 +346,7 @@ void NaturalNestedDissection
         Int cutoff, 
         bool storeFactRecvInds )
 {
-    DEBUG_ONLY(CSE cse("NaturalNestedDissection"))
+    DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused 
 
     DistMap perm( graph.NumSources(), graph.Comm() );

@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #ifdef EL_HAVE_QT5
 
@@ -18,7 +18,7 @@ namespace El {
 DisplayWindow::DisplayWindow( QWidget* parent )
 : QWidget(parent)
 {
-    DEBUG_ONLY(CSE cse("DisplayWindow::DisplayWindow"))
+    DEBUG_CSE
     matrix_ = 0;
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
@@ -55,7 +55,7 @@ DisplayWindow::~DisplayWindow()
 void
 DisplayWindow::Display( const Matrix<double>* matrix, QString title )
 {
-    DEBUG_ONLY(CSE cse("DisplayWindow::Display"))
+    DEBUG_CSE
     if( matrix_ != 0 )
         delete matrix_;
     matrix_ = matrix;
@@ -68,7 +68,7 @@ void
 DisplayWindow::Display
 ( const Matrix<double>* matrix, double minVal, double maxVal, QString title )
 {
-    DEBUG_ONLY(CSE cse("DisplayWindow::Display"))
+    DEBUG_CSE
     if( matrix_ != 0 )
         delete matrix_;
     matrix_ = matrix;
@@ -80,14 +80,14 @@ DisplayWindow::Display
 void
 DisplayWindow::Save()
 {
-    DEBUG_ONLY(CSE cse("DisplayWindow::Save"))
+    DEBUG_CSE
     display_->SavePng( windowTitle().toStdString() );
 }
 
 void
 DisplayWindow::SetScale( bool global )
 {
-    DEBUG_ONLY(CSE cse("DisplayWindow::SetScale"))
+    DEBUG_CSE
     if( global )
     {
         const double minVal = MinRealWindowVal();

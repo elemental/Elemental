@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 
 #include "./SVT/Normal.hpp"
 #include "./SVT/Cross.hpp"
@@ -18,14 +18,14 @@ namespace El {
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CSE cse("SVT"))
+    DEBUG_CSE
     return svt::Normal( A, tau, relative );
 }
 
 template<typename F>
 Int SVT( ElementalMatrix<F>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CSE cse("SVT"))
+    DEBUG_CSE
     // NOTE: This should be less accurate (but faster) than svt::Normal
     return svt::Cross( A, tau, relative );
 }
@@ -33,7 +33,7 @@ Int SVT( ElementalMatrix<F>& A, Base<F> tau, bool relative )
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
 {
-    DEBUG_ONLY(CSE cse("SVT"))
+    DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
@@ -41,7 +41,7 @@ Int SVT( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
 template<typename F>
 Int SVT( ElementalMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
 {
-    DEBUG_ONLY(CSE cse("SVT"))
+    DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
@@ -50,7 +50,7 @@ Int SVT( ElementalMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
 template<typename F,Dist U>
 Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CSE cse("SVT"))
+    DEBUG_CSE
     return svt::TSQR( A, tau, relative );
 }
 
@@ -84,6 +84,10 @@ Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
   PROTO_DIST(F,VR  )
 
 #define EL_NO_INT_PROTO
-#include "El/macros/Instantiate.h"
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
+#define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGFLOAT
+#include <El/macros/Instantiate.h>
 
 } // namespace El

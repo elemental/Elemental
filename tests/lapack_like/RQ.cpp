@@ -1,19 +1,76 @@
 /*
-   Copyright (c) 2009-2015, Jack Poulson
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El.hpp"
+#include <El.hpp>
 using namespace El;
 
 template<typename F>
 void TestCorrectness
+( const Matrix<F>& A,
+  const Matrix<F>& householderScalars,
+  const Matrix<Base<F>>& signature,
+        Matrix<F>& AOrig )
+{
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
+
+    Output("Testing orthogonality of Q...");
+    PushIndent();
+
+    // Form Z := Q Q^H as an approximation to identity
+    Matrix<F> Z;
+    Identity( Z, m, n );
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, householderScalars, signature, Z );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
+
+    // Form X := I - Q Q^H
+    Matrix<F> X;
+    Identity( X, minDim, minDim );
+    X -= ZUpper;
+
+    const Real infOrthogError = InfinityNorm( X );
+    const Real relOrthogError = infOrthogError / (eps*maxDim);
+    Output("||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
+    PopIndent();
+
+    Output("Testing if A = RQ...");
+    PushIndent();
+
+    // Form RQ - A
+    auto U( A );
+    MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, U );
+    U -= AOrig;
+    
+    const Real infError = InfinityNorm( U );
+    const Real relError = infError / (eps*maxDim*oneNormA);
+    Output("||A - RQ||_oo / (eps Max(m,n) ||A||_1)= ",relError);
+
+    PopIndent();
+
+    // TODO: More rigorous failure conditions
+    if( relOrthogError > Real(10) )
+        LogicError("Unacceptably large relative orthogonality error");
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
+}
+
+template<typename F>
+void TestCorrectness
 ( const DistMatrix<F>& A,
-  const DistMatrix<F,MD,STAR>& t,
-  const DistMatrix<Base<F>,MD,STAR>& d,
+  const DistMatrix<F,MD,STAR>& householderScalars,
+  const DistMatrix<Base<F>,MD,STAR>& signature,
         DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -21,92 +78,135 @@ void TestCorrectness
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
+    const Int maxDim = Max(m,n);
+    const Real eps = limits::Epsilon<Real>();
+    const Real oneNormA = OneNorm( AOrig );
 
-    if( g.Rank() == 0 )
-        Output("  Testing orthogonality of Q...");
+    OutputFromRoot(g.Comm(),"Testing orthogonality of Q...");
+    PushIndent();
 
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
-    rq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
-    auto ZUpper = View( Z, 0, 0, minDim, minDim );
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, householderScalars, signature, Z );
+    auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
     DistMatrix<F> X(g);
     Identity( X, minDim, minDim );
     X -= ZUpper;
 
-    Real oneNormError = OneNorm( X );
-    Real infNormError = InfinityNorm( X );
-    Real frobNormError = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||Q^H Q - I||_1  = ",oneNormError,"\n",
-         "    ||Q^H Q - I||_oo = ",infNormError,"\n",
-         "    ||Q^H Q - I||_F  = ",frobNormError);
+    const Real infOrthogError = InfinityNorm( X );
+    const Real relOrthogError = infOrthogError / (eps*maxDim);
+    OutputFromRoot
+    (g.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
+    PopIndent();
 
-    if( g.Rank() == 0 )
-        Output("  Testing if A = RQ...");
+    OutputFromRoot(g.Comm(),"Testing if A = RQ...");
+    PushIndent();
 
-    // Form RQ
+    // Form RQ - A
     auto U( A );
     MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, d, U );
-
-    // Form R Q - A
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, U );
     U -= AOrig;
     
-    const Real oneNormA = OneNorm( AOrig );
-    const Real infNormA = InfinityNorm( AOrig );
-    const Real frobNormA = FrobeniusNorm( AOrig );
-    oneNormError = OneNorm( U );
-    infNormError = InfinityNorm( U );
-    frobNormError = FrobeniusNorm( U );
-    if( g.Rank() == 0 )
-        Output
-        ("    ||A||_1       = ",oneNormA,"\n",
-         "    ||A||_oo      = ",infNormA,"\n",
-         "    ||A||_F       = ",frobNormA,"\n",
-         "    ||A - RQ||_1  = ",oneNormError,"\n",
-         "    ||A - RQ||_oo = ",infNormError,"\n",
-         "    ||A - RQ||_F  = ",frobNormError);
+    const Real infError = InfinityNorm( U );
+    const Real relError = infError / (eps*maxDim*oneNormA);
+    OutputFromRoot
+    (g.Comm(),"||A - RQ||_oo / (eps Max(m,n) ||A||_1)= ",relError);
+
+    PopIndent();
+
+    // TODO: More rigorous failure conditions
+    if( relOrthogError > Real(10) )
+        LogicError("Unacceptably large relative orthogonality error");
+    if( relError > Real(10) )
+        LogicError("Unacceptably large relative error");
 }
 
 template<typename F>
-void TestRQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
+void TestRQ
+( Int m,
+  Int n,
+  bool correctness,
+  bool print )
 {
-    DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    Output("Testing with ",TypeName<F>());
+    PushIndent();
+    Matrix<F> A, AOrig;
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
 
     Uniform( A, m, n );
-    if( testCorrectness )
+    if( correctness )
         AOrig = A;
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
-        Output("  Starting RQ factorization...");
-    mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
-    RQ( A, t, d );
-    mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
+    Output("Starting RQ factorization...");
+    Timer timer;
+    timer.Start();
+    RQ( A, householderScalars, signature );
+    const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-        Output("  ",runTime," seconds (",gFlops," GFlop/s)");
+    Output(runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( t, "phases" );
-        Print( d, "diagonal" );
+        Print( householderScalars, "householderScalars" );
+        Print( signature, "signature" );
     }
-    if( testCorrectness )
-        TestCorrectness( A, t, d, AOrig );
+    if( correctness )
+        TestCorrectness( A, householderScalars, signature, AOrig );
+    PopIndent();
+}
+
+template<typename F>
+void TestRQ
+( const Grid& g,
+  Int m,
+  Int n,
+  bool correctness,
+  bool print )
+{
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    PushIndent();
+    DistMatrix<F> A(g), AOrig(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+
+    Uniform( A, m, n );
+    if( correctness )
+        AOrig = A;
+    if( print )
+        Print( A, "A" );
+
+    OutputFromRoot(g.Comm(),"Starting RQ factorization...");
+    mpi::Barrier( g.Comm() );
+    Timer timer;
+    timer.Start();
+    RQ( A, householderScalars, signature );
+    mpi::Barrier( g.Comm() );
+    const double runTime = timer.Stop();
+    const double mD = double(m);
+    const double nD = double(n);
+    const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
+    if( print )
+    {
+        Print( A, "A after factorization" );
+        Print( householderScalars, "householderScalars" );
+        Print( signature, "signature" );
+    }
+    if( correctness )
+        TestCorrectness( A, householderScalars, signature, AOrig );
+    PopIndent();
 }
 
 int 
@@ -114,38 +214,109 @@ main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::Rank( comm );
-    const Int commSize = mpi::Size( comm );
 
     try
     {
-        Int r = Input("--gridHeight","height of process grid",0);
+        int gridHeight = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool testCorrectness = Input
-            ("--correctness","test correctness?",true);
+        const bool sequential = Input("--sequential","test sequential?",true);
+        const bool correctness =
+          Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+#ifdef EL_HAVE_MPC
+        const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
+#endif
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
+#ifdef EL_HAVE_MPC
+        mpfr::SetPrecision( prec );
+#endif
+
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r, order );
+        const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-            Output("Will test RQ");
 
-        if( commRank == 0 )
-            Output("Testing with doubles:");
-        TestRQ<double>( testCorrectness, print, m, n, g );
+        if( sequential && mpi::Rank() == 0 )
+        {
+            TestRQ<float>
+            ( m, n, correctness, print );
+            TestRQ<Complex<float>>
+            ( m, n, correctness, print );
 
-        if( commRank == 0 )
-            Output("Testing with double-precision complex:");
-        TestRQ<Complex<double>>( testCorrectness, print, m, n, g );
+            TestRQ<double>
+            ( m, n, correctness, print );
+            TestRQ<Complex<double>>
+            ( m, n, correctness, print );
+
+#ifdef EL_HAVE_QD
+            TestRQ<DoubleDouble>
+            ( m, n, correctness, print );
+            TestRQ<QuadDouble>
+            ( m, n, correctness, print );
+
+            TestRQ<Complex<DoubleDouble>>
+            ( m, n, correctness, print );
+            TestRQ<Complex<QuadDouble>>
+            ( m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+            TestRQ<Quad>
+            ( m, n, correctness, print );
+            TestRQ<Complex<Quad>>
+            ( m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+            TestRQ<BigFloat>
+            ( m, n, correctness, print );
+            TestRQ<Complex<BigFloat>>
+            ( m, n, correctness, print );
+#endif
+        }
+
+        TestRQ<float>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<float>>
+        ( g, m, n, correctness, print );
+
+        TestRQ<double>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<double>>
+        ( g, m, n, correctness, print );
+
+#ifdef EL_HAVE_QD
+        TestRQ<DoubleDouble>
+        ( g, m, n, correctness, print );
+        TestRQ<QuadDouble>
+        ( g, m, n, correctness, print );
+
+        TestRQ<Complex<DoubleDouble>>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<QuadDouble>>
+        ( g, m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_QUAD
+        TestRQ<Quad>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<Quad>>
+        ( g, m, n, correctness, print );
+#endif
+
+#ifdef EL_HAVE_MPC
+        TestRQ<BigFloat>
+        ( g, m, n, correctness, print );
+        TestRQ<Complex<BigFloat>>
+        ( g, m, n, correctness, print );
+#endif
     }
     catch( exception& e ) { ReportException(e); }
 
