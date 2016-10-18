@@ -2,8 +2,10 @@
 * 
 * TSVD Based off of implementation by Andreas Noack. See: http://github.com/andreasnoack/TSVD.jl
 */
-#pragma once
+#ifndef EL_LAPACKLIKE_SPECTRAL_TSVD_HPP
+#define EL_LAPACKLIKE_SPECTRAL_TSVD_HPP
 #include <tuple>
+#include <El/blas_like/level3.hpp>
 
 namespace El {
 
@@ -212,7 +214,7 @@ TSVD(
             auto superDiagCopy = superDiag;
             RealMatrix VTHat(i+numSteps,nVals);
             RealMatrix UHat(nVals,i+numSteps);
-            lapack::BidiagQRAlg
+            lapack::BidiagSVDQRAlg
             ( 'U', i+numSteps, nVals, nVals,
               s.Buffer(), superDiagCopy.Buffer(), 
               VTHat.Buffer(), VTHat.LDim(),
@@ -268,3 +270,4 @@ TSVD(
 }
 
 } //end namespace El
+#endif //ifndef EL_LAPACKLIKE_SPECTRAL_TSVD

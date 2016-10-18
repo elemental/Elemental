@@ -64,9 +64,19 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
         std::cout <<  i << ": ";
         const Real& A = Sk.Get(i,0);
         const Real& B = S.Get(i,0);
-        std::cout << S.Get(i,0) << std::endl;
-        //std::cout << Norm(Abs(Uk( ALL, IR(i))) - Abs(U( ALL, IR(i)))) << " ";
-        //std::cout << Norm(Abs(Vk( ALL, IR(i))) - Abs(V( ALL, IR(i)))) << " ";
+        Output( "Sk = ", A, "SVD: S_k", B);
+	auto eigenvalue_error = A - B;
+        auto left_svec_error = Norm(Abs(Uk( ALL, IR(i))) - Abs(U( ALL, IR(i)))); 
+        auto right_svec_error = Norm(Abs(Vk( ALL, IR(i))) - Abs(V( ALL, IR(i)))); 
+        if( eigenvalue_error > limits<Real>::Epsilon()){
+		RuntimeError("Convergence Issue in TSVD.");
+	}
+	if( left_svec_error > limits<Real>::Epsilon()){
+		RuntimeError("Convergence Issue in TSVD.");
+	}
+	if( right_svec_error > limits<Real>::Epsilon()){
+		RuntimeError("Convergence Issue in TSVD.");
+	}
     }
 }
 
