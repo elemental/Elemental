@@ -14,12 +14,12 @@
 namespace El {
 
 template< typename T, typename Function, typename Gradient>
-T zoom( const Function& f, const Gradient& gradient, T f0, const DistMatrix<T>& x0, const DistMatrix<T>& p,
+T Zoom( const Function& f, const Gradient& gradient, T f0, const DistMatrix<T>& x0, const DistMatrix<T>& p,
         T alpha_low, T alpha_high, T c1, T c2){
     DistMatrix<T> x_j(x0);
-    DistMatrix<T> g2(p.Height(), 1);
-    while (alpha_high - alpha_low > 10*El::limits::Epsilon<T>()){
-        T alpha = (alpha_low + alpha_high)/2.0;
+    DistMatrix<T> g2(p.Height(), 1, x0.Grid());
+    while (alpha_high - alpha_low > T(10)*El::limits::Epsilon<Base<T>>()){
+        T alpha = (alpha_low + alpha_high)/T(2.0);
         x_j = x0;
         Axpy(alpha, p, x_j);
         T fval = f(x_j);
@@ -33,12 +33,12 @@ T zoom( const Function& f, const Gradient& gradient, T f0, const DistMatrix<T>& 
         }
         alpha_low = alpha;
     }
-    return (alpha_high+alpha_low/2.0);
+    return (alpha_high+alpha_low)/T(2.0);
 }
 /***
  * This function approximately minimizes the function min_\alpha f(x0 + alpha*p)
  * In some sense minimizing this function is "ideal" however, this may take a lot of work, and since
- * we are using this inside of a larger algorithm on an approximate problem, there is no reaosn to believe
+ * we are using this inside of a larger algorithm on an approximate problem, there is no reason to believe
  * that this is the "best" step. Instead we just hope for a step with "sufficient" decrease, and then we
  * hope to prove that if {x_i} approaches the minimum that this function converges.
  * This algorithm attempts to satsify the weak wolf conditions.
@@ -47,18 +47,18 @@ template< typename T, typename Function, typename Gradient>
 T lineSearch( const Function& f, const Gradient& gradient,
               const DistMatrix<T>& g, Int D,
               const DistMatrix<T>& x0, const DistMatrix<T>& p,
-              Int maxIter=100, T c1=1e-4, T c2=0.9){
+              Int maxIter=100, T c1=Pow(limits::Epsilon< Base<T> >(), Base<T>(1)/Base<T>(4)), T c2=T(9)/T(10)){
 
         if( c1 > c2) { std::swap(c1, c2); }
 
         T f0 = f(x0);
-        DistMatrix<T> g2(D, 1);
+        DistMatrix<T> g2(D, 1, x0.Grid());
         T f0_dash = Dot(p,g);
-        T  alpha = 1;
-        T  alpha_prev = 0;
-        T  alphaMax = 1e3;
-        T fvalPrev = 0;
-        T fval = 0;
+        T  alpha(1);
+        T  alpha_prev(0);
+        T  alphaMax(1e3);
+        T fvalPrev(0);
+        T fval(0);
         DistMatrix<T> x_candidate(x0);
         for(std::size_t iter = 0; iter < maxIter; ++iter){
             x_candidate = x0;
@@ -68,7 +68,7 @@ T lineSearch( const Function& f, const Gradient& gradient,
             //So we have found a direction where the function value
             //has not gone down sufficiently.
             if ( fval > f0 + c1*alpha*f0_dash || (iter > 0 && fval > fvalPrev) ){
-                return zoom(f, gradient, f0, x0, p, alpha_prev, alpha, c1, c2);
+                return Zoom(f, gradient, f0, x0, p, alpha_prev, alpha, c1, c2);
             }
             gradient( x_candidate, g2);
             auto fval_dash = Dot(p, g2);
@@ -76,7 +76,7 @@ T lineSearch( const Function& f, const Gradient& gradient,
                 return alpha;
             }
             if( fval_dash > 0){
-                return zoom(f, gradient, f0, x0, p, alpha, alpha_prev, c1, c2);
+                return Zoom(f, gradient, f0, x0, p, alpha, alpha_prev, c1, c2);
             }
             alpha_prev = alpha;
             fvalPrev = fval;
@@ -176,12 +176,12 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
     gradient(x, g);
     detail::HessianInverseOperator<T> Hinv;
     auto norm_g = InfinityNorm(g);
-    for( std::size_t iter=0; (norm_g > 100*limits::Epsilon<T>()); ++iter){
+    for( std::size_t iter=0; (norm_g > T(100)*limits::Epsilon<Base<T>>()); ++iter){
         //std::cout << "iter: " << iter << std::endl;
         //El::Display(x, "Iterate");
         //El::Display(g, "Gradient");
         //Construct the quasi-newton step
-        auto p = Hinv*g; p *= -1;
+        auto p = Hinv*g; p *= T(-1);
         //El::Display(p," Descent direction");
         //Evaluate the wolf conditions..
         const T stepSize = lineSearch(f, gradient, g, D, x, p);
@@ -196,7 +196,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
         //Re-evaluate
         gradient(x, g);
         norm_g = InfinityNorm(g);
-        if( norm_g < 100*limits::Epsilon<T>()){ return f(x); }
+        if( norm_g < T(100)*limits::Epsilon<Base<T>>()){ return f(x); }
         //Evaluate change in gradient
         y = g;
         //y = g - g_old

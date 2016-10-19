@@ -259,6 +259,9 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g.,\nrm CMakeCache.txt && rm -Rf CMakeFiles/\nmkdir build/ && cd build/ && cmake ..")
 endif()
 
+if (NOT CMAKE_BUILD_TYPE)
+    set( CMAKE_BUILD_TYPE Release)
+endif()
 # Ensure that the build type is set to either Release or Debug
 #if(CMAKE_BUILD_TYPE STREQUAL "Release")
 #  # This option is okay as-is
