@@ -65,30 +65,30 @@ foreach(MPI_PATH ${MPI_C_INCLUDE_PATH})
 endforeach()
 if(MPI_HEADER_PATH)
   message(STATUS "Will parse MPI header ${MPI_HEADER_PATH}/mpi.h")
-else()
-  message(FATAL_ERROR "Could not find mpi.h")
-endif()
-file(READ "${MPI_HEADER_PATH}/mpi.h" _mpi_header)
-string(REGEX MATCH "define[ \t]+OMPI_MAJOR_VERSION[ \t]+([0-9]+)"
-  _ompi_major_version_match "${_mpi_header}")
-set(OMPI_MAJOR_VERSION "${CMAKE_MATCH_1}")
-if(OMPI_MAJOR_VERSION)
-  set(HAVE_OMPI TRUE)
-endif()
-if(HAVE_OMPI)
-  string(REGEX MATCH "define[ \t]+OMPI_MINOR_VERSION[ \t]+([0-9]+)"
-    _ompi_minor_version_match "${_mpi_header}")
-  set(OMPI_MINOR_VERSION "${CMAKE_MATCH_1}")
-  string(REGEX MATCH "define[ \t]+OMPI_RELEASE_VERSION[ \t]+([0-9]+)"
-    _ompi_release_version_match "${_mpi_header}")
-  set(OMPI_RELEASE_VERSION "${CMAKE_MATCH_1}")
-  set(OMPI_VERSION
-    ${OMPI_MAJOR_VERSION}.${OMPI_MINOR_VERSION}.${OMPI_RELEASE_VERSION})
-  if(${OMPI_VERSION} VERSION_LESS ${OMPI_MIN_VERSION})
-    message(FATAL_ERROR "Detected Open MPI version ${OMPI_VERSION}, but known bugs in version 1.6.5 of Open MPI have led Elemental to require at least version ${OMPI_MIN_VERSION}")
-  else()
-    message(STATUS "Using Open MPI version ${OMPI_VERSION}")
+  file(READ "${MPI_HEADER_PATH}/mpi.h" _mpi_header)
+  string(REGEX MATCH "define[ \t]+OMPI_MAJOR_VERSION[ \t]+([0-9]+)"
+    _ompi_major_version_match "${_mpi_header}")
+  set(OMPI_MAJOR_VERSION "${CMAKE_MATCH_1}")
+  if(OMPI_MAJOR_VERSION)
+    set(HAVE_OMPI TRUE)
   endif()
+  if(HAVE_OMPI)
+    string(REGEX MATCH "define[ \t]+OMPI_MINOR_VERSION[ \t]+([0-9]+)"
+      _ompi_minor_version_match "${_mpi_header}")
+    set(OMPI_MINOR_VERSION "${CMAKE_MATCH_1}")
+    string(REGEX MATCH "define[ \t]+OMPI_RELEASE_VERSION[ \t]+([0-9]+)"
+      _ompi_release_version_match "${_mpi_header}")
+    set(OMPI_RELEASE_VERSION "${CMAKE_MATCH_1}")
+    set(OMPI_VERSION
+      ${OMPI_MAJOR_VERSION}.${OMPI_MINOR_VERSION}.${OMPI_RELEASE_VERSION})
+    if(${OMPI_VERSION} VERSION_LESS ${OMPI_MIN_VERSION})
+      message(FATAL_ERROR "Detected Open MPI version ${OMPI_VERSION}, but known bugs in version 1.6.5 of Open MPI have led Elemental to require at least version ${OMPI_MIN_VERSION}")
+    else()
+      message(STATUS "Using Open MPI version ${OMPI_VERSION}")
+    endif()
+  endif()
+else()
+  message(STATUS "Could not find mpi.h to check for OpenMPI workarounds.")
 endif()
 
 # Test for whether or not we have Fortran MPI support
