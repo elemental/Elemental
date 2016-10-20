@@ -63,6 +63,11 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "(Borland|Watcom)")
     # No C++11 flag for those compilers, but check_cxx_compiler_flag()
     # can't detect because they either will not always complain (Borland)
     # or will hang (Watcom).
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Cray")
+    test_set_flag("-h std=c++11" CXX11) 
+    if (NOT CXX11_COMPILER_FLAGS)
+        message(FATAL_ERROR "Could not use -h std=c++11 with Cray C/C++")
+    endif()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND WIN32)
     # The Intel compiler on Windows may use these flags.
     test_set_flag("/Qstd=c++11" CXX11)
