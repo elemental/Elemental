@@ -433,13 +433,13 @@ DetermineInteraction
   const DistChaseState& state )
 {
     DEBUG_CSE
-    if( diagBlockRow < state.activeBlockBeg ||
-        diagBlockRow >= state.activeBlockEnd )
+    if( diagBlockRow < Max(state.introBlock,0) ||
+        diagBlockRow >= state.endBlock )
         LogicError("Diagonal block row was not in the active range");
 
     const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
 
-    const Int distFromEnd = state.activeBlockEnd - diagBlockRow;
+    const Int distFromEnd = state.endBlock - diagBlockRow;
     const bool evenBlock = ( Mod( distFromEnd, 2 ) == 0 );
     const bool sameParity = ( evenBlock == evenToOdd );
 
@@ -450,11 +450,17 @@ DetermineInteraction
     interaction.blockSize0 = 0;
     interaction.blockSize1 = 0;
     interaction.participating = false;
-    if( diagBlockRow == state.activeBlockBeg && diagBlockRow != 0 &&
-        !sameParity )
+    if( diagBlockRow == state.introBlock && !sameParity )
+    {
+        // We cannot pull into the intro block
         return interaction;
-    if( diagBlockRow == state.activeBlockEnd-1 && sameParity )
+    }
+    if( diagBlockRow == state.endBlock-1 && sameParity )
+    {
+        // Packets are never left in the next-to-last block, so we cannot push
+        // a packet from said position
         return interaction;
+    }
 
     if( diagBlockRow == 0 )
     {
@@ -586,9 +592,9 @@ DetermineInteraction
     // The number of bulges is guaranteed to be equal to
     // state.numBulgesPerBlock except (possibly) in the last active
     // interaction, which must have its second block at position
-    // state.activeBlockEnd-1.
+    // state.endBlock-1.
     interaction.numBulges =
-      ( interaction.block1 < state.activeBlockEnd-1 ?
+      ( interaction.block1 < state.endBlock-1 ?
         state.numBulgesPerBlock :
         state.numBulgesInLastBlock );
 
@@ -639,16 +645,18 @@ FormRowInteractionList
     // Only loop over the blocks that are assigned to our process row
     // and occur within the active window.
     Int diagBlock = state.activeRowBlockBeg;
-    while( diagBlock < state.activeBlockEnd )
+    while( diagBlock < state.endBlock )
     {
         auto interaction =
           interblock::DetermineInteraction( evenToOdd, diagBlock, grid, state );
         if( interaction.chaseType == NO_CHASE )
         {
+            Output(grid.Rank(),"  diagBlock=",diagBlock," was NO_CHASE");
             diagBlock += grid.Height();
         }
         else
         {
+            Output(grid.Rank(),"  diagBlock=",diagBlock," was nontrivial");
             interactionList.push_back(interaction);
             // We must take care to not participate twice in one chase
             if( grid.Height() == 1 )
@@ -671,7 +679,7 @@ FormColumnInteractionList
     // Only loop over the blocks that are assigned to our process column
     // and occur within the active window.
     Int diagBlock = state.activeColBlockBeg;
-    while( diagBlock < state.activeBlockEnd )
+    while( diagBlock < state.endBlock )
     {
         auto interaction =
           interblock::DetermineInteraction( evenToOdd, diagBlock, grid, state );
@@ -936,9 +944,6 @@ void StoreBlock
     auto HInteractLoc =
       HLoc( IR(localRowBeg,localRowEnd), IR(localColBeg,localColEnd) );
 
-    // The interior blocks are all full, and we know the first block size and
-    // the inter-block interaction size, so we can easily compute the two
-    // interaction block sizes.
     const Int interactionSize = interaction.blockSize0 + interaction.blockSize1;
     const auto ind0 = IR(0,interaction.blockSize0);
     const auto ind1 = IR(interaction.blockSize0,interactionSize);
@@ -1025,12 +1030,12 @@ void LocalChase
     Identity( UBlock, householderSize, householderSize );
     Zeros( W, 3, interaction.numBulges );
 
-    const Int stepHouseholderSize = 3*interaction.numBulges;
     Int numSteps;
     if( interaction.chaseType == STANDARD_CHASE )
     {
         // Standard chases involve stepHouseholderSize x stepHouseholderSize 
         // transformations; the effected index range expands by one in each step
+        const Int stepHouseholderSize = 3*interaction.numBulges;
         numSteps = householderSize - stepHouseholderSize + 1;
     }
     else if( interaction.chaseType == EXIT_CHASE )
@@ -1046,48 +1051,35 @@ void LocalChase
         numSteps = householderSize - 2;
     }
 
-    // All non-exit blocks can carry a full load of shifts, with the exception
-    // of non-full first diagonal blocks. Further, the block indices of a
-    // non-full introductory chase are (0,1), whereas they are (-1,0) for a full
-    // introductory chase.
-    //
-    // Let us consider the four scenarios: the first block is either full or
-    // non-full, and the chase is either of the same or different parity. The
-    // following diagrams mark the sequences of interactions with the (maximum) 
-    // number of packets that will live in each at the end of the chase.
-    //
-    // Full, Same parity:
-    //
-    //  (0,1), (2,3), (4,5), ...
-    //    2      2      2
-    //
-    // Non-full, Same parity:
-    //
-    //  (0,1), (2,3), (4,5), ...
-    //    2      2      2
-    //
-    // Full, Different parity:
-    //
-    //  (-1,0), (1,2), (3,4), ...
-    //     2      2      2 
-    //
-    // Non-full, Different parity:
-    //
-    //  (1,2), (3,4), (5,6), ...
-    //    2      2      2
-    //
+    // TODO(poulson): Description of the following
     const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
-    const bool evenFirst = ( Mod( state.activeBlockEnd, 2 ) == 0 );
-    const bool sameParity = ( evenFirst == evenToOdd );
     Int packetOffset;
-    if( sameParity )
-        packetOffset = interaction.block0;
-    else if( fullFirstBlock )
-        packetOffset = interaction.block0 + 1;
+    if( state.introBlock == - 1 && !fullFirstBlock )
+    {
+        packetOffset =
+          (interaction.block0-(state.introBlock+1))*state.numBulgesPerBlock;
+    }
     else
-        packetOffset = interaction.block0 - 1;
+    {
+        packetOffset =
+          (interaction.block0-state.introBlock)*state.numBulgesPerBlock;
+    }
 
+    // Even the units of this expression are wrong...
     const Int bulgeOffset = state.bulgeBeg + packetOffset;
+
+    /*
+    if( interaction.chaseType == STANDARD_CHASE )
+        Output(shifts.Grid().Rank(),"InterBlock STANDARD_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
+    else if( interaction.chaseType == SIMPLE_INTRO_CHASE )
+        Output(shifts.Grid().Rank(),"InterBlock SIMPLE_INTRO_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
+    else if( interaction.chaseType == COUPLED_INTRO_CHASE )
+        Output(shifts.Grid().Rank(),"InterBlock COUPLED_INTRO_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
+    else if( interaction.chaseType == EXIT_CHASE )
+        Output(shifts.Grid().Rank(),"InterBlock EXIT_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
+    else
+        LogicError("Invalid chase type");
+    */
 
     Matrix<F> ZDummy;
     const Int chaseBeg = (interaction.householderBeg-interaction.beg)-1;
@@ -1099,11 +1091,20 @@ void LocalChase
     {
         const Int firstActiveBulgePosition = 0;
         Int packetBeg, numActiveBulges, firstActiveBulge;
-        if( interaction.chaseType == SIMPLE_INTRO_CHASE ||
-            interaction.chaseType == COUPLED_INTRO_CHASE )
+        if( interaction.chaseType == SIMPLE_INTRO_CHASE )
         {
-            // At most one bulge is introduced every three steps
+            // One bulge is introduced every three steps
             packetBeg = chaseBeg + Mod(step,3);
+            numActiveBulges = (step/3) + 1;
+            firstActiveBulge = interaction.numBulges - numActiveBulges;
+        }
+        else if( interaction.chaseType == COUPLED_INTRO_CHASE )
+        {
+            // At most one bulge is introduced every three steps;
+            // recall that step-1 is the starting position of the right-most
+            // bulge 
+            packetBeg =
+              Max(chaseBeg+Mod(step,3),(step-1)-3*(interaction.numBulges-1));
             numActiveBulges = Min( (step/3)+1, interaction.numBulges );
             firstActiveBulge = interaction.numBulges - numActiveBulges;
         }
@@ -1210,11 +1211,11 @@ void InterBlockChase
     // If fullFirstBlock is false, then we need to subtract one from the block
     // index when computing the beginning shift.
     
-    if( state.activeBlockBeg < 0 )
-        LogicError("state.activeBlockBeg was negative");
-    if( state.activeBlockBeg > state.activeBlockEnd )
-        LogicError("state.activeBlockBeg > state.activeBlockEnd");
-    if( state.activeBlockEnd == 1 && !fullFirstBlock )
+    if( state.introBlock < -1 )
+        LogicError("state.introBlock was less than -1");
+    if( state.introBlock >= state.endBlock )
+        LogicError("state.introBlock >= state.endBlock");
+    if( state.endBlock == 1 && !fullFirstBlock )
         LogicError("Cannot introduce any bulges");
 
     auto rowInteractionList =

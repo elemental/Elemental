@@ -174,16 +174,24 @@ void SweepHelper
 
     while( state.bulgeEnd != 0 )
     {
+        Output
+        ("Sweep loop with bulgeInd=[",state.bulgeBeg,",",state.bulgeEnd,")");
         // Chase packets from the bottom-right corners of the even parity blocks
         // to the top-left corners of the odd parity blocks
+        //Output("InterBlockChase (even)");
+        //Print( H, "HInterBlockChaseEven" );
         InterBlockChase( H, Z, shifts, true, state, ctrl );
 
         // Chase packets from the bottom-right corners of the odd parity blocks
         // to the top-left corners of the even parity blocks
+        //Output("InterBlockChase (odd)");
+        //Print( H, "HInterBlockChaseOdd" );
         InterBlockChase( H, Z, shifts, false, state, ctrl );
 
         // Chase the packets from the top-left corners to the bottom-right 
         // corners of each diagonal block.
+        //Output("IntraBlockChase");
+        //Print( H, "HIntraBlockChase" );
         IntraBlockChase( H, Z, shifts, state, ctrl );
 
         AdvanceChaseState( H, state );

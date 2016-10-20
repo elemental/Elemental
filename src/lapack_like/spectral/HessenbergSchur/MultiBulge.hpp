@@ -143,6 +143,8 @@ MultiBulge
     const Real zero(0);
     const Grid& grid = H.Grid();
 
+    auto H0( H );
+
     const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -197,11 +199,8 @@ MultiBulge
         // collect the main and sub diagonal of H along the diagonal workers 
         // and then broadcast across the "cross" communicator.
         util::GatherTridiagonal( H, winInd, hMainWin, hSubWin, hSuperWin );
-        Output("winBeg=",winBeg,", winEnd=",winEnd);
-        Print( H, "H" );
-        Print( hMainWin, "hMainWin" );
-        Print( hSubWin, "hSubWin" );
-        Print( hSuperWin, "hSuperWin" );
+        if( grid.Rank() == 0 )
+            Output("winBeg=",winBeg,", winEnd=",winEnd);
 
         const Int iterOffset =
           DetectSmallSubdiagonal
@@ -215,7 +214,7 @@ MultiBulge
         }
         if( iterWinSize == 1 )
         {
-            if( ctrl.progress )
+            if( ctrl.progress && grid.Rank() == 0 )
                 Output("One-by-one window at ",iterBeg);
             w.Set( iterBeg, 0, hMainWin.GetLocal(iterOffset,0) );
 
@@ -225,7 +224,7 @@ MultiBulge
         }
         else if( iterWinSize == 2 )
         {
-            if( ctrl.progress )
+            if( ctrl.progress && grid.Rank() == 0 )
                 Output("Two-by-two window at ",iterBeg);
             const F eta00 = hMainWin.GetLocal(iterOffset,0);
             const F eta01 = hSuperWin.GetLocal(iterOffset,0);
@@ -241,14 +240,12 @@ MultiBulge
         else if( iterWinSize < minMultiBulgeSize )
         {
             // The window is small enough to switch to the simple scheme
-            if( ctrl.progress )
+            if( ctrl.progress && grid.Rank() == 0 )
                 Output("Redundantly handling window [",iterBeg,",",winEnd,"]");
             auto ctrlIter( ctrl );
             ctrlIter.winBeg = iterBeg;
             ctrlIter.winEnd = winEnd;
-            auto iterInfo =
-              multibulge::RedundantlyHandleWindow( H, w, Z, ctrlIter );
-            info.numIterations += iterInfo.numIterations;
+            multibulge::RedundantlyHandleWindow( H, w, Z, ctrlIter );
              
             winEnd = iterBeg;
             numIterSinceDeflation = 0;
@@ -256,7 +253,7 @@ MultiBulge
         }
 
         const Int numShiftsRec = ctrl.numShifts( n, iterWinSize );
-        if( ctrl.progress )
+        if( ctrl.progress && grid.Rank() == 0 )
         {
             Output("Iter. ",info.numIterations,": ");
             Output("  window is [",iterBeg,",",winEnd,")");
@@ -277,6 +274,16 @@ MultiBulge
         ctrlSweep.winBeg = iterBeg;
         ctrlSweep.winEnd = winEnd;
         multibulge::Sweep( H, wShifts, Z, ctrlSweep );
+
+        // DEBUG: Check the error || H0 - Z H Z^H ||_F
+        DistMatrix<F,MC,MR,BLOCK> R(grid);
+        Gemm( NORMAL, NORMAL, F(1), Z, H, R );
+        Gemm( NORMAL, NORMAL, F(1), H0, Z, F(-1), R );
+        const Real errFrob = FrobeniusNorm( R );
+        const Real H0Frob = FrobeniusNorm( H0 );
+        const Real relErr = errFrob / H0Frob;
+        if( grid.Rank() == 0 )
+            Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
 
         ++info.numIterations;
         if( iterBeg == iterBegLast && winEnd == winEndLast )
