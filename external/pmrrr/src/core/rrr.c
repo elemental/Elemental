@@ -191,9 +191,9 @@ int PMR_try_destroy_rrr(rrr_t *RRR)
   }
   
   info |= PMR_rrr_unlock(RRR);
-  PMR_rrr_destroy_lock(RRR);
 
   if (tmp == 1) {
+    PMR_rrr_destroy_lock(RRR);
     free(RRR);
     return 0;
   } else {
