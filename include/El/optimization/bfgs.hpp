@@ -15,20 +15,24 @@ namespace El {
 
 template< typename T, typename Function, typename Gradient>
 T Zoom( const Function& f, const Gradient& gradient, T f0, const DistMatrix<T>& x0, const DistMatrix<T>& p,
-        T alpha_low, T alpha_high, T c1, T c2){
+        T alpha_low, T alpha_high, T c1, T c2)
+{
     DistMatrix<T> x_j(x0);
     DistMatrix<T> g2(p.Height(), 1, x0.Grid());
-    while (alpha_high - alpha_low > T(10)*El::limits::Epsilon<Base<T>>()){
+    while (alpha_high - alpha_low > T(10)*limits::Epsilon<Base<T>>())
+    {
         T alpha = (alpha_low + alpha_high)/T(2.0);
         x_j = x0;
         Axpy(alpha, p, x_j);
         T fval = f(x_j);
-        if(El::Abs(fval)<= -c2*f0){
+        if(Abs(fval)<= -c2*f0)
+        {
             return alpha;
         }
         gradient( x_j, g2);
         auto fval_dash = Dot(p, g2);
-        if(  fval_dash*(alpha_high - alpha_low) >= 0){
+        if(  fval_dash*(alpha_high - alpha_low) >= 0)
+        {
             alpha_high = alpha_low;
         }
         alpha_low = alpha;
@@ -47,7 +51,8 @@ template< typename T, typename Function, typename Gradient>
 T lineSearch( const Function& f, const Gradient& gradient,
               const DistMatrix<T>& g, Int D,
               const DistMatrix<T>& x0, const DistMatrix<T>& p,
-              Int maxIter=100, T c1=Pow(limits::Epsilon< Base<T> >(), Base<T>(1)/Base<T>(4)), T c2=T(9)/T(10)){
+              Int maxIter=100, T c1=Pow(limits::Epsilon< Base<T> >(), Base<T>(1)/Base<T>(4)), T c2=T(9)/T(10))
+    {
 
         if( c1 > c2) { std::swap(c1, c2); }
 
@@ -60,22 +65,26 @@ T lineSearch( const Function& f, const Gradient& gradient,
         T fvalPrev(0);
         T fval(0);
         DistMatrix<T> x_candidate(x0);
-        for(std::size_t iter = 0; iter < maxIter; ++iter){
+        for(std::size_t iter = 0; iter < maxIter; ++iter)
+        {
             x_candidate = x0;
             Axpy(alpha, p, x_candidate);
             fval = f(x_candidate);
             //The quantity on the LHS is less than f0
             //So we have found a direction where the function value
             //has not gone down sufficiently.
-            if ( fval > f0 + c1*alpha*f0_dash || (iter > 0 && fval > fvalPrev) ){
+            if ( fval > f0 + c1*alpha*f0_dash || (iter > 0 && fval > fvalPrev) )
+            {
                 return Zoom(f, gradient, f0, x0, p, alpha_prev, alpha, c1, c2);
             }
             gradient( x_candidate, g2);
             auto fval_dash = Dot(p, g2);
-            if(  El::Abs(fval_dash) <= -c2*f0_dash){
+            if(  Abs(fval_dash) <= -c2*f0_dash)
+            {
                 return alpha;
             }
-            if( fval_dash > 0){
+            if( fval_dash > 0)
+            {
                 return Zoom(f, gradient, f0, x0, p, alpha, alpha_prev, c1, c2);
             }
             alpha_prev = alpha;
@@ -92,7 +101,7 @@ namespace detail {
 template< typename T>
 struct HessianInverseOperator {
 
-    typedef El::DistMatrix<T> Matrix;
+    typedef DistMatrix<T> Matrix;
     typedef std::tuple< T, Matrix, Matrix, Matrix, T> Update;
     typedef std::vector< Update > Hessian_updates;
     /**
@@ -105,7 +114,8 @@ struct HessianInverseOperator {
      * @param x
      * @return H_k*x
      */
-    Matrix operator*( const Matrix& x){
+    Matrix operator*( const Matrix& x)
+    {
         //Initially this is just the identity matrix;
         //H_0 = I, so H_0*x = x;
         if (_hessian_data.size() == 0) { return x; }
@@ -113,7 +123,8 @@ struct HessianInverseOperator {
 
         //we maintain that z = H_{k-1}*x
         // H_kx = z + alpha*(s'x)s - (s'x)/(s'y)H_{k-1}y  (y'z)/(s'y)*s]/(s'y)
-        for( auto& rank_two_update_data: _hessian_data){
+        for( auto& rank_two_update_data: _hessian_data)
+        {
             auto alpha = std::get<0>(rank_two_update_data);
             const auto& s = std::get<1>(rank_two_update_data);
             const auto& y = std::get<2>(rank_two_update_data);
@@ -146,7 +157,8 @@ struct HessianInverseOperator {
      * @param s
      * @param y
      */
-    void update( DistMatrix<T>& s, DistMatrix<T>& y){
+    void update( DistMatrix<T>& s, DistMatrix<T>& y)
+    {
         // We store s,y, alpha, H*y, and s'y.
         auto sy = Dot(s,y);
         auto Hy = (*this)*y;
@@ -168,7 +180,8 @@ private:
  */
 template< typename Vector, typename T>
 T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
-        const std::function< Vector(const Vector&, Vector&)>& gradient){
+        const std::function< Vector(const Vector&, Vector&)>& gradient)
+    {
     const Int D = x.Height();
     Vector g(x);
     Vector g_old(x);
@@ -176,13 +189,14 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
     gradient(x, g);
     detail::HessianInverseOperator<T> Hinv;
     auto norm_g = InfinityNorm(g);
-    for( std::size_t iter=0; (norm_g > T(100)*limits::Epsilon<Base<T>>()); ++iter){
+    for( std::size_t iter=0; (norm_g > T(100)*limits::Epsilon<Base<T>>()); ++iter)
+    {
         //std::cout << "iter: " << iter << std::endl;
-        //El::Display(x, "Iterate");
-        //El::Display(g, "Gradient");
+        //Display(x, "Iterate");
+        //Display(g, "Gradient");
         //Construct the quasi-newton step
         auto p = Hinv*g; p *= T(-1);
-        //El::Display(p," Descent direction");
+        //Display(p," Descent direction");
         //Evaluate the wolf conditions..
         const T stepSize = lineSearch(F, gradient, g, D, x, p);
         //std::cout << "Step size: " << stepSize << std::endl;
@@ -196,7 +210,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         //Re-evaluate
         gradient(x, g);
         norm_g = InfinityNorm(g);
-        if( norm_g < T(100)*limits::Epsilon<Base<T>>()){ return F(x); }
+        if( norm_g < T(100)*limits::Epsilon<:Base<T>>()){ return F(x); }
         //Evaluate change in gradient
         y = g;
         //y = g - g_old
@@ -207,6 +221,6 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
     return F(x);
 }
 
-} // namespace El
+} //end namespace El
 
 #endif // ifndef EL_OPTIMIZATION_PROX_HPP
