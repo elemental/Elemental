@@ -260,7 +260,9 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)
-    set( CMAKE_BUILD_TYPE Release)
+   set( CMAKE_BUILD_TYPE Release)
+elseif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
+   message( FATAL_ERROR "PureDebug build type not supported.")   	
 endif()
 # Ensure that the build type is set to either Release or Debug
 #if(CMAKE_BUILD_TYPE STREQUAL "Release")
