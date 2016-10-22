@@ -89,7 +89,7 @@ T lineSearch( const Function& f, const Gradient& gradient,
             }
             alpha_prev = alpha;
             fvalPrev = fval;
-            alpha = std::min(2*alpha, alphaMax);
+            alpha = Min(2*alpha, alphaMax);
         }
     return alpha;
 }
@@ -101,8 +101,8 @@ namespace detail {
 template< typename T>
 struct HessianInverseOperator {
 
-    typedef DistMatrix<T> Matrix;
-    typedef std::tuple< T, Matrix, Matrix, Matrix, T> Update;
+    typedef DistMatrix<T> DMatrix;
+    typedef std::tuple< T, DMatrix, DMatrix, DMatrix, T> Update;
     typedef std::vector< Update > Hessian_updates;
     /**
      * This method applies y = H_k*x, eg. solves B_ky = x;
@@ -114,7 +114,7 @@ struct HessianInverseOperator {
      * @param x
      * @return H_k*x
      */
-    Matrix operator*( const Matrix& x)
+    DMatrix operator*( const DMatrix& x)
     {
         //Initially this is just the identity matrix;
         //H_0 = I, so H_0*x = x;
@@ -157,7 +157,7 @@ struct HessianInverseOperator {
      * @param s
      * @param y
      */
-    void update( DistMatrix<T>& s, DistMatrix<T>& y)
+    void update( DMatrix& s, DMatrix& y)
     {
         // We store s,y, alpha, H*y, and s'y.
         auto sy = Dot(s,y);
