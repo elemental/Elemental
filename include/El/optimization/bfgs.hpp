@@ -210,7 +210,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         //Re-evaluate
         gradient(x, g);
         norm_g = InfinityNorm(g);
-        if( norm_g < T(100)*limits::Epsilon<:Base<T>>()){ return F(x); }
+        if( norm_g < T(100)*limits::Epsilon<Base<T>>()){ return F(x); }
         //Evaluate change in gradient
         y = g;
         //y = g - g_old
