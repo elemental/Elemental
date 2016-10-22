@@ -260,7 +260,6 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)
-   message(WARNING "Empty build type not supported.")
    set( CMAKE_BUILD_TYPE Release)
 endif()
 

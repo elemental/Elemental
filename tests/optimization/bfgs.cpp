@@ -16,42 +16,10 @@ using namespace El;
 
 template< typename T>
 std::pair< DistMatrix<T>, T>
-LogisticRegression( const DistMatrix<T>& X, const DistMatrix<T>& y, const T lambda=1){
-  const std::function< T(const DistMatrix<T>&)>
-  logistic_function = [&](const DistMatrix<T>& theta){
-     auto nrm = El::Norm(theta);
-     El::DistMatrix<T> y(theta);
-     El::DistMatrix<T> r(X.Height(), 1);
-     El::Gemv(El::NORMAL, T(-1), X, theta, T(0), r);
-     for( auto i = 0; i < y.Height(); ++i){ r.Set(i, 0, y.Get(i,0));  }
-
-     T v = lambda*nrm*nrm;
-     for(auto i = 0; i < y.Height(); ++i){ v += El::Log(T(1) + El::Exp(-1*y.Get(i,0)*r.Get(i,0))); }
-     return v;
-  };
-
-  const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
-  logistic_gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y){
-      El::DistMatrix<T> r(X.Height(), 1);
-      El::Gemv(El::NORMAL, T(-1), X, theta, T(0), r);
-      for(auto i = 0; i < y.Height(); ++i){
-         //TODO: Finish this.
-         y.Set(i, 0, T(1)/(T(1) + El::Exp(-1*y.Get(i,0)*r.Get(i,0))));
-      }
-      return y;
-  };
-  DistMatrix<T> x0( X.Width(), 1);
-  Gaussian( x0, X.Width(), 1);
-  auto val = El::BFGS( x0, logistic_function, logistic_gradient);
-  return std::make_pair( x0, val);
-}
-
-template< typename T>
-std::pair< DistMatrix<T>, T>
 SimpleQuadraticBFGSTest( const Int & N){
   const std::function< T(const DistMatrix<T>&)>
   quadratic_function = [&](const DistMatrix<T>& theta){
-        return .5*Dot(theta,theta);
+        return Dot(theta,theta)/T(2);
   };
 
   const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
@@ -73,16 +41,19 @@ SimpleQuadraticBFGSTest( const Int & N){
  */
 template< typename T>
 std::pair< DistMatrix<T>, T>
-QuadraticFunction( const DistMatrix<T> & A, const DistMatrix<T>& b){
+QuadraticFunction( const DistMatrix<T> & A, const DistMatrix<T>& b)
+{
   const std::function< T(const DistMatrix<T>&)>
-  quadratic_function = [&](const DistMatrix<T>& theta){
+  quadratic_function = [&](const DistMatrix<T>& theta)
+  {
         DistMatrix<T> y( theta);
         Gemv(El::NORMAL, T(1), A, theta, T(0), y);
-        return .5*(Dot(y,theta) - Dot(b, theta));
+        return (Dot(y,theta) - Dot(b, theta))/T(2);
   };
 
   const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
-  gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y){
+  gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
+  {
       Gemv(El::NORMAL, T(1), A, theta, T(0), y);
       Axpy(T(-1), b, y);
       return y;
@@ -98,13 +69,13 @@ std::pair< DistMatrix<T>, T>
 QuadraticBFGSTest(Int N){
  DistMatrix<T> A,B;
  Laplacian(A, N);
- auto nrm = Norm(A);
+ auto nrm = FrobeniusNorm(A);
  Gemm(El::NORMAL, El::ADJOINT, T(1), A, A, B);
  A = B;
  A *= T(1)/(nrm*nrm);
  DistMatrix<T> b( N, 1);
  Gaussian(b, N, 1);
- b *= (T(1)/Norm(b));
+ b *= (T(1)/FrobeniusNorm(b));
  return QuadraticFunction<T>(A, b);
 }
 
@@ -112,7 +83,8 @@ template< typename T>
 std::pair< DistMatrix<T>, T>
 RosenbrockTest(){
     const std::function< T(const DistMatrix<T>&)>
-            rosenbrock = [&](const DistMatrix<T>& theta){
+          rosenbrock = [&](const DistMatrix<T>& theta)
+    {
         auto x1 = theta.Get(0,0);
         auto x2 = theta.Get(1,0);
         auto t1 = (x2 -x1*x1);
@@ -121,7 +93,8 @@ RosenbrockTest(){
         return T(100)*t1*t1 + t2*t2;
     };
     const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
-            gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y) {
+          gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
+    {
         auto x1 = theta.Get(0,0);
         auto x2 = theta.Get(1,0);
 
@@ -139,14 +112,17 @@ RosenbrockTest(){
 
 }
 
-TEST_CASE( "Can Minimize Simple Quadratic", "[BFGS]" ) {
+TEST_CASE( "Can Minimize Simple Quadratic", "[BFGS]" )
+{
     auto pair = SimpleQuadraticBFGSTest<double>(10);
     auto x0 = pair.first;
     auto val = pair.second;
     REQUIRE(El::Norm(x0) < 1e-15);
     REQUIRE(val < 1e-15);
 }
-TEST_CASE( "Can Minimize Laplacian Quadratic", "[BFGS]"){
+
+TEST_CASE( "Can Minimize Laplacian Quadratic", "[BFGS]")
+{
     auto pair = QuadraticBFGSTest<double>( 10);
     auto x = pair.first;
     auto val = pair.second;
@@ -154,7 +130,8 @@ TEST_CASE( "Can Minimize Laplacian Quadratic", "[BFGS]"){
     REQUIRE(val < 1e-11);
 }
 
-TEST_CASE( "Can Minimize rosenbrock", "[BFGS]" ) {
+TEST_CASE( "Can Minimize rosenbrock", "[BFGS]" )
+{
     auto pair = RosenbrockTest<double>();
     auto x0 = pair.first;
     auto val = pair.second;
