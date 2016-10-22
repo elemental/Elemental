@@ -163,11 +163,11 @@ private:
 /**
  * Performs BFGS to minimize a function f: R^n --> R with gradient g: R^m --> R^n
  * @param x
- * @param f
+ * @param F
  * @param gradient
  */
 template< typename Vector, typename T>
-T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
+T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         const std::function< Vector(const Vector&, Vector&)>& gradient){
     const Int D = x.Height();
     Vector g(x);
@@ -184,7 +184,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
         auto p = Hinv*g; p *= T(-1);
         //El::Display(p," Descent direction");
         //Evaluate the wolf conditions..
-        const T stepSize = lineSearch(f, gradient, g, D, x, p);
+        const T stepSize = lineSearch(F, gradient, g, D, x, p);
         //std::cout << "Step size: " << stepSize << std::endl;
         //Update x with the step
         //s = stepSize*p;
@@ -196,7 +196,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
         //Re-evaluate
         gradient(x, g);
         norm_g = InfinityNorm(g);
-        if( norm_g < T(100)*limits::Epsilon<Base<T>>()){ return f(x); }
+        if( norm_g < T(100)*limits::Epsilon<Base<T>>()){ return F(x); }
         //Evaluate change in gradient
         y = g;
         //y = g - g_old
@@ -204,7 +204,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& f,
         Hinv.update(p, y);
         //std::cout << "||g||_inf = " << norm_g << std::endl;
     }
-    return f(x);
+    return F(x);
 }
 
 } // namespace El
