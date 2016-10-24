@@ -13,15 +13,28 @@
 
 namespace El {
 /***
- * TODO:
- * This needs to be replaced by quadratic interpolation
- * followed by cubic interpolation if alpha does not satisfy sufficient decrease.
- * @param alpha_low
- * @param alpha_high
+ * Performs a quadratic interpolation
  */
 template< typename T>
-void Interpolate(T alpha_low, T alpha_high){ return (alpha_low+alpha_high)/T(2.0); }
-
+T QuadraticInterpolate( T alpha_low, T alpha_high, T f0_dash, T f0, T fval_low, T flow_dash)
+{
+    return (f0_dash*alpha_low*alpha_low)/(T(2)*(fval_low - f0 - f0_dash*alpha_low));
+}
+template< typename T>
+T CubicInterpolate(T f0, T f0_dash, T f_alpha0, T f_alpha1, T alpha_0, T alpha_1){
+    T alpha_0_sq = alpha_0*alpha_0;
+    T alpha_0_cb = alpha_0*alpha_0*alpha_0;
+    T alpha_1_sq = alpha_1*alpha_1;
+    T alpha_1_cb = alpha_1*alpha_1*alpha_1;
+    T x = f_alpha1 - f0 - f0_dash*alpha_1;
+    T y = f_alpha0 - f0 - f0_dash*alpha_0;
+    T a = alpha_0_sq*x - alpha_1_sq*y;
+    T b = -alpha_0_cb*x + alpha_1_cb*y;
+    T denom = alpha_0_sq*alpha_1_sq*(alpha_1-alpha_0);
+    a /= denom;
+    b /= denom;
+    return (-b + El::Sqrt(b*b - 3*a*f0_dash))/(T(3)*a);
+}
 /**
  * Preconditions:
  * -------------
@@ -49,18 +62,26 @@ T Zoom( const Function& f, const Gradient& gradient,
 {
     DistMatrix<T> x_j(x0);
     DistMatrix<T> g2(p.Height(), 1, x0.Grid());
-    T fval_prev(f0);
-    T alpha_prev(0);
     Int iter = 0;
     T alpha;
     while (alpha_high - alpha_low > T(10)*limits::Epsilon<Base<T>>())
     {
         // BEGIN Interpolation
-        alpha = Interpolate(alpha_low,alpha_high);
-        // End Interpolation
+        alpha = QuadraticInterpolate(alpha_low, alpha_high, f0_dash, f0, fval_low, flow_dash);
         x_j = x0;
         Axpy(alpha, p, x_j);
         T fval = f(x_j);
+        while ( fval > f0 + c1*alpha*f0_dash)
+        {
+            alpha = CubicInterpolate(f0, f0_dash, flow_dash, fval, alpha_low, alpha);
+            x_j = x0;
+            Axpy(alpha, p, x_j);
+            fval = f(x_j);
+        }
+        // End Interpolation
+        x_j = x0;
+        Axpy(alpha, p, x_j);
+        fval = f(x_j);
         if ((fval > f0 + c1*alpha*f0_dash) || (fval >= fval_low)){
             alpha_high = alpha;
         }else { //alpha certainly satisfies sufficient decrease
@@ -79,7 +100,6 @@ T Zoom( const Function& f, const Gradient& gradient,
              * alpha_low is maintained as of all steps satisfying suff. dec.
              * it is the one with smallest function value.
              */
-            flow_dash = fval_dash;
             fval_low = fval;
             alpha_low = alpha;
         }
