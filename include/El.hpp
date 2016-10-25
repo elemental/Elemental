@@ -21,7 +21,7 @@
 #include <El/matrices.hpp>
 
 #include <El/number_theory.hpp>
-
+#include <El/graph_algorithms.hpp>
 #include <El/io.hpp>
 
 #endif // ifndef EL_HPP
