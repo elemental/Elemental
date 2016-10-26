@@ -108,7 +108,7 @@ void TwoByTwo
 (       DistMatrix<F,MC,MR,BLOCK>& H,
         F eta00,
         F eta01,
-        Base<F> eta10,
+        F eta10,
         F eta11,
         DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
         DistMatrix<F,MC,MR,BLOCK>& Z,

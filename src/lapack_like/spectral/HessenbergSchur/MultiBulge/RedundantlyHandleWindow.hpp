@@ -25,21 +25,33 @@ RedundantlyHandleWindow
 {
     DEBUG_CSE
     const Int n = H.Height();
-    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
+    const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int winSize = winEnd - winBeg;
 
-    auto winInd = IR(winBeg,winEnd);
+    const auto winInd = IR(winBeg,winEnd);
     auto HWin = H(winInd,winInd);
     auto& wLoc = w.Matrix();
 
     // Compute the Schur decomposition HWin = ZWin TWin ZWin',
     // where HWin is overwritten by TWin, and wWin by diag(TWin).
     DistMatrix<F,STAR,STAR> HWinFull( HWin );
+    TestConsistency( HWinFull, "HWinRedundant" );
     auto wWin = wLoc(winInd,ALL);
     Matrix<F> ZWin;
     Identity( ZWin, winSize, winSize );
     auto info = HessenbergSchur( HWinFull.Matrix(), wWin, ZWin );
+    TestConsistency( HWinFull, "HWinRedundantAfter" );
+    Output("redundant window: [",winBeg,",",winEnd,")");
+    Log("redundant window: [",winBeg,",",winEnd,")");
+    /*
+    Print( HWinFull, "HWin" );
+    Print( HWinFull.Matrix(), "HWin", LogOS() );
+    Print( ZWin, "ZWin", LogOS() );
+    Print( wWin, "wWin", LogOS() );
+    if( H.Grid().Rank() == 0 )
+        Print( ZWin, "ZWin" );
+    */
     HWin = HWinFull;
 
     if( ctrl.fullTriangle )
@@ -49,18 +61,24 @@ RedundantlyHandleWindow
             // Overwrite H(winInd,winEnd:n) *= ZWin'
             // (applied from the left)
             auto HRight = H( winInd, IR(winEnd,n) );
+            //Print( HRight, "HRight" );
             TransformRows( ZWin, HRight );
+            //Print( HRight, "HRightAfter" );
         }
 
         // Overwrite H(0:winBeg,winInd) *= ZWin
         auto HTop = H( IR(0,winBeg), winInd );
+        //Print( HTop, "HTop" );
         TransformColumns( ZWin, HTop );
+        //Print( HTop, "HTopAfter" );
     }
     if( ctrl.wantSchurVecs )
     {
         // Overwrite Z(:,winInd) *= ZWin
         auto ZBlock = Z( ALL, winInd );
+        //Print( ZBlock, "ZBlock" );
         TransformColumns( ZWin, ZBlock );
+        //Print( ZBlock, "ZBlockAfter" );
     }
 
     return info;

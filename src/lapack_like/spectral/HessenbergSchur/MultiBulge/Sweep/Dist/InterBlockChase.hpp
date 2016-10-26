@@ -421,6 +421,7 @@ struct InterBlockInteraction
   Int householderEnd;
 
   bool participating;
+  bool onDiagonal;
 };
 
 namespace interblock {
@@ -442,6 +443,7 @@ DetermineInteraction
     const Int distFromEnd = state.endBlock - diagBlockRow;
     const bool evenBlock = ( Mod( distFromEnd, 2 ) == 0 );
     const bool sameParity = ( evenBlock == evenToOdd );
+    Log("Determining interaction type for diagBlockRow=",diagBlockRow,", introBlock=",state.introBlock,", endBlock=",state.endBlock,", evenBlock=",evenBlock,", sameParity=",sameParity,", numWinBlocks=",state.numWinBlocks,", activeRowBlockBeg=",state.activeRowBlockBeg,", activeColBlockBeg=",state.activeColBlockBeg);
 
     InterBlockInteraction interaction;
     interaction.chaseType = NO_CHASE;
@@ -450,6 +452,7 @@ DetermineInteraction
     interaction.blockSize0 = 0;
     interaction.blockSize1 = 0;
     interaction.participating = false;
+    interaction.onDiagonal = false;
     if( diagBlockRow == state.introBlock && !sameParity )
     {
         // We cannot pull into the intro block
@@ -470,6 +473,7 @@ DetermineInteraction
             if( fullFirstBlock )
             {
                 // A packet is already lying the (0,0) diagonal block.
+                Log("  STANDARD_CHASE");
                 interaction.chaseType = STANDARD_CHASE;
                 interaction.blockSize0 = state.blockSize;
                 interaction.blockSize1 = state.blockSize;
@@ -477,6 +481,7 @@ DetermineInteraction
             else
             {
                 // We need to introduce and chase a packet.
+                Log("  COUPLED_INTRO_CHASE");
                 interaction.chaseType = COUPLED_INTRO_CHASE;
                 interaction.blockSize0 = state.firstBlockSize;
                 interaction.blockSize1 = state.blockSize; 
@@ -487,6 +492,7 @@ DetermineInteraction
             if( fullFirstBlock )
             {
                 // We will introduce a packet into this block
+                Log("  SIMPLE_INTRO_CHASE");
                 interaction.chaseType = SIMPLE_INTRO_CHASE;
                 interaction.blockSize0 = 0;
                 interaction.blockSize1 = state.blockSize;
@@ -495,6 +501,7 @@ DetermineInteraction
             {
                 // No packets are left in partial blocks; so our process
                 // does not interact via this row.
+                Log("  NO_CHASE");
                 interaction.chaseType = NO_CHASE;
                 return interaction;
             }
@@ -509,12 +516,14 @@ DetermineInteraction
             // (2,2) block.
             if( state.numWinBlocks == 3 )
             {
+                Log("  EXIT_CHASE");
                 interaction.chaseType = EXIT_CHASE;
                 interaction.blockSize0 = state.blockSize;
                 interaction.blockSize1 = state.lastBlockSize;
             }
             else
             {
+                Log("  STANDARD_CHASE");
                 interaction.chaseType = STANDARD_CHASE;
                 interaction.blockSize0 = state.blockSize;
                 interaction.blockSize1 = state.blockSize;
@@ -525,6 +534,7 @@ DetermineInteraction
             if( fullFirstBlock )
             {
                 // This chase will pull a packet from (0,0) to (1,1)
+                Log("  STANDARD_CHASE");
                 interaction.chaseType = STANDARD_CHASE;
                 interaction.blockSize0 = state.blockSize;
                 interaction.blockSize1 = state.blockSize;
@@ -533,6 +543,7 @@ DetermineInteraction
             {
                 // This chase will introduce a packet and immediately chase 
                 // it into diagonal block (1,1)
+                Log("  COUPLED_INTRO_CHASE");
                 interaction.chaseType = COUPLED_INTRO_CHASE;
                 interaction.blockSize0 = state.firstBlockSize;
                 interaction.blockSize1 = state.blockSize;
@@ -544,6 +555,7 @@ DetermineInteraction
         if( sameParity )
         {
             // We will push a packet into the last block (and then exit it)
+            Log("  EXIT_CHASE");
             interaction.chaseType = EXIT_CHASE;
             interaction.blockSize0 = state.blockSize;
             interaction.blockSize1 = state.lastBlockSize; 
@@ -551,6 +563,7 @@ DetermineInteraction
         else
         {
             // We will pull a packet into the next-to-last diagonal block
+            Log("  STANDARD_CHASE");
             interaction.chaseType = STANDARD_CHASE;
             interaction.blockSize0 = state.blockSize;
             interaction.blockSize1 = state.blockSize;
@@ -561,11 +574,13 @@ DetermineInteraction
         if( sameParity )
         {
             // Packets are never left in the last diagonal block
+            Log("  NO_CHASE");
             interaction.chaseType = NO_CHASE;
         }
         else
         {
             // We will pull a packet into this last diagonal block and exit it
+            Log("  EXIT_CHASE");
             interaction.chaseType = EXIT_CHASE;
             interaction.blockSize0 = state.blockSize;
             interaction.blockSize1 = state.lastBlockSize;
@@ -576,6 +591,7 @@ DetermineInteraction
         if( sameParity )
         {
             // We will push a packet into the next diagonal block
+            Log("  STANDARD_CHASE");
             interaction.chaseType = STANDARD_CHASE;
             interaction.blockSize0 = state.blockSize;
             interaction.blockSize1 = state.blockSize;
@@ -583,6 +599,7 @@ DetermineInteraction
         else
         {
             // We will pull a packet into this diagonal block.
+            Log("  STANDARD_CHASE");
             interaction.chaseType = STANDARD_CHASE;
             interaction.blockSize0 = state.blockSize;
             interaction.blockSize1 = state.blockSize;
@@ -622,14 +639,22 @@ DetermineInteraction
       Mod( state.winRowAlign+interaction.block0, grid.Width() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
-    const bool inTwoByTwo =
-      (grid.Row() == firstRow || grid.Row() == secondRow) &&
-      (grid.Col() == firstCol || grid.Col() == secondCol);
     if( interaction.chaseType == SIMPLE_INTRO_CHASE )
+    {
         interaction.participating =
           (grid.Row() == secondRow && grid.Col() == secondCol);
+        interaction.onDiagonal = interaction.participating;
+    }
     else
+    {
+        const bool inTwoByTwo =
+          (grid.Row() == firstRow || grid.Row() == secondRow) &&
+          (grid.Col() == firstCol || grid.Col() == secondCol);
         interaction.participating = inTwoByTwo;
+        interaction.onDiagonal =
+          (grid.Row() == firstRow && grid.Col() == firstCol) ||
+          (grid.Row() == secondRow && grid.Col() == secondCol);
+    }
 
     return interaction;
 }
@@ -651,12 +676,10 @@ FormRowInteractionList
           interblock::DetermineInteraction( evenToOdd, diagBlock, grid, state );
         if( interaction.chaseType == NO_CHASE )
         {
-            Output(grid.Rank(),"  diagBlock=",diagBlock," was NO_CHASE");
             diagBlock += grid.Height();
         }
         else
         {
-            Output(grid.Rank(),"  diagBlock=",diagBlock," was nontrivial");
             interactionList.push_back(interaction);
             // We must take care to not participate twice in one chase
             if( grid.Height() == 1 )
@@ -727,7 +750,6 @@ FormColumnInteractionList
 // of which only six rows and six columns are involved in the inter-block packet
 // chase. We can also obviously only transmit a single entry of the bottom-left
 // block (and the nonzero portions of the other quadrants).
-//
 template<typename F>
 void CollectBlock
 ( const InterBlockInteraction& interaction,
@@ -858,6 +880,7 @@ void CollectBlock
             El::Recv( HBlock10, grid.VCComm(), proc10 );
             // Exchange diagonal blocks with proc11
             El::SendRecv( HBlock00, HBlock11, grid.VCComm(), proc11, proc11 );
+            Print( HBlock, "HBlock as 00", LogOS() );
         }
         else if( grid.Row() == firstRow && grid.Col() == secondCol )
         {
@@ -881,6 +904,7 @@ void CollectBlock
             El::Recv( HBlock10, grid.VCComm(), proc10 );
             // Exchange diagonal blocks with proc00
             El::SendRecv( HBlock11, HBlock00, grid.VCComm(), proc00, proc00 );
+            Print( HBlock, "HBlock as 11", LogOS() );
         }
     }
 }
@@ -889,7 +913,7 @@ template<typename F>
 void StoreBlock
 ( const InterBlockInteraction& interaction,
         DistMatrix<F,MC,MR,BLOCK>& H,
-  const Matrix<F>& HBlock,
+        Matrix<F>& HBlock,
   const DistChaseState& state )
 {
     DEBUG_CSE
@@ -986,24 +1010,42 @@ void StoreBlock
         // Four processes participate, though only the upper-left and
         // bottom-right ones will chase the packet, so only they receive
         // any data.
+        const int proc00 = firstRow + firstCol*grid.Height();
+        const int proc01 = firstRow + secondCol*grid.Height();
+        const int proc10 = secondRow + firstCol*grid.Height();
+        const int proc11 = secondRow + secondCol*grid.Height();
         if( grid.Row() == firstRow && grid.Col() == firstCol )
         {
             auto HBlock00 = HBlock( ind0, ind0 );
+            auto HBlock01 = HBlock( ind0, ind1 );
+            // Send the (0,1) block to process (0,1) (who did not locally chase)
+            El::Send( HBlock01, grid.VCComm(), proc01 );
+            // Locally store the (0,0) block
             HInteractLoc = HBlock00;
         }
         else if( grid.Row() == firstRow && grid.Col() == secondCol )
         {
             auto HBlock01 = HBlock( ind0, ind1 );
+            // Recv (and locally store) the (0,1) block from process (0,0)
+            El::Recv( HBlock01, grid.VCComm(), proc00 );
             HInteractLoc = HBlock01;
         }
         else if( grid.Row() == secondRow && grid.Col() == firstCol )
         {
             auto HBlock10 = HBlock( ind1, ind0 );
+            // Recv (and locally store) the (1,0) block from process (1,1)
+            // TODO(poulson): Receive only the top-right entry of (1,0) block
+            El::Recv( HBlock10, grid.VCComm(), proc11 );
             HInteractLoc = HBlock10;
         }
         else if( grid.Row() == secondRow && grid.Col() == secondCol )
         {
+            auto HBlock10 = HBlock( ind1, ind0 );
             auto HBlock11 = HBlock( ind1, ind1 );
+            // Send the (1,0) block to process (1,0)
+            // TODO(poulson): Send only the top-right entry of (1,0) block
+            El::Send( HBlock10, grid.VCComm(), proc10 );
+            // Locally store the (1,1) block
             HInteractLoc = HBlock11;
         }
     }
@@ -1050,6 +1092,7 @@ void LocalChase
         // expand by one in each subsequent step
         numSteps = householderSize - 2;
     }
+    Log("numSteps=",numSteps,", householderSize=",householderSize,", householderBeg=",interaction.householderBeg);
 
     // TODO(poulson): Description of the following
     const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
@@ -1064,22 +1107,8 @@ void LocalChase
         packetOffset =
           (interaction.block0-state.introBlock)*state.numBulgesPerBlock;
     }
-
-    // Even the units of this expression are wrong...
     const Int bulgeOffset = state.bulgeBeg + packetOffset;
-
-    /*
-    if( interaction.chaseType == STANDARD_CHASE )
-        Output(shifts.Grid().Rank(),"InterBlock STANDARD_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
-    else if( interaction.chaseType == SIMPLE_INTRO_CHASE )
-        Output(shifts.Grid().Rank(),"InterBlock SIMPLE_INTRO_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
-    else if( interaction.chaseType == COUPLED_INTRO_CHASE )
-        Output(shifts.Grid().Rank(),"InterBlock COUPLED_INTRO_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
-    else if( interaction.chaseType == EXIT_CHASE )
-        Output(shifts.Grid().Rank(),"InterBlock EXIT_CHASE, introBlock=",state.introBlock,", block0=",interaction.block0,", block1=",interaction.block1,", bulgeOffset=",bulgeOffset,", numBulges=",interaction.numBulges,", numSteps=",numSteps);
-    else
-        LogicError("Invalid chase type");
-    */
+    Log("packetOffset=",packetOffset,", bulgeOffset=",bulgeOffset);
 
     Matrix<F> ZDummy;
     const Int chaseBeg = (interaction.householderBeg-interaction.beg)-1;
@@ -1126,6 +1155,7 @@ void LocalChase
         const IR activeInd(firstActiveBulge,firstActiveBulge+numActiveBulges);
         const auto& activeShifts =
           shiftsLoc( IR(2*activeInd.beg,2*activeInd.end)+(2*bulgeOffset), ALL );
+        Log("  step=",step,", packetBeg=",packetBeg,", numActiveBulges=",numActiveBulges,", activeInd.beg=",activeInd.beg,", activeInd.end=",activeInd.end);
 
         ComputeReflectors
         ( HBlock, blockWinBeg, blockWinEnd, activeShifts, W, packetBeg,
@@ -1135,6 +1165,7 @@ void LocalChase
           transformRowBeg, transformColEnd, ZDummy, wantSchurVecsSub,
           UBlock, W, firstActiveBulgePosition, numActiveBulges, accumulateSub,
           progress );
+        Print( UBlock, "UBlock after step", LogOS() );
     }
 }
 
@@ -1161,6 +1192,7 @@ void ApplyAccumulatedFromLeft
 
     // HRight := U' HRight
     auto HRight = H( IR(houseBeg,houseEnd), IR(colBeg,colEnd) );
+    Output("Calling transform rows with rows [",houseBeg,",",houseEnd,") and cols [",colBeg,",",colEnd,")");
     TransformRows( U, HRight );
 }
 
@@ -1183,15 +1215,61 @@ void ApplyAccumulatedFromRight
           LogicError
           ("U was of size ",U.Height()," but householder indices are [",
            houseBeg,",",houseEnd,")");
+      if( Z.RowAlign() != H.RowAlign() )
+          LogicError("Z and H had different row alignments");
+      if( Z.RowCut() != H.RowCut() )
+          LogicError("Z and H had different row cuts");
     )
+
+    Output(H.Grid().Rank(),": houseSize=",houseEnd-houseBeg,", ZWidth=",Z.Width(),", ZLocalWidth=",Z.LocalWidth());
+    Output
+    (H.Grid().Rank(),": TransformColumns row=[",rowBeg,",",rowEnd,
+     "), house=[",houseBeg,",",houseEnd);
+    /*
+    if( H.Grid().Rank() == 0 )
+        Print( U, "U" );
+    */
+
+    Print( U, "U", LogOS() );
 
     // HTop := HTop U
     auto HTop = H( IR(rowBeg,rowEnd), IR(houseBeg,houseEnd) );
+    //Output(H.Grid().Rank(),": HTop ~ cuts ",HTop.RowCut()," ",HTop.ColCut(),", aligns ",HTop.ColAlign()," ",HTop.RowAlign(),", size ",HTop.Height()," ",HTop.Width(),", local size ",HTop.LocalHeight()," ",HTop.LocalWidth());
+    /*
+    if( HTop.Width() <= HTop.BlockWidth()-HTop.RowCut() )
+        Print( HTop.Matrix(), "HTop" );
+    else
+        Print( HTop, "HTop" );
+    */
+    Output("Calling transform U cols with rows [",rowBeg,",",rowEnd,") and cols [",houseBeg,",",houseEnd,")");
+    Print( HTop.Matrix(), "HTopLoc", LogOS() );
     TransformColumns( U, HTop );
+    Print( HTop.Matrix(), "HTopLocAfter", LogOS() );
+    /*
+    if( HTop.Width() <= HTop.BlockWidth()-HTop.RowCut() )
+        Print( HTop.Matrix(), "HTopAfter" );
+    else
+        Print( HTop, "HTopAfter" );
+    */
 
     // ZBlock := ZBlock U
     auto ZBlock = Z( ALL, IR(houseBeg,houseEnd) );
+    /*
+    if( ZBlock.Width() <= ZBlock.BlockWidth()-ZBlock.RowCut() )
+        Print( ZBlock.Matrix(), "ZBlock" );
+    else
+        Print( ZBlock, "ZBlock" );
+    */
+    Output("Calling transform Z cols with cols [",houseBeg,",",houseEnd,")");
+    Print( ZBlock.Matrix(), "ZBlockLoc", LogOS() );
     TransformColumns( U, ZBlock );
+    Print( ZBlock.Matrix(), "ZBlockLocAfter", LogOS() );
+    /*
+    if( ZBlock.Width() <= ZBlock.BlockWidth()-ZBlock.RowCut() )
+        Print( ZBlock.Matrix(), "ZBlockAfter" );
+    else
+        Print( ZBlock, "ZBlockAfter" );
+    */
 }
 
 } // namespace interblock
@@ -1208,6 +1286,8 @@ void InterBlockChase
     DEBUG_CSE
     const Grid& grid = H.Grid();
     const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
+    Output(grid.Rank()," entered InterBlockChase with evenToOdd=",evenToOdd);
+    Log("Entered InterBlockChase with evenToOdd=",evenToOdd);
     // If fullFirstBlock is false, then we need to subtract one from the block
     // index when computing the beginning shift.
     
@@ -1225,36 +1305,53 @@ void InterBlockChase
 
     const Int numRowInteractions = rowInteractionList.size();
     const Int numColInteractions = colInteractionList.size();
+    Log
+    (numRowInteractions," and ",numColInteractions," row and col interact's");
 
     // Count the number of interactions our process participates in
-    Int numLocalInteractions = 0;
+    Int numDiagonalInteractions = 0;
     for( const auto& interaction : rowInteractionList )
-        if( interaction.participating ) 
-            ++numLocalInteractions;
-    vector<Matrix<F>> UList(numLocalInteractions);
+        if( interaction.onDiagonal ) 
+            ++numDiagonalInteractions;
+    vector<Matrix<F>> UList(numDiagonalInteractions);
+    Log(numDiagonalInteractions," diagonal interactions");
 
     // Chase the packets that we interact with in this step and store the
     // accumulated Householder reflections
     Matrix<F> W;
     Matrix<F> HBlock;
-    Int localInteraction = 0;
+    Int diagInteraction = 0;
     for( Int rowInteraction=0; rowInteraction<numRowInteractions;
          ++rowInteraction )
     {
         auto interaction = rowInteractionList[rowInteraction];
         if( interaction.participating )
         {
-            auto& UBlock = UList[localInteraction];
+            Log("Participating in row interaction ",rowInteraction," for block0=",interaction.block0);
             interblock::CollectBlock( interaction, H, HBlock, state );
-            interblock::LocalChase
-            ( evenToOdd, interaction, HBlock, UBlock, W, shifts, state,
-              ctrl.progress );
+            if( interaction.onDiagonal )
+            {
+                Log("  On diagonal for row interaction ",rowInteraction," for block0=",interaction.block0);
+                auto& UBlock = UList[diagInteraction++];
+                interblock::LocalChase
+                ( evenToOdd, interaction, HBlock, UBlock, W, shifts, state,
+                  ctrl.progress );
+                Log("  Finished on diagonal row interaction");
+            }
+            else
+            {
+                Log("  Not on diagonal for row interaction ",rowInteraction);
+            }
             interblock::StoreBlock( interaction, H, HBlock, state );
-            ++localInteraction;
+            Log("  Finished with row interaction ",rowInteraction," for block0=",interaction.block0);
+        }
+        else
+        {
+            Log("Not participating in row interaction ",rowInteraction," for block0=",interaction.block0);
         }
     }
 
-    localInteraction = 0;
+    diagInteraction = 0;
     Matrix<F> U;
     for( Int rowInteraction=0; rowInteraction<numRowInteractions;
          ++rowInteraction )
@@ -1262,8 +1359,8 @@ void InterBlockChase
         auto interaction = rowInteractionList[rowInteraction];
         const Int householderSize =
           interaction.householderEnd - interaction.householderBeg;
-        if( interaction.participating )
-            U = UList[localInteraction++];
+        if( interaction.onDiagonal )
+            U = UList[diagInteraction++];
         else
             Zeros( U, householderSize, householderSize );
         DEBUG_ONLY(
@@ -1285,20 +1382,23 @@ void InterBlockChase
         else
             ownerCol = secondCol;
 
+        Log("Row broadcast for row interaction ",rowInteraction," for block0=",interaction.block0);
         El::Broadcast( U, grid.RowComm(), ownerCol );
+        Log("Finished row broadcast for row interaction ",rowInteraction," for block0=",interaction.block0);
 
         interblock::ApplyAccumulatedFromLeft( interaction, H, U, state, ctrl );
+        Log("Finished ApplyAccumulatedFromLeft for row interaction ",rowInteraction," for block0=",interaction.block0);
     }
 
-    localInteraction = 0;
+    diagInteraction = 0;
     for( Int colInteraction=0; colInteraction<numColInteractions;
          ++colInteraction )
     {
         auto interaction = colInteractionList[colInteraction];
         const Int householderSize =
           interaction.householderEnd - interaction.householderBeg;
-        if( interaction.participating )
-            U = UList[localInteraction++];
+        if( interaction.onDiagonal )
+            U = UList[diagInteraction++];
         else
             Zeros( U, householderSize, householderSize );
         DEBUG_ONLY(
@@ -1320,10 +1420,13 @@ void InterBlockChase
         else
             ownerRow = secondRow;
 
+        Log("Col broadcast for col interaction ",colInteraction," for block0=",interaction.block0);
         El::Broadcast( U, grid.ColComm(), ownerRow );
+        Log("Finished col broadcast for col interaction ",colInteraction," for block0=",interaction.block0);
 
         interblock::ApplyAccumulatedFromRight
         ( interaction, H, Z, U, state, ctrl );
+        Log("Finished ApplyAccumulatedFromRight for col interaction ",colInteraction," for block0=",interaction.block0);
     }
 }
 

@@ -114,7 +114,9 @@ DistChaseState BuildDistChaseState
     else
     {
         state.numWinBlocks = 2 + (winSizeAfterFirst-1)/state.blockSize;
-        state.lastBlockSize = winSizeAfterFirst % state.blockSize;
+        const Int winSizeLeftover = Mod(winSizeAfterFirst,state.blockSize);
+        state.lastBlockSize =
+          ( winSizeLeftover==0 ? state.blockSize : winSizeLeftover );
     }
 
     // Apply the black-box function for determining the number of bulges
@@ -160,16 +162,13 @@ DistChaseState BuildDistChaseState
     // immediately chased through to block 1.
     const bool fullFirstBlock = ( state.blockSize == state.firstBlockSize );
     state.introBlock = -1;
+    state.endBlock = 1;
     state.activeBeg = state.winBeg;
-    if( fullFirstBlock )
+    state.activeEnd = state.winBeg + state.firstBlockSize;
+    if( !fullFirstBlock )
     {
-        state.endBlock = 1;
-        state.activeEnd = state.winBeg + state.blockSize;
-    }
-    else
-    {
-        state.endBlock = 2;
-        state.activeEnd = state.winBeg + state.firstBlockSize + state.blockSize;
+        state.endBlock += 1;
+        state.activeEnd += state.blockSize; 
     }
 
     // We now compute the first row/column blocks of the active window that are
@@ -182,6 +181,8 @@ DistChaseState BuildDistChaseState
       Shift( grid.Col(), activeRowAlign, grid.Width() );
     state.activeRowBlockBeg = Max(state.introBlock,0) + activeColShift;
     state.activeColBlockBeg = Max(state.introBlock,0) + activeRowShift;
+
+    Log("Initialized DistChaseState with winBeg=",state.winBeg,", winEnd=",state.winEnd,", activeBeg=",state.activeBeg,", activeEnd=",state.activeEnd,", introBlock=",state.introBlock,", endBlock=",state.endBlock,", bulgeBeg=",state.bulgeBeg,", bulgeEnd=",state.bulgeEnd,", activeColAlign=",activeColAlign,", activeRowAlign=",activeRowAlign,", activeRowBlockBeg=",state.activeRowBlockBeg,", activeColBlockBeg=",state.activeColBlockBeg);
 
     return state;
 }
@@ -254,6 +255,8 @@ void AdvanceChaseState
         )
         state.bulgeBeg -= state.numBulgesPerBlock;
     }
+    
+    Log("Advanced DistChaseState with winBeg=",state.winBeg,", winEnd=",state.winEnd,", activeBeg=",state.activeBeg,", activeEnd=",state.activeEnd,", introBlock=",state.introBlock,", endBlock=",state.endBlock,", bulgeBeg=",state.bulgeBeg,", bulgeEnd=",state.bulgeEnd,", activeColAlign=",H.RowOwner(state.activeBeg),", activeRowAlign=",H.ColOwner(state.activeBeg),", activeRowBlockBeg=",state.activeRowBlockBeg,", activeColBlockBeg=",state.activeColBlockBeg);
 }
 
 } // namespace multibulge

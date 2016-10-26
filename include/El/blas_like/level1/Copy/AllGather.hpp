@@ -64,29 +64,7 @@ void AllGather
         }
     }
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
-    {
-        // Pack from the root
-        const Int BLocalHeight = B.LocalHeight();
-        const Int BLocalWidth = B.LocalWidth();
-        vector<T> buf;
-        FastResize( buf, BLocalHeight*BLocalWidth );
-        if( A.CrossRank() == A.Root() )
-            util::InterleaveMatrix
-            ( BLocalHeight, BLocalWidth,
-              B.LockedBuffer(), 1, B.LDim(),
-              buf.data(),       1, BLocalHeight ); 
-
-        // Broadcast from the root
-        mpi::Broadcast
-        ( buf.data(), BLocalHeight*BLocalWidth, A.Root(), A.CrossComm() );
-
-        // Unpack if not the root
-        if( A.CrossRank() != A.Root() )
-            util::InterleaveMatrix
-            ( BLocalHeight, BLocalWidth,
-              buf.data(), 1, BLocalHeight,
-              B.Buffer(), 1, B.LDim() );
-    }
+        El::Broadcast( B, A.CrossComm(), A.Root() );
 }
 
 template<typename T,Dist U,Dist V>

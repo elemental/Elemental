@@ -127,7 +127,10 @@ void ComputeReflectors
                     // The proposed bulge was unacceptable;
                     // continue using the collapsed one with regret
                     if( progress )
+                    {
+                        Log("Unacceptable replacement bulge at ",bulgeBeg);
                         Output("Unacceptable replacement bulge at ",bulgeBeg);
+                    }
                     eta10 = beta;
                     eta20 = realZero;
                     eta30 = realZero;

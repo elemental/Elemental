@@ -116,6 +116,7 @@ void LocalChase
     const Int intraBlockStart = 
       ( state.firstBlockSize == state.blockSize ?
         state.introBlock+1 : Max(state.introBlock+1,1) );
+    Log("intraBlockStart=",intraBlockStart);
 
     // Count the number of diagonal blocks assigned to this process
     {
@@ -136,6 +137,7 @@ void LocalChase
             diagBlock += grid.Height();
         }
         UList.resize(numLocalBlocks);
+        Log("numLocalBlocks=",numLocalBlocks," in IntraBlockChase");
     }
     
     // Chase bulges down the local diagonal blocks and store the accumulations
@@ -154,10 +156,16 @@ void LocalChase
           ( diagBlock==state.endBlock-1 ?
             state.numBulgesInLastBlock :
             state.numBulgesPerBlock );
+        if( diagBlock==state.endBlock-1 )
+        {
+            Log("endBlock=",state.endBlock,", diagBlock=",diagBlock,", numBlockBulges=",numBlockBulges);
+            Output(grid.Rank(),": endBlock=",state.endBlock,", diagBlock=",diagBlock,", numBlockBulges=",numBlockBulges);
+        }
 
         const int ownerCol = Mod( state.winRowAlign+diagBlock, grid.Width() );
         if( ownerCol == grid.Col() )
         {
+            Log("Intrablock chase of diagBlock=",diagBlock);
             const Int diagOffset = state.winBeg +
               ( diagBlock == 0 ?
                 0 :
@@ -270,6 +278,7 @@ void ApplyAccumulatedReflections
         {
             const int ownerCol =
               Mod( state.winRowAlign+diagBlockRow, grid.Width() );
+            Log("Intrablock row apply for diagBlockRow=",diagBlockRow);
             if( ownerCol == grid.Col() )
             {
                 UBlock = UList[localDiagBlock++];
@@ -324,6 +333,7 @@ void ApplyAccumulatedReflections
         {
             const int ownerRow =
               Mod( state.winColAlign+diagBlockCol, grid.Height() );
+            Log("Intrablock col apply for diagBlockCol=",diagBlockCol);
             if( ownerRow == grid.Row() )
             {
                 UBlock = UList[localDiagBlock++];

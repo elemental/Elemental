@@ -172,27 +172,113 @@ void SweepHelper
 
     auto state = BuildDistChaseState( H, shifts, ctrl ); 
 
+    DistMatrix<F,MC,MR,BLOCK> H0( H );
+    DistMatrix<F,MC,MR,BLOCK> HSweep( H );
+    DistMatrix<F,MC,MR,BLOCK> ZSweep( Z );
+    Identity( ZSweep, H.Height(), H.Height() );
+
     while( state.bulgeEnd != 0 )
     {
+        Log
+        ("Sweep loop with bulgeInd=[",state.bulgeBeg,",",state.bulgeEnd,")");
         Output
         ("Sweep loop with bulgeInd=[",state.bulgeBeg,",",state.bulgeEnd,")");
         // Chase packets from the bottom-right corners of the even parity blocks
         // to the top-left corners of the odd parity blocks
-        //Output("InterBlockChase (even)");
-        //Print( H, "HInterBlockChaseEven" );
+        Log("InterBlockChase (even)");
+        Output("InterBlockChase (even)");
         InterBlockChase( H, Z, shifts, true, state, ctrl );
+        InterBlockChase( HSweep, ZSweep, shifts, true, state, ctrl );
+
+        // DEBUG: Check the error || H0 - Z H Z^H ||_F from the even interblock
+        {
+            Output("Checking even interblock error");
+            DistMatrix<F,MC,MR,BLOCK> R(H.Grid());
+            Output("Built R");
+            Gemm( NORMAL, NORMAL, F(1), ZSweep, H, R );
+            Output("Finished R := Z H");
+            DistMatrix<F,MC,MR,BLOCK> E(H0);
+            Gemm( NORMAL, ADJOINT, F(-1), R, ZSweep, F(1), E );
+            Output("Finished E -= R Z'");
+            const Base<F> errFrob = FrobeniusNorm( E );
+            const Base<F> H0Frob = FrobeniusNorm( H0 );
+            const Base<F> relErr = errFrob / H0Frob;
+            if( H.Grid().Rank() == 0 )
+                Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
+            if( relErr > Sqrt(limits::Epsilon<Base<F>>()) )
+            {
+                Print( H0, "H0" );
+                Print( ZSweep, "ZSweep" );
+                Print( H, "H" );
+                Print( E, "E" );
+                LogicError("Even Interblock failed");
+            }
+        }
 
         // Chase packets from the bottom-right corners of the odd parity blocks
         // to the top-left corners of the even parity blocks
-        //Output("InterBlockChase (odd)");
-        //Print( H, "HInterBlockChaseOdd" );
+        Log("InterBlockChase (odd)");
+        Output("InterBlockChase (odd)");
         InterBlockChase( H, Z, shifts, false, state, ctrl );
+        InterBlockChase( HSweep, ZSweep, shifts, false, state, ctrl );
+
+        // DEBUG: Check the error || H0 - Z H Z^H ||_F from the odd interblock
+        {
+            Output("Checking odd interblock error");
+            DistMatrix<F,MC,MR,BLOCK> R(H.Grid());
+            Output("Built R");
+            Gemm( NORMAL, NORMAL, F(1), ZSweep, H, R );
+            Output("Finished R := Z H");
+            DistMatrix<F,MC,MR,BLOCK> E(H0);
+            Gemm( NORMAL, ADJOINT, F(-1), R, ZSweep, F(1), E );
+            Output("Finished E -= R Z'");
+            const Base<F> errFrob = FrobeniusNorm( E );
+            const Base<F> H0Frob = FrobeniusNorm( H0 );
+            const Base<F> relErr = errFrob / H0Frob;
+            if( H.Grid().Rank() == 0 )
+                Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
+            if( relErr > Sqrt(limits::Epsilon<Base<F>>()) )
+            {
+                Print( H0, "H0" );
+                Print( ZSweep, "Z" );
+                Print( H, "H" );
+                Print( E, "E" );
+                LogicError("Odd Interblock failed");
+            }
+        }
 
         // Chase the packets from the top-left corners to the bottom-right 
         // corners of each diagonal block.
-        //Output("IntraBlockChase");
-        //Print( H, "HIntraBlockChase" );
+        Log("IntraBlockChase");
+        Output("IntraBlockChase");
+
         IntraBlockChase( H, Z, shifts, state, ctrl );
+        IntraBlockChase( HSweep, ZSweep, shifts, state, ctrl );
+
+        // DEBUG: Check the error || H0 - Z H Z^H ||_F from the intrablock chase
+        {
+            Output("Checking intrablock error");
+            DistMatrix<F,MC,MR,BLOCK> R(H.Grid());
+            Output("Built R");
+            Gemm( NORMAL, NORMAL, F(1), ZSweep, H, R );
+            Output("Finished R := Z H");
+            DistMatrix<F,MC,MR,BLOCK> E(H0);
+            Gemm( NORMAL, ADJOINT, F(-1), R, ZSweep, F(1), E );
+            Output("Finished E -= R Z'");
+            const Base<F> errFrob = FrobeniusNorm( E );
+            const Base<F> H0Frob = FrobeniusNorm( H0 );
+            const Base<F> relErr = errFrob / H0Frob;
+            if( H.Grid().Rank() == 0 )
+                Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
+            if( relErr > Sqrt(limits::Epsilon<Base<F>>()) )
+            {
+                Print( H0, "H0" );
+                Print( ZSweep, "Z" );
+                Print( H, "H" );
+                Print( E, "E" );
+                LogicError("Intrablock failed");
+            }
+        }
 
         AdvanceChaseState( H, state );
     }

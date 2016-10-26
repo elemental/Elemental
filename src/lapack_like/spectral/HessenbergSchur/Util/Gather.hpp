@@ -17,7 +17,7 @@ template<typename F>
 void GatherSubdiagonal
 ( const DistMatrix<F,MC,MR,BLOCK>& H,
   const IR& winInd,
-        DistMatrix<Base<F>,STAR,STAR>& hSubWin )
+        DistMatrix<F,STAR,STAR>& hSubWin )
 {
     DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
@@ -50,29 +50,43 @@ void GatherSubdiagonal
         const int nextRowOwner = Mod( rowOwner+1, grid.Height() );
         const int nextColOwner = Mod( colOwner+1, grid.Width() );
 
-        if( colOwner == grid.Col() )
+        //  ---------------------------
+        // | x x x x x x | x x x x x x |
+        // | s x x x x x | x x x x x x |
+        // |   s x x x x | x x x x x x |
+        // |     s x x x | x x x x x x |
+        // |       s x x | x x x x x x |
+        // |         s x | x x x x x x |
+        // |-------------|-------------|
+        // |           s | x x x x x x |
+        // |             | s x x x x x |
+        // |             |   s x x x x |
+        // |             |     s x x x |
+        // |             |       s x x |
+        // |             |         s x |
+        //  ---------------------------
+        const bool haveLastOff = (winSize > winIndex+thisBlockSize);
+
+        // Handle this main diagonal block
+        if( colOwner == grid.Col() && rowOwner == grid.Row() )
         {
-            const bool haveLastSub = (winSize > winIndex+thisBlockSize);
-            if( rowOwner == grid.Row() )
+            for( Int offset=0; offset<thisBlockSize; ++offset )
             {
-                for( Int offset=0; offset<thisBlockSize; ++offset )
-                {
-                    if( offset < thisBlockSize-1 ||
-                        (haveLastSub && grid.Height()==1) )
-                        hSubWin.QueueUpdate
-                        ( winIndex+offset, 0,
-                          RealPart(HLoc(localRowOffset+offset+1,
-                                        localColOffset+offset)) );
-                }
+                if( offset < thisBlockSize-1 )
+                    hSubWin.QueueUpdate
+                    ( winIndex+offset, 0,
+                      HLoc(localRowOffset+offset+1,localColOffset+offset) );
             }
-            else if( haveLastSub && nextRowOwner == grid.Row() )
-            {
-                // Grab the entry in the top-right of this block
-                hSubWin.QueueUpdate
-                ( winIndex+thisBlockSize-1, 0,
-                  RealPart(HLoc(localRowOffset,
-                                localColOffset+thisBlockSize-1)) );
-            }
+        }
+        // Handle the last subdiagonal (if it exists)
+        if( haveLastOff &&
+            nextRowOwner == grid.Row() && colOwner == grid.Col() ) 
+        {
+            const Int subLocalRowOffset = localRowOffset +
+              ( grid.Height() == 1 ? thisBlockSize : 0 );
+            hSubWin.QueueUpdate
+            ( winIndex+thisBlockSize-1, 0, 
+              HLoc(subLocalRowOffset,localColOffset+thisBlockSize-1) );
         }
 
         winIndex += thisBlockSize;
@@ -85,6 +99,7 @@ void GatherSubdiagonal
         colOwner = nextColOwner;
     }
     hSubWin.ProcessQueues();
+    TestConsistency( hSubWin, "hSubWin" );
 }
 
 template<typename F>
@@ -92,7 +107,7 @@ void GatherBidiagonal
 ( const DistMatrix<F,MC,MR,BLOCK>& H,
   const IR& winInd,
         DistMatrix<F,STAR,STAR>& hMainWin,
-        DistMatrix<Base<F>,STAR,STAR>& hSubWin )
+        DistMatrix<F,STAR,STAR>& hSubWin )
 {
     DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
@@ -127,32 +142,46 @@ void GatherBidiagonal
         const int nextRowOwner = Mod( rowOwner+1, grid.Height() );
         const int nextColOwner = Mod( colOwner+1, grid.Width() );
 
-        if( colOwner == grid.Col() )
+        //  ---------------------------
+        // | m x x x x x | x x x x x x |
+        // | s m x x x x | x x x x x x |
+        // |   s m x x x | x x x x x x |
+        // |     s m x x | x x x x x x |
+        // |       s m x | x x x x x x |
+        // |         s m | x x x x x x |
+        // |-------------|-------------|
+        // |           s | m x x x x x |
+        // |             | s m x x x x |
+        // |             |   s m x x x |
+        // |             |     s m x x |
+        // |             |       s m x |
+        // |             |         s m |
+        //  ---------------------------
+        const bool haveLastOff = (winSize > winIndex+thisBlockSize);
+
+        // Handle this main diagonal block
+        if( colOwner == grid.Col() && rowOwner == grid.Row() )
         {
-            const bool haveLastSub = (winSize > winIndex+thisBlockSize);
-            if( rowOwner == grid.Row() )
+            for( Int offset=0; offset<thisBlockSize; ++offset )
             {
-                for( Int offset=0; offset<thisBlockSize; ++offset )
-                {
-                    hMainWin.QueueUpdate
+                hMainWin.QueueUpdate
+                ( winIndex+offset, 0,
+                  HLoc(localRowOffset+offset,localColOffset+offset) );
+                if( offset < thisBlockSize-1 )
+                    hSubWin.QueueUpdate
                     ( winIndex+offset, 0,
-                      HLoc(localRowOffset+offset,localColOffset+offset) );
-                    if( offset < thisBlockSize-1 ||
-                        (haveLastSub && grid.Height()==1) )
-                        hSubWin.QueueUpdate
-                        ( winIndex+offset, 0,
-                          RealPart(HLoc(localRowOffset+offset+1,
-                                        localColOffset+offset)) );
-                }
+                      HLoc(localRowOffset+offset+1,localColOffset+offset) );
             }
-            else if( haveLastSub && nextRowOwner == grid.Row() )
-            {
-                // Grab the entry in the top-right of this block
-                hSubWin.QueueUpdate
-                ( winIndex+thisBlockSize-1, 0,
-                  RealPart(HLoc(localRowOffset,
-                                localColOffset+thisBlockSize-1)) );
-            }
+        }
+        // Handle the last subdiagonal (if it exists)
+        if( haveLastOff &&
+            nextRowOwner == grid.Row() && colOwner == grid.Col() ) 
+        {
+            const Int subLocalRowOffset = localRowOffset +
+              ( grid.Height() == 1 ? thisBlockSize : 0 );
+            hSubWin.QueueUpdate
+            ( winIndex+thisBlockSize-1, 0, 
+              HLoc(subLocalRowOffset,localColOffset+thisBlockSize-1) );
         }
 
         winIndex += thisBlockSize;
@@ -166,6 +195,9 @@ void GatherBidiagonal
     }
     hMainWin.ProcessQueues();
     hSubWin.ProcessQueues();
+    
+    TestConsistency( hMainWin, "hMainWin" );
+    TestConsistency( hSubWin, "hSubWin" );
 }
 
 template<typename F>
@@ -173,7 +205,7 @@ void GatherTridiagonal
 ( const DistMatrix<F,MC,MR,BLOCK>& H,
   const IR& winInd,
         DistMatrix<F,STAR,STAR>& hMainWin,
-        DistMatrix<Base<F>,STAR,STAR>& hSubWin,
+        DistMatrix<F,STAR,STAR>& hSubWin,
         DistMatrix<F,STAR,STAR>& hSuperWin )
 {
     DEBUG_CSE
@@ -211,48 +243,60 @@ void GatherTridiagonal
         const int nextRowOwner = Mod( rowOwner+1, grid.Height() );
         const int nextColOwner = Mod( colOwner+1, grid.Width() );
 
-        if( colOwner == grid.Col() )
+        //  ---------------------------
+        // | m S x x x x | x x x x x x |
+        // | s m S x x x | x x x x x x |
+        // |   s m S x x | x x x x x x |
+        // |     s m S x | x x x x x x |
+        // |       s m S | x x x x x x |
+        // |         s m | S x x x x x |
+        // |-------------|-------------|
+        // |           s | m S x x x x |
+        // |             | s m S x x x |
+        // |             |   s m S x x |
+        // |             |     s m S x |
+        // |             |       s m S |
+        // |             |         s m |
+        //  ---------------------------
+        const bool haveLastOff = (winSize > winIndex+thisBlockSize);
+
+        // Handle this main diagonal block
+        if( colOwner == grid.Col() && rowOwner == grid.Row() )
         {
-            const bool haveLastOff = (winSize > winIndex+thisBlockSize);
-            if( rowOwner == grid.Row() )
+            for( Int offset=0; offset<thisBlockSize; ++offset )
             {
-                for( Int offset=0; offset<thisBlockSize; ++offset )
-                {
-                    hMainWin.QueueUpdate
+                hMainWin.QueueUpdate
+                ( winIndex+offset, 0,
+                  HLoc(localRowOffset+offset,localColOffset+offset) );
+                if( offset < thisBlockSize-1 )
+                    hSubWin.QueueUpdate
                     ( winIndex+offset, 0,
-                      HLoc(localRowOffset+offset,localColOffset+offset) );
-                    if( offset < thisBlockSize-1 ||
-                        (haveLastOff && grid.Height()==1) )
-                        hSubWin.QueueUpdate
-                        ( winIndex+offset, 0,
-                          RealPart(HLoc(localRowOffset+offset+1,
-                                        localColOffset+offset)) );
-                    if( offset < thisBlockSize-1 ||
-                        (haveLastOff && grid.Width()==1) )
-                        hSuperWin.QueueUpdate
-                        ( winIndex+offset, 0,
-                          HLoc(localRowOffset+offset,localColOffset+offset+1) );
-                }
-            }
-            else if( haveLastOff && nextRowOwner == grid.Row() )
-            {
-                // Grab the entry in the top-right of this block
-                hSubWin.QueueUpdate
-                ( winIndex+thisBlockSize-1, 0,
-                  RealPart(HLoc(localRowOffset,
-                                localColOffset+thisBlockSize-1)) );
+                      HLoc(localRowOffset+offset+1,localColOffset+offset) );
+                if( offset < thisBlockSize-1 )
+                    hSuperWin.QueueUpdate
+                    ( winIndex+offset, 0,
+                      HLoc(localRowOffset+offset,localColOffset+offset+1) );
             }
         }
-        else if( rowOwner == grid.Row() && nextColOwner == grid.Col() )
+        // Handle the last subdiagonal (if it exists)
+        if( haveLastOff &&
+            nextRowOwner == grid.Row() && colOwner == grid.Col() ) 
         {
-            const bool haveLastOff = (winSize > winIndex+thisBlockSize);
-            if( haveLastOff )
-            {
-                // Grab the entry in the bottom-left of this block
-                hSuperWin.QueueUpdate
-                ( winIndex+thisBlockSize-1, 0,
-                  HLoc(localRowOffset+thisBlockSize-1,localColOffset) );
-            }
+            const Int subLocalRowOffset = localRowOffset +
+              ( grid.Height() == 1 ? thisBlockSize : 0 );
+            hSubWin.QueueUpdate
+            ( winIndex+thisBlockSize-1, 0, 
+              HLoc(subLocalRowOffset,localColOffset+thisBlockSize-1) );
+        }
+        // Handle the last superdiagonal (if it exists)
+        if( haveLastOff &&
+            rowOwner == grid.Row() && nextColOwner == grid.Col() )
+        {
+            const Int subLocalColOffset = localColOffset +
+              ( grid.Width() == 1 ? thisBlockSize : 0 );
+            hSuperWin.QueueUpdate
+            ( winIndex+thisBlockSize-1, 0, 
+              HLoc(localRowOffset+thisBlockSize-1,subLocalColOffset) );
         }
 
         winIndex += thisBlockSize;
@@ -267,6 +311,10 @@ void GatherTridiagonal
     hMainWin.ProcessQueues();
     hSubWin.ProcessQueues();
     hSuperWin.ProcessQueues();
+
+    TestConsistency( hMainWin, "hMainWin" );
+    TestConsistency( hSubWin, "hSubWin" );
+    TestConsistency( hSuperWin, "hSuperWin" );
 }
 
 } // namespace util

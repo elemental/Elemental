@@ -582,8 +582,10 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
     const auto& g = Grid();
     const Dist colDist = ColDist();
     const Dist rowDist = RowDist();
-    const int root = Root();
     const Int totalSend = remoteUpdates.size();
+
+    // We will first push to redundant rank 0
+    const int redundantRoot = 0;
 
     // Compute the metadata
     // ====================
@@ -592,16 +594,16 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
     if( includeViewers )
     {
         comm = g.ViewingComm();
-        const int commSize = mpi::Size( comm );
-        sendCounts.resize(commSize,0);
+        const int viewingSize = mpi::Size( g.ViewingComm() );
+        sendCounts.resize(viewingSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
             const Entry<T>& entry = remoteUpdates[k];
             const int distOwner = Owner(entry.i,entry.j);
-            const int vcOwner = g.CoordsToVC(colDist,rowDist,distOwner,root);
-            const int owner = g.VCToViewing(vcOwner);
-            owners[k] = owner;
-            ++sendCounts[owner];
+            const int vcOwner =
+              g.CoordsToVC(colDist,rowDist,distOwner,redundantRoot);
+            owners[k] = g.VCToViewing(vcOwner);
+            ++sendCounts[owners[k]];
         }
     }
     else
@@ -609,15 +611,14 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
         if( !Participating() )
             return;
         comm = g.VCComm();
-        const int commSize = mpi::Size( comm );
-        sendCounts.resize(commSize,0);
+        const int vcSize = mpi::Size( g.VCComm() );
+        sendCounts.resize(vcSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
             const Entry<T>& entry = remoteUpdates[k];
             const int distOwner = Owner(entry.i,entry.j);
-            const int owner = g.CoordsToVC(colDist,rowDist,distOwner,root);
-            owners[k] = owner;
-            ++sendCounts[owner];
+            owners[k] = g.CoordsToVC(colDist,rowDist,distOwner,redundantRoot);
+            ++sendCounts[owners[k]];
         }
     }
 
@@ -635,9 +636,10 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
     // ============================
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
     Int recvBufSize = recvBuf.size();
-    mpi::Broadcast( recvBufSize, 0, RedundantComm() );
+    mpi::Broadcast( recvBufSize, redundantRoot, RedundantComm() );
     recvBuf.resize( recvBufSize );
-    mpi::Broadcast( recvBuf.data(), recvBufSize, 0, RedundantComm() );
+    mpi::Broadcast
+    ( recvBuf.data(), recvBufSize, redundantRoot, RedundantComm() );
     // TODO: Make this loop faster
     for( const auto& entry : recvBuf )
         UpdateLocal( LocalRow(entry.i), LocalCol(entry.j), entry.value );

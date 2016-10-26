@@ -110,8 +110,7 @@ Int ComputeShifts
         // Get a full copy of the bidiagonal of the bottom-right section of H
         const Int subStart = Max(shiftBeg-1,winBeg);
         auto subInd = IR(subStart,winEnd); 
-        DistMatrix<Real,STAR,STAR> hMain(H.Grid());
-        DistMatrix<Real,STAR,STAR> hSub(H.Grid());
+        DistMatrix<Real,STAR,STAR> hMain(H.Grid()), hSub(H.Grid());
         util::GatherBidiagonal( H, subInd, hMain, hSub );
         const auto& hMainLoc = hMain.LockedMatrix();
         const auto& hSubLoc = hSub.LockedMatrix();
@@ -247,8 +246,7 @@ Int ComputeShifts
         const Real exceptShift0(Real(4)/Real(3));
 
         // Gather the relevant bidiagonal of H
-        DistMatrix<Complex<Real>,STAR,STAR> hMain(H.Grid());
-        DistMatrix<Real,STAR,STAR> hSub(H.Grid());
+        DistMatrix<Complex<Real>,STAR,STAR> hMain(H.Grid()), hSub(H.Grid());
         util::GatherBidiagonal( H, shiftInd, hMain, hSub );
         const auto& hMainLoc = hMain.LockedMatrix();
         const auto& hSubLoc = hSub.LockedMatrix();
@@ -257,7 +255,7 @@ Int ComputeShifts
         {
             const Int iRel = i - shiftBeg;
             const Complex<Real> shift = hMainLoc(iRel) +
-              exceptShift0*Abs(hSubLoc(iRel-1));
+              exceptShift0*OneAbs(hSubLoc(iRel-1));
             wShifts.Set( iRel-1, 0, shift );
             wShifts.Set( iRel,   0, shift );
         }
@@ -265,9 +263,10 @@ Int ComputeShifts
     else
     {
         // Compute the eigenvalues of the bottom-right window
-        auto HShifts = H(shiftInd,shiftInd);
-        auto HShiftsCopy( HShifts );
-        HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
+        DistMatrix<Complex<Real>,STAR,STAR> HShifts( H(shiftInd,shiftInd) );
+        TestConsistency( HShifts, "HShiftsBefore" );
+        HessenbergSchur( HShifts.Matrix(), wShifts.Matrix(), ctrlShifts );
+        TestConsistency( HShifts, "HShiftsAfter" );
     }
 
     if( numShifts == 2 )
@@ -283,6 +282,8 @@ Int ComputeShifts
         else
             wShifts.Set( 1, 0, omega0 );
     }
+
+    TestConsistency( wShifts, "wShifts" );
 
     return shiftBeg;
 }

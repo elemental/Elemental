@@ -75,15 +75,10 @@ void ScaLAPACKHelper( UpperOrLower uplo, AbstractDistMatrix<F>& A )
     auto& ABlock = ABlockProx.Get();
 
     const Int n = ABlock.Height();
-    const int bHandle = blacs::Handle( ABlock );
-    const int context = blacs::GridInit( bHandle, ABlock );
-    auto descA = FillDesc( ABlock, context );
-
     const char uploChar = UpperOrLowerToChar( uplo );
-    scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
 
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
+    auto descA = FillDesc( ABlock );
+    scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
 #endif
 }
 

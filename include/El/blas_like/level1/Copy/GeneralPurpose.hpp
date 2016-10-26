@@ -24,9 +24,8 @@ void Helper
     const Int height = A.Height();
     const Int width = A.Width();
     const Grid& g = B.Grid();
-    const Dist colDist=B.ColDist(), rowDist=B.RowDist();
-    const int root = B.Root();
     B.Resize( height, width );
+    Zero( B );
     const bool BPartic = B.Participating();
 
     const bool includeViewers = (A.Grid() != B.Grid());
@@ -82,8 +81,11 @@ void Helper
                     distOwners.push_back( ownerRow + colStride*ownerCol );
                 }
             }
-        }    
+        }
     }
+
+    // We will first push to redundant rank 0 of B
+    const int redundantRootB = 0;
 
     // Compute the metadata
     // ====================
@@ -93,19 +95,21 @@ void Helper
     if( includeViewers )
     {
         comm = g.ViewingComm();
-        const int commSize = mpi::Size( comm );
+        const int viewingSize = mpi::Size( g.ViewingComm() );
+        const int distBSize = mpi::Size( B.DistComm() );
 
-        vector<int> distMap(commSize);
-        for( int q=0; q<commSize; ++q )
+        vector<int> distBToViewing(distBSize);
+        for( int distBRank=0; distBRank<distBSize; ++distBRank )
         {
-            const int vcOwner = g.CoordsToVC(colDist,rowDist,q,root);
-            distMap[q] = g.VCToViewing(vcOwner);
+            const int vcOwner =
+              g.CoordsToVC(B.ColDist(),B.RowDist(),distBRank,redundantRootB);
+            distBToViewing[distBRank] = g.VCToViewing(vcOwner);
         }
 
-        sendCounts.resize(commSize,0);
+        sendCounts.resize(viewingSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
-            owners[k] = distMap[distOwners[k]];
+            owners[k] = distBToViewing[distOwners[k]];
             ++sendCounts[owners[k]];
         }
     }
@@ -114,16 +118,20 @@ void Helper
         if( !g.InGrid() )
             return;
         comm = g.VCComm();
-        const int commSize = mpi::Size( comm );
 
-        vector<int> distMap(commSize);
-        for( int q=0; q<commSize; ++q )
-            distMap[q] = g.CoordsToVC(colDist,rowDist,q,root);
+        const int distBSize = mpi::Size( B.DistComm() );
+        vector<int> distBToVC(distBSize);
+        for( int distBRank=0; distBRank<distBSize; ++distBRank )
+        {
+            distBToVC[distBRank] = 
+              g.CoordsToVC(B.ColDist(),B.RowDist(),distBRank,redundantRootB);
+        }
 
-        sendCounts.resize(commSize,0);
+        const int vcSize = mpi::Size( g.VCComm() );
+        sendCounts.resize(vcSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
-            owners[k] = distMap[distOwners[k]];
+            owners[k] = distBToVC[distOwners[k]];
             ++sendCounts[owners[k]];
         }
     }
@@ -144,17 +152,18 @@ void Helper
     // Exchange and unpack the data
     // ============================
     auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
-    if( B.Participating() )
+    if( BPartic )
     {
-        Int recvBufSize = recvBuf.size();
-        mpi::Broadcast( recvBufSize, 0, B.RedundantComm() );
-        FastResize( recvBuf, recvBufSize );
-        mpi::Broadcast( recvBuf.data(), recvBufSize, 0, B.RedundantComm() );
-        for( Int k=0; k<recvBufSize; ++k )
+        if( B.RedundantRank() == redundantRootB )
         {
-            const auto& entry = recvBuf[k];
-            BLoc(entry.i,entry.j) = Caster<S,T>::Cast(entry.value);
+            Int recvBufSize = recvBuf.size();
+            for( Int k=0; k<recvBufSize; ++k )
+            {
+                const auto& entry = recvBuf[k];
+                BLoc(entry.i,entry.j) = Caster<S,T>::Cast(entry.value);
+            }
         }
+        El::Broadcast( B, B.RedundantComm(), redundantRootB );
     }
 }
 
@@ -199,12 +208,10 @@ void GeneralPurpose
         B.ColDist() == MC && B.RowDist() == MR )
     {
         B.Resize( height, width );
-        const int bHandleA = blacs::Handle( A );
-        const int bHandleB = blacs::Handle( B );
-        const int contextA = blacs::GridInit( bHandleA, A );
-        const int contextB = blacs::GridInit( bHandleB, B );
-        auto descA = FillDesc( A, contextA );
-        auto descB = FillDesc( B, contextB );
+        const int contextA = blacs::Context( A );
+        auto descA = FillDesc( A );
+        auto descB = FillDesc( B );
+
         // This appears to be noticeably faster than the current
         // Elemental-native scheme which also transmits metadata
         //
@@ -215,6 +222,7 @@ void GeneralPurpose
         ( A.Height(), A.Width(),
           A.LockedBuffer(), descA.data(),
           B.Buffer(),       descB.data(), contextA );
+
         return;
     }
 #endif

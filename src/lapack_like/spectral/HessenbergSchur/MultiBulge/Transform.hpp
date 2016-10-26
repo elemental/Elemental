@@ -25,6 +25,8 @@ void TransformRows
 
     const Int blockHeight = H.BlockHeight();
     const Int firstBlockHeight = blockHeight - H.ColCut();
+    Log("TransformRows with height=",height,", firstBlockHeight=",firstBlockHeight,", blockHeight=",blockHeight);
+    Output("TransformRows with height=",height,", firstBlockHeight=",firstBlockHeight,", blockHeight=",blockHeight);
     if( height <= firstBlockHeight || grid.Height() == 1 )
     {
         if( grid.Row() == H.RowOwner(0) )
@@ -36,8 +38,8 @@ void TransformRows
     }
     else if( height <= firstBlockHeight + blockHeight )
     {
-        const bool firstRow = H.RowOwner( 0 );
-        const bool secondRow = H.RowOwner( firstBlockHeight );
+        const int firstRow = H.RowOwner( 0 );
+        const int secondRow = H.RowOwner( firstBlockHeight );
         if( grid.Row() == firstRow )
         {
             // 
@@ -101,6 +103,7 @@ void TransformRows
         Gemm( ADJOINT, NORMAL, F(1), Z, HLocCopy, H_STAR_MR.Matrix() );
         H = H_STAR_MR;
     }
+    Log("Finished TransformRows");
 }
 
 // Apply (with replacement) Z from the right
@@ -115,6 +118,7 @@ void TransformColumns
 
     const Int blockWidth = H.BlockWidth();
     const Int firstBlockWidth = blockWidth - H.RowCut();
+    Log("TransformCols with width=",width,", firstBlockWidth=",firstBlockWidth,", blockWidth=",blockWidth);
     if( width <= firstBlockWidth || grid.Width() == 1 )
     {
         if( grid.Col() == H.ColOwner(0) )
@@ -126,8 +130,9 @@ void TransformColumns
     }
     else if( width <= firstBlockWidth + blockWidth )
     {
-        const bool firstCol = H.ColOwner( 0 );
-        const bool secondCol = H.ColOwner( firstBlockWidth );
+        const int firstCol = H.ColOwner( 0 );
+        const int secondCol = H.ColOwner( firstBlockWidth );
+        Log("  firstCol=",firstCol,", secondCol=",secondCol);
         if( grid.Col() == firstCol )
         {
             // 
@@ -138,7 +143,6 @@ void TransformColumns
             // where HLeft is owned by this process column and HRight by the
             // next.
             //
-            auto ZLeft = Z( ALL, IR(0,firstBlockWidth) );
 
             // Partition space for the combined matrix
             Matrix<F> HCombine( H.LocalHeight(), width );
@@ -152,6 +156,7 @@ void TransformColumns
             El::SendRecv( HLeft, HRight, H.RowComm(), secondCol, secondCol );
             
             // Form our portion of the result
+            auto ZLeft = Z( ALL, IR(0,firstBlockWidth) );
             Gemm( NORMAL, NORMAL, F(1), HCombine, ZLeft, H.Matrix() );
         }
         else if( grid.Col() == secondCol )
@@ -164,7 +169,6 @@ void TransformColumns
             // where HLeft is owned by the previous process column and HRight
             // by this one.
             //
-            auto ZRight = Z( ALL, IR(firstBlockWidth,END) );
 
             // Partition space for the combined matrix
             Matrix<F> HCombine( H.LocalHeight(), width );
@@ -178,6 +182,7 @@ void TransformColumns
             El::SendRecv( HRight, HLeft, H.RowComm(), firstCol, firstCol );
             
             // Form our portion of the result
+            auto ZRight = Z( ALL, IR(firstBlockWidth,END) );
             Gemm( NORMAL, NORMAL, F(1), HCombine, ZRight, H.Matrix() );
         }
     }
@@ -190,6 +195,7 @@ void TransformColumns
         Gemm( NORMAL, NORMAL, F(1), HLocCopy, Z, H_MC_STAR.Matrix() );
         H = H_MC_STAR;
     }
+    Log("Finished TransformCols");
 }
 
 } // namespace multibulge

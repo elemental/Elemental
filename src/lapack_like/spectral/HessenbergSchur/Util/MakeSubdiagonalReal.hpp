@@ -91,7 +91,7 @@ void MakeSubdiagonalReal
 
     // Compute the phase of the unitary diagonal matrix whose similarity
     // transformations makes H have a real subdiagonal
-    DistMatrix<Real,STAR,STAR> hSubWin(H.Grid());
+    DistMatrix<Complex<Real>,STAR,STAR> hSubWin(H.Grid());
     util::GatherSubdiagonal( H, winInd, hSubWin );
     DistMatrix<Complex<Real>,STAR,STAR> phase(H.Grid());
     Zeros( phase, winSize-1, 1 );

@@ -206,12 +206,25 @@ void Grid::SetUpGrid()
     int owningRoot = mpi::Translate( owningGroup_, 0, viewingGroup_ );
     mpi::Broadcast( vcToViewing_.data(), size_, owningRoot, viewingComm_ );
     mpi::Broadcast( diagsAndRanks_.data(), 2*size_, owningRoot, viewingComm_ );
+
+#ifdef EL_HAVE_SCALAPACK
+    blacsVCHandle_ = blacs::Handle( vcComm_.comm );
+    blacsVRHandle_ = blacs::Handle( vrComm_.comm );
+    blacsMCMRContext_ =
+      blacs::GridInit
+      ( blacsVCHandle_, true /* column major */, height_, width );
+#endif
 }
 
 Grid::~Grid()
 {
     if( !mpi::Finalized() )
     {
+#ifdef EL_HAVE_SCALAPACK
+        blacs::FreeGrid( blacsMCMRContext_ );
+        blacs::FreeHandle( blacsVRHandle_ );
+        blacs::FreeHandle( blacsVCHandle_ );
+#endif
         if( InGrid() )
         {
             mpi::Free( mdComm_ );
@@ -409,6 +422,12 @@ int Grid::DiagRank( int vcRank ) const EL_NO_EXCEPT
     else
         return mpi::UNDEFINED;
 }
+
+#ifdef EL_HAVE_SCALAPACK
+int Grid::BlacsVCHandle() const { return blacsVCHandle_; }
+int Grid::BlacsVRHandle() const { return blacsVRHandle_; }
+int Grid::BlacsMCMRContext() const { return blacsMCMRContext_; }
+#endif
 
 // Comparison functions
 // ====================
