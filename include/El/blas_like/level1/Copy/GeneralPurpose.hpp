@@ -205,7 +205,9 @@ void GeneralPurpose
     const bool useBLACSRedist = true;
     if( useBLACSRedist &&
         A.ColDist() == MC && A.RowDist() == MR &&
-        B.ColDist() == MC && B.RowDist() == MR )
+        B.ColDist() == MC && B.RowDist() == MR &&
+        A.ColCut() == 0 && A.RowCut() == 0 &&
+        B.ColCut() == 0 && B.RowCut() == 0 )
     {
         B.Resize( height, width );
         const int contextA = blacs::Context( A );

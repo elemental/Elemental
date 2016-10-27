@@ -15,6 +15,27 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
+template<typename F>
+void ConsistentlyComputeEigenvalues
+( const DistMatrix<F,MC,MR,BLOCK>& H,
+        DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    // Because double-precision floating-point computation is often
+    // non-deterministic due to extra-precision computation being frequent but
+    // not guaranteed, we must be careful to not allow this non-determinism to
+    // be amplified by the forward instability of Francis sweeps.
+    const Grid& grid = H.Grid();
+    const int owner = H.Owner(0,0);
+    DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
+    H_CIRC_CIRC = H;
+    w.Resize( H.Height(), 1 );
+    if( H_CIRC_CIRC.CrossRank() == H_CIRC_CIRC.Root() )
+        HessenbergSchur( H_CIRC_CIRC.Matrix(), w.Matrix(), ctrl );
+    El::Broadcast( w.Matrix(), H_CIRC_CIRC.CrossComm(), H_CIRC_CIRC.Root() );
+}
+
 template<typename Real>
 Int ComputeShifts
 ( const Matrix<Real>& H,
@@ -139,9 +160,8 @@ Int ComputeShifts
     }
     else
     {
-        // Compute the eigenvalues of the bottom-right window
-        DistMatrix<Real,STAR,STAR> HShifts( H(shiftInd,shiftInd) );
-        HessenbergSchur( HShifts.Matrix(), wShifts.Matrix(), ctrlShifts );
+        ConsistentlyComputeEigenvalues
+        ( H(shiftInd,shiftInd), wShifts, ctrlShifts );
     }
 
     if( numShifts == 2 )
@@ -262,11 +282,8 @@ Int ComputeShifts
     }
     else
     {
-        // Compute the eigenvalues of the bottom-right window
-        DistMatrix<Complex<Real>,STAR,STAR> HShifts( H(shiftInd,shiftInd) );
-        TestConsistency( HShifts, "HShiftsBefore" );
-        HessenbergSchur( HShifts.Matrix(), wShifts.Matrix(), ctrlShifts );
-        TestConsistency( HShifts, "HShiftsAfter" );
+        ConsistentlyComputeEigenvalues
+        ( H(shiftInd,shiftInd), wShifts, ctrlShifts );
     }
 
     if( numShifts == 2 )
@@ -282,8 +299,6 @@ Int ComputeShifts
         else
             wShifts.Set( 1, 0, omega0 );
     }
-
-    TestConsistency( wShifts, "wShifts" );
 
     return shiftBeg;
 }

@@ -99,7 +99,6 @@ void GatherSubdiagonal
         colOwner = nextColOwner;
     }
     hSubWin.ProcessQueues();
-    TestConsistency( hSubWin, "hSubWin" );
 }
 
 template<typename F>
@@ -195,9 +194,6 @@ void GatherBidiagonal
     }
     hMainWin.ProcessQueues();
     hSubWin.ProcessQueues();
-    
-    TestConsistency( hMainWin, "hMainWin" );
-    TestConsistency( hSubWin, "hSubWin" );
 }
 
 template<typename F>
@@ -311,10 +307,6 @@ void GatherTridiagonal
     hMainWin.ProcessQueues();
     hSubWin.ProcessQueues();
     hSuperWin.ProcessQueues();
-
-    TestConsistency( hMainWin, "hMainWin" );
-    TestConsistency( hSubWin, "hSubWin" );
-    TestConsistency( hSuperWin, "hSuperWin" );
 }
 
 } // namespace util

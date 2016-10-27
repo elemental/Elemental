@@ -193,9 +193,9 @@ void SweepHelper
         // DEBUG: Check the error || H0 - Z H Z^H ||_F from the even interblock
         {
             Output("Checking even interblock error");
-            DistMatrix<F,MC,MR,BLOCK> R(H.Grid());
+            DistMatrix<F,MC,MR,BLOCK> R(HSweep.Grid());
             Output("Built R");
-            Gemm( NORMAL, NORMAL, F(1), ZSweep, H, R );
+            Gemm( NORMAL, NORMAL, F(1), ZSweep, HSweep, R );
             Output("Finished R := Z H");
             DistMatrix<F,MC,MR,BLOCK> E(H0);
             Gemm( NORMAL, ADJOINT, F(-1), R, ZSweep, F(1), E );
@@ -203,13 +203,13 @@ void SweepHelper
             const Base<F> errFrob = FrobeniusNorm( E );
             const Base<F> H0Frob = FrobeniusNorm( H0 );
             const Base<F> relErr = errFrob / H0Frob;
-            if( H.Grid().Rank() == 0 )
+            if( HSweep.Grid().Rank() == 0 )
                 Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
             if( relErr > Sqrt(limits::Epsilon<Base<F>>()) )
             {
                 Print( H0, "H0" );
                 Print( ZSweep, "ZSweep" );
-                Print( H, "H" );
+                Print( HSweep, "HSweep" );
                 Print( E, "E" );
                 LogicError("Even Interblock failed");
             }
@@ -225,9 +225,9 @@ void SweepHelper
         // DEBUG: Check the error || H0 - Z H Z^H ||_F from the odd interblock
         {
             Output("Checking odd interblock error");
-            DistMatrix<F,MC,MR,BLOCK> R(H.Grid());
+            DistMatrix<F,MC,MR,BLOCK> R(HSweep.Grid());
             Output("Built R");
-            Gemm( NORMAL, NORMAL, F(1), ZSweep, H, R );
+            Gemm( NORMAL, NORMAL, F(1), ZSweep, HSweep, R );
             Output("Finished R := Z H");
             DistMatrix<F,MC,MR,BLOCK> E(H0);
             Gemm( NORMAL, ADJOINT, F(-1), R, ZSweep, F(1), E );
@@ -235,13 +235,13 @@ void SweepHelper
             const Base<F> errFrob = FrobeniusNorm( E );
             const Base<F> H0Frob = FrobeniusNorm( H0 );
             const Base<F> relErr = errFrob / H0Frob;
-            if( H.Grid().Rank() == 0 )
+            if( HSweep.Grid().Rank() == 0 )
                 Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
             if( relErr > Sqrt(limits::Epsilon<Base<F>>()) )
             {
                 Print( H0, "H0" );
                 Print( ZSweep, "Z" );
-                Print( H, "H" );
+                Print( HSweep, "HSweep" );
                 Print( E, "E" );
                 LogicError("Odd Interblock failed");
             }
@@ -258,9 +258,9 @@ void SweepHelper
         // DEBUG: Check the error || H0 - Z H Z^H ||_F from the intrablock chase
         {
             Output("Checking intrablock error");
-            DistMatrix<F,MC,MR,BLOCK> R(H.Grid());
+            DistMatrix<F,MC,MR,BLOCK> R(HSweep.Grid());
             Output("Built R");
-            Gemm( NORMAL, NORMAL, F(1), ZSweep, H, R );
+            Gemm( NORMAL, NORMAL, F(1), ZSweep, HSweep, R );
             Output("Finished R := Z H");
             DistMatrix<F,MC,MR,BLOCK> E(H0);
             Gemm( NORMAL, ADJOINT, F(-1), R, ZSweep, F(1), E );
@@ -268,13 +268,13 @@ void SweepHelper
             const Base<F> errFrob = FrobeniusNorm( E );
             const Base<F> H0Frob = FrobeniusNorm( H0 );
             const Base<F> relErr = errFrob / H0Frob;
-            if( H.Grid().Rank() == 0 )
+            if( HSweep.Grid().Rank() == 0 )
                 Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
             if( relErr > Sqrt(limits::Epsilon<Base<F>>()) )
             {
                 Print( H0, "H0" );
                 Print( ZSweep, "Z" );
-                Print( H, "H" );
+                Print( HSweep, "HSweep" );
                 Print( E, "E" );
                 LogicError("Intrablock failed");
             }

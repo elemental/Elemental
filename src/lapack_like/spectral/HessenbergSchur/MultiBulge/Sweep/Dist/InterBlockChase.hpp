@@ -422,6 +422,7 @@ struct InterBlockInteraction
 
   bool participating;
   bool onDiagonal;
+  bool chasing;
 };
 
 namespace interblock {
@@ -453,6 +454,7 @@ DetermineInteraction
     interaction.blockSize1 = 0;
     interaction.participating = false;
     interaction.onDiagonal = false;
+    interaction.chasing = false;
     if( diagBlockRow == state.introBlock && !sameParity )
     {
         // We cannot pull into the intro block
@@ -644,6 +646,7 @@ DetermineInteraction
         interaction.participating =
           (grid.Row() == secondRow && grid.Col() == secondCol);
         interaction.onDiagonal = interaction.participating;
+        interaction.chasing = interaction.participating;
     }
     else
     {
@@ -654,6 +657,8 @@ DetermineInteraction
         interaction.onDiagonal =
           (grid.Row() == firstRow && grid.Col() == firstCol) ||
           (grid.Row() == secondRow && grid.Col() == secondCol);
+        interaction.chasing =
+          (grid.Row() == firstRow && grid.Col() == firstCol);
     }
 
     return interaction;
@@ -815,58 +820,48 @@ void CollectBlock
     const Int interactionSize = interaction.blockSize0 + interaction.blockSize1;
     const auto ind0 = IR(0,interaction.blockSize0);
     const auto ind1 = IR(interaction.blockSize0,interactionSize);
-    Zeros( HBlock, interactionSize, interactionSize );
 
     if( grid.Height() == 1 && grid.Width() == 1 )
     {
-        // Only our process participates
         HBlock = HInteractLoc;
     }
     else if( grid.Height() == 1 )
     {
-        // Two processes in the same row participate
-        auto HBlockLeft = HBlock( ALL, ind0 );
-        auto HBlockRight = HBlock( ALL, ind1 );
+        // Only the first of two processes will chase
         if( grid.Col() == firstCol )
         {
+            Zeros( HBlock, interactionSize, interactionSize );
+            auto HBlockLeft = HBlock( ALL, ind0 );
+            auto HBlockRight = HBlock( ALL, ind1 );
+
             HBlockLeft = HInteractLoc;
-            El::SendRecv
-            ( HBlockLeft, HBlockRight, grid.RowComm(), secondCol, secondCol );
+            El::Recv( HBlockRight, grid.RowComm(), secondCol );
         }
         else
         {
-            HBlockRight = HInteractLoc;
-            El::SendRecv
-            ( HBlockRight, HBlockLeft, grid.RowComm(), firstCol, firstCol );
+            El::Send( HInteractLoc, grid.RowComm(), firstCol );
         }
     }
     else if( grid.Width() == 1 )
     {
-        // Two processes in the same column participate
-        auto HBlockTop = HBlock( ind0, ALL );
-        auto HBlockBottom = HBlock( ind1, ALL );
+        // Only the first of two processes will chase
         if( grid.Row() == firstRow )
         {
+            Zeros( HBlock, interactionSize, interactionSize );
+            auto HBlockTop = HBlock( ind0, ALL );
+            auto HBlockBottom = HBlock( ind1, ALL );
+
             HBlockTop = HInteractLoc; 
-            El::SendRecv
-            ( HBlockTop, HBlockBottom, grid.ColComm(), secondRow, secondRow );
+            El::Recv( HBlockBottom, grid.ColComm(), secondRow );
         }
         else
         {
-            HBlockBottom = HInteractLoc;
-            El::SendRecv
-            ( HBlockBottom, HBlockTop, grid.ColComm(), firstRow, firstRow );
+            El::Send( HInteractLoc, grid.ColComm(), firstRow );
         }
     }
     else
     {
-        // Four processes participate, though only the upper-left and
-        // bottom-right ones will chase the packet, so only they receive
-        // any data.
-        auto HBlock00 = HBlock( ind0, ind0 );
-        auto HBlock01 = HBlock( ind0, ind1 );
-        auto HBlock10 = HBlock( ind1, ind0 );
-        auto HBlock11 = HBlock( ind1, ind1 );
+        // Four processes participate, though only the upper-left will chase
         // We will use the column-major ordering (which is the VC comm.)
         const int proc00 = firstRow + firstCol*grid.Height();
         const int proc01 = firstRow + secondCol*grid.Height();
@@ -874,37 +869,28 @@ void CollectBlock
         const int proc11 = secondRow + secondCol*grid.Height();
         if( grid.Row() == firstRow && grid.Col() == firstCol )
         {
+            Zeros( HBlock, interactionSize, interactionSize );
+            auto HBlock00 = HBlock( ind0, ind0 );
+            auto HBlock01 = HBlock( ind0, ind1 );
+            auto HBlock10 = HBlock( ind1, ind0 );
+            auto HBlock11 = HBlock( ind1, ind1 );
+
             HBlock00 = HInteractLoc;
-            // Receive the off-diagonal blocks
             El::Recv( HBlock01, grid.VCComm(), proc01 ); 
             El::Recv( HBlock10, grid.VCComm(), proc10 );
-            // Exchange diagonal blocks with proc11
-            El::SendRecv( HBlock00, HBlock11, grid.VCComm(), proc11, proc11 );
-            Print( HBlock, "HBlock as 00", LogOS() );
+            El::Recv( HBlock11, grid.VCComm(), proc11 );
         }
         else if( grid.Row() == firstRow && grid.Col() == secondCol )
         {
-            HBlock01 = HInteractLoc;
-            // Send our off-diagonal block to the two diagonal processes
-            El::Send( HBlock01, grid.VCComm(), proc00 );
-            El::Send( HBlock01, grid.VCComm(), proc11 );
+            El::Send( HInteractLoc, grid.VCComm(), proc00 );
         }
         else if( grid.Row() == secondRow && grid.Col() == firstCol )
         {
-            HBlock10 = HInteractLoc;
-            // Send our off-diagonal block to the two diagonal processes
-            El::Send( HBlock10, grid.VCComm(), proc00 );
-            El::Send( HBlock10, grid.VCComm(), proc11 );
+            El::Send( HInteractLoc, grid.VCComm(), proc00 );
         }
         else if( grid.Row() == secondRow && grid.Col() == secondCol )
         {
-            HBlock11 = HInteractLoc;
-            // Receive the off-diagonal blocks
-            El::Recv( HBlock01, grid.VCComm(), proc01 );
-            El::Recv( HBlock10, grid.VCComm(), proc10 );
-            // Exchange diagonal blocks with proc00
-            El::SendRecv( HBlock11, HBlock00, grid.VCComm(), proc00, proc00 );
-            Print( HBlock, "HBlock as 11", LogOS() );
+            El::Send( HInteractLoc, grid.VCComm(), proc00 );
         }
     }
 }
@@ -934,20 +920,21 @@ void StoreBlock
           LogicError("This process does not participate in this interaction");
     )
 
+    // We can grab the indices of our local portion of the interaction window
+    // in a black-box manner
+    const Int localRowBeg = H.LocalRowOffset( interaction.beg );
+    const Int localRowEnd = H.LocalRowOffset( interaction.end );
+    const Int localColBeg = H.LocalColOffset( interaction.beg );
+    const Int localColEnd = H.LocalColOffset( interaction.end );
+    auto HInteractLoc =
+      HLoc( IR(localRowBeg,localRowEnd), IR(localColBeg,localColEnd) );
+
     if( interaction.chaseType == SIMPLE_INTRO_CHASE )
     {
         // Only a single process participates in introductory chases, and they
         // occur over the entire top-left block (which must have been full).
         if( grid.Row() == secondRow && grid.Col() == secondCol )
         { 
-            const Int indexBeg = state.winBeg;
-            const Int indexEnd = state.winBeg + interaction.blockSize1;
-            const Int localRowBeg = H.LocalRowOffset( indexBeg );
-            const Int localRowEnd = H.LocalRowOffset( indexEnd );
-            const Int localColBeg = H.LocalColOffset( indexBeg );
-            const Int localColEnd = H.LocalColOffset( indexEnd );
-            auto HInteractLoc =
-              HLoc( IR(localRowBeg,localRowEnd), IR(localColBeg,localColEnd) );
             HInteractLoc = HBlock;
         }
         else
@@ -959,50 +946,40 @@ void StoreBlock
     if( interaction.chaseType == NO_CHASE )
         LogicError("Invalid request to collect an inter-block window");
 
-    // We can grab the indices of our local portion of the 2x2 interaction
-    // window in a black-box manner.
-    const Int localRowBeg = H.LocalRowOffset( interaction.beg );
-    const Int localRowEnd = H.LocalRowOffset( interaction.end );
-    const Int localColBeg = H.LocalColOffset( interaction.beg );
-    const Int localColEnd = H.LocalColOffset( interaction.end );
-    auto HInteractLoc =
-      HLoc( IR(localRowBeg,localRowEnd), IR(localColBeg,localColEnd) );
-
     const Int interactionSize = interaction.blockSize0 + interaction.blockSize1;
     const auto ind0 = IR(0,interaction.blockSize0);
     const auto ind1 = IR(interaction.blockSize0,interactionSize);
 
     if( grid.Height() == 1 && grid.Width() == 1 )
     {
-        // Only our process participates
         HInteractLoc = HBlock;
     }
     else if( grid.Height() == 1 )
     {
-        // Two processes in the same row participate
         if( grid.Col() == firstCol )
         {
             auto HBlockLeft = HBlock( ALL, ind0 );
+            auto HBlockRight = HBlock( ALL, ind1 );
             HInteractLoc = HBlockLeft;
+            El::Send( HBlockRight, grid.RowComm(), secondCol );
         }
         else
         {
-            auto HBlockRight = HBlock( ALL, ind1 );
-            HInteractLoc = HBlockRight;
+            El::Recv( HInteractLoc, grid.RowComm(), firstCol );
         }
     }
     else if( grid.Width() == 1 )
     {
-        // Two processes in the same column participate
-        auto HBlockTop = HBlock( ind0, ALL );
-        auto HBlockBottom = HBlock( ind1, ALL );
         if( grid.Row() == firstRow )
         {
+            auto HBlockTop = HBlock( ind0, ALL );
+            auto HBlockBottom = HBlock( ind1, ALL );
             HInteractLoc = HBlockTop;
+            El::Send( HBlockBottom, grid.ColComm(), secondRow );
         }
         else
         {
-            HInteractLoc = HBlockBottom;
+            El::Recv( HInteractLoc, grid.ColComm(), firstRow );
         }
     }
     else
@@ -1018,35 +995,24 @@ void StoreBlock
         {
             auto HBlock00 = HBlock( ind0, ind0 );
             auto HBlock01 = HBlock( ind0, ind1 );
-            // Send the (0,1) block to process (0,1) (who did not locally chase)
-            El::Send( HBlock01, grid.VCComm(), proc01 );
-            // Locally store the (0,0) block
+            auto HBlock10 = HBlock( ind1, ind0 );
+            auto HBlock11 = HBlock( ind1, ind1 );
             HInteractLoc = HBlock00;
+            El::Send( HBlock01, grid.VCComm(), proc01 );
+            El::Send( HBlock10, grid.VCComm(), proc10 );
+            El::Send( HBlock11, grid.VCComm(), proc11 );
         }
         else if( grid.Row() == firstRow && grid.Col() == secondCol )
         {
-            auto HBlock01 = HBlock( ind0, ind1 );
-            // Recv (and locally store) the (0,1) block from process (0,0)
-            El::Recv( HBlock01, grid.VCComm(), proc00 );
-            HInteractLoc = HBlock01;
+            El::Recv( HInteractLoc, grid.VCComm(), proc00 );
         }
         else if( grid.Row() == secondRow && grid.Col() == firstCol )
         {
-            auto HBlock10 = HBlock( ind1, ind0 );
-            // Recv (and locally store) the (1,0) block from process (1,1)
-            // TODO(poulson): Receive only the top-right entry of (1,0) block
-            El::Recv( HBlock10, grid.VCComm(), proc11 );
-            HInteractLoc = HBlock10;
+            El::Recv( HInteractLoc, grid.VCComm(), proc00 );
         }
         else if( grid.Row() == secondRow && grid.Col() == secondCol )
         {
-            auto HBlock10 = HBlock( ind1, ind0 );
-            auto HBlock11 = HBlock( ind1, ind1 );
-            // Send the (1,0) block to process (1,0)
-            // TODO(poulson): Send only the top-right entry of (1,0) block
-            El::Send( HBlock10, grid.VCComm(), proc10 );
-            // Locally store the (1,1) block
-            HInteractLoc = HBlock11;
+            El::Recv( HInteractLoc, grid.VCComm(), proc00 );
         }
     }
 }
@@ -1308,13 +1274,22 @@ void InterBlockChase
     Log
     (numRowInteractions," and ",numColInteractions," row and col interact's");
 
-    // Count the number of interactions our process participates in
-    Int numDiagonalInteractions = 0;
+    // Count the number of chases handled by this process
+    Int numDiagInteractions = 0;
     for( const auto& interaction : rowInteractionList )
         if( interaction.onDiagonal ) 
-            ++numDiagonalInteractions;
-    vector<Matrix<F>> UList(numDiagonalInteractions);
-    Log(numDiagonalInteractions," diagonal interactions");
+            ++numDiagInteractions;
+    vector<Matrix<F>> UList(numDiagInteractions);
+    Log(numDiagInteractions," diagonal interactions");
+
+    const int prevGridRow = Mod( grid.Row()-1, grid.Height() );
+    const int nextGridRow = Mod( grid.Row()+1, grid.Height() );
+
+    const int prevGridCol = Mod( grid.Col()-1, grid.Width() );
+    const int nextGridCol = Mod( grid.Col()+1, grid.Width() );
+
+    const int prevDiagProc = prevGridRow + prevGridCol*grid.Height();
+    const int nextDiagProc = nextGridRow + nextGridCol*grid.Height();
 
     // Chase the packets that we interact with in this step and store the
     // accumulated Householder reflections
@@ -1329,7 +1304,7 @@ void InterBlockChase
         {
             Log("Participating in row interaction ",rowInteraction," for block0=",interaction.block0);
             interblock::CollectBlock( interaction, H, HBlock, state );
-            if( interaction.onDiagonal )
+            if( interaction.chasing )
             {
                 Log("  On diagonal for row interaction ",rowInteraction," for block0=",interaction.block0);
                 auto& UBlock = UList[diagInteraction++];
@@ -1337,6 +1312,17 @@ void InterBlockChase
                 ( evenToOdd, interaction, HBlock, UBlock, W, shifts, state,
                   ctrl.progress );
                 Log("  Finished on diagonal row interaction");
+                if( interaction.chaseType != SIMPLE_INTRO_CHASE &&
+                    (grid.Height() != 1 || grid.Width() != 1) )
+                    El::Send( UBlock, grid.VCComm(), nextDiagProc );
+            }
+            else if( interaction.onDiagonal )
+            {
+                auto& UBlock = UList[diagInteraction++]; 
+                const Int householderSize =
+                  interaction.householderEnd - interaction.householderBeg;
+                UBlock.Resize( householderSize, householderSize );
+                El::Recv( UBlock, grid.VCComm(), prevDiagProc );
             }
             else
             {

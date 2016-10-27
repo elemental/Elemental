@@ -17,6 +17,7 @@
 
 namespace El {
 
+/*
 template<typename F>
 void TestConsistency( const DistMatrix<F,STAR,STAR>& A, std::string message )
 {
@@ -31,6 +32,7 @@ void TestConsistency( const DistMatrix<F,STAR,STAR>& A, std::string message )
         LogicError(message,": difference norm was ",diffNorm);
     }
 }
+*/
 
 namespace hess_schur {
 
