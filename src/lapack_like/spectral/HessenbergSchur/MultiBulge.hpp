@@ -17,23 +17,6 @@
 
 namespace El {
 
-/*
-template<typename F>
-void TestConsistency( const DistMatrix<F,STAR,STAR>& A, std::string message )
-{
-    Matrix<F> ALocCopy( A.LockedMatrix() );
-    El::Broadcast( ALocCopy, A.Grid().VCComm(), 0 );
-    Axpy( F(-1), A.LockedMatrix(), ALocCopy );
-    const Base<F> diffNorm = FrobeniusNorm( ALocCopy );
-    if( diffNorm != Base<F>(0) )
-    {
-        Print( A.LockedMatrix(), "ALoc", LogOS() );
-        Print( ALocCopy, "ALocDiff", LogOS() );
-        LogicError(message,": difference norm was ",diffNorm);
-    }
-}
-*/
-
 namespace hess_schur {
 
 template<typename F>
@@ -213,6 +196,8 @@ MultiBulge
                 break;
         }
         auto winInd = IR(winBeg,winEnd);
+        if( ctrl.progress && grid.Rank() == 0 )
+            Output("winBeg=",winBeg,", winEnd=",winEnd);
 
         // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
         // ---------------------------------------------------------
@@ -220,8 +205,7 @@ MultiBulge
         // collect the main and sub diagonal of H along the diagonal workers 
         // and then broadcast across the "cross" communicator.
         util::GatherTridiagonal( H, winInd, hMainWin, hSubWin, hSuperWin );
-        if( grid.Rank() == 0 )
-            Output("winBeg=",winBeg,", winEnd=",winEnd);
+
 
         const Int iterOffset =
           DetectSmallSubdiagonal
@@ -230,7 +214,7 @@ MultiBulge
         const Int iterWinSize = winEnd-iterBeg;
         if( iterOffset > 0 )
         {
-            if( grid.Rank() == 0 )
+            if( ctrl.progress && grid.Rank() == 0 )
                 Output("iterOffset was ",iterOffset);
             H.Set( iterBeg, iterBeg-1, zero );
             hSubWin.Set( iterOffset-1, 0, zero );
@@ -256,25 +240,6 @@ MultiBulge
             multibulge::TwoByTwo
             ( H, eta00, eta01, eta10, eta11, w, Z, iterBeg, ctrl );
 
-            // DEBUG: Check the error || H0 - Z H Z^H ||_F
-            DistMatrix<F,MC,MR,BLOCK> R(grid);
-            Gemm( NORMAL, NORMAL, F(1), Z, H, R );
-            DistMatrix<F,MC,MR,BLOCK> E(H0);
-            Gemm( NORMAL, ADJOINT, F(-1), R, Z, F(1), E );
-            const Real errFrob = FrobeniusNorm( E );
-            const Real H0Frob = FrobeniusNorm( H0 );
-            const Real relErr = errFrob / H0Frob;
-            if( grid.Rank() == 0 )
-                Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
-            if( relErr > Sqrt(limits::Epsilon<Real>()) )
-            {
-                Print( H0, "H0" );
-                Print( Z, "Z" );
-                Print( H, "H" );
-                Print( E, "E" );
-                LogicError("Bailed after two-by-two");
-            }
-
             winEnd = iterBeg;
             numIterSinceDeflation = 0;
             continue;
@@ -289,25 +254,6 @@ MultiBulge
             ctrlIter.winEnd = winEnd;
             multibulge::RedundantlyHandleWindow( H, w, Z, ctrlIter );
 
-            // DEBUG: Check the error || H0 - Z H Z^H ||_F
-            DistMatrix<F,MC,MR,BLOCK> R(grid);
-            Gemm( NORMAL, NORMAL, F(1), Z, H, R );
-            DistMatrix<F,MC,MR,BLOCK> E(H0);
-            Gemm( NORMAL, ADJOINT, F(-1), R, Z, F(1), E );
-            const Real errFrob = FrobeniusNorm( E );
-            const Real H0Frob = FrobeniusNorm( H0 );
-            const Real relErr = errFrob / H0Frob;
-            if( grid.Rank() == 0 )
-                Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
-            if( relErr > Sqrt(limits::Epsilon<Real>()) )
-            {
-                Print( H0, "H0" );
-                Print( Z, "Z" );
-                Print( H, "H" );
-                Print( E, "E" );
-                LogicError("Bailed after redundant");
-            }
-           
             winEnd = iterBeg;
             numIterSinceDeflation = 0;
             continue;
@@ -335,29 +281,6 @@ MultiBulge
         ctrlSweep.winBeg = iterBeg;
         ctrlSweep.winEnd = winEnd;
         multibulge::Sweep( H, wShifts, Z, ctrlSweep );
-
-        // DEBUG: Check the error || H0 - Z H Z^H ||_F
-        Output("Checking error");
-        DistMatrix<F,MC,MR,BLOCK> R(grid);
-        Output("Built R");
-        Gemm( NORMAL, NORMAL, F(1), Z, H, R );
-        Output("Finished R := Z H");
-        DistMatrix<F,MC,MR,BLOCK> E(H0);
-        Gemm( NORMAL, ADJOINT, F(-1), R, Z, F(1), E );
-        Output("Finished E -= R Z'");
-        const Real errFrob = FrobeniusNorm( E );
-        const Real H0Frob = FrobeniusNorm( H0 );
-        const Real relErr = errFrob / H0Frob;
-        if( grid.Rank() == 0 )
-            Output("|| H0 - Z H Z^H ||_F / || H0 ||_F = ",relErr);
-        if( relErr > Sqrt(limits::Epsilon<Real>()) )
-        {
-            Print( H0, "H0" );
-            Print( Z, "Z" );
-            Print( H, "H" );
-            Print( E, "E" );
-            LogicError("Bailed");
-        }
 
         ++info.numIterations;
         if( iterBeg == iterBegLast && winEnd == winEndLast )

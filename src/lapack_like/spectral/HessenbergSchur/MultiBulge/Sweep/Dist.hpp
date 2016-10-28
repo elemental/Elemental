@@ -182,8 +182,6 @@ DistChaseState BuildDistChaseState
     state.activeRowBlockBeg = Max(state.introBlock,0) + activeColShift;
     state.activeColBlockBeg = Max(state.introBlock,0) + activeRowShift;
 
-    Log("Initialized DistChaseState with winBeg=",state.winBeg,", winEnd=",state.winEnd,", activeBeg=",state.activeBeg,", activeEnd=",state.activeEnd,", introBlock=",state.introBlock,", endBlock=",state.endBlock,", bulgeBeg=",state.bulgeBeg,", bulgeEnd=",state.bulgeEnd,", activeColAlign=",activeColAlign,", activeRowAlign=",activeRowAlign,", activeRowBlockBeg=",state.activeRowBlockBeg,", activeColBlockBeg=",state.activeColBlockBeg);
-
     return state;
 }
 
@@ -255,8 +253,6 @@ void AdvanceChaseState
         )
         state.bulgeBeg -= state.numBulgesPerBlock;
     }
-    
-    Log("Advanced DistChaseState with winBeg=",state.winBeg,", winEnd=",state.winEnd,", activeBeg=",state.activeBeg,", activeEnd=",state.activeEnd,", introBlock=",state.introBlock,", endBlock=",state.endBlock,", bulgeBeg=",state.bulgeBeg,", bulgeEnd=",state.bulgeEnd,", activeColAlign=",H.RowOwner(state.activeBeg),", activeRowAlign=",H.ColOwner(state.activeBeg),", activeRowBlockBeg=",state.activeRowBlockBeg,", activeColBlockBeg=",state.activeColBlockBeg);
 }
 
 } // namespace multibulge

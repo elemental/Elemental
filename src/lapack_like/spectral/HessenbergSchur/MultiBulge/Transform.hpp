@@ -25,8 +25,6 @@ void TransformRows
 
     const Int blockHeight = H.BlockHeight();
     const Int firstBlockHeight = blockHeight - H.ColCut();
-    Log("TransformRows with height=",height,", firstBlockHeight=",firstBlockHeight,", blockHeight=",blockHeight);
-    Output("TransformRows with height=",height,", firstBlockHeight=",firstBlockHeight,", blockHeight=",blockHeight);
     if( height <= firstBlockHeight || grid.Height() == 1 )
     {
         if( grid.Row() == H.RowOwner(0) )
@@ -103,7 +101,6 @@ void TransformRows
         Gemm( ADJOINT, NORMAL, F(1), Z, HLocCopy, H_STAR_MR.Matrix() );
         H = H_STAR_MR;
     }
-    Log("Finished TransformRows");
 }
 
 // Apply (with replacement) Z from the right
@@ -118,7 +115,6 @@ void TransformColumns
 
     const Int blockWidth = H.BlockWidth();
     const Int firstBlockWidth = blockWidth - H.RowCut();
-    Log("TransformCols with width=",width,", firstBlockWidth=",firstBlockWidth,", blockWidth=",blockWidth);
     if( width <= firstBlockWidth || grid.Width() == 1 )
     {
         if( grid.Col() == H.ColOwner(0) )
@@ -132,7 +128,6 @@ void TransformColumns
     {
         const int firstCol = H.ColOwner( 0 );
         const int secondCol = H.ColOwner( firstBlockWidth );
-        Log("  firstCol=",firstCol,", secondCol=",secondCol);
         if( grid.Col() == firstCol )
         {
             // 
@@ -195,7 +190,6 @@ void TransformColumns
         Gemm( NORMAL, NORMAL, F(1), HLocCopy, Z, H_MC_STAR.Matrix() );
         H = H_MC_STAR;
     }
-    Log("Finished TransformCols");
 }
 
 } // namespace multibulge

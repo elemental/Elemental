@@ -264,8 +264,6 @@ void BlockedRowStridedUnpack
         T* B,         Int BLDim )
 {
     const Int firstBlockWidth = blockWidth - rowCut;
-    Output("BlockedRowStridedUnpack with height=",height,", width=",width,", rowAlign=",rowAlign,", rowStride=",rowStride,", blockWidth=",blockWidth,", rowCut=",rowCut,", portionSize=",portionSize,", BLDim=",BLDim);
-    Log("BlockedRowStridedUnpack with height=",height,", width=",width,", rowAlign=",rowAlign,", rowStride=",rowStride,", blockWidth=",blockWidth,", rowCut=",rowCut,", portionSize=",portionSize,", BLDim=",BLDim);
     for( Int portion=0; portion<rowStride; ++portion )
     {
         const T* APortion = &APortions[portion*portionSize];
@@ -282,9 +280,6 @@ void BlockedRowStridedUnpack
               ( blockCol == 0 ?
                 firstBlockWidth :
                 Min(blockWidth,width-colIndex) );
-
-            Output("  portion=",portion,", rowShift=",rowShift,", blockCol=",blockCol,", colIndex=",colIndex,", packedColIndex=",packedColIndex,", thisBlockWidth=",thisBlockWidth);
-            Log("  portion=",portion,", rowShift=",rowShift,", blockCol=",blockCol,", colIndex=",colIndex,", packedColIndex=",packedColIndex,", thisBlockWidth=",thisBlockWidth);
 
             lapack::Copy
             ( 'F', height, thisBlockWidth,
