@@ -254,16 +254,15 @@ template<Dist U,Dist V>
 DM& DM::operator=( const DistMatrix<T,U,V,BLOCK>& A )
 {
     DEBUG_CSE
-    // TODO: Use either AllGather or Gather if the distribution of this matrix
-    //       is respectively either (STAR,STAR) or (CIRC,CIRC)
+    // TODO(poulson):
+    // Use either AllGather or Gather if the distribution of this matrix
+    // is respectively either (STAR,STAR) or (CIRC,CIRC)
+    //
+    // TODO(poulson): Avoid the GeneralPurpose redistribution in more cases
     const bool elemColCompat =
-      ( A.BlockHeight() == 1 ||
-        A.ColStride() == 1 ||
-        A.BlockHeight()-A.ColCut() <= A.Height() );
+      ( A.BlockHeight() == 1 || A.ColStride() == 1 );
     const bool elemRowCompat =
-      ( A.BlockWidth() == 1 ||
-        A.RowStride() == 1 ||
-        A.BlockWidth()-A.RowCut() <= A.Width() );
+      ( A.BlockWidth() == 1 || A.RowStride() == 1 );
     if( elemColCompat && elemRowCompat )
     {
         DistMatrix<T,U,V> AElemView(A.Grid());

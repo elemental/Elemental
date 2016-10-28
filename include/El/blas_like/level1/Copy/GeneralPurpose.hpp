@@ -27,6 +27,7 @@ void Helper
     B.Resize( height, width );
     Zero( B );
     const bool BPartic = B.Participating();
+    const int BRoot = B.Root();
 
     const bool includeViewers = (A.Grid() != B.Grid());
 
@@ -72,10 +73,12 @@ void Helper
                 const S& alpha = ALoc(iLoc,jLoc);
                 if( noRedundant && isLocalRow && isLocalCol )
                 {
+                    Log("(iLoc=",iLoc,",jLoc=",jLoc,") was local");
                     BLoc(localRow,localCol) = Caster<S,T>::Cast(alpha);
                 }
                 else
                 {
+                    Log("(iLoc=",iLoc,",jLoc=",jLoc,") was not local");
                     remoteEntries.push_back
                     ( Entry<S>{localRow,localCol,alpha} );
                     distOwners.push_back( ownerRow + colStride*ownerCol );
@@ -102,8 +105,11 @@ void Helper
         for( int distBRank=0; distBRank<distBSize; ++distBRank )
         {
             const int vcOwner =
-              g.CoordsToVC(B.ColDist(),B.RowDist(),distBRank,redundantRootB);
+              g.CoordsToVC
+              (B.ColDist(),B.RowDist(),distBRank,BRoot,redundantRootB);
+            Log("  vcOwner[",distBRank,"]=",vcOwner);
             distBToViewing[distBRank] = g.VCToViewing(vcOwner);
+            Log("  distBToViewing[",distBRank,"]=",distBToViewing[distBRank]);
         }
 
         sendCounts.resize(viewingSize,0);
@@ -124,7 +130,8 @@ void Helper
         for( int distBRank=0; distBRank<distBSize; ++distBRank )
         {
             distBToVC[distBRank] = 
-              g.CoordsToVC(B.ColDist(),B.RowDist(),distBRank,redundantRootB);
+              g.CoordsToVC
+              (B.ColDist(),B.RowDist(),distBRank,BRoot,redundantRootB);
         }
 
         const int vcSize = mpi::Size( g.VCComm() );

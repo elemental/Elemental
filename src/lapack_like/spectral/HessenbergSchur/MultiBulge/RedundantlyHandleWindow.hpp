@@ -30,44 +30,6 @@ void ConsistentlyComputeDecomposition
     const Grid& grid = H.Grid();
     const int owner = H.Owner(0,0);
 
-    // Test round-trip first
-    {
-        DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
-        H_CIRC_CIRC = H;
-        DistMatrix<F,MC,MR,BLOCK> HRound( grid );
-        HRound = H_CIRC_CIRC;
-        Output(grid.Rank(),": H ~ ",H.Height()," x ",H.Width()," ",H.ColAlign(),";",H.ColCut(),";",H.LocalHeight()," ",H.RowAlign(),";",H.RowCut(),";",H.LocalWidth(),", H_CIRC_CIRC ~ ",H_CIRC_CIRC.Height()," x ",H_CIRC_CIRC.Width()," ",H_CIRC_CIRC.Root()," ",H_CIRC_CIRC.LocalHeight()," ",H_CIRC_CIRC.LocalWidth(),", HRound ~ ",HRound.Height()," x ",HRound.Width()," ",HRound.ColAlign(),";",HRound.ColCut(),";",HRound.LocalHeight()," ",HRound.RowAlign(),";",HRound.RowCut(),";",HRound.LocalWidth());
-        //Axpy( F(-1), H, HRound );
-        {
-            DEBUG_ONLY(AssertSameGrids( H, HRound ))
-            const DistData HDistData = H.DistData();
-            const DistData HRoundDistData = HRound.DistData();
-
-            if( HDistData == HRoundDistData )
-            {
-                Axpy( F(-1), H.LockedMatrix(), HRound.Matrix() );
-            }
-            else
-            {
-                DistMatrix<F,MC,MR,BLOCK> HCopy( HRound.Grid(), HRound.Root() );
-                //unique_ptr<BlockMatrix<T>>
-                //  HCopy( HRound.Construct(HRound.Grid(),HRound.Root()) );
-                HCopy.AlignWith( HRoundDistData );
-                Copy( H, HCopy );
-                Output(grid.Rank(),": HCopy ~ ",HCopy.Height()," x ",HCopy.Width()," ",HCopy.ColAlign(),";",HCopy.ColCut(),";",HCopy.LocalHeight()," ",HCopy.RowAlign(),";",HCopy.RowCut(),";",HCopy.LocalWidth(),", HRound ~ ",HRound.Height()," x ",HRound.Width()," ",HRound.ColAlign(),";",HRound.ColCut(),";",HRound.LocalHeight()," ",HRound.RowAlign(),";",HRound.RowCut(),";",HRound.LocalWidth());
-                Axpy( F(-1), HCopy.LockedMatrix(), HRound.Matrix() );
-            }
-        }
-        const Base<F> errNorm = FrobeniusNorm( HRound );
-        if( errNorm != Base<F>(0) )
-        {
-            Print( H, "H" );
-            Print( H_CIRC_CIRC, "H_CIRC_CIRC" );
-            Print( HRound, "E" );
-            LogicError("Round-trip error norm was ",errNorm);
-        }
-    }
-
     DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
     H_CIRC_CIRC = H;
     w.Resize( H.Height(), 1 );
