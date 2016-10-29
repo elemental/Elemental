@@ -1,6 +1,6 @@
 Name:	elemental
 Version:	0.87
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Library for distributed-memory dense/sparse-direct linear algebra 
 Group:	Development/Libraries
 License:	BSD
@@ -125,7 +125,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_bindir}/*_mpich*
 
 %changelog
-* Satw Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
+* Sat Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
 - Dropped Scalapack & Enabling Qt5 
 
 * Thu Jul 28 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.86-1
