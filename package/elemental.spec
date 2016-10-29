@@ -1,5 +1,5 @@
 Name:	elemental
-Version:	0.86
+Version:	0.87
 Release:	1%{?dist}
 Summary:	Library for distributed-memory dense/sparse-direct linear algebra 
 Group:	Development/Libraries
@@ -12,6 +12,7 @@ BuildRequires: metis-devel >= 5.1.0
 BuildRequires: openblas-devel
 BuildRequires: python2-devel 
 BuildRequires: qd-devel
+BuildRequires: qt5-qtbase-devel
 
 %{?el6:BuildRequires:  devtoolset-4-toolchain}
 %{?el7:BuildRequires:  devtoolset-4-toolchain}
@@ -22,6 +23,7 @@ A modern C++ library for distributed-memory linear algebra.
 %package common
 Summary: Files in common between mpich and openmpi
 Group: Development/Libraries
+Requires: qt5-qtbase
 %description common 
 Files not specific to mpich or openmpi
 
@@ -41,7 +43,7 @@ This package contains the python bindings for using Elemental through a python s
 Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
 BuildRequires: openmpi-devel
-BuildRequires: scalapack-openmpi-devel
+
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: openmpi
 Requires: %{name}-common = %{version}-%{release}
@@ -52,7 +54,7 @@ Contains the library, unit tests, and example drivers built against OpenMPI
 Summary: MPICH variant of Elemental
 Group: Development/Libraries
 BuildRequires: mpich-devel
-BuildRequires: scalapack-mpich-devel
+
 # Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: mpich
 Requires: %{name}-common = %{version}-%{release}
@@ -71,7 +73,7 @@ source /opt/rh/devtoolset-4/enable
 %define dobuild() \
 mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
-%cmake -DCMAKE_BUILD_TYPE=Release -DBINARY_SUBDIRECTORIES=False -DCMAKE_RELEASE_POSTFIX="$MPI_SUFFIX" -DCMAKE_EXECUTABLE_SUFFIX_CXX="$MPI_SUFFIX" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_SCALAPACK=ON -DEL_DISABLE_PARMETIS=ON .. ; \
+%cmake -DCMAKE_BUILD_TYPE=Release -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DCMAKE_RELEASE_POSTFIX="$MPI_SUFFIX" -DCMAKE_EXECUTABLE_SUFFIX_CXX="$MPI_SUFFIX" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON .. ; \
 make %{?_smp_mflags}; \
 cd .. ; \
 
@@ -123,5 +125,8 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_bindir}/*_mpich*
 
 %changelog
+* Satw Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
+- Dropped Scalapack & Enabling Qt5 
+
 * Thu Jul 28 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.86-1
 - Initial RPM
