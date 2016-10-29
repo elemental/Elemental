@@ -16,6 +16,7 @@ namespace aed {
 // Intelligently choose a deflation window size
 // --------------------------------------------
 // Cf. LAPACK's DLAQR0 for the high-level approach
+
 template<typename F>
 void UpdateDeflationSize
 ( Int& deflationSize,
@@ -23,10 +24,9 @@ void UpdateDeflationSize
   Int deflationSizeRec,
   Int numIterSinceDeflation,
   Int numStaleIterBeforeExceptional, 
-  Int iterWinSize,
-  Int winEnd, 
-  const Matrix<F>& H )
+  const Matrix<F>& hSubIter )
 {
+    const Int iterWinSize = hSubIter.Height() + 1;
     if( numIterSinceDeflation < numStaleIterBeforeExceptional )
     {
         // Use the recommendation if possible
@@ -37,19 +37,16 @@ void UpdateDeflationSize
         // Double the size if possible
         deflationSize = Min( iterWinSize, 2*deflationSize );
     }
-    if( deflationSize >= iterWinSize-1 )
+    if( deflationSize > iterWinSize-2 )
     {
         // Go ahead and increase by at most one to use the full window
         deflationSize = iterWinSize;
     }
     else
     {
-        const Int deflationBeg = winEnd - deflationSize;
-        if( Abs(H(deflationBeg,  deflationBeg-1)) >
-            Abs(H(deflationBeg-1,deflationBeg-2)) )
-        {
+        const Int deflationBeg = iterWinSize - deflationSize;
+        if( Abs(hSubIter(deflationBeg-1)) > Abs(hSubIter(deflationBeg-2)) )
             ++deflationSize;
-        }
     }
     if( numIterSinceDeflation < numStaleIterBeforeExceptional )
     {

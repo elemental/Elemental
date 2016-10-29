@@ -28,9 +28,6 @@ MultiBulge
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE 
-    typedef Base<F> Real;
-    const Real zero(0);
-
     const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -75,7 +72,7 @@ MultiBulge
         const Int iterBeg = winBeg + iterOffset;
         const Int iterWinSize = winEnd-iterBeg;
         if( iterOffset > 0 )
-            H(iterBeg,iterBeg-1) = zero;
+            H(iterBeg,iterBeg-1) = F(0);
         if( iterWinSize == 1 )
         {
             w(iterBeg) = H(iterBeg,iterBeg);
@@ -144,13 +141,9 @@ MultiBulge
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE 
-    typedef Base<F> Real;
-    const Real zero(0);
+    const Int n = H.Height();
     const Grid& grid = H.Grid();
 
-    auto H0( H );
-
-    const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int winSize = winEnd - winBeg;
@@ -162,8 +155,7 @@ MultiBulge
     // This maximum is meant to account for parallel overheads and needs to be
     // more principled (and perhaps based upon the number of workers and the 
     // cluster characteristics)
-    // TODO(poulson): Re-enable this
-    //minMultiBulgeSize = Max( minMultiBulgeSize, 500 );
+    minMultiBulgeSize = Max( minMultiBulgeSize, ctrl.minDistMultiBulgeSize );
 
     HessenbergSchurInfo info;
 
@@ -206,7 +198,6 @@ MultiBulge
         // and then broadcast across the "cross" communicator.
         util::GatherTridiagonal( H, winInd, hMainWin, hSubWin, hSuperWin );
 
-
         const Int iterOffset =
           DetectSmallSubdiagonal
           ( hMainWin.Matrix(), hSubWin.Matrix(), hSuperWin.Matrix() );
@@ -216,8 +207,8 @@ MultiBulge
         {
             if( ctrl.progress && grid.Rank() == 0 )
                 Output("iterOffset was ",iterOffset);
-            H.Set( iterBeg, iterBeg-1, zero );
-            hSubWin.Set( iterOffset-1, 0, zero );
+            H.Set( iterBeg, iterBeg-1, F(0) );
+            hSubWin.Set( iterOffset-1, 0, F(0) );
         }
         if( iterWinSize == 1 )
         {

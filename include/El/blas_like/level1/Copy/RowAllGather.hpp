@@ -172,9 +172,6 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
     if( A.Participating() )
     {
         const Int colDiff = B.ColAlign() - A.ColAlign();
-        Output
-        ("colDiff=",colDiff,", width=",width,
-         ", firstBlockWidth=",firstBlockWidth);
         if( colDiff == 0 )
         {
             if( A.RowStride() == 1 )
@@ -193,8 +190,6 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
                 const Int localHeight = A.LocalHeight();
                 const Int maxLocalWidth =
                   MaxBlockedLength(width,blockWidth,rowCut,rowStride);
-                Output("width=",width,", blockWidth=",blockWidth,", rowCut=",rowCut,", rowStride=",rowStride,", maxLocalWidth=",maxLocalWidth);
-                Log("width=",width,", blockWidth=",blockWidth,", rowCut=",rowCut,", rowStride=",rowStride,", maxLocalWidth=",maxLocalWidth);
 
                 const Int portionSize = mpi::Pad( localHeight*maxLocalWidth );
                 vector<T> buffer;
@@ -226,7 +221,6 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
             if( A.Grid().Rank() == 0 )
                 Output("Unaligned RowAllGather");
 #endif
-            DEBUG_ONLY(Output("Unaligned RowAllGather..."));
             const Int sendColRank = Mod( A.ColRank()+colDiff, A.ColStride() );
             const Int recvColRank = Mod( A.ColRank()-colDiff, A.ColStride() );
 

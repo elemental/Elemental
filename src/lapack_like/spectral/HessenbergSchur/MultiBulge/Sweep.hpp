@@ -169,7 +169,10 @@ void SweepHelper
 {
     DEBUG_CSE
     // TODO(poulson): Check that H is upper Hessenberg
-
+    DEBUG_ONLY(
+      if( H.Height() < 2*H.BlockHeight() )
+          LogicError("H spans less than two full blocks");
+    )
     auto state = BuildDistChaseState( H, shifts, ctrl ); 
 
     while( state.bulgeEnd != 0 )
@@ -241,6 +244,10 @@ void Sweep
     }
     // TODO(poulson): Check that H is upper Hessenberg
     const Int n = H.Height();
+    DEBUG_ONLY(
+      if( n < 2*H.BlockHeight() )
+          LogicError("H spans less than two full blocks");
+    )
 
     const Int numShifts = shifts.Height();
     DEBUG_ONLY(

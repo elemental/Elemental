@@ -748,6 +748,7 @@ inline ElHessenbergSchurCtrl CReflect( const HessenbergSchurCtrl& ctrl )
     ctrlC.progress = ctrl.progress;
 
     ctrlC.minMultiBulgeSize = ctrl.minMultiBulgeSize;
+    ctrlC.minDistMultiBulgeSize = ctrl.minDistMultiBulgeSize;
     auto numShiftsRes = ctrl.numShifts.target<ElInt(*)(ElInt,ElInt)>(); 
     if( numShiftsRes )
         ctrlC.numShifts = *numShiftsRes;
@@ -800,6 +801,7 @@ inline HessenbergSchurCtrl CReflect( const ElHessenbergSchurCtrl& ctrlC )
     ctrl.progress = ctrlC.progress;
 
     ctrl.minMultiBulgeSize = ctrlC.minMultiBulgeSize;
+    ctrl.minDistMultiBulgeSize = ctrlC.minDistMultiBulgeSize;
     ctrl.numShifts = ctrlC.numShifts;
     ctrl.deflationSize = ctrlC.deflationSize;
     ctrl.sufficientDeflation = ctrlC.sufficientDeflation;

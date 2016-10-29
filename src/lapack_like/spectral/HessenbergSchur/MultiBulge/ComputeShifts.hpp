@@ -15,8 +15,9 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
+// Return the number of unconverged eigenvalues
 template<typename F>
-void ConsistentlyComputeEigenvalues
+Int ConsistentlyComputeEigenvalues
 ( const DistMatrix<F,MC,MR,BLOCK>& H,
         DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
   const HessenbergSchurCtrl& ctrl )
@@ -31,9 +32,18 @@ void ConsistentlyComputeEigenvalues
     DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
     H_CIRC_CIRC = H;
     w.Resize( H.Height(), 1 );
+    Int numUnconverged = 0;
     if( H_CIRC_CIRC.CrossRank() == H_CIRC_CIRC.Root() )
-        HessenbergSchur( H_CIRC_CIRC.Matrix(), w.Matrix(), ctrl );
+    {
+        auto info = HessenbergSchur( H_CIRC_CIRC.Matrix(), w.Matrix(), ctrl );
+        numUnconverged = info.numUnconverged;
+    }
+    // TODO(poulson): Combine the two broadcasts to reduce the latency cost?
     El::Broadcast( w.Matrix(), H_CIRC_CIRC.CrossComm(), H_CIRC_CIRC.Root() );
+    if( !ctrl.demandConverged )
+        mpi::Broadcast
+        ( numUnconverged, H_CIRC_CIRC.Root(), H_CIRC_CIRC.CrossComm() );
+    return numUnconverged;
 }
 
 template<typename Real>

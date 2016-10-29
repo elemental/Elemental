@@ -329,6 +329,7 @@ ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
     ctrl->progress = false;
 
     ctrl->minMultiBulgeSize = 75;
+    ctrl->minDistMultiBulgeSize = 400;
     ctrl->numShifts = &hess_schur::aed::NumShifts;
     ctrl->deflationSize = &hess_schur::aed::DeflationSize;
     ctrl->sufficientDeflation = &hess_schur::aed::SufficientDeflation;

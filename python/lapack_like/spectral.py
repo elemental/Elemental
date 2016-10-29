@@ -568,6 +568,7 @@ class HessenbergSchurCtrl(ctypes.Structure):
               ("sortShifts",bType),
               ("progress",bType),
               ("minMultiBulgeSize",iType),
+              ("minDistMultiBulgeSize",iType),
               ("numShifts",CFUNCTYPE(iType,iType,iType)),
               ("deflationSize",CFUNCTYPE(iType,iType,iType,iType)),
               ("sufficientDeflation",CFUNCTYPE(iType,iType)),

@@ -230,8 +230,14 @@ HessenbergSchur
 #endif
     }
 
-    // For now, only the MultiBulge algorithm is supported
-    return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
+    {
+        return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    }
 }
 
 template<typename F>
@@ -300,8 +306,14 @@ HessenbergSchur
 #endif
     }
 
-    // For now, only the MultiBulge algorithm is supported
-    return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
+    {
+        return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    }
 }
 
 namespace hess_schur {
