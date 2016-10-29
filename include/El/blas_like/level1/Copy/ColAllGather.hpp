@@ -203,9 +203,6 @@ void ColAllGather
     if( A.Participating() )
     {
         const Int rowDiff = B.RowAlign() - A.RowAlign();
-        Output
-        ("rowDiff=",rowDiff,", height=",height,
-         ", firstBlockHeight=",firstBlockHeight);
         if( rowDiff == 0 )
         {
             if( A.ColStride() == 1 )
@@ -255,7 +252,6 @@ void ColAllGather
             if( A.Grid().Rank() == 0 )
                 Output("Unaligned ColAllGather");
 #endif
-            DEBUG_ONLY(Output("Unaligned ColAllGather..."));
             const Int sendRowRank = Mod( A.RowRank()+rowDiff, A.RowStride() );
             const Int recvRowRank = Mod( A.RowRank()-rowDiff, A.RowStride() );
 
