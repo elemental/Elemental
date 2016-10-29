@@ -23,12 +23,19 @@ main( int argc, char* argv[] )
         const Int matType = Input("--matType","0: uniform, 1: Haar",0);
         const Int n = Input("--size","height of matrix",100);
         const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
-#ifdef EL_HAVE_SCALAPACK
-        // QR algorithm options (none so far)
-        // TODO: whether or not to use AED
+        // QR algorithm options
+        const Int algInt = Input("--alg","AED: 0, MultiBulge: 1, Simple: 2",0);
+        const Int minMultiBulgeSize =
+          Input
+          ("--minMultiBulgeSize",
+           "minimum size for using a multi-bulge algorithm",75);
+        const bool accumulate =
+          Input("--accumulate","accumulate reflections?",true);
+        const bool sortShifts =
+          Input("--sortShifts","sort shifts for AED?",true);
         // TODO: distribution block size
-#else
         // Spectral Divide and Conquer options
+        const bool useSDC = Input("--useSDC","try Spectral D&C?",false);
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",2);
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
@@ -36,8 +43,8 @@ main( int argc, char* argv[] )
         const Real sdcTol = Input("--sdcTol","SDC split tolerance",Real(0));
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const bool random = Input("--random","random RRQR?",true);
+        // end SDC options
         const bool progress = Input("--progress","output progress?",false);
-#endif
         const bool display = Input("--display","display matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -55,11 +62,13 @@ main( int argc, char* argv[] )
         DistMatrix<C,VR,STAR> w(g);
         SchurCtrl<Real> ctrl;
         ctrl.hessSchurCtrl.fullTriangle = fullTriangle;
-#ifdef EL_HAVE_SCALAPACK
-        //ctrl.hessSchurCtrl.blockHeight = nbDist;
+        ctrl.hessSchurCtrl.alg = static_cast<HessenbergSchurAlg>(algInt);
+        ctrl.hessSchurCtrl.minMultiBulgeSize = minMultiBulgeSize;
+        ctrl.hessSchurCtrl.accumulateReflections = accumulate;
+        ctrl.hessSchurCtrl.sortShifts = sortShifts;
+        ctrl.hessSchurCtrl.progress = progress;
         ctrl.hessSchurCtrl.scalapack = false;
-#else
-        ctrl.useSDC = true;
+        ctrl.useSDC = useSDC;
         ctrl.sdcCtrl.cutoff = cutoff;
         ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
         ctrl.sdcCtrl.maxOuterIts = maxOuterIts;
@@ -69,7 +78,6 @@ main( int argc, char* argv[] )
         ctrl.sdcCtrl.progress = progress;
         ctrl.sdcCtrl.signCtrl.tol = signTol;
         ctrl.sdcCtrl.signCtrl.progress = progress;
-#endif
         Timer timer;
         if( mpi::Rank() == 0 )
             timer.Start();

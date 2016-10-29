@@ -139,13 +139,12 @@ option(EL_PREFER_OPENBLAS "Prefer OpenBLAS over alternatives?" OFF)
 option(EL_FORCE_OPENBLAS_BUILD
   "Avoid search for OpenBLAS and instead build?" OFF)
 
-# Ugh. Elemental currently supports ScaLAPACK building its own custom
-# BLAS and LAPACK if Elemental is using a custom symbol suffix for its own.
-if(EL_USE_64BIT_BLAS_INTS AND
+option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" ON)
+if(NOT EL_DISABLE_SCALAPACK AND EL_USE_64BIT_BLAS_INTS AND
    (NOT CUSTOM_BLAS_SUFFIX OR NOT CUSTOM_LAPACK_SUFFIX))
-  option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" ON)
-else()
-  option(EL_DISABLE_SCALAPACK "Avoid ScaLAPACK" OFF)
+  # Ugh. Elemental currently supports ScaLAPACK building its own custom
+  # BLAS and LAPACK if Elemental is using a custom symbol suffix for its own.
+  message(FATAL_ERROR "ScaLAPACK is not supported for 64-bit builds with manually specified BLAS/LAPACK libraries")
 endif()
 option(EL_FORCE_SCALAPACK_BUILD
   "Avoid search for ScaLAPACK and instead build?" OFF)
