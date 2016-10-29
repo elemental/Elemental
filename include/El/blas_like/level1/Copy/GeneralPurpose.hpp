@@ -73,12 +73,10 @@ void Helper
                 const S& alpha = ALoc(iLoc,jLoc);
                 if( noRedundant && isLocalRow && isLocalCol )
                 {
-                    Log("(iLoc=",iLoc,",jLoc=",jLoc,") was local");
                     BLoc(localRow,localCol) = Caster<S,T>::Cast(alpha);
                 }
                 else
                 {
-                    Log("(iLoc=",iLoc,",jLoc=",jLoc,") was not local");
                     remoteEntries.push_back
                     ( Entry<S>{localRow,localCol,alpha} );
                     distOwners.push_back( ownerRow + colStride*ownerCol );
@@ -107,9 +105,7 @@ void Helper
             const int vcOwner =
               g.CoordsToVC
               (B.ColDist(),B.RowDist(),distBRank,BRoot,redundantRootB);
-            Log("  vcOwner[",distBRank,"]=",vcOwner);
             distBToViewing[distBRank] = g.VCToViewing(vcOwner);
-            Log("  distBToViewing[",distBRank,"]=",distBToViewing[distBRank]);
         }
 
         sendCounts.resize(viewingSize,0);
