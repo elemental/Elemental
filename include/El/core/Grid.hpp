@@ -84,6 +84,13 @@ public:
     EL_NO_RELEASE_EXCEPT;
     int VCToViewing( int VCRank ) const EL_NO_EXCEPT;
 
+#ifdef EL_HAVE_SCALAPACK
+    // TODO(poulson): More distribution contexts and handles
+    int BlacsVCHandle() const;
+    int BlacsVRHandle() const;
+    int BlacsMCMRContext() const;
+#endif
+
     static int FindFactor( int p ) EL_NO_EXCEPT;
 
     // To be used internally by Elemental
@@ -117,6 +124,11 @@ private:
         mcRank_, mrRank_,
         mdRank_, mdPerpRank_,
         vcRank_, vrRank_;
+
+#ifdef EL_HAVE_SCALAPACK
+    int blacsVCHandle_, blacsVRHandle_;
+    int blacsMCMRContext_;
+#endif
 
     void SetUpGrid();
 

@@ -716,6 +716,7 @@ struct HessenbergSchurCtrl
     // Cf. LAPACK's IPARMQ for this choice;
     // note that LAPACK's hard minimum of 12 does not apply to us
     Int minMultiBulgeSize = 75;
+    Int minDistMultiBulgeSize = 400;
 
     function<Int(Int,Int)> numShifts =
       function<Int(Int,Int)>(hess_schur::aed::NumShifts);

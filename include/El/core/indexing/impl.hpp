@@ -146,7 +146,16 @@ inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
 
 inline Int MaxBlockedLength_
 ( Int n, Int bsize, Int cut, Int stride ) EL_NO_EXCEPT
-{ return BlockedLength_( n, 0, bsize, cut, stride ); }
+{
+    // The first process does *not* necessarily own the most data if the
+    // cut is nonzero. But, if it does not, the second process must be assigned
+    // the most, and so we can simply take the maximum of the first and second.
+    const Int firstLength = BlockedLength_( n, 0, bsize, cut, stride );
+    const Int firstBlockSize = Min( n, bsize-cut );
+    const Int secondLength =
+      BlockedLength_( n-firstBlockSize, 0, bsize, 0, stride );
+    return Max( firstLength, secondLength );
+}
 
 inline Int 
 GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs )

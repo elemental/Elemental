@@ -142,12 +142,11 @@ void ScaLAPACKHelper
 #ifdef EL_HAVE_SCALAPACK
     const Int m = A.Height();
     const Int n = A.Width();
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    auto descx = FillDesc( x, context );
-    auto descy = FillDesc( y, context );
     const char orientChar = OrientationToChar( orientation );
+
+    auto descA = FillDesc( A );
+    auto descx = FillDesc( x );
+    auto descy = FillDesc( y );
     pblas::Gemv
     ( orientChar, m, n,
       alpha,
@@ -155,8 +154,6 @@ void ScaLAPACKHelper
       x.LockedBuffer(), descx.data(), 1,
       beta, 
       y.Buffer(),       descy.data(), 1 );
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
 #endif
 }
 

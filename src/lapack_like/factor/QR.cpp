@@ -55,15 +55,9 @@ void QR
     householderScalars.AlignWith( A );
     householderScalars.Resize( minDim, 1 ); 
 
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-
+    auto descA = FillDesc( A );
     scalapack::QR
     ( m, n, A.Buffer(), descA.data(), householderScalars.Buffer() );
-
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
 #endif
 }
 

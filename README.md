@@ -68,7 +68,7 @@ datatypes:
 * Hermitian matrix functions
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
-* Arbitrary-precision distributed SVD (QR and D&C support) and (generalized) Hermitian EVPs (QR and D&C support)
+* Arbitrary-precision distributed SVD (QR and D&C support), (generalized) Hermitian EVPs (QR and D&C support), and Schur decompositions (e.g., via Aggressive Early Deflation)
 
 **Lattice reduction**:
 * An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
@@ -134,7 +134,7 @@ otherwise, if METIS support is not detected, METIS is downloaded and installed.
 **Internodal linear algebra**
 
 * [Parallel MRRR](https://code.google.com/p/pmrrr/) (packaged with Elemental)
-* [ScaLAPACK](http://netlib.org/scalapack) (optional for Hessenberg QR algorithm)
+* [ScaLAPACK](http://netlib.org/scalapack) (optional for benchmarking)
 
 If [ScaLAPACK](http://www.netlib.org/scalapack) support is not explicitly 
 disabled, then Elemental looks for a previous installation and, failing that,

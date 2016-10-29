@@ -132,30 +132,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
             }
         }
     }
+    // TODO(poulson): Explain why this is necessary
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
-    {
-        // Pack from the root
-        const Int localHeight = B.LocalHeight();
-        const Int localWidth = B.LocalWidth();
-        vector<T> buf;
-        FastResize( buf, localHeight*localWidth );
-        if( A.CrossRank() == A.Root() )
-            util::InterleaveMatrix
-            ( localHeight, localWidth,
-              B.LockedBuffer(), 1, B.LDim(),
-              buf.data(),       1, localHeight );
-
-        // Broadcast from the root
-        mpi::Broadcast
-        ( buf.data(), localHeight*localWidth, A.Root(), A.CrossComm() );
-
-        // Unpack if not the root
-        if( A.CrossRank() != A.Root() )
-            util::InterleaveMatrix
-            ( localHeight, localWidth,
-              buf.data(), 1, localHeight,
-              B.Buffer(), 1, B.LDim() );
-    }
+        El::Broadcast( B, A.CrossComm(), A.Root() );
 }
 
 template<typename T>
@@ -163,16 +142,6 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 {
     DEBUG_CSE
     AssertSameGrids( A, B );
-
-    // TODO(poulson): Realign if the cuts are different
-    if( A.BlockHeight() != B.BlockHeight() || A.ColCut() != B.ColCut() )
-    {
-        DEBUG_ONLY(
-          Output("Performing expensive GeneralPurpose RowAllGather");
-        )
-        GeneralPurpose( A, B );
-        return;
-    }
 
     DEBUG_ONLY(
       if( A.ColDist() != B.ColDist() ||
@@ -187,8 +156,18 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
     const Int blockWidth = A.BlockWidth();
     const Int firstBlockWidth = blockWidth - rowCut;
 
-    B.AlignColsAndResize
-    ( blockHeight, A.ColAlign(), colCut, height, width, false, false );
+    B.AlignAndResize
+    ( blockHeight, blockWidth, A.ColAlign(), 0, colCut, 0,
+      height, width, false, false );
+    // TODO(poulson): Realign if the cuts are different
+    if( A.BlockHeight() != B.BlockHeight() || A.ColCut() != B.ColCut() )
+    {
+        DEBUG_ONLY(
+          Output("Performing expensive GeneralPurpose RowAllGather");
+        )
+        GeneralPurpose( A, B );
+        return;
+    }
 
     if( A.Participating() )
     {
@@ -203,8 +182,7 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
             {
                 if( A.RowRank() == A.RowAlign() )
                     B.Matrix() = A.LockedMatrix();
-                mpi::Broadcast
-                ( B.Buffer(), B.LocalHeight(), A.RowAlign(), A.RowComm() );
+                El::Broadcast( B, A.RowComm(), A.RowAlign() );
             }
             else
             {
@@ -243,21 +221,16 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
             if( A.Grid().Rank() == 0 )
                 Output("Unaligned RowAllGather");
 #endif
-            DEBUG_ONLY(Output("Unaligned RowAllGather..."));
             const Int sendColRank = Mod( A.ColRank()+colDiff, A.ColStride() );
             const Int recvColRank = Mod( A.ColRank()-colDiff, A.ColStride() );
 
             if( width <= firstBlockWidth )
             {
                 if( A.RowRank() == A.RowAlign() )
-                    mpi::SendRecv
-                    ( A.LockedBuffer(), A.LocalHeight(), sendColRank,
-                      B.Buffer(),       B.LocalHeight(), recvColRank,
-                      A.ColComm() );
-
-                // Perform the row broadcast
-                mpi::Broadcast
-                ( B.Buffer(), B.LocalHeight(), A.RowAlign(), A.RowComm() );
+                    El::SendRecv
+                    ( A.LockedMatrix(), B.Matrix(),
+                      A.ColComm(), sendColRank, recvColRank );
+                El::Broadcast( B, A.RowComm(), A.RowAlign() );
             }
             else
             {
@@ -300,30 +273,9 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
             }
         }
     }
+    // TODO(poulson): Explain why this is necessary
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
-    {
-        // Pack from the root
-        const Int localHeight = B.LocalHeight();
-        const Int localWidth = B.LocalWidth();
-        vector<T> buf;
-        FastResize( buf, localHeight*localWidth );
-        if( A.CrossRank() == A.Root() )
-            util::InterleaveMatrix
-            ( localHeight, localWidth,
-              B.LockedBuffer(), 1, B.LDim(),
-              buf.data(),       1, localHeight );
-
-        // Broadcast from the root
-        mpi::Broadcast
-        ( buf.data(), localHeight*localWidth, A.Root(), A.CrossComm() );
-
-        // Unpack if not the root
-        if( A.CrossRank() != A.Root() )
-            util::InterleaveMatrix
-            ( localHeight, localWidth,
-              buf.data(), 1, localHeight,
-              B.Buffer(), 1, B.LDim() );
-    }
+        El::Broadcast( B, A.CrossComm(), A.Root() );
 }
 
 } // namespace copy

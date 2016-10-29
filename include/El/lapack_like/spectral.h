@@ -610,6 +610,7 @@ typedef struct {
   bool progress;
 
   ElInt minMultiBulgeSize;
+  ElInt minDistMultiBulgeSize;
   
   ElInt (*numShifts)(ElInt,ElInt);
   ElInt (*deflationSize)(ElInt,ElInt,ElInt);

@@ -410,6 +410,8 @@ inline bool operator==( const DistData& A, const DistData& B )
          A.blockWidth  == B.blockWidth &&
          A.colAlign    == B.colAlign &&
          A.rowAlign    == B.rowAlign &&
+         A.colCut      == B.colCut &&
+         A.rowCut      == B.rowCut &&
          A.root        == B.root &&
          A.grid        == B.grid; }
 inline bool operator!=( const DistData& A, const DistData& B )

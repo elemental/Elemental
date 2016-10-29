@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_MULTIBULGE_TRANSFORM_HPP
@@ -13,182 +13,204 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
-// Apply (with replacement) Z' from the left
+// Apply (with replacement) V' from the left
+// -----------------------------------------
+
 template<typename F>
 void TransformRows
-( const Matrix<F>& Z,
-        DistMatrix<F,MC,MR,BLOCK>& H )
+( const Matrix<F>& V,
+        Matrix<F>& A )
 {
     DEBUG_CSE
-    const Int height = H.Height();
-    const Grid& grid = H.Grid();
+    // TODO(poulson): Consider forming chunk-by-chunk to save memory
+    Matrix<F> ACopy( A );
+    Gemm( ADJOINT, NORMAL, F(1), V, ACopy, A );
+}
 
-    const Int blockHeight = H.BlockHeight();
-    const Int firstBlockHeight = blockHeight - H.ColCut();
+template<typename F>
+void TransformRows
+( const Matrix<F>& V,
+        DistMatrix<F,MC,MR,BLOCK>& A )
+{
+    DEBUG_CSE
+    const Int height = A.Height();
+    const Grid& grid = A.Grid();
+
+    const Int blockHeight = A.BlockHeight();
+    const Int firstBlockHeight = blockHeight - A.ColCut();
     if( height <= firstBlockHeight || grid.Height() == 1 )
     {
-        if( grid.Row() == H.RowOwner(0) )
+        if( grid.Row() == A.RowOwner(0) )
         {
-            // This process row can locally update its portion of H
-            Matrix<F> HLocCopy( H.Matrix() );
-            Gemm( ADJOINT, NORMAL, F(1), Z, HLocCopy, H.Matrix() );
+            // This process row can locally update its portion of A
+            TransformRows( V, A.Matrix() );
         }
     }
     else if( height <= firstBlockHeight + blockHeight )
     {
-        const bool firstRow = H.RowOwner( 0 );
-        const bool secondRow = H.RowOwner( firstBlockHeight );
+        const int firstRow = A.RowOwner( 0 );
+        const int secondRow = A.RowOwner( firstBlockHeight );
         if( grid.Row() == firstRow )
         {
-            // 
-            // Replace H with 
             //
-            //   | ZLeft, ZRight |' | HTop    |,
-            //                      | HBottom |
+            // Replace A with
             //
-            // where HTop is owned by this process row and HBottom by the next.
+            //   | VLeft, VRight |' | ATop    |,
+            //                      | ABottom |
             //
-            auto ZLeft = Z( ALL, IR(0,firstBlockHeight) );
+            // where ATop is owned by this process row and ABottom by the next.
+            //
+            auto VLeft = V( ALL, IR(0,firstBlockHeight) );
 
             // Partition space for the combined matrix
-            Matrix<F> HCombine( height, H.LocalWidth() );
-            auto HTop = HCombine( IR(0,firstBlockHeight), ALL );
-            auto HBottom = HCombine( IR(firstBlockHeight,END), ALL );
+            Matrix<F> ACombine( height, A.LocalWidth() );
+            auto ATop = ACombine( IR(0,firstBlockHeight), ALL );
+            auto ABottom = ACombine( IR(firstBlockHeight,END), ALL );
 
             // Copy our portion into the combined matrix
-            HTop = H.LockedMatrix();
+            ATop = A.LockedMatrix();
 
             // Exchange the data
-            El::SendRecv( HTop, HBottom, H.ColComm(), secondRow, secondRow );
-            
+            El::SendRecv( ATop, ABottom, A.ColComm(), secondRow, secondRow );
+
             // Form our portion of the result
-            Gemm( ADJOINT, NORMAL, F(1), ZLeft, HCombine, H.Matrix() );
+            Gemm( ADJOINT, NORMAL, F(1), VLeft, ACombine, A.Matrix() );
         }
         else if( grid.Row() == secondRow )
         {
-            // 
-            // Replace H with 
             //
-            //   | ZLeft, ZRight |' | HTop    |,
-            //                      | HBottom |
+            // Replace A with
             //
-            // where HTop is owned by the previous process row and HBottom by
+            //   | VLeft, VRight |' | ATop    |,
+            //                      | ABottom |
+            //
+            // where ATop is owned by the previous process row and ABottom by
             // this one.
             //
-            auto ZRight = Z( ALL, IR(firstBlockHeight,END) );
+            auto VRight = V( ALL, IR(firstBlockHeight,END) );
 
             // Partition space for the combined matrix
-            Matrix<F> HCombine( height, H.LocalWidth() );
-            auto HTop = HCombine( IR(0,firstBlockHeight), ALL );
-            auto HBottom = HCombine( IR(firstBlockHeight,END), ALL );
+            Matrix<F> ACombine( height, A.LocalWidth() );
+            auto ATop = ACombine( IR(0,firstBlockHeight), ALL );
+            auto ABottom = ACombine( IR(firstBlockHeight,END), ALL );
 
             // Copy our portion into the combined matrix
-            HBottom = H.LockedMatrix();
+            ABottom = A.LockedMatrix();
 
             // Exchange the data
-            El::SendRecv( HBottom, HTop, H.ColComm(), firstRow, firstRow );
-            
+            El::SendRecv( ABottom, ATop, A.ColComm(), firstRow, firstRow );
+
             // Form our portion of the result
-            Gemm( ADJOINT, NORMAL, F(1), ZRight, HCombine, H.Matrix() );
+            Gemm( ADJOINT, NORMAL, F(1), VRight, ACombine, A.Matrix() );
         }
     }
     else
     {
         // Fall back to the entire process column interacting.
         // TODO(poulson): Only form the subset of the result that we need.
-        DistMatrix<F,STAR,MR,BLOCK> H_STAR_MR( H );
-        Matrix<F> HLocCopy( H_STAR_MR.Matrix() );
-        Gemm( ADJOINT, NORMAL, F(1), Z, HLocCopy, H_STAR_MR.Matrix() );
-        H = H_STAR_MR;
+        DistMatrix<F,STAR,MR,BLOCK> A_STAR_MR( A );
+        Matrix<F> ALocCopy( A_STAR_MR.Matrix() );
+        Gemm( ADJOINT, NORMAL, F(1), V, ALocCopy, A_STAR_MR.Matrix() );
+        A = A_STAR_MR;
     }
 }
 
-// Apply (with replacement) Z from the right
 template<typename F>
 void TransformColumns
-( const Matrix<F>& Z,
-        DistMatrix<F,MC,MR,BLOCK>& H )
+( const Matrix<F>& V,
+        Matrix<F>& A )
 {
     DEBUG_CSE
-    const Int width = H.Width();
-    const Grid& grid = H.Grid();
+    // TODO(poulson): Consider forming chunk-by-chunk to save memory
+    Matrix<F> ACopy( A );
+    Gemm( NORMAL, NORMAL, F(1), ACopy, V, A );
+}
 
-    const Int blockWidth = H.BlockWidth();
-    const Int firstBlockWidth = blockWidth - H.RowCut();
+// Apply (with replacement) V from the right
+template<typename F>
+void TransformColumns
+( const Matrix<F>& V,
+        DistMatrix<F,MC,MR,BLOCK>& A )
+{
+    DEBUG_CSE
+    const Int width = A.Width();
+    const Grid& grid = A.Grid();
+
+    const Int blockWidth = A.BlockWidth();
+    const Int firstBlockWidth = blockWidth - A.RowCut();
     if( width <= firstBlockWidth || grid.Width() == 1 )
     {
-        if( grid.Col() == H.ColOwner(0) )
+        if( grid.Col() == A.ColOwner(0) )
         {
-            // This process row can locally update its portion of H
-            Matrix<F> HLocCopy( H.Matrix() );
-            Gemm( NORMAL, NORMAL, F(1), HLocCopy, Z, H.Matrix() );
+            // This process row can locally update its portion of A
+            TransformColumns( V, A.Matrix() );
         }
     }
     else if( width <= firstBlockWidth + blockWidth )
     {
-        const bool firstCol = H.ColOwner( 0 );
-        const bool secondCol = H.ColOwner( firstBlockWidth );
+        const int firstCol = A.ColOwner( 0 );
+        const int secondCol = A.ColOwner( firstBlockWidth );
         if( grid.Col() == firstCol )
         {
-            // 
-            // Replace H with 
             //
-            //   | HLeft, HRight | | ZLeft, ZRight |,
+            // Replace A with
             //
-            // where HLeft is owned by this process column and HRight by the
+            //   | ALeft, ARight | | VLeft, VRight |,
+            //
+            // where ALeft is owned by this process column and ARight by the
             // next.
             //
-            auto ZLeft = Z( ALL, IR(0,firstBlockWidth) );
 
             // Partition space for the combined matrix
-            Matrix<F> HCombine( H.LocalHeight(), width );
-            auto HLeft = HCombine( ALL, IR(0,firstBlockWidth) );
-            auto HRight = HCombine( ALL, IR(firstBlockWidth,END) );
+            Matrix<F> ACombine( A.LocalHeight(), width );
+            auto ALeft = ACombine( ALL, IR(0,firstBlockWidth) );
+            auto ARight = ACombine( ALL, IR(firstBlockWidth,END) );
 
             // Copy our portion into the combined matrix
-            HLeft = H.LockedMatrix();
+            ALeft = A.LockedMatrix();
 
             // Exchange the data
-            El::SendRecv( HLeft, HRight, H.RowComm(), secondCol, secondCol );
-            
+            El::SendRecv( ALeft, ARight, A.RowComm(), secondCol, secondCol );
+
             // Form our portion of the result
-            Gemm( NORMAL, NORMAL, F(1), HCombine, ZLeft, H.Matrix() );
+            auto VLeft = V( ALL, IR(0,firstBlockWidth) );
+            Gemm( NORMAL, NORMAL, F(1), ACombine, VLeft, A.Matrix() );
         }
         else if( grid.Col() == secondCol )
         {
-            // 
-            // Replace H with 
             //
-            //   | HLeft, HRight | | ZLeft, ZRight |,
+            // Replace A with
             //
-            // where HLeft is owned by the previous process column and HRight
+            //   | ALeft, ARight | | VLeft, VRight |,
+            //
+            // where ALeft is owned by the previous process column and ARight
             // by this one.
             //
-            auto ZRight = Z( ALL, IR(firstBlockWidth,END) );
 
             // Partition space for the combined matrix
-            Matrix<F> HCombine( H.LocalHeight(), width );
-            auto HLeft = HCombine( ALL, IR(0,firstBlockWidth) );
-            auto HRight = HCombine( ALL, IR(firstBlockWidth,END) );
+            Matrix<F> ACombine( A.LocalHeight(), width );
+            auto ALeft = ACombine( ALL, IR(0,firstBlockWidth) );
+            auto ARight = ACombine( ALL, IR(firstBlockWidth,END) );
 
             // Copy our portion into the combined matrix
-            HRight = H.LockedMatrix();
+            ARight = A.LockedMatrix();
 
             // Exchange the data
-            El::SendRecv( HRight, HLeft, H.RowComm(), firstCol, firstCol );
-            
+            El::SendRecv( ARight, ALeft, A.RowComm(), firstCol, firstCol );
+
             // Form our portion of the result
-            Gemm( NORMAL, NORMAL, F(1), HCombine, ZRight, H.Matrix() );
+            auto VRight = V( ALL, IR(firstBlockWidth,END) );
+            Gemm( NORMAL, NORMAL, F(1), ACombine, VRight, A.Matrix() );
         }
     }
     else
     {
         // Fall back to the entire process column interacting.
         // TODO(poulson): Only form the subset of the result that we need.
-        DistMatrix<F,MC,STAR,BLOCK> H_MC_STAR( H );
-        Matrix<F> HLocCopy( H_MC_STAR.Matrix() );
-        Gemm( NORMAL, NORMAL, F(1), HLocCopy, Z, H_MC_STAR.Matrix() );
-        H = H_MC_STAR;
+        DistMatrix<F,MC,STAR,BLOCK> A_MC_STAR( A );
+        Matrix<F> ALocCopy( A_MC_STAR.Matrix() );
+        Gemm( NORMAL, NORMAL, F(1), ALocCopy, V, A_MC_STAR.Matrix() );
+        A = A_MC_STAR;
     }
 }
 

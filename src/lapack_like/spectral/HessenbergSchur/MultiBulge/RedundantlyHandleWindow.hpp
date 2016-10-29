@@ -16,6 +16,33 @@ namespace hess_schur {
 namespace multibulge {
 
 template<typename F>
+void ConsistentlyComputeDecomposition
+(       DistMatrix<F,MC,MR,BLOCK>& H,
+        DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
+        Matrix<F>& Z,
+  const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() )
+{
+    DEBUG_CSE
+    // Because double-precision floating-point computation is often
+    // non-deterministic due to extra-precision computation being frequent but
+    // not guaranteed, we must be careful to not allow this non-determinism to
+    // be amplified by the forward instability of Francis sweeps.
+    const Grid& grid = H.Grid();
+    const int owner = H.Owner(0,0);
+
+    DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
+    H_CIRC_CIRC = H;
+    w.Resize( H.Height(), 1 );
+    if( H_CIRC_CIRC.CrossRank() == H_CIRC_CIRC.Root() )
+        HessenbergSchur( H_CIRC_CIRC.Matrix(), w.Matrix(), Z, ctrl );
+    else
+        Z.Resize( H.Height(), H.Height() );
+    H = H_CIRC_CIRC;
+    El::Broadcast( w.Matrix(), H_CIRC_CIRC.CrossComm(), H_CIRC_CIRC.Root() );
+    El::Broadcast( Z, H_CIRC_CIRC.CrossComm(), H_CIRC_CIRC.Root() );
+}
+
+template<typename F>
 HessenbergSchurInfo
 RedundantlyHandleWindow
 ( DistMatrix<F,MC,MR,BLOCK>& H,
@@ -25,22 +52,20 @@ RedundantlyHandleWindow
 {
     DEBUG_CSE
     const Int n = H.Height();
-    Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
-    Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    const Int winSize = winEnd - winBeg;
+    const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
+    const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
 
-    auto winInd = IR(winBeg,winEnd);
+    // TODO(poulson): Fill this information structure
+    HessenbergSchurInfo info;
+
+    const auto winInd = IR(winBeg,winEnd);
     auto HWin = H(winInd,winInd);
-    auto& wLoc = w.Matrix();
+    auto wWin = w(winInd,ALL);
 
     // Compute the Schur decomposition HWin = ZWin TWin ZWin',
     // where HWin is overwritten by TWin, and wWin by diag(TWin).
-    DistMatrix<F,STAR,STAR> HWinFull( HWin );
-    auto wWin = wLoc(winInd,ALL);
     Matrix<F> ZWin;
-    Identity( ZWin, winSize, winSize );
-    auto info = HessenbergSchur( HWinFull.Matrix(), wWin, ZWin );
-    HWin = HWinFull;
+    ConsistentlyComputeDecomposition( HWin, wWin, ZWin );
 
     if( ctrl.fullTriangle )
     {

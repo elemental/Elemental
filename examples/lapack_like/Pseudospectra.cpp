@@ -42,11 +42,19 @@ main( int argc, char* argv[] )
         const Int normInt = Input("--norm","0:two norm,1:one norm",0);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
-#ifdef EL_HAVE_SCALAPACK
         // QR algorithm options
-        const Int nbDist = Input("--nbDist","distribution blocksize",32);
-#else
+        const Int algInt = Input("--alg","AED: 0, MultiBulge: 1, Simple: 2",0);
+        const Int minMultiBulgeSize =
+          Input
+          ("--minMultiBulgeSize",
+           "minimum size for using a multi-bulge algorithm",75);
+        const bool accumulate =
+          Input("--accumulate","accumulate reflections?",true);
+        const bool sortShifts =
+          Input("--sortShifts","sort shifts for AED?",true);
+        // TODO: distribution block size
         // Spectral Divide and Conquer options
+        const bool useSDC = Input("--useSDC","try Spectral D&C?",false);
         const Int cutoff = Input("--cutoff","problem size for QR",256);
         const Int maxInnerIts = Input("--maxInnerIts","SDC limit",2);
         const Int maxOuterIts = Input("--maxOuterIts","SDC limit",10);
@@ -54,7 +62,7 @@ main( int argc, char* argv[] )
         const Real sdcTol = Input("--sdcTol","Rel. tol. for SDC",1e-6);
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const Real signTol = Input("--signTol","Sign tolerance for SDC",1e-9);
-#endif
+        // end SDC options
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
         const Real realWidth = Input("--realWidth","x width of image",0.);
@@ -248,10 +256,14 @@ main( int argc, char* argv[] )
         psCtrl.arnoldi = arnoldi;
         psCtrl.basisSize = basisSize;
         psCtrl.progress = progress;
-#ifdef EL_HAVE_SCALAPACK
-        psCtrl.schurCtrl.hessSchurCtrl.blockHeight = nbDist;
         psCtrl.schurCtrl.hessSchurCtrl.scalapack = false;
-#else
+        psCtrl.schurCtrl.hessSchurCtrl.fullTriangle = true;
+        psCtrl.schurCtrl.hessSchurCtrl.alg =
+          static_cast<HessenbergSchurAlg>(algInt);
+        psCtrl.schurCtrl.hessSchurCtrl.minMultiBulgeSize = minMultiBulgeSize;
+        psCtrl.schurCtrl.hessSchurCtrl.accumulateReflections = accumulate;
+        psCtrl.schurCtrl.hessSchurCtrl.sortShifts = sortShifts;
+        psCtrl.schurCtrl.hessSchurCtrl.progress = progress;
         psCtrl.schurCtrl.sdcCtrl.cutoff = cutoff;
         psCtrl.schurCtrl.sdcCtrl.maxInnerIts = maxInnerIts;
         psCtrl.schurCtrl.sdcCtrl.maxOuterIts = maxOuterIts;
@@ -261,7 +273,6 @@ main( int argc, char* argv[] )
         psCtrl.schurCtrl.sdcCtrl.progress = progress;
         psCtrl.schurCtrl.sdcCtrl.signCtrl.tol = signTol;
         psCtrl.schurCtrl.sdcCtrl.signCtrl.progress = progress;
-#endif
         psCtrl.snapCtrl.imgSaveFreq = imgSaveFreq;
         psCtrl.snapCtrl.numSaveFreq = numSaveFreq;
         psCtrl.snapCtrl.imgDispFreq = imgDispFreq;

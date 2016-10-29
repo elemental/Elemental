@@ -27,7 +27,7 @@ void Scatter
     B.Resize( m, n );
     if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
     {
-        // TODO:
+        // TODO(poulson):
         // Broadcast over the redundant communicator and use mpi::Translate
         // rank to determine whether a process is the root of the broadcast.
         GeneralPurpose( A, B ); 
@@ -95,11 +95,10 @@ void Scatter
 {
     DEBUG_CSE
     AssertSameGrids( A, B );
-    // TODO: More efficient implementation
+    // TODO(poulson): More efficient implementation
     GeneralPurpose( A, B );
 }
 
-// TODO: Find a way to combine this with the above
 template<typename T>
 void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
@@ -107,32 +106,12 @@ void Scatter
 {
     DEBUG_CSE
     AssertSameGrids( A, B );
-
-    const Int height = A.Height();
-    const Int width = A.Width();
-    B.Resize( height, width );
-
+    B.Resize( A.Height(), A.Width() );
     if( B.Participating() )
     {
-        const Int pkgSize = mpi::Pad( height*width );
-        vector<T> buffer;
-        FastResize( buffer, pkgSize );
-
-        // Pack            
         if( A.Participating() )
-            util::InterleaveMatrix
-            ( height, width,
-              A.LockedBuffer(), 1, A.LDim(),
-              buffer.data(),    1, height );
-
-        // Broadcast from the process that packed
-        mpi::Broadcast( buffer.data(), pkgSize, A.Root(), A.CrossComm() );
-
-        // Unpack
-        util::InterleaveMatrix
-        ( height, width,
-          buffer.data(), 1, height,
-          B.Buffer(),    1, B.LDim() );
+            B.Matrix() = A.LockedMatrix();
+        El::Broadcast( B, A.CrossComm(), A.Root() );
     }
 }
 
@@ -143,8 +122,13 @@ void Scatter
 {
     DEBUG_CSE
     AssertSameGrids( A, B );
-    // TODO: More efficient implementation
-    GeneralPurpose( A, B );
+    B.Resize( A.Height(), A.Width() );
+    if( B.Participating() )
+    {
+        if( A.Participating() )
+            B.Matrix() = A.LockedMatrix();
+        El::Broadcast( B, A.CrossComm(), A.Root() );
+    }
 }
 
 } // namespace copy

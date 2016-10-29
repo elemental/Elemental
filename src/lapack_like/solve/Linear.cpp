@@ -239,20 +239,13 @@ void ScaLAPACKHelper
     auto ACopy = A;
     vector<int> ipiv(mLocal+mb);
 
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    auto descB = FillDesc( B, context );
-
+    auto descA = FillDesc( A );
+    auto descB = FillDesc( B );
     scalapack::LinearSolve
     ( m, n,
       ACopy.Buffer(), descA.data(),
       ipiv.data(),
       B.Buffer(), descB.data() );
-
-    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
 #endif
 }
 

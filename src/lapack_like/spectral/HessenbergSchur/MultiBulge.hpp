@@ -16,6 +16,7 @@
 #include "./MultiBulge/Sweep.hpp"
 
 namespace El {
+
 namespace hess_schur {
 
 template<typename F>
@@ -27,9 +28,6 @@ MultiBulge
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE 
-    typedef Base<F> Real;
-    const Real zero(0);
-
     const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -74,18 +72,20 @@ MultiBulge
         const Int iterBeg = winBeg + iterOffset;
         const Int iterWinSize = winEnd-iterBeg;
         if( iterOffset > 0 )
-            H(iterBeg,iterBeg-1) = zero;
+            H(iterBeg,iterBeg-1) = F(0);
         if( iterWinSize == 1 )
         {
             w(iterBeg) = H(iterBeg,iterBeg);
-            --winEnd;
+
+            winEnd = iterBeg;
             numIterSinceDeflation = 0;
             continue;
         }
         else if( iterWinSize == 2 )
         {
             multibulge::TwoByTwo( H, w, Z, iterBeg, ctrl );
-            winEnd -= 2;
+
+            winEnd = iterBeg;
             numIterSinceDeflation = 0;
             continue;
         }
@@ -96,7 +96,9 @@ MultiBulge
             ctrlSub.winBeg = iterBeg;
             ctrlSub.winEnd = winEnd;
             Simple( H, w, Z, ctrlSub );
+
             winEnd = iterBeg;
+            numIterSinceDeflation = 0;
             continue;
         }
 
@@ -139,11 +141,9 @@ MultiBulge
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE 
-    typedef Base<F> Real;
-    const Real zero(0);
+    const Int n = H.Height();
     const Grid& grid = H.Grid();
 
-    const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
     const Int winSize = winEnd - winBeg;
@@ -155,8 +155,7 @@ MultiBulge
     // This maximum is meant to account for parallel overheads and needs to be
     // more principled (and perhaps based upon the number of workers and the 
     // cluster characteristics)
-    // TODO(poulson): Re-enable this
-    //minMultiBulgeSize = Max( minMultiBulgeSize, 500 );
+    minMultiBulgeSize = Max( minMultiBulgeSize, ctrl.minDistMultiBulgeSize );
 
     HessenbergSchurInfo info;
 
@@ -178,8 +177,7 @@ MultiBulge
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
 
     Int iterBegLast=-1, winEndLast=-1;
-    DistMatrix<F,STAR,STAR> hMainWin(grid), hSuperWin(grid);
-    DistMatrix<Real,STAR,STAR> hSubWin(grid);
+    DistMatrix<F,STAR,STAR> hMainWin(grid), hSubWin(grid), hSuperWin(grid);
     while( winBeg < winEnd )
     {
         if( info.numIterations >= maxIter )
@@ -190,6 +188,8 @@ MultiBulge
                 break;
         }
         auto winInd = IR(winBeg,winEnd);
+        if( ctrl.progress && grid.Rank() == 0 )
+            Output("winBeg=",winBeg,", winEnd=",winEnd);
 
         // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
         // ---------------------------------------------------------
@@ -197,11 +197,6 @@ MultiBulge
         // collect the main and sub diagonal of H along the diagonal workers 
         // and then broadcast across the "cross" communicator.
         util::GatherTridiagonal( H, winInd, hMainWin, hSubWin, hSuperWin );
-        Output("winBeg=",winBeg,", winEnd=",winEnd);
-        Print( H, "H" );
-        Print( hMainWin, "hMainWin" );
-        Print( hSubWin, "hSubWin" );
-        Print( hSuperWin, "hSuperWin" );
 
         const Int iterOffset =
           DetectSmallSubdiagonal
@@ -210,12 +205,14 @@ MultiBulge
         const Int iterWinSize = winEnd-iterBeg;
         if( iterOffset > 0 )
         {
-            H.Set( iterBeg, iterBeg-1, zero );
-            hSubWin.Set( iterOffset-1, 0, zero );
+            if( ctrl.progress && grid.Rank() == 0 )
+                Output("iterOffset was ",iterOffset);
+            H.Set( iterBeg, iterBeg-1, F(0) );
+            hSubWin.Set( iterOffset-1, 0, F(0) );
         }
         if( iterWinSize == 1 )
         {
-            if( ctrl.progress )
+            if( ctrl.progress && grid.Rank() == 0 )
                 Output("One-by-one window at ",iterBeg);
             w.Set( iterBeg, 0, hMainWin.GetLocal(iterOffset,0) );
 
@@ -225,11 +222,11 @@ MultiBulge
         }
         else if( iterWinSize == 2 )
         {
-            if( ctrl.progress )
+            if( ctrl.progress && grid.Rank() == 0 )
                 Output("Two-by-two window at ",iterBeg);
             const F eta00 = hMainWin.GetLocal(iterOffset,0);
             const F eta01 = hSuperWin.GetLocal(iterOffset,0);
-            const Real eta10 = hSubWin.GetLocal(iterOffset,0);
+            const F eta10 = hSubWin.GetLocal(iterOffset,0);
             const F eta11 = hMainWin.GetLocal(iterOffset+1,0);
             multibulge::TwoByTwo
             ( H, eta00, eta01, eta10, eta11, w, Z, iterBeg, ctrl );
@@ -241,22 +238,20 @@ MultiBulge
         else if( iterWinSize < minMultiBulgeSize )
         {
             // The window is small enough to switch to the simple scheme
-            if( ctrl.progress )
+            if( ctrl.progress && grid.Rank() == 0 )
                 Output("Redundantly handling window [",iterBeg,",",winEnd,"]");
             auto ctrlIter( ctrl );
             ctrlIter.winBeg = iterBeg;
             ctrlIter.winEnd = winEnd;
-            auto iterInfo =
-              multibulge::RedundantlyHandleWindow( H, w, Z, ctrlIter );
-            info.numIterations += iterInfo.numIterations;
-             
+            multibulge::RedundantlyHandleWindow( H, w, Z, ctrlIter );
+
             winEnd = iterBeg;
             numIterSinceDeflation = 0;
             continue;
         }
 
         const Int numShiftsRec = ctrl.numShifts( n, iterWinSize );
-        if( ctrl.progress )
+        if( ctrl.progress && grid.Rank() == 0 )
         {
             Output("Iter. ",info.numIterations,": ");
             Output("  window is [",iterBeg,",",winEnd,")");

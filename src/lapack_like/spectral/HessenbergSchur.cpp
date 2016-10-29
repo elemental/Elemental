@@ -87,12 +87,10 @@ ScaLAPACKHelper
     auto& w = wProx.Get();
 
 #ifdef EL_HAVE_SCALAPACK
-    const int bHandle = blacs::Handle( H );
-    const int context = blacs::GridInit( bHandle, H );
-    auto descH = FillDesc( H, context );
-
     bool accumulateSchurVecs=true;
     bool useAED = ( ctrl.alg == HESSENBERG_SCHUR_AED );
+
+    auto descH = FillDesc( H );
     scalapack::HessenbergSchur
     ( n,
       H.Buffer(), descH.data(),
@@ -102,10 +100,6 @@ ScaLAPACKHelper
       accumulateSchurVecs,
       useAED );
     // TODO(poulson): Find a way to fill in info?
-
-    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
 #endif
 
     return info;
@@ -155,21 +149,15 @@ ScaLAPACKHelper
     auto& w = wProx.Get();
 
 #ifdef EL_HAVE_SCALAPACK
-    const int bHandle = blacs::Handle( H );
-    const int context = blacs::GridInit( bHandle, H );
-    auto descH = FillDesc( H, context );
-
     bool useAED = ( ctrl.alg == HESSENBERG_SCHUR_AED );
+
+    auto descH = FillDesc( H );
     scalapack::HessenbergSchur
     ( n,
       H.Buffer(), descH.data(),
       w.Buffer(),
       ctrl.fullTriangle, useAED );
     // TODO(poulson): Find a way to fill in info?
-
-    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
 #endif
 
     return info;
@@ -242,8 +230,14 @@ HessenbergSchur
 #endif
     }
 
-    // For now, only the MultiBulge algorithm is supported
-    return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
+    {
+        return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    }
 }
 
 template<typename F>
@@ -312,8 +306,14 @@ HessenbergSchur
 #endif
     }
 
-    // For now, only the MultiBulge algorithm is supported
-    return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    if( ctrl.alg == HESSENBERG_SCHUR_AED )
+    {
+        return hess_schur::AED( H, w, Z, ctrlMod );
+    }
+    else
+    {
+        return hess_schur::MultiBulge( H, w, Z, ctrlMod );
+    }
 }
 
 namespace hess_schur {

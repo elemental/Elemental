@@ -273,6 +273,7 @@ void BlockedRowStridedUnpack
         Int colIndex =
           ( rowShift==0 ? 0 : firstBlockWidth + (rowShift-1)*blockWidth );
         Int packedColIndex = 0;
+
         while( colIndex < width )
         {
             const Int thisBlockWidth =

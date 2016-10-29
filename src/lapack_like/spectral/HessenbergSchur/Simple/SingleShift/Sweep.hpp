@@ -31,7 +31,7 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
     {
         const F eta00 = H(k,k);
         const F eta01 = H(k,k+1);
-        const Real eta10 = RealPart( H(k+1,k) );
+        const F eta10 = H(k+1,k);
         const F eta11 = H(k+1,k+1);
         if( OneAbs(eta10) <= smallNum )
         {
@@ -43,15 +43,15 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
         {
             // Search outward a bit to get a sense of the matrix's local scale
             if( k-1 >= 0 )
-                localScale += Abs( RealPart( H(k,k-1) ) );
+                localScale += OneAbs( H(k,k-1) );
             if( k+2 <= n-1 )
-                localScale += Abs( RealPart( H(k+2,k+1) ) );
+                localScale += OneAbs( H(k+2,k+1) );
         }
         
         if( Abs(eta10) <= ulp*localScale )
         {
-            const Real maxOff = Max( Abs(eta10), OneAbs(eta01) );
-            const Real minOff = Min( Abs(eta10), OneAbs(eta01) ); 
+            const Real maxOff = Max( OneAbs(eta10), OneAbs(eta01) );
+            const Real minOff = Min( OneAbs(eta10), OneAbs(eta01) ); 
 
             const Real diagDiff = OneAbs(eta00-eta11);
             const Real maxDiag = Max( OneAbs(eta11), diagDiff );
@@ -72,7 +72,7 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
 // tridiagonal information.
 template<typename F>
 Int DetectSmallSubdiagonal
-( const Matrix<F>& hMain, const Matrix<Base<F>>& hSub, const Matrix<F>& hSuper )
+( const Matrix<F>& hMain, const Matrix<F>& hSub, const Matrix<F>& hSuper )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -87,7 +87,7 @@ Int DetectSmallSubdiagonal
     {
         const F eta00 = hMain(k);
         const F eta01 = hSuper(k);
-        const Real eta10 = hSub(k);
+        const F eta10 = hSub(k);
         const F eta11 = hMain(k+1);
         if( OneAbs(eta10) <= smallNum )
         {
@@ -99,15 +99,15 @@ Int DetectSmallSubdiagonal
         {
             // Search outward a bit to get a sense of the matrix's local scale
             if( k-1 >= 0 )
-                localScale += Abs( hSub(k-1) );
+                localScale += OneAbs( hSub(k-1) );
             if( k+2 <= n-1 )
-                localScale += Abs( hSub(k+1) );
+                localScale += OneAbs( hSub(k+1) );
         }
         
         if( Abs(eta10) <= ulp*localScale )
         {
-            const Real maxOff = Max( Abs(eta10), OneAbs(eta01) );
-            const Real minOff = Min( Abs(eta10), OneAbs(eta01) ); 
+            const Real maxOff = Max( OneAbs(eta10), OneAbs(eta01) );
+            const Real minOff = Min( OneAbs(eta10), OneAbs(eta01) ); 
 
             const Real diagDiff = OneAbs(eta00-eta11);
             const Real maxDiag = Max( OneAbs(eta11), diagDiff );

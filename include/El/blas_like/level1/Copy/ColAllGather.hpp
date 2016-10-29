@@ -47,26 +47,9 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
             }
             else if( height == 1 )
             {
-                const Int localWidthB = B.LocalWidth();
-                vector<T> bcastBuf;
-                FastResize( bcastBuf, localWidthB );
-
                 if( A.ColRank() == A.ColAlign() )
-                {
                     B.Matrix() = A.LockedMatrix();
-                    StridedMemCopy
-                    ( bcastBuf.data(),  1,
-                      B.LockedBuffer(), B.LDim(), localWidthB );
-                }
-
-                // Broadcast within the column comm
-                mpi::Broadcast
-                ( bcastBuf.data(), localWidthB, A.ColAlign(), A.ColComm() );
-
-                // Unpack
-                StridedMemCopy
-                ( B.Buffer(),      B.LDim(), 
-                  bcastBuf.data(), 1,        localWidthB );
+                El::Broadcast( B, A.ColComm(), A.ColAlign() );
             }
             else
             {
@@ -180,29 +163,7 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
         }
     }
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
-    {
-        // Pack from the root
-        const Int localHeight = B.LocalHeight();
-        const Int localWidth = B.LocalWidth();
-        vector<T> buf;
-        FastResize( buf, localHeight*localWidth );
-        if( A.CrossRank() == A.Root() )
-            util::InterleaveMatrix
-            ( localHeight, localWidth,
-              B.LockedBuffer(), 1, B.LDim(),
-              buf.data(),       1, localHeight );
-
-        // Broadcast from the root
-        mpi::Broadcast
-        ( buf.data(), localHeight*localWidth, A.Root(), A.CrossComm() );
-
-        // Unpack if not the root
-        if( A.CrossRank() != A.Root() )
-            util::InterleaveMatrix
-            ( localHeight, localWidth,
-              buf.data(), 1, localHeight,
-              B.Buffer(), 1, B.LDim() );
-    }
+        El::Broadcast( B, A.CrossComm(), A.Root() );
 }
 
 template<typename T>
@@ -211,8 +172,140 @@ void ColAllGather
 {
     DEBUG_CSE
     AssertSameGrids( A, B );
-    // TODO: More efficient implementation
-    GeneralPurpose( A, B );
+
+    DEBUG_ONLY(
+      if( A.RowDist() != B.RowDist() ||
+          Collect(A.ColDist()) != B.ColDist() )
+          LogicError("Incompatible distributions");
+    )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    const Int colCut = A.ColCut();
+    const Int rowCut = A.RowCut();
+    const Int blockHeight = A.BlockHeight();
+    const Int blockWidth = A.BlockWidth();
+    const Int firstBlockHeight = blockHeight - colCut;
+
+    B.AlignAndResize
+    ( blockHeight, blockWidth, 0, A.RowAlign(), 0, rowCut,
+      height, width, false, false );
+
+    // TODO(poulson): Realign if the cuts are different
+    if( A.BlockWidth() != B.BlockWidth() || A.RowCut() != B.RowCut() )
+    {
+        DEBUG_ONLY(
+          Output("Performing expensive GeneralPurpose ColAllGather");
+        )
+        GeneralPurpose( A, B );
+        return;
+    }
+
+    if( A.Participating() )
+    {
+        const Int rowDiff = B.RowAlign() - A.RowAlign();
+        if( rowDiff == 0 )
+        {
+            if( A.ColStride() == 1 )
+            {
+                Copy( A.LockedMatrix(), B.Matrix() );
+            }
+            else if( height <= firstBlockHeight )
+            {
+                if( A.ColRank() == A.ColAlign() )
+                    B.Matrix() = A.LockedMatrix();
+                El::Broadcast( B, A.ColComm(), A.ColAlign() );
+            }
+            else
+            {
+                const Int colStride = A.ColStride();
+                const Int localWidth = A.LocalWidth();
+                const Int maxLocalHeight =
+                  MaxBlockedLength(height,blockHeight,colCut,colStride);
+
+                const Int portionSize = mpi::Pad( localWidth*maxLocalHeight );
+                vector<T> buffer;
+                FastResize( buffer, (colStride+1)*portionSize );
+                T* sendBuf = &buffer[0];
+                T* recvBuf = &buffer[portionSize];
+
+                // Pack
+                util::InterleaveMatrix
+                ( A.LocalHeight(), localWidth,
+                  A.LockedBuffer(), 1, A.LDim(),
+                  sendBuf,          1, A.LocalHeight() );
+
+                // Communicate
+                mpi::AllGather
+                ( sendBuf, portionSize, recvBuf, portionSize, A.ColComm() );
+
+                // Unpack
+                util::BlockedColStridedUnpack
+                ( height, localWidth, A.ColAlign(), colStride,
+                  A.BlockHeight(), A.ColCut(),
+                  recvBuf, portionSize,
+                  B.Buffer(), B.LDim() );
+            }
+        }
+        else
+        {
+#ifdef EL_UNALIGNED_WARNINGS
+            if( A.Grid().Rank() == 0 )
+                Output("Unaligned ColAllGather");
+#endif
+            const Int sendRowRank = Mod( A.RowRank()+rowDiff, A.RowStride() );
+            const Int recvRowRank = Mod( A.RowRank()-rowDiff, A.RowStride() );
+
+            if( height <= firstBlockHeight )
+            {
+                if( A.ColRank() == A.ColAlign() )
+                    El::SendRecv
+                    ( A.LockedMatrix(), B.Matrix(),
+                      A.RowComm(), sendRowRank, recvRowRank );
+                El::Broadcast( B, A.ColComm(), A.ColAlign() );
+            }
+            else
+            {
+                const Int colStride = A.ColStride();
+                const Int localWidth = A.LocalWidth();
+                const Int localHeightA = A.LocalHeight();
+                const Int localWidthB = B.LocalWidth();
+                const Int maxLocalWidth =
+                  MaxBlockedLength(width,blockWidth,rowCut,A.RowStride());
+                const Int maxLocalHeight =
+                  MaxBlockedLength(height,blockHeight,colCut,colStride);
+
+                const Int portionSize = mpi::Pad(maxLocalHeight*maxLocalWidth);
+                vector<T> buffer;
+                FastResize( buffer, (colStride+1)*portionSize );
+                T* firstBuf = &buffer[0];
+                T* secondBuf = &buffer[portionSize];
+
+                // Pack
+                util::InterleaveMatrix
+                ( localHeightA, localWidth,
+                  A.LockedBuffer(), 1, A.LDim(),
+                  secondBuf,        1, localHeightA );
+
+                // Realign
+                mpi::SendRecv
+                ( secondBuf, portionSize, sendRowRank,
+                  firstBuf,  portionSize, recvRowRank, A.RowComm() );
+
+                // Perform the column AllGather
+                mpi::AllGather
+                ( firstBuf,  portionSize,
+                  secondBuf, portionSize, A.ColComm() );
+
+                // Unpack
+                util::BlockedColStridedUnpack
+                ( height, localWidthB, A.ColAlign(), colStride,
+                  blockHeight, colCut, secondBuf, portionSize,
+                  B.Buffer(), B.LDim() );
+            }
+        }
+    }
+    if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
+        El::Broadcast( B, A.CrossComm(), A.Root() );
 }
 
 } // namespace copy

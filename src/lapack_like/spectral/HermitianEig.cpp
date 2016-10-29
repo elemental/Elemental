@@ -348,11 +348,6 @@ ScaLAPACKHelper
     const Int n = A.Height();
     w.Resize( n, 1 );
 
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    
-    const char uploChar = UpperOrLowerToChar( uplo );
     if( subset.rangeSubset )
     {
         LogicError("This option is not yet supported");
@@ -363,9 +358,12 @@ ScaLAPACKHelper
     }
     else
     {
+        const char uploChar = UpperOrLowerToChar( uplo );
+        auto descA = FillDesc( A );
         scalapack::HermitianEig
         ( uploChar, n, A.Buffer(), descA.data(), w.Buffer() );
     }
+
     return info;
 }
 
@@ -794,12 +792,7 @@ ScaLAPACKHelper
     Q.AlignWith( A );
     Q.Resize( n, n );
 
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    auto descQ = FillDesc( Q, context );
-    
-    const char uploChar = UpperOrLowerToChar( uplo );
+
     if( subset.rangeSubset )
     {
         LogicError("This option is not yet supported");
@@ -810,12 +803,16 @@ ScaLAPACKHelper
     }
     else
     {
+        const char uploChar = UpperOrLowerToChar( uplo );
+        auto descA = FillDesc( A );
+        auto descQ = FillDesc( Q );
         scalapack::HermitianEig
         ( uploChar, n,
           A.Buffer(), descA.data(),
           w.Buffer(),
           Q.Buffer(), descQ.data() );
     }
+
     return info;
 }
 

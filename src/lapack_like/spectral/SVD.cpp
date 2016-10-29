@@ -48,14 +48,11 @@ SVDInfo ScaLAPACKHelper
         Zeros( U, m, k );
         DistMatrix<F,MC,MR,BLOCK> VH( A.Grid() );
         Zeros( VH, k, n );
-
-        const int bHandle = blacs::Handle( A );
-        const int context = blacs::GridInit( bHandle, A );
-        auto descA = FillDesc( A, context );
-        auto descU = FillDesc( U, context );
-        auto descVH = FillDesc( VH, context );
-
         s.Resize( k, 1 );
+
+        auto descA = FillDesc( A );
+        auto descU = FillDesc( U );
+        auto descVH = FillDesc( VH );
         scalapack::SVD
         ( m, n,
           A.Buffer(), descA.data(),
@@ -84,10 +81,6 @@ SVDInfo ScaLAPACKHelper
             U.Resize( m, rank );
             VH.Resize( rank, n );
         }
-
-        // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-        blacs::FreeGrid( context );
-        blacs::FreeHandle( bHandle );
 
         Adjoint( VH, V );
     }
@@ -432,12 +425,10 @@ SVDInfo ScaLAPACKHelper
         ctrl.bidiagSVDCtrl.approach == COMPACT_SVD ||
         ctrl.bidiagSVDCtrl.approach == FULL_SVD )
     {
-        const int bHandle = blacs::Handle( A );
-        const int context = blacs::GridInit( bHandle, A );
-        auto descA = FillDesc( A, context );
-
         const bool compact = ( ctrl.bidiagSVDCtrl.approach == COMPACT_SVD );
         s.Resize( k, 1 );
+
+        auto descA = FillDesc( A );
         scalapack::SingularValues
         ( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
         if( compact )
@@ -458,10 +449,6 @@ SVDInfo ScaLAPACKHelper
             }
             s.Resize( rank, 1 );
         }
-
-        // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-        blacs::FreeGrid( context );
-        blacs::FreeHandle( bHandle );
     }
     else
         LogicError("Block product SVD not yet supported");
