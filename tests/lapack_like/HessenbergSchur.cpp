@@ -261,7 +261,8 @@ void TestRandom
 ( Int n, const Grid& grid, const HessenbergSchurCtrl& ctrl, bool print )
 {
     DEBUG_CSE
-    Output("Testing uniform Hessenberg with ",TypeName<F>());
+    if( grid.Rank() == 0 )
+        Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     DistMatrix<F,MC,MR,BLOCK> H(grid);
     Uniform( H, n, n );
@@ -291,9 +292,8 @@ int main( int argc, char* argv[] )
         const bool testSweep =
           Input("--testSweep","test pure-shift sweep?",false);
         const bool sequential = Input("--sequential","test sequential?",true);
-        // The distributed implementation is not yet debugged
         const bool distributed =
-          Input("--distributed","test distributed?",false);
+          Input("--distributed","test distributed?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -309,7 +309,7 @@ int main( int argc, char* argv[] )
         // TODO(poulson): Allow the grid dimensions to be selected
         const Grid grid( mpi::COMM_WORLD );
 
-        if( sequential )
+        if( sequential && grid.Rank() == 0 )
         {
             TestAhuesTisseur<float>( ctrl, print );
             TestAhuesTisseur<Complex<float>>( ctrl, print );

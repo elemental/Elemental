@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_AED_HPP
@@ -19,27 +19,40 @@
 namespace El {
 namespace hess_schur {
 
-// The primary references for the following Aggressive Early Deflation
-// implementation are
+// The primary references for the sequential implementation of Aggressive Early
+// Deflation are
 //
 //   Karen Braman, Ralph Byers, and Roy Mathias,
 //   "The multishift QR algorithm. Part II: Aggressive Early Deflation",
-//   SIAM J. Matrix Anal. Appl., Vol. 23, No. 4, pp. 948--973, 2002
+//   SIAM J. Matrix Anal. Appl., Vol. 23, No. 4, pp. 948--973, 2002.
 //
-// and the LAPACK implementation DLAQR2, which has several distinct differences
-// from the suggestions of Braman et al., such as:
+// and the LAPACK implementations {S,D}LAQR2; the latter have several distinct
+// differences from the suggestions of Braman et al., such as:
 //
-//   1) Solely using "nearby-diagonal deflation" instead of Braman et al.'s 
+//   1) Solely using "nearby-diagonal deflation" instead of Braman et al.'s
 //      suggestion of also allowing for "window-Schur deflation".
 //
-//   2) Using the largest (in magnitude) eigenvalue of a 2x2 Schur block to 
+//   2) Using the largest (in magnitude) eigenvalue of a 2x2 Schur block to
 //      determine whether it qualifies for "nearby-diagonal deflation" rather
 //      that using the square-root of the absolute value of the determinant
 //      (which would correspond to the geometric mean of the eigenvalue
-//       magnitudes). 
+//       magnitudes).
 //
 // In both respects, the LAPACK implementation is significantly more
 // conservative than the original suggestions of Braman et al.
+//
+// The primary references for the parallel implementations are
+//
+//   Robert Granat, Bo Kagstrom, and Daniel Kressner,
+//   "A novel parallel QR algorithm for hybrid distributed memory HPC systems",
+//   SIAM J. Sci. Comput., Vol. 32, No. 4, pp. 2345--2378, 2010.
+//
+// and
+//
+//   Robert Granat, Bo Kagstrom, Daniel Kressner, and Meiyue Shao,
+//   "Parallel library software for the multishift QR algorithm with Aggressive
+//   Early Deflation", ACM Transactions on Mathematical Software, Vol. 41,
+//   No. 4, 29 pages, 2015.
 //
 
 template<typename F>
@@ -50,7 +63,7 @@ AED
   Matrix<F>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE 
+    DEBUG_CSE
     const Int n = H.Height();
     const Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 4 );
     HessenbergSchurInfo info;
@@ -131,17 +144,17 @@ AED
         // TODO(poulson): Provide an explanation for this strategy for when to
         // avoid sweeps
         if( numDeflated == 0 ||
-          (numDeflated <= sufficientDeflation && 
+          (numDeflated <= sufficientDeflation &&
            newIterWinSize >= minMultiBulgeSize) )
         {
             shiftBeg =
               aed::ModifyShifts
-              ( numShiftsRec, newIterWinSize, numIterSinceDeflation, 
+              ( numShiftsRec, newIterWinSize, numIterSinceDeflation,
                 numStaleIterBeforeExceptional, winBeg, winEnd, shiftBeg,
                 H, w, ctrl );
 
             // Perform a small-bulge sweep
-            auto wSub = w(IR(shiftBeg,winEnd),ALL); 
+            auto wSub = w(IR(shiftBeg,winEnd),ALL);
             ctrlSub.winBeg = iterBeg;
             ctrlSub.winEnd = winEnd;
             multibulge::Sweep( H, wSub, Z, U, W, WAccum, ctrlSub );
@@ -272,17 +285,17 @@ AED
         // TODO(poulson): Provide an explanation for this strategy for when to
         // avoid sweeps
         if( numDeflated == 0 ||
-          (numDeflated <= sufficientDeflation && 
+          (numDeflated <= sufficientDeflation &&
            newIterWinSize >= minMultiBulgeSize) )
         {
             shiftBeg =
               aed::ModifyShifts
-              ( numShiftsRec, newIterWinSize, numIterSinceDeflation, 
+              ( numShiftsRec, newIterWinSize, numIterSinceDeflation,
                 numStaleIterBeforeExceptional, winBeg, winEnd, shiftBeg,
                 H, hMainWin.Matrix(), hSubWin.Matrix(), w, ctrl );
 
             // Perform a small-bulge sweep
-            auto wSub = w(IR(shiftBeg,winEnd),ALL); 
+            auto wSub = w(IR(shiftBeg,winEnd),ALL);
             ctrlSub.winBeg = iterBeg;
             ctrlSub.winEnd = winEnd;
             multibulge::Sweep( H, wSub, Z, ctrlSub );

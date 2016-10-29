@@ -67,78 +67,19 @@ void TestCorrectness
         LogicError("Relative error was unacceptably large");
 }
 
-template<typename Real>
-void EigBenchmark
-( Int m,
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+void LAPACKHelper
+( const Matrix<Complex<Real>>& AOrig,
   bool correctness,
-  bool print,
-  Int whichMatrix )
+  bool print )
 {
-    Output( "Testing with ", TypeName<Real>() );
-    Matrix<Complex<Real>> A(m,m), AOrig(m,m);
-    Matrix<Complex<Real>> w(m,1), V(m,m);
-    Matrix<Complex<Real>> X, tau;
-    
-    const Real foxLiOmega = 16*M_PI;
-
-    // Generate test matrix
-    switch( whichMatrix )
-    {
-    case 0: Gaussian( AOrig, m, m );       break;
-    case 1: FoxLi( AOrig, m, foxLiOmega ); break;
-    case 2: Grcar( AOrig, m );             break;
-    case 3: Jordan( AOrig, m, Complex<Real>(7) ); break;
-    default: LogicError("Unknown test matrix");
-    }
-    if( print )
-        Print( AOrig, "A" );
- 
+    Output( "Testing LAPACK with ", TypeName<Complex<Real>>() );
+    const Int m = AOrig.Height();
     Timer timer;
 
-    SchurCtrl<Real> schurCtrl;
-    schurCtrl.time = true;
-    schurCtrl.hessSchurCtrl.fullTriangle = true;
+    auto A( AOrig );
+    Matrix<Complex<Real>> w(m,1), V(m,m), X, tau;
 
-    // Compute eigenvectors with Elemental
-    Output("Elemental");
-    PushIndent();
-    A = AOrig;
-    Output("Schur decomposition...");
-    PushIndent();
-    timer.Start();
-    Schur( A, w, V, schurCtrl );
-    Output("Time = ",timer.Stop()," seconds");
-    PopIndent();
-    if( print )
-    {
-        Print( A, "T" );
-        Print( w, "w" );
-        Print( V, "Q" );
-    }
-    Output("Triangular eigensolver...");
-    PushIndent();
-    timer.Start();
-    TriangEig( A, X );
-    Output("Time = ",timer.Stop()," seconds");
-    PopIndent();
-    if( print ) 
-        Print( X, "X" );
-    Output("Transforming to get eigenvectors...");
-    PushIndent();
-    timer.Start();
-    Trmm( RIGHT, UPPER, NORMAL, NON_UNIT, Complex<Real>(1), X, V );
-    Output("Time = ",timer.Stop()," seconds");
-    PopIndent();
-    Output("Total Time = ",timer.Total()," seconds");
-    if( print )
-    {
-        Print( w, "eigenvalues:" );
-        Print( V, "eigenvectors:" );
-    }
-    if( correctness )
-        TestCorrectness( print, AOrig, w, V );
-    PopIndent();
-    
     // Compute eigenvectors with LAPACK (GEHRD, HSEQR, TREVC, TRMM)
     Output("LAPACK (GEHRD, UNGHR, HSEQR, TREVC)");
     PushIndent();
@@ -216,6 +157,115 @@ void EigBenchmark
 }
 
 template<typename Real>
+void ElementalHelper
+( const Matrix<Complex<Real>>& AOrig,
+  bool correctness,
+  bool print )
+{
+    Output( "Testing Elemental with ", TypeName<Complex<Real>>() );
+    Timer timer;
+
+    auto A( AOrig );
+    Matrix<Complex<Real>> w, V, X;
+
+    PushIndent();
+    Output("Schur decomposition...");
+    PushIndent();
+    timer.Start();
+    Schur( A, w, V );
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    if( print )
+    {
+        Print( A, "T" );
+        Print( w, "w" );
+        Print( V, "Q" );
+    }
+    Output("Triangular eigensolver...");
+    PushIndent();
+    timer.Start();
+    TriangEig( A, X );
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    if( print ) 
+        Print( X, "X" );
+    Output("Transforming to get eigenvectors...");
+    PushIndent();
+    timer.Start();
+    Trmm( RIGHT, UPPER, NORMAL, NON_UNIT, Complex<Real>(1), X, V );
+    Output("Time = ",timer.Stop()," seconds");
+    PopIndent();
+    Output("Total Time = ",timer.Total()," seconds");
+    if( print )
+    {
+        Print( w, "eigenvalues:" );
+        Print( V, "eigenvectors:" );
+    }
+    if( correctness )
+        TestCorrectness( print, AOrig, w, V );
+    PopIndent();
+}
+
+template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+void EigBenchmark
+( Int m,
+  bool correctness,
+  bool print,
+  Int whichMatrix )
+{
+    Output( "Testing with ", TypeName<Complex<Real>>() );
+    Matrix<Complex<Real>> A(m,m), AOrig(m,m);
+    Matrix<Complex<Real>> w(m,1), V(m,m);
+    Matrix<Complex<Real>> X, tau;
+    
+    const Real foxLiOmega = 16*M_PI;
+
+    // Generate test matrix
+    switch( whichMatrix )
+    {
+    case 0: Gaussian( AOrig, m, m );       break;
+    case 1: FoxLi( AOrig, m, foxLiOmega ); break;
+    case 2: Grcar( AOrig, m );             break;
+    case 3: Jordan( AOrig, m, Complex<Real>(7) ); break;
+    default: LogicError("Unknown test matrix");
+    }
+    if( print )
+        Print( AOrig, "A" );
+
+    ElementalHelper( AOrig, correctness, print );
+    LAPACKHelper( AOrig, correctness, print );
+}
+
+template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+void EigBenchmark
+( Int m,
+  bool correctness,
+  bool print,
+  Int whichMatrix )
+{
+    Output( "Testing with ", TypeName<Complex<Real>>() );
+    Matrix<Complex<Real>> A(m,m), AOrig(m,m);
+    Matrix<Complex<Real>> w(m,1), V(m,m);
+    Matrix<Complex<Real>> X, tau;
+    
+    const Real foxLiOmega = 16*M_PI;
+
+    // Generate test matrix
+    switch( whichMatrix )
+    {
+    case 0: Gaussian( AOrig, m, m );       break;
+    case 1: FoxLi( AOrig, m, foxLiOmega ); break;
+    case 2: Grcar( AOrig, m );             break;
+    case 3: Jordan( AOrig, m, Complex<Real>(7) ); break;
+    default: LogicError("Unknown test matrix");
+    }
+    if( print )
+        Print( AOrig, "A" );
+
+    ElementalHelper( AOrig, correctness, print );
+}
+
+template<typename Real>
 void EigBenchmark
 ( const Grid& g,
   Int m,
@@ -225,7 +275,7 @@ void EigBenchmark
   bool scalapack,
   Int blockHeight )
 {
-    OutputFromRoot( g.Comm(), "Testing with ", TypeName<Real>() );
+    OutputFromRoot( g.Comm(), "Testing with ", TypeName<Complex<Real>>() );
     // TODO(poulson): Convert to distributed analogue
     DistMatrix<Complex<Real>> A(m,m,g), AOrig(m,m,g);
     DistMatrix<Complex<Real>> w(m,1,g), V(m,m,g), X(g);
@@ -333,10 +383,18 @@ main( int argc, char* argv[] )
        
         if( sequential && commRank == 0 )
         {
-            EigBenchmark<float>
-            ( n, correctness, print, whichMatrix );
-            EigBenchmark<double>
-            ( n, correctness, print, whichMatrix );
+            EigBenchmark<float>( n, correctness, print, whichMatrix );
+            EigBenchmark<double>( n, correctness, print, whichMatrix );
+#ifdef EL_HAVE_QD
+            EigBenchmark<DoubleDouble>( n, correctness, print, whichMatrix );
+            EigBenchmark<QuadDouble>( n, correctness, print, whichMatrix );
+#endif
+#ifdef EL_HAVE_QUAD
+            EigBenchmark<Quad>( n, correctness, print, whichMatrix );
+#endif
+#ifdef EL_HAVE_MPC
+            EigBenchmark<BigFloat>( n, correctness, print, whichMatrix );
+#endif
         }
         if( distributed )
         {
@@ -346,6 +404,24 @@ main( int argc, char* argv[] )
             EigBenchmark<double>
             ( grid, n, correctness, print, whichMatrix, scalapack,
               blockHeight );
+#ifdef EL_HAVE_QD
+            EigBenchmark<DoubleDouble>
+            ( grid, n, correctness, print, whichMatrix, scalapack,
+              blockHeight );
+            EigBenchmark<QuadDouble>
+            ( grid, n, correctness, print, whichMatrix, scalapack,
+              blockHeight );
+#endif
+#ifdef EL_HAVE_QUAD
+            EigBenchmark<Quad>
+            ( grid, n, correctness, print, whichMatrix, scalapack,
+              blockHeight );
+#endif
+#ifdef EL_HAVE_MPC
+            EigBenchmark<BigFloat>
+            ( grid, n, correctness, print, whichMatrix, scalapack,
+              blockHeight );
+#endif
         }
     }
     catch( exception& e ) { ReportException(e); }
