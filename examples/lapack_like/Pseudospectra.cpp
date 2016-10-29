@@ -257,7 +257,7 @@ main( int argc, char* argv[] )
         psCtrl.basisSize = basisSize;
         psCtrl.progress = progress;
         psCtrl.schurCtrl.hessSchurCtrl.scalapack = false;
-        psCtrl.schurCtrl.hessSchurCtrl.fullTriangle = fullTriangle;
+        psCtrl.schurCtrl.hessSchurCtrl.fullTriangle = true;
         psCtrl.schurCtrl.hessSchurCtrl.alg =
           static_cast<HessenbergSchurAlg>(algInt);
         psCtrl.schurCtrl.hessSchurCtrl.minMultiBulgeSize = minMultiBulgeSize;
