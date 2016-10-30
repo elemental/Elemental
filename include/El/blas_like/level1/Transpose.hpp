@@ -80,13 +80,10 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
     Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
     mkl::omatcopy 
     ( orient, m, n, T(1), A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
-#elif defined(EL_HAVE_OPENBLAS)
-    // NOTE: If the user specified MATH_LIBS, and MATH_LIBS contains OpenBLAS,
-    //       it may be necessary to also specify -D EL_HAVE_OPENBLAS
-    Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
-    openblas::omatcopy 
-    ( orient, m, n, T(1), A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 #else
+    // OpenBLAS's {i,o}matcopy routines where disabled for the reasons detailed in
+    // src/core/imports/openblas.cpp
+
     // TODO: Optimize this routine
     const T* ABuf = A.LockedBuffer();
           T* BBuf = B.Buffer();
