@@ -5,7 +5,7 @@ Summary:	Library for distributed-memory dense/sparse-direct linear algebra
 Group:	Development/Libraries
 License:	BSD
 URL:	http://libelemental.org
-Source0:	https://github.com/rhl-/Elemental/archive/%{version}-rc4.tar.gz 
+Source0:	https://github.com/elemental/Elemental/archive/master.zip 
 
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
@@ -126,7 +126,9 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 %changelog
 * Sat Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
-- Dropped Scalapack & Enabling Qt5 
+- Dropped Scalapack 
+- Enabled Qt5
+- updated Source0 to master
 
 * Thu Jul 28 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.86-1
 - Initial RPM
