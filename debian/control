@@ -1,0 +1,39 @@
+Source: elemental
+Section: Linear Algebra 
+Priority: extra
+Maintainer: "Ryan Lewis" <me@ryanlewis.net>
+Build-Depends: debhelper (>= 9), cmake, libgomp1, libopenblas-dev, liblapack-dev, libmetis-dev
+Standards-Version: 3.9.7
+Homepage: http://libelemental.org
+
+Package: elemental-all
+Architecture: any
+Multi-Arch: foreign
+Depends: elemental, elemental-mpich, elemental-openmpi, elemental-python2, elemental-dev
+Description: All of Elemental
+
+Package: elemental-mpich
+Architecture: any
+Multi-Arch: foreign
+Build-Depends: mpich, libmpich-dev
+Depends: elemental
+Description: Elemental build against MPICH
+
+Package: elemental-openmpi
+Architecture: any
+Multi-Arch: foreign
+Build-Depends: openmpi-bin, libopenmpi-dev 
+Depends: elemental
+Description: Elemental build against OpenMPI
+
+Package: elemental-python2
+Architecture: any
+Multi-Arch: foreign
+Depends: elemental, python-numpy
+Description: Elemental python2 bindings
+
+Package: elemental-dev
+Architecture: any
+Multi-Arch: foreign
+Depends: elemental
+Description: Things necessary for building against elemental

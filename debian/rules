@@ -1,0 +1,7 @@
+#! /usr/bin/make -f
+
+override_dh_auto_configure:
+	dh_auto_configure --  -DCMAKE_BUILD_TYPE=Release -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB=$(shell gfortran -print-file-name=libgfortran.so) -DEL_DISABLE_PARMETIS=ON
+
+%: 
+	dh $@ --parallel --buildsystem=cmake 
