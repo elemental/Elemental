@@ -30,7 +30,6 @@ int main( int argc, char* argv[] )
 
     try
     {
-        Test<float>();
         Test<double>();
 #ifdef EL_HAVE_QUAD
         Test<Quad>();

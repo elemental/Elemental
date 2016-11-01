@@ -115,7 +115,6 @@ void Matrix<T>::Resize( Int height, Int width )
       AssertValidDimensions( height, width );
       if( FixedSize() && ( height != height_ || width != width_ ) )
       {
-          DumpCallStack();
           LogicError
           ("Cannot resize this matrix from ",
            height_," x ",width_," to ",height," x ",width);
@@ -135,7 +134,6 @@ void Matrix<T>::Resize( Int height, Int width, Int ldim )
       if( FixedSize() && 
           ( height != height_ || width != width_ || ldim != ldim_ ) )
       {
-          DumpCallStack();
           LogicError
           ("Cannot resize this matrix from ",
            height_," x ",width_," (",ldim_,") to ",
@@ -332,6 +330,8 @@ T* Matrix<T>::Buffer( Int i, Int j ) EL_NO_RELEASE_EXCEPT
       if( Locked() )
           LogicError("Cannot return non-const buffer of locked Matrix");
     )
+    if( data_ == nullptr )
+        return nullptr;
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     return &data_[i+j*ldim_];
@@ -344,6 +344,8 @@ template<typename T>
 const T* Matrix<T>::LockedBuffer( Int i, Int j ) const EL_NO_EXCEPT
 {
     DEBUG_CSE
+    if( data_ == nullptr )
+        return nullptr;
     if( i == END ) i = height_ - 1;
     if( j == END ) j = width_ - 1;
     return &data_[i+j*ldim_];
@@ -579,7 +581,7 @@ void Matrix<T>::Empty_( bool freeMemory )
     width_ = 0;
     ldim_ = 1;
     data_ = nullptr;
-    viewType_ = (El::ViewType)( viewType_ & ~LOCKED_VIEW );
+    viewType_ = static_cast<El::ViewType>( viewType_ & ~LOCKED_VIEW );
 }
 
 template<typename T>
@@ -589,7 +591,7 @@ void Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewType_ = (El::ViewType)( ( viewType_ & ~LOCKED_OWNER ) | VIEW );
+    viewType_ = static_cast<El::ViewType>( (viewType_ & ~LOCKED_OWNER) | VIEW );
 }
 
 template<typename T>
@@ -600,7 +602,7 @@ void Matrix<T>::LockedAttach_
     width_ = width;
     ldim_ = ldim;
     data_ = const_cast<T*>(buffer);
-    viewType_ = (El::ViewType)( viewType_ | LOCKED_VIEW );
+    viewType_ = static_cast<El::ViewType>( viewType_ | LOCKED_VIEW );
 }
 
 template<typename T>
@@ -610,7 +612,7 @@ void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewType_ = (El::ViewType)( viewType_ & ~LOCKED_VIEW );
+    viewType_ = static_cast<El::ViewType>( viewType_ & ~LOCKED_VIEW );
 }
 
 // Return a reference to a single entry without error-checking
@@ -689,11 +691,17 @@ void Matrix<T>::AssertValidEntry( Int i, Int j ) const
 template<typename T>
 void Matrix<T>::Resize_( Int height, Int width )
 {
-    bool reallocate = height > ldim_ || width > width_;
-    height_ = height;
-    width_ = width;
     // Only change the ldim when necessary. Simply 'shrink' our view if 
     // possible.
+    //
+    // Note that the matrix is, by default, initialized as 0 x 0 with a
+    // leading dimension of 1, so any resize to a nonzero number of entries
+    // will trigger a reallocation if we use the following logic.
+    //
+    // TODO(poulson): Avoid reallocation if height*width == 0?
+    const bool reallocate = height > ldim_ || width > width_;
+    height_ = height;
+    width_ = width;
     if( reallocate )
     {
         ldim_ = Max( height, 1 );
@@ -705,7 +713,7 @@ void Matrix<T>::Resize_( Int height, Int width )
 template<typename T>
 void Matrix<T>::Resize_( Int height, Int width, Int ldim )
 {
-    bool reallocate = height > ldim_ || width > width_ || ldim != ldim_;
+    const bool reallocate = height > ldim_ || width > width_ || ldim != ldim_;
     height_ = height;
     width_ = width;
     if( reallocate )

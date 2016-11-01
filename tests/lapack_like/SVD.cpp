@@ -24,10 +24,9 @@ void TestSequentialSVD
   Int divideCutoff,
   bool print )
 {
+    Output("Sequential test with ",TypeName<F>());
     typedef Base<F> Real;
     Timer timer;
-
-    Output("Sequential test with ",TypeName<F>());
 
     Matrix<F> A;
     {
@@ -165,6 +164,7 @@ void TestDistributedSVD
   Int divideCutoff,
   bool print )
 {
+    Output("Distributed test with ",TypeName<F>());
     typedef Base<F> Real;
     const int commRank = mpi::Rank();
     Timer timer;
