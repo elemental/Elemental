@@ -264,6 +264,7 @@ main( int argc, char* argv[] )
         psCtrl.schurCtrl.hessSchurCtrl.accumulateReflections = accumulate;
         psCtrl.schurCtrl.hessSchurCtrl.sortShifts = sortShifts;
         psCtrl.schurCtrl.hessSchurCtrl.progress = progress;
+        psCtrl.schurCtrl.useSDC = useSDC;
         psCtrl.schurCtrl.sdcCtrl.cutoff = cutoff;
         psCtrl.schurCtrl.sdcCtrl.maxInnerIts = maxInnerIts;
         psCtrl.schurCtrl.sdcCtrl.maxOuterIts = maxOuterIts;

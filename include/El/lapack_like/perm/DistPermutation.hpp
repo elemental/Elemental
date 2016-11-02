@@ -162,7 +162,7 @@ public:
 
 private:
     Int size_=0;
-    const Grid& grid_;
+    const Grid* grid_;
     mutable bool parity_=false;
     mutable bool staleParity_=false;
 

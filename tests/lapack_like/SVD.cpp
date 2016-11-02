@@ -164,9 +164,10 @@ void TestDistributedSVD
   Int divideCutoff,
   bool print )
 {
-    Output("Distributed test with ",TypeName<F>());
     typedef Base<F> Real;
     const int commRank = mpi::Rank();
+    if( commRank == 0 )
+        Output("Distributed test with ",TypeName<F>());
     Timer timer;
 
     Grid g( mpi::COMM_WORLD );
@@ -196,11 +197,13 @@ void TestDistributedSVD
 
     ctrl.time = time;
     ctrl.useScaLAPACK = scalapack;
+    mpi::Barrier( mpi::COMM_WORLD );
     if( commRank == 0 )
         timer.Start();
     DistMatrix<F> U(g), V(g);
     DistMatrix<Real,VR,STAR> s(g);
     auto info = SVD( A, U, s, V, ctrl );
+    mpi::Barrier( mpi::COMM_WORLD );
     if( commRank == 0 )
     {
         Output("  SVD time: ",timer.Stop());
