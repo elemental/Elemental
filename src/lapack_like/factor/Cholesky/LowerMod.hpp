@@ -2,22 +2,21 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_CHOLESKY_LMOD_HPP
-#define EL_CHOLESKY_LMOD_HPP
+#ifndef EL_CHOLESKY_LOWER_MOD_HPP
+#define EL_CHOLESKY_LOWER_MOD_HPP
 
 // TODO: Blocked algorithms
-
 namespace El {
 namespace cholesky {
 
 namespace mod {
 
 template<typename F>
-void LUpdate( Matrix<F>& L, Matrix<F>& V )
+void LowerUpdate( Matrix<F>& L, Matrix<F>& V )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -49,7 +48,7 @@ void LUpdate( Matrix<F>& L, Matrix<F>& V )
         // Apply the negative Householder reflector from the right:
         // | l21 V2 | := -| l21 V2 | + tau | l21 V2 | | 1   | | 1 conj(u) |
         //                                           | u^T |
-        //             = -| l21 V2 | + tau (l21 + V2 u^T) | 1 conj(u) | 
+        //             = -| l21 V2 | + tau (l21 + V2 u^T) | 1 conj(u) |
         lambda11 = -lambda11;
         z21 = l21;
         Gemv( NORMAL, F(1), V2, v1, F(1), z21 );
@@ -61,7 +60,7 @@ void LUpdate( Matrix<F>& L, Matrix<F>& V )
 }
 
 template<typename F>
-void LUpdate
+void LowerUpdate
 ( AbstractDistMatrix<F>& LPre,
   AbstractDistMatrix<F>& VPre )
 {
@@ -79,9 +78,9 @@ void LUpdate
     auto& V = VProx.Get();
 
     const Int m = V.Height();
-    const Grid& g = L.Grid();
-    DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
-    DistMatrix<F,STAR,MR> v1_STAR_MR(g);
+    const Grid& grid = L.Grid();
+    DistMatrix<F,MC,STAR> z21_MC_STAR(grid), b21_MC_STAR(grid);
+    DistMatrix<F,STAR,MR> v1_STAR_MR(grid);
 
     for( Int k=0; k<m; ++k )
     {
@@ -102,7 +101,7 @@ void LUpdate
         // Apply the negative Householder reflector from the right:
         // | l21 V2 | := -| l21 V2 | + tau | l21 V2 | | 1   | | 1 conj(u) |
         //                                            | u^T |
-        //             = -| l21 V2 | + tau (l21 + V2 u^T) | 1 conj(u) | 
+        //             = -| l21 V2 | + tau (l21 + V2 u^T) | 1 conj(u) |
         L.Set( k, k, -lambda11 );
         z21_MC_STAR.AlignWith( V2 );
         b21_MC_STAR.AlignWith( V2 );
@@ -121,7 +120,7 @@ void LUpdate
 }
 
 template<typename F>
-void LDowndate( Matrix<F>& L, Matrix<F>& V )
+void LowerDowndate( Matrix<F>& L, Matrix<F>& V )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -150,7 +149,7 @@ void LDowndate( Matrix<F>& L, Matrix<F>& V )
         // where Sigma = diag(+1,-1,...,-1) and beta >= 0
         const F tau = RightHyperbolicReflector( lambda11, v1 );
 
-        // Apply the negative of the hyperbolic Householder reflector from the 
+        // Apply the negative of the hyperbolic Householder reflector from the
         // right:
         // |l21 V2| := -|l21 V2| + 1/tau |l21 V2| Sigma |1  | |1 conj(u)|
         //                                              |u^T|
@@ -168,7 +167,7 @@ void LDowndate( Matrix<F>& L, Matrix<F>& V )
 }
 
 template<typename F>
-void LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
+void LowerDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -184,9 +183,9 @@ void LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
     auto& V = VProx.Get();
 
     const Int m = V.Height();
-    const Grid& g = L.Grid();
-    DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
-    DistMatrix<F,STAR,MR> v1_STAR_MR(g);
+    const Grid& grid = L.Grid();
+    DistMatrix<F,MC,STAR> z21_MC_STAR(grid), b21_MC_STAR(grid);
+    DistMatrix<F,STAR,MR> v1_STAR_MR(grid);
 
     for( Int k=0; k<m; ++k )
     {
@@ -204,7 +203,7 @@ void LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
         // where Sigma = diag(+1,-1,...,-1) and beta >= 0
         const F tau = RightHyperbolicReflector( lambda11, v1 );
 
-        // Apply the negative of the hyperbolic Householder reflector from the 
+        // Apply the negative of the hyperbolic Householder reflector from the
         // right:
         // |l21 V2| := -|l21 V2| + 1/tau |l21 V2| Sigma |1  | |1 conj(u)|
         //                                              |u^T|
@@ -231,7 +230,7 @@ void LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 } // namespace mod
 
 template<typename F>
-void LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
+void LowerMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -240,17 +239,17 @@ void LMod( Matrix<F>& L, Base<F> alpha, Matrix<F>& V )
     else if( alpha > Real(0) )
     {
         V *= Sqrt(alpha);
-        mod::LUpdate( L, V );
+        mod::LowerUpdate( L, V );
     }
     else
     {
         V *= Sqrt(-alpha);
-        mod::LDowndate( L, V );
+        mod::LowerDowndate( L, V );
     }
 }
 
 template<typename F>
-void LMod
+void LowerMod
 ( AbstractDistMatrix<F>& L,
   Base<F> alpha,
   AbstractDistMatrix<F>& V )
@@ -262,16 +261,16 @@ void LMod
     else if( alpha > Real(0) )
     {
         V *= Sqrt(alpha);
-        mod::LUpdate( L, V );
+        mod::LowerUpdate( L, V );
     }
     else
     {
         V *= Sqrt(-alpha);
-        mod::LDowndate( L, V );
+        mod::LowerDowndate( L, V );
     }
 }
 
 } // namespace cholesky
 } // namespace El
 
-#endif // ifndef EL_CHOLESKY_LMOD_HPP
+#endif // ifndef EL_CHOLESKY_LOWER_MOD_HPP

@@ -2,12 +2,12 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_CHOLESKY_UMOD_HPP
-#define EL_CHOLESKY_UMOD_HPP
+#ifndef EL_CHOLESKY_UPPER_MOD_HPP
+#define EL_CHOLESKY_UPPER_MOD_HPP
 
 // TODO: Blocked algorithms
 
@@ -17,7 +17,7 @@ namespace cholesky {
 namespace mod {
 
 template<typename F>
-void UUpdate( Matrix<F>& U, Matrix<F>& V )
+void UpperUpdate( Matrix<F>& U, Matrix<F>& V )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -57,7 +57,7 @@ void UUpdate( Matrix<F>& U, Matrix<F>& V )
         //    u12 := -u12 + tau (u12 + w^H V2^H), and
         //    V2^H := -V2^H + tau w (u12 + w^H V2^H),
         //    V2   := -V2 + conj(tau) (u12^H + V2 w) w^H
-        //               
+        //
         upsilon11 = -upsilon11;
         Conjugate( u12, z12 );
         Gemv( NORMAL, F(1), V2, v1, F(1), z12 );
@@ -70,7 +70,7 @@ void UUpdate( Matrix<F>& U, Matrix<F>& V )
 }
 
 template<typename F>
-void UUpdate
+void UpperUpdate
 ( AbstractDistMatrix<F>& UPre,
   AbstractDistMatrix<F>& VPre )
 {
@@ -122,7 +122,7 @@ void UUpdate
         //    u12 := -u12 + tau (u12 + w^H V2^H), and
         //    V2^H := -V2^H + tau w (u12 + w^H V2^H),
         //    V2   := -V2 + conj(tau) (u12^H + V2 w) w^H
-        //               
+        //
         U.Set( k, k, -upsilon11 );
         z12_STAR_MC.AlignWith( V2 );
         b12_STAR_MC.AlignWith( V2 );
@@ -142,7 +142,7 @@ void UUpdate
 }
 
 template<typename F>
-void UDowndate( Matrix<F>& U, Matrix<F>& V )
+void UpperDowndate( Matrix<F>& U, Matrix<F>& V )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -182,7 +182,7 @@ void UDowndate( Matrix<F>& U, Matrix<F>& V )
         //    u12 := -u12 + 1/tau (u12 - w^H V2^H), and
         //    V2^H := -V2^H + 1/tau w (u12 - w^H V2^H),
         //    V2   := -V2 + 1/tau (u12^H - V2 w) w^H
-        //               
+        //
         upsilon11 = -upsilon11;
         Conjugate( u12, z12 );
         Gemv( NORMAL, F(-1), V2, v1, F(1), z12 );
@@ -195,7 +195,7 @@ void UDowndate( Matrix<F>& U, Matrix<F>& V )
 }
 
 template<typename F>
-void UDowndate
+void UpperDowndate
 ( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_CSE
@@ -246,9 +246,9 @@ void UDowndate
         //    u12 := -u12 + 1/tau (u12 - w^H V2^H), and
         //    V2^H := -V2^H + 1/tau w (u12 - w^H V2^H),
         //    V2   := -V2 + 1/tau (u12^H - V2 w) w^H
-        //               
+        //
         U.Set( k, k, -upsilon11 );
-        z12_STAR_MC.AlignWith( V2 ); 
+        z12_STAR_MC.AlignWith( V2 );
         b12_STAR_MC.AlignWith( V2 );
         v1_STAR_MR.AlignWith( V2 );
         Conjugate( u12, z12_STAR_MC );
@@ -268,7 +268,7 @@ void UDowndate
 } // namespace mod
 
 template<typename F>
-void UMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
+void UpperMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
 {
     DEBUG_CSE
     typedef Base<F> Real;
@@ -277,17 +277,17 @@ void UMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
     else if( alpha > Real(0) )
     {
         V *= Sqrt(alpha);
-        mod::UUpdate( U, V );
+        mod::UpperUpdate( U, V );
     }
     else
     {
         V *= Sqrt(-alpha);
-        mod::UDowndate( U, V );
+        mod::UpperDowndate( U, V );
     }
 }
 
 template<typename F>
-void UMod
+void UpperMod
 ( AbstractDistMatrix<F>& U,
   Base<F> alpha,
   AbstractDistMatrix<F>& V )
@@ -299,16 +299,16 @@ void UMod
     else if( alpha > Real(0) )
     {
         V *= Sqrt(alpha);
-        mod::UUpdate( U, V );
+        mod::UpperUpdate( U, V );
     }
     else
     {
         V *= Sqrt(-alpha);
-        mod::UDowndate( U, V );
+        mod::UpperDowndate( U, V );
     }
 }
 
 } // namespace cholesky
 } // namespace El
 
-#endif // ifndef EL_CHOLESKY_UMOD_HPP
+#endif // ifndef EL_CHOLESKY_UPPER_MOD_HPP

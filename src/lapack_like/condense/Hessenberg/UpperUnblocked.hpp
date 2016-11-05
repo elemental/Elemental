@@ -2,18 +2,18 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HESSENBERG_UUNB_HPP
-#define EL_HESSENBERG_UUNB_HPP
+#ifndef EL_HESSENBERG_UPPER_UNBLOCKED_HPP
+#define EL_HESSENBERG_UPPER_UNBLOCKED_HPP
 
 namespace El {
 namespace hessenberg {
 
 template<typename F>
-void UUnb( Matrix<F>& A, Matrix<F>& householderScalars )
+void UpperUnblocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     const Int n = A.Height();
@@ -54,7 +54,7 @@ void UUnb( Matrix<F>& A, Matrix<F>& householderScalars )
         Zeros( x1, n, 1 );
         Gemv( NORMAL, F(1), A2, a21, F(0), x1 );
         // A2 := A2 - conj(tau) x1 a21^H
-        Ger( -Conj(tau), x1, a21, A2 ); 
+        Ger( -Conj(tau), x1, a21, A2 );
 
         // A22 := Hous(a21,tau) A22
         //      = (I - tau a21 a21^H) A22
@@ -71,8 +71,8 @@ void UUnb( Matrix<F>& A, Matrix<F>& householderScalars )
     }
 }
 
-template<typename F> 
-void UUnb
+template<typename F>
+void UpperUnblocked
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& householderScalarsPre )
 {
@@ -92,7 +92,7 @@ void UUnb
 
     DistMatrix<F,MC,STAR> a21_MC(g);
     DistMatrix<F,MR,STAR> a21_MR(g);
-    DistMatrix<F,MC,STAR> x1_MC(g); 
+    DistMatrix<F,MC,STAR> x1_MC(g);
     DistMatrix<F,MR,STAR> x12Adj_MR(g);
 
     for( Int k=0; k<n-1; ++k )
@@ -132,7 +132,7 @@ void UUnb
         LocalGemv( NORMAL, F(1), A2, a21_MR, F(0), x1_MC );
         El::AllReduce( x1_MC, A2.RowComm() );
         // A2 := A2 - conj(tau) x1 a21^H
-        LocalGer( -Conj(tau), x1_MC, a21_MR, A2 ); 
+        LocalGer( -Conj(tau), x1_MC, a21_MR, A2 );
 
         // A22 := Hous(a21,tau) A22
         //      = (I - tau a21 a21^H) A22
@@ -148,7 +148,7 @@ void UUnb
         // A22 := A22 - tau a21 x12
         LocalGer( -tau, a21_MC, x12Adj_MR, A22 );
 
-        // Put beta back 
+        // Put beta back
         if( alpha21T.IsLocal(0,0) )
             alpha21T.SetLocal(0,0,beta);
     }
@@ -157,4 +157,4 @@ void UUnb
 } // namespace hessenberg
 } // namespace El
 
-#endif // ifndef EL_HESSENBERG_UUNB_HPP
+#endif // ifndef EL_HESSENBERG_UPPER_UNBLOCKED_HPP

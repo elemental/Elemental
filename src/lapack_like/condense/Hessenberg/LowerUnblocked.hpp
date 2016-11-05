@@ -2,18 +2,18 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HESSENBERG_LUNB_HPP
-#define EL_HESSENBERG_LUNB_HPP
+#ifndef EL_HESSENBERG_LOWER_UNBLOCKED_HPP
+#define EL_HESSENBERG_LOWER_UNBLOCKED_HPP
 
 namespace El {
 namespace hessenberg {
 
 template<typename F>
-void LUnb( Matrix<F>& A, Matrix<F>& householderScalars )
+void LowerUnblocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     const Int n = A.Height();
@@ -49,7 +49,7 @@ void LUnb( Matrix<F>& A, Matrix<F>& householderScalars )
         //     = A2 - conj(tau) a12^T (A2^H a12^T)^H
         // -----------------------------------------
         // z1 := A2^H a12^T
-        Zeros( z1, n, 1 ); 
+        Zeros( z1, n, 1 );
         Gemv( ADJOINT, F(1), A2, a12, F(0), z1 );
         // A2 := A2 - conj(tau) a12^T z1^H
         Ger( -Conj(tau), a12, z1, A2 );
@@ -69,8 +69,8 @@ void LUnb( Matrix<F>& A, Matrix<F>& householderScalars )
     }
 }
 
-template<typename F> 
-void LUnb
+template<typename F>
+void LowerUnblocked
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& householderScalarsPre )
 {
@@ -125,7 +125,7 @@ void LUnb
         a12_MC.AlignWith( A2 );
         a12_MC = a12;
         z1_MR.AlignWith( A2 );
-        Zeros( z1_MR, n, 1 ); 
+        Zeros( z1_MR, n, 1 );
         LocalGemv( ADJOINT, F(1), A2, a12_MC, F(0), z1_MR );
         El::AllReduce( z1_MR, A2.ColComm() );
         // A2 := A2 - conj(tau) a12^T z1^H
@@ -154,4 +154,4 @@ void LUnb
 } // namespace hessenberg
 } // namespace El
 
-#endif // ifndef EL_HESSENBERG_LUNB_HPP
+#endif // ifndef EL_HESSENBERG_LOWER_UNBLOCKED_HPP

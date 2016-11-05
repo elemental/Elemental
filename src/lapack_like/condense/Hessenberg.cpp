@@ -8,8 +8,8 @@
 */
 #include <El.hpp>
 
-#include "./Hessenberg/L.hpp"
-#include "./Hessenberg/U.hpp"
+#include "./Hessenberg/LowerBlocked.hpp"
+#include "./Hessenberg/UpperBlocked.hpp"
 #include "./Hessenberg/ApplyQ.hpp"
 #include "./Hessenberg/FormQ.hpp"
 
@@ -23,9 +23,9 @@ void Hessenberg
 {
     DEBUG_CSE
     if( uplo == UPPER )
-        hessenberg::U( A, householderScalars );
+        hessenberg::UpperBlocked( A, householderScalars );
     else
-        hessenberg::L( A, householderScalars );
+        hessenberg::LowerBlocked( A, householderScalars );
 }
 
 template<typename F> 
@@ -36,9 +36,9 @@ void Hessenberg
 {
     DEBUG_CSE
     if( uplo == UPPER )
-        hessenberg::U( A, householderScalars );
+        hessenberg::UpperBlocked( A, householderScalars );
     else
-        hessenberg::L( A, householderScalars );
+        hessenberg::LowerBlocked( A, householderScalars );
 }
 
 namespace hessenberg {

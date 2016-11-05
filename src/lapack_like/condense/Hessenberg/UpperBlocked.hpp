@@ -2,21 +2,20 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HESSENBERG_U_HPP
-#define EL_HESSENBERG_U_HPP
+#ifndef EL_HESSENBERG_UPPER_BLOCKED_HPP
+#define EL_HESSENBERG_UPPER_BLOCKED_HPP
 
-#include "./UUnb.hpp"
-#include "./UPan.hpp"
+#include "./UpperPanel.hpp"
 
 namespace El {
 namespace hessenberg {
 
 template<typename F>
-void U( Matrix<F>& A, Matrix<F>& householderScalars )
+void UpperBlocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     const Int n = A.Height();
@@ -41,7 +40,7 @@ void U( Matrix<F>& A, Matrix<F>& householderScalars )
         UB1.Resize( n-k, nb );
         VB1.Resize( n-k, nb );
         G11.Resize( nb,  nb );
-        hessenberg::UPan( ABR, householderScalars1, UB1, VB1, G11 );
+        hessenberg::UpperPanel( ABR, householderScalars1, UB1, VB1, G11 );
 
         auto A0R = A( ind0, indR );
         auto AB2 = A( indB, ind2 );
@@ -53,11 +52,11 @@ void U( Matrix<F>& A, Matrix<F>& householderScalars )
         Gemm( NORMAL, NORMAL, F(1), A0R, UB1, V01 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), G11, V01 );
         Gemm( NORMAL, ADJOINT, F(-1), V01, UB1, F(1), A0R );
-            
+
         // AB2 := (I - UB1 inv(G11) UB1^H)(AB2 - VB1 inv(G11)^H U21^H)
         // -----------------------------------------------------------
-        // AB2 := AB2 - VB1 inv(G11)^H U21^H 
-        // (note: VB1 is overwritten) 
+        // AB2 := AB2 - VB1 inv(G11)^H U21^H
+        // (note: VB1 is overwritten)
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), G11, VB1 );
         Gemm( NORMAL, ADJOINT, F(-1), VB1, U21, F(1), AB2 );
         // AB2 := AB2 - UB1 (inv(G11) (UB1^H AB2))
@@ -69,8 +68,8 @@ void U( Matrix<F>& A, Matrix<F>& householderScalars )
     }
 }
 
-template<typename F> 
-void U
+template<typename F>
+void UpperBlocked
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& householderScalarsPre )
 {
@@ -112,7 +111,7 @@ void U
         UB1_MR_STAR.Resize( n-k, nb );
         VB1_MC_STAR.Resize( n-k, nb );
         G11_STAR_STAR.Resize( nb, nb );
-        hessenberg::UPan
+        hessenberg::UpperPanel
         ( ABR, householderScalars1, UB1_MC_STAR, UB1_MR_STAR, VB1_MC_STAR,
           G11_STAR_STAR );
 
@@ -131,11 +130,11 @@ void U
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), G11_STAR_STAR, V01_MC_STAR );
         LocalGemm
         ( NORMAL, ADJOINT, F(-1), V01_MC_STAR, UB1_MR_STAR, F(1), A0R );
-            
+
         // AB2 := (I - UB1 inv(G11) UB1^H)(AB2 - VB1 inv(G11)^H U21^H)
         // -----------------------------------------------------------
-        // AB2 := AB2 - VB1 inv(G11)^H U21^H 
-        // (note: VB1 is overwritten) 
+        // AB2 := AB2 - VB1 inv(G11)^H U21^H
+        // (note: VB1 is overwritten)
         LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), G11_STAR_STAR, VB1_MC_STAR );
         LocalGemm
@@ -156,4 +155,4 @@ void U
 } // namespace hessenberg
 } // namespace El
 
-#endif // ifndef EL_HESSENBERG_U_HPP
+#endif // ifndef EL_HESSENBERG_UPPER_BLOCKED_HPP

@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_CHOLESKY_LVAR3PIVOTED_HPP
-#define EL_CHOLESKY_LVAR3PIVOTED_HPP
+#ifndef EL_CHOLESKY_PIVOTED_LOWER_VARIANT3_HPP
+#define EL_CHOLESKY_PIVOTED_LOWER_VARIANT3_HPP
 
 namespace El {
 namespace cholesky {
@@ -109,7 +109,7 @@ LDLPivot PanelFull
 } // namespace pivot
 
 template<typename F>
-void LUnblockedPivoted( Matrix<F>& A, Permutation& P )
+void PivotedLowerUnblocked( Matrix<F>& A, Permutation& P )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -152,7 +152,7 @@ void LUnblockedPivoted( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-void LUnblockedPivoted
+void PivotedLowerUnblocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
@@ -203,7 +203,7 @@ void LUnblockedPivoted
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
-void LPanelPivoted
+void PivotedLowerPanel
 ( Matrix<F>& AFull,
   Permutation& PFull, 
   Matrix<F>& X,
@@ -271,7 +271,7 @@ void LPanelPivoted
 }
 
 template<typename F>
-void LPanelPivoted
+void PivotedLowerPanel
 ( DistMatrix<F>& AFull,
   DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
@@ -342,7 +342,7 @@ void LPanelPivoted
 }
 
 template<typename F>
-void LVar3( Matrix<F>& A, Permutation& P )
+void PivotedLowerVariant3Blocked( Matrix<F>& A, Permutation& P )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -359,7 +359,7 @@ void LVar3( Matrix<F>& A, Permutation& P )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        LPanelPivoted( A, P, XB1, YB1, nb, k );
+        PivotedLowerPanel( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),
@@ -373,7 +373,7 @@ void LVar3( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-void LVar3
+void PivotedLowerVariant3Blocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
@@ -391,14 +391,14 @@ void LVar3
     P.MakeIdentity( n );
     P.ReserveSwaps( n );
 
-    const Grid& g = A.Grid();
-    DistMatrix<F,MC,STAR> XB1(g);
-    DistMatrix<F,MR,STAR> YB1(g);
+    const Grid& grid = A.Grid();
+    DistMatrix<F,MC,STAR> XB1(grid);
+    DistMatrix<F,MR,STAR> YB1(grid);
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        LPanelPivoted( A, P, XB1, YB1, nb, k );
+        PivotedLowerPanel( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),
@@ -414,4 +414,4 @@ void LVar3
 } // namespace cholesky
 } // namespace El
 
-#endif // ifndef EL_CHOLESKY_LVAR3PIVOTED_HPP
+#endif // ifndef EL_CHOLESKY_PIVOTED_LOWER_VARIANT3_HPP

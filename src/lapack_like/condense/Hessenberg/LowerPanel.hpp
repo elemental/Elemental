@@ -2,25 +2,25 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HESSENBERG_LPAN_HPP
-#define EL_HESSENBERG_LPAN_HPP
+#ifndef EL_HESSENBERG_LOWER_PANEL_HPP
+#define EL_HESSENBERG_LOWER_PANEL_HPP
 
 namespace El {
 namespace hessenberg {
 
-// NOTE: This is an extension into complex arithmetic 
+// NOTE: This is an extension into complex arithmetic
 //       (and conjugate-transposition) of the sequential algorithm proposed in:
-//       G. Quintana-Orti and R. van de Geijn,  
-//       "Improving the performance of reduction to Hessenberg form" 
+//       G. Quintana-Orti and R. van de Geijn,
+//       "Improving the performance of reduction to Hessenberg form"
 
 // NOTE: It would be possible to avoid the space for U if we were more careful
 //       about applying the portion interleaved with the Hessenberg matrix.
 template<typename F>
-void LPan
+void LowerPanel
 ( Matrix<F>& A,
   Matrix<F>& householderScalars,
   Matrix<F>& U,
@@ -31,7 +31,7 @@ void LPan
     const Int nU = U.Width();
     const Int n = A.Height();
     DEBUG_ONLY(
-      if( nU >= n )            
+      if( nU >= n )
           LogicError("V is too wide for the panel factorization");
       if( U.Height() != A.Height() )
           LogicError("U must be the same height as A");
@@ -60,7 +60,7 @@ void LPan
         auto A2  = A( ind2, IR(0,n) );
 
         auto alpha12L = A( ind1, IR(k+1,k+2) );
-        auto a12R     = A( ind1, IR(k+2,n)   ); 
+        auto a12R     = A( ind1, IR(k+2,n)   );
 
         // NOTE: Transposes of the horizontal Householder vectors
         auto U0  = U( IR(0,n), ind0 );
@@ -80,7 +80,7 @@ void LPan
         // a1 := conj(a1 - (u10 inv(G00)^H) V0^H)
         //     = conj(a1 - (V0 (inv(G00) u10^H))^H)
         //     = conj(a1) - (V0 (inv(G00) u10^H))^T
-        Conjugate( u10, y10 ); 
+        Conjugate( u10, y10 );
         Trsv( UPPER, NORMAL, NON_UNIT, G00, y10 );
         Conjugate( a1 );
         Gemv( NORMAL, F(-1), V0, y10, F(1), a1 );
@@ -107,14 +107,14 @@ void LPan
 
         // g01 := U20^H u21
         Gemv( ADJOINT, F(1), U20, u21, F(0), g01 );
-        
+
         // gamma11 := 1/tau
         gamma11(0) = F(1)/tau;
     }
 }
 
 template<typename F>
-void LPan
+void LowerPanel
 ( DistMatrix<F>& A,
   DistMatrix<F,STAR,STAR>& householderScalars,
   DistMatrix<F,MC,  STAR>& U_MC_STAR,
@@ -179,7 +179,7 @@ void LPan
         auto u10_MR      = U_MR_STAR( ind1,    ind0 );
         auto u21_MR      = U_MR_STAR( ind2,    ind1 );
 
-        auto V0_MR_STAR = V_MR_STAR( IR(0,n), ind0 ); 
+        auto V0_MR_STAR = V_MR_STAR( IR(0,n), ind0 );
         auto v1_MR      = V_MR_STAR( IR(0,n), ind1 );
 
         auto G00_STAR_STAR = G_STAR_STAR( ind0, ind0 );
@@ -195,7 +195,7 @@ void LPan
         Conjugate( a1, a1Conj_MR );
         Conjugate( u10_MR, y10_STAR );
         Trsv
-        ( UPPER, NORMAL, NON_UNIT, 
+        ( UPPER, NORMAL, NON_UNIT,
           G00_STAR_STAR.LockedMatrix(), y10_STAR.Matrix() );
         LocalGemv( NORMAL, F(-1), V0_MR_STAR, y10_STAR, F(1), a1Conj_MR );
         // a1 := conj(a1) - conj(a1) U0 inv(G00) U0^H
@@ -204,10 +204,10 @@ void LPan
         ( ADJOINT, F(1), U0_MR_STAR, a1Conj_MR, F(0), y10_STAR );
         El::AllReduce( y10_STAR, U0_MR_STAR.ColComm() );
         Trsv
-        ( UPPER, ADJOINT, NON_UNIT, 
+        ( UPPER, ADJOINT, NON_UNIT,
           G00_STAR_STAR.LockedMatrix(), y10_STAR.Matrix() );
         LocalGemv( NORMAL, F(-1), U0_MR_STAR, y10_STAR, F(1), a1Conj_MR );
-        Conjugate( a1Conj_MR, a1 ); 
+        Conjugate( a1Conj_MR, a1 );
 
         // Find tau and v such that
         // | alpha12L a12R | / I - tau | 1   | | 1 conj(v) | \ = | beta 0 |
@@ -239,4 +239,4 @@ void LPan
 } // namespace hessenberg
 } // namespace El
 
-#endif // ifndef EL_HESSENBERG_LPAN_HPP
+#endif // ifndef EL_HESSENBERG_LOWER_PANEL_HPP

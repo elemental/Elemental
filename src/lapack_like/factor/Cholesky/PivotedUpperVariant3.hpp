@@ -6,16 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_CHOLESKY_UVAR3PIVOTED_HPP
-#define EL_CHOLESKY_UVAR3PIVOTED_HPP
+#ifndef EL_CHOLESKY_PIVOTED_UPPER_VARIANT3_HPP
+#define EL_CHOLESKY_PIVOTED_UPPER_VARIANT3_HPP
 
-#include "./LVar3Pivoted.hpp"
+// For the pivot namespace operations
+#include "./PivotedLowerVariant3.hpp"
 
 namespace El {
 namespace cholesky {
 
 template<typename F>
-void UUnblockedPivoted( Matrix<F>& A, Permutation& P )
+void PivotedUpperUnblocked( Matrix<F>& A, Permutation& P )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -61,7 +62,7 @@ void UUnblockedPivoted( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-void UUnblockedPivoted
+void PivotedUpperUnblocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
@@ -115,7 +116,7 @@ void UUnblockedPivoted
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
-void UPanelPivoted
+void PivotedUpperPanel
 ( Matrix<F>& AFull,
   Permutation& PFull, 
   Matrix<F>& X,
@@ -184,7 +185,7 @@ void UPanelPivoted
 
 template<typename F>
 void
-UPanelPivoted
+PivotedUpperPanel
 ( DistMatrix<F>& AFull,
   DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
@@ -255,7 +256,7 @@ UPanelPivoted
 }
 
 template<typename F>
-void UVar3( Matrix<F>& A, Permutation& P )
+void PivotedUpperVariant3Blocked( Matrix<F>& A, Permutation& P )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -272,7 +273,7 @@ void UVar3( Matrix<F>& A, Permutation& P )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        UPanelPivoted( A, P, XB1, YB1, nb, k );
+        PivotedUpperPanel( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),
@@ -286,7 +287,7 @@ void UVar3( Matrix<F>& A, Permutation& P )
 }
 
 template<typename F>
-void UVar3
+void PivotedUpperVariant3Blocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
@@ -304,14 +305,14 @@ void UVar3
     P.MakeIdentity( n );
     P.ReserveSwaps( n );
 
-    const Grid& g = A.Grid();
-    DistMatrix<F,MC,STAR> XB1(g);
-    DistMatrix<F,MR,STAR> YB1(g);
+    const Grid& grid = A.Grid();
+    DistMatrix<F,MC,STAR> XB1(grid);
+    DistMatrix<F,MR,STAR> YB1(grid);
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        UPanelPivoted( A, P, XB1, YB1, nb, k );
+        PivotedUpperPanel( A, P, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
         const Range<Int> ind2( k+nb, n ),
@@ -327,4 +328,4 @@ void UVar3
 } // namespace cholesky
 } // namespace El
 
-#endif // ifndef EL_CHOLESKY_UVAR3PIVOTED_HPP
+#endif // ifndef EL_CHOLESKY_PIVOTED_UPPER_VARIANT3_HPP

@@ -2,26 +2,27 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HESSENBERG_UPAN_HPP
-#define EL_HESSENBERG_UPAN_HPP
+#ifndef EL_HESSENBERG_UPPER_PANEL_HPP
+#define EL_HESSENBERG_UPPER_PANEL_HPP
 
 namespace El {
 namespace hessenberg {
 
-// NOTE: This is an extension into complex arithmetic of the sequential algorithm proposed in:
-//       G. Quintana-Orti and R. van de Geijn,  
-//       "Improving the performance of reduction to Hessenberg form" 
-//       After switching to complex arithmetic, it was more natural to switch 
+// NOTE: This is an extension into complex arithmetic of the sequential
+// algorithm proposed in:
+//       G. Quintana-Orti and R. van de Geijn,
+//       "Improving the performance of reduction to Hessenberg form"
+//       After switching to complex arithmetic, it was more natural to switch
 //       to lower-triangular matrices in the UT transform.
 
 // NOTE: It would be possible to avoid the space for U if we were more careful
 //       about applying the portion interleaved with the Hessenberg matrix.
 template<typename F>
-void UPan
+void UpperPanel
 ( Matrix<F>& A,
   Matrix<F>& householderScalars,
   Matrix<F>& U,
@@ -32,7 +33,7 @@ void UPan
     const Int nU = U.Width();
     const Int n = A.Height();
     DEBUG_ONLY(
-      if( nU >= n )            
+      if( nU >= n )
           LogicError("V is too wide for the panel factorization");
       if( U.Height() != A.Height() )
           LogicError("U must be the same height as A");
@@ -82,7 +83,7 @@ void UPan
         Trsv( LOWER, ADJOINT, NON_UNIT, G00, y10 );
         Gemv( NORMAL, F(-1), V0, y10, F(1), a1 );
         // a1 := a1 - U0 (inv(G00) (U0^H a1))
-        Gemv( ADJOINT, F(1), U0, a1, F(0), y10 ); 
+        Gemv( ADJOINT, F(1), U0, a1, F(0), y10 );
         Trsv( LOWER, NORMAL, NON_UNIT, G00, y10 );
         Gemv( NORMAL, F(-1), U0, y10, F(1), a1 );
 
@@ -103,19 +104,19 @@ void UPan
         // g10 := u21^H U20 = (U20^H u21)^H
         Gemv( ADJOINT, F(1), U20, u21, F(0), g10 );
         Conjugate( g10 );
-        
+
         // gamma11 := 1/tau
         gamma11(0) = F(1)/tau;
     }
 }
 
 template<typename F>
-void UPan
-( DistMatrix<F>& A, 
-  DistMatrix<F,STAR,STAR>& householderScalars, 
-  DistMatrix<F,MC,  STAR>& U_MC_STAR, 
+void UpperPanel
+( DistMatrix<F>& A,
+  DistMatrix<F,STAR,STAR>& householderScalars,
+  DistMatrix<F,MC,  STAR>& U_MC_STAR,
   DistMatrix<F,MR,  STAR>& U_MR_STAR,
-  DistMatrix<F,MC,  STAR>& V_MC_STAR, 
+  DistMatrix<F,MC,  STAR>& V_MC_STAR,
   DistMatrix<F,STAR,STAR>& G_STAR_STAR )
 {
     DEBUG_CSE
@@ -130,7 +131,7 @@ void UPan
           LogicError("A and U[MR,* ] must be aligned");
       if( A.ColAlign() != V_MC_STAR.ColAlign() )
           LogicError("A and V[MC,* ] must be aligned");
-      if( nU >= n )            
+      if( nU >= n )
           LogicError("V is too wide for the panel factorization");
       if( U_MC_STAR.Height() != A.Height() )
           LogicError("U[MC,* ] must be the same height as A");
@@ -186,17 +187,17 @@ void UPan
         a1_MC = a1;
         Conjugate( u10_MC, y10_STAR );
         Trsv
-        ( LOWER, ADJOINT, NON_UNIT, 
+        ( LOWER, ADJOINT, NON_UNIT,
           G00_STAR_STAR.LockedMatrix(), y10_STAR.Matrix() );
         LocalGemv( NORMAL, F(-1), V0_MC_STAR, y10_STAR, F(1), a1_MC );
         // a1 := a1 - U0 (inv(G00) (U0^H a1))
-        LocalGemv( ADJOINT, F(1), U0_MC_STAR, a1_MC, F(0), y10_STAR ); 
+        LocalGemv( ADJOINT, F(1), U0_MC_STAR, a1_MC, F(0), y10_STAR );
         El::AllReduce( y10_STAR, U0_MC_STAR.ColComm() );
         Trsv
-        ( LOWER, NORMAL, NON_UNIT, 
+        ( LOWER, NORMAL, NON_UNIT,
           G00_STAR_STAR.LockedMatrix(), y10_STAR.Matrix() );
         LocalGemv( NORMAL, F(-1), U0_MC_STAR, y10_STAR, F(1), a1_MC );
-        a1 = a1_MC; 
+        a1 = a1_MC;
 
         // Find tau and v such that
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
@@ -220,7 +221,7 @@ void UPan
         ( ADJOINT, F(1), U20_MR_STAR, u21_MR, F(0), g10_STAR );
         El::AllReduce( g10_STAR, U20_MR_STAR.ColComm() );
         Conjugate( g10_STAR );
-        
+
         // gamma11 := 1/tau
         gamma11.Set(0,0,F(1)/tau);
     }
@@ -229,4 +230,4 @@ void UPan
 } // namespace hessenberg
 } // namespace El
 
-#endif // ifndef EL_HESSENBERG_UPAN_HPP
+#endif // ifndef EL_HESSENBERG_UPPER_PANEL_HPP
