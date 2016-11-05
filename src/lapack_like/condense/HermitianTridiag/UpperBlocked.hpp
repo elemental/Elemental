@@ -6,17 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HERMITIANTRIDIAG_U_HPP
-#define EL_HERMITIANTRIDIAG_U_HPP
+#ifndef EL_HERMITIANTRIDIAG_UPPER_BLOCKED_HPP
+#define EL_HERMITIANTRIDIAG_UPPER_BLOCKED_HPP
 
-#include "./UPan.hpp"
+#include "./UpperPanel.hpp"
 
 namespace El {
 namespace herm_tridiag {
 
 // TODO(poulson): Blocked sequential implementation
 template<typename F>
-void U( Matrix<F>& A, Matrix<F>& householderScalars )
+void UpperBlocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -61,7 +61,7 @@ void U( Matrix<F>& A, Matrix<F>& householderScalars )
 // If there is only a single MPI process, fall down to the sequential
 // implementation.
 template<typename F>
-void U
+void UpperBlocked
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& householderScalarsPre,
   const SymvCtrl<F>& ctrl )
@@ -127,7 +127,7 @@ void U
             WPan_MR_STAR.AlignWith( A00 );
             WPan_MR_STAR.Resize( k+nb, nb );
 
-            UPan
+            UpperPanel
             ( ATL, WPan, householderScalars1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR, ctrl );
@@ -163,4 +163,4 @@ void U
 } // namespace herm_tridiag
 } // namespace El
 
-#endif // ifndef EL_HERMITIANTRIDIAG_U_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_UPPER_BLOCKED_HPP

@@ -6,15 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_BIDIAG_UPAN_HPP
-#define EL_BIDIAG_UPAN_HPP
+#ifndef EL_BIDIAG_UPPER_PANEL_HPP
+#define EL_BIDIAG_UPPER_PANEL_HPP
 
 namespace El {
 namespace bidiag {
 
 template<typename F> 
 void
-UPan
+UpperPanel
 ( Matrix<F>& A,
   Matrix<F>& householderScalarsP,
   Matrix<F>& householderScalarsQ,
@@ -162,7 +162,7 @@ UPan
 
 template<typename F> 
 void
-UPan
+UpperPanel
 ( DistMatrix<F>& A, 
   DistMatrix<F,STAR,STAR>& householderScalarsP,
   DistMatrix<F,STAR,STAR>& householderScalarsQ,
@@ -420,4 +420,4 @@ UPan
 } // namespace bidiag
 } // namespace El
 
-#endif // ifndef EL_BIDIAG_UPAN_HPP
+#endif // ifndef EL_BIDIAG_UPPER_PANEL_HPP

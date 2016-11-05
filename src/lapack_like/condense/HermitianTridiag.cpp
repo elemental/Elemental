@@ -41,10 +41,10 @@ void Ger2Sub
 } // namespace herm_tridiag
 } // namespace El
 
-#include "./HermitianTridiag/L.hpp"
-#include "./HermitianTridiag/LSquare.hpp"
-#include "./HermitianTridiag/U.hpp"
-#include "./HermitianTridiag/USquare.hpp"
+#include "./HermitianTridiag/LowerBlocked.hpp"
+#include "./HermitianTridiag/LowerBlockedSquare.hpp"
+#include "./HermitianTridiag/UpperBlocked.hpp"
+#include "./HermitianTridiag/UpperBlockedSquare.hpp"
 
 #include "./HermitianTridiag/ApplyQ.hpp"
 
@@ -56,9 +56,9 @@ void HermitianTridiag
 {
     DEBUG_CSE
     if( uplo == LOWER )
-        herm_tridiag::L( A, householderScalars );
+        herm_tridiag::LowerBlocked( A, householderScalars );
     else
-        herm_tridiag::U( A, householderScalars );
+        herm_tridiag::UpperBlocked( A, householderScalars );
 }
 
 template<typename F> 
@@ -76,23 +76,23 @@ void HermitianTridiag
     auto& A = AProx.Get();
     auto& householderScalars = householderScalarsProx.Get();
 
-    const Grid& g = A.Grid();
+    const Grid& grid = A.Grid();
     if( ctrl.approach == HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
-            herm_tridiag::L( A, householderScalars, ctrl.symvCtrl );
+            herm_tridiag::LowerBlocked( A, householderScalars, ctrl.symvCtrl );
         else
-            herm_tridiag::U( A, householderScalars, ctrl.symvCtrl );
+            herm_tridiag::UpperBlocked( A, householderScalars, ctrl.symvCtrl );
     }
     else if( ctrl.approach == HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh 
-        const Int p = g.Size();
+        const Int p = grid.Size();
         const Int pSqrt = Int(sqrt(double(p)));
 
         vector<int> squareRanks(pSqrt*pSqrt);
-        if( ctrl.order == g.Order() )
+        if( ctrl.order == grid.Order() )
         {
             for( Int j=0; j<pSqrt; ++j )
                 for( Int i=0; i<pSqrt; ++i )
@@ -105,12 +105,12 @@ void HermitianTridiag
                     squareRanks[i+j*pSqrt] = j+i*pSqrt;
         }
 
-        mpi::Group owningGroup = g.OwningGroup();
+        mpi::Group owningGroup = grid.OwningGroup();
         mpi::Group squareGroup;
         mpi::Incl
         ( owningGroup, squareRanks.size(), squareRanks.data(), squareGroup );
 
-        mpi::Comm viewingComm = g.ViewingComm();
+        mpi::Comm viewingComm = grid.ViewingComm();
         const Grid squareGrid( viewingComm, squareGroup, pSqrt );
         DistMatrix<F> ASquare(squareGrid);
         DistMatrix<F,STAR,STAR> householderScalarsSquare(squareGrid);
@@ -120,10 +120,10 @@ void HermitianTridiag
         if( ASquare.Participating() )
         {
             if( uplo == LOWER )
-                herm_tridiag::LSquare
+                herm_tridiag::LowerBlockedSquare
                 ( ASquare, householderScalarsSquare, ctrl.symvCtrl );
             else
-                herm_tridiag::USquare
+                herm_tridiag::UpperBlockedSquare
                 ( ASquare, householderScalarsSquare, ctrl.symvCtrl );
         }
         const bool includeViewers = true;
@@ -137,19 +137,23 @@ void HermitianTridiag
     {
         // Use the normal approach unless we're already on a square 
         // grid, in which case we use the fast square method.
-        if( g.Height() == g.Width() )
+        if( grid.Height() == grid.Width() )
         {
             if( uplo == LOWER )
-                herm_tridiag::LSquare( A, householderScalars, ctrl.symvCtrl );
+                herm_tridiag::LowerBlockedSquare
+                ( A, householderScalars, ctrl.symvCtrl );
             else
-                herm_tridiag::USquare( A, householderScalars, ctrl.symvCtrl ); 
+                herm_tridiag::UpperBlockedSquare
+                ( A, householderScalars, ctrl.symvCtrl ); 
         }
         else
         {
             if( uplo == LOWER )
-                herm_tridiag::L( A, householderScalars, ctrl.symvCtrl );
+                herm_tridiag::LowerBlocked
+                ( A, householderScalars, ctrl.symvCtrl );
             else
-                herm_tridiag::U( A, householderScalars, ctrl.symvCtrl );
+                herm_tridiag::UpperBlocked
+                ( A, householderScalars, ctrl.symvCtrl );
         }
     }
 }

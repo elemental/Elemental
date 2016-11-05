@@ -6,11 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_BIDIAG_L_HPP
-#define EL_BIDIAG_L_HPP
+#ifndef EL_BIDIAG_LOWER_BLOCKED_HPP
+#define EL_BIDIAG_LOWER_BLOCKED_HPP
 
-#include "./LUnb.hpp"
-#include "./LPan.hpp"
+#include "./LowerUnblocked.hpp"
+#include "./LowerPanel.hpp"
 
 namespace El {
 namespace bidiag {
@@ -18,7 +18,7 @@ namespace bidiag {
 // NOTE: Very little is changed versus the upper case. Perhaps they should be
 //       combined.
 template<typename F>
-void L
+void LowerBlocked
 ( Matrix<F>& A,
   Matrix<F>& householderScalarsP,
   Matrix<F>& householderScalarsQ )
@@ -58,7 +58,7 @@ void L
             auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::LPan
+            bidiag::LowerPanel
             ( ABR, householderScalarsP1, householderScalarsQ1, X, Y );
 
             auto X21 = X( IR(nb,END), ALL        );
@@ -80,7 +80,8 @@ void L
         {
             auto householderScalarsQ1 =
               householderScalarsQ( IR(k,k+nb-1), ALL );
-            bidiag::LUnb( ABR, householderScalarsP1, householderScalarsQ1 );
+            bidiag::LowerUnblocked
+            ( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
@@ -89,7 +90,7 @@ void L
 //       be combined.
 template<typename F> 
 void
-L
+LowerBlocked
 ( DistMatrix<F>& A, 
   DistMatrix<F,STAR,STAR>& householderScalarsP,
   DistMatrix<F,STAR,STAR>& householderScalarsQ )
@@ -109,7 +110,7 @@ L
     householderScalarsQ.Resize( householderScalarsQHeight, 1 );
     if( g.Size() == 1 )
     {
-        L
+        LowerBlocked
         ( A.Matrix(), householderScalarsP.Matrix(),
           householderScalarsQ.Matrix() );
         return;
@@ -148,7 +149,7 @@ L
             A1R_STAR_MR.Resize( nb,  n-k );
 
             auto householderScalarsQ1 = householderScalarsQ( ind1, ALL );
-            bidiag::LPan
+            bidiag::LowerPanel
             ( ABR, householderScalarsP1, householderScalarsQ1, X, Y,
               AB1_MC_STAR, A1R_STAR_MR );
 
@@ -170,15 +171,17 @@ L
         }
         else
         {
-            auto householderScalarsQ1 = householderScalarsQ( IR(k,k+nb-1), ALL );
-            bidiag::LUnb( ABR, householderScalarsP1, householderScalarsQ1 );
+            auto householderScalarsQ1 =
+              householderScalarsQ( IR(k,k+nb-1), ALL );
+            bidiag::LowerUnblocked
+            ( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
 
 template<typename F> 
 void
-L
+LowerBlocked
 ( AbstractDistMatrix<F>& APre, 
   AbstractDistMatrix<F>& householderScalarsPPre,
   AbstractDistMatrix<F>& householderScalarsQPre )
@@ -192,10 +195,10 @@ L
     auto& A = AProx.Get();
     auto& householderScalarsP = householderScalarsPProx.Get();
     auto& householderScalarsQ = householderScalarsQProx.Get();
-    L( A, householderScalarsP, householderScalarsQ );
+    LowerBlocked( A, householderScalarsP, householderScalarsQ );
 }
 
 } // namespace bidiag
 } // namespace El
 
-#endif // ifndef EL_LAPACK_CONDENSE_BIDIAG_L_HPP
+#endif // ifndef EL_BIDIAG_LOWER_BLOCKED_HPP

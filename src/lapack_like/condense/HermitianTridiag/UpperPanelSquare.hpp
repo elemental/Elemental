@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HERMITIANTRIDIAG_UPANSQUARE_HPP
-#define EL_HERMITIANTRIDIAG_UPANSQUARE_HPP
+#ifndef EL_HERMITIANTRIDIAG_UPPER_PANEL_SQUARE_HPP
+#define EL_HERMITIANTRIDIAG_UPPER_PANEL_SQUARE_HPP
 
 namespace El {
 namespace herm_tridiag {
 
 template<typename F>
-void UPanSquare
+void UpperPanelSquare
 ( DistMatrix<F>& A,
   DistMatrix<F>& W,
   DistMatrix<F,MD,STAR>& t,
@@ -489,4 +489,4 @@ void UPanSquare
 } // namespace herm_tridiag
 } // namespace El
 
-#endif // ifndef EL_HERMITIANTRIDIAG_UPANSQUARE_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_UPPER_PANEL_SQUARE_HPP

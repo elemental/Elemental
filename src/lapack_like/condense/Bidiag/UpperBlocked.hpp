@@ -6,17 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_BIDIAG_U_HPP
-#define EL_BIDIAG_U_HPP
+#ifndef EL_BIDIAG_UPPER_BLOCKED_HPP
+#define EL_BIDIAG_UPPER_BLOCKED_HPP
 
-#include "./UUnb.hpp"
-#include "./UPan.hpp"
+#include "./UpperUnblocked.hpp"
+#include "./UpperPanel.hpp"
 
 namespace El {
 namespace bidiag {
 
 template<typename F>
-void U
+void UpperBlocked
 ( Matrix<F>& A,
   Matrix<F>& householderScalarsP,
   Matrix<F>& householderScalarsQ )
@@ -53,7 +53,7 @@ void U
             auto householderScalarsP1 = householderScalarsP( ind1, ALL );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::UPan
+            bidiag::UpperPanel
             ( ABR, householderScalarsP1, householderScalarsQ1, X, Y );
 
             auto A12 = A( ind1, ind2 );
@@ -77,14 +77,15 @@ void U
         {
             auto householderScalarsP1 =
               householderScalarsP( IR(k,k+nb-1), ALL );
-            bidiag::UUnb( ABR, householderScalarsP1, householderScalarsQ1 );
+            bidiag::UpperUnblocked
+            ( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
 
 template<typename F> 
 void
-U
+UpperBlocked
 ( DistMatrix<F>& A, 
   DistMatrix<F,STAR,STAR>& householderScalarsP,
   DistMatrix<F,STAR,STAR>& householderScalarsQ )
@@ -97,25 +98,25 @@ U
       if( m < n ) 
           LogicError("A must be at least as tall as it is wide");
     )
-    const Grid& g = A.Grid();
+    const Grid& grid = A.Grid();
     const Int householderScalarsPHeight = Max(n-1,0);
     const Int householderScalarsQHeight = n;
     householderScalarsP.Resize( householderScalarsPHeight, 1 );
     householderScalarsQ.Resize( householderScalarsQHeight, 1 );
-    if( g.Size() == 1 )
+    if( grid.Size() == 1 )
     {
-        U
+        UpperBlocked
         ( A.Matrix(), householderScalarsP.Matrix(),
           householderScalarsQ.Matrix() );
         return;
     }
 
-    DistMatrix<F> X(g), Y(g);
-    DistMatrix<F,MC,STAR> X21_MC_STAR(g);
-    DistMatrix<F,MR,STAR> Y12Adj_MR_STAR(g);
+    DistMatrix<F> X(grid), Y(grid);
+    DistMatrix<F,MC,STAR> X21_MC_STAR(grid);
+    DistMatrix<F,MR,STAR> Y12Adj_MR_STAR(grid);
 
-    DistMatrix<F,MC,STAR> AB1_MC_STAR(g);
-    DistMatrix<F,MR,STAR> A1RTrans_MR_STAR(g);
+    DistMatrix<F,MC,STAR> AB1_MC_STAR(grid);
+    DistMatrix<F,MR,STAR> A1RTrans_MR_STAR(grid);
 
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -143,7 +144,7 @@ U
             A1RTrans_MR_STAR.Resize( n-k, nb );
 
             auto householderScalarsP1 = householderScalarsP( ind1, ALL );
-            bidiag::UPan
+            bidiag::UpperPanel
             ( ABR, householderScalarsP1, householderScalarsQ1, X, Y,
               AB1_MC_STAR, A1RTrans_MR_STAR );
 
@@ -168,14 +169,15 @@ U
         {
             auto householderScalarsP1 =
               householderScalarsP( IR(k,k+nb-1), ALL );
-            bidiag::UUnb( ABR, householderScalarsP1, householderScalarsQ1 );
+            bidiag::UpperUnblocked
+            ( ABR, householderScalarsP1, householderScalarsQ1 );
         }
     }
 }
 
 template<typename F> 
 void
-U
+UpperBlocked
 ( AbstractDistMatrix<F>& APre, 
   AbstractDistMatrix<F>& householderScalarsPPre,
   AbstractDistMatrix<F>& householderScalarsQPre )
@@ -189,10 +191,10 @@ U
     auto& A = AProx.Get();
     auto& householderScalarsP = householderScalarsPProx.Get();
     auto& householderScalarsQ = householderScalarsQProx.Get();
-    U( A, householderScalarsP, householderScalarsQ );
+    UpperBlocked( A, householderScalarsP, householderScalarsQ );
 }
 
 } // namespace bidiag
 } // namespace El
 
-#endif // ifndef EL_BIDIAG_U_HPP
+#endif // ifndef EL_BIDIAG_UPPER_BLOCKED_HPP

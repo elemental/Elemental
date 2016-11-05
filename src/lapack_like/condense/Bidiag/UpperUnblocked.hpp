@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_BIDIAG_UUNB_HPP
-#define EL_BIDIAG_UUNB_HPP
+#ifndef EL_BIDIAG_UPPER_UNBLOCKED_HPP
+#define EL_BIDIAG_UPPER_UNBLOCKED_HPP
 
 namespace El {
 namespace bidiag {
 
 template<typename F>
-void UUnb
+void UpperUnblocked
 ( Matrix<F>& A,
   Matrix<F>& householderScalarsP,
   Matrix<F>& householderScalarsQ )
@@ -101,7 +101,7 @@ void UUnb
 }
 
 template<typename F> 
-void UUnb
+void UpperUnblocked
 ( AbstractDistMatrix<F>& APre, 
   AbstractDistMatrix<F>& householderScalarsPPre,
   AbstractDistMatrix<F>& householderScalarsQPre )
@@ -220,4 +220,4 @@ void UUnb
 } // namespace bidiag
 } // namespace El
 
-#endif // ifndef EL_BIDIAG_UUNB_HPP
+#endif // ifndef EL_BIDIAG_UPPER_UNBLOCKED_HPP

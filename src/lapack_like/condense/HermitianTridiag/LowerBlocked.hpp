@@ -6,17 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HERMITIANTRIDIAG_L_HPP
-#define EL_HERMITIANTRIDIAG_L_HPP
+#ifndef EL_HERMITIANTRIDIAG_LOWER_BLOCKED_HPP
+#define EL_HERMITIANTRIDIAG_LOWER_BLOCKED_HPP
 
-#include "./LPan.hpp"
+#include "./LowerPanel.hpp"
 
 namespace El {
 namespace herm_tridiag {
 
 // TODO(poulson): Sequential blocked implementation
 template<typename F>
-void L( Matrix<F>& A, Matrix<F>& householderScalars )
+void LowerBlocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -61,7 +61,7 @@ void L( Matrix<F>& A, Matrix<F>& householderScalars )
 // If there is only a single MPI process, fall down to the sequential
 // implementation.
 template<typename F> 
-void L
+void LowerBlocked
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& householderScalarsPre, 
   const SymvCtrl<F>& ctrl )
@@ -126,7 +126,7 @@ void L
             WPan_MR_STAR.AlignWith( A11 );
             WPan_MR_STAR.Resize( n-k, nb );
 
-            LPan
+            LowerPanel
             ( ABR, WPan, householderScalars1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR, ctrl );
@@ -160,4 +160,4 @@ void L
 } // namespace herm_tridiag
 } // namespace El
 
-#endif // ifndef EL_HERMITIANTRIDIAG_L_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_LOWER_BLOCKED_HPP

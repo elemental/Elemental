@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HERMITIANTRIDIAG_LPANSQUARE_HPP
-#define EL_HERMITIANTRIDIAG_LPANSQUARE_HPP
+#ifndef EL_HERMITIANTRIDIAG_LOWER_PANEL_SQUARE_HPP
+#define EL_HERMITIANTRIDIAG_LOWER_PANEL_SQUARE_HPP
 
 namespace El {
 namespace herm_tridiag {
@@ -17,7 +17,7 @@ namespace herm_tridiag {
 // TODO: Reuse a small number of preallocated vectors for buffers
 
 template<typename F>
-void LPanSquare
+void LowerPanelSquare
 ( DistMatrix<F>& A,
   DistMatrix<F>& W,
   DistMatrix<F,MD,STAR>& t,
@@ -483,4 +483,4 @@ void LPanSquare
 } // namespace herm_tridiag
 } // namespace El
 
-#endif // ifndef EL_HERMITIANTRIDIAG_LPANSQUARE_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_LOWER_PANEL_SQUARE_HPP

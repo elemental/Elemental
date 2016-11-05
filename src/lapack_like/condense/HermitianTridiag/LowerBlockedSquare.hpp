@@ -6,16 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_HERMITIANTRIDIAG_LSQUARE_HPP
-#define EL_HERMITIANTRIDIAG_LSQUARE_HPP
+#ifndef EL_HERMITIANTRIDIAG_LOWER_BLOCKED_SQUARE_HPP
+#define EL_HERMITIANTRIDIAG_LOWER_BLOCKED_SQUARE_HPP
 
-#include "./LPanSquare.hpp"
+#include "./LowerPanelSquare.hpp"
 
 namespace El {
 namespace herm_tridiag {
 
 template<typename F> 
-void LSquare
+void LowerBlockedSquare
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& tPre,
   const SymvCtrl<F>& ctrl )
@@ -83,7 +83,7 @@ void LSquare
             WPan_MR_STAR.AlignWith( A11 );
             WPan_MR_STAR.Resize( n-k, nb );
 
-            herm_tridiag::LPanSquare
+            herm_tridiag::LowerPanelSquare
             ( ABR, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR, ctrl );
@@ -116,4 +116,4 @@ void LSquare
 } // namespace herm_tridiag
 } // namespace El
 
-#endif // ifndef EL_HERMITIANTRIDIAG_LSQUARE_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_LOWER_BLOCKED_SQUARE_HPP
