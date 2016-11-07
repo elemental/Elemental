@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HERM_TRIDIAG_EIG_QR_HPP
@@ -27,11 +27,11 @@ Real WilkinsonShift
     //
     //   (alpha00+alpha11)/2 = alpha00 + delta = alpha00 + sgn(delta)*|delta|,
     //
-    // so that 
+    // so that
     //
     //   omega = alpha00 - sgn(delta)*(sqrt(delta^2 + alpha01^2) - |delta|).
     //
-    // And since 
+    // And since
     //
     //   alpha01^2                         |delta|-sqrt(delta^2+alpha01^2)
     //   ------------------------------- * ------------------------------- =
@@ -43,7 +43,7 @@ Real WilkinsonShift
     //
     //   alpha01^2*(|delta|-sqrt(delta^2+alpha01^2))
     // - ------------------------------------------- =
-    //                  alpha01^2 
+    //                  alpha01^2
     //
     //         sqrt(delta^2+alpha01^2) - |delta|,
     //
@@ -51,8 +51,8 @@ Real WilkinsonShift
     //
     // This latter formula is recommended by Parlett (see subsection 8.9,
     // "Residual bounds using Wilkinson's shift"), but LAPACK's {s,l}steqr
-    // [CITATION] goes a step further and computes sqrt(delta^2+alpha01^2) as 
-    // 
+    // [CITATION] goes a step further and computes sqrt(delta^2+alpha01^2) as
+    //
     //   sqrt(delta^2 + alpha01^2) = |alpha01|*sqrt((delta/alpha01)^2 + 1),
     //
     // which, defining gamma=delta/alpha01, implies that
@@ -121,7 +121,7 @@ void QLSweep
             e(j+1) = t;
         g = d(j+1) - u;
         t = (d(j)-g)*s + two*c*h;
-        u = s*t; 
+        u = s*t;
         d(j+1) = g + u;
         g = c*t - h;
 
@@ -168,10 +168,10 @@ void QRSweep
         p = s*e(j);
         t = Givens( g, p, c, s );
         if( j != 0 )
-            e(j-1) = t; 
+            e(j-1) = t;
         g = d(j) - u;
         t = (d(j+1)-g)*s + two*c*h;
-        u = s*t; 
+        u = s*t;
         d(j) = g + u;
         g = c*t - h;
 
@@ -190,17 +190,17 @@ void QRSweep
     }
 }
 
-// TODO(poulson): Support for what Parlett calls "ultimate shifts" in 
+// TODO(poulson): Support for what Parlett calls "ultimate shifts" in
 // subsubsection 8.14.5 of "The symmetric eigenvalue problem" [CITATION].
 //
-// TODO(poulson): Support for what Parlett calls "Saad's shifts" in 
+// TODO(poulson): Support for what Parlett calls "Saad's shifts" in
 // subsubsection 8.14.5 of "The symmetric eigenvalue problem" [CITATION].
 //
 template<typename F>
 herm_tridiag_eig::QRInfo
 Helper
 ( Matrix<Base<F>>& d,
-  Matrix<Base<F>>& e, 
+  Matrix<Base<F>>& e,
   Matrix<F>& Q,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
@@ -227,11 +227,11 @@ Helper
     Matrix<Real> dSub, eSub;
     Matrix<F> QSub;
 
-    const Int maxIter = n*ctrl.qrCtrl.maxIterPerEig; 
+    const Int maxIter = n*ctrl.qrCtrl.maxIterPerEig;
     Int winBeg = 0;
     while( winBeg < n )
     {
-        if( winBeg > 0 ) 
+        if( winBeg > 0 )
             e(winBeg-1) = zero;
         Int subWinBeg = winBeg;
         Int subWinEnd = n;
@@ -257,7 +257,7 @@ Helper
             }
         }
 
-        // Once we finish the current subwindow, our window will begin at the 
+        // Once we finish the current subwindow, our window will begin at the
         // end of the subwindow
         winBeg = subWinEnd;
 
@@ -296,7 +296,7 @@ Helper
                 ("QL iteration at iter ",info.numIterations,
                  " over [",subWinEnd,",",subWinEnd,")");
             }
-            while( true )     
+            while( true )
             {
                 Int iterEnd = subWinEnd;
                 if( subWinBeg != subWinEnd-1 )
@@ -390,7 +390,7 @@ Helper
                 ("QR iteration at iter ",info.numIterations,
                  " over [",subWinBeg,",",subWinEnd,")");
             }
-            while( true )     
+            while( true )
             {
                 Int iterBeg = subWinBeg;
                 if( subWinBeg != subWinEnd-1 )
@@ -434,7 +434,7 @@ Helper
                         herm_eig::TwoByTwo
                         ( d(subWinEnd-2), e(subWinEnd-2), d(subWinEnd-1),
                           lambda0, lambda1, c, s,
-                          ctrl.qrCtrl.fullAccuracyTwoByTwo ); 
+                          ctrl.qrCtrl.fullAccuracyTwoByTwo );
                         // Apply the Givens rotation from the right to Q
                         blas::Rot
                         ( mQ, &Q(0,subWinEnd-2), 1, &Q(0,subWinEnd-1), 1,
@@ -491,7 +491,7 @@ Helper
         {
             for( Int i=0; i<n-1; ++i )
                 if( e(i) != zero )
-                    ++info.numUnconverged; 
+                    ++info.numUnconverged;
             if( ctrl.qrCtrl.demandConverged )
                 RuntimeError
                 (info.numUnconverged," eigenvalues did not converge");
@@ -504,11 +504,40 @@ Helper
 
 } // namespace qr
 
+// TODO(poulson): Lift these routines up somewhere else?
+void AllocatePackedQRInfo( vector<Int>& packedQRInfo )
+{
+    DEBUG_CSE
+    packedQRInfo.resize( 2 );
+}
+
+void PackQRInfo
+( const herm_tridiag_eig::QRInfo& qrInfo, vector<Int>& packedQRInfo )
+{
+    DEBUG_CSE
+    if( packedQRInfo.size() != 2 )
+        LogicError("Expected packedQRInfo to be of size 2");
+    Int offset = 0;
+    packedQRInfo[offset++] = qrInfo.numUnconverged;
+    packedQRInfo[offset++] = qrInfo.numIterations;
+}
+
+void UnpackQRInfo
+( const vector<Int>& packedQRInfo, herm_tridiag_eig::QRInfo& qrInfo )
+{
+    DEBUG_CSE
+    if( packedQRInfo.size() != 2 )
+        LogicError("Expected packedQRInfo to be of size 2");
+    Int offset = 0;
+    qrInfo.numUnconverged = packedQRInfo[offset++];
+    qrInfo.numIterations = packedQRInfo[offset++];
+}
+
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 herm_tridiag_eig::QRInfo
 QRAlg
 ( Matrix<Real>& mainDiag,
-  Matrix<Real>& subDiag, 
+  Matrix<Real>& subDiag,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -522,7 +551,7 @@ template<typename Real,typename=EnableIf<IsReal<Real>>>
 herm_tridiag_eig::QRInfo
 QRAlg
 ( AbstractDistMatrix<Real>& mainDiagPre,
-  AbstractDistMatrix<Real>& subDiagPre, 
+  AbstractDistMatrix<Real>& subDiagPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -532,10 +561,48 @@ QRAlg
     auto& mainDiag = mainDiagProx.Get();
     auto& subDiag = subDiagProx.Get();
 
+    // As noted in
+    //
+    //   Beresford N. Parlett and Jian Le,
+    //   "Forward instability of Tridiagonal QR",
+    //   SIAM J. Matrix Anal. & Appl., 14(1), 279--316, 1991.
+    //
+    // [CITATION], the tridiagonal QR algorithm is not forward stable.
+    // Thus, small differences in the floating-point arithmetic on different
+    // processes could lead to substantial differences in the computed
+    // eigenvectors. While this is a reasonably well-known issue for the
+    // Hessenberg Schur decomposition, it seems to occur much less frequently
+    // for tridiagonal matrices.
+    //
+    const bool broadcastLocalEVD = true;
+
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = false;
     Matrix<Real> QLoc;
-    return qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), QLoc, ctrlMod );
+
+    herm_tridiag_eig::QRInfo info;
+    if( broadcastLocalEVD )
+    {
+        const Grid& grid = mainDiag.Grid();
+        vector<Int> packedQRInfo;
+        AllocatePackedQRInfo( packedQRInfo );
+        if( grid.VCRank() == 0 )
+        {
+            info =
+              qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), QLoc, ctrlMod );
+            PackQRInfo( info, packedQRInfo );
+        }
+        El::Broadcast( mainDiag.Matrix(), grid.VCComm(), 0 );
+        mpi::Broadcast
+        ( packedQRInfo.data(), packedQRInfo.size(), 0, grid.VCComm() );
+        UnpackQRInfo( packedQRInfo, info );
+    }
+    else
+    {
+        // Let's cross our fingers and ignore the forward instability
+        info = qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), QLoc, ctrlMod );
+    }
+    return info;
 }
 
 template<typename Real>
@@ -553,7 +620,7 @@ QRAlg
     if( ctrl.accumulateEigVecs )
     {
         if( Q.Width() != n )
-            LogicError("Q was an invalid size"); 
+            LogicError("Q was an invalid size");
     }
     else
     {
@@ -578,7 +645,7 @@ QRAlg
     if( ctrl.accumulateEigVecs )
     {
         if( Q.Width() != n )
-            LogicError("Q was an invalid size"); 
+            LogicError("Q was an invalid size");
         return qr::Helper( mainDiag, subDiag, Q, ctrlMod );
     }
     else
@@ -596,7 +663,7 @@ template<typename Real>
 herm_tridiag_eig::QRInfo
 QRAlg
 ( AbstractDistMatrix<Real>& mainDiagPre,
-  AbstractDistMatrix<Real>& subDiagPre, 
+  AbstractDistMatrix<Real>& subDiagPre,
   AbstractDistMatrix<Real>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
@@ -613,8 +680,11 @@ QRAlg
         DistMatrixReadWriteProxy<Real,Real,VC,STAR> QProx( QPre );
         auto& Q = QProx.Get();
         if( Q.Width() != n )
-            LogicError("Q was an invalid size"); 
+            LogicError("Q was an invalid size");
 
+        // WARNING: Forward instability can easily yield non-determinism and
+        // lead to the following trivial parallelization yielding nonsensical
+        // results. However, such an issue appears to be quite rare.
         return
           qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), Q.Matrix(), ctrl );
     }
@@ -624,6 +694,9 @@ QRAlg
         auto& Q = QProx.Get();
         Identity( Q, n, n );
 
+        // WARNING: Forward instability can easily yield non-determinism and
+        // lead to the following trivial parallelization yielding nonsensical
+        // results. However, such an issue appears to be quite rare.
         return
           qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), Q.Matrix(), ctrl );
     }
@@ -633,7 +706,7 @@ template<typename Real>
 herm_tridiag_eig::QRInfo
 QRAlg
 ( AbstractDistMatrix<Real>& mainDiagPre,
-  AbstractDistMatrix<Real>& subDiagPre, 
+  AbstractDistMatrix<Real>& subDiagPre,
   AbstractDistMatrix<Complex<Real>>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
@@ -651,8 +724,11 @@ QRAlg
         DistMatrixReadWriteProxy<F,F,VC,STAR> QProx( QPre );
         auto& Q = QProx.Get();
         if( Q.Width() != n )
-            LogicError("Q was an invalid size"); 
+            LogicError("Q was an invalid size");
 
+        // WARNING: Forward instability can easily yield non-determinism and
+        // lead to the following trivial parallelization yielding nonsensical
+        // results. However, such an issue appears to be quite rare.
         return
           qr::Helper( mainDiag.Matrix(), subDiag.Matrix(), Q.Matrix(), ctrl );
     }
@@ -661,6 +737,9 @@ QRAlg
         DistMatrix<Real,VC,STAR> QReal(QPre.Grid());
         Identity( QReal, n, n );
 
+        // WARNING: Forward instability can easily yield non-determinism and
+        // lead to the following trivial parallelization yielding nonsensical
+        // results. However, such an issue appears to be quite rare.
         auto info =
           qr::Helper
           ( mainDiag.Matrix(), subDiag.Matrix(), QReal.Matrix(), ctrl );
