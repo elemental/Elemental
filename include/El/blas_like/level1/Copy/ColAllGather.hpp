@@ -28,11 +28,10 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
     const Int width = A.Width();
 #ifdef EL_CACHE_WARNINGS
     if( height != 1 && A.Grid().Rank() == 0 )
-        cerr <<
-          "The matrix redistribution [* ,V] <- [U,V] potentially causes a "
-          "large amount of cache-thrashing. If possible, avoid it by "
-          "performing the redistribution with a (conjugate)-transpose"
-          << endl;
+        Output
+        ("The matrix redistribution [* ,V] <- [U,V] potentially causes a "
+         "large amount of cache-thrashing. If possible, avoid it by "
+         "performing the redistribution with a (conjugate)-transpose");
 #endif
     B.AlignRowsAndResize( A.RowAlign(), height, width, false, false );
 
@@ -162,6 +161,9 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
             }
         }
     }
+    // Consider a A[MD,STAR] -> B[STAR,STAR] redistribution, where only the
+    // owning team of the MD distribution of A participates in the initial phase
+    // and the second phase broadcasts over the cross communicator.
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
         El::Broadcast( B, A.CrossComm(), A.Root() );
 }
@@ -184,7 +186,6 @@ void ColAllGather
     const Int rowCut = A.RowCut();
     const Int blockHeight = A.BlockHeight();
     const Int blockWidth = A.BlockWidth();
-    const Int firstBlockHeight = blockHeight - colCut;
 
     B.AlignAndResize
     ( blockHeight, blockWidth, 0, A.RowAlign(), 0, rowCut,
@@ -203,6 +204,7 @@ void ColAllGather
     if( A.Participating() )
     {
         const Int rowDiff = B.RowAlign() - A.RowAlign();
+        const Int firstBlockHeight = blockHeight - colCut;
         if( rowDiff == 0 )
         {
             if( A.ColStride() == 1 )
@@ -304,6 +306,9 @@ void ColAllGather
             }
         }
     }
+    // Consider a A[MD,STAR] -> B[STAR,STAR] redistribution, where only the
+    // owning team of the MD distribution of A participates in the initial phase
+    // and the second phase broadcasts over the cross communicator.
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
         El::Broadcast( B, A.CrossComm(), A.Root() );
 }

@@ -132,7 +132,9 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
             }
         }
     }
-    // TODO(poulson): Explain why this is necessary
+    // Consider a A[STAR,MD] -> B[STAR,STAR] redistribution, where only the
+    // owning team of the MD distribution of A participates in the initial phase
+    // and the second phase broadcasts over the cross communicator.
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
         El::Broadcast( B, A.CrossComm(), A.Root() );
 }
@@ -154,7 +156,6 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
     const Int rowCut = A.RowCut();
     const Int blockHeight = A.BlockHeight();
     const Int blockWidth = A.BlockWidth();
-    const Int firstBlockWidth = blockWidth - rowCut;
 
     B.AlignAndResize
     ( blockHeight, blockWidth, A.ColAlign(), 0, colCut, 0,
@@ -172,6 +173,7 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
     if( A.Participating() )
     {
         const Int colDiff = B.ColAlign() - A.ColAlign();
+        const Int firstBlockWidth = blockWidth - rowCut;
         if( colDiff == 0 )
         {
             if( A.RowStride() == 1 )
@@ -273,7 +275,9 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
             }
         }
     }
-    // TODO(poulson): Explain why this is necessary
+    // Consider a A[STAR,MD] -> B[STAR,STAR] redistribution, where only the
+    // owning team of the MD distribution of A participates in the initial phase
+    // and the second phase broadcasts over the cross communicator.
     if( A.Grid().InGrid() && A.CrossComm() != mpi::COMM_SELF )
         El::Broadcast( B, A.CrossComm(), A.Root() );
 }

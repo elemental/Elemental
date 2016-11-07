@@ -5,8 +5,8 @@
    Copyright (c) 2016, Tim Moon
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -29,7 +29,7 @@ void TestCorrectness
     Matrix<Complex<Real>> VW( V );
     DiagonalScale( RIGHT, NORMAL, w, VW );
     R -= VW;
-    
+
     const Real infError = InfinityNorm( R );
     const Real relError = infError / (eps*n*oneNormA);
     Output("|| A V - V W ||_oo / (eps n || A ||_1) = ",relError);
@@ -56,7 +56,7 @@ void TestCorrectness
     DistMatrix<Complex<Real>> VW( V );
     DiagonalScale( RIGHT, NORMAL, w, VW );
     R -= VW;
-    
+
     const Real infError = InfinityNorm( R );
     const Real relError = infError / (eps*n*oneNormA);
     OutputFromRoot
@@ -141,7 +141,7 @@ void LAPACKHelper
     timer.Reset();
     timer.Start();
     lapack::Eig
-    ( m, 
+    ( m,
       A.Buffer(), A.LDim(),
       w.Buffer(),
       V.Buffer(), V.LDim() );
@@ -172,7 +172,10 @@ void ElementalHelper
     Output("Schur decomposition...");
     PushIndent();
     timer.Start();
-    Schur( A, w, V );
+    SchurCtrl<Real> schurCtrl;
+    schurCtrl.time = true;
+    //schurCtrl.hessSchurCtrl.progress = true;
+    Schur( A, w, V, schurCtrl );
     Output("Time = ",timer.Stop()," seconds");
     PopIndent();
     if( print )
@@ -187,7 +190,7 @@ void ElementalHelper
     TriangEig( A, X );
     Output("Time = ",timer.Stop()," seconds");
     PopIndent();
-    if( print ) 
+    if( print )
         Print( X, "X" );
     Output("Transforming to get eigenvectors...");
     PushIndent();
@@ -217,7 +220,7 @@ void EigBenchmark
     Matrix<Complex<Real>> A(m,m), AOrig(m,m);
     Matrix<Complex<Real>> w(m,1), V(m,m);
     Matrix<Complex<Real>> X, tau;
-    
+
     const Real foxLiOmega = 16*M_PI;
 
     // Generate test matrix
@@ -247,7 +250,7 @@ void EigBenchmark
     Matrix<Complex<Real>> A(m,m), AOrig(m,m);
     Matrix<Complex<Real>> w(m,1), V(m,m);
     Matrix<Complex<Real>> X, tau;
-    
+
     const Real foxLiOmega = 16*M_PI;
 
     // Generate test matrix
@@ -281,7 +284,7 @@ void EigBenchmark
     DistMatrix<Complex<Real>> w(m,1,g), V(m,m,g), X(g);
 
     const Real foxLiOmega = 16*M_PI;
-    
+
     // Generate test matrix
     switch( whichMatrix )
     {
@@ -295,7 +298,7 @@ void EigBenchmark
         Print( AOrig, "A" );
 
     Timer timer;
- 
+
     SchurCtrl<Real> schurCtrl;
     schurCtrl.hessSchurCtrl.fullTriangle = true;
     schurCtrl.hessSchurCtrl.scalapack = scalapack;
@@ -342,7 +345,7 @@ void EigBenchmark
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -378,9 +381,9 @@ main( int argc, char* argv[] )
 
         if( gridHeight == 0 )
             gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR ); 
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid grid( comm, gridHeight, order );
-       
+
         if( sequential && commRank == 0 )
         {
             EigBenchmark<float>( n, correctness, print, whichMatrix );

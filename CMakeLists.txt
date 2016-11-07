@@ -288,13 +288,20 @@ endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
 # Set the basic compile flags from the build type
+#
+# The -fcx-fortran-rules GCC option was added due to it leading to a factor of
+# 10 performance difference in the complex Hessenberg QR sweeps. It seems that
+# this option is enabled by default for Clang and Intel compilers (but this
+# assumption is worth checking).
+#
 if(NOT WIN32)
   set(LANGUAGES CXX C Fortran)
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(EL_RELEASE)
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-          set(${LANG}_FLAGS "-O3 -Wno-tautological-compare" CACHE STRING
+          set(${LANG}_FLAGS "-O3 -fcx-fortran-rules -Wno-tautological-compare"
+            CACHE STRING
             "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
         else()
           set(${LANG}_FLAGS "-O3" CACHE STRING
@@ -302,7 +309,7 @@ if(NOT WIN32)
         endif()
       else()
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-          set(${LANG}_FLAGS "-O2 -g -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs -Wno-tautological-compare" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O2 -g -fcx-fortran-rules -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs -Wno-tautological-compare" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
         else()
           set(${LANG}_FLAGS "-O2 -g" CACHE STRING
             "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
