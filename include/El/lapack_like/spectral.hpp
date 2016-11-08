@@ -244,6 +244,7 @@ struct QRInfo
 {
     Int numUnconverged=0;
     Int numIterations=0;
+    // TODO(poulson): Extend similar to bidiag_svd::QRInfo
 };
 
 struct QRCtrl
@@ -252,6 +253,21 @@ struct QRCtrl
     bool demandConverged=true;
 
     bool fullAccuracyTwoByTwo=true;
+
+    // As noted in
+    //
+    //   Beresford N. Parlett and Jian Le,
+    //   "Forward instability of Tridiagonal QR",
+    //   SIAM J. Matrix Anal. & Appl., 14(1), 279--316, 1991.
+    //
+    // [CITATION], the tridiagonal QR algorithm is not forward stable.
+    // Thus, small differences in the floating-point arithmetic on different
+    // processes could lead to substantial differences in the computed
+    // eigenvectors. While this is a reasonably well-known issue for the
+    // Hessenberg Schur decomposition, it seems to occur much less frequently
+    // for tridiagonal matrices.
+    //
+    bool broadcast=true;
 };
 
 struct DCInfo
@@ -1002,6 +1018,21 @@ struct QRCtrl
 
     bool useFLAME=false;
     bool useLAPACK=false;
+
+    // As noted in
+    //
+    //   Beresford N. Parlett and Jian Le,
+    //   "Forward instability of Tridiagonal QR",
+    //   SIAM J. Matrix Anal. & Appl., 14(1), 279--316, 1991.
+    //
+    // [CITATION], the tridiagonal QR algorithm is not forward stable.
+    // Thus, small differences in the floating-point arithmetic on different
+    // processes could lead to substantial differences in the computed
+    // singular vectors. While this is a reasonably well-known issue for the
+    // Hessenberg Schur decomposition, it seems to occur much less frequently
+    // for tridiagonal matrices.
+    //
+    bool broadcast=true;
 };
 
 struct DCInfo

@@ -95,6 +95,16 @@ class HermitianTridiagEigDCCtrl_d(ctypes.Structure):
   def __init__(self):
     lib.ElHermitianTridiagEigDCCtrlDefault_d(pointer(self))
 
+class HermitianTridiagEigQRCtrl(ctypes.Structure):
+  _fields_ = [("maxIterPerEig",iType),
+              ("demandConverged",bType),
+              ("fullAccuracyTwoByTwo",bType),
+              ("broadcast",bType)]
+  def __init__(self):
+    lib.ElHermitianTridiagEigQRCtrlDefault(pointer(self))
+
+# TODO(poulson): HermitianTridiagEigCtrl
+
 lib.ElHermitianTridiagEig_s.argtypes = \
 lib.ElHermitianTridiagEig_d.argtypes = \
 lib.ElHermitianTridiagEig_c.argtypes = \
@@ -765,7 +775,8 @@ class BidiagSVDQRCtrl(ctypes.Structure):
               ("demandConverged",bType),
               ("looseMinSingValEst",bType),
               ("useFLAME",bType),
-              ("useLAPACK",bType)]
+              ("useLAPACK",bType),
+              ("broadcast",bType)]
   def __init__(self):
     lib.ElBidiagSVDQRCtrlDefault(pointer(self))
 

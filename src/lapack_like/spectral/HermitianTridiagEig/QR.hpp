@@ -561,27 +561,12 @@ QRAlg
     auto& mainDiag = mainDiagProx.Get();
     auto& subDiag = subDiagProx.Get();
 
-    // As noted in
-    //
-    //   Beresford N. Parlett and Jian Le,
-    //   "Forward instability of Tridiagonal QR",
-    //   SIAM J. Matrix Anal. & Appl., 14(1), 279--316, 1991.
-    //
-    // [CITATION], the tridiagonal QR algorithm is not forward stable.
-    // Thus, small differences in the floating-point arithmetic on different
-    // processes could lead to substantial differences in the computed
-    // eigenvectors. While this is a reasonably well-known issue for the
-    // Hessenberg Schur decomposition, it seems to occur much less frequently
-    // for tridiagonal matrices.
-    //
-    const bool broadcastLocalEVD = true;
-
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = false;
     Matrix<Real> QLoc;
 
     herm_tridiag_eig::QRInfo info;
-    if( broadcastLocalEVD )
+    if( ctrl.qrCtrl.broadcast )
     {
         const Grid& grid = mainDiag.Grid();
         vector<Int> packedQRInfo;

@@ -368,24 +368,9 @@ Helper
     PrepareBidiagonal
     ( uplo, m, n, mainDiag.Matrix(), offDiag.Matrix(), ctrl );
 
-    // As noted in
-    //
-    //   Beresford N. Parlett and Jian Le,
-    //   "Forward instability of Tridiagonal QR",
-    //   SIAM J. Matrix Anal. & Appl., 14(1), 279--316, 1991.
-    //
-    // [CITATION], the tridiagonal QR algorithm is not forward stable.
-    // Thus, small differences in the floating-point arithmetic on different
-    // processes could lead to substantial differences in the computed
-    // singular vectors. While this is a reasonably well-known issue for the
-    // Hessenberg Schur decomposition, it seems to occur much less frequently
-    // for tridiagonal matrices.
-    //
-    const bool broadcastLocalSVD = true;
-
     if( square )
     {
-        if( broadcastLocalSVD )
+        if( ctrl.qrCtrl.broadcast )
         {
             vector<Int> packedQRInfo;
             AllocatePackedQRInfo( packedQRInfo );
@@ -414,7 +399,7 @@ Helper
     {
         // We were non-square and lower bidiagonal.
         auto offDiag0 = offDiag( IR(0,n-1), ALL );
-        if( broadcastLocalSVD )
+        if( ctrl.qrCtrl.broadcast )
         {
             vector<Int> packedQRInfo;
             AllocatePackedQRInfo( packedQRInfo );
@@ -443,7 +428,7 @@ Helper
     {
         // We were non-square and upper bidiagonal.
         auto offDiag0 = offDiag( IR(0,m-1), ALL );
-        if( broadcastLocalSVD )
+        if( ctrl.qrCtrl.broadcast )
         {
             vector<Int> packedQRInfo;
             AllocatePackedQRInfo( packedQRInfo );

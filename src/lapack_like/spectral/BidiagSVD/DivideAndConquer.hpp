@@ -1860,21 +1860,6 @@ DivideAndConquer
     const auto& dcCtrl = ctrl.dcCtrl;
     DCInfo info;
 
-    // As noted in
-    //
-    //   Beresford N. Parlett and Jian Le,
-    //   "Forward instability of Tridiagonal QR",
-    //   SIAM J. Matrix Anal. & Appl., 14(1), 279--316, 1991.
-    //
-    // [CITATION], the tridiagonal QR algorithm is not forward stable.
-    // Thus, small differences in the floating-point arithmetic on different
-    // processes could lead to substantial differences in the computed
-    // singular vectors. While this is a reasonably well-known issue for the
-    // Hessenberg Schur decomposition, it seems to occur much less frequently
-    // for tridiagonal matrices (and the zero-diagonal special case for SVD).
-    //
-    const bool broadcastLocalSVD = true;
-
     if( m <= Max(dcCtrl.cutoff,3) )
     {
         // Run the problem locally
@@ -1886,7 +1871,7 @@ DivideAndConquer
         {
             ctrlMod.accumulateU = false;
             ctrlMod.accumulateV = false;
-            if( broadcastLocalSVD )
+            if( ctrl.qrCtrl.broadcast )
             {
                 if( grid.VCRank() == 0 )
                 {
@@ -1918,7 +1903,7 @@ DivideAndConquer
             Zeros( VLoc, 2, n );
             VLoc(0,0) = 1;
             VLoc(1,n-1) = 1;
-            if( broadcastLocalSVD )
+            if( ctrl.qrCtrl.broadcast )
             {
                 if( grid.VCRank() == 0 )
                 {
