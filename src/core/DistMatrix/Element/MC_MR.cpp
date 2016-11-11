@@ -163,9 +163,10 @@ template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       *this = ACast;
     #include "El/macros/GuardAndPayload.h"

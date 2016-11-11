@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_MULTIPLYAFTER_HPP
@@ -12,7 +12,7 @@
 namespace El {
 namespace ldl {
 
-template<typename F> 
+template<typename F>
 void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 {
     DEBUG_CSE
@@ -29,9 +29,9 @@ void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
 }
 
-template<typename F> 
+template<typename F>
 void MultiplyAfter
-( const ElementalMatrix<F>& APre, ElementalMatrix<F>& B, bool conjugated )
+( const AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& B, bool conjugated )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -53,10 +53,10 @@ void MultiplyAfter
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
 }
 
-template<typename F> 
+template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A,
-  const Matrix<F>& dSub, 
+  const Matrix<F>& dSub,
   const Permutation& P,
         Matrix<F>& B,
   bool conjugated )
@@ -79,12 +79,12 @@ void MultiplyAfter
     P.InversePermuteRows( B );
 }
 
-template<typename F> 
+template<typename F>
 void MultiplyAfter
-( const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& dSub, 
+( const AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& dSub,
   const DistPermutation& P,
-        ElementalMatrix<F>& BPre, 
+        AbstractDistMatrix<F>& BPre,
   bool conjugated )
 {
     DEBUG_CSE

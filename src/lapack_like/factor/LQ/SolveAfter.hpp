@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LQ_SOLVEAFTER_HPP
@@ -14,13 +14,13 @@
 namespace El {
 namespace lq {
 
-template<typename F> 
+template<typename F>
 void SolveAfter
-( Orientation orientation, 
+( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& householderScalars, 
+  const Matrix<F>& householderScalars,
   const Matrix<Base<F>>& signature,
-  const Matrix<F>& B,       
+  const Matrix<F>& B,
         Matrix<F>& X )
 {
     DEBUG_CSE
@@ -46,7 +46,7 @@ void SolveAfter
         // Solve against L (checking for singularities)
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
-        // Apply Q' to X 
+        // Apply Q' to X
         lq::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, X );
     }
     else // orientation in {TRANSPOSE,ADJOINT}
@@ -77,11 +77,11 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& householderScalars, 
-  const ElementalMatrix<Base<F>>& signature,
-  const ElementalMatrix<F>& B, 
-        ElementalMatrix<F>& XPre )
+  const AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+  const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
     const Int m = APre.Height();
@@ -115,7 +115,7 @@ void SolveAfter
         // Solve against L (checking for singularities)
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
-        // Apply Q' to X 
+        // Apply Q' to X
         lq::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, X );
 
         if( orientation == TRANSPOSE )

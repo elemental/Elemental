@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -21,7 +21,7 @@
 
 namespace El {
 
-template<typename F> 
+template<typename F>
 void QR
 ( Matrix<F>& A,
   Matrix<F>& householderScalars,
@@ -31,18 +31,11 @@ void QR
     qr::Householder( A, householderScalars, signature );
 }
 
-template<typename F> 
-void QR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars, 
-  ElementalMatrix<Base<F>>& signature )
-{
-    DEBUG_CSE
-    qr::Householder( A, householderScalars, signature );
-}
+namespace qr {
 
-template<typename F,typename>
-void QR
+// TODO(poulson): Provide external wrappers
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+void ScaLAPACKHelper
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   DistMatrix<F,MR,STAR,BLOCK>& householderScalars )
 {
@@ -53,7 +46,7 @@ void QR
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     householderScalars.AlignWith( A );
-    householderScalars.Resize( minDim, 1 ); 
+    householderScalars.Resize( minDim, 1 );
 
     auto descA = FillDesc( A );
     scalapack::QR
@@ -61,13 +54,34 @@ void QR
 #endif
 }
 
+template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+void ScaLAPACKHelper
+( DistMatrix<F,MC,MR,BLOCK>& A,
+  DistMatrix<F,MR,STAR,BLOCK>& householderScalars )
+{
+    DEBUG_CSE
+    LogicError("ScaLAPACK does not support ",TypeName<F>());
+}
+
+} // namespace qr
+
+template<typename F>
+void QR
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature )
+{
+    DEBUG_CSE
+    qr::Householder( A, householderScalars, signature );
+}
+
 // Variants which perform (Businger-Golub) column-pivoting
 // =======================================================
 
-template<typename F> 
+template<typename F>
 void QR
 ( Matrix<F>& A,
-  Matrix<F>& householderScalars, 
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature,
   Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
@@ -76,11 +90,11 @@ void QR
     qr::BusingerGolub( A, householderScalars, signature, Omega, ctrl );
 }
 
-template<typename F> 
+template<typename F>
 void QR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars, 
-  ElementalMatrix<Base<F>>& signature,
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
@@ -88,15 +102,15 @@ void QR
     qr::BusingerGolub( A, householderScalars, signature, Omega, ctrl );
 }
 
-#define PROTO_BASE(F) \
+#define PROTO(F) \
   template void QR \
   ( Matrix<F>& A, \
     Matrix<F>& householderScalars, \
     Matrix<Base<F>>& signature ); \
   template void QR \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& householderScalars, \
-    ElementalMatrix<Base<F>>& signature ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& householderScalars, \
+    AbstractDistMatrix<Base<F>>& signature ); \
   template void QR \
   ( Matrix<F>& A, \
     Matrix<F>& householderScalars, \
@@ -104,27 +118,27 @@ void QR
     Permutation& Omega, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void QR \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& householderScalars, \
-    ElementalMatrix<Base<F>>& signature, \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& householderScalars, \
+    AbstractDistMatrix<Base<F>>& signature, \
     DistPermutation& Omega, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
   ( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitTriang \
-  ( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
+  ( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitUnitary \
   ( Matrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::ExplicitUnitary \
-  ( ElementalMatrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl ); \
+  ( AbstractDistMatrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
   ( Matrix<F>& A, \
     Matrix<F>& R, \
     bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& R, \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& R, \
     bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
@@ -134,9 +148,9 @@ void QR
     bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::Explicit \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& R, \
-    ElementalMatrix<Int>& Omega, \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& R, \
+    AbstractDistMatrix<Int>& Omega, \
     bool thinQR, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void qr::NeighborColSwap \
@@ -157,10 +171,10 @@ void QR
   template void qr::ApplyQ \
   ( LeftOrRight side, \
     Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& householderScalars, \
-    const ElementalMatrix<Base<F>>& signature, \
-          ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& householderScalars, \
+    const AbstractDistMatrix<Base<F>>& signature, \
+          AbstractDistMatrix<F>& B ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
@@ -170,44 +184,29 @@ void QR
           Matrix<F>& X ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& householderScalars, \
-    const ElementalMatrix<Base<F>>& signature, \
-    const ElementalMatrix<F>& B, \
-          ElementalMatrix<F>& X ); \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& householderScalars, \
+    const AbstractDistMatrix<Base<F>>& signature, \
+    const AbstractDistMatrix<F>& B, \
+          AbstractDistMatrix<F>& X ); \
   template void qr::Cholesky \
   ( Matrix<F>& A, \
     Matrix<F>& R ); \
   template void qr::Cholesky \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& R ); \
-  template qr::TreeData<F> qr::TS( const ElementalMatrix<F>& A ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& R ); \
+  template qr::TreeData<F> qr::TS( const AbstractDistMatrix<F>& A ); \
   template void qr::ExplicitTS \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& R ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& R ); \
   template Matrix<F>& qr::ts::RootQR \
-  ( const ElementalMatrix<F>& A, TreeData<F>& treeData ); \
+  ( const AbstractDistMatrix<F>& A, TreeData<F>& treeData ); \
   template const Matrix<F>& qr::ts::RootQR \
-  ( const ElementalMatrix<F>& A, const TreeData<F>& treeData ); \
+  ( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData ); \
   template void qr::ts::Reduce \
-  ( const ElementalMatrix<F>& A, TreeData<F>& treeData ); \
+  ( const AbstractDistMatrix<F>& A, TreeData<F>& treeData ); \
   template void qr::ts::Scatter \
-  ( ElementalMatrix<F>& A, const TreeData<F>& treeData ); 
-
-#define PROTO(F) \
-  PROTO_BASE(F) \
-  template void QR \
-  ( DistMatrix<F,MC,MR,BLOCK>& A, \
-    DistMatrix<F,MR,STAR,BLOCK>& householderScalars );
-
-#define PROTO_QUAD PROTO_BASE(Quad)
-#define PROTO_COMPLEX_QUAD PROTO_BASE(Complex<Quad>)
-#define PROTO_DOUBLEDOUBLE PROTO_BASE(DoubleDouble)
-#define PROTO_QUADDOUBLE PROTO_BASE(QuadDouble)
-#define PROTO_COMPLEX_DOUBLEDOUBLE PROTO_BASE(Complex<DoubleDouble>)
-#define PROTO_COMPLEX_QUADDOUBLE PROTO_BASE(Complex<QuadDouble>)
-#define PROTO_BIGFLOAT PROTO_BASE(BigFloat)
-#define PROTO_COMPLEX_BIGFLOAT PROTO_BASE(Complex<BigFloat>)
+  ( AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

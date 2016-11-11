@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_FACTOR_HPP
@@ -62,7 +62,7 @@ namespace cholesky {
 template<typename F>
 void SolveAfter
 ( UpperOrLower uplo,
-  Orientation orientation, 
+  Orientation orientation,
   const Matrix<F>& A,
         Matrix<F>& B );
 template<typename F>
@@ -77,7 +77,7 @@ void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
   const Matrix<F>& A,
-  const Permutation& P, 
+  const Permutation& P,
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
@@ -114,7 +114,7 @@ Real LDLPivotConstant( LDLPivotType pivType )
     case BUNCH_KAUFMAN_A:
     case BUNCH_PARLETT:   return (1+Sqrt(Real(17)))/8;
     case BUNCH_KAUFMAN_D: return Real(0.525);
-    default: 
+    default:
         LogicError("No default constant exists for this pivot type");
         return 0;
     }
@@ -131,7 +131,7 @@ struct LDLPivotCtrl {
   LDLPivotType pivotType;
   Real gamma;
 
-  LDLPivotCtrl( LDLPivotType piv=BUNCH_KAUFMAN_A ) 
+  LDLPivotCtrl( LDLPivotType piv=BUNCH_KAUFMAN_A )
   : pivotType(piv), gamma(LDLPivotConstant<Real>(piv)) { }
 };
 
@@ -140,7 +140,7 @@ struct LDLPivotCtrl {
 template<typename F>
 void LDL( Matrix<F>& A, bool conjugate );
 template<typename F>
-void LDL( ElementalMatrix<F>& A, bool conjugate );
+void LDL( AbstractDistMatrix<F>& A, bool conjugate );
 template<typename F>
 void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate );
 
@@ -155,23 +155,23 @@ void LDL
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void LDL
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& dSub,
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& dSub,
   DistPermutation& P,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
-// All fronts of L are required to be initialized to the expansions of the 
+// All fronts of L are required to be initialized to the expansions of the
 // original sparse matrix before calling LDL.
 template<typename F>
 void LDL
 ( const ldl::NodeInfo& info,
-        ldl::Front<F>& L, 
+        ldl::Front<F>& L,
   LDLFrontType newType=LDL_2D );
 template<typename F>
 void LDL
 ( const ldl::DistNodeInfo& info,
-        ldl::DistFront<F>& L, 
+        ldl::DistFront<F>& L,
   LDLFrontType newType=LDL_2D );
 
 namespace ldl {
@@ -184,8 +184,8 @@ InertiaType Inertia
   const Matrix<F>& dSub );
 template<typename F>
 InertiaType Inertia
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub );
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F>& dSub );
 
 // Multiply vectors using an implicit representation of an LDL factorization
 // -------------------------------------------------------------------------
@@ -196,8 +196,8 @@ void MultiplyAfter
   bool conjugated );
 template<typename F>
 void MultiplyAfter
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
   bool conjugated );
 
 // Multiply vectors using an implicit representation of a pivoted LDL fact.
@@ -211,10 +211,10 @@ void MultiplyAfter
   bool conjugated );
 template<typename F>
 void MultiplyAfter
-( const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& dSub,
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& dSub,
   const DistPermutation& P,
-        ElementalMatrix<F>& B,
+        AbstractDistMatrix<F>& B,
   bool conjugated );
 
 // Solve linear systems using an implicit LDL factorization
@@ -226,18 +226,18 @@ void SolveAfter
   bool conjugated );
 template<typename F>
 void SolveAfter
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
   bool conjugated );
 
 template<typename F>
 void SolveAfter
 ( const vector<Int>& invMap, const NodeInfo& info,
-  const Front<F>& front, Matrix<F>& X ); 
+  const Front<F>& front, Matrix<F>& X );
 template<typename F>
 void SolveAfter
 ( const DistMap& invMap, const DistNodeInfo& info,
-  const DistFront<F>& front, DistMultiVec<F>& X ); 
+  const DistFront<F>& front, DistMultiVec<F>& X );
 
 template<typename F>
 void SolveAfter
@@ -276,10 +276,10 @@ void SolveAfter
   bool conjugated );
 template<typename F>
 void SolveAfter
-( const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& dSub,
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& dSub,
   const DistPermutation& P,
-        ElementalMatrix<F>& B, 
+        AbstractDistMatrix<F>& B,
   bool conjugated );
 
 } // namespace ldl
@@ -306,7 +306,7 @@ struct RegSolveCtrl
 
     RegSolveCtrl()
     {
-        const Real eps = limits::Epsilon<Real>(); 
+        const Real eps = limits::Epsilon<Real>();
         relTol = Pow(eps,Real(0.5));
         relTolRefine = Pow(eps,Real(0.8));
     }
@@ -465,7 +465,7 @@ Int SolveAfter
 namespace LUPivotTypeNS {
 enum LUPivotType
 {
-    LU_PARTIAL, 
+    LU_PARTIAL,
     LU_FULL,
     LU_ROOK, /* not yet supported */
     LU_WITHOUT_PIVOTING
@@ -478,7 +478,7 @@ using namespace LUPivotTypeNS;
 template<typename F>
 void LU( Matrix<F>& A );
 template<typename F>
-void LU( ElementalMatrix<F>& A );
+void LU( AbstractDistMatrix<F>& A );
 template<typename F>
 void LU( DistMatrix<F,STAR,STAR>& A );
 
@@ -487,7 +487,7 @@ void LU( DistMatrix<F,STAR,STAR>& A );
 template<typename F>
 void LU( Matrix<F>& A, Permutation& P );
 template<typename F>
-void LU( ElementalMatrix<F>& A, DistPermutation& P );
+void LU( AbstractDistMatrix<F>& A, DistPermutation& P );
 
 // LU with full pivoting
 // ---------------------
@@ -499,7 +499,7 @@ void LU
   Permutation& Q );
 template<typename F>
 void LU
-( ElementalMatrix<F>& A, 
+( AbstractDistMatrix<F>& A,
   DistPermutation& P,
   DistPermutation& Q );
 
@@ -515,10 +515,10 @@ void LUMod
   Base<F> tau=Base<F>(1)/Base<F>(10) );
 template<typename F>
 void LUMod
-(       ElementalMatrix<F>& A,
+(       AbstractDistMatrix<F>& A,
         DistPermutation& P,
-  const ElementalMatrix<F>& u,
-  const ElementalMatrix<F>& v, 
+  const AbstractDistMatrix<F>& u,
+  const AbstractDistMatrix<F>& v,
   bool conjugate=true,
   Base<F> tau=Base<F>(1)/Base<F>(10) );
 
@@ -533,9 +533,9 @@ void SolveAfter
         Matrix<F>& B );
 template<typename F>
 void SolveAfter
-( Orientation orientation, 
-  const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B );
+( Orientation orientation,
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B );
 
 // Solve linear systems using an implicit partially-pivoted LU factorization
 // -------------------------------------------------------------------------
@@ -548,9 +548,9 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
+  const AbstractDistMatrix<F>& A,
   const DistPermutation& P,
-        ElementalMatrix<F>& B );
+        AbstractDistMatrix<F>& B );
 
 // Solve linear systems using an implicit fully-pivoted LU factorization
 // ---------------------------------------------------------------------
@@ -564,10 +564,10 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
+  const AbstractDistMatrix<F>& A,
   const DistPermutation& P,
   const DistPermutation& Q,
-        ElementalMatrix<F>& B );
+        AbstractDistMatrix<F>& B );
 
 } // namespace lu
 
@@ -583,9 +583,9 @@ void LQ
   Matrix<Base<F>>& signature );
 template<typename F>
 void LQ
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars, 
-  ElementalMatrix<Base<F>>& signature );
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature );
 
 namespace lq {
 
@@ -601,12 +601,12 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars,
-  const ElementalMatrix<Base<F>>& signature,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+        AbstractDistMatrix<F>& B );
 
-// Solve a linear system with the implicit representations of L and Q 
+// Solve a linear system with the implicit representations of L and Q
 // ------------------------------------------------------------------
 template<typename F>
 void SolveAfter
@@ -619,32 +619,32 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars,
-  const ElementalMatrix<Base<F>>& signature,
-  const ElementalMatrix<F>& B,
-        ElementalMatrix<F>& X );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+  const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F>& X );
 
 // Overwrite A with L
 // ------------------
 template<typename F>
 void ExplicitTriang( Matrix<F>& A );
 template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A );
+void ExplicitTriang( AbstractDistMatrix<F>& A );
 
 // Overwrite A with Q
 // ------------------
 template<typename F>
 void ExplicitUnitary( Matrix<F>& A );
 template<typename F>
-void ExplicitUnitary( ElementalMatrix<F>& A );
+void ExplicitUnitary( AbstractDistMatrix<F>& A );
 
 // Return both L and Q such that A = L Q
 // -------------------------------------
 template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A );
 template<typename F>
-void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& A );
+void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A );
 
 } // namespace lq
 
@@ -682,31 +682,24 @@ void QR
   Matrix<Base<F>>& signature );
 template<typename F>
 void QR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars, 
-  ElementalMatrix<Base<F>>& signature );
-// NOTE: This is a ScaLAPACK wrapper, and ScaLAPACK uses a different convention
-//       for Householder transformations (that includes identity matrices,
-//       which are not representable as Householder transformations)
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
-void QR
-( DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<F,MR,STAR,BLOCK>& householderScalars );
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature );
 
 // Return an implicit representation of (Q,R,Omega) such that A Omega^T ~= Q R
 // ---------------------------------------------------------------------------
 template<typename F>
 void QR
 ( Matrix<F>& A,
-  Matrix<F>& householderScalars, 
+  Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature,
   Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void QR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars, 
-  ElementalMatrix<Base<F>>& signature,
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
@@ -726,10 +719,10 @@ template<typename F>
 void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars,
-  const ElementalMatrix<Base<F>>& signature,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+        AbstractDistMatrix<F>& B );
 
 // Solve a linear system with the implicit QR factorization
 // --------------------------------------------------------
@@ -744,11 +737,11 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars,
-  const ElementalMatrix<Base<F>>& signature,
-  const ElementalMatrix<F>& B,
-        ElementalMatrix<F>& X );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+  const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F>& X );
 // TODO: Version which involves permutation matrix
 
 // Cholesky-based QR
@@ -756,7 +749,7 @@ void SolveAfter
 template<typename F>
 void Cholesky( Matrix<F>& A, Matrix<F>& R );
 template<typename F>
-void Cholesky( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
+void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
 
 // Return R (with non-negative diagonal) such that A = Q R or A Omega^T = Q R
 // --------------------------------------------------------------------------
@@ -766,7 +759,7 @@ void ExplicitTriang
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ExplicitTriang
-( ElementalMatrix<F>& A,
+( AbstractDistMatrix<F>& A,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 // Return Q such that either A = Q R or A Omega^T = Q R
@@ -778,7 +771,7 @@ void ExplicitUnitary
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ExplicitUnitary
-( ElementalMatrix<F>& A,
+( AbstractDistMatrix<F>& A,
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
@@ -787,31 +780,31 @@ void ExplicitUnitary
 template<typename F>
 void Explicit
 ( Matrix<F>& A,
-  Matrix<F>& R, 
+  Matrix<F>& R,
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& R, 
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& R,
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 // Return (Q,R,Omega) such that A Omega^T = Q R
 // --------------------------------------------
-// NOTE: Column-pivoting is performed regardless of the value of ctrl.colPiv 
+// NOTE: Column-pivoting is performed regardless of the value of ctrl.colPiv
 template<typename F>
 void Explicit
 ( Matrix<F>& A,
-  Matrix<F>& R, 
+  Matrix<F>& R,
   Matrix<Int>& Omega,
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& R, 
-  ElementalMatrix<Int>& Omega,
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& R,
+  AbstractDistMatrix<Int>& Omega,
   bool thinQ=true,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
@@ -869,27 +862,27 @@ struct TreeData
 
 // Return an implicit tall-skinny QR factorization
 template<typename F>
-TreeData<F> TS( const ElementalMatrix<F>& A );
+TreeData<F> TS( const AbstractDistMatrix<F>& A );
 
 // Return an explicit tall-skinny QR factorization
 template<typename F>
-void ExplicitTS( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
+void ExplicitTS( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
 
 namespace ts {
 
 template<typename F>
 Matrix<F>& RootQR
-( const ElementalMatrix<F>& A, TreeData<F>& treeData );
+( const AbstractDistMatrix<F>& A, TreeData<F>& treeData );
 
 template<typename F>
 const Matrix<F>& RootQR
-( const ElementalMatrix<F>& A, const TreeData<F>& treeData );
+( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
 
 template<typename F>
-void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData );
+void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData );
 
 template<typename F>
-void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData );
+void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
 
 } // namespace ts
 
@@ -904,9 +897,9 @@ void RQ
   Matrix<Base<F>>& signature );
 template<typename F>
 void RQ
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars, 
-  ElementalMatrix<Base<F>>& signature );
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature );
 
 namespace rq {
 
@@ -922,10 +915,10 @@ template<typename F>
 void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars,
-  const ElementalMatrix<Base<F>>& signature,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+        AbstractDistMatrix<F>& B );
 
 template<typename F>
 void SolveAfter
@@ -938,22 +931,22 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& householderScalars,
-  const ElementalMatrix<Base<F>>& signature,
-  const ElementalMatrix<F>& B,
-        ElementalMatrix<F>& X );
+  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+  const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F>& X );
 
 // TODO: Think about ensuring this ordering is consistent with lq::Explicit
 template<typename F>
 void Cholesky( Matrix<F>& A, Matrix<F>& R );
 template<typename F>
-void Cholesky( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
+void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
 
 template<typename F>
 void ExplicitTriang( Matrix<F>& A );
 template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A );
+void ExplicitTriang( AbstractDistMatrix<F>& A );
 
 } // namespace rq
 
@@ -969,19 +962,19 @@ void GQR
   Matrix<Base<F>>& signatureB );
 template<typename F>
 void GQR
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& householderScalarsA,
-  ElementalMatrix<Base<F>>& signatureA,
-  ElementalMatrix<F>& B, 
-  ElementalMatrix<F>& householderScalarsB,
-  ElementalMatrix<Base<F>>& signatureB );
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalarsA,
+  AbstractDistMatrix<Base<F>>& signatureA,
+  AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<F>& householderScalarsB,
+  AbstractDistMatrix<Base<F>>& signatureB );
 
 namespace gqr {
 
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+void ExplicitTriang( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 } // namespace gqr
 
@@ -997,19 +990,19 @@ void GRQ
   Matrix<Base<F>>& signatureB );
 template<typename F>
 void GRQ
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& householderScalarsA,
-  ElementalMatrix<Base<F>>& signatureA,
-  ElementalMatrix<F>& B, 
-  ElementalMatrix<F>& householderScalarsB,
-  ElementalMatrix<Base<F>>& signatureB );
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& householderScalarsA,
+  AbstractDistMatrix<Base<F>>& signatureA,
+  AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<F>& householderScalarsB,
+  AbstractDistMatrix<Base<F>>& signatureB );
 
 namespace grq {
 
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+void ExplicitTriang( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 } // namespace grq
 
@@ -1018,29 +1011,29 @@ void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 template<typename F>
 void ID
 ( const Matrix<F>& A,
-        Permutation& P, 
-        Matrix<F>& Z, 
+        Permutation& P,
+        Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void ID
-( const ElementalMatrix<F>& A,
+( const AbstractDistMatrix<F>& A,
         DistPermutation& P,
-        ElementalMatrix<F>& Z, 
+        AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
 void ID
 ( Matrix<F>& A,
-  Permutation& P, 
+  Permutation& P,
   Matrix<F>& Z,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(), 
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(),
   bool canOverwrite=false );
 template<typename F>
 void ID
-( ElementalMatrix<F>& A,
+( AbstractDistMatrix<F>& A,
   DistPermutation& P,
-  ElementalMatrix<F>& Z,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(), 
+  AbstractDistMatrix<F>& Z,
+  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(),
   bool canOverwrite=false );
 
 // Skeleton
@@ -1054,10 +1047,10 @@ void Skeleton
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 template<typename F>
 void Skeleton
-( const ElementalMatrix<F>& A,
+( const AbstractDistMatrix<F>& A,
         DistPermutation& PR,
         DistPermutation& PC,
-        ElementalMatrix<F>& Z,
+        AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
 
 } // namespace El

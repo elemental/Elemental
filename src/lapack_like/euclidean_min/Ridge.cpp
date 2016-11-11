@@ -2,21 +2,21 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
+template<typename F>
 void Ridge
 ( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& B, 
+  const Matrix<F>& B,
         Base<F> gamma,
-        Matrix<F>& X, 
+        Matrix<F>& X,
   RidgeAlg alg )
 {
     DEBUG_CSE
@@ -66,7 +66,7 @@ void Ridge
         else
         {
             Matrix<F> U, V;
-            Matrix<Base<F>> s; 
+            Matrix<Base<F>> s;
             if( orientation == NORMAL )
             {
                 SVDCtrl<Base<F>> ctrl;
@@ -82,8 +82,8 @@ void Ridge
                 ctrl.overwrite = true;
                 SVD( AAdj, U, s, V, ctrl );
             }
-            auto sigmaMap = 
-              [=]( Base<F> sigma ) 
+            auto sigmaMap =
+              [=]( Base<F> sigma )
               { return sigma / (sigma*sigma + gamma*gamma); };
             EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
             Gemm( ADJOINT, NORMAL, F(1), U, B, X );
@@ -98,13 +98,13 @@ void Ridge
     }
 }
 
-template<typename F> 
+template<typename F>
 void Ridge
 ( Orientation orientation,
-  const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& BPre, 
+  const AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& BPre,
         Base<F> gamma,
-        ElementalMatrix<F>& XPre, 
+        AbstractDistMatrix<F>& XPre,
         RidgeAlg alg )
 {
     DEBUG_CSE
@@ -144,7 +144,7 @@ void Ridge
         else if( alg == RIDGE_QR )
         {
             Zeros( Z, m+n, n );
-            auto ZT = Z( IR(0,m),   IR(0,n) ); 
+            auto ZT = Z( IR(0,m),   IR(0,n) );
             auto ZB = Z( IR(m,m+n), IR(0,n) );
             if( orientation == NORMAL )
                 ZT = A;
@@ -180,8 +180,8 @@ void Ridge
                 SVD( AAdj, U, s, V );
             }
 
-            auto sigmaMap = 
-              [=]( Base<F> sigma ) 
+            auto sigmaMap =
+              [=]( Base<F> sigma )
               { return sigma / (sigma*sigma + gamma*gamma); };
             EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
             Gemm( ADJOINT, NORMAL, F(1), U, B, X );
@@ -200,9 +200,9 @@ template<typename F>
 void Ridge
 ( Orientation orientation,
   const SparseMatrix<F>& A,
-  const Matrix<F>& B, 
+  const Matrix<F>& B,
         Base<F> gamma,
-        Matrix<F>& X, 
+        Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -223,9 +223,9 @@ template<typename F>
 void Ridge
 ( Orientation orientation,
   const DistSparseMatrix<F>& A,
-  const DistMultiVec<F>& B, 
+  const DistMultiVec<F>& B,
         Base<F> gamma,
-        DistMultiVec<F>& X, 
+        DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -252,10 +252,10 @@ void Ridge
           RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& B, \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
           Base<F> gamma, \
-          ElementalMatrix<F>& X, \
+          AbstractDistMatrix<F>& X, \
           RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \

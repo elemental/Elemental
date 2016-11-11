@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -27,7 +27,7 @@ void Panel
 } // namespace lu
 
 // Short-circuited form of LU factorization with partial pivoting
-template<typename F> 
+template<typename F>
 void RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_CSE
@@ -56,7 +56,7 @@ void RowEchelon( Matrix<F>& A, Matrix<F>& B )
         auto A11 = A( ind1, ind1 );
         auto A12 = A( ind1, ind2 );
         auto A21 = A( ind2, ind1 );
-        auto A22 = A( ind2, ind2 ); 
+        auto A22 = A( ind2, ind2 );
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
         auto B1  = B( ind1, ALL );
@@ -76,7 +76,7 @@ void RowEchelon( Matrix<F>& A, Matrix<F>& B )
 }
 
 // Short-circuited form of LU factorization with partial pivoting
-template<typename F> 
+template<typename F>
 void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
     DEBUG_CSE
@@ -114,7 +114,7 @@ void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         auto A11 = A( ind1, ind1 );
         auto A12 = A( ind1, ind2 );
         auto A21 = A( ind2, ind1 );
-        auto A22 = A( ind2, ind2 ); 
+        auto A22 = A( ind2, ind2 );
         auto AB2 = A( indB, ind2 );
         auto B1  = B( ind1, ALL  );
         auto B2  = B( ind2, ALL  );
@@ -168,7 +168,7 @@ void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 
 namespace lin_solve {
 
-template<typename F> 
+template<typename F>
 void Overwrite( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_CSE
@@ -177,9 +177,9 @@ void Overwrite( Matrix<F>& A, Matrix<F>& B )
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
-template<typename F> 
+template<typename F>
 void Overwrite
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_CSE
 
@@ -187,7 +187,7 @@ void Overwrite
     auto& A = AProx.Get();
     auto& B = BProx.Get();
 
-    const bool useFullLU = true; 
+    const bool useFullLU = true;
 
     if( useFullLU )
     {
@@ -204,21 +204,11 @@ void Overwrite
 
 } // namespace lin_solve
 
-template<typename F> 
+template<typename F>
 void LinearSolve( const Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_CSE
     Matrix<F> ACopy( A );
-    lin_solve::Overwrite( ACopy, B );
-}
-
-template<typename F> 
-void LinearSolve
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B )
-{
-    DEBUG_CSE
-    DistMatrix<F> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
 }
 
@@ -254,23 +244,51 @@ void ScaLAPACKHelper
 ( const DistMatrix<F,MC,MR,BLOCK>& A,
         DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    LogicError("ScaLAPACK does not support this datatype");
+    LogicError("ScaLAPACK does not support ",TypeName<F>());
 }
 
 } // namespace lin_solve
 
 template<typename F>
 void LinearSolve
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& B )
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+  bool scalapack )
 {
     DEBUG_CSE
-    lin_solve::ScaLAPACKHelper( A, B );
+    if( scalapack )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        ProxyCtrl proxyCtrl;
+        proxyCtrl.colConstrain = true;
+        proxyCtrl.rowConstrain = true;
+        proxyCtrl.blockHeight = DefaultBlockHeight();
+        proxyCtrl.blockWidth = DefaultBlockWidth();
+        proxyCtrl.colAlign = 0;
+        proxyCtrl.rowAlign = 0;
+        proxyCtrl.colCut = 0;
+        proxyCtrl.rowCut = 0;
+        DistMatrixReadProxy<F,F,MC,MR,BLOCK> AProx( A, proxyCtrl );
+        DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> BProx( B, proxyCtrl );
+        auto& ABlock = AProx.GetLocked();
+        auto& BBlock = BProx.Get();
+        ScaLAPACKHelper( ABlock, BBlock );
+        return;
+#else
+        if( A.Grid().Rank() == 0 )
+            Output
+            ("WARNING: Requested a ScaLAPACK solve, "
+             "but ScaLAPACK was not available");
+#endif
+    }
+    DistMatrix<F> ACopy( A );
+    lin_solve::Overwrite( ACopy, B );
 }
 
 template<typename F>
 void LinearSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
+( const SparseMatrix<F>& A,
+        Matrix<F>& B,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -281,7 +299,8 @@ void LinearSolve
 
 template<typename F>
 void LinearSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& B,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -294,19 +313,19 @@ void LinearSolve
 #define PROTO(F) \
   template void lin_solve::Overwrite( Matrix<F>& A, Matrix<F>& B ); \
   template void lin_solve::Overwrite \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void LinearSolve( const Matrix<F>& A, Matrix<F>& B ); \
   template void LinearSolve \
-  ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& B ); \
+  ( const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& B, \
+    bool scalapack ); \
   template void LinearSolve \
-  ( const DistMatrix<F,MC,MR,BLOCK>& A, \
-          DistMatrix<F,MC,MR,BLOCK>& B ); \
-  template void LinearSolve \
-  ( const SparseMatrix<F>& A, Matrix<F>& B, \
+  ( const SparseMatrix<F>& A, \
+          Matrix<F>& B, \
     const LeastSquaresCtrl<Base<F>>& ctrl ); \
   template void LinearSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, \
+  ( const DistSparseMatrix<F>& A, \
+          DistMultiVec<F>& B, \
     const LeastSquaresCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

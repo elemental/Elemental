@@ -69,9 +69,9 @@ DNorm = El.FrobeniusNorm( D )
 
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.progress = True
-ctrl.solveCtrl.relTol = 1e-10
-ctrl.solveCtrl.relTolRefine = 1e-12
-ctrl.solveCtrl.progress = True
+ctrl.sqsdCtrl.solveCtrl.relTol = 1e-10
+ctrl.sqsdCtrl.solveCtrl.relTolRefine = 1e-12
+ctrl.sqsdCtrl.solveCtrl.progress = True
 
 startLSE = El.mpi.Time()
 X = El.LSE(A,B,C,D,ctrl)

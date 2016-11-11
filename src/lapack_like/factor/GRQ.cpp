@@ -2,19 +2,19 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
+template<typename F>
 void GRQ
 ( Matrix<F>& A,
   Matrix<F>& householderScalarsA,
-  Matrix<Base<F>>& signatureA, 
+  Matrix<Base<F>>& signatureA,
   Matrix<F>& B,
   Matrix<F>& householderScalarsB,
   Matrix<Base<F>>& signatureB )
@@ -25,14 +25,14 @@ void GRQ
     QR( B, householderScalarsB, signatureB );
 }
 
-template<typename F> 
+template<typename F>
 void GRQ
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<F>& householderScalarsA,
-  ElementalMatrix<Base<F>>& signatureA,
-  ElementalMatrix<F>& BPre, 
-  ElementalMatrix<F>& householderScalarsB,
-  ElementalMatrix<Base<F>>& signatureB )
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalarsA,
+  AbstractDistMatrix<Base<F>>& signatureA,
+  AbstractDistMatrix<F>& BPre,
+  AbstractDistMatrix<F>& householderScalarsB,
+  AbstractDistMatrix<Base<F>>& signatureB )
 {
     DEBUG_CSE
 
@@ -47,7 +47,7 @@ void GRQ
 
 namespace grq {
 
-template<typename F> 
+template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_CSE
@@ -59,8 +59,8 @@ void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
     qr::ExplicitTriang( B );
 }
 
-template<typename F> 
-void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
+template<typename F>
+void ExplicitTriang( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_CSE
 
@@ -89,16 +89,16 @@ void ExplicitTriang( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
     Matrix<F>& householderScalarsB, \
     Matrix<Base<F>>& signatureB ); \
   template void GRQ \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& householderScalarsA, \
-    ElementalMatrix<Base<F>>& signatureA, \
-    ElementalMatrix<F>& B, \
-    ElementalMatrix<F>& householderScalarsB, \
-    ElementalMatrix<Base<F>>& signatureB ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& householderScalarsA, \
+    AbstractDistMatrix<Base<F>>& signatureA, \
+    AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<F>& householderScalarsB, \
+    AbstractDistMatrix<Base<F>>& signatureB ); \
   template void grq::ExplicitTriang \
   ( Matrix<F>& A, Matrix<F>& B ); \
   template void grq::ExplicitTriang \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

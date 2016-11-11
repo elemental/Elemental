@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_RQ_PANEL_HPP
@@ -12,7 +12,7 @@
 namespace El {
 namespace rq {
 
-template<typename F> 
+template<typename F>
 void
 PanelHouseholder
 ( Matrix<F>& A,
@@ -74,12 +74,12 @@ PanelHouseholder
     DiagonalScaleTrapezoid( RIGHT, UPPER, NORMAL, signature, R, -iOff );
 }
 
-template<typename F> 
+template<typename F>
 void
 PanelHouseholder
 ( DistMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars,
-  ElementalMatrix<Base<F>>& signature )
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature )
 {
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
@@ -134,7 +134,7 @@ PanelHouseholder
         El::AllReduce( z01_MC_STAR, A0L.RowComm() );
         Ger
         ( -tau, z01_MC_STAR.LockedMatrix(), a1L_STAR_MR.LockedMatrix(),
-          A0L.Matrix() ); 
+          A0L.Matrix() );
 
         // Reset alpha11's value
         if( alpha11.IsLocal(0,0) )

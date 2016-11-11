@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,12 +16,12 @@
 // NOTE: There are *many* algorithms for (pseudo-)skeleton/CUR decompositions,
 //       and, for now, we will simply implement one.
 
-// TODO: Implement randomized algorithms from Jiawei Chiu and Laurent Demanet's 
+// TODO: Implement randomized algorithms from Jiawei Chiu and Laurent Demanet's
 //       "Sublinear randomized algorithms for skeleton decompositions"?
 
 namespace El {
 
-template<typename F> 
+template<typename F>
 void Skeleton
 ( const Matrix<F>& A,
         Permutation& PR,
@@ -49,7 +49,7 @@ void Skeleton
 
     // Find the column permutation (force the same number of steps)
     B = A;
-    auto secondCtrl = ctrl; 
+    auto secondCtrl = ctrl;
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
@@ -59,12 +59,12 @@ void Skeleton
     qr::SolveAfter( NORMAL, B, householderScalars, signature, K, Z );
 }
 
-template<typename F> 
+template<typename F>
 void Skeleton
-( const ElementalMatrix<F>& APre, 
+( const AbstractDistMatrix<F>& APre,
         DistPermutation& PR,
         DistPermutation& PC,
-        ElementalMatrix<F>& Z,
+        AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -91,7 +91,7 @@ void Skeleton
 
     // Find the column permutation (force the same number of steps)
     B = A;
-    auto secondCtrl = ctrl; 
+    auto secondCtrl = ctrl;
     secondCtrl.adaptive = false;
     secondCtrl.boundRank = true;
     secondCtrl.maxRank = numSteps;
@@ -109,10 +109,10 @@ void Skeleton
           Matrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void Skeleton \
-  ( const ElementalMatrix<F>& A, \
+  ( const AbstractDistMatrix<F>& A, \
           DistPermutation& PR, \
           DistPermutation& PC, \
-          ElementalMatrix<F>& Z, \
+          AbstractDistMatrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl );
 
 #define EL_NO_INT_PROTO

@@ -74,10 +74,10 @@ void UpdateMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
 (       DistMatrix<T,U,V>& A,
-  const ElementalMatrix<S>& dPre, 
+  const AbstractDistMatrix<S>& dPre, 
         function<void(T&,S)> func,
         Int offset )
-{ 
+{
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
@@ -115,6 +115,31 @@ void UpdateMappedDiagonal
     }
 }
 
+template<typename T,typename S,Dist U,Dist V>
+void UpdateMappedDiagonal
+(       DistMatrix<T,U,V,BLOCK>& A,
+  const AbstractDistMatrix<S>& d, 
+        function<void(T&,S)> func,
+        Int offset )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, dPre ))
+    if( d.Participating() && d.RedundantRank() == 0 )
+    {
+        const Int iStart = Max(-offset,0);
+        const Int jStart = Max( offset,0);
+        const Int localDiagLength = d.LocalHeight();
+        for( Int kLoc=0; kLoc<localDiagLength; ++kLoc )
+        {
+            const Int k = d.GlobalRow(kLoc);
+            T updateValue(0);
+            func( updateValue, d.GetLocal(kLoc,0) );
+            A.QueueUpdate( k+iStart, k+jStart, updateValue );
+        }
+    }
+    A.ProcessQueues();
+}
+
 template<typename T,typename S>
 void UpdateMappedDiagonal
 (       DistSparseMatrix<T>& A,
@@ -145,9 +170,9 @@ void UpdateMappedDiagonal
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
-            T alpha = 0;
-            func( alpha, dBuf[iLoc] );
-            A.QueueLocalUpdate( iLoc, i, alpha );
+            T updateValue(0);
+            func( updateValue, dBuf[iLoc] );
+            A.QueueLocalUpdate( iLoc, i, updateValue );
         }
         A.ProcessLocalQueues(); 
     }

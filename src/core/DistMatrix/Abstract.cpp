@@ -357,6 +357,10 @@ bool AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const EL_NO_RELEASE_EXCEPT
 template<typename T>
 int AbstractDistMatrix<T>::Root() const EL_NO_EXCEPT { return root_; }
 
+template<typename T>
+El::DistData AbstractDistMatrix<T>::DistData() const
+{ return El::DistData(*this); }
+
 // Single-entry manipulation
 // =========================
 

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_QUASIDIAGONALSCALE_HPP
@@ -14,9 +14,9 @@ namespace El {
 template<typename F,typename FMain>
 void QuasiDiagonalScale
 ( LeftOrRight side,
-  UpperOrLower uplo, 
+  UpperOrLower uplo,
   const Matrix<FMain>& d,
-  const Matrix<F>& dSub, 
+  const Matrix<F>& dSub,
         Matrix<F>& X,
   bool conjugated )
 {
@@ -42,7 +42,7 @@ void QuasiDiagonalScale
             }
             else
             {
-                D.Set(0,0,d.Get(i,0));    
+                D.Set(0,0,d.Get(i,0));
                 D.Set(1,1,d.Get(i+1,0));
                 D.Set(1,0,dSub.Get(i,0));
                 MakeSymmetric( LOWER, D, conjugated );
@@ -71,7 +71,7 @@ void QuasiDiagonalScale
             }
             else
             {
-                D.Set(0,0,d.Get(j,0));    
+                D.Set(0,0,d.Get(j,0));
                 D.Set(1,1,d.Get(j+1,0));
                 D.Set(1,0,dSub.Get(j,0));
                 MakeSymmetric( LOWER, D, conjugated );
@@ -112,11 +112,11 @@ void LeftQuasiDiagonalScale
       if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
           LogicError("data is not properly aligned");
       if( XPrev.ColAlign() != colAlignPrev ||
-          dPrev.ColAlign() != colAlignPrev || 
+          dPrev.ColAlign() != colAlignPrev ||
           dSubPrev.ColAlign() != colAlignPrev )
           LogicError("'previous' data is not properly aligned");
-      if( XNext.ColAlign() != colAlignNext || 
-          dNext.ColAlign() != colAlignNext || 
+      if( XNext.ColAlign() != colAlignNext ||
+          dNext.ColAlign() != colAlignNext ||
           dSubNext.ColAlign() != colAlignNext )
           LogicError("'next' data is not properly aligned");
     )
@@ -197,11 +197,11 @@ void RightQuasiDiagonalScale
       if( d.ColAlign() != X.RowAlign() || dSub.ColAlign() != X.RowAlign() )
           LogicError("data is not properly aligned");
       if( XPrev.RowAlign() != rowAlignPrev ||
-          dPrev.ColAlign() != rowAlignPrev || 
+          dPrev.ColAlign() != rowAlignPrev ||
           dSubPrev.ColAlign() != rowAlignPrev )
           LogicError("'previous' data is not properly aligned");
-      if( XNext.RowAlign() != rowAlignNext || 
-          dNext.ColAlign() != rowAlignNext || 
+      if( XNext.RowAlign() != rowAlignNext ||
+          dNext.ColAlign() != rowAlignNext ||
           dSubNext.ColAlign() != rowAlignNext )
           LogicError("'next' data is not properly aligned");
     )
@@ -259,9 +259,9 @@ void RightQuasiDiagonalScale
 template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalScale
-( LeftOrRight side, UpperOrLower uplo, 
-  const ElementalMatrix<FMain>& d,
-  const ElementalMatrix<F>& dSub, 
+( LeftOrRight side, UpperOrLower uplo,
+  const AbstractDistMatrix<FMain>& d,
+  const AbstractDistMatrix<F>& dSub,
         DistMatrix<F,U,V>& X,
   bool conjugated )
 {
@@ -281,7 +281,7 @@ QuasiDiagonalScale
         if( colStride == 1 )
         {
             QuasiDiagonalScale
-            ( side, uplo, 
+            ( side, uplo,
               d_U_STAR.LockedMatrix(), dSub_U_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
@@ -321,7 +321,7 @@ QuasiDiagonalScale
         if( rowStride == 1 )
         {
             QuasiDiagonalScale
-            ( side, uplo, 
+            ( side, uplo,
               d_V_STAR.LockedMatrix(), dSub_V_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
@@ -349,6 +349,19 @@ QuasiDiagonalScale
           dSub_V_STAR, dSubPrev_V_STAR, dSubNext_V_STAR,
           X, XPrev, XNext, conjugated );
     }
+}
+
+template<typename F,typename FMain,Dist U,Dist V>
+void
+QuasiDiagonalScale
+( LeftOrRight side, UpperOrLower uplo,
+  const AbstractDistMatrix<FMain>& d,
+  const AbstractDistMatrix<F>& dSub,
+        DistMatrix<F,U,V,BLOCK>& X,
+  bool conjugated )
+{
+    DEBUG_CSE
+    LogicError("This routine is not yet supported");
 }
 
 } // namespace El

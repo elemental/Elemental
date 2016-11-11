@@ -130,7 +130,6 @@ public:
     // Basic queries
     // =============
     DistWrap Wrap() const override EL_NO_EXCEPT { return BLOCK; }
-    virtual El::DistData DistData() const = 0;
 
     // Distribution information
     // ------------------------

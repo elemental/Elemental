@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LQ_PANELHOUSEHOLDER_HPP
@@ -61,7 +61,7 @@ PanelHouseholder
     // Form d and rescale L
     auto L = A( ALL, IR(0,minDim) );
     GetRealPartOfDiagonal(L,signature);
-    auto sgn = []( const Real& delta ) 
+    auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
     EntrywiseMap( signature, function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, signature, L );
@@ -71,8 +71,8 @@ template<typename F>
 void
 PanelHouseholder
 ( DistMatrix<F>& A,
-  ElementalMatrix<F>& householderScalars,
-  ElementalMatrix<Base<F>>& signature )
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature )
 {
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
@@ -130,7 +130,7 @@ PanelHouseholder
     // Form d and rescale L
     auto L = A( ALL, IR(0,minDim) );
     GetRealPartOfDiagonal(L,signature);
-    auto sgn = []( const Real& delta ) 
+    auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
     EntrywiseMap( signature, function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, signature, L );

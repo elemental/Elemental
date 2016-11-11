@@ -82,12 +82,38 @@ EL_EXPORT ElError ElLeastSquaresDistSparse_z
 typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
-  float alpha;
+  bool canOverwrite;
   float reg0Tmp;
   float reg0Perm;
   float reg1Tmp;
   float reg1Perm;
   ElRegSolveCtrl_s solveCtrl;
+  bool equilibrate;
+  bool progress;
+  bool time;
+} ElSQSDCtrl_s;
+EL_EXPORT ElError ElSQSDCtrlDefault_s( ElSQSDCtrl_s* ctrl );
+
+typedef struct {
+  bool scaleTwoNorm;
+  ElInt basisSize;
+  bool canOverwrite;
+  double reg0Tmp;
+  double reg0Perm;
+  double reg1Tmp;
+  double reg1Perm;
+  ElRegSolveCtrl_d solveCtrl;
+  bool equilibrate;
+  bool progress;
+  bool time;
+} ElSQSDCtrl_d;
+EL_EXPORT ElError ElSQSDCtrlDefault_d( ElSQSDCtrl_d* ctrl );
+
+typedef struct {
+  bool scaleTwoNorm;
+  ElInt basisSize;
+  float alpha;
+  ElSQSDCtrl_s sqsdCtrl;
   bool equilibrate;
   bool progress;
   bool time;
@@ -98,11 +124,7 @@ typedef struct {
   bool scaleTwoNorm;
   ElInt basisSize;
   double alpha;
-  double reg0Tmp;
-  double reg0Perm;
-  double reg1Tmp;
-  double reg1Perm;
-  ElRegSolveCtrl_d solveCtrl;
+  ElSQSDCtrl_d sqsdCtrl;
   bool equilibrate;
   bool progress;
   bool time;

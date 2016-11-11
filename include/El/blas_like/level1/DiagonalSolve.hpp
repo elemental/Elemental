@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_DIAGONALSOLVE_HPP
@@ -15,8 +15,8 @@ template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side,
   Orientation orientation,
-  const Matrix<FDiag>& d, 
-        Matrix<F>& A, 
+  const Matrix<FDiag>& d,
+        Matrix<F>& A,
   bool checkIfSingular )
 {
     DEBUG_CSE
@@ -59,7 +59,7 @@ void DiagonalSolve
 
 template<typename F>
 void SymmetricDiagonalSolve
-( const Matrix<Base<F>>& d, 
+( const Matrix<Base<F>>& d,
         Matrix<F>& A )
 {
     DEBUG_CSE
@@ -69,14 +69,14 @@ void SymmetricDiagonalSolve
           LogicError("Invalid symmetric diagonal solve dimension");
     )
     for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i ) 
+        for( Int i=0; i<n; ++i )
             A(i,j) /= d(i)*d(j);
 }
 
 template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<FDiag>& dPre, 
+  const AbstractDistMatrix<FDiag>& dPre,
         DistMatrix<F,U,V>& A,
   bool checkIfSingular )
 {
@@ -114,17 +114,65 @@ void DiagonalSolve
     }
 }
 
-template<typename FDiag,typename F>
+template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<FDiag>& d,
-        ElementalMatrix<F>& A,
+  const AbstractDistMatrix<FDiag>& dPre,
+        DistMatrix<F,U,V,BLOCK>& A,
   bool checkIfSingular )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
+    DEBUG_ONLY(
+      AssertSameGrids( dPre, A );
+    )
+    if( side == LEFT )
+    {
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.ColAlign();
+        ctrl.blockHeight = A.BlockHeight();
+        ctrl.colCut = A.ColCut();
+
+        DistMatrixReadProxy<FDiag,FDiag,U,Collect<V>(),BLOCK>
+          dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
+        DiagonalSolve
+        ( LEFT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
+    }
+    else
+    {
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.RowAlign();
+        ctrl.blockHeight = A.BlockWidth();
+        ctrl.colCut = A.RowCut();
+
+        DistMatrixReadProxy<FDiag,FDiag,V,Collect<U>(),BLOCK>
+          dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
+        DiagonalSolve
+        ( RIGHT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
+    }
+}
+
+template<typename FDiag,typename F>
+void DiagonalSolve
+( LeftOrRight side, Orientation orientation,
+  const AbstractDistMatrix<FDiag>& d,
+        AbstractDistMatrix<F>& A,
+  bool checkIfSingular )
+{
+    DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+        auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST,WRAP>&>(A); \
         DiagonalSolve( side, orientation, d, ACast, checkIfSingular );
     #include <El/macros/GuardAndPayload.h>
 }
@@ -274,7 +322,7 @@ void DiagonalSolve
         FastResize( recvVals, meta.numRecvInds );
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
+          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
           A.Comm() );
 
         // Loop over the entries of A and rescale
@@ -322,7 +370,7 @@ void SymmetricDiagonalSolve
     vector<Real> recvVals( meta.numRecvInds );
     mpi::AllToAll
     ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
+      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
       A.Comm() );
 
     // Loop over the entries of A and rescale
@@ -360,7 +408,7 @@ void DiagonalSolve
         const F delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
         DEBUG_ONLY(
           if( checkIfSingular && delta == F(0) )
-              throw SingularMatrixException(); 
+              throw SingularMatrixException();
         )
         for( Int j=0; j<width; ++j )
             XLoc(iLoc,j) /= delta;
@@ -386,8 +434,8 @@ void DiagonalSolve
   EL_EXTERN template void DiagonalSolve \
   ( LeftOrRight side, \
     Orientation orientation, \
-    const ElementalMatrix<F>& d, \
-          ElementalMatrix<F>& A, \
+    const AbstractDistMatrix<F>& d, \
+          AbstractDistMatrix<F>& A, \
     bool checkIfSingular ); \
   EL_EXTERN template void DiagonalSolve \
   ( LeftOrRight side, \

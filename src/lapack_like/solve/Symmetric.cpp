@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -15,16 +15,16 @@ namespace symm_solve {
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo,
-  Orientation orientation, 
+  Orientation orientation,
   Matrix<F>& A,
-  Matrix<F>& B, 
+  Matrix<F>& B,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     if( uplo == UPPER )
         LogicError("Upper Bunch-Kaufman is not yet supported");
-    Permutation p; 
+    Permutation p;
     Matrix<F> dSub;
     LDL( A, dSub, p, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
@@ -39,9 +39,9 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo,
-  Orientation orientation, 
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& BPre, 
+  Orientation orientation,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
@@ -54,7 +54,7 @@ void Overwrite
     auto& A = AProx.Get();
     auto& B = BProx.Get();
 
-    DistPermutation p(A.Grid()); 
+    DistPermutation p(A.Grid());
     DistMatrix<F,MD,STAR> dSub(A.Grid());
     LDL( A, dSub, p, conjugate, ctrl );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
@@ -71,9 +71,9 @@ void Overwrite
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo,
-  Orientation orientation, 
+  Orientation orientation,
   const Matrix<F>& A,
-        Matrix<F>& B, 
+        Matrix<F>& B,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
@@ -85,9 +85,9 @@ void SymmetricSolve
 template<typename F>
 void SymmetricSolve
 ( UpperOrLower uplo,
-  Orientation orientation, 
-  const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B, 
+  Orientation orientation,
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
@@ -169,27 +169,45 @@ void SymmetricSolve
 
 #define PROTO(F) \
   template void symm_solve::Overwrite \
-  ( UpperOrLower uplo, Orientation orientation, \
-    Matrix<F>& A, Matrix<F>& B, bool conjugate, \
+  ( UpperOrLower uplo, \
+    Orientation orientation, \
+    Matrix<F>& A, \
+    Matrix<F>& B, \
+    bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void symm_solve::Overwrite \
-  ( UpperOrLower uplo, Orientation orientation, \
-    ElementalMatrix<F>& A, ElementalMatrix<F>& B, bool conjugate, \
+  ( UpperOrLower uplo, \
+    Orientation orientation, \
+    AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& B, \
+    bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
-  ( UpperOrLower uplo, Orientation orientation, \
-    const Matrix<F>& A, Matrix<F>& B, \
-    bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
+  ( UpperOrLower uplo, \
+    Orientation orientation, \
+    const Matrix<F>& A, \
+          Matrix<F>& B, \
+    bool conjugate, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
-  ( UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
-    bool conjugate, const LDLPivotCtrl<Base<F>>& ctrl ); \
+  ( UpperOrLower uplo, \
+    Orientation orientation, \
+    const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& B, \
+    bool conjugate, \
+    const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void SymmetricSolve \
-  ( const SparseMatrix<F>& A, Matrix<F>& B, \
-    bool conjugate, bool tryLDL, const BisectCtrl& ctrl ); \
+  ( const SparseMatrix<F>& A, \
+          Matrix<F>& B, \
+    bool conjugate, \
+    bool tryLDL, \
+    const BisectCtrl& ctrl ); \
   template void SymmetricSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, \
-    bool conjugate, bool tryLDL, const BisectCtrl& ctrl );
+  ( const DistSparseMatrix<F>& A, \
+          DistMultiVec<F>& B, \
+    bool conjugate, \
+    bool tryLDL, \
+    const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

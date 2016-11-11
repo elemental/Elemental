@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_HPP
@@ -56,7 +56,7 @@ void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
             B.AlignCols( A.ColAlign() );
         if( !B.RowConstrained() )
             B.AlignRows( A.RowAlign() );
-        if( A.Root() == B.Root() && 
+        if( A.Root() == B.Root() &&
             A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
         {
             B.Resize( A.Height(), A.Width() );
@@ -92,9 +92,9 @@ void Copy( const BlockMatrix<S>& A, DistMatrix<T,U,V,BLOCK>& B )
             B.AlignColsWith( A.DistData() );
         if( !B.RowConstrained() )
             B.AlignRowsWith( A.DistData() );
-        if( A.Root() == B.Root() && 
-            A.ColAlign() == B.ColAlign() && 
-            A.RowAlign() == B.RowAlign() && 
+        if( A.Root() == B.Root() &&
+            A.ColAlign() == B.ColAlign() &&
+            A.RowAlign() == B.RowAlign() &&
             A.ColCut() == B.ColCut() &&
             A.RowCut() == B.RowCut() )
         {
@@ -114,9 +114,10 @@ template<typename S,typename T,typename>
 void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      B.ColDist() == CDIST && B.RowDist() == RDIST && ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+        auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST,ELEMENT>&>(B); \
         Copy( A, BCast );
     #include <El/macros/GuardAndPayload.h>
 }
@@ -138,7 +139,7 @@ void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
         auto& BCast = static_cast<BlockMatrix<T>&>(B);
         Copy( ACast, BCast );
     }
-    else 
+    else
     {
         copy::GeneralPurpose( A, B );
     }
@@ -161,7 +162,7 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
         auto& BCast = static_cast<BlockMatrix<T>&>(B);
         Copy( ACast, BCast );
     }
-    else 
+    else
     {
         copy::GeneralPurpose( A, B );
     }
@@ -171,8 +172,9 @@ template<typename S,typename T,typename>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      B.ColDist() == CDIST && B.RowDist() == RDIST && BLOCK == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(B); \
       Copy( A, BCast );
     #include <El/macros/GuardAndPayload.h>
@@ -246,10 +248,10 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
     const S* AValBuf = A.LockedValueBuffer();
     const Int* ARowBuf = A.LockedSourceBuffer();
     const Int* AColBuf = A.LockedTargetBuffer();
-    
+
     T* BBuf = B.Buffer();
     const Int BLDim = B.LDim();
-    
+
     B.Resize( m, n );
     Zero( B );
     for( Int e=0; e<numEntries; ++e )
@@ -306,15 +308,15 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     A.vals_.resize( numEntries );
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
-      A.SourceBuffer(), entrySizes.data(), entryOffs.data(), 
+      A.SourceBuffer(), entrySizes.data(), entryOffs.data(),
       commRank, comm );
     mpi::Gather
     ( ADist.LockedTargetBuffer(), numLocalEntries,
-      A.TargetBuffer(), entrySizes.data(), entryOffs.data(), 
+      A.TargetBuffer(), entrySizes.data(), entryOffs.data(),
       commRank, comm );
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
-      A.ValueBuffer(), entrySizes.data(), entryOffs.data(), 
+      A.ValueBuffer(), entrySizes.data(), entryOffs.data(),
       commRank, comm );
     A.ProcessQueues();
 }
@@ -436,7 +438,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     {
         mpi::Gather
         ( XDistLoc.LockedBuffer(), numLocalEntries,
-          recvBuf.data(), entrySizes.data(), entryOffs.data(), 
+          recvBuf.data(), entrySizes.data(), entryOffs.data(),
           commRank, comm );
     }
     else
@@ -448,7 +450,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
-          recvBuf.data(), entrySizes.data(), entryOffs.data(), 
+          recvBuf.data(), entrySizes.data(), entryOffs.data(),
           commRank, comm );
     }
     for( Int q=0; q<commSize; ++q )

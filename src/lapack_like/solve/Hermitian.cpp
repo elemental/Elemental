@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,8 +14,8 @@ namespace herm_solve {
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
+( UpperOrLower uplo, Orientation orientation,
+  Matrix<F>& A, Matrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -24,8 +24,8 @@ void Overwrite
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B,
+( UpperOrLower uplo, Orientation orientation,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -36,8 +36,8 @@ void Overwrite
 
 template<typename F>
 void HermitianSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B, 
+( UpperOrLower uplo, Orientation orientation,
+  const Matrix<F>& A, Matrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -46,8 +46,8 @@ void HermitianSolve
 
 template<typename F>
 void HermitianSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B,
+( UpperOrLower uplo, Orientation orientation,
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -57,7 +57,7 @@ void HermitianSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void HermitianSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
+( const SparseMatrix<F>& A, Matrix<F>& B,
   bool tryLDL, const BisectCtrl& ctrl )
 {
     DEBUG_CSE
@@ -67,7 +67,7 @@ void HermitianSolve
 // TODO: Add iterative refinement parameter
 template<typename F>
 void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
   bool tryLDL, const BisectCtrl& ctrl )
 {
     DEBUG_CSE
@@ -81,7 +81,7 @@ void HermitianSolve
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void herm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
@@ -89,7 +89,7 @@ void HermitianSolve
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, ElementalMatrix<F>& B, \
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void HermitianSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, \

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_QR_TS_HPP
@@ -14,7 +14,7 @@ namespace qr {
 namespace ts {
 
 template<typename F>
-void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
+void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -28,7 +28,7 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
     if( p == 1 )
         return;
     const Int rank = mpi::Rank( colComm );
-    if( m < p*n ) 
+    if( m < p*n )
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
@@ -87,7 +87,7 @@ void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 
 template<typename F>
 Matrix<F>&
-RootQR( const ElementalMatrix<F>& A, TreeData<F>& treeData )
+RootQR( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -103,7 +103,7 @@ RootQR( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 
 template<typename F>
 const Matrix<F>&
-RootQR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
+RootQR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -119,7 +119,7 @@ RootQR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 
 template<typename F>
 inline Matrix<F>&
-RootHouseholderScalars( const ElementalMatrix<F>& A, TreeData<F>& treeData )
+RootHouseholderScalars( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -137,7 +137,7 @@ RootHouseholderScalars( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 template<typename F>
 inline const Matrix<F>&
 RootHouseholderScalars
-( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
+( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -154,7 +154,7 @@ RootHouseholderScalars
 
 template<typename F>
 inline Matrix<Base<F>>&
-RootSignature( const ElementalMatrix<F>& A, TreeData<F>& treeData )
+RootSignature( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -170,7 +170,7 @@ RootSignature( const ElementalMatrix<F>& A, TreeData<F>& treeData )
 
 template<typename F>
 inline const Matrix<Base<F>>&
-RootSignature( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
+RootSignature( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -185,7 +185,7 @@ RootSignature( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 }
 
 template<typename F>
-void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
+void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -199,7 +199,7 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
     if( p == 1 )
         return;
     const Int rank = mpi::Rank( colComm );
-    if( m < p*n ) 
+    if( m < p*n )
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
@@ -225,21 +225,21 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
             if( stage < logp-1 )
             {
                 // Multiply by the current Q
-                ZTop = ZHalf;        
+                ZTop = ZHalf;
                 Zero( ZBot );
 
                 // TODO: Exploit sparsity?
                 ApplyQ
-                ( LEFT, NORMAL, 
+                ( LEFT, NORMAL,
                   treeData.QRList[stage],
-                  treeData.householderScalarsList[stage], 
+                  treeData.householderScalarsList[stage],
                   treeData.signatureList[stage],
                   Z );
             }
             // Send bottom-half to partner and keep top half
             ZHalf = ZBot;
             mpi::Send( ZHalf.LockedBuffer(), n*n, partner, colComm );
-            ZHalf = ZTop; 
+            ZHalf = ZTop;
         }
         else
         {
@@ -262,7 +262,7 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData )
 
 template<typename F>
 inline DistMatrix<F,STAR,STAR>
-FormR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
+FormR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -286,7 +286,7 @@ FormR( const ElementalMatrix<F>& A, const TreeData<F>& treeData )
 // NOTE: This is destructive
 template<typename F>
 inline void
-FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
+FormQ( AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -304,7 +304,7 @@ FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
         if( A.ColRank() == 0 )
         {
             ExpandPackedReflectors
-            ( LOWER, VERTICAL, CONJUGATED, 0, 
+            ( LOWER, VERTICAL, CONJUGATED, 0,
               RootQR(A,treeData), RootHouseholderScalars(A,treeData) );
             DiagonalScale
             ( RIGHT, NORMAL, RootSignature(A,treeData), RootQR(A,treeData) );
@@ -316,7 +316,7 @@ FormQ( ElementalMatrix<F>& A, TreeData<F>& treeData )
 } // namespace ts
 
 template<typename F>
-TreeData<F> TS( const ElementalMatrix<F>& A )
+TreeData<F> TS( const AbstractDistMatrix<F>& A )
 {
     if( A.RowDist() != STAR )
         LogicError("Invalid row distribution for TSQR");
@@ -331,14 +331,14 @@ TreeData<F> TS( const ElementalMatrix<F>& A )
         if( A.ColRank() == 0 )
             QR
             ( ts::RootQR(A,treeData),
-              ts::RootHouseholderScalars(A,treeData), 
+              ts::RootHouseholderScalars(A,treeData),
               ts::RootSignature(A,treeData) );
     }
     return treeData;
 }
 
 template<typename F>
-void ExplicitTS( ElementalMatrix<F>& A, ElementalMatrix<F>& R )
+void ExplicitTS( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R )
 {
     auto treeData = TS( A );
     Copy( ts::FormR( A, treeData ), R );

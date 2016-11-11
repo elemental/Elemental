@@ -110,8 +110,6 @@ public:
 
     // Basic queries
     // =============
-    ElementalData DistData() const override;
-
     Dist ColDist()             const EL_NO_EXCEPT override;
     Dist RowDist()             const EL_NO_EXCEPT override;
     Dist PartialColDist()      const EL_NO_EXCEPT override;

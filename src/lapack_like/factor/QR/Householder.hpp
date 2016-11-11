@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_QR_HOUSEHOLDER_HPP
@@ -15,7 +15,7 @@
 namespace El {
 namespace qr {
 
-template<typename F> 
+template<typename F>
 void
 Householder
 ( Matrix<F>& A,
@@ -48,12 +48,12 @@ Householder
     }
 }
 
-template<typename F> 
+template<typename F>
 void
 Householder
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& householderScalarsPre, 
-  ElementalMatrix<Base<F>>& signaturePre )
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalarsPre,
+  AbstractDistMatrix<Base<F>>& signaturePre )
 {
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre, signaturePre ))

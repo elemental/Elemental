@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_VAR3_HPP
@@ -14,11 +14,11 @@ namespace ldl {
 
 // Unblocked serial LDL _without_ partial pivoting
 //
-// Since it is significantly more likely that this 
+// Since it is significantly more likely that this
 // (generally unstable) routine would fail without encountering
 // an exactly zero pivot, it is likely not worth the overhead of
 // exception handling to detect zero pivots
-template<typename F> 
+template<typename F>
 void Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
     DEBUG_CSE
@@ -106,7 +106,7 @@ void Var3( Matrix<F>& A, bool conjugate=false )
 }
 
 template<typename F>
-void Var3( ElementalMatrix<F>& APre, bool conjugate=false )
+void Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -131,7 +131,7 @@ void Var3( ElementalMatrix<F>& APre, bool conjugate=false )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        
+
         const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 

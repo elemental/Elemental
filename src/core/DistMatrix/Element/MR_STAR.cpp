@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -26,13 +26,13 @@ namespace El {
 // -----------
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
-{ 
+{
     DEBUG_CSE
     DistMatrix<T,VC,STAR> A_VC_STAR( A );
     DistMatrix<T,VR,STAR> A_VR_STAR( this->Grid() );
     A_VR_STAR.AlignColsWith(*this);
     A_VR_STAR = A_VC_STAR;
-    A_VC_STAR.Empty(); 
+    A_VC_STAR.Empty();
 
     *this = A_VR_STAR;
     return *this;
@@ -40,11 +40,11 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
-{ 
+{
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( *this, A ))
     const Grid& grid = A.Grid();
-    if( grid.Height() == grid.Width() ) 
+    if( grid.Height() == grid.Width() )
     {
         const int gridDim = grid.Height();
         const int transposeRank =
@@ -57,7 +57,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
         DistMatrix<T,VR,STAR> A_VR_STAR( grid );
         A_VR_STAR.AlignColsWith(*this);
         A_VR_STAR = A_VC_STAR;
-        A_VC_STAR.Empty(); 
+        A_VC_STAR.Empty();
         *this = A_VR_STAR;
     }
     return *this;
@@ -65,11 +65,11 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
-{ 
+{
     DEBUG_CSE
     DistMatrix<T> A_MC_MR( A );
     DistMatrix<T,VC,STAR> A_VC_STAR( A_MC_MR );
-    A_MC_MR.Empty(); 
+    A_MC_MR.Empty();
 
     DistMatrix<T,VR,STAR> A_VR_STAR( this->Grid() );
     A_VR_STAR.AlignColsWith(*this);
@@ -91,7 +91,7 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
-{ 
+{
     DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
@@ -100,7 +100,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
-{ 
+{
     DEBUG_CSE
     copy::RowAllGather( A, *this );
     return *this;
@@ -108,7 +108,7 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
-{ 
+{
     DEBUG_CSE
     DistMatrix<T,MR,MC> A_MR_MC( A );
     *this = A_MR_MC;
@@ -117,7 +117,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
-{ 
+{
     DEBUG_CSE
     DistMatrix<T,VR,STAR> A_VR_STAR(this->Grid());
     A_VR_STAR.AlignColsWith(*this);
@@ -128,7 +128,7 @@ DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
-{ 
+{
     DEBUG_CSE
     DistMatrix<T,MR,MC> A_MR_MC( A );
     *this = A_MR_MC;
@@ -137,7 +137,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
-{ 
+{
     DEBUG_CSE
     copy::PartialColAllGather( A, *this );
     return *this;
@@ -145,13 +145,13 @@ DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
-{ 
+{
     DEBUG_CSE
     DistMatrix<T,STAR,VC> A_STAR_VC( A );
     DistMatrix<T,MR,MC> A_MR_MC( this->Grid() );
     A_MR_MC.AlignColsWith(*this);
     A_MR_MC = A_STAR_VC;
-    A_STAR_VC.Empty(); 
+    A_STAR_VC.Empty();
 
     *this = A_MR_MC;
     return *this;
@@ -180,9 +180,10 @@ template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       *this = ACast;
     #include "El/macros/GuardAndPayload.h"
@@ -246,12 +247,12 @@ int DM::PartialUnionRowStride() const EL_NO_EXCEPT { return 1; }
 template<typename T>
 int DM::ColRank() const EL_NO_EXCEPT { return this->grid_->MRRank(); }
 template<typename T>
-int DM::RowRank() const EL_NO_EXCEPT 
+int DM::RowRank() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
 template<typename T>
 int DM::DistRank() const EL_NO_EXCEPT { return this->grid_->MRRank(); }
 template<typename T>
-int DM::CrossRank() const EL_NO_EXCEPT 
+int DM::CrossRank() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
 template<typename T>
 int DM::RedundantRank() const EL_NO_EXCEPT { return this->grid_->MCRank(); }

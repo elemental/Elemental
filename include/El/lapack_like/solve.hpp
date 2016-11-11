@@ -17,20 +17,24 @@ namespace El {
 // Linear
 // ======
 template<typename F>
-void LinearSolve( const Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void LinearSolve( const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+void LinearSolve
+( const Matrix<F>& A,
+        Matrix<F>& B );
 template<typename F>
 void LinearSolve
-( const DistMatrix<F,MC,MR,BLOCK>& A, DistMatrix<F,MC,MR,BLOCK>& B );
+( const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B,
+  bool scalapack=false );
 
 template<typename F>
 void LinearSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
+( const SparseMatrix<F>& A,
+        Matrix<F>& B, 
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 template<typename F>
 void LinearSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& B, 
   const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
 
 namespace lin_solve {
@@ -38,7 +42,7 @@ namespace lin_solve {
 template<typename F>
 void Overwrite( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void Overwrite( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+void Overwrite( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 } // namespace lin_solve
 
@@ -47,22 +51,26 @@ void Overwrite( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B, 
+  const Matrix<F>& A,
+        Matrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 template<typename F>
 void HermitianSolve
-( const SparseMatrix<F>& A, Matrix<F>& B,
+( const SparseMatrix<F>& A,
+        Matrix<F>& B,
   bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
 template<typename F>
 void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& B,
   bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
 
@@ -71,12 +79,14 @@ namespace herm_solve {
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
+  Matrix<F>& A,
+  Matrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
+  AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& B, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 } // namespace herm_solve
@@ -85,75 +95,135 @@ void Overwrite
 // =========
 template<typename F>
 void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B, 
+( UpperOrLower uplo,
+  Orientation orientation, 
+  const Matrix<F>& A,
+        Matrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
+( UpperOrLower uplo,
+  Orientation orientation,
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 template<typename F>
 void SymmetricSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
-  bool conjugate=false, bool tryLDL=false,
+( const SparseMatrix<F>& A,
+        Matrix<F>& B, 
+  bool conjugate=false,
+  bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
 template<typename F>
 void SymmetricSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
-  bool conjugate=false, bool tryLDL=false,
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& B, 
+  bool conjugate=false,
+  bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
 
 namespace symm_solve {
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
+( UpperOrLower uplo,
+  Orientation orientation, 
+  Matrix<F>& A,
+  Matrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
+( UpperOrLower uplo,
+  Orientation orientation,
+  AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& B, 
   bool conjugate=false, 
   const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
 
 } // namespace symm_solve
 
+// Symmetric Quasi Semi-Definite (SQSD)
+// ====================================
+// Solve J X = B, where
+//
+//   J = | F,    A |,
+//       | A^T, -G |
+//
+// and F and G are Symmetric Positive Semi-Definite (and F is n0 x n0).
+//
+// Dense matrices need only be explicitly filled in either their upper or
+// lower triangle, but sparse matrices must be explicitly symmetric.
+//
+template<typename F>
+void SQSDSolve
+( Int n0,
+  UpperOrLower uplo,
+  const Matrix<F>& J,
+        Matrix<F>& B );
+template<typename F>
+void SQSDSolve
+( Int n0,
+  UpperOrLower uplo,
+  const AbstractDistMatrix<F>& J,
+        AbstractDistMatrix<F>& B );
+
+template<typename F>
+void SQSDSolve
+( Int n0,
+  const SparseMatrix<F>& J,
+        Matrix<F>& B, 
+  const SQSDCtrl<Base<F>>& ctrl=SQSDCtrl<Base<F>>() );
+template<typename F>
+void SQSDSolve
+( Int n0,
+  const DistSparseMatrix<F>& J,
+        DistMultiVec<F>& B, 
+  const SQSDCtrl<Base<F>>& ctrl=SQSDCtrl<Base<F>>() );
+
 // Hermitian Positive-Definite
 // ===========================
 template<typename F>
 void HPDSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B );
+( UpperOrLower uplo,
+  Orientation orientation, 
+  const Matrix<F>& A,
+        Matrix<F>& B );
 template<typename F>
 void HPDSolve
-( UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+( UpperOrLower uplo,
+  Orientation orientation,
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B );
 
 template<typename F>
 void HPDSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
+( const SparseMatrix<F>& A,
+        Matrix<F>& B, 
   const BisectCtrl& ctrl=BisectCtrl() );
 template<typename F>
 void HPDSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+( const DistSparseMatrix<F>& A,
+        DistMultiVec<F>& B, 
   const BisectCtrl& ctrl=BisectCtrl() );
 
 namespace hpd_solve {
 
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B );
+( UpperOrLower uplo,
+  Orientation orientation, 
+  Matrix<F>& A,
+  Matrix<F>& B );
 template<typename F>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+( UpperOrLower uplo,
+  Orientation orientation,
+  AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& B );
 
 } // namespace hpd_solve
 
@@ -161,14 +231,20 @@ void Overwrite
 // ======================
 template<typename F>
 void MultiShiftHessSolve
-( UpperOrLower uplo, Orientation orientation,
-  F alpha, const Matrix<F>& H, const Matrix<F>& shifts,
-  Matrix<F>& X );
+( UpperOrLower uplo,
+  Orientation orientation,
+  F alpha,
+  const Matrix<F>& H,
+  const Matrix<F>& shifts,
+        Matrix<F>& X );
 template<typename F>
 void MultiShiftHessSolve
-( UpperOrLower uplo, Orientation orientation,
-  F alpha, const ElementalMatrix<F>& H, const ElementalMatrix<F>& shifts,
-  ElementalMatrix<F>& X );
+( UpperOrLower uplo,
+  Orientation orientation,
+  F alpha,
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& shifts,
+        AbstractDistMatrix<F>& X );
 
 } // namespace El
 

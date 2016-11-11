@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -15,7 +15,7 @@ namespace hpd_solve {
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo,
-  Orientation orientation, 
+  Orientation orientation,
   Matrix<F>& A,
   Matrix<F>& B )
 {
@@ -27,9 +27,9 @@ void Overwrite
 template<typename F>
 void Overwrite
 ( UpperOrLower uplo,
-  Orientation orientation, 
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& BPre )
+  Orientation orientation,
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre )
 {
     DEBUG_CSE
 
@@ -47,7 +47,7 @@ void Overwrite
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo,
-  Orientation orientation, 
+  Orientation orientation,
   const Matrix<F>& A,
         Matrix<F>& B )
 {
@@ -59,9 +59,9 @@ void HPDSolve
 template<typename F>
 void HPDSolve
 ( UpperOrLower uplo,
-  Orientation orientation, 
-  const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B )
+  Orientation orientation,
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_CSE
     DistMatrix<F> ACopy( A );
@@ -126,13 +126,13 @@ void HPDSolve
     Matrix<F>& A, Matrix<F>& B ); \
   template void hpd_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void HPDSolve \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, Matrix<F>& B ); \
   template void HPDSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void HPDSolve \
   ( const SparseMatrix<F>& A, Matrix<F>& B, const BisectCtrl& ctrl ); \
   template void HPDSolve \

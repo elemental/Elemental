@@ -659,25 +659,33 @@ inline ElConstDistMultiVec_c CReflect( const DistMultiVec<Complex<float>>* A )
 inline ElConstDistMultiVec_z CReflect( const DistMultiVec<Complex<double>>* A )
 { return (ElConstDistMultiVec_z)EL_RC(const struct ElDistMultiVec_zDummy*,A); }
 
-inline ElElementalData CReflect( const ElementalData& data )
+inline ElDistData CReflect( const DistData& data )
 {
-    ElElementalData distData;
+    ElDistData distData;
     distData.colDist = CReflect(data.colDist);
     distData.rowDist = CReflect(data.rowDist);
+    distData.blockHeight = data.blockHeight;
+    distData.blockWidth = data.blockWidth;
     distData.colAlign = data.colAlign;
     distData.rowAlign = data.rowAlign;
+    distData.colCut = data.colCut;
+    distData.rowCut = data.rowCut;
     distData.root = data.root;
     distData.grid = CReflect(data.grid);
     return distData;
 }
 
-inline ElementalData CReflect( const ElElementalData& distData )
+inline DistData CReflect( const ElDistData& distData )
 {
-    ElementalData data;
+    DistData data;
     data.colDist = CReflect(distData.colDist);
     data.rowDist = CReflect(distData.rowDist);
+    data.blockHeight = distData.blockHeight;
+    data.blockWidth = distData.blockWidth;
     data.colAlign = distData.colAlign;
     data.rowAlign = distData.rowAlign;
+    data.colCut = distData.colCut;
+    data.rowCut = distData.rowCut;
     data.root = distData.root;
     data.grid = CReflect(distData.grid);
     return data;

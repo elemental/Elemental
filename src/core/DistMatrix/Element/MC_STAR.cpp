@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -69,7 +69,7 @@ DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
     DistMatrix<T,VC,STAR> A_VC_STAR( this->Grid() );
     A_VC_STAR.AlignColsWith(*this);
     A_VC_STAR = A_VR_STAR;
-    A_VR_STAR.Empty(); 
+    A_VR_STAR.Empty();
     *this = A_VC_STAR;
     return *this;
 }
@@ -93,7 +93,7 @@ DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
         DistMatrix<T,VC,STAR> A_VC_STAR( grid );
         A_VC_STAR.AlignColsWith(*this);
         A_VC_STAR = A_VR_STAR;
-        A_VR_STAR.Empty(); 
+        A_VR_STAR.Empty();
         *this = A_VC_STAR;
     }
     return *this;
@@ -110,7 +110,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
     DistMatrix<T,VC,STAR> A_VC_STAR( this->Grid() );
     A_VC_STAR.AlignColsWith(*this);
     A_VC_STAR = A_VR_STAR;
-    A_VR_STAR.Empty(); 
+    A_VR_STAR.Empty();
 
     *this = A_VC_STAR;
     return *this;
@@ -182,9 +182,10 @@ template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       *this = ACast;
     #include "El/macros/GuardAndPayload.h"
@@ -248,7 +249,7 @@ int DM::PartialUnionRowStride() const EL_NO_EXCEPT { return 1; }
 template<typename T>
 int DM::ColRank() const EL_NO_EXCEPT { return this->grid_->MCRank(); }
 template<typename T>
-int DM::RowRank() const EL_NO_EXCEPT 
+int DM::RowRank() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
 template<typename T>
 int DM::DistRank() const EL_NO_EXCEPT { return this->grid_->MCRank(); }
