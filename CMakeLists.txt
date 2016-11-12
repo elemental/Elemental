@@ -299,34 +299,46 @@ if(NOT WIN32)
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(EL_RELEASE)
+        set(LANG_FLAGS_STRING
+          "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-          set(${LANG}_FLAGS "-O3 -fcx-fortran-rules -Wno-tautological-compare"
-            CACHE STRING
-            "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O3 -fcx-fortran-rules"
+            CACHE STRING ${LANG_FLAGS_STRING})
+        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+          set(${LANG}_FLAGS "-O3 -Wno-tautological-compare"
+            CACHE STRING ${LANG_FLAGS_STRING})
         else()
-          set(${LANG}_FLAGS "-O3" CACHE STRING
-            "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O3" CACHE STRING ${LANG_FLAGS_STRING})
         endif()
       else()
+        set(LANG_FLAGS_STRING
+          "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-          set(${LANG}_FLAGS "-O2 -g -fcx-fortran-rules -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs -Wno-tautological-compare" CACHE STRING "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O2 -g -fcx-fortran-rules -Wall -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs"
+            CACHE STRING ${LANG_FLAGS_STRING})
+        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+          set(${LANG}_FLAGS "-O2 -g -Wno-tautological-compare"
+            CACHE STRING ${LANG_FLAGS_STRING})
         else()
-          set(${LANG}_FLAGS "-O2 -g" CACHE STRING
-            "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+          set(${LANG}_FLAGS "-O2 -g" CACHE STRING ${LANG_FLAGS_STRING})
         endif()
       endif()
     endif()
   endforeach()
 endif()
 
-# Disable the requirement for safe exception handling in MSVC builds (otherwise there are conflicts with OpenBLAS)
+# Disable the requirement for safe exception handling in MSVC builds
+# (otherwise there are conflicts with OpenBLAS)
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
   set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
-  set(CMAKE_EXE_LINKER_FLAGS_${UPPER_BUILD_TYPE} "${CMAKE_EXE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
-  set(CMAKE_SHARED_LINKER_FLAGS_${UPPER_BUILD_TYPE} "${CMAKE_SHARED_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
-  set(CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE} "${CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
+  set(CMAKE_EXE_LINKER_FLAGS_${UPPER_BUILD_TYPE}
+    "${CMAKE_EXE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
+  set(CMAKE_SHARED_LINKER_FLAGS_${UPPER_BUILD_TYPE}
+    "${CMAKE_SHARED_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
+  set(CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE}
+    "${CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
 endif()
 
 # Handle RPATHs for Mac
