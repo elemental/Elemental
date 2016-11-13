@@ -257,7 +257,7 @@ struct HessianInverseOperator {
      * @param s
      * @param y
      */
-    void update( DMatrix& s, DMatrix& y)
+    void Update( DMatrix& s, DMatrix& y)
     {
         // We store s,y, alpha, H*y, and s'y.
         auto sy = Dot(s,y);
@@ -315,7 +315,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         y = g;
         // y = g - g_old
         Axpy(T(-1), g_old, y);
-        Hinv.update(p, y);
+        Hinv.Update(p, y);
         // std::cout << "||g||_inf = " << norm_g << std::endl;
     }
     return F(x);
