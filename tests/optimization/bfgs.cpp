@@ -79,104 +79,68 @@ QuadraticBFGSTest(Int N){
  return QuadraticFunction<T>(A, b);
 }
 
+template<typename T>
+std::function< T(const DistMatrix<T>&)>
+rosenbrock_function(){
+std::function< T(const DistMatrix<T>&)>
+          rosenbrock = [&](const DistMatrix<T>& theta)
+{
+    auto x1 = theta.Get(0,0);
+    auto x2 = theta.Get(1,0);
+    auto t1 = (x2 -x1*x1);
+    auto t2 = (T(1)-x1);
+    //f(x1,x2) = 100*(x2-x1^2)^2 + (1-x1)^2
+    return T(100)*t1*t1 + t2*t2;
+};
+return rosenbrock;
+}
+
+
+template< typename T>
+const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+rosenbrock_gradient(){
+const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+      gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
+{
+    auto x1 = theta.Get(0,0);
+    auto x2 = theta.Get(1,0);
+
+    T g1 = T(2)*(T(200)*x1*x1*x1 - T(200)*x1*x2  + x1 - T(1));
+    T g2 = T(2)*(x2-x1*x1);
+
+    y.Set(0, 0, g1);
+    y.Set(1, 0, g2);
+    return y;
+};
+return gradient;
+}
+
 template< typename T>
 std::pair< DistMatrix<T>, T>
 RosenbrockTestEasyStart(){
-    const std::function< T(const DistMatrix<T>&)>
-          rosenbrock = [&](const DistMatrix<T>& theta)
-    {
-        auto x1 = theta.Get(0,0);
-        auto x2 = theta.Get(1,0);
-        auto t1 = (x2 -x1*x1);
-        auto t2 = (T(1)-x1);
-        //f(x1,x2) = 100*(x2-x1^2)^2 + (1-x1)^2
-        return T(100)*t1*t1 + t2*t2;
-    };
-    const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
-          gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
-    {
-        auto x1 = theta.Get(0,0);
-        auto x2 = theta.Get(1,0);
-
-        T g1 = T(2)*(T(200)*x1*x1*x1 - T(200)*x1*x2  + x1 - T(1));
-        T g2 = T(2)*(x2-x1*x1);
-
-        y.Set(0, 0, g1);
-        y.Set(1, 0, g2);
-        return y;
-    };
     DistMatrix<T> x0( 2, 1);
     x0.Set(0, 0, 1.2);
     x0.Set(1, 0, 1.2);
-    auto val = El::BFGS( x0, rosenbrock,  gradient);
+    auto val = El::BFGS( x0, rosenbrock_function<T>(),  rosenbrock_gradient<T>());
     return std::make_pair(x0,val);
 }
 
 template< typename T>
 std::pair< DistMatrix<T>, T>
 RosenbrockTestHardStart(){
-    const std::function< T(const DistMatrix<T>&)>
-          rosenbrock = [&](const DistMatrix<T>& theta)
-    {
-        auto x1 = theta.Get(0,0);
-        auto x2 = theta.Get(1,0);
-        auto t1 = (x2 -x1*x1);
-        auto t2 = (T(1)-x1);
-        //f(x1,x2) = 100*(x2-x1^2)^2 + (1-x1)^2
-        return T(100)*t1*t1 + t2*t2;
-    };
-    const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
-          gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
-    {
-        auto x1 = theta.Get(0,0);
-        auto x2 = theta.Get(1,0);
-
-        T g1 = T(2)*(T(200)*x1*x1*x1 - T(200)*x1*x2  + x1 - T(1));
-        T g2 = T(2)*(x2-x1*x1);
-
-        y.Set(0, 0, g1);
-        y.Set(1, 0, g2);
-        return y;
-    };
     DistMatrix<T> x0( 2, 1);
     x0.Set(0, 0, -1.2);
     x0.Set(1, 0, 1.0);
-    auto val = El::BFGS( x0, rosenbrock,  gradient);
+    auto val = El::BFGS( x0, rosenbrock_function<T>(),  rosenbrock_gradient<T>());
     return std::make_pair(x0,val);
 }
-
-
-
 
 template< typename T>
 std::pair< DistMatrix<T>, T>
 RosenbrockTest(){
-    const std::function< T(const DistMatrix<T>&)>
-          rosenbrock = [&](const DistMatrix<T>& theta)
-    {
-        auto x1 = theta.Get(0,0);
-        auto x2 = theta.Get(1,0);
-        auto t1 = (x2 -x1*x1);
-        auto t2 = (T(1)-x1);
-        //f(x1,x2) = 100*(x2-x1^2)^2 + (1-x1)^2
-        return T(100)*t1*t1 + t2*t2;
-    };
-    const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
-          gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
-    {
-        auto x1 = theta.Get(0,0);
-        auto x2 = theta.Get(1,0);
-
-        T g1 = T(2)*(T(200)*x1*x1*x1 - T(200)*x1*x2  + x1 - T(1));
-        T g2 = T(2)*(x2-x1*x1);
-
-        y.Set(0, 0, g1);
-        y.Set(1, 0, g2);
-        return y;
-    };
     DistMatrix<T> x0( 2, 1);
     Gaussian( x0, 2, 1);
-    auto val = El::BFGS( x0, rosenbrock,  gradient);
+    auto val = El::BFGS( x0, rosenbrock_function<T>(),  rosenbrock_gradient<T>());
     return std::make_pair(x0,val);
 
 }
