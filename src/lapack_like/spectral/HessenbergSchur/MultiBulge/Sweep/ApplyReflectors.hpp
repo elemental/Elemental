@@ -15,7 +15,22 @@
 #ifdef EL_REINTERPRET_COMPLEX
 #include <complex.h>
 
+// Clang does not seem to define conj or conjf for C++ when including complex.h,
+// but manually providing their prototypes seems to fix the issue...
+extern "C" {
+float _Complex conjf( float _Complex value );
+double _Complex conj( double _Complex value );
+long double _Complex conjl( long double _Complex value );
+}
+
 namespace El {
+
+float _Complex CConj( const float _Complex& value )
+{ return conjf( value ); }
+double _Complex CConj( const double _Complex& value )
+{ return ::conj( value ); }
+long double _Complex CConj( const long double _Complex& value )
+{ return conjl( value ); }
 
 // TODO(poulson): Move these into the headers
 template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
@@ -522,8 +537,8 @@ void ApplyReflectorsOpt
             const FastF* EL_RESTRICT w =
               reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
             const FastF innerProd =
-              w[0]*(hj[bulgeBeg+1] + conj(w[1])*hj[bulgeBeg+2] +
-                    conj(w[2])*hj[bulgeBeg+3]);
+              w[0]*(hj[bulgeBeg+1] + CConj(w[1])*hj[bulgeBeg+2] +
+                    CConj(w[2])*hj[bulgeBeg+3]);
             hj[bulgeBeg+1] -= innerProd;
             hj[bulgeBeg+2] -= innerProd*w[1];
             hj[bulgeBeg+3] -= innerProd*w[2];
@@ -543,7 +558,7 @@ void ApplyReflectorsOpt
         {
             FastF* EL_RESTRICT hj = reinterpret_cast<FastF*>(&HBuf[j*HLDim]);
             const FastF innerProd =
-              w[0]*(hj[bulgeBeg+1] + conj(w[1])*hj[bulgeBeg+2]);
+              w[0]*(hj[bulgeBeg+1] + CConj(w[1])*hj[bulgeBeg+2]);
             hj[bulgeBeg+1] -= innerProd;
             hj[bulgeBeg+2] -= innerProd*w[1];
         }
@@ -559,9 +574,9 @@ void ApplyReflectorsOpt
         const Int bulgeBeg = packetBeg + 3*bulge;
         const FastF* EL_RESTRICT w =
           reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
-        const FastF omega0Conj = conj(w[0]);
+        const FastF omega0Conj = CConj(w[0]);
         const FastF omega1 = w[1];
-        const FastF omega1Conj = conj(w[1]);
+        const FastF omega1Conj = CConj(w[1]);
         FastF* EL_RESTRICT h1 =
           reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+1)*HLDim]);
         FastF* EL_RESTRICT h2 =
@@ -614,11 +629,11 @@ void ApplyReflectorsOpt
           reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+2)*HLDim]);
         FastF* EL_RESTRICT h3 =
           reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+3)*HLDim]);
-        const FastF omega0Conj = conj(w[0]);
+        const FastF omega0Conj = CConj(w[0]);
         const FastF omega1 = w[1]; 
-        const FastF omega1Conj = conj(w[1]);
+        const FastF omega1Conj = CConj(w[1]);
         const FastF omega2 = w[2];
-        const FastF omega2Conj = conj(w[2]);
+        const FastF omega2Conj = CConj(w[2]);
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+4); ++i )
         {
             const FastF innerProd =
@@ -713,10 +728,10 @@ void ApplyReflectorsOpt
           reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+3)*HLDim]);
         const FastF* EL_RESTRICT w =
           reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
-        const FastF innerProd = conj(w[0])*h3[bulgeBeg+4]*w[2];
+        const FastF innerProd = CConj(w[0])*h3[bulgeBeg+4]*w[2];
         h1[bulgeBeg+4] = -innerProd;
-        h2[bulgeBeg+4] = -innerProd*conj(w[1]);
-        h3[bulgeBeg+4] -= innerProd*conj(w[2]);
+        h2[bulgeBeg+4] = -innerProd*CConj(w[1]);
+        h3[bulgeBeg+4] -= innerProd*CConj(w[2]);
     }
 }
 #endif // ifdef EL_REINTERPRET_COMPLEX
