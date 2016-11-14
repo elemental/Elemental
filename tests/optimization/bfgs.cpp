@@ -81,6 +81,75 @@ QuadraticBFGSTest(Int N){
 
 template< typename T>
 std::pair< DistMatrix<T>, T>
+RosenbrockTestEasyStart(){
+    const std::function< T(const DistMatrix<T>&)>
+          rosenbrock = [&](const DistMatrix<T>& theta)
+    {
+        auto x1 = theta.Get(0,0);
+        auto x2 = theta.Get(1,0);
+        auto t1 = (x2 -x1*x1);
+        auto t2 = (T(1)-x1);
+        //f(x1,x2) = 100*(x2-x1^2)^2 + (1-x1)^2
+        return T(100)*t1*t1 + t2*t2;
+    };
+    const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+          gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
+    {
+        auto x1 = theta.Get(0,0);
+        auto x2 = theta.Get(1,0);
+
+        T g1 = T(2)*(T(200)*x1*x1*x1 - T(200)*x1*x2  + x1 - T(1));
+        T g2 = T(2)*(x2-x1*x1);
+
+        y.Set(0, 0, g1);
+        y.Set(1, 0, g2);
+        return y;
+    };
+    DistMatrix<T> x0( 2, 1);
+    x0.Set(0, 0, 1.2);
+    x0.Set(1, 0, 1.2);
+    auto val = El::BFGS( x0, rosenbrock,  gradient);
+    return std::make_pair(x0,val);
+}
+
+template< typename T>
+std::pair< DistMatrix<T>, T>
+RosenbrockTestHardStart(){
+    const std::function< T(const DistMatrix<T>&)>
+          rosenbrock = [&](const DistMatrix<T>& theta)
+    {
+        auto x1 = theta.Get(0,0);
+        auto x2 = theta.Get(1,0);
+        auto t1 = (x2 -x1*x1);
+        auto t2 = (T(1)-x1);
+        //f(x1,x2) = 100*(x2-x1^2)^2 + (1-x1)^2
+        return T(100)*t1*t1 + t2*t2;
+    };
+    const std::function< DistMatrix<T>(const DistMatrix<T>&, DistMatrix<T>&)>
+          gradient = [&](const DistMatrix<T>& theta, El::DistMatrix<T>& y)
+    {
+        auto x1 = theta.Get(0,0);
+        auto x2 = theta.Get(1,0);
+
+        T g1 = T(2)*(T(200)*x1*x1*x1 - T(200)*x1*x2  + x1 - T(1));
+        T g2 = T(2)*(x2-x1*x1);
+
+        y.Set(0, 0, g1);
+        y.Set(1, 0, g2);
+        return y;
+    };
+    DistMatrix<T> x0( 2, 1);
+    x0.Set(0, 0, -1.2);
+    x0.Set(1, 0, 1.0);
+    auto val = El::BFGS( x0, rosenbrock,  gradient);
+    return std::make_pair(x0,val);
+}
+
+
+
+
+template< typename T>
+std::pair< DistMatrix<T>, T>
 RosenbrockTest(){
     const std::function< T(const DistMatrix<T>&)>
           rosenbrock = [&](const DistMatrix<T>& theta)
@@ -126,6 +195,7 @@ TEST_CASE( "Can Minimize Simple Quadratic", "[BFGS]" )
 TEST_CASE( "Can Minimize Laplacian Quadratic", "[BFGS]")
 {
     for(int i = 0; i < 10; ++i) {
+        std::cout << i << std::endl;
         auto pair = QuadraticBFGSTest<double>(10);
         auto x = pair.first;
         auto val = pair.second;
@@ -144,7 +214,26 @@ TEST_CASE( "Can Minimize rosenbrock", "[BFGS]" )
         REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
         REQUIRE( val < 1e-16);
     }
+    {
+        auto pair = RosenbrockTestEasyStart<double>();
+        auto x0 = pair.first;
+        auto val = pair.second;
+        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
+        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
+        REQUIRE( val < 1e-16);
+
+    }
+    {
+        auto pair = RosenbrockTestHardStart<double>();
+        auto x0 = pair.first;
+        auto val = pair.second;
+        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
+        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
+        REQUIRE( val < 1e-16);
+
+    }
 }
+
 
 int main( int argc, char* argv[])  {
     Environment env( argc, argv );
