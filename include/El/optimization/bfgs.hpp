@@ -202,8 +202,9 @@ template< typename T>
 struct HessianInverseOperator {
 
     typedef DistMatrix<T> DMatrix;
-    typedef std::tuple<T, DMatrix, DMatrix, DMatrix, T> Update;
-    typedef std::vector<Update> Hessian_updates;
+    typedef std::tuple<T, DMatrix, DMatrix, DMatrix, T> UpdateTerm;
+    typedef std::vector<UpdateTerm> Hessian_updates;
+
     /**
      * This method applies y = H_k*x, eg. solves B_ky = x;
      * (H_k)x = z + alpha*(s'x)s - beta*H_{k-1}y- rho*s
