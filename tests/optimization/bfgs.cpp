@@ -203,6 +203,5 @@ int main( int argc, char* argv[])  {
     Environment env( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::Rank( comm );
-    int result = Catch::Session().run( argc, (const char**)(argv));
-    return 0;
+    return Catch::Session().run( argc, (const char**)(argv));
 }
