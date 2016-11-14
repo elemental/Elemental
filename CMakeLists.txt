@@ -341,6 +341,13 @@ if(MSVC)
     "${CMAKE_MODULE_LINKER_FLAGS_${UPPER_BUILD_TYPE}} /SAFESEH:NO")
 endif()
 
+if(APPLE AND EL_RELEASE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
+  NOT EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM)
+  message(FATAL_ERROR "Due to what appears to be a bug in GCC's enforcement of 16-byte stack alignments when using -O3 on OS X, Release builds with GCC on OS X are currently disabled by default. Please see the comments towards the bottom of https://github.com/elemental/Elemental/issues/181 for more details. If you know what you're doing, feel free to rebuild with -D EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM=ON")
+# Also see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=35271 for what appears
+# to be a related (although, now quite dated) issue.
+endif()
+
 # Handle RPATHs for Mac
 # ---------------------
 if(APPLE)

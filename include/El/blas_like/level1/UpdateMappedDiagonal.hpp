@@ -123,7 +123,7 @@ void UpdateMappedDiagonal
         Int offset )
 {
     DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, dPre ))
+    DEBUG_ONLY(AssertSameGrids( A, d ))
     if( d.Participating() && d.RedundantRank() == 0 )
     {
         const Int iStart = Max(-offset,0);
