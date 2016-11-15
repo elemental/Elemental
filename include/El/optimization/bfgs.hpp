@@ -10,118 +10,204 @@
 #define EL_OPTIMIZATION_BFGS_HPP
 #include <utility>
 #include <El.hpp>
+#include <El.h>
 
 namespace El {
 /***
- * Finds the min of the quadratic interpolation
- * phi_q(alpha) = a*alpha^2 + b*alpha + c
- * where
- * a =[fval_low -f0 - alpha_low*f0_dash]/alpha_low^2
- * b = f0_dash
- * c = f0;
- * then the minimizer is:
+ * Finds the minimizer of the quadratic that interpolates (x,fx) and (y, fy) with derivative (x, gx)
+ *  f(x) = ax^2 + bx + c
+ *  the minimizer = -b / 2*a
+ *  So we need only to determine b and a.
+ *  it turns out that b = [x*(fx-fy)+gx*(x^2 - y2)]/(x*y-y^2)
+ *  and a = [(fx-fy) + gx*(y-x)]/(x*y-y^2)
+ *  -b/2*a = -[x*(fx-fy)+gx*(x^2 - y2)]/(2 [(fx-fy) + gx*(y-x)])
  */
 template< typename T>
-T MinQuadraticInterpolate( T alpha_low, T  f0_dash, T f0, T fval_low) {
-        return (f0_dash * alpha_low * alpha_low) / (T(-2) * (fval_low - f0 - f0_dash * alpha_low));
-}
- /***
+inline T MinQuadraticInterpolate( T x, T fX, T y, T fY, T gX) { return -(x*(fX-fY) + gX*(x*x - y*y))/(T(2)*(fX-fY) + gX*(y-x)); }
+/**
+ * Finds the minimizer of the quadratic that interpolates (l,fl) with derivative (l, gL) and (t,gT)
+ *  f(x) = ax^2 + bx + c
+ *  the minimizer = -b / 2*a
+ *  It turns out b = [1/(l-t)]*[l*gT - t*gL];
+ *  It turns out a = [1/(l-t)]*[-1*gT - gL];
+ *  -b/2*a = [l*gT - t*gL]/(T(2)(gT+gL));
+ * @param l
+ * @param fL
+ * @param gL
+ * @param t
+ * @param gT
+ * @return
+ */
+template< typename T>
+inline T MinQuadraticInterpolateTwoDerivatives( T l, T gL, T t, T gT) { return(l*gT - t*gL)/(T(2)*(gT + gL)); }
+
+
+
+ /**
  * Finds the min of the cubic interpolation
- * phi_q(alpha) = a*alpha^3 + b*alpha^2 + alpha*f0_dash + f0
- * a and b are too complicated to encode here, please follow the source code.
- *
+ * f(x) = a*x^3 + b*x^2 + c*x + d
+ * this thing has solutions:
+ * x = -b + sqrt(b^2 - 3*a*c) / 3*a
+ * and
+ * x = -b - sqrt(b^2 - 3*a*c) / 3*a
+ * One can find the solutions for a,b,c
+ * (a,b,c,d) = (invert {{x^3, x^2, x, 1},{t^3, t^2, t, 1}, {3x^2, 2x, 1, 0}, {3t^2, 2t, 1, 0}})*{{fX},{fT},{gX},{gT}}
  */
-template< typename T>
-T MinCubicInterpolate(T f0, T f0_dash, T alpha_0, T f_alpha0, T alpha_1, T f_alpha1){
-    T alpha_0_sq = alpha_0*alpha_0; //alpha_0^2
-    T alpha_0_cb = alpha_0*alpha_0*alpha_0; //alpha_0^3
-    T alpha_1_sq = alpha_1*alpha_1; //alpha_1^2
-    T alpha_1_cb = alpha_1*alpha_1*alpha_1; //alpha_1^3
-    T x = f_alpha1 - f0 - f0_dash*alpha_1;
-    T y = f_alpha0 - f0 - f0_dash*alpha_0;
-    T a = alpha_0_sq*x - alpha_1_sq*y;
-    T b = -alpha_0_cb*x + alpha_1_cb*y;
-    T denom = alpha_0_sq*alpha_1_sq*(alpha_1-alpha_0);
-    a /= denom;
-    b /= denom;
-    return (-b + El::Sqrt(b*b - 3*a*f0_dash))/(T(3)*a);
+template< typename T, typename Function>
+inline T MinCubicInterpolate(T x, T fX, T t, T fT, T gX, T gT, const Function& phi){
+     T xSquared = x*x;
+     T tSquared = t*t;
+     T invDet = (T(1)/((t-x)*(t-x)));
+     T a = ((T(2)*fX - T(2)*fT)/(t-x) + gX + gT);
+     T b = (((t+x)/(t-x))*(T(-3)*fX + 3*gT) + (T(-2)*t-x)*gX  + (-t-T(2)*x)*gT);
+     T c = ((T(6)*t*x/(t-x))*(fX-fT) + (tSquared + 2*x*t)*gX  + (xSquared + 2*t*x)*gT);
+     T discriminant = sqrt(b*b - 3*a*c)*(1/(t-x));
+     b*=invDet;
+     a*=invDet;
+     T root1 = (-b + discriminant)/(T(3)*a);
+     T root2 = (-b - discriminant)/(T(3)*a);
+     T f1 = phi(root1);
+     T f2 = phi(root2);
+     if( f1 <= f2){ return root1; }
+     return root2;
+ }
+
+/**
+ * This technique is borrowed from the paper:
+ * Line Search Algorithms with Guaranteed Sufficient Decrease
+ * By JORGE J. MORE and DAVID J. THUENTE
+ * Section 4, Trial Value Selection
+ * https://pdfs.semanticscholar.org/d258/1519560dd59e5b92599f9711aa1ab249ff86.pdf
+
+ * @param alphaLow
+ * @param alphaHigh
+ * @param alpha
+ * @param phiLow
+ * @param phiHigh
+ * @param phiAlpha
+ * @param dPhiLow
+ * @param dphiAlpha
+ * @return
+ */
+template< typename Function, typename T>
+inline T Interpolate(T alphaLow, T alphaHigh, T alpha, T phiLow, T phiHigh, T phiAlpha,
+              T dPhiLow, T dPhiHigh, T dPhiAlpha, const Function& phi){
+
+            T alphaC = MinCubicInterpolate(alphaLow, phiLow, alpha, phiAlpha, dPhiLow, dPhiAlpha, phi);
+            if( phiAlpha > phiLow){
+                T alphaQ = MinQuadraticInterpolate(alphaLow, phiLow, alpha, phiAlpha, dPhiLow);
+                if( Abs(alphaC - alphaLow) < Abs(alphaQ - alphaLow)){ return alphaC; }
+                return (alphaQ+alphaC)/T(2);
+            }
+            T alphaS = MinQuadraticInterpolateTwoDerivatives(alphaLow, dPhiLow, alpha, dPhiAlpha);
+            if(  phiAlpha < phiLow and dPhiAlpha*dPhiLow < 0){
+                if( Abs(alphaC - alpha) >= Abs(alphaS - alpha)){ return alphaC; }
+                return alphaS;
+            }
+            if(  phiAlpha < phiLow and dPhiAlpha*dPhiLow > 0 and Abs(dPhiAlpha) <= Abs(dPhiLow)){
+                if( Abs(alphaC - alpha) < Abs(alphaS - alpha)){ return alphaC; }
+                return alphaS;
+            }
+            //Else: phiAlpha <= phiLow and dPhiAlpha*dPhiLow > 0 and Abs(dPhiAlpha) > Abs(dPhiLow))
+            return  MinCubicInterpolate(alphaHigh, phiHigh, alpha, phiAlpha, dPhiHigh, dPhiAlpha, phi);
 }
+
 /**
  * Preconditions:
  * -------------
- * 1. The interval bounded by alpha_low and alpha_high contains a value alpha satisfying the strong wolfe conditions.
- * 2. alpha_low satisfies the sufficient decrease condition.
- * 3. f(x + alpha_low*p)*(alpha_high - alpha_low) < 0
+ * 1. The interval bounded by alphaLow and alphaHigh contains a value alpha satisfying the strong wolfe conditions.
+ * 2. alphaLow satisfies the sufficient decrease condition.
+ * 3. f(x + alphaLow*p)*(alphaHigh - alphaLow) < 0
  *
- * Note: it is _not_ required that alpha_low < alpha_high.
+ * Note: it is _not_ required that alphaLow < alphaHigh.
  *
  * @param f
  * @param gradient
- * @param f0
+ * @param phi
+ * @param phi0
+ * @param phiPrime0
+ * @param alphaLow
+ * @param alphaHigh
+ * @param phiAlphaLow
  * @param x0
  * @param p
- * @param alpha_low
- * @param alpha_high
  * @param c1
  * @param c2
  * @return
  */
-template< typename T, typename Function, typename Gradient>
+template< typename T, typename Function, typename Function1, typename Gradient>
 T Zoom( const Function& f, const Gradient& gradient,
-        T f0, T f0_dash, T fval_low, T flow_dash, const DistMatrix<T>& x0, const DistMatrix<T>& p,
-        T alpha_low, T alpha_high, T c1, T c2)
+        const Function1& phi,
+        T phi0, T phiPrime0,
+        T alphaLow, T alphaHigh,
+        const DistMatrix<T>& x0, const DistMatrix<T>& p,
+        T c1, T c2)
 {
     DistMatrix<T> x_j(x0);
-    DistMatrix<T> g2(p.Height(), 1, x0.Grid());
+    DistMatrix<T> g2(p);
     Int iter = 0;
-    T alpha;
-    while (alpha_high - alpha_low > T(10)*limits::Epsilon<Base<T>>())
-    {
-        // BEGIN Interpolation
-        /**
-         * The treatment of the interpolation step of zoom is somewhat vague. We have chosen to build a quadratic interpolant,
-         * and if sufficient decrease is not met, we then follow up by a cubic interpolant involving the minimizer of the quadratic.
-         */
-        alpha = MinQuadraticInterpolate(alpha_low, f0_dash, f0, fval_low);
+
+    auto phiPrime = [&] (const T& stepSize){
+        x_j = x0; //TODO: This axpy can be optimized away later if it is an issue later.
+        Axpy(stepSize, p, x_j);
+        gradient(x_j, g2);
+        return Dot(p, g2);
+    };
+
+    //Initial Guess
+    T alpha = (alphaHigh+alphaLow)/T(2);
+    T phiLow = phi(alphaLow);
+    T phiHigh = phi(alphaHigh);
+    T phiAlpha = phi(alpha);
+    T prevAlpha;
+    T dPhiLow = phiPrime(alphaLow);
+    T dPhiHigh = phiPrime(alphaHigh);
+    T dPhiAlpha = phiPrime(alpha);
+    while (alphaHigh - alphaLow > T(100)*limits::Epsilon<Base<T>>() ) {
+        alpha = Interpolate(alphaLow, alphaHigh, alpha, phiLow, phiHigh, phiAlpha,
+                      dPhiLow, dPhiHigh, dPhiAlpha, phi);
+        if( std::isnan(alpha)) { return prevAlpha; }
+        if( Abs(alpha-prevAlpha)<c1){ return alpha; }
+        //hand inlined phi(alpha);
         x_j = x0;
         Axpy(alpha, p, x_j);
-        T fval = f(x_j);
-        if ( fval > f0 + c1*alpha*f0_dash)
-        {
-            alpha = MinCubicInterpolate(f0, f0_dash, alpha_low, fval_low, alpha, fval);
-            x_j = x0;
-            Axpy(alpha, p, x_j);
-            fval = f(x_j);
-        }
+        //Hand inlined phiPrime(alpha);
+        phiAlpha = f(x_j);
+        gradient(x_j, g2);
+        dPhiAlpha = Dot(p, g2);
         // End Interpolation
-        //x_j = x0;
-        //Axpy(alpha, p, x_j);
-        //fval = f(x_j);
-        if ((fval > f0 + c1*alpha*f0_dash) || (fval >= fval_low)){
-            alpha_high = alpha;
+        if ((phiAlpha > phi0 + c1*alpha*phiPrime0) || (phiAlpha >= phiLow)){
+            alphaHigh = alpha;
+            phiHigh = phiAlpha;
+            dPhiHigh = dPhiAlpha;
         }else { //alpha certainly satisfies sufficient decrease
-            auto fval_dash = Dot(p, g2);
-            gradient( x_j, g2); //evaluate fval_dash = phi'(alpha_j)
             //If this value of alpha also satsifies the curvature conditions
-            if(Abs(fval_dash)<= -c2*f0) //then return.
+            if(Abs(dPhiAlpha)<= -c2*phi0) //then return.
             {
                 return alpha;
             }
-            if(  fval_dash*(alpha_high - alpha_low) >= 0) //maintain invariant (3)
+            if(  dPhiAlpha*(alphaHigh - alphaLow) >= 0) //maintain invariant (3)
             {
-                alpha_high = alpha_low;
+                alphaHigh = alphaLow;
+                phiHigh = phiLow;
+                dPhiHigh = dPhiLow;
             }
             /**
-             * alpha_low is maintained as of all steps satisfying suff. dec.
+             * alphaLow is maintained as of all steps satisfying suff. dec.
              * it is the one with smallest function value.
              */
-            fval_low = fval;
-            alpha_low = alpha;
+            phiLow = phiAlpha;
+            alphaLow = alpha;
+            dPhiLow = dPhiAlpha;
         }
+        prevAlpha = alpha;
         ++iter;
     }
     return alpha;
 }
+
+
+
 /***
  * This function approximately minimizes the function min_\alpha f(x0 + alpha*p)
  * The routine lineSearch is gaurunteed to find a step length \alpha satisfying the Strong Wolfe Conditions:
@@ -141,40 +227,50 @@ T lineSearch( const Function& f, const Gradient& gradient,
               T c1=Pow(limits::Epsilon< Base<T> >(), Base<T>(1)/Base<T>(4)), T c2=T(9)/T(10))
     {
 
-        if(c1 > c2) {
-            throw ArgException("c1 must be less than c2");
-        }
+        if(c1 > c2) { throw ArgException("c1 must be less than c2"); }
 
-        T f0 = f(x0);
+        T phi0 = f(x0);
         DistMatrix<T> g2(D, 1, x0.Grid());
-        T f0_dash = Dot(p,g);
+        T  phiPrime0 = Dot(p,g);
         T  alpha(1);
         T  alpha_prev(0);
         T  alphaMax(1e3);
         T fvalPrev(0);
-        T fvalPrev_dash = f0_dash;
+        T phiPrimePrev = phiPrime0;
         T fval(0);
         DistMatrix<T> x_candidate(x0);
+
+        auto phi = [&](const T& stepSize){
+            x_candidate = x0;
+            Axpy(stepSize, p, x_candidate);
+            return f(x_candidate);
+        };
+
+
+        auto phiPrime = [&](){
+            gradient(x_candidate, g2);
+            return Dot(p, g2);
+        };
+
+
         // We is maintain that alpha_prev < alpha
         for(std::size_t iter = 0; iter < maxIter; ++iter)
         {
             //We work out f(x + alpha*p)
-            x_candidate = x0;
-            Axpy(alpha, p, x_candidate);
-            fval = f(x_candidate);
+            fval = phi(alpha);
             // alpha violates the sufficient descrease condition
             // Since p is a descent direction, f(x+\epsilon*p) < f(x) < f(x+alpha*p)
             // Since f is bounded below we bracket an interval satisfying the Strong wolfe conditions.
             // We use the algorithm Zoom to find a step length satisfying condition 2.
-            if ( fval > f0 + c1*alpha*f0_dash || (iter > 0 && fval > fvalPrev) )
+            if ( fval > phi0 + c1*alpha*phiPrime0 || (iter > 0 && fval > fvalPrev) )
             {
-                return Zoom(f, gradient, f0, f0_dash, fvalPrev_dash, fvalPrev, x0, p, alpha_prev, alpha, c1, c2);
+                return Zoom(f, gradient, phi, phi0, phiPrime0, alpha_prev, alpha, x0, p, c1, c2);
             }
             // x_candidate satsifies condition (1)
-            gradient( x_candidate, g2);
-            auto fval_dash = Dot(p, g2);
+            auto phiPrimeAlpha = phiPrime();
+
             // If we satisfy condition (2) then terminate.
-            if(  Abs(fval_dash) <= -c2*f0_dash)
+            if(  Abs(phiPrimeAlpha) <= -c2*phiPrime0)
             {
                 return alpha;
             }
@@ -182,13 +278,13 @@ T lineSearch( const Function& f, const Gradient& gradient,
             // If p'g2 > 0 then we are no longer in a descent direction
             // So again the interval (alpha_prev,alpha) must contain a value
             // Which satisfies the curvature conditions.
-            if( fval_dash > 0)
+            if( phiPrimeAlpha > 0)
             {
-                return Zoom(f, gradient, f0, f0_dash, fval, fval_dash, x0, p, alpha, alpha_prev, c1, c2);
+                return Zoom(f, gradient, phi, phi0, phiPrime0, alpha, alpha_prev, x0, p, c1, c2);
             }
             alpha_prev = alpha;
             fvalPrev = fval;
-            fvalPrev_dash = fval_dash;
+            phiPrimePrev = phiPrimeAlpha;
             alpha = Min(2*alpha, alphaMax);
         }
     return alpha;
@@ -284,17 +380,17 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         const std::function< Vector(const Vector&, Vector&)>& gradient)
     {
     const Int D = x.Height();
-    Vector g(x);
-    Vector g_old(x);
-    Vector y(g);
+    Vector g(x); //g stores the gradient at x_n
+    Vector g_old(x); //this one the old gradient x_{n-1}
+    Vector y(g); //y stores g - g_old
     gradient(x, g);
     detail::HessianInverseOperator<T> Hinv;
     auto norm_g = InfinityNorm(g);
     for( std::size_t iter=0; (norm_g > T(100)*limits::Epsilon<Base<T>>()); ++iter)
     {
-        // std::cout << "iter: " << iter << std::endl;
-        // Display(x, "Iterate");
-        // Display(g, "Gradient");
+        //std::cout << "iter: " << iter << std::endl;
+        //Display(x, "Iterate");
+        //Display(g, "Gradient");
         //Construct the quasi-newton step
         auto p = Hinv*g; p *= T(-1);
         // Display(p," Descent direction");
@@ -317,7 +413,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         // y = g - g_old
         Axpy(T(-1), g_old, y);
         Hinv.Update(p, y);
-        // std::cout << "||g||_inf = " << norm_g << std::endl;
+         std::cout << iter << " ||g||_inf = " << norm_g << std::endl;
     }
     return F(x);
 }
