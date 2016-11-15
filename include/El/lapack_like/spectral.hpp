@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPECTRAL_HPP
@@ -41,7 +41,7 @@ struct CubicSecularCtrl
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 CubicSecularInfo
 CubicSecular
-( bool initialize, 
+( bool initialize,
   bool rightRoot,
   const Real& rho,
   const Matrix<Real>& z,
@@ -229,7 +229,7 @@ struct HermitianEigSubset
     bool indexSubset=false;
     // The valid index range is [lowerIndex,upperIndex]
     Int lowerIndex=0, upperIndex=0;
- 
+
     bool rangeSubset=false;
     // The valid value range is (lowerBound,upperBound]
     Real lowerBound=Real(0), upperBound=Real(0);
@@ -355,7 +355,7 @@ HermitianTridiagEigInfo
 HermitianTridiagEig
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& dSub,
-        Matrix<Base<F>>& w, 
+        Matrix<Base<F>>& w,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl=
         HermitianTridiagEigCtrl<Base<F>>() );
 template<typename F>
@@ -383,14 +383,14 @@ HermitianTridiagEig
 ( const AbstractDistMatrix<Base<F>>& d,
   const AbstractDistMatrix<F>& dSub,
         AbstractDistMatrix<Base<F>>& w,
-        AbstractDistMatrix<F>& Q, 
+        AbstractDistMatrix<F>& Q,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl=
         HermitianTridiagEigCtrl<Base<F>>() );
 
 // Hermitian eigenvalue solvers
 // ============================
 template<typename Real>
-struct HermitianSDCCtrl 
+struct HermitianSDCCtrl
 {
     Int cutoff=256;
     Int maxInnerIts=2, maxOuterIts=10;
@@ -448,7 +448,7 @@ HermitianEigInfo
 HermitianEig
 (       UpperOrLower uplo,
         AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& w, 
+        AbstractDistMatrix<Base<F>>& w,
         AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() );
 
@@ -534,7 +534,7 @@ template<typename F>
 HermitianEigInfo
 HermitianGenDefEig
 (       Pencil pencil,
-        UpperOrLower uplo, 
+        UpperOrLower uplo,
         Matrix<F>& A,
         Matrix<F>& B,
         Matrix<Base<F>>& w,
@@ -579,7 +579,7 @@ struct QDWHCtrl
     Int maxIts=20;
 };
 
-struct PolarCtrl 
+struct PolarCtrl
 {
     bool qdwh=false;
     QDWHCtrl qdwhCtrl;
@@ -600,7 +600,7 @@ struct PolarInfo
 template<typename F>
 PolarInfo Polar( Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
-PolarInfo Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
+PolarInfo Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
 PolarInfo Polar
 ( Matrix<F>& A,
@@ -609,30 +609,30 @@ PolarInfo Polar
 template<typename F>
 PolarInfo Polar
 ( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& P, 
-  const PolarCtrl& ctrl=PolarCtrl() ); 
-template<typename F>
-PolarInfo HermitianPolar
-( UpperOrLower uplo,
-  Matrix<F>& A,
+  ElementalMatrix<F>& P,
   const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
 PolarInfo HermitianPolar
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A, 
-  const PolarCtrl& ctrl=PolarCtrl() ); 
-template<typename F>
-PolarInfo HermitianPolar
-( UpperOrLower uplo,
   Matrix<F>& A,
-  Matrix<F>& P, 
   const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
 PolarInfo HermitianPolar
 ( UpperOrLower uplo,
   ElementalMatrix<F>& A,
-  ElementalMatrix<F>& P, 
-  const PolarCtrl& ctrl=PolarCtrl() ); 
+  const PolarCtrl& ctrl=PolarCtrl() );
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  Matrix<F>& A,
+  Matrix<F>& P,
+  const PolarCtrl& ctrl=PolarCtrl() );
+template<typename F>
+PolarInfo HermitianPolar
+( UpperOrLower uplo,
+  ElementalMatrix<F>& A,
+  ElementalMatrix<F>& P,
+  const PolarCtrl& ctrl=PolarCtrl() );
 
 // Hessenberg Schur decomposition
 // ==============================
@@ -659,12 +659,12 @@ inline Int NumShifts( Int n, Int winSize )
 {
     Int numShifts;
     if( winSize < 30 )
-        numShifts = 2; 
+        numShifts = 2;
     else if( winSize < 60 )
-        numShifts = 4; 
+        numShifts = 4;
     else if( winSize < 150 )
         numShifts = 10;
-    else if( winSize < 590 ) 
+    else if( winSize < 590 )
         numShifts = Max( 10, winSize/Int(Log2(double(winSize))) );
     else if( winSize < 3000 )
         numShifts = 64;
@@ -805,7 +805,7 @@ void Sweep
 template<typename Real> struct SignCtrl;
 
 template<typename Real>
-struct SDCCtrl 
+struct SDCCtrl
 {
     Int cutoff=256;
     Int maxInnerIts=2, maxOuterIts=10;
@@ -818,11 +818,11 @@ struct SDCCtrl
 };
 
 template<typename Real>
-struct SchurCtrl 
+struct SchurCtrl
 {
     bool useSDC=false;
     HessenbergSchurCtrl hessSchurCtrl;
-    SDCCtrl<Real> sdcCtrl;    
+    SDCCtrl<Real> sdcCtrl;
     bool time=false;
 };
 
@@ -846,7 +846,7 @@ void Schur
 template<typename F>
 void Schur
 ( AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<Complex<Base<F>>>& w, 
+  AbstractDistMatrix<Complex<Base<F>>>& w,
   AbstractDistMatrix<F>& Q,
   const SchurCtrl<Base<F>>& ctrl=SchurCtrl<Base<F>>() );
 
@@ -885,7 +885,7 @@ void QuasiTriangEig
 template<typename F>
 Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U );
 template<typename F>
-DistMatrix<Complex<Base<F>>,VR,STAR> 
+DistMatrix<Complex<Base<F>>,VR,STAR>
 QuasiTriangEig( const AbstractDistMatrix<F>& U );
 
 template<typename Real>
@@ -893,7 +893,7 @@ void RealToComplex
 ( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U );
 template<typename Real>
 void RealToComplex
-( const AbstractDistMatrix<Real>& UQuasi, 
+( const AbstractDistMatrix<Real>& UQuasi,
         AbstractDistMatrix<Complex<Real>>& U );
 
 template<typename Real>
@@ -904,7 +904,7 @@ void RealToComplex
         Matrix<Complex<Real>>& Q );
 template<typename Real>
 void RealToComplex
-( const AbstractDistMatrix<Real>& UQuasi, 
+( const AbstractDistMatrix<Real>& UQuasi,
   const AbstractDistMatrix<Real>& QQuasi,
         AbstractDistMatrix<Complex<Real>>& U,
         AbstractDistMatrix<Complex<Real>>& Q );
@@ -961,11 +961,11 @@ void Eig
 // TODO(poulson): Decide if this should be a separate enum, BidiagSVDApproach
 enum SVDApproach
 {
-  // If A is m x n, return A = U S V^H, where U is m x min(m,n) and 
+  // If A is m x n, return A = U S V^H, where U is m x min(m,n) and
   // V is n x min(m,n).
   THIN_SVD,
 
-  // If A is m x n and rank k, return A = U S V^H, where U is m x k and 
+  // If A is m x n and rank k, return A = U S V^H, where U is m x k and
   // V is n x k.
   COMPACT_SVD,
 
@@ -974,7 +974,7 @@ enum SVDApproach
 
   // If the sufficiently small singular triplets should be thrown away.
   // When thresholded, a cross-product algorithm is used. This is often
-  // advantageous since tridiagonal eigensolvers tend to have faster 
+  // advantageous since tridiagonal eigensolvers tend to have faster
   // parallel implementations than bidiagonal SVD's.
   PRODUCT_SVD
 };
@@ -994,7 +994,7 @@ struct QRInfo
 
     Int numIterations=0;
     Int numInnerLoops=0;
- 
+
     Int numZeroShiftForwardIterations=0;
     Int numZeroShiftForwardInnerLoops=0;
 
@@ -1084,8 +1084,8 @@ struct DCCtrl
 //   2: dense
 //   3: deflated
 //
-// Cf. LAPACK's {s,d}lasd2 [CITATION] for this mechanism. Note that LAPACK 
-// currently ignores deflations of the form |d(0)-d(j)| <= deflationTol, 
+// Cf. LAPACK's {s,d}lasd2 [CITATION] for this mechanism. Note that LAPACK
+// currently ignores deflations of the form |d(0)-d(j)| <= deflationTol,
 // which results in the first column of U potentially becoming dense. We
 // do not ignore such deflations and always mark the first column of U
 // as dense for the sake of simplicity.
@@ -1201,7 +1201,7 @@ struct SVDInfo
 };
 
 template<typename Real>
-struct SVDCtrl 
+struct SVDCtrl
 {
     bool overwrite=false; // Allow 'A' to be overwritten computing A = U S V^H
     bool time=false;
@@ -1215,7 +1215,7 @@ struct SVDCtrl
     // Chan's algorithm
     // ----------------
 
-    // The minimum height/width ratio before preprocessing with a QR 
+    // The minimum height/width ratio before preprocessing with a QR
     // decomposition when only computing singular values
     double valChanRatio=1.2;
 
@@ -1242,12 +1242,12 @@ SVDInfo SVD
 template<typename F>
 SVDInfo SVD
 (       AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 SVDInfo SVD
 ( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 namespace svd {
@@ -1318,14 +1318,14 @@ template<typename F>
 SVDInfo SVD
 (       AbstractDistMatrix<F>& A,
         AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s,
         AbstractDistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 SVDInfo SVD
 ( const AbstractDistMatrix<F>& A,
         AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
+        AbstractDistMatrix<Base<F>>& s,
         AbstractDistMatrix<F>& V,
   const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
@@ -1391,7 +1391,7 @@ template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
         ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U, 
+        ElementalMatrix<F>& U,
         ElementalMatrix<Base<F>>& s,
         ElementalMatrix<F>& V,
   bool overwrite=false );
@@ -1399,7 +1399,7 @@ template<typename F>
 void HermitianSVD
 ( UpperOrLower uplo,
   const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& U, 
+        ElementalMatrix<F>& U,
         ElementalMatrix<Base<F>>& s,
         ElementalMatrix<F>& V );
 
@@ -1507,7 +1507,7 @@ Base<F> ProductLanczosDecomp
 
 // Extremal singular value estimates
 // =================================
-// Form a product Lanczos decomposition and use the square-roots of the 
+// Form a product Lanczos decomposition and use the square-roots of the
 // Ritz values as estimates of the extremal singular values.
 //
 // Note that the minimum singular value, which is the first value returned in
@@ -1515,17 +1515,17 @@ Base<F> ProductLanczosDecomp
 // condition numbers (but the dominant singular value is likely to be accurate).
 
 template<typename F>
-pair<Base<F>,Base<F>> 
+pair<Base<F>,Base<F>>
 ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize=20 );
 template<typename F>
-pair<Base<F>,Base<F>> 
+pair<Base<F>,Base<F>>
 ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize=20 );
 
 template<typename F>
-pair<Base<F>,Base<F>> 
+pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize=20 );
 template<typename F>
-pair<Base<F>,Base<F>> 
+pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize=20 );
 
 // Pseudospectra
@@ -1690,7 +1690,7 @@ DistMatrix<Int> QuasiTriangularSpectralPortrait
   const ElementalMatrix<Real>& Q,
         ElementalMatrix<Real>& invNormMap,
         Int realSize,
-        Int imagSize, 
+        Int imagSize,
         SpectralBox<Real>& box,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() );
 
@@ -1726,7 +1726,7 @@ DistMatrix<Int> HessenbergSpectralPortrait
   const ElementalMatrix<F>& Q,
         ElementalMatrix<Base<F>>& invNormMap,
         Int realSize,
-        Int imagSize, 
+        Int imagSize,
         SpectralBox<Base<F>>& box,
         PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 

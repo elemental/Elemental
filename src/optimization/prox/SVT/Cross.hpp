@@ -27,9 +27,9 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
     // when the PRODUCT_SVD approach reduces to tridiagonal form instead; we
     // could think of this as implicitly forming the Grammian of the bidiagonal
     // matrix
+    //
+    // TODO(poulson): A more aggressive tolerance? tol = tau is too strong.
     ctrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
-    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
-    ctrl.bidiagSVDCtrl.tol = tau;
     SVD( A, U, s, V, ctrl );
 
     SoftThreshold( s, tau, relative );
@@ -54,8 +54,6 @@ Int Cross( ElementalMatrix<F>& APre, Base<F> tau, bool relative )
     SVDCtrl<Real> ctrl;
     // See the equivalent note above
     ctrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
-    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
-    ctrl.bidiagSVDCtrl.tol = tau;
     SVD( A, U, s, V, ctrl );
 
     SoftThreshold( s, tau, relative );
@@ -78,8 +76,6 @@ Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
     SVDCtrl<Real> ctrl;
     // See the equivalent note above
     ctrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
-    ctrl.bidiagSVDCtrl.tolType = RELATIVE_TO_MAX_SING_VAL_TOL;
-    ctrl.bidiagSVDCtrl.tol = tau;
     SVD( A, U, s, V, ctrl );
 
     SoftThreshold( s, tau, relative );
