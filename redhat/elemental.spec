@@ -13,6 +13,7 @@ BuildRequires: openblas-devel
 BuildRequires: python2-devel 
 BuildRequires: qd-devel
 BuildRequires: qt5-qtbase-devel
+BuildRequires: gmp-devel
 
 %{?el6:BuildRequires:  devtoolset-4-toolchain}
 %{?el7:BuildRequires:  devtoolset-4-toolchain}
@@ -33,10 +34,10 @@ Group: Development/Libraries
 %description devel
 Use this package for building off of Elemental
 
-%package python2 
+%package python2-elemental 
 Summary: Python 2 Bindings 
 Group: Development/Libraries
-%description python2
+%description python2-elemental
 This package contains the python bindings for using Elemental through a python shell
 
 %package openmpi
@@ -73,10 +74,15 @@ source /opt/rh/devtoolset-4/enable
 %define dobuild() \
 mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
-%cmake -DCMAKE_BUILD_TYPE=Release -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DCMAKE_RELEASE_POSTFIX="$MPI_SUFFIX" -DCMAKE_EXECUTABLE_SUFFIX_CXX="$MPI_SUFFIX" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON .. ; \
+%cmake -DCMAKE_C_COMPILER="mpicc" -DCMAKE_CXX_COMPILER="mpic++" -DCMAKE_BUILD_TYPE=Release -DBUILD_METIS=OFF -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DCMAKE_RELEASE_POSTFIX="$MPI_SUFFIX" -DCMAKE_EXECUTABLE_SUFFIX_CXX="$MPI_SUFFIX" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON -DCMAKE_INSTALL_BINARY_DIR="$MPI_BIN" -DCMAKE_INSTALL_LIBDIR="$MPI_LIB" -DPYTHON_SITE_PACKAGES="$MPI_PYTHON2_SITEARCH" .. ; \
 make %{?_smp_mflags}; \
 cd .. ; \
 
+# Set compiler variables to MPI wrappers
+export CC=mpicc
+export CXX=mpicxx
+export FC=mpif90
+export F77=mpif77
 
 ## Build OpenMPI version
 %{_openmpi_load}
