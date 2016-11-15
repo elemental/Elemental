@@ -19,7 +19,7 @@ void TestCorrectness
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Real eps = limits::Epsilon<Real();
+    const Real eps = limits::Epsilon<Real>();
     const Grid& grid = A.Grid();
 
     DistMatrix<F> BNormal( A );
