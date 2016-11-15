@@ -34,11 +34,17 @@ Group: Development/Libraries
 %description devel
 Use this package for building off of Elemental
 
-%package python2-elemental 
+%package python2-elemental-openmpi 
 Summary: Python 2 Bindings 
 Group: Development/Libraries
-%description python2-elemental
-This package contains the python bindings for using Elemental through a python shell
+%description python2-elemental-openmpi
+This package contains the python bindings for using Elemental through a python shell with OpenMPI
+
+%package python2-elemental-mpich
+Summary: Python 2 Bindings 
+Group: Development/Libraries
+%description python2-elemental-mpich
+This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %package openmpi
 Summary: OpenMPI variant of Elemental
@@ -112,8 +118,11 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_includedir}/*
 %{_prefix}/%{_sysconfdir}/elemental/CMake/*
 
-%files python2
-%{python2_sitelib}/*
+%files python2-elemental-openmpi
+%{python2_sitearch}/openmpi/*
+
+%files python2-elemental-mpich
+%{python2_sitearch}/mpich/*
 
 # All files shared between the serial and different MPI versions
 %files common 
@@ -122,13 +131,13 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 # All openmpi linked files
 %files openmpi 
-%{_libdir}/*_openmpi.*
-%{_bindir}/*_openmpi*
+%{_libdir}/openmpi/bin/*
+%{_libdir}/openmpi/lib/*
 
 # All mpich linked files
 %files mpich 
-%{_libdir}/*_mpich.*
-%{_bindir}/*_mpich*
+%{_libdir}/mpich/bin/*
+%{_libdir}/mpich/lib/*
 
 %changelog
 * Sat Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
