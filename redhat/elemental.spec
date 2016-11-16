@@ -58,7 +58,7 @@ Requires: %{name}-openmpi = %{version}-%{release}
 %description openmpi-tests
 Contains the test drivers built against OpenMPI
 
-%package python2-elemental-openmpi 
+%package -n python2-elemental-openmpi 
 Summary: Python 2 Bindings 
 Group: Development/Libraries
 Requires: %{name}-openmpi = %{version}-%{release}
@@ -89,7 +89,7 @@ Requires: %{name}-mpich = %{version}-%{release}
 %description mpich-tests
 Contains the test drivers built against MPICH
 
-%package python2-elemental-mpich
+%package -n python2-elemental-mpich
 Summary: Python 2 Bindings 
 Group: Development/Libraries
 Requires: %{name}-mpich = %{version}-%{release}
