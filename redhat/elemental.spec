@@ -163,7 +163,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %files openmpi-tests
 %{_libdir}/openmpi/bin/tests/*
 
-%files python2-elemental-openmpi
+%files -n python2-elemental-openmpi
 %{python2_sitearch}/openmpi/*
 
 # All mpich files
@@ -176,7 +176,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %files mpich-tests
 %{_libdir}/mpich/bin/tests/*
 
-%files python2-elemental-mpich 
+%files -n python2-elemental-mpich 
 %{python2_sitearch}/mpich/*
 
 %changelog
