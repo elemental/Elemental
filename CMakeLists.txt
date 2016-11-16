@@ -493,6 +493,7 @@ install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
 # Define the main library for Elemental
 # -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
+set_target_properties(El PROPERTIES VERSION ${EL_VERSION_MINOR} SOVERSION ${EL_VERSION_MAJOR})
 add_dependencies(El El_config)
 if(EL_BUILT_SCALAPACK)
   add_dependencies(El project_scalapack)
