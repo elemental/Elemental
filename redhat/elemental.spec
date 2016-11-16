@@ -62,7 +62,7 @@ Contains the test drivers built against OpenMPI
 Summary: Python 2 Bindings 
 Group: Development/Libraries
 Requires: %{name}-openmpi = %{version}-%{release}
-%description python2-elemental-openmpi
+%description -n python2-elemental-openmpi
 This package contains the python bindings for using Elemental through a python shell with OpenMPI
 
 ## MPICH Subpackages
@@ -93,7 +93,7 @@ Contains the test drivers built against MPICH
 Summary: Python 2 Bindings 
 Group: Development/Libraries
 Requires: %{name}-mpich = %{version}-%{release}
-%description python2-elemental-mpich
+%description -n python2-elemental-mpich
 This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %prep
