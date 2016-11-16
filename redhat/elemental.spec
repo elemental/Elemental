@@ -34,39 +34,67 @@ Group: Development/Libraries
 %description devel
 Use this package for building off of Elemental
 
-%package python2-elemental-openmpi 
-Summary: Python 2 Bindings 
-Group: Development/Libraries
-%description python2-elemental-openmpi
-This package contains the python bindings for using Elemental through a python shell with OpenMPI
-
-%package python2-elemental-mpich
-Summary: Python 2 Bindings 
-Group: Development/Libraries
-%description python2-elemental-mpich
-This package contains the python bindings for using Elemental through a python shell with MPICH
-
+## OpenMPI Subpackages
 %package openmpi
 Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
 BuildRequires: openmpi-devel
-
-# Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: openmpi
 Requires: %{name}-common = %{version}-%{release}
 %description openmpi
-Contains the library, unit tests, and example drivers built against OpenMPI
+Contains the library, built against OpenMPI
 
+%package openmpi-examples
+Summary: OpenMPI variant of Elemental
+Group: Development/Libraries
+Requires: %{name}-openmpi = %{version}-%{release}
+%description openmpi-examples
+Contains the example drivers built against OpenMPI
+
+%package openmpi-tests
+Summary: OpenMPI variant of Elemental
+Group: Development/Libraries
+Requires: %{name}-openmpi = %{version}-%{release}
+%description openmpi-tests
+Contains the test drivers built against OpenMPI
+
+%package python2-elemental-openmpi 
+Summary: Python 2 Bindings 
+Group: Development/Libraries
+Requires: %{name}-openmpi = %{version}-%{release}
+%description python2-elemental-openmpi
+This package contains the python bindings for using Elemental through a python shell with OpenMPI
+
+## MPICH Subpackages
 %package mpich
 Summary: MPICH variant of Elemental
 Group: Development/Libraries
 BuildRequires: mpich-devel
-
-# Require explicitly for dir ownership and to guarantee the pickup of the right runtime
 Requires: mpich
 Requires: %{name}-common = %{version}-%{release}
 %description mpich
 Contains the library, unit tests, and example drivers built against MPICH
+
+%package mpich-examples
+Summary: MPICH variant of Elemental
+Group: Development/Libraries
+Requires: %{name}-mpich = %{version}-%{release}
+%description mpich-examples
+Contains the example drivers built against MPICH
+
+%package mpich-tests
+Summary: MPICH variant of Elemental
+Group: Development/Libraries
+Requires: %{name}-mpich = %{version}-%{release}
+%description mpich-tests
+Contains the test drivers built against MPICH
+
+%package python2-elemental-mpich
+Summary: Python 2 Bindings 
+Group: Development/Libraries
+Requires: %{name}-mpich = %{version}-%{release}
+%description python2-elemental-mpich
+This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %prep
 %autosetup 
@@ -80,9 +108,9 @@ source /opt/rh/devtoolset-4/enable
 %define dobuild() \
 mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
-%cmake -DCMAKE_C_COMPILER="mpicc" -DCMAKE_CXX_COMPILER="mpic++" -DCMAKE_BUILD_TYPE=Release -DBUILD_METIS=OFF -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DCMAKE_RELEASE_POSTFIX="$MPI_SUFFIX" -DCMAKE_EXECUTABLE_SUFFIX_CXX="$MPI_SUFFIX" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON -DCMAKE_INSTALL_BINDIR="$MPI_BIN" -DCMAKE_INSTALL_LIBDIR="$MPI_LIB" -DPYTHON_SITE_PACKAGES="$MPI_PYTHON_SITEARCH" .. ; \
+%cmake -DCMAKE_C_COMPILER="mpicc" -DCMAKE_CXX_COMPILER="mpic++" -DCMAKE_BUILD_TYPE=Release -DBUILD_METIS=OFF -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON -DCMAKE_INSTALL_BINDIR="$MPI_BIN" -DCMAKE_INSTALL_LIBDIR="$MPI_LIB" -DPYTHON_SITE_PACKAGES="$MPI_PYTHON_SITEARCH" .. ; \
 make %{?_smp_mflags}; \
-#make test \
+make test \
 cd .. ; \
 
 # Set compiler variables to MPI wrappers
@@ -115,15 +143,10 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 
 rm -rf %{buildroot}/%{_prefix}/conf
 
+#The Elemental headers
 %files devel
 %{_includedir}/*
 %{_prefix}/%{_sysconfdir}/elemental/CMake/*
-
-%files python2-elemental-openmpi
-%{python2_sitearch}/openmpi/*
-
-%files python2-elemental-mpich
-%{python2_sitearch}/mpich/*
 
 # All files shared between the serial and different MPI versions
 %files common 
@@ -132,13 +155,29 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 # All openmpi linked files
 %files openmpi 
-%{_libdir}/openmpi/bin/*
 %{_libdir}/openmpi/lib/*
 
-# All mpich linked files
+%files openmpi-examples
+%{_libdir}/openmpi/bin/examples/*
+
+%files openmpi-tests
+%{_libdir}/openmpi/bin/tests/*
+
+%files python2-elemental-openmpi
+%{python2_sitearch}/openmpi/*
+
+# All mpich files
 %files mpich 
-%{_libdir}/mpich/bin/*
 %{_libdir}/mpich/lib/*
+
+%files mpich-examples
+%{_libdir}/mpich/bin/examples/*
+
+%files mpich-tests
+%{_libdir}/mpich/bin/tests/*
+
+%files python2-elemental-mpich 
+%{python2_sitearch}/mpich/*
 
 %changelog
 * Sat Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
