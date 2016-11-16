@@ -493,6 +493,7 @@ install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
 # Define the main library for Elemental
 # -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
+set_target_properties(El PROPERTIES VERSION ${EL_VERSION_MINOR} SOVERSION ${EL_VERSION_MAJOR})
 add_dependencies(El El_config)
 if(EL_BUILT_SCALAPACK)
   add_dependencies(El project_scalapack)
@@ -621,7 +622,7 @@ if(EL_LINK_FLAGS)
   set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
 add_test(NAME sandbox/test WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-  COMMAND sandbox-test)
+  COMMAND sandbox-test -platform offscreen)
 
 # Test drivers
 # ------------
@@ -657,7 +658,7 @@ if(EL_TESTS)
       install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME} 
-          WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME})
+          WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME} -platform offscreen)
       endif()
     endforeach()
   endforeach()
@@ -706,7 +707,7 @@ if(EL_EXAMPLES)
       install(TARGETS examples-${TYPE}-${EXNAME}
 	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR})
       add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
-        COMMAND examples-${TYPE}-${EXNAME})
+        COMMAND examples-${TYPE}-${EXNAME} -platform offscreen)
     endforeach()
   endforeach()
 endif()
