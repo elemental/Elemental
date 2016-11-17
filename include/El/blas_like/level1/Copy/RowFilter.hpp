@@ -96,7 +96,6 @@ void RowFilter
     const Int height = A.Height();
     const Int width = A.Width();
     const Int colCut = A.ColCut();
-    const Int rowCut = A.RowCut();
     const Int blockHeight = A.BlockHeight();
     const Int blockWidth = A.BlockWidth();
 
