@@ -113,7 +113,7 @@ make %{?_smp_mflags}; \
 ls
 find . -name "libEl.so.0"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.; \
-env CTEST_OUTPUT_ON_FAILURE=1 make test \
+env CTEST_OUTPUT_ON_FAILURE=1 ctest \
 cd .. ; \
 
 # Set compiler variables to MPI wrappers
