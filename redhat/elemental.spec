@@ -110,9 +110,10 @@ mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
 %cmake -DCMAKE_C_COMPILER="mpicc" -DCMAKE_CXX_COMPILER="mpic++" -DCMAKE_BUILD_TYPE=Release -DBUILD_METIS=OFF -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON -DCMAKE_INSTALL_BINDIR="$MPI_BIN" -DCMAKE_INSTALL_LIBDIR="$MPI_LIB" -DPYTHON_SITE_PACKAGES="$MPI_PYTHON_SITEARCH" .. ; \
 make %{?_smp_mflags}; \
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(find . -name "libEl.so" | xargs -n 1 dirname); \
-echo $LD_LIBRARY_PATH; \
-env CTEST_OUTPUT_ON_FAILURE=1 make test \
+ls; \
+find . -name "libEl.so*" ; \
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.; \
+env CTEST_OUTPUT_ON_FAILURE=1 ctest \
 cd .. ; \
 
 # Set compiler variables to MPI wrappers
