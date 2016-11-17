@@ -99,7 +99,8 @@ datatypes:
 
 The vast majority of Elemental is distributed under the terms of the
 [New BSD License](http://www.opensource.org/licenses/bsd-license.php).
-Please see the [debian/copyright](https://github.com/elemental/Elemental/blob/master/debian/copyright).
+Please see the [debian/copyright](https://github.com/elemental/Elemental/blob/master/debian/copyright) file for an overview of the copyrights and licenses for
+the files in the library.
 
 The optional external dependency
 [METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
