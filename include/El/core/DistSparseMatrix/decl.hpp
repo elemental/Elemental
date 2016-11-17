@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CORE_DISTSPARSEMATRIX_DECL_HPP
@@ -154,7 +162,7 @@ public:
     Int Offset( Int localRow, Int col ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int localRow ) const EL_NO_RELEASE_EXCEPT;
 
-    // Return the ratio of the maximum number of local nonzeros to the 
+    // Return the ratio of the maximum number of local nonzeros to the
     // total number of nonzeros divided by the number of processes
     double Imbalance() const EL_NO_RELEASE_EXCEPT;
 
@@ -163,7 +171,7 @@ public:
     void MappedSources
     ( const DistMap& reordering, vector<Int>& mappedSources ) const;
     void MappedTargets
-    ( const DistMap& reordering, 
+    ( const DistMap& reordering,
       vector<Int>& mappedTargets, vector<Int>& colOffs ) const;
 
     void AssertConsistent() const;
@@ -180,7 +188,7 @@ private:
 
     template<typename U,typename V>
     friend void EntrywiseMap
-    ( const DistSparseMatrix<U>& A, DistSparseMatrix<V>& B, 
+    ( const DistSparseMatrix<U>& A, DistSparseMatrix<V>& B,
       function<V(U)> func );
 
     template<typename U> friend class SparseMatrix;

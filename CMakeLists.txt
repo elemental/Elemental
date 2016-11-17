@@ -71,20 +71,20 @@ include(GNUInstallDirs)
 if(NOT CMAKE_INSTALL_INCLUDEDIR)
   set(CMAKE_INSTALL_INCLUDEDIR "include")
 endif()
-if(NOT CMAKE_INSTALL_LIBDIR) 
-  set(CMAKE_INSTALL_LIBDIR "lib") 
+if(NOT CMAKE_INSTALL_LIBDIR)
+  set(CMAKE_INSTALL_LIBDIR "lib")
 endif()
 if(NOT CMAKE_INSTALL_BINDIR)
   set(CMAKE_INSTALL_BINDIR "bin")
 endif()
 if(NOT CMAKE_INSTALL_DATADIR)
-  set(CMAKE_INSTALL_DATADIR "share") 
+  set(CMAKE_INSTALL_DATADIR "share")
 endif()
 if(NOT CMAKE_INSTALL_DOCDIR)
-  set(CMAKE_INSTALL_DOCDIR "share/doc/elemental") 
+  set(CMAKE_INSTALL_DOCDIR "share/doc/elemental")
 endif()
 if(NOT CMAKE_INSTALL_SYSCONFDIR)
-  set(CMAKE_INSTALL_SYSCONFDIR "etc") 
+  set(CMAKE_INSTALL_SYSCONFDIR "etc")
 endif()
 
 # Whether or not to attempt to use OpenMP within hot-spots in Elemental
@@ -96,7 +96,7 @@ option(EL_C_INTERFACE "Build C interface" ON)
 if(BUILD_SHARED_LIBS AND EL_C_INTERFACE)
   # Define PYTHON_SITE_PACKAGES if you want to install the python package
   # somewhere other than the default system-wide location (e.g., within your
-  # home directory). Alternatively, if you do NOT define PYTHON_SITE_PACKAGES 
+  # home directory). Alternatively, if you do NOT define PYTHON_SITE_PACKAGES
   # and instead define INSTALL_PYTHON_INTO_USER_SITE=ON, Elemental will
   # install its Python interface into site.USER_SITE in your home directory.
   option(INSTALL_PYTHON_PACKAGE "Install Python interface? (requires Python 2.x)" OFF)
@@ -131,7 +131,7 @@ option(EL_DISABLE_MKL_CSRMV "Avoid MKL's CSR mat-vec?" ON)
 
 option(EL_DISABLE_BLIS_LAPACK "Avoid BLIS+LAPACK" OFF)
 option(EL_PREFER_BLIS_LAPACK "Prefer BLIS+LAPACK over alternatives?" OFF)
-option(EL_FORCE_BLIS_LAPACK_BUILD 
+option(EL_FORCE_BLIS_LAPACK_BUILD
   "Avoid search for BLIS and instead buiild?" OFF)
 
 option(EL_DISABLE_OPENBLAS "Avoid OpenBLAS" OFF)
@@ -163,10 +163,10 @@ option(EL_FORCE_PARMETIS_BUILD "Force build of ParMETIS?" OFF)
 # in using Elemental in commercial applications should disable ParMETIS
 option(EL_DISABLE_PARMETIS "Disable ParMETIS?" OFF)
 
-# If ParMETIS is disabled, a search is performed for METIS via find_package, 
-# and, if this search fails, METIS is cloned from the git repo 
+# If ParMETIS is disabled, a search is performed for METIS via find_package,
+# and, if this search fails, METIS is cloned from the git repo
 #     https://github.com/poulson/Metis.git.
-# If EL_FORCE_METIS_BUILD is turned on, then no initial call to find_package is 
+# If EL_FORCE_METIS_BUILD is turned on, then no initial call to find_package is
 # performed.
 #
 # Should you want to manually specify a METIS installation, you can set the
@@ -239,10 +239,10 @@ mark_as_advanced(EL_VECTOR_WARNINGS)
 
 # Add the header file include directories first (so they have priority)
 # ---------------------------------------------------------------------
-message(STATUS 
+message(STATUS
   "Appending ${PROJECT_SOURCE_DIR}/include for Elemental's source includes")
 include_directories("${PROJECT_SOURCE_DIR}/include")
-message(STATUS 
+message(STATUS
   "Appending ${PROJECT_BINARY_DIR}/include for Elemental's binary includes")
 include_directories("${PROJECT_BINARY_DIR}/include")
 
@@ -360,12 +360,12 @@ if(APPLE)
   # (but later on when installing)
   set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-  # Add automatically determined parts of RPATH which point to directories 
+  # Add automatically determined parts of RPATH which point to directories
   # outside the build tree to the install RPATH
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
   # RPATH to be used when installing, but only if it's not a system directory
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES 
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
     "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
   if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -487,7 +487,7 @@ install(FILES "${PROJECT_BINARY_DIR}/include/El/config.h"
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/El)
 add_custom_target(El_config DEPENDS "${PROJECT_BINARY_DIR}/include/El/config.h")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} 
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   	FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
 # Define the main library for Elemental
@@ -533,14 +533,14 @@ if(BUILD_SHARED_LIBS)
       if(INSTALL_PYTHON_INTO_USER_SITE)
         execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
           "import site; print site.USER_SITE"
-          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
+          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
           OUTPUT_STRIP_TRAILING_WHITESPACE)
       else()
         execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
           "from distutils.sysconfig import get_python_lib; print get_python_lib()"
-          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES 
+          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-      endif()  
+      endif()
       set(PYTHON_SITE_PACKAGES "${PYTHON_SITE_PACKAGES}"
         CACHE PATH "Destination for Python site package directory")
     endif()
@@ -657,7 +657,7 @@ if(EL_TESTS)
       endif()
       install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
-        add_test(NAME Tests/${TYPE}/${TESTNAME} 
+        add_test(NAME Tests/${TYPE}/${TESTNAME}
           WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME} -platform offscreen)
       endif()
     endforeach()
@@ -716,7 +716,7 @@ endif()
 # =====
 # While PackageMaker is deprecated, productbuild is not yet supported by CPack.
 # Furthermore, it is possible to download the "Late July 2012" version of
-# PackageMaker (which curiously has a release date of August 7, 2012) from 
+# PackageMaker (which curiously has a release date of August 7, 2012) from
 # Apple, but it appears to be incompatible with Yosemite.
 #
 # Lastly, the current CPack configuration does not yet allow the Python
@@ -726,7 +726,7 @@ set(CPACK_PACKAGE_NAME "Elemental")
 set(CPACK_PACKAGE_VENDOR "libelemental.org")
 set(CPACK_PACKAGE_VERSION_MAJOR ${EL_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${EL_VERSION_MINOR})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
   "Distributed-memory linear algebra and optimization")
 set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/cmake/El.png")
 include(CPack)

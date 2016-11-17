@@ -1,9 +1,12 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   Copyright (c) 2016, Ron Estrin
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LATTICE_C_H
@@ -21,7 +24,7 @@ typedef struct
     float delta;
     float eta;
     ElInt rank;
-    ElInt nullity;    
+    ElInt nullity;
     ElInt numSwaps;
     ElInt firstSwap;
     float logVol;
@@ -32,7 +35,7 @@ typedef struct
     double delta;
     double eta;
     ElInt rank;
-    ElInt nullity;    
+    ElInt nullity;
     ElInt numSwaps;
     ElInt firstSwap;
     double logVol;

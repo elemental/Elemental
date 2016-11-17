@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_FACTOR_LDL_SPARSE_SYMBOLIC_NODEINFO_HPP
@@ -20,12 +28,12 @@ struct NodeInfo
 {
     // Known before analysis
     // ---------------------
-    Int size, off; 
+    Int size, off;
     vector<Int> origLowerStruct;
 
     NodeInfo* parent;
     vector<NodeInfo*> children;
-    DistNodeInfo* duplicate; 
+    DistNodeInfo* duplicate;
 
     // Known after analysis
     // --------------------
@@ -70,8 +78,8 @@ struct DistNodeInfo
     bool onLeft;
     mpi::Comm comm;
 
-    DistNodeInfo* parent; 
-    DistNodeInfo* child; 
+    DistNodeInfo* parent;
+    DistNodeInfo* child;
     NodeInfo* duplicate;
 
     // Known after analysis
@@ -84,12 +92,12 @@ struct DistNodeInfo
     vector<Int> childSizes;
     // The relative indices of our children
     // (maps from the child update indices to our frontal indices).
-    // These could be replaced with just the relative indices of our local 
+    // These could be replaced with just the relative indices of our local
     // submatrices of the child updates.
     vector<vector<Int>> childRelInds;
 
     DistNodeInfo( DistNodeInfo* parentNode=nullptr )
-    : comm(mpi::COMM_WORLD), 
+    : comm(mpi::COMM_WORLD),
       parent(parentNode), child(nullptr), duplicate(nullptr),
       grid(nullptr)
     { }
@@ -102,14 +110,14 @@ struct DistNodeInfo
             DEBUG_ONLY(DumpCallStack())
             return;
         }
-    
+
         delete child;
         delete duplicate;
-    
+
         delete grid;
         if( comm != mpi::COMM_WORLD )
             mpi::Free( comm );
-    }   
+    }
 };
 
 inline NodeInfo::NodeInfo( DistNodeInfo* duplicateNode )
