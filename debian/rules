@@ -1,7 +1,33 @@
 #! /usr/bin/make -f
-
-override_dh_auto_configure:
-	cmake -DCMAKE_BUILD_TYPE=Release -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB=$(shell gfortran -print-file-name=libgfortran.so) -DEL_DISABLE_PARMETIS=ON
-
 %:
 	dh $@ --parallel --buildsystem=cmake
+
+C_COMPILER=gcc
+CXX_COMPILER=g++
+F90_COMPILER=gfortran
+
+MPICH_C_COMPILER=mpicc.mpich
+MPICH_CXX_COMPILER=mpicxx.mpich
+MPICH_F90_COMPILER=mpif90.mpich
+MPICH_INSTALL_PREFIX=/usr/local/mpich
+
+OPENMPI_C_COMPILER=mpicc.openmpi
+OPENMPI_CXX_COMPILER=mpicxx.openmpi
+OPENMPI_F90_COMPILER=mpif90.openmpi
+OPENMPI_INSTALL_PREFIX=/usr/local/openmpi
+
+override_dh_auto_configure:
+	mkdir -p build-mpich && cd build-mpich && cmake -DCMAKE_BUILD_TYPE=Release -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB=$(shell gfortran -print-file-name=libgfortran.so) -DEL_DISABLE_PARMETIS=ON -DCMAKE_C_COMPILER=$(C_COMPILER) -DCMAKE_CXX_COMPILER=$(CXX_COMPILER) -DCMAKE_Fortran_COMPILER=$(F90_COMPILER) -DMPI_C_COMPILER=$(MPICH_C_COMPILER) -DMPI_CXX_COMPILER=$(MPICH_CXX_COMPILER) -DMPI_Fortran_COMPILER=$(MPICH_F90_COMPILER) -DCMAKE_INSTALL_PREFIX=${MPICH_INSTALL_PREFIX} ..
+	mkdir -p build-openmpi && cd build-openmpi && cmake -DCMAKE_BUILD_TYPE=Release -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB=$(shell gfortran -print-file-name=libgfortran.so) -DEL_DISABLE_PARMETIS=ON -DCMAKE_C_COMPILER=$(C_COMPILER) -DCMAKE_CXX_COMPILER=$(CXX_COMPILER) -DCMAKE_Fortran_COMPILER=$(F90_COMPILER) -DMPI_C_COMPILER=$(OPENMPI_C_COMPILER) -DMPI_CXX_COMPILER=$(OPENMPI_CXX_COMPILER) -DMPI_Fortran_COMPILER=$(OPENMPI_F90_COMPILER) -DCMAKE_INSTALL_PREFIX=${OPENMPI_INSTALL_PREFIX} ..
+
+override_dh_auto_build:
+	dh_auto_build --builddirectory build-mpich
+	dh_auto_build --builddirectory build-openmpi
+
+override_dh_auto_install:
+	dh_auto_install --builddirectory build-mpich
+	dh_auto_install --builddirectory build-openmpi
+
+override_dh_auto_clean:
+	dh_auto_clean --builddirectory build-mpich
+	dh_auto_clean --builddirectory build-openmpi
