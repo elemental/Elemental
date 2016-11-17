@@ -1,14 +1,21 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-
 #include <El/blas_like/level1/Axpy.hpp>
 #include <El/blas_like/level1/Scale.hpp>
 
@@ -21,7 +28,7 @@ template<typename T>
 DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
 : height_(0), width_(0),
   commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
-{ 
+{
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
     else
@@ -31,9 +38,9 @@ DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
 
 template<typename T>
 DistMultiVec<T>::DistMultiVec( Int height, Int width, mpi::Comm comm )
-: height_(height), width_(width), 
+: height_(height), width_(width),
   commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
-{ 
+{
     if( comm == mpi::COMM_WORLD )
         comm_ = comm;
     else
@@ -58,7 +65,7 @@ DistMultiVec<T>::DistMultiVec( const DistMultiVec<T>& A )
 
 template<typename T>
 DistMultiVec<T>::~DistMultiVec()
-{ 
+{
     if( !mpi::Finalized() )
         if( comm_ != mpi::COMM_WORLD )
             mpi::Free( comm_ );
@@ -108,7 +115,7 @@ void DistMultiVec<T>::Resize( Int height, Int width )
 // -----------------------
 template<typename T>
 void DistMultiVec<T>::SetComm( mpi::Comm comm )
-{ 
+{
     commSize_ = mpi::Size(comm);
     commRank_ = mpi::Rank(comm);
     if( comm == comm_ )
@@ -138,7 +145,7 @@ const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& A )
 }
 
 template<typename T>
-const DistMultiVec<T>& 
+const DistMultiVec<T>&
 DistMultiVec<T>::operator=( const AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
@@ -250,7 +257,7 @@ Int DistMultiVec<T>::Blocksize() const EL_NO_EXCEPT { return blocksize_; }
 
 template<typename T>
 int DistMultiVec<T>::RowOwner( Int i ) const EL_NO_EXCEPT
-{ 
+{
     if( i == END ) i = height_ - 1;
     return i / blocksize_;
 }
@@ -336,7 +343,7 @@ void DistMultiVec<T>::Update( const Entry<T>& entry )
 
 template<typename T>
 T DistMultiVec<T>::GetLocal( Int iLoc, Int j ) const
-{ 
+{
     DEBUG_CSE
     return multiVec_.Get(iLoc,j);
 }
@@ -404,7 +411,7 @@ void DistMultiVec<T>::ProcessQueues()
     SwapClear( remoteUpdates_ );
     // Exchange and unpack
     // -------------------
-    auto recvEntries = 
+    auto recvEntries =
       mpi::AllToAll( sendEntries, sendCounts, sendOffs, comm_ );
 
     T* matBuf = multiVec_.Buffer();

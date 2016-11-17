@@ -1,16 +1,15 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
-   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and
-   The Georgia Institute of Technology.
-   All rights reserved.
-
-   Copyright (c) 2014-2015, Jack Poulson and Stanford University.
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,

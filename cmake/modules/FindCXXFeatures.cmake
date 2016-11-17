@@ -31,15 +31,32 @@
 # Copyright 2012 Andreas Weis
 # Copyright 2013 Jan KundrÃ¡t
 #
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
+#   - Redistributions of source code must retain the above copyright notice,
+#     this list of conditions and the following disclaimer.
+#
+#   - Redistributions in binary form must reproduce the above copyright notice,
+#     this list of conditions and the following disclaimer in the documentation
+#     and/or other materials provided with the distribution.
+#
+#   - Neither the name of the owner nor the names of its contributors
+#     may be used to endorse or promote products derived from this software
+#     without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
 
 if (NOT CMAKE_CXX_COMPILER_LOADED)
     message(FATAL_ERROR "CXXFeatures modules only works if language CXX is enabled")
@@ -64,7 +81,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "(Borland|Watcom)")
     # can't detect because they either will not always complain (Borland)
     # or will hang (Watcom).
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Cray")
-    test_set_flag("-h std=c++11" CXX11) 
+    test_set_flag("-h std=c++11" CXX11)
     if (NOT CXX11_COMPILER_FLAGS)
         message(FATAL_ERROR "Could not use -h std=c++11 with Cray C/C++")
     endif()
@@ -76,7 +93,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND WIN32)
     endif ()
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     # GCC needs -std=gnu++11 for the libquadmath literals; Intel does not
-    test_set_flag("-std=gnu++11" CXX11) 
+    test_set_flag("-std=gnu++11" CXX11)
     if (NOT CXX11_COMPILER_FLAGS)
         message(FATAL_ERROR "Could not use -std=gnu++11 with GCC")
     endif()

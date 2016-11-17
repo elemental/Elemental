@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPARSEMATRIX_IMPL_HPP
@@ -29,7 +37,7 @@ SparseMatrix<T>::SparseMatrix( Int height, Int width )
 
 template<typename T>
 SparseMatrix<T>::SparseMatrix( const SparseMatrix<T>& A )
-{ 
+{
     DEBUG_CSE
     if( &A != this )
         *this = A;
@@ -39,7 +47,7 @@ SparseMatrix<T>::SparseMatrix( const SparseMatrix<T>& A )
 
 template<typename T>
 SparseMatrix<T>::SparseMatrix( const DistSparseMatrix<T>& A )
-{ 
+{
     DEBUG_CSE
     *this = A;
 }
@@ -76,7 +84,7 @@ void SparseMatrix<T>::Resize( Int height, Int width )
 // --------
 template<typename T>
 void SparseMatrix<T>::Reserve( Int numEntries )
-{ 
+{
     const Int currSize = vals_.size();
     graph_.Reserve( numEntries );
     vals_.reserve( currSize+numEntries );
@@ -290,14 +298,14 @@ const El::Graph& SparseMatrix<T>::LockedGraph() const EL_NO_EXCEPT
 // ---------------------
 template<typename T>
 Int SparseMatrix<T>::Row( Int index ) const EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     return graph_.Source( index );
 }
 
 template<typename T>
 Int SparseMatrix<T>::Col( Int index ) const EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     return graph_.Target( index );
 }
@@ -325,7 +333,7 @@ Int SparseMatrix<T>::NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT
 
 template<typename T>
 T SparseMatrix<T>::Value( Int index ) const EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     DEBUG_ONLY(
       if( index < 0 || index >= Int(vals_.size()) )
@@ -338,10 +346,10 @@ template< typename T>
 T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 {
     if( row == END ) row = graph_.numSources_ - 1;
-    if( col == END ) col = graph_.numTargets_ - 1; 
+    if( col == END ) col = graph_.numTargets_ - 1;
     Int index = Offset( row, col );
     if( Row(index) != row || Col(index) != col )
-        return T(0); 
+        return T(0);
     else
         return Value( index );
 }
@@ -350,11 +358,11 @@ template< typename T>
 void SparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
 {
     if( row == END ) row = graph_.numSources_ - 1;
-    if( col == END ) col = graph_.numTargets_ - 1; 
-    Int index = Offset( row, col );  
+    if( col == END ) col = graph_.numTargets_ - 1;
+    Int index = Offset( row, col );
     if( Row(index) == row && Col(index) == col )
     {
-        vals_[index] = val; 
+        vals_[index] = val;
     }
     else
     {
@@ -409,7 +417,7 @@ void SparseMatrix<T>::ProcessQueues()
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( graph_.sources_.size() != graph_.targets_.size() || 
+      if( graph_.sources_.size() != graph_.targets_.size() ||
           graph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
@@ -424,7 +432,7 @@ void SparseMatrix<T>::ProcessQueues()
         for( Int s=0; s<numEntries; ++s )
         {
             pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
-            if( graph_.markedForRemoval_.find(candidate) == 
+            if( graph_.markedForRemoval_.find(candidate) ==
                 graph_.markedForRemoval_.end() )
             {
                 entries[s-numRemoved].i = graph_.sources_[s];
@@ -442,7 +450,7 @@ void SparseMatrix<T>::ProcessQueues()
     else
     {
         for( Int s=0; s<numEntries; ++s )
-            entries[s] = 
+            entries[s] =
               Entry<T>{graph_.sources_[s],graph_.targets_[s],vals_[s]};
     }
     CompareEntriesFunctor comparer;
