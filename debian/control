@@ -23,7 +23,7 @@ Description: the distributed math library Elemental built with MPICH
 
 Package: elemental-openmpi
 Architecture: any
-Build-Depends: libopenmpi-dev 
+Depends: libopenmpi-dev 
 Description: the distributed math library Elemental built with OpenMPI
  A build of the distributed linear algebra and optimization library Elemental
  using the OpenMPI MPI implementation
