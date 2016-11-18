@@ -70,8 +70,8 @@ main( int argc, char* argv[] )
         const Int numPivSteps = 
             Input("--numPivSteps","number of steps of QR",75);
         const bool useALM = Input("--useALM","use ALM algorithm?",true);
-        const bool display = Input("--display","display matrices",true);
-        const bool print = Input("--print","print matrices",false);
+        const bool display = Input("--display","display matrices",false);
+        const bool print = Input("--print","print matrices",true);
         ProcessInput();
         PrintInputReport();
 
