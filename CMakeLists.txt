@@ -86,7 +86,9 @@ endif()
 if(NOT CMAKE_INSTALL_SYSCONFDIR)
   set(CMAKE_INSTALL_SYSCONFDIR "etc")
 endif()
-
+if(NOT INSTALL_CMAKE_DIR)
+	set( INSTALL_CMAKE_DIR "CMake")
+endif()
 # Whether or not to attempt to use OpenMP within hot-spots in Elemental
 # (NOTE: This option is not actively maintained)
 option(EL_HYBRID "Make use of OpenMP within MPI packing/unpacking" OFF)
@@ -755,11 +757,11 @@ configure_file(
   "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake" @ONLY)
 
 # Install the ElementalConfig.cmake and ElementalConfigVersion.cmake
-set(INSTALL_CMAKE_DIR CMake)
+
 install(FILES
   "${PROJECT_BINARY_DIR}/ElementalConfig.cmake"
   "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake"
-  DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/elemental/${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  DESTINATION "${CCMAKE_INSTALL_LIBDIR}/${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
 
 install(EXPORT ElementalTargets
-	DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/elemental/${INSTALL_CMAKE_DIR}" COMPONENT dev)
+	DESTINATION "${CMAKE_INSTALL_LIBDIR}/${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
