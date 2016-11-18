@@ -161,7 +161,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_libdir}/openmpi/lib/*
 
 %files openmpi-examples
-%{_libdir}/openmpi/bin/examples/*
+%{_libdir}/openmpi/bin/*
 
 %files -n python2-elemental-openmpi
 %{python2_sitearch}/openmpi/*
@@ -171,7 +171,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_libdir}/mpich/lib/*
 
 %files mpich-examples
-%{_libdir}/mpich/bin/examples/*
+%{_libdir}/mpich/bin/*
 
 %files -n python2-elemental-mpich 
 %{python2_sitearch}/mpich/*
