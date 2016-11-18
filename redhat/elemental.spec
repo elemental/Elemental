@@ -51,13 +51,6 @@ Requires: %{name}-openmpi = %{version}-%{release}
 %description openmpi-examples
 Contains the example drivers built against OpenMPI
 
-%package openmpi-tests
-Summary: OpenMPI variant of Elemental
-Group: Development/Libraries
-Requires: %{name}-openmpi = %{version}-%{release}
-%description openmpi-tests
-Contains the test drivers built against OpenMPI
-
 %package -n python2-elemental-openmpi 
 Summary: Python 2 Bindings 
 Group: Development/Libraries
@@ -73,7 +66,7 @@ BuildRequires: mpich-devel
 Requires: mpich
 Requires: %{name}-common = %{version}-%{release}
 %description mpich
-Contains the library, unit tests, and example drivers built against MPICH
+Contains the library, and example drivers built against MPICH
 
 %package mpich-examples
 Summary: MPICH variant of Elemental
@@ -81,13 +74,6 @@ Group: Development/Libraries
 Requires: %{name}-mpich = %{version}-%{release}
 %description mpich-examples
 Contains the example drivers built against MPICH
-
-%package mpich-tests
-Summary: MPICH variant of Elemental
-Group: Development/Libraries
-Requires: %{name}-mpich = %{version}-%{release}
-%description mpich-tests
-Contains the test drivers built against MPICH
 
 %package -n python2-elemental-mpich
 Summary: Python 2 Bindings 
@@ -110,10 +96,6 @@ mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
 %cmake -DCMAKE_C_COMPILER="mpicc" -DCMAKE_CXX_COMPILER="mpic++" -DCMAKE_BUILD_TYPE=Release -DBUILD_METIS=OFF -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON -DCMAKE_INSTALL_BINDIR="$MPI_BIN" -DCMAKE_INSTALL_LIBDIR="$MPI_LIB" -DPYTHON_SITE_PACKAGES="$MPI_PYTHON_SITEARCH" .. ; \
 make %{?_smp_mflags}; \
-ls; \
-find . -name "libEl.so*" ; \
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.; \
-env CTEST_OUTPUT_ON_FAILURE=1 ctest \
 cd .. ; \
 
 # Set compiler variables to MPI wrappers
@@ -132,16 +114,34 @@ export F77=mpif77
 %dobuild
 %{_mpich_unload}
 
+%check 
+
+%define docheck() \
+export  CTEST_OUTPUT_ON_FAILURE=1; \
+cd %{_builddir}/%{name}-%{version}/$MPI_COMPILER ; \
+env LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd):$(pwd)/external/pmrrr:$(pwd)/external/suite_sparse; ctest -V %{?_smp_mflags}; \
+
+## Build OpenMPI version
+%{_openmpi_load}
+%docheck
+%{_openmpi_unload}
+
+# Build mpich version
+%{_mpich_load}
+%docheck
+%{_mpich_unload}
 
 %install
 ## Install OpenMPI version
 %{_openmpi_load}
 make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPPROG="cp -p"
+rm -f %{buildroot}/$MPI_BIN/tests-*
 %{_openmpi_unload}
 
 # Install MPICH2 version
 %{_mpich_load}
 make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPPROG="cp -p"
+rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
 rm -rf %{buildroot}/%{_prefix}/conf
@@ -161,10 +161,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_libdir}/openmpi/lib/*
 
 %files openmpi-examples
-%{_libdir}/openmpi/bin/examples/*
-
-%files openmpi-tests
-%{_libdir}/openmpi/bin/tests/*
+%{_libdir}/openmpi/bin/*
 
 %files -n python2-elemental-openmpi
 %{python2_sitearch}/openmpi/*
@@ -174,10 +171,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_libdir}/mpich/lib/*
 
 %files mpich-examples
-%{_libdir}/mpich/bin/examples/*
-
-%files mpich-tests
-%{_libdir}/mpich/bin/tests/*
+%{_libdir}/mpich/bin/*
 
 %files -n python2-elemental-mpich 
 %{python2_sitearch}/mpich/*
