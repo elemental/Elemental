@@ -118,7 +118,7 @@ export F77=mpif77
 
 %define docheck() \
 export  CTEST_OUTPUT_ON_FAILURE=1; \
-cd %{_builddir}/$MPI_COMPILER ; \
+cd %{_builddir}/%{name}-%{version}/$MPI_COMPILER ; \
 env LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd):$(pwd)/external/pmrrr:$(pwd)/external/suite_sparse; ctest -V %{?_smp_mflags}; \
 
 ## Build OpenMPI version
