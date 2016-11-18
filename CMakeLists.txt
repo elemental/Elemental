@@ -761,7 +761,7 @@ configure_file(
 install(FILES
   "${PROJECT_BINARY_DIR}/ElementalConfig.cmake"
   "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake"
-  DESTINATION "${CCMAKE_INSTALL_LIBDIR}/${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
+  DESTINATION "${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
 
 install(EXPORT ElementalTargets
-	DESTINATION "${CMAKE_INSTALL_LIBDIR}/${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
+	DESTINATION "${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
