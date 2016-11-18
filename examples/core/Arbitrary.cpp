@@ -20,8 +20,8 @@ main( int argc, char* argv[] )
         const Int n = Input("--n","size of matrix",20);
         const Int numRows = Input("--numRows","num rows of submatrix",5);
         const Int numCols = Input("--numCols","num cols of submatrix",5);
-        const bool display = Input("--display","display matrix?",true);
-        const bool print = Input("--print","print matrix?",false);
+        const bool display = Input("--display","display matrix?",false);
+        const bool print = Input("--print","print matrix?",true);
         ProcessInput();
         PrintInputReport();
 

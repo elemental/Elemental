@@ -19,8 +19,8 @@ main( int argc, char* argv[] )
         const Int n = Input("--size","size of HPD matrix",100);
         const double lower = Input("--lower","lower bound on spectrum",1.);
         const double upper = Input("--upper","upper bound on spectrum",10.);
-        const bool display = Input("--display","display matrices?",true);
-        const bool print = Input("--print","print matrices",false);
+        const bool display = Input("--display","display matrices?",false);
+        const bool print = Input("--print","print matrices",true);
         ProcessInput();
         PrintInputReport();
 
