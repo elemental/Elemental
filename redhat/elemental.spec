@@ -112,11 +112,6 @@ cd $MPI_COMPILER;  \
 make %{?_smp_mflags}; \
 cd .. ; \
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd):$(pwd)/external/pmrrr:$(pwd)/external/suite_sparse; \
-export  CTEST_OUTPUT_ON_FAILURE=1; \
-ctest; \
-cd .. ; \
-
 # Set compiler variables to MPI wrappers
 export CC=mpicc
 export CXX=mpicxx
@@ -133,6 +128,21 @@ export F77=mpif77
 %dobuild
 %{_mpich_unload}
 
+%check 
+
+%define docheck() \
+export  CTEST_OUTPUT_ON_FAILURE=1; \
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd):$(pwd)/external/pmrrr:$(pwd)/external/suite_sparse; ctest -V %{?_smp_mflags}; \
+
+## Build OpenMPI version
+%{_openmpi_load}
+%docheck
+%{_openmpi_unload}
+
+# Build mpich version
+%{_mpich_load}
+%docheck
+%{_mpich_unload}
 
 %install
 ## Install OpenMPI version
@@ -146,21 +156,6 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 %{_mpich_unload}
 
 rm -rf %{buildroot}/%{_prefix}/conf
-
-%check 
-%define docheck() \
-export  CTEST_OUTPUT_ON_FAILURE=1; \
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MPI_LIB ctest -V %{?_smp_mflags}; \
-
-## Build OpenMPI version
-%{_openmpi_load}
-%docheck
-%{_openmpi_unload}
-
-# Build mpich version
-%{_mpich_load}
-%docheck
-%{_mpich_unload}
 
 #The Elemental headers
 %files devel
