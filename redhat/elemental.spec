@@ -44,6 +44,13 @@ Requires: %{name}-common%{?_isa} = %{version}-%{release}
 %description openmpi
 Contains the library, built against OpenMPI
 
+%package openmpi-devel
+Summary: OpenMPI variant of Elemental
+Group: Development/Libraries
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
+%description openmpi-devel
+Contains the library, built against OpenMPI
+
 %package openmpi-examples
 Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
