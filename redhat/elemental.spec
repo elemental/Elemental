@@ -42,8 +42,15 @@ Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
 BuildRequires: openmpi-devel
 Requires: openmpi
-Requires: %{name}-common = %{version}-%{release}
+Requires: %{name}-common%{?_isa} = %{version}-%{release}
 %description openmpi
+Contains the library, built against OpenMPI
+
+%package openmpi-devel
+Summary: OpenMPI variant of Elemental
+Group: Development/Libraries
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
+%description openmpi-devel
 Contains the library, built against OpenMPI
 
 %package openmpi-examples
@@ -66,9 +73,18 @@ Summary: MPICH variant of Elemental
 Group: Development/Libraries
 BuildRequires: mpich-devel
 Requires: mpich
-Requires: %{name}-common = %{version}-%{release}
+Requires: %{name}-common%{?_isa} = %{version}-%{release}
 %description mpich
 Contains the library, and example drivers built against MPICH
+
+%package mpich-devel
+Summary: MPICH variant of Elemental
+Group: Development/Libraries
+BuildRequires: mpich-devel
+Requires: mpich
+Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
+%description mpich-devel
+Contains the library built against MPICH
 
 %package mpich-examples
 Summary: MPICH variant of Elemental
@@ -170,7 +186,10 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 # All openmpi linked files
 %files openmpi 
-%{_libdir}/openmpi/lib/*
+%{_libdir}/openmpi/lib/*.so.*
+
+%files openmpi-devel
+%{_libdir}/openmpi/lib/*.so
 
 %files openmpi-examples
 %{_libdir}/openmpi/bin/*
@@ -180,7 +199,10 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 # All mpich files
 %files mpich 
-%{_libdir}/mpich/lib/*
+%{_libdir}/mpich/lib/*.so.*
+
+%files mpich-devel
+%{_libdir}/mpich/lib/*.so
 
 %files mpich-examples
 %{_libdir}/mpich/bin/*
