@@ -82,6 +82,7 @@ else()
   target_link_libraries(pmrrr 
     ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${MATH_LIBS})
 endif()
+  set_target_properties(pmrrr PROPERTIES VERSION ${EL_VERSION_MINOR} SOVERSION ${EL_VERSION_MAJOR})
 if(EL_LINK_FLAGS)
   set_target_properties(pmrrr PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
