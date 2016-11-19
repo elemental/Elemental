@@ -150,11 +150,11 @@ rm -f ${buildroot}/$MPI_BIN/tests-*
 
 rm -rf %{buildroot}/%{_prefix}/conf
 
-%post elemental-mpich -p /sbin/ldconfig
-%postun  elemental-mpich -p /sbin/ldconfig
+%post mpich -p /sbin/ldconfig
+%postun  mpich -p /sbin/ldconfig
 
-%post elemental-openmpi -p /sbin/ldconfig
-%postun  elemental-openmpi -p /sbin/ldconfig
+%post openmpi -p /sbin/ldconfig
+%postun  openmpi -p /sbin/ldconfig
 
 #The Elemental headers
 %files devel
