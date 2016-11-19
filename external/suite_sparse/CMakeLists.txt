@@ -28,5 +28,6 @@ file(GLOB_RECURSE EL_SUITESPARSE_SRC RELATIVE
 add_library(ElSuiteSparse ${LIBRARY_TYPE} ${EL_SUITESPARSE_SRC})
 if(EL_LINK_FLAGS)
   set_target_properties(ElSuiteSparse PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
+  set_target_properties(ElSuiteSparse PROPERTIES VERSION ${EL_VERSION_MINOR} SOVERSION ${EL_VERSION_MAJOR})
 endif()
 install(TARGETS ElSuiteSparse EXPORT ElementalTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})
