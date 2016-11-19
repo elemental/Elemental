@@ -696,7 +696,7 @@ int eigval_root_proc
 	}
       } else if (jtry == MAX_TRY_RRR-1) {
 	fprintf(stderr,"No initial representation could be found.\n");
-	exit(3);
+	return 3;
       } else {
 	sigma -= sgndef*tau;
 	tau   *= 2.0;
