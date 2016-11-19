@@ -1,32 +1,33 @@
+# OpenMPI is disabled until Debian includes a version at least as late as 1.8.1
+# (rather than 1.6.5)
 Source: elemental
 Maintainer: "Jack Poulson" <jack.poulson@gmail.com>
 Uploaders: "Ryan Lewis" <me@ryanlewis.net>
 Section: math
 Priority: extra
-Build-Depends: debhelper (>= 9), cmake, libgomp1, libopenblas-dev, liblapack-dev, libmetis-dev, libmpc-dev, libmpfr-dev, libqd-dev
+Build-Depends: debhelper (>= 9), cmake, libgomp1, libopenblas-dev, liblapack-dev, libmetis-dev, libmpc-dev, libmpfr-dev, libqd-dev, libmpich-dev, gfortran
 Standards-Version: 3.9.7
 Homepage: http://libelemental.org
 Vcs-Browser: https://github.com/elemental/Elemental/tree/master/debian
 
 Package: elemental-all
 Architecture: any
-Depends: elemental-mpich, elemental-openmpi, elemental-python2, elemental-dev
+#Depends: elemental-mpich, elemental-openmpi, elemental-python2, elemental-dev
+Depends: elemental-mpich, elemental-python2, elemental-dev
 Description: full support for the distributed math library Elemental
  Installs the linear algebra and optimization library Elemental with two different MPI implementations and Python support
 
 Package: elemental-mpich
 Architecture: any
-Depends: libmpich-dev
 Description: the distributed math library Elemental built with MPICH
  A build of the distributed linear algebra and optimization library Elemental
  using the MPICH MPI implementation
 
-Package: elemental-openmpi
-Architecture: any
-Depends: libopenmpi-dev 
-Description: the distributed math library Elemental built with OpenMPI
- A build of the distributed linear algebra and optimization library Elemental
- using the OpenMPI MPI implementation
+#Package: elemental-openmpi
+#Architecture: any
+#Description: the distributed math library Elemental built with OpenMPI
+# A build of the distributed linear algebra and optimization library Elemental
+# using the OpenMPI MPI implementation
 
 Package: elemental-python2
 Architecture: any
