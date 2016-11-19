@@ -47,14 +47,14 @@ Contains the library, built against OpenMPI
 %package openmpi-examples
 Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
-Requires: %{name}-openmpi = %{version}-%{release}
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
 %description openmpi-examples
 Contains the example drivers built against OpenMPI
 
 %package -n python2-elemental-openmpi 
 Summary: Python 2 Bindings 
 Group: Development/Libraries
-Requires: %{name}-openmpi = %{version}-%{release}
+Requires: %{name}-openmpi%{?_isa} = %{version}-%{release}
 %description -n python2-elemental-openmpi
 This package contains the python bindings for using Elemental through a python shell with OpenMPI
 
@@ -71,14 +71,14 @@ Contains the library, and example drivers built against MPICH
 %package mpich-examples
 Summary: MPICH variant of Elemental
 Group: Development/Libraries
-Requires: %{name}-mpich = %{version}-%{release}
+Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 %description mpich-examples
 Contains the example drivers built against MPICH
 
 %package -n python2-elemental-mpich
 Summary: Python 2 Bindings 
 Group: Development/Libraries
-Requires: %{name}-mpich = %{version}-%{release}
+Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 %description -n python2-elemental-mpich
 This package contains the python bindings for using Elemental through a python shell with MPICH
 
@@ -94,9 +94,9 @@ source /opt/rh/devtoolset-4/enable
 %define dobuild() \
 mkdir $MPI_COMPILER; \
 cd $MPI_COMPILER;  \
+export CXXFLAGS="%{optflags} -Wl,--as-needed"; \
 %cmake -DINSTALL_CMAKE_DIR="%{_libdir}/cmake/" -DCMAKE_C_COMPILER="mpicc" -DCMAKE_CXX_COMPILER="mpic++" -DCMAKE_BUILD_TYPE=Release -DBUILD_METIS=OFF -DEL_USE_QT5=ON -DBINARY_SUBDIRECTORIES=False -DEL_TESTS=ON -DEL_EXAMPLES=ON -DINSTALL_PYTHON_PACKAGE=ON -DGFORTRAN_LIB="$(gfortran -print-file-name=libgfortran.so)" -DEL_DISABLE_PARMETIS=ON -DCMAKE_INSTALL_BINDIR="$MPI_BIN" -DCMAKE_INSTALL_LIBDIR="$MPI_LIB" -DPYTHON_SITE_PACKAGES="$MPI_PYTHON_SITEARCH" .. ; \
 make %{?_smp_mflags}; \
-find . -name "lib*.so*"; \
 cd .. ; \
 
 # Set compiler variables to MPI wrappers
@@ -149,6 +149,12 @@ rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
 rm -rf %{buildroot}/%{_prefix}/conf
+
+%post mpich -p /sbin/ldconfig
+%postun  mpich -p /sbin/ldconfig
+
+%post openmpi -p /sbin/ldconfig
+%postun  openmpi -p /sbin/ldconfig
 
 #The Elemental headers
 %files devel
