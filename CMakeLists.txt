@@ -71,7 +71,11 @@ include(GNUInstallDirs)
 if(NOT CMAKE_INSTALL_INCLUDEDIR)
   set(CMAKE_INSTALL_INCLUDEDIR "include")
 endif()
-if(NOT CMAKE_INSTALL_LIBDIR)
+if(CMAKE_INSTALL_LIBDIR)
+  if(IS_ABSOLUTE CMAKE_INSTALL_LIBDIR)
+    message(FATAL_ERROR "CMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR} was an absolute path but Elemental requires it to be relative to CMAKE_INSTALL_PREFIX")
+  endif()
+else()
   set(CMAKE_INSTALL_LIBDIR "lib")
 endif()
 if(NOT CMAKE_INSTALL_BINDIR)
@@ -740,9 +744,17 @@ include(CPack)
 export(TARGETS El pmrrr ElSuiteSparse
   FILE "${PROJECT_BINARY_DIR}/ElementalTargets.cmake")
 
-# Export the package for use from the build-tree
-# (this registers the build-tree with a global CMake-registry)
-export(PACKAGE Elemental)
+
+if(NOT CMAKE_EXPORT_NO_PACKAGE_REGISTRY)
+  # Export the package for use from the build-tree
+  # (this registers the build-tree with a global CMake-registry).
+  #
+  # While the NOT CMAKE_EXPORT_NO_PACKAGE_REGISTRY guard would seem to be
+  # redundant, the option was only added circa CMake 3.4.3, and so, rather than
+  # requiring such a new version of CMake entirely for a binary decision, we
+  # can instead manually circumvent the export.
+  export(PACKAGE Elemental)
+endif()
 
 # Create the ElementalConfig.cmake and ElementalConfigVersion files
 file(RELATIVE_PATH REL_INCLUDE_DIR "${PROJECT_BINARY_DIR}"

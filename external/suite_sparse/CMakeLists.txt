@@ -26,6 +26,10 @@ set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${C_FLAGS}")
 file(GLOB_RECURSE EL_SUITESPARSE_SRC RELATIVE 
   ${CMAKE_CURRENT_SOURCE_DIR} "*.c" "*.cpp" "*.h" "*.hpp")
 add_library(ElSuiteSparse ${LIBRARY_TYPE} ${EL_SUITESPARSE_SRC})
+if (LINUX)
+   target_link_libraries(ElSuiteSparse m)
+endif()
+
 if(EL_LINK_FLAGS)
   set_target_properties(ElSuiteSparse PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
   set_target_properties(ElSuiteSparse PROPERTIES VERSION ${EL_VERSION_MINOR} SOVERSION ${EL_VERSION_MAJOR})
