@@ -24,9 +24,9 @@ main( int argc, char* argv[] )
     EL_ABORT_ON_ERROR( error );
     error = ElInput_I("--n","matrix width",100,&n);
     EL_ABORT_ON_ERROR( error );
-    error = ElInput_b("--print","print matrix?",false,&print);
+    error = ElInput_b("--print","print matrix?",true,&print);
     EL_ABORT_ON_ERROR( error );
-    error = ElInput_b("--display","display matrix?",true,&display);
+    error = ElInput_b("--display","display matrix?",false,&display);
     error = ElProcessInput();
     EL_ABORT_ON_ERROR( error );
     error = ElPrintInputReport();
