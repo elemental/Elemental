@@ -15,7 +15,7 @@ BuildRequires: qd-devel
 BuildRequires: qt5-qtbase-devel
 BuildRequires: gmp-devel
 BuildRequires: mpfr-devel
-BuildRequires: mpc-devel
+BuildRequires: libmpc-devel
 
 %{?el6:BuildRequires:  devtoolset-4-toolchain}
 %{?el7:BuildRequires:  devtoolset-4-toolchain}
