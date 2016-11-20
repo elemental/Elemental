@@ -171,8 +171,16 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %post mpich -p /sbin/ldconfig
 %postun  mpich -p /sbin/ldconfig
 
+%post mpich-devel -p /sbin/ldconfig
+%postun  mpich-devel -p /sbin/ldconfig
+
 %post openmpi -p /sbin/ldconfig
 %postun  openmpi -p /sbin/ldconfig
+
+%post openmpi-devel -p /sbin/ldconfig
+%postun  openmpi-devel -p /sbin/ldconfig
+
+
 
 #The Elemental headers
 %files devel
