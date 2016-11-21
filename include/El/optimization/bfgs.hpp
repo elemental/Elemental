@@ -73,6 +73,7 @@ struct HessianInverseOperator {
     * So the backwards update is:
     * H_{k+1} = H_k + alpha*(ss') - [H_kys' + sy'H_k]/(s'y)
     * where alpha = [(s'y + y'H_ky)/(s'y)^2];
+     *            = [(1 + y'H_ky/s'y)*(1/s'y)]
     * This method advances the operator to represent H_{k+1}
     * @param s
     * @param y
@@ -92,7 +93,6 @@ struct HessianInverseOperator {
 
     private:
         Hessian_updates hessian_data;
-
 }; //end class HessianInverseOperator
 } //end namespace detail
 
@@ -135,7 +135,7 @@ T lineSearch( const std::function< T(const Vector&)>& f, const Gradient& gradien
         DistMatrix<T> g2(g);
         DistMatrix<T> x_candidate(x0);
         const T f_x0 = f(x0);
-        Int nIter=0;
+        const T s = Dot(p,g);
         Int nBisect=0;
         Int nExpand=0;
         std::cout << "t \t h(t) \t h'(t)" << std::endl;
