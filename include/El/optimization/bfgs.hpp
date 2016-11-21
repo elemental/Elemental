@@ -21,78 +21,68 @@ template< typename T>
 struct HessianInverseOperator {
 
     typedef DistMatrix<T> DMatrix;
-    typedef std::tuple<T, DMatrix, DMatrix, DMatrix, T> UpdateTerm;
+    typedef std::tuple<T, DMatrix, DMatrix, T> UpdateTerm;
     typedef std::vector<UpdateTerm> Hessian_updates;
 
     /**
     * This method applies y = H_k*x, eg. solves B_ky = x;
-    * (H_k)x = z + alpha*(s'x)s - beta*H_{k-1}y- rho*s
-    * where alpha = (s'y + y'H_{k-1}y)/(s'y)^2
-    * where beta = (s'x)/(s'y)
-    * where rho = (y'z)/(s'y)
-    *
+    * This is implemented using the procedure from page 779
+    * of Updating Quasi-Netwon Matrices With Limited Storage
+    * http://www.ii.uib.no/~lennart/drgrad/Nocedal1980.pdf
     * @param x
     * @return H_k*x
     */
     DMatrix operator*( const DMatrix& x)
     {
-        //Initially this is just the identity matrix;
-        //H_0 = I, so H_0*x = x;
-        if (hessian_data.size() == 0) { return x; }
-        DistMatrix<T> z( x);
+        std::size_t k = hessian_data.size();
+        Int bound = (k <= M) ? k : M;
+        Int incr = (k <= M) ? 0 : k-M;
 
-        // We maintain that z = H_{k-1}*x
-        // H_kx = z + alpha*(s'x)s - (s'x)/(s'y)H_{k-1}y  (y'z)/(s'y)*s]/(s'y)
-        for( auto& rank_two_update_data: hessian_data)
-        {
-            auto alpha = std::get<0>(rank_two_update_data);
-            const auto& s = std::get<1>(rank_two_update_data);
-            const auto& y = std::get<2>(rank_two_update_data);
-            const auto& Hy = std::get<3>(rank_two_update_data);
-            const auto& syInv = std::get<4>(rank_two_update_data);
-            //s'x
-            auto sx = Dot(s,x);
-            //y'z
-            auto yz = Dot(y,z);
-            auto beta = -sx*syInv;
-            auto rho = -yz*syInv;
-            // (H_k)x = z + alpha*(s'x)s + beta*H_{k-1}y + rho*s
-            //We now view:
-            //  (H_k)x = z + alpha*s + beta*Hy + rho*s
-            //         = z + (alpha+rho)*s - beta*Hy
-            // Rank-1 update: z <- z+(alpha+rho)*s
-            Axpy((alpha*sx+rho), s, z);
-            //Rank-1 update: z <- z + beta*Hy
-            Axpy( beta, Hy, z);
+        if( iter == 0){ return x; } //H_0 is initially identity
+        DistMatrix q(x);
+        alphaList.resize(bound);
+        for(Int i = bound-1; i >= 0; --i){
+            Int j = i+incr;
+            const UpdateTerm& updateTerm = hessian_data[j];
+            const T& stepSize = updateTerm.get<0>();
+            const auto& p = updateTerm.get<1>();
+            const auto& y = updateTerm.get<2>();
+            const auto& rho = updateTerm.get<3>();
+            T alpha = stepSize*Dot(p,q)*rho;
+            alphaList[i] = alpha;
+            Axpy(-alpha, y, q);
         }
-        return z;
+        //r_0 = H_0*q_0, current we assume H_0 = I
+        //Later we may scale it.
+        for(int i = 0; i < bound-1; ++i){
+            Int j = i+incr;
+            const UpdateTerm& updateTerm = hessian_data[j];
+            const T& stepSize = updateTerm.get<0>();
+            const auto& p = updateTerm.get<1>();
+            const auto& y = updateTerm.get<2>();
+            const auto& rho = updateTerm.get<3>();
+            const auto& alpha = alphaList[i];
+            T beta = rho*Dot(y,q);
+            Axpy(stepSize*(alpha-beta),p,q);
+        }
+        return q;
     }
     /**
     * The forward update is:
     * B_{k+1} = B_k + yy'/(y's) + B_ksks'B_k/(s'Bs)
-    * So the backwards update is:
-    * H_{k+1} = H_k + alpha*(ss') - [H_kys' + sy'H_k]/(s'y)
-    * where alpha = [(s'y + y'H_ky)/(s'y)^2];
-     *            = [(1 + y'H_ky/s'y)*(1/s'y)]
-    * This method advances the operator to represent H_{k+1}
-    * @param s
-    * @param y
+    * This method advances the operator H_{k+1} = B_{k+1}^{-1}
+    * @param s = x_{k+1} - x_{k} = stepSize * p_k
+    * @param y = g_{k+1} - g_{k}
     */
-    void Update( DMatrix& s, DMatrix& y)
+    void Update( const T& stepSize, DMatrix& p, DMatrix& y)
     {
-        // We store s,y, alpha, H*y, and s'y.
-        auto syInv = T(1)/Dot(s,y);
-        auto Hy = (*this)*y;
-        auto yHy = Dot(Hy,y);
-        T alpha = Max((1 + yHy*syInv)*syInv, T(0)); //successful line searches imply s'y > 0
-        //We require that H is positive definite
-        //As long as alpha is >= 0 and s'y > 0
-        //Then H_k is guaranteed positive definite.
-        hessian_data.emplace_back( alpha, s, y, Hy,  syInv);
+        hessian_data.emplace_back( stepSize, p, y, T(1)/stepSize*Dot(y,p));
     }
 
     private:
         Hessian_updates hessian_data;
+        Int M = hessian_data.max_size(); //for future LBFGS
+        std::vector< T> alphaList;
 }; //end class HessianInverseOperator
 } //end namespace detail
 
@@ -224,8 +214,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         y = g;
         // y = g - g_old
         Axpy(T(-1), g_old, y);
-        p *= stepSize;
-        Hinv.Update(p, y);
+        Hinv.Update(stepSize, p, y);
         std::cout << iter << " ||g||_inf = " << norm_g << std::endl;
     }
     return F(x);
