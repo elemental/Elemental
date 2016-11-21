@@ -224,6 +224,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         y = g;
         // y = g - g_old
         Axpy(T(-1), g_old, y);
+        p *= stepSize;
         Hinv.Update(p, y);
         std::cout << iter << " ||g||_inf = " << norm_g << std::endl;
     }
