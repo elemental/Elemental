@@ -193,8 +193,10 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
     Vector y(g); //y stores g - g_old
     gradient(x, g);
     detail::HessianInverseOperator<T> Hinv;
-    auto norm_g = InfinityNorm(g);
-    for( std::size_t iter=0; (norm_g > T(100)*limits::Epsilon<Base<T>>()); ++iter)
+    auto norm_g = Norm(g);
+    auto norm_x = Norm(x);
+    T convergenceEpsilon = T(1e-5);
+    for( std::size_t iter=0; (norm_g > Max(norm_x,T(1))*convergenceEpsilon); ++iter)
     {
         //std::cout << "iter: " << iter << std::endl;
         //Display(x, "Iterate");
@@ -206,6 +208,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         if ( s >= 0) { RuntimeError("p is not a descent direction"); };
         // Evaluate the wolf conditions..
         const T stepSize = lineSearch(F, gradient, g, x, p);
+        stepSize = Min(Max(stepSize, T(1e-20)),T(1e20)); //These are the defaults used in LBFGS
         // std::cout << "Step size: " << stepSize << std::endl;
         // Update x with the step
         // x = x + stepSize*p;
@@ -214,14 +217,15 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         g_old = g;
         // Re-evaluate
         gradient(x, g);
-        norm_g = InfinityNorm(g);
-        if( norm_g < T(100)*limits::Epsilon<Base<T>>()){ return F(x); }
+        norm_g = Norm(g);
+        norm_x = Norm(x);
+        if( norm_g < Max(norm_x,T(1))*convergenceEpsilon){ return F(x); }
         // Evaluate change in gradient
         y = g;
         // y = g - g_old
         Axpy(T(-1), g_old, y);
         Hinv.Update(p, y);
-         std::cout << iter << " ||g||_inf = " << norm_g << std::endl;
+        std::cout << iter << " ||g||_inf = " << norm_g << std::endl;
     }
     return F(x);
 }
