@@ -69,6 +69,8 @@ std::pair< DistMatrix<T>, T>
 QuadraticBFGSTest(Int N){
  DistMatrix<T> A,B;
  Laplacian(A, N);
+ for(int i = 0; i < N; ++i){ A.Set(i,i,Abs(A.Get(i,i))); }
+ Print(A);
  auto nrm = FrobeniusNorm(A);
  Gemm(El::NORMAL, El::ADJOINT, T(1), A, A, B);
  A = B;

@@ -13,62 +13,6 @@
 #include <El.h>
 
 namespace El {
-
-/***
- * Source:
- * NONSMOOTH OPTIMIZATION VIA BFGS
- * ADRIAN S. LEWIS AND MICHAEL L. OVERTON
- * http://www.cs.nyu.edu/~overton/papers/pdffiles/bfgs_inexactLS.pdf
- *
- * This function approximately minimizes the function min_\alpha f(x0 + alpha*p)
- * The routine lineSearch is gaurunteed to find a step length \alpha satisfying the Weak Wolfe Conditions:
- * 1. h(\alpha) = f(x + \alpha*p)-f(x) <=  c1*s*alpha (The sufficient decrease condition)
- *      where s = lim sup {t -> 0 from above}  h(t)/t
- *      We assume that s < 0
- * 2. h is differentiable at alpha with h'(\alpha) > c2*s
- * For c1 and c2 fixed: 0 < c1 < c2 < 1
- * We require that f is locally lipschitz or semi-algebraic
- */
-template< typename T, typename Vector, typename Gradient>
-T lineSearch( const std::function< T(const Vector&)>& f, const Gradient& gradient,
-              const DistMatrix<T>& g,
-              const DistMatrix<T>& x0, const DistMatrix<T>& p,
-              Int maxIter=100,
-              T armijoParameter=Pow(limits::Epsilon< Base<T> >(), Base<T>(1)/Base<T>(4)),
-              T wolfeParameter=T(9)/T(10)) {
-        T c1 = armijoParameter;
-        T c2 = wolfeParameter;
-        if (c1 > c2) { throw ArgException("c1 must be less than c2"); }
-        if (c2 > 1 || c1 < 0) { throw ArgException("0 < c1 < c2 < 1"); }
-        T alpha = 0;
-        T beta = limits::Infinity<T>();
-        T t = 1;
-        DistMatrix<T> g2(g);
-        DistMatrix<T> x_candidate(x0);
-        const T s = Dot(p,g);
-        const T f_x0 = f(x0);
-        auto h = [&](const T &stepSize) {
-            x_candidate = x0;
-            Axpy(stepSize, p, x_candidate);
-            return f(x_candidate) - f_x0;
-        };
-        auto phiPrime = [&]() {
-            gradient(x_candidate, g2);
-            return Dot(p, g2);
-        };
-        Int numIter=0;
-        do {
-            if (!(h(t) < c1 * s * t)) { beta = t; }
-            else if (!(phiPrime() > c2 * s)) { alpha = t; }
-            else { return t; }
-
-            if (limits::IsFinite(beta)) { t = (alpha + beta) / T(2); }
-            else { t = 2 * alpha; }
-            ++numIter;
-        }while( numIter < maxIter);
-        return t;
-    }
-
 namespace detail {
 /***
  * This class stores the updates to the inverse hessian of F, and provides the ability to apply inverse hessian.
@@ -81,15 +25,15 @@ struct HessianInverseOperator {
     typedef std::vector<UpdateTerm> Hessian_updates;
 
     /**
-     * This method applies y = H_k*x, eg. solves B_ky = x;
-     * (H_k)x = z + alpha*(s'x)s - beta*H_{k-1}y- rho*s
-     * where alpha = (s'y + y'H_{k-1}y)/(s'y)^2
-     * where beta = (s'x)/(s'y)
-     * where rho = (y'z)/(s'y)
-     *
-     * @param x
-     * @return H_k*x
-     */
+    * This method applies y = H_k*x, eg. solves B_ky = x;
+    * (H_k)x = z + alpha*(s'x)s - beta*H_{k-1}y- rho*s
+    * where alpha = (s'y + y'H_{k-1}y)/(s'y)^2
+    * where beta = (s'x)/(s'y)
+    * where rho = (y'z)/(s'y)
+    *
+    * @param x
+    * @return H_k*x
+    */
     DMatrix operator*( const DMatrix& x)
     {
         //Initially this is just the identity matrix;
@@ -105,13 +49,13 @@ struct HessianInverseOperator {
             const auto& s = std::get<1>(rank_two_update_data);
             const auto& y = std::get<2>(rank_two_update_data);
             const auto& Hy = std::get<3>(rank_two_update_data);
-            const auto& sy = std::get<4>(rank_two_update_data);
+            const auto& syInv = std::get<4>(rank_two_update_data);
             //s'x
             auto sx = Dot(s,x);
             //y'z
             auto yz = Dot(y,z);
-            auto beta = -sx/sy;
-            auto rho = -yz/sy;
+            auto beta = -sx*syInv;
+            auto rho = -yz*syInv;
             // (H_k)x = z + alpha*(s'x)s + beta*H_{k-1}y + rho*s
             //We now view:
             //  (H_k)x = z + alpha*s + beta*Hy + rho*s
@@ -124,29 +68,112 @@ struct HessianInverseOperator {
         return z;
     }
     /**
-     * The forward update is:
-     * B_{k+1} = B_k + yy'/(y's) + B_ksks'B_k/(s'Bs)
-     * So the backwards update is:
-     * H_{k+1} = H_k + alpha*(ss') - [H_kys' + sy'H_k]/(s'y)
-     * where alpha = [(s'y + y'H_ky)/(s'y)^2];
-     * This method advances the operator to represent H_{k+1}
-     * @param s
-     * @param y
-     */
+    * The forward update is:
+    * B_{k+1} = B_k + yy'/(y's) + B_ksks'B_k/(s'Bs)
+    * So the backwards update is:
+    * H_{k+1} = H_k + alpha*(ss') - [H_kys' + sy'H_k]/(s'y)
+    * where alpha = [(s'y + y'H_ky)/(s'y)^2];
+    * This method advances the operator to represent H_{k+1}
+    * @param s
+    * @param y
+    */
     void Update( DMatrix& s, DMatrix& y)
     {
         // We store s,y, alpha, H*y, and s'y.
-        auto sy = Dot(s,y);
+        auto syInv = T(1)/Dot(s,y);
         auto Hy = (*this)*y;
         auto yHy = Dot(Hy,y);
-        T alpha = (sy + yHy)/(sy*sy);
-        hessian_data.emplace_back( alpha, s, y, Hy, sy);
+        T alpha = Max((1 + yHy*syInv)*syInv, T(0)); //successful line searches imply s'y > 0
+        //We require that H is positive definite
+        //As long as alpha is >= 0 and s'y > 0
+        //Then H_k is guaranteed positive definite.
+        hessian_data.emplace_back( alpha, s, y, Hy,  syInv);
     }
 
-private:
-    Hessian_updates hessian_data;
-};
+    private:
+        Hessian_updates hessian_data;
+
+}; //end class HessianInverseOperator
 } //end namespace detail
+
+template< typename T>
+inline bool IsNaN(const T& t){ return (!limits::IsFinite<T>(t) && t != limits::Infinity<T>()); }
+
+/***
+ * Source:
+ * NONSMOOTH OPTIMIZATION VIA BFGS
+ * ADRIAN S. LEWIS AND MICHAEL L. OVERTON
+ * http://www.cs.nyu.edu/~overton/papers/pdffiles/bfgs_inexactLS.pdf
+ *
+ * This function approximately minimizes the function min_\alpha f(x0 + alpha*p)
+ * The routine lineSearch is gaurunteed to find a step length \alpha satisfying the Weak Wolfe Conditions:
+ * 1. h(t) = f(x + t*p)-f(x) <=  c1*s*t (The sufficient decrease condition)
+ *      where s = lim sup {t -> 0 from above}  h(t)/t
+ *      We assume that s < 0
+ * 2. h is differentiable at alpha with h'(t) > c2*s
+ * For c1 and c2 fixed: 0 < c1 < c2 < 1
+ * We require that f is locally lipschitz or semi-algebraic
+ */
+template< typename T, typename Vector, typename Gradient>
+T lineSearch( const std::function< T(const Vector&)>& f, const Gradient& gradient,
+              const DistMatrix<T>& g,
+              const DistMatrix<T>& x0, const DistMatrix<T>& p,
+              T armijoParameter=Pow(limits::Epsilon< Base<T> >(), Base<T>(1)/Base<T>(4)),
+              T wolfeParameter=T(9)/T(10)) {
+        T c1 = armijoParameter;
+        T c2 = wolfeParameter;
+        if (c1 > c2) { throw ArgException("c1 must be less than c2"); }
+        if (c2 > 1 || c1 < 0) { throw ArgException("0 < c1 < c2 < 1"); }
+        T pnorm = Norm(p);
+        if (pnorm <= limits::Epsilon<T>()){ throw ArgException("p is too close to zero"); }
+        T nBisectMax = Max(T(30), Round(Log2(1e5*pnorm))); // allows more if ||p|| big
+        T nExpandMax = Max(T(10), Round(Log2(1e5/pnorm))); // allows more if ||p|| small
+
+        T alpha = 0;
+        T beta = limits::Infinity<T>();
+        T t = 1;
+        DistMatrix<T> g2(g);
+        DistMatrix<T> x_candidate(x0);
+        const T f_x0 = f(x0);
+        Int nIter=0;
+        Int nBisect=0;
+        Int nExpand=0;
+        std::cout << "t \t h(t) \t h'(t)" << std::endl;
+        bool done = false;
+        do {
+            x_candidate = x0;
+            Axpy(t, p, x_candidate);
+            T ft = f(x_candidate);
+            T gtp = 0;
+            if (ft >= f_x0 + c1*s*t || IsNaN(ft) ) { beta = t; }
+            else {
+                gradient(x_candidate, g2);
+                gtp = Dot(p, g2);
+                if (gtp <= c2*s || IsNaN(gtp)) { alpha = t; }
+                else { return t; }
+                std::cout << t << "\t" << ft  << "\t" << gtp << std::endl;
+            }
+            //Adjust t for the next function evaluation
+            if (beta < limits::Infinity<T>()) {
+                if( nBisect < nBisectMax){
+                    t = (alpha + beta) / T(2);
+                    ++nBisect;
+                }else { done = true; }
+            }
+            else {
+                if( nExpand < nExpandMax){
+                    t = T(2) * alpha;
+                    ++nExpand;
+                } else {
+                    done = true;
+                }
+            }
+        }while( !done);
+        if( !limits::IsFinite(beta)){ RuntimeError("Line search failed to brack point satisfying weak wolfe conditions. Function may be unbounded below"); }
+        //Technically if we are here it means we bracketed the interval, but, we failed to find the point.
+        return t;
+    }
+
 
 /**
  * Performs BFGS to minimize a function f: R^n --> R with gradient g: R^m --> R^n
@@ -172,15 +199,15 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         //Display(g, "Gradient");
         //Construct the quasi-newton step
         auto p = Hinv*g; p *= T(-1);
-        // Display(p," Descent direction");
+        //Display(p," Descent direction");
+        auto s = Dot(p,g);
+        if ( s >= 0) { RuntimeError("p is not a descent direction"); };
         // Evaluate the wolf conditions..
         const T stepSize = lineSearch(F, gradient, g, x, p);
         // std::cout << "Step size: " << stepSize << std::endl;
         // Update x with the step
-        // s = stepSize*p;
-        // x = x + s
-        p *= stepSize;
-        Axpy(T(1), p, x);
+        // x = x + stepSize*p;
+        Axpy(stepSize, p, x);
         // Hold on to old gradient
         g_old = g;
         // Re-evaluate
