@@ -138,20 +138,22 @@ T lineSearch( const std::function< T(const Vector&)>& f, const Gradient& gradien
         const T s = Dot(p,g);
         Int nBisect=0;
         Int nExpand=0;
-        std::cout << "t \t h(t) \t h'(t)" << std::endl;
+        std::cout << "t \t f((x+alpha*t) \t f'(x+alpha*t)" << std::endl;
         bool done = false;
         do {
             x_candidate = x0;
             Axpy(t, p, x_candidate);
             T ft = f(x_candidate);
             T gtp = 0;
+            gradient(x_candidate, g2);
+            gtp = Dot(p, g2);
+            std::cout << t << "\t" << ft  << "\t" << gtp << std::endl;
+            //Armijo rule is violated.
             if (ft >= f_x0 + c1*s*t || IsNaN(ft) ) { beta = t; }
             else {
-                gradient(x_candidate, g2);
-                gtp = Dot(p, g2);
+                //wolfe condition violated
                 if (gtp <= c2*s || IsNaN(gtp)) { alpha = t; }
                 else { return t; }
-                std::cout << t << "\t" << ft  << "\t" << gtp << std::endl;
             }
             //Adjust t for the next function evaluation
             if (beta < limits::Infinity<T>()) {

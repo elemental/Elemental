@@ -147,16 +147,16 @@ RosenbrockTest(){
 
 }
 
-//TEST_CASE( "Can Minimize Simple Quadratic", "[BFGS]" )
-//{
-//    for(int i = 0; i < 10; ++i) {
-//        auto pair = SimpleQuadraticBFGSTest<double>(10);
-//        auto x0 = pair.first;
-//        auto val = pair.second;
-//        REQUIRE(El::Norm(x0) < 1e-15);
-//        REQUIRE(val < 1e-15);
-//    }
-//}
+TEST_CASE( "Can Minimize Simple Quadratic", "[BFGS]" )
+{
+    for(int i = 0; i < 10; ++i) {
+        auto pair = SimpleQuadraticBFGSTest<double>(10);
+        auto x0 = pair.first;
+        auto val = pair.second;
+        REQUIRE(El::Norm(x0) < 1e-15);
+        REQUIRE(val < 1e-15);
+    }
+}
 
 TEST_CASE( "Can Minimize Laplacian Quadratic", "[BFGS]")
 {
@@ -170,35 +170,35 @@ TEST_CASE( "Can Minimize Laplacian Quadratic", "[BFGS]")
     }
 }
 
-//TEST_CASE( "Can Minimize rosenbrock", "[BFGS]" )
-//{
-//    for(int i = 0; i < 10; ++i){
-//        auto pair = RosenbrockTest<double>();
-//        auto x0 = pair.first;
-//        auto val = pair.second;
-//        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
-//        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
-//        REQUIRE( val < 1e-16);
-//    }
-//    {
-//        auto pair = RosenbrockTestEasyStart<double>();
-//        auto x0 = pair.first;
-//        auto val = pair.second;
-//        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
-//        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
-//        REQUIRE( val < 1e-16);
-//
-//    }
-//    {
-//        auto pair = RosenbrockTestHardStart<double>();
-//        auto x0 = pair.first;
-//        auto val = pair.second;
-//        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
-//        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
-//        REQUIRE( val < 1e-16);
-//
-//    }
-//}
+TEST_CASE( "Can Minimize rosenbrock", "[BFGS]" )
+{
+    for(int i = 0; i < 10; ++i){
+        auto pair = RosenbrockTest<double>();
+        auto x0 = pair.first;
+        auto val = pair.second;
+        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
+        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
+        REQUIRE( val < 1e-16);
+    }
+    {
+        auto pair = RosenbrockTestEasyStart<double>();
+        auto x0 = pair.first;
+        auto val = pair.second;
+        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
+        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
+        REQUIRE( val < 1e-16);
+
+    }
+    {
+        auto pair = RosenbrockTestHardStart<double>();
+        auto x0 = pair.first;
+        auto val = pair.second;
+        REQUIRE( El::Abs(x0.Get(0,0) - 1) < 1e-14);
+        REQUIRE( El::Abs(x0.Get(1,0) - 1) < 1e-14);
+        REQUIRE( val < 1e-16);
+
+    }
+}
 
 
 int main( int argc, char* argv[])  {
