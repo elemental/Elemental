@@ -172,8 +172,7 @@ T lineSearch( const std::function< T(const Vector&)>& f, const Gradient& gradien
             }
         }while( !done);
         if( !limits::IsFinite(beta)){ RuntimeError("Line search failed to brack point satisfying weak wolfe conditions. Function may be unbounded below"); }
-        RuntimeError(std::string("[")+alpha+","+beta+"] brackets an interval containing a point satisfying WWC");
-        //Technically if we are here it means we bracketed the interval, but, we failed to find the point.
+        RuntimeError("[",alpha,",",beta,"] brackets an interval containing a point satisfying WWC");
         return t;
     }
 
