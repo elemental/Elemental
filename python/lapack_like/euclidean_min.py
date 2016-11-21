@@ -12,19 +12,34 @@ import ctypes
 
 # Least squares
 # =============
-class LeastSquaresCtrl_s(ctypes.Structure):
-  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",sType),
+class SQSDCtrl_s(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),
+              ("canOverwrite",bType),
               ("reg0Tmp",sType),("reg0Perm",sType),
               ("reg1Tmp",sType),("reg1Perm",sType),
               ("solveCtrl",RegSolveCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
-    lib.ElLeastSquaresCtrlDefault_s(pointer(self))
-class LeastSquaresCtrl_d(ctypes.Structure):
-  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",dType),
+    lib.ElSQSDCtrlDefault_s(pointer(self))
+class SQSDCtrl_d(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),
+              ("canOverwrite",bType),
               ("reg0Tmp",dType),("reg0Perm",dType),
               ("reg1Tmp",dType),("reg1Perm",dType),
               ("solveCtrl",RegSolveCtrl_d),
+              ("equilibrate",bType),("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElSQSDCtrlDefault_d(pointer(self))
+
+class LeastSquaresCtrl_s(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",sType),
+              ("sqsdCtrl",SQSDCtrl_s),
+              ("equilibrate",bType),("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElLeastSquaresCtrlDefault_s(pointer(self))
+class LeastSquaresCtrl_d(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",dType),
+              ("sqsdCtrl",SQSDCtrl_d),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElLeastSquaresCtrlDefault_d(pointer(self))

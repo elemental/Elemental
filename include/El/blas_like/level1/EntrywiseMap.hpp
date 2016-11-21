@@ -87,12 +87,13 @@ void EntrywiseMap
 
 template<typename S,typename T>
 void EntrywiseMap
-( const ElementalMatrix<S>& A,
-        ElementalMatrix<T>& B, 
+( const AbstractDistMatrix<S>& A,
+        AbstractDistMatrix<T>& B, 
         function<T(S)> func )
 { 
     if( A.DistData().colDist == B.DistData().colDist &&
-        A.DistData().rowDist == B.DistData().rowDist )
+        A.DistData().rowDist == B.DistData().rowDist &&
+        A.Wrap() == B.Wrap() )
     {
         B.AlignWith( A.DistData() );
         B.Resize( A.Height(), A.Width() );
@@ -101,39 +102,11 @@ void EntrywiseMap
     else
     {
         B.Resize( A.Height(), A.Width() );
-        #define GUARD(CDIST,RDIST) \
-          B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          DistMatrix<S,CDIST,RDIST> AProx(B.Grid()); \
-          AProx.AlignWith( B.DistData() ); \
-          Copy( A, AProx ); \
-          EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
-        #include <El/macros/GuardAndPayload.h>
-        #undef GUARD
-        #undef PAYLOAD
-    }
-}
-
-template<typename S,typename T>
-void EntrywiseMap
-( const BlockMatrix<S>& A,
-        BlockMatrix<T>& B, 
-        function<T(S)> func )
-{ 
-    if( A.DistData().colDist == B.DistData().colDist &&
-        A.DistData().rowDist == B.DistData().rowDist )
-    {
-        B.AlignWith( A.DistData() );
-        B.Resize( A.Height(), A.Width() );
-        EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );
-    }
-    else
-    {
-        B.Resize( A.Height(), A.Width() );
-        #define GUARD(CDIST,RDIST) \
-          B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          DistMatrix<S,CDIST,RDIST,BLOCK> AProx(B.Grid()); \
+        #define GUARD(CDIST,RDIST,WRAP) \
+          B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST && \
+          B.Wrap() == WRAP
+        #define PAYLOAD(CDIST,RDIST,WRAP) \
+          DistMatrix<S,CDIST,RDIST,WRAP> AProx(B.Grid()); \
           AProx.AlignWith( B.DistData() ); \
           Copy( A, AProx ); \
           EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
@@ -196,12 +169,8 @@ void EntrywiseMap
           Matrix<T>& B, \
           function<T(T)> func ); \
   EL_EXTERN template void EntrywiseMap \
-  ( const ElementalMatrix<T>& A, \
-          ElementalMatrix<T>& B, \
-          function<T(T)> func ); \
-  EL_EXTERN template void EntrywiseMap \
-  ( const BlockMatrix<T>& A, \
-          BlockMatrix<T>& B, \
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<T>& B, \
           function<T(T)> func ); \
   EL_EXTERN template void EntrywiseMap \
   ( const DistMultiVec<T>& A, \

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_QUASIDIAGONALSOLVE_HPP
@@ -16,9 +16,9 @@ namespace El {
 template<typename F,typename FMain>
 void
 QuasiDiagonalSolve
-( LeftOrRight side, UpperOrLower uplo, 
+( LeftOrRight side, UpperOrLower uplo,
   const Matrix<FMain>& d,
-  const Matrix<F>& dSub, 
+  const Matrix<F>& dSub,
         Matrix<F>& X,
   bool conjugated )
 {
@@ -100,7 +100,7 @@ QuasiDiagonalSolve
             }
             else
             {
-                D.Set(0,0,d.Get(j,0));    
+                D.Set(0,0,d.Get(j,0));
                 D.Set(1,1,d.Get(j+1,0));
                 D.Set(1,0,dSub.Get(j,0));
                 Symmetric2x2Inv( LOWER, D, conjugated );
@@ -119,7 +119,7 @@ QuasiDiagonalSolve
 template<typename F,typename FMain,Dist U,Dist V>
 void
 LeftQuasiDiagonalSolve
-( UpperOrLower uplo, 
+( UpperOrLower uplo,
   const DistMatrix<FMain,U,STAR>& d,
   const DistMatrix<FMain,U,STAR>& dPrev,
   const DistMatrix<FMain,U,STAR>& dNext,
@@ -143,11 +143,11 @@ LeftQuasiDiagonalSolve
       if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
           LogicError("data is not properly aligned");
       if( XPrev.ColAlign() != colAlignPrev ||
-          dPrev.ColAlign() != colAlignPrev || 
+          dPrev.ColAlign() != colAlignPrev ||
           dSubPrev.ColAlign() != colAlignPrev )
           LogicError("'previous' data is not properly aligned");
-      if( XNext.ColAlign() != colAlignNext || 
-          dNext.ColAlign() != colAlignNext || 
+      if( XNext.ColAlign() != colAlignNext ||
+          dNext.ColAlign() != colAlignNext ||
           dSubNext.ColAlign() != colAlignNext )
           LogicError("'next' data is not properly aligned");
     )
@@ -160,7 +160,7 @@ LeftQuasiDiagonalSolve
     if( colStride == 1 )
     {
         QuasiDiagonalSolve
-        ( LEFT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(), 
+        ( LEFT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(),
           conjugated );
         return;
     }
@@ -177,7 +177,7 @@ LeftQuasiDiagonalSolve
         if( i<m-1 && dSub.GetLocal(iLoc,0) != F(0) )
         {
             // Handle 2x2 starting at i
-            D11.Set( 0, 0, d.GetLocal(iLoc,0) ); 
+            D11.Set( 0, 0, d.GetLocal(iLoc,0) );
             D11.Set( 1, 1, dNext.GetLocal(iLocNext,0) );
             D11.Set( 1, 0, dSub.GetLocal(iLoc,0) );
             Symmetric2x2Inv( LOWER, D11, conjugated );
@@ -211,7 +211,7 @@ LeftQuasiDiagonalSolve
 template<typename F,typename FMain,Dist U,Dist V>
 void
 RightQuasiDiagonalSolve
-( UpperOrLower uplo, 
+( UpperOrLower uplo,
   const DistMatrix<FMain,V,STAR>& d,
   const DistMatrix<FMain,V,STAR>& dPrev,
   const DistMatrix<FMain,V,STAR>& dNext,
@@ -235,11 +235,11 @@ RightQuasiDiagonalSolve
       if( d.ColAlign() != X.RowAlign() || dSub.RowAlign() != X.RowAlign() )
           LogicError("data is not properly aligned");
       if( XPrev.RowAlign() != rowAlignPrev ||
-          dPrev.ColAlign() != rowAlignPrev || 
+          dPrev.ColAlign() != rowAlignPrev ||
           dSubPrev.ColAlign() != rowAlignPrev )
           LogicError("'previous' data is not properly aligned");
-      if( XNext.RowAlign() != rowAlignNext || 
-          dNext.ColAlign() != rowAlignNext || 
+      if( XNext.RowAlign() != rowAlignNext ||
+          dNext.ColAlign() != rowAlignNext ||
           dSubNext.ColAlign() != rowAlignNext )
           LogicError("'next' data is not properly aligned");
     )
@@ -269,11 +269,11 @@ RightQuasiDiagonalSolve
         if( j<n-1 && dSub.GetLocal(jLoc,0) != F(0) )
         {
             // Handle 2x2 starting at j
-            D11.Set( 0, 0, d.GetLocal(jLoc,0) ); 
+            D11.Set( 0, 0, d.GetLocal(jLoc,0) );
             D11.Set( 1, 1, dNext.GetLocal(jLocNext,0) );
             D11.Set( 1, 0, dSub.GetLocal(jLoc,0) );
             Symmetric2x2Inv( LOWER, D11, conjugated );
-            MakeSymmetric( LOWER, D11, conjugated ); 
+            MakeSymmetric( LOWER, D11, conjugated );
 
             auto x1NextLoc = XNext.LockedMatrix()( ALL, IR(jLocNext) );
             Scale( D11.Get(0,0), x1Loc );
@@ -286,7 +286,7 @@ RightQuasiDiagonalSolve
             D11.Set( 1, 1, d.GetLocal(jLoc,0) );
             D11.Set( 1, 0, dSubPrev.GetLocal(jLocPrev,0) );
             Symmetric2x2Inv( LOWER, D11, conjugated );
-            MakeSymmetric( LOWER, D11, conjugated ); 
+            MakeSymmetric( LOWER, D11, conjugated );
 
             auto x1PrevLoc = XPrev.LockedMatrix()( ALL, IR(jLocPrev) );
             Scale( D11.Get(1,1), x1Loc );
@@ -303,9 +303,9 @@ RightQuasiDiagonalSolve
 template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalSolve
-( LeftOrRight side, UpperOrLower uplo, 
-  const ElementalMatrix<FMain>& d,
-  const ElementalMatrix<F>& dSub, 
+( LeftOrRight side, UpperOrLower uplo,
+  const AbstractDistMatrix<FMain>& d,
+  const AbstractDistMatrix<F>& dSub,
         DistMatrix<F,U,V>& X,
   bool conjugated )
 {
@@ -364,7 +364,7 @@ QuasiDiagonalSolve
         if( rowStride == 1 )
         {
             QuasiDiagonalSolve
-            ( side, uplo, 
+            ( side, uplo,
               d_V_STAR.LockedMatrix(), dSub_V_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
@@ -392,6 +392,19 @@ QuasiDiagonalSolve
           dSub_V_STAR, dSubPrev_V_STAR, dSubNext_V_STAR,
           X, XPrev, XNext, conjugated );
     }
+}
+
+template<typename F,typename FMain,Dist U,Dist V>
+void
+QuasiDiagonalSolve
+( LeftOrRight side, UpperOrLower uplo,
+  const AbstractDistMatrix<FMain>& d,
+  const AbstractDistMatrix<F>& dSub,
+        DistMatrix<F,U,V,BLOCK>& X,
+  bool conjugated )
+{
+    DEBUG_CSE
+    LogicError("This routine is not yet supported");
 }
 
 } // namespace El

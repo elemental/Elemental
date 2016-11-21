@@ -42,9 +42,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     Matrix<Real> s;
     SVDCtrl<Real> svdCtrl;
     svdCtrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
-    svdCtrl.bidiagSVDCtrl.tolType =
-      ( relative ? RELATIVE_TO_MAX_SING_VAL_TOL : ABSOLUTE_SING_VAL_TOL );
-    svdCtrl.bidiagSVDCtrl.tol = tau;
+    // TODO(poulson): A more aggressive tolerance? tol = tau is too string
     SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );
@@ -95,9 +93,7 @@ Int PivotedQR
     DistMatrix<Real,VR,STAR> s(g);
     SVDCtrl<Real> svdCtrl;
     svdCtrl.bidiagSVDCtrl.approach = PRODUCT_SVD;
-    svdCtrl.bidiagSVDCtrl.tolType =
-      ( relative ? RELATIVE_TO_MAX_SING_VAL_TOL : ABSOLUTE_SING_VAL_TOL );
-    svdCtrl.bidiagSVDCtrl.tol = tau;
+    // TODO(poulson): A more aggressive tolerance? tol = tau is too string
     SVD( R, U, s, V, svdCtrl );
 
     SoftThreshold( s, tau, relative );

@@ -33,13 +33,14 @@ void ComputeReflectors
     const F zero(0);
     const Real ulp = limits::Precision<Real>();
 
-
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;
     const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
     DEBUG_ONLY(
       if( lastBulgeBeg > winEnd-3 )
-          LogicError("Last bulge starts too late");
+          LogicError
+          ("Last bulge starts too late: lastBulgeBeg=",lastBulgeBeg,
+           ", winEnd=",winEnd);
     )
     const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
     if( W.Height() < 3 || W.Width() < numFullBulges )
@@ -126,7 +127,10 @@ void ComputeReflectors
                     // The proposed bulge was unacceptable;
                     // continue using the collapsed one with regret
                     if( progress )
+                    {
+                        Log("Unacceptable replacement bulge at ",bulgeBeg);
                         Output("Unacceptable replacement bulge at ",bulgeBeg);
+                    }
                     eta10 = beta;
                     eta20 = realZero;
                     eta30 = realZero;

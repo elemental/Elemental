@@ -293,7 +293,7 @@ void InvertPermutation
 } // anonymous namespace
 
 DistPermutation::DistPermutation( const Grid& g )
-: grid_(g)
+: grid_(&g)
 { 
     DEBUG_CSE
     swapDests_.SetGrid( g );
@@ -306,6 +306,7 @@ void DistPermutation::SetGrid( const Grid& g )
 {
     DEBUG_CSE
     Empty();
+    grid_ = &g;
     swapDests_.SetGrid( g );
     swapOrigins_.SetGrid( g );
     perm_.SetGrid( g );
@@ -418,7 +419,7 @@ void DistPermutation::Swap( Int origin, Int dest )
         implicitSwapOrigins_ = false;
         const Int maxSwaps = swapDests_.Height();
 
-        swapOrigins_.SetGrid( grid_ );
+        swapOrigins_.SetGrid( *grid_ );
         swapOrigins_.Resize( maxSwaps, 1 );
         
         auto swapOriginsActive = swapOrigins_(IR(0,numSwaps_),ALL);
@@ -586,8 +587,9 @@ void DistPermutation::MakeArbitrary() const
 const DistPermutation& DistPermutation::operator=( const Permutation& P )
 {
     DEBUG_CSE
-    if( grid_.Size() != 1 )
-        LogicError("Invalid grid size for sequential copy");
+    if( grid_->Size() != 1 )
+        LogicError
+        ("Invalid grid size of ",grid_->Size()," for sequential copy");
 
     size_ = P.size_;
 
@@ -618,7 +620,7 @@ const DistPermutation& DistPermutation::operator=( const Permutation& P )
 const DistPermutation& DistPermutation::operator=( const DistPermutation& P )
 {
     DEBUG_CSE
-    SetGrid( P.grid_ );
+    SetGrid( *P.grid_ );
 
     size_ = P.size_;
 
@@ -1188,7 +1190,7 @@ void DistPermutation::InversePermuteSymmetrically
 void DistPermutation::ExplicitVector( AbstractDistMatrix<Int>& p ) const
 {
     DEBUG_CSE
-    p.SetGrid( grid_ );
+    p.SetGrid( *grid_ );
     if( swapSequence_ )
     {
         p.Resize( size_, 1 );
@@ -1207,9 +1209,9 @@ void DistPermutation::ExplicitVector( AbstractDistMatrix<Int>& p ) const
 void DistPermutation::ExplicitMatrix( AbstractDistMatrix<Int>& P ) const
 {
     DEBUG_CSE
-    P.SetGrid( grid_ );
+    P.SetGrid( *grid_ );
 
-    DistMatrix<Int,VC,STAR> p_VC_STAR(grid_);
+    DistMatrix<Int,VC,STAR> p_VC_STAR(*grid_);
     ExplicitVector( p_VC_STAR );
     DistMatrix<Int,STAR,STAR> p( p_VC_STAR );
     auto& pLoc = p.LockedMatrix();

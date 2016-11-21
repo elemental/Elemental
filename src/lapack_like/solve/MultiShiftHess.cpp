@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,7 +11,7 @@
 // NOTE: These algorithms are adaptations and/or extensions of Alg. 2 from
 //       Greg Henry's "The shifted Hessenberg system solve computation".
 //       It is important to note that the Givens rotation definition in
-//       said paper is the adjoint of the LAPACK definition (as well as 
+//       said paper is the adjoint of the LAPACK definition (as well as
 //       leaving out a conjugation necessary for the complex case).
 
 // TODO: Expose interface which does not solve against Q, since that step
@@ -26,7 +26,7 @@ LN
 ( F alpha,
   const Matrix<F>& H,
   const Matrix<F>& shifts,
-        Matrix<F>& X ) 
+        Matrix<F>& X )
 {
     DEBUG_CSE
     X *= alpha;
@@ -48,7 +48,7 @@ LN
         MemCopy( W.Buffer(0,j), H.LockedBuffer(), m );
         W(0,j) -= shifts(j);
     }
-     
+
     // Simultaneously find the LQ factorization and solve against L
     for( Int k=0; k<m-1; ++k )
     {
@@ -86,7 +86,7 @@ LN
             ( m-(k+2), -xs, hB.LockedBuffer(),     1, X.Buffer(k+2,j), 1 );
 
             // Change the working vector, wB, from representing a fully-updated
-            // portion of the k'th column of H from the end of the last 
+            // portion of the k'th column of H from the end of the last
             // to a fully-updated portion of the k+1'th column of this iteration
             //
             // w(k+1:end) := -conj(s) H(k+1:end,k) + c H(k+1:end,k+1)
@@ -101,7 +101,7 @@ LN
         X(m-1,j) /= W(m-1,j);
 
     // Solve against Q
-    for( Int j=0; j<n; ++j )        
+    for( Int j=0; j<n; ++j )
     {
         F* x = X.Buffer(0,j);
         const Real* c = C.LockedBuffer(0,j);
@@ -123,7 +123,7 @@ UN
 ( F alpha,
   const Matrix<F>& H,
   const Matrix<F>& shifts,
-        Matrix<F>& X ) 
+        Matrix<F>& X )
 {
     DEBUG_CSE
     X *= alpha;
@@ -145,7 +145,7 @@ UN
         MemCopy( W.Buffer(0,j), H.LockedBuffer(0,m-1), m );
         W(m-1,j) -= shifts(j);
     }
-     
+
     // Simultaneously form the RQ factorization and solve against R
     for( Int k=m-1; k>0; --k )
     {
@@ -181,7 +181,7 @@ UN
             X(k-1,j) -= xc*W(k-1,j) + xs*(etakm1km1-mu);
 
             // Change the working vector, wT, from representing a fully-updated
-            // portion of the k'th column of H from the end of the last 
+            // portion of the k'th column of H from the end of the last
             // to a fully-updated portion of the k-1'th column of this iteration
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
@@ -195,7 +195,7 @@ UN
         X(0,j) /= W(0,j);
 
     // Solve against Q
-    for( Int j=0; j<n; ++j )        
+    for( Int j=0; j<n; ++j )
     {
         F* x = X.Buffer(0,j);
         const Real* c = C.LockedBuffer(0,j);
@@ -211,25 +211,25 @@ UN
     }
 }
 
-// NOTE: A [VC,* ] distribution might be most appropriate for the 
-//       Hessenberg matrices since whole columns will need to be formed 
-//       on every process and this distribution will keep the communication 
+// NOTE: A [VC,* ] distribution might be most appropriate for the
+//       Hessenberg matrices since whole columns will need to be formed
+//       on every process and this distribution will keep the communication
 //       balanced.
 
 template<typename F>
 void
 LN
 ( F alpha,
-  const ElementalMatrix<F>& H, 
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre ) 
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,STAR,VR> XProx( XPre );
     auto& X = XProx.Get();
 
-    ElementalProxyCtrl ctrl; 
+    ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = X.RowAlign();
 
@@ -253,7 +253,7 @@ LN
     // Initialize the workspace for shifted columns of H
     Matrix<F> W(m,nLoc);
     {
-        unique_ptr<ElementalMatrix<F>> 
+        unique_ptr<AbstractDistMatrix<F>>
           h0( H.Construct(H.Grid(),H.Root()) );
         LockedView( *h0, H, ALL, IR(0) );
         DistMatrix<F,STAR,STAR> h0_STAR_STAR( *h0 );
@@ -263,9 +263,9 @@ LN
             W(0,jLoc) -= shiftsLoc(jLoc);
         }
     }
-     
+
     // Simultaneously find the LQ factorization and solve against L
-    unique_ptr<ElementalMatrix<F>> hB( H.Construct(H.Grid(),H.Root()) );
+    unique_ptr<AbstractDistMatrix<F>> hB( H.Construct(H.Grid(),H.Root()) );
     DistMatrix<F,STAR,STAR> hB_STAR_STAR( H.Grid() );
     for( Int k=0; k<m-1; ++k )
     {
@@ -299,21 +299,21 @@ LN
             const F xs  = XLoc(k,jLoc)*s;
             XLoc(k+1,jLoc) -= xc*W(k+1,jLoc) + xs*(etakp1kp1-mu);
             blas::Axpy
-            ( m-(k+2), -xc, W.LockedBuffer(k+2,jLoc), 1, 
+            ( m-(k+2), -xc, W.LockedBuffer(k+2,jLoc), 1,
                             X.Buffer(k+2,jLoc),       1 );
             blas::Axpy
-            ( m-(k+2), -xs, hB_STAR_STAR.LockedBuffer(), 1, 
+            ( m-(k+2), -xs, hB_STAR_STAR.LockedBuffer(), 1,
                             X.Buffer(k+2,jLoc),          1 );
 
             // Change the working vector, wB, from representing a fully-updated
-            // portion of the k'th column of H from the end of the last 
+            // portion of the k'th column of H from the end of the last
             // to a fully-updated portion of the k+1'th column of this iteration
             //
             // w(k+1:end) := -conj(s) H(k+1:end,k) + c H(k+1:end,k+1)
             W(k+1,jLoc) = -Conj(s)*W(k+1,jLoc) + c*(etakp1kp1-mu);
             blas::Scal( m-(k+2), -Conj(s), W.Buffer(k+2,jLoc), 1 );
             blas::Axpy
-            ( m-(k+2), F(c), hB_STAR_STAR.LockedBuffer(), 1, 
+            ( m-(k+2), F(c), hB_STAR_STAR.LockedBuffer(), 1,
                              W.Buffer(k+2,jLoc),          1 );
         }
     }
@@ -322,7 +322,7 @@ LN
         XLoc(m-1,jLoc) /= W(m-1,jLoc);
 
     // Solve against Q
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc ) 
+    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
         F* x = X.Buffer(0,jLoc);
         const Real* c = C.LockedBuffer(0,jLoc);
@@ -342,9 +342,9 @@ template<typename F>
 void
 UN
 ( F alpha,
-  const ElementalMatrix<F>& H, 
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre ) 
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_CSE
 
@@ -375,7 +375,7 @@ UN
     // Initialize the workspace for shifted columns of H
     Matrix<F> W(m,nLoc);
     {
-        unique_ptr<ElementalMatrix<F>> 
+        unique_ptr<AbstractDistMatrix<F>>
           hLast( H.Construct(H.Grid(),H.Root()) );
         LockedView( *hLast, H, ALL, IR(m-1) );
         DistMatrix<F,STAR,STAR> hLast_STAR_STAR( *hLast );
@@ -385,9 +385,9 @@ UN
             W(m-1,jLoc) -= shiftsLoc(jLoc);
         }
     }
-     
+
     // Simultaneously form the RQ factorization and solve against R
-    unique_ptr<ElementalMatrix<F>> hT( H.Construct(H.Grid(),H.Root()) );
+    unique_ptr<AbstractDistMatrix<F>> hT( H.Construct(H.Grid(),H.Root()) );
     DistMatrix<F,STAR,STAR> hT_STAR_STAR( H.Grid() );
     for( Int k=m-1; k>0; --k )
     {
@@ -426,12 +426,12 @@ UN
             XLoc(k-1,jLoc) -= xc*W(k-1,jLoc) + xs*(etakm1km1-mu);
 
             // Change the working vector, wT, from representing a fully-updated
-            // portion of the k'th column of H from the end of the last 
+            // portion of the k'th column of H from the end of the last
             // to a fully-updated portion of the k-1'th column of this iteration
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
             blas::Scal( k-1, -Conj(s), W.Buffer(0,jLoc), 1 );
-            blas::Axpy( k-1, F(c), hT_STAR_STAR.LockedBuffer(), 1, 
+            blas::Axpy( k-1, F(c), hT_STAR_STAR.LockedBuffer(), 1,
                                    W.Buffer(0,jLoc),            1 );
             W(k-1,jLoc) = -Conj(s)*W(k-1,jLoc) + c*(etakm1km1-mu);
         }
@@ -491,9 +491,9 @@ void MultiShiftHessSolve
 ( UpperOrLower uplo,
   Orientation orientation,
   F alpha,
-  const ElementalMatrix<F>& H,
-  const ElementalMatrix<F>& shifts, 
-        ElementalMatrix<F>& X )
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& shifts,
+        AbstractDistMatrix<F>& X )
 {
     DEBUG_CSE
     if( uplo == LOWER )
@@ -524,9 +524,9 @@ void MultiShiftHessSolve
   ( UpperOrLower uplo, \
     Orientation orientation, \
     F alpha, \
-    const ElementalMatrix<F>& H, \
-    const ElementalMatrix<F>& shifts, \
-          ElementalMatrix<F>& X );
+    const AbstractDistMatrix<F>& H, \
+    const AbstractDistMatrix<F>& shifts, \
+          AbstractDistMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

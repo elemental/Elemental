@@ -2,15 +2,15 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 // TODO: Add detailed references to Tygert et al.'s ID package and the papers
-//       "Randomized algorithms for the low-rank approximation of matrices", 
-//       "A randomized algorithm for principal component analysis", and 
+//       "Randomized algorithms for the low-rank approximation of matrices",
+//       "A randomized algorithm for principal component analysis", and
 //       "On the compression of low-rank matrices"
 
 namespace El {
@@ -18,10 +18,10 @@ namespace El {
 namespace id {
 
 // On output, the matrix Z contains the non-trivial portion of the interpolation
-// matrix, and p contains the pivots used during the iterations of 
+// matrix, and p contains the pivots used during the iterations of
 // pivoted QR. The input matrix A is unchanged.
 
-template<typename F> 
+template<typename F>
 inline void
 BusingerGolub
 ( Matrix<F>& A,
@@ -39,7 +39,7 @@ BusingerGolub
     // Demand that we will be able to apply inv(R_L) to R_R by ensuring that
     // the minimum singular value is sufficiently (relatively) large
     ctrlCopy.adaptive = true;
-    if( ctrl.boundRank ) 
+    if( ctrl.boundRank )
     {
         ctrlCopy.tol = Max(ctrl.tol,eps*ctrl.maxRank);
     }
@@ -61,12 +61,12 @@ BusingerGolub
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), RL, Z );
 }
 
-template<typename F> 
+template<typename F>
 inline void
 BusingerGolub
-( ElementalMatrix<F>& APre,
+( AbstractDistMatrix<F>& APre,
   DistPermutation& Omega,
-  ElementalMatrix<F>& Z,
+  AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -82,7 +82,7 @@ BusingerGolub
     // Demand that we will be able to apply inv(R_L) to R_R by ensuring that
     // the minimum singular value is sufficiently (relatively) large
     ctrlCopy.adaptive = true;
-    if( ctrl.boundRank ) 
+    if( ctrl.boundRank )
     {
         ctrlCopy.tol = Max(ctrl.tol,eps*ctrl.maxRank);
     }
@@ -105,7 +105,7 @@ BusingerGolub
 
 } // namespace id
 
-template<typename F> 
+template<typename F>
 void ID
 ( const Matrix<F>& A,
         Permutation& Omega,
@@ -117,7 +117,7 @@ void ID
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
 
-template<typename F> 
+template<typename F>
 void ID
 (       Matrix<F>& A,
         Permutation& Omega,
@@ -134,11 +134,11 @@ void ID
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
 
-template<typename F> 
+template<typename F>
 void ID
-( const ElementalMatrix<F>& A,
+( const AbstractDistMatrix<F>& A,
         DistPermutation& Omega,
-        ElementalMatrix<F>& Z,
+        AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
@@ -146,11 +146,11 @@ void ID
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
 
-template<typename F> 
+template<typename F>
 void ID
-(       ElementalMatrix<F>& A,
+(       AbstractDistMatrix<F>& A,
         DistPermutation& Omega,
-        ElementalMatrix<F>& Z,
+        AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl,
         bool canOverwrite )
 {
@@ -173,9 +173,9 @@ void ID
           Matrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void ID \
-  ( const ElementalMatrix<F>& A, \
+  ( const AbstractDistMatrix<F>& A, \
           DistPermutation& Omega, \
-          ElementalMatrix<F>& Z, \
+          AbstractDistMatrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void ID \
   ( Matrix<F>& A, \
@@ -184,11 +184,11 @@ void ID
     const QRCtrl<Base<F>>& ctrl, \
     bool canOverwrite ); \
   template void ID \
-  ( ElementalMatrix<F>& A, \
+  ( AbstractDistMatrix<F>& A, \
     DistPermutation& Omega, \
-    ElementalMatrix<F>& Z, \
+    AbstractDistMatrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl, \
-    bool canOverwrite ); 
+    bool canOverwrite );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

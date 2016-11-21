@@ -98,6 +98,7 @@ ElError ElHermitianTridiagEigQRCtrlDefault( ElHermitianTridiagEigQRCtrl* ctrl )
     ctrl->maxIterPerEig = 30;
     ctrl->demandConverged = true;
     ctrl->fullAccuracyTwoByTwo = true;
+    ctrl->broadcast = true;
     return EL_SUCCESS;
 }
 
@@ -228,6 +229,7 @@ ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl )
     ctrl->looseMinSingValEst = true;
     ctrl->useFLAME = false;
     ctrl->useLAPACK = false;
+    ctrl->broadcast = true;
     return EL_SUCCESS;
 }
 
@@ -329,6 +331,7 @@ ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
     ctrl->progress = false;
 
     ctrl->minMultiBulgeSize = 75;
+    ctrl->minDistMultiBulgeSize = 400;
     ctrl->numShifts = &hess_schur::aed::NumShifts;
     ctrl->deflationSize = &hess_schur::aed::DeflationSize;
     ctrl->sufficientDeflation = &hess_schur::aed::SufficientDeflation;

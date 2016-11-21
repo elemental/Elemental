@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BIDIAG_SVD_QR_HPP
@@ -12,7 +12,7 @@
 namespace El {
 namespace bidiag_svd {
 
-// The estimate of sigma_min(B) follows 
+// The estimate of sigma_min(B) follows
 //
 //   N. J. Higham,
 //   "Efficient algorithms for computing the condition number of a
@@ -84,7 +84,7 @@ Real InverseOneNormOfBidiagInverse
 // produce a lower bound that is tight by a factor of n rather than
 // sqrt(n). Given that Demmel and Kahan recommend also using || inv(B) ||_oo,
 // it would be worth investigating why the factor of sqrt(n) was forfeited.
-// In the mean time, we will enable the looser LAPACK approach via the 
+// In the mean time, we will enable the looser LAPACK approach via the
 // boolean 'looseBound'.
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 Real MinSingularValueEstimateOfBidiag
@@ -129,7 +129,7 @@ void Sweep
         Matrix<F>& U,
         Matrix<F>& V,
   const Base<F>& shift,
-        ForwardOrBackward direction,  
+        ForwardOrBackward direction,
         Matrix<Base<F>>& cUList,
         Matrix<Base<F>>& sUList,
         Matrix<Base<F>>& cVList,
@@ -154,7 +154,7 @@ void Sweep
         cVList.Resize( n-1, 1 );
         sVList.Resize( n-1, 1 );
     }
-    
+
     // TODO(poulson): Optimized versions of the following (especially to avoid
     // temporaries to improve the performance for heap scalars)
     Real cU, sU, cV, sV, rho, eta;
@@ -166,7 +166,7 @@ void Sweep
             cU = cV = one;
             for( Int i=0; i<n-1; ++i )
             {
-                rho = Givens( mainDiag(i)*cV, superDiag(i), cV, sV ); 
+                rho = Givens( mainDiag(i)*cV, superDiag(i), cV, sV );
                 if( i > 0 )
                     superDiag(i-1) = sU*rho;
 
@@ -190,12 +190,12 @@ void Sweep
         else
         {
             // Run the classical sweep
-           
+
             // B' B has a diagonal of
-            //   
+            //
             //    alpha_0^2, beta_0^2 + alpha_1^2, beta_1^2 + alpha_2^2, ...
             //
-            // and an off-diagonal of 
+            // and an off-diagonal of
             //
             //    alpha_0 beta_0, alpha_1 beta_1, ...
             //
@@ -219,11 +219,11 @@ void Sweep
             //
             Real f = (Abs(mainDiag(0))-shift)*
                      (Sgn(mainDiag(0),false)+shift/mainDiag(0));
-            Real g = superDiag(0); 
+            Real g = superDiag(0);
 
             for( Int i=0; i<n-1; ++i )
             {
-                rho = Givens( f, g, cV, sV ); 
+                rho = Givens( f, g, cV, sV );
                 if( i > 0 )
                     superDiag(i-1) = rho;
 
@@ -232,7 +232,7 @@ void Sweep
                 g = sV*mainDiag(i+1);
                 mainDiag(i+1) *= cV;
                 mainDiag(i) = Givens( f, g, cU, sU );
-                
+
                 f = cU*superDiag(i) + sU*mainDiag(i+1);
                 mainDiag(i+1) = cU*mainDiag(i+1) - sU*superDiag(i);
                 if( i < n-2 )
@@ -240,7 +240,7 @@ void Sweep
                     g = sU*superDiag(i+1);
                     superDiag(i+1) *= cU;
                 }
- 
+
                 if( ctrl.wantU )
                 {
                     cUList(i) = cU;
@@ -296,13 +296,13 @@ void Sweep
         }
         else
         {
-            // Run the classical sweep 
+            // Run the classical sweep
 
             // B B' has a diagonal of
-            //   
+            //
             //   beta_0^2 + alpha_0^2, beta_1^2 + alpha_1^2, ..., alpha_{n-1}^2,
             //
-            // and an off-diagonal of 
+            // and an off-diagonal of
             //
             //    alpha_1 beta_0, alpha_2 beta_1, ...
             //
@@ -497,7 +497,7 @@ Helper
                 superDiag(j) = zero;
                 winBeg = j+1;
                 break;
-            } 
+            }
             winMaxSingValEst = Max( winMaxSingValEst, alphaAbs );
             winMaxSingValEst = Max( winMaxSingValEst, betaAbs );
         }
@@ -526,11 +526,11 @@ Helper
             {
                 Real sgnMax, sgnMin, cU, sU, cV, sV;
                 svd::TwoByTwoUpper
-                ( mainDiag(winBeg), superDiag(winBeg), mainDiag(winBeg+1), 
-                  sigmaMax, sgnMax, sigmaMin, sgnMin, cU, sU, cV, sV ); 
+                ( mainDiag(winBeg), superDiag(winBeg), mainDiag(winBeg+1),
+                  sigmaMax, sgnMax, sigmaMin, sgnMin, cU, sU, cV, sV );
                 sigmaMax *= sgnMax; // The signs will be fixed at the end
                 sigmaMin *= sgnMin; // The signs will be fixed at the end
-                if( ctrl.wantU ) 
+                if( ctrl.wantU )
                 {
                     blas::Rot
                     ( mU, U.Buffer(0,winBeg  ), 1,
@@ -546,8 +546,8 @@ Helper
             else
             {
                 svd::TwoByTwoUpper
-                ( mainDiag(winBeg), superDiag(winBeg), mainDiag(winBeg+1), 
-                  sigmaMax, sigmaMin ); 
+                ( mainDiag(winBeg), superDiag(winBeg), mainDiag(winBeg+1),
+                  sigmaMax, sigmaMin );
             }
 
             mainDiag(winBeg) = sigmaMax;
@@ -560,7 +560,7 @@ Helper
                  "mainDiag(",winBeg+1,")=",mainDiag(winBeg+1)," converged");
             }
             winEnd -= 2;
-            continue; 
+            continue;
         }
 
         if( winBeg >= oldWinEnd || winEnd <= oldWinBeg )
@@ -653,7 +653,7 @@ Helper
         ++info.numIterations;
 
         Real shift = zero;
-        // We cannot simply use winMinSingValEst to additionally guard the 
+        // We cannot simply use winMinSingValEst to additionally guard the
         // non high-relative-accuracy case since it was not actually computed
         // in said instance. Instead, we simply check if the relevant starting
         // diagonal entry is zero to avoid a divide-by-zero when applying the
@@ -667,7 +667,7 @@ Helper
             Max(eps,tol/100) );
         if( zeroStartingValue || (relativeToSelfTol && poorlyConditioned) )
         {
-            shift = zero; 
+            shift = zero;
         }
         else
         {

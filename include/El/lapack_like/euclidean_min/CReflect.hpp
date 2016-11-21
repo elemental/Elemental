@@ -11,17 +11,81 @@
 
 namespace El {
 
+inline ElSQSDCtrl_s CReflect( const SQSDCtrl<float>& ctrl )
+{
+    ElSQSDCtrl_s ctrlC;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.canOverwrite = ctrl.canOverwrite;
+    ctrlC.reg0Tmp      = ctrl.reg0Tmp;
+    ctrlC.reg0Perm     = ctrl.reg0Perm;
+    ctrlC.reg1Tmp      = ctrl.reg1Tmp;
+    ctrlC.reg1Perm     = ctrl.reg1Perm;
+    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate  = ctrl.equilibrate;
+    ctrlC.progress     = ctrl.progress;
+    ctrlC.time         = ctrl.time;
+    return ctrlC;
+}
+
+inline ElSQSDCtrl_d CReflect( const SQSDCtrl<double>& ctrl )
+{
+    ElSQSDCtrl_d ctrlC;
+    ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
+    ctrlC.basisSize    = ctrl.basisSize;
+    ctrlC.canOverwrite = ctrl.canOverwrite;
+    ctrlC.reg0Tmp      = ctrl.reg0Tmp;
+    ctrlC.reg0Perm     = ctrl.reg0Perm;
+    ctrlC.reg1Tmp      = ctrl.reg1Tmp;
+    ctrlC.reg1Perm     = ctrl.reg1Perm;
+    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
+    ctrlC.equilibrate  = ctrl.equilibrate;
+    ctrlC.progress     = ctrl.progress;
+    ctrlC.time         = ctrl.time;
+    return ctrlC;
+}
+
+inline SQSDCtrl<float> CReflect( const ElSQSDCtrl_s& ctrlC )
+{
+    SQSDCtrl<float> ctrl;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.canOverwrite = ctrlC.canOverwrite;
+    ctrl.reg0Tmp      = ctrlC.reg0Tmp;
+    ctrl.reg0Perm     = ctrlC.reg0Perm;
+    ctrl.reg1Tmp      = ctrlC.reg1Tmp;
+    ctrl.reg1Perm     = ctrlC.reg1Perm;
+    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate  = ctrlC.equilibrate;
+    ctrl.progress     = ctrlC.progress;
+    ctrl.time         = ctrlC.time;
+    return ctrl;
+}
+
+inline SQSDCtrl<double> CReflect( const ElSQSDCtrl_d& ctrlC )
+{
+    SQSDCtrl<double> ctrl;
+    ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
+    ctrl.basisSize    = ctrlC.basisSize;
+    ctrl.canOverwrite = ctrlC.canOverwrite;
+    ctrl.reg0Tmp      = ctrlC.reg0Tmp;
+    ctrl.reg0Perm     = ctrlC.reg0Perm;
+    ctrl.reg1Tmp      = ctrlC.reg1Tmp;
+    ctrl.reg1Perm     = ctrlC.reg1Perm;
+    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
+    ctrl.equilibrate  = ctrlC.equilibrate;
+    ctrl.progress     = ctrlC.progress;
+    ctrl.time         = ctrlC.time;
+    return ctrl;
+}
+
 inline ElLeastSquaresCtrl_s CReflect( const LeastSquaresCtrl<float>& ctrl )
 {
     ElLeastSquaresCtrl_s ctrlC;
     ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.alpha        = ctrl.alpha; 
-    ctrlC.reg0Tmp      = ctrl.reg0Tmp;
-    ctrlC.reg0Perm     = ctrl.reg0Perm;
-    ctrlC.reg1Tmp      = ctrl.reg1Tmp;
-    ctrlC.reg1Perm     = ctrl.reg1Perm;
-    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
+    ctrlC.sqsdCtrl     = CReflect(ctrl.sqsdCtrl);
     ctrlC.equilibrate  = ctrl.equilibrate;
     ctrlC.progress     = ctrl.progress;
     ctrlC.time         = ctrl.time;
@@ -34,11 +98,7 @@ inline ElLeastSquaresCtrl_d CReflect( const LeastSquaresCtrl<double>& ctrl )
     ctrlC.scaleTwoNorm = ctrl.scaleTwoNorm;
     ctrlC.basisSize    = ctrl.basisSize;
     ctrlC.alpha        = ctrl.alpha; 
-    ctrlC.reg0Tmp      = ctrl.reg0Tmp;
-    ctrlC.reg0Perm     = ctrl.reg0Perm;
-    ctrlC.reg1Tmp      = ctrl.reg1Tmp;
-    ctrlC.reg1Perm     = ctrl.reg1Perm;
-    ctrlC.solveCtrl    = CReflect(ctrl.solveCtrl);
+    ctrlC.sqsdCtrl     = CReflect(ctrl.sqsdCtrl);
     ctrlC.equilibrate  = ctrl.equilibrate;
     ctrlC.progress     = ctrl.progress;
     ctrlC.time         = ctrl.time;
@@ -51,11 +111,7 @@ inline LeastSquaresCtrl<float> CReflect( const ElLeastSquaresCtrl_s& ctrlC )
     ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.alpha        = ctrlC.alpha; 
-    ctrl.reg0Tmp      = ctrlC.reg0Tmp;
-    ctrl.reg0Perm     = ctrlC.reg0Perm;
-    ctrl.reg1Tmp      = ctrlC.reg1Tmp;
-    ctrl.reg1Perm     = ctrlC.reg1Perm;
-    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
+    ctrl.sqsdCtrl     = CReflect(ctrlC.sqsdCtrl);
     ctrl.equilibrate  = ctrlC.equilibrate;
     ctrl.progress     = ctrlC.progress;
     ctrl.time         = ctrlC.time;
@@ -68,11 +124,7 @@ inline LeastSquaresCtrl<double> CReflect( const ElLeastSquaresCtrl_d& ctrlC )
     ctrl.scaleTwoNorm = ctrlC.scaleTwoNorm;
     ctrl.basisSize    = ctrlC.basisSize;
     ctrl.alpha        = ctrlC.alpha; 
-    ctrl.reg0Tmp      = ctrlC.reg0Tmp;
-    ctrl.reg0Perm     = ctrlC.reg0Perm;
-    ctrl.reg1Tmp      = ctrlC.reg1Tmp;
-    ctrl.reg1Perm     = ctrlC.reg1Perm;
-    ctrl.solveCtrl    = CReflect(ctrlC.solveCtrl);
+    ctrl.sqsdCtrl     = CReflect(ctrlC.sqsdCtrl);
     ctrl.equilibrate  = ctrlC.equilibrate;
     ctrl.progress     = ctrlC.progress;
     ctrl.time         = ctrlC.time;

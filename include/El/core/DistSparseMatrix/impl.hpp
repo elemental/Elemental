@@ -1,22 +1,19 @@
 /*
-   Copyright 2009-2011, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
-   Copyright 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright 2013-2014, Jack Poulson and The Georgia Institute of Technology.
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
    All rights reserved.
 
-   Copyright 2014-2015, Jack Poulson and Stanford University.
-   All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CORE_DISTSPARSEMATRIX_IMPL_HPP
@@ -90,10 +87,10 @@ void DistSparseMatrix<T>::Resize( Int height, Int width )
 // -----------------------
 template<typename T>
 void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
-{ 
+{
     if( Comm() == comm )
         return;
-    distGraph_.SetComm( comm ); 
+    distGraph_.SetComm( comm );
     vals_.resize( 0 );
 
     SwapClear( remoteVals_ );
@@ -103,7 +100,7 @@ void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
 // --------
 template<typename T>
 void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
-{ 
+{
     const Int currSize = vals_.size();
     const Int currRemoteSize = remoteVals_.size();
 
@@ -176,7 +173,7 @@ EL_NO_RELEASE_EXCEPT
     }
     else if( !passive )
     {
-        distGraph_.remoteSources_.push_back( row ); 
+        distGraph_.remoteSources_.push_back( row );
         distGraph_.remoteTargets_.push_back( col );
         remoteVals_.push_back( value );
     }
@@ -245,7 +242,7 @@ void DistSparseMatrix<T>::ProcessQueues()
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( distGraph_.sources_.size() != distGraph_.targets_.size() || 
+      if( distGraph_.sources_.size() != distGraph_.targets_.size() ||
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
@@ -269,7 +266,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         for( Int i=0; i<totalSend; ++i )
         {
             const int owner = RowOwner(distGraph_.remoteSources_[i]);
-            sendBuf[offs[owner]++] = 
+            sendBuf[offs[owner]++] =
                 Entry<T>
                 { distGraph_.remoteSources_[i],
                   distGraph_.remoteTargets_[i], remoteVals_[i] };
@@ -312,9 +309,9 @@ void DistSparseMatrix<T>::ProcessQueues()
         SwapClear( distGraph_.remoteRemovals_ );
         // Exchange and unpack
         // -------------------
-        auto recvRows = 
+        auto recvRows =
           mpi::AllToAll(sendRows,sendCounts,sendOffs,distGraph_.comm_);
-        auto recvCols = 
+        auto recvCols =
           mpi::AllToAll(sendCols,sendCounts,sendOffs,distGraph_.comm_);
         const Int totalRecv = recvRows.size();
         for( Int i=0; i<totalRecv; ++i )
@@ -399,7 +396,7 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
 // Make a copy
 // -----------
 template<typename T>
-const DistSparseMatrix<T>& 
+const DistSparseMatrix<T>&
 DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 {
     DEBUG_CSE
@@ -538,16 +535,16 @@ Int DistSparseMatrix<T>::Blocksize() const EL_NO_EXCEPT
 
 template<typename T>
 int DistSparseMatrix<T>::RowOwner( Int i ) const EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
-    return distGraph_.SourceOwner(i); 
+    return distGraph_.SourceOwner(i);
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
-    return distGraph_.GlobalSource(iLoc); 
+    return distGraph_.GlobalSource(iLoc);
 }
 
 template<typename T>
@@ -562,7 +559,7 @@ Int DistSparseMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 template<typename T>
 Int DistSparseMatrix<T>::Row( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     return distGraph_.Source( localInd );
 }
@@ -570,7 +567,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 Int DistSparseMatrix<T>::Col( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     return distGraph_.Target( localInd );
 }
@@ -604,13 +601,13 @@ double DistSparseMatrix<T>::Imbalance() const
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
-    return distGraph_.Imbalance(); 
+    return distGraph_.Imbalance();
 }
 
 template<typename T>
 T DistSparseMatrix<T>::Value( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     DEBUG_ONLY(
       if( localInd < 0 || localInd >= (Int)vals_.size() )
@@ -628,9 +625,9 @@ const EL_NO_RELEASE_EXCEPT
     if( col == END ) col = distGraph_.numTargets_ - 1;
     Int index = Offset( localRow, col );
     if( Row(index) != GlobalRow(localRow) || Col(index) != col )
-        return T(0); 
+        return T(0);
     else
-        return Value( index ); 
+        return Value( index );
 }
 
 template<typename T>
@@ -703,9 +700,9 @@ void DistSparseMatrix<T>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
 // ==================
 template<typename T>
 void DistSparseMatrix<T>::AssertConsistent() const
-{ 
+{
     Int locallyConsistent = ( LocallyConsistent() ? 1 : 0 );
-    Int consistent = 
+    Int consistent =
       mpi::AllReduce( locallyConsistent, mpi::BINARY_OR, Comm() );
     if( !consistent )
         LogicError("Distributed sparse matrix must be consistent");
@@ -713,7 +710,7 @@ void DistSparseMatrix<T>::AssertConsistent() const
 
 template<typename T>
 void DistSparseMatrix<T>::AssertLocallyConsistent() const
-{ 
+{
     if( !LocallyConsistent() )
         LogicError("Distributed sparse matrix must be consistent");
 }
@@ -728,7 +725,7 @@ void DistSparseMatrix<T>::MappedSources
     mpi::Comm comm = Comm();
     const int commRank = mpi::Rank( comm );
     Timer timer;
-    const bool time = false; 
+    const bool time = false;
     const Int localHeight = LocalHeight();
     if( Int(mappedSources.size()) == localHeight )
         return;
@@ -746,16 +743,16 @@ void DistSparseMatrix<T>::MappedSources
 
 template<typename T>
 void DistSparseMatrix<T>::MappedTargets
-( const DistMap& reordering, 
+( const DistMap& reordering,
   vector<Int>& mappedTargets,
   vector<Int>& colOffs ) const
 {
     DEBUG_CSE
-    if( mappedTargets.size() != 0 && colOffs.size() != 0 ) 
+    if( mappedTargets.size() != 0 && colOffs.size() != 0 )
         return;
 
     mpi::Comm comm = Comm();
-    const int commRank = mpi::Rank( comm ); 
+    const int commRank = mpi::Rank( comm );
     Timer timer;
     const bool time = false;
 
@@ -787,7 +784,7 @@ void DistSparseMatrix<T>::MappedTargets
     if( time && commRank == 0 )
         Output("Unique sort: ",timer.Stop()," secs");
 
-    // Get the reordered indices of the targets of our portion of the 
+    // Get the reordered indices of the targets of our portion of the
     // distributed sparse matrix
     if( time && commRank == 0 )
         timer.Start();

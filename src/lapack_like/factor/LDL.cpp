@@ -1,20 +1,19 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
-   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and 
-   The Georgia Institute of Technology.
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
    All rights reserved.
 
-   Copyright (c) 2014-2015, Jack Poulson and Stanford University.
-   All rights reserved.
-
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -45,7 +44,7 @@ void LDL( Matrix<F>& A, bool conjugate )
 }
 
 template<typename F>
-void LDL( ElementalMatrix<F>& A, bool conjugate )
+void LDL( AbstractDistMatrix<F>& A, bool conjugate )
 {
     DEBUG_CSE
     ldl::Var3( A, conjugate );
@@ -60,7 +59,7 @@ void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate )
 template<typename F>
 void LDL
 ( Matrix<F>& A,
-  Matrix<F>& dSub, 
+  Matrix<F>& dSub,
   Permutation& p,
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
@@ -71,11 +70,11 @@ void LDL
 
 template<typename F>
 void LDL
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& dSub, 
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& dSub,
   DistPermutation& p,
-  bool conjugate, 
-  const LDLPivotCtrl<Base<F>>& ctrl ) 
+  bool conjugate,
+  const LDLPivotCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     ldl::Pivoted( A, dSub, p, conjugate, ctrl );
@@ -106,7 +105,7 @@ void LDL
 template<typename F>
 void LDL
 ( const ldl::DistNodeInfo& info,
-        ldl::DistFront<F>& front, 
+        ldl::DistFront<F>& front,
   LDLFrontType newType )
 {
     DEBUG_CSE
@@ -125,7 +124,7 @@ void LDL
 
 #define PROTO_BASE(F) \
   template void LDL( Matrix<F>& A, bool conjugate ); \
-  template void LDL( ElementalMatrix<F>& A, bool conjugate ); \
+  template void LDL( AbstractDistMatrix<F>& A, bool conjugate ); \
   template void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate ); \
   template void LDL \
   ( Matrix<F>& A, \
@@ -134,8 +133,8 @@ void LDL
     bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
   template void LDL \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& dSub, \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& dSub, \
     DistPermutation& p, \
     bool conjugate, \
     const LDLPivotCtrl<Base<F>>& ctrl ); \
@@ -143,15 +142,15 @@ void LDL
   ( const Matrix<Base<F>>& d, \
     const Matrix<F>& dSub ); \
   template InertiaType ldl::Inertia \
-  ( const ElementalMatrix<Base<F>>& d, \
-    const ElementalMatrix<F>& dSub ); \
+  ( const AbstractDistMatrix<Base<F>>& d, \
+    const AbstractDistMatrix<F>& dSub ); \
   template void ldl::MultiplyAfter \
   ( const Matrix<F>& A, \
           Matrix<F>& B, \
     bool conjugated ); \
   template void ldl::MultiplyAfter \
-  ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& B, \
+  ( const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& B, \
     bool conjugated ); \
   template void ldl::MultiplyAfter \
   ( const Matrix<F>& A, \
@@ -160,18 +159,18 @@ void LDL
           Matrix<F>& B, \
     bool conjugated ); \
   template void ldl::MultiplyAfter \
-  ( const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& dSub, \
+  ( const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& dSub, \
     const DistPermutation& p, \
-          ElementalMatrix<F>& B, \
+          AbstractDistMatrix<F>& B, \
     bool conjugated ); \
   template void ldl::SolveAfter \
   ( const Matrix<F>& A, \
           Matrix<F>& B, \
     bool conjugated ); \
   template void ldl::SolveAfter \
-  ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& B, \
+  ( const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& B, \
     bool conjugated ); \
   template void ldl::SolveAfter \
   ( const Matrix<F>& A, \
@@ -180,10 +179,10 @@ void LDL
           Matrix<F>& B, \
     bool conjugated ); \
   template void ldl::SolveAfter \
-  ( const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& dSub, \
+  ( const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& dSub, \
     const DistPermutation& p, \
-          ElementalMatrix<F>& B, \
+          AbstractDistMatrix<F>& B, \
      bool conjugated );
 
 #define PROTO(F) \

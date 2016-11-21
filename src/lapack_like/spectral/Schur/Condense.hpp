@@ -142,9 +142,13 @@ void Condense
     MakeTrapezoidal( UPPER, A, -1 );
     
     // Call the black-box HessenbergSchur decomposition
+    if( ctrl.time && grid.Rank() == 0 )
+        timer.Start();
     auto hessSchurCtrl = ctrl.hessSchurCtrl;
     hessSchurCtrl.accumulateSchurVecs = true;
     HessenbergSchur( A, w, Q, hessSchurCtrl );
+    if( ctrl.time && grid.Rank() == 0 )
+        Output("  HessenbergSchur: ",timer.Stop()," seconds");
 
     if( IsComplex<F>::value )
         MakeTrapezoidal( UPPER, A );

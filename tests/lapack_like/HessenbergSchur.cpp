@@ -1,9 +1,9 @@
 /*
    Copyright (c) 2009-2016, Jack Poulson
-   All rights reserved.  
+   All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -50,7 +50,7 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
     Matrix<F> R;
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
-    const Real errFrob = FrobeniusNorm( R ); 
+    const Real errFrob = FrobeniusNorm( R );
     const Real HFrob = FrobeniusNorm( H );
     const Real relErr = errFrob / (eps*n*HFrob);
     Output("|| H ||_F = ",HFrob);
@@ -67,11 +67,12 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
 
 template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 void TestLAPACKHelper
-( const Matrix<F>& H, 
+( const Matrix<F>& H,
   const HessenbergSchurCtrl& ctrl,
   bool print )
 {
     DEBUG_CSE
+    typedef Base<F> Real;
     const Int n = H.Height();
     Matrix<F> T, Z;
     Matrix<Complex<Base<F>>> w;
@@ -87,11 +88,26 @@ void TestLAPACKHelper
     ( n, T.Buffer(), T.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
       ctrl.fullTriangle, multiplyZ, useAED );
     Output("LAPACK HessenbergSchur: ",timer.Stop()," seconds");
+
+    Matrix<F> R;
+    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    const Real errFrob = FrobeniusNorm( R );
+    const Real HFrob = FrobeniusNorm( H );
+    const Real relErr = errFrob / (limits::Epsilon<Real>()*n*HFrob);
+    Output("|| H ||_F = ",HFrob);
+    Output("|| H Z - Z T ||_F / (eps n || H ||_F) = ",relErr);
+    if( print )
+        Print( R );
+    // TODO(poulson): A more refined failure condition
+    if( relErr > Real(100) )
+        LogicError("Relative error was unacceptably large");
+    Output("Passed test");
 }
 
 template<typename F>
 void TestRandomHelper
-( const Matrix<F>& H, 
+( const Matrix<F>& H,
   const HessenbergSchurCtrl& ctrl,
   bool testSweep,
   bool print )
@@ -155,7 +171,7 @@ void TestRandomHelper
     Matrix<F> R;
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
-    const Real errFrob = FrobeniusNorm( R ); 
+    const Real errFrob = FrobeniusNorm( R );
     const Real HFrob = FrobeniusNorm( H );
     const Real relErr = errFrob / (eps*n*HFrob);
     Output("|| H ||_F = ",HFrob);
@@ -171,7 +187,7 @@ void TestRandomHelper
 
 template<typename F>
 void TestRandomHelper
-( const DistMatrix<F,MC,MR,BLOCK>& H, 
+( const DistMatrix<F,MC,MR,BLOCK>& H,
   const HessenbergSchurCtrl& ctrl,
   bool print )
 {
@@ -203,7 +219,7 @@ void TestRandomHelper
     DistMatrix<F,MC,MR,BLOCK> R(grid);
     Gemm( NORMAL, NORMAL, F(1), Z, T, R );
     Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
-    const Real errFrob = FrobeniusNorm( R ); 
+    const Real errFrob = FrobeniusNorm( R );
     const Real HFrob = FrobeniusNorm( H );
     const Real relErr = errFrob / (eps*n*HFrob);
     if( grid.Rank() == 0 )
@@ -261,7 +277,8 @@ void TestRandom
 ( Int n, const Grid& grid, const HessenbergSchurCtrl& ctrl, bool print )
 {
     DEBUG_CSE
-    Output("Testing uniform Hessenberg with ",TypeName<F>());
+    if( grid.Rank() == 0 )
+        Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     DistMatrix<F,MC,MR,BLOCK> H(grid);
     Uniform( H, n, n );
@@ -291,9 +308,8 @@ int main( int argc, char* argv[] )
         const bool testSweep =
           Input("--testSweep","test pure-shift sweep?",false);
         const bool sequential = Input("--sequential","test sequential?",true);
-        // The distributed implementation is not yet debugged
         const bool distributed =
-          Input("--distributed","test distributed?",false);
+          Input("--distributed","test distributed?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -309,7 +325,7 @@ int main( int argc, char* argv[] )
         // TODO(poulson): Allow the grid dimensions to be selected
         const Grid grid( mpi::COMM_WORLD );
 
-        if( sequential )
+        if( sequential && grid.Rank() == 0 )
         {
             TestAhuesTisseur<float>( ctrl, print );
             TestAhuesTisseur<Complex<float>>( ctrl, print );

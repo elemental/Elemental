@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -18,7 +18,7 @@ namespace El {
 
 // Performs LU factorization without pivoting
 
-template<typename F> 
+template<typename F>
 void LU( Matrix<F>& A )
 {
     DEBUG_CSE
@@ -43,8 +43,8 @@ void LU( Matrix<F>& A )
     }
 }
 
-template<typename F> 
-void LU( ElementalMatrix<F>& APre )
+template<typename F>
+void LU( AbstractDistMatrix<F>& APre )
 {
     DEBUG_CSE
 
@@ -95,13 +95,13 @@ void LU( ElementalMatrix<F>& APre )
     }
 }
 
-template<typename F> 
+template<typename F>
 void LU( DistMatrix<F,STAR,STAR>& A )
 { LU( A.Matrix() ); }
 
 // Performs LU factorization with partial pivoting
 
-template<typename F> 
+template<typename F>
 void LU( Matrix<F>& A, Permutation& P )
 {
     DEBUG_CSE
@@ -113,14 +113,14 @@ void LU( Matrix<F>& A, Permutation& P )
 
     P.MakeIdentity( m );
     P.ReserveSwaps( minDim );
-    
+
     Permutation PB;
-   
+
     // Temporaries for accumulating partial permutations for each block
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
-        const IR ind0( 0, k ), ind1( k, k+nb ), ind2( k+nb, END ), 
+        const IR ind0( 0, k ), ind1( k, k+nb ), ind2( k+nb, END ),
                  indB( k, END );
 
         auto A11 = A( ind1, ind1 );
@@ -141,7 +141,7 @@ void LU( Matrix<F>& A, Permutation& P )
     }
 }
 
-template<typename F> 
+template<typename F>
 void LU
 ( Matrix<F>& A,
   Permutation& P,
@@ -151,8 +151,8 @@ void LU
     lu::Full( A, P, Q );
 }
 
-template<typename F> 
-void LU( ElementalMatrix<F>& APre, DistPermutation& P )
+template<typename F>
+void LU( AbstractDistMatrix<F>& APre, DistPermutation& P )
 {
     DEBUG_CSE
 
@@ -220,9 +220,9 @@ void LU( ElementalMatrix<F>& APre, DistPermutation& P )
     }
 }
 
-template<typename F> 
+template<typename F>
 void LU
-( ElementalMatrix<F>& A, 
+( AbstractDistMatrix<F>& A,
   DistPermutation& P,
   DistPermutation& Q )
 {
@@ -232,20 +232,20 @@ void LU
 
 #define PROTO(F) \
   template void LU( Matrix<F>& A ); \
-  template void LU( ElementalMatrix<F>& A ); \
+  template void LU( AbstractDistMatrix<F>& A ); \
   template void LU( DistMatrix<F,STAR,STAR>& A ); \
   template void LU \
   ( Matrix<F>& A, \
     Permutation& P ); \
   template void LU \
-  ( ElementalMatrix<F>& A, \
+  ( AbstractDistMatrix<F>& A, \
     DistPermutation& P ); \
   template void LU \
   ( Matrix<F>& A, \
     Permutation& P, \
     Permutation& Q ); \
   template void LU \
-  ( ElementalMatrix<F>& A, \
+  ( AbstractDistMatrix<F>& A, \
     DistPermutation& P, \
     DistPermutation& Q ); \
   template void LUMod \
@@ -256,10 +256,10 @@ void LU
     bool conjugate, \
     Base<F> tau ); \
   template void LUMod \
-  (       ElementalMatrix<F>& A, \
+  (       AbstractDistMatrix<F>& A, \
           DistPermutation& P, \
-    const ElementalMatrix<F>& u, \
-    const ElementalMatrix<F>& v, \
+    const AbstractDistMatrix<F>& u, \
+    const AbstractDistMatrix<F>& v, \
     bool conjugate, \
     Base<F> tau ); \
   template void lu::Panel \
@@ -280,8 +280,8 @@ void LU
           Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, \
+          AbstractDistMatrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
@@ -289,9 +289,9 @@ void LU
           Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, \
+    const AbstractDistMatrix<F>& A, \
     const DistPermutation& P, \
-          ElementalMatrix<F>& B ); \
+          AbstractDistMatrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, \
@@ -300,10 +300,10 @@ void LU
           Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, \
+    const AbstractDistMatrix<F>& A, \
     const DistPermutation& P, \
     const DistPermutation& Q, \
-          ElementalMatrix<F>& B );
+          AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

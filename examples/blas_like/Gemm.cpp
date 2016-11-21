@@ -160,7 +160,7 @@ void TimedGemm
             const Int nLocal = A1_MC_STAR.LocalWidth();
             const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMC*1.e6);
             Output
-            ("[MC,* ] AllGather: ",timeMC," secs (",mbps," MB/s) for",
+            ("[MC,* ] AllGather: ",timeMC," secs (",mbps," MB/s) for ",
              mLocal," x ",nLocal," local matrix");
         }
         timerMR.Start();

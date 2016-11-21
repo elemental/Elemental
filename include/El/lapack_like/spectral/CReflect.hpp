@@ -208,6 +208,7 @@ inline ElHermitianTridiagEigQRCtrl CReflect
     ctrlC.maxIterPerEig = ctrl.maxIterPerEig;
     ctrlC.demandConverged = ctrl.demandConverged;
     ctrlC.fullAccuracyTwoByTwo = ctrl.fullAccuracyTwoByTwo;
+    ctrlC.broadcast = ctrl.broadcast;
     return ctrlC;
 }
 
@@ -218,6 +219,7 @@ inline herm_tridiag_eig::QRCtrl CReflect
     ctrl.maxIterPerEig = ctrlC.maxIterPerEig;
     ctrl.demandConverged = ctrlC.demandConverged;
     ctrl.fullAccuracyTwoByTwo = ctrlC.fullAccuracyTwoByTwo;
+    ctrl.broadcast = ctrlC.broadcast;
     return ctrl;
 }
 
@@ -552,6 +554,7 @@ inline bidiag_svd::QRCtrl CReflect( const ElBidiagSVDQRCtrl& ctrlC )
     ctrl.looseMinSingValEst = ctrlC.looseMinSingValEst;
     ctrl.useFLAME = ctrlC.useFLAME;
     ctrl.useLAPACK = ctrlC.useLAPACK;
+    ctrl.broadcast = ctrlC.broadcast;
     return ctrl;
 }
 
@@ -563,6 +566,7 @@ inline ElBidiagSVDQRCtrl CReflect( const bidiag_svd::QRCtrl& ctrl )
     ctrlC.looseMinSingValEst = ctrl.looseMinSingValEst;
     ctrlC.useFLAME = ctrl.useFLAME;
     ctrlC.useLAPACK = ctrl.useLAPACK;
+    ctrlC.broadcast = ctrl.broadcast;
     return ctrlC;
 }
 
@@ -748,6 +752,7 @@ inline ElHessenbergSchurCtrl CReflect( const HessenbergSchurCtrl& ctrl )
     ctrlC.progress = ctrl.progress;
 
     ctrlC.minMultiBulgeSize = ctrl.minMultiBulgeSize;
+    ctrlC.minDistMultiBulgeSize = ctrl.minDistMultiBulgeSize;
     auto numShiftsRes = ctrl.numShifts.target<ElInt(*)(ElInt,ElInt)>(); 
     if( numShiftsRes )
         ctrlC.numShifts = *numShiftsRes;
@@ -800,6 +805,7 @@ inline HessenbergSchurCtrl CReflect( const ElHessenbergSchurCtrl& ctrlC )
     ctrl.progress = ctrlC.progress;
 
     ctrl.minMultiBulgeSize = ctrlC.minMultiBulgeSize;
+    ctrl.minDistMultiBulgeSize = ctrlC.minDistMultiBulgeSize;
     ctrl.numShifts = ctrlC.numShifts;
     ctrl.deflationSize = ctrlC.deflationSize;
     ctrl.sufficientDeflation = ctrlC.sufficientDeflation;

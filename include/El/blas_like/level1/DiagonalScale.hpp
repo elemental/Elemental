@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_DIAGONALSCALE_HPP
@@ -129,29 +129,19 @@ void DiagonalScale
         AbstractDistMatrix<T>& A )
 {
     DEBUG_CSE
-    if( A.Wrap() == ELEMENT )
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
-            DiagonalScale( side, orientation, d, ACast );
-        #include <El/macros/GuardAndPayload.h>
-    }
-    else
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
-            DiagonalScale( side, orientation, d, ACast );
-        #include <El/macros/GuardAndPayload.h>
-    }
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
+        DiagonalScale( side, orientation, d, ACast );
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side,
   Orientation orientation,
-  const Matrix<TDiag>& d, 
+  const Matrix<TDiag>& d,
         SparseMatrix<T>& A )
 {
     DEBUG_CSE
@@ -232,7 +222,7 @@ void DiagonalScale
         )
         A.InitializeMultMeta();
         const auto& meta = A.LockedDistGraph().multMeta;
-        // Pack the send values 
+        // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         vector<T> sendVals;
         FastResize( sendVals, numSendInds );
@@ -249,7 +239,7 @@ void DiagonalScale
         FastResize( recvVals, meta.numRecvInds );
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
+          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
           A.Comm() );
 
         // Loop over the entries of A and rescale
@@ -281,7 +271,7 @@ void DiagonalScale
     auto& XLoc = X.Matrix();
     auto& dLoc = d.LockedMatrix();
     const Int localHeight = d.LocalHeight();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const T delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
         for( Int j=0; j<width; ++j )

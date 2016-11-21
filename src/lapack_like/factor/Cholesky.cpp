@@ -8,14 +8,16 @@
 */
 #include <El.hpp>
 
-#include "./Cholesky/LVar3.hpp"
-#include "./Cholesky/LVar3Pivoted.hpp"
-#include "./Cholesky/UVar3.hpp"
-#include "./Cholesky/UVar3Pivoted.hpp"
+#include "./Cholesky/LowerVariant3.hpp"
+#include "./Cholesky/UpperVariant3.hpp"
+#include "./Cholesky/ReverseLowerVariant3.hpp"
+#include "./Cholesky/ReverseUpperVariant3.hpp"
+#include "./Cholesky/PivotedLowerVariant3.hpp"
+#include "./Cholesky/PivotedUpperVariant3.hpp"
 #include "./Cholesky/SolveAfter.hpp"
 
-#include "./Cholesky/LMod.hpp"
-#include "./Cholesky/UMod.hpp"
+#include "./Cholesky/LowerMod.hpp"
+#include "./Cholesky/UpperMod.hpp"
 
 namespace El {
 
@@ -30,9 +32,9 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A )
           LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A );
+        cholesky::LowerVariant3Blocked( A );
     else
-        cholesky::UVar3( A );
+        cholesky::UpperVariant3Blocked( A );
 }
 
 template<typename F>
@@ -44,9 +46,9 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p )
           LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::PivotedLowerVariant3Blocked( A, p );
     else
-        cholesky::UVar3( A, p );
+        cholesky::PivotedUpperVariant3Blocked( A, p );
 }
 
 template<typename F>
@@ -58,9 +60,9 @@ void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
           LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::ReverseLVar3( A );
+        cholesky::ReverseLowerVariant3Blocked( A );
     else
-        cholesky::ReverseUVar3( A );
+        cholesky::ReverseUpperVariant3Blocked( A );
 }
 
 namespace cholesky {
@@ -75,15 +77,10 @@ void ScaLAPACKHelper( UpperOrLower uplo, AbstractDistMatrix<F>& A )
     auto& ABlock = ABlockProx.Get();
 
     const Int n = ABlock.Height();
-    const int bHandle = blacs::Handle( ABlock );
-    const int context = blacs::GridInit( bHandle, ABlock );
-    auto descA = FillDesc( ABlock, context );
-
     const char uploChar = UpperOrLowerToChar( uplo );
-    scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
 
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
+    auto descA = FillDesc( ABlock );
+    scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
 #endif
 }
 
@@ -106,9 +103,9 @@ void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
     else
     {
         if( uplo == LOWER )
-            cholesky::LVar3( A );
+            cholesky::LowerVariant3Blocked( A );
         else
-            cholesky::UVar3( A );
+            cholesky::UpperVariant3Blocked( A );
     }
 }
 
@@ -118,9 +115,9 @@ void Cholesky
 {
     DEBUG_CSE
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::PivotedLowerVariant3Blocked( A, p );
     else
-        cholesky::UVar3( A, p );
+        cholesky::PivotedUpperVariant3Blocked( A, p );
 }
 
 template<typename F>
@@ -133,9 +130,9 @@ void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
     DEBUG_CSE
     if( uplo == LOWER )
-        cholesky::ReverseLVar3( A );
+        cholesky::ReverseLowerVariant3Blocked( A );
     else
-        cholesky::ReverseUVar3( A );
+        cholesky::ReverseUpperVariant3Blocked( A );
 }
 
 template<typename F>
@@ -154,9 +151,9 @@ void CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
-        cholesky::LMod( T, alpha, V );
+        cholesky::LowerMod( T, alpha, V );
     else
-        cholesky::UMod( T, alpha, V );
+        cholesky::UpperMod( T, alpha, V );
 }
 
 template<typename F>
@@ -170,9 +167,9 @@ void CholeskyMod
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
-        cholesky::LMod( T, alpha, V );
+        cholesky::LowerMod( T, alpha, V );
     else
-        cholesky::UMod( T, alpha, V );
+        cholesky::UpperMod( T, alpha, V );
 }
 
 template<typename F>

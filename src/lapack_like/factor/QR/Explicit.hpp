@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_QR_EXPLICIT_HPP
@@ -31,7 +31,7 @@ void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 }
 
 template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
+void ExplicitTriang( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
     DistMatrix<F,MD,STAR> householderScalars(A.Grid());
@@ -63,7 +63,7 @@ void ExplicitUnitary
     else
         QR( A, householderScalars, signature );
 
-    if( thinQR ) 
+    if( thinQR )
     {
         A.Resize( A.Height(), householderScalars.Height() );
         ExpandPackedReflectors
@@ -81,7 +81,7 @@ void ExplicitUnitary
 
 template<typename F>
 void ExplicitUnitary
-( ElementalMatrix<F>& APre, bool thinQR, const QRCtrl<Base<F>>& ctrl )
+( AbstractDistMatrix<F>& APre, bool thinQR, const QRCtrl<Base<F>>& ctrl )
 {
     DEBUG_CSE
 
@@ -159,8 +159,8 @@ void Explicit
 
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& R, 
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& R,
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
@@ -242,13 +242,13 @@ void Explicit
     }
 
     Omega.ExplicitMatrix( OmegaFull );
-} 
+}
 
 template<typename F>
 void Explicit
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& R, 
-  ElementalMatrix<Int>& OmegaFull,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& R,
+  AbstractDistMatrix<Int>& OmegaFull,
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {

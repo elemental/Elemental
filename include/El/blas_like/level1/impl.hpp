@@ -55,6 +55,7 @@
 #include <El/blas_like/level1/Scale.hpp>
 #include <El/blas_like/level1/ScaleTrapezoid.hpp>
 #include <El/blas_like/level1/Send.hpp>
+#include <El/blas_like/level1/SendRecv.hpp>
 #include <El/blas_like/level1/SetDiagonal.hpp>
 #include <El/blas_like/level1/SetSubmatrix.hpp>
 #include <El/blas_like/level1/Shift.hpp>

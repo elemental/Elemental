@@ -56,23 +56,27 @@ struct DistChaseState
   // The number of bulges currently in the very last active block
   Int numBulgesInLastBlock;
 
-  // The index of the diagonal entry that the first active shift is in. If 
-  // activeBlockBeg is zero, then this is the top-left entry of the bottom-right
-  // quadrant of the distribution block lying within the window; otherwise, it
-  // is the index of the top-left entry of the full distribution block.
+  // The index of the first entry of the top-left diagonal block that will be
+  // operated on this iteration.
   Int activeBeg;
+  // The index just past the last diagonal block that will be operated on this
+  // iteration.
   Int activeEnd;
 
-  // The activeBlock{Beg,End} indices are relative to the active window implied
-  // by win{Beg,End}.
-  Int activeBlockBeg; // The block index of the first active block
-  Int activeBlockEnd; // The block index of the end of the active blocks
+  // The first block index where shifts will originate from this iteration
+  // (if shifts will be introduced, this will be -1)
+  Int introBlock;
+  // The block index past the last block operated on this iteration
+  // (if shifts will be chased out of the window, this will be numWinBlocks)
+  Int endBlock;
 
-  // The first diagonal block assigned to our process row that occurs on or
-  // after activeBlockBeg
+  // The first diagonal block assigned to our process row that will be operated
+  // on this iteration
+  // (the first at least as large as Max(introBlock,0))
   Int activeRowBlockBeg;
-  // The first diagonal block assigned to our process column that occurs on or
-  // after activeBlockBeg
+  // The first diagonal block assigned to our process column that will be
+  // operated on this iteration
+  // (the first at least as large as Max(introBlock,0))
   Int activeColBlockBeg; 
 };
 
@@ -110,7 +114,9 @@ DistChaseState BuildDistChaseState
     else
     {
         state.numWinBlocks = 2 + (winSizeAfterFirst-1)/state.blockSize;
-        state.lastBlockSize = winSizeAfterFirst % state.blockSize;
+        const Int winSizeLeftover = Mod(winSizeAfterFirst,state.blockSize);
+        state.lastBlockSize =
+          ( winSizeLeftover==0 ? state.blockSize : winSizeLeftover );
     }
 
     // Apply the black-box function for determining the number of bulges
@@ -144,7 +150,9 @@ DistChaseState BuildDistChaseState
 
     // Bulges are introduced starting from the bottom, and we introduce the
     // leftover number of shifts first.
-    state.numBulgesInLastBlock = Mod(numBulges,state.numBulgesPerBlock);
+    const Int bulgeLeftover = Mod(numBulges,state.numBulgesPerBlock);
+    state.numBulgesInLastBlock =
+      ( bulgeLeftover==0 ? state.numBulgesPerBlock : bulgeLeftover );
     state.bulgeBeg = numBulges - state.numBulgesInLastBlock;
     state.bulgeEnd = numBulges;
 
@@ -153,17 +161,14 @@ DistChaseState BuildDistChaseState
     // introducing a packet into block 0; otherwise, a packet will be 
     // immediately chased through to block 1.
     const bool fullFirstBlock = ( state.blockSize == state.firstBlockSize );
-    state.activeBlockBeg = 0;
+    state.introBlock = -1;
+    state.endBlock = 1;
     state.activeBeg = state.winBeg;
-    if( fullFirstBlock )
+    state.activeEnd = state.winBeg + state.firstBlockSize;
+    if( !fullFirstBlock )
     {
-        state.activeBlockEnd = 1;
-        state.activeEnd = state.winBeg + state.blockSize;
-    }
-    else
-    {
-        state.activeBlockEnd = 2;
-        state.activeEnd = state.winBeg + state.firstBlockSize + state.blockSize;
+        state.endBlock += 1;
+        state.activeEnd += state.blockSize; 
     }
 
     // We now compute the first row/column blocks of the active window that are
@@ -174,8 +179,8 @@ DistChaseState BuildDistChaseState
       Shift( grid.Row(), activeColAlign, grid.Height() );
     const int activeRowShift =
       Shift( grid.Col(), activeRowAlign, grid.Width() );
-    state.activeRowBlockBeg = state.activeBlockBeg + activeColShift;
-    state.activeColBlockBeg = state.activeBlockBeg + activeRowShift;
+    state.activeRowBlockBeg = Max(state.introBlock,0) + activeColShift;
+    state.activeColBlockBeg = Max(state.introBlock,0) + activeRowShift;
 
     return state;
 }
@@ -190,48 +195,60 @@ void AdvanceChaseState
     DEBUG_CSE
     const Grid& grid = H.Grid();
 
-    if( state.activeBlockEnd == state.numWinBlocks )
+    if( state.endBlock == state.numWinBlocks )
     {
-        // The last packet was chased off of the matrix
+        // A packet was just chased off of the matrix
         state.bulgeEnd -= state.numBulgesInLastBlock;
         state.numBulgesInLastBlock = state.numBulgesPerBlock;
     }
     else
     {
-        // The last packet was chased down a block of the matrix
-        if( state.activeBlockEnd == state.numWinBlocks-1 )
+        // A packet was just chased down one more block of the matrix
+        if( state.endBlock == state.numWinBlocks-1 )
             state.activeEnd += state.lastBlockSize;
         else
             state.activeEnd += state.blockSize;
-        ++state.activeBlockEnd;
+        ++state.endBlock;
     }
 
     if( state.bulgeBeg == 0 )
     {
         // All of the packets are in play, so the sweep is winding down
 
-        // Push the active block indices up one block
-        if( state.activeBlockBeg == 0 )
-            state.activeBeg += state.firstBlockSize;
+        if( state.introBlock == -1 )
+        {
+            if( state.firstBlockSize == state.blockSize )
+            {
+                state.introBlock = 0; 
+            }
+            else
+            {
+                state.activeBeg += state.firstBlockSize;
+                state.introBlock = 1; 
+            }
+        }
         else
+        {
+            // Push the active block indices up one block
             state.activeBeg += state.blockSize;
-        ++state.activeBlockBeg;
+            state.introBlock += 1;
+        }
 
-        // Compute the active region alignments and first assigned rows/col's
+        // Recompute the active region alignments and first assigned rows/col's
         const int activeColAlign = H.RowOwner( state.activeBeg );
         const int activeRowAlign = H.ColOwner( state.activeBeg );
         const int activeColShift =
           Shift( grid.Row(), activeColAlign, grid.Height() );
         const int activeRowShift =
           Shift( grid.Col(), activeRowAlign, grid.Width() );
-        state.activeRowBlockBeg = state.activeBlockBeg + activeColShift;
-        state.activeColBlockBeg = state.activeBlockBeg + activeRowShift;
+        state.activeRowBlockBeg = Max(state.introBlock,0) + activeColShift;
+        state.activeColBlockBeg = Max(state.introBlock,0) + activeRowShift;
     }
     else
     {
         // Introduce another packet at the beginning of the window
         DEBUG_ONLY(
-          if( state.activeBlockBeg != 0 )
+          if( state.introBlock >= 0 )
               LogicError("Inconsistent chase state");
         )
         state.bulgeBeg -= state.numBulgesPerBlock;

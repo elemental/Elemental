@@ -35,9 +35,9 @@ void Hadamard
         ElementalMatrix<T>& C )
 {
     DEBUG_CSE
-    const ElementalData ADistData = A.DistData();
-    const ElementalData BDistData = B.DistData();
-    ElementalData CDistData = C.DistData();
+    const DistData& ADistData = A.DistData();
+    const DistData& BDistData = B.DistData();
+    DistData CDistData = C.DistData();
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     AssertSameGrids( A, B );

@@ -112,8 +112,8 @@ void TransposeAxpy
     )
     const T alpha = T(alphaS);
 
-    const ElementalData ADistData = A.DistData();
-    const ElementalData BDistData = B.DistData();
+    const DistData& ADistData = A.DistData();
+    const DistData& BDistData = B.DistData();
     if( ADistData.colDist == BDistData.rowDist &&
         ADistData.rowDist == BDistData.colDist &&
         ADistData.colAlign==BDistData.rowAlign &&

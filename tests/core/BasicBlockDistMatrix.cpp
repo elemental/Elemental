@@ -24,9 +24,7 @@ main( int argc, char* argv[] )
         const Int mb = Input("--blockHeight","height of dist block",32);
         const Int nb = Input("--blockWidth","width of dist block",32);
         const bool print = Input("--print","print wrong matrices?",false);
-#ifdef EL_HAVE_SCALAPACK
         const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
-#endif
         ProcessInput();
         PrintInputReport();
 

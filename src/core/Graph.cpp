@@ -1,15 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
    All rights reserved.
 
-   Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -23,7 +27,7 @@ Graph::Graph() : numSources_(0), numTargets_(0) { }
 
 Graph::Graph( Int numVertices )
 : numSources_(numVertices), numTargets_(numVertices)
-{ 
+{
     sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )
         sourceOffsets_[e] = 0;
@@ -31,7 +35,7 @@ Graph::Graph( Int numVertices )
 
 Graph::Graph( Int numSources, Int numTargets )
 : numSources_(numSources), numTargets_(numTargets)
-{ 
+{
     sourceOffsets_.resize( numSources_+1 );
     for( Int e=0; e<=numSources_; ++e )
         sourceOffsets_[e] = 0;
@@ -46,7 +50,7 @@ Graph::Graph( const Graph& graph )
     else
         LogicError("Tried to construct a graph with itself");
 }
-    
+
 Graph::Graph( const DistGraph& graph )
 : numSources_(-1), numTargets_(-1)
 {
@@ -156,7 +160,7 @@ void Graph::Resize( Int numSources, Int numTargets )
 // Assembly
 // --------
 void Graph::Reserve( Int numEdges )
-{ 
+{
     const Int currSize = sources_.size();
     sources_.reserve( currSize+numEdges );
     targets_.reserve( currSize+numEdges );
@@ -331,7 +335,7 @@ Int Graph::Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
     if( source == END ) source = numSources_ - 1;
-    if( target == END ) target = numTargets_ - 1; 
+    if( target == END ) target = numTargets_ - 1;
     const Int* targetBuf = LockedTargetBuffer();
     const Int thisOff = SourceOffset(source);
     const Int nextOff = SourceOffset(source+1);
@@ -366,7 +370,7 @@ Int* Graph::OffsetBuffer() EL_NO_EXCEPT { return sourceOffsets_.data(); }
 void Graph::ForceNumEdges( Int numEdges )
 {
     DEBUG_CSE
-    sources_.resize( numEdges ); 
+    sources_.resize( numEdges );
     targets_.resize( numEdges );
     consistent_ = false;
 }
@@ -407,7 +411,7 @@ void Graph::ComputeSourceOffsets()
 }
 
 void Graph::AssertConsistent() const
-{ 
+{
     if( !consistent_ )
         LogicError("Graph was not consistent; run ProcessQueues()");
 }

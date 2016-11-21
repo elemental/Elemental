@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -146,9 +146,10 @@ template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
     DEBUG_CSE
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       *this = ACast;
     #include "El/macros/GuardAndPayload.h"

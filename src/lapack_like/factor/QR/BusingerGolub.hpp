@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_QR_BUSINGERGOLUB_HPP
@@ -51,7 +51,7 @@ ValueInt<Real> FindPivot
     return pivot;
 }
 
-template<typename F> 
+template<typename F>
 void BusingerGolub
 (       Matrix<F>& A,
         Matrix<F>& householderScalars,
@@ -73,7 +73,7 @@ void BusingerGolub
     Matrix<F> z21;
 
     // Initialize two copies of the column norms, one will be consistently
-    // updated, but the original copy will be kept to determine when the 
+    // updated, but the original copy will be kept to determine when the
     // updated quantities are no longer accurate.
     vector<Real> origNorms;
     const Real maxOrigNorm = ColNorms( A, origNorms );
@@ -108,7 +108,7 @@ void BusingerGolub
                 break;
         }
         Omega.Swap( k, pivot.index );
- 
+
         // Perform the swap
         const Int jPiv = pivot.index;
         if( jPiv != k )
@@ -215,14 +215,14 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
     mpi::Comm rowComm = A.Grid().RowComm();
 
     // Carefully perform the local portion of the computation
-    vector<Real> localScales(localWidth,0), 
+    vector<Real> localScales(localWidth,0),
                  localScaledSquares(localWidth,1);
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare
             ( ALoc(iLoc,jLoc), localScales[jLoc], localScaledSquares[jLoc] );
 
-    // Find the maximum relative scales 
+    // Find the maximum relative scales
     vector<Real> scales(localWidth);
     mpi::AllReduce
     ( localScales.data(), scales.data(), localWidth, mpi::MAX, colComm );
@@ -238,7 +238,7 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
     }
 
     // Now sum the local contributions (can ignore results where scale is 0)
-    vector<Real> scaledSquares(localWidth); 
+    vector<Real> scaledSquares(localWidth);
     mpi::AllReduce
     ( localScaledSquares.data(), scaledSquares.data(), localWidth, colComm );
 
@@ -259,7 +259,7 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
 template<typename F>
 void ReplaceColNorms
 ( const DistMatrix<F>& A,
-        vector<Int>& inaccurateNorms, 
+        vector<Int>& inaccurateNorms,
         vector<Base<F>>& norms,
         vector<Base<F>>& origNorms )
 {
@@ -271,15 +271,15 @@ void ReplaceColNorms
     mpi::Comm colComm = A.Grid().ColComm();
 
     // Carefully perform the local portion of the computation
-    vector<Real> localScales(numInaccurate,0), 
+    vector<Real> localScales(numInaccurate,0),
                  localScaledSquares(numInaccurate,1);
     for( Int s=0; s<numInaccurate; ++s )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare
-            ( ALoc(iLoc,inaccurateNorms[s]), 
+            ( ALoc(iLoc,inaccurateNorms[s]),
               localScales[s], localScaledSquares[s] );
 
-    // Find the maximum relative scales 
+    // Find the maximum relative scales
     vector<Real> scales(numInaccurate);
     mpi::AllReduce
     ( localScales.data(), scales.data(), numInaccurate, mpi::MAX, colComm );
@@ -295,7 +295,7 @@ void ReplaceColNorms
     }
 
     // Now sum the local contributions (can ignore results where scale is 0)
-    vector<Real> scaledSquares(numInaccurate); 
+    vector<Real> scaledSquares(numInaccurate);
     mpi::AllReduce
     ( localScaledSquares.data(), scaledSquares.data(), numInaccurate, colComm );
 
@@ -313,9 +313,9 @@ void ReplaceColNorms
 
 template<typename F>
 void BusingerGolub
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& householderScalars, 
-  ElementalMatrix<Base<F>>& signature,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
@@ -336,7 +336,7 @@ void BusingerGolub
     signature.Resize( maxSteps, 1 );
 
     // Initialize two copies of the column norms, one will be consistently
-    // updated, but the original copy will be kept to determine when the 
+    // updated, but the original copy will be kept to determine when the
     // updated quantities are no longer accurate.
     vector<Real> origNorms( A.LocalWidth() );
     const Real maxOrigNorm = ColNorms( A, origNorms );
@@ -407,7 +407,7 @@ void BusingerGolub
             {
                 const Int jPivLoc = A.LocalCol(jPiv);
                 mpi::SendRecv
-                ( A.Buffer(0,jPivLoc), mLocal, 
+                ( A.Buffer(0,jPivLoc), mLocal,
                   curOwner, curOwner, g.RowComm() );
                 norms[jPivLoc] = mpi::Recv<Real>( curOwner, g.RowComm() );
             }

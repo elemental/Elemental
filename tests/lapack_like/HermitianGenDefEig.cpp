@@ -460,7 +460,7 @@ void TestSuite
     ctrl.tridiagEigCtrl.alg = ctrlDbl.tridiagEigCtrl.alg;
     ctrl.tridiagEigCtrl.subset = subset;
 
-    if( sequential )
+    if( sequential && g.Rank() == 0 )
     {
         TestHermitianGenDefEigSequential<F>
         ( m, uplo, pencil, onlyEigvals, correctness, print, ctrl );

@@ -25,7 +25,7 @@ int main( int argc, char* argv[] )
     try
     {
         const Int n = Input("--n","problem dimension",100);
-        const Int varInt = Input("--variant","0: weak, 1: normal, 2: deep insertion, 3: deep reduction",2);
+        const Int varInt = Input("--variant","0: weak, 1: normal, 2: deep insertion, 3: deep reduction",1);
         const bool progress = Input("--progress","print progress?",false); 
         const bool time = Input("--time","time LLL?",false);
         const bool printAll = 

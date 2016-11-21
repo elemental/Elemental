@@ -81,8 +81,8 @@ void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
     DEBUG_ONLY(AssertSameGrids( X, Y ))
     const T alpha = T(alphaS);
 
-    const ElementalData XDistData = X.DistData();
-    const ElementalData YDistData = Y.DistData();
+    const DistData& XDistData = X.DistData();
+    const DistData& YDistData = Y.DistData();
 
     if( XDistData == YDistData )
     {

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_GETMAPPEDDIAGONAL_HPP
@@ -39,10 +39,10 @@ void GetMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
 ( const DistMatrix<T,U,V>& A,
-        ElementalMatrix<S>& dPre, 
+        AbstractDistMatrix<S>& dPre,
         function<S(T)> func,
         Int offset )
-{ 
+{
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
@@ -80,6 +80,37 @@ void GetMappedDiagonal
             dBuf[k] = func(ABuf[iLoc+jLoc*ldim]);
         }
     }
+}
+
+template<typename T,typename S,Dist U,Dist V>
+void GetMappedDiagonal
+( const DistMatrix<T,U,V,BLOCK>& A,
+        AbstractDistMatrix<S>& d,
+        function<S(T)> func,
+        Int offset )
+{
+    DEBUG_CSE
+    DEBUG_ONLY(AssertSameGrids( A, d ))
+
+    // TODO(poulson): Make this more efficient
+    const Int diagLength = A.DiagonalLength(offset);
+    d.Resize( diagLength, 1 );
+    Zero( d );
+    if( d.Participating() && A.RedundantRank() == 0 )
+    {
+        const Int iStart = Max(-offset,0);
+        const Int jStart = Max( offset,0);
+        for( Int k=0; k<diagLength; ++k )
+        {
+            if( A.IsLocal(iStart+k,jStart+k) )
+            {
+                const Int iLoc = A.LocalRow(iStart+k);
+                const Int jLoc = A.LocalCol(jStart+k);
+                d.QueueUpdate(k,0,func(A.GetLocal(iLoc,jLoc)));
+            }
+        }
+    }
+    d.ProcessQueues();
 }
 
 template<typename T,typename S>
@@ -123,7 +154,7 @@ void GetMappedDiagonal
 template<typename T,typename S>
 void GetMappedDiagonal
 ( const DistSparseMatrix<T>& A,
-        DistMultiVec<S>& d, 
+        DistMultiVec<S>& d,
         function<S(T)> func,
         Int offset )
 {

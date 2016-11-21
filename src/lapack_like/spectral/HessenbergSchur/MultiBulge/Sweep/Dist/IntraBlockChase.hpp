@@ -111,13 +111,23 @@ void LocalChase
     auto& HLoc = H.Matrix();
     const auto& shiftsLoc = shifts.LockedMatrix();
 
+    // Packets are originally pushed directly into the second block if the first
+    // is not full.
+    const Int intraBlockStart = 
+      ( state.firstBlockSize == state.blockSize ?
+        state.introBlock+1 : Max(state.introBlock+1,1) );
+
     // Count the number of diagonal blocks assigned to this process
     {
         // Only loop over the row blocks that are assigned to our process row
         // and occur within the active window.
         Int diagBlock = state.activeRowBlockBeg;
+        while( diagBlock < intraBlockStart )
+            diagBlock += grid.Height();
+
         Int numLocalBlocks = 0;
-        while( diagBlock < state.activeBlockEnd )
+        // Recall that packets are never left in the last block of the window
+        while( diagBlock < Min(state.endBlock,state.numWinBlocks-1) )
         {
             const int ownerCol =
               Mod( state.winRowAlign+diagBlock, grid.Width() );
@@ -134,14 +144,14 @@ void LocalChase
     // we are in the correct process column.
     Int localDiagBlock = 0;
     Int diagBlock = state.activeRowBlockBeg;
+    while( diagBlock < intraBlockStart )
+        diagBlock += grid.Height();
     Zeros( W, 3, state.numBulgesPerBlock );
     Matrix<F> ZDummy;
-    while( diagBlock < state.activeBlockEnd )
+    while( diagBlock < Min(state.endBlock,state.numWinBlocks-1) )
     {
-        const Int thisBlockHeight = 
-          ( diagBlock == 0 ? state.firstBlockSize : state.blockSize );
         const Int numBlockBulges =
-          ( diagBlock==state.activeBlockEnd-1 ?
+          ( diagBlock==state.endBlock-1 ?
             state.numBulgesInLastBlock :
             state.numBulgesPerBlock );
 
@@ -158,12 +168,12 @@ void LocalChase
             const Int localColOffset = H.LocalColOffset( diagOffset );
             auto HBlockLoc = 
               HLoc
-              ( IR(0,thisBlockHeight)+localRowOffset,
-                IR(0,thisBlockHeight)+localColOffset );
+              ( IR(0,state.blockSize)+localRowOffset,
+                IR(0,state.blockSize)+localColOffset );
 
             // View the local shifts for this diagonal block
             const Int bulgeOffset = state.bulgeBeg +
-              state.numBulgesPerBlock*(diagBlock-state.activeBlockBeg);
+              state.numBulgesPerBlock*(diagBlock-intraBlockStart);
             auto packetShifts =
               shiftsLoc( IR(0,2*numBlockBulges)+(2*bulgeOffset), ALL );
 
@@ -182,18 +192,18 @@ void LocalChase
             //     -----------           -----------
             //
             auto& UBlock = UList[localDiagBlock];
-            Identity( UBlock, thisBlockHeight-2, thisBlockHeight-2 );
+            Identity( UBlock, state.blockSize-2, state.blockSize-2 );
 
             // Perform the diagonal block sweep and accumulate the
             // reflections in UBlock. The number of diagonal entries spanned
             // by numBlockBulges bulges is 1 + 3 numBlockBulges, so the number
-            // of steps is thisBlockHeight - (1 + 3*numBlockBulges).
-            const Int numSteps = thisBlockHeight - (1 + 3*numBlockBulges);
+            // of steps is blockSize - (1 + 3*numBlockBulges).
+            const Int numSteps = state.blockSize - (1 + 3*numBlockBulges);
             const Int blockWinBeg = 0;
-            const Int blockWinEnd = thisBlockHeight;
+            const Int blockWinEnd = state.blockSize;
             const Int chaseBeg = 0;
             const Int transformRowBeg = 0;
-            const Int transformColEnd = thisBlockHeight;
+            const Int transformColEnd = state.blockSize;
             const bool wantSchurVecsSub = false;
             const bool accumulateSub = true;
             const Int firstBulge = 0;
@@ -234,6 +244,12 @@ void ApplyAccumulatedReflections
     auto& HLoc = H.Matrix();
     auto& ZLoc = Z.Matrix();
 
+    // Packets are originally pushed directly into the second block if the first
+    // is not full.
+    const Int intraBlockStart = 
+      ( state.firstBlockSize == state.blockSize ?
+        state.introBlock+1 : Max(state.introBlock+1,1) );
+
     // Broadcast/Allgather the accumulated reflections within rows
     if( immediatelyApply )
     {
@@ -242,19 +258,25 @@ void ApplyAccumulatedReflections
 
         // Only loop over the row blocks assigned to this grid row
         Int diagBlockRow = state.activeRowBlockBeg;
-        Int localDiagBlock = 0;
-        while( diagBlockRow < state.activeBlockEnd )
-        {
-            const Int thisBlockHeight = 
-              ( diagBlockRow == 0 ?
-                state.firstBlockSize : state.blockSize );
+        while( diagBlockRow < intraBlockStart )
+            diagBlockRow += grid.Height();
 
+        Int localDiagBlock = 0;
+        while( diagBlockRow < Min(state.endBlock,state.numWinBlocks-1) )
+        {
             const int ownerCol =
               Mod( state.winRowAlign+diagBlockRow, grid.Width() );
             if( ownerCol == grid.Col() )
+            {
                 UBlock = UList[localDiagBlock++];
+            }
             else
-                Zeros( UBlock, thisBlockHeight, thisBlockHeight );
+                Zeros( UBlock, state.blockSize-2, state.blockSize-2 );
+            if( UBlock.Height() != state.blockSize-2 ||
+                UBlock.Width() != state.blockSize-2 )
+                LogicError
+                ("UBlock was ",UBlock.Height()," x ",UBlock.Width(),
+                 " instead of ",state.blockSize-2," x ",state.blockSize-2);
             El::Broadcast( UBlock, H.RowComm(), ownerCol );
             
             // TODO(poulson): Move into subroutine
@@ -263,10 +285,11 @@ void ApplyAccumulatedReflections
                 0 :
                 state.firstBlockSize + (diagBlockRow-1)*state.blockSize );
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
-            const Int localColOffset = H.LocalColOffset( diagOffset );
-            const auto applyRowInd = IR(1,thisBlockHeight-1) + localRowOffset;
+            const Int localColOffset =
+              H.LocalColOffset( diagOffset+state.blockSize );
+            const auto applyRowInd = IR(1,state.blockSize-1) + localRowOffset;
             const auto applyColInd =
-              IR(localColOffset+thisBlockHeight,state.localTransformColEnd);
+              IR(localColOffset,state.localTransformColEnd);
 
             auto HLocRight = HLoc( applyRowInd, applyColInd );
             tempMatrix = HLocRight;
@@ -289,19 +312,25 @@ void ApplyAccumulatedReflections
 
         // Only loop over the row blocks assigned to this grid row
         Int diagBlockCol = state.activeColBlockBeg;
-        Int localDiagBlock = 0;
-        while( diagBlockCol < state.activeBlockEnd )
-        {
-            const Int thisBlockHeight = 
-              ( diagBlockCol == 0 ?
-                state.firstBlockSize : state.blockSize );
+        while( diagBlockCol < intraBlockStart )
+            diagBlockCol += grid.Width();
 
+        Int localDiagBlock = 0;
+        while( diagBlockCol < Min(state.endBlock,state.numWinBlocks-1) )
+        {
             const int ownerRow =
               Mod( state.winColAlign+diagBlockCol, grid.Height() );
             if( ownerRow == grid.Row() )
+            {
                 UBlock = UList[localDiagBlock++];
+            }
             else
-                Zeros( UBlock, thisBlockHeight, thisBlockHeight );
+                Zeros( UBlock, state.blockSize-2, state.blockSize-2 );
+            if( UBlock.Height() != state.blockSize-2 ||
+                UBlock.Width() != state.blockSize-2 )
+                LogicError
+                ("UBlock was ",UBlock.Height()," x ",UBlock.Width(),
+                 " instead of ",state.blockSize-2," x ",state.blockSize-2);
             El::Broadcast( UBlock, H.ColComm(), ownerRow );
 
             // TODO(poulson): Move into subroutine
@@ -313,7 +342,7 @@ void ApplyAccumulatedReflections
             const Int localColOffset = H.LocalColOffset( diagOffset );
             const auto applyRowInd =
               IR(state.localTransformRowBeg,localRowOffset);
-            const auto applyColInd = IR(1,thisBlockHeight-1) + localColOffset;
+            const auto applyColInd = IR(1,state.blockSize-1) + localColOffset;
 
             auto HLocAbove = HLoc( applyRowInd, applyColInd );
             tempMatrix = HLocAbove;

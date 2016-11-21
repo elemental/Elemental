@@ -1,22 +1,19 @@
 /*
-   Copyright 2009-2011, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
-   Copyright 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright 2013-2014, Jack Poulson and The Georgia Institute of Technology.
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
    All rights reserved.
 
-   Copyright 2014-2015, Jack Poulson and Stanford University.
-   All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_FACTOR_LDL_SPARSE_NUMERIC_HPP
@@ -127,7 +124,7 @@ struct DistMultiVecNodeMeta
 // of the elimination tree
 template<typename T>
 struct DistMultiVecNode
-{   
+{
     DistMatrix<T,VC,STAR> matrix;
     DistMatrix<T,VC,STAR> work;
 
@@ -135,7 +132,7 @@ struct DistMultiVecNode
     DistMultiVecNode<T>* child;
     MatrixNode<T>* duplicate;
 
-    mutable MultiVecCommMeta commMeta; 
+    mutable MultiVecCommMeta commMeta;
 
     DistMultiVecNode( DistMultiVecNode<T>* parentNode=nullptr );
 
@@ -197,7 +194,7 @@ struct DistMatrixNode
     DistMatrixNode<T>* child;
     MatrixNode<T>* duplicate;
 
-    mutable MatrixCommMeta commMeta; 
+    mutable MatrixCommMeta commMeta;
 
     DistMatrixNode( DistMatrixNode<T>* parentNode=nullptr );
 
@@ -261,17 +258,17 @@ struct Front
 
     void Pull
     ( const SparseMatrix<F>& A,
-      const vector<Int>& reordering, 
+      const vector<Int>& reordering,
       const NodeInfo& rootInfo,
       bool conjugate=true );
     void PullUpdate
     ( const SparseMatrix<F>& A,
-      const vector<Int>& reordering, 
+      const vector<Int>& reordering,
       const NodeInfo& rootInfo );
 
     void Push
     (       SparseMatrix<F>& A,
-      const vector<Int>& reordering, 
+      const vector<Int>& reordering,
       const NodeInfo& rootInfo ) const;
 
     void Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const;
@@ -313,7 +310,7 @@ struct DistFront
     // Split each front into a left and right piece such that the right piece
     // is not needed after the factorization (and can be freed).
 
-    // When this node is a duplicate of a sequential node, L1D or L2D will be 
+    // When this node is a duplicate of a sequential node, L1D or L2D will be
     // attached to the sequential L matrix of the duplicate
 
     DistMatrix<F,VC,STAR> L1D;
@@ -375,11 +372,11 @@ struct DistFront
 
     // NOTE: This routine is not yet functioning
     void Push
-    ( DistSparseMatrix<F>& A, const DistMap& reordering, 
+    ( DistSparseMatrix<F>& A, const DistMap& reordering,
       const DistSeparator& rootSep, const DistNodeInfo& rootInfo ) const;
 
     void Unpack
-    ( DistSparseMatrix<F>& A, 
+    ( DistSparseMatrix<F>& A,
       const DistSeparator& rootSep, const DistNodeInfo& rootInfo ) const;
 
     const DistFront<F>& operator=( const DistFront<F>& front );

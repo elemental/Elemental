@@ -43,9 +43,9 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
         const Int numEntries = info.LOffsets.back();
         const Int numSources = info.LOffsets.size()-1;
 
-        // TODO: Add support for pivoting here
+        // TODO(poulson): Add support for pivoting here
         if( PivotedFactorization(factorType) )
-            Zeros( front.subdiag, n-1, 1 );
+            Zeros( front.subdiag, Max(n-1,0), 1 );
 
         Zeros( front.LSparse, numSources, numSources );
         front.LSparse.ForceNumEntries( numEntries );

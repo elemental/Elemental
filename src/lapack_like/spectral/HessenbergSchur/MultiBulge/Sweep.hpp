@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_HPP
@@ -12,8 +12,6 @@
 #include "./PairShifts.hpp"
 #include "./Sweep/ComputeReflectors.hpp"
 #include "./Sweep/ApplyReflectors.hpp"
-
-// This is not yet functional but is included for testing reasons
 #include "./Sweep/Dist.hpp"
 
 namespace El {
@@ -37,13 +35,13 @@ void SweepHelper
     DEBUG_ONLY(
       if( winEnd-winBeg < 4 )
           LogicError
-          ("multibulge::Sweep shouldn't be called for window sizes < 4"); 
+          ("multibulge::Sweep shouldn't be called for window sizes < 4");
     )
 
     const Int numShifts = shifts.Height();
     DEBUG_ONLY(
       if( numShifts < 2 )
-          LogicError("Expected at least one pair of shifts..."); 
+          LogicError("Expected at least one pair of shifts...");
       if( numShifts % 2 != 0 )
           LogicError("Expected an even number of shifts");
     )
@@ -66,11 +64,11 @@ void SweepHelper
     // Initialize with the last bulge about to be introduced in the upper-left
     const Int sweepBeg = (winBeg-1) - 3*(numBulges-1);
 
-    // The last bulge must be at least 3x3 in order to involve a 2x2 
+    // The last bulge must be at least 3x3 in order to involve a 2x2
     // reflection, so it must start before winEnd-2
     const Int sweepEnd = winEnd-2;
 
-    // Each chase of a packet involves shifting the first bulge one 
+    // Each chase of a packet involves shifting the first bulge one
     // column right of the starting position of the last bulge. This involves
     // shifting every bulge right 3*(numBulges-1) + 1 columns.
     const Int chaseStride = 3*(numBulges-1) + 1;
@@ -82,7 +80,7 @@ void SweepHelper
 
     DEBUG_ONLY(
       if( H(winBeg+2,winBeg) != F(0) )
-          LogicError("H was not upper Hessenberg"); 
+          LogicError("H was not upper Hessenberg");
     )
     for( Int chaseBeg=sweepBeg; chaseBeg<sweepEnd; chaseBeg+=chaseStride )
     {
@@ -90,7 +88,26 @@ void SweepHelper
         const Int slabEnd = Min( chaseBeg+maxSlabSize, winEnd );
         const Int slabSize = slabEnd - slabBeg;
         if( ctrl.accumulateReflections )
+        {
+            // The Householder transformations do not effect the first index
             Identity( U, slabSize-1, slabSize-1 );
+        }
+
+        Int innerTransformRowBeg;
+        if( ctrl.accumulateReflections )
+            innerTransformRowBeg = Max( winBeg, chaseBeg );
+        else if( ctrl.fullTriangle )
+            innerTransformRowBeg = 0;
+        else
+            innerTransformRowBeg = winBeg;
+
+        Int innerTransformColEnd;
+        if( ctrl.accumulateReflections )
+            innerTransformColEnd = slabEnd;
+        else if( ctrl.fullTriangle )
+            innerTransformColEnd = n;
+        else
+            innerTransformColEnd = winEnd;
 
         const Int packetEnd = Min(chaseBeg+chaseStride,sweepEnd);
         for( Int packetBeg=chaseBeg; packetBeg<packetEnd; ++packetBeg )
@@ -103,25 +120,10 @@ void SweepHelper
             ( H, winBeg, winEnd, shifts, W, packetBeg, firstBulge,
               numStepBulges, ctrl.progress );
 
-            Int transformBeg;
-            if( ctrl.accumulateReflections )
-                transformBeg = Max( winBeg, chaseBeg );
-            else if( ctrl.fullTriangle )
-                transformBeg = 0;
-            else
-                transformBeg = winBeg;
-
-            Int transformEnd;
-            if( ctrl.accumulateReflections )
-                transformEnd = slabEnd;
-            else if( ctrl.fullTriangle )
-                transformEnd = n;
-            else
-                transformEnd = winEnd;
-
             ApplyReflectorsOpt
             ( H, winBeg, winEnd,
-              chaseBeg, packetBeg, transformBeg, transformEnd,
+              chaseBeg, packetBeg,
+              innerTransformRowBeg, innerTransformColEnd,
               Z, ctrl.wantSchurVecs, U, W,
               firstBulge, numStepBulges, ctrl.accumulateReflections,
               ctrl.progress );
@@ -166,8 +168,11 @@ void SweepHelper
 {
     DEBUG_CSE
     // TODO(poulson): Check that H is upper Hessenberg
-
-    auto state = BuildDistChaseState( H, shifts, ctrl ); 
+    DEBUG_ONLY(
+      if( H.Height() < 2*H.BlockHeight() )
+          LogicError("H spans less than two full blocks");
+    )
+    auto state = BuildDistChaseState( H, shifts, ctrl );
 
     while( state.bulgeEnd != 0 )
     {
@@ -179,7 +184,7 @@ void SweepHelper
         // to the top-left corners of the even parity blocks
         InterBlockChase( H, Z, shifts, false, state, ctrl );
 
-        // Chase the packets from the top-left corners to the bottom-right 
+        // Chase the packets from the top-left corners to the bottom-right
         // corners of each diagonal block.
         IntraBlockChase( H, Z, shifts, state, ctrl );
 
@@ -203,7 +208,7 @@ void Sweep
     const Int numShifts = shifts.Height();
     DEBUG_ONLY(
       if( numShifts < 2 )
-          LogicError("Expected at least one pair of shifts..."); 
+          LogicError("Expected at least one pair of shifts...");
     )
     if( numShifts % 2 != 0 )
         LogicError("Expected an even number of shifts");
@@ -230,19 +235,21 @@ void Sweep
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    if( ctrl.wantSchurVecs )
-    {
-        // Ensure that H and Z have the same distributions
-        if( Z.DistData() != H.DistData() )
-            LogicError("The distributions of H and Z should match");
-    }
+    DEBUG_ONLY(
+      if( ctrl.wantSchurVecs && Z.DistData() != H.DistData() )
+          LogicError("The distributions of H and Z should match");
+    )
     // TODO(poulson): Check that H is upper Hessenberg
     const Int n = H.Height();
+    DEBUG_ONLY(
+      if( n < 2*H.BlockHeight() )
+          LogicError("H spans less than two full blocks");
+    )
 
     const Int numShifts = shifts.Height();
     DEBUG_ONLY(
       if( numShifts < 2 )
-          LogicError("Expected at least one pair of shifts..."); 
+          LogicError("Expected at least one pair of shifts...");
     )
     if( numShifts % 2 != 0 )
         LogicError("Expected an even number of shifts");

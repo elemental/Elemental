@@ -15,6 +15,13 @@ using El::dcomplex;
 
 extern "C" {
 
+// The following routines seem to not be defined by the shared library on Mac OS X.
+// Further, there appear to be open bugs with OpenBLAS's imatcopy:
+// https://github.com/xianyi/OpenBLAS/issues/899
+//
+// For these reasons, these functions are being temporarily disabled.
+//
+/*
 void EL_BLAS(somatcopy)
 ( const char* ordering, const char* trans,
   const BlasInt* rows, const BlasInt* cols, 
@@ -52,12 +59,14 @@ void EL_BLAS(zimatcopy)
 ( const char* ordering, const char* trans,
   const BlasInt* rows, const BlasInt* cols, 
   const dcomplex* alpha, dcomplex* A, const BlasInt* lda, const BlasInt* ldb );
+*/
 
 } // extern "C"
 
 namespace El {
 namespace openblas {
 
+/*
 void omatcopy
 ( Orientation orientation, BlasInt m, BlasInt n,
   float alpha, const float* A, BlasInt lda,
@@ -149,6 +158,7 @@ void imatcopy
     char trans = OrientationToChar( orientation );
     EL_BLAS(zimatcopy)( &ordering, &trans, &m, &n, &alpha, A, &lda, &ldb );
 }
+*/
 
 } // namespace openblas
 } // namespace El

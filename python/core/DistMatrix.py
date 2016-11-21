@@ -16,8 +16,12 @@ import Grid as G
 class DistData(ctypes.Structure):
   _fields_ = [('colDist',c_uint),
               ('rowDist',c_uint), 
+              ('blockHeight',iType),
+              ('blockWidth',iType),
               ('colAlign',c_int),
               ('rowAlign',c_int),
+              ('colCut',iType),
+              ('rowCut',iType),
               ('root',c_int),
               ('grid',c_void_p)]
 

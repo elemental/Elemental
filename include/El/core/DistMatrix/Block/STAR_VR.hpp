@@ -117,8 +117,6 @@ public:
 
     // Basic queries
     // =============
-    El::DistData DistData() const override;
-
     Dist ColDist()             const override EL_NO_EXCEPT;
     Dist RowDist()             const override EL_NO_EXCEPT;
     Dist PartialColDist()      const override EL_NO_EXCEPT;

@@ -110,6 +110,7 @@ typedef struct {
   ElInt maxIterPerEig;
   bool demandConverged;
   bool fullAccuracyTwoByTwo;
+  bool broadcast;
 } ElHermitianTridiagEigQRCtrl;
 EL_EXPORT ElError ElHermitianTridiagEigQRCtrlDefault
 ( ElHermitianTridiagEigQRCtrl* ctrl );
@@ -610,6 +611,7 @@ typedef struct {
   bool progress;
 
   ElInt minMultiBulgeSize;
+  ElInt minDistMultiBulgeSize;
   
   ElInt (*numShifts)(ElInt,ElInt);
   ElInt (*deflationSize)(ElInt,ElInt,ElInt);
@@ -749,6 +751,7 @@ typedef struct {
   bool looseMinSingValEst;
   bool useFLAME;
   bool useLAPACK;
+  bool broadcast;
 } ElBidiagSVDQRCtrl;
 EL_EXPORT ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl );
 

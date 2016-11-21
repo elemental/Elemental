@@ -114,7 +114,6 @@ public:
     // Basic queries
     // =============
     DistWrap Wrap() const override EL_NO_EXCEPT { return ELEMENT; }
-    virtual ElementalData DistData() const = 0;
 
     Int BlockHeight() const override EL_NO_EXCEPT { return 1; }
     Int BlockWidth()  const override EL_NO_EXCEPT { return 1; }

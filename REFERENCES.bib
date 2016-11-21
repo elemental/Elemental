@@ -273,8 +273,10 @@ reordering eigenvalues in Schur form
   year=2009
 }
 
-The first major publication for the parallel QR algorithm with 
-Aggressive Early Deflation and computational windows
+The following two publications of Granat et al. led to the ScaLAPACK
+implementation of the Hessenberg QR algorithm via intra and inter-block packet
+chases that Elemental's implementation loosely mirrors.
+
 @article{GranatKagstromKressner-2010,
   author={Robert Granat and Bo Kagstrom and Daniel Kressner},
   title={A novel parallel QR algorithm for hybrid distributed memory HPC 
@@ -284,6 +286,17 @@ Aggressive Early Deflation and computational windows
   number=4,
   pages={2345--2378},
   year=2010
+}
+
+@article{GranatKagstromKressnerShao-2015,
+  author={Robert Granat and Bo Kagstrom and Daniel Kressner and Meiyue Shao},
+  title={Parallel library software for the multishift {QR} algorithm with
+         {A}ggressive {E}arly {D}eflation},
+  journal={ACM Transactions on Mathematical Software},
+  volume=41,
+  number=4,
+  pages={1--29},
+  year=2015
 }
 
 Pivoted QR

@@ -12,7 +12,6 @@
 namespace El {
 
 struct DistData;
-struct ElementalData;
 
 template<typename scalarType> 
 class AbstractDistMatrix
@@ -148,15 +147,16 @@ public:
     virtual int CrossRank()           const EL_NO_RELEASE_EXCEPT = 0;
     virtual int RedundantRank()       const EL_NO_RELEASE_EXCEPT = 0;
 
-    virtual Dist     ColDist()             const EL_NO_EXCEPT = 0;
-    virtual Dist     RowDist()             const EL_NO_EXCEPT = 0;
-    virtual Dist     CollectedColDist()    const EL_NO_EXCEPT = 0;
-    virtual Dist     CollectedRowDist()    const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialColDist()      const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialRowDist()      const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialUnionColDist() const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialUnionRowDist() const EL_NO_EXCEPT = 0;
-    virtual DistWrap Wrap()                const EL_NO_EXCEPT = 0;
+    virtual Dist         ColDist()             const EL_NO_EXCEPT = 0;
+    virtual Dist         RowDist()             const EL_NO_EXCEPT = 0;
+    virtual Dist         CollectedColDist()    const EL_NO_EXCEPT = 0;
+    virtual Dist         CollectedRowDist()    const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialColDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialRowDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialUnionColDist() const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialUnionRowDist() const EL_NO_EXCEPT = 0;
+    virtual DistWrap     Wrap()                const EL_NO_EXCEPT = 0;
+            El::DistData DistData()            const EL_NO_EXCEPT;
 
     virtual mpi::Comm ColComm()             const EL_NO_EXCEPT = 0;
     virtual mpi::Comm RowComm()             const EL_NO_EXCEPT = 0;
@@ -349,32 +349,6 @@ private:
     template<typename S> friend class BlockMatrix;
 };
 
-struct ElementalData
-{
-    Dist colDist, rowDist;
-    int colAlign, rowAlign;
-    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
-    const Grid* grid;
-
-    ElementalData() { }
-
-    template<typename scalarType>
-    ElementalData( const ElementalMatrix<scalarType>& A )
-    : colDist(A.ColDist()), rowDist(A.RowDist()),
-      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
-      root(A.Root()), grid(&A.Grid())
-    { }
-};
-inline bool operator==( const ElementalData& A, const ElementalData& B )
-{ return A.colDist  == B.colDist &&
-         A.rowDist  == B.rowDist &&
-         A.colAlign == B.colAlign &&
-         A.rowAlign == B.rowAlign &&
-         A.root     == B.root &&
-         A.grid     == B.grid; }
-inline bool operator!=( const ElementalData& A, const ElementalData& B )
-{ return !(A == B); }
-
 struct DistData
 {
     Dist colDist, rowDist;
@@ -385,14 +359,6 @@ struct DistData
     const Grid* grid;
 
     DistData() { }
-
-    DistData( const ElementalData& data )
-    : colDist(data.colDist), rowDist(data.rowDist),
-      blockHeight(1), blockWidth(1),
-      colAlign(data.colAlign), rowAlign(data.rowAlign),
-      colCut(0), rowCut(0),
-      root(data.root), grid(data.grid)
-    { }
 
     template<typename scalarType>
     DistData( const AbstractDistMatrix<scalarType>& A )
@@ -410,6 +376,8 @@ inline bool operator==( const DistData& A, const DistData& B )
          A.blockWidth  == B.blockWidth &&
          A.colAlign    == B.colAlign &&
          A.rowAlign    == B.rowAlign &&
+         A.colCut      == B.colCut &&
+         A.rowCut      == B.rowCut &&
          A.root        == B.root &&
          A.grid        == B.grid; }
 inline bool operator!=( const DistData& A, const DistData& B )

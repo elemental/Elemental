@@ -20,10 +20,12 @@ extern "C" {
 typedef struct 
 {
     ElDist colDist, rowDist;
+    ElInt blockHeight, blockWidth;
     int colAlign, rowAlign;
+    ElInt colCut, rowCut;
     int root;
     ElConstGrid grid;
-} ElElementalData;
+} ElDistData;
 
 /* An anonymous struct meant as a placeholder for ElementalMatrix<T>
    ----------------------------------------------------------------- */
@@ -209,43 +211,43 @@ EL_EXPORT ElError ElDistMatrixSetRoot_z
    ( const DistData& data, bool constrain )
    ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlignWith_i
-( ElDistMatrix_i A, ElElementalData distData, bool constrain );
+( ElDistMatrix_i A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_s
-( ElDistMatrix_s A, ElElementalData distData, bool constrain );
+( ElDistMatrix_s A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_d
-( ElDistMatrix_d A, ElElementalData distData, bool constrain );
+( ElDistMatrix_d A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_c
-( ElDistMatrix_c A, ElElementalData distData, bool constrain );
+( ElDistMatrix_c A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignWith_z
-( ElDistMatrix_z A, ElElementalData distData, bool constrain );
+( ElDistMatrix_z A, ElDistData distData, bool constrain );
 
 /* void ElementalMatrix<T>::AlignColsWith
    ( const DistData& data, bool constrain )
    ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlignColsWith_i
-( ElDistMatrix_i A, ElElementalData distData, bool constrain );
+( ElDistMatrix_i A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_s
-( ElDistMatrix_s A, ElElementalData distData, bool constrain );
+( ElDistMatrix_s A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_d
-( ElDistMatrix_d A, ElElementalData distData, bool constrain );
+( ElDistMatrix_d A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_c
-( ElDistMatrix_c A, ElElementalData distData, bool constrain );
+( ElDistMatrix_c A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignColsWith_z
-( ElDistMatrix_z A, ElElementalData distData, bool constrain );
+( ElDistMatrix_z A, ElDistData distData, bool constrain );
 
 /* void ElementalMatrix<T>::AlignRowsWith
    ( const DistData& data, bool constrain )
    ---------------------------------------- */
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_i
-( ElDistMatrix_i A, ElElementalData distData, bool constrain );
+( ElDistMatrix_i A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_s
-( ElDistMatrix_s A, ElElementalData distData, bool constrain );
+( ElDistMatrix_s A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_d
-( ElDistMatrix_d A, ElElementalData distData, bool constrain );
+( ElDistMatrix_d A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_c
-( ElDistMatrix_c A, ElElementalData distData, bool constrain );
+( ElDistMatrix_c A, ElDistData distData, bool constrain );
 EL_EXPORT ElError ElDistMatrixAlignRowsWith_z
-( ElDistMatrix_z A, ElElementalData distData, bool constrain );
+( ElDistMatrix_z A, ElDistData distData, bool constrain );
 
 /* void ElementalMatrix<T>::AlignAndResize
   ( int colAlign, int rowAlign, Int height, Int width, 
@@ -880,15 +882,15 @@ EL_EXPORT ElError ElDistMatrixIsLocal_z
 /* DistData ElementalMatrix<T>::DistData() const
    --------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDistData_i
-( ElConstDistMatrix_i A, ElElementalData* distData );
+( ElConstDistMatrix_i A, ElDistData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_s
-( ElConstDistMatrix_s A, ElElementalData* distData );
+( ElConstDistMatrix_s A, ElDistData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_d
-( ElConstDistMatrix_d A, ElElementalData* distData );
+( ElConstDistMatrix_d A, ElDistData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_c
-( ElConstDistMatrix_c A, ElElementalData* distData );
+( ElConstDistMatrix_c A, ElDistData* distData );
 EL_EXPORT ElError ElDistMatrixDistData_z
-( ElConstDistMatrix_z A, ElElementalData* distData );
+( ElConstDistMatrix_z A, ElDistData* distData );
 
 /* mpi::Comm AbstractDistMatrix<T>::DistComm() const
    ------------------------------------------------- */
@@ -1377,20 +1379,15 @@ EL_EXPORT ElError ElDistMatrixUpdateLocalImagPart_z
    ( const DistData& data, Int offset ) const
    -------------------------------------------- */
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_i
-( ElConstDistMatrix_i A, ElElementalData distData, ElInt offset,
-  bool* aligned );
+( ElConstDistMatrix_i A, ElDistData distData, ElInt offset, bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_s
-( ElConstDistMatrix_s A, ElElementalData distData, ElInt offset,
-  bool* aligned );
+( ElConstDistMatrix_s A, ElDistData distData, ElInt offset, bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_d
-( ElConstDistMatrix_d A, ElElementalData distData, ElInt offset,
-  bool* aligned );
+( ElConstDistMatrix_d A, ElDistData distData, ElInt offset, bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_c
-( ElConstDistMatrix_c A, ElElementalData distData, ElInt offset,
-  bool* aligned );
+( ElConstDistMatrix_c A, ElDistData distData, ElInt offset, bool* aligned );
 EL_EXPORT ElError ElDistMatrixDiagonalAlignedWith_z
-( ElConstDistMatrix_z A, ElElementalData distData, ElInt offset,
-  bool* aligned );
+( ElConstDistMatrix_z A, ElDistData distData, ElInt offset, bool* aligned );
 
 /* int ElementalMatrix<T>::DiagonalRoot( Int offset ) const
    -------------------------------------------------------- */

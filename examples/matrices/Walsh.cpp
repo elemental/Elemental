@@ -18,8 +18,8 @@ main( int argc, char* argv[] )
     {
         const Int k = Input("--order","generate 2^k x 2^k matrix",4);
         const bool binary = Input("--binary","binary data?",false);
-        const bool display = Input("--display","display matrix?",true);
-        const bool print = Input("--print","print matrix?",false);
+        const bool display = Input("--display","display matrix?",false);
+        const bool print = Input("--print","print matrix?",true);
         ProcessInput();
         PrintInputReport();
 

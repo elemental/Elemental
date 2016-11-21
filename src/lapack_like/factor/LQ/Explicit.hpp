@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LQ_EXPLICIT_HPP
@@ -28,7 +28,7 @@ void ExplicitTriang( Matrix<F>& A )
 }
 
 template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A )
+void ExplicitTriang( AbstractDistMatrix<F>& A )
 {
     DEBUG_CSE
     const Grid& g = A.Grid();
@@ -59,7 +59,7 @@ void ExplicitUnitary( Matrix<F>& A )
 }
 
 template<typename F>
-void ExplicitUnitary( ElementalMatrix<F>& APre )
+void ExplicitUnitary( AbstractDistMatrix<F>& APre )
 {
     DEBUG_CSE
     const Grid& g = APre.Grid();
@@ -102,7 +102,7 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
 }
 
 template<typename F>
-void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& APre )
+void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
 {
     DEBUG_CSE
     const Grid& g = APre.Grid();

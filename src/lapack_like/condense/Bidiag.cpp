@@ -9,8 +9,8 @@
 #include <El.hpp>
 
 #include "./Bidiag/Apply.hpp"
-#include "./Bidiag/L.hpp"
-#include "./Bidiag/U.hpp"
+#include "./Bidiag/LowerBlocked.hpp"
+#include "./Bidiag/UpperBlocked.hpp"
 
 namespace El {
 
@@ -22,9 +22,9 @@ void Bidiag
 {
     DEBUG_CSE
     if( A.Height() >= A.Width() )
-        bidiag::U( A, householderScalarsP, householderScalarsQ );
+        bidiag::UpperBlocked( A, householderScalarsP, householderScalarsQ );
     else
-        bidiag::L( A, householderScalarsP, householderScalarsQ );
+        bidiag::LowerBlocked( A, householderScalarsP, householderScalarsQ );
 }
 
 template<typename F> 
@@ -35,9 +35,9 @@ void Bidiag
 {
     DEBUG_CSE
     if( A.Height() >= A.Width() )
-        bidiag::U( A, householderScalarsP, householderScalarsQ );
+        bidiag::UpperBlocked( A, householderScalarsP, householderScalarsQ );
     else
-        bidiag::L( A, householderScalarsP, householderScalarsQ );
+        bidiag::LowerBlocked( A, householderScalarsP, householderScalarsQ );
 }
 
 namespace bidiag {

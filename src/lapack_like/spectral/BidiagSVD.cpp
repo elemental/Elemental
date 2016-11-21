@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -83,14 +83,14 @@ void PrepareBidiagonal
         {
             // Rotate into lower bidiagonal form via Givens from the right to
             // expose [0,0,...,1] as a member of the null space. The reduction
-            // occurs in two phases: 
+            // occurs in two phases:
             //
             //   | x x       | |-> | x         | ... | x         |,
             //   |   x x     |     | x x x     |     | x x       |
             //   |     x x   |     |     x x   |     |   x x     |
             //   |       x x |     |       x x |     |     x x x |
             //
-            // followed by another single Givens rotation from the right to 
+            // followed by another single Givens rotation from the right to
             // rotate the bottom-right entry into the entry to its left.
             if( ctrl.wantV )
             {
@@ -140,7 +140,7 @@ void PrepareBidiagonal
                 ( RIGHT, VARIABLE_GIVENS_SEQUENCE, FORWARD,
                   cDeflateList, sDeflateList, V );
             }
-            
+
             newUplo = LOWER;
         }
         else
@@ -192,7 +192,7 @@ void PrepareBidiagonal
         if( ctrl.wantU && ctrl.accumulateU )
         {
             ApplyGivensSequence
-            ( RIGHT, VARIABLE_GIVENS_SEQUENCE, FORWARD, 
+            ( RIGHT, VARIABLE_GIVENS_SEQUENCE, FORWARD,
               cFlipList, sFlipList, U );
         }
     }
@@ -249,7 +249,7 @@ Helper
     }
     else if( uplo == LOWER )
     {
-        // We were non-square and lower bidiagonal. 
+        // We were non-square and lower bidiagonal.
         auto offDiag0 = offDiag( IR(0,n-1), ALL );
         s = mainDiag;
         info.qrInfo = bidiag_svd::QRAlg( s, offDiag0, ctrl );
@@ -257,7 +257,7 @@ Helper
     }
     else
     {
-        // We were non-square and upper bidiagonal. 
+        // We were non-square and upper bidiagonal.
         auto offDiag0 = offDiag( IR(0,m-1), ALL );
         s = mainDiag;
         info.qrInfo = bidiag_svd::QRAlg( s, offDiag0, ctrl );
@@ -276,9 +276,9 @@ Helper
         {
             if( s(i) <= Real(0) )
             {
-                rank = i; 
+                rank = i;
                 break;
-            } 
+            }
         }
         s.Resize( rank, 1 );
     }
@@ -292,6 +292,51 @@ Helper
     }
 
     return info;
+}
+
+// TODO(poulson): Lift these routines up somewhere else?
+void AllocatePackedQRInfo( vector<Int>& packedQRInfo )
+{
+    DEBUG_CSE
+    packedQRInfo.resize( 11 );
+}
+
+void PackQRInfo( const bidiag_svd::QRInfo& qrInfo, vector<Int>& packedQRInfo )
+{
+    DEBUG_CSE
+    if( packedQRInfo.size() != 11 )
+        LogicError("Expected packedQRInfo to be of size 11");
+    Int offset = 0;
+    packedQRInfo[offset++] = qrInfo.numUnconverged;
+    packedQRInfo[offset++] = qrInfo.numIterations;
+    packedQRInfo[offset++] = qrInfo.numInnerLoops;
+    packedQRInfo[offset++] = qrInfo.numZeroShiftForwardIterations;
+    packedQRInfo[offset++] = qrInfo.numZeroShiftForwardInnerLoops;
+    packedQRInfo[offset++] = qrInfo.numZeroShiftBackwardIterations;
+    packedQRInfo[offset++] = qrInfo.numZeroShiftBackwardInnerLoops;
+    packedQRInfo[offset++] = qrInfo.numNonzeroShiftForwardIterations;
+    packedQRInfo[offset++] = qrInfo.numNonzeroShiftForwardInnerLoops;
+    packedQRInfo[offset++] = qrInfo.numNonzeroShiftBackwardIterations;
+    packedQRInfo[offset++] = qrInfo.numNonzeroShiftBackwardInnerLoops;
+}
+
+void UnpackQRInfo( const vector<Int>& packedQRInfo, bidiag_svd::QRInfo& qrInfo )
+{
+    DEBUG_CSE
+    if( packedQRInfo.size() != 11 )
+        LogicError("Expected packedQRInfo to be of size 11");
+    Int offset = 0;
+    qrInfo.numUnconverged = packedQRInfo[offset++];
+    qrInfo.numIterations = packedQRInfo[offset++];
+    qrInfo.numInnerLoops = packedQRInfo[offset++];
+    qrInfo.numZeroShiftForwardIterations = packedQRInfo[offset++];
+    qrInfo.numZeroShiftForwardInnerLoops = packedQRInfo[offset++];
+    qrInfo.numZeroShiftBackwardIterations = packedQRInfo[offset++];
+    qrInfo.numZeroShiftBackwardInnerLoops = packedQRInfo[offset++];
+    qrInfo.numNonzeroShiftForwardIterations = packedQRInfo[offset++];
+    qrInfo.numNonzeroShiftForwardInnerLoops = packedQRInfo[offset++];
+    qrInfo.numNonzeroShiftBackwardIterations = packedQRInfo[offset++];
+    qrInfo.numNonzeroShiftBackwardInnerLoops = packedQRInfo[offset++];
 }
 
 template<typename Real>
@@ -311,6 +356,8 @@ Helper
     const Int n = ( uplo==UPPER ? offDiag.Height()+1 : mainDiag.Height() );
     const Int minDim = Min(m,n);
     const bool square = ( m == n );
+    const Grid& grid = mainDiag.Grid();
+
     BidiagSVDInfo info;
     if( minDim == 0 )
     {
@@ -323,26 +370,90 @@ Helper
 
     if( square )
     {
-        s = mainDiag;
-        info.qrInfo = bidiag_svd::QRAlg( s.Matrix(), offDiag.Matrix(), ctrl );
-        Sort( s, DESCENDING );
+        if( ctrl.qrCtrl.broadcast )
+        {
+            vector<Int> packedQRInfo;
+            AllocatePackedQRInfo( packedQRInfo );
+            if( grid.VCRank() == 0 )
+            {
+                s = mainDiag;
+                info.qrInfo =
+                  bidiag_svd::QRAlg( s.Matrix(), offDiag.Matrix(), ctrl );
+                PackQRInfo( info.qrInfo, packedQRInfo );
+            }
+            s.Resize( minDim, 1 );
+            El::Broadcast( s.Matrix(), grid.VCComm(), 0 );
+            mpi::Broadcast
+            ( packedQRInfo.data(), packedQRInfo.size(), 0, grid.VCComm() );
+            UnpackQRInfo( packedQRInfo, info.qrInfo );
+        }
+        else
+        {
+            // Let's cross our fingers and ignore the forward instability
+            s = mainDiag;
+            info.qrInfo =
+              bidiag_svd::QRAlg( s.Matrix(), offDiag.Matrix(), ctrl );
+        }
     }
     else if( uplo == LOWER )
     {
-        // We were non-square and lower bidiagonal. 
+        // We were non-square and lower bidiagonal.
         auto offDiag0 = offDiag( IR(0,n-1), ALL );
-        s = mainDiag;
-        info.qrInfo = bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
-        Sort( s, DESCENDING );
+        if( ctrl.qrCtrl.broadcast )
+        {
+            vector<Int> packedQRInfo;
+            AllocatePackedQRInfo( packedQRInfo );
+            if( grid.VCRank() == 0 )
+            {
+                s = mainDiag;
+                info.qrInfo =
+                  bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
+                PackQRInfo( info.qrInfo, packedQRInfo );
+            }
+            s.Resize( minDim, 1 );
+            El::Broadcast( s.Matrix(), grid.VCComm(), 0 );
+            mpi::Broadcast
+            ( packedQRInfo.data(), packedQRInfo.size(), 0, grid.VCComm() );
+            UnpackQRInfo( packedQRInfo, info.qrInfo );
+        }
+        else
+        {
+            // Let's cross our fingers and ignore the forward instability
+            s = mainDiag;
+            info.qrInfo =
+              bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
+        }
     }
     else
     {
-        // We were non-square and upper bidiagonal. 
+        // We were non-square and upper bidiagonal.
         auto offDiag0 = offDiag( IR(0,m-1), ALL );
-        s = mainDiag;
-        info.qrInfo = bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
-        Sort( s, DESCENDING );
+        if( ctrl.qrCtrl.broadcast )
+        {
+            vector<Int> packedQRInfo;
+            AllocatePackedQRInfo( packedQRInfo );
+            if( grid.VCRank() == 0 )
+            {
+                s = mainDiag;
+                info.qrInfo =
+                  bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
+                PackQRInfo( info.qrInfo, packedQRInfo );
+            }
+            s.Resize( minDim, 1 );
+            El::Broadcast( s.Matrix(), grid.VCComm(), 0 );
+            mpi::Broadcast
+            ( packedQRInfo.data(), packedQRInfo.size(), 0, grid.VCComm() );
+            UnpackQRInfo( packedQRInfo, info.qrInfo );
+        }
+        else
+        {
+            // Let's cross our fingers and ignore the forward instability
+            s = mainDiag;
+            info.qrInfo =
+              bidiag_svd::QRAlg( s.Matrix(), offDiag0.Matrix(), ctrl );
+        }
     }
+    Sort( s, DESCENDING );
 
     if( ctrl.approach == THIN_SVD )
     {
@@ -357,9 +468,9 @@ Helper
         {
             if( sLoc(i) <= Real(0) )
             {
-                rank = i; 
+                rank = i;
                 break;
-            } 
+            }
         }
         s.Resize( rank, 1 );
     }
@@ -449,7 +560,7 @@ Helper
     for( Int iLoc=0; iLoc<mainDiagLocHeight; ++iLoc )
         mainDiagLoc(iLoc) = Abs(mainDiagLoc(iLoc));
     const Int offDiagLocHeight = offDiagLoc.Height();
-    for( Int iLoc=0; iLoc<offDiagLocHeight; ++iLoc ) 
+    for( Int iLoc=0; iLoc<offDiagLocHeight; ++iLoc )
         offDiagLoc(iLoc) = Abs(offDiagLoc(iLoc));
 
     DistMatrix<Real,STAR,STAR> mainDiagReal(g), offDiagReal(g);
@@ -537,9 +648,9 @@ Helper
         useDC = false;
     }
 
-    // TODO(poulson): Decide if accumulating into U/V is ever worthwhile for 
+    // TODO(poulson): Decide if accumulating into U/V is ever worthwhile for
     // performance reasons given that there should be O(n^2 k) to subsequently
-    // compose the original and output matrices, but O(n^3) with a significant 
+    // compose the original and output matrices, but O(n^3) with a significant
     // coefficient to directly accumulate.
 
     Matrix<Real> cDeflateList, sDeflateList;
@@ -588,7 +699,7 @@ Helper
         if( ctrlMod.wantU )
         {
             if( !ctrlMod.accumulateU )
-                Identity( U, m, m ); 
+                Identity( U, m, m );
             View( U0, U, ALL, IR(0,n) );
         }
 
@@ -659,10 +770,9 @@ Helper
         {
             if( s(i) <= Real(0) )
             {
-                rank = i; 
-                Output("rank=",rank);
+                rank = i;
                 break;
-            } 
+            }
         }
         s.Resize( rank, 1 );
         if( ctrlMod.wantU )
@@ -683,7 +793,7 @@ Helper
     // any unnecessary columns dropped.
     //
     // Recall that the application from the left involves the transpose
-    // formulation as the application from the right. In particular, 
+    // formulation as the application from the right. In particular,
     //
     //     |  c,  s | | x |
     //     | -s,  c | | y |
@@ -693,7 +803,7 @@ Helper
     //     | x, y | | c, -s |
     //              | s,  c |.
     //
-    // Thus, we need to negate s before the applications from the 
+    // Thus, we need to negate s before the applications from the
     // opposite side to cheaply effect the transpose.
     if( ctrlMod.wantU && !ctrlMod.accumulateU )
     {
@@ -702,10 +812,10 @@ Helper
             // Undo the flip from lower to upper bidiagonal.
             sFlipList *= Real(-1);
             ApplyGivensSequence
-            ( LEFT, VARIABLE_GIVENS_SEQUENCE, BACKWARD, 
+            ( LEFT, VARIABLE_GIVENS_SEQUENCE, BACKWARD,
               cFlipList, sFlipList, U );
         }
-        if( uplo == LOWER && !square ) 
+        if( uplo == LOWER && !square )
         {
             // TODO(poulson): Handle this after adding the original deflation
             LogicError("This case is not yet handled");
@@ -731,7 +841,7 @@ Helper
         {
             // U := UCopy U
             Matrix<Real> temp;
-            Gemm( NORMAL, NORMAL, Real(1), UCopy, U, temp ); 
+            Gemm( NORMAL, NORMAL, Real(1), UCopy, U, temp );
             U = temp;
         }
         if( ctrlMod.wantV && ctrlMod.accumulateV )
@@ -798,9 +908,9 @@ Helper
         useDC = false;
     }
 
-    // TODO(poulson): Decide if accumulating into U/V is ever worthwhile for 
+    // TODO(poulson): Decide if accumulating into U/V is ever worthwhile for
     // performance reasons given that there should be O(n^2 k) to subsequently
-    // compose the original and output matrices, but O(n^3) with a significant 
+    // compose the original and output matrices, but O(n^3) with a significant
     // coefficient to directly accumulate.
 
     Matrix<Real> cDeflateList, sDeflateList;
@@ -819,11 +929,28 @@ Helper
             VCopy = V;
     }
 
+    // As noted in
+    //
+    //   Beresford N. Parlett and Jian Le,
+    //   "Forward instability of Tridiagonal QR",
+    //   SIAM J. Matrix Anal. & Appl., 14(1), 279--316, 1991.
+    //
+    // [CITATION], the tridiagonal QR algorithm is not forward stable.
+    // Thus, small differences in the floating-point arithmetic on different
+    // processes could lead to substantial differences in the computed
+    // eigenvectors. While this is a reasonably well-known issue for the
+    // Hessenberg Schur decomposition, it seems to occur much less frequently
+    // for tridiagonal matrices. Thus, independently running the QR algorithm
+    // on each process and applying the reflections to different subsets of
+    // columns is dangerous (e.g., if extra-precision is only typically
+    // provided).
+    //
+
     if( square )
     {
         if( ctrlMod.useQR )
         {
-            // TODO(poulson): Move this logic into a distributed version of 
+            // TODO(poulson): Move this logic into a distributed version of
             // bidiag_svd::QRAlg since a distributed version of the D&C is
             // needed anyway.
             auto ctrlModQR( ctrlMod );
@@ -834,6 +961,10 @@ Helper
             if( ctrlMod.wantV && !ctrlMod.accumulateV )
                 Identity( V, n, n );
 
+            // WARNING: Forward instability can easily yield non-determinism
+            // and lead to the following trivial parallelization yielding
+            // nonsensical results. However, such an issue appears to be quite
+            // rare.
             s = mainDiag;
             info.qrInfo =
               bidiag_svd::QRAlg
@@ -874,7 +1005,7 @@ Helper
         if( ctrlMod.wantU )
         {
             if( !ctrlMod.accumulateU )
-                Identity( U, m, m ); 
+                Identity( U, m, m );
             View( U0, U, ALL, IR(0,n) );
         }
 
@@ -886,6 +1017,10 @@ Helper
             if( ctrlMod.wantV && !ctrlMod.accumulateV )
                 Identity( V, n, n );
 
+            // WARNING: Forward instability can easily yield non-determinism
+            // and lead to the following trivial parallelization yielding
+            // nonsensical results. However, such an issue appears to be quite
+            // rare.
             s = mainDiag;
             info.qrInfo =
               bidiag_svd::QRAlg
@@ -938,6 +1073,10 @@ Helper
             if( ctrlMod.wantU && !ctrlMod.accumulateU )
                 Identity( U, m, m );
 
+            // WARNING: Forward instability can easily yield non-determinism
+            // and lead to the following trivial parallelization yielding
+            // nonsensical results. However, such an issue appears to be quite
+            // rare.
             s = mainDiag;
             info.qrInfo =
               bidiag_svd::QRAlg
@@ -986,9 +1125,9 @@ Helper
         {
             if( sLoc(i) <= Real(0) )
             {
-                rank = i; 
+                rank = i;
                 break;
-            } 
+            }
         }
         s.Resize( rank, 1 );
         if( ctrlMod.wantU )
@@ -1009,7 +1148,7 @@ Helper
     // any unnecessary columns dropped.
     //
     // Recall that the application from the left involves the transpose
-    // formulation as the application from the right. In particular, 
+    // formulation as the application from the right. In particular,
     //
     //     |  c,  s | | x |
     //     | -s,  c | | y |
@@ -1019,7 +1158,7 @@ Helper
     //     | x, y | | c, -s |
     //              | s,  c |.
     //
-    // Thus, we need to negate s before the applications from the 
+    // Thus, we need to negate s before the applications from the
     // opposite side to cheaply effect the transpose.
     if( ctrlMod.wantU && !ctrlMod.accumulateU )
     {
@@ -1029,11 +1168,11 @@ Helper
             sFlipList *= Real(-1);
             DistMatrix<Real,STAR,VR> U_STAR_VR( U );
             ApplyGivensSequence
-            ( LEFT, VARIABLE_GIVENS_SEQUENCE, BACKWARD, 
+            ( LEFT, VARIABLE_GIVENS_SEQUENCE, BACKWARD,
               cFlipList, sFlipList, U_STAR_VR.Matrix() );
             U = U_STAR_VR;
         }
-        if( uplo == LOWER && !square ) 
+        if( uplo == LOWER && !square )
         {
             // TODO(poulson): Handle this after adding the original deflation
             LogicError("This case is not yet handled");
@@ -1061,7 +1200,7 @@ Helper
         {
             // U := UCopy U
             DistMatrix<Real> temp(g);
-            Gemm( NORMAL, NORMAL, Real(1), UCopy, U, temp ); 
+            Gemm( NORMAL, NORMAL, Real(1), UCopy, U, temp );
             U = temp;
         }
         if( ctrlMod.wantV && ctrlMod.accumulateV )
@@ -1305,7 +1444,7 @@ Helper
         F alphaNew, betaNew;
         if( uplo == UPPER )
         {
-            for( Int i=0; i<mainDiagHeight; ++i ) 
+            for( Int i=0; i<mainDiagHeight; ++i )
             {
                 alphaNew = mainDiag(i) / VPhase(i);
                 UPhase(i) = Phase( alphaNew, false );
@@ -1318,14 +1457,14 @@ Helper
         }
         else
         {
-            for( Int i=0; i<mainDiagHeight; ++i ) 
+            for( Int i=0; i<mainDiagHeight; ++i )
             {
                 alphaNew = mainDiag(i) / UPhase(i);
                 VPhase(i) = Phase( alphaNew, false );
                 if( offDiagHeight > i )
                 {
                     betaNew = offDiag(i) / VPhase(i);
-                    UPhase(i+1) = Phase( betaNew, false ); 
+                    UPhase(i+1) = Phase( betaNew, false );
                 }
             }
         }
@@ -1338,7 +1477,7 @@ Helper
         if( offDiagHeight > i )
             offDiagReal(i) = Abs(offDiag(i));
     }
-    
+
     auto info = Helper( uplo, mainDiagReal, offDiagReal, U, s, V, ctrl );
 
     // Apply the phases as necessary
@@ -1394,7 +1533,7 @@ Helper
         F alphaNew, betaNew;
         if( uplo == UPPER )
         {
-            for( Int i=0; i<mainDiagHeight; ++i ) 
+            for( Int i=0; i<mainDiagHeight; ++i )
             {
                 alphaNew = mainDiagLoc(i) / VPhaseLoc(i);
                 UPhaseLoc(i) = Phase( alphaNew, false );
@@ -1407,14 +1546,14 @@ Helper
         }
         else
         {
-            for( Int i=0; i<mainDiagHeight; ++i ) 
+            for( Int i=0; i<mainDiagHeight; ++i )
             {
                 alphaNew = mainDiagLoc(i) / UPhaseLoc(i);
                 VPhaseLoc(i) = Phase( alphaNew, false );
                 if( offDiagHeight > i )
                 {
                     betaNew = offDiagLoc(i) / VPhaseLoc(i);
-                    UPhaseLoc(i+1) = Phase( betaNew, false ); 
+                    UPhaseLoc(i+1) = Phase( betaNew, false );
                 }
             }
         }
@@ -1430,7 +1569,7 @@ Helper
         if( offDiagHeight > i )
             offDiagRealLoc(i) = Abs(offDiagLoc(i));
     }
-    
+
     auto info = Helper( uplo, mainDiagReal, offDiagReal, U, s, V, ctrl );
 
     // Apply the phases as necessary

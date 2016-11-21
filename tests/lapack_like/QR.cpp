@@ -164,68 +164,7 @@ void TestQR
     PopIndent();
 }
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
-void TestQR
-( const Grid& g,
-  Int m,
-  Int n,
-  bool correctness,
-  bool print,
-  bool scalapack )
-{
-    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
-    PushIndent();
-    DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,MD,STAR> householderScalars(g);
-    DistMatrix<Base<F>,MD,STAR> signature(g);
-
-    Uniform( A, m, n );
-    if( correctness )
-        AOrig = A;
-    if( print )
-        Print( A, "A" );
-    const double mD = double(m);
-    const double nD = double(n);
-
-    Timer timer;
-    if( scalapack )
-    {
-        // TODO(poulson): Fold this interface into the standard QR via a Ctrl
-        // option of 'useScaLAPACK'
-        DistMatrix<F,MC,MR,BLOCK> ABlock( A );
-        DistMatrix<F,MR,STAR,BLOCK> householderScalarsBlock(g);
-        mpi::Barrier( g.Comm() );
-        timer.Start();
-        QR( ABlock, householderScalarsBlock ); 
-        const double runTime = timer.Stop();
-        const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
-        const double gFlops =
-          ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-        OutputFromRoot
-        (g.Comm(),"ScaLAPACK: ",runTime," seconds. GFlops = ",gFlops);
-    }
-
-    OutputFromRoot(g.Comm(),"Starting QR factorization...");
-    mpi::Barrier( g.Comm() );
-    timer.Start();
-    QR( A, householderScalars, signature );
-    mpi::Barrier( g.Comm() );
-    const double runTime = timer.Stop();
-    const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
-    OutputFromRoot(g.Comm(),"Elemental: ",runTime," seconds. GFlops = ",gFlops);
-    if( print )
-    {
-        Print( A, "A after factorization" );
-        Print( householderScalars, "householderScalars" );
-        Print( signature, "signature" );
-    }
-    if( correctness )
-        TestCorrectness( A, householderScalars, signature, AOrig );
-    PopIndent();
-}
-
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename F>
 void TestQR
 ( const Grid& g,
   Int m,
@@ -283,11 +222,6 @@ main( int argc, char* argv[] )
         const bool sequential = Input("--sequential","test sequential?",true);
         const bool correctness =
           Input("--correctness","test correctness?",true);
-#ifdef EL_HAVE_SCALAPACK
-        const bool scalapack = Input("--scalapack","test ScaLAPACK?",true);
-#else
-        const bool scalapack = false;
-#endif
 #ifdef EL_HAVE_MPC
         const mpfr_prec_t prec = Input("--prec","MPFR precision",256);
 #endif
@@ -346,14 +280,14 @@ main( int argc, char* argv[] )
         }
 
         TestQR<float>
-        ( g, m, n, correctness, print, scalapack );
+        ( g, m, n, correctness, print );
         TestQR<Complex<float>>
-        ( g, m, n, correctness, print, scalapack );
+        ( g, m, n, correctness, print );
 
         TestQR<double>
-        ( g, m, n, correctness, print, scalapack );
+        ( g, m, n, correctness, print );
         TestQR<Complex<double>>
-        ( g, m, n, correctness, print, scalapack );
+        ( g, m, n, correctness, print );
 
 #ifdef EL_HAVE_QD
         TestQR<DoubleDouble>

@@ -21,7 +21,7 @@ void TranslateBetweenGrids
     GeneralPurpose( A, B );
 }
 
-// TODO: Compare against copy::GeneralPurpose
+// TODO(poulson): Compare against copy::GeneralPurpose
 template<typename T>
 void TranslateBetweenGrids
 ( const DistMatrix<T,MC,MR>& A,

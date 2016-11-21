@@ -1,0 +1,26 @@
+# OpenMPI is disabled until Debian includes a version at least as late as 1.8.1
+# (rather than 1.6.5). Further, while ideally different binary packages would
+# be generated for each combination of OpenMPI/MPICH and clang/gcc, etc., for
+# now we will settle on MPICH/gcc/python2. The compiler matters due to the MPI
+# compiler wrappers (e.g., mpicc) depending upon a specific compiler and C++
+# unfortunately not having an ABI.
+#
+# Further, while Debian and Elemental both support qt5, this extension will be
+# left for future work.
+
+Source: elemental
+Maintainer: "Jack Poulson" <jack.poulson@gmail.com>
+Uploaders: "Ryan Lewis" <me@ryanlewis.net>
+Section: math
+Priority: extra
+Build-Depends: debhelper (>= 9), cmake, libgomp1, gfortran, libopenblas-dev, liblapack-dev, libmetis-dev, libgmp-dev, libmpfr-dev, libmpc-dev, libqd-dev, libmpich-dev, python-numpy
+Standards-Version: 3.9.7
+Homepage: http://libelemental.org
+Vcs-Browser: https://github.com/elemental/Elemental/tree/master/debian
+
+Package: elemental-mpich-python2
+Architecture: any
+Depends: libgomp1, gfortran, libopenblas-dev, liblapack-dev, libmetis-dev, libgmp-dev, libmpfr-dev, libmpc-dev, libqd-dev, libmpich-dev, python-numpy
+Description: the distributed math library Elemental built with MPICH and python2
+ A build of the distributed linear algebra and optimization library Elemental
+ using the MPICH MPI implementation and Python 2 support

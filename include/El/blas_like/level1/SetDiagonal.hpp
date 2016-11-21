@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_SETDIAGONAL_HPP
@@ -38,9 +38,9 @@ void SetImagPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void SetDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<T>& d, Int offset )
+( DistMatrix<T,U,V,wrap>& A, const AbstractDistMatrix<T>& d, Int offset )
 {
     DEBUG_CSE
     function<void(T&,T)> func
@@ -48,9 +48,9 @@ void SetDiagonal
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void SetRealPartOfDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( DistMatrix<T,U,V,wrap>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_CSE
     function<void(T&,Base<T>)> func
@@ -58,9 +58,9 @@ void SetRealPartOfDiagonal
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void SetImagPartOfDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( DistMatrix<T,U,V,wrap>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     DEBUG_CSE
     function<void(T&,Base<T>)> func
@@ -70,39 +70,42 @@ void SetImagPartOfDiagonal
 
 template<typename T>
 void SetDiagonal
-( ElementalMatrix<T>& A, const ElementalMatrix<T>& d, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       SetDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
 void SetRealPartOfDiagonal
-( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       SetRealPartOfDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
 void SetImagPartOfDiagonal
-( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       SetImagPartOfDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }

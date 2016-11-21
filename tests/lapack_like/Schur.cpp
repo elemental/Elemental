@@ -151,9 +151,8 @@ int main( int argc, char* argv[] )
         const bool sortShifts =
           Input("--sortShifts","sort shifts for AED?",true);
         const bool sequential = Input("--sequential","test sequential?",true);
-        // The distributed implementation is not yet debugged
         const bool distributed =
-          Input("--distributed","test distributed?",false);
+          Input("--distributed","test distributed?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -169,7 +168,7 @@ int main( int argc, char* argv[] )
         // TODO(poulson): Allow the grid dimensions to be selected
         const Grid grid( mpi::COMM_WORLD );
 
-        if( sequential )
+        if( sequential && grid.Rank() == 0 )
         {
             TestRandom<float>( n, ctrl, print );
             TestRandom<Complex<float>>( n, ctrl, print );

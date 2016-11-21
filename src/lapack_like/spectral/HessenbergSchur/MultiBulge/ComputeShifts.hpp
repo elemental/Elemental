@@ -15,6 +15,37 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
+// Return the number of unconverged eigenvalues
+template<typename F>
+Int ConsistentlyComputeEigenvalues
+( const DistMatrix<F,MC,MR,BLOCK>& H,
+        DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
+  const HessenbergSchurCtrl& ctrl )
+{
+    DEBUG_CSE
+    // Because double-precision floating-point computation is often
+    // non-deterministic due to extra-precision computation being frequent but
+    // not guaranteed, we must be careful to not allow this non-determinism to
+    // be amplified by the forward instability of Francis sweeps.
+    const Grid& grid = H.Grid();
+    const int owner = H.Owner(0,0);
+    DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
+    H_CIRC_CIRC = H;
+    w.Resize( H.Height(), 1 );
+    Int numUnconverged = 0;
+    if( H_CIRC_CIRC.CrossRank() == H_CIRC_CIRC.Root() )
+    {
+        auto info = HessenbergSchur( H_CIRC_CIRC.Matrix(), w.Matrix(), ctrl );
+        numUnconverged = info.numUnconverged;
+    }
+    // TODO(poulson): Combine the two broadcasts to reduce the latency cost?
+    El::Broadcast( w.Matrix(), H_CIRC_CIRC.CrossComm(), H_CIRC_CIRC.Root() );
+    if( !ctrl.demandConverged )
+        mpi::Broadcast
+        ( numUnconverged, H_CIRC_CIRC.Root(), H_CIRC_CIRC.CrossComm() );
+    return numUnconverged;
+}
+
 template<typename Real>
 Int ComputeShifts
 ( const Matrix<Real>& H,
@@ -108,15 +139,16 @@ Int ComputeShifts
                    exceptShift1(-Real(7)/Real(16));
 
         // Get a full copy of the bidiagonal of the bottom-right section of H
-        DistMatrix<Real,STAR,STAR> hMain(H.Grid());
-        DistMatrix<Real,STAR,STAR> hSub(H.Grid());
-        util::GatherBidiagonal( H, shiftInd, hMain, hSub );
+        const Int subStart = Max(shiftBeg-1,winBeg);
+        auto subInd = IR(subStart,winEnd); 
+        DistMatrix<Real,STAR,STAR> hMain(H.Grid()), hSub(H.Grid());
+        util::GatherBidiagonal( H, subInd, hMain, hSub );
         const auto& hMainLoc = hMain.LockedMatrix();
         const auto& hSubLoc = hSub.LockedMatrix();
-
-        for( Int i=winEnd-1; i>=Max(shiftBeg+1,winBeg+2); i-=2 )
+         
+        for( Int i=winEnd-1; i>=subStart+2; i-=2 )
         {
-            const Int iRel = i - shiftBeg;
+            const Int iRel = i - subStart;
             const Real scale = Abs(hSubLoc(iRel-1)) + Abs(hSubLoc(iRel-2));
             Real eta00 = exceptShift0*scale + hMainLoc(iRel);
             Real eta01 = scale;
@@ -138,9 +170,8 @@ Int ComputeShifts
     }
     else
     {
-        // Compute the eigenvalues of the bottom-right window
-        DistMatrix<Real,STAR,STAR> HShifts( H(shiftInd,shiftInd) );
-        HessenbergSchur( HShifts.Matrix(), wShifts.Matrix(), ctrlShifts );
+        ConsistentlyComputeEigenvalues
+        ( H(shiftInd,shiftInd), wShifts, ctrlShifts );
     }
 
     if( numShifts == 2 )
@@ -245,8 +276,7 @@ Int ComputeShifts
         const Real exceptShift0(Real(4)/Real(3));
 
         // Gather the relevant bidiagonal of H
-        DistMatrix<Complex<Real>,STAR,STAR> hMain(H.Grid());
-        DistMatrix<Real,STAR,STAR> hSub(H.Grid());
+        DistMatrix<Complex<Real>,STAR,STAR> hMain(H.Grid()), hSub(H.Grid());
         util::GatherBidiagonal( H, shiftInd, hMain, hSub );
         const auto& hMainLoc = hMain.LockedMatrix();
         const auto& hSubLoc = hSub.LockedMatrix();
@@ -255,17 +285,15 @@ Int ComputeShifts
         {
             const Int iRel = i - shiftBeg;
             const Complex<Real> shift = hMainLoc(iRel) +
-              exceptShift0*Abs(hSubLoc(iRel-1));
+              exceptShift0*OneAbs(hSubLoc(iRel-1));
             wShifts.Set( iRel-1, 0, shift );
             wShifts.Set( iRel,   0, shift );
         }
     }
     else
     {
-        // Compute the eigenvalues of the bottom-right window
-        auto HShifts = H(shiftInd,shiftInd);
-        auto HShiftsCopy( HShifts );
-        HessenbergSchur( HShiftsCopy, wShifts, ctrlShifts );
+        ConsistentlyComputeEigenvalues
+        ( H(shiftInd,shiftInd), wShifts, ctrlShifts );
     }
 
     if( numShifts == 2 )
