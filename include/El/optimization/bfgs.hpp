@@ -207,7 +207,7 @@ T BFGS( Vector& x, const std::function< T(const Vector&)>& F,
         auto s = Dot(p,g);
         if ( s >= 0) { RuntimeError("p is not a descent direction"); };
         // Evaluate the wolf conditions..
-        const T stepSize = lineSearch(F, gradient, g, x, p);
+        T stepSize = lineSearch(F, gradient, g, x, p);
         stepSize = Min(Max(stepSize, T(1e-20)),T(1e20)); //These are the defaults used in LBFGS
         // std::cout << "Step size: " << stepSize << std::endl;
         // Update x with the step
