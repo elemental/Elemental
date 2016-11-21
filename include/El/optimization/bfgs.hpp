@@ -37,17 +37,16 @@ struct HessianInverseOperator {
         std::size_t k = hessian_data.size();
         Int bound = (k <= M) ? k : M;
         Int incr = (k <= M) ? 0 : k-M;
-
-        if( iter == 0){ return x; } //H_0 is initially identity
-        DistMatrix q(x);
+        if( k == 0){ return x; } //H_0 is initially identity
+        DMatrix q(x);
         alphaList.resize(bound);
         for(Int i = bound-1; i >= 0; --i){
             Int j = i+incr;
             const UpdateTerm& updateTerm = hessian_data[j];
-            const T& stepSize = updateTerm.get<0>();
-            const auto& p = updateTerm.get<1>();
-            const auto& y = updateTerm.get<2>();
-            const auto& rho = updateTerm.get<3>();
+            const T& stepSize = std::get<0>(updateTerm);
+            const auto& p = std::get<1>(updateTerm.get);
+            const auto& y = std::get<2>(updateTerm.get);
+            const auto& rho = std::get<3>(updateTerm);
             T alpha = stepSize*Dot(p,q)*rho;
             alphaList[i] = alpha;
             Axpy(-alpha, y, q);
@@ -57,10 +56,10 @@ struct HessianInverseOperator {
         for(int i = 0; i < bound-1; ++i){
             Int j = i+incr;
             const UpdateTerm& updateTerm = hessian_data[j];
-            const T& stepSize = updateTerm.get<0>();
-            const auto& p = updateTerm.get<1>();
-            const auto& y = updateTerm.get<2>();
-            const auto& rho = updateTerm.get<3>();
+            const T& stepSize = std::get<0>(updateTerm);
+            const auto& p = std::get<1>(updateTerm.get);
+            const auto& y = std::get<2>(updateTerm.get);
+            const auto& rho = std::get<3>(updateTerm);
             const auto& alpha = alphaList[i];
             T beta = rho*Dot(y,q);
             Axpy(stepSize*(alpha-beta),p,q);
