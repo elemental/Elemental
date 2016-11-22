@@ -380,9 +380,9 @@ void HCat
         Matrix<T>& C );
 template<typename T>
 void HCat
-( const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C );
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C );
 template<typename T>
 void HCat
 ( const SparseMatrix<T>& A,
@@ -408,9 +408,9 @@ void VCat
         Matrix<T>& C );
 template<typename T>
 void VCat
-( const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C );
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C );
 template<typename T>
 void VCat
 ( const SparseMatrix<T>& A,
@@ -2013,7 +2013,11 @@ void UpdateMappedDiagonal
   function<void(T&,S)> func, Int offset=0 );
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<S>& d,
+( DistMatrix<T,U,V>& A, const AbstractDistMatrix<S>& d,
+  function<void(T&,S)> func, Int offset=0 );
+template<typename T,typename S,Dist U,Dist V>
+void UpdateMappedDiagonal
+( DistMatrix<T,U,V,BLOCK>& A, const AbstractDistMatrix<S>& d,
   function<void(T&,S)> func, Int offset=0 );
 
 template<typename T,typename S>

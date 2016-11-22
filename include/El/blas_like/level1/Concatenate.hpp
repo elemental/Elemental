@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_CONCATENATE_HPP
@@ -55,9 +55,9 @@ void VCat
 
 template<typename T>
 inline void HCat
-( const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B, 
-        ElementalMatrix<T>& CPre )
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     if( A.Height() != B.Height() )
@@ -79,9 +79,9 @@ inline void HCat
 
 template<typename T>
 void VCat
-( const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B, 
-        ElementalMatrix<T>& CPre )
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_CSE
     if( A.Width() != B.Width() )
@@ -104,22 +104,22 @@ void VCat
 template<typename T>
 void HCat
 ( const SparseMatrix<T>& A,
-  const SparseMatrix<T>& B, 
+  const SparseMatrix<T>& B,
         SparseMatrix<T>& C )
 {
     DEBUG_CSE
     if( A.Height() != B.Height() )
-        LogicError("Incompatible heights for HCat"); 
+        LogicError("Incompatible heights for HCat");
 
     const Int m = A.Height();
     const Int nA = A.Width();
     const Int nB = B.Width();
-    
+
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesB = B.NumEntries();
     C.Resize( m, nA+nB );
     Zero( C );
-    C.Reserve( numEntriesA+numEntriesB ); 
+    C.Reserve( numEntriesA+numEntriesB );
     for( Int e=0; e<numEntriesA; ++e )
         C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
     for( Int e=0; e<numEntriesB; ++e )
@@ -130,22 +130,22 @@ void HCat
 template<typename T>
 void VCat
 ( const SparseMatrix<T>& A,
-  const SparseMatrix<T>& B, 
+  const SparseMatrix<T>& B,
         SparseMatrix<T>& C )
 {
     DEBUG_CSE
     if( A.Width() != B.Width() )
-        LogicError("Incompatible widths for VCat"); 
+        LogicError("Incompatible widths for VCat");
 
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
-    
+
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesB = B.NumEntries();
     C.Resize( mA+mB, n );
     Zero( C );
-    C.Reserve( numEntriesA+numEntriesB ); 
+    C.Reserve( numEntriesA+numEntriesB );
     for( Int e=0; e<numEntriesA; ++e )
         C.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
     for( Int e=0; e<numEntriesB; ++e )
@@ -156,12 +156,12 @@ void VCat
 template<typename T>
 void HCat
 ( const DistSparseMatrix<T>& A,
-  const DistSparseMatrix<T>& B, 
+  const DistSparseMatrix<T>& B,
         DistSparseMatrix<T>& C )
 {
     DEBUG_CSE
     if( A.Height() != B.Height() )
-        LogicError("Incompatible heights for HCat"); 
+        LogicError("Incompatible heights for HCat");
     /*
     if( A.Comm() != B.Comm() )
         LogicError("A and B had different communicators");
@@ -170,13 +170,13 @@ void HCat
     const Int m = A.Height();
     const Int nA = A.Width();
     const Int nB = B.Width();
-    
+
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesB = B.NumLocalEntries();
     C.SetComm( A.Comm() );
     C.Resize( m, nA+nB );
     Zero( C );
-    C.Reserve( numEntriesA+numEntriesB ); 
+    C.Reserve( numEntriesA+numEntriesB );
     const Int firstLocalRow = C.FirstLocalRow();
     for( Int e=0; e<numEntriesA; ++e )
         C.QueueLocalUpdate( A.Row(e)-firstLocalRow, A.Col(e), A.Value(e) );
@@ -188,12 +188,12 @@ void HCat
 template<typename T>
 void VCat
 ( const DistSparseMatrix<T>& A,
-  const DistSparseMatrix<T>& B, 
+  const DistSparseMatrix<T>& B,
         DistSparseMatrix<T>& C )
 {
     DEBUG_CSE
     if( A.Width() != B.Width() )
-        LogicError("Incompatible widths for VCat"); 
+        LogicError("Incompatible widths for VCat");
     /*
     if( A.Comm() != B.Comm() )
         LogicError("A and B had different communicators");
@@ -202,7 +202,7 @@ void VCat
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
-    
+
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesB = B.NumLocalEntries();
     C.SetComm( A.Comm() );
@@ -296,13 +296,13 @@ void VCat
     const Matrix<T>& B, \
           Matrix<T>& C ); \
   EL_EXTERN template void HCat \
-  ( const ElementalMatrix<T>& A, \
-    const ElementalMatrix<T>& B, \
-          ElementalMatrix<T>& C ); \
+  ( const AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<T>& B, \
+          AbstractDistMatrix<T>& C ); \
   EL_EXTERN template void VCat \
-  ( const ElementalMatrix<T>& A, \
-    const ElementalMatrix<T>& B, \
-          ElementalMatrix<T>& C ); \
+  ( const AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<T>& B, \
+          AbstractDistMatrix<T>& C ); \
   EL_EXTERN template void HCat \
   ( const SparseMatrix<T>& A, \
     const SparseMatrix<T>& B, \
