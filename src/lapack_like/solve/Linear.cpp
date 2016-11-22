@@ -272,7 +272,7 @@ void LinearSolve
         DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> BProx( B, proxyCtrl );
         auto& ABlock = AProx.GetLocked();
         auto& BBlock = BProx.Get();
-        ScaLAPACKHelper( ABlock, BBlock );
+        lin_solve::ScaLAPACKHelper( ABlock, BBlock );
         return;
 #else
         if( A.Grid().Rank() == 0 )
