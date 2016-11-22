@@ -322,16 +322,27 @@ lib.ElRead_s.argtypes = \
 lib.ElRead_d.argtypes = \
 lib.ElRead_c.argtypes = \
 lib.ElRead_z.argtypes = \
+lib.ElReadSparse_i.argtypes = \
+lib.ElReadSparse_s.argtypes = \
+lib.ElReadSparse_d.argtypes = \
+lib.ElReadSparse_c.argtypes = \
+lib.ElReadSparse_z.argtypes = \
+lib.ElReadDistSparse_i.argtypes = \
+lib.ElReadDistSparse_s.argtypes = \
+lib.ElReadDistSparse_d.argtypes = \
+lib.ElReadDistSparse_c.argtypes = \
+lib.ElReadDistSparse_z.argtypes = \
+  [c_void_p,c_char_p,c_uint]
 lib.ElReadDist_i.argtypes = \
 lib.ElReadDist_s.argtypes = \
 lib.ElReadDist_d.argtypes = \
 lib.ElReadDist_c.argtypes = \
 lib.ElReadDist_z.argtypes = \
-  [c_void_p,c_char_p,c_uint]
+  [c_void_p,c_char_p,c_uint,bType]
 
-def Read(A,filename,fileFormat=AUTO):
-  args = [A.obj,filename,fileFormat]
+def Read(A,filename,fileFormat=AUTO,sequential=False):
   if type(A) is Matrix:
+    args = [A.obj,filename,fileFormat]
     if   A.tag == iTag: lib.ElRead_i(*args)
     elif A.tag == sTag: lib.ElRead_s(*args)
     elif A.tag == dTag: lib.ElRead_d(*args)
@@ -339,11 +350,28 @@ def Read(A,filename,fileFormat=AUTO):
     elif A.tag == zTag: lib.ElRead_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    args = [A.obj,filename,fileFormat,sequential]
     if   A.tag == iTag: lib.ElReadDist_i(*args)
     elif A.tag == sTag: lib.ElReadDist_s(*args)
     elif A.tag == dTag: lib.ElReadDist_d(*args)
     elif A.tag == cTag: lib.ElReadDist_c(*args)
     elif A.tag == zTag: lib.ElReadDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    args = [A.obj,filename,fileFormat]
+    if   A.tag == iTag: lib.ElReadSparse_i(*args)
+    elif A.tag == sTag: lib.ElReadSparse_s(*args)
+    elif A.tag == dTag: lib.ElReadSparse_d(*args)
+    elif A.tag == cTag: lib.ElReadSparse_c(*args)
+    elif A.tag == zTag: lib.ElReadSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    args = [A.obj,filename,fileFormat]
+    if   A.tag == iTag: lib.ElReadDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElReadDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElReadDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElReadDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElReadDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

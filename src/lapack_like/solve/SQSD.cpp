@@ -38,7 +38,7 @@ void SQSDSolve
     const Orientation orient = NORMAL;
     const bool conjugate = true;
     // TODO(poulson): LDLPivotCtrl control structure
-    return SymmetricSolve( uplo, NORMAL, A, B, conjugate );
+    return SymmetricSolve( uplo, orient, A, B, conjugate );
 }
 
 template<typename F>
@@ -52,7 +52,7 @@ void SQSDSolve
     typedef Base<F> Real;
     if( !ctrl.canOverwrite )
     {
-        auto ACopy( A ); 
+        auto ACopy( A );
         auto ctrlMod( ctrl );
         ctrlMod.canOverwrite = true;
         SQSDSolve( n0, ACopy, B, ctrlMod );
@@ -145,7 +145,7 @@ void SQSDSolve
     typedef Base<F> Real;
     if( !ctrl.canOverwrite )
     {
-        auto ACopy( A ); 
+        auto ACopy( A );
         auto ctrlMod( ctrl );
         ctrlMod.canOverwrite = true;
         SQSDSolve( n0, ACopy, B, ctrlMod );
@@ -179,7 +179,7 @@ void SQSDSolve
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
         const Int i = regTmp.GlobalRow(iLoc);
-        regTmp.Set( i, 0, i < n0 ? scaledReg0Tmp : scaledReg1Tmp ); 
+        regTmp.Set( i, 0, i < n0 ? scaledReg0Tmp : scaledReg1Tmp );
         regPerm.Set( i, 0, i < n0 ? scaledReg0Perm : scaledReg1Perm );
     }
     UpdateRealPartOfDiagonal( A, Real(1), regPerm );

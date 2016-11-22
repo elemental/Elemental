@@ -170,6 +170,28 @@ EL_EXPORT ElError ElReadDist_z
 ( ElDistMatrix_z A, const char* filename, ElFileFormat format, 
   bool sequential );
 
+EL_EXPORT ElError ElReadSparse_i
+( ElSparseMatrix_i A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadSparse_s
+( ElSparseMatrix_s A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadSparse_d
+( ElSparseMatrix_d A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadSparse_c
+( ElSparseMatrix_c A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadSparse_z
+( ElSparseMatrix_z A, const char* filename, ElFileFormat format );
+
+EL_EXPORT ElError ElReadDistSparse_i
+( ElDistSparseMatrix_i A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadDistSparse_s
+( ElDistSparseMatrix_s A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadDistSparse_d
+( ElDistSparseMatrix_d A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadDistSparse_c
+( ElDistSparseMatrix_c A, const char* filename, ElFileFormat format );
+EL_EXPORT ElError ElReadDistSparse_z
+( ElDistSparseMatrix_z A, const char* filename, ElFileFormat format );
+
 /* Spy
    === */
 EL_EXPORT ElError ElSpy_i( ElConstMatrix_i A, const char* title, ElInt tol );

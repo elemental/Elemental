@@ -163,7 +163,6 @@ void Equilibrated
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
-    typedef Base<F> Real;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -325,8 +324,6 @@ void Equilibrated
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
-    typedef Base<F> Real;
-
     mpi::Comm comm = A.Comm();
 
     const Int m = A.Height();

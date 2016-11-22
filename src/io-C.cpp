@@ -97,6 +97,12 @@ ElError ElPrintDistGraph( ElConstDistGraph graph, const char* title )
     bool sequential ) \
   { EL_TRY( Read( *CReflect(A), CReflect(filename), CReflect(format), \
                   sequential ) ) } \
+  ElError ElReadSparse_ ## SIG \
+  ( ElSparseMatrix_ ## SIG A, const char* filename, ElFileFormat format ) \
+  { EL_TRY( Read( *CReflect(A), CReflect(filename), CReflect(format) ) ) } \
+  ElError ElReadDistSparse_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, const char* filename, ElFileFormat format ) \
+  { EL_TRY( Read( *CReflect(A), CReflect(filename), CReflect(format) ) ) } \
   /* Spy */ \
   ElError ElSpy_ ## SIG \
   ( ElConstMatrix_ ## SIG A, const char* title, Base<T> tol ) \
