@@ -1,11 +1,11 @@
 Name:	elemental
-Version:	0.87
+Version:	0.87.2
 Release:	2%{?dist}
 Summary:	Library for distributed-memory dense/sparse-direct linear algebra 
 Group:	Development/Libraries
-License:	BSD
+License:	BSD and Boost and MIT and LGPLv2
 URL:	http://libelemental.org
-Source0:	https://github.com/elemental/Elemental/archive/master.zip 
+Source0:	https://github.com/elemental/Elemental/archive/v%{version}.zip
 
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
@@ -101,7 +101,7 @@ Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %prep
-%autosetup 
+%autosetup -n Elemental-%{version}
 
 %build
 
@@ -166,21 +166,9 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
+
+
 rm -rf %{buildroot}/%{_prefix}/conf
-
-%post mpich -p /sbin/ldconfig
-%postun  mpich -p /sbin/ldconfig
-
-%post mpich-devel -p /sbin/ldconfig
-%postun  mpich-devel -p /sbin/ldconfig
-
-%post openmpi -p /sbin/ldconfig
-%postun  openmpi -p /sbin/ldconfig
-
-%post openmpi-devel -p /sbin/ldconfig
-%postun  openmpi-devel -p /sbin/ldconfig
-
-
 
 #The Elemental headers
 %files devel
@@ -217,6 +205,8 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 %files -n python2-elemental-mpich 
 %{python2_sitearch}/mpich/*
+
+%license debian/copyright
 
 %changelog
 * Sat Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
