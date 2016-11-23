@@ -3,8 +3,8 @@
                       2013, Jeff Hammond
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -35,7 +35,7 @@ void PrintVersion( ostream& os )
 
 void PrintConfig( ostream& os )
 {
-    os << 
+    os <<
       "Elemental configuration:\n" <<
       "  Math libraries:               " << EL_MATH_LIBS << "\n"
 #ifdef EL_HAVE_FLA_BSVD
@@ -148,7 +148,7 @@ void Initialize( int& argc, char**& argv )
             ("Cannot initialize elemental after finalizing MPI");
         }
 #ifdef EL_HYBRID
-        const Int provided = 
+        const Int provided =
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
         const int commRank = mpi::Rank( mpi::COMM_WORLD );
@@ -191,8 +191,8 @@ void Initialize( int& argc, char**& argv )
 
     InitializeRandom();
 
-    // Create the types and ops
-    // NOTE: mpfr::SetPrecision created the BigFloat types
+    // Create the types and ops.
+    // mpfr::SetPrecision within InitializeRandom created the BigFloat types
     mpi::CreateCustom();
 }
 
@@ -200,7 +200,7 @@ void Finalize()
 {
     DEBUG_CSE
     if( ::numElemInits <= 0 )
-    { 
+    {
         cerr << "Finalized Elemental more times than initialized" << endl;
         return;
     }
@@ -214,7 +214,7 @@ void Finalize()
         ::args = 0;
 
         Grid::FinalizeDefault();
-       
+
         // Destroy the types and ops
         mpi::DestroyCustom();
 
@@ -242,10 +242,10 @@ void Finalize()
 }
 
 Args& GetArgs()
-{ 
+{
     if( args == 0 )
         throw std::runtime_error("No available instance of Args");
-    return *::args; 
+    return *::args;
 }
 
 void Args::HandleVersion( ostream& os ) const
@@ -292,15 +292,15 @@ void ReportException( const exception& e, ostream& os )
     {
         if( string(e.what()) != "" )
         {
-            os << "Process " << mpi::Rank() 
+            os << "Process " << mpi::Rank()
                << " caught an unrecoverable exception with message:\n"
                << e.what() << endl;
         }
         DEBUG_ONLY(DumpCallStack(os))
         mpi::Abort( mpi::COMM_WORLD, 1 );
     }
-    catch( exception& castExcept ) 
-    { 
+    catch( exception& castExcept )
+    {
         if( string(e.what()) != "" )
         {
             os << "Process " << mpi::Rank() << " caught error message:\n"
@@ -352,7 +352,7 @@ void Union
 {
     both.resize( first.size()+second.size() );
     auto it = std::set_union
-      ( first.cbegin(),  first.cend(), 
+      ( first.cbegin(),  first.cend(),
         second.cbegin(), second.cend(),
         both.begin() );
     both.resize( Int(it-both.begin()) );

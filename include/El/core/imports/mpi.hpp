@@ -133,12 +133,40 @@ const Op BINARY_XOR = MPI_BXOR;
 template<typename T>
 struct Types
 {
+    static bool createdTypeBeforeResize;
+    static El::mpi::Datatype typeBeforeResize;
+
+    static bool createdType;
     static El::mpi::Datatype type;
-    // CAUTION: These are not defined for all types
-    static El::mpi::Op sumOp, prodOp,
-                       minOp, maxOp,
-                       userOp, userCommOp;
+
+    static bool haveSumOp;
+    static bool createdSumOp;
+    static El::mpi::Op sumOp;
+
+    static bool haveProdOp;
+    static bool createdProdOp;
+    static El::mpi::Op prodOp;
+
+    static bool haveMinOp;
+    static bool createdMinOp;
+    static El::mpi::Op minOp;
+
+    static bool haveMaxOp;
+    static bool createdMaxOp;
+    static El::mpi::Op maxOp;
+
+    static bool haveUserOp;
+    static bool createdUserOp;
+    static El::mpi::Op userOp;
+
+    static bool haveUserCommOp;
+    static bool createdUserCommOp;
+    static El::mpi::Op userCommOp;
+
     static function<T(const T&,const T&)> userFunc, userCommFunc;
+
+    // Internally called once per type between MPI_Init and MPI_Finalize
+    static void Destroy();
 };
 
 template<typename T>
@@ -1074,8 +1102,6 @@ void VerifySendsAndRecvs
 
 void CreateCustom() EL_NO_RELEASE_EXCEPT;
 void DestroyCustom() EL_NO_RELEASE_EXCEPT;
-
-template<typename T> Datatype& TypeMap() EL_NO_EXCEPT;
 
 #ifdef EL_HAVE_MPC
 void CreateBigIntFamily();

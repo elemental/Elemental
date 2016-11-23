@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -28,9 +28,9 @@ int main( int argc, char* argv[] )
           Input("--inputBasisFile","input basis file",
             string("../data/number_theory/SVPChallenge40.txt"));
         const bool trans = Input("--transpose","transpose input?",true);
-        const string outputBasisFile = 
+        const string outputBasisFile =
           Input("--outputBasisFile","output basis file",string("BKZ"));
-        const string shortestVecFile = 
+        const string shortestVecFile =
           Input
           ("--shortestVecFile","shortest vector file",string("shortest"));
         const Real delta = Input("--delta","delta for LLL",Real(0.9999));
@@ -73,13 +73,13 @@ int main( int argc, char* argv[] )
         const bool timeLLL = Input("--timeLLL","time LLL?",false);
         const bool timeBKZ = Input("--timeBKZ","time BKZ?",true);
         const bool progressLLL =
-          Input("--progressLLL","print LLL progress?",false); 
+          Input("--progressLLL","print LLL progress?",false);
         const bool progressBKZ =
-          Input("--progressBKZ","print BKZ progress?",true); 
+          Input("--progressBKZ","print BKZ progress?",true);
         const bool print = Input("--print","output all matrices?",true);
         const bool logFailedEnums =
           Input("--logFailedEnums","log failed enumerations in BKZ?",false);
-        const bool logStreakSizes = 
+        const bool logStreakSizes =
           Input("--logStreakSizes","log enum streak sizes in BKZ?",false);
         const bool logNontrivialCoords =
           Input("--logNontrivialCoords","log nontrivial enum coords?",false);
@@ -107,18 +107,18 @@ int main( int argc, char* argv[] )
         mpfr::SetPrecision( prec );
 #endif
 
-        Matrix<Real> B; 
+        Matrix<Real> B;
         if( trans )
         {
             Matrix<Real> BTrans;
             Read( BTrans, inputBasisFile );
-            Transpose( BTrans, B ); 
+            Transpose( BTrans, B );
         }
         else
             Read( B, inputBasisFile );
         const Int m = B.Height();
         const Int n = B.Width();
-        const Real BOrigOne = OneNorm( B ); 
+        const Real BOrigOne = OneNorm( B );
         Output("|| B_orig ||_1 = ",BOrigOne);
         if( print )
             Print( B, "BOrig" );
@@ -155,7 +155,7 @@ int main( int argc, char* argv[] )
                   return 45;
               */
           };
-        auto enumTypeLambda = 
+        auto enumTypeLambda =
           [&]( Int j )
           {
               if( j <= 3 )
@@ -178,7 +178,7 @@ int main( int argc, char* argv[] )
         ctrl.startCol = startColBKZ;
         ctrl.enumCtrl.enumType = FULL_ENUM;
         ctrl.enumCtrl.time = timeEnum;
-        ctrl.enumCtrl.innerProgress = innerEnumProgress; 
+        ctrl.enumCtrl.innerProgress = innerEnumProgress;
         ctrl.enumCtrl.phaseLength = phaseLength;
         ctrl.enumCtrl.enqueueProb = enqueueProb;
         ctrl.enumCtrl.progressLevel = progressLevel;
@@ -210,6 +210,7 @@ int main( int argc, char* argv[] )
         ctrl.enumCtrl.customMaxOneNorms = true;
         const Int startIndex = Max(n/2-1,0);
         const Int numPhases = ((n-startIndex)+phaseLength-1) / phaseLength;
+        Output("numPhases=",numPhases);
         ctrl.enumCtrl.minInfNorms.resize( numPhases, 0 );
         ctrl.enumCtrl.maxInfNorms.resize( numPhases, 1 );
         ctrl.enumCtrl.minOneNorms.resize( numPhases, 0 );
@@ -248,7 +249,7 @@ int main( int argc, char* argv[] )
         auto info = BKZ( B, R, ctrl );
         const double runTime = mpi::Time() - startTime;
         Output
-        ("  BKZ(",blocksize,",",delta,",",eta,") took ",runTime," seconds"); 
+        ("  BKZ(",blocksize,",",delta,",",eta,") took ",runTime," seconds");
         Output("    achieved delta:   ",info.delta);
         Output("    achieved eta:     ",info.eta);
         Output("    num swaps:        ",info.numSwaps);
@@ -261,7 +262,7 @@ int main( int argc, char* argv[] )
         Output("    targetRatio*GH(L): ",challenge);
         if( print )
         {
-            Print( B, "B" ); 
+            Print( B, "B" );
             Print( R, "R" );
         }
         Write( B, outputBasisFile, ASCII, "BKZ" );
@@ -289,7 +290,7 @@ int main( int argc, char* argv[] )
 
         if( !succeeded || fullEnum )
         {
-            const Int start = 0; 
+            const Int start = 0;
             const Int numCols = n;
             const Range<Int> subInd( start, start+numCols );
             auto BSub = B( ALL, subInd );
@@ -304,11 +305,17 @@ int main( int argc, char* argv[] )
             timer.Start();
             Real result;
             if( fullEnum )
-              result = 
-                ShortestVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+            {
+                result =
+                  ShortestVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+                Output("shortest vector result = ",result);
+            }
             else
-              result = 
-                ShortVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+            {
+                result =
+                  ShortVectorEnumeration( BSub, RSub, target, v, enumCtrl );
+                Output("short vector result = ",result);
+            }
             Output("Enumeration: ",timer.Stop()," seconds");
             if( result < target )
             {
