@@ -27,8 +27,8 @@ template<typename Real>
 struct SignCtrl 
 {
     Int maxIts=100;
-    Real tol=0;
-    Real power=1;
+    Real tol=Real(0);
+    Real power=Real(1);
     SignScaling scaling=SIGN_SCALE_FROB;
     bool progress=false;
 };
@@ -37,8 +37,8 @@ template<typename Real>
 struct SquareRootCtrl 
 {
     Int maxIts=100;
-    Real tol=0;
-    Real power=1;
+    Real tol=Real(0);
+    Real power=Real(1);
     bool progress=false;
 };
 

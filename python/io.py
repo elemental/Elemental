@@ -9,6 +9,26 @@
 from El.core import *
 from El.blas_like import Copy, CopyFromRoot, CopyFromNonRoot, RealPart, ImagPart
 
+# Attempt to import matplotlib.pyplot and save whether or not this succeeded
+try:
+  import numpy as np
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+  havePyPlot=True
+except:
+  havePyPlot=False
+  print 'Could not import matplotlib.pyplot'
+
+if havePyPlot:
+  try:
+    import networkx as nx
+    haveNetworkX = True
+  except:
+    haveNetworkX = False
+    print 'Could not import networkx'
+else:
+  haveNetworkX = False
+
 # Input/Output
 # ************
 
