@@ -30,23 +30,6 @@ datatypes:
 - `El::Quad`, `El::Complex<El::Quad>` (on top of GCC's *__float128*)
 - `El::BigFloat`, `El::Complex<El::BigFloat>` (on top of MPFR's *mpfr_t* and MPC's *mpc_t*)
 
-**Convex optimization**:
-* Dense and sparse Interior Point Methods for
-  Linear, Quadratic, and Second-Order Cone Programs (**Note: Scalability for sparse IPMs will be lacking until more general sparse matrix distributions are introduced into Elemental**)
-    - Basis Pursuit
-    - Chebyshev Points
-    - Dantzig selectors
-    - LASSO / Basis Pursuit Denoising
-    - Least Absolute Value regression
-    - Non-negative Least Squares
-    - Support Vector Machines
-    - (1D) Total Variation
-* Jordan algebras over products of Second-Order Cones
-* Various prototype dense Alternating Direction Method of Multipliers routines
-    - Sparse inverse covariance selection
-    - Robust Principal Component Analysis
-* Prototype alternating direction Non-negative Matrix Factorization
-
 **Linear algebra**:
 * Dense and sparse-direct (generalized) Least Squares
   problems
@@ -69,6 +52,23 @@ datatypes:
 * Prototype Spectral Divide and Conquer Schur decomposition and Hermitian EVD
 * Sign-based Lyapunov/Ricatti/Sylvester solvers
 * Arbitrary-precision distributed SVD (QR and D&C support), (generalized) Hermitian EVPs (QR and D&C support), and Schur decompositions (e.g., via Aggressive Early Deflation)
+
+**Convex optimization**:
+* Dense and sparse Interior Point Methods for
+  Linear, Quadratic, and Second-Order Cone Programs (**Note: Scalability for sparse IPMs will be lacking until more general sparse matrix distributions are introduced into Elemental**)
+    - Basis Pursuit
+    - Chebyshev Points
+    - Dantzig selectors
+    - LASSO / Basis Pursuit Denoising
+    - Least Absolute Value regression
+    - Non-negative Least Squares
+    - Support Vector Machines
+    - (1D) Total Variation
+* Jordan algebras over products of Second-Order Cones
+* Various prototype dense Alternating Direction Method of Multipliers routines
+    - Sparse inverse covariance selection
+    - Robust Principal Component Analysis
+* Prototype alternating direction Non-negative Matrix Factorization
 
 **Lattice reduction**:
 * An extension of [Householder-based LLL](http://perso.ens-lyon.fr/damien.stehle/HLLL.html) to real and complex linearly-dependent bases (currently sequential only)
