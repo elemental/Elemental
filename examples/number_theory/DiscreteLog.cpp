@@ -64,7 +64,7 @@ int main( int argc, char* argv[] )
         p = 13;
         q = 4;
         r = 3;
-        Output("Computing discrete log of ",q," w.r.t. ",r," mod ",p);
+        Output("Trying infeasible discrete log of ",q," w.r.t. ",r," mod ",p);
         try { index = dlog::PollardRho( q, r, p, rhoCtrl ); }
         catch( std::exception& e ) { Output("exception: ",e.what()); }
     }
