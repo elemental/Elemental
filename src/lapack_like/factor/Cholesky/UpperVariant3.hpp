@@ -27,7 +27,7 @@ void UpperVariant3Unblocked( Matrix<F>& A )
     {
         Real alpha11 = RealPart(A(j,j));
         if( alpha11 <= Real(0) )
-            LogicError("A was not numerically HPD");
+            throw NonHPDMatrixException("A was not numerically HPD");
         alpha11 = Sqrt( alpha11 );
         A(j,j) = alpha11;
 

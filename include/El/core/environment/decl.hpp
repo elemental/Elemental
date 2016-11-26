@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_ENVIRONMENT_DECL_HPP
@@ -93,40 +93,42 @@ void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
 void EmptyBlocksizeStack();
 
-template<typename T,typename=EnableIf<IsScalar<T>>>
-inline const T& Max( const T& m, const T& n ) EL_NO_EXCEPT
-{ return std::max(m,n); }
+template<typename T,
+         typename=EnableIf<IsScalar<T>>>
+const T& Max( const T& m, const T& n ) EL_NO_EXCEPT;
+inline const Int& Max( const Int& m, const Int& n ) EL_NO_EXCEPT;
 
-inline const Int& Max( const Int& m, const Int& n ) EL_NO_EXCEPT
-{ return std::max(m,n); }
-
-template<typename T,typename=EnableIf<IsScalar<T>>>
-inline const T& Min( const T& m, const T& n ) EL_NO_EXCEPT
-{ return std::min(m,n); }
-
-inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT
-{ return std::min(m,n); }
+template<typename T,
+         typename=EnableIf<IsScalar<T>>>
+const T& Min( const T& m, const T& n ) EL_NO_EXCEPT;
+inline const Int& Min( const Int& m, const Int& n ) EL_NO_EXCEPT;
 
 // Replacement for std::memcpy, which is known to often be suboptimal.
 // Notice the sizeof(T) is no longer required.
-template<typename T,typename=EnableIf<IsPacked<T>>>
+template<typename T,
+         typename=EnableIf<IsPacked<T>>>
 void MemCopy
 (       T* dest,
   const T* source,
         size_t numEntries );
-template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+template<typename T,
+         typename=DisableIf<IsPacked<T>>,
+         typename=void>
 void MemCopy
 (       T* dest,
   const T* source,
         size_t numEntries );
 
-template<typename T,typename=EnableIf<IsPacked<T>>>
+template<typename T,
+         typename=EnableIf<IsPacked<T>>>
 void MemSwap
 ( T* a,
   T* b,
   T* temp,
   size_t numEntries );
-template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+template<typename T,
+         typename=DisableIf<IsPacked<T>>,
+         typename=void>
 void MemSwap
 ( T* a,
   T* b,
@@ -134,27 +136,30 @@ void MemSwap
   size_t numEntries );
 
 // Generalization of std::memcpy so that unit strides are not required
-template<typename T,typename=EnableIf<IsPacked<T>>>
+template<typename T,
+         typename=EnableIf<IsPacked<T>>>
 void StridedMemCopy
 (       T* dest,   Int destStride,
   const T* source, Int sourceStride, Int numEntries );
-template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+template<typename T,
+         typename=DisableIf<IsPacked<T>>,
+         typename=void>
 void StridedMemCopy
 (       T* dest,   Int destStride,
   const T* source, Int sourceStride, Int numEntries );
 
+// A thin wrapper around std::copy
 template<typename S,typename T>
-inline void CopySTL( const S& a, T& b )
-{
-    b.resize( a.size() ); 
-    std::copy( a.begin(), a.end(), b.begin() );
-}
+void CopySTL( const S& a, T& b );
 
 // Replacement for std::memset, which is likely suboptimal and hard to extend
 // to non-POD datatypes. Notice that sizeof(T) is no longer required.
-template<typename T,typename=EnableIf<IsPacked<T>>>
+template<typename T,
+         typename=EnableIf<IsPacked<T>>>
 void MemZero( T* buffer, size_t numEntries );
-template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
+template<typename T,
+         typename=DisableIf<IsPacked<T>>,
+         typename=void>
 void MemZero( T* buffer, size_t numEntries );
 
 // Clear the contents of x by swapping with an empty object of the same type
@@ -163,41 +168,20 @@ void SwapClear( T& x );
 
 // Reserve memory in a vector without zero-initializing the variables unless
 // valgrind is currently running or the datatype *requires* construction.
-template<typename T,typename=EnableIf<IsPacked<T>>>
-inline void FastResize( vector<T>& v, Int numEntries )
-{
-#ifdef EL_ZERO_INIT
-    v.resize( numEntries );
-#elif defined(EL_HAVE_VALGRIND)
-    if( EL_RUNNING_ON_VALGRIND )
-        v.resize( numEntries );
-    else
-        v.reserve( numEntries );
-#else
-    v.reserve( numEntries );
-#endif
-}
-template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
-inline void FastResize( vector<T>& v, Int numEntries )
-{ v.resize( numEntries ); }
+template<typename T,
+         typename=EnableIf<IsPacked<T>>>
+void FastResize( vector<T>& v, Int numEntries );
+template<typename T,
+         typename=DisableIf<IsPacked<T>>,
+         typename=void>
+void FastResize( vector<T>& v, Int numEntries );
 
 inline void BuildStream( ostringstream& os ) { }
 
 template<typename T,typename... ArgPack>
-inline void BuildStream
-( ostringstream& os, const T& item, const ArgPack& ... args )
-{
-    os << item;
-    BuildStream( os, args... );
-}
-
+void BuildStream( ostringstream& os, const T& item, const ArgPack& ... args );
 template<typename... ArgPack>
-inline string BuildString( const ArgPack& ... args )
-{ 
-    ostringstream os;
-    BuildStream( os, args... );
-    return os.str(); 
-}
+string BuildString( const ArgPack& ... args );
 
 class UnrecoverableException : public std::runtime_error
 {
@@ -207,51 +191,25 @@ public:
 };
 
 template<typename... ArgPack>
-inline void UnrecoverableError( const ArgPack& ... args )
-{
-    ostringstream os;
-    BuildStream( os, args... );
-    os << endl;
-    UnrecoverableException( os.str().c_str() );
-}
-
+void UnrecoverableError( const ArgPack& ... args );
 template<typename... ArgPack>
-inline void LogicError( const ArgPack& ... args )
-{
-    ostringstream os;
-    BuildStream( os, args... );
-    os << endl;
-    throw std::logic_error( os.str().c_str() );
-}
-
+void LogicError( const ArgPack& ... args );
 template<typename... ArgPack>
-inline void RuntimeError( const ArgPack& ... args )
-{
-    ostringstream os;
-    BuildStream( os, args... );
-    os << endl;
-    throw std::runtime_error( os.str().c_str() );
-}
+void RuntimeError( const ArgPack& ... args );
 
 // This is the only place that Elemental is currently using duck-typing.
 // I'm not sure if it's a good idea to use it more often.
 template<class MatType>
-inline string 
-DimsString( const MatType& A, string label="Matrix" )
-{ 
-    ostringstream os;
-    os << label << " ~ " << A.Height() << " x " << A.Width();
-    return os.str();
-}
+string DimsString( const MatType& A, string label="Matrix" );
 
 // This is defined in choice.hpp
 class ArgException;
 
 // An exception which signifies that a matrix was unexpectedly singular.
-class SingularMatrixException : public std::runtime_error 
+class SingularMatrixException : public std::runtime_error
 {
 public:
-    SingularMatrixException( const char* msg="Matrix was singular" ) 
+    SingularMatrixException( const char* msg="Matrix was singular" )
     : std::runtime_error( msg ) { }
 };
 
@@ -288,18 +246,18 @@ DEBUG_ONLY(
     void PopCallStack();
     void DumpCallStack( ostream& os=cerr );
 
-    class CallStackEntry 
+    class CallStackEntry
     {
     public:
-        CallStackEntry( string s ) 
-        { 
+        CallStackEntry( string s )
+        {
             if( !uncaught_exception() )
-                PushCallStack(s); 
+                PushCallStack(s);
         }
-        ~CallStackEntry() 
-        { 
+        ~CallStackEntry()
+        {
             if( !uncaught_exception() )
-                PopCallStack(); 
+                PopCallStack();
         }
     };
     typedef CallStackEntry CSE;
@@ -310,12 +268,7 @@ void OpenLog( const char* filename );
 std::ostream & LogOS();
 
 template<typename... ArgPack>
-inline void Log( const ArgPack& ... args )
-{
-    std::ostringstream str;
-    BuildStream( str, args... );
-    LogOS() << str.str() << std::endl;
-}
+void Log( const ArgPack& ... args );
 
 void CloseLog();
 
@@ -331,30 +284,17 @@ Int IndentLevel();
 std::string Indent();
 
 template<typename... ArgPack>
-inline void Output( const ArgPack& ... args )
-{
-    ostringstream os;
-    os << Indent();
-    BuildStream( os, args... );
-    os << endl;
-    cout << os.str();
-}
+void Output( const ArgPack& ... args );
 
 template<typename... ArgPack>
-inline void OutputFromRoot( mpi::Comm comm, const ArgPack& ... args )
-{
-    if( mpi::Rank(comm) == 0 )
-    {
-        Output( args... );
-    }
-}
+void OutputFromRoot( mpi::Comm comm, const ArgPack& ... args );
 
 template<typename T>
 void EnsureConsistent( T alpha, mpi::Comm comm, string name="" );
 
 // This will be guaranteed by C++14 via std::make_unique
 template<typename T, typename ...ArgPack>
-inline unique_ptr<T> MakeUnique( ArgPack&& ...args )
+unique_ptr<T> MakeUnique( ArgPack&& ...args )
 { return unique_ptr<T>( new T( std::forward<ArgPack>(args)... ) ); }
 
 template<typename T>

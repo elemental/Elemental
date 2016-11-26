@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CHOLESKY_LOWER_VARIANT3_HPP
@@ -27,7 +27,7 @@ void LowerVariant3Unblocked( Matrix<F>& A )
     {
         Real alpha11 = RealPart(A(j,j));
         if( alpha11 <= Real(0) )
-            LogicError("A was not numerically HPD");
+            throw NonHPDMatrixException("A was not numerically HPD");
         alpha11 = Sqrt( alpha11 );
         A(j,j) = alpha11;
 
@@ -53,7 +53,7 @@ void LowerVariant3Blocked( Matrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        
+
         const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
@@ -118,7 +118,7 @@ void LowerVariant3Blocked( AbstractDistMatrix<F>& APre )
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
         LocalTrrk
-        ( LOWER, TRANSPOSE, 
+        ( LOWER, TRANSPOSE,
           F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );
 
         Transpose( A21Trans_STAR_MC, A21 );
