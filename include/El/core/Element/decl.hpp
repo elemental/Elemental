@@ -117,20 +117,33 @@ using ConvertBase = typename ConvertBaseHelper<F,RealNew>::type;
 // ------------------------------------
 template<typename F> struct PromoteHelper { typedef F type; };
 template<> struct PromoteHelper<float> { typedef double type; };
+
+// Handle the promotion of 'double'
 #ifdef EL_HAVE_QD
 template<> struct PromoteHelper<double> { typedef DoubleDouble type; };
-template<> struct PromoteHelper<DoubleDouble> { typedef QuadDouble type; };
- #ifdef EL_HAVE_MPC
-template<> struct PromoteHelper<QuadDouble> { typedef BigFloat type; };
- #endif
 #else
  #ifdef EL_HAVE_QUAD
 template<> struct PromoteHelper<double> { typedef Quad type; };
-  #ifdef EL_HAVE_MPC
-template<> struct PromoteHelper<Quad> { typedef BigFloat type; };
-  #endif
  #elif defined(EL_HAVE_MPC)
 template<> struct PromoteHelper<double> { typedef BigFloat type; };
+ #endif
+#endif
+
+#ifdef EL_HAVE_QD
+// Handle the promotion of 'DoubleDouble'
+template<> struct PromoteHelper<DoubleDouble> { typedef QuadDouble type; };
+// Handle the promotion of 'QuadDouble'
+#ifdef EL_HAVE_MPC
+template<> struct PromoteHelper<QuadDouble> { typedef BigFloat type; };
+#endif
+#endif
+
+#ifdef EL_HAVE_QUAD
+// Handle the promotion of 'Quad'
+ #ifdef EL_HAVE_QD
+template<> struct PromoteHelper<Quad> { typedef QuadDouble type; };
+ #elif defined(EL_HAVE_MPC)
+template<> struct PromoteHelper<Quad> { typedef BigFloat type; };
  #endif
 #endif
 
