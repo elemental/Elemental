@@ -34,7 +34,7 @@ int main( int argc, char* argv[] )
         }
         Output
         ("Integer exponentiation tests passed for bases in [",alphaMin,",",
-         alphaMax,"] and exponents in [0,",alphaMax,"]");
+         alphaMax,"] and exponents in [0,",betaMax,"]");
     }
     catch( std::exception& e ) { ReportException(e); }
 
