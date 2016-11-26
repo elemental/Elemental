@@ -343,18 +343,37 @@ template<typename Real,
 Complex<Real> Exp( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return ComplexFromPolar( Exp(RealPart(alpha)), ImagPart(alpha) ); }
 
-template<typename F,typename T,
-         typename/*=EnableIf<IsStdField<F>>*/,
-         typename/*=EnableIf<IsStdField<T>>*/>
-F Pow( const F& alpha, const T& beta )
+template<typename FBase,typename TExp,
+         typename/*=EnableIf<IsStdField<FBase>>*/,
+         typename/*=EnableIf<IsStdField<TExp>>*/>
+FBase Pow( const FBase& alpha, const TExp& beta )
 { return std::pow( alpha, beta ); }
 
-template<typename F,typename T,
-         typename/*=EnableIf<IsStdField<F>>*/,
-         typename/*=EnableIf<IsIntegral<T>>*/,
+template<typename FBase,typename TExp,
+         typename/*=EnableIf<IsStdField<FBase>>*/,
+         typename/*=EnableIf<IsIntegral<TExp>>*/,
          typename/*=void*/>
-F Pow( const F& alpha, const T& beta )
-{ return Pow(alpha,Base<F>(beta)); }
+FBase Pow( const FBase& alpha, const TExp& beta )
+{ return Pow(alpha,Base<FBase>(beta)); }
+
+template<typename TBase,typename TExp,
+         typename/*=EnableIf<IsIntegral<TBase>>*/,
+         typename/*=EnableIf<IsIntegral<TExp>>*/,
+         typename/*=void*/,
+         typename/*=void*/>
+TBase Pow( const TBase& alpha, const TExp& beta )
+{
+    if( beta < static_cast<TExp>(0) )
+        LogicError("Negative integral powers are not supported");
+    // Decompose beta = 2*halfEven + remainder
+    const TExp halfEven = beta / static_cast<TExp>(2);
+    const TBase alpha_to_even =
+      ( halfEven == static_cast<TExp>(0) ? 1 : Pow( alpha*alpha, halfEven ) );
+    if( beta == 2*halfEven )
+        return alpha_to_even; 
+    else
+        return alpha_to_even*alpha;
+}
 
 template<typename Real,
          typename/*=DisableIf<IsStdField<Real>>*/>

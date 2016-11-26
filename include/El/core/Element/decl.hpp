@@ -451,15 +451,21 @@ BigFloat Exp( const BigFloat& alpha ) EL_NO_EXCEPT;
 Complex<BigFloat> Exp( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT;
 #endif
 
-template<typename F,typename T,
-         typename=EnableIf<IsStdField<F>>,
-         typename=EnableIf<IsStdField<T>>>
-F Pow( const F& alpha, const T& beta );
-template<typename F,typename T,
-         typename=EnableIf<IsStdField<F>>,
-         typename=EnableIf<IsIntegral<T>>,
+template<typename FBase,typename FExp,
+         typename=EnableIf<IsStdField<FBase>>,
+         typename=EnableIf<IsStdField<FExp>>>
+FBase Pow( const FBase& alpha, const FExp& beta );
+template<typename FBase,typename TExp,
+         typename=EnableIf<IsStdField<FBase>>,
+         typename=EnableIf<IsIntegral<TExp>>,
          typename=void>
-F Pow( const F& alpha, const T& beta );
+FBase Pow( const FBase& alpha, const TExp& beta );
+template<typename TBase,typename TExp,
+         typename=EnableIf<IsIntegral<TBase>>,
+         typename=EnableIf<IsIntegral<TExp>>,
+         typename=void,
+         typename=void>
+TBase Pow( const TBase& alpha, const TExp& beta );
 
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
