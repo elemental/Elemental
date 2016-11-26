@@ -80,7 +80,7 @@ void SolveHilbert( El::Int n, El::Int maxRefineIts, bool refineProgress )
         El::Gemv( El::NORMAL, RealProm(1), AProm, y, Ay );
     };
     const Real relTolProm =
-      El::Pow( El::limits::Epsilon<RealProm>(), RealProm(0.9) );
+      Real(El::Pow( El::limits::Epsilon<RealProm>(), RealProm(0.9) ));
     El::Output
     ("Promoting from ",El::TypeName<Real>()," to ",El::TypeName<RealProm>(),
      " and setting relative tolerance to ",relTolProm);
