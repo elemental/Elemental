@@ -10,7 +10,7 @@
 #define EL_LAPACK_FACTOR_C_H
 
 #include <El/core/DistMatrix.h>
-#include <El/lapack_like/perm.h>
+#include <El/core/Permutation.h>
 
 #ifdef __cplusplus
 extern "C" {

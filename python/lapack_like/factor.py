@@ -7,7 +7,6 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
-from perm import *
 import ctypes
 
 # Cholesky factorization

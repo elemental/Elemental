@@ -6,10 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_PERM_C_H
-#define EL_PERM_C_H
-
-#include <El/core/DistMatrix.h>
+#ifndef EL_PERMUTATION_C_H
+#define EL_PERMUTATION_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -206,8 +204,4 @@ EL_EXPORT ElError ElDistPermutationExplicitMatrix
 } // extern "C"
 #endif
 
-#ifdef __cplusplus
-#include <El/lapack_like/perm/CReflect.hpp>
-#endif
-
-#endif /* ifndef EL_PERM_C_H */
+#endif /* ifndef EL_PERMUTATION_C_H */

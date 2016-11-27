@@ -102,6 +102,10 @@ def Print(A,title=''):
     elif A.tag == cTag: lib.ElPrintDistSparse_c(*args)
     elif A.tag == zTag: lib.ElPrintDistSparse_z(*args)
     else: DataExcept()
+  elif type(A) is Permutation:
+    Print(A.ExplicitVector(),title)
+  elif type(A) is DistPermutation:
+    Print(A.ExplicitVector(),title)
   else: TypeExcept()
 
 lib.ElSetColorMap.argtypes = [c_uint]
@@ -158,7 +162,6 @@ lib.ElDisplayDistSparse_z.argtypes = \
   [c_void_p,c_char_p]
 
 def DisplayPyPlot(A,title=''):
-  isInline = 'inline' in mpl.get_backend()
   isVec = min(A.Height(),A.Width()) == 1
   if A.tag == cTag or A.tag == zTag:
     AReal = Matrix(Base(A.tag))
@@ -188,6 +191,7 @@ def DisplayPyPlot(A,title=''):
       fig.colorbar(im,ax=axis)
     plt.title(title)
   plt.draw()
+  isInline = 'inline' in mpl.get_backend()
   if not isInline:
     plt.show(block=False)
 
@@ -202,6 +206,7 @@ def DisplayNetworkX(A,title=''):
   plt.title(title)
   nx.draw(G)
   plt.draw()
+  isInline = 'inline' in mpl.get_backend()
   if not isInline:
     plt.show(block=False)
 
@@ -254,6 +259,10 @@ def DisplayCxx(A,title=''):
     elif A.tag == zTag: lib.ElDisplayDistSparse_z(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
+  elif type(A) is Permutation:
+    DisplayCxx(A.ExplicitVector(),title)
+  elif type(A) is DistPermutation:
+    DisplayCxx(A.ExplicitVector(),title)
   else: TypeExcept()
 
 def Display(A,title='',tryPython=True):
@@ -298,6 +307,12 @@ def Display(A,title='',tryPython=True):
       ADense = DistMatrix(A.tag,MC,MR,grid)
       Copy(A,ADense)
       Display(ADense,title,True)
+      return
+    elif type(A) is Permutation:
+      Display(A.ExplicitVector(),title,True)
+      return
+    elif type(A) is DistPermutation:
+      Display(A.ExplicitVector(),title,True)
       return
 
   # Fall back to the internal Display routine
@@ -423,4 +438,8 @@ def Write(A,basename,fileFormat,title=''):
     elif A.tag == cTag: lib.ElWriteDist_c(*args)
     elif A.tag == zTag: lib.ElWriteDist_z(*args)
     else: DataExcept()
+  elif type(A) is Permutation:
+    Write(A.ExplicitVector(),basename,fileFormat,title)
+  elif type(A) is DistPermutation:
+    Write(A.ExplicitVector(),basename,fileFormat,title)
   else: TypeExcept()

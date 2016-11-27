@@ -9,10 +9,6 @@
 #ifndef EL_UTIL_HPP
 #define EL_UTIL_HPP
 
-// For SortingPermutation
-#include <El/lapack_like/perm/Permutation.hpp>
-#include <El/lapack_like/perm/DistPermutation.hpp>
-
 namespace El {
 
 // Graph reordering

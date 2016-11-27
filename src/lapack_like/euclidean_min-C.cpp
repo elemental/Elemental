@@ -9,7 +9,6 @@
 #include <El-lite.hpp>
 #include <El/lapack_like/euclidean_min.hpp>
 #include <El-lite.h>
-#include <El/lapack_like/perm.h>
 #include <El/lapack_like/factor.h>
 #include <El/lapack_like/euclidean_min.h>
 using namespace El;

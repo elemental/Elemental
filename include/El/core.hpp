@@ -311,4 +311,7 @@ class DistMatrix;
 #include <El/core/DistMultiVec/impl.hpp>
 #include <El/core/DistSparseMatrix/impl.hpp>
 
+#include <El/core/Permutation.hpp>
+#include <El/core/DistPermutation.hpp>
+
 #endif // ifndef EL_CORE_HPP
