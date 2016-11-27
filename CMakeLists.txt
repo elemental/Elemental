@@ -91,7 +91,7 @@ if(NOT CMAKE_INSTALL_SYSCONFDIR)
   set(CMAKE_INSTALL_SYSCONFDIR "etc")
 endif()
 if(NOT INSTALL_CMAKE_DIR)
-	set( INSTALL_CMAKE_DIR "CMake")
+  set( INSTALL_CMAKE_DIR "CMake")
 endif()
 # Whether or not to attempt to use OpenMP within hot-spots in Elemental
 # (NOTE: This option is not actively maintained)
@@ -490,11 +490,11 @@ endif()
 configure_file("${PROJECT_SOURCE_DIR}/cmake/configure_files/config.h.in"
                "${PROJECT_BINARY_DIR}/include/El/config.h")
 install(FILES "${PROJECT_BINARY_DIR}/include/El/config.h"
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/El)
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/El)
 add_custom_target(El_config DEPENDS "${PROJECT_BINARY_DIR}/include/El/config.h")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  	FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
 # Define the main library for Elemental
 # -------------------------------------
@@ -597,16 +597,17 @@ endif()
 # TODO(poulson): Also install into the build directory? How to have drivers
 # automatically find the right path?
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/data/"
-	DESTINATION ${CMAKE_INSTALL_DATADIR}/elemental/ FILES_MATCHING PATTERN "*.*")
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/elemental/ FILES_MATCHING PATTERN "*.*")
 
 # Install license and author information
 # ======================================
-install(FILES "${PROJECT_SOURCE_DIR}/AUTHORS"
-              "${PROJECT_SOURCE_DIR}/LICENSE"
-              "${PROJECT_SOURCE_DIR}/PUBLICATIONS.bib"
-              "${PROJECT_SOURCE_DIR}/README.md"
-              "${PROJECT_SOURCE_DIR}/REFERENCES.bib"
-	      DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES
+  "${PROJECT_SOURCE_DIR}/AUTHORS"
+  "${PROJECT_SOURCE_DIR}/LICENSE"
+  "${PROJECT_SOURCE_DIR}/PUBLICATIONS.bib"
+  "${PROJECT_SOURCE_DIR}/README.md"
+  "${PROJECT_SOURCE_DIR}/REFERENCES.bib"
+  DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Tests and examples
 # ==================
@@ -627,8 +628,6 @@ set_target_properties(sandbox-test PROPERTIES
 if(EL_LINK_FLAGS)
   set_target_properties(sandbox-test PROPERTIES LINK_FLAGS ${EL_LINK_FLAGS})
 endif()
-add_test(NAME sandbox/test WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
-  COMMAND sandbox-test -platform offscreen)
 
 # Test drivers
 # ------------
@@ -648,23 +647,25 @@ if(EL_TESTS)
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(tests-${TYPE}-${TESTNAME} El)
       if(BINARY_SUBDIRECTORIES)
-      	set(TEST_INSTALL_DIR test/${TYPE})
+        set(TEST_INSTALL_DIR test/${TYPE})
         set(TEST_OUTPUT_NAME ${TESTNAME})
       else()
-	set(TEST_OUTPUT_NAME tests-${TYPE}-${TESTNAME})
+        set(TEST_OUTPUT_NAME tests-${TYPE}-${TESTNAME})
       endif()
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
-	OUTPUT_NAME ${TEST_OUTPUT_NAME}
+        OUTPUT_NAME ${TEST_OUTPUT_NAME}
         SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
         RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
         set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
-      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR})
+      install(TARGETS tests-${TYPE}-${TESTNAME}
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/${TEST_INSTALL_DIR})
       if(NOT TESTNAME STREQUAL "SparseLDLRange") #Skip tests that can time out
         add_test(NAME Tests/${TYPE}/${TESTNAME}
-          WORKING_DIRECTORY "${TEST_DIR}" COMMAND tests-${TYPE}-${TESTNAME} -platform offscreen)
+          WORKING_DIRECTORY "${OUTPUT_DIR}"
+          COMMAND tests-${TYPE}-${TESTNAME} -platform offscreen)
       endif()
     endforeach()
   endforeach()
@@ -697,13 +698,13 @@ if(EL_EXAMPLES)
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(examples-${TYPE}-${EXNAME} El)
       if(BINARY_SUBDIRECTORIES)
-      	set(EXAMPLE_INSTALL_DIR examples/${TYPE})
+        set(EXAMPLE_INSTALL_DIR examples/${TYPE})
         set(EXAMPLE_OUTPUT_NAME ${EXNAME})
       else()
-	set(EXAMPLE_OUTPUT_NAME examples-${TYPE}-${EXNAME})
+        set(EXAMPLE_OUTPUT_NAME examples-${TYPE}-${EXNAME})
       endif()
       set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
-	OUTPUT_NAME ${EXAMPLE_OUTPUT_NAME}
+        OUTPUT_NAME ${EXAMPLE_OUTPUT_NAME}
         SUFFIX "${CMAKE_EXECUTABLE_SUFFIX_CXX}"
         RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
       if(EL_LINK_FLAGS)
@@ -711,8 +712,9 @@ if(EL_EXAMPLES)
           LINK_FLAGS ${EL_LINK_FLAGS})
       endif()
       install(TARGETS examples-${TYPE}-${EXNAME}
-	      DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR})
-      add_test(NAME Examples/${TYPE}/${EXNAME} WORKING_DIRECTORY "${OUTPUT_DIR}"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/${EXAMPLE_INSTALL_DIR})
+      add_test(NAME Examples/${TYPE}/${EXNAME}
+        WORKING_DIRECTORY "${OUTPUT_DIR}"
         COMMAND examples-${TYPE}-${EXNAME} -platform offscreen)
     endforeach()
   endforeach()
@@ -744,7 +746,6 @@ include(CPack)
 export(TARGETS El pmrrr ElSuiteSparse
   FILE "${PROJECT_BINARY_DIR}/ElementalTargets.cmake")
 
-
 if(NOT CMAKE_EXPORT_NO_PACKAGE_REGISTRY)
   # Export the package for use from the build-tree
   # (this registers the build-tree with a global CMake-registry).
@@ -769,11 +770,10 @@ configure_file(
   "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake" @ONLY)
 
 # Install the ElementalConfig.cmake and ElementalConfigVersion.cmake
-
 install(FILES
   "${PROJECT_BINARY_DIR}/ElementalConfig.cmake"
   "${PROJECT_BINARY_DIR}/ElementalConfigVersion.cmake"
   DESTINATION "${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
 
 install(EXPORT ElementalTargets
-	DESTINATION "${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
+  DESTINATION "${INSTALL_CMAKE_DIR}/elemental" COMPONENT dev)
