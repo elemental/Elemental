@@ -14,3 +14,10 @@ from matrices      import *
 from optimization  import *
 from control       import *
 from lattice       import *
+
+lib.ElFinalize.argtypes = []
+def Finalize():
+  if havePyPlot:
+    if len(plt.get_fignums()) > 0 and not isInlinePyPlot:
+      plt.show()
+  lib.ElFinalize()

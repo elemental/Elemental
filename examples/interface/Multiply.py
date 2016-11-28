@@ -82,10 +82,7 @@ zNrm2 = El.FrobeniusNorm( z )
 El.Multiply( El.NORMAL, -1., AAdj, y, 1., z )
 eNrm2 = El.FrobeniusNorm( z )
 if worldRank == 0:
-  print "|| A^H y ||_2 =", zNrm2
-  print "|| error ||_2 =", eNrm2
+  print('|| A^H y ||_2 = {}'.format(zNrm2))
+  print('|| error ||_2 = {}'.format(eNrm2))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

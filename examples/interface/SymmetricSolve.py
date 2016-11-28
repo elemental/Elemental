@@ -40,7 +40,7 @@ El.Copy( x, y )
 
 yNrm = El.Nrm2(y)
 if worldRank == 0:
-  print "|| y ||_2 =", yNrm
+  print('|| y ||_2 = {}'.format(yNrm))
 
 El.Display( A, "Laplacian" )
 El.Display( A.DistGraph(), "Laplacian graph" )
@@ -51,15 +51,12 @@ El.Display( x, "x" )
 
 xNrm = El.Nrm2(x)
 if worldRank == 0:
-  print "|| x ||_2 =", xNrm
+  print('|| x ||_2 = {}'.format(xNrm))
 
 El.Multiply(El.NORMAL,-1.,A,x,1.,y)
 El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if worldRank == 0:
-  print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
+  print('|| A x - y ||_2 / || y ||_2 = {}'.format(eNrm/yNrm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

@@ -14,3 +14,5 @@ if output:
   El.Print( A, "A" )
   El.Print( w, "w" )
   El.Print( X, "X" )
+
+El.Finalize()

@@ -43,22 +43,20 @@ El.Uniform( y, 2*n0*n1, 1 )
 if display:
   El.Display( y, "y" )
 yNrm = El.Nrm2(y)
-print "|| y ||_2 =", yNrm
+print('|| y ||_2 = {}'.format(yNrm))
 
-startLS = clock.time()
+startLS = time.time()
 x = El.LeastSquares(A,y)
-endLS = clock.time()
-print "LS time:", endLS-startLS, "seconds"
+endLS = time.time()
+print('LS time: {} seconds'.format(endLS-startLS))
 xNrm = El.Nrm2(x)
 if display:
   El.Display( x, "x" )
-print "|| x ||_2 =", xNrm
+print('|| x ||_2 = {}'.format(xNrm))
 El.Multiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
-print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
+print('|| A x - y ||_2 / || y ||_2 = {}'.format(eNrm/yNrm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-raw_input('Press Enter to exit')

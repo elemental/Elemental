@@ -74,7 +74,7 @@ if output:
   El.Print( y, "y" )
 yNrm = El.Nrm2(y)
 if worldRank == 0:
-  print "|| y ||_2 =", yNrm
+  print('|| y ||_2 = {}'.format(yNrm))
 
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.progress = True
@@ -83,14 +83,14 @@ startLS = El.mpi.Time()
 x = El.LeastSquares(A,y,ctrl)
 endLS = El.mpi.Time()
 if worldRank == 0:
-  print "LS time:", endLS-startLS, "seconds"
+  print('LS time: {} seconds'.format(endLS-startLS))
 xNrm = El.Nrm2(x)
 if display:
   El.Display( x, "x" )
 if output:
   El.Print( x, "x" )
 if worldRank == 0:
-  print "|| x ||_2 =", xNrm
+  print('|| x ||_2 = {}'.format(xNrm))
 El.Multiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
@@ -98,10 +98,6 @@ if output:
   El.Print( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if worldRank == 0:
-  print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
-
-# Require the user to press a button before the figures are closed
+  print('|| A x - y ||_2 / || y ||_2 = {}'.format(eNrm/yNrm))
 
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

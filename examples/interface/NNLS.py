@@ -51,7 +51,7 @@ startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()
 if worldRank == 0:
-  print "NNLS time (resolve reg.):", endNNLS-startNNLS, "seconds"
+  print('NNLS time (resolve reg.): {} seconds'.format(endNNLS-startNNLS))
 if display:
   El.Display( x, "x" )
 
@@ -61,7 +61,7 @@ startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()
 if worldRank == 0:
-  print "NNLS time (no resolve reg.):", endNNLS-startNNLS, "seconds"
+  print('NNLS time (no resolve reg.): {} seconds'.format(endNNLS-startNNLS))
 if display:
   El.Display( x, "x" )
 
@@ -70,22 +70,19 @@ El.Copy( b, e )
 El.Multiply( El.NORMAL, -1., A, x, 1., e )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
-  print "|| A x - b ||_2 =", eTwoNorm
+  print('|| A x - b ||_2 = {}'.format(eTwoNorm))
 
 startLS = El.mpi.Time()
 xLS = El.LeastSquares( A, b )
 endLS = El.mpi.Time()
 if worldRank == 0:
-  print "LS time:", endLS-startLS, "seconds"
+  print('LS time: {} seconds'.format(endLS-startLS))
 if display:
   El.Display( xLS, "xLS" )
 El.Copy( b, e )
 El.Multiply( El.NORMAL, -1., A, xLS, 1., e )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
-  print "|| A x_{LS} - b ||_2 =", eTwoNorm
+  print('|| A x_{{LS}} - b ||_2 = {}'.format(eTwoNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

@@ -59,7 +59,7 @@ El.Uniform( x, n0*n1, 1 )
 El.Copy( x, y )
 
 yNrm = El.Nrm2(y)
-print "|| y ||_2 =", yNrm
+print('|| y ||_2 = {}'.format(yNrm))
 
 if display:
   El.Display( y, "y" )
@@ -69,14 +69,12 @@ if display:
   El.Display( x, "x" )
 
 xNrm = El.Nrm2(x)
-print "|| x ||_2 =", xNrm
+print('|| x ||_2 = {}'.format(xNrm))
 
 El.Multiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
   El.Display( y, "A x - y" )
 eNrm = El.Nrm2(y)
-print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
+print('|| A x - y ||_2 / || y ||_2 = {}'.format(eNrm/yNrm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-raw_input('Press Enter to exit')

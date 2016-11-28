@@ -7,8 +7,8 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
-from ..blas_like import Copy, EntrywiseMap
-from ..io import ProcessEvents
+from ..blas_like import Copy, EntrywiseMap, RealPart, ImagPart
+from ..io import *
 import ctypes
 from ctypes import CFUNCTYPE
 
@@ -1184,59 +1184,77 @@ class SpectralBox_d(ctypes.Structure):
               ("realWidth",dType),
               ("imagWidth",dType)]
 
-def DisplayPortrait(portrait,box,title='',tryPython=True):
+def DisplayPortrait(portrait,box,title='',tryPython=True,eigvals=None):
   import math
-  if tryPython:
+  if tryPython and havePyPlot:
     if type(portrait) is Matrix:
-      EntrywiseMap(portrait,math.log10)
-      try:
-        import numpy as np
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
-        isInline = 'inline' in mpl.get_backend()
-        isVec = min(portrait.Height(),portrait.Width()) == 1
-        fig = plt.figure()
-        axis = fig.add_axes([0.1,0.1,0.8,0.8])
-        if isVec:
-          axis.plot(np.squeeze(portrait.ToNumPy()),'bo-')
-        else:
-          lBound = box.center.real - box.realWidth/2
-          rBound = box.center.real + box.realWidth/2 
-          bBound = box.center.imag - box.imagWidth/2
-          tBound = box.center.imag + box.imagWidth/2
-          im = axis.imshow(portrait.ToNumPy(),
-                           extent=[lBound,rBound,bBound,tBound])
-          fig.colorbar(im,ax=axis)
-        plt.title(title)
-        plt.draw()
-        if not isInline:
-            plt.show(block=False)
-        return
-      except:
-        print 'Could not import matplotlib.pyplot'
+      portraitLog10 = Matrix(portrait.tag)
+      Copy(portrait,portraitLog10) 
+      EntrywiseMap(portraitLog10,math.log10)
+      isVec = min(portrait.Height(),portrait.Width()) == 1
+      fig = plt.figure()
+      axis = fig.add_axes([0.1,0.1,0.8,0.8])
+      if isVec:
+        axis.plot(io.np.squeeze(portraitLog10.ToNumPy()),'bo-')
+      else:
+        lBound = box.center.real - box.realWidth/2
+        rBound = box.center.real + box.realWidth/2 
+        bBound = box.center.imag - box.imagWidth/2
+        tBound = box.center.imag + box.imagWidth/2
+        im = axis.imshow(portraitLog10.ToNumPy(),
+                         extent=[lBound,rBound,bBound,tBound])
+        fig.colorbar(im,ax=axis) 
+        if type(eigvals) is Matrix:
+          eigvalsReal = Matrix(portrait.tag)
+          eigvalsImag = Matrix(portrait.tag)
+          RealPart(eigvals,eigvalsReal)
+          ImagPart(eigvals,eigvalsImag)
+          plt.scatter(np.squeeze(eigvalsReal.ToNumPy()),
+                      np.squeeze(eigvalsImag.ToNumPy()))
+      plt.title(title)
+      plt.draw()
+      isInline = 'inline' in mpl.get_backend()
+      if not isInline:
+        plt.show(block=False)
+      return fig
     elif type(portrait) is DistMatrix:
       portrait_CIRC_CIRC = DistMatrix(portrait.tag,CIRC,CIRC,portrait.Grid())
       Copy(portrait,portrait_CIRC_CIRC)
+      if type(eigvals) is DistMatrix:
+        eigvalsFull = DistMatrix(eigvals.tag,STAR,STAR,eigvals.Grid())
+        Copy(eigvals,eigvalsFull)
       if portrait_CIRC_CIRC.CrossRank() == portrait_CIRC_CIRC.Root():
-        DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,True)
-      return
+        if eigvals is None:
+          return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
+                                 tryPython=True)
+        elif type(eigvals) is Matrix: 
+          return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
+                                 tryPython=True,eigvals=eigvals)
+        elif type(eigvals) is DistMatrix:
+          return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
+                                 tryPython=True,eigvals=eigvalsFull.Matrix())
+      return None
 
   # Fall back to the built-in Display if we have not succeeded
-  if not tryPython or type(portrait) is not Matrix:
-    EntrywiseMap(portrait,math.log10)
-  args = [portrait.obj,title]
   numMsExtra = 200
   if type(portrait) is Matrix:
+    portraitLog10 = Matrix(portrait.tag)
+    EntrywiseMap(portrait,math.log10)
+    args = [portraitLog10.obj,title]
     if   portrait.tag == sTag: lib.ElDisplay_s(*args)
     elif portrait.tag == dTag: lib.ElDisplay_d(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
   elif type(portrait) is DistMatrix:
+    portraitLog10 = DistMatrix(portrait.tag,MC,MR,portrait.Grid())
+    EntrywiseMap(portrait,math.log10)
+    args = [portraitLog10.obj,title]
     if   portrait.tag == sTag: lib.ElDisplayDist_s(*args)
     elif portrait.tag == dTag: lib.ElDisplayDist_d(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
   else: TypeExcept()
+  return None
 
 # (Pseudo-)Spectral portrait
 # --------------------------
@@ -1244,6 +1262,8 @@ def DisplayPortrait(portrait,box,title='',tryPython=True):
 # using the spectral radius would be insufficient for highly non-normal 
 # matrices, e.g., a Jordan block with eigenvalue zero
 
+# General
+# ^^^^^^^
 lib.ElSpectralPortrait_s.argtypes = \
 lib.ElSpectralPortrait_c.argtypes = \
 lib.ElSpectralPortraitDist_s.argtypes = \
@@ -1323,6 +1343,59 @@ def SpectralPortrait(A,realSize=200,imagSize=200,ctrl=None):
       argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortraitDist_z(*args)
       else:            lib.ElSpectralPortraitXDist_z(*argsCtrl)
+    else: DataExcept()
+    return invNormMap, box
+  else: TypeExcept()
+
+# Triangular
+# ^^^^^^^^^^
+lib.ElTriangularSpectralPortrait_c.argtypes = \
+lib.ElTriangularSpectralPortraitDist_c.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_s)]
+
+lib.ElTriangularSpectralPortrait_z.argtypes = \
+lib.ElTriangularSpectralPortraitDist_z.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_d)]
+
+lib.ElTriangularSpectralPortraitX_c.argtypes = \
+lib.ElTriangularSpectralPortraitXDist_c.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_s),PseudospecCtrl_s]
+
+lib.ElTriangularSpectralPortraitX_z.argtypes = \
+lib.ElTriangularSpectralPortraitXDist_z.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_d),PseudospecCtrl_d]
+
+def TriangularSpectralPortrait(U,realSize=200,imagSize=200,ctrl=None):
+  if type(U) is Matrix:
+    invNormMap = Matrix(Base(U.tag))
+    if U.tag == cTag:
+      box = SpectralBox_s()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortrait_c(*args)
+      else:            lib.ElTriangularSpectralPortraitX_c(*argsCtrl)
+    elif U.tag == zTag:
+      box = SpectralBox_d()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortrait_z(*args)
+      else:            lib.ElTriangularSpectralPortraitX_z(*argsCtrl)
+    else: DataExcept()
+    return invNormMap, box
+  elif type(U) is DistMatrix:
+    invNormMap = DistMatrix(Base(U.tag),MC,MR,U.Grid())
+    if U.tag == cTag:
+      box = SpectralBox_s()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortraitDist_c(*args)
+      else:            lib.ElTriangularSpectralPortraitXDist_c(*argsCtrl)
+    elif U.tag == zTag:
+      box = SpectralBox_d()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortraitDist_z(*args)
+      else:            lib.ElTriangularSpectralPortraitXDist_z(*argsCtrl)
     else: DataExcept()
     return invNormMap, box
   else: TypeExcept()

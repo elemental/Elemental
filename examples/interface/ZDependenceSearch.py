@@ -40,8 +40,8 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
   for deltaLower in 0.5, 0.75, 0.95, 0.98, 0.99:
     for variant in El.LLL_NORMAL, El.LLL_DEEP, El.LLL_DEEP_REDUCE:
 
-      print "variant=%d, presort=%r, smallestFirst=%r, deltaLower=%f" % \
-        (variant,presort,smallestFirst,deltaLower)
+      print('variant={}, presort={}, smallestFirst={}, deltaLower={}'.format( \
+        variant,presort,smallestFirst,deltaLower))
 
       ctrl.delta = deltaLower
       ctrl.variant = variant
@@ -52,12 +52,14 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
       startTime = El.mpi.Time()
       numExact, B, U = El.ZDependenceSearch(z,NSqrt,ctrl)
       runTime = El.mpi.Time() - startTime
-      print "  runtime: %f seconds" % runTime
-      print "  num \"exact\": ", numExact
+      print('  runtime: {} seconds'.format(runTime))
+      print('  num \"exact\": {}'.format(numExact))
       if outputAll:
         El.Print( B, "B" )
         El.Print( U, "U" )
       elif outputCoeff:
         El.Print( U[:,0], "u0" )
-      print "approximate zero: %e+%ei" % \
-        (B.GetRealPart(n,0)/NSqrt,B.GetImagPart(n,0)/NSqrt)
+      print('approximate zero: {}+{}i'.format( \
+        B.GetRealPart(n,0)/NSqrt,B.GetImagPart(n,0)/NSqrt))
+
+El.Finalize()

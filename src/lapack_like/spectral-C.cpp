@@ -833,6 +833,8 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
      ============= */ \
   /* (Pseudo-)Spectral portrait
      -------------------------- */ \
+  /* Square
+     ^^^^^^ */ \
   ElError ElSpectralPortrait_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC ) \
@@ -865,7 +867,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
       SpectralPortrait( *CReflect(A), *CReflect(invNormMap), \
         realSize, imagSize, box ); \
       *boxC = CReflect(box) ) } \
-  /* Expert version */ \
+  /* Expert interface */ \
   ElError ElSpectralPortraitX_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC, \
@@ -904,6 +906,45 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
       SpectralBox<Base<F>> box; \
       SpectralPortrait( \
         *CReflect(A), *CReflect(invNormMap), realSize, imagSize, box, \
+        CReflect(ctrl) ); \
+      *boxC = CReflect(box) ) } \
+  /* Triangular 
+     ^^^^^^^^^^ */ \
+  ElError ElTriangularSpectralPortrait_ ## SIG \
+  ( ElConstMatrix_ ## SIG U, ElMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( *CReflect(U), *CReflect(invNormMap), \
+        realSize, imagSize, box ); \
+      *boxC = CReflect(box) ) } \
+  ElError ElTriangularSpectralPortraitDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG U, ElDistMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( *CReflect(U), *CReflect(invNormMap), \
+        realSize, imagSize, box ); \
+      *boxC = CReflect(box) ) } \
+  /* Expert interface */ \
+  ElError ElTriangularSpectralPortraitX_ ## SIG \
+  ( ElConstMatrix_ ## SIG U, ElMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC, \
+    ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( \
+        *CReflect(U), *CReflect(invNormMap), realSize, imagSize, box, \
+        CReflect(ctrl) ); \
+      *boxC = CReflect(box) ) } \
+  ElError ElTriangularSpectralPortraitXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG U, ElDistMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC, \
+    ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( \
+        *CReflect(U), *CReflect(invNormMap), realSize, imagSize, box, \
         CReflect(ctrl) ); \
       *boxC = CReflect(box) ) } \
   /* (Pseudo-)Spectral window

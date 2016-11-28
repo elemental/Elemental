@@ -10,13 +10,17 @@ from El.core import *
 from El.blas_like import Copy, CopyFromRoot, CopyFromNonRoot, RealPart, ImagPart
 
 # Attempt to import matplotlib.pyplot and save whether or not this succeeded
+global havePyPlot
+global isInlinePyPlot
 try:
   import numpy as np
   import matplotlib as mpl
   import matplotlib.pyplot as plt
   havePyPlot=True
+  isInlinePyPlot = 'inline' in mpl.get_backend()
 except:
   havePyPlot=False
+  isInlinePyPlot=False
   print 'Could not import matplotlib.pyplot'
 
 if havePyPlot:
@@ -191,9 +195,9 @@ def DisplayPyPlot(A,title=''):
       fig.colorbar(im,ax=axis)
     plt.title(title)
   plt.draw()
-  isInline = 'inline' in mpl.get_backend()
-  if not isInline:
+  if not isInlinePyPlot:
     plt.show(block=False)
+  return fig
 
 def DisplayNetworkX(A,title=''):
   numEdges = A.NumEdges() 
@@ -206,9 +210,9 @@ def DisplayNetworkX(A,title=''):
   plt.title(title)
   nx.draw(G)
   plt.draw()
-  isInline = 'inline' in mpl.get_backend()
-  if not isInline:
+  if not isInlinePyPlot:
     plt.show(block=False)
+  return fig
 
 def DisplayCxx(A,title=''):
   args = [A.obj,title]
@@ -264,59 +268,55 @@ def DisplayCxx(A,title=''):
   elif type(A) is DistPermutation:
     DisplayCxx(A.ExplicitVector(),title)
   else: TypeExcept()
+  return None
 
 def Display(A,title='',tryPython=True):
   if tryPython: 
     if type(A) is Matrix:
       if havePyPlot:
-        DisplayPyPlot(A,title)
-        return
+        return DisplayPyPlot(A,title)
     elif type(A) is DistMatrix:
       A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
       Copy(A,A_CIRC_CIRC)
       if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-        Display(A_CIRC_CIRC.Matrix(),title,True)
-      return
+        return Display(A_CIRC_CIRC.Matrix(),title,True)
+      return None
     elif type(A) is DistMultiVec:
       if mpi.Rank(A.Comm()) == 0:
         ASeq = Matrix(A.tag)
         CopyFromRoot(A,ASeq)
-        Display(ASeq,title,True)
+        return Display(ASeq,title,True)
       else:
         CopyFromNonRoot(A)
-      return
+        return None
     elif type(A) is Graph:
       if haveNetworkX:
-        DisplayNetworkX(A,title)
-        return
+        return DisplayNetworkX(A,title)
     elif type(A) is DistGraph:
       if mpi.Rank(A.Comm()) == 0:
         ASeq = Graph()
         CopyFromRoot(A,ASeq)
-        Display(ASeq,title,True)
+        return Display(ASeq,title,True)
       else:
         CopyFromNonRoot(A)
-      return
+        return None
     elif type(A) is SparseMatrix:
       ADense = Matrix(A.tag)
       Copy(A,ADense)
-      Display(ADense,title,True)
-      return
+      return Display(ADense,title,True)
     elif type(A) is DistSparseMatrix:
       grid = Grid(A.Comm())
       ADense = DistMatrix(A.tag,MC,MR,grid)
       Copy(A,ADense)
-      Display(ADense,title,True)
-      return
+      return Display(ADense,title,True)
     elif type(A) is Permutation:
-      Display(A.ExplicitVector(),title,True)
-      return
+      return Display(A.ExplicitVector(),title,True)
     elif type(A) is DistPermutation:
-      Display(A.ExplicitVector(),title,True)
-      return
+      return Display(A.ExplicitVector(),title,True)
 
   # Fall back to the internal Display routine
   DisplayCxx(A,title)
+  return None
 
 lib.ElSpy_i.argtypes = \
 lib.ElSpyDist_i.argtypes = \

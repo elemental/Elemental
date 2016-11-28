@@ -1092,6 +1092,9 @@ typedef struct {
 
 /* (Pseudo-)Spectral portrait
    -------------------------- */ 
+
+/* Square
+   ^^^^^^ */
 EL_EXPORT ElError ElSpectralPortrait_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElSpectralBox_s* box );
@@ -1118,8 +1121,8 @@ EL_EXPORT ElError ElSpectralPortraitDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
   ElInt realSize, ElInt imagSize, ElSpectralBox_d* box );
 
-/* Expert version
-   ^^^^^^^^^^^^^^ */
+/* Expert interface
+   ~~~~~~~~~~~~~~~~ */
 EL_EXPORT ElError ElSpectralPortraitX_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
@@ -1147,6 +1150,40 @@ EL_EXPORT ElError ElSpectralPortraitXDist_c
   ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
 EL_EXPORT ElError ElSpectralPortraitXDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize, 
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
+
+/* Triangular
+   ^^^^^^^^^^ */
+EL_EXPORT ElError ElTriangularSpectralPortrait_c
+( ElConstMatrix_c U, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_s* box );
+EL_EXPORT ElError ElTriangularSpectralPortrait_z
+( ElConstMatrix_z U, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_d* box );
+
+EL_EXPORT ElError ElTriangularSpectralPortraitDist_c
+( ElConstDistMatrix_c U, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize, ElSpectralBox_s* box );
+EL_EXPORT ElError ElTriangularSpectralPortraitDist_z
+( ElConstDistMatrix_z U, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize, ElSpectralBox_d* box );
+
+/* Expert interface
+   ~~~~~~~~~~~~~~~~ */
+EL_EXPORT ElError ElTriangularSpectralPortraitX_c
+( ElConstMatrix_c U, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElTriangularSpectralPortraitX_z
+( ElConstMatrix_z U, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
+
+EL_EXPORT ElError ElTriangularSpectralPortraitXDist_c
+( ElConstDistMatrix_c U, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize, 
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElTriangularSpectralPortraitXDist_z
+( ElConstDistMatrix_z U, ElDistMatrix_d invNormMap,
   ElInt realSize, ElInt imagSize, 
   ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
 

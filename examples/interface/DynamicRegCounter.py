@@ -14,8 +14,4 @@ A = El.DistSparseMatrix()
 El.DynamicRegCounter( A, n )
 El.Display( A, "A" )
 
-# Require the user to press a button before the figures are closed
-worldSize = El.mpi.WorldSize()
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

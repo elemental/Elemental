@@ -67,7 +67,7 @@ if display:
   El.Display( b, "b" )
 
 if worldRank == 0:
-  print "lambda1 =", lambda1, "lambda2 =", lambda2
+  print('lambda1 = {}, lambda2 = {}'.format(lambda1,lambda2))
 
 ctrl = El.QPAffineCtrl_d()
 ctrl.mehrotraCtrl.progress = True
@@ -81,7 +81,7 @@ startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = El.mpi.Time()
 if worldRank == 0:
-  print "EN time (resolve reg.):", endEN-startEN, "seconds"
+  print('EN time (resolve reg.): {} seconds'.format(endEN-startEN))
 if display:
   El.Display( x, "x" )
 
@@ -91,7 +91,7 @@ startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = El.mpi.Time()
 if worldRank == 0:
-  print "EN time (no resolve reg.):", endEN-startEN, "seconds"
+  print('EN time (no resolve reg.): {} seconds'.format(endEN-startEN))
 if display:
   El.Display( x, "x" )
 
@@ -104,11 +104,8 @@ if display:
   El.Display( e, "e" )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
-  print "|| x ||_1       =", xOneNorm
-  print "|| x ||_2       =", xTwoNorm
-  print "|| A x - b ||_2 =", eTwoNorm
+  print('|| x ||_1       = {}'.format(xOneNorm))
+  print('|| x ||_2       = {}'.format(xTwoNorm))
+  print('|| A x - b ||_2 = {}'.format(eTwoNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

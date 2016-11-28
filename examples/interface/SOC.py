@@ -58,8 +58,8 @@ sDetsBcast = El.DistMultiVec()
 zDetsBcast = El.DistMultiVec()
 El.Copy( sDets, sDetsBcast )
 El.Copy( zDets, zDetsBcast )
-El.SOCBroadcast( sDetsBcast, orders, firstInds, cutoff )
-El.SOCBroadcast( zDetsBcast, orders, firstInds, cutoff )
+El.ConeBroadcast( sDetsBcast, orders, firstInds, cutoff )
+El.ConeBroadcast( zDetsBcast, orders, firstInds, cutoff )
 sNumNonPos = El.NumNonSOC( s, orders, firstInds, cutoff )
 zNumNonPos = El.NumNonSOC( z, orders, firstInds, cutoff )
 if output:
@@ -68,8 +68,8 @@ if output:
   El.Print( sDetsBcast, "Broadcasted det(s)" )
   El.Print( zDetsBcast, "Broadcasted det(z)" )
   if worldRank == 0:
-    print "# non-SOC in s:", sNumNonPos
-    print "# non-SOC in z:", zNumNonPos
+    print('# non-SOC in s: {}'.format(sNumNonPos))
+    print('# non-SOC in z: {}'.format(zNumNonPos))
 
 # Compute the square-roots of s and z
 # ===================================
@@ -124,11 +124,8 @@ pDets = El.SOCDets( p, orders, firstInds, cutoff )
 if output:
   El.Print( y, "y" )
   if worldRank == 0: 
-    print "maximum step in cone is:", alpha
+    print('maximum step in cone is: {}'.format(alpha))
   El.Print( p, "s + alpha y" )
   El.Print( pDets, "det(s + alpha y)" )
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

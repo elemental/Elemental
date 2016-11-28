@@ -1,7 +1,8 @@
 import El
 
 n = 1000
-output = True
+outputMatrices = False
+outputVector = True
 
 A = El.Matrix(El.zTag)
 El.Uniform( A, n, n, 0., 10.)
@@ -12,9 +13,12 @@ w, Q = El.Schur(T,fullTriangle=True,vectors=True)
 
 X = El.TriangEig(T)
 
-if output:
+if outputMatrices:
   El.Print( A, "A" )
-  El.Print( w, "w" )
   El.Print( Q, "Q" )
   El.Print( T, "T" )
   El.Print( X, "X" )
+if outputVector:
+  El.Print( w, "w" )
+
+El.Finalize()

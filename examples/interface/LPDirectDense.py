@@ -74,7 +74,7 @@ if testMehrotra:
   El.LPDirect(A,b,c,x,y,z,ctrl)
   endMehrotra = El.mpi.Time()
   if worldRank == 0:
-    print "Mehrotra time:", endMehrotra-startMehrotra
+    print('Mehrotra time: {} seconds'.format(endMehrotra-startMehrotra))
 
   if display:
     El.Display( x, "x Mehrotra" )
@@ -83,7 +83,7 @@ if testMehrotra:
 
   obj = El.Dot(c,x)
   if worldRank == 0:
-    print "Mehrotra c^T x =", obj
+    print('Mehrotra c^T x = {}'.format(obj))
 
 if testIPF:
   ctrl.approach = El.LP_IPF
@@ -98,7 +98,7 @@ if testIPF:
   El.LPDirect(A,b,c,x,y,z,ctrl)
   endIPF = El.mpi.Time()
   if worldRank == 0:
-    print "IPF time:", endIPF-startIPF
+    print('IPF time: {} seconds'.format(endIPF-startIPF))
 
   if display:
     El.Display( x, "x IPF" )
@@ -107,7 +107,7 @@ if testIPF:
 
   obj = El.Dot(c,x)
   if worldRank == 0:
-    print "IPF c^T x =", obj
+    print('IPF c^T x = {}'.format(obj))
 
 if testADMM:
   ctrl.approach = El.LP_ADMM
@@ -116,16 +116,13 @@ if testADMM:
   x = El.LPDirect(A,b,c,x,y,z,ctrl)
   endADMM = El.mpi.Time()
   if worldRank == 0:
-    print "ADMM time:", endADMM-startADMM
+    print('ADMM time: {} seconds'.format(endADMM-startADMM))
 
   if display:
     El.Display( x, "x ADMM" )
 
   obj = El.Dot(c,x)
   if worldRank == 0:
-    print "ADMM c^T x =", obj
+    print('ADMM c^T x = {}'.format(obj))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')
