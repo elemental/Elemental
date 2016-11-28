@@ -2,12 +2,12 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-// TODO: Consider making MinAbsNonzero global
+// TODO(poulson): Consider making MinAbsNonzero global
 #include "../../../lapack_like/equilibrate/Util.hpp"
 
 // The following are extensions to cones of the routine
@@ -29,25 +29,110 @@ namespace cone {
 
 template<typename F>
 void GeomEquil
-(       Matrix<F>& A, 
-        Matrix<F>& B, 
-        Matrix<Base<F>>& dRowA, 
-        Matrix<Base<F>>& dRowB, 
-        Matrix<Base<F>>& dCol, 
-  const Matrix<Int>& orders,  
+(       Matrix<F>& A,
+        Matrix<F>& B,
+        Matrix<Base<F>>& dRowA,
+        Matrix<Base<F>>& dRowB,
+        Matrix<Base<F>>& dCol,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress )
 {
     DEBUG_CSE
-    LogicError("This routine is not yet written");
+    typedef Base<F> Real;
+    const Int mA = A.Height();
+    const Int mB = B.Height();
+    const Int n = A.Width();
+    Ones( dRowA, mA, 1 );
+    Ones( dRowB, mB, 1 );
+    Ones( dCol, n, 1 );
+
+    // TODO(poulson): Expose these as control parameters
+    const Int minIter = 3;
+    const Int maxIter = 6;
+    const Real relTol = Real(9)/Real(10);
+
+    // TODO(poulson): Incorporate damping
+    //const Real damp = Real(1)/Real(1000);
+    //const Real sqrtDamp = Sqrt(damp);
+
+    // Compute the original ratio of the maximum to minimum nonzero
+    auto maxAbsA = MaxAbsLoc( A );
+    auto maxAbsB = MaxAbsLoc( B );
+    const Real maxAbsVal = Max(maxAbsA.value,maxAbsB.value);
+    if( maxAbsVal == Real(0) )
+        return;
+    const Real minAbsValA = MinAbsNonzero( A, maxAbsVal );
+    const Real minAbsValB = MinAbsNonzero( B, maxAbsVal );
+    const Real minAbsVal = Min(minAbsValA,minAbsValB);
+    Real ratio = maxAbsVal / minAbsVal;
+    if( progress )
+        Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
+
+    Matrix<Real> rowScaleA, rowScaleB, colScale, colScaleB;
+    const Int indent = PushIndent();
+    for( Int iter=0; iter<maxIter; ++iter )
+    {
+        // Geometrically equilibrate the columns
+        // -------------------------------------
+        StackedGeometricColumnScaling( A, B, colScale );
+        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, colScale, dCol );
+        DiagonalSolve( RIGHT, NORMAL, colScale, A );
+        DiagonalSolve( RIGHT, NORMAL, colScale, B );
+
+        // Geometrically equilibrate the rows
+        // ----------------------------------
+        GeometricRowScaling( A, rowScaleA );
+        EntrywiseMap( rowScaleA, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
+        DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
+
+        // TODO(poulson): Get rid of GeometricRowScaling since we need
+        // intrusive change
+        GeometricRowScaling( B, rowScaleB );
+        cone::AllReduce( rowScaleB, orders, firstInds, mpi::MAX );
+        EntrywiseMap( rowScaleB, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
+        DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
+
+        auto newMaxAbsA = MaxAbsLoc( A );
+        auto newMaxAbsB = MaxAbsLoc( B );
+        const Real newMaxAbsVal = Max(newMaxAbsA.value,newMaxAbsB.value);
+        const Real newMinAbsValA = MinAbsNonzero( A, newMaxAbsVal );
+        const Real newMinAbsValB = MinAbsNonzero( B, newMaxAbsVal );
+        const Real newMinAbsVal = Min(newMinAbsValA,newMinAbsValB);
+        const Real newRatio = newMaxAbsVal / newMinAbsVal;
+        if( progress )
+            Output("New ratio is ",newMaxAbsVal,"/",newMinAbsVal,"=",newRatio);
+        if( iter >= minIter && newRatio >= ratio*relTol )
+            break;
+        ratio = newRatio;
+    }
+    SetIndent( indent );
+
+    // Scale each column so that its maximum entry is 1 or 0
+    // =====================================================
+    ColumnMaxNorms( A, colScale );
+    ColumnMaxNorms( B, colScaleB );
+          Real* colScaleBuf = colScale.Buffer();
+    const Real* colScaleBBuf = colScaleB.LockedBuffer();
+    for( Int j=0; j<n; ++j )
+    {
+        Real maxScale = Max(colScaleBuf[j],colScaleBBuf[j]);
+        colScaleBuf[j] = DampScaling<Real>(maxScale);
+    }
+    DiagonalScale( LEFT, NORMAL, colScale, dCol );
+    DiagonalSolve( RIGHT, NORMAL, colScale, A );
+    DiagonalSolve( RIGHT, NORMAL, colScale, B );
 }
 
-// TODO: Use lower-level access
+// TODO(poulson): Use lower-level access
 template<typename F>
 void GeomEquil
-(       ElementalMatrix<F>& APre, 
+(       ElementalMatrix<F>& APre,
         ElementalMatrix<F>& BPre,
-        ElementalMatrix<Base<F>>& dRowAPre, 
+        ElementalMatrix<Base<F>>& dRowAPre,
         ElementalMatrix<Base<F>>& dRowBPre,
         ElementalMatrix<Base<F>>& dColPre,
   const ElementalMatrix<Int>& orders,
@@ -85,12 +170,12 @@ void GeomEquil
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 6; 
+    const Int maxIter = 6;
     const Real relTol = Real(9)/Real(10);
 
-    // TODO: Incorporate damping
+    // TODO(poulson): Incorporate damping
     //const Real damp = Real(1)/Real(1000);
     //const Real sqrtDamp = Sqrt(damp);
 
@@ -115,7 +200,7 @@ void GeomEquil
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
-        StackedGeometricColumnScaling( A, B, colScale ); 
+        StackedGeometricColumnScaling( A, B, colScale );
         EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
@@ -128,7 +213,8 @@ void GeomEquil
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
-        // TODO: Get rid of GeometricRowScaling since we need intrusive change
+        // TODO(poulson): Get rid of GeometricRowScaling since we need
+        // intrusive change
         GeometricRowScaling( B, rowScaleB );
         cone::AllReduce( rowScaleB, orders, firstInds, mpi::MAX, cutoff );
         EntrywiseMap( rowScaleB, function<Real(Real)>(DampScaling<Real>) );
@@ -170,12 +256,12 @@ void GeomEquil
 
 template<typename F>
 void GeomEquil
-(       SparseMatrix<F>& A, 
+(       SparseMatrix<F>& A,
         SparseMatrix<F>& B,
-        Matrix<Base<F>>& dRowA, 
+        Matrix<Base<F>>& dRowA,
         Matrix<Base<F>>& dRowB,
         Matrix<Base<F>>& dCol,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress )
 {
@@ -188,9 +274,9 @@ void GeomEquil
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 6; 
+    const Int maxIter = 6;
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -254,7 +340,7 @@ void GeomEquil
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
 
         // Geometrically rescale the rows
-        // ------------------------------ 
+        // ------------------------------
         RowMaxNorms( A, maxAbsValsA );
         RowMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
         {
@@ -348,11 +434,11 @@ void GeomEquil
 
 template<typename F>
 void GeomEquil
-(       DistSparseMatrix<F>& A, 
+(       DistSparseMatrix<F>& A,
         DistSparseMatrix<F>& B,
-        DistMultiVec<Base<F>>& dRowA, 
-        DistMultiVec<Base<F>>& dRowB, 
-        DistMultiVec<Base<F>>& dCol, 
+        DistMultiVec<Base<F>>& dRowA,
+        DistMultiVec<Base<F>>& dRowB,
+        DistMultiVec<Base<F>>& dCol,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff,
@@ -372,9 +458,9 @@ void GeomEquil
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 6; 
+    const Int maxIter = 6;
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -436,7 +522,7 @@ void GeomEquil
         DiagonalSolve( RIGHT, NORMAL, scales, B );
 
         // Geometrically rescale the rows
-        // ------------------------------ 
+        // ------------------------------
         scales.Resize( mA, 1 );
         RowMaxNorms( A, maxAbsValsA );
         ColumnMinAbsNonzero( A, maxAbsValsA, minAbsValsA );
