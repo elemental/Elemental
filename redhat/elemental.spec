@@ -103,6 +103,8 @@ This package contains the python bindings for using Elemental through a python s
 
 %prep
 %autosetup -c -n Elemental-%{archive}
+#this is a hack
+cd $(ls -d */|head -n 1)
 
 %build
 
