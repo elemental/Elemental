@@ -1,3 +1,4 @@
+%{!?archive: %define archive master}
 Name:	elemental
 Version:	0.87.2
 Release:	2%{?dist}
@@ -5,7 +6,7 @@ Summary:	Library for distributed-memory dense/sparse-direct linear algebra
 Group:	Development/Libraries
 License:	BSD and Boost and MIT and LGPLv2
 URL:	http://libelemental.org
-Source0:	https://github.com/elemental/Elemental/archive/v%{version}.zip
+Source0:	https://github.com/elemental/Elemental/archive/%{archive}.tar.gz
 
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
@@ -101,7 +102,9 @@ Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %prep
-%autosetup -n Elemental-%{version}
+%autosetup -c -n Elemental-%{archive}
+#this is a hack
+mv $(ls -d */|head -n 1)/* .
 
 %build
 
@@ -137,11 +140,12 @@ export F77=mpif77
 
 %define docheck() \
 export  CTEST_OUTPUT_ON_FAILURE=1; \
-cd %{_builddir}/%{name}-%{version}/$MPI_COMPILER ; \
+cd $MPI_COMPILER ; \
 export OLD_LD_LIBRARY_PATH=$LD_LIBRARY_PATH; \
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd):$(pwd)/external/pmrrr:$(pwd)/external/suite_sparse; \
 ctest -V %{?_smp_mflags}; \
 export LD_LIBRARY_PATH=$OLD_LD_LIBRARY_PATH; \
+cd .. ; \
 
 ## Build OpenMPI version
 %{_openmpi_load}
