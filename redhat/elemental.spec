@@ -5,7 +5,7 @@ Summary:	Library for distributed-memory dense/sparse-direct linear algebra
 Group:	Development/Libraries
 License:	BSD and Boost and MIT and LGPLv2
 URL:	http://libelemental.org
-Source0:	https://github.com/elemental/Elemental/archive/v%{version}.zip
+Source0:	https://github.com/elemental/Elemental/archive/master.zip
 
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
@@ -101,7 +101,7 @@ Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %prep
-%autosetup -n Elemental-%{version}
+%autosetup 
 
 %build
 
