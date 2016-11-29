@@ -102,7 +102,7 @@ Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %prep
-%autosetup -n Elemental-%{archive}
+%autosetup -c -n Elemental-%{archive}
 
 %build
 
