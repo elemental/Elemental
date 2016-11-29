@@ -51,9 +51,9 @@ void MaxEig
     auto& maxEigs = maxEigsProx.Get();
     auto& firstInds = firstIndsProx.GetLocked();
 
-    const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
     DEBUG_ONLY(
+      const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
