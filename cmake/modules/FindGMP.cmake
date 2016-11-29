@@ -44,8 +44,10 @@ endif(NOT GMP_FIND_VERSION)
 if(GMP_INCLUDES)
 
   # Set GMP_VERSION
-
-  file(READ "${GMP_INCLUDES}/gmp.h" _gmp_version_header)
+  execute_process( COMMAND ${CMAKE_CXX_COMPILER} -dM -E "${GMP_INCLUDES}/gmp.h"
+                  COMMAND grep __GNU_MP_VERSION 
+                  COMMAND grep -v RELEASE
+                  OUTPUT_VARIABLE _gmp_version_header)
 
   string(REGEX MATCH "define[ \t]+__GNU_MP_VERSION[ \t]+([0-9]+)" _gmp_major_version_match "${_gmp_version_header}")
   set(GMP_MAJOR_VERSION "${CMAKE_MATCH_1}")
@@ -57,11 +59,10 @@ if(GMP_INCLUDES)
   set(GMP_VERSION ${GMP_MAJOR_VERSION}.${GMP_MINOR_VERSION}.${GMP_PATCHLEVEL_VERSION})
 
   # Check whether found version exceeds minimum version
-
+  message(STATUS "GMP_VERSION: ${GMP_VERSION} found in ${GMP_INCLUDES}")
   if(${GMP_VERSION} VERSION_LESS ${GMP_FIND_VERSION})
     set(GMP_VERSION_OK FALSE)
-    message(STATUS "GMP version ${GMP_VERSION} found in ${GMP_INCLUDES}, "
-                   "but at least version ${GMP_FIND_VERSION} is required")
+    message(STATUS "At least version ${GMP_FIND_VERSION} of GMP is required")
   else(${GMP_VERSION} VERSION_LESS ${GMP_FIND_VERSION})
     set(GMP_VERSION_OK TRUE)
   endif(${GMP_VERSION} VERSION_LESS ${GMP_FIND_VERSION})
