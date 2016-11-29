@@ -31,13 +31,18 @@ void RandomFeasibleLP( El::Int m, El::Int n, El::Int k )
   
     // Solve the primal/dual Linear Program with the default options
     El::Matrix<Real> x, y, z, s;
+    El::Timer timer;
+    timer.Start();
     El::LP( A, G, b, c, h, x, y, z, s );
+    El::Output("Primal-dual LP took ",timer.Stop()," seconds");
   
     // Print the primal and dual objective values
     const Real primal = El::Dot(c,x);
     const Real dual = -El::Dot(b,y) - El::Dot(h,z);
+    const Real relGap = El::Abs(primal-dual) / El::Max(El::Abs(dual),Real(1));
     El::Output("c^T x = ",primal);
     El::Output("-b^T y - h^T z = ",dual);
+    El::Output("|gap| / max( |dual|, 1 ) = ",relGap);
   
     // Print the relative primal feasibility residual,
     //   || A x - b ||_2 / max( || b ||_2, 1 ).
@@ -56,10 +61,11 @@ void RandomFeasibleLP( El::Int m, El::Int n, El::Int k )
     El::Gemv( El::TRANSPOSE, Real(1), G, z, Real(1), rDual );
     rDual += c;
     const Real cFrob = El::FrobeniusNorm( c );
-    const Real rDualFrob = El::FrobeniusNorm( c );
+    const Real rDualFrob = El::FrobeniusNorm( rDual );
     const Real dualRelResid = rDualFrob / El::Max( cFrob, Real(1) );
     El::Output
     ("|| A^T y + G^T z + c ||_2 / max( || c ||_2, 1 ) = ",dualRelResid);
+    El::Output("");
 }
 
 int main( int argc, char* argv[] )
@@ -68,9 +74,9 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const El::Int m = El::Input("--m","height of A",100);
-        const El::Int n = El::Input("--n","width of A",100);
-        const El::Int k = El::Input("--k","height of G",100);
+        const El::Int m = El::Input("--m","height of A",70);
+        const El::Int n = El::Input("--n","width of A",80);
+        const El::Int k = El::Input("--k","height of G",90);
         El::ProcessInput();
 
         RandomFeasibleLP<float>( m, n, k );
