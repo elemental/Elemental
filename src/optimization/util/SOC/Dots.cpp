@@ -38,8 +38,8 @@ void Dots
     for( Int i=0; i<height; )
     {
         const Int order = orders(i);
-        const Int firstInd = firstInds(i);
         DEBUG_ONLY(
+          const Int firstInd = firstInds(i);
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
@@ -82,8 +82,8 @@ void Dots
     auto& orders = ordersProx.GetLocked();
     auto& firstInds = firstIndsProx.GetLocked();
 
-    const Int height = x.Height();
     DEBUG_ONLY(
+      const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -194,8 +194,8 @@ void Dots
     const Int localHeight = x.LocalHeight();
     const Int firstLocalRow = x.FirstLocalRow();
 
-    const Int height = x.Height();
     DEBUG_ONLY(
+      const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
