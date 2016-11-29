@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,25 +16,53 @@ Real DampScaling( Real alpha )
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
         return 1;
-    else 
+    else
         return Max(alpha,tol);
 }
 
 template<typename F>
 void RuizEquil
-( Matrix<F>& A, 
-  Matrix<Base<F>>& dRow, 
-  Matrix<Base<F>>& dCol, 
+( Matrix<F>& A,
+  Matrix<Base<F>>& dRow,
+  Matrix<Base<F>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    LogicError("This routine is not yet written");
+    typedef Base<F> Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    Ones( dRow, m, 1 );
+    Ones( dCol, n, 1 );
+
+    // TODO(poulson): Expose these as control parameters
+    // For now, simply hard-code the number of iterations
+    const Int maxIter = 4;
+
+    Matrix<Real> rowScale, colScale;
+    const Int indent = PushIndent();
+    for( Int iter=0; iter<maxIter; ++iter )
+    {
+        // Rescale the columns
+        // -------------------
+        ColumnMaxNorms( A, colScale );
+        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, colScale, dCol );
+        DiagonalSolve( RIGHT, NORMAL, colScale, A );
+
+        // Rescale the rows
+        // ----------------
+        RowMaxNorms( A, rowScale );
+        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, rowScale, dRow );
+        DiagonalSolve( LEFT, NORMAL, rowScale, A );
+    }
+    SetIndent( indent );
 }
 
 template<typename F>
 void RuizEquil
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<Base<F>>& dRowPre, 
+( ElementalMatrix<F>& APre,
+  ElementalMatrix<Base<F>>& dRowPre,
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
 {
@@ -59,9 +87,9 @@ void RuizEquil
     Ones( dRow, m, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     // For now, simply hard-code the number of iterations
-    const Int maxIter = 4; 
+    const Int maxIter = 4;
 
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid());
@@ -87,8 +115,8 @@ void RuizEquil
 
 template<typename F>
 void RuizEquil
-( SparseMatrix<F>& A, 
-  Matrix<Base<F>>& dRow, 
+( SparseMatrix<F>& A,
+  Matrix<Base<F>>& dRow,
   Matrix<Base<F>>& dCol,
   bool progress )
 {
@@ -99,9 +127,9 @@ void RuizEquil
     Ones( dRow, m, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     // For now, simply hard-code the number of iterations
-    const Int maxIter = 4; 
+    const Int maxIter = 4;
 
     Matrix<Real> scales;
     const Int indent = PushIndent();
@@ -126,9 +154,9 @@ void RuizEquil
 
 template<typename F>
 void RuizEquil
-( DistSparseMatrix<F>& A, 
-  DistMultiVec<Base<F>>& dRow, 
-  DistMultiVec<Base<F>>& dCol, 
+( DistSparseMatrix<F>& A,
+  DistMultiVec<Base<F>>& dRow,
+  DistMultiVec<Base<F>>& dCol,
   bool progress )
 {
     DEBUG_CSE
@@ -141,7 +169,7 @@ void RuizEquil
     Ones( dRow, m, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose to control structure
+    // TODO(poulson): Expose to control structure
     // For, simply hard-code a small number of iterations
     const Int maxIter = 4;
 
@@ -156,7 +184,7 @@ void RuizEquil
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
 
-        // Rescale the rows 
+        // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
@@ -168,22 +196,61 @@ void RuizEquil
 
 template<typename F>
 void StackedRuizEquil
-( Matrix<F>& A, 
-  Matrix<F>& B, 
-  Matrix<Base<F>>& dRowA, 
-  Matrix<Base<F>>& dRowB, 
-  Matrix<Base<F>>& dCol, 
+( Matrix<F>& A,
+  Matrix<F>& B,
+  Matrix<Base<F>>& dRowA,
+  Matrix<Base<F>>& dRowB,
+  Matrix<Base<F>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    LogicError("This routine is not yet written");
+    typedef Base<F> Real;
+    const Int mA = A.Height();
+    const Int mB = B.Height();
+    const Int n = A.Width();
+    Ones( dRowA, mA, 1 );
+    Ones( dRowB, mB, 1 );
+    Ones( dCol, n, 1 );
+
+    // TODO(poulson): Expose these as control parameters
+    // For now, simply hard-code the number of iterations
+    const Int maxIter = 4;
+
+    Matrix<Real> rowScale, colScale, colScaleB;
+    const Int indent = PushIndent();
+    for( Int iter=0; iter<maxIter; ++iter )
+    {
+        // Rescale the columns
+        // -------------------
+        ColumnMaxNorms( A, colScale );
+        ColumnMaxNorms( B, colScaleB );
+        for( Int j=0; j<n; ++j )
+            colScale(j) = Max(colScale(j),colScaleB(j));
+        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, colScale, dCol );
+        DiagonalSolve( RIGHT, NORMAL, colScale, A );
+        DiagonalSolve( RIGHT, NORMAL, colScale, B );
+
+        // Rescale the rows
+        // ----------------
+        RowMaxNorms( A, rowScale );
+        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, rowScale, dRowA );
+        DiagonalSolve( LEFT, NORMAL, rowScale, A );
+
+        RowMaxNorms( B, rowScale );
+        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        DiagonalScale( LEFT, NORMAL, rowScale, dRowB );
+        DiagonalSolve( LEFT, NORMAL, rowScale, B );
+    }
+    SetIndent( indent );
 }
 
 template<typename F>
 void StackedRuizEquil
-( ElementalMatrix<F>& APre, 
+( ElementalMatrix<F>& APre,
   ElementalMatrix<F>& BPre,
-  ElementalMatrix<Base<F>>& dRowAPre, 
+  ElementalMatrix<Base<F>>& dRowAPre,
   ElementalMatrix<Base<F>>& dRowBPre,
   ElementalMatrix<Base<F>>& dColPre,
   bool progress )
@@ -201,7 +268,7 @@ void StackedRuizEquil
     DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR> dRowAProx( dRowAPre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR> dRowBProx( dRowBPre, control );
-    DistMatrixWriteProxy<Real,Real,MR,STAR> dColProx( dColPre, control ); 
+    DistMatrixWriteProxy<Real,Real,MR,STAR> dColProx( dColPre, control );
     auto& A = AProx.Get();
     auto& B = BProx.Get();
     auto& dRowA = dRowAProx.Get();
@@ -216,9 +283,9 @@ void StackedRuizEquil
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     // For now, simply hard-code the number of iterations
-    const Int maxIter = 4; 
+    const Int maxIter = 4;
 
     DistMatrix<Real,MC,STAR> rowScale(A.Grid());
     DistMatrix<Real,MR,STAR> colScale(A.Grid()), colScaleB(B.Grid());
@@ -256,9 +323,9 @@ void StackedRuizEquil
 
 template<typename F>
 void StackedRuizEquil
-( SparseMatrix<F>& A, 
+( SparseMatrix<F>& A,
   SparseMatrix<F>& B,
-  Matrix<Base<F>>& dRowA, 
+  Matrix<Base<F>>& dRowA,
   Matrix<Base<F>>& dRowB,
   Matrix<Base<F>>& dCol,
   bool progress )
@@ -272,9 +339,9 @@ void StackedRuizEquil
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     // For now, simply hard-code the number of iterations
-    const Int maxIter = 4; 
+    const Int maxIter = 4;
 
     Matrix<Real> scales, maxAbsValsB;
     const Int indent = PushIndent();
@@ -308,11 +375,11 @@ void StackedRuizEquil
 
 template<typename F>
 void StackedRuizEquil
-( DistSparseMatrix<F>& A, 
+( DistSparseMatrix<F>& A,
   DistSparseMatrix<F>& B,
-  DistMultiVec<Base<F>>& dRowA, 
-  DistMultiVec<Base<F>>& dRowB, 
-  DistMultiVec<Base<F>>& dCol, 
+  DistMultiVec<Base<F>>& dRowA,
+  DistMultiVec<Base<F>>& dRowB,
+  DistMultiVec<Base<F>>& dCol,
   bool progress )
 {
     DEBUG_CSE
@@ -328,7 +395,7 @@ void StackedRuizEquil
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
 
-    // TODO: Expose to control structure
+    // TODO(poulson): Expose to control structure
     // For, simply hard-code a small number of iterations
     const Int maxIter = 4;
 
@@ -350,7 +417,7 @@ void StackedRuizEquil
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, B );
 
-        // Rescale the rows 
+        // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
         EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );

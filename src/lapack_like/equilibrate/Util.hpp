@@ -2,15 +2,15 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-// TODO: Move these into BLAS1?
+// TODO(poulson): Move these into BLAS1?
 template<typename F>
 Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
 {
@@ -57,7 +57,7 @@ Base<F> MinAbsNonzero
     if( A.Participating() )
     {
         const Real minLocAbs = MinAbsNonzero( A.LockedMatrix(), upperBound );
-        minAbs = mpi::AllReduce( minLocAbs, mpi::MIN, A.DistComm() ); 
+        minAbs = mpi::AllReduce( minLocAbs, mpi::MIN, A.DistComm() );
     }
     mpi::Broadcast( minAbs, A.Root(), A.CrossComm() );
     return minAbs;
@@ -81,7 +81,7 @@ Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
 
 template<typename F,Dist U,Dist V>
 void GeometricColumnScaling
-( const DistMatrix<F,      U,V   >& A, 
+( const DistMatrix<F,      U,V   >& A,
         DistMatrix<Base<F>,V,STAR>& geomScaling )
 {
     DEBUG_CSE
@@ -100,9 +100,54 @@ void GeometricColumnScaling
     }
 }
 
+template<typename F>
+void StackedGeometricColumnScaling
+( const Matrix<F>& A,
+  const Matrix<F>& B,
+        Matrix<Base<F>>& geomScaling )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+
+    Matrix<Real> maxScalingA, maxScalingB;
+    ColumnMaxNorms( A, maxScalingA );
+    ColumnMaxNorms( B, maxScalingB );
+
+    const Int mA = A.Height();
+    const Int mB = B.Height();
+    const Int n = A.Width();
+    geomScaling.Resize( n, 1 );
+    for( Int j=0; j<n; ++j )
+    {
+        Real minAbs = Max(maxScalingA(j),maxScalingB(j));
+        for( Int i=0; i<mA; ++i )
+        {
+            const Real absVal = Abs(A(i,j));
+            if( absVal > 0 && absVal < minAbs )
+                minAbs = Min(minAbs,absVal);
+        }
+        for( Int i=0; i<mB; ++i )
+        {
+            const Real absVal = Abs(B(i,j));
+            if( absVal > 0 && absVal < minAbs )
+                minAbs = Min(minAbs,absVal);
+        }
+        geomScaling(j) = minAbs;
+    }
+
+    for( Int j=0; j<n; ++j )
+    {
+        const Real maxAbsA = maxScalingA(j);
+        const Real maxAbsB = maxScalingB(j);
+        const Real maxAbs = Max(maxAbsA,maxAbsB);
+        const Real minAbs = geomScaling(j);
+        geomScaling(j) = Sqrt(minAbs*maxAbs);
+    }
+}
+
 template<typename F,Dist U,Dist V>
 void StackedGeometricColumnScaling
-( const DistMatrix<F,      U,V   >& A, 
+( const DistMatrix<F,      U,V   >& A,
   const DistMatrix<F,      U,V   >& B,
         DistMatrix<Base<F>,V,STAR>& geomScaling )
 {
@@ -131,13 +176,13 @@ void StackedGeometricColumnScaling
         Real minAbs = Max(maxScalingALoc(jLoc),maxScalingBLoc(jLoc));
         for( Int iLoc=0; iLoc<mLocalA; ++iLoc )
         {
-            const Real absVal = Abs(ALoc(iLoc,jLoc));  
+            const Real absVal = Abs(ALoc(iLoc,jLoc));
             if( absVal > 0 && absVal < minAbs )
                 minAbs = Min(minAbs,absVal);
         }
         for( Int iLoc=0; iLoc<mLocalB; ++iLoc )
         {
-            const Real absVal = Abs(BLoc(iLoc,jLoc));  
+            const Real absVal = Abs(BLoc(iLoc,jLoc));
             if( absVal > 0 && absVal < minAbs )
                 minAbs = Min(minAbs,absVal);
         }
@@ -155,9 +200,28 @@ void StackedGeometricColumnScaling
     }
 }
 
+template<typename F>
+void GeometricRowScaling
+( const Matrix<F>& A,
+        Matrix<Base<F>>& geomScaling )
+{
+    DEBUG_CSE
+    typedef Base<F> Real;
+    Matrix<Real> maxScaling;
+    RowMaxNorms( A, maxScaling );
+    RowMinAbsNonzero( A, maxScaling, geomScaling );
+    const Int m = A.Height();
+    for( Int i=0; i<m; ++i )
+    {
+        const Real maxAbs = maxScaling(i);
+        const Real minAbs = geomScaling(i);
+        geomScaling(i) = Sqrt(minAbs*maxAbs);
+    }
+}
+
 template<typename F,Dist U,Dist V>
 void GeometricRowScaling
-( const DistMatrix<F,      U,V   >& A, 
+( const DistMatrix<F,      U,V   >& A,
         DistMatrix<Base<F>,U,STAR>& geomScaling )
 {
     DEBUG_CSE
