@@ -39,7 +39,7 @@ build_script:
   - ps: "cd build"
   - ps: "cmake -G \"Visual Studio 14 2015 Win64\" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .."  
   - ps: "make -j2"
-test: 
+test_script: 
   - ps: ctest --output-on-failure
 
 cache:
