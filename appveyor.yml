@@ -18,10 +18,12 @@ init:
 # clone directory
 clone_folder: c:\projects\elemental
 
-#environment:
-#    MPI: mpich
-#    F77: gfortran-5
-#    PATH: /usr/lib/ccache/:$PATH
+environment:
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    WITH_ENV: "cmd /E:ON /V:ON /C .ci\\run_with_env.cmd"
 
 platform:
   - x86
