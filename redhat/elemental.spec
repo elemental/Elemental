@@ -13,7 +13,7 @@ BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
 BuildRequires: openblas-devel
 BuildRequires: python2-devel 
-#BuildRequires: qd-devel
+BuildRequires: qd-devel
 BuildRequires: qt5-qtbase-devel
 BuildRequires: gmp-devel
 BuildRequires: mpfr-devel
