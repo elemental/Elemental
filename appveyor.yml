@@ -4,6 +4,13 @@ version: 1.0.{build}
 # Build worker image (VM template)
 image: Visual Studio 2015
 
+
+notifications:
+  - provider: Email
+    on_build_success: false
+    on_build_failure: false
+    on_build_status_changed: false
+
 # scripts that are called at very beginning, before repo cloning
 init:
   - git config --global core.autocrlf input
@@ -21,6 +28,14 @@ platform:
 
 # scripts that run after cloning repository
 install:
+  # Download MPI
+  - ps: (new-object net.webclient).DownloadFile(
+        "https://download.microsoft.com/download/D/7/B/D7BBA00F-71B7-436B-80BC-4D22F2EE9862/MSMpiSetup.exe",
+        "C:\projects\MSMpiSetup.exe")
+  # Install MPI 
+  - C:\projects\MSMpiSetup.exe -unattend -minimal
+  - set PATH=C:\Program Files\Microsoft MPI\Bin;%PATH%
+
   # by default, all script lines are interpreted as batch
   - ps: mkdir build 
   - ps: cd build;
