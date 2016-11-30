@@ -33,6 +33,7 @@ install:
   # Download MPI
   # Microsoft MPI
   - "powershell ci\\install-msmpi.ps1"
+  - ps: nuget install OpenBLAS -o "${env:APPVEYOR_BUILD_FOLDER}"
 
 build:
         parallel: true                  # enable MSBuild parallel builds
