@@ -33,7 +33,7 @@ install:
   # Download MPI
   # Microsoft MPI
   - "powershell ci\\install-msmpi.ps1"
-  - ps: "SetEnvMPI.cmd"
+  - "SetEnvMPI.cmd"
   - ps: "ls C:\\Program Files\\Microsoft MPI\\Bin"
 
 build:
