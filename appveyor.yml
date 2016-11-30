@@ -37,12 +37,16 @@ install:
 
 build:
         parallel: true                  # enable MSBuild parallel builds
-build_script:
+before_build:
   - SetEnvMPI.cmd
   - mkdir build
   - cd build
   - cmake -G "Visual Studio 14 2015 Win64" -DMATH_LIBS="c:\\projects\\elemental\\OpenBLAS.0.2.14.1\\lib\\native\\lib\\x64\\libopenblas.dll.a" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release ..
   - make -j2
+
+build:
+        project: INSTALL.vcxproj      # path to Visual Studio solution or project
+
 test_script: 
   - ps: ctest --output-on-failure
 
