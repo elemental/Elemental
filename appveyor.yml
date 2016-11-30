@@ -34,8 +34,8 @@ install:
   - ps: SetEnvMPI.cmd
 build:
   - ps: mkdir build 
-  - ps: cd build;
-  - ps: cmake -G "Visual Studio 14 2015 Win64" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .. ; 
+  - ps: cd build
+  - ps: cmake -G "Visual Studio 14 2015 Win64" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release ..  
   - ps: make -j2
 test: 
   - ps: ctest --output-on-failure
