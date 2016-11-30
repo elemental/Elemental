@@ -34,7 +34,7 @@ install:
   # Microsoft MPI
   - "powershell ci\\install-msmpi.ps1"
   - "SetEnvMPI.cmd"
-  - ps: "ls C:\\Program Files\\Microsoft MPI\\Bin"
+  - ps: "dir C:\\Program Files\\Microsoft MPI\\Bin"
 
 build:
         parallel: true                  # enable MSBuild parallel builds
