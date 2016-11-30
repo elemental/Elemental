@@ -33,16 +33,15 @@ install:
   # Download MPI
   # Microsoft MPI
   - "powershell ci\\install-msmpi.ps1"
-  - "SetEnvMPI.cmd"
-  - ps: "dir C:\\Program Files\\Microsoft MPI\\Bin"
 
 build:
         parallel: true                  # enable MSBuild parallel builds
 build_script:
-  - ps: "mkdir build"
-  - ps: "cd build"
-  - ps: "cmake -G \"Visual Studio 14 2015 Win64\" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .."  
-  - ps: "make -j2"
+  - "SetEnvMPI.cmd"
+  - "mkdir build"
+  - "cd build"
+  - "cmake -G \"Visual Studio 14 2015 Win64\" -DMPI_C_LIBRARIES= -DMPI_C_INCLUDE_PATH=  -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .."  
+  - "make -j2"
 test_script: 
   - ps: ctest --output-on-failure
 
