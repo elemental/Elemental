@@ -30,8 +30,8 @@ platform:
 install:
   # Download MPI
    # Microsoft MPI
-   - "powershell ci\\install-msmpi.ps1"
-   - "SetEnvMPI.cmd"
+   - ps: ci\\install-msmpi.ps1
+   - ps: SetEnvMPI.cmd
  
   # by default, all script lines are interpreted as batch
   - ps: mkdir build 
