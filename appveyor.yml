@@ -29,17 +29,16 @@ platform:
 # scripts that run after cloning repository
 install:
   # Download MPI
-   # Microsoft MPI
-   - ps: ci\\install-msmpi.ps1
-   - ps: SetEnvMPI.cmd
- 
-  # by default, all script lines are interpreted as batch
+  # Microsoft MPI
+  - ps: ci\\install-msmpi.ps1
+  - ps: SetEnvMPI.cmd
+build:
   - ps: mkdir build 
   - ps: cd build;
   - ps: cmake -G "Visual Studio 14 2015 Win64" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .. ; 
-  - ps: make -j2 
+  - ps: make -j2
+test: 
   - ps: ctest --output-on-failure
 
 cache:
-      - C:\Downloads\Python   -> conf\ci\appveyor\install-python.ps1
-      - C:\Downloads\MSMPI    -> conf\ci\appveyor\install-msmpi.ps1    
+      - C:\Downloads\MSMPI    -> ci\\install-msmpi.ps1    
