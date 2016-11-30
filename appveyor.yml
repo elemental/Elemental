@@ -33,6 +33,8 @@ install:
   - ps: "ci\\install-msmpi.ps1"
   - ps: "SetEnvMPI.cmd"
 build:
+        parallel: true                  # enable MSBuild parallel builds
+build_script:
   - ps: "mkdir build"
   - ps: "cd build"
   - ps: "cmake -G \"Visual Studio 14 2015 Win64\" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .."  
