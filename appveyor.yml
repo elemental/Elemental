@@ -35,8 +35,6 @@ install:
   - "powershell ci\\install-msmpi.ps1"
   - ps: nuget install OpenBLAS -o "${env:APPVEYOR_BUILD_FOLDER}"
 
-build:
-        parallel: true                  # enable MSBuild parallel builds
 before_build:
   - SetEnvMPI.cmd
   - mkdir build
@@ -45,6 +43,7 @@ before_build:
   - make -j2
 
 build:
+        parallel: true                  # enable MSBuild parallel builds
         project: INSTALL.vcxproj      # path to Visual Studio solution or project
 
 test_script: 
