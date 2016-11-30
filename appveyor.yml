@@ -23,7 +23,7 @@ platform:
 install:
   # by default, all script lines are interpreted as batch
   - ps: mkdir build 
-  - ps: cd buil;
+  - ps: cd build;
   - ps: cmake -G "Visual Studio 14 2015 Win64" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .. ; 
         if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
   - ps: make -j2 
