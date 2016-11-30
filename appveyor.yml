@@ -41,7 +41,7 @@ build_script:
   - "SetEnvMPI.cmd"
   - "mkdir build"
   - "cd build"
-  - "cmake -G \"Visual Studio 14 2015 Win64\" -DMATH_LIBS=\"%APPVEYOR_BUILD_FOLDER%/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a\" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .."  
+  - "cmake -G \"Visual Studio 14 2015 Win64\" -DMATH_LIBS=\"c:\\projects\\elemental\\OpenBLAS.0.2.14.1\\lib\\native\\lib\\x64\\libopenblas.dll.a\" -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release .."  
   - "make -j2"
 test_script: 
   - ps: ctest --output-on-failure
