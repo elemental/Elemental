@@ -4,6 +4,12 @@ version: 1.0.{build}
 # Build worker image (VM template)
 image: Visual Studio 2015
 
+matrix:
+  allow_failures:
+    - platform: x86
+      configuration: Debug
+    - platform: x64
+      configuration: Release
 
 notifications:
   - provider: Email
