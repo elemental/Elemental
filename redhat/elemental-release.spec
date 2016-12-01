@@ -7,6 +7,8 @@ License:	BSD and Boost and MIT and LGPLv2
 URL:	http://libelemental.org
 Source0:	https://github.com/elemental/Elemental/archive/v%{version}.tar.gz
 
+ExcludeArch: %{power64}
+
 BuildRequires: environment-modules
 BuildRequires: cmake
 BuildRequires: metis-devel >= 5.1.0
