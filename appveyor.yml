@@ -35,9 +35,6 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     WITH_ENV: "cmd /E:ON /V:ON /C .ci\\run_with_env.cmd"
 
-platform:
-  - x86
-
 # scripts that run after cloning repository
 install:
   # Download MPI
