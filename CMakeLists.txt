@@ -440,16 +440,18 @@ endif()
 
 # Elemental's mod's of Parallel Multiple Relatively Robust Representations
 # ------------------------------------------------------------------------
-add_subdirectory(external/pmrrr)
-if(EL_BUILT_SCALAPACK)
-  add_dependencies(pmrrr project_scalapack)
-else()
-  if(EL_BUILT_BLIS_LAPACK)
-    add_dependencies(pmrrr project_blis_lapack)
-  endif()
-  if(EL_BUILT_OPENBLAS)
-    add_dependencies(pmrrr project_openblas)
-  endif()
+if(NOT EL_DISABLE_PMRRR)
+   add_subdirectory(external/pmrrr)
+   if(EL_BUILT_SCALAPACK)
+     add_dependencies(pmrrr project_scalapack)
+   else()
+     if(EL_BUILT_BLIS_LAPACK)
+       add_dependencies(pmrrr project_blis_lapack)
+     endif()
+     if(EL_BUILT_OPENBLAS)
+       add_dependencies(pmrrr project_openblas)
+     endif()
+   endif()
 endif()
 
 # Elemental's modifications of (a subset of) SuiteSparse
