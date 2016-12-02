@@ -255,7 +255,9 @@ template<typename T> struct IsStdField<Complex<T>>
 #include <El/core/imports/flame.hpp>
 #include <El/core/imports/mkl.hpp>
 #include <El/core/imports/openblas.hpp>
-#include <El/core/imports/pmrrr.hpp>
+#ifndef EL_DISABLE_PMRRR
+ #include <El/core/imports/pmrrr.hpp>
+#endif
 #include <El/core/imports/scalapack.hpp>
 
 #include <El/core/limits.hpp>

@@ -452,6 +452,7 @@ if(NOT EL_DISABLE_PMRRR)
        add_dependencies(pmrrr project_openblas)
      endif()
    endif()
+   add_definitions("-DEL_DISABLE_PMRRR")
 endif()
 
 # Elemental's modifications of (a subset of) SuiteSparse
