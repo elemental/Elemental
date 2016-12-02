@@ -182,9 +182,13 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{_libdir}/cmake/elemental/*
 
 # All files shared between the serial and different MPI versions
+
 %files common 
 %{_datadir}/elemental/*
-%_pkgdocdir
+%_pkgdocdir/
+%license debian/copyright
+%license LICENSE
+
 
 # All openmpi linked files
 %files openmpi 
@@ -211,9 +215,6 @@ rm -rf %{buildroot}/%{_prefix}/conf
 
 %files -n python2-elemental-mpich 
 %{python2_sitearch}/mpich/*
-
-%license debian/copyright
-%license LICENSE
 
 %changelog
 * Sat Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
