@@ -747,7 +747,7 @@ include(CPack)
 # =====
 # Create ElementalConfig.cmake for find_package.
 # Add all targets to the build-tree export set
-export(TARGETS El pmrrr ElSuiteSparse
+export(TARGETS El ${PMRRR} ElSuiteSparse
   FILE "${PROJECT_BINARY_DIR}/ElementalTargets.cmake")
 
 if(NOT CMAKE_EXPORT_NO_PACKAGE_REGISTRY)
