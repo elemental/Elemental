@@ -6,7 +6,8 @@ Group:	Development/Libraries
 License:	BSD and Boost and MIT and LGPLv2
 URL:	http://libelemental.org
 Source0:	https://github.com/elemental/Elemental/archive/v%{version}.tar.gz
-
+#This is excluded to due a compiler bug in PPC:
+#gcc.gnu.org/bugzilla/show_bug.cgi?id=78636
 ExcludeArch: %{power64}
 
 BuildRequires: environment-modules
