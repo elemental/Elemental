@@ -441,6 +441,7 @@ endif()
 # Elemental's mod's of Parallel Multiple Relatively Robust Representations
 # ------------------------------------------------------------------------
 if(NOT EL_DISABLE_PMRRR)
+   set(PMRRR "pmrrr")
    add_subdirectory(external/pmrrr)
    if(EL_BUILT_SCALAPACK)
      add_dependencies(pmrrr project_scalapack)
@@ -520,7 +521,7 @@ endif()
 if(EL_BUILT_PARMETIS)
   add_dependencies(El project_parmetis)
 endif()
-set(LINK_LIBS pmrrr ElSuiteSparse
+set(LINK_LIBS ${PMRRR} ElSuiteSparse
   ${EXTERNAL_LIBS} ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})
