@@ -30,6 +30,7 @@ A modern C++ library for distributed-memory linear algebra.
 %package common
 Summary: Files in common between mpich and openmpi
 Group: Development/Libraries
+BuildArch: noarch
 Requires: qt5-qtbase
 %description common 
 Files not specific to mpich or openmpi
@@ -46,7 +47,7 @@ Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
 BuildRequires: openmpi-devel
 Requires: openmpi
-Requires: %{name}-common%{?_isa} = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
 %description openmpi
 Contains the library, built against OpenMPI
 
@@ -77,7 +78,7 @@ Summary: MPICH variant of Elemental
 Group: Development/Libraries
 BuildRequires: mpich-devel
 Requires: mpich
-Requires: %{name}-common%{?_isa} = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
 %description mpich
 Contains the library, and example drivers built against MPICH
 
@@ -172,6 +173,7 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
+mv %{_docdir}/Elemental %_pkgdocdir
 rm -rf %{buildroot}/%{_prefix}/conf
 
 #The Elemental headers
@@ -182,7 +184,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 # All files shared between the serial and different MPI versions
 %files common 
 %{_datadir}/elemental/*
-%{_datadir}/doc/Elemental/*
+%_pkgdocdir
 
 # All openmpi linked files
 %files openmpi 
@@ -211,6 +213,7 @@ rm -rf %{buildroot}/%{_prefix}/conf
 %{python2_sitearch}/mpich/*
 
 %license debian/copyright
+%license LICENSE
 
 %changelog
 * Sat Oct 29 2016 Ryan H. Lewis <me@ryanlewis.net> - 0.87-1
