@@ -175,7 +175,7 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
-mv %{buildroot}/%{_docdir}/Elemental %_pkgdocdir
+mv %{buildroot}%{_docdir}/Elemental ${buildroot}%_pkgdocdir
 rm -rf %{buildroot}/%{_prefix}/conf
 
 #The Elemental headers
