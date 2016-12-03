@@ -7,6 +7,10 @@ Group:	Development/Libraries
 License:	BSD and Boost and MIT and LGPLv2
 URL:	http://libelemental.org
 Source0:	https://github.com/elemental/Elemental/archive/%{archive}.tar.gz
+#This is excluded to due a compiler bug in PPC:
+#gcc.gnu.org/bugzilla/show_bug.cgi?id=78636
+ExcludeArch: %{power64}
+
 
 BuildRequires: environment-modules
 BuildRequires: cmake
@@ -28,6 +32,7 @@ A modern C++ library for distributed-memory linear algebra.
 %package common
 Summary: Files in common between mpich and openmpi
 Group: Development/Libraries
+BuildArch: noarch
 Requires: qt5-qtbase
 %description common 
 Files not specific to mpich or openmpi
@@ -44,7 +49,7 @@ Summary: OpenMPI variant of Elemental
 Group: Development/Libraries
 BuildRequires: openmpi-devel
 Requires: openmpi
-Requires: %{name}-common%{?_isa} = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
 %description openmpi
 Contains the library, built against OpenMPI
 
@@ -75,7 +80,7 @@ Summary: MPICH variant of Elemental
 Group: Development/Libraries
 BuildRequires: mpich-devel
 Requires: mpich
-Requires: %{name}-common%{?_isa} = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
 %description mpich
 Contains the library, and example drivers built against MPICH
 
@@ -104,7 +109,6 @@ This package contains the python bindings for using Elemental through a python s
 
 %prep
 %autosetup -c -n Elemental-%{archive}
-#this is a hack
 mv $(ls -d */|head -n 1)/* .
 
 %build
@@ -171,6 +175,7 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
+mv %{buildroot}/%{_docdir}/Elemental %_pkgdocdir
 rm -rf %{buildroot}/%{_prefix}/conf
 
 #The Elemental headers
@@ -181,7 +186,9 @@ rm -rf %{buildroot}/%{_prefix}/conf
 # All files shared between the serial and different MPI versions
 %files common 
 %{_datadir}/elemental/*
-%{_datadir}/doc/Elemental/*
+%_pkgdocdir/
+%license debian/copyright
+%license LICENSE
 
 # All openmpi linked files
 %files openmpi 
