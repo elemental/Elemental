@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LAPACK_SPECTRAL_CREFLECT_C_HPP
@@ -276,7 +276,7 @@ inline ElHermitianTridiagEigCtrl_s CReflect
     ctrlC.accumulateEigVecs = ctrl.accumulateEigVecs;
     ctrlC.sort = CReflect(ctrl.sort);
     ctrlC.subset = CReflect(ctrl.subset);
-    ctrlC.progress = ctrl.progress; 
+    ctrlC.progress = ctrl.progress;
     ctrlC.alg = CReflect(ctrl.alg);
     ctrlC.qrCtrl = CReflect(ctrl.qrCtrl);
     ctrlC.dcCtrl = CReflect(ctrl.dcCtrl);
@@ -291,7 +291,7 @@ inline ElHermitianTridiagEigCtrl_d CReflect
     ctrlC.accumulateEigVecs = ctrl.accumulateEigVecs;
     ctrlC.sort = CReflect(ctrl.sort);
     ctrlC.subset = CReflect(ctrl.subset);
-    ctrlC.progress = ctrl.progress; 
+    ctrlC.progress = ctrl.progress;
     ctrlC.alg = CReflect(ctrl.alg);
     ctrlC.qrCtrl = CReflect(ctrl.qrCtrl);
     ctrlC.dcCtrl = CReflect(ctrl.dcCtrl);
@@ -306,7 +306,7 @@ inline HermitianTridiagEigCtrl<float> CReflect
     ctrl.accumulateEigVecs = ctrlC.accumulateEigVecs;
     ctrl.sort = CReflect(ctrlC.sort);
     ctrl.subset = CReflect(ctrlC.subset);
-    ctrl.progress = ctrlC.progress; 
+    ctrl.progress = ctrlC.progress;
     ctrl.alg = CReflect(ctrlC.alg);
     ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
     ctrl.dcCtrl = CReflect(ctrlC.dcCtrl);
@@ -321,7 +321,7 @@ inline HermitianTridiagEigCtrl<double> CReflect
     ctrl.accumulateEigVecs = ctrlC.accumulateEigVecs;
     ctrl.sort = CReflect(ctrlC.sort);
     ctrl.subset = CReflect(ctrlC.subset);
-    ctrl.progress = ctrlC.progress; 
+    ctrl.progress = ctrlC.progress;
     ctrl.alg = CReflect(ctrlC.alg);
     ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
     ctrl.dcCtrl = CReflect(ctrlC.dcCtrl);
@@ -402,7 +402,7 @@ inline ElHermitianEigCtrl_d CReflect( const HermitianEigCtrl<double>& ctrl )
     ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
 }
-inline ElHermitianEigCtrl_c 
+inline ElHermitianEigCtrl_c
 CReflect( const HermitianEigCtrl<Complex<float>>& ctrl )
 {
     ElHermitianEigCtrl_c ctrlC;
@@ -441,7 +441,7 @@ inline HermitianEigCtrl<double> CReflect( const ElHermitianEigCtrl_d& ctrlC )
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
 }
-inline HermitianEigCtrl<Complex<float>> 
+inline HermitianEigCtrl<Complex<float>>
 CReflect( const ElHermitianEigCtrl_c& ctrlC )
 {
     HermitianEigCtrl<Complex<float>> ctrl;
@@ -451,7 +451,7 @@ CReflect( const ElHermitianEigCtrl_c& ctrlC )
     ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
 }
-inline HermitianEigCtrl<Complex<double>> 
+inline HermitianEigCtrl<Complex<double>>
 CReflect( const ElHermitianEigCtrl_z& ctrlC )
 {
     HermitianEigCtrl<Complex<double>> ctrl;
@@ -612,7 +612,7 @@ inline ElBidiagSVDDCCtrl_d CReflect( const bidiag_svd::DCCtrl<double>& ctrl )
 
 inline BidiagSVDCtrl<float> CReflect( const ElBidiagSVDCtrl_s& ctrlC )
 {
-    BidiagSVDCtrl<float> ctrl; 
+    BidiagSVDCtrl<float> ctrl;
     ctrl.wantU = ctrlC.wantU;
     ctrl.wantV = ctrlC.wantV;
     ctrl.accumulateU = ctrlC.accumulateU;
@@ -623,13 +623,13 @@ inline BidiagSVDCtrl<float> CReflect( const ElBidiagSVDCtrl_s& ctrlC )
     ctrl.progress = ctrlC.progress;
     ctrl.useQR = ctrlC.useQR;
     ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
-    ctrl.dcCtrl = CReflect(ctrlC.dcCtrl); 
+    ctrl.dcCtrl = CReflect(ctrlC.dcCtrl);
     return ctrl;
 }
 
 inline BidiagSVDCtrl<double> CReflect( const ElBidiagSVDCtrl_d& ctrlC )
 {
-    BidiagSVDCtrl<double> ctrl; 
+    BidiagSVDCtrl<double> ctrl;
     ctrl.wantU = ctrlC.wantU;
     ctrl.wantV = ctrlC.wantV;
     ctrl.accumulateU = ctrlC.accumulateU;
@@ -640,13 +640,13 @@ inline BidiagSVDCtrl<double> CReflect( const ElBidiagSVDCtrl_d& ctrlC )
     ctrl.progress = ctrlC.progress;
     ctrl.useQR = ctrlC.useQR;
     ctrl.qrCtrl = CReflect(ctrlC.qrCtrl);
-    ctrl.dcCtrl = CReflect(ctrlC.dcCtrl); 
+    ctrl.dcCtrl = CReflect(ctrlC.dcCtrl);
     return ctrl;
 }
 
 inline ElBidiagSVDCtrl_s CReflect( const BidiagSVDCtrl<float>& ctrl )
 {
-    ElBidiagSVDCtrl_s ctrlC; 
+    ElBidiagSVDCtrl_s ctrlC;
     ctrlC.wantU = ctrl.wantU;
     ctrlC.wantV = ctrl.wantV;
     ctrlC.accumulateU = ctrl.accumulateU;
@@ -662,7 +662,7 @@ inline ElBidiagSVDCtrl_s CReflect( const BidiagSVDCtrl<float>& ctrl )
 
 inline ElBidiagSVDCtrl_d CReflect( const BidiagSVDCtrl<double>& ctrl )
 {
-    ElBidiagSVDCtrl_d ctrlC; 
+    ElBidiagSVDCtrl_d ctrlC;
     ctrlC.wantU = ctrl.wantU;
     ctrlC.wantV = ctrl.wantV;
     ctrlC.accumulateU = ctrl.accumulateU;
@@ -753,7 +753,7 @@ inline ElHessenbergSchurCtrl CReflect( const HessenbergSchurCtrl& ctrl )
 
     ctrlC.minMultiBulgeSize = ctrl.minMultiBulgeSize;
     ctrlC.minDistMultiBulgeSize = ctrl.minDistMultiBulgeSize;
-    auto numShiftsRes = ctrl.numShifts.target<ElInt(*)(ElInt,ElInt)>(); 
+    auto numShiftsRes = ctrl.numShifts.target<ElInt(*)(ElInt,ElInt)>();
     if( numShiftsRes )
         ctrlC.numShifts = *numShiftsRes;
     else
@@ -820,7 +820,7 @@ inline HessenbergSchurCtrl CReflect( const ElHessenbergSchurCtrl& ctrlC )
 /* SDCCtrl */
 inline ElSDCCtrl_s CReflect( const SDCCtrl<float>& ctrl )
 {
-    ElSDCCtrl_s ctrlC;    
+    ElSDCCtrl_s ctrlC;
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.maxInnerIts = ctrl.maxInnerIts;
     ctrlC.maxOuterIts = ctrl.maxOuterIts;
@@ -832,7 +832,7 @@ inline ElSDCCtrl_s CReflect( const SDCCtrl<float>& ctrl )
 }
 inline ElSDCCtrl_d CReflect( const SDCCtrl<double>& ctrl )
 {
-    ElSDCCtrl_d ctrlC;    
+    ElSDCCtrl_d ctrlC;
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.maxInnerIts = ctrl.maxInnerIts;
     ctrlC.maxOuterIts = ctrl.maxOuterIts;

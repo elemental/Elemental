@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_MULTIBULGE_REDUNDANTLY_HANDLE_WINDOW_HPP
@@ -15,11 +15,11 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
-template<typename F>
+template<typename Field>
 void ConsistentlyComputeDecomposition
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-        DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
-        Matrix<F>& Z,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+        DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
+        Matrix<Field>& Z,
   const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() )
 {
     DEBUG_CSE
@@ -30,7 +30,7 @@ void ConsistentlyComputeDecomposition
     const Grid& grid = H.Grid();
     const int owner = H.Owner(0,0);
 
-    DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
+    DistMatrix<Field,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
     H_CIRC_CIRC = H;
     w.Resize( H.Height(), 1 );
     if( H_CIRC_CIRC.CrossRank() == H_CIRC_CIRC.Root() )
@@ -42,12 +42,12 @@ void ConsistentlyComputeDecomposition
     El::Broadcast( Z, H_CIRC_CIRC.CrossComm(), H_CIRC_CIRC.Root() );
 }
 
-template<typename F>
+template<typename Field>
 HessenbergSchurInfo
 RedundantlyHandleWindow
-( DistMatrix<F,MC,MR,BLOCK>& H,
-  DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Z,
+( DistMatrix<Field,MC,MR,BLOCK>& H,
+  DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
+  DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -64,7 +64,7 @@ RedundantlyHandleWindow
 
     // Compute the Schur decomposition HWin = ZWin TWin ZWin',
     // where HWin is overwritten by TWin, and wWin by diag(TWin).
-    Matrix<F> ZWin;
+    Matrix<Field> ZWin;
     ConsistentlyComputeDecomposition( HWin, wWin, ZWin );
 
     if( ctrl.fullTriangle )

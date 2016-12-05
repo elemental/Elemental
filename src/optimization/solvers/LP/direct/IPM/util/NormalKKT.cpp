@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -23,32 +23,32 @@ namespace direct {
 //   | inv(X) Z + gamma^2 I      A^T    | | dx | = | r_1 + inv(X) r_3 | ,
 //   |          A            -delta^2 I | | dy |   |        r_2       |
 //
-// where we can recover 
+// where we can recover
 //
-//   dz = gamma^2 dx + A^T dy - r_1. 
+//   dz = gamma^2 dx + A^T dy - r_1.
 //
-// Subsequently using inv(X) Z + gamma^2 I, which is convenient to define as 
+// Subsequently using inv(X) Z + gamma^2 I, which is convenient to define as
 // inv(D)^2, as a block pivot yields
 //
 //   (A D^2 A^T + delta^2 I) dy = A D^2 (r_1 + inv(X) r_3) - r_2,
 //
-// where we can recover 
+// where we can recover
 //
 //   dx = D^2 (-A^T dy + r_1 + inv(X) r_3).
 //
-// Please see [1] for detailed notes on this derivation. 
+// Please see [1] for detailed notes on this derivation.
 //
 // NOTE: At this time, r_1 = -r_c, r_2 = -r_b, r_3 = -r_mu.
 //
 // Also, in order to compensate for the floating-point error in the formation
-// of A D^2 A^T, the diagonal entries of A D^2 A^T are set to 1+1e-14 times 
+// of A D^2 A^T, the diagonal entries of A D^2 A^T are set to 1+1e-14 times
 // their absolute value. This approach is due to a personal communication with
 // Tor Mykle
 //
 // [1] Michael Saunders, "Notes 7: PDCO - Primal-Dual Interior Methods",
-//     from the course notes of Large-Scale Numerical Optimization, 
+//     from the course notes of Large-Scale Numerical Optimization,
 //     Stanford University, Management Science and Engineering (and ICME), 2015.
-//     Last accessed from: 
+//     Last accessed from:
 //     http://web.stanford.edu/class/msande318/notes/notes07-PDinterior.pdf
 //
 
@@ -57,11 +57,11 @@ namespace direct {
 template<typename Real>
 void NormalKKT
 ( const Matrix<Real>& A,
-        Real gamma, 
+        Real gamma,
         Real delta,
-  const Matrix<Real>& x, 
+  const Matrix<Real>& x,
   const Matrix<Real>& z,
-        Matrix<Real>& J, 
+        Matrix<Real>& J,
   bool onlyLower )
 {
     DEBUG_CSE
@@ -92,7 +92,7 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const ElementalMatrix<Real>& A,
-        Real gamma, 
+        Real gamma,
         Real delta,
   const ElementalMatrix<Real>& xPre,
   const ElementalMatrix<Real>& zPre,
@@ -117,7 +117,7 @@ void NormalKKT
 
     DistMatrix<Real,MR,STAR> dInv(A.Grid());
     dInv.Resize( n, 1 );
-    auto& dInvLoc = dInv.Matrix(); 
+    auto& dInvLoc = dInv.Matrix();
     const Int nLocal = dInv.LocalHeight();
     for( Int iLoc=0; iLoc<nLocal; ++iLoc )
         dInvLoc(iLoc) = Sqrt(zLoc(iLoc)/xLoc(iLoc)+gamma*gamma);
@@ -139,11 +139,11 @@ void NormalKKT
 template<typename Real>
 void NormalKKT
 ( const SparseMatrix<Real>& A,
-        Real gamma, 
+        Real gamma,
         Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
     DEBUG_CSE
@@ -186,12 +186,12 @@ void NormalKKT
 
 template<typename Real>
 void NormalKKT
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
         Real gamma,
         Real delta,
   const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& z, 
-        DistSparseMatrix<Real>& J, 
+  const DistMultiVec<Real>& z,
+        DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
     DEBUG_CSE
@@ -250,9 +250,9 @@ void NormalKKTRHS
 ( const Matrix<Real>& A,
         Real gamma,
   const Matrix<Real>& x,
-  const Matrix<Real>& z, 
+  const Matrix<Real>& z,
   const Matrix<Real>& rc,
-  const Matrix<Real>& rb, 
+  const Matrix<Real>& rb,
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
@@ -286,10 +286,10 @@ void NormalKKTRHS
 ( const ElementalMatrix<Real>& A,
         Real gamma,
   const ElementalMatrix<Real>& xPre,
-  const ElementalMatrix<Real>& zPre, 
+  const ElementalMatrix<Real>& zPre,
   const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb, 
-  const ElementalMatrix<Real>& rmu,        
+  const ElementalMatrix<Real>& rb,
+  const ElementalMatrix<Real>& rmu,
         ElementalMatrix<Real>& d )
 {
     DEBUG_CSE
@@ -334,9 +334,9 @@ void NormalKKTRHS
 ( const SparseMatrix<Real>& A,
         Real gamma,
   const Matrix<Real>& x,
-  const Matrix<Real>& z, 
+  const Matrix<Real>& z,
   const Matrix<Real>& rc,
-  const Matrix<Real>& rb, 
+  const Matrix<Real>& rb,
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
@@ -370,9 +370,9 @@ void NormalKKTRHS
 ( const DistSparseMatrix<Real>& A,
         Real gamma,
   const DistMultiVec<Real>& x,
-  const DistMultiVec<Real>& z, 
+  const DistMultiVec<Real>& z,
   const DistMultiVec<Real>& rc,
-  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rb,
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& d )
 {
@@ -424,7 +424,7 @@ void ExpandNormalSolution
   const Matrix<Real>& rc,
   const Matrix<Real>& rmu,
         Matrix<Real>& dx,
-  const Matrix<Real>& dy, 
+  const Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
     DEBUG_CSE
@@ -442,7 +442,7 @@ void ExpandNormalSolution
     Zeros( dz, n, 1 );
     Gemv( TRANSPOSE, Real(1), A, dy, Real(0), dz );
 
-    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3) 
+    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3)
     //    = D^2 (-A^T dy - r_c - inv(X) r_mu)
     // ======================================
     dx = rmu;
@@ -468,7 +468,7 @@ void ExpandNormalSolution
   const ElementalMatrix<Real>& rc,
   const ElementalMatrix<Real>& rmu,
         ElementalMatrix<Real>& dx,
-  const ElementalMatrix<Real>& dy, 
+  const ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz )
 {
     DEBUG_CSE
@@ -498,7 +498,7 @@ void ExpandNormalSolution
     Zeros( dz, n, 1 );
     Gemv( TRANSPOSE, Real(1), A, dy, Real(0), dz );
 
-    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3) 
+    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3)
     //    = D^2 (-A^T dy - r_c - inv(X) r_mu)
     // ======================================
     dx = rmu;
@@ -524,7 +524,7 @@ void ExpandNormalSolution
   const Matrix<Real>& rc,
   const Matrix<Real>& rmu,
         Matrix<Real>& dx,
-  const Matrix<Real>& dy, 
+  const Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
     DEBUG_CSE
@@ -542,7 +542,7 @@ void ExpandNormalSolution
     Zeros( dz, n, 1 );
     Multiply( TRANSPOSE, Real(1), A, dy, Real(0), dz );
 
-    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3) 
+    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3)
     //    = D^2 (-A^T dy - r_c - inv(X) r_mu)
     // ======================================
     dx = rmu;
@@ -568,7 +568,7 @@ void ExpandNormalSolution
   const DistMultiVec<Real>& rc,
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dy, 
+  const DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz )
 {
     DEBUG_CSE
@@ -588,7 +588,7 @@ void ExpandNormalSolution
     Zeros( dz, n, 1 );
     Multiply( TRANSPOSE, Real(1), A, dy, Real(0), dz );
 
-    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3) 
+    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3)
     //    = D^2 (-A^T dy - r_c - inv(X) r_mu)
     // ======================================
     dx = rmu;

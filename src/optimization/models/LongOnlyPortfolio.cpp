@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -27,7 +27,7 @@ void LongOnlyPortfolio
     cScaled *= -1/gamma;
 
     // Enforce 1^T x = 1
-    // ================= 
+    // =================
     SparseMatrix<Real> A;
     Ones( A, 1, n );
     Matrix<Real> b;
@@ -55,7 +55,7 @@ void LongOnlyPortfolio
     cScaled *= -1/gamma;
 
     // Enforce 1^T x = 1
-    // ================= 
+    // =================
     DistSparseMatrix<Real> A(comm);
     Ones( A, 1, n );
     DistMultiVec<Real> b(comm);
@@ -76,8 +76,8 @@ void LongOnlyPortfolio
 {
     DEBUG_CSE
     const Int n = c.Height();
- 
-    // TODO: Expose this as a control parameter
+
+    // TODO(poulson): Expose this as a control parameter
     const bool useSOCP = true;
 
     if( useSOCP )
@@ -130,7 +130,7 @@ void LongOnlyPortfolio
             const Int numUpdates = (2*n+8) + numEntriesF;
             G.Reserve( numUpdates );
             for( Int i=0; i<n; ++i )
-                G.QueueUpdate( i, i, Real(-1) ); 
+                G.QueueUpdate( i, i, Real(-1) );
             G.QueueUpdate( n, n+2, Real(-1) );
             for( Int i=0; i<n; ++i )
                 G.QueueUpdate( i+n+1, i, -Sqrt(d(i)) );
@@ -158,7 +158,7 @@ void LongOnlyPortfolio
 
         // Form orders and firstInds
         // =========================
-        Matrix<Int> orders, firstInds; 
+        Matrix<Int> orders, firstInds;
         Zeros( orders, 2*n+r+8, 1 );
         Zeros( firstInds, 2*n+r+8, 1 );
         for( Int i=0; i<n; ++i )
@@ -219,8 +219,8 @@ void LongOnlyPortfolio
     const Int n = c.Height();
     mpi::Comm comm = c.Comm();
     const int commRank = mpi::Rank(comm);
- 
-    // TODO: Expose this as a control parameter
+
+    // TODO(poulson): Expose this as a control parameter
     const bool useSOCP = true;
 
     auto& cLoc = c.LockedMatrix();
@@ -238,7 +238,7 @@ void LongOnlyPortfolio
             const Int localHeight = c.LocalHeight();
             if( commRank == 0 )
             {
-                cHat.Reserve( localHeight+2 ); 
+                cHat.Reserve( localHeight+2 );
                 cHat.QueueUpdate( n,   0, gamma );
                 cHat.QueueUpdate( n+1, 0, gamma );
             }
@@ -258,7 +258,7 @@ void LongOnlyPortfolio
         DistSparseMatrix<Real> A(comm);
         {
             Zeros( A, 1, n+4 );
-            const Int localHeight = A.LocalHeight(); 
+            const Int localHeight = A.LocalHeight();
             if( localHeight > 0 )
             {
                 A.Reserve( n );
@@ -290,11 +290,11 @@ void LongOnlyPortfolio
         {
             Zeros( G, 2*n+r+8, n+4 );
 
-            // Count the number of purely local updates 
+            // Count the number of purely local updates
             // ----------------------------------------
             Int numLocalUpdates = 0;
             const Int GLocalHeight = G.LocalHeight();
-            for( Int iLoc=0; iLoc<GLocalHeight; ++iLoc ) 
+            for( Int iLoc=0; iLoc<GLocalHeight; ++iLoc )
             {
                 const Int i = G.GlobalRow(iLoc);
                 if( i <= n )
@@ -312,13 +312,13 @@ void LongOnlyPortfolio
             // Queue the updates
             // -----------------
             G.Reserve( numLocalUpdates+numRemoteUpdates, numRemoteUpdates );
-            // Local first 
+            // Local first
             // ^^^^^^^^^^^
             for( Int iLoc=0; iLoc<GLocalHeight; ++iLoc )
             {
                 const Int i = G.GlobalRow(iLoc);
                 if( i < n )
-                    G.QueueLocalUpdate( iLoc, i, Real(-1) ); 
+                    G.QueueLocalUpdate( iLoc, i, Real(-1) );
                 else if( i == n )
                     G.QueueLocalUpdate( iLoc, n+2, Real(-1) );
                 else if( i == 2*n+1 )
@@ -344,7 +344,7 @@ void LongOnlyPortfolio
                 const Int i = d.GlobalRow(iLoc);
                 G.QueueUpdate( i+n+1, i, -Sqrt(dLoc(iLoc)) );
             }
-            const Int numEntriesF = F.NumLocalEntries(); 
+            const Int numEntriesF = F.NumLocalEntries();
             for( Int e=0; e<numEntriesF; ++e )
             {
                 const Int i = F.Row(e);
@@ -373,7 +373,7 @@ void LongOnlyPortfolio
 
         // Form orders and firstInds
         // =========================
-        DistMultiVec<Int> orders(comm), firstInds(comm); 
+        DistMultiVec<Int> orders(comm), firstInds(comm);
         auto& ordersLoc = orders.Matrix();
         auto& firstIndsLoc = firstInds.Matrix();
         {

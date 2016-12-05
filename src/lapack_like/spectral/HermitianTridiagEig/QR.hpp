@@ -12,7 +12,8 @@ namespace El {
 namespace herm_tridiag_eig {
 namespace qr {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Real WilkinsonShift
 ( const Real& alpha00, const Real& alpha01, const Real& alpha11 )
 {
@@ -87,18 +88,18 @@ Real WilkinsonShift
 // 't' for both the safe computation of 'e_i' and for 't_i'.
 //
 // TODO(poulson): Introduce [winBeg,winEnd) to avoid parent allocation
-template<typename F>
+template<typename Field>
 void QLSweep
-( Matrix<Base<F>>& d,
-  Matrix<Base<F>>& e,
-  Matrix<Base<F>>& cList,
-  Matrix<Base<F>>& sList,
-  Matrix<F>& Q,
-  const Base<F>& shift,
+( Matrix<Base<Field>>& d,
+  Matrix<Base<Field>>& e,
+  Matrix<Base<Field>>& cList,
+  Matrix<Base<Field>>& sList,
+  Matrix<Field>& Q,
+  const Base<Field>& shift,
   bool wantEigVecs )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
     if( wantEigVecs )
@@ -140,18 +141,18 @@ void QLSweep
     }
 }
 
-template<typename F>
+template<typename Field>
 void QRSweep
-( Matrix<Base<F>>& d,
-  Matrix<Base<F>>& e,
-  Matrix<Base<F>>& cList,
-  Matrix<Base<F>>& sList,
-  Matrix<F>& Q,
-  const Base<F>& shift,
+( Matrix<Base<Field>>& d,
+  Matrix<Base<Field>>& e,
+  Matrix<Base<Field>>& cList,
+  Matrix<Base<Field>>& sList,
+  Matrix<Field>& Q,
+  const Base<Field>& shift,
   bool wantEigVecs )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
     cList.Resize( n-1, 1 );
@@ -196,16 +197,16 @@ void QRSweep
 // TODO(poulson): Support for what Parlett calls "Saad's shifts" in
 // subsubsection 8.14.5 of "The symmetric eigenvalue problem" [CITATION].
 //
-template<typename F>
+template<typename Field>
 herm_tridiag_eig::QRInfo
 Helper
-( Matrix<Base<F>>& d,
-  Matrix<Base<F>>& e,
-  Matrix<F>& Q,
-  const HermitianTridiagEigCtrl<Base<F>>& ctrl )
+( Matrix<Base<Field>>& d,
+  Matrix<Base<Field>>& e,
+  Matrix<Field>& Q,
+  const HermitianTridiagEigCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = d.Height();
     const Int mQ = Q.Height();
     herm_tridiag_eig::QRInfo info;
@@ -225,7 +226,7 @@ Helper
 
     Matrix<Real> cList(n-1,1), sList(n-1,1);
     Matrix<Real> dSub, eSub;
-    Matrix<F> QSub;
+    Matrix<Field> QSub;
 
     const Int maxIter = n*ctrl.qrCtrl.maxIterPerEig;
     Int winBeg = 0;
@@ -697,7 +698,7 @@ QRAlg
 {
     DEBUG_CSE
     const Int n = mainDiagPre.Height();
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
 
     DistMatrixReadWriteProxy<Real,Real,STAR,STAR> mainDiagProx( mainDiagPre );
     DistMatrixReadProxy<Real,Real,STAR,STAR> subDiagProx( subDiagPre );
@@ -706,7 +707,7 @@ QRAlg
 
     if( ctrl.accumulateEigVecs )
     {
-        DistMatrixReadWriteProxy<F,F,VC,STAR> QProx( QPre );
+        DistMatrixReadWriteProxy<Field,Field,VC,STAR> QProx( QPre );
         auto& Q = QProx.Get();
         if( Q.Width() != n )
             LogicError("Q was an invalid size");

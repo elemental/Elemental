@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -29,7 +29,7 @@ namespace affine {
 //   max -b^T y
 //   s.t. A^T y - z + c = 0, z >= 0,
 //
-// which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector 
+// which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector
 // scheme.
 //
 
@@ -41,14 +41,14 @@ void Mehrotra
   const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
         Matrix<Real>& x,
-        Matrix<Real>& y, 
+        Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_CSE
 
-    // TODO: Move these into the control structure
+    // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -108,7 +108,7 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, x, y, z, s, 
+    ( A, G, b, c, h, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
@@ -242,7 +242,7 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO: dmuError
+            // TODO(poulson): dmuError
 
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
@@ -305,7 +305,7 @@ void Mehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        // TODO: Residual checks
+        // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
@@ -343,20 +343,20 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const ElementalMatrix<Real>& APre,
-  const ElementalMatrix<Real>& GPre,
-  const ElementalMatrix<Real>& bPre,
-  const ElementalMatrix<Real>& cPre,
-  const ElementalMatrix<Real>& hPre,
-        ElementalMatrix<Real>& xPre,
-        ElementalMatrix<Real>& yPre, 
-        ElementalMatrix<Real>& zPre,
-        ElementalMatrix<Real>& sPre,
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& GPre,
+  const AbstractDistMatrix<Real>& bPre,
+  const AbstractDistMatrix<Real>& cPre,
+  const AbstractDistMatrix<Real>& hPre,
+        AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& yPre,
+        AbstractDistMatrix<Real>& zPre,
+        AbstractDistMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_CSE
 
-    // TODO: Move these into the control structure
+    // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -449,11 +449,11 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, x, y, z, s, 
+    ( A, G, b, c, h, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
-    DistMatrix<Real> J(grid),     d(grid), 
+    DistMatrix<Real> J(grid),     d(grid),
                      rc(grid),    rb(grid),    rh(grid),    rmu(grid),
                      dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
                      dx(grid),    dy(grid),    dz(grid),    ds(grid);
@@ -587,7 +587,7 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO: dmuError
+            // TODO(poulson): dmuError
 
             if( commRank == 0 )
                 Output
@@ -598,7 +598,7 @@ void Mehrotra
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
                  dzErrorNrm2/(1+rhNrm2));
         }
- 
+
         // Compute a centrality parameter
         // ==============================
         Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
@@ -632,7 +632,7 @@ void Mehrotra
             // ---------------------
             // NOTE: dz is used as a temporary
             dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz ); 
+            DiagonalScale( LEFT, NORMAL, dsAff, dz );
             rmu += dz;
         }
 
@@ -651,7 +651,7 @@ void Mehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
-        // TODO: Residual checks
+        // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
@@ -684,25 +684,25 @@ void Mehrotra
         DiagonalSolve( LEFT, NORMAL, dRowA, y );
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
         DiagonalScale( LEFT, NORMAL, dRowG, s );
-    } 
+    }
 }
 
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& APre,
   const SparseMatrix<Real>& GPre,
-  const Matrix<Real>& bPre, 
+  const Matrix<Real>& bPre,
   const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
-        Matrix<Real>& x, 
-        Matrix<Real>& y, 
-        Matrix<Real>& z, 
+        Matrix<Real>& x,
+        Matrix<Real>& y,
+        Matrix<Real>& z,
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_CSE
 
-    // TODO: Move these into the control structure
+    // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -785,7 +785,7 @@ void Mehrotra
     InvertMap( map, invMap );
 
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info, 
+    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
 
     SparseMatrix<Real> J, JOrig;
@@ -954,8 +954,9 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO: dmuError
-            // TODO: Also compute and print the residuals with regularization
+            // TODO(poulson): dmuError
+            // TODO(poulson): Also compute and print the residuals with
+            // regularization
 
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
@@ -1072,14 +1073,14 @@ void Mehrotra
   const DistMultiVec<Real>& cPre,
   const DistMultiVec<Real>& hPre,
         DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
     DEBUG_CSE
 
-    // TODO: Move these into the control structure
+    // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
     if( stepLengthSigma )
@@ -1138,7 +1139,7 @@ void Mehrotra
     const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
     const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
-    if( ctrl.print ) 
+    if( ctrl.print )
     {
         const double imbalanceA = A.Imbalance();
         const double imbalanceG = G.Imbalance();
@@ -1199,7 +1200,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s, 
+    ( JStatic, regTmp, b, c, h, x, y, z, s,
       map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
@@ -1389,8 +1390,9 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO: dmuError
-            // TODO: Also compute and print the residuals with regularization
+            // TODO(poulson): dmuError
+            // TODO(poulson): Also compute and print the residuals with
+            // regularization
 
             if( commRank == 0 )
                 Output
@@ -1517,15 +1519,15 @@ void Mehrotra
           Matrix<Real>& s, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& G, \
-    const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c, \
-    const ElementalMatrix<Real>& h, \
-          ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& s, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& G, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
+    const AbstractDistMatrix<Real>& h, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& s, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& A, \

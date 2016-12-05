@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SVD_CHAN_HPP
@@ -14,13 +14,13 @@
 namespace El {
 namespace svd {
 
-template<typename F>
+template<typename Field>
 SVDInfo ChanUpper
-( Matrix<F>& A,
-  Matrix<F>& U,
-  Matrix<Base<F>>& s, 
-  Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( Matrix<Field>& A,
+  Matrix<Field>& U,
+  Matrix<Base<Field>>& s,
+  Matrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -29,7 +29,7 @@ SVDInfo ChanUpper
       if( ctrl.fullChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const double heightRatio = ctrl.fullChanRatio;
@@ -47,7 +47,7 @@ SVDInfo ChanUpper
     {
         if( m > heightRatio*n )
         {
-            Matrix<F> householderScalars;
+            Matrix<Field> householderScalars;
             Matrix<Real> signature;
             if( ctrl.time )
                 timer.Start();
@@ -55,7 +55,7 @@ SVDInfo ChanUpper
             if( ctrl.time )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
-            Matrix<F> R;
+            Matrix<Field> R;
             auto AT = A( IR(0,n), IR(0,n) );
             R = AT;
             MakeTrapezoidal( UPPER, R );
@@ -74,7 +74,7 @@ SVDInfo ChanUpper
         // This branch handles (avoidU,avoidV) in {(false,false),(false,true)}
         if( m > heightRatio*n )
         {
-            Matrix<F> householderScalars;
+            Matrix<Field> householderScalars;
             Matrix<Real> signature;
             if( ctrl.time )
                 timer.Start();
@@ -82,7 +82,7 @@ SVDInfo ChanUpper
             if( ctrl.time )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
-            Matrix<F> R;
+            Matrix<Field> R;
             auto AT = A( IR(0,n), IR(0,n) );
             R = AT;
             MakeTrapezoidal( UPPER, R );
@@ -118,7 +118,7 @@ SVDInfo ChanUpper
             if( approach == FULL_SVD )
             {
                 Identity( U, m, m );
-                auto UL = U( IR(0,m), IR(0,n) );  
+                auto UL = U( IR(0,m), IR(0,n) );
                 info = svd::GolubReinsch( A, UL, s, V, ctrl );
             }
             else
@@ -130,13 +130,13 @@ SVDInfo ChanUpper
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo ChanUpper
-( DistMatrix<F>& A,
-  DistMatrix<F>& U,
-  AbstractDistMatrix<Base<F>>& s, 
-  DistMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( DistMatrix<Field>& A,
+  DistMatrix<Field>& U,
+  AbstractDistMatrix<Base<Field>>& s,
+  DistMatrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -146,7 +146,7 @@ SVDInfo ChanUpper
       if( ctrl.fullChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -165,7 +165,7 @@ SVDInfo ChanUpper
     {
         if( m > heightRatio*n )
         {
-            DistMatrix<F,MD,STAR> householderScalars(g);
+            DistMatrix<Field,MD,STAR> householderScalars(g);
             DistMatrix<Real,MD,STAR> signature(g);
             if( ctrl.time && g.Rank() == 0 )
                 timer.Start();
@@ -173,7 +173,7 @@ SVDInfo ChanUpper
             if( ctrl.time && g.Rank() == 0 )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
-            DistMatrix<F> R(g);
+            DistMatrix<Field> R(g);
             auto AT = A( IR(0,n), IR(0,n) );
             R = AT;
             MakeTrapezoidal( UPPER, R );
@@ -192,7 +192,7 @@ SVDInfo ChanUpper
         // This branch handles (avoidU,avoidV) in {(false,false),(false,true)}
         if( m > heightRatio*n )
         {
-            DistMatrix<F,MD,STAR> householderScalars(g);
+            DistMatrix<Field,MD,STAR> householderScalars(g);
             DistMatrix<Real,MD,STAR> signature(g);
             if( ctrl.time && g.Rank() == 0 )
                 timer.Start();
@@ -200,7 +200,7 @@ SVDInfo ChanUpper
             if( ctrl.time && g.Rank() == 0 )
                 Output("Chan QR reduction: ",timer.Stop()," seconds");
 
-            DistMatrix<F> R(g);
+            DistMatrix<Field> R(g);
             auto AT = A( IR(0,n), IR(0,n) );
             R = AT;
             MakeTrapezoidal( UPPER, R );
@@ -236,7 +236,7 @@ SVDInfo ChanUpper
             if( approach == FULL_SVD )
             {
                 Identity( U, m, m );
-                auto UL = U( IR(0,m), IR(0,n) );  
+                auto UL = U( IR(0,m), IR(0,n) );
                 info = svd::GolubReinsch( A, UL, s, V, ctrl );
             }
             else
@@ -248,29 +248,29 @@ SVDInfo ChanUpper
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo ChanUpper
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& UPre,
-  AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre,
-  const SVDCtrl<Base<F>>& ctrl )
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& UPre,
+  AbstractDistMatrix<Base<Field>>& s,
+  AbstractDistMatrix<Field>& VPre,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return ChanUpper( A, U, s, V, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo ChanUpper
-( Matrix<F>& A,
-  Matrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -288,11 +288,11 @@ SVDInfo ChanUpper
     }
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo ChanUpper
-( DistMatrix<F>& A,
-  AbstractDistMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+( DistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -311,14 +311,14 @@ SVDInfo ChanUpper
     }
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo ChanUpper
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     return ChanUpper( A, s, ctrl );
 }
@@ -328,13 +328,13 @@ SVDInfo ChanUpper
 // algorithm. On exit, A is overwritten with U.                               //
 //----------------------------------------------------------------------------//
 
-template<typename F>
+template<typename Field>
 SVDInfo Chan
-( Matrix<F>& A,
-  Matrix<F>& U,
-  Matrix<Base<F>>& s, 
-  Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( Matrix<Field>& A,
+  Matrix<Field>& U,
+  Matrix<Base<Field>>& s,
+  Matrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -345,12 +345,12 @@ SVDInfo Chan
 
     // Check if we need to rescale the matrix, and do so if necessary
     // TODO(poulson): Switch to SafeScale
-    Base<F> scale;
+    Base<Field> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         A *= scale;
 
-    // TODO: Switch between different algorithms. For instance, starting 
+    // TODO: Switch between different algorithms. For instance, starting
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
@@ -359,7 +359,7 @@ SVDInfo Chan
     else
     {
         // TODO: Avoid the explicit copy by explicitly forming the Q from LQ
-        Matrix<F> AAdj;
+        Matrix<Field> AAdj;
         Adjoint( A, AAdj );
         auto ctrlMod( ctrl );
         ctrlMod.bidiagSVDCtrl.wantU = ctrl.bidiagSVDCtrl.wantV;
@@ -376,13 +376,13 @@ SVDInfo Chan
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo Chan
-( DistMatrix<F>& A,
-  DistMatrix<F>& U,
-  AbstractDistMatrix<Base<F>>& s, 
-  DistMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( DistMatrix<Field>& A,
+  DistMatrix<Field>& U,
+  AbstractDistMatrix<Base<Field>>& s,
+  DistMatrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -394,12 +394,12 @@ SVDInfo Chan
 
     // Check if we need to rescale the matrix, and do so if necessary
     // TODO(poulson): Switch to SafeScale
-    Base<F> scale;
+    Base<Field> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         A *= scale;
 
-    // TODO: Switch between different algorithms. For instance, starting 
+    // TODO: Switch between different algorithms. For instance, starting
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
@@ -408,7 +408,7 @@ SVDInfo Chan
     else
     {
         // TODO: Avoid the explicit copy by explicitly forming the Q from LQ
-        DistMatrix<F> AAdj(A.Grid());
+        DistMatrix<Field> AAdj(A.Grid());
         Adjoint( A, AAdj );
         auto ctrlMod( ctrl );
         ctrlMod.bidiagSVDCtrl.wantU = ctrl.bidiagSVDCtrl.wantV;
@@ -425,18 +425,18 @@ SVDInfo Chan
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo Chan
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& UPre,
-  AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre,
-  const SVDCtrl<Base<F>>& ctrl )
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& UPre,
+  AbstractDistMatrix<Base<Field>>& s,
+  AbstractDistMatrix<Field>& VPre,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
@@ -447,23 +447,23 @@ SVDInfo Chan
 // Grab the singular values of the general matrix A.                          //
 //----------------------------------------------------------------------------//
 
-template<typename F>
+template<typename Field>
 SVDInfo Chan
-( Matrix<F>& A,
-  Matrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     SVDInfo info;
 
     // Check if we need to rescale the matrix, and do so if necessary
     // TODO(poulson): Switch to SafeScale
-    Base<F> scale;
+    Base<Field> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         A *= scale;
 
-    // TODO: Switch between different algorithms. For instance, starting 
+    // TODO: Switch between different algorithms. For instance, starting
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
@@ -473,7 +473,7 @@ SVDInfo Chan
     {
         // Explicit formation of the Q from an LQ factorization is not yet
         // optimized
-        Matrix<F> AAdj;
+        Matrix<Field> AAdj;
         Adjoint( A, AAdj );
         info = svd::ChanUpper( AAdj, s, ctrl );
     }
@@ -485,23 +485,23 @@ SVDInfo Chan
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo Chan
-( DistMatrix<F>& A,
-  AbstractDistMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+( DistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     SVDInfo info;
 
     // Check if we need to rescale the matrix, and do so if necessary
     // TODO(poulson): Switch to SafeScale
-    Base<F> scale;
+    Base<Field> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         A *= scale;
 
-    // TODO: Switch between different algorithms. For instance, starting 
+    // TODO: Switch between different algorithms. For instance, starting
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
@@ -511,7 +511,7 @@ SVDInfo Chan
     {
         // Explicit formation of the Q from an LQ factorization is not yet
         // optimized
-        DistMatrix<F> AAdj( A.Grid() );
+        DistMatrix<Field> AAdj( A.Grid() );
         Adjoint( A, AAdj );
         info = svd::ChanUpper( AAdj, s, ctrl );
     }
@@ -523,14 +523,14 @@ SVDInfo Chan
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo Chan
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     return Chan( A, s, ctrl );
 }

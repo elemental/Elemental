@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -20,7 +20,7 @@ namespace El {
 //
 // which can be formulated as the SOCP
 //
-//     min t + rho s 
+//     min t + rho s
 //     s.t. || A x - b ||_2 <= t, || [x; 1] ||_2 <= s.
 //
 // (See [1] or Subsection 2.7 of [2].)
@@ -32,18 +32,18 @@ namespace El {
 //     with uncertain data", SIAM J. Matrix Anal. and Appl., Vol. 18, No. 4,
 //     1997. DOI: http://epubs.siam.org/doi/abs/10.1137/S0895479896298130
 //
-// [2] M.S. Lobo, L. Vandenberghe, S. Boyd, and H. Lebret, 
-//     "Applications of second-order cone programming", 
-//     Linear Algebra and its Applications, Vol. 284, Issues 1-3, 1998. 
+// [2] M.S. Lobo, L. Vandenberghe, S. Boyd, and H. Lebret,
+//     "Applications of second-order cone programming",
+//     Linear Algebra and its Applications, Vol. 284, Issues 1-3, 1998.
 //     DOI: http://www.sciencedirect.com/science/article/pii/S0024379598100320
-// 
+//
 
 template<typename Real>
 void RLS
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& b,
         Real rho,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -60,7 +60,7 @@ void RLS
     }
     for( Int i=0; i<n+2; ++i )
     {
-        orders.Set( i+m+1, 0, n+2 ); 
+        orders.Set( i+m+1, 0, n+2 );
         firstInds.Set( i+m+1, 0, m+1 );
     }
 
@@ -87,7 +87,7 @@ void RLS
     //      | 0 |
     //      | 1 |
     Matrix<Real> h;
-    Zeros( h, m+n+3, 1 ); 
+    Zeros( h, m+n+3, 1 );
     auto hb = h( IR(1,m+1), ALL );
     hb = b;
     h.Set( END, 0, 1 );
@@ -109,10 +109,10 @@ void RLS
 
 template<typename Real>
 void RLS
-( const ElementalMatrix<Real>& APre, 
-  const ElementalMatrix<Real>& bPre, 
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& bPre,
         Real rho,
-        ElementalMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& xPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -196,10 +196,10 @@ void RLS
 
 template<typename Real>
 void RLS
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
         Real rho,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -216,7 +216,7 @@ void RLS
     }
     for( Int i=0; i<n+2; ++i )
     {
-        orders.Set( i+m+1, 0, n+2 ); 
+        orders.Set( i+m+1, 0, n+2 );
         firstInds.Set( i+m+1, 0, m+1 );
     }
 
@@ -245,7 +245,7 @@ void RLS
     //      | 0 |
     //      | 1 |
     Matrix<Real> h;
-    Zeros( h, m+n+3, 1 ); 
+    Zeros( h, m+n+3, 1 );
     auto hb = h( IR(1,m+1), ALL );
     hb = b;
     h.Set( END, 0, 1 );
@@ -268,10 +268,10 @@ void RLS
 
 template<typename Real>
 void RLS
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
         Real rho,
-        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& x,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -294,7 +294,7 @@ void RLS
             }
             else
             {
-                orders.SetLocal( iLoc, 0, n+2 ); 
+                orders.SetLocal( iLoc, 0, n+2 );
                 firstInds.SetLocal( iLoc, 0, m+1 );
             }
         }
@@ -323,7 +323,7 @@ void RLS
         G.Reserve( numLocalUpdates+numEntriesA, numEntriesA );
 
         // Queue the local updates
-        // ----------------------- 
+        // -----------------------
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = G.GlobalRow(iLoc);
@@ -349,7 +349,7 @@ void RLS
     //      | 0 |
     //      | 1 |
     DistMultiVec<Real> h(comm);
-    Zeros( h, m+n+3, 1 ); 
+    Zeros( h, m+n+3, 1 );
     auto& bLoc = b.LockedMatrix();
     {
         const Int bLocalHeight = b.LocalHeight();
@@ -384,10 +384,10 @@ void RLS
           Matrix<Real>& x, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void RLS \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
           Real rho, \
-          ElementalMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& x, \
     const socp::affine::Ctrl<Real>& ctrl ); \
   template void RLS \
   ( const SparseMatrix<Real>& A, \

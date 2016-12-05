@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_VIGILANT_DEFLATION_HPP
@@ -14,9 +14,9 @@ namespace hess_schur {
 namespace multibulge {
 
 // To be performed during the application of the reflections from the right
-template<typename F>
+template<typename Field>
 void VigilantDeflation
-( Matrix<F>& H,
+( Matrix<Field>& H,
   Int winBeg,
   Int winEnd,
   Int packetBeg,
@@ -25,9 +25,9 @@ void VigilantDeflation
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Real zero(0);
-    const F complexZero(0);
+    const Field complexZero(0);
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();
     const Real smallNum = safeMin*(Real(H.Height())/ulp);
@@ -35,10 +35,10 @@ void VigilantDeflation
     for( Int bulge=firstBulge+numBulges-1; bulge>=firstBulge; --bulge )
     {
         const Int k = Min( winEnd-2, packetBeg+3*bulge );
-        F& eta00 = H(k  ,k  );
-        F& eta01 = H(k  ,k+1);
-        F& eta10 = H(k+1,k  );
-        F& eta11 = H(k+1,k+1);
+        Field& eta00 = H(k  ,k  );
+        Field& eta01 = H(k  ,k+1);
+        Field& eta10 = H(k+1,k  );
+        Field& eta11 = H(k+1,k+1);
         const Real eta00Abs = OneAbs(eta00);
         const Real eta10Abs = OneAbs(eta10);
         const Real eta11Abs = OneAbs(eta11);

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -45,17 +45,13 @@
 //
 // For dense and sparse matrices we respectively default to (DS1) and (DS2).
 //
-// TODO: 
-//  Add the ability to switch between the (DS1) and (DS2) affine LP
-//  formulations described in [2].
-//
-// [1] 
+// [1]
 //   Emmanuel Candes and Terence Tao,
-//   "The Dantzig selector: Statistical estimation when p is much 
+//   "The Dantzig selector: Statistical estimation when p is much
 //    larger than n",
 //   The Annals of Statistics, pp. 2313--2351, 2007.
 //
-// [2] 
+// [2]
 //   Michael Friedlander and Michael Saunders,
 //  "Discussion: The Dantzig selector: Statistical estimation when p is much
 //   larger than n",
@@ -68,7 +64,7 @@ namespace ds {
 template<typename Real>
 void Var1
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -132,16 +128,19 @@ void Var1
 
 template<typename Real>
 void Var1
-( const ElementalMatrix<Real>& APre,
-  const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& b,
         Real lambda,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
+
+    DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
+    auto& x = xProx.Get();
 
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -203,7 +202,7 @@ void Var1
 template<typename Real>
 void Var2
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -280,13 +279,17 @@ void Var2
 
 template<typename Real>
 void Var2
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
         Real lambda,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
+
+    DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
+    auto& x = xProx.Get();
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -360,7 +363,7 @@ void Var2
 template<typename Real>
 void Var2
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -442,7 +445,7 @@ void Var2
 template<typename Real>
 void Var2
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -556,10 +559,13 @@ void Var2
 
 } // namespace ds
 
+// TODO(poulson): Add the ability to choose the variant (while preserving the
+// Var1 dense default and Var2 sparse default).
+
 template<typename Real>
 void DS
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -570,10 +576,10 @@ void DS
 
 template<typename Real>
 void DS
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
         Real lambda,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -583,7 +589,7 @@ void DS
 template<typename Real>
 void DS
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -595,7 +601,7 @@ void DS
 template<typename Real>
 void DS
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
@@ -612,10 +618,10 @@ void DS
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void DS \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
           Real lambda, \
-          ElementalMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void DS \
   ( const SparseMatrix<Real>& A, \

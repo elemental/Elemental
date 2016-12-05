@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_OPTIMIZATION_PROX_HPP
@@ -75,12 +75,12 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real rho, Int numIts=5 );
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int SVT( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
+Int SVT( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 Int SVT( Matrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F>
 Int SVT
-( ElementalMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
+( AbstractDistMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F,Dist U>
 Int SVT( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
 
@@ -91,24 +91,24 @@ namespace svt {
 template<typename F>
 Int Cross( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Cross( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
+Int Cross( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int Normal( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Normal( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
+Int Normal( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int PivotedQR
 ( Matrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 template<typename F>
 Int PivotedQR
-( ElementalMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
+( AbstractDistMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 
 template<typename F>
-Int TSQR( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
+Int TSQR( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 
 } // namespace svt
 
@@ -116,7 +116,7 @@ Int TSQR( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
 // -----------------
 // Returns the solution to
 //     arg min || vec(A) ||_1 + rho/2 || A - A0 ||_F^2
-//        A 
+//        A
 // where A0 is the input matrix.
 template<typename F>
 F SoftThreshold( F alpha, Base<F> rho );

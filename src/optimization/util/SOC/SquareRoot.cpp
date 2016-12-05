@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,11 +14,12 @@ namespace soc {
 // sqrt(x) = [ eta_0; x_1/(2 eta_0) ],
 // where eta_0 = sqrt(x_0 + sqrt(det(x))) / sqrt(2).
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void SquareRoot
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
         Matrix<Real>& xRoot,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
     DEBUG_CSE
@@ -34,12 +35,12 @@ void SquareRoot
         const Int order = orders(i);
         const Int firstInd = firstInds(i);
         DEBUG_ONLY(
-          if( i != firstInd )       
+          if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
 
         const Real eta0 = Sqrt(x(i)+Sqrt(d(i)))/Sqrt(Real(2));
-        xRoot(i) = eta0; 
+        xRoot(i) = eta0;
         for( Int k=1; k<order; ++k )
             xRoot(i+k) = x(i+k)/(2*eta0);
 
@@ -47,12 +48,13 @@ void SquareRoot
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void SquareRoot
-( const ElementalMatrix<Real>& xPre, 
-        ElementalMatrix<Real>& xRootPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& xRootPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_CSE
@@ -103,11 +105,12 @@ void SquareRoot
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void SquareRoot
-( const DistMultiVec<Real>& x, 
+( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& xRoot,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
@@ -148,10 +151,10 @@ void SquareRoot
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void SquareRoot \
-  ( const ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& xRoot, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& xRoot, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void SquareRoot \
   ( const DistMultiVec<Real>& x, \

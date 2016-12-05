@@ -1,4 +1,3 @@
-%{!?archive: %define archive master}
 Name:	elemental
 Version:	0.87.5
 Release:	2%{?dist}
@@ -6,11 +5,10 @@ Summary:	Library for distributed-memory dense/sparse-direct linear algebra
 Group:	Development/Libraries
 License:	BSD and Boost and MIT and LGPLv2
 URL:	http://libelemental.org
-Source0:	https://github.com/elemental/Elemental/archive/%{archive}.tar.gz
+Source0:	https://github.com/elemental/Elemental/archive/v%{version}.tar.gz
 #This is excluded to due a compiler bug in PPC:
 #gcc.gnu.org/bugzilla/show_bug.cgi?id=78636
 ExcludeArch: %{power64}
-
 
 BuildRequires: environment-modules
 BuildRequires: cmake
@@ -108,8 +106,8 @@ Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
 This package contains the python bindings for using Elemental through a python shell with MPICH
 
 %prep
-%autosetup -c -n Elemental-%{archive}
-mv $(ls -d */|head -n 1)/* .
+%autosetup -c -n Elemental-%{version}
+mv $(ls -d */|head -n 1)/* . 
 
 %build
 
@@ -175,7 +173,7 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
-mv %{buildroot}%{_docdir}/Elemental ${buildroot}%_pkgdocdir
+mv %{buildroot}%{_docdir}/Elemental %{buildroot}%_pkgdocdir
 rm -rf %{buildroot}/%{_prefix}/conf
 
 #The Elemental headers

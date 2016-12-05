@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace affine {
 
 //
 // Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure 
+// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
 // is currently used by the code [2]:
 //
 // 1) Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -35,7 +35,7 @@ namespace affine {
 //
 //    where 'u' is an unused dummy variable.
 //
-// 3) Set 
+// 3) Set
 //
 //      alpha_p := -min_i min eig(s_i),
 //      alpha_d := -min_i min eig(z_i),
@@ -48,11 +48,11 @@ namespace affine {
 //      s := ( alpha_p > -sqrt(eps)*Max(1,||s||_2) ? s + (1+alpha_p)e : s )
 //      z := ( alpha_d > -sqrt(eps)*Max(1,||z||_2) ? z + (1+alpha_d)e : z ),
 //
-//    where 'eps' is the machine precision and 'e' is the identity of the 
+//    where 'eps' is the machine precision and 'e' is the identity of the
 //    product cone.
 //
-//    TODO: 
-//    Since the post-processing in step (3) has a large discontinuity as the 
+//    TODO(poulson):
+//    Since the post-processing in step (3) has a large discontinuity as the
 //    minimum entry approaches sqrt(eps)*Max(1,||q||_2), we can also provide
 //    the ability to instead use an per-subcone lower clip.
 //
@@ -67,16 +67,16 @@ namespace affine {
 
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& G,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z, 
+        Matrix<Real>& z,
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
@@ -100,7 +100,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -189,16 +189,16 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A, 
+( const ElementalMatrix<Real>& A,
   const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b, 
+  const ElementalMatrix<Real>& b,
   const ElementalMatrix<Real>& c,
   const ElementalMatrix<Real>& h,
   const ElementalMatrix<Int>& orders,
   const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x, 
+        ElementalMatrix<Real>& x,
         ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z, 
+        ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
@@ -208,7 +208,7 @@ void Initialize
     const Int n = A.Width();
     const Int k = G.Height();
     const Grid& g = A.Grid();
-    if( primalInit ) 
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -224,7 +224,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -312,23 +312,23 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z, 
+        Matrix<Real>& z,
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_CSE
 
-    // TODO: Expose as control parameters
+    // TODO(poulson): Expose as control parameters
     const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
     const Real delta = Pow(eps,Real(0.25));
@@ -340,7 +340,7 @@ void Initialize
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    if( primalInit ) 
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -356,7 +356,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -469,24 +469,24 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift,
   Int cutoffPar,
   const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_CSE
 
-    // TODO: Expose as control parameters
+    // TODO(poulson): Expose as control parameters
     const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
     const Real delta = Pow(eps,Real(0.25));
@@ -499,7 +499,7 @@ void Initialize
     const Int n = A.Width();
     const Int k = G.Height();
     mpi::Comm comm = A.Comm();
-    if( primalInit ) 
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -515,7 +515,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 

@@ -106,47 +106,41 @@ void SolveHilbert( El::Int n, El::Int maxRefineIts, bool refineProgress )
 int main( int argc, char* argv[] )
 {
     El::Environment env( argc, argv );
-
-    El::Int n, maxRefineIts;
-    bool refineProgress;
-#ifdef EL_HAVE_MPC
-    mpfr_prec_t prec;
-#endif
     try
     {
-        n = El::Input("--n","matrix width",20);
-        maxRefineIts =
-          El::Input("--maxRefineIts","maximum iterative refinements",3);
-        refineProgress =
+        const El::Int n = El::Input("--n","matrix width",20);
+        const El::Int maxRefineIts =
+          El::Input("--maxRefineIts","max IR steps",3);
+        const bool refineProgress =
           El::Input("--refineProgress","show IR progress?",false);
 #ifdef EL_HAVE_MPC
-        prec = El::Input("--prec","MPFR precision",384);
+        mpfr_prec_t prec = El::Input("--prec","MPFR precision",256);
 #endif
         El::ProcessInput();
-    }
-    catch( std::exception& e ) { El::ReportException(e); }
+
 #ifdef EL_HAVE_MPC
-    El::mpfr::SetPrecision( prec );
+        El::mpfr::SetPrecision( prec );
 #endif
 
-    try { SolveHilbert<float>( n, maxRefineIts, refineProgress ); }
-    catch( std::exception& e ) { El::ReportException(e); }
-    try { SolveHilbert<double>( n, maxRefineIts, refineProgress ); }
-    catch( std::exception& e ) { El::ReportException(e); }
+        try { SolveHilbert<float>( n, maxRefineIts, refineProgress ); }
+        catch( std::exception& e ) { El::ReportException(e); }
+        try { SolveHilbert<double>( n, maxRefineIts, refineProgress ); }
+        catch( std::exception& e ) { El::ReportException(e); }
 #ifdef EL_HAVE_QD
-    try { SolveHilbert<El::DoubleDouble>( n, maxRefineIts, refineProgress ); }
-    catch( std::exception& e ) { El::ReportException(e); }
-    try { SolveHilbert<El::QuadDouble>( n, maxRefineIts, refineProgress ); }
-    catch( std::exception& e ) { El::ReportException(e); }
+        try
+        { SolveHilbert<El::DoubleDouble>( n, maxRefineIts, refineProgress ); }
+        catch( std::exception& e ) { El::ReportException(e); }
+        try { SolveHilbert<El::QuadDouble>( n, maxRefineIts, refineProgress ); }
+        catch( std::exception& e ) { El::ReportException(e); }
 #endif
 #ifdef EL_HAVE_QUAD
-    try { SolveHilbert<El::Quad>( n, maxRefineIts, refineProgress ); }
-    catch( std::exception& e ) { El::ReportException(e); }
+        try { SolveHilbert<El::Quad>( n, maxRefineIts, refineProgress ); }
+        catch( std::exception& e ) { El::ReportException(e); }
 #endif
 #ifdef EL_HAVE_MPC
-    try { SolveHilbert<El::BigFloat>( n, maxRefineIts, refineProgress ); }
-    catch( std::exception& e ) { El::ReportException(e); }
+        try { SolveHilbert<El::BigFloat>( n, maxRefineIts, refineProgress ); }
+        catch( std::exception& e ) { El::ReportException(e); }
 #endif
-
+    } catch( std::exception& e ) { El::ReportException(e); }
     return 0;
 }

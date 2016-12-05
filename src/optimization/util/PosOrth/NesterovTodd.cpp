@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,15 +11,16 @@
 namespace El {
 namespace pos_orth {
 
-// Find the Nesterov-Todd scaling point w such that 
+// Find the Nesterov-Todd scaling point w such that
 //
 //   Q_w z = diag(w)^2 z = s,
 //
 // which implies that w_i = sqrt(s_i/z_i).
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void NesterovTodd
-( const Matrix<Real>& s, 
+( const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& w )
 {
@@ -34,11 +35,12 @@ void NesterovTodd
         wBuf[i] = Sqrt(sBuf[i]/zBuf[i]);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void NesterovTodd
-( const ElementalMatrix<Real>& sPre, 
-  const ElementalMatrix<Real>& zPre,
-        ElementalMatrix<Real>& wPre )
+( const AbstractDistMatrix<Real>& sPre,
+  const AbstractDistMatrix<Real>& zPre,
+        AbstractDistMatrix<Real>& wPre )
 {
     DEBUG_CSE
 
@@ -65,9 +67,10 @@ void NesterovTodd
         wBuf[iLoc] = Sqrt(sBuf[iLoc]/zBuf[iLoc]);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void NesterovTodd
-( const DistMultiVec<Real>& s, 
+( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w )
 {
@@ -89,9 +92,9 @@ void NesterovTodd
     const Matrix<Real>& z, \
           Matrix<Real>& w ); \
   template void NesterovTodd \
-  ( const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& w ); \
+  ( const AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& w ); \
   template void NesterovTodd \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z, \

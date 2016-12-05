@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -28,7 +28,7 @@ namespace svm {
 template<typename Real>
 void IPM
 ( const Matrix<Real>& A,
-  const Matrix<Real>& d, 
+  const Matrix<Real>& d,
         Real lambda,
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
@@ -80,7 +80,7 @@ void IPM
     Zeros( h, 2*m, 1 );
     auto h0 = h( IR(0,m), ALL );
     Fill( h0, Real(-1) );
-    
+
     // Solve the affine QP
     // ===================
     Matrix<Real> y, z, s;
@@ -89,10 +89,10 @@ void IPM
 
 template<typename Real>
 void IPM
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& d, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& d,
         Real lambda,
-        ElementalMatrix<Real>& x, 
+        AbstractDistMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -153,7 +153,7 @@ void IPM
 template<typename Real>
 void IPM
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& d, 
+  const Matrix<Real>& d,
         Real lambda,
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
@@ -194,7 +194,7 @@ void IPM
     //      |      0,     0, -I|
     // =========================
     Zeros( G, 2*m, n+m+1 );
-    const Int numEntriesA = A.NumEntries(); 
+    const Int numEntriesA = A.NumEntries();
     G.Reserve( numEntriesA+3*m );
     for( Int e=0; e<numEntriesA; ++e )
         G.QueueUpdate( A.Row(e), A.Col(e), -d(A.Row(e))*A.Value(e) );
@@ -212,7 +212,7 @@ void IPM
     Zeros( h, 2*m, 1 );
     auto h0 = h( IR(0,m), ALL );
     Fill( h0, Real(-1) );
-    
+
     // Solve the affine QP
     // ===================
     Matrix<Real> y, z, s;
@@ -222,7 +222,7 @@ void IPM
 template<typename Real>
 void IPM
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& d, 
+  const DistMultiVec<Real>& d,
         Real lambda,
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
