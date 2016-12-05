@@ -55,12 +55,12 @@ namespace hess_schur {
 //   No. 4, 29 pages, 2015.
 //
 
-template<typename F>
+template<typename Field>
 HessenbergSchurInfo
 AED
-( Matrix<F>& H,
-  Matrix<Complex<Base<F>>>& w,
-  Matrix<F>& Z,
+( Matrix<Field>& H,
+  Matrix<Complex<Base<Field>>>& w,
+  Matrix<Field>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -89,7 +89,7 @@ AED
     Int deflationSize = deflationSizeRec;
 
     // For multibulge::Sweep
-    Matrix<F> U, W, WAccum;
+    Matrix<Field> U, W, WAccum;
     auto ctrlSub( ctrl );
 
     Int numIterSinceDeflation = 0;
@@ -99,7 +99,7 @@ AED
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
 
     Int decreaseLevel = -1;
-    Matrix<F> hSubIter;
+    Matrix<Field> hSubIter;
     while( winBeg < winEnd )
     {
         if( info.numIterations >= maxIter )
@@ -115,7 +115,7 @@ AED
         // TODO(poulson): Describe why we don't use DetectSmallSubdiagonal
         Int iterBeg=winEnd-1;
         for( ; iterBeg>winBeg; --iterBeg )
-            if( H(iterBeg,iterBeg-1) == F(0) )
+            if( H(iterBeg,iterBeg-1) == Field(0) )
                 break;
         if( ctrl.progress )
         {
@@ -172,12 +172,12 @@ AED
     return info;
 }
 
-template<typename F>
+template<typename Field>
 HessenbergSchurInfo
 AED
-( DistMatrix<F,MC,MR,BLOCK>& H,
-  DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Z,
+( DistMatrix<Field,MC,MR,BLOCK>& H,
+  DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
+  DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -226,7 +226,7 @@ AED
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
 
     Int decreaseLevel = -1;
-    DistMatrix<F,STAR,STAR> hMainWin(grid), hSubWin(grid);
+    DistMatrix<Field,STAR,STAR> hMainWin(grid), hSubWin(grid);
     while( winBeg < winEnd )
     {
         if( info.numIterations >= maxIter )
@@ -245,7 +245,7 @@ AED
         util::GatherBidiagonal( H, IR(winBeg,winEnd), hMainWin, hSubWin );
         Int iterBeg=winEnd-1;
         for( ; iterBeg>winBeg; --iterBeg )
-            if( hSubWin.GetLocal(iterBeg-1,0) == F(0) )
+            if( hSubWin.GetLocal(iterBeg-1,0) == Field(0) )
                 break;
         if( ctrl.progress && grid.Rank() == 0 )
         {

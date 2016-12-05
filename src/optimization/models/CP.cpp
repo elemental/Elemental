@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,7 +12,7 @@
 //
 //   min || A x - b ||_oo.
 //
-// Real instances of the problem are expressable as a Linear Program via 
+// Real instances of the problem are expressable as a Linear Program via
 //
 //   min t
 //   s.t. -t <= A x - b <= t,
@@ -23,7 +23,7 @@
 //   s.t. |  A  -1 | | x | <= |  b |
 //        | -A  -1 | | t |    | -b |
 //
-// NOTE: There is likely an appropriate citation, but the derivation is 
+// NOTE: There is likely an appropriate citation, but the derivation is
 //       trivial. If one is found, it will be added.
 
 namespace El {
@@ -31,7 +31,7 @@ namespace El {
 template<typename Real>
 void CP
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
@@ -46,7 +46,7 @@ void CP
     c.Set( n, 0, Real(1) );
 
     // \hat A := zeros(0,n+1)
-    // ====================== 
+    // ======================
     Zeros( AHat, 0, n+1 );
 
     // \hat b := zeros(0,1)
@@ -85,9 +85,9 @@ void CP
 
 template<typename Real>
 void CP
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b, 
-        ElementalMatrix<Real>& x,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
+        AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -102,7 +102,7 @@ void CP
     c.Set( n, 0, Real(1) );
 
     // \hat A := zeros(0,n+1)
-    // ====================== 
+    // ======================
     Zeros( AHat, 0, n+1 );
 
     // \hat b := zeros(0,1)
@@ -142,7 +142,7 @@ void CP
 template<typename Real>
 void CP
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
@@ -158,7 +158,7 @@ void CP
     c.Set( n, 0, Real(1) );
 
     // \hat A := zeros(0,n+1)
-    // ====================== 
+    // ======================
     Zeros( AHat, 0, n+1 );
 
     // \hat b := zeros(0,1)
@@ -205,7 +205,7 @@ void CP
 template<typename Real>
 void CP
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
@@ -222,7 +222,7 @@ void CP
     c.Set( n, 0, Real(1) );
 
     // \hat A := zeros(0,n+1)
-    // ====================== 
+    // ======================
     Zeros( AHat, 0, n+1 );
 
     // \hat b := zeros(0,1)
@@ -273,9 +273,9 @@ void CP
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void CP \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
-          ElementalMatrix<Real>& x, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
+          AbstractDistMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void CP \
   ( const SparseMatrix<Real>& A, \

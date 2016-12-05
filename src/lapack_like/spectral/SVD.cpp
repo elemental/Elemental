@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -19,22 +19,23 @@ namespace El {
 namespace svd {
 
 // The following exists primarily for benchmarking purposes
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 SVDInfo ScaLAPACKHelper
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& sPre,
-        AbstractDistMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& sPre,
+        AbstractDistMatrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     AssertScaLAPACKSupport();
     SVDInfo info;
 #ifdef EL_HAVE_SCALAPACK
-    typedef Base<F> Real;
-    DistMatrix<F,MC,MR,BLOCK> A( APre );
+    typedef Base<Field> Real;
+    DistMatrix<Field,MC,MR,BLOCK> A( APre );
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx(sPre);
-    DistMatrixWriteProxy<F,F,MC,MR,BLOCK> UProx(UPre);
+    DistMatrixWriteProxy<Field,Field,MC,MR,BLOCK> UProx(UPre);
     auto& s = sProx.Get();
     auto& U = UProx.Get();
 
@@ -46,7 +47,7 @@ SVDInfo ScaLAPACKHelper
     if( approach == THIN_SVD || approach == COMPACT_SVD )
     {
         Zeros( U, m, k );
-        DistMatrix<F,MC,MR,BLOCK> VH( A.Grid() );
+        DistMatrix<Field,MC,MR,BLOCK> VH( A.Grid() );
         Zeros( VH, k, n );
         s.Resize( k, 1 );
 
@@ -58,7 +59,7 @@ SVDInfo ScaLAPACKHelper
           A.Buffer(), descA.data(),
           s.Buffer(),
           U.Buffer(), descU.data(),
-          VH.Buffer(), descVH.data() ); 
+          VH.Buffer(), descVH.data() );
 
         const bool compact = ( approach == COMPACT_SVD );
         if( compact )
@@ -91,13 +92,15 @@ SVDInfo ScaLAPACKHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 SVDInfo ScaLAPACKHelper
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& sPre,
-        AbstractDistMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& sPre,
+        AbstractDistMatrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     SVDInfo info;
@@ -106,16 +109,17 @@ SVDInfo ScaLAPACKHelper
 }
 
 // The following exists primarily for benchmarking purposes
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 SVDInfo LAPACKHelper
-(     Matrix<F>& A,
-      Matrix<F>& U,
-      Matrix<Base<F>>& s,
-      Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+(     Matrix<Field>& A,
+      Matrix<Field>& U,
+      Matrix<Base<Field>>& s,
+      Matrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     if( !ctrl.overwrite )
         LogicError("LAPACKHelper assumes ctrl.overwrite == true");
     auto approach = ctrl.bidiagSVDCtrl.approach;
@@ -133,7 +137,7 @@ SVDInfo LAPACKHelper
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
     const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     s.Resize( k, 1 );
-    Matrix<F> VAdj;
+    Matrix<Field> VAdj;
 
     if( thin || compact )
     {
@@ -178,13 +182,15 @@ SVDInfo LAPACKHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 SVDInfo LAPACKHelper
-(     Matrix<F>& A,
-      Matrix<F>& U,
-      Matrix<Base<F>>& s,
-      Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+(     Matrix<Field>& A,
+      Matrix<Field>& U,
+      Matrix<Base<Field>>& s,
+      Matrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     SVDInfo info;
@@ -194,13 +200,13 @@ SVDInfo LAPACKHelper
 
 } // namespace svd
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-( const Matrix<F>& A,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     auto ACopy( A );
@@ -209,13 +215,13 @@ SVDInfo SVD
     return SVD( ACopy, U, s, V, ctrlMod );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-(     Matrix<F>& A,
-      Matrix<F>& U,
-      Matrix<Base<F>>& s,
-      Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+(     Matrix<Field>& A,
+      Matrix<Field>& U,
+      Matrix<Base<Field>>& s,
+      Matrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const auto& bidiagSVDCtrl = ctrl.bidiagSVDCtrl;
@@ -264,28 +270,28 @@ SVDInfo SVD
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    DistMatrix<F> ACopy( A );
+    DistMatrix<Field> ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
     return SVD( ACopy, U, s, V, ctrlMod );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-(       AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+(       AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const auto& bidiagSVDCtrl = ctrl.bidiagSVDCtrl;
@@ -293,7 +299,7 @@ SVDInfo SVD
         (bidiagSVDCtrl.wantV && bidiagSVDCtrl.accumulateV) )
         LogicError("SVD does not support singular vector accumulation");
 
-    if( IsBlasScalar<F>::value && ctrl.useScaLAPACK )
+    if( IsBlasScalar<Field>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, U, s, V, ctrl );
     }
@@ -302,7 +308,7 @@ SVDInfo SVD
     const bool avoidV = !ctrl.bidiagSVDCtrl.wantV;
     if( !ctrl.overwrite && approach != PRODUCT_SVD )
     {
-        DistMatrix<F> ACopy( A );
+        DistMatrix<Field> ACopy( A );
         auto ctrlMod( ctrl );
         ctrlMod.overwrite = true;
         return SVD( ACopy, U, s, V, ctrlMod );
@@ -323,7 +329,7 @@ SVDInfo SVD
         // TODO: Switch to using control structure
         if( U.ColDist() == VC && U.RowDist() == STAR )
         {
-            auto& UCast = static_cast<DistMatrix<F,VC,STAR>&>( U );
+            auto& UCast = static_cast<DistMatrix<Field,VC,STAR>&>( U );
             info = svd::Product
             ( A, UCast, s, V,
               ctrl.bidiagSVDCtrl.tol, relative, avoidU, avoidV );
@@ -346,14 +352,15 @@ SVDInfo SVD
 namespace svd {
 
 // The following exists primarily for benchmarking purposes
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 SVDInfo LAPACKHelper
-(       Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
+(       Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     if( !ctrl.overwrite )
         LogicError("LAPACKHelper assumes ctrl.overwrite == true");
     if( ctrl.bidiagSVDCtrl.approach != THIN_SVD &&
@@ -375,7 +382,7 @@ SVDInfo LAPACKHelper
           bidiag_svd::APosterioriThreshold
           ( m, n, twoNorm, ctrl.bidiagSVDCtrl );
 
-        Int rank = Min(m,n); 
+        Int rank = Min(m,n);
         for( Int j=0; j<Min(m,n); ++j )
         {
             if( s(j) <= thresh )
@@ -390,11 +397,13 @@ SVDInfo LAPACKHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 SVDInfo LAPACKHelper
-(       Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
+(       Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     SVDInfo info;
@@ -403,18 +412,19 @@ SVDInfo LAPACKHelper
 }
 
 // The following exists primarily for benchmarking purposes
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 SVDInfo ScaLAPACKHelper
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<Base<F>>& sPre,
-  const SVDCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Base<Field>>& sPre,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     AssertScaLAPACKSupport();
     SVDInfo info;
 #ifdef EL_HAVE_SCALAPACK
-    typedef Base<F> Real;
-    DistMatrix<F,MC,MR,BLOCK> A( APre );
+    typedef Base<Field> Real;
+    DistMatrix<Field,MC,MR,BLOCK> A( APre );
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx(sPre);
     auto& s = sProx.Get();
     const int m = A.Height();
@@ -430,7 +440,7 @@ SVDInfo ScaLAPACKHelper
 
         auto descA = FillDesc( A );
         scalapack::SingularValues
-        ( m, n, A.Buffer(), descA.data(), s.Buffer() ); 
+        ( m, n, A.Buffer(), descA.data(), s.Buffer() );
         if( compact )
         {
             const Real twoNorm = ( k==0 ? Real(0) : s.Get(0,0) );
@@ -456,11 +466,13 @@ SVDInfo ScaLAPACKHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 SVDInfo ScaLAPACKHelper
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<Base<F>>& sPre,
-  const SVDCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Base<Field>>& sPre,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     SVDInfo info;
@@ -470,11 +482,11 @@ SVDInfo ScaLAPACKHelper
 
 } // namespace svd
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     if( ctrl.bidiagSVDCtrl.approach == PRODUCT_SVD )
@@ -494,21 +506,21 @@ SVDInfo SVD
     }
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-(       Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
+(       Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
 
-    Matrix<F> AMod;
+    Matrix<Field> AMod;
     if( ctrl.overwrite )
         View( AMod, A );
     else
         AMod = A;
 
-    if( IsBlasScalar<F>::value && ctrl.useLAPACK )
+    if( IsBlasScalar<Field>::value && ctrl.useLAPACK )
     {
         return svd::LAPACKHelper( A, s, ctrl );
     }
@@ -532,14 +544,14 @@ SVDInfo SVD
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    if( IsBlasScalar<F>::value && ctrl.useScaLAPACK )
+    if( IsBlasScalar<Field>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, s, ctrl );
     }
@@ -547,7 +559,7 @@ SVDInfo SVD
         ctrl.bidiagSVDCtrl.approach == COMPACT_SVD ||
         ctrl.bidiagSVDCtrl.approach == FULL_SVD )
     {
-        DistMatrix<F> ACopy( A );
+        DistMatrix<Field> ACopy( A );
         return svd::Chan( ACopy, s, ctrl );
     }
     else
@@ -561,14 +573,14 @@ SVDInfo SVD
     }
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo SVD
-(       AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  const SVDCtrl<Base<F>>& ctrl )
+(       AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    if( IsBlasScalar<F>::value && ctrl.useScaLAPACK )
+    if( IsBlasScalar<Field>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, s, ctrl );
     }
@@ -585,7 +597,7 @@ SVDInfo SVD
     {
         auto ctrlMod( ctrl );
         ctrlMod.overwrite = true;
-        DistMatrix<F> ACopy( A ); 
+        DistMatrix<Field> ACopy( A );
         return SVD( ACopy, s, ctrlMod );
     }
     return svd::Chan( A, s, ctrl );
@@ -593,31 +605,31 @@ SVDInfo SVD
 
 namespace svd {
 
-template<typename F>
+template<typename Field>
 SVDInfo TSQR
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s )
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s )
 {
     DEBUG_CSE
-    DistMatrix<F,VC,STAR> ACopy( A );
+    DistMatrix<Field,VC,STAR> ACopy( A );
     return TSQR( ACopy, s, true );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TSQR
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Base<F>>& sPre,
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Base<Field>>& sPre,
   bool overwrite )
 {
     DEBUG_CSE
-    if( !overwrite )  
+    if( !overwrite )
     {
-        DistMatrix<F,VC,STAR> A( APre );
+        DistMatrix<Field,VC,STAR> A( APre );
         return TSQR( A, sPre, true );
     }
 
-    DistMatrixReadProxy<F,F,VC,STAR> AProx( APre );
-    DistMatrixWriteProxy<Base<F>,Base<F>,CIRC,CIRC> sProx( sPre );
+    DistMatrixReadProxy<Field,Field,VC,STAR> AProx( APre );
+    DistMatrixWriteProxy<Base<Field>,Base<Field>,CIRC,CIRC> sProx( sPre );
     auto& A = AProx.Get();
     auto& s = sProx.Get();
     const Int m = A.Height();
@@ -634,7 +646,7 @@ SVDInfo TSQR
     }
 
     SVDInfo info;
-    qr::TreeData<F> treeData;
+    qr::TreeData<Field> treeData;
     treeData.QR0 = A.LockedMatrix();
     QR( treeData.QR0, treeData.householderScalars0, treeData.signature0 );
     qr::ts::Reduce( A, treeData );
@@ -645,18 +657,18 @@ SVDInfo TSQR
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TSQR
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& sPre,
-        AbstractDistMatrix<F>& VPre )
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& sPre,
+        AbstractDistMatrix<Field>& VPre )
 {
     DEBUG_CSE
 
-    DistMatrixWriteProxy<F,F,VC,STAR> UProx( UPre );
-    DistMatrixWriteProxy<Base<F>,Base<F>,CIRC,CIRC> sProx( sPre );
-    DistMatrixWriteProxy<F,F,CIRC,CIRC> VProx( VPre );
+    DistMatrixWriteProxy<Field,Field,VC,STAR> UProx( UPre );
+    DistMatrixWriteProxy<Base<Field>,Base<Field>,CIRC,CIRC> sProx( sPre );
+    DistMatrixWriteProxy<Field,Field,CIRC,CIRC> VProx( VPre );
     auto& U = UProx.Get();
     auto& s = sProx.Get();
     auto& V = VProx.Get();
@@ -677,23 +689,23 @@ SVDInfo TSQR
 
     SVDInfo info;
     Copy( A, U );
-    qr::TreeData<F> treeData;
+    qr::TreeData<Field> treeData;
     treeData.QR0 = U.LockedMatrix();
     QR( treeData.QR0, treeData.householderScalars0, treeData.signature0 );
     qr::ts::Reduce( U, treeData );
     if( U.ColRank() == 0 )
     {
-        Matrix<F>& rootQR = qr::ts::RootQR(U,treeData);
+        Matrix<Field>& rootQR = qr::ts::RootQR(U,treeData);
         const Int mRoot = rootQR.Height();
         const Int nRoot = rootQR.Width();
         const Int kRoot = Min(m,n);
 
-        Matrix<F> URoot, VRoot;
+        Matrix<Field> URoot, VRoot;
         URoot.Resize( mRoot, kRoot );
         VRoot.Resize( nRoot, kRoot );
         SVD( rootQR, URoot, s.Matrix(), VRoot );
 
-        rootQR = URoot; 
+        rootQR = URoot;
         V.Matrix() = VRoot;
     }
     qr::ts::Scatter( U, treeData );
@@ -702,59 +714,59 @@ SVDInfo TSQR
 
 } // namespace svd
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template SVDInfo SVD \
-  (       Matrix<F>& A, \
-          Matrix<Base<F>>& s, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  (       Matrix<Field>& A, \
+          Matrix<Base<Field>>& s, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo SVD \
-  ( const Matrix<F>& A, \
-          Matrix<Base<F>>& s, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  ( const Matrix<Field>& A, \
+          Matrix<Base<Field>>& s, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo SVD \
-  (       AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<Base<F>>& s, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  (       AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Base<Field>>& s, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo SVD \
-  ( const AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<Base<F>>& s, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  ( const AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Base<Field>>& s, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo SVD \
-  (       Matrix<F>& A, \
-          Matrix<F>& U, \
-          Matrix<Base<F>>& s, \
-          Matrix<F>& V, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  (       Matrix<Field>& A, \
+          Matrix<Field>& U, \
+          Matrix<Base<Field>>& s, \
+          Matrix<Field>& V, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo SVD \
-  ( const Matrix<F>& A, \
-          Matrix<F>& U, \
-          Matrix<Base<F>>& s, \
-          Matrix<F>& V, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  ( const Matrix<Field>& A, \
+          Matrix<Field>& U, \
+          Matrix<Base<Field>>& s, \
+          Matrix<Field>& V, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo SVD \
-  (       AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<F>& U, \
-          AbstractDistMatrix<Base<F>>& s, \
-          AbstractDistMatrix<F>& V, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  (       AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Field>& U, \
+          AbstractDistMatrix<Base<Field>>& s, \
+          AbstractDistMatrix<Field>& V, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo SVD \
-  ( const AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<F>& U, \
-          AbstractDistMatrix<Base<F>>& s, \
-          AbstractDistMatrix<F>& V, \
-    const SVDCtrl<Base<F>>& ctrl ); \
+  ( const AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Field>& U, \
+          AbstractDistMatrix<Base<Field>>& s, \
+          AbstractDistMatrix<Field>& V, \
+    const SVDCtrl<Base<Field>>& ctrl ); \
   template SVDInfo svd::TSQR \
-  ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& s, \
-    bool overwrite=false ); \
+  ( AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Base<Field>>& s, \
+    bool overwrite ); \
   template SVDInfo svd::TSQR \
-  ( const AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& s ); \
+  ( const AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Base<Field>>& s ); \
   template SVDInfo svd::TSQR \
-  ( const AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<F>& U, \
-          AbstractDistMatrix<Base<F>>& s, \
-          AbstractDistMatrix<F>& V );
+  ( const AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Field>& U, \
+          AbstractDistMatrix<Base<Field>>& s, \
+          AbstractDistMatrix<Field>& V );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

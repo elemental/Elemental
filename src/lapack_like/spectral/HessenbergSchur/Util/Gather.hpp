@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_UTIL_GATHER_HPP
@@ -13,11 +13,11 @@ namespace El {
 namespace hess_schur {
 namespace util {
 
-template<typename F>
+template<typename Field>
 void GatherSubdiagonal
-( const DistMatrix<F,MC,MR,BLOCK>& H,
+( const DistMatrix<Field,MC,MR,BLOCK>& H,
   const IR& winInd,
-        DistMatrix<F,STAR,STAR>& hSubWin )
+        DistMatrix<Field,STAR,STAR>& hSubWin )
 {
     DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
@@ -80,12 +80,12 @@ void GatherSubdiagonal
         }
         // Handle the last subdiagonal (if it exists)
         if( haveLastOff &&
-            nextRowOwner == grid.Row() && colOwner == grid.Col() ) 
+            nextRowOwner == grid.Row() && colOwner == grid.Col() )
         {
             const Int subLocalRowOffset = localRowOffset +
               ( grid.Height() == 1 ? thisBlockSize : 0 );
             hSubWin.QueueUpdate
-            ( winIndex+thisBlockSize-1, 0, 
+            ( winIndex+thisBlockSize-1, 0,
               HLoc(subLocalRowOffset,localColOffset+thisBlockSize-1) );
         }
 
@@ -101,12 +101,12 @@ void GatherSubdiagonal
     hSubWin.ProcessQueues();
 }
 
-template<typename F>
+template<typename Field>
 void GatherBidiagonal
-( const DistMatrix<F,MC,MR,BLOCK>& H,
+( const DistMatrix<Field,MC,MR,BLOCK>& H,
   const IR& winInd,
-        DistMatrix<F,STAR,STAR>& hMainWin,
-        DistMatrix<F,STAR,STAR>& hSubWin )
+        DistMatrix<Field,STAR,STAR>& hMainWin,
+        DistMatrix<Field,STAR,STAR>& hSubWin )
 {
     DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
@@ -174,12 +174,12 @@ void GatherBidiagonal
         }
         // Handle the last subdiagonal (if it exists)
         if( haveLastOff &&
-            nextRowOwner == grid.Row() && colOwner == grid.Col() ) 
+            nextRowOwner == grid.Row() && colOwner == grid.Col() )
         {
             const Int subLocalRowOffset = localRowOffset +
               ( grid.Height() == 1 ? thisBlockSize : 0 );
             hSubWin.QueueUpdate
-            ( winIndex+thisBlockSize-1, 0, 
+            ( winIndex+thisBlockSize-1, 0,
               HLoc(subLocalRowOffset,localColOffset+thisBlockSize-1) );
         }
 
@@ -196,13 +196,13 @@ void GatherBidiagonal
     hSubWin.ProcessQueues();
 }
 
-template<typename F>
+template<typename Field>
 void GatherTridiagonal
-( const DistMatrix<F,MC,MR,BLOCK>& H,
+( const DistMatrix<Field,MC,MR,BLOCK>& H,
   const IR& winInd,
-        DistMatrix<F,STAR,STAR>& hMainWin,
-        DistMatrix<F,STAR,STAR>& hSubWin,
-        DistMatrix<F,STAR,STAR>& hSuperWin )
+        DistMatrix<Field,STAR,STAR>& hMainWin,
+        DistMatrix<Field,STAR,STAR>& hSubWin,
+        DistMatrix<Field,STAR,STAR>& hSuperWin )
 {
     DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
@@ -276,12 +276,12 @@ void GatherTridiagonal
         }
         // Handle the last subdiagonal (if it exists)
         if( haveLastOff &&
-            nextRowOwner == grid.Row() && colOwner == grid.Col() ) 
+            nextRowOwner == grid.Row() && colOwner == grid.Col() )
         {
             const Int subLocalRowOffset = localRowOffset +
               ( grid.Height() == 1 ? thisBlockSize : 0 );
             hSubWin.QueueUpdate
-            ( winIndex+thisBlockSize-1, 0, 
+            ( winIndex+thisBlockSize-1, 0,
               HLoc(subLocalRowOffset,localColOffset+thisBlockSize-1) );
         }
         // Handle the last superdiagonal (if it exists)
@@ -291,7 +291,7 @@ void GatherTridiagonal
             const Int subLocalColOffset = localColOffset +
               ( grid.Width() == 1 ? thisBlockSize : 0 );
             hSuperWin.QueueUpdate
-            ( winIndex+thisBlockSize-1, 0, 
+            ( winIndex+thisBlockSize-1, 0,
               HLoc(localRowOffset+thisBlockSize-1,subLocalColOffset) );
         }
 

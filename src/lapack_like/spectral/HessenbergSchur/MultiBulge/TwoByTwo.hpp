@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_MULTIBULGE_TWOBYTWO_HPP
@@ -69,7 +69,7 @@ void TwoByTwo
     // Compute the 2x2 Schur decomposition HSub = ZSub TSub ZSub',
     // where HSub is overwritten by TSub, and wSub by diag(TSub).
     //
-    // It might be slight overkill to call HessenbergSchur rather than a 
+    // It might be slight overkill to call HessenbergSchur rather than a
     // specialized routine that returns the (c,s) pair of a Givens rotation
     // to define the Schur vectors, but there is not currently complex support
     // for such a routine. However, it is easy to observe that, given any 2x2
@@ -103,39 +103,39 @@ void TwoByTwo
     }
 }
 
-template<typename F>
+template<typename Field>
 void TwoByTwo
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-        F eta00,
-        F eta01,
-        F eta10,
-        F eta11,
-        DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+        Field eta00,
+        Field eta01,
+        Field eta10,
+        Field eta11,
+        DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
+        DistMatrix<Field,MC,MR,BLOCK>& Z,
         Int offset,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     const Int n = H.Height();
-    auto& wLoc = w.Matrix(); 
+    auto& wLoc = w.Matrix();
 
     // Compute the 2x2 Schur decomposition HSub = ZSub TSub ZSub',
     // where HSub is overwritten by TSub, and wSub by diag(TSub).
     //
-    // It might be slight overkill to call HessenbergSchur rather than a 
+    // It might be slight overkill to call HessenbergSchur rather than a
     // specialized routine that returns the (c,s) pair of a Givens rotation
     // to define the Schur vectors, but there is not currently complex support
     // for such a routine. However, it is easy to observe that, given any 2x2
     // complex unitary matrix of Schur vectors, the fact that the columns can
     // have arbitrary phase implies that the top-left and bottom-right entries
     // can be rescaled to be real (and both equal to 'c').
-    Matrix<F> HSub(2,2);
+    Matrix<Field> HSub(2,2);
     HSub(0,0) = eta00;
     HSub(0,1) = eta01;
     HSub(1,0) = eta10;
     HSub(1,1) = eta11;
     auto wSub = wLoc( IR(offset,offset+2), ALL );
-    Matrix<F> ZSub;
+    Matrix<Field> ZSub;
     HessenbergSchur( HSub, wSub, ZSub );
 
     H.Set( offset,   offset,   HSub(0,0) );
@@ -150,7 +150,7 @@ void TwoByTwo
             // Overwrite H((offset,offset+1),offset+2:end) *= ZSub'
             // (applied from the left)
             auto HRight = H( ALL, IR(offset+2,END) );
-            Matrix<F> ZSubAdj;
+            Matrix<Field> ZSubAdj;
             Adjoint( ZSub, ZSubAdj );
             Transform2x2Rows( ZSubAdj, HRight, offset, offset+1 );
         }

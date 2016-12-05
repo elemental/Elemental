@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_POLAR_QDWH_HPP
@@ -11,7 +11,7 @@
 
 namespace El {
 
-// Based on Yuji Nakatsukasa's implementation of a QR-based dynamically 
+// Based on Yuji Nakatsukasa's implementation of a QR-based dynamically
 // weighted Halley iteration for the polar decomposition. In particular, this
 // implementation mirrors the routine 'qdwh', which is part of the zip-file
 // available here:
@@ -132,7 +132,7 @@ QDWHInfo QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
     if( A.Height() > A.Width() )
     {
         qr::ExplicitTriang( Y );
-        try 
+        try
         {
             TriangularInverse( UPPER, NON_UNIT, Y );
             sMinUpper = Real(1) / OneNorm( Y );
@@ -140,12 +140,12 @@ QDWHInfo QDWH( Matrix<F>& A, const QDWHCtrl& ctrl )
     }
     else
     {
-        try 
+        try
         {
             Inverse( Y );
             sMinUpper = Real(1) / OneNorm( Y );
         } catch( SingularMatrixException& e ) { sMinUpper = 0; }
-    } 
+    }
 
     return QDWHInner( A, sMinUpper, ctrl );
 }
@@ -165,7 +165,7 @@ QDWHInfo QDWH( Matrix<F>& A, Matrix<F>& P, const QDWHCtrl& ctrl )
 template<typename F>
 QDWHInfo
 QDWHInner
-( ElementalMatrix<F>& APre, Base<F> sMinUpper, const QDWHCtrl& ctrl )
+( AbstractDistMatrix<F>& APre, Base<F> sMinUpper, const QDWHCtrl& ctrl )
 {
     DEBUG_CSE
 
@@ -263,7 +263,7 @@ QDWHInner
 
 template<typename F>
 QDWHInfo
-QDWH( ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
+QDWH( AbstractDistMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
     DEBUG_CSE
 
@@ -304,8 +304,8 @@ QDWH( ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
 template<typename F>
 QDWHInfo
 QDWH
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& PPre, 
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& PPre,
   const QDWHCtrl& ctrl )
 {
     DEBUG_CSE
@@ -405,9 +405,9 @@ QDWHInner
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            // TODO: Think of how to better exploit the symmetry of A,
-            //       e.g., by halving the work in the first Herk through 
-            //       a custom routine for forming L^2, where L is strictly lower
+            // TODO(poulson): Think of how to better exploit the symmetry of A,
+            // e.g., by halving the work in the first Herk through
+            // a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
             Identity( C, n, n );
             Herk( LOWER, ADJOINT, c, A, Real(1), C );
@@ -479,8 +479,8 @@ template<typename F>
 QDWHInfo
 QDWHInner
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre,
-  Base<F> sMinUpper, 
+  AbstractDistMatrix<F>& APre,
+  Base<F> sMinUpper,
   const QDWHCtrl& ctrl )
 {
     DEBUG_CSE
@@ -557,9 +557,9 @@ QDWHInner
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            // TODO: Think of how to better exploit the symmetry of A,
-            //       e.g., by halving the work in the first Herk through 
-            //       a custom routine for forming L^2, where L is strictly lower
+            // TODO(poulson): Think of how to better exploit the symmetry of A,
+            // e.g., by halving the work in the first Herk through
+            // a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
             Identity( C, n, n );
             Herk( LOWER, ADJOINT, c, A, Real(1), C );
@@ -584,7 +584,7 @@ QDWHInner
 
 template<typename F>
 QDWHInfo
-QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
+QDWH( UpperOrLower uplo, AbstractDistMatrix<F>& APre, const QDWHCtrl& ctrl )
 {
     DEBUG_CSE
 
@@ -602,8 +602,8 @@ QDWH( UpperOrLower uplo, ElementalMatrix<F>& APre, const QDWHCtrl& ctrl )
     // to 1-Norm Pseudospectra".
     Real sMinUpper;
     DistMatrix<F> Y( A );
-    try 
-    {   
+    try
+    {
         Inverse( Y );
         sMinUpper = Real(1) / OneNorm( Y );
     } catch( SingularMatrixException& e ) { sMinUpper = 0; }
@@ -615,8 +615,8 @@ template<typename F>
 QDWHInfo
 QDWH
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& PPre, 
+  AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& PPre,
   const QDWHCtrl& ctrl )
 {
     DEBUG_CSE

@@ -12,28 +12,29 @@ using namespace El;
 
 extern "C" {
 
-#define C_PROTO_FIELD(SIG,SIGBASE,F) \
+#define C_PROTO_FIELD(SIG,SIGBASE,Field) \
   /* Frobenius-norm prox
      ------------------- */ \
-  ElError ElFrobeniusProx_ ## SIG ( ElMatrix_ ## SIG A, Base<F> rho ) \
+  ElError ElFrobeniusProx_ ## SIG ( ElMatrix_ ## SIG A, Base<Field> rho ) \
   { EL_TRY( FrobeniusProx( *CReflect(A), rho ) ) } \
-  ElError ElFrobeniusProxDist_ ## SIG ( ElDistMatrix_ ## SIG A, Base<F> rho ) \
+  ElError ElFrobeniusProxDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, Base<Field> rho ) \
   { EL_TRY( FrobeniusProx( *CReflect(A), rho ) ) } \
   /* Singular-value soft-thresholding
      -------------------------------- */ \
   ElError ElSVT_ ## SIG \
-  ( ElMatrix_ ## SIG A, Base<F> rho, bool relative ) \
+  ( ElMatrix_ ## SIG A, Base<Field> rho, bool relative ) \
   { EL_TRY( SVT( *CReflect(A), rho, relative ) ) } \
   ElError ElSVTDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, Base<F> rho, bool relative ) \
+  ( ElDistMatrix_ ## SIG A, Base<Field> rho, bool relative ) \
   { EL_TRY( SVT( *CReflect(A), rho, relative ) ) } \
   /* Soft-thresholding
      ----------------- */ \
   ElError ElSoftThreshold_ ## SIG \
-  ( ElMatrix_ ## SIG A, Base<F> rho, bool relative ) \
+  ( ElMatrix_ ## SIG A, Base<Field> rho, bool relative ) \
   { EL_TRY( SoftThreshold( *CReflect(A), rho, relative ) ) } \
   ElError ElSoftThresholdDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, Base<F> rho, bool relative ) \
+  ( ElDistMatrix_ ## SIG A, Base<Field> rho, bool relative ) \
   { EL_TRY( SoftThreshold( *CReflect(A), rho, relative ) ) }
 
 #define C_PROTO_REAL(SIG,Real) \
@@ -67,8 +68,8 @@ extern "C" {
   ElError ElLogisticProxDist_ ## SIG ( ElDistMatrix_ ## SIG A, Real rho ) \
   { EL_TRY( LogisticProx( *CReflect(A), rho ) ) }
 
-#define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F) \
+#define C_PROTO_COMPLEX(SIG,SIGBASE,Field) \
+  C_PROTO_FIELD(SIG,SIGBASE,Field) \
 
 #define EL_NO_INT_PROTO
 #include <El/macros/CInstantiate.h>

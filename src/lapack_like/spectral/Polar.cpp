@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,11 +13,11 @@
 
 namespace El {
 
-// Compute the polar decomposition of A, A = Q P, where Q is unitary and P is 
+// Compute the polar decomposition of A, A = Q P, where Q is unitary and P is
 // Hermitian positive semi-definite. On exit, A is overwritten with Q.
 
-template<typename F>
-PolarInfo Polar( Matrix<F>& A, const PolarCtrl& ctrl )
+template<typename Field>
+PolarInfo Polar( Matrix<Field>& A, const PolarCtrl& ctrl )
 {
     DEBUG_CSE
     PolarInfo info;
@@ -28,8 +28,8 @@ PolarInfo Polar( Matrix<F>& A, const PolarCtrl& ctrl )
     return info;
 }
 
-template<typename F>
-PolarInfo Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl )
+template<typename Field>
+PolarInfo Polar( AbstractDistMatrix<Field>& A, const PolarCtrl& ctrl )
 {
     DEBUG_CSE
     PolarInfo info;
@@ -40,8 +40,8 @@ PolarInfo Polar( ElementalMatrix<F>& A, const PolarCtrl& ctrl )
     return info;
 }
 
-template<typename F>
-PolarInfo Polar( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
+template<typename Field>
+PolarInfo Polar( Matrix<Field>& A, Matrix<Field>& P, const PolarCtrl& ctrl )
 {
     DEBUG_CSE
     PolarInfo info;
@@ -52,10 +52,10 @@ PolarInfo Polar( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
     return info;
 }
 
-template<typename F>
+template<typename Field>
 PolarInfo Polar
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& P,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& P,
   const PolarCtrl& ctrl )
 {
     DEBUG_CSE
@@ -67,10 +67,10 @@ PolarInfo Polar
     return info;
 }
 
-template<typename F>
+template<typename Field>
 PolarInfo HermitianPolar
 ( UpperOrLower uplo,
-  Matrix<F>& A,
+  Matrix<Field>& A,
   const PolarCtrl& ctrl )
 {
     DEBUG_CSE
@@ -82,10 +82,10 @@ PolarInfo HermitianPolar
     return info;
 }
 
-template<typename F>
+template<typename Field>
 PolarInfo HermitianPolar
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
+  AbstractDistMatrix<Field>& A,
   const PolarCtrl& ctrl )
 {
     DEBUG_CSE
@@ -97,9 +97,9 @@ PolarInfo HermitianPolar
     return info;
 }
 
-template<typename F>
+template<typename Field>
 PolarInfo HermitianPolar
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
+( UpperOrLower uplo, Matrix<Field>& A, Matrix<Field>& P, const PolarCtrl& ctrl )
 {
     DEBUG_CSE
     PolarInfo info;
@@ -110,11 +110,11 @@ PolarInfo HermitianPolar
     return info;
 }
 
-template<typename F>
+template<typename Field>
 PolarInfo HermitianPolar
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<F>& P, 
+  AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& P,
   const PolarCtrl& ctrl )
 {
     DEBUG_CSE
@@ -126,38 +126,38 @@ PolarInfo HermitianPolar
     return info;
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template PolarInfo HermitianPolar \
   ( UpperOrLower uplo, \
-    Matrix<F>& A, \
-    const PolarCtrl& ctrl ); \
-  template PolarInfo HermitianPolar \
-  ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
+    Matrix<Field>& A, \
     const PolarCtrl& ctrl ); \
   template PolarInfo HermitianPolar \
   ( UpperOrLower uplo, \
-    Matrix<F>& A, \
-    Matrix<F>& P, \
+    AbstractDistMatrix<Field>& A, \
     const PolarCtrl& ctrl ); \
   template PolarInfo HermitianPolar \
   ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& P, \
+    Matrix<Field>& A, \
+    Matrix<Field>& P, \
+    const PolarCtrl& ctrl ); \
+  template PolarInfo HermitianPolar \
+  ( UpperOrLower uplo, \
+    AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Field>& P, \
     const PolarCtrl& ctrl ); \
   template PolarInfo Polar \
-  ( Matrix<F>& A, \
+  ( Matrix<Field>& A, \
     const PolarCtrl& ctrl ); \
   template PolarInfo Polar \
-  ( ElementalMatrix<F>& A, \
+  ( AbstractDistMatrix<Field>& A, \
     const PolarCtrl& ctrl ); \
   template PolarInfo Polar \
-  ( Matrix<F>& A, \
-    Matrix<F>& P, \
+  ( Matrix<Field>& A, \
+    Matrix<Field>& P, \
     const PolarCtrl& ctrl ); \
   template PolarInfo Polar \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& P, \
+  ( AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Field>& P, \
     const PolarCtrl& ctrl );
 
 #define EL_NO_INT_PROTO

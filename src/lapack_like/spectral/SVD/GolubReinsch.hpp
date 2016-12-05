@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SVD_GOLUBREINSCH_HPP
@@ -14,13 +14,13 @@
 namespace El {
 namespace svd {
 
-template<typename F>
+template<typename Field>
 SVDInfo GolubReinsch
-( Matrix<F>& A,
-  Matrix<F>& U,
-  Matrix<Base<F>>& s, 
-  Matrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( Matrix<Field>& A,
+  Matrix<Field>& U,
+  Matrix<Base<Field>>& s,
+  Matrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const Int m = A.Height();
@@ -35,7 +35,7 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    Matrix<F> householderScalarsP, householderScalarsQ;
+    Matrix<Field> householderScalarsP, householderScalarsQ;
     if( ctrl.time )
         timer.Start();
     Bidiag( A, householderScalarsP, householderScalarsQ );
@@ -59,7 +59,7 @@ SVDInfo GolubReinsch
     else if( m > n )
     {
         // We need to work on a subset of U
-        Matrix<F> USub;
+        Matrix<Field> USub;
         info.bidiagSVDInfo =
           BidiagSVD( uplo, mainDiag, offDiag, USub, s, V, ctrl.bidiagSVDCtrl );
         // Copy USub into U
@@ -71,7 +71,7 @@ SVDInfo GolubReinsch
     else if( m < n )
     {
         // We need to work on a subset of V
-        Matrix<F> VSub;
+        Matrix<Field> VSub;
         info.bidiagSVDInfo =
           BidiagSVD( uplo, mainDiag, offDiag, U, s, VSub, ctrl.bidiagSVDCtrl );
         // Copy VSub into V
@@ -94,13 +94,13 @@ SVDInfo GolubReinsch
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo GolubReinsch
-( DistMatrix<F>& A,
-  DistMatrix<F>& U,
-  AbstractDistMatrix<Base<F>>& s, 
-  DistMatrix<F>& V,
-  const SVDCtrl<Base<F>>& ctrl )
+( DistMatrix<Field>& A,
+  DistMatrix<Field>& U,
+  AbstractDistMatrix<Base<Field>>& s,
+  DistMatrix<Field>& V,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const Int m = A.Height();
@@ -116,7 +116,7 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    DistMatrix<F,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
+    DistMatrix<Field,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
     Bidiag( A, householderScalarsP, householderScalarsQ );
@@ -141,7 +141,7 @@ SVDInfo GolubReinsch
     else if( m > n )
     {
         // We need to work on a subset of U
-        DistMatrix<F> USub(g);
+        DistMatrix<Field> USub(g);
         info.bidiagSVDInfo =
           BidiagSVD( uplo, mainDiag, offDiag, USub, s, V, ctrl.bidiagSVDCtrl );
         // Copy USub into U
@@ -153,7 +153,7 @@ SVDInfo GolubReinsch
     else if( m < n )
     {
         // We need to work on a subset of V
-        DistMatrix<F> VSub(g);
+        DistMatrix<Field> VSub(g);
         info.bidiagSVDInfo =
           BidiagSVD( uplo, mainDiag, offDiag, U, s, VSub, ctrl.bidiagSVDCtrl );
         // Copy VSub into V
@@ -181,29 +181,29 @@ SVDInfo GolubReinsch
     return info;
 }
 
-template<typename F>
+template<typename Field>
 void GolubReinsch
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& UPre,
-  AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& VPre,
-  const SVDCtrl<Base<F>>& ctrl )
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& UPre,
+  AbstractDistMatrix<Base<Field>>& s,
+  AbstractDistMatrix<Field>& VPre,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
     auto& A = AProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return GolubReinsch( A, U, s, V, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo GolubReinsch
-( Matrix<F>& A,
-  Matrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const Int m = A.Height();
@@ -212,7 +212,7 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    Matrix<F> householderScalarsP, householderScalarsQ;
+    Matrix<Field> householderScalarsP, householderScalarsQ;
     if( ctrl.time )
         timer.Start();
     Bidiag( A, householderScalarsP, householderScalarsQ );
@@ -234,11 +234,11 @@ SVDInfo GolubReinsch
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo GolubReinsch
-( DistMatrix<F>& A,
-  AbstractDistMatrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
+( DistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const Int m = A.Height();
@@ -248,7 +248,7 @@ SVDInfo GolubReinsch
 
     // Bidiagonalize A
     Timer timer;
-    DistMatrix<F,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
+    DistMatrix<Field,STAR,STAR> householderScalarsP(g), householderScalarsQ(g);
     if( ctrl.time && g.Rank() == 0 )
         timer.Start();
     Bidiag( A, householderScalarsP, householderScalarsQ );
@@ -270,14 +270,14 @@ SVDInfo GolubReinsch
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo GolubReinsch
-( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Base<F>>& s,
-  const SVDCtrl<Base<F>>& ctrl )
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Base<Field>>& s,
+  const SVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     return GolubReinsch( A, s, ctrl );
 }

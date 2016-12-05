@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,11 +11,12 @@
 namespace El {
 namespace soc {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void LowerNorms
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
         Matrix<Real>& lowerNorms,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
     DEBUG_CSE
@@ -38,12 +39,13 @@ void LowerNorms
             lowerNorms(i) = Sqrt(lowerNorms(i));
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void LowerNorms
-( const ElementalMatrix<Real>& xPre, 
-        ElementalMatrix<Real>& lowerNormsPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& lowerNormsPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_CSE
@@ -85,15 +87,16 @@ void LowerNorms
     soc::Dots( xLower, xLower, lowerNorms, orders, firstInds, cutoff );
     Real* lowerNormBuf = lowerNorms.Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        if( lowerNorms.GlobalRow(iLoc) == firstIndBuf[iLoc] )    
+        if( lowerNorms.GlobalRow(iLoc) == firstIndBuf[iLoc] )
             lowerNormBuf[iLoc] = Sqrt(lowerNormBuf[iLoc]);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void LowerNorms
-( const DistMultiVec<Real>& x, 
+( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& lowerNorms,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
@@ -129,10 +132,10 @@ void LowerNorms
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void LowerNorms \
-  ( const ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& lowerNorms, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& lowerNorms, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void LowerNorms \
   ( const DistMultiVec<Real>& x, \

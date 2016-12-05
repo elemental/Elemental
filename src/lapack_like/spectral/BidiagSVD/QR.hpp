@@ -22,7 +22,8 @@ namespace bidiag_svd {
 // but with the modification of working with the inverses of the entries of
 // the solution to the triangular system of equations.
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Real InverseInfinityNormOfBidiagInverse
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag )
@@ -51,7 +52,8 @@ Real InverseInfinityNormOfBidiagInverse
     return inverseInfNorm;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Real InverseOneNormOfBidiagInverse
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag )
@@ -86,7 +88,8 @@ Real InverseOneNormOfBidiagInverse
 // it would be worth investigating why the factor of sqrt(n) was forfeited.
 // In the mean time, we will enable the looser LAPACK approach via the
 // boolean 'looseBound'.
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Real MinSingularValueEstimateOfBidiag
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag,
@@ -110,7 +113,8 @@ Real MinSingularValueEstimateOfBidiag
     }
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Real MaxSingularValueEstimateOfBidiag
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag )
@@ -122,22 +126,22 @@ Real MaxSingularValueEstimateOfBidiag
 namespace qr {
 
 // Cf. LAPACK's {s,d}bdsqr for these sweep strategies.
-template<typename F>
+template<typename Field>
 void Sweep
-(       Matrix<Base<F>>& mainDiag,
-        Matrix<Base<F>>& superDiag,
-        Matrix<F>& U,
-        Matrix<F>& V,
-  const Base<F>& shift,
+(       Matrix<Base<Field>>& mainDiag,
+        Matrix<Base<Field>>& superDiag,
+        Matrix<Field>& U,
+        Matrix<Field>& V,
+  const Base<Field>& shift,
         ForwardOrBackward direction,
-        Matrix<Base<F>>& cUList,
-        Matrix<Base<F>>& sUList,
-        Matrix<Base<F>>& cVList,
-        Matrix<Base<F>>& sVList,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+        Matrix<Base<Field>>& cUList,
+        Matrix<Base<Field>>& sUList,
+        Matrix<Base<Field>>& cVList,
+        Matrix<Base<Field>>& sVList,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = mainDiag.Height();
     const Real zero(0), one(1);
 
@@ -384,17 +388,17 @@ void Sweep
 // level once a DQDS implementation is available.
 //
 
-template<typename F>
+template<typename Field>
 bidiag_svd::QRInfo
 Helper
-( Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& superDiag,
-  Matrix<F>& U,
-  Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+( Matrix<Base<Field>>& mainDiag,
+  Matrix<Base<Field>>& superDiag,
+  Matrix<Field>& U,
+  Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = mainDiag.Height();
     const Int mU = U.Height();
     const Int mV = V.Height();
@@ -461,7 +465,7 @@ Helper
     ForwardOrBackward direction = FORWARD;
     Matrix<Real> cUList(n,1), sUList(n,1), cVList(n,1), sVList(n,1);
     Matrix<Real> mainDiagSub, superDiagSub;
-    Matrix<F> USub, VSub;
+    Matrix<Field> USub, VSub;
     while( winEnd > 0 )
     {
         if( info.numInnerLoops > maxInnerLoops )
@@ -769,7 +773,8 @@ Helper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 bidiag_svd::QRInfo
 LAPACKHelper
 ( Matrix<Real>& mainDiag,
@@ -799,7 +804,9 @@ LAPACKHelper
     return info;
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 bidiag_svd::QRInfo
 LAPACKHelper
 ( Matrix<Real>& mainDiag,
@@ -839,14 +846,15 @@ QRAlg
 namespace qr {
 
 #ifdef EL_HAVE_FLA_BSVD
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 bidiag_svd::QRInfo
 FLAMEHelper
-( Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& superDiag,
-  Matrix<F>& U,
-  Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+( Matrix<Base<Field>>& mainDiag,
+  Matrix<Base<Field>>& superDiag,
+  Matrix<Field>& U,
+  Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const Int n = mainDiag.Height();
@@ -861,14 +869,16 @@ FLAMEHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 bidiag_svd::QRInfo
 FLAMEHelper
-( Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& superDiag,
-  Matrix<F>& U,
-  Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+( Matrix<Base<Field>>& mainDiag,
+  Matrix<Base<Field>>& superDiag,
+  Matrix<Field>& U,
+  Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     bidiag_svd::QRInfo info;
@@ -877,21 +887,22 @@ FLAMEHelper
 }
 #endif // ifdef EL_HAVE_FLA_BSVD
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 bidiag_svd::QRInfo
 LAPACKHelper
-( Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& superDiag,
-  Matrix<F>& U,
-  Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+( Matrix<Base<Field>>& mainDiag,
+  Matrix<Base<Field>>& superDiag,
+  Matrix<Field>& U,
+  Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = mainDiag.Height();
     bidiag_svd::QRInfo info;
 
-    Matrix<F> VAdj;
+    Matrix<Field> VAdj;
     Adjoint( V, VAdj );
 
     // lapack::BidiagSVDQRAlg expects superDiag to be of length n
@@ -919,14 +930,16 @@ LAPACKHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 bidiag_svd::QRInfo
 LAPACKHelper
-( Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& superDiag,
-  Matrix<F>& U,
-  Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+( Matrix<Base<Field>>& mainDiag,
+  Matrix<Base<Field>>& superDiag,
+  Matrix<Field>& U,
+  Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     bidiag_svd::QRInfo info;
@@ -936,14 +949,14 @@ LAPACKHelper
 
 } // namespace qr
 
-template<typename F>
+template<typename Field>
 bidiag_svd::QRInfo
 QRAlg
-( Matrix<Base<F>>& mainDiag,
-  Matrix<Base<F>>& superDiag,
-  Matrix<F>& U,
-  Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+( Matrix<Base<Field>>& mainDiag,
+  Matrix<Base<Field>>& superDiag,
+  Matrix<Field>& U,
+  Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     const Int n = mainDiag.Height();
@@ -982,12 +995,12 @@ QRAlg
     }
 
 #ifdef EL_HAVE_FLA_BSVD
-    if( IsBlasScalar<F>::value && ctrl.qrCtrl.useFLAME )
+    if( IsBlasScalar<Field>::value && ctrl.qrCtrl.useFLAME )
     {
         return qr::FLAMEHelper( mainDiag, superDiag, U, V, ctrl );
     }
 #endif
-    if( IsBlasScalar<F>::value && ctrl.qrCtrl.useLAPACK )
+    if( IsBlasScalar<Field>::value && ctrl.qrCtrl.useLAPACK )
     {
         return qr::LAPACKHelper( mainDiag, superDiag, U, V, ctrl );
     }

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace affine {
 
 //
 // Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure 
+// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
 // is currently used by the code [2]:
 //
 // 1) Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -35,7 +35,7 @@ namespace affine {
 //
 //    where 'u' is an unused dummy variable.
 //
-// 3) Set 
+// 3) Set
 //
 //      alpha_p := -min(s), and
 //      alpha_d := -min(z).
@@ -45,12 +45,12 @@ namespace affine {
 //      s := ( alpha_p > -sqrt(eps)*Max(1,||s||_2) ? s + (1+alpha_p)e : s )
 //      z := ( alpha_d > -sqrt(eps)*Max(1,||z||_2) ? z + (1+alpha_d)e : z ),
 //
-//    where 'eps' is the machine precision, 'e' is a vector of all ones 
-//    (for more general conic optimization problems, it is the product of 
-//    identity elements from the Jordan algebras whose squares yield the 
+//    where 'eps' is the machine precision, 'e' is a vector of all ones
+//    (for more general conic optimization problems, it is the product of
+//    identity elements from the Jordan algebras whose squares yield the
 //    relevant cone.
 //
-//    Since the post-processing in step (3) has a large discontinuity as the 
+//    Since the post-processing in step (3) has a large discontinuity as the
 //    minimum entry approaches sqrt(eps)*Max(1,||q||_2), we also provide
 //    the ability to instead use an entrywise lower clip.
 //
@@ -205,7 +205,7 @@ void Initialize
     const Int n = A.Width();
     const Int k = G.Height();
     const Grid& g = A.Grid();
-    if( primalInit ) 
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -320,7 +320,7 @@ void Initialize
         Matrix<Real>& z,
         Matrix<Real>& s,
   const vector<Int>& map,
-  const vector<Int>& invMap, 
+  const vector<Int>& invMap,
   const ldl::Separator& rootSep,
   const ldl::NodeInfo& info,
   bool primalInit,
@@ -338,7 +338,7 @@ template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& JStatic,
   const DistMultiVec<Real>& regTmp,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
         DistMultiVec<Real>& x,
@@ -346,7 +346,7 @@ void Initialize
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
   const DistMap& map,
-  const DistMap& invMap, 
+  const DistMap& invMap,
   const ldl::DistSeparator& rootSep,
   const ldl::DistNodeInfo& info,
         vector<Int>& mappedSources,
@@ -354,7 +354,7 @@ void Initialize
         vector<Int>& colOffs,
   bool primalInit,
   bool dualInit,
-  bool standardShift, 
+  bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_CSE

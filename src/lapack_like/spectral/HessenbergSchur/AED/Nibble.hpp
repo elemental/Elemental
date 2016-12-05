@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_AED_NIBBLE_HPP
@@ -41,7 +41,7 @@ AEDInfo NibbleHelper
         {
             // The offdiagonal entry was small enough to deflate
             info.numDeflated = 1;
-            spikeValue = zero; 
+            spikeValue = zero;
         }
         else
         {
@@ -195,7 +195,7 @@ AEDInfo NibbleHelper
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     const Int n = H.Height();
     AEDInfo info;
 
@@ -239,7 +239,7 @@ AEDInfo NibbleHelper
           Output(infoSub.numUnconverged," eigenvalues did not converge");
     )
 
-    vector<F> work(2*n);
+    vector<Field> work(2*n);
     info = SpikeDeflation( T, V, spikeValue, infoSub.numUnconverged, work );
     if( ctrl.progress )
     {
@@ -283,7 +283,7 @@ AEDInfo NibbleHelper
     auto TTL = T(spikeInd,spikeInd);
     auto TTR = T(spikeInd,IR(spikeSize,END));
     auto VL = V(ALL,spikeInd);
-    Matrix<F> householderScalarsT;
+    Matrix<Field> householderScalarsT;
 
     if( spikeSize > 1 && spikeValue != zero )
     {
@@ -293,8 +293,8 @@ AEDInfo NibbleHelper
             work[i] = Conj(V(0,i));
 
         // Compute a Householder reflector for condensing the spike
-        F beta = work[0];
-        F tau = lapack::Reflector( spikeSize, beta, &work[1], 1 );
+        Field beta = work[0];
+        Field tau = lapack::Reflector( spikeSize, beta, &work[1], 1 );
         work[0] = Real(1);
 
         // Force T to be upper Hessenberg
@@ -337,12 +337,12 @@ AEDInfo NibbleHelper
     return info;
 }
 
-template<typename F>
+template<typename Field>
 AEDInfo Nibble
-( Matrix<F>& H,
+( Matrix<Field>& H,
   Int deflationSize,
-  Matrix<Complex<Base<F>>>& w,
-  Matrix<F>& Z,
+  Matrix<Complex<Base<Field>>>& w,
+  Matrix<Field>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -362,9 +362,10 @@ AEDInfo Nibble
 
     // If the deflation window touches the beginning of the full window,
     // then there is no spike
-    F spikeValue = ( deflateBeg==winBeg ? F(0) : H(deflateBeg,deflateBeg-1) );
+    Field spikeValue =
+      ( deflateBeg==winBeg ? Field(0) : H(deflateBeg,deflateBeg-1) );
 
-    Matrix<F> V;
+    Matrix<Field> V;
     auto HDefl = H( deflateInd, deflateInd );
     auto wDefl = w( deflateInd, ALL );
     info = NibbleHelper( HDefl, spikeValue, wDefl, V, ctrl );
@@ -376,7 +377,7 @@ AEDInfo Nibble
         return info;
     }
 
-    if( ctrl.fullTriangle ) 
+    if( ctrl.fullTriangle )
     {
         auto H12 = H( deflateInd, IR(winEnd,END) );
         multibulge::TransformRows( V, H12 );
@@ -395,12 +396,12 @@ AEDInfo Nibble
     return info;
 }
 
-template<typename F>
+template<typename Field>
 AEDInfo Nibble
-( DistMatrix<F,MC,MR,BLOCK>& H,
+( DistMatrix<Field,MC,MR,BLOCK>& H,
   Int deflationSize,
-  DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Z,
+  DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
+  DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -423,12 +424,12 @@ AEDInfo Nibble
     auto wDefl = w( deflateInd, ALL );
 
     const int owner = HDefl.Owner(0,0);
-    DistMatrix<F,CIRC,CIRC> HDefl_CIRC_CIRC( grid, owner );
+    DistMatrix<Field,CIRC,CIRC> HDefl_CIRC_CIRC( grid, owner );
     HDefl_CIRC_CIRC = HDefl;
-    F spikeValue =
-      ( deflateBeg==winBeg ? F(0) : H.Get(deflateBeg,deflateBeg-1) );
+    Field spikeValue =
+      ( deflateBeg==winBeg ? Field(0) : H.Get(deflateBeg,deflateBeg-1) );
     Int VSize = 0;
-    Matrix<F> V;
+    Matrix<Field> V;
     if( HDefl_CIRC_CIRC.CrossRank() == HDefl_CIRC_CIRC.Root() )
     {
         info =
@@ -461,7 +462,7 @@ AEDInfo Nibble
     El::Broadcast( V, HDefl_CIRC_CIRC.CrossComm(), HDefl_CIRC_CIRC.Root() );
     HDefl = HDefl_CIRC_CIRC;
 
-    if( ctrl.fullTriangle ) 
+    if( ctrl.fullTriangle )
     {
         auto H12 = H( deflateInd, IR(winEnd,END) );
         multibulge::TransformRows( V, H12 );

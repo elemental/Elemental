@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_SINGLE_SHIFT_SWEEP_HPP
@@ -15,11 +15,11 @@ namespace hess_schur {
 // Use Ahues and Tissuer's (LAPACK Working Note 122, 1997) refinement of
 // Wilkinson's criteria for determining if a subdiagonal entry of a Hessenberg
 // matrix is negligible
-template<typename F>
-Int DetectSmallSubdiagonal( const Matrix<F>& H )
+template<typename Field>
+Int DetectSmallSubdiagonal( const Matrix<Field>& H )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     const Int n = H.Height();
     const Real ulp = limits::Precision<Real>();
@@ -29,10 +29,10 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
     // Search up the subdiagonal
     for( Int k=n-2; k>=0; --k )
     {
-        const F eta00 = H(k,k);
-        const F eta01 = H(k,k+1);
-        const F eta10 = H(k+1,k);
-        const F eta11 = H(k+1,k+1);
+        const Field eta00 = H(k,k);
+        const Field eta01 = H(k,k+1);
+        const Field eta10 = H(k+1,k);
+        const Field eta11 = H(k+1,k+1);
         if( OneAbs(eta10) <= smallNum )
         {
             return k+1;
@@ -47,11 +47,11 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
             if( k+2 <= n-1 )
                 localScale += OneAbs( H(k+2,k+1) );
         }
-        
+
         if( Abs(eta10) <= ulp*localScale )
         {
             const Real maxOff = Max( OneAbs(eta10), OneAbs(eta01) );
-            const Real minOff = Min( OneAbs(eta10), OneAbs(eta01) ); 
+            const Real minOff = Min( OneAbs(eta10), OneAbs(eta01) );
 
             const Real diagDiff = OneAbs(eta00-eta11);
             const Real maxDiag = Max( OneAbs(eta11), diagDiff );
@@ -68,14 +68,16 @@ Int DetectSmallSubdiagonal( const Matrix<F>& H )
     return 0;
 }
 
-// This is an adaptation of the above that only takes in the relevant 
+// This is an adaptation of the above that only takes in the relevant
 // tridiagonal information.
-template<typename F>
+template<typename Field>
 Int DetectSmallSubdiagonal
-( const Matrix<F>& hMain, const Matrix<F>& hSub, const Matrix<F>& hSuper )
+( const Matrix<Field>& hMain,
+  const Matrix<Field>& hSub,
+  const Matrix<Field>& hSuper )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     const Int n = hMain.Height();
     const Real ulp = limits::Precision<Real>();
@@ -85,10 +87,10 @@ Int DetectSmallSubdiagonal
     // Search up the subdiagonal
     for( Int k=n-2; k>=0; --k )
     {
-        const F eta00 = hMain(k);
-        const F eta01 = hSuper(k);
-        const F eta10 = hSub(k);
-        const F eta11 = hMain(k+1);
+        const Field eta00 = hMain(k);
+        const Field eta01 = hSuper(k);
+        const Field eta10 = hSub(k);
+        const Field eta11 = hMain(k+1);
         if( OneAbs(eta10) <= smallNum )
         {
             return k+1;
@@ -103,11 +105,11 @@ Int DetectSmallSubdiagonal
             if( k+2 <= n-1 )
                 localScale += OneAbs( hSub(k+1) );
         }
-        
+
         if( Abs(eta10) <= ulp*localScale )
         {
             const Real maxOff = Max( OneAbs(eta10), OneAbs(eta01) );
-            const Real minOff = Min( OneAbs(eta10), OneAbs(eta01) ); 
+            const Real minOff = Min( OneAbs(eta10), OneAbs(eta01) );
 
             const Real diagDiff = OneAbs(eta00-eta11);
             const Real maxDiag = Max( OneAbs(eta11), diagDiff );
@@ -128,7 +130,7 @@ template<typename Real>
 Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     const Int n = H.Height();
     DEBUG_ONLY(
       if( n < 2 )
@@ -137,10 +139,10 @@ Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
     const Int offset = n-2;
     const Real zero = Real(0);
 
-    const F& eta00 = H(offset,offset);
-    const F& eta01 = H(offset,offset+1);
-    const F& eta10 = H(offset+1,offset);
-    const F& eta11 = H(offset+1,offset+1);
+    const Field& eta00 = H(offset,offset);
+    const Field& eta01 = H(offset,offset+1);
+    const Field& eta10 = H(offset+1,offset);
+    const Field& eta11 = H(offset+1,offset+1);
     // NOTE:
     // eta10 should be real, but it is possibly negative, and so we will
     // interpret it as a complex number so that the square-root is well-defined
@@ -149,20 +151,20 @@ Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
           LogicError("Subdiagonal assumed real");
     )
 
-    F shift = eta11;
-    const F gamma = Sqrt(eta01)*Sqrt(eta10);
+    Field shift = eta11;
+    const Field gamma = Sqrt(eta01)*Sqrt(eta10);
     Real sigma = OneAbs(gamma);
     if( sigma != zero )
     {
-        const F xi = (eta00-shift)/Real(2);   
+        const Field xi = (eta00-shift)/Real(2);
         const Real xiAbs = OneAbs(xi);
         sigma = Max( sigma, xiAbs );
-        const F xiSigma = xi/sigma;
-        const F gammaSigma = gamma/sigma;
-        F zeta = sigma*Sqrt(xiSigma*xiSigma+gammaSigma*gammaSigma);
+        const Field xiSigma = xi/sigma;
+        const Field gammaSigma = gamma/sigma;
+        Field zeta = sigma*Sqrt(xiSigma*xiSigma+gammaSigma*gammaSigma);
         if( xiAbs > zero )
         {
-            const F xiUnit = xi/xiAbs;
+            const Field xiUnit = xi/xiAbs;
             if( RealPart(xiUnit)*RealPart(zeta) +
                 ImagPart(xiUnit)*ImagPart(zeta) < zero )
             {
@@ -183,34 +185,34 @@ ChooseStart
         Complex<Real> shift )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     const Real ulp = limits::Precision<Real>();
 
     const Int n = H.Height();
     for( Int k=n-3; k>=0; --k )
     {
         const Real eta10 = RealPart( H(k+1,k) );
-        const F& eta11 = H(k+1,k+1);
-        const F& eta22 = H(k+2,k+2);
+        const Field& eta11 = H(k+1,k+1);
+        const Field& eta22 = H(k+2,k+2);
         Real eta21 = RealPart( H(k+2,k+1) );
 
-        F eta11Shift = eta11 - shift;
-        const Real sigma = OneAbs(eta11Shift) + Abs(eta21);    
+        Field eta11Shift = eta11 - shift;
+        const Real sigma = OneAbs(eta11Shift) + Abs(eta21);
         eta11Shift /= sigma;
-        eta21 /= sigma; 
+        eta21 /= sigma;
         if( Abs(eta10)*Abs(eta21) <=
-            ulp*(OneAbs(eta11Shift)*(OneAbs(eta11)+OneAbs(eta22))) ) 
+            ulp*(OneAbs(eta11Shift)*(OneAbs(eta11)+OneAbs(eta22))) )
         {
             return std::make_tuple(k+1,eta11Shift,Complex<Real>(eta21));
         }
     }
     // Start at the top
-    const F& eta11 = H(0,0);
+    const Field& eta11 = H(0,0);
     Real eta21 = RealPart( H(1,0) );
 
-    const F eta11Shift = eta11 - shift;
-    const Real sigma = OneAbs(eta11Shift) + Abs(eta21); 
-    return std::make_tuple(0,eta11Shift/sigma,Complex<Real>(eta21/sigma)); 
+    const Field eta11Shift = eta11 - shift;
+    const Real sigma = OneAbs(eta11Shift) + Abs(eta21);
+    return std::make_tuple(0,eta11Shift/sigma,Complex<Real>(eta21/sigma));
 }
 
 template<typename Real>
@@ -221,13 +223,13 @@ void Sweep
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     const Int n = H.Height();
     const Int nZ = Z.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
 
-    const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg ); 
+    const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg );
     const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
 
     // TODO(poulson): Assert that H(k+1,k-1) is real for all k
@@ -245,13 +247,13 @@ void Sweep
             nu0 = H(k,k-1);
             nu1 = RealPart( H(k+1,k-1) );
         }
-        F tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
+        Field tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
         if( k > shiftStart )
         {
             H(k,  k-1) = nu0;
             H(k+1,k-1) = 0;
         }
-        // The formulas within lapack::Reflector trivially imply that 
+        // The formulas within lapack::Reflector trivially imply that
         // tau0*Conj(nu1) will be real if nu1 was real on entry to
         // lapack::Reflector (an equivalent claim is made within ZLAHQR)
         Real tau1 = RealPart(tau0*Conj(nu1));
@@ -259,7 +261,7 @@ void Sweep
         // Apply the Householder reflector from the left
         for( Int j=k; j<transformEnd; ++j )
         {
-            F innerProd = tau0*H(k,j) + tau1*H(k+1,j);
+            Field innerProd = tau0*H(k,j) + tau1*H(k+1,j);
             H(k,  j) -= innerProd;
             H(k+1,j) -= innerProd*nu1;
         }
@@ -268,7 +270,7 @@ void Sweep
         const Int rightApplyEnd = Min(k+3,winEnd);
         for( Int j=transformBeg; j<rightApplyEnd; ++j )
         {
-            F innerProd = Conj(tau0)*H(j,k) + tau1*H(j,k+1);
+            Field innerProd = Conj(tau0)*H(j,k) + tau1*H(j,k+1);
             H(j,k  ) -= innerProd;
             H(j,k+1) -= innerProd*Conj(nu1);
         }
@@ -278,7 +280,7 @@ void Sweep
             // Accumulate the Schur vectors
             for( Int j=0; j<nZ; ++j )
             {
-                F innerProd = Conj(tau0)*Z(j,k) + tau1*Z(j,k+1);
+                Field innerProd = Conj(tau0)*Z(j,k) + tau1*Z(j,k+1);
                 Z(j,k  ) -= innerProd;
                 Z(j,k+1) -= innerProd*Conj(nu1);
             }
@@ -287,9 +289,9 @@ void Sweep
         if( k == shiftStart && shiftStart > winBeg )
         {
             // Make H[shiftStart,shiftStart-1] real by scaling by phase
-            // TODO: Investigate more carefully
-            F subdiagVal = Real(1) - Conj(tau0);
-            F phase = subdiagVal / Abs(subdiagVal);
+            // TODO(poulson): Investigate more carefully
+            Field subdiagVal = Real(1) - Conj(tau0);
+            Field phase = subdiagVal / Abs(subdiagVal);
             H( shiftStart+1, shiftStart ) *= Conj(phase);
             if( shiftStart+2 < winEnd )
                 H( shiftStart+2, shiftStart+1 ) *= phase;
@@ -313,13 +315,13 @@ void Sweep
         }
     }
     // Make H(winEnd-1,winEnd-2) real by scaling by phase
-    F subdiagVal = H( winEnd-1, winEnd-2 );
+    Field subdiagVal = H( winEnd-1, winEnd-2 );
     if( ImagPart(subdiagVal) != Real(0) )
     {
         Real subdiagAbs = Abs(subdiagVal);
         H( winEnd-1, winEnd-2 ) = subdiagAbs;
-        F phase = subdiagVal / subdiagAbs;
-        if( winEnd < transformEnd ) 
+        Field phase = subdiagVal / subdiagAbs;
+        if( winEnd < transformEnd )
         {
             blas::Scal
             ( transformEnd-winEnd, Conj(phase),
@@ -335,7 +337,7 @@ void Sweep
 }
 
 // Unfortunately, it seems to be the case that it is noticeably faster
-// for this routine to manually inline the data access than to use the 
+// for this routine to manually inline the data access than to use the
 // (presumably inlined) Matrix::operator()(int,int) calls.
 template<typename Real>
 void SweepOpt
@@ -345,17 +347,17 @@ void SweepOpt
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     const Int n = H.Height();
     const Int nZ = Z.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    F* HBuf = H.Buffer();
-    F* ZBuf = Z.Buffer();
+    Field* HBuf = H.Buffer();
+    Field* ZBuf = Z.Buffer();
     const Int HLDim = H.LDim();
     const Int ZLDim = Z.LDim();
 
-    const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg ); 
+    const Int transformBeg = ( ctrl.fullTriangle ? 0 : winBeg );
     const Int transformEnd = ( ctrl.fullTriangle ? n : winEnd );
 
     auto subInd = IR(winBeg,winEnd);
@@ -371,14 +373,14 @@ void SweepOpt
             nu0 = HBuf[k+(k-1)*HLDim];
             nu1 = RealPart( HBuf[(k+1)+(k-1)*HLDim] );
         }
-        // TODO: Assert nu1 is real
-        F tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
+        // TODO(poulson): Assert nu1 is real
+        Field tau0 = lapack::Reflector( 2, nu0, &nu1, 1 );
         if( k > shiftStart )
         {
             HBuf[ k   +(k-1)*HLDim] = nu0;
             HBuf[(k+1)+(k-1)*HLDim] = 0;
         }
-        // The formulas within lapack::Reflector trivially imply that 
+        // The formulas within lapack::Reflector trivially imply that
         // tau0*Conj(nu1) will be real if nu1 was real on entry to
         // lapack::Reflector (an equivalent claim is made within ZLAHQR)
         Real tau1 = RealPart(tau0*Conj(nu1));
@@ -386,7 +388,7 @@ void SweepOpt
         // Apply the Householder reflector from the left
         for( Int j=k; j<transformEnd; ++j )
         {
-            F innerProd = tau0*HBuf[ k   +j*HLDim] +
+            Field innerProd = tau0*HBuf[ k   +j*HLDim] +
                           tau1*HBuf[(k+1)+j*HLDim];
             HBuf[ k   +j*HLDim] -= innerProd;
             HBuf[(k+1)+j*HLDim] -= innerProd*nu1;
@@ -396,7 +398,7 @@ void SweepOpt
         const Int rightApplyEnd = Min(k+3,winEnd);
         for( Int j=transformBeg; j<rightApplyEnd; ++j )
         {
-            F innerProd = Conj(tau0)*HBuf[j+ k   *HLDim] +
+            Field innerProd = Conj(tau0)*HBuf[j+ k   *HLDim] +
                                tau1 *HBuf[j+(k+1)*HLDim];
             HBuf[j+ k   *HLDim] -= innerProd;
             HBuf[j+(k+1)*HLDim] -= innerProd*Conj(nu1);
@@ -407,7 +409,7 @@ void SweepOpt
             // Accumulate the Schur vectors
             for( Int j=0; j<nZ; ++j )
             {
-                F innerProd =
+                Field innerProd =
                   Conj(tau0)*ZBuf[j+ k   *ZLDim] +
                        tau1 *ZBuf[j+(k+1)*ZLDim];
                 ZBuf[j+ k   *ZLDim] -= innerProd;
@@ -418,9 +420,9 @@ void SweepOpt
         if( k == shiftStart && shiftStart > winBeg )
         {
             // Make H[shiftStart,shiftStart-1] real by scaling by phase
-            // TODO: Investigate more carefully
-            F subdiagVal = Real(1) - Conj(tau0);
-            F phase = subdiagVal / Abs(subdiagVal);
+            // TODO(poulson): Investigate more carefully
+            Field subdiagVal = Real(1) - Conj(tau0);
+            Field phase = subdiagVal / Abs(subdiagVal);
             H( shiftStart+1, shiftStart ) *= Conj(phase);
             if( shiftStart+2 < winEnd )
                 H( shiftStart+2, shiftStart+1 ) *= phase;
@@ -444,13 +446,13 @@ void SweepOpt
         }
     }
     // Make H(winEnd-1,winEnd-2) real by scaling by phase
-    F subdiagVal = H( winEnd-1, winEnd-2 );
+    Field subdiagVal = H( winEnd-1, winEnd-2 );
     if( ImagPart(subdiagVal) != Real(0) )
     {
         Real subdiagAbs = Abs(subdiagVal);
         H( winEnd-1, winEnd-2 ) = subdiagAbs;
-        F phase = subdiagVal / subdiagAbs;
-        if( winEnd < transformEnd ) 
+        Field phase = subdiagVal / subdiagAbs;
+        if( winEnd < transformEnd )
         {
             blas::Scal
             ( transformEnd-winEnd, Conj(phase),

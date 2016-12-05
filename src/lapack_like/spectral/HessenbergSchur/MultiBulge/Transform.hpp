@@ -16,21 +16,21 @@ namespace multibulge {
 // Apply (with replacement) V' from the left
 // -----------------------------------------
 
-template<typename F>
+template<typename Field>
 void TransformRows
-( const Matrix<F>& V,
-        Matrix<F>& A )
+( const Matrix<Field>& V,
+        Matrix<Field>& A )
 {
     DEBUG_CSE
     // TODO(poulson): Consider forming chunk-by-chunk to save memory
-    Matrix<F> ACopy( A );
-    Gemm( ADJOINT, NORMAL, F(1), V, ACopy, A );
+    Matrix<Field> ACopy( A );
+    Gemm( ADJOINT, NORMAL, Field(1), V, ACopy, A );
 }
 
-template<typename F>
+template<typename Field>
 void TransformRows
-( const Matrix<F>& V,
-        DistMatrix<F,MC,MR,BLOCK>& A )
+( const Matrix<Field>& V,
+        DistMatrix<Field,MC,MR,BLOCK>& A )
 {
     DEBUG_CSE
     const Int height = A.Height();
@@ -63,7 +63,7 @@ void TransformRows
             auto VLeft = V( ALL, IR(0,firstBlockHeight) );
 
             // Partition space for the combined matrix
-            Matrix<F> ACombine( height, A.LocalWidth() );
+            Matrix<Field> ACombine( height, A.LocalWidth() );
             auto ATop = ACombine( IR(0,firstBlockHeight), ALL );
             auto ABottom = ACombine( IR(firstBlockHeight,END), ALL );
 
@@ -74,7 +74,7 @@ void TransformRows
             El::SendRecv( ATop, ABottom, A.ColComm(), secondRow, secondRow );
 
             // Form our portion of the result
-            Gemm( ADJOINT, NORMAL, F(1), VLeft, ACombine, A.Matrix() );
+            Gemm( ADJOINT, NORMAL, Field(1), VLeft, ACombine, A.Matrix() );
         }
         else if( grid.Row() == secondRow )
         {
@@ -90,7 +90,7 @@ void TransformRows
             auto VRight = V( ALL, IR(firstBlockHeight,END) );
 
             // Partition space for the combined matrix
-            Matrix<F> ACombine( height, A.LocalWidth() );
+            Matrix<Field> ACombine( height, A.LocalWidth() );
             auto ATop = ACombine( IR(0,firstBlockHeight), ALL );
             auto ABottom = ACombine( IR(firstBlockHeight,END), ALL );
 
@@ -101,36 +101,36 @@ void TransformRows
             El::SendRecv( ABottom, ATop, A.ColComm(), firstRow, firstRow );
 
             // Form our portion of the result
-            Gemm( ADJOINT, NORMAL, F(1), VRight, ACombine, A.Matrix() );
+            Gemm( ADJOINT, NORMAL, Field(1), VRight, ACombine, A.Matrix() );
         }
     }
     else
     {
         // Fall back to the entire process column interacting.
         // TODO(poulson): Only form the subset of the result that we need.
-        DistMatrix<F,STAR,MR,BLOCK> A_STAR_MR( A );
-        Matrix<F> ALocCopy( A_STAR_MR.Matrix() );
-        Gemm( ADJOINT, NORMAL, F(1), V, ALocCopy, A_STAR_MR.Matrix() );
+        DistMatrix<Field,STAR,MR,BLOCK> A_STAR_MR( A );
+        Matrix<Field> ALocCopy( A_STAR_MR.Matrix() );
+        Gemm( ADJOINT, NORMAL, Field(1), V, ALocCopy, A_STAR_MR.Matrix() );
         A = A_STAR_MR;
     }
 }
 
-template<typename F>
+template<typename Field>
 void TransformColumns
-( const Matrix<F>& V,
-        Matrix<F>& A )
+( const Matrix<Field>& V,
+        Matrix<Field>& A )
 {
     DEBUG_CSE
     // TODO(poulson): Consider forming chunk-by-chunk to save memory
-    Matrix<F> ACopy( A );
-    Gemm( NORMAL, NORMAL, F(1), ACopy, V, A );
+    Matrix<Field> ACopy( A );
+    Gemm( NORMAL, NORMAL, Field(1), ACopy, V, A );
 }
 
 // Apply (with replacement) V from the right
-template<typename F>
+template<typename Field>
 void TransformColumns
-( const Matrix<F>& V,
-        DistMatrix<F,MC,MR,BLOCK>& A )
+( const Matrix<Field>& V,
+        DistMatrix<Field,MC,MR,BLOCK>& A )
 {
     DEBUG_CSE
     const Int width = A.Width();
@@ -162,7 +162,7 @@ void TransformColumns
             //
 
             // Partition space for the combined matrix
-            Matrix<F> ACombine( A.LocalHeight(), width );
+            Matrix<Field> ACombine( A.LocalHeight(), width );
             auto ALeft = ACombine( ALL, IR(0,firstBlockWidth) );
             auto ARight = ACombine( ALL, IR(firstBlockWidth,END) );
 
@@ -174,7 +174,7 @@ void TransformColumns
 
             // Form our portion of the result
             auto VLeft = V( ALL, IR(0,firstBlockWidth) );
-            Gemm( NORMAL, NORMAL, F(1), ACombine, VLeft, A.Matrix() );
+            Gemm( NORMAL, NORMAL, Field(1), ACombine, VLeft, A.Matrix() );
         }
         else if( grid.Col() == secondCol )
         {
@@ -188,7 +188,7 @@ void TransformColumns
             //
 
             // Partition space for the combined matrix
-            Matrix<F> ACombine( A.LocalHeight(), width );
+            Matrix<Field> ACombine( A.LocalHeight(), width );
             auto ALeft = ACombine( ALL, IR(0,firstBlockWidth) );
             auto ARight = ACombine( ALL, IR(firstBlockWidth,END) );
 
@@ -200,16 +200,16 @@ void TransformColumns
 
             // Form our portion of the result
             auto VRight = V( ALL, IR(firstBlockWidth,END) );
-            Gemm( NORMAL, NORMAL, F(1), ACombine, VRight, A.Matrix() );
+            Gemm( NORMAL, NORMAL, Field(1), ACombine, VRight, A.Matrix() );
         }
     }
     else
     {
         // Fall back to the entire process column interacting.
         // TODO(poulson): Only form the subset of the result that we need.
-        DistMatrix<F,MC,STAR,BLOCK> A_MC_STAR( A );
-        Matrix<F> ALocCopy( A_MC_STAR.Matrix() );
-        Gemm( NORMAL, NORMAL, F(1), ALocCopy, V, A_MC_STAR.Matrix() );
+        DistMatrix<Field,MC,STAR,BLOCK> A_MC_STAR( A );
+        Matrix<Field> ALocCopy( A_MC_STAR.Matrix() );
+        Gemm( NORMAL, NORMAL, Field(1), ALocCopy, V, A_MC_STAR.Matrix() );
         A = A_MC_STAR;
     }
 }

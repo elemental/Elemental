@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_DIST_HPP
@@ -13,7 +13,7 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
-// A structure for storing auxiliary metadata that is somewhat tedious to 
+// A structure for storing auxiliary metadata that is somewhat tedious to
 // repeatedly recompute
 struct DistChaseState
 {
@@ -32,7 +32,7 @@ struct DistChaseState
 
   // The size of the piece of the bottom-right quadrant of the distribution
   // block that the window starts at. For example, if the distribution block
-  // size is 16 but the window starts two diagonals down the diagonal of such 
+  // size is 16 but the window starts two diagonals down the diagonal of such
   // a block, then 'firstBlockSize' is 14.
   Int firstBlockSize;
   // The size of the last block in the window.
@@ -77,13 +77,13 @@ struct DistChaseState
   // The first diagonal block assigned to our process column that will be
   // operated on this iteration
   // (the first at least as large as Max(introBlock,0))
-  Int activeColBlockBeg; 
+  Int activeColBlockBeg;
 };
 
-template<typename F>
+template<typename Field>
 DistChaseState BuildDistChaseState
-( const DistMatrix<F,MC,MR,BLOCK>& H,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+( const DistMatrix<Field,MC,MR,BLOCK>& H,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -104,7 +104,7 @@ DistChaseState BuildDistChaseState
     const Int winCut = Mod( state.winBeg + H.ColCut(), state.blockSize );
     state.firstBlockSize = state.blockSize - winCut;
 
-    // Compute the number of (full or partial) diagonal blocks in the window 
+    // Compute the number of (full or partial) diagonal blocks in the window
     const Int winSize = state.winEnd - state.winBeg;
     const Int winSizeAfterFirst = winSize - state.firstBlockSize;
     if( winSizeAfterFirst == 0 )
@@ -137,7 +137,7 @@ DistChaseState BuildDistChaseState
     if( winSize < 2*state.blockSize )
         LogicError("The window size must be at least twice the block size");
     if( state.blockSize != H.BlockWidth() )
-        LogicError("IntraBlockChase assumes square distribution blocks"); 
+        LogicError("IntraBlockChase assumes square distribution blocks");
     if( H.ColCut() != H.RowCut() )
         LogicError("IntraBlockChase assumes that the cuts are equal");
     if( state.numBulgesPerBlock*6 + 1 > state.blockSize )
@@ -158,7 +158,7 @@ DistChaseState BuildDistChaseState
 
     // We initialize before any shifts have been introduced. If the first block
     // is of full size, then the initial inter-block chase will simply involve
-    // introducing a packet into block 0; otherwise, a packet will be 
+    // introducing a packet into block 0; otherwise, a packet will be
     // immediately chased through to block 1.
     const bool fullFirstBlock = ( state.blockSize == state.firstBlockSize );
     state.introBlock = -1;
@@ -168,7 +168,7 @@ DistChaseState BuildDistChaseState
     if( !fullFirstBlock )
     {
         state.endBlock += 1;
-        state.activeEnd += state.blockSize; 
+        state.activeEnd += state.blockSize;
     }
 
     // We now compute the first row/column blocks of the active window that are
@@ -187,9 +187,9 @@ DistChaseState BuildDistChaseState
 
 // Update the chase state after performing an interblock chase followed by an
 // intrablock chase.
-template<typename F>
+template<typename Field>
 void AdvanceChaseState
-( const DistMatrix<F,MC,MR,BLOCK>& H,
+( const DistMatrix<Field,MC,MR,BLOCK>& H,
         DistChaseState& state )
 {
     DEBUG_CSE
@@ -219,12 +219,12 @@ void AdvanceChaseState
         {
             if( state.firstBlockSize == state.blockSize )
             {
-                state.introBlock = 0; 
+                state.introBlock = 0;
             }
             else
             {
                 state.activeBeg += state.firstBlockSize;
-                state.introBlock = 1; 
+                state.introBlock = 1;
             }
         }
         else

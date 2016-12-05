@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_MULTIBULGE_COMPUTE_SHIFTS_HPP
@@ -16,10 +16,10 @@ namespace hess_schur {
 namespace multibulge {
 
 // Return the number of unconverged eigenvalues
-template<typename F>
+template<typename Field>
 Int ConsistentlyComputeEigenvalues
-( const DistMatrix<F,MC,MR,BLOCK>& H,
-        DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
+( const DistMatrix<Field,MC,MR,BLOCK>& H,
+        DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -29,7 +29,7 @@ Int ConsistentlyComputeEigenvalues
     // be amplified by the forward instability of Francis sweeps.
     const Grid& grid = H.Grid();
     const int owner = H.Owner(0,0);
-    DistMatrix<F,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
+    DistMatrix<Field,CIRC,CIRC> H_CIRC_CIRC( grid, owner );
     H_CIRC_CIRC = H;
     w.Resize( H.Height(), 1 );
     Int numUnconverged = 0;
@@ -63,7 +63,7 @@ Int ComputeShifts
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
     const Int numShifts = winEnd - shiftBeg;
     auto shiftInd = IR(shiftBeg,winEnd);
-    auto wShifts = w(shiftInd,ALL); 
+    auto wShifts = w(shiftInd,ALL);
 
     if( numIterSinceDeflation > 0 &&
         Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
@@ -99,7 +99,7 @@ Int ComputeShifts
         // Use a single real shift twice instead of using two separate
         // real shifts; we choose the one closest to the bottom-right
         // entry, as it is our best guess as to the smallest eigenvalue
-        if( wShifts(numShifts-1).imag() == Real(0) ) 
+        if( wShifts(numShifts-1).imag() == Real(0) )
         {
             const Real eta11 = H(winEnd-1,winEnd-1);
             if( Abs(wShifts(1).real()-eta11) < Abs(wShifts(0).real()-eta11) )
@@ -129,7 +129,7 @@ Int ComputeShifts
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
     const Int numShifts = winEnd - shiftBeg;
     auto shiftInd = IR(shiftBeg,winEnd);
-    auto wShifts = w(shiftInd,ALL); 
+    auto wShifts = w(shiftInd,ALL);
 
     if( numIterSinceDeflation > 0 &&
         Mod(numIterSinceDeflation,numStaleIterBeforeExceptional) == 0 )
@@ -140,12 +140,12 @@ Int ComputeShifts
 
         // Get a full copy of the bidiagonal of the bottom-right section of H
         const Int subStart = Max(shiftBeg-1,winBeg);
-        auto subInd = IR(subStart,winEnd); 
+        auto subInd = IR(subStart,winEnd);
         DistMatrix<Real,STAR,STAR> hMain(H.Grid()), hSub(H.Grid());
         util::GatherBidiagonal( H, subInd, hMain, hSub );
         const auto& hMainLoc = hMain.LockedMatrix();
         const auto& hSubLoc = hSub.LockedMatrix();
-         
+
         for( Int i=winEnd-1; i>=subStart+2; i-=2 )
         {
             const Int iRel = i - subStart;

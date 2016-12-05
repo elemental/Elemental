@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTRA_BLOCK_CHASE_HPP
@@ -17,7 +17,7 @@ namespace multibulge {
 // corners of the diagonal blocks down to the bottom-right corners. This is
 // accomplished by locally accumulating the reflections into a dense matrix
 // and then broadcasting/allgathering said matrix within the rows and columns
-// of the process grid. See Fig. 3 of 
+// of the process grid. See Fig. 3 of
 //
 //   R. Granat, Bo Kagstrom, and D. Kressner, "LAPACK Working Note #216:
 //   A novel parallel QR algorithm for hybrid distributed memory HPC systems",
@@ -55,7 +55,7 @@ namespace multibulge {
 // e.g., if the distribution block size was 12 and there were two bulges in the
 // diagonal block, we would have the transformation
 //
-//         ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  
+//         ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 //      ------------------------             -------------------------
 //     | B B B B x x x x x x x x |          | x x x x x x x x x x x x |
 //   ~ | B B B B x x x x x x x x |        ~ | x x x x x x x x x x x x |
@@ -74,7 +74,7 @@ namespace multibulge {
 // It is worth noting that the accumulation of the ten 3x3 Householder
 // reflections for this diagram effect all but the first and last rows when
 // applied from the left, and all but the first and last columns when applied
-// from the right. 
+// from the right.
 //
 // It is also worth noting that none of the intra-block chases involve the last
 // diagonal block, as inter-block chases that introduce bulges into the last
@@ -93,27 +93,27 @@ namespace intrablock {
 //                   | 0, 0,   1 |
 //
 // is the extension of U_i to the entire diagonal block (as the transformation
-// leaves the first and last rows unchanged when applied from the left), and 
+// leaves the first and last rows unchanged when applied from the left), and
 // H_i is the i'th locally-owned diagonal block of H.
 //
-template<typename F>
+template<typename Field>
 void LocalChase
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl,
-        vector<Matrix<F>>& UList )
+        vector<Matrix<Field>>& UList )
 {
     DEBUG_CSE
     const Grid& grid = H.Grid();
 
-    Matrix<F> W;
+    Matrix<Field> W;
     auto& HLoc = H.Matrix();
     const auto& shiftsLoc = shifts.LockedMatrix();
 
     // Packets are originally pushed directly into the second block if the first
     // is not full.
-    const Int intraBlockStart = 
+    const Int intraBlockStart =
       ( state.firstBlockSize == state.blockSize ?
         state.introBlock+1 : Max(state.introBlock+1,1) );
 
@@ -137,7 +137,7 @@ void LocalChase
         }
         UList.resize(numLocalBlocks);
     }
-    
+
     // Chase bulges down the local diagonal blocks and store the accumulations
     // of the Householder reflections. We only loop over the row blocks that
     // are assigned to our process row and filter based upon whether or not
@@ -147,7 +147,7 @@ void LocalChase
     while( diagBlock < intraBlockStart )
         diagBlock += grid.Height();
     Zeros( W, 3, state.numBulgesPerBlock );
-    Matrix<F> ZDummy;
+    Matrix<Field> ZDummy;
     while( diagBlock < Min(state.endBlock,state.numWinBlocks-1) )
     {
         const Int numBlockBulges =
@@ -166,7 +166,7 @@ void LocalChase
             // View the local diagonal block of H
             const Int localRowOffset = H.LocalRowOffset( diagOffset );
             const Int localColOffset = H.LocalColOffset( diagOffset );
-            auto HBlockLoc = 
+            auto HBlockLoc =
               HLoc
               ( IR(0,state.blockSize)+localRowOffset,
                 IR(0,state.blockSize)+localColOffset );
@@ -177,9 +177,9 @@ void LocalChase
             auto packetShifts =
               shiftsLoc( IR(0,2*numBlockBulges)+(2*bulgeOffset), ALL );
 
-            // Initialize the accumulated reflection matrix; recall that it 
+            // Initialize the accumulated reflection matrix; recall that it
             // does not effect the first or last index of the block. For
-            // example, consider the effects of a single 3x3 Householder 
+            // example, consider the effects of a single 3x3 Householder
             // similarity bulge chase step
             //
             //        ~ ~ ~                 ~ ~ ~
@@ -225,14 +225,14 @@ void LocalChase
     }
 }
 
-template<typename F>
+template<typename Field>
 void ApplyAccumulatedReflections
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+        DistMatrix<Field,MC,MR,BLOCK>& Z,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl,
-  const vector<Matrix<F>>& UList )
+  const vector<Matrix<Field>>& UList )
 {
     DEBUG_CSE
     const Grid& grid = H.Grid();
@@ -246,15 +246,15 @@ void ApplyAccumulatedReflections
 
     // Packets are originally pushed directly into the second block if the first
     // is not full.
-    const Int intraBlockStart = 
+    const Int intraBlockStart =
       ( state.firstBlockSize == state.blockSize ?
         state.introBlock+1 : Max(state.introBlock+1,1) );
 
     // Broadcast/Allgather the accumulated reflections within rows
     if( immediatelyApply )
     {
-        Matrix<F> UBlock;
-        Matrix<F> tempMatrix;
+        Matrix<Field> UBlock;
+        Matrix<Field> tempMatrix;
 
         // Only loop over the row blocks assigned to this grid row
         Int diagBlockRow = state.activeRowBlockBeg;
@@ -278,7 +278,7 @@ void ApplyAccumulatedReflections
                 ("UBlock was ",UBlock.Height()," x ",UBlock.Width(),
                  " instead of ",state.blockSize-2," x ",state.blockSize-2);
             El::Broadcast( UBlock, H.RowComm(), ownerCol );
-            
+
             // TODO(poulson): Move into subroutine
             const Int diagOffset = state.winBeg +
               ( diagBlockRow == 0 ?
@@ -293,7 +293,7 @@ void ApplyAccumulatedReflections
 
             auto HLocRight = HLoc( applyRowInd, applyColInd );
             tempMatrix = HLocRight;
-            Gemm( ADJOINT, NORMAL, F(1), UBlock, tempMatrix, HLocRight );
+            Gemm( ADJOINT, NORMAL, Field(1), UBlock, tempMatrix, HLocRight );
 
             diagBlockRow += grid.Height();
         }
@@ -307,8 +307,8 @@ void ApplyAccumulatedReflections
     // Broadcast/Allgather the accumulated reflections within columns
     if( immediatelyApply )
     {
-        Matrix<F> UBlock;
-        Matrix<F> tempMatrix;
+        Matrix<Field> UBlock;
+        Matrix<Field> tempMatrix;
 
         // Only loop over the row blocks assigned to this grid row
         Int diagBlockCol = state.activeColBlockBeg;
@@ -346,12 +346,12 @@ void ApplyAccumulatedReflections
 
             auto HLocAbove = HLoc( applyRowInd, applyColInd );
             tempMatrix = HLocAbove;
-            Gemm( NORMAL, NORMAL, F(1), tempMatrix, UBlock, HLocAbove );
+            Gemm( NORMAL, NORMAL, Field(1), tempMatrix, UBlock, HLocAbove );
             if( ctrl.wantSchurVecs )
             {
-                auto ZLocBlock = ZLoc( ALL, applyColInd ); 
+                auto ZLocBlock = ZLoc( ALL, applyColInd );
                 tempMatrix = ZLocBlock;
-                Gemm( NORMAL, NORMAL, F(1), tempMatrix, UBlock, ZLocBlock );
+                Gemm( NORMAL, NORMAL, Field(1), tempMatrix, UBlock, ZLocBlock );
             }
 
             diagBlockCol += grid.Width();
@@ -366,11 +366,11 @@ void ApplyAccumulatedReflections
 
 } // namespace intrablock
 
-template<typename F>
+template<typename Field>
 void IntraBlockChase
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+        DistMatrix<Field,MC,MR,BLOCK>& Z,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
@@ -389,7 +389,7 @@ void IntraBlockChase
     // transformation leaves the first and last rows unchanged when applied from
     // the left), and H_i is the i'th locally-owned diagonal block of H.
     //
-    vector<Matrix<F>> UList;
+    vector<Matrix<Field>> UList;
     intrablock::LocalChase( H, shifts, state, ctrl, UList );
 
     // Broadcast the accumulated transformations from the owning diagonal block

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,7 +14,7 @@ template<typename Real>
 void HingeLossProx( Matrix<Real>& A, Real tau )
 {
     DEBUG_CSE
-    auto hingeProx = 
+    auto hingeProx =
       [=]( Real alpha ) -> Real
       { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
         else            { return alpha;                    } };
@@ -25,7 +25,7 @@ template<typename Real>
 void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau )
 {
     DEBUG_CSE
-    auto hingeProx = 
+    auto hingeProx =
       [=]( Real alpha ) -> Real
       { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
         else            { return alpha;                    } };

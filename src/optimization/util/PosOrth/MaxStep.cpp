@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,7 +11,8 @@
 namespace El {
 namespace pos_orth {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxStep
 ( const Matrix<Real>& s,
   const Matrix<Real>& ds,
@@ -28,16 +29,17 @@ Real MaxStep
     return alpha;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxStep
-( const ElementalMatrix<Real>& sPre, 
-  const ElementalMatrix<Real>& dsPre,
+( const AbstractDistMatrix<Real>& sPre,
+  const AbstractDistMatrix<Real>& dsPre,
   Real upperBound )
 {
     DEBUG_CSE
 
-    // TODO: Decide if more general intermediate distributions should be
-    //       supported.
+    // TODO(poulson): Decide if more general intermediate distributions should
+    // be supported.
     DistMatrixReadProxy<Real,Real,MC,MR> sProx( sPre );
     auto& s = sProx.GetLocked();
 
@@ -68,7 +70,8 @@ Real MaxStep
     return mpi::AllReduce( alpha, mpi::MIN, s.DistComm() );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxStep
 ( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& ds,
@@ -96,8 +99,8 @@ Real MaxStep
     const Matrix<Real>& ds, \
     Real upperBound ); \
   template Real MaxStep \
-  ( const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& ds, \
+  ( const AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Real>& ds, \
     Real upperBound ); \
   template Real MaxStep \
   ( const DistMultiVec<Real>& s, \

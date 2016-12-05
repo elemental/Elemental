@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,8 +13,8 @@
 
 namespace El {
 
-template<typename F>
-void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
+template<typename Field>
+void HPDInverse( UpperOrLower uplo, Matrix<Field>& A )
 {
     DEBUG_CSE
     if( uplo == LOWER )
@@ -23,8 +23,8 @@ void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
         hpd_inv::CholeskyUVar2( A );
 }
 
-template<typename F>
-void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A )
+template<typename Field>
+void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<Field>& A )
 {
     DEBUG_CSE
     if( uplo == LOWER )
@@ -33,18 +33,18 @@ void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A )
         hpd_inv::CholeskyUVar2( A );
 }
 
-template<typename F>
-void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+template<typename Field>
+void LocalHPDInverse( UpperOrLower uplo, DistMatrix<Field,STAR,STAR>& A )
 {
     DEBUG_CSE
     HPDInverse( uplo, A.Matrix() );
 }
 
-#define PROTO(F) \
-  template void HPDInverse( UpperOrLower uplo, Matrix<F>& A ); \
-  template void HPDInverse( UpperOrLower uplo, ElementalMatrix<F>& A ); \
+#define PROTO(Field) \
+  template void HPDInverse( UpperOrLower uplo, Matrix<Field>& A ); \
+  template void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<Field>& A ); \
   template void LocalHPDInverse \
-  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
+  ( UpperOrLower uplo, DistMatrix<Field,STAR,STAR>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

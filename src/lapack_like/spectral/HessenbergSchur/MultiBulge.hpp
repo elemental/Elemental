@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_MULTIBULGE_HPP
@@ -19,15 +19,15 @@ namespace El {
 
 namespace hess_schur {
 
-template<typename F>
+template<typename Field>
 HessenbergSchurInfo
 MultiBulge
-( Matrix<F>& H,
-  Matrix<Complex<Base<F>>>& w,
-  Matrix<F>& Z,
+( Matrix<Field>& H,
+  Matrix<Complex<Base<Field>>>& w,
+  Matrix<Field>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE 
+    DEBUG_CSE
     const Int n = H.Height();
     Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -41,7 +41,7 @@ MultiBulge
     }
 
     w.Resize( n, 1 );
-    Matrix<F> U, W, WAccum;
+    Matrix<Field> U, W, WAccum;
 
     auto ctrlShifts( ctrl );
     ctrlShifts.winBeg = 0;
@@ -72,7 +72,7 @@ MultiBulge
         const Int iterBeg = winBeg + iterOffset;
         const Int iterWinSize = winEnd-iterBeg;
         if( iterOffset > 0 )
-            H(iterBeg,iterBeg-1) = F(0);
+            H(iterBeg,iterBeg-1) = Field(0);
         if( iterWinSize == 1 )
         {
             w(iterBeg) = H(iterBeg,iterBeg);
@@ -132,15 +132,15 @@ MultiBulge
     return info;
 }
 
-template<typename F>
+template<typename Field>
 HessenbergSchurInfo
 MultiBulge
-( DistMatrix<F,MC,MR,BLOCK>& H,
-  DistMatrix<Complex<Base<F>>,STAR,STAR>& w,
-  DistMatrix<F,MC,MR,BLOCK>& Z,
+( DistMatrix<Field,MC,MR,BLOCK>& H,
+  DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
+  DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE 
+    DEBUG_CSE
     const Int n = H.Height();
     const Grid& grid = H.Grid();
 
@@ -153,7 +153,7 @@ MultiBulge
     // when to call the sequential implementation
     Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 2*blockSize );
     // This maximum is meant to account for parallel overheads and needs to be
-    // more principled (and perhaps based upon the number of workers and the 
+    // more principled (and perhaps based upon the number of workers and the
     // cluster characteristics)
     minMultiBulgeSize = Max( minMultiBulgeSize, ctrl.minDistMultiBulgeSize );
 
@@ -177,7 +177,7 @@ MultiBulge
       Max(30,2*numStaleIterBeforeExceptional) * Max(10,winSize);
 
     Int iterBegLast=-1, winEndLast=-1;
-    DistMatrix<F,STAR,STAR> hMainWin(grid), hSubWin(grid), hSuperWin(grid);
+    DistMatrix<Field,STAR,STAR> hMainWin(grid), hSubWin(grid), hSuperWin(grid);
     while( winBeg < winEnd )
     {
         if( info.numIterations >= maxIter )
@@ -194,7 +194,7 @@ MultiBulge
         // Detect an irreducible Hessenberg window, [iterBeg,winEnd)
         // ---------------------------------------------------------
         // TODO(poulson): Have the interblock chase from the previous sweep
-        // collect the main and sub diagonal of H along the diagonal workers 
+        // collect the main and sub diagonal of H along the diagonal workers
         // and then broadcast across the "cross" communicator.
         util::GatherTridiagonal( H, winInd, hMainWin, hSubWin, hSuperWin );
 
@@ -207,8 +207,8 @@ MultiBulge
         {
             if( ctrl.progress && grid.Rank() == 0 )
                 Output("iterOffset was ",iterOffset);
-            H.Set( iterBeg, iterBeg-1, F(0) );
-            hSubWin.Set( iterOffset-1, 0, F(0) );
+            H.Set( iterBeg, iterBeg-1, Field(0) );
+            hSubWin.Set( iterOffset-1, 0, Field(0) );
         }
         if( iterWinSize == 1 )
         {
@@ -224,10 +224,10 @@ MultiBulge
         {
             if( ctrl.progress && grid.Rank() == 0 )
                 Output("Two-by-two window at ",iterBeg);
-            const F eta00 = hMainWin.GetLocal(iterOffset,0);
-            const F eta01 = hSuperWin.GetLocal(iterOffset,0);
-            const F eta10 = hSubWin.GetLocal(iterOffset,0);
-            const F eta11 = hMainWin.GetLocal(iterOffset+1,0);
+            const Field eta00 = hMainWin.GetLocal(iterOffset,0);
+            const Field eta01 = hSuperWin.GetLocal(iterOffset,0);
+            const Field eta10 = hSubWin.GetLocal(iterOffset,0);
+            const Field eta11 = hMainWin.GetLocal(iterOffset+1,0);
             multibulge::TwoByTwo
             ( H, eta00, eta01, eta10, eta11, w, Z, iterBeg, ctrl );
 

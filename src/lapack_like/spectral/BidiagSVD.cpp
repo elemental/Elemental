@@ -569,27 +569,27 @@ Helper
 
 } // namespace bidiag_svd
 
-template<typename F>
+template<typename Field>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  const Matrix<F>& mainDiagOrig,
-  const Matrix<F>& offDiagOrig,
-        Matrix<Base<F>>& s,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+  const Matrix<Field>& mainDiagOrig,
+  const Matrix<Field>& offDiagOrig,
+        Matrix<Base<Field>>& s,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiagOrig, offDiagOrig, s, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  const AbstractDistMatrix<F>& mainDiagOrig,
-  const AbstractDistMatrix<F>& offDiagOrig,
-        AbstractDistMatrix<Base<F>>& s,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+  const AbstractDistMatrix<Field>& mainDiagOrig,
+  const AbstractDistMatrix<Field>& offDiagOrig,
+        AbstractDistMatrix<Base<Field>>& s,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiagOrig, offDiagOrig, s, ctrl );
@@ -1268,7 +1268,7 @@ Helper
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
 
     auto ctrlMod = ctrl;
     ctrlMod.accumulateU = false;
@@ -1283,10 +1283,10 @@ Helper
         {
             // TODO(poulson): Avoid performing in full complex and using so much
             // extra memory
-            Matrix<F> UCpx;
+            Matrix<Field> UCpx;
             Copy( UReal, UCpx );
             auto UCopy( U );
-            Gemm( NORMAL, NORMAL, F(1), UCopy, UCpx, U );
+            Gemm( NORMAL, NORMAL, Field(1), UCopy, UCpx, U );
         }
         else
         {
@@ -1300,10 +1300,10 @@ Helper
         {
             // TODO(poulson): Avoid performing in full complex and using so much
             // extra memory
-            Matrix<F> VCpx;
+            Matrix<Field> VCpx;
             Copy( VReal, VCpx );
             auto VCopy( V );
-            Gemm( NORMAL, NORMAL, F(1), VCopy, VCpx, V );
+            Gemm( NORMAL, NORMAL, Field(1), VCopy, VCpx, V );
         }
         else
         {
@@ -1326,7 +1326,7 @@ Helper
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     const Grid& g = mainDiag.Grid();
 
     auto ctrlMod = ctrl;
@@ -1342,10 +1342,10 @@ Helper
         {
             // TODO(poulson): Avoid performing in full complex and using so much
             // extra memory
-            DistMatrix<F> UCpx(g);
+            DistMatrix<Field> UCpx(g);
             Copy( UReal, UCpx );
             auto UCopy( U );
-            Gemm( NORMAL, NORMAL, F(1), UCopy, UCpx, U );
+            Gemm( NORMAL, NORMAL, Field(1), UCopy, UCpx, U );
         }
         else
         {
@@ -1359,10 +1359,10 @@ Helper
         {
             // TODO(poulson): Avoid performing in full complex and using so much
             // extra memory
-            DistMatrix<F> VCpx(g);
+            DistMatrix<Field> VCpx(g);
             Copy( VReal, VCpx );
             auto VCopy( V );
-            Gemm( NORMAL, NORMAL, F(1), VCopy, VCpx, V );
+            Gemm( NORMAL, NORMAL, Field(1), VCopy, VCpx, V );
         }
         else
         {
@@ -1402,12 +1402,12 @@ Helper
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     DistMatrix<Real,STAR,STAR> mainDiag( mainDiagOrig ),
       offDiag( offDiagOrig );
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
-    DistMatrixReadWriteProxy<F,F,VC,STAR> UProx( UPre ), VProx( VPre );
+    DistMatrixReadWriteProxy<Field,Field,VC,STAR> UProx( UPre ), VProx( VPre );
     auto& s = sProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
@@ -1427,7 +1427,7 @@ Helper
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
 
     const Int mainDiagHeight = mainDiag.Height();
     const Int offDiagHeight = offDiag.Height();
@@ -1441,7 +1441,7 @@ Helper
     {
         Ones( UPhase, m, 1 );
         Ones( VPhase, n, 1 );
-        F alphaNew, betaNew;
+        Field alphaNew, betaNew;
         if( uplo == UPPER )
         {
             for( Int i=0; i<mainDiagHeight; ++i )
@@ -1501,14 +1501,14 @@ Helper
   const BidiagSVDCtrl<Real>& ctrl )
 {
     DEBUG_CSE
-    typedef Complex<Real> F;
+    typedef Complex<Real> Field;
     const Grid& g = mainDiagOrig.Grid();
 
-    DistMatrix<F,STAR,STAR> mainDiag( mainDiagOrig ),
+    DistMatrix<Field,STAR,STAR> mainDiag( mainDiagOrig ),
       offDiag( offDiagOrig );
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
-    DistMatrixReadWriteProxy<F,F,VC,STAR> UProx( UPre ), VProx( VPre );
+    DistMatrixReadWriteProxy<Field,Field,VC,STAR> UProx( UPre ), VProx( VPre );
     auto& s = sProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
@@ -1522,7 +1522,7 @@ Helper
 
     auto& mainDiagLoc = mainDiag.Matrix();
     auto& offDiagLoc = offDiag.Matrix();
-    DistMatrix<F,STAR,STAR> UPhase(g), VPhase(g);
+    DistMatrix<Field,STAR,STAR> UPhase(g), VPhase(g);
     if( ctrl.wantU || ctrl.wantV )
     {
         Ones( UPhase, m, 1 );
@@ -1530,7 +1530,7 @@ Helper
         auto& UPhaseLoc = UPhase.Matrix();
         auto& VPhaseLoc = VPhase.Matrix();
 
-        F alphaNew, betaNew;
+        Field alphaNew, betaNew;
         if( uplo == UPPER )
         {
             for( Int i=0; i<mainDiagHeight; ++i )
@@ -1583,95 +1583,95 @@ Helper
 
 } // bidiag_svd
 
-template<typename F>
+template<typename Field>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  const Matrix<F>& mainDiag,
-  const Matrix<F>& offDiag,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+  const Matrix<Field>& mainDiag,
+  const Matrix<Field>& offDiag,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  const AbstractDistMatrix<F>& mainDiag,
-  const AbstractDistMatrix<F>& offDiag,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s,
-        AbstractDistMatrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+  const AbstractDistMatrix<Field>& mainDiag,
+  const AbstractDistMatrix<Field>& offDiag,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  const Matrix<Base<F>>& mainDiag,
-  const Matrix<Base<F>>& offDiag,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+  const Matrix<Base<Field>>& mainDiag,
+  const Matrix<Base<Field>>& offDiag,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 BidiagSVDInfo
 BidiagSVD
 ( UpperOrLower uplo,
-  const AbstractDistMatrix<Base<F>>& mainDiag,
-  const AbstractDistMatrix<Base<F>>& offDiag,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s,
-        AbstractDistMatrix<F>& V,
-  const BidiagSVDCtrl<Base<F>>& ctrl )
+  const AbstractDistMatrix<Base<Field>>& mainDiag,
+  const AbstractDistMatrix<Base<Field>>& offDiag,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template BidiagSVDInfo BidiagSVD \
   ( UpperOrLower uplo, \
-    const Matrix<F>& mainDiag, \
-    const Matrix<F>& offDiag, \
-          Matrix<Base<F>>& s, \
-    const BidiagSVDCtrl<Base<F>>& ctrl ); \
+    const Matrix<Field>& mainDiag, \
+    const Matrix<Field>& offDiag, \
+          Matrix<Base<Field>>& s, \
+    const BidiagSVDCtrl<Base<Field>>& ctrl ); \
   template BidiagSVDInfo BidiagSVD \
   ( UpperOrLower uplo, \
-    const AbstractDistMatrix<F>& mainDiag, \
-    const AbstractDistMatrix<F>& offDiag, \
-          AbstractDistMatrix<Base<F>>& s, \
-    const BidiagSVDCtrl<Base<F>>& ctrl ); \
+    const AbstractDistMatrix<Field>& mainDiag, \
+    const AbstractDistMatrix<Field>& offDiag, \
+          AbstractDistMatrix<Base<Field>>& s, \
+    const BidiagSVDCtrl<Base<Field>>& ctrl ); \
   template BidiagSVDInfo BidiagSVD \
   ( UpperOrLower uplo, \
-    const Matrix<F>& mainDiag, \
-    const Matrix<F>& offDiag, \
-          Matrix<F>& U, \
-          Matrix<Base<F>>& s, \
-          Matrix<F>& V, \
-    const BidiagSVDCtrl<Base<F>>& ctrl ); \
+    const Matrix<Field>& mainDiag, \
+    const Matrix<Field>& offDiag, \
+          Matrix<Field>& U, \
+          Matrix<Base<Field>>& s, \
+          Matrix<Field>& V, \
+    const BidiagSVDCtrl<Base<Field>>& ctrl ); \
   template BidiagSVDInfo BidiagSVD \
   ( UpperOrLower uplo, \
-    const AbstractDistMatrix<F>& mainDiag, \
-    const AbstractDistMatrix<F>& offDiag, \
-          AbstractDistMatrix<F>& U, \
-          AbstractDistMatrix<Base<F>>& s, \
-          AbstractDistMatrix<F>& V, \
-    const BidiagSVDCtrl<Base<F>>& ctrl );
+    const AbstractDistMatrix<Field>& mainDiag, \
+    const AbstractDistMatrix<Field>& offDiag, \
+          AbstractDistMatrix<Field>& U, \
+          AbstractDistMatrix<Base<Field>>& s, \
+          AbstractDistMatrix<Field>& V, \
+    const BidiagSVDCtrl<Base<Field>>& ctrl );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,7 +14,8 @@ namespace El {
 
 // Sort each column of the real matrix X
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Sort( Matrix<Real>& X, SortType sort, bool stable )
 {
     DEBUG_CSE
@@ -42,14 +43,15 @@ void Sort( Matrix<Real>& X, SortType sort, bool stable )
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Sort( AbstractDistMatrix<Real>& X, SortType sort, bool stable )
 {
     DEBUG_CSE
     if( sort == UNSORTED )
         return;
 
-    if( (X.ColDist()==STAR && X.RowDist()==STAR) || 
+    if( (X.ColDist()==STAR && X.RowDist()==STAR) ||
         (X.ColDist()==CIRC && X.RowDist()==CIRC) )
     {
         if( X.Participating() )
@@ -71,7 +73,8 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort, bool stable )
 
 // Tagged sort
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 vector<ValueInt<Real>>
 TaggedSort( const Matrix<Real>& x, SortType sort, bool stable )
 {
@@ -112,7 +115,8 @@ TaggedSort( const Matrix<Real>& x, SortType sort, bool stable )
     return pairs;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 vector<ValueInt<Real>>
 TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort, bool stable )
 {
@@ -128,15 +132,15 @@ TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort, bool stable )
     }
 }
 
-template<typename Real,typename F>
+template<typename Real,typename Field>
 void ApplyTaggedSortToEachRow
 ( const vector<ValueInt<Real>>& sortPairs,
-        Matrix<F>& Z )
+        Matrix<Field>& Z )
 {
     DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
-    Matrix<F> ZPerm( m, n );
+    Matrix<Field> ZPerm( m, n );
     for( Int j=0; j<n; ++j )
     {
         const Int source = sortPairs[j].index;
@@ -145,15 +149,15 @@ void ApplyTaggedSortToEachRow
     Z = ZPerm;
 }
 
-template<typename Real,typename F>
+template<typename Real,typename Field>
 void ApplyTaggedSortToEachColumn
 ( const vector<ValueInt<Real>>& sortPairs,
-        Matrix<F>& Z )
+        Matrix<Field>& Z )
 {
     DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
-    Matrix<F> ZPerm( m, n );
+    Matrix<Field> ZPerm( m, n );
     for( Int i=0; i<m; ++i )
     {
         const Int source = sortPairs[i].index;
@@ -163,16 +167,16 @@ void ApplyTaggedSortToEachColumn
     Z = ZPerm;
 }
 
-template<typename Real,typename F>
+template<typename Real,typename Field>
 void ApplyTaggedSortToEachRow
 ( const vector<ValueInt<Real>>& sortPairs,
-        AbstractDistMatrix<F>& Z )
+        AbstractDistMatrix<Field>& Z )
 {
     DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
-    DistMatrix<F,VC,STAR> Z_VC_STAR( Z );
-    DistMatrix<F,VC,STAR> ZPerm_VC_STAR(Z.Grid());
+    DistMatrix<Field,VC,STAR> Z_VC_STAR( Z );
+    DistMatrix<Field,VC,STAR> ZPerm_VC_STAR(Z.Grid());
     ZPerm_VC_STAR.AlignWith( Z_VC_STAR );
     ZPerm_VC_STAR.Resize( m, n );
     const Int mLocal = Z_VC_STAR.LocalHeight();
@@ -187,16 +191,16 @@ void ApplyTaggedSortToEachRow
     Copy( ZPerm_VC_STAR, Z );
 }
 
-template<typename Real,typename F>
+template<typename Real,typename Field>
 void ApplyTaggedSortToEachColumn
 ( const vector<ValueInt<Real>>& sortPairs,
-        AbstractDistMatrix<F>& Z )
+        AbstractDistMatrix<Field>& Z )
 {
     DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
-    DistMatrix<F,STAR,VR> Z_STAR_VR( Z );
-    DistMatrix<F,STAR,VR> ZPerm_STAR_VR(Z.Grid());
+    DistMatrix<Field,STAR,VR> Z_STAR_VR( Z );
+    DistMatrix<Field,STAR,VR> ZPerm_STAR_VR(Z.Grid());
     ZPerm_STAR_VR.AlignWith( Z_STAR_VR );
     ZPerm_STAR_VR.Resize( m, n );
     const Int nLocal = Z_STAR_VR.LocalWidth();
@@ -210,7 +214,8 @@ void ApplyTaggedSortToEachColumn
     Copy( ZPerm_STAR_VR, Z );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void SortingPermutation
 ( const Matrix<Real>& x, Permutation& sortPerm, SortType sort, bool stable )
 {
@@ -222,7 +227,8 @@ void SortingPermutation
         sortPerm.SetImage( sortPairs[i].index, i );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void MergeSortingPermutation
 ( Int n0, Int n1, const Matrix<Real>& x, Permutation& sortPerm, SortType sort )
 {
@@ -260,19 +266,19 @@ void MergeSortingPermutation
         sortPerm.SetImage( pairs[i].index, i );
 }
 
-#define PROTO_COMPLEX(F) \
+#define PROTO_COMPLEX(Field) \
   template void ApplyTaggedSortToEachRow \
-  ( const vector<ValueInt<Base<F>>>& sortPairs, \
-          Matrix<F>& Z ); \
+  ( const vector<ValueInt<Base<Field>>>& sortPairs, \
+          Matrix<Field>& Z ); \
   template void ApplyTaggedSortToEachColumn \
-  ( const vector<ValueInt<Base<F>>>& sortPairs, \
-          Matrix<F>& Z ); \
+  ( const vector<ValueInt<Base<Field>>>& sortPairs, \
+          Matrix<Field>& Z ); \
   template void ApplyTaggedSortToEachRow \
-  ( const vector<ValueInt<Base<F>>>& sortPairs, \
-          AbstractDistMatrix<F>& Z ); \
+  ( const vector<ValueInt<Base<Field>>>& sortPairs, \
+          AbstractDistMatrix<Field>& Z ); \
   template void ApplyTaggedSortToEachColumn \
-  ( const vector<ValueInt<Base<F>>>& sortPairs, \
-          AbstractDistMatrix<F>& Z );
+  ( const vector<ValueInt<Base<Field>>>& sortPairs, \
+          AbstractDistMatrix<Field>& Z );
 
 #define PROTO(Real) \
   PROTO_COMPLEX(Real) \

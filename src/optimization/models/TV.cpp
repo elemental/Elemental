@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -25,9 +25,9 @@ namespace El {
 
 template<typename Real>
 void TV
-( const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& b,
         Real lambda,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -36,12 +36,12 @@ void TV
     bDMV = b;
     xDMV = x;
     TV( bDMV, lambda, xDMV, ctrl );
-    x = xDMV;
+    Copy( xDMV, x );
 }
 
 template<typename Real>
 void TV
-( const Matrix<Real>& b, 
+( const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
@@ -65,7 +65,7 @@ void TV
     // c := [-b;lambda]
     // =================
     Zeros( c, 2*n-1, 1 );
-    auto cx = c( xInd, ALL ); 
+    auto cx = c( xInd, ALL );
     cx = b; cx *= -1;
     auto ct = c( tInd, ALL );
     Fill( ct, lambda );
@@ -91,7 +91,7 @@ void TV
         // Queue -D
         G.QueueUpdate( e+n-1, e,   Real(-1) );
         G.QueueUpdate( e+n-1, e+1, Real(1) );
-        // Queue the -I's 
+        // Queue the -I's
         G.QueueUpdate( e,     e+n, Real(-1) );
         G.QueueUpdate( e+n-1, e+n, Real(-1) );
     }
@@ -113,7 +113,7 @@ void TV
 
 template<typename Real>
 void TV
-( const DistMultiVec<Real>& b, 
+( const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
@@ -134,7 +134,7 @@ void TV
     Zeros( Q, 2*n-1, 2*n-1 );
     Int numIdentUpdates = 0;
     for( Int iLoc=0; iLoc<Q.LocalHeight(); ++iLoc )
-        if( Q.GlobalRow(iLoc) < n ) 
+        if( Q.GlobalRow(iLoc) < n )
             ++numIdentUpdates;
         else
             break;
@@ -142,7 +142,7 @@ void TV
     for( Int iLoc=0; iLoc<Q.LocalHeight(); ++iLoc )
     {
         const Int i = Q.GlobalRow(iLoc);
-        if( i < n ) 
+        if( i < n )
             Q.QueueLocalUpdate( iLoc, i, Real(1) );
         else
             break;
@@ -207,9 +207,9 @@ void TV
 
 #define PROTO(Real) \
   template void TV \
-  ( const ElementalMatrix<Real>& b, \
+  ( const AbstractDistMatrix<Real>& b, \
           Real lambda, \
-          ElementalMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& x, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void TV \
   ( const Matrix<Real>& b, \
