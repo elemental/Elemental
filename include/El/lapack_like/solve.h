@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LAPACK_SOLVE_C_H
@@ -73,29 +73,29 @@ EL_EXPORT ElError ElLinearSolveXDistSparse_z
 /* Symmetric
    ========= */
 EL_EXPORT ElError ElSymmetricSolve_s
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_s A, ElMatrix_s B );
 EL_EXPORT ElError ElSymmetricSolve_d
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_d A, ElMatrix_d B );
 EL_EXPORT ElError ElSymmetricSolve_c
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_c A, ElMatrix_c B );
 EL_EXPORT ElError ElSymmetricSolve_z
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElMatrix_z B );
 
 EL_EXPORT ElError ElSymmetricSolveDist_s
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElDistMatrix_s B );
 EL_EXPORT ElError ElSymmetricSolveDist_d
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_d A, ElDistMatrix_d B );
 EL_EXPORT ElError ElSymmetricSolveDist_c
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElSymmetricSolveDist_z
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* TODO: Expert version for choosing pivot strategy */
@@ -121,17 +121,17 @@ EL_EXPORT ElError ElSymmetricSolveDistSparse_z
 /* Hermitian solve
    =============== */
 EL_EXPORT ElError ElHermitianSolve_c
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_c A, ElMatrix_c B );
 EL_EXPORT ElError ElHermitianSolve_z
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElMatrix_z B );
 
 EL_EXPORT ElError ElHermitianSolveDist_c
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElHermitianSolveDist_z
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* TODO: Expert version for choosing pivot strategy */
@@ -149,29 +149,29 @@ EL_EXPORT ElError ElHermitianSolveDistSparse_z
 /* HPD
    === */
 EL_EXPORT ElError ElHPDSolve_s
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_s A, ElMatrix_s B );
 EL_EXPORT ElError ElHPDSolve_d
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_d A, ElMatrix_d B );
 EL_EXPORT ElError ElHPDSolve_c
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_c A, ElMatrix_c B );
 EL_EXPORT ElError ElHPDSolve_z
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElMatrix_z B );
 
 EL_EXPORT ElError ElHPDSolveDist_s
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElDistMatrix_s B );
 EL_EXPORT ElError ElHPDSolveDist_d
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_d A, ElDistMatrix_d B );
 EL_EXPORT ElError ElHPDSolveDist_c
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_c A, ElDistMatrix_c B );
 EL_EXPORT ElError ElHPDSolveDist_z
-( ElUpperOrLower uplo, ElOrientation orientation, 
+( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 EL_EXPORT ElError ElHPDSolveSparse_c

@@ -15,7 +15,7 @@ namespace El {
 // Sort each column of the real matrix X
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void Sort( Matrix<Real>& X, SortType sort, bool stable )
 {
     DEBUG_CSE
@@ -44,7 +44,7 @@ void Sort( Matrix<Real>& X, SortType sort, bool stable )
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void Sort( AbstractDistMatrix<Real>& X, SortType sort, bool stable )
 {
     DEBUG_CSE
@@ -74,7 +74,7 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort, bool stable )
 // Tagged sort
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 vector<ValueInt<Real>>
 TaggedSort( const Matrix<Real>& x, SortType sort, bool stable )
 {
@@ -116,7 +116,7 @@ TaggedSort( const Matrix<Real>& x, SortType sort, bool stable )
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 vector<ValueInt<Real>>
 TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort, bool stable )
 {
@@ -215,7 +215,7 @@ void ApplyTaggedSortToEachColumn
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void SortingPermutation
 ( const Matrix<Real>& x, Permutation& sortPerm, SortType sort, bool stable )
 {
@@ -228,7 +228,7 @@ void SortingPermutation
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void MergeSortingPermutation
 ( Int n0, Int n1, const Matrix<Real>& x, Permutation& sortPerm, SortType sort )
 {

@@ -222,34 +222,34 @@ struct DistMatrixNode
 // (with the bottom-right piece stored in workspace) since only the left side
 // needs to be kept after the factorization is complete.
 
-template<typename F>
+template<typename Field>
 struct DistFront;
 
-template<typename F>
+template<typename Field>
 struct Front
 {
     bool isHermitian;
     bool sparseLeaf;
     LDLFrontType type;
 
-    Matrix<F> LDense;
-    SparseMatrix<F> LSparse;
+    Matrix<Field> LDense;
+    SparseMatrix<Field> LSparse;
 
-    Matrix<F> diag;
-    Matrix<F> subdiag;
+    Matrix<Field> diag;
+    Matrix<Field> subdiag;
     Permutation p;
 
-    Matrix<F> workDense;
-    SparseMatrix<F> workSparse;
+    Matrix<Field> workDense;
+    SparseMatrix<Field> workSparse;
 
-    Front<F>* parent;
-    vector<Front<F>*> children;
-    DistFront<F>* duplicate;
+    Front<Field>* parent;
+    vector<Front<Field>*> children;
+    DistFront<Field>* duplicate;
 
-    Front( Front<F>* parentNode=nullptr );
-    Front( DistFront<F>* dupNode );
+    Front( Front<Field>* parentNode=nullptr );
+    Front( DistFront<Field>* dupNode );
     Front
-    ( const SparseMatrix<F>& A,
+    ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
       const NodeInfo& rootInfo,
       bool conjugate=true );
@@ -257,23 +257,23 @@ struct Front
     ~Front();
 
     void Pull
-    ( const SparseMatrix<F>& A,
+    ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
       const NodeInfo& rootInfo,
       bool conjugate=true );
     void PullUpdate
-    ( const SparseMatrix<F>& A,
+    ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
       const NodeInfo& rootInfo );
 
     void Push
-    (       SparseMatrix<F>& A,
+    (       SparseMatrix<Field>& A,
       const vector<Int>& reordering,
       const NodeInfo& rootInfo ) const;
 
-    void Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const;
+    void Unpack( SparseMatrix<Field>& A, const NodeInfo& rootInfo ) const;
 
-    const Front<F>& operator=( const Front<F>& front );
+    const Front<Field>& operator=( const Front<Field>& front );
 
     Int Height() const;
     Int NumEntries() const;
@@ -301,7 +301,7 @@ struct FactorCommMeta
 };
 void ComputeFactRecvInds( const DistNodeInfo& info );
 
-template<typename F>
+template<typename Field>
 struct DistFront
 {
     bool isHermitian;
@@ -313,24 +313,24 @@ struct DistFront
     // When this node is a duplicate of a sequential node, L1D or L2D will be
     // attached to the sequential L matrix of the duplicate
 
-    DistMatrix<F,VC,STAR> L1D;
-    DistMatrix<F> L2D;
+    DistMatrix<Field,VC,STAR> L1D;
+    DistMatrix<Field> L2D;
 
-    DistMatrix<F,VC,STAR> diag;
-    DistMatrix<F,VC,STAR> subdiag;
+    DistMatrix<Field,VC,STAR> diag;
+    DistMatrix<Field,VC,STAR> subdiag;
     DistPermutation p;
 
-    DistMatrix<F> work;
+    DistMatrix<Field> work;
     mutable FactorCommMeta commMeta;
 
-    DistFront<F>* parent;
-    DistFront<F>* child;
-    Front<F>* duplicate;
+    DistFront<Field>* parent;
+    DistFront<Field>* child;
+    Front<Field>* duplicate;
 
-    DistFront( DistFront<F>* parentNode=nullptr );
+    DistFront( DistFront<Field>* parentNode=nullptr );
 
     DistFront
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
@@ -339,14 +339,14 @@ struct DistFront
     ~DistFront();
 
     void Pull
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
       bool conjugate=false );
     // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
     void Pull
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
@@ -356,13 +356,13 @@ struct DistFront
       bool conjugate=false );
 
     void PullUpdate
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info );
     // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
     void PullUpdate
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
@@ -372,14 +372,14 @@ struct DistFront
 
     // NOTE: This routine is not yet functioning
     void Push
-    ( DistSparseMatrix<F>& A, const DistMap& reordering,
+    ( DistSparseMatrix<Field>& A, const DistMap& reordering,
       const DistSeparator& rootSep, const DistNodeInfo& rootInfo ) const;
 
     void Unpack
-    ( DistSparseMatrix<F>& A,
+    ( DistSparseMatrix<Field>& A,
       const DistSeparator& rootSep, const DistNodeInfo& rootInfo ) const;
 
-    const DistFront<F>& operator=( const DistFront<F>& front );
+    const DistFront<Field>& operator=( const DistFront<Field>& front );
 
     Int NumLocalEntries() const;
     Int NumTopLeftLocalEntries() const;
@@ -392,57 +392,68 @@ struct DistFront
     ( const DistNodeInfo& info, bool computeRecvInds ) const;
 };
 
-template<typename F>
-void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse=true );
-template<typename F>
+template<typename Field>
 void ChangeFrontType
-( DistFront<F>& front, LDLFrontType type, bool recurse=true );
+( Front<Field>& front, LDLFrontType type, bool recurse=true );
+template<typename Field>
+void ChangeFrontType
+( DistFront<Field>& front, LDLFrontType type, bool recurse=true );
 
-template<typename F>
+template<typename Field>
 void DiagonalScale
-( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X );
-template<typename F>
+( const NodeInfo& info, const Front<Field>& front, MatrixNode<Field>& X );
+template<typename Field>
 void DiagonalScale
-( const DistNodeInfo& info, const DistFront<F>& L, DistMultiVecNode<F>& X );
-template<typename F>
+( const DistNodeInfo& info,
+  const DistFront<Field>& L,
+        DistMultiVecNode<Field>& X );
+template<typename Field>
 void DiagonalScale
-( const DistNodeInfo& info, const DistFront<F>& L, DistMatrixNode<F>& X );
+( const DistNodeInfo& info,
+  const DistFront<Field>& L,
+        DistMatrixNode<Field>& X );
 
-template<typename F>
+template<typename Field>
 void DiagonalSolve
-( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X );
-template<typename F>
+( const NodeInfo& info,
+  const Front<Field>& front,
+        MatrixNode<Field>& X );
+template<typename Field>
 void DiagonalSolve
-( const DistNodeInfo& info, const DistFront<F>& front, DistMultiVecNode<F>& X );
-template<typename F>
+( const DistNodeInfo& info,
+  const DistFront<Field>& front,
+        DistMultiVecNode<Field>& X );
+template<typename Field>
 void DiagonalSolve
-( const DistNodeInfo& info, const DistFront<F>& L, DistMatrixNode<F>& X );
+( const DistNodeInfo& info,
+  const DistFront<Field>& L,
+        DistMatrixNode<Field>& X );
 
-template<typename F>
+template<typename Field>
 void LowerSolve
 ( Orientation orientation, const NodeInfo& info,
-  const Front<F>& L, MatrixNode<F>& X );
-template<typename F>
+  const Front<Field>& L, MatrixNode<Field>& X );
+template<typename Field>
 void LowerSolve
 ( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMultiVecNode<F>& X );
-template<typename F>
+  const DistFront<Field>& L, DistMultiVecNode<Field>& X );
+template<typename Field>
 void LowerSolve
 ( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMatrixNode<F>& X );
+  const DistFront<Field>& L, DistMatrixNode<Field>& X );
 
-template<typename F>
+template<typename Field>
 void LowerMultiply
 ( Orientation orientation, const NodeInfo& info,
-  const Front<F>& L, MatrixNode<F>& X );
-template<typename F>
+  const Front<Field>& L, MatrixNode<Field>& X );
+template<typename Field>
 void LowerMultiply
 ( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMultiVecNode<F>& X );
-template<typename F>
+  const DistFront<Field>& L, DistMultiVecNode<Field>& X );
+template<typename Field>
 void LowerMultiply
 ( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMatrixNode<F>& X );
+  const DistFront<Field>& L, DistMatrixNode<Field>& X );
 
 } // namespace ldl
 } // namespace El

@@ -3,7 +3,7 @@ using namespace El;
 
 // NOTE: This definition is nearly identical to StandardProxy but is
 //       meant to demonstrate how to manually build and use a pivot proxy
-template<typename F>
+template<typename Field>
 class Proxy
 {
 private:
@@ -15,7 +15,7 @@ public:
     { }
 
     void operator()
-    ( const Matrix<F>& A,
+    ( const Matrix<Field>& A,
             Permutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
@@ -23,28 +23,28 @@ public:
         const Int m = A.Height();
 
         // Generate a Gaussian random matrix
-        Matrix<F> G;
+        Matrix<Field> G;
         Gaussian( G, numPivots+numOversample_, m );
 
         // Form G (A A^H)^q A = G A (A^H A)^2
-        Matrix<F> Y, Z;
-        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
+        Matrix<Field> Y, Z;
+        Gemm( NORMAL, NORMAL, Field(1), G, A, Y );
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
-            Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
-            Gemm( NORMAL, NORMAL, F(1), Z, A, Y );
+            Gemm( NORMAL, ADJOINT, Field(1), Y, A, Z );
+            Gemm( NORMAL, NORMAL, Field(1), Z, A, Y );
         }
 
-        QRCtrl<Base<F>> ctrl;
+        QRCtrl<Base<Field>> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
-        Matrix<F> t, d;
+        Matrix<Field> t, d;
         QR( Y, t, d, Omega, ctrl );
     }
 
     void operator()
-    ( const ElementalMatrix<F>& APre,
+    ( const AbstractDistMatrix<Field>& APre,
             DistPermutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
@@ -52,28 +52,28 @@ public:
         const Int m = APre.Height();
         const Grid& g = APre.Grid();
 
-        DistMatrixReadProxy<F,F,MC,MR> AProxy( APre );
+        DistMatrixReadProxy<Field,Field,MC,MR> AProxy( APre );
         auto& A = AProxy.GetLocked();
 
         // Generate a Gaussian random matrix
-        DistMatrix<F> G(g);
+        DistMatrix<Field> G(g);
         Gaussian( G, numPivots+numOversample_, m );
 
         // Form G (A A^H)^q A = G A (A^H A)^2
-        DistMatrix<F> Y(g), Z(g);
-        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
+        DistMatrix<Field> Y(g), Z(g);
+        Gemm( NORMAL, NORMAL, Field(1), G, A, Y );
 
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
-            Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
-            Gemm( NORMAL, NORMAL, F(1), Z, A, Y );
+            Gemm( NORMAL, ADJOINT, Field(1), Y, A, Z );
+            Gemm( NORMAL, NORMAL, Field(1), Z, A, Y );
         }
 
-        QRCtrl<Base<F>> ctrl;
+        QRCtrl<Base<Field>> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
-        DistMatrix<F,MD,STAR> t(g), d(g);
+        DistMatrix<Field,MD,STAR> t(g), d(g);
         QR( Y, t, d, Omega, ctrl );
     }
 };
@@ -112,8 +112,8 @@ int main( int argc, char* argv[] )
         DistMatrix<double> t, d;
         DistPermutation Omega;
         Proxy<double> prox(numPower,oversample);
-        qr::ProxyHouseholder( A, t, d, Omega, prox, panelPiv, smallestFirst ); 
-        if( commRank == 0 ) 
+        qr::ProxyHouseholder( A, t, d, Omega, prox, panelPiv, smallestFirst );
+        if( commRank == 0 )
             Output("Proxy QR time: ",timer.Stop()," seconds");
         if( print )
         {
@@ -134,8 +134,8 @@ int main( int argc, char* argv[] )
             timer.Start();
         QRCtrl<double> ctrl;
         ctrl.smallestFirst = smallestFirst;
-        QR( A, t, d, Omega, ctrl ); 
-        if( commRank == 0 ) 
+        QR( A, t, d, Omega, ctrl );
+        if( commRank == 0 )
             Output("Businger-Golub time: ",timer.Stop()," seconds");
         if( print )
         {
@@ -153,8 +153,8 @@ int main( int argc, char* argv[] )
         A = ACopy;
         if( commRank == 0 )
             timer.Start();
-        QR( A, t, d ); 
-        if( commRank == 0 ) 
+        QR( A, t, d );
+        if( commRank == 0 )
             Output("Standard QR time: ",timer.Stop()," seconds");
         if( print )
         {

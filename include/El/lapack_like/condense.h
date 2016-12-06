@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LAPACK_CONDENSE_C_H
@@ -50,57 +50,57 @@ EL_EXPORT ElError ElBidiagOnlyDist_z( ElDistMatrix_z A );
 /* Apply Q from B := Q^H A P to a set of vectors
    --------------------------------------------- */
 EL_EXPORT ElError ElApplyQAfterBidiag_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_s A, ElConstMatrix_s t, ElMatrix_s B );
 EL_EXPORT ElError ElApplyQAfterBidiag_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_d A, ElConstMatrix_d t, ElMatrix_d B );
 EL_EXPORT ElError ElApplyQAfterBidiag_c
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_c A, ElConstMatrix_c t, ElMatrix_c B );
 EL_EXPORT ElError ElApplyQAfterBidiag_z
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
 EL_EXPORT ElError ElApplyQAfterBidiagDist_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
 EL_EXPORT ElError ElApplyQAfterBidiagDist_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_d A, ElConstDistMatrix_d t, ElDistMatrix_d B );
 EL_EXPORT ElError ElApplyQAfterBidiagDist_c
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_c A, ElConstDistMatrix_c t, ElDistMatrix_c B );
 EL_EXPORT ElError ElApplyQAfterBidiagDist_z
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_z A, ElConstDistMatrix_z t, ElDistMatrix_z B );
 
 /* Apply P from B := Q^H A P to a set of vectors
    --------------------------------------------- */
 EL_EXPORT ElError ElApplyPAfterBidiag_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_s A, ElConstMatrix_s t, ElMatrix_s B );
 EL_EXPORT ElError ElApplyPAfterBidiag_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_d A, ElConstMatrix_d t, ElMatrix_d B );
 EL_EXPORT ElError ElApplyPAfterBidiag_c
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_c A, ElConstMatrix_c t, ElMatrix_c B );
 EL_EXPORT ElError ElApplyPAfterBidiag_z
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
 EL_EXPORT ElError ElApplyPAfterBidiagDist_s
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
 EL_EXPORT ElError ElApplyPAfterBidiagDist_d
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_d A, ElConstDistMatrix_d t, ElDistMatrix_d B );
 EL_EXPORT ElError ElApplyPAfterBidiagDist_c
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_c A, ElConstDistMatrix_c t, ElDistMatrix_c B );
 EL_EXPORT ElError ElApplyPAfterBidiagDist_z
-( ElLeftOrRight side, ElOrientation orientation, 
+( ElLeftOrRight side, ElOrientation orientation,
   ElConstDistMatrix_z A, ElConstDistMatrix_z t, ElDistMatrix_z B );
 
 /* HermitianTridiag
@@ -116,16 +116,16 @@ typedef struct {
   ElGridOrderType order;
   ElSymvCtrl symvCtrl;
 } ElHermitianTridiagCtrl;
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElHermitianTridiagCtrlDefault_s( ElHermitianTridiagCtrl* ctrl );
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElHermitianTridiagCtrlDefault_d( ElHermitianTridiagCtrl* ctrl );
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElHermitianTridiagCtrlDefault_c( ElHermitianTridiagCtrl* ctrl );
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElHermitianTridiagCtrlDefault_z( ElHermitianTridiagCtrl* ctrl );
 
-/* Return packed reduction to real symmetric tridiagonal form, T := Q^H A Q 
+/* Return packed reduction to real symmetric tridiagonal form, T := Q^H A Q
    ------------------------------------------------------------------------ */
 EL_EXPORT ElError ElHermitianTridiag_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s t );
@@ -148,7 +148,7 @@ EL_EXPORT ElError ElHermitianTridiagDist_z
 /* Expert version
    ^^^^^^^^^^^^^^ */
 EL_EXPORT ElError ElHermitianTridiagXDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s t, 
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s t,
   ElHermitianTridiagCtrl ctrl );
 EL_EXPORT ElError ElHermitianTridiagXDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d t,
@@ -187,32 +187,32 @@ EL_EXPORT ElError ElHermitianTridiagOnlyXDist_c
 EL_EXPORT ElError ElHermitianTridiagOnlyXDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElHermitianTridiagCtrl ctrl );
 
-/* ApplyQAfterHermitianTridiag 
+/* ApplyQAfterHermitianTridiag
    --------------------------- */
 EL_EXPORT ElError ElApplyQAfterHermitianTridiag_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_s A, ElConstMatrix_s t, ElMatrix_s B );
 EL_EXPORT ElError ElApplyQAfterHermitianTridiag_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_d A, ElConstMatrix_d t, ElMatrix_d B );
 EL_EXPORT ElError ElApplyQAfterHermitianTridiag_c
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_c A, ElConstMatrix_c t, ElMatrix_c B );
 EL_EXPORT ElError ElApplyQAfterHermitianTridiag_z
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
 EL_EXPORT ElError ElApplyQAfterHermitianTridiagDist_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
 EL_EXPORT ElError ElApplyQAfterHermitianTridiagDist_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_d A, ElConstDistMatrix_d t, ElDistMatrix_d B );
 EL_EXPORT ElError ElApplyQAfterHermitianTridiagDist_c
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_c A, ElConstDistMatrix_c t, ElDistMatrix_c B );
 EL_EXPORT ElError ElApplyQAfterHermitianTridiagDist_z
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_z A, ElConstDistMatrix_z t, ElDistMatrix_z B );
 
 /* Hessenberg
@@ -257,29 +257,29 @@ EL_EXPORT ElError ElHessenbergOnlyDist_z
 /* Apply Q from a Hessenberg decomposition, H := Q^H A Q
    ----------------------------------------------------- */
 EL_EXPORT ElError ElApplyQAfterHessenberg_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_s A, ElConstMatrix_s t, ElMatrix_s B );
 EL_EXPORT ElError ElApplyQAfterHessenberg_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_d A, ElConstMatrix_d t, ElMatrix_d B );
 EL_EXPORT ElError ElApplyQAfterHessenberg_c
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_c A, ElConstMatrix_c t, ElMatrix_c B );
 EL_EXPORT ElError ElApplyQAfterHessenberg_z
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
 
 EL_EXPORT ElError ElApplyQAfterHessenbergDist_s
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
 EL_EXPORT ElError ElApplyQAfterHessenbergDist_d
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_d A, ElConstDistMatrix_d t, ElDistMatrix_d B );
 EL_EXPORT ElError ElApplyQAfterHessenbergDist_c
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_c A, ElConstDistMatrix_c t, ElDistMatrix_c B );
 EL_EXPORT ElError ElApplyQAfterHessenbergDist_z
-( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_z A, ElConstDistMatrix_z t, ElDistMatrix_z B );
 
 #ifdef __cplusplus
